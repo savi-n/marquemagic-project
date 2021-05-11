@@ -10,6 +10,7 @@ import { PRODUCT_DETAILS_URL } from '../config';
 import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
 import Loading from '../components/Loading';
+import CheckBox from '../components/CheckBox';
 
 const Wrapper = styled.div`
     width: 100%;
@@ -43,47 +44,18 @@ const Menu = styled.h5`
     padding: 15px 20px;
     margin: 10px 0;
     position: relative;
-
-    &::before{
-        ${({ completed }) => completed && `
-            content:'';
-        `}
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        width: 20px;
-        height: 20px;
-        background: white;
-        border-radius: 20px;
-        transform: translateY(-50%);
-    }
-
-    &::after{
-        ${({ completed }) => completed && `
-            content:'';
-        `}
-        position: absolute;
-        top: 50%;
-        right: 10px;
-        width: 4px;
-        height: 11px;
-        background: transparent;
-        border-bottom: 2px solid blue;
-        border-right: 2px solid blue;
-        transform: translate(-100%, -50%) rotate(45deg);
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 `;
 
 const SubMenu = styled.div`
     padding: 0 20px;
-
-    Menu {
-        background: rgba(255,255,255,0.1);
-    }
 `;
 
 const LoanDetails = lazy(() => import('../pages/LoanDetails'));
 const IdentityVerification = lazy(() => import('../pages/IdentityVerification'));
+const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
 
 export default function Product({ product, page }) {
 
@@ -98,8 +70,6 @@ export default function Product({ product, page }) {
 
     let { path } = useRouteMatch();
 
-    console.log(history);
-
     const handleClick = (e, url) => {
         e.preventDefault();
         history.push(url);
@@ -109,32 +79,25 @@ export default function Product({ product, page }) {
             <Colom1>
                 <a
                     href={`/product/${product}  `}
-                    onClick={(e) => handleClick(e, `/product/${product}/identity-verification`)}>
+                    onClick={(e) => handleClick(e, `/product/${product}`)}>
                     <Head active={page === '1'}>
                         {response?.data?.name} <small>{response?.data?.description}</small>
                     </Head>
                 </a>
                 {
                     response?.data?.product_details?.step.map(m => (
-                        <>
-                            <a
-                                href={`/product/${product}/${m.page}`} key={uuidv4()}
-                                onClick={(e) => handleClick(e, `/product/${product}/${m.page}`)}>
-                                <Menu
-                                    active={page === m.page.toString()}
-                                    completed={!!m.subStep}
-                                >{m.name}
-                                </Menu>
-                            </a>
-
-                            {m.subStep?.length && <SubMenu> {m.subStep.map(s => (
-                                <a
-                                    href={`/product/${product}/${m.page}`} key={uuidv4()}
-                                    onClick={(e) => handleClick(e, `/product/${product}/${m.page}`)}>
-                                    <Menu>{s.name}</Menu>
-                                </a>))}
-                            </SubMenu>}
-                        </>
+                        <a
+                            href={`/product/${product}/${m.page}`} key={uuidv4()}
+                            onClick={(e) => handleClick(e, `/product/${product}/${m.page}`)}>
+                            <Menu
+                                active={page === m.page.toString()}
+                            >
+                                <div>{m.name}</div>
+                                {!!m.subStep && (
+                                    <CheckBox bg='white' checked round fg={'blue'} />
+                                )}
+                            </Menu>
+                        </a>
                     ))
                 }
             </Colom1>
@@ -152,6 +115,13 @@ export default function Product({ product, page }) {
                             path={`${path}/identity-verification`}
                             component={() => <IdentityVerification
                                 loanDetails={response?.data?.product_details}
+                            />} />
+
+                        <Route
+                            path={`${path}/document-upload`}
+                            component={() => <DocumentUpload
+                                loanDetails={response?.data?.product_details}
+                                userType={''}
                             />} />
                     </Switch>
                 </Suspense>

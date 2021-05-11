@@ -1,7 +1,5 @@
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid';
-import { useRouteMatch, useHistory } from "react-router-dom";
-
 
 
 const Colom1 = styled.div`
@@ -19,7 +17,7 @@ const Img = styled.img`
     width: 100%;
     height:100%;
     object-fit: cover;
-    object-position: center
+    object-position: center;
 `;
 
 const Li = styled.li`
