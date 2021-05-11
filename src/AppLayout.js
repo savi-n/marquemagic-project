@@ -25,7 +25,7 @@ const Div = styled.div`
 const AppLayout = () => {
 
     const { response, error, loading } = useFetch({
-        url: `${WHITE_LABEL_URL}`,
+        url: `${WHITE_LABEL_URL({ name: 'CUB UAT' })}`,
     });
 
     return (

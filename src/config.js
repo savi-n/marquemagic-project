@@ -2,7 +2,7 @@ import taggedTemplate from './utils/taggedTemplate';
 
 const API_END_POINT = process.env.REACT_APP_API_URL || 'http://3.0.103.80:1337';
 
-const WHITE_LABEL_URL = "/wot/whitelabelsolution?name=CUB UAT";
+const WHITE_LABEL_URL = taggedTemplate`/wot/whitelabelsolution?name=${'name'}`;
 const PRODUCT_LIST_URL = taggedTemplate`/productDetails?white_label_id=${'whiteLabelId'}`;
 const PRODUCT_DETAILS_URL = taggedTemplate`/productDetails?white_label_id=${'whiteLabelId'}&product_id=${'productId'}`;
 
