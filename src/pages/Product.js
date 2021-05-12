@@ -77,22 +77,20 @@ export default function Product({ product, page }) {
 							{response.data.name} <small>{response.data.description}</small>
 						</Head>
 					</Link>
-					{response.data.product_details.step.map(m => (
-						<>
-							<Link to={`/product/${product}/${m.page}`} key={uuidv4()}>
-								<Menu
-									active={activeValue === m.page.toString()}
-									completed={activeValue === (Number(m.page) + 1).toString()}
-								>
-									<div>{m.name}</div>
-									{
-										!!m.subStep && (
-											<CheckBox bg='white' checked round fg={'blue'} />
-										)
-									}
-								</Menu>
-							</Link>
-						</>
+					{response?.data?.product_details?.step?.map(m => (
+						<Link to={`/product/${product}/${m.page}`} key={uuidv4()}>
+							<Menu
+								active={activeValue === m.page.toString()}
+								completed={activeValue === (Number(m.page) + 1).toString()}
+							>
+								<div>{m.name}</div>
+								{
+									!!m.subStep && (
+										<CheckBox bg='white' checked round fg={'blue'} />
+									)
+								}
+							</Menu>
+						</Link>
 					))}
 				</Colom1>
 				<Colom2>

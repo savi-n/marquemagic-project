@@ -139,7 +139,7 @@ export default function DocumentUpload({ userType }) {
 }
 
 DocumentUpload.defaultProps = {
-    userType: ''
+    userType: null
 }
 
 DocumentUpload.propTypes = {
