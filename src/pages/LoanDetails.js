@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { useRouteMatch, useHistory } from 'react-router-dom';
 
 const Colom1 = styled.div`
 	flex: 1;

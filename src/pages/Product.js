@@ -9,6 +9,7 @@ import { PRODUCT_DETAILS_URL } from '../config';
 import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
 import Loading from '../components/Loading';
+import CheckBox from '../components/CheckBox';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -87,6 +88,7 @@ const SubMenu = styled.div`
 
 const LoanDetails = lazy(() => import('../pages/LoanDetails'));
 const IdentityVerification = lazy(() => import('../pages/IdentityVerification'));
+const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
 
 export default function Product({ product, page }) {
 	const {
