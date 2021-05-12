@@ -43,47 +43,6 @@ const Menu = styled.h5`
 	padding: 15px 20px;
 	margin: 10px 0;
 	position: relative;
-
-	&::before {
-		${({ completed }) =>
-			completed &&
-			`
-            content:'';
-        `}
-		position: absolute;
-		top: 50%;
-		right: 10px;
-		width: 20px;
-		height: 20px;
-		background: white;
-		border-radius: 20px;
-		transform: translateY(-50%);
-	}
-
-	&::after {
-		${({ completed }) =>
-			completed &&
-			`
-            content:'';
-        `}
-		position: absolute;
-		top: 50%;
-		right: 10px;
-		width: 4px;
-		height: 11px;
-		background: transparent;
-		border-bottom: 2px solid blue;
-		border-right: 2px solid blue;
-		transform: translate(-100%, -50%) rotate(45deg);
-	}
-`;
-
-const SubMenu = styled.div`
-	padding: 0 20px;
-
-	menu {
-		background: rgba(255, 255, 255, 0.1);
-	}
 `;
 
 const LoanDetails = lazy(() => import('../pages/LoanDetails'));
@@ -127,16 +86,6 @@ export default function Product({ product, page }) {
 									{m.name}
 								</Menu>
 							</Link>
-
-							{m && m.subStep && m.subStep.length && (
-								<SubMenu>
-									{m.subStep.map(s => (
-										<Link to={`/product/${product}/${m.page}`} key={uuidv4()}>
-											<Menu>{s.name}</Menu>
-										</Link>
-									))}
-								</SubMenu>
-							)}
 						</>
 					))}
 				</Colom1>
@@ -153,6 +102,15 @@ export default function Product({ product, page }) {
 								path={`${path}/2`}
 								component={() => (
 									<IdentityVerification
+										loanDetails={response.data.product_details}
+										pageName={pageName}
+									/>
+								)}
+							/>
+							<Route
+								path={`${path}/6`}
+								component={() => (
+									<DocumentUpload
 										loanDetails={response.data.product_details}
 										pageName={pageName}
 									/>

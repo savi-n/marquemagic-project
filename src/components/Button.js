@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { string, func, element, object } from 'prop-types';
+import { string, func, element, object, oneOf } from 'prop-types';
 
 const StyledButton = styled.button`
     color: ${({ theme, fill }) => fill ? 'white' : theme.buttonColor1};
@@ -43,7 +43,7 @@ export default function Button({ name, onClick, children, fill, style }) {
 Button.defaultProps = {
     name: '',
     onClick: () => { },
-    children: <></>,
+    children: '',
     fill: null,
     style: {}
 }
@@ -51,7 +51,7 @@ Button.defaultProps = {
 Button.propTypes = {
     name: string.isRequired,
     onClick: func,
-    children: element,
+    children: oneOf(['', element]),
     fill: string,
     style: object
 };
