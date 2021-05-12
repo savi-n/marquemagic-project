@@ -9,7 +9,7 @@ import { PRODUCT_DETAILS_URL } from '../config';
 import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
 import Loading from '../components/Loading';
-import CheckBox from '../components/CheckBox';
+import CheckBox from '../shared/components/Checkbox/CheckBox';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -38,52 +38,14 @@ const Head = styled.h4`
 `;
 
 const Menu = styled.h5`
-	border: ${({ active }) => (active ? '1px solid' : 'none')};
-	border-radius: 10px;
-	padding: 15px 20px;
-	margin: 10px 0;
-	position: relative;
-
-	&::before {
-		${({ completed }) =>
-			completed &&
-			`
-            content:'';
-        `}
-		position: absolute;
-		top: 50%;
-		right: 10px;
-		width: 20px;
-		height: 20px;
-		background: white;
-		border-radius: 20px;
-		transform: translateY(-50%);
-	}
-
-	&::after {
-		${({ completed }) =>
-			completed &&
-			`
-            content:'';
-        `}
-		position: absolute;
-		top: 50%;
-		right: 10px;
-		width: 4px;
-		height: 11px;
-		background: transparent;
-		border-bottom: 2px solid blue;
-		border-right: 2px solid blue;
-		transform: translate(-100%, -50%) rotate(45deg);
-	}
-`;
-
-const SubMenu = styled.div`
-	padding: 0 20px;
-
-	menu {
-		background: rgba(255, 255, 255, 0.1);
-	}
+    border: ${({ active }) => active ? '1px solid' : 'none'};
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin: 10px 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 `;
 
 const LoanDetails = lazy(() => import('../pages/LoanDetails'));
@@ -91,9 +53,7 @@ const IdentityVerification = lazy(() => import('../pages/IdentityVerification'))
 const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
 
 export default function Product({ product, page }) {
-	const {
-		state: { whiteLabelId }
-	} = useContext(StoreContext);
+	const { state: { whiteLabelId } } = useContext(StoreContext);
 
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
@@ -117,27 +77,20 @@ export default function Product({ product, page }) {
 							{response.data.name} <small>{response.data.description}</small>
 						</Head>
 					</Link>
-					{response.data.product_details.step.map(m => (
-						<>
-							<Link to={`/product/${product}/${m.page}`} key={uuidv4()}>
-								<Menu
-									active={activeValue === m.page.toString()}
-									completed={activeValue === (Number(m.page) + 1).toString()}
-								>
-									{m.name}
-								</Menu>
-							</Link>
-
-							{m && m.subStep && m.subStep.length && (
-								<SubMenu>
-									{m.subStep.map(s => (
-										<Link to={`/product/${product}/${m.page}`} key={uuidv4()}>
-											<Menu>{s.name}</Menu>
-										</Link>
-									))}
-								</SubMenu>
-							)}
-						</>
+					{response?.data?.product_details?.step?.map(m => (
+						<Link to={`/product/${product}/${m.page}`} key={uuidv4()}>
+							<Menu
+								active={activeValue === m.page.toString()}
+								completed={activeValue === (Number(m.page) + 1).toString()}
+							>
+								<div>{m.name}</div>
+								{
+									!!m.subStep && (
+										<CheckBox bg='white' checked round fg={'blue'} />
+									)
+								}
+							</Menu>
+						</Link>
 					))}
 				</Colom1>
 				<Colom2>
@@ -153,6 +106,15 @@ export default function Product({ product, page }) {
 								path={`${path}/2`}
 								component={() => (
 									<IdentityVerification
+										loanDetails={response.data.product_details}
+										pageName={pageName}
+									/>
+								)}
+							/>
+							<Route
+								path={`${path}/6`}
+								component={() => (
+									<DocumentUpload
 										loanDetails={response.data.product_details}
 										pageName={pageName}
 									/>

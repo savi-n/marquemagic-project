@@ -26,14 +26,20 @@ export default function useFetch({ url, options = { method: 'GET' } }) {
 			}
 		};
 		fetchData();
-		return () => {};
+		return () => { };
 	}, []);
 	return { response, error, loading };
 }
 
+useFetch.defaultProps = {
+	options: {
+		method: 'GET'
+	}
+};
+
 useFetch.propTypes = {
 	url: string.isRequired,
 	options: shape({
-		name: oneOf(['GET', 'POST', 'PUT'])
+		method: oneOf(['GET', 'POST', 'PUT'])
 	})
 };

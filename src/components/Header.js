@@ -4,7 +4,7 @@ import { string } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 
-import Button from '../components/Button';
+import Button from '../shared/components/Button/Button';
 
 
 const Div = styled.div`
