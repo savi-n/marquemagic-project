@@ -7,6 +7,7 @@ import { oneOf } from 'prop-types';
 
 import Button from '../shared/components/Button/Button';
 import CheckBox from '../shared/components/Checkbox/CheckBox';
+import FileUpload from '../shared/components/FileUpload/FileUpload';
 
 const Colom1 = styled.div`
     flex: 1;
@@ -20,16 +21,8 @@ const Colom2 = styled.div`
     padding: 50px 30px;
 `;
 
-const InputFile = styled.input`
-    opacity: 0;
-`;
-
-const FileLabel = styled.label`
-    height: 200px;
-    width: 100%;
-    background: grey;
-    display: block;
-    cursor: pointer;
+const UploadWrapper = styled.div`
+    padding: 30px 0;
 `;
 
 const ButtonWrapper = styled.div`
@@ -80,15 +73,21 @@ export default function DocumentUpload({ userType }) {
     const [checkbox1, setCheckbox1] = useState(false);
     const [checkbox2, setCheckbox2] = useState(false);
 
+    const [uploadFiles, setUploadFiles] = useState([]);
+
+    const handleFileUpload = (files) => {
+        setUploadFiles([...uploadFiles, ...files,])
+    }
+
     return (
         <>
             <Colom1>
-
                 <h2>{userType ?? 'Help Us with'} <span>Document Upload</span></h2>
-                <div >
-                    <InputFile type="file" id="file" />
-                    <FileLabel htmlFor="file">Select file</FileLabel>
-                </div>
+                <UploadWrapper >
+                    <FileUpload onDrop={handleFileUpload} />
+                </UploadWrapper>
+
+                {uploadFiles.map(files => (<div>{files.name}</div>))}
                 <ButtonWrapper>
                     <Button name='Get CUB Statement' />
                     <Button name='Get Other Bank Statements' />
@@ -117,7 +116,6 @@ export default function DocumentUpload({ userType }) {
                 </SubmitWrapper>
 
             </Colom1>
-
             <Colom2>
                 <h3>Documents Required</h3>
                 <div>
