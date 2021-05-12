@@ -94,7 +94,7 @@ export default function OtpModal(props) {
 					/>
 				</div>
 			</div>
-			<Link to='#' className='text-pink-600 hover:text-pink-400 py-4'>
+			<Link to='#' onClick={e => e.preventDefault()} className='text-pink-600 hover:text-pink-400 py-4'>
 				Resend OTP
 			</Link>
 			<Button type='blue' onClick={() => submitOtp()}>

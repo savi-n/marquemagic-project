@@ -2,9 +2,9 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { oneOf } from 'prop-types';
-
-import CheckBox from '../components/CheckBox';
 import Button from '../shared/components/Button';
+import CheckBox from '../shared/components/Checkbox/CheckBox';
+import FileUpload from '../shared/components/FileUpload/FileUpload';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -28,6 +28,9 @@ const FileLabel = styled.label`
 	background: grey;
 	display: block;
 	cursor: pointer;
+`;
+const UploadWrapper = styled.div`
+	padding: 30px 0;
 `;
 
 const ButtonWrapper = styled.div`
@@ -76,16 +79,25 @@ export default function DocumentUpload({ userType }) {
 	const [checkbox1, setCheckbox1] = useState(false);
 	const [checkbox2, setCheckbox2] = useState(false);
 
+	const [uploadFiles, setUploadFiles] = useState([]);
+
+	const handleFileUpload = files => {
+		setUploadFiles([...uploadFiles, ...files]);
+	};
+
 	return (
 		<>
 			<Colom1>
 				<h2>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
 				</h2>
-				<div>
-					<InputFile type='file' id='file' />
-					<FileLabel htmlFor='file'>Select file</FileLabel>
-				</div>
+				<UploadWrapper>
+					<FileUpload onDrop={handleFileUpload} />
+				</UploadWrapper>
+
+				{uploadFiles.map(files => (
+					<div>{files.name}</div>
+				))}
 				<ButtonWrapper>
 					<Button name='Get CUB Statement' />
 					<Button name='Get Other Bank Statements' />
@@ -123,7 +135,6 @@ export default function DocumentUpload({ userType }) {
 					/>
 				</SubmitWrapper>
 			</Colom1>
-
 			<Colom2>
 				<h3>Documents Required</h3>
 				<div>
@@ -139,7 +150,7 @@ export default function DocumentUpload({ userType }) {
 }
 
 DocumentUpload.defaultProps = {
-	userType: ''
+	userType: null
 };
 
 DocumentUpload.propTypes = {
