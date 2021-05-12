@@ -6,11 +6,4 @@ const WHITE_LABEL_URL = taggedTemplate`/wot/whitelabelsolution?name=${'name'}`;
 const PRODUCT_LIST_URL = taggedTemplate`/productDetails?white_label_id=${'whiteLabelId'}`;
 const PRODUCT_DETAILS_URL = taggedTemplate`/productDetails?white_label_id=${'whiteLabelId'}&product_id=${'productId'}`;
 
-
-
-export {
-    API_END_POINT,
-    WHITE_LABEL_URL,
-    PRODUCT_LIST_URL,
-    PRODUCT_DETAILS_URL
-}
+export { API_END_POINT, WHITE_LABEL_URL, PRODUCT_LIST_URL, PRODUCT_DETAILS_URL };

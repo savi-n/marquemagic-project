@@ -10,6 +10,7 @@ import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
 import Loading from '../components/Loading';
 import CheckBox from '../components/CheckBox';
+import PersonalDetails from './PersonalDetails';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -157,6 +158,11 @@ export default function Product({ product, page }) {
 										pageName={pageName}
 									/>
 								)}
+							/>
+
+							<Route
+								path={`${path}/3`}
+								component={() => <PersonalDetails data={response.data} pageName={pageName} />}
 							/>
 						</Switch>
 					</Suspense>
