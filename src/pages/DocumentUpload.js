@@ -5,8 +5,8 @@ import { oneOf } from 'prop-types';
 
 
 
-import Button from '../components/Button';
-import CheckBox from '../components/CheckBox';
+import Button from '../shared/components/Button/Button';
+import CheckBox from '../shared/components/Checkbox/CheckBox';
 
 const Colom1 = styled.div`
     flex: 1;

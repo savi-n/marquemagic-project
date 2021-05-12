@@ -9,7 +9,7 @@ import { PRODUCT_DETAILS_URL } from '../config';
 import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
 import Loading from '../components/Loading';
-import CheckBox from '../components/CheckBox';
+import CheckBox from '../shared/components/Checkbox/CheckBox';
 
 const Wrapper = styled.div`
 	width: 100%;
