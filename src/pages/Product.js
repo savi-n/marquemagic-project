@@ -38,11 +38,14 @@ const Head = styled.h4`
 `;
 
 const Menu = styled.h5`
-	border: ${({ active }) => (active ? '1px solid' : 'none')};
-	border-radius: 10px;
-	padding: 15px 20px;
-	margin: 10px 0;
-	position: relative;
+    border: ${({ active }) => active ? '1px solid' : 'none'};
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin: 10px 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 `;
 
 const LoanDetails = lazy(() => import('../pages/LoanDetails'));
@@ -50,9 +53,7 @@ const IdentityVerification = lazy(() => import('../pages/IdentityVerification'))
 const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
 
 export default function Product({ product, page }) {
-	const {
-		state: { whiteLabelId }
-	} = useContext(StoreContext);
+	const { state: { whiteLabelId } } = useContext(StoreContext);
 
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
@@ -83,7 +84,12 @@ export default function Product({ product, page }) {
 									active={activeValue === m.page.toString()}
 									completed={activeValue === (Number(m.page) + 1).toString()}
 								>
-									{m.name}
+									<div>{m.name}</div>
+									{
+										!!m.subStep && (
+											<CheckBox bg='white' checked round fg={'blue'} />
+										)
+									}
 								</Menu>
 							</Link>
 						</>
