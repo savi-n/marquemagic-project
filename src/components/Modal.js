@@ -12,13 +12,14 @@ const Backdrop = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 `;
 
 const Modalbody = styled.div`
     background: #fff;
     padding: 20px;
     border-radius: 5px;
-    min-width: 50%;
+    width: 50%;
     min-height: 50%;
     box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
 `;
