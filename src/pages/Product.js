@@ -9,6 +9,7 @@ import { PRODUCT_DETAILS_URL } from '../config';
 import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
 import Loading from '../components/Loading';
+import PersonalDetails from './PersonalDetails';
 import CheckBox from '../shared/components/Checkbox/CheckBox';
 
 const Wrapper = styled.div`
@@ -38,14 +39,14 @@ const Head = styled.h4`
 `;
 
 const Menu = styled.h5`
-    border: ${({ active }) => active ? '1px solid' : 'none'};
-    border-radius: 10px;
-    padding: 15px 20px;
-    margin: 10px 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+	border: ${({ active }) => (active ? '1px solid' : 'none')};
+	border-radius: 10px;
+	padding: 15px 20px;
+	margin: 10px 0;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const LoanDetails = lazy(() => import('../pages/LoanDetails'));
@@ -53,7 +54,9 @@ const IdentityVerification = lazy(() => import('../pages/IdentityVerification'))
 const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
 
 export default function Product({ product, page }) {
-	const { state: { whiteLabelId } } = useContext(StoreContext);
+	const {
+		state: { whiteLabelId }
+	} = useContext(StoreContext);
 
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
@@ -84,11 +87,7 @@ export default function Product({ product, page }) {
 								completed={activeValue === (Number(m.page) + 1).toString()}
 							>
 								<div>{m.name}</div>
-								{
-									!!m.subStep && (
-										<CheckBox bg='white' checked round fg={'blue'} />
-									)
-								}
+								{!!m.subStep && <CheckBox bg='white' checked round fg={'blue'} />}
 							</Menu>
 						</Link>
 					))}
@@ -111,13 +110,15 @@ export default function Product({ product, page }) {
 									/>
 								)}
 							/>
+
+							<Route
+								path={`${path}/3`}
+								component={() => <PersonalDetails data={response.data} pageName={pageName} />}
+							/>
 							<Route
 								path={`${path}/6`}
 								component={() => (
-									<DocumentUpload
-										loanDetails={response.data.product_details}
-										pageName={pageName}
-									/>
+									<DocumentUpload loanDetails={response.data.product_details} pageName={pageName} />
 								)}
 							/>
 						</Switch>
