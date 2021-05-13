@@ -5,7 +5,8 @@ import { oneOf } from 'prop-types';
 
 
 
-import Button from '../shared/components/Button/Button';
+import Button from '../components/Button';
+import Modal from '../components/Modal';
 import CheckBox from '../shared/components/Checkbox/CheckBox';
 import FileUpload from '../shared/components/FileUpload/FileUpload';
 
@@ -75,8 +76,14 @@ export default function DocumentUpload({ userType }) {
 
     const [uploadFiles, setUploadFiles] = useState([]);
 
+    const [showModal, setShowModal] = useState(false);
+
     const handleFileUpload = (files) => {
         setUploadFiles([...uploadFiles, ...files,])
+    }
+
+    const onButtonClick = () => {
+        setShowModal(true);
     }
 
     return (
@@ -89,9 +96,9 @@ export default function DocumentUpload({ userType }) {
 
                 {uploadFiles.map(files => (<div>{files.name}</div>))}
                 <ButtonWrapper>
-                    <Button name='Get CUB Statement' />
-                    <Button name='Get Other Bank Statements' />
-                    <Button name='Get ITR documents' />
+                    <Button name='Get CUB Statement' onClick={onButtonClick} />
+                    <Button name='Get Other Bank Statements' onClick={onButtonClick} />
+                    <Button name='Get ITR documents' onClick={onButtonClick} />
                 </ButtonWrapper>
                 <CheckboxWrapper>
                     <CheckBox
@@ -132,6 +139,13 @@ export default function DocumentUpload({ userType }) {
                     ))}
                 </div>
             </Colom2>
+
+            <Modal show={showModal} >
+                <div>
+                    <h4>Select Bank</h4>
+                    <hr />
+                </div>
+            </Modal>
         </>
     )
 }
