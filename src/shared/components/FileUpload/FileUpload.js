@@ -62,6 +62,7 @@ export default function FileUpload({ onDrop, caption, bg }) {
     const id = uuidv4();
 
     const [dragging, setDragging] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     let refCounter = 0;
 
@@ -88,19 +89,24 @@ export default function FileUpload({ onDrop, caption, bg }) {
         if (!refCounter) setDragging(false);
     };
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleDrop = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
 
         setDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            onDrop(e.dataTransfer.files);
-            e.dataTransfer.clearData();
+        if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+            let files = [...selectedFiles, ...event.dataTransfer.files];
+            await setSelectedFiles(files);
+            onDrop(files);
+            event.dataTransfer.clearData();
+            refCounter = 0;
         }
     };
 
-    const onChange = (event) => {
-        onDrop(event.target.files);
+    const onChange = async (event) => {
+        let files = [...selectedFiles, ...event.target.files];
+        await setSelectedFiles(files);
+        onDrop(files);
     }
 
     useEffect(() => {

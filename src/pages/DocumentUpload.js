@@ -6,9 +6,9 @@ import { oneOf } from 'prop-types';
 
 
 import Button from '../components/Button';
-import Modal from '../components/Modal';
 import CheckBox from '../shared/components/Checkbox/CheckBox';
 import FileUpload from '../shared/components/FileUpload/FileUpload';
+import BankStatementModal from '../components/BankStatementModal';
 
 const Colom1 = styled.div`
     flex: 1;
@@ -53,30 +53,6 @@ const DocsCheckboxWrapper = styled.div`
     margin: 20px 0;
 `;
 
-const Bank = styled.div`
-    padding: 15px;
-    border: 1px solid black;
-    border-radius:4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 40%;
-    margin: 10px 0;
-    cursor: pointer;
-`;
-
-const BankWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10%;
-    padding: 30px;
-`;
-
-const BankName = styled.div`
-    flex: 1;
-`;
 
 const text = {
     grantCibilAcces: 'I here by give consent to pull my CIBIL records',
@@ -92,35 +68,7 @@ const documentsRequired = [
     'SB account statment for the latest six months(other banks)',
     'Form 16 from the Employee of the borrower',
     'Any other relevent doxuments'
-]
-
-const BANKS_LIST = [
-    {
-        name: 'HDFC',
-        icon: 'hdfc'
-    },
-    {
-        name: 'Kotak Mahindra',
-        icon: 'km'
-    },
-    {
-        name: 'ICICI',
-        icon: 'icici'
-    },
-    {
-        name: 'Yes',
-        icon: 'yes'
-    },
-    {
-        name: 'SBI',
-        icon: 'sbi'
-    },
-    {
-        name: 'Axis',
-        icon: 'axis'
-    }
-]
-
+];
 export default function DocumentUpload({ userType }) {
 
     const [checkbox1, setCheckbox1] = useState(false);
@@ -130,10 +78,9 @@ export default function DocumentUpload({ userType }) {
 
     const [showModal, setShowModal] = useState(false);
 
-    const [bankChoose, setBankChoose] = useState('')
 
     const handleFileUpload = (files) => {
-        setUploadFiles([...uploadFiles, ...files,])
+        setUploadFiles(files)
     }
 
     const onButtonClick = () => {
@@ -147,8 +94,8 @@ export default function DocumentUpload({ userType }) {
                 <UploadWrapper >
                     <FileUpload onDrop={handleFileUpload} />
                 </UploadWrapper>
-
                 {uploadFiles.map(files => (<div>{files.name}</div>))}
+
                 <ButtonWrapper>
                     <Button name='Get CUB Statement' onClick={onButtonClick} />
                     <Button name='Get Other Bank Statements' onClick={onButtonClick} />
@@ -193,29 +140,7 @@ export default function DocumentUpload({ userType }) {
                     ))}
                 </div>
             </Colom2>
-
-            <Modal show={showModal} >
-                <div>
-                    <h4>Select Bank</h4>
-                    <hr />
-                    <BankWrapper>
-                        {
-                            BANKS_LIST.map(bank => (
-                                <Bank onClick={(e) => setBankChoose(bank.name)}>
-                                    <img src={bank.icon} alt={bank.icon} />
-                                    <BankName>{bank.name}</BankName>
-                                    <input type='radio' checked={bankChoose === bank.name} />
-                                </Bank>
-                            ))
-                        }
-                    </BankWrapper>
-
-                    <Button name='Next' fill="blue" style={{
-                        width: '200px',
-                        background: 'blue'
-                    }} />
-                </div>
-            </Modal>
+            <BankStatementModal showModal={showModal} />
         </>
     )
 }

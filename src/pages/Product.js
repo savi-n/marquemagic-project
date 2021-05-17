@@ -48,7 +48,7 @@ const Menu = styled.h5`
     justify-content: space-between;
 `;
 
-const LoanDetails = lazy(() => import('../pages/LoanDetails'));
+const LoanDetails = lazy(() => import('../pages/ProductDetails'));
 const IdentityVerification = lazy(() => import('../pages/IdentityVerification'));
 const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
 
