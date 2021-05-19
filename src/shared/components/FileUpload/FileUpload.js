@@ -57,12 +57,13 @@ const Droping = styled.div`
 
 export default function FileUpload({ onDrop, caption, bg }) {
 
-    const ref = useRef();
+    const ref = useRef(uuidv4());
 
     const id = uuidv4();
 
     const [dragging, setDragging] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState([]);
+
+    const selectedFiles = useRef([]);
 
     let refCounter = 0;
 
@@ -94,19 +95,22 @@ export default function FileUpload({ onDrop, caption, bg }) {
         event.stopPropagation();
 
         setDragging(false);
+
         if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-            let files = [...selectedFiles, ...event.dataTransfer.files];
-            await setSelectedFiles(files);
-            onDrop(files);
+            let files = [...selectedFiles.current, ...event.dataTransfer.files];
+
+            selectedFiles.current = files;
+
+            onDrop(selectedFiles.current);
             event.dataTransfer.clearData();
             refCounter = 0;
         }
     };
 
     const onChange = async (event) => {
-        let files = [...selectedFiles, ...event.target.files];
-        await setSelectedFiles(files);
-        onDrop(files);
+        let files = [...selectedFiles.current, ...event.target.files];
+        selectedFiles.current = files;
+        onDrop(selectedFiles.current);
     }
 
     useEffect(() => {

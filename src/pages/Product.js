@@ -51,6 +51,7 @@ const Menu = styled.h5`
 const LoanDetails = lazy(() => import('../pages/ProductDetails'));
 const IdentityVerification = lazy(() => import('../pages/IdentityVerification'));
 const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
+const LoanForm = lazy(() => import('../pages/LoanDetails'));
 
 export default function Product({ product, page }) {
 	const { state: { whiteLabelId } } = useContext(StoreContext);
@@ -109,6 +110,12 @@ export default function Product({ product, page }) {
 										loanDetails={response.data.product_details}
 										pageName={pageName}
 									/>
+								)}
+							/>
+							<Route
+								path={`${path}/5`}
+								component={() => (
+									<LoanForm />
 								)}
 							/>
 							<Route

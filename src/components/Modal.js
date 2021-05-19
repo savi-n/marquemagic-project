@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { bool, number, oneOf } from "prop-types";
 import styled from 'styled-components';
 
@@ -25,11 +26,13 @@ const Modalbody = styled.div`
 `;
 
 export default function Modal({ show, backdrop, bg, children }) {
+    const modalRoot = document.getElementById('modal-root')
     if (!show) return null
-    return (
-        <Backdrop>
+    return createPortal(
+        <Backdrop backdrop={backdrop}>
             <Modalbody>{children}</Modalbody>
-        </Backdrop>
+        </Backdrop>,
+        modalRoot
     )
 }
 
