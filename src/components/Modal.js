@@ -26,13 +26,13 @@ const Modalbody = styled.div`
 `;
 
 export default function Modal({ show, backdrop, bg, children }) {
-    const modalRoot = document.getElementById('modal-root')
+    const root = document.body;
     if (!show) return null
     return createPortal(
         <Backdrop backdrop={backdrop}>
             <Modalbody>{children}</Modalbody>
         </Backdrop>,
-        modalRoot
+        root
     )
 }
 

@@ -71,7 +71,7 @@ const BANKS_LIST = [
     }
 ];
 
-export default function BankStatementModal({ showModal }) {
+export default function BankStatementModal({ showModal, onClose }) {
     const [bankChoose, setBankChoose] = useState('')
 
     return (
@@ -96,7 +96,7 @@ export default function BankStatementModal({ showModal }) {
                 <Button name='Next' fill="blue" style={{
                     width: '200px',
                     background: 'blue'
-                }} />
+                }} onClick={onClose} />
             </ContentWrapper>
         </Modal>)
 }

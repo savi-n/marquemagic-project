@@ -1,11 +1,7 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
-
-const Input = styled.input`
-    height: 50px;
-`;
 
 function required(value) {
     return !value
@@ -15,9 +11,24 @@ function numberOnly(value) {
     return !Number(value)
 }
 
-function validateEmail(email) {
-    var re = /\S+@\S+\.\S+/;
-    return !re.test(email);
+function validatePattern(pattern) {
+    return function (value, pat) {
+        pat = pat || pattern;
+        return !(new RegExp(pat).test(value))
+    }
+}
+
+function limitLength(type) {
+    return function (value, limit) {
+        if (type === 'max') return value?.length > limit
+        else if (type === 'min') return value?.length < limit
+        return value?.length !== limit
+    }
+
+}
+
+function valueMatchWith(value, matchWith) {
+    return !(value === matchWith)
 }
 
 const VALIDATION_RULES = {
@@ -30,18 +41,39 @@ const VALIDATION_RULES = {
         message: 'Numbers only Allowed'
     },
     email: {
-        func: validateEmail,
+        func: validatePattern(/\S+@\S+\.\S+/g),
         message: 'Invalid Email Address'
-    }
+    },
+    pattern: {
+        func: validatePattern(),
+        message: 'Pattern Mismatch'
+    },
+    maxLength: {
+        func: limitLength('max'),
+        message: 'Exceeds Character Length'
+    },
+    minLength: {
+        func: limitLength('min'),
+        message: 'Less character'
+    },
+    length: {
+        func: limitLength(),
+        message: 'Character Length Mismatch'
+    },
+    valueMatchWith: {
+        func: valueMatchWith,
+        message: 'Mismatch'
+    },
 }
 
 
-function validate(rules, value) {
+function validate(rules, value,) {
     if (!rules) return false;
 
-    for (let rule of Object.keys(rules)) {
+    for (const rule in rules) {
         if (rules[rule]) {
-            if (VALIDATION_RULES[rule].func(value, rules[rule])) {
+            let passParams = typeof rules[rule] === 'boolean' ? null : rules[rule];
+            if (VALIDATION_RULES[rule]?.func(value, passParams)) {
                 return VALIDATION_RULES[rule].message;
             }
         }
@@ -65,6 +97,7 @@ export default function useForm() {
     const valuesRef = useRef({});
     const touchedRef = useRef({});
     const errorsRef = useRef({});
+    const validRef = useRef({});
     const submitRef = useRef({
         isSubmitting: false,
         isSubmited: false,
@@ -75,8 +108,11 @@ export default function useForm() {
 
     const checkValidity = (name) => {
         const error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
-        const { [name]: omit, ...errorFields } = errorsRef.current;
+        const { [name]: _, ...errorFields } = errorsRef.current;
         errorsRef.current = { ...errorFields, ...error ? { [name]: error } : {} };
+
+        const { [name]: __, ...validFields } = validRef.current;
+        validRef.current = { ...validFields, ...!error ? { [name]: !error } : {} };
     }
 
     const setValue = (name, value) => {
@@ -84,23 +120,38 @@ export default function useForm() {
         valuesRef.current = updatedValues;
     }
 
+    const unregister = (field) => {
+        const { [field]: _, ...remainingField } = fieldsRef.current;
+        fieldsRef.current = remainingField;
+
+        const { [field]: _omitValue, ...remainingValue } = valuesRef.current;
+        valuesRef.current = remainingValue;
+
+        const { [field]: _omitValid, ...remainingValid } = validRef.current;
+        validRef.current = remainingValid;
+
+        const { [field]: _omitTouch, ...remainingTouched } = touchedRef.current;
+        touchedRef.current = remainingTouched;
+
+        const { [field]: _omitError, ...remainingErrors } = errorsRef.current;
+        errorsRef.current = remainingErrors;
+
+        updateFormState(uuidv4());
+    }
+
     const register = useCallback((newField) => {
-        if (!fieldsRef.current[newField.name]) {
-            fieldsRef.current[newField.name] = newField;
+        fieldsRef.current[newField.name] = newField;
 
-            newField.value && setValue(newField.name, newField.value)
-            newField.rules && checkValidity(newField.name);
-        }
+        newField.value && setValue(newField.name, newField.value)
+        newField.rules && checkValidity(newField.name);
 
-        return (
-            <Input
-                type={newField.type || 'text'}
-                name={newField.name}
-                onChange={onChange}
-                value={valuesRef.current[newField.name] || ''}
-                onBlur={onBlur}
-            />
-        )
+        return <InputField
+            field={newField}
+            onChange={onChange}
+            value={valuesRef.current[newField.name] || ''}
+            unregister={unregister}
+        />
+
     }, [formRef.current]);
 
     const onChange = (event) => {
@@ -110,17 +161,9 @@ export default function useForm() {
         setValue(name, value);
         checkValidity(name);
 
-        updateFormState(uuidv4());
-    }
-
-    const onBlur = (event) => {
-        event.preventDefault();
-
-        const { name } = event.target;
-
-        touchedRef.current = { ...touchedRef.current, [name]: true };
-
-        checkValidity(name);
+        if (event.type === 'blur') {
+            touchedRef.current = { ...touchedRef.current, [name]: true };
+        }
 
         updateFormState(uuidv4());
     }
@@ -161,6 +204,58 @@ export default function useForm() {
             touched: touchedRef.current,
             error: errorsRef.current,
             submit: submitRef.current,
+            valid: validRef.current,
+            values: valuesRef.current
         },
     }
+}
+
+
+
+const Input = styled.input`
+    height: 50px;
+`;
+const Select = styled.select`
+    height: 50px;
+`;
+
+function InputField({ field, onChange, value, unregister }) {
+    const { type = 'text' } = field;
+
+    useEffect(() => {
+        return () => {
+            unregister(field.name)
+        }
+    }, [])
+
+    const fieldProps = {
+        name: field.name,
+        onChange: onChange,
+        onBlur: onChange,
+        value: value,
+        placeholder: field.placeholder || '',
+        disabled: field.disabled,
+        className: field.className,
+        style: field.style
+    };
+
+    if (type === 'select') {
+        return (
+            <Select
+                {...fieldProps}
+            >
+                <option></option>
+                {field.options?.map(({ value, name }) => (
+                    <option value={value}>{name}</option>
+                )
+                )}
+            </Select>
+        )
+    }
+    return (
+        <Input
+            type={type}
+            {...fieldProps}
+        />
+    )
 }

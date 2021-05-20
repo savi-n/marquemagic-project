@@ -140,7 +140,7 @@ export default function DocumentUpload({ userType }) {
                     ))}
                 </div>
             </Colom2>
-            <BankStatementModal showModal={showModal} />
+            <BankStatementModal showModal={showModal} onClose={() => setShowModal(false)} />
         </>
     )
 }
