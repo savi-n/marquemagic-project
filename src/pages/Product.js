@@ -10,6 +10,7 @@ import useFetch from "../hooks/useFetch";
 import { StoreContext } from "../utils/StoreProvider";
 import Loading from "../components/Loading";
 import CheckBox from "../shared/components/Checkbox/CheckBox";
+import PersonalDetails from "./PersonalDetails";
 
 const Wrapper = styled.div`
   width: 100%;

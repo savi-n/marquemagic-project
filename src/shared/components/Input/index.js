@@ -1,13 +1,24 @@
-import React from 'react';
 import styled from 'styled-components';
-
-const Inp = styled.input`
-	width: ${({ width }) => width};
-	font-size: 1rem;
-	padding: 10px;
-	color: black;
-`;
+import { Link } from 'react-router-dom';
 
 export default function Input(props) {
-	return <Inp {...props} />;
+	const { width } = props;
+	return (
+		<section className='flex items-center justify-between'>
+			<input
+				{...props}
+				className={`${
+					width ? width : ''
+				} font-3xl p-3 text-black border solid silver rounded focus:outline-none focus:shadow-inner`}
+			/>
+			{props.link && (
+				<Link
+					className={`px-4 text-${props.linkColor}-600 hover:text-${props.linkColor}-400`}
+					to={props.link.to}
+				>
+					{props.link.name}
+				</Link>
+			)}
+		</section>
+	);
 }

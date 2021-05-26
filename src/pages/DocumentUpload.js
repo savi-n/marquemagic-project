@@ -20,6 +20,13 @@ const Colom2 = styled.div`
   padding: 50px 30px;
 `;
 
+const FileLabel = styled.label`
+  height: 200px;
+  width: 100%;
+  background: grey;
+  display: block;
+  cursor: pointer;
+`;
 const UploadWrapper = styled.div`
   padding: 30px 0;
 `;
