@@ -55,6 +55,10 @@ export default function LoanDetails() {
                                     valueMatchWith: values.email
                                 } : {},
 
+                            },
+                            mask: {
+                                NumberOnly:true,
+                                CharacterLimit:8
                             }
                         })}
 
