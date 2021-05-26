@@ -1,71 +1,96 @@
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 
-const Colom1 = styled.div`
-	flex: 1;
-	background: ${({ theme }) => theme.themeColor1};
-	padding: 50px;
-`;
+import useForm from '../hooks/useForm';
 
-const Colom2 = styled.div`
-	width: 40%;
-	background: ${({ theme }) => theme.themeColor1};
-`;
+export default function LoanDetails() {
 
-const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-`;
+    const onSubmit = (data) => {
+        console.log(data)
+    }
 
-const Li = styled.li`
-	margin: 20px 0;
-	font-size: 13px;
-	color: rgba(0, 0, 0, 0.8);
-	position: relative;
+    const { register, handleSubmit, formState } = useForm();
 
-	&::before {
-		content: '';
-		position: absolute;
-		background: red;
-		font-weight: bold;
-		width: 5px;
-		height: 5px;
-		border-radius: 5px;
-		left: -20px;
-		top: 5px;
-	}
+    const { submit, error, touched, values, valid } = formState;
+    return (
+        <>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div>
+                    <div>
+                        {register({
+                            name: 'email',
+                            rules: {
+                                required: true,
+                                email: true
+                            }
+                        })}
+                        {
+                            (submit?.isSubmited || touched?.email) && (<div>{error?.email}</div>)
+                        }
 
-	a {
-		color: blue;
-	}
-`;
+                    </div>
+                    <div>
+                        {register({
+                            name: 'password',
+                            type: 'password',
+                            rules: {
+                                required: true,
+                                number: true,
+                                length: 4
+                            }
+                        })}
 
-const H = styled.h3`
-	span {
-		color: blue;
-	}
-`;
+                        {
+                            (submit?.isSubmited || touched?.password) && (<div>{error?.password}</div>)
+                        }
 
-export default function LoanDetails({ loanDetails }) {
-	return (
-		loanDetails && (
-			<>
-				<Colom1>
-					<H dangerouslySetInnerHTML={{ __html: loanDetails.head }}></H>
-					<div>
-						<ul>
-							{loanDetails.li.map(l => (
-								<Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()}></Li>
-							))}
-						</ul>
-					</div>
-				</Colom1>
-				<Colom2>
-					<Img src={loanDetails.imageUrl} alt={'Loan Caption'} />
-				</Colom2>
-			</>
-		)
-	);
+                    </div>
+
+                    <div>
+                        {values.select === '1' && register({
+                            name: 'abcd',
+                            placeholder: 'Place-holder',
+                            rules: {
+                                ...values.select === '1' ? {
+                                    required: true,
+                                    valueMatchWith: values.email
+                                } : {},
+
+                            },
+                            mask: {
+                                NumberOnly:true,
+                                CharacterLimit:8
+                            }
+                        })}
+
+                        {
+                            (submit?.isSubmited || touched?.abcd) && (<div>{error?.abcd}</div>)
+                        }
+                    </div>
+
+                    {register({
+                        type: 'select',
+                        name: 'select',
+                        options: [{ name: 'a', value: 1 }, { name: 'b', value: 2 }],
+                        style: {
+                            background: 'green'
+                        },
+                        rules: {
+                            required: true,
+                        }
+                    })}
+                    {
+                        (submit?.isSubmited || touched?.select) && (<div>{error?.select}</div>)
+                    }
+                </div>
+                <div>
+                    <input type='submit' value="submit" />
+                </div>
+
+            </form>
+
+            <h3>
+                {JSON.stringify(error)}
+            </h3>
+        </>
+    )
 }
