@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from '../../shared/components/Modal';
 import './style.scss';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
@@ -6,11 +6,16 @@ import Button from '../../shared/components/Button';
 
 var arr;
 
-function OTPInput() {
+function OTPInput(d) {
 	const inputs = document.querySelectorAll('#otp > *[id]');
-	inputs.forEach(el => {
-		el.value = '';
-	});
+
+	if (d) {
+		inputs.forEach(el => {
+			el.value = '';
+		});
+		return;
+	}
+
 	for (let i = 0; i < inputs.length; i++) {
 		inputs[i].addEventListener('keydown', function(event) {
 			if (event.key === 'Backspace') {
@@ -36,14 +41,35 @@ function OTPInput() {
 
 export default function OtpModal(props) {
 	const { toggle, show } = props;
-	var [otp, setOtp] = useState('');
 	OTPInput();
+
+	const otpResendTime = 60;
+	const [seconds, setSeconds] = useState(otpResendTime);
+	var [otp, setOtp] = useState('');
+	const [disabled, setDisabled] = useState(true);
+
 	const submitOtp = () => {
 		arr.forEach(el => {
 			setOtp((otp += el.value));
 		});
 		otp = Number(otp);
-		console.log(otp);
+		OTPInput(true);
+	};
+
+	useEffect(() => {
+		if (seconds > 0) {
+			setTimeout(() => setSeconds(seconds - 1), 1000);
+		} else {
+			setSeconds(0);
+			setDisabled(false);
+		}
+	}, [seconds]);
+
+	const handleResend = e => {
+		e.preventDefault();
+		setSeconds(otpResendTime);
+		OTPInput(true);
+		setDisabled(true);
 	};
 
 	return (
@@ -94,7 +120,13 @@ export default function OtpModal(props) {
 					/>
 				</div>
 			</div>
-			<Link to='#' onClick={e => e.preventDefault()} className='text-pink-600 hover:text-pink-400 py-4'>
+			<div className={`${seconds > 0 ? 'flex' : 'hidden'} opacity-50`}>Request a new OTP after: {seconds}</div>
+			<Link
+				to='#'
+				onClick={e => (!disabled ? handleResend(e) : e.preventDefault())}
+				className={`${disabled && 'text-pink-400 cursor-not-allowed'} ${!disabled &&
+					'hover:text-pink-400 cursor-pointer text-pink-600 cursor-pointer'} py-4`}
+			>
 				Resend OTP
 			</Link>
 			<Button type='blue' onClick={() => submitOtp()}>

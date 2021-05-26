@@ -1,11 +1,16 @@
 import Proptypes from 'prop-types';
 import './modal.scoped.scss';
 import Button from '../Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Modal(props) {
-	const { title, children, show, width, height, margin, onClose, close } = props;
+	const { title, children, show, width, height, margin, onClose, close, back } = props;
 	return (
-		<main className={`${show ? 'fixed' : 'hidden'} inset-x-0 w-full top-48 flex items-center justify-center`}>
+		<main
+			className={`${
+				show ? 'fixed' : 'hidden'
+			} inset-x-0 w-full bottom-0 md:top-0 md:inset-0 flex items-center justify-center`}
+		>
 			<div className='fixed inset-0 cursor-pointer' onClick={onClose}>
 				<div className='absolute inset-0 bg-gray-700 opacity-75'></div>
 			</div>
@@ -16,6 +21,7 @@ export default function Modal(props) {
 				} flex flex-col text-center`}
 			>
 				<header className='flex flex-row items-center justify-between w-full py-1'>
+					{back && <FontAwesomeIcon icon='faUpload' size='1x' />}
 					{title && (
 						<section className='flex justify-between w-full'>
 							<h1 className='text-lg text-center w-full font-semibold'>{title}</h1>

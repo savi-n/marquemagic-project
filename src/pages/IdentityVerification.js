@@ -4,28 +4,23 @@ import styled from 'styled-components';
 import Input from '../shared/components/Input/index';
 import Button from '../shared/components/Button/index';
 import OtpModal from '../components/otpModal';
+import Layout from '../Layout';
 
 const Colom1 = styled.div`
 	flex: 1;
 	background: ${({ theme }) => theme.themeColor1};
-	padding: 50px;
 `;
 
 const Colom2 = styled.div`
-	width: 40%;
+	width: 100%;
 	background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`
 	width: 100%;
-	height: 100%;
+	height: calc(100vh - 80px);
 	object-fit: cover;
 	object-position: center;
-`;
-
-const Heading = styled.h1`
-	font-size: 1.5rem;
-	color: black;
 `;
 
 export default function IdentityVerification({ loanDetails, pageName }) {
@@ -46,29 +41,39 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 	return (
 		loanDetails && (
 			<>
-				<Colom1>
-					<Heading>
-						Help us with your <span className='text-blue-600'>{pageName}</span>
-					</Heading>
-					<section className='flex flex-col w-1/2 text-center py-16'>
-						<Input placeholder='Enter Mobile Number' onChange={e => setContact(e.target.value)} />
-						<span style={{ margin: '1rem' }}>
-							<b>OR</b>
-						</span>
-						<Input
-							placeholder='Enter Customer ID'
-							link={{ to: '#', name: 'verify' }}
-							linkColor='pink'
-							onChange={e => setCustID(e.target.value)}
-						/>
+				<Layout>
+					<section className='w-1/2'>
+						<h1 className='text-lg sm:text-2xl text-black'>
+							Help us with your <span className='text-blue-600'>{pageName}</span>
+						</h1>
+						<section className='flex gap-y-4 flex-col text-center py-16'>
+							<Input
+								placeholder='Enter Mobile Number'
+								sideHead='Or'
+								onChange={e => setContact(e.target.value)}
+								p='5'
+							/>
+							<Input
+								placeholder='Enter Customer ID'
+								link={{ to: '#', name: 'verify' }}
+								linkColor='pink'
+								onChange={e => setCustID(e.target.value)}
+								p='5'
+							/>
+						</section>
+						<Button onClick={handleSubmit} type='blue'>
+							Login
+						</Button>
 					</section>
-					<Button onClick={handleSubmit} type='blue-light'>
-						Login
-					</Button>
-				</Colom1>
-				<Colom2>
-					<Img src={loanDetails.imageUrl} alt={'Loan Caption'} />
-				</Colom2>
+				</Layout>
+				<section className='w-1/4 absolute right-0'>
+					<img
+						style={{ height: 'calc(100vh - 80px)' }}
+						className='w-full'
+						src={loanDetails.imageUrl}
+						alt={'Loan Caption'}
+					/>
+				</section>
 				<OtpModal toggle={toggle} show={show} />
 			</>
 		)

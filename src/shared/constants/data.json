@@ -1,0 +1,95 @@
+{
+	"Business_details": {
+		"label": "Business Details",
+		"image": "",
+		"data": [
+			{
+				"label": "Business First Name",
+				"mandatory": false,
+				"type": "input",
+				"visibility": true,
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": "",
+				"key": "first_name",
+				"validation": [],
+				"sequence": 1
+			},
+			{
+				"label": "Business Last Name",
+				"mandatory": false,
+				"type": "input",
+				"visibility": true,
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": "",
+				"key": "last_name",
+				"validation": [],
+				"sequence": 2
+			},
+			{
+				"label": "Business Industry",
+				"mandatory": true,
+				"type": "dropdown",
+				"visibility": true,
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": 20,
+				"key": "business_industry_type",
+				"validation": [],
+				"sequence": 4
+			},
+			{
+				"label": "Business Type",
+				"mandatory": true,
+				"type": "dropdown",
+				"visibility": true,
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": null,
+				"key": "business_type",
+				"validation": [],
+				"sequence": 3
+			},
+			{
+				"label": "Case Name",
+				"mandatory": true,
+				"type": "input",
+				"visibility": true,
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": "",
+				"key": "business_name",
+				"validation": [],
+				"sequence": 5
+			},
+			{
+				"label": "No of years since business started",
+				"mandatory": false,
+				"type": "date",
+				"visibility": true,
+				"option": [
+					{
+						"key": 1,
+						"value": "months"
+					},
+					{
+						"key": 2,
+						"value": "years"
+					}
+				],
+				"switch_key": "business_started_um",
+				"switch_default_value": "months",
+				"default_value": null,
+				"key": "business_started",
+				"validation": [],
+				"sequence": 6
+			}
+		]
+	}
+}
