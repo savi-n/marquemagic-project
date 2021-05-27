@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Layout from '../Layout';
 import Button from '../shared/components/Button';
+import { clearLC } from '../utils/clearStorage';
 
 export default function ApplicationSubmitted(props) {
 	const [gurantor, setGurantor] = useState(true);
@@ -21,7 +22,9 @@ export default function ApplicationSubmitted(props) {
 						</section>
 					</section>
 				) : (
-					<Button type='blue'>Done</Button>
+					<Button onClick={() => clearLC()} type='blue'>
+						Done
+					</Button>
 				)}
 			</section>
 		</Layout>

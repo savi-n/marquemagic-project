@@ -6,6 +6,7 @@ import Loading from './components/Loading';
 import useFetch from './hooks/useFetch';
 import { WHITE_LABEL_URL } from './config';
 import { StoreProvider } from './utils/StoreProvider';
+import { clearLC } from './utils/clearStorage';
 
 const HeaderWrapper = styled.div`
 	min-height: 80px;
@@ -26,6 +27,8 @@ const AppLayout = () => {
 	const { response, error, loading } = useFetch({
 		url: `${WHITE_LABEL_URL({ name: 'CUB UAT' })}`
 	});
+
+	clearLC();
 
 	return loading && !error ? (
 		<Loading />

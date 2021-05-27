@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { oneOf } from 'prop-types';
@@ -12,6 +11,7 @@ import Modal from '../shared/components/Modal';
 import NcLoader from '../shared/components/NcLoader';
 import './style.scss';
 import Input from '../shared/components/Input';
+import { getBankList } from '../utils/requests';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -61,13 +61,8 @@ export default function DocumentUpload(props) {
 
 	const otherBankFetch = async () => {
 		setOtherBankModalToggle(!otherBankModal);
-		const body = { email: 'cub@nc.com', white_label_id: 32 };
-		const data = await axios.post('http://40.80.80.135:1337/sails-exp/ClientVerify', body);
-		localStorage.setItem('token', data.data.token);
-		const bankData = await axios.get('http://40.80.80.135:1337/bank_list', {
-			headers: { authorization: `${localStorage.getItem('token')}` }
-		});
-		setOtherBanksData(bankData.data.banks);
+		const data = await getBankList('BANK', false, false);
+		setOtherBanksData(data);
 	};
 
 	const handleFileUpload = files => {
@@ -153,24 +148,25 @@ export default function DocumentUpload(props) {
 					toggleDisplayList(true);
 				}}
 				back={bankList ? false : true}
+				onBack={() => toggleDisplayList(true)}
 			>
 				{otherBanksData && (
 					<>
 						{bankList ? (
-							<section className='flex grid grid-cols-2 gap-x-32 gap-y-4 w-full px-6'>
+							<section className='flex grid grid-cols-1 sm:grid sm:grid-cols-2 sm:gap-x-32 gap-y-4 w-full sm:px-6'>
 								{otherBanksData &&
 									otherBanksData.map(item => (
 										<section
 											key={item.id}
-											className='border border-gray-300 p-2 cursor-pointer px-4 rounded-lg'
+											className='border border-gray-300 p-2 cursor-pointer px-4 rounded-xl'
 										>
 											<label className='flex items-center justify-between w-full'>
-												<div className='flex items-center justify-between w-1/2'>
-													<img className='h-10 w-10' src={item.logo} />
-													<p>{item.name}</p>
+												<div className='flex items-center gap-x-4 justify-between w-3/12 sm:w-1/2'>
+													<img className='h-8 w-8 sm:h-10 sm:w-10' src={item.logo} />
+													<p className='w-full text-left'>{item.name}</p>
 												</div>
 												<input
-													className='w-1/6 radio'
+													className='sm:w-1/6 radio'
 													type='radio'
 													name='banks'
 													value={item.name}
@@ -183,13 +179,13 @@ export default function DocumentUpload(props) {
 						) : (
 							<>
 								{selectedBankDetails && (
-									<section className='flex flex-col gap-y-16'>
+									<section className='flex flex-col gap-y-10'>
 										<section className='flex flex-col items-center justify-center'>
 											<img className='h-16 w-16' src={selectedBankDetails[0].logo} />
 										</section>
-										<section className='flex gap-y-3 flex-col items-center justify-center'>
-											<Input placeholder='User ID' />
-											<Input placeholder='Password' />
+										<section className='flex gap-y-2 flex-col items-center justify-center'>
+											<Input placeholder='User ID' p='3' />
+											<Input placeholder='Password' p='3' />
 										</section>
 									</section>
 								)}

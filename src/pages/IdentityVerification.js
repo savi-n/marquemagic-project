@@ -5,6 +5,7 @@ import Input from '../shared/components/Input/index';
 import Button from '../shared/components/Button/index';
 import OtpModal from '../components/otpModal';
 import Layout from '../Layout';
+import { generateOtp } from '../utils/requests';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -34,6 +35,9 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 			console.log('error');
 			return;
 		}
+		generateOtp(contact.toString(), custID.toString());
+		setContact('');
+		setCustID('');
 	};
 
 	const toggle = () => setShow(!show);
@@ -43,7 +47,7 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 			<>
 				<Layout>
 					<section className='w-1/2'>
-						<h1 className='text-lg sm:text-2xl text-black'>
+						<h1 className='text-lg sm:text-xl text-black'>
 							Help us with your <span className='text-blue-600'>{pageName}</span>
 						</h1>
 						<section className='flex gap-y-4 flex-col text-center py-16'>
@@ -71,7 +75,7 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 						style={{ height: 'calc(100vh - 80px)' }}
 						className='w-full'
 						src={loanDetails.imageUrl}
-						alt={'Loan Caption'}
+						alt='Loan Caption'
 					/>
 				</section>
 				<OtpModal toggle={toggle} show={show} />

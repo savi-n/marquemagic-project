@@ -9,14 +9,14 @@ export default function Input(props) {
 				<input
 					{...props}
 					className={`w-${width || ''} font-${font || '3xl'} p-${p || '4'} text-${txtColor ||
-						'black'} border solid silver rounded focus:outline-none focus:shadow-inner shadow-sm ${classname}`}
+						'black'} border solid silver rounded-xl focus:outline-none focus:shadow-inner shadow-sm ${classname}`}
 					defaultValue={props.dv}
 				/>
 			)}
 			{props.type === 'dropdown' && (
 				<select
 					className={`w-${width || ''} font-${font || '3xl'} p-${p || '4'} text-${txtColor ||
-						'gray-400'} border solid silver rounded focus:outline-none focus:shadow-inner shadow-sm bg-transparent ${classname}`}
+						'gray-400'} border solid silver rounded-xl focus:outline-none focus:shadow-inner shadow-sm bg-transparent ${classname}`}
 				>
 					<option value={props.label} disabled>
 						{props.label}
