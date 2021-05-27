@@ -25,7 +25,7 @@ export default function Header({ logo }) {
       </a>
       <div className="ml-auto">
         <Button>
-          <span className="px-4">Open Account</span>
+          <span>Open Account</span>
           <FontAwesomeIcon icon={faChevronRight} size="1x" />
         </Button>
       </div>

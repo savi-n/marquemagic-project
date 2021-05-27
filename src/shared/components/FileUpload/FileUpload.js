@@ -64,7 +64,13 @@ const Droping = styled.div`
   z-index: 9999;
 `;
 
-export default function FileUpload({ onDrop, accept = "", caption, bg }) {
+export default function FileUpload({
+  onDrop,
+  accept = "",
+  caption,
+  bg,
+  disabled = false,
+}) {
   const ref = useRef(uuidv4());
 
   const id = uuidv4();
@@ -145,7 +151,7 @@ export default function FileUpload({ onDrop, accept = "", caption, bg }) {
   }, []);
 
   return (
-    <Dropzone ref={ref} dragging={dragging} bg={bg}>
+    <Dropzone ref={ref} dragging={dragging} bg={bg} disabled={disabled}>
       {dragging && <Droping>Drop here :)</Droping>}
       <FontAwesomeIcon icon={faUpload} size="1x" />
       <Caption>
@@ -158,6 +164,7 @@ export default function FileUpload({ onDrop, accept = "", caption, bg }) {
         onChange={onChange}
         multiple
         accept={accept}
+        disabled={disabled}
       />
       <Label htmlFor={id}>Select from your Computer</Label>
     </Dropzone>
