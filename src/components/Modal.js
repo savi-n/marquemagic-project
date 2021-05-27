@@ -20,7 +20,7 @@ const Modalbody = styled.div`
   background: #fff;
   padding: 20px;
   border-radius: 5px;
-  width: 50%;
+  max-width: 50%;
   min-height: 50%;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
 `;

@@ -22,6 +22,7 @@ const StyledButton = styled.button`
       ? css`
           cursor: not-allowed;
           background: grey;
+          border-color: grey;
         `
       : css``};
 
