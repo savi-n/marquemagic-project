@@ -244,11 +244,15 @@ const Input = styled.input`
   height: 50px;
   padding: 10px;
   width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
 `;
 const Select = styled.select`
   height: 50px;
   padding: 10px;
   width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
 `;
 
 function InputField({ field, onChange, value, unregister }) {

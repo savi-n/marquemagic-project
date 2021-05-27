@@ -107,23 +107,23 @@ export default function FileUpload({ onDrop, accept = "", caption, bg }) {
       files = files.filter((file) => accept.includes(file.type.split("/")[1]));
     }
 
-    setDragging(false);
-
     if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-      files = [...selectedFiles.current, ...files];
+      onDrop(files);
 
+      files = [...selectedFiles.current, ...files];
       selectedFiles.current = files;
 
-      onDrop(selectedFiles.current);
       event.dataTransfer.clearData();
       refCounter = 0;
     }
+    setDragging(false);
   };
 
   const onChange = async (event) => {
-    let files = [...selectedFiles.current, ...event.target.files];
+    onDrop([...event.target.files]);
+
+    const files = [...selectedFiles.current, ...event.target.files];
     selectedFiles.current = files;
-    onDrop(selectedFiles.current);
   };
 
   useEffect(() => {

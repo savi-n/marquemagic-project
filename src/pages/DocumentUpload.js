@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { oneOf } from "prop-types";
@@ -7,6 +7,8 @@ import Button from "../components/Button";
 import CheckBox from "../shared/components/Checkbox/CheckBox";
 import FileUpload from "../shared/components/FileUpload/FileUpload";
 import BankStatementModal from "../components/BankStatementModal";
+import useFetch from "../hooks/useFetch";
+import { DOCS_UPLOAD_URL } from "../config";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -73,16 +75,43 @@ const documentsRequired = [
   "Form 16 from the Employee of the borrower",
   "Any other relevent doxuments",
 ];
+
 export default function DocumentUpload({ userType }) {
+  const { newRequest } = useFetch();
+
   const [checkbox1, setCheckbox1] = useState(false);
   const [checkbox2, setCheckbox2] = useState(false);
 
-  const [uploadFiles, setUploadFiles] = useState([]);
+  const uploadedFiles = useRef([]);
 
   const [showModal, setShowModal] = useState(false);
 
-  const handleFileUpload = (files) => {
-    setUploadFiles(files);
+  const handleFileUpload = async (files) => {
+    Promise.all(
+      files.map((file) => {
+        const formData = new FormData();
+        formData.append("document", file);
+
+        return newRequest(
+          DOCS_UPLOAD_URL("userId"),
+          {
+            method: "POST",
+            data: formData,
+          },
+          {
+            Authorization: `Bearer ${"token"}`,
+          }
+        )
+          .then((response) => response.json())
+          .then((res) => {
+            if (res.status === "ok") {
+              uploadedFiles.current.push(...res.files);
+            }
+            return res.files[0];
+          })
+          .catch((err) => err);
+      })
+    ).then((files) => console.log(files));
   };
 
   const onButtonClick = () => {
@@ -96,11 +125,8 @@ export default function DocumentUpload({ userType }) {
           {userType ?? "Help Us with"} <span>Document Upload</span>
         </h2>
         <UploadWrapper>
-          <FileUpload onDrop={handleFileUpload} accept=".doc,.docx" />
+          <FileUpload onDrop={handleFileUpload} accept="" />
         </UploadWrapper>
-        {uploadFiles.map((files) => (
-          <div>{files.name}</div>
-        ))}
 
         <ButtonWrapper>
           <Button name="Get CUB Statement" onClick={onButtonClick} />

@@ -20,6 +20,8 @@ const Bank = styled.div`
   width: 40%;
   margin: 10px 0;
   cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
 `;
 
 const BankWrapper = styled.div`
@@ -95,23 +97,23 @@ export default function BankStatementModal({ showModal, onClose }) {
   const [accountsList, setAccountsList] = useState([]);
 
   const postData = async (api, data, method = "POST") => {
-    return newRequest(
-      api,
-      {
-        method,
-        data,
-      },
-      {
-        authorization: clientToken,
-      }
-    );
+    return newRequest(api, { method, data }, { authorization: clientToken });
   };
 
   const flowCompleted = () => {
     onClose();
   };
 
+  const onBankSelect = (bank) => {
+    setBankChoosen(bank);
+  };
+
   const handleNext = () => {
+    const accountTypes = bankChoosen.bank_type || [];
+
+    if (accountTypes.length > 1) {
+    }
+
     BANK_FLOW[bankChoosen.name.toLowerCase()]?.length
       ? setFlowStep(flowStep + 1)
       : flowCompleted();
@@ -161,6 +163,7 @@ export default function BankStatementModal({ showModal, onClose }) {
           <Captcha
             src={captchaUrl || "https://picsum.photos/200/300"}
             alt="Captcha"
+            loading="lazy"
           />
           {register(flow)}
         </div>
@@ -181,7 +184,7 @@ export default function BankStatementModal({ showModal, onClose }) {
               </TitleWrapper>
               <BankWrapper>
                 {banks?.map((bank) => (
-                  <Bank key={bank.id} onClick={(e) => setBankChoosen(bank)}>
+                  <Bank key={bank.id} onClick={() => onBankSelect(bank)}>
                     <BankLogo src={bank.logo} alt={bank.name} loading="lazy" />
                     <BankName>{bank.name}</BankName>
                     <input

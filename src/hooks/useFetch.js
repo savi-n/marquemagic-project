@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { string, shape, oneOf } from "prop-types";
 
 export default function useFetch({
   url,
   options = { method: "GET" },
   headers = {},
-}) {
+} = {}) {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,21 +35,9 @@ export default function useFetch({
         setLoading(false);
       }
     };
-    fetchData();
+
+    url && fetchData();
     return () => {};
   }, []);
   return { response, error, loading, newRequest };
 }
-
-useFetch.defaultProps = {
-  options: {
-    method: "GET",
-  },
-};
-
-useFetch.propTypes = {
-  url: string.isRequired,
-  options: shape({
-    method: oneOf(["GET", "POST", "PUT"]),
-  }),
-};
