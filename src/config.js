@@ -16,6 +16,7 @@ const WHITE_LABEL_URL = taggedTemplate`${API_END_POINT}/wot/whitelabelsolution?n
 const PRODUCT_LIST_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${"whiteLabelId"}`;
 const PRODUCT_DETAILS_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${"whiteLabelId"}&product_id=${"productId"}`;
 const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userId=${"userId"}"}`;
+const BORROWER_UPLOAD_URL = `${API_END_POINT}/borrowerdoc-upload`;
 
 const NC_STATUS_CODE = {
   success: "NC200",
@@ -34,4 +35,5 @@ export {
   PRODUCT_LIST_URL,
   PRODUCT_DETAILS_URL,
   DOCS_UPLOAD_URL,
+  BORROWER_UPLOAD_URL,
 };

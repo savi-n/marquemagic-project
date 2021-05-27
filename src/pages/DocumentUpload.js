@@ -8,7 +8,7 @@ import CheckBox from "../shared/components/Checkbox/CheckBox";
 import FileUpload from "../shared/components/FileUpload/FileUpload";
 import BankStatementModal from "../components/BankStatementModal";
 import useFetch from "../hooks/useFetch";
-import { DOCS_UPLOAD_URL } from "../config";
+import { DOCS_UPLOAD_URL, BORROWER_UPLOAD_URL } from "../config";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -105,13 +105,34 @@ export default function DocumentUpload({ userType }) {
           .then((response) => response.json())
           .then((res) => {
             if (res.status === "ok") {
-              uploadedFiles.current.push(...res.files);
+              const file = res.files[0];
+              const uploadfile = {
+                product_id: "",
+                doc_type_id: [213, 225],
+                upload_doc_name: file.filename,
+                document_key: file.fd,
+                size: file.size,
+              };
+              uploadedFiles.current.push(uploadfile);
             }
             return res.files[0];
           })
           .catch((err) => err);
       })
     ).then((files) => console.log(files));
+  };
+
+  const onSubmit = async () => {
+    const submitReq = await newRequest(
+      BORROWER_UPLOAD_URL,
+      {
+        method: "POST",
+        data: uploadedFiles.current,
+      },
+      {
+        Authorization: `Bearer ${"token"}`,
+      }
+    );
   };
 
   const onButtonClick = () => {

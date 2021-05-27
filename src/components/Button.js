@@ -1,11 +1,10 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { string, func, node, object, oneOf } from "prop-types";
 
 const StyledButton = styled.button`
   color: ${({ theme, fill }) => (fill ? "white" : theme.buttonColor1)};
   border: 2px solid ${({ theme, fill }) => fill ?? theme.buttonColor1};
   border-radius: 5px;
-  outline: none;
   padding: 10px 20px;
   background: ${({ theme, fill }) => fill ?? theme.themeColor1};
   display: flex;
@@ -16,15 +15,6 @@ const StyledButton = styled.button`
   font-weight: 500;
   text-align: center;
   transition: 0.2s;
-
-  ${(props) =>
-    props.disabled
-      ? css`
-          cursor: not-allowed;
-          background: grey;
-          border-color: grey;
-        `
-      : css``};
 
   &:hover {
     color: ${({ theme, fill }) => (fill ? "white" : theme.themeColor1)};
@@ -52,7 +42,7 @@ export default function Button({
       disabled={disabled}
       altStyle={style}
     >
-      <Div>{name}</Div>
+      {name && <Div>{name}</Div>}
       {children}
     </StyledButton>
   );

@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import { v4 as uuidv4 } from "uuid";
 
-import { PRODUCT_DETAILS_URL, API_END_POINT } from "../config";
+import { PRODUCT_DETAILS_URL } from "../config";
 import useFetch from "../hooks/useFetch";
 import { StoreContext } from "../utils/StoreProvider";
 import Loading from "../components/Loading";
@@ -34,15 +34,15 @@ const Colom2 = styled.div`
 const Head = styled.h4`
   border: ${({ active }) => (active ? "1px solid" : "none")};
   border-radius: 10px;
-  padding: 15px 20px;
-  margin: 10px 0;
+  padding: 10px 20px;
+  margin: 5px 0;
 `;
 
 const Menu = styled.h5`
   border: ${({ active }) => (active ? "1px solid" : "none")};
   border-radius: 10px;
-  padding: 15px 20px;
-  margin: 10px 0;
+  padding: 10px 20px;
+  margin: 5px 0;
   position: relative;
   display: flex;
   align-items: center;

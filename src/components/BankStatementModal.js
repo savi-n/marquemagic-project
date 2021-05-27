@@ -91,6 +91,8 @@ export default function BankStatementModal({ showModal, onClose }) {
     headers: { authorization: `${clientToken}` },
   });
 
+  const [processing, setProcessing] = useState(false);
+
   const [bankChoosen, setBankChoosen] = useState({});
   const [flowStep, setFlowStep] = useState(0);
   const [captchaUrl, setCaptchaUrl] = useState(null);
@@ -109,10 +111,10 @@ export default function BankStatementModal({ showModal, onClose }) {
   };
 
   const handleNext = () => {
-    const accountTypes = bankChoosen.bank_type || [];
+    // const accountTypes = bankChoosen.bank_type || [];
 
-    if (accountTypes.length > 1) {
-    }
+    // if (accountTypes.length > 1) {
+    // }
 
     BANK_FLOW[bankChoosen.name.toLowerCase()]?.length
       ? setFlowStep(flowStep + 1)
@@ -126,6 +128,8 @@ export default function BankStatementModal({ showModal, onClose }) {
   };
 
   const handleSubmitForm = async (formData) => {
+    setProcessing(true);
+
     try {
       const post = await postData(
         BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.api,
@@ -148,6 +152,7 @@ export default function BankStatementModal({ showModal, onClose }) {
     } catch (error) {
       console.log(error);
     }
+    setProcessing(false);
   };
 
   const { register, handleSubmit, formState } = useForm();
@@ -223,7 +228,7 @@ export default function BankStatementModal({ showModal, onClose }) {
                   type="submit"
                   name="Next"
                   fill="blue"
-                  disabled={!!Object.keys(formState.error).length}
+                  disabled={!!Object.keys(formState.error).length || processing}
                   style={{
                     width: "200px",
                     background: "blue",
