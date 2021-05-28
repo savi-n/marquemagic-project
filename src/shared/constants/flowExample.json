@@ -1,0 +1,54 @@
+[
+    {
+        "name": "Identity Verification",
+        "id": "identity-verification"
+    },
+    {
+        "name": "Personal Details",
+        "id": "personal-details"
+    },
+    {
+        "name": "Address Details",
+        "id": "address-details",
+        "flow": [
+            {
+                "name": "Co-applicant Details",
+                "id": "co-applicant-details"
+            },
+            {
+                "name": "Co-applicant Income Details",
+                "id": "co-applicant-income-details"
+            },
+            {
+                "name": "Co-applicant Document Upload",
+                "id": "co-applicant-document-upload"
+            }
+        ]
+    },
+    {
+        "name": "Loan Details",
+        "id": "loan-details"
+    },
+    {
+        "name": "Document Upload",
+        "id": "document-upload"
+    },
+    {
+        "name": "Application Submitted",
+        "id": "application-submitted",
+        "flow": [
+            {
+                "name": "Gurantor Details",
+                "id": "gurantor-details"
+            },
+            {
+                "name": "Gurantor Income Details",
+                "id": "gurantor-income-details"
+            },
+            {
+                "name": "Gurantor Document Upload",
+                "id": "gurantor-document-upload"
+            }
+        ]
+    }
+]

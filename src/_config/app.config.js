@@ -1,4 +1,4 @@
-import taggedTemplate from "./utils/taggedTemplate";
+import taggedTemplate from "../utils/taggedTemplate";
 
 const API_END_POINT =
   process.env.REACT_APP_API_URL || "http://3.108.54.252:1337";
