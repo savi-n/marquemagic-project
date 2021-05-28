@@ -25,7 +25,7 @@ const Img = styled.img`
 	object-position: center;
 `;
 
-export default function IdentityVerification({ loanDetails, pageName }) {
+export default function IdentityVerification({ productDetails, pageName }) {
 	const [contact, setContact] = useState('');
 	const [userId, setUserId] = useState('');
 	const [status, setStatus] = useState('');
@@ -53,7 +53,6 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 		if (data.statusCode === 'NC500') {
 			setErrorMessage(data.message);
 		}
-		console.log(Boolean(data.mobileNo));
 		if (!data.mobileNo) {
 			setErrorMessage('We cannot find any mobile number associated with the given customer ID.');
 			return;
@@ -81,7 +80,7 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 	};
 
 	return (
-		loanDetails && (
+		productDetails && (
 			<>
 				<Layout>
 					<section className='w-1/2'>
@@ -112,7 +111,7 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 					<img
 						style={{ height: 'calc(100vh - 80px)' }}
 						className='w-full'
-						src={loanDetails.imageUrl}
+						src={productDetails.imageUrl}
 						alt='Loan Caption'
 					/>
 				</section>

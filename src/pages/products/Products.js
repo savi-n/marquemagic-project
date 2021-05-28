@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import styled from "styled-components";
 
-import Card from "../components/Card";
-import useFetch from "../hooks/useFetch";
-import { StoreContext } from "../utils/StoreProvider";
-import { PRODUCT_LIST_URL } from "../config";
+import Card from "../../components/Card";
+import useFetch from "../../hooks/useFetch";
+import { StoreContext } from "../../utils/StoreProvider";
+import { PRODUCT_LIST_URL } from "../../_config/app.config";
 
 const Wrapper = styled.div`
   padding: 50px 80px;
@@ -37,7 +37,7 @@ export default function Products() {
       <Div>
         {products &&
           products.data.map((product) => (
-            <Card product={product} key={`product__${product.id}`} />
+            <Card product={product} key={`product__${product.id}/`} />
           ))}
       </Div>
     </Wrapper>
