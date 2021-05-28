@@ -10,7 +10,7 @@ const Colom1 = styled.section`
 `;
 
 const Colom2 = styled.section`
-  width: 40%;
+  width: 30%;
   background: ${({ theme }) => theme.themeColor1};
 `;
 
@@ -19,6 +19,11 @@ const Img = styled.img`
   height: 100%;
   object-fit: cover;
   object-position: center;
+`;
+
+const Div = styled.div`
+  display: flex;
+  justify-content: center;
 `;
 
 const Li = styled.li`
@@ -69,7 +74,11 @@ export default function ProductDetails({ productDetails, nextFlow }) {
               ))}
             </ul>
           </div>
-          {nextFlow && <Button name="Next" onClick={startFlow} />}
+          {nextFlow && (
+            <Div>
+              <Button name="Next" onClick={startFlow} />
+            </Div>
+          )}
         </Colom1>
         <Colom2>
           <Img src={productDetails.imageUrl} alt="Loan Caption" />

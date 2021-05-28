@@ -30,7 +30,7 @@ const Colom2 = styled.div`
   flex: 1;
   background: ${({ theme }) => theme.themeColor1};
   display: flex;
-  height: calc(100vh - 80px);
+  /* height: calc(100vh - 80px); */
   overflow: scroll;
   &::-webkit-scrollbar {
     display: none;
@@ -91,13 +91,6 @@ export default function Product({ product, page }) {
 
   const h = history.location.pathname.split("/");
   const activeValue = history.location.pathname.split("/").pop();
-
-  const [currentFlow, setNextFlow] = useState(0);
-
-  const nextFlow = (i) => {
-    setNextFlow(currentFlow + 1);
-    history.push(response?.data?.product_details?.flow?.[currentFlow]?.id);
-  };
 
   useEffect(() => {
     setCoApplicant(JSON.parse(window.localStorage.getItem("coApplicant")));
@@ -214,7 +207,6 @@ export default function Product({ product, page }) {
                   config={m}
                   productDetails={response?.data?.product_details}
                   pageName={pageName}
-                  nextFlow={nextFlow}
                 />
               </>
             ))}
