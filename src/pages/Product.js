@@ -107,7 +107,7 @@ export default function Product({ product, page }) {
 	}, [addedApplicant]);
 
 	const getPageName = loanDetails => loanDetails && loanDetails.step.filter(el => h[h.length - 1] === el.page);
-	const pageName = response && response.data && getPageName(response.data.product_details)[0]?.name;
+	const pageName = '';
 	const subTypeHandler = subType => {
 		var num;
 		if (localStorage.getItem(`${subType}`)) {

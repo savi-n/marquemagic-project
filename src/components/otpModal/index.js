@@ -87,17 +87,18 @@ export default function OtpModal(props) {
 		localStorage.setItem('userId', data.data.userDetails?.id);
 		if (response.statusCode === 'NC200') {
 			setSelectedAccount(response);
+			setOtp('');
 			localStorage.setItem('selectedAccount', JSON.stringify(response));
 			const url = flower(history);
 			history.push(url);
 		} else if (response.statusCode === 'NC302' && response.message.includes('Invalid')) {
 			setInvalid(true);
 			setMessage(response.message);
+			setOtp('');
 		} else if (response.statusCode === 'NC302' && response.message.includes('Multiple')) {
 			setMultipleSelector(true);
 			setAccountsData(response.accountDetails);
 		}
-		setOtp('');
 	};
 
 	useEffect(() => {
@@ -128,14 +129,32 @@ export default function OtpModal(props) {
 		localStorage.setItem('selectedAccount', JSON.stringify(selectedAccountData[0]));
 	};
 
-	const handleProceed = () => {
+	const handleProceed = async () => {
 		if (!selectedAccount) {
 			setInvalid(true);
 			setMessage('Please select an account to proceed');
 			return;
 		}
-		const url = flower(history);
-		history.push(url);
+		const bodyData = {
+			otp,
+			mobileNo: selectedAccount.mobileNum,
+			customerId: selectedAccount.customerId,
+			userId
+		};
+		const data = await verifyOtp(bodyData);
+		response = data.data;
+		setStatus(response.statusCode);
+		localStorage.setItem('userId', data.data.userDetails?.id);
+		if (response.statusCode === 'NC200') {
+			setSelectedAccount(response);
+			setOtp('');
+			localStorage.setItem('selectedAccount', JSON.stringify(response));
+			const url = flower(history);
+			history.push(url);
+		} else {
+			setInvalid(true);
+			setMessage(response && response.message);
+		}
 	};
 
 	const hiddenData = mobileNo.split('');

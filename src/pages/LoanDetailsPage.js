@@ -10,8 +10,8 @@ export default function LoanDetailsComponent(props) {
 			<h1 className='text-xl'>
 				Help us with your <span className='text-blue-600'>{props.pageName}</span>
 			</h1>
-			<DetailsComponent data={jsonData.loan_details.data} />
-			<EMIDetails jsonData={jsonData.emi_details.data} />
+			<DetailsComponent data={jsonData.loan_details} />
+			<EMIDetails jsonData={jsonData.emi_details} />
 			<Footer />
 		</Layout>
 	);

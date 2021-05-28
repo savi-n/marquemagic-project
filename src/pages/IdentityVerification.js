@@ -50,7 +50,14 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 		}
 
 		const data = await generateOtp(contact, custID);
-		if (data.statusCode === 'NC500') setErrorMessage(data.message);
+		if (data.statusCode === 'NC500') {
+			setErrorMessage(data.message);
+		}
+		console.log(Boolean(data.mobileNo));
+		if (!data.mobileNo) {
+			setErrorMessage('We cannot find any mobile number associated with the given customer ID.');
+			return;
+		}
 		if (!data) {
 			setBankStatus(null);
 			setErrorMessage('Invalid Data Given');
