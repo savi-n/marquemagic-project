@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import Layout from '../Layout';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -52,19 +53,26 @@ export default function ProductDetails({ loanDetails }) {
 	return (
 		loanDetails && (
 			<>
-				<Colom1>
-					<H dangerouslySetInnerHTML={{ __html: loanDetails.head }}></H>
-					<div>
-						<ul>
-							{loanDetails.li.map(l => (
-								<Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()}></Li>
-							))}
-						</ul>
-					</div>
-				</Colom1>
-				<Colom2>
-					<Img src={loanDetails.imageUrl} alt={'Loan Caption'} />
-				</Colom2>
+				<Layout>
+					<section className='w-1/2'>
+						<H dangerouslySetInnerHTML={{ __html: loanDetails.head }}></H>
+						<div>
+							<ul>
+								{loanDetails.li.map(l => (
+									<Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()}></Li>
+								))}
+							</ul>
+						</div>
+					</section>
+				</Layout>
+				<section className='w-1/4 absolute right-0'>
+					<img
+						style={{ height: 'calc(100vh - 80px)' }}
+						className='w-full'
+						src={loanDetails.imageUrl}
+						alt='Loan Caption'
+					/>
+				</section>
 			</>
 		)
 	);
