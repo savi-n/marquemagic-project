@@ -101,6 +101,60 @@ const BANK_FLOW = {
       api: `${ENDPOINT_BANK}/apSubmitOtp`,
     },
   ],
+  axisCorp: [
+    {
+      fields: [
+        {
+          name: "corporateId",
+          placeholder: "Corporate ID",
+          rules: {
+            required: true,
+          },
+        },
+        {
+          name: "userId",
+          placeholder: "User ID",
+          rules: {
+            required: true,
+          },
+        },
+        {
+          name: "password",
+          type: "password",
+          placeholder: "Password",
+          rules: {
+            required: true,
+          },
+        },
+      ],
+      api: `${ENDPOINT_BANK}/acSubmitDetails`,
+    },
+    {
+      fields: [
+        {
+          name: "otp",
+          placeholder: "OTP",
+          rules: {
+            required: true,
+          },
+        },
+      ],
+      api: `${ENDPOINT_BANK}/acSubmitOtp`,
+    },
+    {
+      fields: [
+        {
+          name: "accountslist",
+          placeholder: "Account Select",
+          rules: {
+            required: true,
+          },
+        },
+      ],
+      api: `${ENDPOINT_BANK}/acSubmitAccount`,
+    },
+  ],
+
   hdfc: [
     {
       fields: [
