@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import Input from "../shared/components/Input/index";
-import Button from "../shared/components/Button/index";
-import OtpModal from "../components/otpModal";
-import Layout from "../Layout";
-import { generateOtp } from "../utils/requests";
-import ModalRenders from "../components/ModalRenders";
+import Input from "../../../shared/components/Input/index";
+import Button from "../../../shared/components/Button/index";
+import OtpModal from "../../../components/otpModal";
+import Layout from "../../../Layout";
+import { generateOtp } from "../../../utils/requests";
+import ModalRenders from "../../../components/ModalRenders";
+import { StoreContext } from "../../../utils/StoreProvider";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -25,7 +25,13 @@ const Img = styled.img`
   object-position: center;
 `;
 
-export default function IdentityVerification({ productDetails, pageName }) {
+const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
+
+export default function IdentityVerification({ productDetails, nextFlow }) {
+  const {
+    state: { whiteLabelId },
+  } = useContext(StoreContext);
+
   const [contact, setContact] = useState("");
   const [userId, setUserId] = useState("");
   const [status, setStatus] = useState("");
@@ -38,7 +44,6 @@ export default function IdentityVerification({ productDetails, pageName }) {
   const handleSubmit = async () => {
     setBankStatus(null);
     if (!contact && !custID) {
-      console.log("error");
       setContact("");
       setCustID("");
       return;
@@ -49,7 +54,7 @@ export default function IdentityVerification({ productDetails, pageName }) {
       return;
     }
 
-    const data = await generateOtp(contact, custID);
+    const data = await generateOtp(contact, custID, whiteLabelId);
     if (data.statusCode === "NC500") setErrorMessage(data.message);
     if (!data) {
       setBankStatus(null);
@@ -61,8 +66,6 @@ export default function IdentityVerification({ productDetails, pageName }) {
     setUserId(data.userId);
     setShow(true);
   };
-
-  const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
 
   const toggle = () => {
     setContact("");
@@ -79,8 +82,8 @@ export default function IdentityVerification({ productDetails, pageName }) {
         <Layout>
           <section className="w-1/2">
             <h1 className="text-lg sm:text-xl text-black">
-              Help us with your{" "}
-              <span className="text-blue-600">{pageName}</span>
+              Help us with your
+              <span className="text-blue-600">Identity Verification</span>
             </h1>
             <section className="flex gap-y-4 flex-col text-center py-16">
               <Input
@@ -123,6 +126,7 @@ export default function IdentityVerification({ productDetails, pageName }) {
             status={status}
             setSelectedAccount={setSelectedAccount}
             selectedAccount={selectedAccount}
+            nextFlow={nextFlow}
           />
         )}
         {(!bankStatus || bankStatus === "NC500") && (

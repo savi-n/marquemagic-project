@@ -1,7 +1,9 @@
 import { lazy } from "react";
 import { Redirect, Route, useRouteMatch } from "react-router-dom";
 
-const IdentityVerification = lazy(() => import("../IdentityVerification"));
+const IdentityVerification = lazy(() =>
+  import("./identiryVerification/IdentityVerification")
+);
 const DocumentUpload = lazy(() => import("../DocumentUpload"));
 const PersonalDetails = lazy(() => import("../PersonalDetails"));
 const AddressDetails = lazy(() => import("../AddressDetails"));
@@ -51,7 +53,11 @@ export default function FlowRoutes({ config, productDetails = {}, pageName }) {
         path={`${path}/${config.id}`}
         exact
         component={() => (
-          <Component productDetails={productDetails} pageName={pageName} />
+          <Component
+            productDetails={productDetails}
+            pageName={pageName}
+            nextFlow={config.nextFlow}
+          />
         )}
       />
       {subFlow}

@@ -1,6 +1,7 @@
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
-import Layout from "../../../Layout";
+import Button from "../../../components/Button";
 
 const Colom1 = styled.section`
   flex: 1;
@@ -51,7 +52,11 @@ const H = styled.h1`
   }
 `;
 
-export default function ProductDetails({ productDetails }) {
+export default function ProductDetails({ productDetails, nextFlow }) {
+  const history = useHistory();
+  const startFlow = () => {
+    history.push(nextFlow);
+  };
   return (
     productDetails && (
       <>
@@ -64,6 +69,7 @@ export default function ProductDetails({ productDetails }) {
               ))}
             </ul>
           </div>
+          {nextFlow && <Button name="Next" onClick={startFlow} />}
         </Colom1>
         <Colom2>
           <Img src={productDetails.imageUrl} alt="Loan Caption" />
