@@ -6,6 +6,7 @@ import Button from '../shared/components/Button/index';
 import OtpModal from '../components/otpModal';
 import Layout from '../Layout';
 import { generateOtp } from '../utils/requests';
+import ModalRenders from '../components/ModalRenders';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -26,21 +27,51 @@ const Img = styled.img`
 
 export default function IdentityVerification({ loanDetails, pageName }) {
 	const [contact, setContact] = useState('');
+	const [userId, setUserId] = useState('');
+	const [status, setStatus] = useState('');
+	const [bankStatus, setBankStatus] = useState('');
 	const [custID, setCustID] = useState('');
 	const [show, setShow] = useState(false);
+	const [errorMessage, setErrorMessage] = useState('');
+	const [selectedAccount, setSelectedAccount] = useState(null);
 
 	const handleSubmit = async () => {
-		toggle();
+		setBankStatus(null);
 		if (!contact && !custID) {
 			console.log('error');
+			setContact('');
+			setCustID('');
+			return;
+		} else if (contact && custID) {
+			setContact('');
+			setCustID('');
+			alert('please enter one of both');
 			return;
 		}
-		generateOtp(contact.toString(), custID.toString());
-		setContact('');
-		setCustID('');
+
+		const data = await generateOtp(contact, custID);
+		if (data.statusCode === 'NC500') setErrorMessage(data.message);
+		if (!data) {
+			setBankStatus(null);
+			setErrorMessage('Invalid Data Given');
+		}
+		setContact(data.mobileNo);
+		setCustID(data.customerId);
+		setBankStatus(data.statusCode);
+		setUserId(data.userId);
+		setShow(true);
 	};
 
-	const toggle = () => setShow(!show);
+	const link = 'https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg';
+
+	const toggle = () => {
+		setContact('');
+		setCustID('');
+		setBankStatus('');
+		setStatus('');
+		localStorage.removeItem('selectedAccount');
+		setShow(!show);
+	};
 
 	return (
 		loanDetails && (
@@ -78,7 +109,24 @@ export default function IdentityVerification({ loanDetails, pageName }) {
 						alt='Loan Caption'
 					/>
 				</section>
-				<OtpModal toggle={toggle} show={show} />
+				{bankStatus === 'NC200' && (
+					<OtpModal
+						setBankStatus={setBankStatus}
+						setStatus={setStatus}
+						setUserId={setUserId}
+						toggle={toggle}
+						show={show}
+						mobileNo={contact}
+						customerId={custID}
+						userId={userId}
+						status={status}
+						setSelectedAccount={setSelectedAccount}
+						selectedAccount={selectedAccount}
+					/>
+				)}
+				{(!bankStatus || bankStatus === 'NC500') && (
+					<ModalRenders show={show} toggle={toggle} link={link} message={errorMessage} />
+				)}
 			</>
 		)
 	);

@@ -1,12 +1,11 @@
 import { useHistory } from 'react-router-dom';
 import Button from '../Button';
+import { flower } from '../../../utils/helper';
 
 export default function Footer(props) {
 	const history = useHistory();
-	const h = history.location.pathname.split('/');
-	const endpointNum = Number(h[h.length - 1]) + 1;
-	h[h.length - 1] = endpointNum.toString();
-	const url = h.join('/');
+
+	const url = flower(history);
 	return (
 		<section className='flex items-center'>
 			<section className='w-full'>

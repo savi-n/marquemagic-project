@@ -6,9 +6,10 @@ import Footer from '../../shared/components/Footer';
 import EMIDetails from '../../shared/components/EMIDetails';
 
 export default function CoApplicantIncome(props) {
+	console.log(jsonData);
 	return (
 		<Layout>
-			<SalaryDetails jsonData={jsonData} />
+			<SalaryDetails jsonData={jsonData.salary_details.data} />
 			<section className='py-4'>
 				<small>
 					Do you want to include the co-applicant's salary to be included in the loan eligibility
@@ -19,7 +20,7 @@ export default function CoApplicantIncome(props) {
 					<Button>No</Button>
 				</section>
 			</section>
-			<EMIDetails jsonData={jsonData} />
+			<EMIDetails jsonData={jsonData.emi_details.data} />
 			<Footer cancel={true} click={props.click} />
 		</Layout>
 	);

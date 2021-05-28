@@ -8,8 +8,8 @@ import PersonalDetails from '../../shared/components/PersonalDetails';
 export default function CoApplicantComponent(props) {
 	return (
 		<Layout>
-			<PersonalDetails jsonData={jsonData} />
-			<AddressDetailsComponent jsonData={jsonData} {...props} />
+			<PersonalDetails jsonData={jsonData.personal_details.data} />
+			<AddressDetailsComponent jsonData={jsonData.address_details.data} {...props} />
 			<Footer cancel={true} subTypeButton={false} click={props.click} />
 		</Layout>
 	);

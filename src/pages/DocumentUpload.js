@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { oneOf } from 'prop-types';
@@ -12,6 +12,9 @@ import NcLoader from '../shared/components/NcLoader';
 import './style.scss';
 import Input from '../shared/components/Input';
 import { getBankList } from '../utils/requests';
+import { DOCS_UPLOAD_URL, BORROWER_UPLOAD_URL } from '../config';
+import BankStatementModal from '../components/BankStatementModal';
+import useFetch from '../hooks/useFetch';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -24,8 +27,39 @@ const Colom2 = styled.div`
 	background: ${({ theme }) => theme.themeColor1};
 	padding: 50px 30px;
 `;
+
+const FileLabel = styled.label`
+	height: 200px;
+	width: 100%;
+	background: grey;
+	display: block;
+	cursor: pointer;
+`;
 const UploadWrapper = styled.div`
 	padding: 30px 0;
+`;
+
+const ButtonWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 10px 0;
+`;
+
+const CheckboxWrapper = styled.div`
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	margin: 20px 0;
+	gap: 10px;
+`;
+
+const SubmitWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	margin: 10px 0;
+	gap: 10px;
 `;
 
 const DocsCheckboxWrapper = styled.div`
@@ -34,7 +68,7 @@ const DocsCheckboxWrapper = styled.div`
 
 const text = {
 	grantCibilAcces: 'I here by give consent to pull my CIBIL records',
-	declaration: 'I here do declare tat what is stated above is true to the best of my knowledge and  belief'
+	declaration: 'I here do declare that what is stated above is true to the best of my knowledge and  belief'
 };
 
 const documentsRequired = [
@@ -47,87 +81,116 @@ const documentsRequired = [
 	'Any other relevent doxuments'
 ];
 
-export default function DocumentUpload(props) {
-	const { userType } = props;
+export default function DocumentUpload({ userType }) {
+	const { newRequest } = useFetch();
+
 	const [checkbox1, setCheckbox1] = useState(false);
 	const [checkbox2, setCheckbox2] = useState(false);
 
-	const [uploadFiles, setUploadFiles] = useState([]);
-	const [otherBankModal, setOtherBankModalToggle] = useState(false);
-	const [otherBanksData, setOtherBanksData] = useState(null);
-	const [selectedBank, setSelectedBank] = useState(null);
-	const [bankList, toggleDisplayList] = useState(true);
-	const [selectedBankDetails, setSelectedBankDetails] = useState(null);
+	const uploadedFiles = useRef([]);
 
-	const otherBankFetch = async () => {
-		setOtherBankModalToggle(!otherBankModal);
-		const data = await getBankList('BANK', false, false);
-		setOtherBanksData(data);
+	const [showModal, setShowModal] = useState(false);
+
+	const handleFileUpload = async files => {
+		Promise.all(
+			files.map(file => {
+				const formData = new FormData();
+				formData.append('document', file);
+
+				return newRequest(
+					DOCS_UPLOAD_URL('userId'),
+					{
+						method: 'POST',
+						data: formData
+					},
+					{
+						Authorization: `Bearer ${'token'}`
+					}
+				)
+					.then(response => response.json())
+					.then(res => {
+						if (res.status === 'ok') {
+							const file = res.files[0];
+							const uploadfile = {
+								product_id: '',
+								doc_type_id: [213, 225],
+								upload_doc_name: file.filename,
+								document_key: file.fd,
+								size: file.size
+							};
+							uploadedFiles.current.push(uploadfile);
+						}
+						return res.files[0];
+					})
+					.catch(err => err);
+			})
+		).then(files => console.log(files));
 	};
 
-	const handleFileUpload = files => {
-		setUploadFiles([...uploadFiles, ...files]);
+	const onSubmit = async () => {
+		const submitReq = await newRequest(
+			BORROWER_UPLOAD_URL,
+			{
+				method: 'POST',
+				data: uploadedFiles.current
+			},
+			{
+				Authorization: `Bearer ${'token'}`
+			}
+		);
 	};
 
-	const handleModalDisplay = () => {
-		if (bankList) {
-			toggleDisplayList(false);
-			const data = otherBanksData && otherBanksData.filter(el => el.name === selectedBank);
-			setSelectedBankDetails(data);
-		}
+	const onButtonClick = () => {
+		setShowModal(true);
 	};
 
 	return (
 		<>
-			<Layout>
-				<section className='flex flex-col'>
-					<section className='flex justify-between'>
-						<section>
-							<h2 className='text-xl'>
-								{userType ?? 'Help Us with your'} <span className='text-blue-600'>Document Upload</span>
-							</h2>
-							<UploadWrapper>
-								<FileUpload onDrop={handleFileUpload} />
-							</UploadWrapper>
-							{uploadFiles.map(files => (
-								<div>{files.name}</div>
-							))}
-							<section className='flex justify-between w-9/12 items-start'>
-								<section className='grid gap-y-6'>
-									<Button>Get CUB Statement</Button>
-									<Button>Get ITR documents</Button>
-								</section>
-								<Button onClick={() => otherBankFetch()}>Get Other Bank Statements</Button>
-							</section>
-							<section className='flex flex-col justify-center pt-10 gap-y-3'>
-								<CheckBox
-									name={text.grantCibilAcces}
-									checked={checkbox1}
-									onChange={state => setCheckbox1(state)}
-									bg='blue'
-								/>
-								<CheckBox
-									name={text.declaration}
-									checked={checkbox2}
-									onChange={state => setCheckbox2(state)}
-									bg='blue'
-								/>
-							</section>
-						</section>
-					</section>
-					{props.footer && (
-						<section className='py-24'>
-							<Footer
-								submitHandler={props.submitHandler}
-								submit={props.submit}
-								cancel={props.cancel}
-								click={props.click}
-							/>
-						</section>
-					)}
-				</section>
-			</Layout>
-			<section className='w-1/4 bg-gray-100 p-10 absolute right-0' style={{ height: 'calc(100vh - 80px)' }}>
+			<Colom1>
+				<h2>
+					{userType ?? 'Help Us with'} <span>Document Upload</span>
+				</h2>
+				<UploadWrapper>
+					<FileUpload onDrop={handleFileUpload} accept='' />
+				</UploadWrapper>
+
+				<ButtonWrapper>
+					<Button name='Get CUB Statement' onClick={onButtonClick} />
+					<Button name='Get Other Bank Statements' onClick={onButtonClick} />
+					<Button name='Get ITR documents' onClick={onButtonClick} />
+				</ButtonWrapper>
+				<CheckboxWrapper>
+					<CheckBox
+						name={text.grantCibilAcces}
+						checked={checkbox1}
+						onChange={state => setCheckbox1(state)}
+						bg='blue'
+					/>
+					<CheckBox
+						name={text.declaration}
+						checked={checkbox2}
+						onChange={state => setCheckbox2(state)}
+						bg='blue'
+					/>
+				</CheckboxWrapper>
+				<SubmitWrapper>
+					<Button
+						name='Submit'
+						fill='blue'
+						style={{
+							width: '200px',
+							background: 'blue'
+						}}
+					/>
+					<Button
+						name='Save'
+						style={{
+							width: '200px'
+						}}
+					/>
+				</SubmitWrapper>
+			</Colom1>
+			<Colom2>
 				<h3>Documents Required</h3>
 				<div>
 					{documentsRequired.map(docs => (
@@ -136,70 +199,8 @@ export default function DocumentUpload(props) {
 						</DocsCheckboxWrapper>
 					))}
 				</div>
-			</section>
-			<Modal
-				width='lg'
-				margin='base'
-				show={otherBankModal}
-				title={`${bankList ? 'Select Bank' : ''}`}
-				onClose={() => {
-					setOtherBanksData(null);
-					setOtherBankModalToggle(false);
-					toggleDisplayList(true);
-				}}
-				back={bankList ? false : true}
-				onBack={() => toggleDisplayList(true)}
-			>
-				{otherBanksData && (
-					<>
-						{bankList ? (
-							<section className='flex grid grid-cols-1 sm:grid sm:grid-cols-2 sm:gap-x-32 gap-y-4 w-full sm:px-6'>
-								{otherBanksData &&
-									otherBanksData.map(item => (
-										<section
-											key={item.id}
-											className='border border-gray-300 p-2 cursor-pointer px-4 rounded-xl'
-										>
-											<label className='flex items-center justify-between w-full'>
-												<div className='flex items-center gap-x-4 justify-between w-3/12 sm:w-1/2'>
-													<img className='h-8 w-8 sm:h-10 sm:w-10' src={item.logo} />
-													<p className='w-full text-left'>{item.name}</p>
-												</div>
-												<input
-													className='sm:w-1/6 radio'
-													type='radio'
-													name='banks'
-													value={item.name}
-													onChange={e => setSelectedBank(e.target.value)}
-												/>
-											</label>
-										</section>
-									))}
-							</section>
-						) : (
-							<>
-								{selectedBankDetails && (
-									<section className='flex flex-col gap-y-10'>
-										<section className='flex flex-col items-center justify-center'>
-											<img className='h-16 w-16' src={selectedBankDetails[0].logo} />
-										</section>
-										<section className='flex gap-y-2 flex-col items-center justify-center'>
-											<Input placeholder='User ID' p='3' />
-											<Input placeholder='Password' p='3' />
-										</section>
-									</section>
-								)}
-							</>
-						)}
-						<section className='pt-6'>
-							<Button type='blue' onClick={() => handleModalDisplay()}>
-								&nbsp; {bankList ? 'Next' : 'Login'} &nbsp;
-							</Button>
-						</section>
-					</>
-				)}
-				{!otherBanksData && <NcLoader />}
-			</Modal>
+			</Colom2>
+			{showModal && <BankStatementModal showModal={showModal} onClose={() => setShowModal(false)} />}
 		</>
 	);
 }

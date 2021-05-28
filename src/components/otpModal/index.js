@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import Modal from '../../shared/components/Modal';
 import './style.scss';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 import Button from '../../shared/components/Button';
+import { verifyOtp, generateOtp } from '../../utils/requests';
+import { flower } from '../../utils/helper';
+import Input from '../../shared/components/Input';
+import Message from '../../shared/components/Message';
 
 var arr;
 
@@ -40,20 +45,59 @@ function OTPInput(d) {
 }
 
 export default function OtpModal(props) {
-	const { toggle, show } = props;
+	const {
+		toggle,
+		show,
+		mobileNo,
+		customerId,
+		userId,
+		setBankStatus,
+		setUserId,
+		setStatus,
+		setSelectedAccount,
+		selectedAccount
+	} = props;
 	OTPInput();
 
 	const otpResendTime = 60;
 	const [seconds, setSeconds] = useState(otpResendTime);
 	var [otp, setOtp] = useState('');
 	const [disabled, setDisabled] = useState(true);
-
-	const submitOtp = () => {
+	const [invalid, setInvalid] = useState(false);
+	const [multipleSelector, setMultipleSelector] = useState(false);
+	const [accountsData, setAccountsData] = useState(null);
+	const [message, setMessage] = useState(null);
+	const history = useHistory();
+	var response;
+	const submitOtp = async () => {
 		arr.forEach(el => {
 			setOtp((otp += el.value));
 		});
 		otp = Number(otp);
 		OTPInput(true);
+		const bodyData = {
+			otp,
+			mobileNo,
+			customerId,
+			userId
+		};
+		const data = await verifyOtp(bodyData);
+		response = data.data;
+		setStatus(response.statusCode);
+		localStorage.setItem('userId', data.data.userDetails?.id);
+		if (response.statusCode === 'NC200') {
+			setSelectedAccount(response);
+			localStorage.setItem('selectedAccount', JSON.stringify(response));
+			const url = flower(history);
+			history.push(url);
+		} else if (response.statusCode === 'NC302' && response.message.includes('Invalid')) {
+			setInvalid(true);
+			setMessage(response.message);
+		} else if (response.statusCode === 'NC302' && response.message.includes('Multiple')) {
+			setMultipleSelector(true);
+			setAccountsData(response.accountDetails);
+		}
+		setOtp('');
 	};
 
 	useEffect(() => {
@@ -65,73 +109,106 @@ export default function OtpModal(props) {
 		}
 	}, [seconds]);
 
-	const handleResend = e => {
+	const handleResend = async e => {
 		e.preventDefault();
 		setSeconds(otpResendTime);
 		OTPInput(true);
 		setDisabled(true);
+		const data = await generateOtp(mobileNo, customerId);
+		setBankStatus(data.statusCode);
+		setUserId(data.userId);
 	};
 
+	const handleChange = async e => {
+		localStorage.removeItem('selectedAccount');
+		setInvalid(false);
+		setMessage(null);
+		const selectedAccountData = accountsData.filter(el => el.accNum === e.target.value);
+		setSelectedAccount(selectedAccountData[0]);
+		localStorage.setItem('selectedAccount', JSON.stringify(selectedAccountData[0]));
+	};
+
+	const handleProceed = () => {
+		if (!selectedAccount) {
+			setInvalid(true);
+			setMessage('Please select an account to proceed');
+			return;
+		}
+		const url = flower(history);
+		history.push(url);
+	};
+
+	const hiddenData = mobileNo.split('');
+
 	return (
-		<Modal onClose={toggle} height='auto' title='OTP Verification' margin='base' width='lg' show={show}>
-			<p>
-				A six digit OTP has been sent to *******208. <br /> Kindly enter it below. &nbsp;
-				<b className='cursor-pointer' onClick={toggle}>
-					Wrong number?
-				</b>
-			</p>
-			<div className='mb-6 text-center'>
-				<div id='otp' className='flex justify-center'>
-					<input
-						className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
-						type='text'
-						id='first'
-						maxLength='1'
-					/>
-					<input
-						className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
-						type='text'
-						id='second'
-						maxLength='1'
-					/>
-					<input
-						className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
-						type='text'
-						id='third'
-						maxLength='1'
-					/>
-					<input
-						className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
-						type='text'
-						id='fourth'
-						maxLength='1'
-					/>
-					<input
-						className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
-						type='text'
-						id='fifth'
-						maxLength='1'
-					/>
-					<input
-						className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
-						type='text'
-						id='sixth'
-						maxLength='1'
-					/>
-				</div>
-			</div>
-			<div className={`${seconds > 0 ? 'flex' : 'hidden'} opacity-50`}>Request a new OTP after: {seconds}</div>
-			<Link
-				to='#'
-				onClick={e => (!disabled ? handleResend(e) : e.preventDefault())}
-				className={`${disabled && 'text-pink-400 cursor-not-allowed'} ${!disabled &&
-					'hover:text-pink-400 cursor-pointer text-pink-600 cursor-pointer'} py-4`}
-			>
-				Resend OTP
-			</Link>
-			<Button type='blue' onClick={() => submitOtp()}>
-				Confirm OTP
-			</Button>
+		<Modal
+			onClose={toggle}
+			height='auto'
+			title={multipleSelector ? 'Select Account' : 'OTP Verification'}
+			margin='base'
+			width='lg'
+			show={show}
+		>
+			<Message message={message} invalid={invalid} />
+			{!multipleSelector ? (
+				<>
+					<p>
+						A six digit OTP has been sent to *******{hiddenData.splice(hiddenData.length - 3, 3)}. <br />{' '}
+						Kindly enter it below. &nbsp;
+						<b className='cursor-pointer' onClick={toggle}>
+							Wrong number?
+						</b>
+					</p>
+					<div className='mb-6 text-center'>
+						<div id='otp' className='flex justify-center'>
+							{['first', 'second', 'third', 'fourth', 'fifth', 'sixth'].map(el => (
+								<input
+									className='m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline'
+									type='text'
+									id={`${el}`}
+									maxLength='1'
+									onFocus={() => {
+										setInvalid(false);
+										setMessage(null);
+									}}
+								/>
+							))}
+						</div>
+					</div>
+					<div className={`${seconds > 0 ? 'flex' : 'hidden'} opacity-50`}>
+						Request a new OTP after: {seconds}
+					</div>
+					<Link
+						to='#'
+						onClick={e => (!disabled ? handleResend(e) : e.preventDefault())}
+						className={`${disabled && 'text-pink-400 cursor-not-allowed'} ${!disabled &&
+							'hover:text-pink-400 cursor-pointer text-pink-600 cursor-pointer'} py-4`}
+					>
+						Resend OTP
+					</Link>
+					<Button type='blue' onClick={() => submitOtp()}>
+						Confirm OTP
+					</Button>
+				</>
+			) : (
+				accountsData && (
+					<section className='flex flex-col items-center gap-y-6'>
+						<p>
+							Multiple accounts found. <br /> Please select the account you want to continue your
+							application with
+						</p>
+						<Input
+							onChange={e => handleChange(e)}
+							label='Select account'
+							type='dropdown'
+							data={accountsData}
+						/>
+						<Button onClick={() => handleProceed()} type='blue'>
+							Proceed
+						</Button>
+					</section>
+				)
+			)}
 		</Modal>
 	);
 }

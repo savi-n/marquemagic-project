@@ -6,7 +6,7 @@ import Footer from '../shared/components/Footer';
 export default function AddressDetails(props) {
 	return (
 		<Layout>
-			<AddressDetailsComponent {...props} jsonData={jsonData} />
+			<AddressDetailsComponent {...props} jsonData={jsonData.address_details.data} />
 			<Footer subTypeButton={!props.coApplicant} click={props.click} addedApplicant={props.addedApplicant} />
 		</Layout>
 	);

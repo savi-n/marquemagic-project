@@ -28,6 +28,15 @@ const Caption = styled.p`
 	font-weight: 400;
 `;
 
+const AcceptFilesTypes = styled.span`
+	font-size: 12px;
+	color: red;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+`;
+
 const UploadButton = styled.input`
 	display: none;
 `;
@@ -55,12 +64,14 @@ const Droping = styled.div`
 	z-index: 9999;
 `;
 
-export default function FileUpload({ onDrop, caption, bg }) {
-	const ref = useRef();
+export default function FileUpload({ onDrop, accept = '', caption, bg, disabled = false }) {
+	const ref = useRef(uuidv4());
 
 	const id = uuidv4();
 
 	const [dragging, setDragging] = useState(false);
+
+	const selectedFiles = useRef([]);
 
 	let refCounter = 0;
 
@@ -87,19 +98,32 @@ export default function FileUpload({ onDrop, caption, bg }) {
 		if (!refCounter) setDragging(false);
 	};
 
-	const handleDrop = e => {
-		e.preventDefault();
-		e.stopPropagation();
+	const handleDrop = async event => {
+		event.preventDefault();
+		event.stopPropagation();
 
-		setDragging(false);
-		if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-			onDrop(e.dataTransfer.files);
-			e.dataTransfer.clearData();
+		let files = [...event.dataTransfer.files];
+		if (accept) {
+			files = files.filter(file => accept.includes(file.type.split('/')[1]));
 		}
+
+		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+			onDrop(files);
+
+			files = [...selectedFiles.current, ...files];
+			selectedFiles.current = files;
+
+			event.dataTransfer.clearData();
+			refCounter = 0;
+		}
+		setDragging(false);
 	};
 
-	const onChange = event => {
-		onDrop(event.target.files);
+	const onChange = async event => {
+		onDrop([...event.target.files]);
+
+		const files = [...selectedFiles.current, ...event.target.files];
+		selectedFiles.current = files;
 	};
 
 	useEffect(() => {
@@ -121,11 +145,13 @@ export default function FileUpload({ onDrop, caption, bg }) {
 	}, []);
 
 	return (
-		<Dropzone ref={ref} dragging={dragging} bg={bg}>
+		<Dropzone ref={ref} dragging={dragging} bg={bg} disabled={disabled}>
 			{dragging && <Droping>Drop here :)</Droping>}
 			<FontAwesomeIcon icon={faUpload} size='1x' />
-			<Caption>{caption || `Drag and drop or`}</Caption>
-			<UploadButton type='file' id={id} onChange={onChange} multiple />
+			<Caption>
+				{caption || `Drag and drop or`} {accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
+			</Caption>
+			<UploadButton type='file' id={id} onChange={onChange} multiple accept={accept} disabled={disabled} />
 			<Label htmlFor={id}>Select from your Computer</Label>
 		</Dropzone>
 	);

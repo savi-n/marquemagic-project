@@ -24,4 +24,19 @@ select {
 option {
 	text-align: left;
 	/* reset to left*/
+
+	&:hover {
+		@apply bg-indigo-600;
+	}
+}
+
+input[type='date']:invalid::-webkit-datetime-edit {
+	color: #999;
+}
+
+input[type='date'] {
+	@apply text-gray-400 text-center;
+}
+::-webkit-calendar-picker-indicator {
+	display: none;
 }

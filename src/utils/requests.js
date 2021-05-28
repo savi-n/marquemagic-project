@@ -15,8 +15,17 @@ export const getBankList = async (type, linkRequired, isEncryption) => {
 };
 
 export const generateOtp = async (mobileNo, customerId) => {
-	const data = await axios.post('http://54.255.204.250:1337/cub/generateOtp', null, {
+	const data = await axios.post('http://3.108.54.252:1337/cub/generateOtp', null, {
 		params: { mobileNo, customerId, white_label_id: JSON.parse(localStorage.getItem('wt_lbl')).id }
 	});
-	console.log(data);
+	console.log(data.data);
+	return data.data;
+};
+
+export const verifyOtp = async paramsData => {
+	const data = await axios.post('http://3.108.54.252:1337/cub/verifyOtp', null, {
+		params: { ...paramsData }
+	});
+	if (!data) return null;
+	return data;
 };

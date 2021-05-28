@@ -8,15 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { PRODUCT_DETAILS_URL } from '../config';
 import useFetch from '../hooks/useFetch';
 import { StoreContext } from '../utils/StoreProvider';
-import Loading from '../components/Loading';
-import PersonalDetails from './PersonalDetails';
-import CheckBox from '../shared/components/Checkbox/CheckBox';
-import AddressDetails from './AddressDetails';
-import SubType from './SubType/SubType';
-import SubTypeIncome from './SubType/SubTypeIncome';
-import SubTypeDocs from './SubType/SubTypeDocs';
-import LoanDetailsComponent from './LoanDetailsPage';
-import ApplicationSubmitted from './ApplicationSubmitted';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -46,24 +37,33 @@ const Colom2 = styled.div`
 const Head = styled.h4`
 	border: ${({ active }) => (active ? '1px solid' : 'none')};
 	border-radius: 10px;
-	padding: 15px 20px;
-	margin: 10px 0;
+	padding: 10px 20px;
+	margin: 5px 0;
 `;
 
 const Menu = styled.h5`
 	border: ${({ active }) => (active ? '1px solid' : 'none')};
 	border-radius: 10px;
-	padding: 15px 20px;
-	margin: 10px 0;
+	padding: 10px 20px;
+	margin: 5px 0;
 	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 `;
 
-const LoanDetails = lazy(() => import('../pages/LoanDetails'));
+const LoanDetails = lazy(() => import('../pages/ProductDetails'));
 const IdentityVerification = lazy(() => import('../pages/IdentityVerification'));
 const DocumentUpload = lazy(() => import('../pages/DocumentUpload'));
+const Loading = lazy(() => import('../components/Loading'));
+const PersonalDetails = lazy(() => import('./PersonalDetails'));
+const CheckBox = lazy(() => import('../shared/components/Checkbox/CheckBox'));
+const AddressDetails = lazy(() => import('./AddressDetails'));
+const SubType = lazy(() => import('./SubType/SubType'));
+const SubTypeIncome = lazy(() => import('./SubType/SubTypeIncome'));
+const SubTypeDocs = lazy(() => import('./SubType/SubTypeDocs'));
+const LoanDetailsComponent = lazy(() => import('./LoanDetailsPage'));
+const ApplicationSubmitted = lazy(() => import('./ApplicationSubmitted'));
 
 export default function Product({ product, page }) {
 	const history = useHistory();

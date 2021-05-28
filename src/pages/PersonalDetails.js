@@ -7,8 +7,8 @@ import Footer from '../shared/components/Footer';
 export default function PersonalDetails(props) {
 	return (
 		<Layout>
-			<PersonalDetailsComponent pageName={props.pageName} jsonData={jsonData} />
-			<SalaryDetails pageName={props.pageName} jsonData={jsonData} />
+			<PersonalDetailsComponent pageName={props.pageName} jsonData={jsonData.personal_details.data} />
+			<SalaryDetails pageName={props.pageName} jsonData={jsonData.salary_details.data} />
 			<Footer />
 		</Layout>
 	);

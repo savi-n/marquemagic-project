@@ -10,22 +10,23 @@ export default function DetailsComponent(props) {
 	return (
 		<Divider split={props.split} head={props.head} headLink={props.headLink} change={setDefault}>
 			{data &&
-				Object.keys(data).map(item =>
-					data[item].data.map(
-						el =>
-							el.visibility && (
-								<Input
-									placeholder={el.label}
-									name={el.label}
-									type={el.option.length > 0 ? 'dropdown' : 'text'}
-									data={el.option.length && el.option}
-									label={el.label}
-									key={el.key}
-									onChange={props.handleChange}
-									sideHead={props.sideHead}
-								/>
-							)
-					)
+				data.map(
+					el =>
+						el.visibility && (
+							<Input
+								placeholder={el.label}
+								name={el.label}
+								type={el.type}
+								data={el.option.length && el.option}
+								label={el.label}
+								name={el.key}
+								onChange={props.handleChange}
+								t={el.mandatory === false ? 0 : 1}
+								sideHead={props.sideHead}
+								r={el.inrupees}
+								i={el.isInfo}
+							/>
+						)
 				)}
 		</Divider>
 	);
