@@ -1,4 +1,4 @@
-import { Suspense, lazy, useContext, useState, useEffect } from "react";
+import { Suspense, lazy, useContext, useState } from "react";
 import {
   Route,
   useRouteMatch,
@@ -90,68 +90,13 @@ export default function Product({ product, page }) {
 
   let { path } = useRouteMatch();
 
-  const [coApplicant, setCoApplicant] = useState(false);
-  const [gurantor, setGurantor] = useState(false);
-  const [subTypeData, setSubTypeData] = useState(null);
-  const [addedApplicant, setAddedApplicant] = useState(false);
-
   const h = history.location.pathname.split("/");
   const activeValue = history.location.pathname.split("/").pop();
 
-  useEffect(() => {
-    setCoApplicant(JSON.parse(window.localStorage.getItem("coApplicant")));
-    setAddedApplicant(
-      JSON.parse(window.localStorage.getItem("addedCoApplicant"))
-    );
-    localStorage.removeItem("addedCoApplicant");
-  }, []);
+  const [completedMenu, setCompletedMenu] = useState([]);
 
-  useEffect(() => {
-    window.localStorage.setItem("coApplicant", coApplicant);
-  }, [coApplicant]);
-
-  useEffect(() => {
-    window.localStorage.setItem("addedCoApplicant", addedApplicant);
-  }, [addedApplicant]);
-
-  const getPageName = (loanDetails) =>
-    loanDetails && loanDetails.flow.filter((el) => h[h.length - 1] === el.id);
-  const pageName =
-    response &&
-    response.data &&
-    getPageName(response.data.product_details)[0]?.name;
-  const subTypeHandler = (subType) => {
-    var num;
-    if (localStorage.getItem(`${subType}`)) {
-      localStorage.removeItem(`${subType}`);
-    } else {
-      localStorage.setItem(`${subType}`, subType);
-    }
-    setSubTypeData(subType);
-    if (subType === "co-applicants") {
-      setCoApplicant(!coApplicant);
-      num = 4;
-    } else if (subType === "gurantor") {
-      setGurantor(!gurantor);
-      num = 7;
-    }
-    const url = history.location.pathname.includes(`${subType}`)
-      ? `/product/${product}/${num}`
-      : `/product/${product}/${num}/${subType}/1`;
-    history.push(url);
-  };
-
-  const submitHandler = (subType) => {
-    if (subType === ("co-applicants" || "gurantor")) {
-      subTypeHandler(subType);
-      setAddedApplicant(true);
-    } else {
-      const endpointNum = Number(h[h.length - 1]) + 1;
-      h[h.length - 1] = endpointNum.toString();
-      const url = h.join("/");
-      history.push(url);
-      localStorage.removeItem("addedCoApplicant");
-    }
+  const onComplete = (menu) => {
+    setCompletedMenu([...completedMenu, menu]);
   };
 
   return (
@@ -169,7 +114,7 @@ export default function Product({ product, page }) {
               <Link to={`/product/${product}/${m.id}`} key={uuidv4()}>
                 <Menu active={h.includes(m.id)} completed={m.completed}>
                   <div>{m.name}</div>
-                  {m.completed && (
+                  {completedMenu.includes(m.id) && (
                     <CheckBox bg="white" checked round fg={"blue"} />
                   )}
                 </Menu>
@@ -212,7 +157,8 @@ export default function Product({ product, page }) {
                   key={m.id}
                   config={m}
                   productDetails={response?.data?.product_details}
-                  pageName={pageName}
+                  pageName={m.name}
+                  onComplete={onComplete}
                 />
               </>
             ))}

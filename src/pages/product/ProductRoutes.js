@@ -4,7 +4,8 @@ import { Redirect, Route, useRouteMatch } from "react-router-dom";
 const IdentityVerification = lazy(() =>
   import("./identiryVerification/IdentityVerification")
 );
-const DocumentUpload = lazy(() => import("../DocumentUpload"));
+const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
+
 const PersonalDetails = lazy(() => import("../PersonalDetails"));
 const AddressDetails = lazy(() => import("../AddressDetails"));
 const LoanDetails = lazy(() => import("../LoanDetailsPage"));
@@ -29,7 +30,12 @@ const availableRoutes = {
   "gurantor-document-upload": CoApplicantDocumentUpload,
 };
 
-export default function FlowRoutes({ config, productDetails = {}, pageName }) {
+export default function FlowRoutes({
+  config,
+  productDetails = {},
+  pageName,
+  onComplete,
+}) {
   const { path } = useRouteMatch();
 
   const Component = availableRoutes[config.id];
@@ -42,7 +48,13 @@ export default function FlowRoutes({ config, productDetails = {}, pageName }) {
         <Route
           exact
           path={`${path}/${config.id}/${f.id}`}
-          component={() => <Comp productDetails={productDetails} />}
+          component={({ match }) => (
+            <Comp
+              productId={atob(match.params.product)}
+              productDetails={productDetails}
+              onComplete={onComplete}
+            />
+          )}
         />
       );
     });
@@ -52,11 +64,14 @@ export default function FlowRoutes({ config, productDetails = {}, pageName }) {
       <Route
         path={`${path}/${config.id}`}
         exact
-        component={() => (
+        component={({ match }) => (
           <Component
+            productId={atob(match.params.product)}
             productDetails={productDetails}
             pageName={pageName}
             nextFlow={config.nextFlow}
+            onComplete={onComplete}
+            id={config.id}
           />
         )}
       />
