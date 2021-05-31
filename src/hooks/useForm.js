@@ -278,7 +278,9 @@ function InputField({ field, onChange, value, unregister }) {
   if (type === "select") {
     return (
       <Select {...fieldProps}>
-        <option />
+        <option disabled selected value="">
+          {field.placeholder}
+        </option>
         {field.options?.map(({ value, name }) => (
           <option value={value}>{name}</option>
         ))}

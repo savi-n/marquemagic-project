@@ -3,10 +3,11 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import Button from "../../../components/Button";
-import OtpModal from "../../../components/otpModal";
-import ModalRenders from "../../../components/ModalRenders";
+import OtpModal from "../../../components/OtpModal/OtpModal";
+// import ModalRenders from "../../../components/ModalRenders";
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from "../../../_config/app.config";
 import { StoreContext } from "../../../utils/StoreProvider";
+import { UserContext } from "../../../reducer/userReducer";
 import useForm from "../../../hooks/useForm";
 import useFetch from "../../../hooks/useFetch";
 
@@ -47,30 +48,33 @@ const H2 = styled.h2`
   font-weight: 500;
 `;
 
-const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
+// const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
 
 export default function IdentityVerification({ productDetails, nextFlow }) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
 
-  const history = useHistory();
+  const {
+    state: { userId },
+    actions: { setUserId, setUserDetails },
+  } = useContext(UserContext);
 
   const { newRequest } = useFetch();
-
   const { register, handleSubmit, formState } = useForm();
 
-  const [userId, setUserId] = useState("");
-  const [status, setStatus] = useState("");
-  const [bankStatus, setBankStatus] = useState("");
+  const history = useHistory();
 
   const [toggleModal, setToggleModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [accountAvailable, setAccountAvailable] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [selectedAccount, setSelectedAccount] = useState(null);
-
   const onSubmit = async ({ customerId, mobileNo }) => {
-    setBankStatus(null);
+    setToggleModal(true);
+    setLoading(true);
+
     if (!customerId && !mobileNo) {
       return;
     }
@@ -93,17 +97,19 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
 
       if (response.statusCode === NC_STATUS_CODE.serverError) {
         setErrorMessage(response.message);
+        setAccountAvailable(false);
       }
 
       if (response.statusCode === NC_STATUS_CODE.success) {
-        setToggleModal(true);
-        setBankStatus(response.statusCode);
+        setAccountAvailable(true);
         setUserId(response.userId);
       }
     } catch (error) {
       console.error(error);
       setErrorMessage("Invalid Data Given");
     }
+
+    setLoading(false);
   };
 
   const onClose = () => {
@@ -136,7 +142,7 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
             <FieldWrapper>
               {register({
                 name: "customerId",
-                placeholder: "Enter Customer ID",
+                placeholder: "Use Customer ID to Login",
               })}
             </FieldWrapper>
             <Button
@@ -153,30 +159,29 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
         <Colom2>
           <Img src={productDetails.imageUrl} alt="Loan Caption" />
         </Colom2>
+        {toggleModal && <div>toggle</div>}
         {toggleModal && (
           <OtpModal
-            setBankStatus={setBankStatus}
-            setStatus={setStatus}
-            setUserId={setUserId}
+            loading={loading}
+            accountAvailable={accountAvailable}
+            resend={onSubmit}
             toggle={onClose}
-            show={toggleModal}
+            onProceed={onProceed}
             mobileNo={formState.values?.mobileNo}
             customerId={formState.values?.customerId}
+            show={toggleModal}
             userId={userId}
-            status={status}
-            setSelectedAccount={setSelectedAccount}
-            selectedAccount={selectedAccount}
-            onProceed={onProceed}
+            setUserDetails={setUserDetails}
           />
         )}
-        {(!bankStatus || bankStatus === "NC500") && (
+        {/* {(!bankStatus || bankStatus === "NC500") && (
           <ModalRenders
             show={toggleModal}
             toggle={onClose}
             link={link}
             message={errorMessage}
           />
-        )}
+        )} */}
       </>
     )
   );
