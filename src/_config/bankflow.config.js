@@ -1,4 +1,4 @@
-import { ENDPOINT_BANK } from "../config";
+import { ENDPOINT_BANK } from "../_config/app.config";
 const BANK_FLOW = {
   sbi: [
     {

@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Modal from "./Modal";
 import Button from "./Button";
-import { BANK_LIST_API, NC_STATUS_CODE } from "../config";
+import { BANK_LIST_API, NC_STATUS_CODE } from "../_config/app.config";
 import BANK_FLOW from "../_config/bankflow.config";
 import { StoreContext } from "../utils/StoreProvider";
 import useFetch from "../hooks/useFetch";

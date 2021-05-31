@@ -1,4 +1,4 @@
-import taggedTemplate from "./utils/taggedTemplate";
+import taggedTemplate from "../utils/taggedTemplate";
 
 const API_END_POINT =
   process.env.REACT_APP_API_URL || "http://3.108.54.252:1337";
@@ -18,9 +18,14 @@ const PRODUCT_DETAILS_URL = taggedTemplate`${API_END_POINT}/productDetails?white
 const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userId=${"userId"}"}`;
 const BORROWER_UPLOAD_URL = `${API_END_POINT}/borrowerdoc-upload`;
 
+const GENERATE_OTP_URL = `${API_END_POINT}/cub/generateOtp`;
+
+const VERIFY_OTP_URL = `${API_END_POINT}/cub/verifyOtp`;
+
 const NC_STATUS_CODE = {
   success: "NC200",
   serverError: "NC500",
+  accounts: "NC302",
 };
 
 export {
@@ -36,4 +41,6 @@ export {
   PRODUCT_DETAILS_URL,
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
+  GENERATE_OTP_URL,
+  VERIFY_OTP_URL,
 };

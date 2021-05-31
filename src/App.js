@@ -1,6 +1,8 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
-import AppLayout from './AppLayout';
+import AppLayout from "./components/AppLayout";
+import { StoreProvider } from "./utils/StoreProvider";
+import { UserProvider } from "./reducer/userReducer";
 
 const AppWrapper = styled.div`
   height: 100%;
@@ -11,7 +13,11 @@ const AppWrapper = styled.div`
 export default function App() {
   return (
     <AppWrapper>
-      <AppLayout/>
+      <StoreProvider>
+        <UserProvider>
+          <AppLayout />
+        </UserProvider>
+      </StoreProvider>
     </AppWrapper>
   );
 }

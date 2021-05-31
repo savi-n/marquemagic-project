@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import styled, { ThemeProvider } from "styled-components";
 
-import Header from "./components/Header";
-import Content from "./components/Content";
-import Loading from "./components/Loading";
-import useFetch from "./hooks/useFetch";
+import Header from "./Header";
+import Content from "./Content";
+import Loading from "./Loading";
+import useFetch from "../hooks/useFetch";
 import {
   WHITE_LABEL_URL,
   CLIENT_VERIFY_URL,
   CLIENT_EMAIL_ID,
   BANK_TOKEN_API,
   NC_STATUS_CODE,
-} from "./config";
-import { StoreProvider } from "./utils/StoreProvider";
+} from "../_config/app.config.js";
+import { StoreProvider, StoreContext } from "../utils/StoreProvider";
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -34,7 +34,8 @@ const AppLayout = () => {
     url: WHITE_LABEL_URL({ name: "CUB UAT" }),
   });
 
-  const [clientToken, setClientToken] = useState(null);
+  const { actions } = useContext(StoreContext);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +48,9 @@ const AppLayout = () => {
             white_label_id: response.permission.id,
           },
         });
+
         const clientId = res.data;
+
         if (clientId?.statusCode === 200) {
           const bankToken = await newRequest(
             BANK_TOKEN_API,
@@ -64,38 +67,36 @@ const AppLayout = () => {
             }
           );
 
-          if (bankToken?.data?.statusCode === NC_STATUS_CODE.success)
-            setClientToken(bankToken?.data.generated_key);
+          if (bankToken?.data?.statusCode === NC_STATUS_CODE.success) {
+            actions.setClientToken(bankToken?.data.generated_key);
+          }
         }
       } catch (error) {
         console.log("ERROR => ", error);
       }
       setLoading(false);
     }
-    if (response) fetchData();
+    if (response) {
+      actions.setWhitelabelId(response?.permission?.id);
+      actions.setLogo(response?.permission?.logo);
+      fetchData();
+    }
   }, [response]);
 
   return loading ? (
     <Loading />
   ) : (
     response && (
-      <StoreProvider
-        state={{
-          whiteLabelId: response.permission.id,
-          logo: response.permission.logo,
-          clientToken: clientToken,
-        }}
-      >
-        <ThemeProvider theme={response.permission.color_theme_react}>
-          <HeaderWrapper>
-            <Header logo={response.permission.logo} />
-          </HeaderWrapper>
-          <Div>
-            <Content />
-          </Div>
-        </ThemeProvider>
-      </StoreProvider>
+      <ThemeProvider theme={response.permission.color_theme_react}>
+        <HeaderWrapper>
+          <Header logo={response.permission.logo} />
+        </HeaderWrapper>
+        <Div>
+          <Content />
+        </Div>
+      </ThemeProvider>
     )
   );
 };
+
 export default AppLayout;

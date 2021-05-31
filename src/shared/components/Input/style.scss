@@ -1,0 +1,42 @@
+::-webkit-input-placeholder {
+	text-align: center;
+}
+
+:-moz-placeholder {
+	/* Firefox 18- */
+	text-align: center;
+}
+
+::-moz-placeholder {
+	/* Firefox 19+ */
+	text-align: center;
+}
+
+:-ms-input-placeholder {
+	text-align: center;
+}
+
+select {
+	text-align: center;
+	text-align-last: center;
+	/* webkit*/
+}
+option {
+	text-align: left;
+	/* reset to left*/
+
+	&:hover {
+		@apply bg-indigo-600;
+	}
+}
+
+input[type='date']:invalid::-webkit-datetime-edit {
+	color: #999;
+}
+
+input[type='date'] {
+	@apply text-gray-400 text-center;
+}
+::-webkit-calendar-picker-indicator {
+	display: none;
+}

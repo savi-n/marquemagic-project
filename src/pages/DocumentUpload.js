@@ -2,13 +2,12 @@ import { useState, useRef } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { oneOf } from "prop-types";
-
 import Button from "../components/Button";
 import CheckBox from "../shared/components/Checkbox/CheckBox";
 import FileUpload from "../shared/components/FileUpload/FileUpload";
+import { DOCS_UPLOAD_URL, BORROWER_UPLOAD_URL } from "../_config/app.config";
 import BankStatementModal from "../components/BankStatementModal";
 import useFetch from "../hooks/useFetch";
-import { DOCS_UPLOAD_URL, BORROWER_UPLOAD_URL } from "../config";
 
 const Colom1 = styled.div`
   flex: 1;
