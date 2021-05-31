@@ -5,12 +5,11 @@ const IdentityVerification = lazy(() =>
   import("./identiryVerification/IdentityVerification")
 );
 const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
+const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
+const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
 
-const PersonalDetails = lazy(() => import("../PersonalDetails"));
-const AddressDetails = lazy(() => import("../AddressDetails"));
 const LoanDetails = lazy(() => import("../LoanDetailsPage"));
 const ApplicationSubmitted = lazy(() => import("../ApplicationSubmitted"));
-
 const CoApplicantDetails = lazy(() => import("../SubType/SubType"));
 const CoApplicantIncomeDetails = lazy(() => import("../SubType/SubTypeIncome"));
 const CoApplicantDocumentUpload = lazy(() => import("../SubType/SubTypeDocs"));
