@@ -1,5 +1,7 @@
 import { useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+
 import Button from "../../../components/Button";
 import OtpModal from "../../../components/otpModal";
 import ModalRenders from "../../../components/ModalRenders";
@@ -51,6 +53,8 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
+
+  const history = useHistory();
 
   const { newRequest } = useFetch();
 
@@ -106,6 +110,10 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
     setToggleModal(false);
   };
 
+  const onProceed = () => {
+    history.push(nextFlow);
+  };
+
   return (
     productDetails && (
       <>
@@ -158,7 +166,7 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
             status={status}
             setSelectedAccount={setSelectedAccount}
             selectedAccount={selectedAccount}
-            nextFlow={nextFlow}
+            onProceed={onProceed}
           />
         )}
         {(!bankStatus || bankStatus === "NC500") && (

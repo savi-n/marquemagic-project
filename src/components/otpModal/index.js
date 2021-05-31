@@ -56,7 +56,7 @@ export default function OtpModal(props) {
     setStatus,
     setSelectedAccount,
     selectedAccount,
-    nextFlow,
+    onProceed,
   } = props;
   OTPInput();
 
@@ -146,8 +146,7 @@ export default function OtpModal(props) {
       setMessage("Please select an account to proceed");
       return;
     }
-    const url = flower(history);
-    history.push(nextFlow);
+    onProceed();
   };
 
   const hiddenData = mobileNo.split("");

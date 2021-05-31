@@ -56,9 +56,9 @@ export default function Card({ product }) {
       </ImgDiv>
       <Div>
         <Link
-          href={`/product/${btoa(product.product_id)}`}
+          href={`/product/${btoa(product.product_id)}/`}
           onClick={(e) =>
-            handleClick(e, `/product/${btoa(product.product_id)}`)
+            handleClick(e, `/product/${btoa(product.product_id)}/`)
           }
         >
           {product.name}

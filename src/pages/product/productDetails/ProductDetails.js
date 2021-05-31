@@ -27,7 +27,7 @@ const Div = styled.div`
 `;
 
 const Li = styled.li`
-  margin: 20px 0;
+  margin: 12px 0;
   font-size: 13px;
   color: rgba(0, 0, 0, 0.8);
   position: relative;

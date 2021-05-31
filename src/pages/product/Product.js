@@ -1,5 +1,11 @@
 import { Suspense, lazy, useContext, useState, useEffect } from "react";
-import { Route, useRouteMatch, Link, useHistory } from "react-router-dom";
+import {
+  Route,
+  useRouteMatch,
+  Link,
+  useHistory,
+  Redirect,
+} from "react-router-dom";
 import { string } from "prop-types";
 import styled from "styled-components";
 
@@ -210,6 +216,7 @@ export default function Product({ product, page }) {
                 />
               </>
             ))}
+            {/* <Redirect to={`${path}/`} /> */}
           </Suspense>
         </Colom2>
       </Wrapper>
