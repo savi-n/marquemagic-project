@@ -5,4 +5,6 @@ export const clearLC = () => {
 	localStorage.removeItem('gurantor');
 	localStorage.removeItem('token');
 	localStorage.removeItem('selectedAccount');
+	localStorage.removeItem('applicantData');
+	localStorage.removeItem('coApplicantData');
 };

@@ -8,13 +8,10 @@ export const flower = history => {
 const a = 'applicantData';
 const l = 'loanData';
 var obj = new Map();
-
 obj[a] = {};
 obj[l] = {};
-
 var permanent = new Map();
 var present = new Map();
-
 obj[a]['address'] = [];
 
 export const handleChange = (e, item, props) => {
@@ -57,13 +54,11 @@ export const handleChange = (e, item, props) => {
 
 const sub = 'applicantData';
 var jsObj = new Map();
-
 jsObj[sub] = {};
-
 var per = new Map();
 var pre = new Map();
-
 jsObj[sub]['address'] = [];
+
 export const handleSubType = (e, item, props) => {
 	const n = JSON.parse(localStorage.getItem('coApplicantData'));
 	if (n) {

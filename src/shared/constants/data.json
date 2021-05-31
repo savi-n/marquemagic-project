@@ -34,7 +34,7 @@
 				"option": [],
 				"switch_key": "",
 				"switch_default_value": "",
-				"default_value": "",
+				"default_value": null,
 				"key": "dob",
 				"validation": []
 			},
