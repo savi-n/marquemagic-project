@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 import { VERIFY_OTP_URL, NC_STATUS_CODE } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import useForm from "../../hooks/useForm";
 import Loading from "../../components/Loading";
+import Button from "../../components/Button";
 
 import Modal from "../../shared/components/Modal";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import Button from "../../components/Button";
-import Input from "../../shared/components/Input";
 import Message from "../../shared/components/Message";
 
 import "./style.scss";
