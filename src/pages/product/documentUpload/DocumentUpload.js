@@ -123,7 +123,7 @@ export default function DocumentUpload({ userType, productId }) {
               const file = res.data.files[0];
               const uploadfile = {
                 loan_id: productId,
-                doc_type_id: [213, 225],
+                doc_type_id: "1",
                 upload_doc_name: file.filename,
                 document_key: file.fd,
                 size: file.size,
@@ -142,7 +142,7 @@ export default function DocumentUpload({ userType, productId }) {
       BORROWER_UPLOAD_URL,
       {
         method: "POST",
-        data: uploadedFiles.current,
+        data: { upload_document: uploadedFiles.current },
       },
       {
         Authorization: `Bearer ${userToken}`,
