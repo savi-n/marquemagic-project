@@ -1,5 +1,11 @@
 import { Suspense, lazy, useContext, useState, useEffect } from "react";
-import { Route, useRouteMatch, Link, useHistory } from "react-router-dom";
+import {
+  Route,
+  useRouteMatch,
+  Link,
+  useHistory,
+  Redirect,
+} from "react-router-dom";
 import { string } from "prop-types";
 import styled from "styled-components";
 
@@ -7,7 +13,10 @@ import { v4 as uuidv4 } from "uuid";
 import { PRODUCT_DETAILS_URL } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import { StoreContext } from "../../utils/StoreProvider";
+import configureFlow from "../../utils/configureFlow";
+import Loading from "../../components/Loading";
 import FlowRoutes from "./ProductRoutes";
+import CheckBox from "../../shared/components/Checkbox/CheckBox";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -27,7 +36,7 @@ const Colom2 = styled.div`
   flex: 1;
   background: ${({ theme }) => theme.themeColor1};
   display: flex;
-  height: calc(100vh - 80px);
+  /* height: calc(100vh - 80px); */
   overflow: scroll;
   &::-webkit-scrollbar {
     display: none;
@@ -65,12 +74,7 @@ const SubMenu = styled.h5`
   justify-content: space-between;
 `;
 
-const Loading = lazy(() => import("../../components/Loading"));
-const CheckBox = lazy(() =>
-  import("../../shared/components/Checkbox/CheckBox")
-);
-
-const LoanDetails = lazy(() => import("./productDetails/ProductDetails"));
+const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 
 export default function Product({ product, page }) {
   const history = useHistory();
@@ -79,7 +83,7 @@ export default function Product({ product, page }) {
     state: { whiteLabelId },
   } = useContext(StoreContext);
 
-  const { response } = useFetch({
+  let { response } = useFetch({
     url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
     options: { method: "GET" },
   });
@@ -91,7 +95,7 @@ export default function Product({ product, page }) {
   const [subTypeData, setSubTypeData] = useState(null);
   const [addedApplicant, setAddedApplicant] = useState(false);
 
-  var h = history.location.pathname.split("/");
+  const h = history.location.pathname.split("/");
   const activeValue = history.location.pathname.split("/").pop();
 
   useEffect(() => {
@@ -194,20 +198,25 @@ export default function Product({ product, page }) {
               exact
               path={`${path}/`}
               component={() => (
-                <LoanDetails productDetails={response.data.product_details} />
+                <ProductDetails
+                  nextFlow={
+                    response?.data?.product_details?.flow?.[0]?.id ?? null
+                  }
+                  productDetails={response.data.product_details}
+                />
               )}
             />
-            {response?.data?.product_details?.flow?.map((m) => (
+            {configureFlow(response?.data?.product_details?.flow)?.map((m) => (
               <>
                 <FlowRoutes
                   key={m.id}
                   config={m}
-                  path={path}
                   productDetails={response?.data?.product_details}
                   pageName={pageName}
                 />
               </>
             ))}
+            {/* <Redirect to={`${path}/`} /> */}
           </Suspense>
         </Colom2>
       </Wrapper>

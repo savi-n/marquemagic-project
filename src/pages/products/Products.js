@@ -37,7 +37,7 @@ export default function Products() {
       <Div>
         {products &&
           products.data.map((product) => (
-            <Card product={product} key={`product__${product.id}/`} />
+            <Card product={product} key={`product__${product.id}`} />
           ))}
       </Div>
     </Wrapper>

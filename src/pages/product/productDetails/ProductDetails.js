@@ -1,6 +1,7 @@
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import Layout from '../../../Layout';
+import Button from '../../../components/Button';
 
 const Colom1 = styled.section`
 	flex: 1;
@@ -9,7 +10,7 @@ const Colom1 = styled.section`
 `;
 
 const Colom2 = styled.section`
-	width: 40%;
+	width: 30%;
 	background: ${({ theme }) => theme.themeColor1};
 `;
 
@@ -20,8 +21,13 @@ const Img = styled.img`
 	object-position: center;
 `;
 
+const Div = styled.div`
+	display: flex;
+	justify-content: center;
+`;
+
 const Li = styled.li`
-	margin: 20px 0;
+	margin: 12px 0;
 	font-size: 13px;
 	color: rgba(0, 0, 0, 0.8);
 	position: relative;
@@ -51,30 +57,32 @@ const H = styled.h1`
 	}
 `;
 
-export default function ProductDetails({ productDetails }) {
+export default function ProductDetails({ productDetails, nextFlow }) {
+	const history = useHistory();
+	const startFlow = () => {
+		history.push(nextFlow);
+	};
 	return (
 		productDetails && (
 			<>
-				<Layout>
-					<section className='w-8/12'>
-						<H dangerouslySetInnerHTML={{ __html: productDetails.head }} />
-						<div>
-							<ul>
-								{productDetails.li.map(l => (
-									<Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()} />
-								))}
-							</ul>
-						</div>
-					</section>
-				</Layout>
-				<section className='w-1/4 absolute right-0'>
-					<img
-						style={{ height: 'calc(100vh - 80px)' }}
-						className='w-full'
-						src={productDetails.imageUrl}
-						alt='Loan Caption'
-					/>
-				</section>
+				<Colom1>
+					<H dangerouslySetInnerHTML={{ __html: productDetails.head }} />
+					<div>
+						<ul>
+							{productDetails.li.map(l => (
+								<Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()} />
+							))}
+						</ul>
+					</div>
+					{nextFlow && (
+						<Div>
+							<Button name='Next' onClick={startFlow} />
+						</Div>
+					)}
+				</Colom1>
+				<Colom2>
+					<Img src={productDetails.imageUrl} alt='Loan Caption' />
+				</Colom2>
 			</>
 		)
 	);
