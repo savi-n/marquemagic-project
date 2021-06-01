@@ -98,7 +98,7 @@
 			},
 			{
 				"name": "countryofresidence",
-				"placeholder": "Contry of Residence",
+				"placeholder": "Country of Residence",
 				"type": "select",
 				"visibility": true,
 				"option": []
