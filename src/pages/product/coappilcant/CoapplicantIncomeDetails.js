@@ -20,8 +20,9 @@ const Div = styled.div`
   background: #ffffff;
 `;
 
-export default function CoapplicantDetails({
+export default function CoapplicantIncomeDetails({
   onComplete,
+  userType,
   nextFlow,
   id,
   pageName,
@@ -38,6 +39,7 @@ export default function CoapplicantDetails({
   return (
     <Div>
       <SalaryDetails
+        userType={userType}
         pageName={pageName}
         register={register}
         formState={formState}

@@ -21,11 +21,11 @@ const FormWrap = styled.div`
   margin: 20px 0;
 `;
 
-export default function SalaryDetails({ jsonData, register }) {
+export default function SalaryDetails({ jsonData, register, userType }) {
   return (
     <>
       <H>
-        Help us with <span>Salary Details</span>
+        {userType || "Help us with"} <span>Salary Details</span>
       </H>
       <FormWrap>
         {jsonData &&

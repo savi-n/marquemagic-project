@@ -34,6 +34,7 @@ const Div = styled.div`
 
 export default function CoapplicantDetails({
   onComplete,
+  userType,
   nextFlow,
   id,
   pageName,
@@ -50,12 +51,14 @@ export default function CoapplicantDetails({
   return (
     <Div>
       <PersonalDetails
+        userType={userType}
         pageName={pageName}
         register={register}
         formState={formState}
         jsonData={jsonData.personal_details.data}
       />
       <AddressDetails
+        userType={userType}
         pageName={pageName}
         register={register}
         formState={formState}

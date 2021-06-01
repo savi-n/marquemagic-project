@@ -39,6 +39,7 @@ const Caption = styled.h3`
 
 export default function AddressDetails({
   pageName,
+  userType,
   jsonData,
   register,
   formState,
@@ -46,7 +47,8 @@ export default function AddressDetails({
   return (
     <>
       <H>
-        Help us with your <span>{pageName || "Address Details"}</span>
+        {userType || "Help us with your"}{" "}
+        <span>{pageName || "Address Details"}</span>
       </H>
       <FormWrap>
         <Colom>

@@ -23,6 +23,7 @@ const FormWrap = styled.div`
 
 export default function PersonalDetails({
   pageName,
+  userType,
   jsonData,
   register,
   formState,
@@ -30,7 +31,8 @@ export default function PersonalDetails({
   return (
     <>
       <H>
-        Help us with your <span>{pageName || "Personal Details"}</span>
+        {userType || "Help us with your"}{" "}
+        <span>{pageName || "Personal Details"}</span>
       </H>
       <FormWrap>
         {jsonData &&
