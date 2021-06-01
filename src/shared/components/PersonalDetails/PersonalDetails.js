@@ -19,6 +19,8 @@ const FormWrap = styled.div`
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
+  flex-flow: wrap column;
+  max-height: 350px;
 `;
 
 export default function PersonalDetails({
@@ -39,13 +41,7 @@ export default function PersonalDetails({
           jsonData.map(
             (field) =>
               field.visibility && (
-                <FieldWrap>
-                  {register({
-                    placeholder: field.label,
-                    name: field.label,
-                    type: field.type,
-                  })}
-                </FieldWrap>
+                <FieldWrap key={field.name}>{register(field)}</FieldWrap>
               )
           )}
       </FormWrap>

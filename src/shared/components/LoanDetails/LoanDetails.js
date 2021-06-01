@@ -33,11 +33,13 @@ export default function LoanDetails({
   jsonData,
   register,
   formState,
+  userType,
 }) {
   return (
     <>
       <H>
-        Help us with your <span>{pageName || "Address Details"}</span>
+        {userType || "Help us with your"}{" "}
+        <span>{pageName || "Address Details"}</span>
       </H>
       <FormWrap>
         <Colom>
@@ -45,13 +47,7 @@ export default function LoanDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap>
-                    {register({
-                      placeholder: field.label,
-                      name: field.label,
-                      type: field.type,
-                    })}
-                  </FieldWrap>
+                  <FieldWrap key={field.name}>{register(field)}</FieldWrap>
                 )
             )}
         </Colom>

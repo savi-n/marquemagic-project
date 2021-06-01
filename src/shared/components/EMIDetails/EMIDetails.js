@@ -36,13 +36,7 @@ export default function EMIDetails({
           jsonData.map(
             (field) =>
               field.visibility && (
-                <FieldWrap>
-                  {register({
-                    placeholder: field.label,
-                    name: field.label,
-                    type: field.type,
-                  })}
-                </FieldWrap>
+                <FieldWrap key={field.name}>{register(field)}</FieldWrap>
               )
           )}
       </FormWrap>

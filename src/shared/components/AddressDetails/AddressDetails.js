@@ -57,11 +57,10 @@ export default function AddressDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap>
+                  <FieldWrap key={`permanent_address_${field.name}`}>
                     {register({
-                      placeholder: field.label,
-                      name: field.label,
-                      type: field.type,
+                      ...field,
+                      name: `permanent_address_${field.name}`,
                     })}
                   </FieldWrap>
                 )
@@ -75,11 +74,10 @@ export default function AddressDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap>
+                  <FieldWrap key={`present_address_${field.name}`}>
                     {register({
-                      placeholder: field.label,
-                      name: field.label,
-                      type: field.type,
+                      ...field,
+                      name: `present_address_${field.name}`,
                     })}
                   </FieldWrap>
                 )
