@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 import CheckBox from "../Checkbox/CheckBox";
@@ -37,6 +38,13 @@ const Caption = styled.h3`
   justify-content: space-between;
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
 export default function AddressDetails({
   pageName,
   userType,
@@ -44,6 +52,7 @@ export default function AddressDetails({
   register,
   formState,
 }) {
+  const [match, setMatch] = useState(false);
   return (
     <>
       <H>
@@ -62,13 +71,32 @@ export default function AddressDetails({
                       ...field,
                       name: `permanent_address_${field.name}`,
                     })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[
+                        `permanent_address_${field.name}`
+                      ]) &&
+                      formState?.error?.[`permanent_address_${field.name}`] && (
+                        <ErrorMessage>
+                          {
+                            formState?.error?.[
+                              `permanent_address_${field.name}`
+                            ]
+                          }
+                        </ErrorMessage>
+                      )}
                   </FieldWrap>
                 )
             )}
         </Colom>
         <Colom>
           <Caption>
-            Present Address <CheckBox name="Same as Permanent Address" />
+            Present Address{" "}
+            <CheckBox
+              checked={match}
+              onChange={() => setMatch(!match)}
+              bg="blue"
+              name="Same as Permanent Address"
+            />
           </Caption>
           {jsonData &&
             jsonData.map(
@@ -78,7 +106,22 @@ export default function AddressDetails({
                     {register({
                       ...field,
                       name: `present_address_${field.name}`,
+                      ...(match
+                        ? {
+                            value:
+                              formState?.values?.[
+                                `permanent_address_${field.name}`
+                              ],
+                          }
+                        : {}),
                     })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[`present_address_${field.name}`]) &&
+                      formState?.error?.[`present_address_${field.name}`] && (
+                        <ErrorMessage>
+                          {formState?.error?.[`present_address_${field.name}`]}
+                        </ErrorMessage>
+                      )}
                   </FieldWrap>
                 )
             )}

@@ -72,6 +72,11 @@ const H = styled.h1`
   }
 `;
 
+const Doc = styled.h2`
+  font-size: 1.2em;
+  font-weight: 500;
+`;
+
 const text = {
   grantCibilAcces: "I here by give consent to pull my CIBIL records",
   declaration:
@@ -202,7 +207,7 @@ export default function DocumentUpload({ userType, productId }) {
         </SubmitWrapper>
       </Colom1>
       <Colom2>
-        <h3>Documents Required</h3>
+        <Doc>Documents Required</Doc>
         <div>
           {documentsRequired.map((docs) => (
             <DocsCheckboxWrapper key={uuidv4()}>

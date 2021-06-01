@@ -35,7 +35,8 @@
 				"name": "mobilenumber",
 				"placeholder": "Mobile Number",
 				"rules": {
-					"required": true
+					"required": true,
+					"length": 10
 				},
 				"mask": {
 					"NumberOnly": true,
@@ -68,7 +69,8 @@
 				"name": "pannumber",
 				"placeholder": "PAN Number",
 				"rules": {
-					"required": true
+					"required": true,
+					"length": 10
 				},
 				"mask": {
 					"CharacterLimit": 10
@@ -81,7 +83,8 @@
 				"placeholder": "Aadhar Number",
 				"type": "text",
 				"rules": {
-					"required": true
+					"required": true,
+					"length": 10
 				},
 				"mask": {
 					"NumberOnly": true,
@@ -98,7 +101,7 @@
 			},
 			{
 				"name": "countryofresidence",
-				"placeholder": "Contry of Residence",
+				"placeholder": "Country of Residence",
 				"type": "select",
 				"visibility": true,
 				"option": []
@@ -151,7 +154,8 @@
 				"name": "pincode",
 				"placeholder": "Pin Code",
 				"rules": {
-					"required": true
+					"required": true,
+					"length": 6
 				},
 				"mask": {
 					"NumberOnly": true,
