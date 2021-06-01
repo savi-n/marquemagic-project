@@ -11,19 +11,24 @@ const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
 const LoanDetails = lazy(() => import("./loanDetails/LoanDetails"));
-
-const CoApplicantDetails = lazy(() => import("../SubType/SubType"));
-const CoApplicantIncomeDetails = lazy(() => import("../SubType/SubTypeIncome"));
-const CoApplicantDocumentUpload = lazy(() => import("../SubType/SubTypeDocs"));
+const CoApplicantDetails = lazy(() =>
+  import("./coappilcant/CoapplicantDetails")
+);
+const CoApplicantIncomeDetails = lazy(() =>
+  import("./coappilcant/CoapplicantIncomeDetails")
+);
+const CoApplicantDocumentUpload = lazy(() =>
+  import("./coappilcant/CoapplicantDocuments")
+);
 
 const availableRoutes = {
   "identity-verification": IdentityVerification,
   "personal-details": PersonalDetails,
   "address-details": AddressDetails,
+  "loan-details": LoanDetails,
   "co-applicant-details": CoApplicantDetails,
   "co-applicant-income-details": CoApplicantIncomeDetails,
   "co-applicant-document-upload": CoApplicantDocumentUpload,
-  "loan-details": LoanDetails,
   "document-upload": DocumentUpload,
   "application-submitted": ApplicationSubmitted,
   "gurantor-details": CoApplicantDetails,
@@ -36,6 +41,7 @@ export default function FlowRoutes({
   productDetails = {},
   pageName,
   onComplete,
+  onSubflowActivate,
 }) {
   const { path } = useRouteMatch();
 
@@ -72,6 +78,7 @@ export default function FlowRoutes({
             pageName={pageName}
             nextFlow={config.nextFlow}
             onComplete={onComplete}
+            onSubflowActivate={onSubflowActivate}
             id={config.id}
           />
         )}

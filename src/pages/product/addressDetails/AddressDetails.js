@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useHistory } from "react-router-dom";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -18,12 +19,37 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function AddressDetailsPage(props) {
+const DivWrap = styled.div`
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+const Question = styled.div`
+  font-weight: 500;
+  color: blue;
+`;
+
+export default function AddressDetailsPage({
+  onComplete,
+  nextFlow,
+  id,
+  pageName,
+  onSubflowActivate,
+}) {
   const { register, formState } = useForm();
+  const history = useHistory();
+
+  const onProceed = () => {
+    onComplete(id);
+    history.push(nextFlow);
+  };
+
   return (
     <Div>
       <AddressDetails
-        pageName={props.pageName}
+        pageName={pageName}
         register={register}
         formState={formState}
         jsonData={jsonData.address_details.data}
@@ -31,6 +57,16 @@ export default function AddressDetailsPage(props) {
       <ButtonWrap>
         <Button fill="blue" name="Proceed" />
         <Button name="Save" />
+        <DivWrap>
+          <Question>Co-Applicants?</Question>
+          <Button
+            width="auto"
+            fill="blue"
+            name="Add"
+            onClick={() => onSubflowActivate(id)}
+          />
+          <Button width="auto" name="No" onClick={onProceed} />
+        </DivWrap>
       </ButtonWrap>
     </Div>
   );

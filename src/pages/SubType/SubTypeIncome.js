@@ -3,7 +3,7 @@ import jsonData from "../../shared/constants/data.json";
 import Layout from "../../Layout";
 import Button from "../../shared/components/Button";
 import Footer from "../../shared/components/Footer";
-import EMIDetails from "../../shared/components/EMIDetails";
+import EMIDetails from "../../shared/components/EMIDetails/EMIDetails";
 
 export default function CoApplicantIncome(props) {
   console.log(jsonData);

@@ -94,9 +94,14 @@ export default function Product({ product, page }) {
   const activeValue = history.location.pathname.split("/").pop();
 
   const [completedMenu, setCompletedMenu] = useState([]);
+  const [subFlowMenu, setSubFlowMenu] = useState([]);
 
   const onComplete = (menu) => {
     setCompletedMenu([...completedMenu, menu]);
+  };
+
+  const onSubflowActivate = (menu) => {
+    setSubFlowMenu([...subFlowMenu, menu]);
   };
 
   return (
@@ -120,7 +125,7 @@ export default function Product({ product, page }) {
                 </Menu>
               </Link>
               {m.flow &&
-                m.activated &&
+                subFlowMenu.includes(m.id) &&
                 m.flow.map((item) => (
                   <Link to={`/product/${product}/${m.id}/${item.id}`}>
                     <SubMenu
@@ -159,6 +164,7 @@ export default function Product({ product, page }) {
                   productDetails={response?.data?.product_details}
                   pageName={m.name}
                   onComplete={onComplete}
+                  onSubflowActivate={onSubflowActivate}
                 />
               </>
             ))}
@@ -173,117 +179,3 @@ export default function Product({ product, page }) {
 Product.propTypes = {
   product: string.isRequired,
 };
-
-{
-  /* 
-              <Route
-                path={`${path}/2`}
-                component={() => (
-                  <IdentityVerification
-                    loanDetails={response.data.product_details}
-                    pageName={pageName}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/3`}
-                component={() => (
-                  <PersonalDetails data={response.data} pageName={pageName} />
-                )}
-              />
-
-              <Route
-                path={`${path}/6`}
-                component={() => (
-                  <DocumentUpload
-                    loanDetails={response.data.product_details}
-                    footer={true}
-                    pageName={pageName}
-                    submitHandler={() => submitHandler()}
-                    submit={true}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/4`}
-                exact
-                component={() => (
-                  <AddressDetails
-                    coApplicant={coApplicant}
-                    click={() => subTypeHandler("co-applicants")}
-                    loanDetails={response.data.product_details}
-                    pageName={pageName}
-                    addedApplicant={addedApplicant}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/4/co-applicants/1`}
-                component={() => (
-                  <SubType
-                    type="co-applicants"
-                    coApplicant={coApplicant}
-                    loanDetails={response.data.product_details.step}
-                    pageName={pageName}
-                    click={() => subTypeHandler("co-applicants")}
-                    cancel={true}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/4/co-applicants/2`}
-                component={() => (
-                  <SubTypeIncome
-                    type="co-applicants"
-                    coApplicant={coApplicant}
-                    loanDetails={response.data.product_details.step}
-                    pageName={pageName}
-                    click={() => subTypeHandler("co-applicants")}
-                    cancel={true}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/4/co-applicants/3`}
-                component={() => (
-                  <SubTypeDocs
-                    type="co-applicants"
-                    coApplicant={coApplicant}
-                    loanDetails={response.data.product_details.step}
-                    pageName={pageName}
-                    click={() => subTypeHandler("co-applicants")}
-                    cancel={true}
-                    submitHandler={() => submitHandler("co-applicants")}
-                    submit={true}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/5`}
-                component={() => (
-                  <LoanDetailsComponent
-                    loanDetails={response.data.product_details}
-                    footer={true}
-                    pageName={pageName}
-                  />
-                )}
-              />
-
-              <Route
-                path={`${path}/7`}
-                component={() => (
-                  <ApplicationSubmitted
-                    loanDetails={response.data.product_details}
-                    footer={true}
-                    pageName={pageName}
-                    click={() => subTypeHandler("gurantor")}
-                  />
-                )}
-              /> */
-}
