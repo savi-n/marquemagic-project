@@ -4,7 +4,7 @@ import { Redirect, Route, useRouteMatch } from "react-router-dom";
 import userType from "../../_hoc/userType";
 
 const IdentityVerification = lazy(() =>
-  import("./identiryVerification/IdentityVerification")
+  import("./identityVerification/IdentityVerification")
 );
 const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
