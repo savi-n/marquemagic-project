@@ -15,7 +15,7 @@ const CLIENT_EMAIL_ID = "cub@nc.com";
 const WHITE_LABEL_URL = taggedTemplate`${API_END_POINT}/wot/whitelabelsolution?name=${"name"}`;
 const PRODUCT_LIST_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${"whiteLabelId"}`;
 const PRODUCT_DETAILS_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${"whiteLabelId"}&product_id=${"productId"}`;
-const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userId=${"userId"}"}`;
+const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userId=${"userId"}`;
 const BORROWER_UPLOAD_URL = `${API_END_POINT}/borrowerdoc-upload`;
 
 const GENERATE_OTP_URL = `${API_END_POINT}/cub/generateOtp`;

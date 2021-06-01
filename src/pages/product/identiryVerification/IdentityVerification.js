@@ -50,7 +50,7 @@ const H2 = styled.h2`
 
 // const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
 
-export default function IdentityVerification({ productDetails, nextFlow }) {
+export default function IdentityVerification({ productDetails, nextFlow, onComplete, id }) {
 	const {
 		state: { whiteLabelId }
 	} = useContext(StoreContext);
@@ -117,6 +117,7 @@ export default function IdentityVerification({ productDetails, nextFlow }) {
 	};
 
 	const onProceed = () => {
+		onComplete(id);
 		history.push(nextFlow);
 	};
 
