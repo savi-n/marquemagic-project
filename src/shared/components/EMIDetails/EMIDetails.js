@@ -20,6 +20,14 @@ const FormWrap = styled.div`
   gap: 10%;
   margin: 20px 0;
 `;
+
+const ErrorMessage = styled.div`
+  color: red;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
 export default function EMIDetails({
   pageName,
   jsonData,
@@ -36,7 +44,16 @@ export default function EMIDetails({
           jsonData.map(
             (field) =>
               field.visibility && (
-                <FieldWrap key={field.name}>{register(field)}</FieldWrap>
+                <FieldWrap key={field.name}>
+                  {register(field)}
+                  {(formState?.submit?.isSubmited ||
+                    formState?.touched?.[field.name]) &&
+                    formState?.error?.[field.name] && (
+                      <ErrorMessage>
+                        {formState?.error?.[field.name]}
+                      </ErrorMessage>
+                    )}
+                </FieldWrap>
               )
           )}
       </FormWrap>

@@ -38,6 +38,13 @@ const Caption = styled.h3`
   justify-content: space-between;
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
 export default function AddressDetails({
   pageName,
   userType,
@@ -64,6 +71,19 @@ export default function AddressDetails({
                       ...field,
                       name: `permanent_address_${field.name}`,
                     })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[
+                        `permanent_address_${field.name}`
+                      ]) &&
+                      formState?.error?.[`permanent_address_${field.name}`] && (
+                        <ErrorMessage>
+                          {
+                            formState?.error?.[
+                              `permanent_address_${field.name}`
+                            ]
+                          }
+                        </ErrorMessage>
+                      )}
                   </FieldWrap>
                 )
             )}
@@ -95,6 +115,13 @@ export default function AddressDetails({
                           }
                         : {}),
                     })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[`present_address_${field.name}`]) &&
+                      formState?.error?.[`present_address_${field.name}`] && (
+                        <ErrorMessage>
+                          {formState?.error?.[`present_address_${field.name}`]}
+                        </ErrorMessage>
+                      )}
                   </FieldWrap>
                 )
             )}

@@ -20,7 +20,14 @@ const FormWrap = styled.div`
   gap: 10%;
   margin: 20px 0;
   flex-flow: wrap column;
-  max-height: 350px;
+  max-height: 400px;
+`;
+
+const ErrorMessage = styled.div`
+  color: red;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 export default function PersonalDetails({
@@ -41,7 +48,16 @@ export default function PersonalDetails({
           jsonData.map(
             (field) =>
               field.visibility && (
-                <FieldWrap key={field.name}>{register(field)}</FieldWrap>
+                <FieldWrap key={field.name}>
+                  {register(field)}
+                  {(formState?.submit?.isSubmited ||
+                    formState?.touched?.[field.name]) &&
+                    formState?.error?.[field.name] && (
+                      <ErrorMessage>
+                        {formState?.error?.[field.name]}
+                      </ErrorMessage>
+                    )}
+                </FieldWrap>
               )
           )}
       </FormWrap>
