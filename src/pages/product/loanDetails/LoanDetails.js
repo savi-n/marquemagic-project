@@ -1,19 +1,56 @@
-import Layout from "../../../Layout";
-import EMIDetails from "../../../shared/components/EMIDetails";
-import jsonData from "../../../shared/constants/data.json";
-import Footer from "../../../shared/components/Footer";
-import DetailsComponent from "../../../shared/components/Details";
+import styled from "styled-components";
+import { useHistory } from "react-router-dom";
 
-export default function LoanDetailsComponent(props) {
+import jsonData from "../../../shared/constants/data.json";
+
+import useForm from "../../../hooks/useForm";
+import Button from "../../../components/Button";
+import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
+import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
+
+const Div = styled.div`
+  flex: 1;
+  padding: 50px;
+  background: #ffffff;
+`;
+
+const ButtonWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+export default function LoanDetailsPage({
+  onComplete,
+  nextFlow,
+  id,
+  pageName,
+}) {
+  const { register, formState } = useForm();
+  const history = useHistory();
+
+  const onProceed = () => {
+    onComplete(id);
+    history.push(nextFlow);
+  };
+
   return (
-    <Layout>
-      <h1 className="text-xl">
-        Help us with your{" "}
-        <span className="text-blue-600">{props.pageName}</span>
-      </h1>
-      <DetailsComponent data={jsonData.loan_details.data} />
-      <EMIDetails jsonData={jsonData.emi_details.data} />
-      <Footer />
-    </Layout>
+    <Div>
+      <LoanDetails
+        pageName={pageName}
+        register={register}
+        formState={formState}
+        jsonData={jsonData.loan_details.data}
+      />
+      <EMIDetails
+        register={register}
+        formState={formState}
+        jsonData={jsonData.emi_details.data}
+      />
+      <ButtonWrap>
+        <Button fill="blue" name="Proceed" onClick={onProceed} />
+        <Button name="Save" />
+      </ButtonWrap>
+    </Div>
   );
 }

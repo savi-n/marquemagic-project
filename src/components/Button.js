@@ -9,7 +9,7 @@ const StyledButton = styled.button`
   background: ${({ theme, fill }) => fill ?? theme.themeColor1};
   display: flex;
   align-items: center;
-  min-width: 200px;
+  min-width: ${({ width }) => (width ? width : "200px")};
   justify-content: space-between;
   font-size: 0.9em;
   font-weight: 500;
@@ -34,6 +34,7 @@ export default function Button({
   fill,
   style,
   disabled = false,
+  width,
 }) {
   return (
     <StyledButton
@@ -41,6 +42,7 @@ export default function Button({
       fill={fill}
       disabled={disabled}
       altStyle={style}
+      width={width}
     >
       {name && <Div>{name}</Div>}
       {children}

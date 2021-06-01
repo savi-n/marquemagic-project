@@ -9,23 +9,27 @@ const H = styled.h1`
 `;
 
 const FieldWrap = styled.div`
-  width: 45%;
+  width: 50%;
   margin: 10px 0;
 `;
 
 const FormWrap = styled.div`
   display: flex;
-  justify-content: center;
-  flex-direction: column;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
 `;
-
-export default function SalaryDetails({ jsonData, register, userType }) {
+export default function EMIDetails({
+  pageName,
+  jsonData,
+  register,
+  formState,
+}) {
   return (
     <>
       <H>
-        {userType || "Help us with"} <span>Salary Details</span>
+        EMI details of exsisting loans availed by CUB or other banks, if any..
       </H>
       <FormWrap>
         {jsonData &&

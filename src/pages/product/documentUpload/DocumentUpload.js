@@ -21,8 +21,8 @@ const Colom1 = styled.div`
 `;
 
 const Colom2 = styled.div`
-  width: 40%;
-  background: ${({ theme }) => theme.themeColor1};
+  width: 30%;
+  background: rgba(0, 0, 0, 0.1);
   padding: 50px 30px;
 `;
 

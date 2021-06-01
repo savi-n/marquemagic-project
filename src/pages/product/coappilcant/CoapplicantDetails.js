@@ -6,12 +6,7 @@ import jsonData from "../../../shared/constants/data.json";
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
-
-const Div = styled.div`
-  flex: 1;
-  padding: 50px;
-  background: #ffffff;
-`;
+import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -31,8 +26,15 @@ const Question = styled.div`
   color: blue;
 `;
 
-export default function AddressDetailsPage({
+const Div = styled.div`
+  flex: 1;
+  padding: 50px;
+  background: #ffffff;
+`;
+
+export default function CoapplicantDetails({
   onComplete,
+  userType,
   nextFlow,
   id,
   pageName,
@@ -48,7 +50,15 @@ export default function AddressDetailsPage({
 
   return (
     <Div>
+      <PersonalDetails
+        userType={userType}
+        pageName={pageName}
+        register={register}
+        formState={formState}
+        jsonData={jsonData.personal_details.data}
+      />
       <AddressDetails
+        userType={userType}
         pageName={pageName}
         register={register}
         formState={formState}
@@ -59,12 +69,7 @@ export default function AddressDetailsPage({
         <Button name="Save" />
         <DivWrap>
           <Question>Co-Applicants?</Question>
-          <Button
-            width="auto"
-            fill="blue"
-            name="Add"
-            onClick={() => onSubflowActivate(id)}
-          />
+          <Button width="auto" fill="blue" name="Add" />
           <Button width="auto" name="No" onClick={onProceed} />
         </DivWrap>
       </ButtonWrap>

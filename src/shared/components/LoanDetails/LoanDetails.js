@@ -9,7 +9,7 @@ const H = styled.h1`
 `;
 
 const FieldWrap = styled.div`
-  width: 45%;
+  width: 100%;
   margin: 10px 0;
 `;
 
@@ -19,31 +19,38 @@ const FormWrap = styled.div`
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
-  flex-flow: wrap column;
-  max-height: 350px;
 `;
 
-export default function PersonalDetails({
+const Colom = styled.div`
+  display: flex;
+  flex-basis: 45%;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+export default function LoanDetails({
   pageName,
-  userType,
   jsonData,
   register,
   formState,
+  userType,
 }) {
   return (
     <>
       <H>
         {userType || "Help us with your"}{" "}
-        <span>{pageName || "Personal Details"}</span>
+        <span>{pageName || "Address Details"}</span>
       </H>
       <FormWrap>
-        {jsonData &&
-          jsonData.map(
-            (field) =>
-              field.visibility && (
-                <FieldWrap key={field.name}>{register(field)}</FieldWrap>
-              )
-          )}
+        <Colom>
+          {jsonData &&
+            jsonData.map(
+              (field) =>
+                field.visibility && (
+                  <FieldWrap key={field.name}>{register(field)}</FieldWrap>
+                )
+            )}
+        </Colom>
       </FormWrap>
     </>
   );

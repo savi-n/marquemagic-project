@@ -1,6 +1,8 @@
 import { lazy } from "react";
 import { Redirect, Route, useRouteMatch } from "react-router-dom";
 
+import userType from "../../_hoc/userType";
+
 const IdentityVerification = lazy(() =>
   import("./identiryVerification/IdentityVerification")
 );
@@ -11,24 +13,29 @@ const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
 const LoanDetails = lazy(() => import("./loanDetails/LoanDetails"));
-
-const CoApplicantDetails = lazy(() => import("../SubType/SubType"));
-const CoApplicantIncomeDetails = lazy(() => import("../SubType/SubTypeIncome"));
-const CoApplicantDocumentUpload = lazy(() => import("../SubType/SubTypeDocs"));
+const CoApplicantDetails = lazy(() =>
+  import("./coappilcant/CoapplicantDetails")
+);
+const CoApplicantIncomeDetails = lazy(() =>
+  import("./coappilcant/CoapplicantIncomeDetails")
+);
 
 const availableRoutes = {
   "identity-verification": IdentityVerification,
   "personal-details": PersonalDetails,
   "address-details": AddressDetails,
-  "co-applicant-details": CoApplicantDetails,
-  "co-applicant-income-details": CoApplicantIncomeDetails,
-  "co-applicant-document-upload": CoApplicantDocumentUpload,
   "loan-details": LoanDetails,
+  "co-applicant-details": userType("Co-applicant", CoApplicantDetails),
+  "co-applicant-income-details": userType(
+    "Co-applicant",
+    CoApplicantIncomeDetails
+  ),
+  "co-applicant-document-upload": userType("Co-applicant", DocumentUpload),
   "document-upload": DocumentUpload,
   "application-submitted": ApplicationSubmitted,
-  "gurantor-details": CoApplicantDetails,
-  "gurantor-income-details": CoApplicantIncomeDetails,
-  "gurantor-document-upload": CoApplicantDocumentUpload,
+  "gurantor-details": userType("Gurantor", CoApplicantDetails),
+  "gurantor-income-details": userType("Gurantor", CoApplicantIncomeDetails),
+  "gurantor-document-upload": userType("Gurantor", DocumentUpload),
 };
 
 export default function FlowRoutes({
@@ -36,6 +43,7 @@ export default function FlowRoutes({
   productDetails = {},
   pageName,
   onComplete,
+  onSubflowActivate,
 }) {
   const { path } = useRouteMatch();
 
@@ -72,6 +80,7 @@ export default function FlowRoutes({
             pageName={pageName}
             nextFlow={config.nextFlow}
             onComplete={onComplete}
+            onSubflowActivate={onSubflowActivate}
             id={config.id}
           />
         )}
