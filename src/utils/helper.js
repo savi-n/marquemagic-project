@@ -10,11 +10,13 @@ const l = 'loanData';
 var obj = new Map();
 obj[a] = {};
 obj[l] = {};
+const z = window.location.href.split('/');
+obj['product_id'] = z[z.length - 2];
 var permanent = new Map();
 var present = new Map();
 obj[a]['address'] = [];
 
-export const handleChange = (e, item, props) => {
+export const handleChange = async (e, item, props) => {
 	const n = JSON.parse(localStorage.getItem('applicantData'));
 	if (n) {
 		obj = { ...n };
@@ -27,9 +29,14 @@ export const handleChange = (e, item, props) => {
 
 	const { data } = props;
 	var name;
+	var u;
 	var value;
 	name = item.key;
-	value = e.target.value;
+	if (typeof e !== 'string') {
+		value = e.target.value;
+	} else if (typeof e === 'string') {
+		value = e;
+	}
 	if (data.label === 'Loan Details') {
 		obj[l][name] = value;
 	} else {
@@ -42,7 +49,6 @@ export const handleChange = (e, item, props) => {
 		} else if (props.head === 'Present Address') {
 			present['addressType'] = 'present';
 			present[name] = value;
-			console.log(present);
 			obj[a]['address'][1] = present;
 			localStorage.setItem('applicantData', JSON.stringify(obj));
 			return;
@@ -91,3 +97,5 @@ export const handleSubType = (e, item, props) => {
 
 	localStorage.setItem('coApplicantData', JSON.stringify(jsObj));
 };
+
+const handleSubmit = async () => {};

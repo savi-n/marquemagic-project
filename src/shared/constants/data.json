@@ -78,12 +78,13 @@
 				"mandatory": true,
 				"type": "dropdown",
 				"visibility": true,
-				"option": [],
+				"option": ["Salaried", "Business"],
 				"switch_key": "",
 				"switch_default_value": "",
 				"default_value": null,
 				"key": "incomeType",
-				"validation": []
+				"validation": [],
+				"searchable": false
 			},
 			{
 				"label": "PAN Number",
@@ -126,24 +127,44 @@
 				"mandatory": false,
 				"type": "dropdown",
 				"visibility": true,
-				"option": [],
+				"option": [
+					"Non-Resident",
+					"Resident",
+					"Resident and Ordinarily Resident",
+					"Resident but Not Ordinarily Resident"
+				],
 				"switch_key": "",
 				"switch_default_value": "",
 				"default_value": null,
 				"key": "residenceStatus",
-				"validation": []
+				"validation": [],
+				"searchable": false
 			},
 			{
 				"label": "Contry of Residence",
 				"mandatory": false,
 				"type": "dropdown",
 				"visibility": true,
-				"option": [],
+				"option": ["India"],
 				"switch_key": "",
 				"switch_default_value": "",
 				"default_value": null,
 				"key": "countryResidence",
-				"validation": []
+				"validation": [],
+				"searchable": true
+			},
+			{
+				"label": "Maritial Status",
+				"mandatory": false,
+				"type": "dropdown",
+				"visibility": true,
+				"option": ["Single", "Married", "Divorced"],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": "",
+				"key": "maritialStatus",
+				"validation": [],
+				"searchable": false
 			}
 		]
 	},
@@ -272,19 +293,21 @@
 				"switch_default_value": "",
 				"default_value": "",
 				"key": "home_branch",
-				"validation": []
+				"validation": [],
+				"searchable": false
 			},
 			{
 				"label": "Choose Vehicle",
 				"mandatory": false,
-				"type": "input",
+				"type": "dropdown",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
 				"switch_default_value": "",
 				"default_value": "",
-				"key": "productId",
-				"validation": []
+				"key": "summary",
+				"validation": [],
+				"searchable": true
 			},
 			{
 				"label": "Cost of the Vehicle",

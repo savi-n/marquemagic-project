@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Divider from '../Divider';
 import Input from '../Input';
 import './style.scss';
 import { handleChange, handleSubType } from '../../../utils/helper';
+import { UserContext } from '../../../reducer/userReducer';
+import { getVehicleList } from '../../../utils/requests';
 
 export default function DetailsComponent(props) {
 	const [defaultVal, setDefault] = useState(true);
 	const { data } = props;
+	const {
+		state: { userDetails }
+	} = useContext(UserContext);
+
+	var dval;
 
 	const getDefaultValues = el => {
 		var val;
@@ -59,6 +66,20 @@ export default function DetailsComponent(props) {
 		return val;
 	};
 
+	const [d, setD] = useState(null);
+
+	useEffect(() => {}, []);
+
+	const f = (e, item) => {
+		const h = e;
+		setTimeout(() => {
+			getVehicleList(h, userDetails.userToken, item).then(res => {
+				setD(res);
+				return res;
+			});
+		}, 3000);
+	};
+
 	return (
 		<Divider split={props.split} head={props.head} headLink={props.headLink} change={setDefault}>
 			{data &&
@@ -70,7 +91,7 @@ export default function DetailsComponent(props) {
 								placeholder={el.label}
 								name={el.label}
 								type={el.type}
-								data={el.option.length && el.option}
+								options={el.option}
 								label={el.label}
 								name={el.key}
 								t={el.mandatory === false ? 0 : 1}
@@ -79,6 +100,8 @@ export default function DetailsComponent(props) {
 									props.subType ? handleSubType(e, el, props) : handleChange(e, el, props)
 								}
 								defaultValue={getDefaultValues(el)}
+								isSearchable={el.searchable}
+								onInputChange={e => f(e, el)}
 							/>
 						)
 				)}
