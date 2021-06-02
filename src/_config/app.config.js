@@ -24,7 +24,11 @@ const VERIFY_OTP_URL = `${API_END_POINT}/cub/verifyOtp`;
 
 const CREATE_CASE = `${API_END_POINT}/cub/createCase`;
 
+const CREATE_CASE_COAPPLICANT = `${API_END_POINT}/addCo-ApplicantWithIncome`;
+
 const NC_STATUS_CODE = {
+  OK: "ok",
+  NC200: "NC200",
   success: "NC200",
   serverError: "NC500",
   accounts: "NC302",
@@ -46,4 +50,5 @@ export {
   GENERATE_OTP_URL,
   VERIFY_OTP_URL,
   CREATE_CASE,
+  CREATE_CASE_COAPPLICANT,
 };

@@ -11,6 +11,7 @@ import {
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
   CREATE_CASE,
+  NC_STATUS_CODE,
 } from "../../../_config/app.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import useFetch from "../../../hooks/useFetch";
@@ -37,6 +38,7 @@ const FileLabel = styled.label`
   display: block;
   cursor: pointer;
 `;
+
 const UploadWrapper = styled.div`
   padding: 30px 0;
 `;
@@ -141,7 +143,6 @@ export default function DocumentUpload({ userType, productId, nextFlow, id }) {
             if (res.data.status === "ok") {
               const file = res.data.files[0];
               const uploadfile = {
-                loan_id: productId,
                 doc_type_id: "1",
                 upload_doc_name: file.filename,
                 document_key: file.fd,
@@ -156,38 +157,72 @@ export default function DocumentUpload({ userType, productId, nextFlow, id }) {
     ).then((files) => console.log(files));
   };
 
-  const createCase = async () => {
-    const caseReq = await newRequest(
-      CREATE_CASE,
+  const updateDocumentList = async (loanId) => {
+    const submitReq = await newRequest(
+      BORROWER_UPLOAD_URL,
       {
         method: "POST",
-        data: { white_label_id: whiteLabelId, product_id: productId, ...state },
+        data: {
+          upload_document: uploadedFiles.current.map((d) => ({
+            ...d,
+            loan_id: loanId,
+          })),
+        },
       },
       {
         Authorization: `Bearer ${userToken}`,
       }
     );
 
-    console.log(caseReq);
-    setCompleted(id);
+    return submitReq;
+  };
+
+  const createCase = async (data) => {
+    try {
+      const caseReq = await newRequest(
+        CREATE_CASE,
+        {
+          method: "POST",
+          data,
+        },
+        {
+          Authorization: `Bearer ${userToken}`,
+        }
+      );
+      const caseRes = caseReq.data;
+      if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
+        const docsReq = await updateDocumentList(caseRes.loanId);
+        const docsRes = docsReq.data;
+        if (docsRes.status === NC_STATUS_CODE.OK) {
+          return caseRes;
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onSubmit = async () => {
-    // const submitReq = await newRequest(
-    //   BORROWER_UPLOAD_URL,
-    //   {
-    //     method: "POST",
-    //     data: { upload_document: uploadedFiles.current },
-    //   },
-    //   {
-    //     Authorization: `Bearer ${userToken}`,
-    //   }
-    // );
+    if (!(checkbox1 && checkbox2)) {
+      return;
+    }
 
-    // if (!submitReq) {
-    //   return;
-    // }
-    createCase();
+    if (!userType) {
+      const loanReq = await createCase({
+        white_label_id: whiteLabelId,
+        product_id: productId,
+        ...state,
+      });
+
+      // if (loanReq.loanId) {
+      //   await createCase({
+      //     loan_ref_id: loanReq.loan_ref_id,
+      //     ...state.coaplicant,
+      //   });
+      // }
+
+      setCompleted(id);
+    }
   };
 
   const onButtonClick = () => {
