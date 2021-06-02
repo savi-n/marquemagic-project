@@ -57,6 +57,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
               productId={atob(match.params.product)}
               productDetails={productDetails}
               pageName={f.name}
+              id={f.id}
             />
           )}
         />
@@ -73,7 +74,6 @@ export default function FlowRoutes({ config, productDetails = {} }) {
             productId={atob(match.params.product)}
             productDetails={productDetails}
             pageName={config.name}
-            nextFlow={config.nextFlow}
             id={config.id}
           />
         )}

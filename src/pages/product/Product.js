@@ -1,4 +1,4 @@
-import { Suspense, lazy, useContext, useState, Fragment } from "react";
+import { Suspense, lazy, useContext, useEffect, Fragment } from "react";
 import {
   Route,
   useRouteMatch,
@@ -87,12 +87,17 @@ export default function Product({ product, page }) {
 
   const {
     state: { completed: completedMenu, activeSubFlow: subFlowMenu },
+    actions: { configure },
   } = useContext(FlowContext);
 
-  let { response } = useFetch({
+  const { response } = useFetch({
     url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
     options: { method: "GET" },
   });
+
+  useEffect(() => {
+    if (response) configure(response.data?.product_details?.flow);
+  }, [response]);
 
   const { path } = useRouteMatch();
 
@@ -155,7 +160,7 @@ export default function Product({ product, page }) {
                 />
               )}
             />
-            {configureFlow(response?.data?.product_details?.flow)?.map((m) => (
+            {response?.data?.product_details?.flow?.map((m) => (
               <FlowRoutes
                 key={m.id}
                 config={m}

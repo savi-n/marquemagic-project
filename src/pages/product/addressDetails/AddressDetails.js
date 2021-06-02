@@ -43,8 +43,9 @@ const formatData = (type, data, fields) => {
   return { addressType: type, ...formatedData };
 };
 
-export default function AddressDetailsPage({ nextFlow, id, pageName }) {
+export default function AddressDetailsPage({ id, pageName }) {
   const {
+    state: { flowMap },
     actions: { setCompleted, activateSubFlow },
   } = useContext(FlowContext);
 
@@ -69,11 +70,12 @@ export default function AddressDetailsPage({ nextFlow, id, pageName }) {
   const onProceed = (formData) => {
     onSave(formData);
     setCompleted(id);
-    history.push(nextFlow);
+    history.push(flowMap[id].main);
   };
 
   const subFlowActivate = () => {
     activateSubFlow(id);
+    history.push(flowMap[id].sub);
   };
 
   return (

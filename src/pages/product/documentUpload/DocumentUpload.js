@@ -1,4 +1,5 @@
 import { useState, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { oneOf } from "prop-types";
@@ -99,7 +100,7 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
-export default function DocumentUpload({ userType, productId, nextFlow, id }) {
+export default function DocumentUpload({ userType, productId, id }) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
@@ -109,10 +110,12 @@ export default function DocumentUpload({ userType, productId, nextFlow, id }) {
   } = useContext(UserContext);
 
   const {
+    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
   const { state } = useContext(FormContext);
+  const history = useHistory();
 
   const { newRequest } = useFetch();
 
@@ -222,6 +225,7 @@ export default function DocumentUpload({ userType, productId, nextFlow, id }) {
       // }
 
       setCompleted(id);
+      history.push(flowMap[id].main);
     }
   };
 

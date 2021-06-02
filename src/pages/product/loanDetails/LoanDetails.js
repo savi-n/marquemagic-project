@@ -23,8 +23,9 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function LoanDetailsPage({ nextFlow, id, pageName }) {
+export default function LoanDetailsPage({ id, pageName }) {
   const {
+    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -38,7 +39,7 @@ export default function LoanDetailsPage({ nextFlow, id, pageName }) {
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(nextFlow);
+    history.push(flowMap[id].main);
   };
 
   const onSave = (data) => {

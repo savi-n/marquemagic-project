@@ -51,7 +51,7 @@ const H2 = styled.h2`
 
 // const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
 
-export default function IdentityVerification({ productDetails, nextFlow, id }) {
+export default function IdentityVerification({ productDetails, id }) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
@@ -62,6 +62,7 @@ export default function IdentityVerification({ productDetails, nextFlow, id }) {
   } = useContext(UserContext);
 
   const {
+    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -123,7 +124,7 @@ export default function IdentityVerification({ productDetails, nextFlow, id }) {
 
   const onProceed = () => {
     setCompleted(id);
-    history.push(nextFlow);
+    history.push(flowMap[id].main);
   };
 
   return (
