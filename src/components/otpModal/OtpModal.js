@@ -231,6 +231,7 @@ export default function OtpModal(props) {
                     value: a.accNum,
                     name: a.accNum,
                   })),
+                  value: formState?.values?.account,
                 })}
 
                 <Button

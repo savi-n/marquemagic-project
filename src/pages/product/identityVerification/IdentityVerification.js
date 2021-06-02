@@ -8,6 +8,7 @@ import OtpModal from "../../../components/OtpModal/OtpModal";
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from "../../../_config/app.config";
 import { StoreContext } from "../../../utils/StoreProvider";
 import { UserContext } from "../../../reducer/userReducer";
+import { FlowContext } from "../../../reducer/flowReducer";
 import useForm from "../../../hooks/useForm";
 import useFetch from "../../../hooks/useFetch";
 
@@ -50,12 +51,7 @@ const H2 = styled.h2`
 
 // const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
 
-export default function IdentityVerification({
-  productDetails,
-  nextFlow,
-  onComplete,
-  id,
-}) {
+export default function IdentityVerification({ productDetails, nextFlow, id }) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
@@ -64,6 +60,10 @@ export default function IdentityVerification({
     state: { userId },
     actions: { setUserId, setUserDetails },
   } = useContext(UserContext);
+
+  const {
+    actions: { setCompleted },
+  } = useContext(FlowContext);
 
   const { newRequest } = useFetch();
   const { register, handleSubmit, formState } = useForm();
@@ -122,7 +122,7 @@ export default function IdentityVerification({
   };
 
   const onProceed = () => {
-    onComplete(id);
+    setCompleted(id);
     history.push(nextFlow);
   };
 
@@ -142,6 +142,7 @@ export default function IdentityVerification({
                   NumberOnly: true,
                   CharacterLimit: 10,
                 },
+                value: formState?.values?.mobileNo,
               })}
             </FieldWrapper>
             <H2>or</H2>
@@ -149,6 +150,7 @@ export default function IdentityVerification({
               {register({
                 name: "customerId",
                 placeholder: "Use Customer ID to Login",
+                value: formState?.values?.customerId,
               })}
             </FieldWrapper>
             <Button

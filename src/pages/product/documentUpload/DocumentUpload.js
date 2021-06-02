@@ -10,9 +10,13 @@ import FileUpload from "../../../shared/components/FileUpload/FileUpload";
 import {
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
+  CREATE_CASE,
 } from "../../../_config/app.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import useFetch from "../../../hooks/useFetch";
+import { FormContext } from "../../../reducer/formReducer";
+import { FlowContext } from "../../../reducer/flowReducer";
+import { StoreContext } from "../../../utils/StoreProvider";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -93,10 +97,20 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
-export default function DocumentUpload({ userType, productId }) {
+export default function DocumentUpload({ userType, productId, nextFlow, id }) {
+  const {
+    state: { whiteLabelId },
+  } = useContext(StoreContext);
+
   const {
     state: { userId, userToken },
   } = useContext(UserContext);
+
+  const {
+    actions: { setCompleted },
+  } = useContext(FlowContext);
+
+  const { state } = useContext(FormContext);
 
   const { newRequest } = useFetch();
 
@@ -142,17 +156,38 @@ export default function DocumentUpload({ userType, productId }) {
     ).then((files) => console.log(files));
   };
 
-  const onSubmit = async () => {
-    const submitReq = await newRequest(
-      BORROWER_UPLOAD_URL,
+  const createCase = async () => {
+    const caseReq = await newRequest(
+      CREATE_CASE,
       {
         method: "POST",
-        data: { upload_document: uploadedFiles.current },
+        data: { white_label_id: whiteLabelId, product_id: productId, ...state },
       },
       {
         Authorization: `Bearer ${userToken}`,
       }
     );
+
+    console.log(caseReq);
+    setCompleted(id);
+  };
+
+  const onSubmit = async () => {
+    // const submitReq = await newRequest(
+    //   BORROWER_UPLOAD_URL,
+    //   {
+    //     method: "POST",
+    //     data: { upload_document: uploadedFiles.current },
+    //   },
+    //   {
+    //     Authorization: `Bearer ${userToken}`,
+    //   }
+    // );
+
+    // if (!submitReq) {
+    //   return;
+    // }
+    createCase();
   };
 
   const onButtonClick = () => {
@@ -178,13 +213,13 @@ export default function DocumentUpload({ userType, productId }) {
           <CheckBox
             name={text.grantCibilAcces}
             checked={checkbox1}
-            onChange={(state) => setCheckbox1(state)}
+            onChange={() => setCheckbox1(!checkbox1)}
             bg="blue"
           />
           <CheckBox
             name={text.declaration}
             checked={checkbox2}
-            onChange={(state) => setCheckbox2(state)}
+            onChange={() => setCheckbox2(!checkbox2)}
             bg="blue"
           />
         </CheckboxWrapper>
@@ -196,14 +231,18 @@ export default function DocumentUpload({ userType, productId }) {
               width: "200px",
               background: "blue",
             }}
+            disabled={!(checkbox1 && checkbox2)}
             onClick={onSubmit}
           />
-          <Button
-            name="Save"
-            style={{
-              width: "200px",
-            }}
-          />
+          {userType && (
+            <Button
+              name="Save"
+              style={{
+                width: "200px",
+              }}
+              disabled={!(checkbox1 && checkbox2)}
+            />
+          )}
         </SubmitWrapper>
       </Colom1>
       <Colom2>

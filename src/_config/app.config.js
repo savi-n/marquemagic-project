@@ -22,6 +22,8 @@ const GENERATE_OTP_URL = `${API_END_POINT}/cub/generateOtp`;
 
 const VERIFY_OTP_URL = `${API_END_POINT}/cub/verifyOtp`;
 
+const CREATE_CASE = `${API_END_POINT}/cub/createCase`;
+
 const NC_STATUS_CODE = {
   success: "NC200",
   serverError: "NC500",
@@ -43,4 +45,5 @@ export {
   BORROWER_UPLOAD_URL,
   GENERATE_OTP_URL,
   VERIFY_OTP_URL,
+  CREATE_CASE,
 };

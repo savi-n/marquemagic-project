@@ -38,13 +38,7 @@ const availableRoutes = {
   "gurantor-document-upload": userType("Gurantor", DocumentUpload),
 };
 
-export default function FlowRoutes({
-  config,
-  productDetails = {},
-  pageName,
-  onComplete,
-  onSubflowActivate,
-}) {
+export default function FlowRoutes({ config, productDetails = {} }) {
   const { path } = useRouteMatch();
 
   const Component = availableRoutes[config.id];
@@ -55,13 +49,14 @@ export default function FlowRoutes({
       const Comp = availableRoutes[f.id];
       return (
         <Route
+          key={f.id}
           exact
           path={`${path}/${config.id}/${f.id}`}
           component={({ match }) => (
             <Comp
               productId={atob(match.params.product)}
               productDetails={productDetails}
-              onComplete={onComplete}
+              pageName={f.name}
             />
           )}
         />
@@ -77,10 +72,8 @@ export default function FlowRoutes({
           <Component
             productId={atob(match.params.product)}
             productDetails={productDetails}
-            pageName={pageName}
+            pageName={config.name}
             nextFlow={config.nextFlow}
-            onComplete={onComplete}
-            onSubflowActivate={onSubflowActivate}
             id={config.id}
           />
         )}
