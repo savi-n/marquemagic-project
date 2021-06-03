@@ -248,7 +248,7 @@ export default function DocumentUpload({
           {
             loan_ref_id: loanReq.loan_ref_id,
             applicantData: state.coapplicant.applicantData,
-            loanData: state.coapplicant.loanData,
+            ...state.coapplicant.loanData,
           },
           USER_ROLES["Co-applicant"],
           CREATE_CASE_COAPPLICANT

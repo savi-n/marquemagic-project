@@ -14,7 +14,6 @@ import { PRODUCT_DETAILS_URL } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import { StoreContext } from "../../utils/StoreProvider";
 import { FlowContext } from "../../reducer/flowReducer";
-import configureFlow from "../../utils/configureFlow";
 import Loading from "../../components/Loading";
 import FlowRoutes from "./ProductRoutes";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
@@ -75,6 +74,8 @@ const SubMenu = styled.h5`
   align-items: center;
   justify-content: space-between;
 `;
+
+// const Link = styled.div``;
 
 const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 
