@@ -78,7 +78,7 @@ const SubMenu = styled.h5`
 
 const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 
-export default function Product({ product, page }) {
+export default function Product({ product, url }) {
   const history = useHistory();
 
   const {
@@ -117,7 +117,7 @@ export default function Product({ product, page }) {
           {response?.data?.product_details?.flow?.map((m) => (
             <Fragment key={uuidv4()}>
               <Link to={`/product/${product}/${m.id}`}>
-                <Menu active={h.includes(m.id)} completed={m.completed}>
+                <Menu active={h.includes(m.id)}>
                   <div>{m.name}</div>
                   {completedMenu.includes(m.id) && (
                     <CheckBox bg="white" checked round fg={"blue"} />
@@ -131,12 +131,9 @@ export default function Product({ product, page }) {
                     key={item.id}
                     to={`/product/${product}/${m.id}/${item.id}`}
                   >
-                    <SubMenu
-                      active={h.includes(item.id)}
-                      completed={item.completed}
-                    >
+                    <SubMenu active={h.includes(item.id)}>
                       <div>{item.name}</div>
-                      {item.completed && (
+                      {completedMenu.includes(item.id) && (
                         <CheckBox bg="white" checked round fg={"blue"} />
                       )}
                     </SubMenu>

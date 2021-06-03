@@ -269,6 +269,9 @@
 				"name": "grossIncome",
 				"placeholder": "Gross Total Income",
 				"type": "text",
+				"rules": {
+					"required": true
+				},
 				"mask": {
 					"NumberOnly": true
 				},
@@ -278,6 +281,9 @@
 				"name": "netMonthlyIncome",
 				"placeholder": "Net Monthly Income",
 				"type": "text",
+				"rules": {
+					"required": true
+				},
 				"mask": {
 					"NumberOnly": true
 				},

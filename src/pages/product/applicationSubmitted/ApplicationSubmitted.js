@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import Button from "../../../components/Button";
@@ -65,12 +66,17 @@ const data = [
 
 export default function ApplicationSubmitted({ productDetails, id }) {
   const {
+    state: { flowMap },
     actions: { activateSubFlow },
   } = useContext(FlowContext);
+
+  const history = useHistory();
+
   const [count, setData] = useState(0);
 
   const subFlowActivate = () => {
     activateSubFlow(id);
+    history.push(flowMap[id].sub);
   };
 
   const d = data[count];

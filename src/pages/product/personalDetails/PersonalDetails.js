@@ -30,14 +30,14 @@ export default function PersonalDetailsPage({ id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setApplicantData },
+    actions: { setUsertypeApplicantData },
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
 
   const onSave = (data) => {
-    setApplicantData({ ...data, isApplicant: "1" });
+    setUsertypeApplicantData({ ...data, isApplicant: "1" });
   };
 
   const onProceed = (data) => {

@@ -34,6 +34,12 @@ const NC_STATUS_CODE = {
   accounts: "NC302",
 };
 
+const USER_ROLES = {
+  User: "user",
+  "Co-applicant": "coapplicant",
+  Gurantor: "gurantor",
+};
+
 export {
   API_END_POINT,
   ENDPOINT_BANK,
@@ -51,4 +57,5 @@ export {
   VERIFY_OTP_URL,
   CREATE_CASE,
   CREATE_CASE_COAPPLICANT,
+  USER_ROLES,
 };

@@ -32,7 +32,7 @@ const useActions = (dispatch) => {
 
       element.flow?.forEach((e, i) => {
         const m = element.flow[i + 1]
-          ? element.id + "/" + element.flow[i + 1].id
+          ? element.flow[i + 1].id
           : menu[index + 1]
           ? menu[index + 1].id
           : element.id;

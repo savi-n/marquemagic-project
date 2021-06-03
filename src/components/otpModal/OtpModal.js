@@ -1,18 +1,44 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
 
 import { VERIFY_OTP_URL, NC_STATUS_CODE } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import useForm from "../../hooks/useForm";
 import Loading from "../../components/Loading";
 import Button from "../../components/Button";
-
-import Modal from "../../shared/components/Modal";
-import Message from "../../shared/components/Message";
+import Modal from "../../components/Modal";
 
 import "./style.scss";
 
 var arr;
+
+const ModalWrapper = styled.div`
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const OTPHead = styled.h2`
+  font-size: 1.2em;
+  font-weight: 500;
+  width: 90%;
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  padding-bottom: 10px;
+`;
+
+const OTPCaption = styled.p`
+  text-align: center;
+  width: 100%;
+`;
+
+const Field = styled.div`
+  width: 60%;
+`;
 
 function OTPInput(d) {
   const inputs = document.querySelectorAll("#otp > *[id]");
@@ -48,19 +74,18 @@ function OTPInput(d) {
   arr = inputs;
 }
 
-const otpResendTime = 60;
+const otpResendTime = 120;
 
 export default function OtpModal(props) {
   const {
     loading,
+    setLoading,
     accountAvailable,
     resend,
     onProceed,
     toggle,
     show,
-    mobileNo,
-    customerId,
-    userId,
+    userId: { mobileNo, customerId, userId, otp },
     setUserDetails,
   } = props;
 
@@ -72,7 +97,7 @@ export default function OtpModal(props) {
   const [accounts, setAccounts] = useState(null);
 
   const [seconds, setSeconds] = useState(otpResendTime);
-  const [otp, setOtp] = useState("");
+  const [otpT, setOtp] = useState("");
   const [disabled, setDisabled] = useState(true);
   const [invalid, setInvalid] = useState(false);
   const [message, setMessage] = useState(null);
@@ -84,9 +109,12 @@ export default function OtpModal(props) {
     });
     setOtp(inputOtp);
 
-    const otpValue = inputOtp || otp;
+    let otpValue = inputOtp || otpT;
 
-    if (!otpValue) return;
+    if (!otpValue) {
+      // return
+      otpValue = otp; // development only
+    }
 
     const bodyData = {
       otp: otpValue,
@@ -96,6 +124,7 @@ export default function OtpModal(props) {
       ...formData,
     };
 
+    setLoading(true);
     const data = await newRequest(VERIFY_OTP_URL, {
       method: "POST",
       data: bodyData,
@@ -122,6 +151,7 @@ export default function OtpModal(props) {
     ) {
       setAccounts(response.accountDetails);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -155,29 +185,23 @@ export default function OtpModal(props) {
   };
 
   return (
-    <Modal
-      onClose={toggle}
-      height="auto"
-      title={accounts ? "Select Account" : "OTP Verification"}
-      margin="base"
-      width="lg"
-      show={show}
-    >
-      {loading ? (
-        <Loading />
-      ) : accountAvailable ? (
-        <>
-          <Message message={message} invalid={invalid} />
-          {!accounts ? (
+    <Modal onClose={toggle} show={show} width="50%">
+      <ModalWrapper>
+        {loading ? (
+          <Loading />
+        ) : accountAvailable ? (
+          !accounts ? (
             <>
-              <p>
-                A six digit OTP has been sent to *******
+              <OTPHead>OTP Verification</OTPHead>
+              <hr />
+              <OTPCaption>
+                A 6 digit OTP has been sent to your mobile number *******
                 {mobileNo.slice(mobileNo.length - 3, mobileNo.length)}. <br />{" "}
                 Kindly enter it below. &nbsp;
                 <b className="cursor-pointer" onClick={toggle}>
                   Wrong number?
                 </b>
-              </p>
+              </OTPCaption>
               <div className="mb-6 text-center">
                 <div id="otp" className="flex justify-center">
                   {["first", "second", "third", "fourth", "fifth", "sixth"].map(
@@ -219,20 +243,24 @@ export default function OtpModal(props) {
           ) : (
             accounts && (
               <section className="flex flex-col items-center gap-y-6">
-                <p>
+                <OTPCaption>
                   Multiple accounts found. <br /> Please select the account you
                   want to continue your application with
-                </p>
-                {register({
-                  name: "account",
-                  placeholder: "Select account",
-                  type: "select",
-                  options: accounts.map((a) => ({
-                    value: a.accNum,
-                    name: a.accNum,
-                  })),
-                  value: formState?.values?.account,
-                })}
+                </OTPCaption>
+                <Field>
+                  {register({
+                    name: "account",
+                    placeholder: "Select account",
+                    type: "select",
+                    options: accounts.map((a) => ({
+                      value: a.accNum,
+                      name: `${"*".repeat(
+                        a.accNum.length - 4
+                      )}${a.accNum.substring(a.accNum.length - 4)}`,
+                    })),
+                    value: formState?.values?.account,
+                  })}
+                </Field>
 
                 <Button
                   disabled={!formState?.values?.account}
@@ -242,11 +270,11 @@ export default function OtpModal(props) {
                 />
               </section>
             )
-          )}
-        </>
-      ) : (
-        "Account Not available"
-      )}
+          )
+        ) : (
+          "Account Not available"
+        )}
+      </ModalWrapper>
     </Modal>
   );
 }

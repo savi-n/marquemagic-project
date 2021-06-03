@@ -30,7 +30,7 @@ export default function LoanDetailsPage({ id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setLoanData },
+    actions: { setUsertypeLoanData },
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
@@ -43,7 +43,7 @@ export default function LoanDetailsPage({ id, pageName }) {
   };
 
   const onSave = (data) => {
-    setLoanData({ ...data, summary: "summary" });
+    setUsertypeLoanData({ ...data, summary: "summary" });
   };
 
   return (

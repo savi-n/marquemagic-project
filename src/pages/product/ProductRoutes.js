@@ -39,7 +39,7 @@ const availableRoutes = {
 };
 
 export default function FlowRoutes({ config, productDetails = {} }) {
-  const { path } = useRouteMatch();
+  const { path, url } = useRouteMatch();
 
   const Component = availableRoutes[config.id];
   if (!Component) return <Redirect to={path} />;
@@ -58,6 +58,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
               productDetails={productDetails}
               pageName={f.name}
               id={f.id}
+              url={url}
             />
           )}
         />

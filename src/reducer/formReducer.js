@@ -1,106 +1,110 @@
 import { createContext, useReducer } from "react";
 
-// {
-//     "white_label_id": 32,
-//     "applicantData": {
-//         "firstName": "Anand",
-//         "lastName": "an",
-//         "panNumber": "bfbsgshj67",
-//         "dob": "05-06-1995", // check date format with madhuri
-//         "email": "anand.biradar@nc.co",
-//         "mobileNo": "55665665",
-//         "isApplicant": "0", // can be 1 or 0... 0 for co-applicant. check for garantor with madhuri
-//         "address": [{
-//             "addressType": "permanent",
-//             "address1": "",
-//             "address2": "",
-//             "address3": "",
-//             "address4": "",
-//             "city": "",
-//             "state": "",
-//             "pinCode": ""
-//         }, {
-//             "addressType": "present",
-//             "address1": "",
-//             "address2": "",
-//             "address3": "",
-//             "address4": "",
-//             "city": "",
-//             "state": "",
-//             "pinCode": ""
-//         }],
-//         "aadhaar": "",
-//         "incomeType": "", //['NULL', 'salaried', 'business']
-//         "residenceStatus": "", //['NULL', 'Resident', 'Resident and Ordinarily Resident', 'Resident but Not Ordinarily Resident', 'Non-Resident']
-//         "countryResidence": "",
-//         "maritalStatus": "", //['NULL', 'Single', 'Married', 'Widowed', 'Divorced']
-//         "grossIncome": "",
-//         "netMonthlyIncome": "",
-//         "existing_auto_loan": "",
-//         "existing_personal_loan": ""
-//         "existing_lap_loan": ""
-//     },
-//     "loanData": {
-//         "loanAmount": "",
-//         "tenure": "",
-//         "assetsValue": "",
-//         "loanTypeId": "",
-//         "summary": "",
-//         "productId": "",
-//     }
-// }
-
 const actionTypes = {
-  SET_APPLICANT_DATA: "SET_APPLICANT_DATA",
-  SET_ADDRESS_DATA: "SET_ADDRESS_DATA",
-  SET_LOAN_DATA: "SET_LOAN_DATA",
+  SET_USERTYPE_APPLICANT_DATA: "SET_USERTYPE_APPLICANT_DATA",
+  SET_USERTYPE_ADDRESS_DATA: "SET_USERTYPE_ADDRESS_DATA",
+  SET_USERTYPE_LOAN_DATA: "SET_USERTYPE_LOAN_DATA",
+  SET_USERTYPE_DOCUMENTS: "SET_USERTYPE_DOCUMENTS",
 };
 
 const INITIAL_STATE = {
-  applicantData: {},
-  loanData: {},
+  user: {
+    applicantData: {},
+    loanData: {},
+    docs: [],
+  },
+  coapplicant: null,
+  gurantor: null,
 };
 
 const useActions = (dispatch) => {
-  const setApplicantData = (applicantData) => {
-    dispatch({ type: actionTypes.SET_APPLICANT_DATA, applicantData });
+  const setUsertypeApplicantData = (applicantData, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_APPLICANT_DATA,
+      applicantData,
+      userType,
+    });
   };
 
-  const setAddressData = (addressData) => {
-    dispatch({ type: actionTypes.SET_ADDRESS_DATA, addressData });
+  const setUsertypeAddressData = (addressData, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_ADDRESS_DATA,
+      addressData,
+      userType,
+    });
   };
 
-  const setLoanData = (loanData) => {
-    dispatch({ type: actionTypes.SET_LOAN_DATA, loanData });
+  const setUsertypeLoanData = (loanData, userType = "user") => {
+    dispatch({ type: actionTypes.SET_USERTYPE_LOAN_DATA, loanData, userType });
+  };
+
+  const setUsertypeDocuments = (docs, userType = "user") => {
+    dispatch({ type: actionTypes.SET_USERTYPE_DOCUMENTS, docs, userType });
   };
 
   return {
-    setApplicantData,
-    setAddressData,
-    setLoanData,
+    setUsertypeApplicantData,
+    setUsertypeAddressData,
+    setUsertypeLoanData,
+    setUsertypeDocuments,
   };
 };
 
 function reducer(state, action) {
   switch (action.type) {
-    case actionTypes.SET_APPLICANT_DATA: {
+    case actionTypes.SET_USERTYPE_APPLICANT_DATA: {
+      const applicantData = {
+        ...(state[action.userType]?.applicantData || {}),
+        ...action.applicantData,
+      };
+
       return {
         ...state,
-        applicantData: { ...state.applicantData, ...action.applicantData },
+        [action.userType]: {
+          ...state[action.userType],
+          applicantData,
+        },
       };
     }
 
-    case actionTypes.SET_ADDRESS_DATA: {
+    case actionTypes.SET_USERTYPE_ADDRESS_DATA: {
+      const applicantData = {
+        ...(state[action.userType]?.applicantData || {}),
+        address: action.addressData,
+      };
+
       return {
         ...state,
-        applicantData: { ...state.applicantData, address: action.addressData },
+        [action.userType]: {
+          ...state[action.userType],
+          applicantData,
+        },
       };
     }
 
-    case actionTypes.SET_LOAN_DATA: {
+    case actionTypes.SET_USERTYPE_LOAN_DATA: {
+      const loanData = {
+        ...(state[action.userType]?.loanData || {}),
+        ...action.loanData,
+      };
+
       return {
         ...state,
-        loanData: action.loanData,
+        [action.userType]: {
+          ...state[action.userType],
+          loanData,
+        },
+      };
+    }
+    case actionTypes.SET_USERTYPE_DOCUMENTS: {
+      const docs = [...(state[action.userType]?.docs || []), ...action.docs];
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          docs,
+        },
       };
     }
 

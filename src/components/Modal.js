@@ -21,16 +21,33 @@ const Modalbody = styled.div`
   padding: 20px;
   border-radius: 5px;
   max-width: 50%;
+  min-width: ${({ width }) => width};
   min-height: 50%;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
 `;
 
-export default function Modal({ show, backdrop, bg, children }) {
+export default function Modal({
+  show,
+  backdrop,
+  bg,
+  children,
+  width,
+  onClose = () => {
+    console.log("close");
+  },
+}) {
   const root = document.body;
   if (!show) return null;
   return createPortal(
-    <Backdrop backdrop={backdrop}>
-      <Modalbody>{children}</Modalbody>
+    <Backdrop backdrop={backdrop} onClick={onClose}>
+      <Modalbody
+        width={width}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        {children}
+      </Modalbody>
     </Backdrop>,
     root
   );

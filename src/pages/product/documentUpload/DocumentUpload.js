@@ -1,5 +1,5 @@
 import { useState, useRef, useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { oneOf } from "prop-types";
@@ -13,6 +13,7 @@ import {
   BORROWER_UPLOAD_URL,
   CREATE_CASE,
   NC_STATUS_CODE,
+  USER_ROLES,
 } from "../../../_config/app.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import useFetch from "../../../hooks/useFetch";
@@ -100,7 +101,7 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
-export default function DocumentUpload({ userType, productId, id }) {
+export default function DocumentUpload({ userType, productId, id, url }) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
@@ -114,7 +115,11 @@ export default function DocumentUpload({ userType, productId, id }) {
     actions: { setCompleted },
   } = useContext(FlowContext);
 
-  const { state } = useContext(FormContext);
+  const {
+    state,
+    actions: { setUsertypeDocuments },
+  } = useContext(FormContext);
+
   const history = useHistory();
 
   const { newRequest } = useFetch();
@@ -133,7 +138,7 @@ export default function DocumentUpload({ userType, productId, id }) {
         formData.append("document", file);
 
         return newRequest(
-          DOCS_UPLOAD_URL({ userId }),
+          DOCS_UPLOAD_URL({ userId: userId.userId }),
           {
             method: "POST",
             data: formData,
@@ -160,13 +165,13 @@ export default function DocumentUpload({ userType, productId, id }) {
     ).then((files) => console.log(files));
   };
 
-  const updateDocumentList = async (loanId) => {
+  const updateDocumentList = async (loanId, user) => {
     const submitReq = await newRequest(
       BORROWER_UPLOAD_URL,
       {
         method: "POST",
         data: {
-          upload_document: uploadedFiles.current.map((d) => ({
+          upload_document: state[user]?.docs?.map((d) => ({
             ...d,
             loan_id: loanId,
           })),
@@ -180,7 +185,7 @@ export default function DocumentUpload({ userType, productId, id }) {
     return submitReq;
   };
 
-  const createCase = async (data) => {
+  const createCase = async (data, user) => {
     try {
       const caseReq = await newRequest(
         CREATE_CASE,
@@ -194,7 +199,7 @@ export default function DocumentUpload({ userType, productId, id }) {
       );
       const caseRes = caseReq.data;
       if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
-        const docsReq = await updateDocumentList(caseRes.loanId);
+        const docsReq = await updateDocumentList(caseRes.loanId, user);
         const docsRes = docsReq.data;
         if (docsRes.status === NC_STATUS_CODE.OK) {
           return caseRes;
@@ -210,19 +215,33 @@ export default function DocumentUpload({ userType, productId, id }) {
       return;
     }
 
-    if (!userType) {
-      const loanReq = await createCase({
-        white_label_id: whiteLabelId,
-        product_id: productId,
-        ...state,
-      });
+    setUsertypeDocuments(uploadedFiles.current, USER_ROLES["User"]);
 
-      // if (loanReq.loanId) {
-      //   await createCase({
-      //     loan_ref_id: loanReq.loan_ref_id,
-      //     ...state.coaplicant,
-      //   });
-      // }
+    if (!userType) {
+      const loanReq = await createCase(
+        {
+          white_label_id: whiteLabelId,
+          product_id: productId,
+          applicantData: state.user.applicantData,
+          loanData: state.user.loanData,
+        },
+        USER_ROLES.User
+      );
+
+      if (!loanReq && !loanReq?.loanId) {
+        return;
+      }
+
+      if (state.coapplicant) {
+        const coapplicantReq = await createCase(
+          {
+            loan_ref_id: loanReq.loan_ref_id,
+            applicantData: state.coapplicant.applicantData,
+            loanData: state.user.coapplicant,
+          },
+          USER_ROLES["Co-applicant"]
+        );
+      }
 
       setCompleted(id);
       history.push(flowMap[id].main);
@@ -231,6 +250,16 @@ export default function DocumentUpload({ userType, productId, id }) {
 
   const onButtonClick = () => {
     setShowModal(true);
+  };
+
+  const onSave = () => {
+    if (!(checkbox1 && checkbox2)) {
+      return;
+    }
+
+    setUsertypeDocuments(uploadedFiles.current, USER_ROLES[userType || "User"]);
+    setCompleted(id);
+    history.push(url + "/" + flowMap[id].main);
   };
 
   return (
@@ -263,22 +292,25 @@ export default function DocumentUpload({ userType, productId, id }) {
           />
         </CheckboxWrapper>
         <SubmitWrapper>
-          <Button
-            name="Submit"
-            fill="blue"
-            style={{
-              width: "200px",
-              background: "blue",
-            }}
-            disabled={!(checkbox1 && checkbox2)}
-            onClick={onSubmit}
-          />
+          {!userType && (
+            <Button
+              name="Submit"
+              fill="blue"
+              style={{
+                width: "200px",
+                background: "blue",
+              }}
+              disabled={!(checkbox1 && checkbox2)}
+              onClick={onSubmit}
+            />
+          )}
           {userType && (
             <Button
               name="Save"
               style={{
                 width: "200px",
               }}
+              onClick={onSave}
               disabled={!(checkbox1 && checkbox2)}
             />
           )}

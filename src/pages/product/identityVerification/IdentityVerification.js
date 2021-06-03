@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import Button from "../../../components/Button";
 import OtpModal from "../../../components/OtpModal/OtpModal";
-// import ModalRenders from "../../../components/ModalRenders";
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from "../../../_config/app.config";
 import { StoreContext } from "../../../utils/StoreProvider";
 import { UserContext } from "../../../reducer/userReducer";
@@ -48,8 +47,6 @@ const H2 = styled.h2`
   text-align: center;
   font-weight: 500;
 `;
-
-// const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
 
 export default function IdentityVerification({ productDetails, id }) {
   const {
@@ -108,7 +105,7 @@ export default function IdentityVerification({ productDetails, id }) {
 
       if (response.statusCode === NC_STATUS_CODE.success) {
         setAccountAvailable(true);
-        setUserId(response.userId);
+        setUserId(response);
       }
     } catch (error) {
       console.error(error);
@@ -168,29 +165,19 @@ export default function IdentityVerification({ productDetails, id }) {
         <Colom2>
           <Img src={productDetails.imageUrl} alt="Loan Caption" />
         </Colom2>
-        {toggleModal && <div>toggle</div>}
         {toggleModal && (
           <OtpModal
             loading={loading}
+            setLoading={setLoading}
             accountAvailable={accountAvailable}
             resend={onSubmit}
             toggle={onClose}
             onProceed={onProceed}
-            mobileNo={formState.values?.mobileNo}
-            customerId={formState.values?.customerId}
             show={toggleModal}
             userId={userId}
             setUserDetails={setUserDetails}
           />
         )}
-        {/* {(!bankStatus || bankStatus === "NC500") && (
-          <ModalRenders
-            show={toggleModal}
-            toggle={onClose}
-            link={link}
-            message={errorMessage}
-          />
-        )} */}
       </>
     )
   );

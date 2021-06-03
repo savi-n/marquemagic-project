@@ -39,7 +39,6 @@ const formatData = (type, data, fields) => {
   for (const f of fields) {
     formatedData[f.name] = data[`${type}_${f.name}`];
   }
-  // console.log(formatData);
   return { addressType: type, ...formatedData };
 };
 
@@ -50,7 +49,7 @@ export default function AddressDetailsPage({ id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setAddressData },
+    actions: { setUsertypeAddressData },
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
@@ -63,7 +62,8 @@ export default function AddressDetailsPage({ id, pageName }) {
       formatData("permanent", formData, jsonData.address_details.data),
       formatData("present", formData, jsonData.address_details.data),
     ];
-    setAddressData(formatedData);
+
+    setUsertypeAddressData(formatedData);
     setSaved(true);
   };
 
