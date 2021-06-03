@@ -162,7 +162,12 @@ export default function DocumentUpload({ userType, productId, id, url }) {
           })
           .catch((err) => err);
       })
-    ).then((files) => console.log(files));
+    ).then((files) => {
+      setUsertypeDocuments(
+        uploadedFiles.current,
+        USER_ROLES[userType || "User"]
+      );
+    });
   };
 
   const updateDocumentList = async (loanId, user) => {
@@ -214,8 +219,6 @@ export default function DocumentUpload({ userType, productId, id, url }) {
     if (!(checkbox1 && checkbox2)) {
       return;
     }
-
-    setUsertypeDocuments(uploadedFiles.current, USER_ROLES["User"]);
 
     if (!userType) {
       const loanReq = await createCase(
