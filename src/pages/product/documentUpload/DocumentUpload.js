@@ -1,4 +1,5 @@
 import { useState, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { oneOf } from "prop-types";
@@ -10,9 +11,16 @@ import FileUpload from "../../../shared/components/FileUpload/FileUpload";
 import {
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
+  CREATE_CASE,
+  CREATE_CASE_COAPPLICANT,
+  NC_STATUS_CODE,
+  USER_ROLES,
 } from "../../../_config/app.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import useFetch from "../../../hooks/useFetch";
+import { FormContext } from "../../../reducer/formReducer";
+import { FlowContext } from "../../../reducer/flowReducer";
+import { StoreContext } from "../../../utils/StoreProvider";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -33,6 +41,7 @@ const FileLabel = styled.label`
   display: block;
   cursor: pointer;
 `;
+
 const UploadWrapper = styled.div`
   padding: 30px 0;
 `;
@@ -93,10 +102,32 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
-export default function DocumentUpload({ userType, productId }) {
+export default function DocumentUpload({
+  userType,
+  productId,
+  id,
+  url,
+  mainPageId,
+}) {
+  const {
+    state: { whiteLabelId },
+  } = useContext(StoreContext);
+
   const {
     state: { userId, userToken },
   } = useContext(UserContext);
+
+  const {
+    state: { flowMap },
+    actions: { setCompleted },
+  } = useContext(FlowContext);
+
+  const {
+    state,
+    actions: { setUsertypeDocuments },
+  } = useContext(FormContext);
+
+  const history = useHistory();
 
   const { newRequest } = useFetch();
 
@@ -114,7 +145,7 @@ export default function DocumentUpload({ userType, productId }) {
         formData.append("document", file);
 
         return newRequest(
-          DOCS_UPLOAD_URL({ userId }),
+          DOCS_UPLOAD_URL({ userId: userId.userId }),
           {
             method: "POST",
             data: formData,
@@ -127,7 +158,6 @@ export default function DocumentUpload({ userType, productId }) {
             if (res.data.status === "ok") {
               const file = res.data.files[0];
               const uploadfile = {
-                loan_id: productId,
                 doc_type_id: "1",
                 upload_doc_name: file.filename,
                 document_key: file.fd,
@@ -139,24 +169,116 @@ export default function DocumentUpload({ userType, productId }) {
           })
           .catch((err) => err);
       })
-    ).then((files) => console.log(files));
+    ).then((files) => {
+      setUsertypeDocuments(
+        uploadedFiles.current,
+        USER_ROLES[userType || "User"]
+      );
+    });
   };
 
-  const onSubmit = async () => {
+  const updateDocumentList = async (loanId, user) => {
     const submitReq = await newRequest(
       BORROWER_UPLOAD_URL,
       {
         method: "POST",
-        data: { upload_document: uploadedFiles.current },
+        data: {
+          upload_document: state[user]?.docs?.map((d) => ({
+            ...d,
+            loan_id: loanId,
+          })),
+        },
       },
       {
         Authorization: `Bearer ${userToken}`,
       }
     );
+
+    return submitReq;
+  };
+
+  const createCase = async (data, user, url) => {
+    try {
+      const caseReq = await newRequest(
+        url,
+        {
+          method: "POST",
+          data,
+        },
+        {
+          Authorization: `Bearer ${userToken}`,
+        }
+      );
+      const caseRes = caseReq.data;
+      if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
+        const docsReq = await updateDocumentList(caseRes.loanId, user);
+        const docsRes = docsReq.data;
+        if (docsRes.status === NC_STATUS_CODE.OK) {
+          return caseRes;
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onSubmit = async () => {
+    if (!(checkbox1 && checkbox2)) {
+      return;
+    }
+
+    if (!userType) {
+      const loanReq = await createCase(
+        {
+          white_label_id: whiteLabelId,
+          product_id: productId,
+          applicantData: state.user.applicantData,
+          loanData: state.user.loanData,
+        },
+        USER_ROLES.User,
+        CREATE_CASE
+      );
+
+      if (!loanReq && !loanReq?.loanId) {
+        return;
+      }
+
+      if (state.coapplicant) {
+        const coapplicantReq = await createCase(
+          {
+            loan_ref_id: loanReq.loan_ref_id,
+            applicantData: state.coapplicant.applicantData,
+            ...state.coapplicant.loanData,
+          },
+          USER_ROLES["Co-applicant"],
+          CREATE_CASE_COAPPLICANT
+        );
+
+        const coapplicantRes = coapplicantReq.data;
+
+        if (coapplicantRes.statusCode !== NC_STATUS_CODE.NC200) {
+          return;
+        }
+      }
+
+      setCompleted(id);
+      history.push(flowMap[id].main);
+    }
   };
 
   const onButtonClick = () => {
     setShowModal(true);
+  };
+
+  const onSave = () => {
+    if (!(checkbox1 && checkbox2)) {
+      return;
+    }
+
+    setUsertypeDocuments(uploadedFiles.current, USER_ROLES[userType || "User"]);
+    setCompleted(id);
+    setCompleted(mainPageId);
+    history.push(url + "/" + flowMap[id].main);
   };
 
   return (
@@ -178,32 +300,39 @@ export default function DocumentUpload({ userType, productId }) {
           <CheckBox
             name={text.grantCibilAcces}
             checked={checkbox1}
-            onChange={(state) => setCheckbox1(state)}
+            onChange={() => setCheckbox1(!checkbox1)}
             bg="blue"
           />
           <CheckBox
             name={text.declaration}
             checked={checkbox2}
-            onChange={(state) => setCheckbox2(state)}
+            onChange={() => setCheckbox2(!checkbox2)}
             bg="blue"
           />
         </CheckboxWrapper>
         <SubmitWrapper>
-          <Button
-            name="Submit"
-            fill="blue"
-            style={{
-              width: "200px",
-              background: "blue",
-            }}
-            onClick={onSubmit}
-          />
-          <Button
-            name="Save"
-            style={{
-              width: "200px",
-            }}
-          />
+          {!userType && (
+            <Button
+              name="Submit"
+              fill="blue"
+              style={{
+                width: "200px",
+                background: "blue",
+              }}
+              disabled={!(checkbox1 && checkbox2)}
+              onClick={onSubmit}
+            />
+          )}
+          {userType && (
+            <Button
+              name="Save"
+              style={{
+                width: "200px",
+              }}
+              onClick={onSave}
+              disabled={!(checkbox1 && checkbox2)}
+            />
+          )}
         </SubmitWrapper>
       </Colom1>
       <Colom2>

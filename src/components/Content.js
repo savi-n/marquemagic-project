@@ -16,11 +16,7 @@ export default function Content() {
             <Route
               path="/product/:product"
               component={({ match }) => (
-                <Product
-                  product={match.params.product}
-                  url={match.url}
-                  page={match.params.page}
-                />
+                <Product product={match.params.product} url={match.url} />
               )}
             />
           </Switch>

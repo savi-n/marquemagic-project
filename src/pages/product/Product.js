@@ -1,4 +1,4 @@
-import { Suspense, lazy, useContext, useState } from "react";
+import { Suspense, lazy, useContext, useEffect, Fragment } from "react";
 import {
   Route,
   useRouteMatch,
@@ -13,10 +13,11 @@ import { v4 as uuidv4 } from "uuid";
 import { PRODUCT_DETAILS_URL } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import { StoreContext } from "../../utils/StoreProvider";
-import configureFlow from "../../utils/configureFlow";
+import { FlowContext } from "../../reducer/flowReducer";
 import Loading from "../../components/Loading";
 import FlowRoutes from "./ProductRoutes";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
+import ScrollToTop from "../../utils/ScrollToTop";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -74,35 +75,35 @@ const SubMenu = styled.h5`
   justify-content: space-between;
 `;
 
+// const Link = styled.div``;
+
 const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 
-export default function Product({ product, page }) {
+export default function Product({ product, url }) {
   const history = useHistory();
 
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
 
-  let { response } = useFetch({
+  const {
+    state: { completed: completedMenu, activeSubFlow: subFlowMenu },
+    actions: { configure },
+  } = useContext(FlowContext);
+
+  const { response } = useFetch({
     url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
     options: { method: "GET" },
   });
 
-  let { path } = useRouteMatch();
+  useEffect(() => {
+    if (response) configure(response.data?.product_details?.flow);
+  }, [response]);
+
+  const { path } = useRouteMatch();
 
   const h = history.location.pathname.split("/");
   const activeValue = history.location.pathname.split("/").pop();
-
-  const [completedMenu, setCompletedMenu] = useState([]);
-  const [subFlowMenu, setSubFlowMenu] = useState([]);
-
-  const onComplete = (menu) => {
-    setCompletedMenu([...completedMenu, menu]);
-  };
-
-  const onSubflowActivate = (menu) => {
-    setSubFlowMenu([...subFlowMenu, menu]);
-  };
 
   return (
     response &&
@@ -115,9 +116,9 @@ export default function Product({ product, page }) {
             </Head>
           </Link>
           {response?.data?.product_details?.flow?.map((m) => (
-            <>
-              <Link to={`/product/${product}/${m.id}`} key={uuidv4()}>
-                <Menu active={h.includes(m.id)} completed={m.completed}>
+            <Fragment key={uuidv4()}>
+              <Link to={`/product/${product}/${m.id}`}>
+                <Menu active={h.includes(m.id)}>
                   <div>{m.name}</div>
                   {completedMenu.includes(m.id) && (
                     <CheckBox bg="white" checked round fg={"blue"} />
@@ -127,23 +128,24 @@ export default function Product({ product, page }) {
               {m.flow &&
                 subFlowMenu.includes(m.id) &&
                 m.flow.map((item) => (
-                  <Link to={`/product/${product}/${m.id}/${item.id}`}>
-                    <SubMenu
-                      active={h.includes(item.id)}
-                      completed={item.completed}
-                    >
+                  <Link
+                    key={item.id}
+                    to={`/product/${product}/${m.id}/${item.id}`}
+                  >
+                    <SubMenu active={h.includes(item.id)}>
                       <div>{item.name}</div>
-                      {item.completed && (
+                      {completedMenu.includes(item.id) && (
                         <CheckBox bg="white" checked round fg={"blue"} />
                       )}
                     </SubMenu>
                   </Link>
                 ))}
-            </>
+            </Fragment>
           ))}
         </Colom1>
         <Colom2>
           <Suspense fallback={<Loading />}>
+            <ScrollToTop />
             <Route
               exact
               path={`${path}/`}
@@ -156,17 +158,12 @@ export default function Product({ product, page }) {
                 />
               )}
             />
-            {configureFlow(response?.data?.product_details?.flow)?.map((m) => (
-              <>
-                <FlowRoutes
-                  key={m.id}
-                  config={m}
-                  productDetails={response?.data?.product_details}
-                  pageName={m.name}
-                  onComplete={onComplete}
-                  onSubflowActivate={onSubflowActivate}
-                />
-              </>
+            {response?.data?.product_details?.flow?.map((m) => (
+              <FlowRoutes
+                key={m.id}
+                config={m}
+                productDetails={response?.data?.product_details}
+              />
             ))}
             {/* <Redirect to={`${path}/`} /> */}
           </Suspense>

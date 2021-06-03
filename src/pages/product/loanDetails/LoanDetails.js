@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
@@ -7,6 +8,8 @@ import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
+import { FormContext } from "../../../reducer/formReducer";
+import { FlowContext } from "../../../reducer/flowReducer";
 
 const Div = styled.div`
   flex: 1;
@@ -20,18 +23,27 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function LoanDetailsPage({
-  onComplete,
-  nextFlow,
-  id,
-  pageName,
-}) {
-  const { register, formState } = useForm();
+export default function LoanDetailsPage({ id, pageName }) {
+  const {
+    state: { flowMap },
+    actions: { setCompleted },
+  } = useContext(FlowContext);
+
+  const {
+    actions: { setUsertypeLoanData },
+  } = useContext(FormContext);
+
+  const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
 
-  const onProceed = () => {
-    onComplete(id);
-    history.push(nextFlow);
+  const onProceed = (data) => {
+    onSave(data);
+    setCompleted(id);
+    history.push(flowMap[id].main);
+  };
+
+  const onSave = (data) => {
+    setUsertypeLoanData({ ...data, summary: "summary" });
   };
 
   return (
@@ -48,8 +60,8 @@ export default function LoanDetailsPage({
         jsonData={jsonData.emi_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={onProceed} />
-        <Button name="Save" />
+        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>
   );

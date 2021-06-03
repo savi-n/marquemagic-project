@@ -78,9 +78,9 @@ function validate(rules, value) {
 }
 
 const MASKS = {
-  NumberOnly: (value) => value.match(/\d+/g, "") || "",
+  NumberOnly: (value) => value?.replace(/[^\d]+/g, "") || "",
   CharacterLimit: (value, n) => String(value).substring(0, n) || "",
-  AlphaCharOnly: (value) => value.replace(/[^a-zA-Z]/g, "") || "",
+  AlphaCharOnly: (value) => value?.replace(/[^a-zA-Z]/g, "") || "",
 };
 
 function revealMask(masks, value) {
@@ -165,8 +165,8 @@ export default function useForm() {
     (newField) => {
       fieldsRef.current[newField.name] = newField;
 
-      newField.value && setValue(newField.name, newField.value);
-      newField.rules && checkValidity(newField.name);
+      setValue(newField.name, newField.value || "");
+      checkValidity(newField.name);
 
       return (
         <InputField

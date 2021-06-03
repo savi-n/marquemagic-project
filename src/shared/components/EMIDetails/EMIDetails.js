@@ -9,8 +9,10 @@ const H = styled.h1`
 `;
 
 const FieldWrap = styled.div`
-  width: 50%;
+  width: 100%;
   margin: 10px 0;
+  display: flex;
+  gap: 10%;
 `;
 
 const FormWrap = styled.div`
@@ -45,7 +47,10 @@ export default function EMIDetails({
             (field) =>
               field.visibility && (
                 <FieldWrap key={field.name}>
-                  {register(field)}
+                  {register({
+                    ...field,
+                    value: formState?.values?.[field.name],
+                  })}
                   {(formState?.submit?.isSubmited ||
                     formState?.touched?.[field.name]) &&
                     formState?.error?.[field.name] && (
@@ -53,6 +58,20 @@ export default function EMIDetails({
                         {formState?.error?.[field.name]}
                       </ErrorMessage>
                     )}
+                  {register({
+                    type: "select",
+                    name: `${field.name}_bank`,
+                    placeholder: "Select Bank",
+                    rules: { required: !!formState?.values?.[field.name] },
+                    value: formState?.values?.[`${field.name}_bank`],
+                  })}
+                  {/* {(formState?.submit?.isSubmited ||
+                    formState?.touched?.[`${field.name}_bank`]) &&
+                    formState?.error?.[`${field.name}_bank`] && (
+                      <ErrorMessage>
+                        {formState?.error?.[`${field.name}_bank`]}
+                      </ErrorMessage>
+                    )} */}
                 </FieldWrap>
               )
           )}

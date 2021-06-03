@@ -38,6 +38,7 @@ button:disabled:hover {
   cursor: not-allowed;
   background: grey !important;
   border-color: grey !important;
+  color: white;
 }
 
 a {

@@ -3,7 +3,7 @@
 		"label": "Personal Details",
 		"data": [
 			{
-				"name": "firstname",
+				"name": "firstName",
 				"placeholder": "First Name",
 				"rules": {
 					"required": true
@@ -13,7 +13,7 @@
 				"default_value": ""
 			},
 			{
-				"name": "lastname",
+				"name": "lastName",
 				"placeholder": "Last Name",
 				"rules": {
 					"required": true
@@ -23,7 +23,7 @@
 				"default_value": ""
 			},
 			{
-				"name": "dateofbirth",
+				"name": "dob",
 				"placeholder": "Date of Birth (dd-mm-yyyy)",
 				"rules": {
 					"required": true
@@ -32,7 +32,7 @@
 				"visibility": true
 			},
 			{
-				"name": "mobilenumber",
+				"name": "mobileNo",
 				"placeholder": "Mobile Number",
 				"rules": {
 					"required": true,
@@ -46,7 +46,7 @@
 				"visibility": true
 			},
 			{
-				"name": "emailid",
+				"name": "email",
 				"placeholder": "Email ID",
 				"rules": {
 					"required": true,
@@ -56,17 +56,26 @@
 				"visibility": true
 			},
 			{
-				"name": "incometype",
+				"name": "incomeType",
 				"placeholder": "Income Type",
 				"rules": {
 					"required": true
 				},
 				"type": "select",
 				"visibility": true,
-				"option": []
+				"options": [
+					{
+						"value": "salaried",
+						"name": "Salaried"
+					},
+					{
+						"value": "business",
+						"name": "Business"
+					}
+				]
 			},
 			{
-				"name": "pannumber",
+				"name": "panNumber",
 				"placeholder": "PAN Number",
 				"rules": {
 					"required": true,
@@ -79,7 +88,7 @@
 				"visibility": true
 			},
 			{
-				"name": "aadharnumber",
+				"name": "aadhaar",
 				"placeholder": "Aadhar Number",
 				"type": "text",
 				"rules": {
@@ -93,14 +102,14 @@
 				"visibility": true
 			},
 			{
-				"name": "residentstatus",
-				"placeholder": "Resident Status",
+				"name": "residenceStatus",
+				"placeholder": "Residence Status",
 				"type": "select",
 				"visibility": true,
 				"option": []
 			},
 			{
-				"name": "countryofresidence",
+				"name": "countryResidence",
 				"placeholder": "Country of Residence",
 				"type": "select",
 				"visibility": true,
@@ -112,7 +121,7 @@
 		"label": "Address Details",
 		"data": [
 			{
-				"name": "addressline1",
+				"name": "address1",
 				"placeholder": "Address Line 1",
 				"rules": {
 					"required": true
@@ -121,13 +130,13 @@
 				"visibility": true
 			},
 			{
-				"name": "addressline2",
+				"name": "address2",
 				"placeholder": "Address Line 2",
 				"type": "text",
 				"visibility": true
 			},
 			{
-				"name": "addressline3",
+				"name": "address3",
 				"placeholder": "Address Line 3",
 				"type": "text",
 				"visibility": true
@@ -151,7 +160,7 @@
 				"visibility": true
 			},
 			{
-				"name": "pincode",
+				"name": "pinCode",
 				"placeholder": "Pin Code",
 				"rules": {
 					"required": true,
@@ -170,8 +179,11 @@
 		"label": "Loan Details",
 		"data": [
 			{
-				"name": "loanamount",
+				"name": "loanAmount",
 				"placeholder": "Required Loan Amount",
+				"rules": {
+					"required": true
+				},
 				"type": "text",
 				"visibility": true,
 				"mask": {
@@ -180,9 +192,16 @@
 				"inrupees": true
 			},
 			{
-				"name": "tenor",
-				"placeholder": "Tenor (in months)",
+				"name": "tenure",
+				"rules": {
+					"required": true
+				},
+				"placeholder": "Tenure (in months)",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 3
+				},
 				"visibility": true
 			},
 			{
@@ -200,9 +219,15 @@
 				"option": []
 			},
 			{
-				"name": "costofvehicle",
+				"name": "assetsValue",
 				"placeholder": "Cost of the Vehicle",
 				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"inrupees": true
 			}
@@ -213,24 +238,24 @@
 		"data": [
 			{
 				"name": "autoloan",
-				"placeholder": "Auto Loan",
-				"type": "select",
+				"placeholder": "Auto Loan Amount",
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"inrupees": true
 			},
 			{
 				"name": "personalloan",
-				"placeholder": "Personal Loan",
-				"type": "select",
+				"placeholder": "Personal Loan Amount",
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"inrupees": true
 			},
 			{
 				"name": "lap",
-				"placeholder": "LAP",
-				"type": "select",
+				"placeholder": "LAP Amount",
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"inrupees": true
@@ -241,15 +266,27 @@
 		"label": "Salary Details",
 		"data": [
 			{
-				"name": "grosstotalincome",
+				"name": "grossIncome",
 				"placeholder": "Gross Total Income",
 				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true
 			},
 			{
-				"name": "netmonthlyincome",
+				"name": "netMonthlyIncome",
 				"placeholder": "Net Monthly Income",
 				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true
 			}
 		]

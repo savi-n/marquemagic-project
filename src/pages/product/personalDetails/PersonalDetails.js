@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
@@ -7,6 +8,8 @@ import useForm from "../../../hooks/useForm";
 import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
 import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetails";
 import Button from "../../../components/Button";
+import { FormContext } from "../../../reducer/formReducer";
+import { FlowContext } from "../../../reducer/flowReducer";
 
 const Div = styled.div`
   flex: 1;
@@ -20,19 +23,29 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function PersonalDetailsPage({
-  onComplete,
-  nextFlow,
-  id,
-  pageName,
-}) {
-  const { register, formState } = useForm();
+export default function PersonalDetailsPage({ id, pageName }) {
+  const {
+    state: { flowMap },
+    actions: { setCompleted },
+  } = useContext(FlowContext);
+
+  const {
+    actions: { setUsertypeApplicantData },
+  } = useContext(FormContext);
+
+  const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
 
-  const onProceed = () => {
-    onComplete(id);
-    history.push(nextFlow);
+  const onSave = (data) => {
+    setUsertypeApplicantData({ ...data, isApplicant: "1" });
   };
+
+  const onProceed = (data) => {
+    onSave(data);
+    setCompleted(id);
+    history.push(flowMap[id].main);
+  };
+
   return (
     <Div>
       <PersonalDetails
@@ -48,8 +61,8 @@ export default function PersonalDetailsPage({
         formState={formState}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={onProceed} />
-        <Button name="Save" />
+        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>
   );

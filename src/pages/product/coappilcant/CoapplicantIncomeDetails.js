@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
@@ -7,6 +8,9 @@ import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetails";
+import { FormContext } from "../../../reducer/formReducer";
+import { FlowContext } from "../../../reducer/flowReducer";
+import { USER_ROLES } from "../../../_config/app.config";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -20,20 +24,27 @@ const Div = styled.div`
   background: #ffffff;
 `;
 
-export default function CoapplicantIncomeDetails({
-  onComplete,
-  userType,
-  nextFlow,
-  id,
-  pageName,
-  onSubflowActivate,
-}) {
-  const { register, formState } = useForm();
+export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
+  const {
+    state: { flowMap },
+    actions: { setCompleted },
+  } = useContext(FlowContext);
+
+  const {
+    actions: { setUsertypeLoanData },
+  } = useContext(FormContext);
+
+  const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
 
-  const onProceed = () => {
-    onComplete(id);
-    history.push(nextFlow);
+  const onSave = (formData) => {
+    setUsertypeLoanData(formData, USER_ROLES[userType]);
+  };
+
+  const onProceed = (formData) => {
+    onSave(formData);
+    setCompleted(id);
+    history.push(flowMap[id].main);
   };
 
   return (
@@ -52,8 +63,8 @@ export default function CoapplicantIncomeDetails({
         jsonData={jsonData.emi_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" />
-        <Button name="Save" />
+        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>
   );
