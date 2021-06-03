@@ -29,6 +29,10 @@ const CREATE_CASE_COAPPLICANT = `${API_END_POINT}/addCo-ApplicantWithIncome`;
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
+  NC302: "NC302",
+  NC305: "NC305",
+  NC306: "NC306 ",
+  nc308: "NC308 ",
   success: "NC200",
   serverError: "NC500",
   accounts: "NC302",

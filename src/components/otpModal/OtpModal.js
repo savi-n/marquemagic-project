@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import { VERIFY_OTP_URL, NC_STATUS_CODE } from "../../_config/app.config";
@@ -38,6 +37,47 @@ const OTPCaption = styled.p`
 
 const Field = styled.div`
   width: 60%;
+`;
+
+const LinkButton = styled.div`
+  background: transparent;
+  border: none;
+  color: #f37087;
+  padding: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  ${({ disabled }) =>
+    disabled &&
+    `
+      color:grey;
+      cursor:not-allowed
+    `}
+`;
+
+const Message = styled.div`
+  text-align: center;
+`;
+
+const MessageBox = styled.div`
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const SorrySpan = styled.span`
+  text-align: center;
+  color: #f37087;
+  font-size: 15px;
+  font-weight: 500;
+`;
+
+const ImgBox = styled.div`
+  height: 170px;
+  width: 80%;
+  background: ${({ bg }) => `url(${bg})`};
+  background-position: center;
+  background-size: cover;
 `;
 
 function OTPInput(d) {
@@ -81,6 +121,7 @@ export default function OtpModal(props) {
     loading,
     setLoading,
     accountAvailable,
+    setAccountAvailable,
     resend,
     onProceed,
     toggle,
@@ -93,14 +134,12 @@ export default function OtpModal(props) {
 
   const { newRequest } = useFetch();
   const { register, formState } = useForm();
-
   const [accounts, setAccounts] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [error, setError] = useState(false);
 
   const [seconds, setSeconds] = useState(otpResendTime);
   const [otpT, setOtp] = useState("");
-  const [disabled, setDisabled] = useState(true);
-  const [invalid, setInvalid] = useState(false);
-  const [message, setMessage] = useState(null);
 
   const submitOtp = async (formData = {}) => {
     let inputOtp = "";
@@ -132,7 +171,16 @@ export default function OtpModal(props) {
 
     const response = data.data;
 
-    if (response.statusCode === NC_STATUS_CODE.success) {
+    if (
+      response.statusCode === NC_STATUS_CODE.NC305 ||
+      response.statusCode === NC_STATUS_CODE.NC306 ||
+      response.statusCode === NC_STATUS_CODE.nc308
+    ) {
+      setMessage(response.message);
+      setAccountAvailable(false);
+    }
+
+    if (response.statusCode === NC_STATUS_CODE.NC200) {
       setUserDetails({
         userDetails: response.userDetails,
         userBankDetails: response.cubDetails,
@@ -141,12 +189,12 @@ export default function OtpModal(props) {
 
       onProceed();
     } else if (
-      response.statusCode === NC_STATUS_CODE.accounts &&
+      response.statusCode === NC_STATUS_CODE.NC302 &&
       response.message.includes("Invalid")
     ) {
       setMessage(response.message);
     } else if (
-      response.statusCode === "NC302" &&
+      response.statusCode === NC_STATUS_CODE.NC302 &&
       response.message.includes("Multiple")
     ) {
       setAccounts(response.accountDetails);
@@ -155,16 +203,21 @@ export default function OtpModal(props) {
   };
 
   useEffect(() => {
-    if (seconds > 0) {
-      setTimeout(() => setSeconds(seconds - 1), 1000);
-    } else {
-      setSeconds(0);
-      setDisabled(false);
+    let timer = setTimeout(() => setSeconds(seconds - 1), 1000);
+    if (!seconds) {
+      clearTimeout(timer);
     }
+    return () => {
+      clearTimeout(timer);
+    };
   }, [seconds]);
 
   const handleResend = async (e) => {
     e.preventDefault();
+    if (seconds) {
+      return;
+    }
+
     resend({ mobileNo, customerId });
     setSeconds(otpResendTime);
     OTPInput(true);
@@ -173,20 +226,18 @@ export default function OtpModal(props) {
   const handleProceed = async () => {
     const selectedAccount = formState?.values?.account;
     if (!selectedAccount) {
-      setMessage("Please select an account to proceed");
       return;
     }
 
     await submitOtp({
       customerId: selectedAccount,
     });
-
-    onProceed();
   };
 
   return (
     <Modal onClose={toggle} show={show} width="50%">
       <ModalWrapper>
+        {message && error && <div>{message}</div>}
         {loading ? (
           <Loading />
         ) : accountAvailable ? (
@@ -212,7 +263,6 @@ export default function OtpModal(props) {
                         id={`${el}`}
                         maxLength="1"
                         onFocus={() => {
-                          setInvalid(false);
                           setMessage(null);
                         }}
                       />
@@ -223,17 +273,9 @@ export default function OtpModal(props) {
               <div className={`${seconds > 0 ? "flex" : "hidden"} opacity-50`}>
                 Request a new OTP after: {seconds}
               </div>
-              <Link
-                to="#"
-                onClick={(e) =>
-                  !disabled ? handleResend(e) : e.preventDefault()
-                }
-                className={`${disabled &&
-                  "text-pink-400 cursor-not-allowed"} ${!disabled &&
-                  "hover:text-pink-400 cursor-pointer text-pink-600 cursor-pointer"} py-4`}
-              >
+              <LinkButton onClick={handleResend} disabled={!!seconds}>
                 Resend OTP
-              </Link>
+              </LinkButton>
               <Button
                 fill="blue"
                 onClick={() => submitOtp()}
@@ -272,7 +314,11 @@ export default function OtpModal(props) {
             )
           )
         ) : (
-          "Account Not available"
+          <MessageBox>
+            <ImgBox />
+            <SorrySpan>Sorry!</SorrySpan>
+            <Message>{message}</Message>
+          </MessageBox>
         )}
       </ModalWrapper>
     </Modal>

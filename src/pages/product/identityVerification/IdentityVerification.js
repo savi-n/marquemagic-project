@@ -170,6 +170,7 @@ export default function IdentityVerification({ productDetails, id }) {
             loading={loading}
             setLoading={setLoading}
             accountAvailable={accountAvailable}
+            setAccountAvailable={setAccountAvailable}
             resend={onSubmit}
             toggle={onClose}
             onProceed={onProceed}
