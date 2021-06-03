@@ -58,6 +58,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
               productDetails={productDetails}
               pageName={f.name}
               id={f.id}
+              mainPageId={config.id}
               url={url}
             />
           )}

@@ -1,5 +1,5 @@
 import { useState, useRef, useContext } from "react";
-import { useHistory, useRouteMatch, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { oneOf } from "prop-types";
@@ -12,6 +12,7 @@ import {
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
   CREATE_CASE,
+  CREATE_CASE_COAPPLICANT,
   NC_STATUS_CODE,
   USER_ROLES,
 } from "../../../_config/app.config";
@@ -101,7 +102,13 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
-export default function DocumentUpload({ userType, productId, id, url }) {
+export default function DocumentUpload({
+  userType,
+  productId,
+  id,
+  url,
+  mainPageId,
+}) {
   const {
     state: { whiteLabelId },
   } = useContext(StoreContext);
@@ -190,10 +197,10 @@ export default function DocumentUpload({ userType, productId, id, url }) {
     return submitReq;
   };
 
-  const createCase = async (data, user) => {
+  const createCase = async (data, user, url) => {
     try {
       const caseReq = await newRequest(
-        CREATE_CASE,
+        url,
         {
           method: "POST",
           data,
@@ -228,7 +235,8 @@ export default function DocumentUpload({ userType, productId, id, url }) {
           applicantData: state.user.applicantData,
           loanData: state.user.loanData,
         },
-        USER_ROLES.User
+        USER_ROLES.User,
+        CREATE_CASE
       );
 
       if (!loanReq && !loanReq?.loanId) {
@@ -240,10 +248,17 @@ export default function DocumentUpload({ userType, productId, id, url }) {
           {
             loan_ref_id: loanReq.loan_ref_id,
             applicantData: state.coapplicant.applicantData,
-            loanData: state.user.coapplicant,
+            loanData: state.coapplicant.loanData,
           },
-          USER_ROLES["Co-applicant"]
+          USER_ROLES["Co-applicant"],
+          CREATE_CASE_COAPPLICANT
         );
+
+        const coapplicantRes = coapplicantReq.data;
+
+        if (coapplicantRes.statusCode !== NC_STATUS_CODE.NC200) {
+          return;
+        }
       }
 
       setCompleted(id);
@@ -262,6 +277,7 @@ export default function DocumentUpload({ userType, productId, id, url }) {
 
     setUsertypeDocuments(uploadedFiles.current, USER_ROLES[userType || "User"]);
     setCompleted(id);
+    setCompleted(mainPageId);
     history.push(url + "/" + flowMap[id].main);
   };
 

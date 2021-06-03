@@ -36,7 +36,7 @@ const Div = styled.div`
   background: #ffffff;
 `;
 
-const formatData = (type, data, fields) => {
+const formatAddressData = (type, data, fields) => {
   const formatedData = {};
   for (const f of fields) {
     formatedData[f.name] = data[`${type}_${f.name}`];
@@ -50,7 +50,7 @@ const formatPersonalData = (data, fields) => {
     formatedData[f.name] = data[f.name];
   }
 
-  return formatedData;
+  return { ...formatedData, isApplicant: "0" };
 };
 
 export default function CoapplicantDetails({ userType, id, pageName }) {
@@ -68,8 +68,8 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
 
   const onSave = (formData) => {
     const formatedAddress = [
-      formatData("permanent", formData, jsonData.address_details.data),
-      formatData("present", formData, jsonData.address_details.data),
+      formatAddressData("permanent", formData, jsonData.address_details.data),
+      formatAddressData("present", formData, jsonData.address_details.data),
     ];
     const formatApplicantData = formatPersonalData(
       formData,
