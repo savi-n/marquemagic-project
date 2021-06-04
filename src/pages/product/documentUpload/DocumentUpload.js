@@ -12,7 +12,7 @@ import {
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
   CREATE_CASE,
-  CREATE_CASE_COAPPLICANT,
+  CREATE_CASE_OTHER_USER,
   NC_STATUS_CODE,
   USER_ROLES,
 } from "../../../_config/app.config";
@@ -21,6 +21,7 @@ import useFetch from "../../../hooks/useFetch";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { StoreContext } from "../../../utils/StoreProvider";
+import { CaseContext } from "../../../reducer/caseReducer";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -43,7 +44,32 @@ const FileLabel = styled.label`
 `;
 
 const UploadWrapper = styled.div`
-  padding: 30px 0;
+  margin: 30px 0;
+  position: relative;
+  ${({ uploading }) =>
+    uploading &&
+    `
+      pointer-events: none;
+    `}
+  &::after {
+    ${({ uploading }) =>
+      uploading &&
+      `
+        content:'Uploading...';
+      `}
+    inset: 0 0 0 0;
+    border-radius: 20px;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    font-weight: 500;
+    color: white;
+    z-index: 999;
+    pointer-events: none;
+  }
 `;
 
 const ButtonWrapper = styled.div`
@@ -127,6 +153,11 @@ export default function DocumentUpload({
     actions: { setUsertypeDocuments },
   } = useContext(FormContext);
 
+  const {
+    state: { caseDetails },
+    actions: { setCase },
+  } = useContext(CaseContext);
+
   const history = useHistory();
 
   const { newRequest } = useFetch();
@@ -138,7 +169,11 @@ export default function DocumentUpload({
 
   const [showModal, setShowModal] = useState(false);
 
+  const [uploading, setUploading] = useState(false);
+  const [posting, setPosting] = useState(false);
+
   const handleFileUpload = async (files) => {
+    setUploading(true);
     Promise.all(
       files.map((file) => {
         const formData = new FormData();
@@ -170,6 +205,7 @@ export default function DocumentUpload({
           .catch((err) => err);
       })
     ).then((files) => {
+      setUploading(false);
       setUsertypeDocuments(
         uploadedFiles.current,
         USER_ROLES[userType || "User"]
@@ -222,10 +258,43 @@ export default function DocumentUpload({
     }
   };
 
+  const caseCreationReqOtherUser = async (loan, role) => {
+    if (!loan) return;
+
+    const request = await newRequest(
+      CREATE_CASE_OTHER_USER,
+      {
+        method: "POST",
+        data: {
+          loan_ref_id: loan.loan_ref_id,
+          applicantData: state[USER_ROLES[role]].applicantData,
+          ...state[USER_ROLES[role]].loanData,
+        },
+      },
+      {
+        Authorization: `Bearer ${userToken}`,
+      }
+    );
+
+    const response = request.data;
+    if (response.status === NC_STATUS_CODE.OK) {
+      const docsReq = await updateDocumentList(loan.loanId, USER_ROLES[role]);
+      const docsRes = docsReq.data;
+      if (docsRes.status !== NC_STATUS_CODE.OK) {
+        return;
+      }
+      return true;
+    } else {
+      return;
+    }
+  };
+
   const onSubmit = async () => {
     if (!(checkbox1 && checkbox2)) {
       return;
     }
+
+    setPosting(true);
 
     if (!userType) {
       const loanReq = await createCase(
@@ -240,27 +309,22 @@ export default function DocumentUpload({
       );
 
       if (!loanReq && !loanReq?.loanId) {
+        setPosting(false);
         return;
       }
 
       if (state.coapplicant) {
-        const coapplicantReq = await createCase(
-          {
-            loan_ref_id: loanReq.loan_ref_id,
-            applicantData: state.coapplicant.applicantData,
-            ...state.coapplicant.loanData,
-          },
-          USER_ROLES["Co-applicant"],
-          CREATE_CASE_COAPPLICANT
+        const coAppilcantReq = await caseCreationReqOtherUser(
+          loanReq,
+          "Co-applicant"
         );
-
-        const coapplicantRes = coapplicantReq.data;
-
-        if (coapplicantRes.statusCode !== NC_STATUS_CODE.NC200) {
+        if (!coAppilcantReq) {
+          setPosting(false);
           return;
         }
       }
 
+      setCase(loanReq);
       setCompleted(id);
       history.push(flowMap[id].main);
     }
@@ -275,7 +339,26 @@ export default function DocumentUpload({
       return;
     }
 
-    setUsertypeDocuments(uploadedFiles.current, USER_ROLES[userType || "User"]);
+    // setUsertypeDocuments(uploadedFiles.current, USER_ROLES[userType || "User"]);
+    setCompleted(id);
+    setCompleted(mainPageId);
+    history.push(url + "/" + flowMap[id].main);
+  };
+
+  const onSubmitGuarantor = async () => {
+    if (!(checkbox1 && checkbox2)) {
+      return;
+    }
+    setPosting(true);
+    const GuarantorReq = await caseCreationReqOtherUser(
+      caseDetails,
+      "Guarantor"
+    );
+    if (!GuarantorReq) {
+      setPosting(false);
+      return;
+    }
+
     setCompleted(id);
     setCompleted(mainPageId);
     history.push(url + "/" + flowMap[id].main);
@@ -287,7 +370,7 @@ export default function DocumentUpload({
         <H>
           {userType ?? "Help Us with"} <span>Document Upload</span>
         </H>
-        <UploadWrapper>
+        <UploadWrapper uploading={uploading}>
           <FileUpload onDrop={handleFileUpload} accept="" />
         </UploadWrapper>
 
@@ -319,18 +402,28 @@ export default function DocumentUpload({
                 width: "200px",
                 background: "blue",
               }}
-              disabled={!(checkbox1 && checkbox2)}
+              disabled={!(checkbox1 && checkbox2) || posting || uploading}
               onClick={onSubmit}
             />
           )}
-          {userType && (
+          {userType === "Co-applicant" && (
             <Button
               name="Save"
               style={{
                 width: "200px",
               }}
               onClick={onSave}
-              disabled={!(checkbox1 && checkbox2)}
+              disabled={!(checkbox1 && checkbox2) || posting || uploading}
+            />
+          )}
+          {userType === "Guarantor" && (
+            <Button
+              name="Submit"
+              style={{
+                width: "200px",
+              }}
+              onClick={onSubmitGuarantor}
+              disabled={!(checkbox1 && checkbox2) || posting || uploading}
             />
           )}
         </SubmitWrapper>
@@ -360,5 +453,5 @@ DocumentUpload.defaultProps = {
 };
 
 DocumentUpload.propTypes = {
-  userType: oneOf(["", "Gurantor", "Co-applicant"]),
+  userType: oneOf(["", "Guarantor", "Co-applicant"]),
 };

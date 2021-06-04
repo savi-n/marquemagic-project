@@ -14,7 +14,7 @@ const INITIAL_STATE = {
     docs: [],
   },
   coapplicant: null,
-  gurantor: null,
+  guarantor: null,
 };
 
 const useActions = (dispatch) => {

@@ -40,8 +40,7 @@ export default function PersonalDetails({
   return (
     <>
       <H>
-        {userType || "Help us with your"}{" "}
-        <span>{pageName || "Personal Details"}</span>
+        {userType || "Help us with your"} <span>Personal Details</span>
       </H>
       <FormWrap>
         {jsonData &&

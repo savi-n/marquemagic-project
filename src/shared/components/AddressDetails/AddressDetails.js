@@ -56,8 +56,7 @@ export default function AddressDetails({
   return (
     <>
       <H>
-        {userType || "Help us with your"}{" "}
-        <span>{pageName || "Address Details"}</span>
+        {userType || "Help us with your"} <span>Address Details</span>
       </H>
       <FormWrap>
         <Colom>

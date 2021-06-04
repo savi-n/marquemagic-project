@@ -33,9 +33,9 @@ const availableRoutes = {
   "co-applicant-document-upload": userType("Co-applicant", DocumentUpload),
   "document-upload": DocumentUpload,
   "application-submitted": ApplicationSubmitted,
-  "gurantor-details": userType("Gurantor", CoApplicantDetails),
-  "gurantor-income-details": userType("Gurantor", CoApplicantIncomeDetails),
-  "gurantor-document-upload": userType("Gurantor", DocumentUpload),
+  "guarantor-details": userType("Guarantor", CoApplicantDetails),
+  "guarantor-income-details": userType("Guarantor", CoApplicantIncomeDetails),
+  "guarantor-document-upload": userType("Guarantor", DocumentUpload),
 };
 
 export default function FlowRoutes({ config, productDetails = {} }) {

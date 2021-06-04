@@ -5,6 +5,7 @@ import { StoreProvider } from "./utils/StoreProvider";
 import { UserProvider } from "./reducer/userReducer";
 import { FormProvider } from "./reducer/formReducer";
 import { FlowProvider } from "./reducer/flowReducer";
+import { CaseProvider } from "./reducer/caseReducer";
 
 const AppWrapper = styled.div`
   height: 100%;
@@ -19,7 +20,9 @@ export default function App() {
         <UserProvider>
           <FlowProvider>
             <FormProvider>
-              <AppLayout />
+              <CaseProvider>
+                <AppLayout />
+              </CaseProvider>
             </FormProvider>
           </FlowProvider>
         </UserProvider>

@@ -45,8 +45,7 @@ export default function LoanDetails({
   return (
     <>
       <H>
-        {userType || "Help us with your"}{" "}
-        <span>{pageName || "Address Details"}</span>
+        {userType || "Help us with your"} <span>Loan Details</span>
       </H>
       <FormWrap>
         <Colom>
