@@ -3,9 +3,12 @@
 		"label": "Personal Details",
 		"data": [
 			{
-				"label": "First Name",
-				"mandatory": true,
-				"type": "input",
+				"name": "firstName",
+				"placeholder": "First Name",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -15,9 +18,12 @@
 				"validation": []
 			},
 			{
-				"label": "Last Name",
-				"mandatory": true,
-				"type": "input",
+				"name": "lastName",
+				"placeholder": "Last Name",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -27,8 +33,11 @@
 				"validation": []
 			},
 			{
-				"label": "Date of Birth",
-				"mandatory": true,
+				"name": "dob",
+				"placeholder": "Date of Birth (dd-mm-yyyy)",
+				"rules": {
+					"required": true
+				},
 				"type": "date",
 				"visibility": true,
 				"option": [],
@@ -39,111 +48,79 @@
 				"validation": []
 			},
 			{
-				"label": "Mobile Number",
-				"mandatory": true,
-				"type": "input",
+				"name": "mobileNo",
+				"placeholder": "Mobile Number",
+				"rules": {
+					"required": true,
+					"length": 10
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "email",
+				"placeholder": "Email ID",
+				"rules": {
+					"required": true,
+					"email": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "incomeType",
+				"placeholder": "Income Type",
+				"rules": {
+					"required": true
+				},
+				"type": "select",
 				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "mobileNo",
-				"validation": [
+				"options": [
 					{
-						"type": "number",
-						"length": 10
+						"value": "salaried",
+						"name": "Salaried"
+					},
+					{
+						"value": "business",
+						"name": "Business"
 					}
 				]
 			},
 			{
-				"label": "Email ID",
-				"mandatory": true,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "email",
-				"validation": [
-					{
-						"type": "email",
-						"min": null,
-						"max": null
-					}
-				]
+				"name": "panNumber",
+				"placeholder": "PAN Number",
+				"rules": {
+					"required": true,
+					"length": 10
+				},
+				"mask": {
+					"CharacterLimit": 10
+				},
+				"type": "text",
+				"visibility": true
 			},
 			{
-				"label": "Income Type",
-				"mandatory": true,
-				"type": "dropdown",
-				"visibility": true,
-				"option": ["Salaried", "Business"],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": null,
-				"key": "incomeType",
-				"validation": [],
-				"searchable": false
+				"name": "aadhaar",
+				"placeholder": "Aadhar Number",
+				"type": "text",
+				"rules": {
+					"required": true,
+					"length": 10
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true
 			},
 			{
-				"label": "PAN Number",
-				"mandatory": true,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "panNumber",
-				"validation": [
-					{
-						"type": "alpha",
-						"min": 0,
-						"max": 10
-					}
-				]
-			},
-			{
-				"label": "Aadhar Number",
-				"mandatory": false,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "aadhaar",
-				"validation": [
-					{
-						"type": "number",
-						"min": 0,
-						"max": 12
-					}
-				]
-			},
-			{
-				"label": "Resident Status",
-				"mandatory": false,
-				"type": "dropdown",
-				"visibility": true,
-				"option": [
-					"Non-Resident",
-					"Resident",
-					"Resident and Ordinarily Resident",
-					"Resident but Not Ordinarily Resident"
-				],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": null,
-				"key": "residenceStatus",
-				"validation": [],
-				"searchable": false
-			},
-			{
-				"label": "Contry of Residence",
-				"mandatory": false,
-				"type": "dropdown",
+				"name": "residenceStatus",
+				"placeholder": "Residence Status",
+				"type": "select",
 				"visibility": true,
 				"option": ["India"],
 				"switch_key": "",
@@ -154,9 +131,9 @@
 				"searchable": true
 			},
 			{
-				"label": "Maritial Status",
-				"mandatory": false,
-				"type": "dropdown",
+				"name": "countryResidence",
+				"placeholder": "Country of Residence",
+				"type": "select",
 				"visibility": true,
 				"option": ["Single", "Married", "Divorced"],
 				"switch_key": "",
@@ -172,40 +149,25 @@
 		"label": "Address Details",
 		"data": [
 			{
-				"label": "Address Line 1",
-				"mandatory": true,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "address1",
-				"validation": []
+				"name": "address1",
+				"placeholder": "Address Line 1",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true
 			},
 			{
-				"label": "Address Line 2",
-				"mandatory": false,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "address2",
-				"validation": []
+				"name": "address2",
+				"placeholder": "Address Line 2",
+				"type": "text",
+				"visibility": true
 			},
 			{
-				"label": "Address Line 3",
-				"mandatory": false,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "address3",
-				"validation": []
+				"name": "address3",
+				"placeholder": "Address Line 3",
+				"type": "text",
+				"visibility": true
 			},
 			{
 				"label": "City",
@@ -233,21 +195,18 @@
 				"sequence": 13
 			},
 			{
-				"label": "Pin Code",
-				"mandatory": true,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "pinCode",
-				"validation": [
-					{
-						"type": "number",
-						"length": 6
-					}
-				]
+				"name": "pinCode",
+				"placeholder": "Pin Code",
+				"rules": {
+					"required": true,
+					"length": 6
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 6
+				},
+				"type": "text",
+				"visibility": true
 			}
 		]
 	},
@@ -255,9 +214,12 @@
 		"label": "Loan Details",
 		"data": [
 			{
-				"label": "Required Loan Amount",
-				"mandatory": false,
-				"type": "input",
+				"name": "loanAmount",
+				"placeholder": "Required Loan Amount",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -272,16 +234,17 @@
 				"inrupees": true
 			},
 			{
-				"label": "Tenor (in months)",
-				"mandatory": false,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "tenure",
-				"validation": []
+				"name": "tenure",
+				"rules": {
+					"required": true
+				},
+				"placeholder": "Tenure (in months)",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 3
+				},
+				"visibility": true
 			},
 			{
 				"label": "Home branch (for application processing)",
@@ -310,9 +273,15 @@
 				"searchable": true
 			},
 			{
-				"label": "Cost of the Vehicle",
-				"mandatory": false,
-				"type": "input",
+				"name": "assetsValue",
+				"placeholder": "Cost of the Vehicle",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -328,9 +297,9 @@
 		"label": "EMI Details",
 		"data": [
 			{
-				"label": "Auto Loan",
-				"mandatory": false,
-				"type": "input",
+				"name": "autoloan",
+				"placeholder": "Auto Loan Amount",
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -341,9 +310,9 @@
 				"inrupees": true
 			},
 			{
-				"label": "Personal Loan",
-				"mandatory": false,
-				"type": "input",
+				"name": "personalloan",
+				"placeholder": "Personal Loan Amount",
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -354,9 +323,9 @@
 				"inrupees": true
 			},
 			{
-				"label": "LAP",
-				"mandatory": false,
-				"type": "input",
+				"name": "lap",
+				"placeholder": "LAP Amount",
+				"type": "text",
 				"visibility": true,
 				"option": [],
 				"switch_key": "",
@@ -372,30 +341,28 @@
 		"label": "Salary Details",
 		"data": [
 			{
-				"label": "Gross Total Income",
-				"mandatory": false,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "grossIncome",
-				"validation": [],
-				"isInfo": true
+				"name": "grossIncome",
+				"placeholder": "Gross Total Income",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true
+				},
+				"visibility": true
 			},
 			{
-				"label": "Net Monthly Income",
-				"mandatory": false,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "netMonthlyIncome",
-				"validation": [],
-				"isInfo": true
+				"name": "netMonthlyIncome",
+				"placeholder": "Net Monthly Income",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true
+				},
+				"visibility": true
 			}
 		]
 	}

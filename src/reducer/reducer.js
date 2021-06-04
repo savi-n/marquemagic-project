@@ -2,11 +2,9 @@ const actionTypes = {
   SET_WHITELABEL_ID: "SET_WHITELABEL_ID",
   SET_CLIENT_TOKEN: "SET_CLIENT_TOKEN",
   SET_LOGO: "SET_LOGO",
-  SET_USERID: "SET_USERID",
 };
 
 const INITIAL_STATE = {
-  userId: null,
   whiteLabelId: null,
   clientToken: null,
   logo: null,
@@ -22,14 +20,10 @@ const useActions = (dispatch) => {
 
   const setLogo = (logo) => dispatch({ type: actionTypes.SET_LOGO, logo });
 
-  const setUserId = (userId) =>
-    dispatch({ type: actionTypes.SET_USERID, userId });
-
   return {
     setWhitelabelId,
     setClientToken,
     setLogo,
-    setUserId,
   };
 };
 
@@ -47,13 +41,6 @@ function reducer(state, action) {
       return {
         ...state,
         logo: action.logo,
-      };
-    }
-
-    case actionTypes.SET_USERID: {
-      return {
-        ...state,
-        userId: action.userId,
       };
     }
 

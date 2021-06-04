@@ -22,10 +22,26 @@ const GENERATE_OTP_URL = `${API_END_POINT}/cub/generateOtp`;
 
 const VERIFY_OTP_URL = `${API_END_POINT}/cub/verifyOtp`;
 
+const CREATE_CASE = `${API_END_POINT}/cub/createCase`;
+
+const CREATE_CASE_COAPPLICANT = `${API_END_POINT}/addCo-ApplicantWithIncome`;
+
 const NC_STATUS_CODE = {
+  OK: "ok",
+  NC200: "NC200",
+  NC302: "NC302",
+  NC305: "NC305",
+  NC306: "NC306 ",
+  nc308: "NC308 ",
   success: "NC200",
   serverError: "NC500",
   accounts: "NC302",
+};
+
+const USER_ROLES = {
+  User: "user",
+  "Co-applicant": "coapplicant",
+  Gurantor: "gurantor",
 };
 
 export {
@@ -43,4 +59,7 @@ export {
   BORROWER_UPLOAD_URL,
   GENERATE_OTP_URL,
   VERIFY_OTP_URL,
+  CREATE_CASE,
+  CREATE_CASE_COAPPLICANT,
+  USER_ROLES,
 };

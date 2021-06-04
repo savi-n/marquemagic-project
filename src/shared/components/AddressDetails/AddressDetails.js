@@ -18,7 +18,7 @@ const FieldWrap = styled.div`
 
 const FormWrap = styled.div`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
@@ -66,22 +66,17 @@ export default function AddressDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap key={`permanent_address_${field.name}`}>
+                  <FieldWrap key={`permanent_${field.name}`}>
                     {register({
                       ...field,
-                      name: `permanent_address_${field.name}`,
+                      name: `permanent_${field.name}`,
+                      value: formState?.values?.[`permanent_${field.name}`],
                     })}
                     {(formState?.submit?.isSubmited ||
-                      formState?.touched?.[
-                        `permanent_address_${field.name}`
-                      ]) &&
-                      formState?.error?.[`permanent_address_${field.name}`] && (
+                      formState?.touched?.[`permanent_${field.name}`]) &&
+                      formState?.error?.[`permanent_${field.name}`] && (
                         <ErrorMessage>
-                          {
-                            formState?.error?.[
-                              `permanent_address_${field.name}`
-                            ]
-                          }
+                          {formState?.error?.[`permanent_${field.name}`]}
                         </ErrorMessage>
                       )}
                   </FieldWrap>
@@ -102,24 +97,19 @@ export default function AddressDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap key={`present_address_${field.name}`}>
+                  <FieldWrap key={`present_${field.name}`}>
                     {register({
                       ...field,
-                      name: `present_address_${field.name}`,
-                      ...(match
-                        ? {
-                            value:
-                              formState?.values?.[
-                                `permanent_address_${field.name}`
-                              ],
-                          }
-                        : {}),
+                      name: `present_${field.name}`,
+                      value: match
+                        ? formState?.values?.[`permanent_${field.name}`]
+                        : formState?.values?.[`present_${field.name}`],
                     })}
                     {(formState?.submit?.isSubmited ||
-                      formState?.touched?.[`present_address_${field.name}`]) &&
-                      formState?.error?.[`present_address_${field.name}`] && (
+                      formState?.touched?.[`present_${field.name}`]) &&
+                      formState?.error?.[`present_${field.name}`] && (
                         <ErrorMessage>
-                          {formState?.error?.[`present_address_${field.name}`]}
+                          {formState?.error?.[`present_${field.name}`]}
                         </ErrorMessage>
                       )}
                   </FieldWrap>

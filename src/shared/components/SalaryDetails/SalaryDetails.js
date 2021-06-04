@@ -45,7 +45,10 @@ export default function SalaryDetails({
             (field) =>
               field.visibility && (
                 <FieldWrap key={field.name}>
-                  {register(field)}
+                  {register({
+                    ...field,
+                    value: formState?.values?.[field.name],
+                  })}
                   {(formState?.submit?.isSubmited ||
                     formState?.touched?.[field.name]) &&
                     formState?.error?.[field.name] && (

@@ -12,7 +12,8 @@ const Wrapper = styled.div`
 
 const Head = styled.h3`
   text-align: center;
-  color: grey;
+  font-size: 1.5em;
+  font-weight: 500;
 `;
 
 const Div = styled.div`

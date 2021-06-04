@@ -15,9 +15,7 @@ export default function Content() {
 						<Route exact path='/' component={Products} />
 						<Route
 							path='/product/:product'
-							component={({ match }) => (
-								<Product product={match.params.product} url={match.url} page={match.params.page} />
-							)}
+							component={({ match }) => <Product product={match.params.product} url={match.url} />}
 						/>
 					</Switch>
 				</Suspense>

@@ -26,7 +26,7 @@ const useActions = dispatch => {
 
 	const setUserDetails = userDetails => {
 		localStore(userDetails);
-		dispatch({ type: actionTypes.SET_USER_DETAILS, userDetails });
+		dispatch({ type: actionTypes.SET_USER_DETAILS, data: userDetails });
 	};
 
 	return {
@@ -47,9 +47,9 @@ function reducer(state, action) {
 		case actionTypes.SET_USER_DETAILS: {
 			return {
 				...state,
-				userDetails: action.userDetails,
-				userBankDetails: action.userBankDetails,
-				userToken: action.userToken
+				userDetails: action.data.userDetails,
+				userBankDetails: action.data.userBankDetails,
+				userToken: action.data.userToken
 			};
 		}
 

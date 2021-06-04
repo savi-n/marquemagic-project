@@ -3,11 +3,11 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Button from '../../../components/Button';
-import OtpModal from '../../../components/otpModal/OtpModal.js';
-// import ModalRenders from "../../../components/ModalRenders";
+import OtpModal from '../../../components/OtpModal/OtpModal';
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from '../../../_config/app.config';
 import { StoreContext } from '../../../utils/StoreProvider';
 import { UserContext } from '../../../reducer/userReducer';
+import { FlowContext } from '../../../reducer/flowReducer';
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
 
@@ -48,9 +48,7 @@ const H2 = styled.h2`
 	font-weight: 500;
 `;
 
-// const link = "https://media-public.canva.com/uClYs/MAED4-uClYs/1/s.svg";
-
-export default function IdentityVerification({ productDetails, nextFlow, onComplete, id }) {
+export default function IdentityVerification({ productDetails, id }) {
 	const {
 		state: { whiteLabelId }
 	} = useContext(StoreContext);
@@ -59,6 +57,11 @@ export default function IdentityVerification({ productDetails, nextFlow, onCompl
 		state: { userId },
 		actions: { setUserId, setUserDetails }
 	} = useContext(UserContext);
+
+	const {
+		state: { flowMap },
+		actions: { setCompleted }
+	} = useContext(FlowContext);
 
 	const { newRequest } = useFetch();
 	const { register, handleSubmit, formState } = useForm();
@@ -102,7 +105,7 @@ export default function IdentityVerification({ productDetails, nextFlow, onCompl
 
 			if (response.statusCode === NC_STATUS_CODE.success) {
 				setAccountAvailable(true);
-				setUserId(response.userId);
+				setUserId(response);
 			}
 		} catch (error) {
 			console.error(error);
@@ -117,8 +120,8 @@ export default function IdentityVerification({ productDetails, nextFlow, onCompl
 	};
 
 	const onProceed = () => {
-		onComplete(id);
-		history.push(nextFlow);
+		setCompleted(id);
+		history.push(flowMap[id].main);
 	};
 
 	return (
@@ -136,14 +139,16 @@ export default function IdentityVerification({ productDetails, nextFlow, onCompl
 								mask: {
 									NumberOnly: true,
 									CharacterLimit: 10
-								}
+								},
+								value: formState?.values?.mobileNo
 							})}
 						</FieldWrapper>
 						<H2>or</H2>
 						<FieldWrapper>
 							{register({
 								name: 'customerId',
-								placeholder: 'Use Customer ID to Login'
+								placeholder: 'Use Customer ID to Login',
+								value: formState?.values?.customerId
 							})}
 						</FieldWrapper>
 						<Button
@@ -160,29 +165,20 @@ export default function IdentityVerification({ productDetails, nextFlow, onCompl
 				<Colom2>
 					<Img src={productDetails.imageUrl} alt='Loan Caption' />
 				</Colom2>
-				{toggleModal && <div>toggle</div>}
 				{toggleModal && (
 					<OtpModal
 						loading={loading}
+						setLoading={setLoading}
 						accountAvailable={accountAvailable}
+						setAccountAvailable={setAccountAvailable}
 						resend={onSubmit}
 						toggle={onClose}
 						onProceed={onProceed}
-						mobileNo={formState.values?.mobileNo}
-						customerId={formState.values?.customerId}
 						show={toggleModal}
 						userId={userId}
 						setUserDetails={setUserDetails}
 					/>
 				)}
-				{/* {(!bankStatus || bankStatus === "NC500") && (
-          <ModalRenders
-            show={toggleModal}
-            toggle={onClose}
-            link={link}
-            message={errorMessage}
-          />
-        )} */}
 			</>
 		)
 	);

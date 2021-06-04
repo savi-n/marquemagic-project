@@ -4,7 +4,7 @@ import { Redirect, Route, useRouteMatch } from "react-router-dom";
 import userType from "../../_hoc/userType";
 
 const IdentityVerification = lazy(() =>
-  import("./identiryVerification/IdentityVerification")
+  import("./identityVerification/IdentityVerification")
 );
 const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
@@ -38,14 +38,8 @@ const availableRoutes = {
   "gurantor-document-upload": userType("Gurantor", DocumentUpload),
 };
 
-export default function FlowRoutes({
-  config,
-  productDetails = {},
-  pageName,
-  onComplete,
-  onSubflowActivate,
-}) {
-  const { path } = useRouteMatch();
+export default function FlowRoutes({ config, productDetails = {} }) {
+  const { path, url } = useRouteMatch();
 
   const Component = availableRoutes[config.id];
   if (!Component) return <Redirect to={path} />;
@@ -55,13 +49,17 @@ export default function FlowRoutes({
       const Comp = availableRoutes[f.id];
       return (
         <Route
+          key={f.id}
           exact
           path={`${path}/${config.id}/${f.id}`}
           component={({ match }) => (
             <Comp
               productId={atob(match.params.product)}
               productDetails={productDetails}
-              onComplete={onComplete}
+              pageName={f.name}
+              id={f.id}
+              mainPageId={config.id}
+              url={url}
             />
           )}
         />
@@ -77,10 +75,7 @@ export default function FlowRoutes({
           <Component
             productId={atob(match.params.product)}
             productDetails={productDetails}
-            pageName={pageName}
-            nextFlow={config.nextFlow}
-            onComplete={onComplete}
-            onSubflowActivate={onSubflowActivate}
+            pageName={config.name}
             id={config.id}
           />
         )}

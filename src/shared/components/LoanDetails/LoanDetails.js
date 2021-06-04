@@ -28,6 +28,13 @@ const Colom = styled.div`
   flex-wrap: wrap;
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
 export default function LoanDetails({
   pageName,
   jsonData,
@@ -47,7 +54,19 @@ export default function LoanDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap key={field.name}>{register(field)}</FieldWrap>
+                  <FieldWrap key={field.name}>
+                    {register({
+                      ...field,
+                      value: formState?.values?.[field.name],
+                    })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[field.name]) &&
+                      formState?.error?.[field.name] && (
+                        <ErrorMessage>
+                          {formState?.error?.[field.name]}
+                        </ErrorMessage>
+                      )}
+                  </FieldWrap>
                 )
             )}
         </Colom>
