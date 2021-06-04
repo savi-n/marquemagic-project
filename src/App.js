@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import AppLayout from "./components/AppLayout";
-import { StoreProvider } from "./utils/StoreProvider";
+import { AppProvider } from "./reducer/appReducer";
 import { UserProvider } from "./reducer/userReducer";
 import { FormProvider } from "./reducer/formReducer";
 import { FlowProvider } from "./reducer/flowReducer";
@@ -16,7 +16,7 @@ const AppWrapper = styled.div`
 export default function App() {
   return (
     <AppWrapper>
-      <StoreProvider>
+      <AppProvider>
         <UserProvider>
           <FlowProvider>
             <FormProvider>
@@ -26,7 +26,7 @@ export default function App() {
             </FormProvider>
           </FlowProvider>
         </UserProvider>
-      </StoreProvider>
+      </AppProvider>
     </AppWrapper>
   );
 }

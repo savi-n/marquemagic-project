@@ -12,7 +12,7 @@ import {
   BANK_TOKEN_API,
   NC_STATUS_CODE,
 } from "../_config/app.config.js";
-import { StoreProvider, StoreContext } from "../utils/StoreProvider";
+import { AppContext } from "../reducer/appReducer";
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -34,7 +34,7 @@ const AppLayout = () => {
     url: WHITE_LABEL_URL({ name: "CUB UAT" }),
   });
 
-  const { actions } = useContext(StoreContext);
+  const { actions } = useContext(AppContext);
 
   const [loading, setLoading] = useState(true);
 

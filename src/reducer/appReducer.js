@@ -1,3 +1,5 @@
+import { createContext, useReducer } from "react";
+
 const actionTypes = {
   SET_WHITELABEL_ID: "SET_WHITELABEL_ID",
   SET_CLIENT_TOKEN: "SET_CLIENT_TOKEN",
@@ -50,4 +52,19 @@ function reducer(state, action) {
   }
 }
 
-export { reducer, useActions, actionTypes, INITIAL_STATE };
+const AppContext = createContext();
+
+const AppProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, {
+    ...INITIAL_STATE,
+  });
+  const actions = useActions(dispatch);
+
+  return (
+    <AppContext.Provider value={{ state, actions }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export { AppProvider, AppContext };

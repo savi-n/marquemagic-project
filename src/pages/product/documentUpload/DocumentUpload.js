@@ -20,7 +20,7 @@ import BankStatementModal from "../../../components/BankStatementModal";
 import useFetch from "../../../hooks/useFetch";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
-import { StoreContext } from "../../../utils/StoreProvider";
+import { AppContext } from "../../../reducer/appReducer";
 import { CaseContext } from "../../../reducer/caseReducer";
 
 const Colom1 = styled.div`
@@ -137,7 +137,7 @@ export default function DocumentUpload({
 }) {
   const {
     state: { whiteLabelId },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const {
     state: { userDetails, userToken },

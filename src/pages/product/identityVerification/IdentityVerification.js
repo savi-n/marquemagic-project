@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Button from "../../../components/Button";
 import OtpModal from "../../../components/OtpModal/OtpModal";
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from "../../../_config/app.config";
-import { StoreContext } from "../../../utils/StoreProvider";
+import { AppContext } from "../../../reducer/appReducer";
 import { UserContext } from "../../../reducer/userReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import useForm from "../../../hooks/useForm";
@@ -51,7 +51,7 @@ const H2 = styled.h2`
 export default function IdentityVerification({ productDetails, id }) {
   const {
     state: { whiteLabelId },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const {
     actions: { setUserDetails },
@@ -154,7 +154,7 @@ export default function IdentityVerification({ productDetails, id }) {
             <Button
               type="submit"
               name="Login"
-              fill="blue"
+              fill
               disabled={
                 !(formState.values?.customerId || formState.values?.mobileNo) ||
                 (formState.values?.customerId && formState.values?.mobileNo)

@@ -1,15 +1,22 @@
-import styled from 'styled-components';
-import NcLoading from '../shared/components/NcLoader/index';
+import styled from "styled-components";
+import Lottie from "react-lottie";
+
+import NCLogo from "../shared/constants/NcLogo.json";
 
 const Wrapper = styled.div`
-	width: 100%;
-	height: 100%;
+  width: 100%;
+  height: 100%;
 `;
 
 export default function Loading() {
-	return (
-		<Wrapper>
-			<NcLoading />
-		</Wrapper>
-	);
+  return (
+    <Wrapper>
+      <Lottie
+        options={{
+          animationData: NCLogo,
+        }}
+        width={500}
+      />
+    </Wrapper>
+  );
 }

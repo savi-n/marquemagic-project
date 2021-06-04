@@ -5,7 +5,7 @@ import Modal from "./Modal";
 import Button from "./Button";
 import { BANK_LIST_API, NC_STATUS_CODE } from "../_config/app.config";
 import BANK_FLOW from "../_config/bankflow.config";
-import { StoreContext } from "../utils/StoreProvider";
+import { AppContext } from "../reducer/appReducer";
 import useFetch from "../hooks/useFetch";
 import useForm from "../hooks/useForm";
 import Loading from "../components/Loading";
@@ -84,7 +84,7 @@ const Captcha = styled.img`
 export default function BankStatementModal({ showModal, onClose }) {
   const {
     state: { clientToken },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const { response, loading, newRequest } = useFetch({
     url: BANK_LIST_API,

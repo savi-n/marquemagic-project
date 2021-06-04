@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { Redirect, Route, useRouteMatch } from "react-router-dom";
+import { Redirect, useRouteMatch } from "react-router-dom";
 
 import userType from "../../_hoc/userType";
 import ProtectedRoute from "../../components/ProtectedRoute";
@@ -60,7 +60,6 @@ export default function FlowRoutes({ config, productDetails = {} }) {
   const Page = availableRoutes[config.id];
 
   if (!Page) return <Redirect to={path} />;
-  // if (Page.protected && authorized) return <Redirect to={basePageUrl} />;
 
   let subFlow = null;
   if (config.flow) {
