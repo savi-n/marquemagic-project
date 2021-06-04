@@ -128,6 +128,7 @@ export default function OtpModal(props) {
     show,
     userId: { mobileNo, customerId, userId, otp },
     setUserDetails,
+    errorMessage,
   } = props;
 
   OTPInput();
@@ -172,9 +173,11 @@ export default function OtpModal(props) {
     const response = data.data;
 
     if (
-      response.statusCode === NC_STATUS_CODE.NC305 ||
-      response.statusCode === NC_STATUS_CODE.NC306 ||
-      response.statusCode === NC_STATUS_CODE.nc308
+      [
+        NC_STATUS_CODE.NC305,
+        NC_STATUS_CODE.NC306,
+        NC_STATUS_CODE.NC308,
+      ].includes(response.statusCode)
     ) {
       setMessage(response.message);
       setAccountAvailable(false);
@@ -246,8 +249,9 @@ export default function OtpModal(props) {
               <OTPHead>OTP Verification</OTPHead>
               <hr />
               <OTPCaption>
-                A 6 digit OTP has been sent to your mobile number *******
-                {mobileNo.slice(mobileNo.length - 3, mobileNo.length)}. <br />{" "}
+                A 6 digit OTP has been sent to your mobile number{" "}
+                {"*".repeat(mobileNo.length - 4)}
+                {mobileNo.substring(mobileNo.length - 4)}
                 Kindly enter it below. &nbsp;
                 <b className="cursor-pointer" onClick={toggle}>
                   Wrong number?
@@ -317,7 +321,7 @@ export default function OtpModal(props) {
           <MessageBox>
             <ImgBox />
             <SorrySpan>Sorry!</SorrySpan>
-            <Message>{message}</Message>
+            <Message>{errorMessage || message}</Message>
           </MessageBox>
         )}
       </ModalWrapper>

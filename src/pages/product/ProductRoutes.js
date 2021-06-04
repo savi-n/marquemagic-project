@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { Redirect, Route, useRouteMatch } from "react-router-dom";
 
 import userType from "../../_hoc/userType";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
 const IdentityVerification = lazy(() =>
   import("./identityVerification/IdentityVerification")
@@ -21,40 +22,57 @@ const CoApplicantIncomeDetails = lazy(() =>
 );
 
 const availableRoutes = {
-  "identity-verification": IdentityVerification,
-  "personal-details": PersonalDetails,
-  "address-details": AddressDetails,
-  "loan-details": LoanDetails,
-  "co-applicant-details": userType("Co-applicant", CoApplicantDetails),
-  "co-applicant-income-details": userType(
-    "Co-applicant",
-    CoApplicantIncomeDetails
-  ),
-  "co-applicant-document-upload": userType("Co-applicant", DocumentUpload),
-  "document-upload": DocumentUpload,
-  "application-submitted": ApplicationSubmitted,
-  "guarantor-details": userType("Guarantor", CoApplicantDetails),
-  "guarantor-income-details": userType("Guarantor", CoApplicantIncomeDetails),
-  "guarantor-document-upload": userType("Guarantor", DocumentUpload),
+  "identity-verification": { Component: IdentityVerification },
+  "personal-details": { protected: true, Component: PersonalDetails },
+  "address-details": { protected: true, Component: AddressDetails },
+  "loan-details": { protected: true, Component: LoanDetails },
+  "co-applicant-details": {
+    protected: true,
+    Component: userType("Co-applicant", CoApplicantDetails),
+  },
+  "co-applicant-income-details": {
+    protected: true,
+    Component: userType("Co-applicant", CoApplicantIncomeDetails),
+  },
+  "co-applicant-document-upload": {
+    protected: true,
+    Component: userType("Co-applicant", DocumentUpload),
+  },
+  "document-upload": { protected: true, Component: DocumentUpload },
+  "application-submitted": { protected: true, Component: ApplicationSubmitted },
+  "guarantor-details": {
+    protected: true,
+    Component: userType("Guarantor", CoApplicantDetails),
+  },
+  "guarantor-income-details": {
+    protected: true,
+    Component: userType("Guarantor", CoApplicantIncomeDetails),
+  },
+  "guarantor-document-upload": {
+    protected: true,
+    Component: userType("Guarantor", DocumentUpload),
+  },
 };
 
 export default function FlowRoutes({ config, productDetails = {} }) {
   const { path, url } = useRouteMatch();
 
-  const Component = availableRoutes[config.id];
-  if (!Component) return <Redirect to={path} />;
+  const Page = availableRoutes[config.id];
+
+  if (!Page) return <Redirect to={path} />;
+  // if (Page.protected && authorized) return <Redirect to={basePageUrl} />;
+
   let subFlow = null;
   if (config.flow) {
     subFlow = config.flow.map((f) => {
-      const Comp = availableRoutes[f.id];
+      const InnerPage = availableRoutes[f.id];
       return (
-        <Route
+        <ProtectedRoute
           key={f.id}
-          exact
           path={`${path}/${config.id}/${f.id}`}
-          component={({ match }) => (
-            <Comp
-              productId={atob(match.params.product)}
+          protectedRoute={InnerPage.protected || false}
+          Component={() => (
+            <InnerPage.Component
               productDetails={productDetails}
               pageName={f.name}
               id={f.id}
@@ -68,12 +86,11 @@ export default function FlowRoutes({ config, productDetails = {} }) {
   }
   return (
     <>
-      <Route
+      <ProtectedRoute
         path={`${path}/${config.id}`}
-        exact
-        component={({ match }) => (
-          <Component
-            productId={atob(match.params.product)}
+        protectedRoute={Page.protected || false}
+        Component={() => (
+          <Page.Component
             productDetails={productDetails}
             pageName={config.name}
             id={config.id}

@@ -165,7 +165,7 @@ export default function Product({ product, url }) {
                 productDetails={response?.data?.product_details}
               />
             ))}
-            {/* <Redirect to={`${path}/`} /> */}
+            {/* <Redirect to={`${url}`} /> */}
           </Suspense>
         </Colom2>
       </Wrapper>

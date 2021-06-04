@@ -140,7 +140,7 @@ export default function DocumentUpload({
   } = useContext(StoreContext);
 
   const {
-    state: { userId, userToken },
+    state: { userDetails, userToken },
   } = useContext(UserContext);
 
   const {
@@ -180,7 +180,7 @@ export default function DocumentUpload({
         formData.append("document", file);
 
         return newRequest(
-          DOCS_UPLOAD_URL({ userId: userId.userId }),
+          DOCS_UPLOAD_URL({ userId: userDetails.id }),
           {
             method: "POST",
             data: formData,
