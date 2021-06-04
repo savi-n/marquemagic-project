@@ -92,7 +92,7 @@ const documentsRequired = [
 
 export default function DocumentUpload({ userType, productId }) {
 	const {
-		state: { userId, userToken }
+		state: { userId, userToken, userDetails }
 	} = useContext(UserContext);
 
 	const { newRequest } = useFetch();

@@ -5,17 +5,6 @@ import './style.scss';
 
 export default function Input(props) {
 	const { width, font, p, txtColor, classname } = props;
-	const aes = () => {
-		const data = document.querySelectorAll(`${props.type === 'dropdown' ? 'select' : 'input'}`);
-		data.forEach((el, idx) => {
-			var h = el.getAttribute('placeholder');
-			el.setAttribute('placeholder', h);
-			if (el.getAttribute('t') === '1') {
-				el.setAttribute('placeholder', h + ' *');
-				return;
-			}
-		});
-	};
 
 	const customStyled = {
 		control: () => ({
@@ -26,10 +15,6 @@ export default function Input(props) {
 			width: '22rem'
 		})
 	};
-
-	useEffect(() => {
-		aes();
-	}, []);
 
 	return (
 		<section className={`flex items-center ${!props.sideHead && 'justify-between'}`}>

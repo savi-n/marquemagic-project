@@ -7,7 +7,7 @@ export default function Button(props) {
 	return (
 		<main className={`${type} ${size} ${width} ${rounded} inline-flex items-center select-none`}>
 			{to ? (
-				<button className='focus:outline-none flex justify-between items-center' onClick={onClick}>
+				<button className='focus:outline-none flex justify-center items-center' onClick={onClick}>
 					{children}
 				</button>
 			) : (
