@@ -1,6 +1,6 @@
 import { createContext, useReducer } from "react";
 
-// import { localStore, getStore, localStoreUserId } from "../utils/localStore";
+import { localStore, getStore, localStoreUserId } from "../utils/localStore";
 
 const actionTypes = {
   SET_USERID: "SET_USERID",
@@ -9,31 +9,31 @@ const actionTypes = {
   SET_USER_TOKEN: "SET_USER_TOKEN",
 };
 
-// const storeData = getStore();
+const storeData = getStore();
 
 //  Development only
-// const INITIAL_STATE = {
-//   userId: storeData.userId || null,
-//   userDetails: storeData.userDetails || null,
-//   userBankDetails: storeData.userBankDetails || null,
-//   userToken: storeData.userToken || null,
-// };
-
 const INITIAL_STATE = {
-  userId: null,
-  userDetails: null,
-  userBankDetails: null,
-  userToken: null,
+  userId: storeData.userId || null,
+  userDetails: storeData.userDetails || null,
+  userBankDetails: storeData.userBankDetails || null,
+  userToken: storeData.userToken || null,
 };
+
+// const INITIAL_STATE = {
+//   userId: null,
+//   userDetails: null,
+//   userBankDetails: null,
+//   userToken: null,
+// };
 
 const useActions = (dispatch) => {
   const setUserId = (userId) => {
-    // localStoreUserId(userId);
+    localStoreUserId(userId);
     dispatch({ type: actionTypes.SET_USERID, userId });
   };
 
   const setUserDetails = (userDetails) => {
-    // localStore(userDetails);
+    localStore(userDetails);
     dispatch({ type: actionTypes.SET_USER_DETAILS, data: userDetails });
   };
 

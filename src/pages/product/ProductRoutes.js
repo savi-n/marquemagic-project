@@ -13,7 +13,9 @@ const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
 const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
-const LoanDetails = lazy(() => import("./loanDetails/LoanDetails"));
+const VehicleLoanDetails = lazy(() =>
+  import("./loanDetails/VehicleLoanDetails")
+);
 const CoApplicantDetails = lazy(() =>
   import("./coappilcant/CoapplicantDetails")
 );
@@ -25,7 +27,7 @@ const availableRoutes = {
   "identity-verification": { Component: IdentityVerification },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
-  "loan-details": { protected: true, Component: LoanDetails },
+  "loan-details": { protected: true, Component: VehicleLoanDetails },
   "co-applicant-details": {
     protected: true,
     Component: userType("Co-applicant", CoApplicantDetails),

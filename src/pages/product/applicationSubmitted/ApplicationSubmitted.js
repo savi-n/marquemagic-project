@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Button from "../../../components/Button";
 import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
+import OtpInput from "../../../components/OtpModal/OtpInput.js";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -94,6 +95,8 @@ export default function ApplicationSubmitted({ productDetails, id }) {
         {d.guarantor && (
           <>
             <Caption>Any Guarantor?</Caption>
+
+            <OtpInput />
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />
               <Button name="No" onClick={() => setData(count + 1)} />

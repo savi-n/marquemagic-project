@@ -7,6 +7,7 @@ import useForm from "../../hooks/useForm";
 import Loading from "../../components/Loading";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
+import OtpInput from "./OtpInput";
 
 import "./style.scss";
 
@@ -80,41 +81,11 @@ const ImgBox = styled.div`
   background-size: cover;
 `;
 
-function OTPInput(d) {
-  const inputs = document.querySelectorAll("#otp > *[id]");
+const OtpWrapper = styled.div`
+  margin: 20px 0;
+`;
 
-  if (d) {
-    inputs.forEach((el) => {
-      el.value = "";
-    });
-    return;
-  }
-
-  for (let i = 0; i < inputs.length; i++) {
-    inputs[i].addEventListener("keydown", function(event) {
-      if (event.key === "Backspace") {
-        event.preventDefault();
-        inputs[i].value = "";
-        if (i !== 0) inputs[i - 1].focus();
-      } else {
-        if (i === inputs.length - 1 && inputs[i].value !== "") {
-          return true;
-        } else if (event.keyCode > 47 && event.keyCode < 58) {
-          inputs[i].value = event.key;
-          if (i !== inputs.length - 1) inputs[i + 1].focus();
-          event.preventDefault();
-        } else if (event.keyCode > 64 && event.keyCode < 91) {
-          inputs[i].value = String.fromCharCode(event.keyCode);
-          if (i !== inputs.length - 1) inputs[i + 1].focus();
-          event.preventDefault();
-        }
-      }
-    });
-  }
-  arr = inputs;
-}
-
-const otpResendTime = 120;
+const otpResendTime = 10;
 
 export default function OtpModal(props) {
   const {
@@ -126,12 +97,10 @@ export default function OtpModal(props) {
     onProceed,
     toggle,
     show,
-    userId: { mobileNo, customerId, userId, otp },
+    userId: { mobileNo, customerId, userId, otp: otpT },
     setUserDetails,
     errorMessage,
   } = props;
-
-  OTPInput();
 
   const { newRequest } = useFetch();
   const { register, formState } = useForm();
@@ -140,24 +109,11 @@ export default function OtpModal(props) {
   const [error, setError] = useState(false);
 
   const [seconds, setSeconds] = useState(otpResendTime);
-  const [otpT, setOtp] = useState("");
+  const [otp, setOtp] = useState("");
 
   const submitOtp = async (formData = {}) => {
-    let inputOtp = "";
-    arr.forEach((el) => {
-      inputOtp += el.value;
-    });
-    setOtp(inputOtp);
-
-    let otpValue = inputOtp || otpT;
-
-    if (!otpValue) {
-      // return
-      otpValue = otp; // development only
-    }
-
     const bodyData = {
-      otp: otpValue,
+      otp,
       mobileNo,
       customerId,
       userId,
@@ -206,14 +162,17 @@ export default function OtpModal(props) {
   };
 
   useEffect(() => {
-    let timer = setTimeout(() => setSeconds(seconds - 1), 1000);
-    if (!seconds) {
-      clearTimeout(timer);
+    let timer;
+    if (!loading && accountAvailable && !accounts) {
+      timer = setTimeout(() => setSeconds(seconds - 1), 1000);
+      if (!seconds) {
+        clearTimeout(timer);
+      }
     }
     return () => {
       clearTimeout(timer);
     };
-  }, [seconds]);
+  }, [seconds, loading, accountAvailable, accounts]);
 
   const handleResend = async (e) => {
     e.preventDefault();
@@ -223,7 +182,6 @@ export default function OtpModal(props) {
 
     resend({ mobileNo, customerId });
     setSeconds(otpResendTime);
-    OTPInput(true);
   };
 
   const handleProceed = async () => {
@@ -235,6 +193,10 @@ export default function OtpModal(props) {
     await submitOtp({
       customerId: selectedAccount,
     });
+  };
+
+  const handleOtpChange = (otp) => {
+    setOtp(otp);
   };
 
   return (
@@ -257,26 +219,13 @@ export default function OtpModal(props) {
                   Wrong number?
                 </b>
               </OTPCaption>
-              <div className="mb-6 text-center">
-                <div id="otp" className="flex justify-center">
-                  {["first", "second", "third", "fourth", "fifth", "sixth"].map(
-                    (el) => (
-                      <input
-                        className="m-2 text-center form-control form-control-solid rounded focus:border-blue-400 focus:shadow-outline"
-                        type="text"
-                        id={`${el}`}
-                        maxLength="1"
-                        onFocus={() => {
-                          setMessage(null);
-                        }}
-                      />
-                    )
-                  )}
-                </div>
-              </div>
-              <div className={`${seconds > 0 ? "flex" : "hidden"} opacity-50`}>
-                Request a new OTP after: {seconds}
-              </div>
+              <OtpWrapper>
+                <OtpInput numInputs={6} handleChange={handleOtpChange} />
+              </OtpWrapper>
+
+              {seconds ? (
+                <div>Request a new OTP after: {seconds} seconds</div>
+              ) : null}
               <LinkButton onClick={handleResend} disabled={!!seconds}>
                 Resend OTP
               </LinkButton>
@@ -284,6 +233,7 @@ export default function OtpModal(props) {
                 fill="blue"
                 onClick={() => submitOtp()}
                 name="Confirm OTP"
+                disabled={otp.length !== 6}
               />
             </>
           ) : (

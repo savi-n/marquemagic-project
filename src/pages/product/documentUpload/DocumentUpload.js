@@ -224,6 +224,9 @@ export default function DocumentUpload({
             loan_id: loanId,
           })),
         },
+        onUploadProgress: (event) => {
+          console.log(event.loaded, event.total);
+        },
       },
       {
         Authorization: `Bearer ${userToken}`,
