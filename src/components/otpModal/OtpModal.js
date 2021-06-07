@@ -9,10 +9,6 @@ import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import OtpInput from "./OtpInput";
 
-import "./style.scss";
-
-var arr;
-
 const ModalWrapper = styled.div`
   padding: 20px;
   display: flex;
@@ -85,7 +81,7 @@ const OtpWrapper = styled.div`
   margin: 20px 0;
 `;
 
-const otpResendTime = 10;
+const otpResendTime = 120;
 
 export default function OtpModal(props) {
   const {
@@ -162,6 +158,10 @@ export default function OtpModal(props) {
   };
 
   useEffect(() => {
+    setOtp(otpT?.toString());
+  }, [otpT]);
+
+  useEffect(() => {
     let timer;
     if (!loading && accountAvailable && !accounts) {
       timer = setTimeout(() => setSeconds(seconds - 1), 1000);
@@ -213,8 +213,8 @@ export default function OtpModal(props) {
               <OTPCaption>
                 A 6 digit OTP has been sent to your mobile number{" "}
                 {"*".repeat(mobileNo.length - 4)}
-                {mobileNo.substring(mobileNo.length - 4)}
-                Kindly enter it below. &nbsp;
+                {mobileNo.substring(mobileNo.length - 4)} Kindly enter it below.
+                &nbsp;
                 <b className="cursor-pointer" onClick={toggle}>
                   Wrong number?
                 </b>
@@ -233,7 +233,7 @@ export default function OtpModal(props) {
                 fill="blue"
                 onClick={() => submitOtp()}
                 name="Confirm OTP"
-                disabled={otp.length !== 6}
+                disabled={otp?.length !== 6}
               />
             </>
           ) : (
