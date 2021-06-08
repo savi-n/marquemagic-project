@@ -61,7 +61,7 @@ export default function PersonalDetailsPage({ id, pageName }) {
         formState={formState}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>

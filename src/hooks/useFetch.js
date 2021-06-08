@@ -15,18 +15,25 @@ export default function useFetch({
     ...headers,
   };
 
-  const newRequest = (url, options, headers = {}) => {
-    return axios({
-      url,
-      headers,
-      ...options,
-    });
+  const newRequest = (url, options, headers = {}, source) => {
+    return axios(
+      {
+        url,
+        headers,
+        ...options,
+      },
+      source && {
+        cancelToken: source.token,
+      }
+    );
   };
 
   useEffect(() => {
+    const cancelToken = axios.CancelToken;
+    const source = cancelToken.source();
     const fetchData = async () => {
       try {
-        const res = await newRequest(url, options, headers);
+        const res = await newRequest(url, options, headers, source);
         const json = res.data;
         setResponse(json);
         setLoading(false);
@@ -37,7 +44,9 @@ export default function useFetch({
     };
 
     url && fetchData();
-    return () => {};
+    return () => {
+      source.cancel("axios request cancelled");
+    };
   }, []);
   return { response, error, loading, newRequest };
 }

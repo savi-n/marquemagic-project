@@ -5,7 +5,14 @@ import styled from "styled-components";
 import Button from "../../../components/Button";
 import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
-import OtpInput from "../../../components/OtpModal/OtpInput.js";
+
+import SearchSelect from "../../../components/SearchSelect";
+import { UserContext } from "../../../reducer/userReducer";
+import useFetch from "../../../hooks/useFetch";
+import {
+  NC_STATUS_CODE,
+  SEARCH_BANK_BRANCH_LIST,
+} from "../../../_config/app.config";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -81,6 +88,27 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     history.push(flowMap[id].sub);
   };
 
+  const {
+    state: { userToken },
+  } = useContext(UserContext);
+
+  const { newRequest } = useFetch();
+
+  const getOptions = async () => {
+    const opitionalDataReq = await newRequest(
+      SEARCH_BANK_BRANCH_LIST({ bankId: 32 }),
+      {},
+      {
+        Authorization: `Bearer ${userToken}`,
+      }
+    );
+
+    const opitionalDataRes = opitionalDataReq.data;
+    if (opitionalDataRes.statusCode === NC_STATUS_CODE.NC200) {
+      return opitionalDataRes.branchList;
+    }
+  };
+
   const d = data[count];
   return (
     <>
@@ -94,6 +122,11 @@ export default function ApplicationSubmitted({ productDetails, id }) {
 
         {d.guarantor && (
           <>
+            <SearchSelect
+              searchable
+              title="Search Branch"
+              fetchOptionsFunc={getOptions}
+            />
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />

@@ -48,8 +48,13 @@ const TitleWrapper = styled.div`
 `;
 
 const Title = styled.h4`
+  font-size: 1.2em;
+  font-weight: 500;
+  /* width: 90%; */
   text-align: center;
-  margin-bottom: 10px;
+  /* margin-bottom: 20px; */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  padding-bottom: 10px;
 `;
 
 const ContentWrapper = styled.div`
@@ -170,22 +175,25 @@ export default function BankStatementModal({ showModal, onClose }) {
             alt="Captcha"
             loading="lazy"
           />
-          {register(flow)}
+          {register({ ...flow, value: formState?.values[flow.name] })}
         </div>
       );
     }
-    return <div key={flow.name}>{register(flow)}</div>;
+    return (
+      <div key={flow.name}>
+        {register({ ...flow, value: formState?.values[flow.name] })}
+      </div>
+    );
   };
 
   return (
-    <Modal show={showModal}>
+    <Modal show={showModal} onClose={onClose} width="50%">
       {!loading ? (
         <ContentWrapper>
           {flowStep === 0 && (
             <>
               <TitleWrapper>
                 <Title>Select Bank</Title>
-                <hr />
               </TitleWrapper>
               <BankWrapper>
                 {banks?.map((bank) => (
@@ -202,7 +210,7 @@ export default function BankStatementModal({ showModal, onClose }) {
               </BankWrapper>
               <Button
                 name="Next"
-                fill="blue"
+                fill
                 style={{
                   width: "200px",
                   background: "blue",
@@ -227,7 +235,7 @@ export default function BankStatementModal({ showModal, onClose }) {
                 <Button
                   type="submit"
                   name="Next"
-                  fill="blue"
+                  fill
                   disabled={!!Object.keys(formState.error).length || processing}
                   style={{
                     width: "200px",

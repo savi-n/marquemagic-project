@@ -4,6 +4,8 @@ const actionTypes = {
   SET_USERTYPE_APPLICANT_DATA: "SET_USERTYPE_APPLICANT_DATA",
   SET_USERTYPE_ADDRESS_DATA: "SET_USERTYPE_ADDRESS_DATA",
   SET_USERTYPE_LOAN_DATA: "SET_USERTYPE_LOAN_DATA",
+  SET_USERTYPE_EMI_DATA: "SET_USERTYPE_EMI_DATA",
+  SET_USERTYPE_SALARY_DATA: "SET_USERTYPE_SALARY_DATA",
   SET_USERTYPE_DOCUMENTS: "SET_USERTYPE_DOCUMENTS",
 };
 
@@ -42,10 +44,24 @@ const useActions = (dispatch) => {
     dispatch({ type: actionTypes.SET_USERTYPE_DOCUMENTS, docs, userType });
   };
 
+  const setUsertypeEmiData = (emiData, userType = "user") => {
+    dispatch({ type: actionTypes.SET_USERTYPE_EMI_DATA, emiData, userType });
+  };
+
+  const setUsertypeSalaryData = (salaryData, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_SALARY_DATA,
+      salaryData,
+      userType,
+    });
+  };
+
   return {
     setUsertypeApplicantData,
     setUsertypeAddressData,
     setUsertypeLoanData,
+    setUsertypeEmiData,
+    setUsertypeSalaryData,
     setUsertypeDocuments,
   };
 };
@@ -71,6 +87,36 @@ function reducer(state, action) {
       const applicantData = {
         ...(state[action.userType]?.applicantData || {}),
         address: action.addressData,
+      };
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          applicantData,
+        },
+      };
+    }
+
+    case actionTypes.SET_USERTYPE_EMI_DATA: {
+      const applicantData = {
+        ...(state[action.userType]?.applicantData || {}),
+        ...action.emiData,
+      };
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          applicantData,
+        },
+      };
+    }
+
+    case actionTypes.SET_USERTYPE_SALARY_DATA: {
+      const applicantData = {
+        ...(state[action.userType]?.applicantData || {}),
+        ...action.salaryData,
       };
 
       return {

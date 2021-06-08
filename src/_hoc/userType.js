@@ -1,6 +1,6 @@
-export default function userType(userType, Componet) {
+export default function userType(userType, Component) {
   const AlteredComponent = (props) => (
-    <Componet userType={userType} {...props} />
+    <Component userType={userType} {...props} />
   );
   return AlteredComponent;
 }

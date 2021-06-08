@@ -106,14 +106,40 @@
 				"placeholder": "Residence Status",
 				"type": "select",
 				"visibility": true,
-				"option": []
+				"options": [
+					{
+						"name": "Resident",
+						"value": "Resident"
+					},
+					{
+						"name": "Resident and Ordinarily Resident",
+						"value": "Resident and Ordinarily Resident"
+					},
+					{
+						"name": "Resident but Not Ordinarily Resident",
+						"value": "Resident but Not Ordinarily Resident"
+					},
+					{
+						"name": "Non-Resident",
+						"value": "Non-Resident"
+					}
+				]
 			},
 			{
 				"name": "countryResidence",
 				"placeholder": "Country of Residence",
 				"type": "select",
 				"visibility": true,
-				"option": []
+				"options": [
+					{
+						"name": "India",
+						"value": "India"
+					},
+					{
+						"name": "Other",
+						"value": "Other"
+					}
+				]
 			}
 		]
 	},
@@ -237,7 +263,7 @@
 		"label": "EMI Details",
 		"data": [
 			{
-				"name": "autoloan",
+				"name": "existing_auto_loan",
 				"placeholder": "Auto Loan Amount",
 				"type": "text",
 				"visibility": true,
@@ -245,7 +271,7 @@
 				"inrupees": true
 			},
 			{
-				"name": "personalloan",
+				"name": "existing_personal_loan",
 				"placeholder": "Personal Loan Amount",
 				"type": "text",
 				"visibility": true,
@@ -253,7 +279,7 @@
 				"inrupees": true
 			},
 			{
-				"name": "lap",
+				"name": "existing_lap_loan",
 				"placeholder": "LAP Amount",
 				"type": "text",
 				"visibility": true,
