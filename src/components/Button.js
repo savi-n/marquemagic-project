@@ -1,12 +1,15 @@
 import styled from "styled-components";
-import { string, func, node, object, oneOf } from "prop-types";
+import { string, func, object, oneOf, bool } from "prop-types";
 
 const StyledButton = styled.button`
   color: ${({ theme, fill }) => (fill ? "white" : theme.buttonColor1)};
-  border: 2px solid ${({ theme, fill }) => fill ?? theme.buttonColor1};
+  border: 2px solid
+    ${({ theme, fill }) =>
+      fill && (typeof fill === "string" ? fill : theme.buttonColor2)};
   border-radius: 5px;
   padding: 10px 20px;
-  background: ${({ theme, fill }) => fill ?? theme.themeColor1};
+  background: ${({ theme, fill }) =>
+    fill && (typeof fill === "string" ? fill : theme.buttonColor2)};
   display: flex;
   align-items: center;
   min-width: ${({ width }) => (width ? width : "200px")};
@@ -61,7 +64,6 @@ Button.defaultProps = {
 Button.propTypes = {
   name: string.isRequired,
   onClick: func,
-  // children: oneOf(['', node]),
-  fill: string,
+  fill: oneOf([bool, string]),
   style: object,
 };

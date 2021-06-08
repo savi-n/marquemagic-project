@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Button from "../../../components/Button";
 import OtpModal from "../../../components/OtpModal/OtpModal";
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from "../../../_config/app.config";
-import { StoreContext } from "../../../utils/StoreProvider";
+import { AppContext } from "../../../reducer/appReducer";
 import { UserContext } from "../../../reducer/userReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import useForm from "../../../hooks/useForm";
@@ -51,11 +51,10 @@ const H2 = styled.h2`
 export default function IdentityVerification({ productDetails, id }) {
   const {
     state: { whiteLabelId },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const {
-    state: { userId },
-    actions: { setUserId, setUserDetails },
+    actions: { setUserDetails },
   } = useContext(UserContext);
 
   const {
@@ -71,6 +70,7 @@ export default function IdentityVerification({ productDetails, id }) {
   const [toggleModal, setToggleModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [accountAvailable, setAccountAvailable] = useState(false);
+  const [userId, setUserId] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -98,12 +98,12 @@ export default function IdentityVerification({ productDetails, id }) {
 
       const response = otpReq.data;
 
-      if (response.statusCode === NC_STATUS_CODE.serverError) {
+      if (response.statusCode === NC_STATUS_CODE.NC500) {
         setErrorMessage(response.message);
         setAccountAvailable(false);
       }
 
-      if (response.statusCode === NC_STATUS_CODE.success) {
+      if (response.statusCode === NC_STATUS_CODE.NC200) {
         setAccountAvailable(true);
         setUserId(response);
       }
@@ -154,7 +154,7 @@ export default function IdentityVerification({ productDetails, id }) {
             <Button
               type="submit"
               name="Login"
-              fill="blue"
+              fill
               disabled={
                 !(formState.values?.customerId || formState.values?.mobileNo) ||
                 (formState.values?.customerId && formState.values?.mobileNo)
@@ -176,6 +176,7 @@ export default function IdentityVerification({ productDetails, id }) {
             onProceed={onProceed}
             show={toggleModal}
             userId={userId}
+            errorMessage={errorMessage}
             setUserDetails={setUserDetails}
           />
         )}

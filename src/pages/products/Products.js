@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Card from "../../components/Card";
 import useFetch from "../../hooks/useFetch";
-import { StoreContext } from "../../utils/StoreProvider";
+import { AppContext } from "../../reducer/appReducer";
 import { PRODUCT_LIST_URL } from "../../_config/app.config";
 
 const Wrapper = styled.div`
@@ -26,7 +26,7 @@ const Div = styled.div`
 export default function Products() {
   const {
     state: { whiteLabelId },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const { response: products } = useFetch({
     url: PRODUCT_LIST_URL({ whiteLabelId }),

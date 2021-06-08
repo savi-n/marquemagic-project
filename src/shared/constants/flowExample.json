@@ -38,16 +38,16 @@
         "id": "application-submitted",
         "flow": [
             {
-                "name": "Gurantor Details",
-                "id": "gurantor-details"
+                "name": "Guarantor Details",
+                "id": "guarantor-details"
             },
             {
-                "name": "Gurantor Income Details",
-                "id": "gurantor-income-details"
+                "name": "Guarantor Income Details",
+                "id": "guarantor-income-details"
             },
             {
-                "name": "Gurantor Document Upload",
-                "id": "gurantor-document-upload"
+                "name": "Guarantor Document Upload",
+                "id": "guarantor-document-upload"
             }
         ]
     }

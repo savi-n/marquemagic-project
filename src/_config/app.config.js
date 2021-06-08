@@ -24,7 +24,7 @@ const VERIFY_OTP_URL = `${API_END_POINT}/cub/verifyOtp`;
 
 const CREATE_CASE = `${API_END_POINT}/cub/createCase`;
 
-const CREATE_CASE_COAPPLICANT = `${API_END_POINT}/addCo-ApplicantWithIncome`;
+const CREATE_CASE_OTHER_USER = `${API_END_POINT}/addDirector`;
 
 const NC_STATUS_CODE = {
   OK: "ok",
@@ -32,7 +32,8 @@ const NC_STATUS_CODE = {
   NC302: "NC302",
   NC305: "NC305",
   NC306: "NC306 ",
-  nc308: "NC308 ",
+  NC308: "NC308 ",
+  NC500: "NC500",
   success: "NC200",
   serverError: "NC500",
   accounts: "NC302",
@@ -41,7 +42,7 @@ const NC_STATUS_CODE = {
 const USER_ROLES = {
   User: "user",
   "Co-applicant": "coapplicant",
-  Gurantor: "gurantor",
+  Guarantor: "guarantor",
 };
 
 export {
@@ -60,6 +61,6 @@ export {
   GENERATE_OTP_URL,
   VERIFY_OTP_URL,
   CREATE_CASE,
-  CREATE_CASE_COAPPLICANT,
+  CREATE_CASE_OTHER_USER,
   USER_ROLES,
 };

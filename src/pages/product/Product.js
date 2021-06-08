@@ -4,7 +4,7 @@ import {
   useRouteMatch,
   Link,
   useHistory,
-  Redirect,
+  // Redirect,
 } from "react-router-dom";
 import { string } from "prop-types";
 import styled from "styled-components";
@@ -12,12 +12,12 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { PRODUCT_DETAILS_URL } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
-import { StoreContext } from "../../utils/StoreProvider";
+import { AppContext } from "../../reducer/appReducer";
 import { FlowContext } from "../../reducer/flowReducer";
 import Loading from "../../components/Loading";
 import FlowRoutes from "./ProductRoutes";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
-import ScrollToTop from "../../utils/ScrollToTop";
+import ScrollToTop from "../../components/ScrollToTop";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -30,14 +30,12 @@ const Colom1 = styled.div`
   background: ${({ theme }) => theme.buttonColor1};
   color: ${({ theme }) => theme.themeColor1};
   padding: 50px 20px;
-  /* height: calc(100vh - 80px); */
 `;
 
 const Colom2 = styled.div`
   flex: 1;
   background: ${({ theme }) => theme.themeColor1};
   display: flex;
-  /* height: calc(100vh - 80px); */
   overflow: scroll;
   &::-webkit-scrollbar {
     display: none;
@@ -84,7 +82,7 @@ export default function Product({ product, url }) {
 
   const {
     state: { whiteLabelId },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const {
     state: { completed: completedMenu, activeSubFlow: subFlowMenu },
@@ -165,7 +163,7 @@ export default function Product({ product, url }) {
                 productDetails={response?.data?.product_details}
               />
             ))}
-            {/* <Redirect to={`${path}/`} /> */}
+            {/* <Redirect to={`${url}`} /> */}
           </Suspense>
         </Colom2>
       </Wrapper>

@@ -3,7 +3,9 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import Button from "../../../components/Button";
+import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
+import OtpInput from "../../../components/OtpModal/OtpInput.js";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -52,15 +54,15 @@ const CaptionImg = styled.div`
 const data = [
   {
     caption: `Your application has been forwarded to the branch, desicion shall be communicated within 2-3 working days.`,
-    gurantor: true,
+    guarantor: true,
   },
   {
     caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
-    gurantor: true,
+    guarantor: true,
   },
   {
     caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
-    gurantor: false,
+    guarantor: false,
   },
 ];
 
@@ -83,12 +85,16 @@ export default function ApplicationSubmitted({ productDetails, id }) {
   return (
     <>
       <Colom1>
-        <CaptionImg bg={productDetails.imageUrl} />
+        {!d.guarantor ? (
+          <GuageMeter />
+        ) : (
+          <CaptionImg bg={productDetails.imageUrl} />
+        )}
         <Caption>{d.caption}</Caption>
 
-        {d.gurantor && (
+        {d.guarantor && (
           <>
-            <Caption>Any Gurantor?</Caption>
+            <Caption>Any Guarantor?</Caption>
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />
               <Button name="No" onClick={() => setData(count + 1)} />
