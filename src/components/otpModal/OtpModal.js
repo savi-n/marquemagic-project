@@ -8,6 +8,7 @@ import Loading from "../../components/Loading";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import OtpInput from "./OtpInput";
+import OtpTimer from "./OtpTimer";
 
 const ModalWrapper = styled.div`
   padding: 20px;
@@ -34,21 +35,6 @@ const OTPCaption = styled.p`
 
 const Field = styled.div`
   width: 60%;
-`;
-
-const LinkButton = styled.div`
-  background: transparent;
-  border: none;
-  color: #f37087;
-  padding: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  ${({ disabled }) =>
-    disabled &&
-    `
-      color:grey;
-      cursor:not-allowed
-    `}
 `;
 
 const Message = styled.div`
@@ -81,8 +67,6 @@ const OtpWrapper = styled.div`
   margin: 20px 0;
 `;
 
-const otpResendTime = 120;
-
 export default function OtpModal(props) {
   const {
     loading,
@@ -100,12 +84,11 @@ export default function OtpModal(props) {
 
   const { newRequest } = useFetch();
   const { register, formState } = useForm();
+
   const [accounts, setAccounts] = useState(null);
   const [message, setMessage] = useState(null);
-  const [error, setError] = useState(false);
-
-  const [seconds, setSeconds] = useState(otpResendTime);
   const [otp, setOtp] = useState("");
+  const [error, setError] = useState(false);
 
   const submitOtp = async (formData = {}) => {
     const bodyData = {
@@ -157,31 +140,14 @@ export default function OtpModal(props) {
     setLoading(false);
   };
 
+  // development only
   useEffect(() => {
     setOtp(otpT?.toString());
   }, [otpT]);
+  // end Developement
 
-  useEffect(() => {
-    let timer;
-    if (!loading && accountAvailable && !accounts) {
-      timer = setTimeout(() => setSeconds(seconds - 1), 1000);
-      if (!seconds) {
-        clearTimeout(timer);
-      }
-    }
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [seconds, loading, accountAvailable, accounts]);
-
-  const handleResend = async (e) => {
-    e.preventDefault();
-    if (seconds) {
-      return;
-    }
-
+  const handleResend = async () => {
     resend({ mobileNo, customerId });
-    setSeconds(otpResendTime);
   };
 
   const handleProceed = async () => {
@@ -222,15 +188,14 @@ export default function OtpModal(props) {
               <OtpWrapper>
                 <OtpInput numInputs={6} handleChange={handleOtpChange} />
               </OtpWrapper>
-
-              {seconds ? (
-                <div>Request a new OTP after: {seconds} seconds</div>
-              ) : null}
-              <LinkButton onClick={handleResend} disabled={!!seconds}>
-                Resend OTP
-              </LinkButton>
+              <OtpTimer
+                handleResend={handleResend}
+                loading={loading}
+                accountAvailable={accountAvailable}
+                accounts={accounts}
+              />
               <Button
-                fill="blue"
+                fill
                 onClick={() => submitOtp()}
                 name="Confirm OTP"
                 disabled={otp?.length !== 6}
@@ -261,7 +226,7 @@ export default function OtpModal(props) {
                 <Button
                   disabled={!formState?.values?.account}
                   onClick={handleProceed}
-                  fill="blue"
+                  fill
                   name="Proceed"
                 />
               </section>

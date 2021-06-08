@@ -95,8 +95,6 @@ export default function ApplicationSubmitted({ productDetails, id }) {
         {d.guarantor && (
           <>
             <Caption>Any Guarantor?</Caption>
-
-            <OtpInput />
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />
               <Button name="No" onClick={() => setData(count + 1)} />
