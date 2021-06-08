@@ -247,6 +247,7 @@ const Input = styled.input`
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
 `;
+
 const Select = styled.select`
   height: 50px;
   padding: 10px;
@@ -268,7 +269,7 @@ function InputField({ field, onChange, value, unregister }) {
     name: field.name,
     onChange: onChange,
     onBlur: onChange,
-    value: value,
+    value: value || "",
     placeholder: field.placeholder || "",
     disabled: field.disabled,
     className: field.className,
@@ -278,11 +279,13 @@ function InputField({ field, onChange, value, unregister }) {
   if (type === "select") {
     return (
       <Select {...fieldProps}>
-        <option disabled selected value="">
+        <option disabled value="">
           {field.placeholder}
         </option>
         {field.options?.map(({ value, name }) => (
-          <option value={value}>{name}</option>
+          <option key={value} value={value}>
+            {name}
+          </option>
         ))}
       </Select>
     );

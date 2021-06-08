@@ -1,4 +1,4 @@
-import { useState, useRef, useContext } from "react";
+import { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
@@ -35,41 +35,9 @@ const Colom2 = styled.div`
   padding: 50px 30px;
 `;
 
-const FileLabel = styled.label`
-  height: 200px;
-  width: 100%;
-  background: grey;
-  display: block;
-  cursor: pointer;
-`;
-
 const UploadWrapper = styled.div`
   margin: 30px 0;
   position: relative;
-  ${({ uploading }) =>
-    uploading &&
-    `
-      pointer-events: none;
-    `}
-  &::after {
-    ${({ uploading }) =>
-      uploading &&
-      `
-        content:'Uploading...';
-      `}
-    inset: 0 0 0 0;
-    border-radius: 20px;
-    position: absolute;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8em;
-    font-weight: 500;
-    color: white;
-    z-index: 999;
-    pointer-events: none;
-  }
 `;
 
 const ButtonWrapper = styled.div`
@@ -165,52 +133,11 @@ export default function DocumentUpload({
   const [checkbox1, setCheckbox1] = useState(false);
   const [checkbox2, setCheckbox2] = useState(false);
 
-  const uploadedFiles = useRef([]);
-
   const [showModal, setShowModal] = useState(false);
-
-  const [uploading, setUploading] = useState(false);
   const [posting, setPosting] = useState(false);
 
   const handleFileUpload = async (files) => {
-    setUploading(true);
-    Promise.all(
-      files.map((file) => {
-        const formData = new FormData();
-        formData.append("document", file);
-
-        return newRequest(
-          DOCS_UPLOAD_URL({ userId: userDetails.id }),
-          {
-            method: "POST",
-            data: formData,
-          },
-          {
-            Authorization: `Bearer ${userToken}`,
-          }
-        )
-          .then((res) => {
-            if (res.data.status === "ok") {
-              const file = res.data.files[0];
-              const uploadfile = {
-                doc_type_id: "1",
-                upload_doc_name: file.filename,
-                document_key: file.fd,
-                size: file.size,
-              };
-              uploadedFiles.current = [...uploadedFiles.current, uploadfile];
-            }
-            return res.data.files[0];
-          })
-          .catch((err) => err);
-      })
-    ).then((files) => {
-      setUploading(false);
-      setUsertypeDocuments(
-        uploadedFiles.current,
-        USER_ROLES[userType || "User"]
-      );
-    });
+    setUsertypeDocuments(files, USER_ROLES[userType || "User"]);
   };
 
   const updateDocumentList = async (loanId, user) => {
@@ -223,9 +150,6 @@ export default function DocumentUpload({
             ...d,
             loan_id: loanId,
           })),
-        },
-        onUploadProgress: (event) => {
-          console.log(event.loaded, event.total);
         },
       },
       {
@@ -333,8 +257,8 @@ export default function DocumentUpload({
     }
   };
 
-  const onButtonClick = () => {
-    setShowModal(true);
+  const onToggle = () => {
+    setShowModal(!showModal);
   };
 
   const onSave = () => {
@@ -342,7 +266,6 @@ export default function DocumentUpload({
       return;
     }
 
-    // setUsertypeDocuments(uploadedFiles.current, USER_ROLES[userType || "User"]);
     setCompleted(id);
     setCompleted(mainPageId);
     history.push(url + "/" + flowMap[id].main);
@@ -373,14 +296,23 @@ export default function DocumentUpload({
         <H>
           {userType ?? "Help Us with"} <span>Document Upload</span>
         </H>
-        <UploadWrapper uploading={uploading}>
-          <FileUpload onDrop={handleFileUpload} accept="" />
+        <UploadWrapper>
+          <FileUpload
+            onDrop={handleFileUpload}
+            accept=""
+            upload={{
+              url: DOCS_UPLOAD_URL({ userId: userDetails.id }),
+              header: {
+                Authorization: `Bearer ${userToken}`,
+              },
+            }}
+          />
         </UploadWrapper>
 
         <ButtonWrapper>
-          <Button name="Get CUB Statement" onClick={onButtonClick} />
-          <Button name="Get Other Bank Statements" onClick={onButtonClick} />
-          <Button name="Get ITR documents" onClick={onButtonClick} />
+          <Button name="Get CUB Statement" onClick={onToggle} />
+          <Button name="Get Other Bank Statements" onClick={onToggle} />
+          <Button name="Get ITR documents" onClick={onToggle} />
         </ButtonWrapper>
         <CheckboxWrapper>
           <CheckBox
@@ -400,12 +332,12 @@ export default function DocumentUpload({
           {!userType && (
             <Button
               name="Submit"
-              fill="blue"
+              fill
               style={{
                 width: "200px",
                 background: "blue",
               }}
-              disabled={!(checkbox1 && checkbox2) || posting || uploading}
+              disabled={!(checkbox1 && checkbox2) || posting}
               onClick={onSubmit}
             />
           )}
@@ -416,7 +348,7 @@ export default function DocumentUpload({
                 width: "200px",
               }}
               onClick={onSave}
-              disabled={!(checkbox1 && checkbox2) || posting || uploading}
+              disabled={!(checkbox1 && checkbox2) || posting}
             />
           )}
           {userType === "Guarantor" && (
@@ -426,7 +358,7 @@ export default function DocumentUpload({
                 width: "200px",
               }}
               onClick={onSubmitGuarantor}
-              disabled={!(checkbox1 && checkbox2) || posting || uploading}
+              disabled={!(checkbox1 && checkbox2) || posting}
             />
           )}
         </SubmitWrapper>
@@ -442,10 +374,7 @@ export default function DocumentUpload({
         </div>
       </Colom2>
       {showModal && (
-        <BankStatementModal
-          showModal={showModal}
-          onClose={() => setShowModal(false)}
-        />
+        <BankStatementModal showModal={showModal} onClose={onToggle} />
       )}
     </>
   );

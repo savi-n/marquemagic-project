@@ -10,6 +10,7 @@ import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { formatEmiData, formatLoanData } from "../../../utils/formatData";
 
 const Div = styled.div`
   flex: 1;
@@ -30,7 +31,7 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeLoanData },
+    actions: { setUsertypeLoanData, setUsertypeEmiData },
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
@@ -43,7 +44,11 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
   };
 
   const onSave = (data) => {
-    setUsertypeLoanData({ ...data, summary: "summary" });
+    const emiData = formatEmiData(data, jsonData.emi_details.data);
+    const loanData = formatLoanData(data, jsonData.loan_details.data);
+
+    setUsertypeEmiData(emiData);
+    setUsertypeLoanData({ ...loanData, summary: "summary" });
   };
 
   return (
@@ -60,7 +65,7 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
         jsonData={jsonData.emi_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>

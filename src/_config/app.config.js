@@ -26,6 +26,9 @@ const CREATE_CASE = `${API_END_POINT}/cub/createCase`;
 
 const CREATE_CASE_OTHER_USER = `${API_END_POINT}/addDirector`;
 
+const SEARCH_BANK_BRANCH_LIST = taggedTemplate`${API_END_POINT}/getBranchList?bankId=${"bankId"}
+`;
+
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
@@ -63,4 +66,5 @@ export {
   CREATE_CASE,
   CREATE_CASE_OTHER_USER,
   USER_ROLES,
+  SEARCH_BANK_BRANCH_LIST,
 };
