@@ -2,6 +2,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
+import SearchSelect from "../components/SearchSelect";
+
 function required(value) {
   return !value;
 }
@@ -180,14 +182,13 @@ export default function useForm() {
     [formRef.current]
   );
 
-  const onChange = (event) => {
-    event.preventDefault();
-    const { name, value } = event.target;
+  const onChange = (event, type) => {
+    const { name, value } = event;
 
     setValue(name, value);
     checkValidity(name);
 
-    if (event.type === "blur") {
+    if (type === "blur") {
       touchedRef.current = { ...touchedRef.current, [name]: true };
     }
 
@@ -267,14 +268,34 @@ function InputField({ field, onChange, value, unregister }) {
 
   const fieldProps = {
     name: field.name,
-    onChange: onChange,
-    onBlur: onChange,
+    onChange: (event) => {
+      event.preventDefault();
+      const { name, value } = event.target;
+      onChange({ name, value });
+    },
+    onBlur: (event) => {
+      event.preventDefault();
+      const { name, value } = event.target;
+      onChange({ name, value }, "blur");
+    },
     value: value || "",
     placeholder: field.placeholder || "",
     disabled: field.disabled,
     className: field.className,
     style: field.style,
   };
+
+  if (type === "search") {
+    return (
+      <SearchSelect
+        name={field.name}
+        placeholder={field.placeholder || ""}
+        onSelectOptionCallback={onChange}
+        onBlurCallback={onChange}
+        fetchOptionsFunc={field.fetchOptionsFunc}
+      />
+    );
+  }
 
   if (type === "select") {
     return (

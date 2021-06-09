@@ -231,18 +231,21 @@
 				"visibility": true
 			},
 			{
-				"name": "homebranch",
+				"name": "branchId",
+				"type": "search",
 				"placeholder": "Home branch (for application processing)",
-				"type": "select",
 				"visibility": true,
-				"option": []
+				"rules": {
+					"required": true
+				},
+				"options": []
 			},
 			{
 				"name": "vehicle",
 				"placeholder": "Choose Vehicle",
 				"type": "select",
 				"visibility": true,
-				"option": []
+				"options": []
 			},
 			{
 				"name": "assetsValue",

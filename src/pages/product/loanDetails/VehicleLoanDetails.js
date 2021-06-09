@@ -10,6 +10,7 @@ import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { UserContext } from "../../../reducer/userReducer";
 import { formatEmiData, formatLoanData } from "../../../utils/formatData";
 
 const Div = styled.div`
@@ -31,8 +32,12 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeLoanData, setUsertypeEmiData },
+    actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
   } = useContext(FormContext);
+
+  const {
+    state: { userDetails },
+  } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
@@ -48,6 +53,10 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
     const loanData = formatLoanData(data, jsonData.loan_details.data);
 
     setUsertypeEmiData(emiData);
+    setUsertypeBankData({
+      bankId: userDetails.lender_id,
+      branchId: data.branchId,
+    });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
   };
 
