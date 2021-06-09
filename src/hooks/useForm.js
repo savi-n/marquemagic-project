@@ -182,14 +182,13 @@ export default function useForm() {
     [formRef.current]
   );
 
-  const onChange = (event) => {
-    event.preventDefault();
-    const { name, value } = event.target;
+  const onChange = (event, type) => {
+    const { name, value } = event;
 
     setValue(name, value);
     checkValidity(name);
 
-    if (event.type === "blur") {
+    if (type === "blur") {
       touchedRef.current = { ...touchedRef.current, [name]: true };
     }
 
@@ -269,8 +268,16 @@ function InputField({ field, onChange, value, unregister }) {
 
   const fieldProps = {
     name: field.name,
-    onChange: onChange,
-    onBlur: onChange,
+    onChange: (event) => {
+      event.preventDefault();
+      const { name, value } = event.target;
+      onChange({ name, value });
+    },
+    onBlur: (event) => {
+      event.preventDefault();
+      const { name, value } = event.target;
+      onChange({ name, value }, "blur");
+    },
     value: value || "",
     placeholder: field.placeholder || "",
     disabled: field.disabled,

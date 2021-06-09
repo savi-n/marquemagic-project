@@ -127,15 +127,15 @@ export default function SearchSelect({
       onSelectOptionCallback &&
       typeof onSelectOptionCallback === "function"
     ) {
-      onSelectOptionCallback(e);
+      onSelectOptionCallback({ name, value: option.value });
     }
     setOptionShow(false);
   };
 
   const onBlurSearchBox = (event) => {
-    // if (onBlurCallback && typeof onBlurCallback === "function") {
-    //   onBlurCallback(event);
-    // }
+    if (onBlurCallback && typeof onBlurCallback === "function") {
+      onBlurCallback({ name, value: selectedOption?.value }, "blur");
+    }
   };
 
   const onSearchChange = async (event) => {
