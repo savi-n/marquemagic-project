@@ -112,6 +112,7 @@ const File = styled.div`
   white-space: nowrap;
   height: 35px;
   font-size: 13px;
+  margin: 10px 0;
   transition: 0.2s;
 
   &::after {
@@ -172,10 +173,13 @@ export default function FileUpload({
   const handleUpload = async (files) => {
     setUploading(true);
 
-    uploadingProgressFiles.current = files.map((f) => ({
-      name: f.name,
-      progress: 0,
-    }));
+    uploadingProgressFiles.current = [
+      ...uploadingProgressFiles.current,
+      ...files.map((f) => ({
+        name: f.name,
+        progress: 0,
+      })),
+    ];
 
     setUploadingFiles(uploadingProgressFiles.current);
 
@@ -213,7 +217,7 @@ export default function FileUpload({
       })
     ).then((files) => {
       setUploading(false);
-      setUploadingFiles([]);
+      // setUploadingFiles([]);
       return files;
     });
   };

@@ -72,13 +72,14 @@ export default function FlowRoutes({ config, productDetails = {} }) {
           key={f.id}
           path={`${path}/${config.id}/${f.id}`}
           protectedRoute={InnerPage.protected || false}
-          Component={() => (
+          Component={(props) => (
             <InnerPage.Component
               productDetails={productDetails}
               pageName={f.name}
               id={f.id}
               mainPageId={config.id}
               url={url}
+              {...props}
             />
           )}
         />
@@ -90,11 +91,12 @@ export default function FlowRoutes({ config, productDetails = {} }) {
       <ProtectedRoute
         path={`${path}/${config.id}`}
         protectedRoute={Page.protected || false}
-        Component={() => (
+        Component={(props) => (
           <Page.Component
             productDetails={productDetails}
             pageName={config.name}
             id={config.id}
+            {...props}
           />
         )}
       />

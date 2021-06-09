@@ -9,10 +9,7 @@ import { FlowContext } from "../../../reducer/flowReducer";
 import SearchSelect from "../../../components/SearchSelect";
 import { UserContext } from "../../../reducer/userReducer";
 import useFetch from "../../../hooks/useFetch";
-import {
-  NC_STATUS_CODE,
-  SEARCH_BANK_BRANCH_LIST,
-} from "../../../_config/app.config";
+import { NC_STATUS_CODE, SEARCH_LOAN_ASSET } from "../../../_config/app.config";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -88,24 +85,27 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     history.push(flowMap[id].sub);
   };
 
-  const {
-    state: { userToken },
-  } = useContext(UserContext);
+  // const {
+  //   state: { userToken },
+  // } = useContext(UserContext);
 
   const { newRequest } = useFetch();
 
-  const getOptions = async () => {
+  const getOptions = async (data) => {
     const opitionalDataReq = await newRequest(
-      SEARCH_BANK_BRANCH_LIST({ bankId: 32 }),
-      {},
-      {
-        Authorization: `Bearer ${userToken}`,
-      }
+      SEARCH_LOAN_ASSET,
+      { data }
+      // {
+      //   Authorization: `Bearer ${userToken}`,
+      // }
     );
 
     const opitionalDataRes = opitionalDataReq.data;
     if (opitionalDataRes.statusCode === NC_STATUS_CODE.NC200) {
-      return opitionalDataRes.branchList;
+      return opitionalDataRes.branchList.map((branch) => ({
+        name: branch.branch,
+        value: String(branch.id),
+      }));
     }
   };
 
@@ -125,7 +125,7 @@ export default function ApplicationSubmitted({ productDetails, id }) {
             <SearchSelect
               searchable
               title="Search Branch"
-              fetchOptionsFunc={getOptions}
+              searchOptionCallback={getOptions}
             />
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>

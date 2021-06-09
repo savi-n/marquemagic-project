@@ -229,7 +229,8 @@ export default function DocumentUpload({
           white_label_id: whiteLabelId,
           product_id: productId,
           applicantData: state.user.applicantData,
-          loanData: state.user.loanData,
+          loanData: { ...state.user.loanData, productId },
+          ...state.user.bankData,
         },
         USER_ROLES.User,
         CREATE_CASE

@@ -1,4 +1,12 @@
+import { useContext } from "react";
 import styled from "styled-components";
+
+import { UserContext } from "../../../reducer/userReducer";
+import useFetch from "../../../hooks/useFetch";
+import {
+  NC_STATUS_CODE,
+  SEARCH_BANK_BRANCH_LIST,
+} from "../../../_config/app.config";
 
 const H = styled.h1`
   font-size: 1.5em;
@@ -42,6 +50,29 @@ export default function LoanDetails({
   formState,
   userType,
 }) {
+  const {
+    state: { userToken },
+  } = useContext(UserContext);
+
+  const { newRequest } = useFetch();
+
+  const getBranchOptions = async () => {
+    const opitionalDataReq = await newRequest(
+      SEARCH_BANK_BRANCH_LIST({ bankId: 32 }),
+      {},
+      {
+        Authorization: `Bearer ${userToken}`,
+      }
+    );
+
+    const opitionalDataRes = opitionalDataReq.data;
+    if (opitionalDataRes.statusCode === NC_STATUS_CODE.NC200) {
+      return opitionalDataRes.branchList.map((branch) => ({
+        name: branch.branch,
+        value: String(branch.id),
+      }));
+    }
+  };
   return (
     <>
       <H>
@@ -57,6 +88,12 @@ export default function LoanDetails({
                     {register({
                       ...field,
                       value: formState?.values?.[field.name],
+                      ...(field.type === "search"
+                        ? {
+                            searchable: true,
+                            fetchOptionsFunc: getBranchOptions,
+                          }
+                        : {}),
                     })}
                     {(formState?.submit?.isSubmited ||
                       formState?.touched?.[field.name]) &&

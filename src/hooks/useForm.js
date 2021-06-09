@@ -2,6 +2,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
+import SearchSelect from "../components/SearchSelect";
+
 function required(value) {
   return !value;
 }
@@ -275,6 +277,18 @@ function InputField({ field, onChange, value, unregister }) {
     className: field.className,
     style: field.style,
   };
+
+  if (type === "search") {
+    return (
+      <SearchSelect
+        name={field.name}
+        placeholder={field.placeholder || ""}
+        onSelectOptionCallback={onChange}
+        onBlurCallback={onChange}
+        fetchOptionsFunc={field.fetchOptionsFunc}
+      />
+    );
+  }
 
   if (type === "select") {
     return (
