@@ -85,28 +85,26 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     history.push(flowMap[id].sub);
   };
 
-  // const {
-  //   state: { userToken },
-  // } = useContext(UserContext);
+  const {
+    state: { userToken },
+  } = useContext(UserContext);
 
   const { newRequest } = useFetch();
 
   const getOptions = async (data) => {
     const opitionalDataReq = await newRequest(
       SEARCH_LOAN_ASSET,
-      { data }
-      // {
-      //   Authorization: `Bearer ${userToken}`,
-      // }
+      { method: "POST", data },
+      {
+        Authorization: `Bearer ${userToken}`,
+      }
     );
 
     const opitionalDataRes = opitionalDataReq.data;
-    if (opitionalDataRes.statusCode === NC_STATUS_CODE.NC200) {
-      return opitionalDataRes.branchList.map((branch) => ({
-        name: branch.branch,
-        value: String(branch.id),
-      }));
+    if (opitionalDataRes.message) {
+      return opitionalDataRes.data;
     }
+    return [];
   };
 
   const d = data[count];

@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import Modal from "./Modal";
@@ -131,7 +131,6 @@ export default function BankStatementModal({ showModal, onClose }) {
     const data = response.data;
     if (data?.imagePath) setCaptchaUrl(data?.imagePath);
   };
-
   const handleSubmitForm = async (formData) => {
     setProcessing(true);
 
@@ -142,7 +141,7 @@ export default function BankStatementModal({ showModal, onClose }) {
       );
 
       const reponse = post.data;
-      if (reponse.statusCode === NC_STATUS_CODE.serverError) {
+      if (reponse.statusCode === NC_STATUS_CODE.NC500) {
         if (reponse.imagePath) {
           setCaptchaUrl(reponse.imagePath);
         }
