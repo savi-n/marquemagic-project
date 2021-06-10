@@ -312,8 +312,8 @@ export default function DocumentUpload({
 
         <ButtonWrapper>
           <Button name="Get CUB Statement" onClick={onToggle} />
-          <Button name="Get Other Bank Statements" onClick={onToggle} />
-          <Button name="Get ITR documents" onClick={onToggle} />
+          <Button name="Get Other Bank Statements" disabled />
+          <Button name="Get ITR documents" disabled />
         </ButtonWrapper>
         <CheckboxWrapper>
           <CheckBox
