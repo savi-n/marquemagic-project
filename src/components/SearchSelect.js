@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import useClickOutside from "../hooks/useOutsideClick";
+import debounceFunction from "../utils/debounce";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -143,11 +144,14 @@ export default function SearchSelect({
 
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       setFetching(true);
-      const searchOptions = await searchOptionCallback({
-        brandName: event.target.value,
-      });
-      setSelectOptions(searchOptions);
-      setFetching(false);
+      debounceFunction(async () => {
+        const searchOptions = await searchOptionCallback({
+          brandName: event.target.value,
+          type: "2 wheeler",
+        });
+        setSelectOptions(searchOptions);
+        setFetching(false);
+      }, 2000);
     }
   };
 

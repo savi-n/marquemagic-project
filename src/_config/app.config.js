@@ -39,9 +39,6 @@ const NC_STATUS_CODE = {
   NC306: "NC306 ",
   NC308: "NC308 ",
   NC500: "NC500",
-  success: "NC200",
-  serverError: "NC500",
-  accounts: "NC302",
 };
 
 const USER_ROLES = {

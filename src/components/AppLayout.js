@@ -67,7 +67,7 @@ const AppLayout = () => {
             }
           );
 
-          if (bankToken?.data?.statusCode === NC_STATUS_CODE.success) {
+          if (bankToken?.data?.statusCode === NC_STATUS_CODE.NC200) {
             actions.setClientToken(bankToken?.data.generated_key);
           }
         }
