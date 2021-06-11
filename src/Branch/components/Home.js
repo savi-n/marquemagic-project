@@ -1,6 +1,6 @@
 import { LineChart, Line, Pie, PieChart, Cell } from 'recharts';
-import Card from '../shared/components/Card';
 import './styles/index.scss';
+import Card from '../shared/components/Card';
 import CardDetails from '../shared/components/CardDetails';
 
 export default function Home({ data, sortList, dChartData, d, isIdentifier }) {
