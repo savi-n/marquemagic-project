@@ -67,10 +67,12 @@ export default function LoanDetails({
 
     const opitionalDataRes = opitionalDataReq.data;
     if (opitionalDataRes.statusCode === NC_STATUS_CODE.NC200) {
-      return opitionalDataRes.branchList.map((branch) => ({
-        name: branch.branch,
-        value: String(branch.id),
-      }));
+      return opitionalDataRes.branchList
+        .map((branch) => ({
+          name: branch.branch,
+          value: String(branch.id),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
   };
   return (

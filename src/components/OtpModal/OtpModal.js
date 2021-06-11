@@ -119,13 +119,16 @@ export default function OtpModal(props) {
     }
 
     if (response.statusCode === NC_STATUS_CODE.NC200) {
-      setUserDetails({
+      const userData = {
+        userAccountToken: response.accToken,
         userDetails: response.userDetails,
         userBankDetails: response.cubDetails,
         userToken: response.token,
-      });
+      };
 
-      onProceed();
+      if (setUserDetails) setUserDetails(userData);
+
+      onProceed(userData);
     } else if (
       response.statusCode === NC_STATUS_CODE.NC302 &&
       response.message.includes("Invalid")
@@ -140,11 +143,11 @@ export default function OtpModal(props) {
     setLoading(false);
   };
 
-  // // development only
-  // useEffect(() => {
-  //   setOtp(otpT?.toString());
-  // }, [otpT]);
-  // // end Developement
+  // development only
+  useEffect(() => {
+    setOtp(otpT?.toString());
+  }, [otpT]);
+  // end Developement
 
   const handleResend = async () => {
     resend({ mobileNo, customerId });

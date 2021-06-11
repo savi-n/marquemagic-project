@@ -120,11 +120,11 @@ export default function ApplicationSubmitted({ productDetails, id }) {
 
         {d.guarantor && (
           <>
-            <SearchSelect
+            {/* <SearchSelect
               searchable
               title="Search Branch"
               searchOptionCallback={getOptions}
-            />
+            /> */}
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />

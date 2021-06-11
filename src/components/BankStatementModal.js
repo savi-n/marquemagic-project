@@ -88,12 +88,12 @@ const Captcha = styled.img`
 
 export default function BankStatementModal({ showModal, onClose }) {
   const {
-    state: { clientToken },
+    state: { bankToken },
   } = useContext(AppContext);
 
   const { response, loading, newRequest } = useFetch({
     url: BANK_LIST_API,
-    headers: { authorization: `${clientToken}` },
+    headers: { authorization: `${bankToken}` },
   });
 
   const [processing, setProcessing] = useState(false);
@@ -104,7 +104,7 @@ export default function BankStatementModal({ showModal, onClose }) {
   const [accountsList, setAccountsList] = useState([]);
 
   const postData = async (api, data, method = "POST") => {
-    return newRequest(api, { method, data }, { authorization: clientToken });
+    return newRequest(api, { method, data }, { authorization: bankToken });
   };
 
   const flowCompleted = () => {

@@ -7,6 +7,7 @@ const actionTypes = {
   SET_USER_BANK_DETAILS: "SET_USER_BANK_DETAILS",
   SET_USER_DETAILS: "SET_USER_DETAILS",
   SET_USER_TOKEN: "SET_USER_TOKEN",
+  SET_OTHER_USER_TOKEN: "SET_OTHER_USER_TOKEN",
 };
 
 const storeData = getStore();
@@ -16,14 +17,21 @@ const INITIAL_STATE = {
   userId: storeData.userId || null,
   userDetails: storeData.userDetails || null,
   userBankDetails: storeData.userBankDetails || null,
-  userToken: storeData.userToken || null,
+  userAccountToken: storeData.userAccountToken || null,
+  userToken: storeData.userToken || null, // ACCOUNT TOKEN
+  coapplicant: null,
+  gurantor: null,
 };
+//End Developement
 
 // const INITIAL_STATE = {
 //   userId: null,
 //   userDetails: null,
 //   userBankDetails: null,
+//   userAccountToken:null,
 //   userToken: null,
+//   coapplicant: null,
+//   gurantor: null,
 // };
 
 const useActions = (dispatch) => {
@@ -37,9 +45,18 @@ const useActions = (dispatch) => {
     dispatch({ type: actionTypes.SET_USER_DETAILS, data: userDetails });
   };
 
+  const setOtherUserDetails = (userDetails, userType) => {
+    dispatch({
+      type: actionTypes.SET_OTHER_USER_TOKEN,
+      data: userDetails,
+      userType,
+    });
+  };
+
   return {
     setUserId,
     setUserDetails,
+    setOtherUserDetails,
   };
 };
 
@@ -57,7 +74,15 @@ function reducer(state, action) {
         ...state,
         userDetails: action.data.userDetails,
         userBankDetails: action.data.userBankDetails,
+        userAccountToken: action.data.userAccountToken,
         userToken: action.data.userToken,
+      };
+    }
+
+    case actionTypes.SET_OTHER_USER_TOKEN: {
+      return {
+        ...state,
+        [action.userType]: action.data,
       };
     }
 

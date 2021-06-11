@@ -17,6 +17,7 @@ import {
   USER_ROLES,
 } from "../../../_config/app.config";
 import BankStatementModal from "../../../components/BankStatementModal";
+import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
 import useFetch from "../../../hooks/useFetch";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
@@ -136,8 +137,24 @@ export default function DocumentUpload({
   const [showModal, setShowModal] = useState(false);
   const [posting, setPosting] = useState(false);
 
+  const [toggleStatementModal, setToggleStatementModal] = useState(false);
+  const [bankStatementFetchDone, setBankStatementFetchDone] = useState(false);
+
+  const onToggleStatementModal = () => {
+    setToggleStatementModal(!toggleStatementModal);
+  };
+
+  const onStatementModalClose = (success) => {
+    setToggleStatementModal(false);
+    if (success) setBankStatementFetchDone(true);
+  };
+
   const handleFileUpload = async (files) => {
     setUsertypeDocuments(files, USER_ROLES[userType || "User"]);
+  };
+
+  const buttonDisabledStatus = () => {
+    return !bankStatementFetchDone || !(checkbox1 && checkbox2) || posting;
   };
 
   const updateDocumentList = async (loanId, user) => {
@@ -160,6 +177,26 @@ export default function DocumentUpload({
     return submitReq;
   };
 
+  const updateCubStatement = async (loanId, token) => {
+    const submitReq = await newRequest(
+      BORROWER_UPLOAD_URL,
+      {
+        method: "POST",
+        data: {
+          access_token: token,
+          request_id: "",
+          loan_id: loanId,
+          doc_type_id: 6,
+        },
+      },
+      {
+        authorization: userToken,
+      }
+    );
+
+    return submitReq;
+  };
+
   const createCase = async (data, user, url) => {
     try {
       const caseReq = await newRequest(
@@ -175,7 +212,12 @@ export default function DocumentUpload({
       const caseRes = caseReq.data;
       if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
         const docsReq = await updateDocumentList(caseRes.loanId, user);
+        const statementReq = await updateCubStatement(
+          caseRes.loanId,
+          "access_token"
+        );
         const docsRes = docsReq.data;
+        const statementRes = statementReq.data;
         if (docsRes.status === NC_STATUS_CODE.OK) {
           return caseRes;
         }
@@ -311,8 +353,8 @@ export default function DocumentUpload({
         </UploadWrapper>
 
         <ButtonWrapper>
-          <Button name="Get CUB Statement" onClick={onToggle} />
-          <Button name="Get Other Bank Statements" disabled />
+          <Button name="Get CUB Statement" onClick={onToggleStatementModal} />
+          <Button name="Get Other Bank Statements" onClick={onToggle} />
           <Button name="Get ITR documents" disabled />
         </ButtonWrapper>
         <CheckboxWrapper>
@@ -338,7 +380,7 @@ export default function DocumentUpload({
                 width: "200px",
                 background: "blue",
               }}
-              disabled={!(checkbox1 && checkbox2) || posting}
+              disabled={buttonDisabledStatus()}
               onClick={onSubmit}
             />
           )}
@@ -349,7 +391,7 @@ export default function DocumentUpload({
                 width: "200px",
               }}
               onClick={onSave}
-              disabled={!(checkbox1 && checkbox2) || posting}
+              disabled={buttonDisabledStatus()}
             />
           )}
           {userType === "Guarantor" && (
@@ -359,7 +401,7 @@ export default function DocumentUpload({
                 width: "200px",
               }}
               onClick={onSubmitGuarantor}
-              disabled={!(checkbox1 && checkbox2) || posting}
+              disabled={buttonDisabledStatus()}
             />
           )}
         </SubmitWrapper>
@@ -376,6 +418,14 @@ export default function DocumentUpload({
       </Colom2>
       {showModal && (
         <BankStatementModal showModal={showModal} onClose={onToggle} />
+      )}
+
+      {toggleStatementModal && (
+        <GetCUBStatementModal
+          showModal={toggleStatementModal}
+          onClose={onStatementModalClose}
+          userType={userType}
+        />
       )}
     </>
   );

@@ -34,7 +34,9 @@ const AppLayout = () => {
     url: WHITE_LABEL_URL({ name: "CUB UAT" }),
   });
 
-  const { actions } = useContext(AppContext);
+  const {
+    actions: { setClientToken, setBankToken, setWhitelabelId, setLogo },
+  } = useContext(AppContext);
 
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +70,11 @@ const AppLayout = () => {
           );
 
           if (bankToken?.data?.statusCode === NC_STATUS_CODE.NC200) {
-            actions.setClientToken(bankToken?.data.generated_key);
+            setClientToken(clientId.token);
+            setBankToken(
+              bankToken?.data.generated_key,
+              bankToken?.data.request_id
+            );
           }
         }
       } catch (error) {
@@ -77,8 +83,8 @@ const AppLayout = () => {
       setLoading(false);
     }
     if (response) {
-      actions.setWhitelabelId(response?.permission?.id);
-      actions.setLogo(response?.permission?.logo);
+      setWhitelabelId(response?.permission?.id);
+      setLogo(response?.permission?.logo);
       fetchData();
     }
   }, [response]);
