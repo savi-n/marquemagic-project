@@ -68,7 +68,7 @@ export default function Security({ setSecurity, productId }) {
 				placeholder='Security Details'
 				className='bg-transparent rounded-md border border-gray-300 text-sm p-2 focus:outline-none'
 			/>
-			<section className='h-16 overflow-hidden'>
+			<section className='h-auto overflow-hidden'>
 				<FileUpload onDrop={handleFileUpload} accept='' />
 			</section>
 			<section className='w-full gap-x-4 flex justify-end'>

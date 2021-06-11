@@ -1,12 +1,13 @@
 export default function Card(props) {
-	const { approve, reject, security } = props;
+	const { approve, reject, security, full } = props;
 	return (
 		<main
 			style={{
 				boxShadow: '0 0 19px 0px #98AFC7',
-				maxHeight: `${reject || approve || security ? '600px' : '280px'}`
+				maxHeight: `${reject || approve || security ? '50rem' : '280px'}`,
+				width: `${!full && 'calc(100%/3)'}`
 			}}
-			className={`w-full p-6 h-full rounded-md flex-flex-col`}
+			className={`${full && 'w-full'} p-6 h-full rounded-md flex-flex-col`}
 		>
 			{props.head && (
 				<section className='pb-6 flex flex-col gap-y-2'>

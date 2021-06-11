@@ -1,5 +1,5 @@
 export default function Tabs(props) {
-	const { active, align, k, click, text } = props;
+	const { active, align, k, click, text, length } = props;
 
 	return (
 		<section style={{ display: 'flex', alignItems: 'center' }}>
@@ -23,12 +23,15 @@ export default function Tabs(props) {
 						display: 'flex',
 						alignItems: 'center'
 					}}
-					className={`${align !== 'horizontal' ? 'p-4 px-8 h-full rounded-l-full' : 'p-2'} ${active &&
-						align !== 'horizontal' &&
-						'bg-indigo-500'}`}
+					className={`${
+						align !== 'horizontal' ? 'p-4 px-8 h-full rounded-l-full justify-between' : 'p-2'
+					} ${active && align !== 'horizontal' && 'bg-indigo-500'}`}
 					onClick={e => click(k)}
 				>
 					{k}
+					{length !== undefined && length !== null && (
+						<span className='bg-indigo-400 px-3 py-1 rounded-full'>{length}</span>
+					)}
 				</span>
 			</section>
 		</section>

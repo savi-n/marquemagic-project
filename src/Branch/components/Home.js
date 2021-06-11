@@ -1,9 +1,9 @@
 import { LineChart, Line, Pie, PieChart, Cell } from 'recharts';
 import Card from '../shared/components/Card';
 import './styles/index.scss';
-import PendingApproval from './PApproval';
+import CardDetails from '../shared/components/CardDetails';
 
-export default function Home({ data, sortList, dChartData, pApprovalData }) {
+export default function Home({ data, sortList, dChartData, d, isIdentifier }) {
 	var pieD1 = [];
 	var pieD2 = [];
 
@@ -23,7 +23,7 @@ export default function Home({ data, sortList, dChartData, pApprovalData }) {
 			<h1 className='text-xl'>Dashboard</h1>
 			<section className='flex justify-between gap-x-6'>
 				{data.map(item => (
-					<Card key={item} head={item.label}>
+					<Card full={true} key={item} head={item.label}>
 						<section className='flex justify-between'>
 							<span className='flex flex-col items-center'>
 								{item.week}
@@ -56,7 +56,7 @@ export default function Home({ data, sortList, dChartData, pApprovalData }) {
 			<section className='flex justify-between gap-x-10'>
 				{dChartData.map((item, index) =>
 					Object.keys(item).map(i => (
-						<Card key={item[i].label} head={item[i].label}>
+						<Card full={true} key={item[i].label} head={item[i].label}>
 							<section className='w-full flex items-center'>
 								<section>
 									<PieChart width={300} height={180}>
@@ -100,7 +100,7 @@ export default function Home({ data, sortList, dChartData, pApprovalData }) {
 					))
 				)}
 				<section className='w-9/12'>
-					<Card head='Average Tat'>
+					<Card full={true} head='Average Tat'>
 						<span>4 Hours</span>
 					</Card>
 				</section>
@@ -108,7 +108,25 @@ export default function Home({ data, sortList, dChartData, pApprovalData }) {
 			<section className='flex flex-col gap-y-10'>
 				<h1 className='text-xl'>Pending Approvals</h1>
 				<section className='flex gap-x-10'>
-					{pApprovalData.data.map((item, idx) => idx < 3 && <PendingApproval item={item} />)}
+					{d.map(
+						item =>
+							item.label === 'Pending Approvals' && (
+								<>{item.data.map((e, idx) => idx < 3 && <CardDetails item={e} />)}</>
+							)
+					)}
+				</section>
+				{!isIdentifier() && <h1 className='text-xl'>Pending Sanctions</h1>}
+				<section className='flex gap-x-10'>
+					{!isIdentifier() &&
+						d.map(
+							item =>
+								item.label === 'In-Progress@AO' &&
+								(item.data.length > 0 ? (
+									<>{item.data.map((e, idx) => idx < 3 && <CardDetails item={e && e} />)}</>
+								) : (
+									<section className='w-full text-center opacity-75'>No Data!</section>
+								))
+						)}
 				</section>
 			</section>
 		</section>

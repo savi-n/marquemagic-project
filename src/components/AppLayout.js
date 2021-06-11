@@ -14,7 +14,7 @@ import {
 	NC_STATUS_CODE
 } from '../_config/app.config.js';
 import { StoreProvider, StoreContext } from '../utils/StoreProvider';
-const Dashboard = lazy(() => import('../BranchUser/pages/Dashboard'));
+const Dashboard = lazy(() => import('../Branch/pages/Dashboard'));
 
 const HeaderWrapper = styled.div`
 	min-height: 80px;
@@ -92,7 +92,7 @@ const AppLayout = () => {
 	) : (
 		response && (
 			<ThemeProvider theme={response.permission.color_theme_react}>
-				{pathName !== '/branch-user' ? (
+				{pathName !== '/branch-user' && pathName !== '/branch-manager' ? (
 					<>
 						<HeaderWrapper>
 							<Header logo={response.permission.logo} />
@@ -105,7 +105,11 @@ const AppLayout = () => {
 					<BrowserRouter>
 						<Suspense fallback={<Loading />}>
 							<Switch>
-								<Route path='/branch-user' component={Dashboard} />
+								<Route
+									path={['/branch-user', '/branch-manager']}
+									manager={true}
+									component={Dashboard}
+								/>
 							</Switch>
 						</Suspense>
 					</BrowserRouter>

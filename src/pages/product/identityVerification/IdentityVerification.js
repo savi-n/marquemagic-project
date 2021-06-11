@@ -3,13 +3,13 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Button from '../../../components/Button';
-import OtpModal from '../../../components/OtpModal/OtpModal';
 import { GENERATE_OTP_URL, NC_STATUS_CODE } from '../../../_config/app.config';
 import { StoreContext } from '../../../utils/StoreProvider';
 import { UserContext } from '../../../reducer/userReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
+import OtpModal from '../../../components/otpModal/OtpModal';
 
 const Colom1 = styled.div`
 	flex: 1;

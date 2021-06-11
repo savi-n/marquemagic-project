@@ -62,3 +62,31 @@
 	font-weight: 100;
 	font-size: x-small;
 }
+
+.progress-bar {
+	position: relative;
+	height: 15px;
+	width: 200px;
+	border-radius: 50px;
+}
+
+.filler {
+	background-image: linear-gradient(to right, red, yellow, teal);
+	height: 100%;
+	border-radius: inherit;
+	transition: width 0.2s ease-in;
+}
+
+.filler2 {
+	background: #333;
+	height: 130%;
+	border-radius: inherit;
+	transition: width 0.2s ease-in;
+}
+
+.filler3 {
+	background: transparent;
+	height: 100%;
+	border-radius: inherit;
+	transition: width 0.2s ease-in;
+}
