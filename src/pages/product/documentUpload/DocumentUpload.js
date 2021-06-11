@@ -212,12 +212,12 @@ export default function DocumentUpload({
       const caseRes = caseReq.data;
       if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
         const docsReq = await updateDocumentList(caseRes.loanId, user);
-        const statementReq = await updateCubStatement(
-          caseRes.loanId,
-          "access_token"
-        );
+        // const statementReq = await updateCubStatement(
+        //   caseRes.loanId,
+        //   "access_token"
+        // );
         const docsRes = docsReq.data;
-        const statementRes = statementReq.data;
+        // const statementRes = statementReq.data;
         if (docsRes.status === NC_STATUS_CODE.OK) {
           return caseRes;
         }
