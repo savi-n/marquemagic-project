@@ -71,10 +71,10 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
       formatAddressData("permanent", formData, jsonData.address_details.data),
       formatAddressData("present", formData, jsonData.address_details.data),
     ];
-    const formatApplicantData = formatPersonalData(
-      formData,
-      jsonData.personal_details.data
-    );
+    const formatApplicantData = {
+      ...formatPersonalData(formData, jsonData.personal_details.data),
+      typeName: userType,
+    };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
     setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
   };
@@ -102,7 +102,7 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
         jsonData={jsonData.address_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>

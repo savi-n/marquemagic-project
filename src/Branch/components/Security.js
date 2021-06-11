@@ -2,7 +2,7 @@ import { useState, useRef, useContext } from 'react';
 import useFetch from '../../hooks/useFetch';
 import { UserContext } from '../../reducer/userReducer';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
-import Button from '../../shared/components/Button';
+import Button from '../shared/components/Button';
 import { DOCS_UPLOAD_URL } from '../../_config/app.config';
 
 export default function Security({ setSecurity, productId }) {

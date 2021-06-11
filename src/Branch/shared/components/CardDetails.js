@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Card from './Card';
-import Button from '../../../shared/components/Button';
+import Button from './Button';
 import Reject from '../../components/Rejection';
 import Approve from '../../components/Approve';
 import Security from '../../components/Security';

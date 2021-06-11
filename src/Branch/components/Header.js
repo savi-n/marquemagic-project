@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Tabs from '../shared/components/Tabs';
-import Button from '../../shared/components/Button';
+import Button from '../shared/components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 

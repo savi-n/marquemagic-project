@@ -3,7 +3,7 @@ import { string } from 'prop-types';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import Button from '../shared/components/Button';
+import Button from './Button';
 
 const Div = styled.div`
 	margin-left: auto;

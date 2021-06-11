@@ -1,7 +1,8 @@
 import { lazy } from "react";
-import { Redirect, Route, useRouteMatch } from "react-router-dom";
+import { Redirect, useRouteMatch } from "react-router-dom";
 
 import userType from "../../_hoc/userType";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
 const IdentityVerification = lazy(() =>
   import("./identityVerification/IdentityVerification")
@@ -12,7 +13,9 @@ const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
 const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
-const LoanDetails = lazy(() => import("./loanDetails/LoanDetails"));
+const VehicleLoanDetails = lazy(() =>
+  import("./loanDetails/VehicleLoanDetails")
+);
 const CoApplicantDetails = lazy(() =>
   import("./coappilcant/CoapplicantDetails")
 );
@@ -21,45 +24,62 @@ const CoApplicantIncomeDetails = lazy(() =>
 );
 
 const availableRoutes = {
-  "identity-verification": IdentityVerification,
-  "personal-details": PersonalDetails,
-  "address-details": AddressDetails,
-  "loan-details": LoanDetails,
-  "co-applicant-details": userType("Co-applicant", CoApplicantDetails),
-  "co-applicant-income-details": userType(
-    "Co-applicant",
-    CoApplicantIncomeDetails
-  ),
-  "co-applicant-document-upload": userType("Co-applicant", DocumentUpload),
-  "document-upload": DocumentUpload,
-  "application-submitted": ApplicationSubmitted,
-  "gurantor-details": userType("Gurantor", CoApplicantDetails),
-  "gurantor-income-details": userType("Gurantor", CoApplicantIncomeDetails),
-  "gurantor-document-upload": userType("Gurantor", DocumentUpload),
+  "identity-verification": { Component: IdentityVerification },
+  "personal-details": { protected: true, Component: PersonalDetails },
+  "address-details": { protected: true, Component: AddressDetails },
+  "loan-details": { protected: true, Component: VehicleLoanDetails },
+  "co-applicant-details": {
+    protected: true,
+    Component: userType("Co-applicant", CoApplicantDetails),
+  },
+  "co-applicant-income-details": {
+    protected: true,
+    Component: userType("Co-applicant", CoApplicantIncomeDetails),
+  },
+  "co-applicant-document-upload": {
+    protected: true,
+    Component: userType("Co-applicant", DocumentUpload),
+  },
+  "document-upload": { protected: true, Component: DocumentUpload },
+  "application-submitted": { protected: true, Component: ApplicationSubmitted },
+  "guarantor-details": {
+    protected: true,
+    Component: userType("Guarantor", CoApplicantDetails),
+  },
+  "guarantor-income-details": {
+    protected: true,
+    Component: userType("Guarantor", CoApplicantIncomeDetails),
+  },
+  "guarantor-document-upload": {
+    protected: true,
+    Component: userType("Guarantor", DocumentUpload),
+  },
 };
 
 export default function FlowRoutes({ config, productDetails = {} }) {
   const { path, url } = useRouteMatch();
 
-  const Component = availableRoutes[config.id];
-  if (!Component) return <Redirect to={path} />;
+  const Page = availableRoutes[config.id];
+
+  if (!Page) return <Redirect to={path} />;
+
   let subFlow = null;
   if (config.flow) {
     subFlow = config.flow.map((f) => {
-      const Comp = availableRoutes[f.id];
+      const InnerPage = availableRoutes[f.id];
       return (
-        <Route
+        <ProtectedRoute
           key={f.id}
-          exact
           path={`${path}/${config.id}/${f.id}`}
-          component={({ match }) => (
-            <Comp
-              productId={atob(match.params.product)}
+          protectedRoute={InnerPage.protected || false}
+          Component={(props) => (
+            <InnerPage.Component
               productDetails={productDetails}
               pageName={f.name}
               id={f.id}
               mainPageId={config.id}
               url={url}
+              {...props}
             />
           )}
         />
@@ -68,15 +88,15 @@ export default function FlowRoutes({ config, productDetails = {} }) {
   }
   return (
     <>
-      <Route
+      <ProtectedRoute
         path={`${path}/${config.id}`}
-        exact
-        component={({ match }) => (
-          <Component
-            productId={atob(match.params.product)}
+        protectedRoute={Page.protected || false}
+        Component={(props) => (
+          <Page.Component
             productDetails={productDetails}
             pageName={config.name}
             id={config.id}
+            {...props}
           />
         )}
       />

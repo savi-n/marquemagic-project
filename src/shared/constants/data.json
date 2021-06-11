@@ -122,26 +122,40 @@
 				"placeholder": "Residence Status",
 				"type": "select",
 				"visibility": true,
-				"option": ["India"],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": null,
-				"key": "countryResidence",
-				"validation": [],
-				"searchable": true
+				"options": [
+					{
+						"name": "Resident",
+						"value": "Resident"
+					},
+					{
+						"name": "Resident and Ordinarily Resident",
+						"value": "Resident and Ordinarily Resident"
+					},
+					{
+						"name": "Resident but Not Ordinarily Resident",
+						"value": "Resident but Not Ordinarily Resident"
+					},
+					{
+						"name": "Non-Resident",
+						"value": "Non-Resident"
+					}
+				]
 			},
 			{
 				"name": "countryResidence",
 				"placeholder": "Country of Residence",
 				"type": "select",
 				"visibility": true,
-				"option": ["Single", "Married", "Divorced"],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "maritialStatus",
-				"validation": [],
-				"searchable": false
+				"options": [
+					{
+						"name": "India",
+						"value": "India"
+					},
+					{
+						"name": "Other",
+						"value": "Other"
+					}
+				]
 			}
 		]
 	},
@@ -247,30 +261,21 @@
 				"visibility": true
 			},
 			{
-				"label": "Home branch (for application processing)",
-				"mandatory": false,
-				"type": "dropdown",
+				"name": "branchId",
+				"type": "search",
+				"placeholder": "Home branch (for application processing)",
 				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "home_branch",
-				"validation": [],
-				"searchable": false
+				"rules": {
+					"required": true
+				},
+				"options": []
 			},
 			{
 				"label": "Choose Vehicle",
 				"mandatory": false,
 				"type": "dropdown",
 				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "summary",
-				"validation": [],
-				"searchable": true
+				"options": []
 			},
 			{
 				"name": "assetsValue",
@@ -297,7 +302,7 @@
 		"label": "EMI Details",
 		"data": [
 			{
-				"name": "autoloan",
+				"name": "existing_auto_loan",
 				"placeholder": "Auto Loan Amount",
 				"type": "text",
 				"visibility": true,
@@ -310,7 +315,7 @@
 				"inrupees": true
 			},
 			{
-				"name": "personalloan",
+				"name": "existing_personal_loan",
 				"placeholder": "Personal Loan Amount",
 				"type": "text",
 				"visibility": true,
@@ -323,7 +328,7 @@
 				"inrupees": true
 			},
 			{
-				"name": "lap",
+				"name": "existing_lap_loan",
 				"placeholder": "LAP Amount",
 				"type": "text",
 				"visibility": true,

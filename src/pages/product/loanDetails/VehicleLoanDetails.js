@@ -10,6 +10,8 @@ import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { UserContext } from "../../../reducer/userReducer";
+import { formatEmiData, formatLoanData } from "../../../utils/formatData";
 
 const Div = styled.div`
   flex: 1;
@@ -23,15 +25,19 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function LoanDetailsPage({ id, pageName }) {
+export default function VehiclLoanDetailsPage({ id, pageName }) {
   const {
     state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeLoanData },
+    actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
   } = useContext(FormContext);
+
+  const {
+    state: { userDetails },
+  } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
@@ -43,7 +49,15 @@ export default function LoanDetailsPage({ id, pageName }) {
   };
 
   const onSave = (data) => {
-    setUsertypeLoanData({ ...data, summary: "summary" });
+    const emiData = formatEmiData(data, jsonData.emi_details.data);
+    const loanData = formatLoanData(data, jsonData.loan_details.data);
+
+    setUsertypeEmiData(emiData);
+    setUsertypeBankData({
+      bankId: userDetails.lender_id,
+      branchId: data.branchId,
+    });
+    setUsertypeLoanData({ ...loanData, summary: "summary" });
   };
 
   return (
@@ -60,7 +74,7 @@ export default function LoanDetailsPage({ id, pageName }) {
         jsonData={jsonData.emi_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>

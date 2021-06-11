@@ -3,7 +3,13 @@ import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import Button from "../../../components/Button";
+import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
+
+import SearchSelect from "../../../components/SearchSelect";
+import { UserContext } from "../../../reducer/userReducer";
+import useFetch from "../../../hooks/useFetch";
+import { NC_STATUS_CODE, SEARCH_LOAN_ASSET } from "../../../_config/app.config";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -52,15 +58,15 @@ const CaptionImg = styled.div`
 const data = [
   {
     caption: `Your application has been forwarded to the branch, desicion shall be communicated within 2-3 working days.`,
-    gurantor: true,
+    guarantor: true,
   },
   {
     caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
-    gurantor: true,
+    guarantor: true,
   },
   {
     caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
-    gurantor: false,
+    guarantor: false,
   },
 ];
 
@@ -79,16 +85,47 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     history.push(flowMap[id].sub);
   };
 
+  const {
+    state: { userToken },
+  } = useContext(UserContext);
+
+  const { newRequest } = useFetch();
+
+  const getOptions = async (data) => {
+    const opitionalDataReq = await newRequest(
+      SEARCH_LOAN_ASSET,
+      { method: "POST", data },
+      {
+        Authorization: `Bearer ${userToken}`,
+      }
+    );
+
+    const opitionalDataRes = opitionalDataReq.data;
+    if (opitionalDataRes.message) {
+      return opitionalDataRes.data;
+    }
+    return [];
+  };
+
   const d = data[count];
   return (
     <>
       <Colom1>
-        <CaptionImg bg={productDetails.imageUrl} />
+        {!d.guarantor ? (
+          <GuageMeter />
+        ) : (
+          <CaptionImg bg={productDetails.imageUrl} />
+        )}
         <Caption>{d.caption}</Caption>
 
-        {d.gurantor && (
+        {d.guarantor && (
           <>
-            <Caption>Any Gurantor?</Caption>
+            <SearchSelect
+              searchable
+              title="Search Branch"
+              searchOptionCallback={getOptions}
+            />
+            <Caption>Any Guarantor?</Caption>
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />
               <Button name="No" onClick={() => setData(count + 1)} />

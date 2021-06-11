@@ -87,13 +87,13 @@ export default function AddressDetailsPage({ id, pageName }) {
         jsonData={jsonData.address_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
         <DivWrap>
           <Question>Co-Applicants?</Question>
           <Button
             width="auto"
-            fill="blue"
+            fill
             name="Add"
             disabled={!saved}
             onClick={subFlowActivate}

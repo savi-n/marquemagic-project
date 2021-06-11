@@ -11,6 +11,7 @@ import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetail
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
+import { formatEmiData, formatLoanData } from "../../../utils/formatData";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -31,14 +32,18 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeLoanData },
+    actions: { setUsertypeSalaryData, setUsertypeEmiData },
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
 
   const onSave = (formData) => {
-    setUsertypeLoanData(formData, USER_ROLES[userType]);
+    const emiData = formatEmiData(formData, jsonData.emi_details.data);
+    const salaryData = formatLoanData(formData, jsonData.salary_details.data);
+
+    setUsertypeEmiData(emiData, USER_ROLES[userType]);
+    setUsertypeSalaryData(salaryData, USER_ROLES[userType]);
   };
 
   const onProceed = (formData) => {
@@ -63,7 +68,7 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
         jsonData={jsonData.emi_details.data}
       />
       <ButtonWrap>
-        <Button fill="blue" name="Proceed" onClick={handleSubmit(onProceed)} />
+        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
     </Div>

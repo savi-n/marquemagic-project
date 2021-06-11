@@ -4,17 +4,21 @@ const actionTypes = {
   SET_USERTYPE_APPLICANT_DATA: "SET_USERTYPE_APPLICANT_DATA",
   SET_USERTYPE_ADDRESS_DATA: "SET_USERTYPE_ADDRESS_DATA",
   SET_USERTYPE_LOAN_DATA: "SET_USERTYPE_LOAN_DATA",
+  SET_USERTYPE_EMI_DATA: "SET_USERTYPE_EMI_DATA",
+  SET_USERTYPE_SALARY_DATA: "SET_USERTYPE_SALARY_DATA",
   SET_USERTYPE_DOCUMENTS: "SET_USERTYPE_DOCUMENTS",
+  SET_USERTYPE_BANK_DATA: "SET_USERTYPE_BANK_DATA",
 };
 
 const INITIAL_STATE = {
   user: {
+    bankData: {},
     applicantData: {},
     loanData: {},
     docs: [],
   },
   coapplicant: null,
-  gurantor: null,
+  guarantor: null,
 };
 
 const useActions = (dispatch) => {
@@ -42,11 +46,30 @@ const useActions = (dispatch) => {
     dispatch({ type: actionTypes.SET_USERTYPE_DOCUMENTS, docs, userType });
   };
 
+  const setUsertypeEmiData = (emiData, userType = "user") => {
+    dispatch({ type: actionTypes.SET_USERTYPE_EMI_DATA, emiData, userType });
+  };
+
+  const setUsertypeBankData = (bankData, userType = "user") => {
+    dispatch({ type: actionTypes.SET_USERTYPE_BANK_DATA, bankData, userType });
+  };
+
+  const setUsertypeSalaryData = (salaryData, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_SALARY_DATA,
+      salaryData,
+      userType,
+    });
+  };
+
   return {
     setUsertypeApplicantData,
     setUsertypeAddressData,
     setUsertypeLoanData,
+    setUsertypeEmiData,
+    setUsertypeSalaryData,
     setUsertypeDocuments,
+    setUsertypeBankData,
   };
 };
 
@@ -71,6 +94,51 @@ function reducer(state, action) {
       const applicantData = {
         ...(state[action.userType]?.applicantData || {}),
         address: action.addressData,
+      };
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          applicantData,
+        },
+      };
+    }
+
+    case actionTypes.SET_USERTYPE_EMI_DATA: {
+      const applicantData = {
+        ...(state[action.userType]?.applicantData || {}),
+        ...action.emiData,
+      };
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          applicantData,
+        },
+      };
+    }
+
+    case actionTypes.SET_USERTYPE_BANK_DATA: {
+      const bankData = {
+        ...(state[action.userType]?.bankData || {}),
+        ...action.bankData,
+      };
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          bankData,
+        },
+      };
+    }
+
+    case actionTypes.SET_USERTYPE_SALARY_DATA: {
+      const applicantData = {
+        ...(state[action.userType]?.applicantData || {}),
+        ...action.salaryData,
       };
 
       return {

@@ -3,6 +3,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import Header from './Header';
+import Dashboard from '../Branch/pages/Dashboard';
 import Content from './Content';
 import Loading from './Loading';
 import useFetch from '../hooks/useFetch';
@@ -13,8 +14,7 @@ import {
 	BANK_TOKEN_API,
 	NC_STATUS_CODE
 } from '../_config/app.config.js';
-import { StoreProvider, StoreContext } from '../utils/StoreProvider';
-const Dashboard = lazy(() => import('../Branch/pages/Dashboard'));
+import { AppContext } from '../reducer/appReducer';
 
 const HeaderWrapper = styled.div`
 	min-height: 80px;
@@ -36,7 +36,7 @@ const AppLayout = () => {
 		url: WHITE_LABEL_URL({ name: 'CUB UAT' })
 	});
 
-	const { actions } = useContext(StoreContext);
+	const { actions } = useContext(AppContext);
 
 	const [loading, setLoading] = useState(true);
 
@@ -69,7 +69,7 @@ const AppLayout = () => {
 						}
 					);
 
-					if (bankToken?.data?.statusCode === NC_STATUS_CODE.success) {
+					if (bankToken?.data?.statusCode === NC_STATUS_CODE.NC200) {
 						actions.setClientToken(bankToken?.data.generated_key);
 					}
 				}

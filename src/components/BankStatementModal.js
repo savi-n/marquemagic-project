@@ -1,11 +1,11 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import Modal from "./Modal";
 import Button from "./Button";
 import { BANK_LIST_API, NC_STATUS_CODE } from "../_config/app.config";
 import BANK_FLOW from "../_config/bankflow.config";
-import { StoreContext } from "../utils/StoreProvider";
+import { AppContext } from "../reducer/appReducer";
 import useFetch from "../hooks/useFetch";
 import useForm from "../hooks/useForm";
 import Loading from "../components/Loading";
@@ -48,8 +48,13 @@ const TitleWrapper = styled.div`
 `;
 
 const Title = styled.h4`
+  font-size: 1.2em;
+  font-weight: 500;
+  /* width: 90%; */
   text-align: center;
-  margin-bottom: 10px;
+  /* margin-bottom: 20px; */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  padding-bottom: 10px;
 `;
 
 const ContentWrapper = styled.div`
@@ -84,7 +89,7 @@ const Captcha = styled.img`
 export default function BankStatementModal({ showModal, onClose }) {
   const {
     state: { clientToken },
-  } = useContext(StoreContext);
+  } = useContext(AppContext);
 
   const { response, loading, newRequest } = useFetch({
     url: BANK_LIST_API,
@@ -126,7 +131,6 @@ export default function BankStatementModal({ showModal, onClose }) {
     const data = response.data;
     if (data?.imagePath) setCaptchaUrl(data?.imagePath);
   };
-
   const handleSubmitForm = async (formData) => {
     setProcessing(true);
 
@@ -137,7 +141,7 @@ export default function BankStatementModal({ showModal, onClose }) {
       );
 
       const reponse = post.data;
-      if (reponse.statusCode === NC_STATUS_CODE.serverError) {
+      if (reponse.statusCode === NC_STATUS_CODE.NC500) {
         if (reponse.imagePath) {
           setCaptchaUrl(reponse.imagePath);
         }
@@ -170,22 +174,25 @@ export default function BankStatementModal({ showModal, onClose }) {
             alt="Captcha"
             loading="lazy"
           />
-          {register(flow)}
+          {register({ ...flow, value: formState?.values[flow.name] })}
         </div>
       );
     }
-    return <div key={flow.name}>{register(flow)}</div>;
+    return (
+      <div key={flow.name}>
+        {register({ ...flow, value: formState?.values[flow.name] })}
+      </div>
+    );
   };
 
   return (
-    <Modal show={showModal}>
+    <Modal show={showModal} onClose={onClose} width="50%">
       {!loading ? (
         <ContentWrapper>
           {flowStep === 0 && (
             <>
               <TitleWrapper>
                 <Title>Select Bank</Title>
-                <hr />
               </TitleWrapper>
               <BankWrapper>
                 {banks?.map((bank) => (
@@ -202,7 +209,7 @@ export default function BankStatementModal({ showModal, onClose }) {
               </BankWrapper>
               <Button
                 name="Next"
-                fill="blue"
+                fill
                 style={{
                   width: "200px",
                   background: "blue",
@@ -227,7 +234,7 @@ export default function BankStatementModal({ showModal, onClose }) {
                 <Button
                   type="submit"
                   name="Next"
-                  fill="blue"
+                  fill
                   disabled={!!Object.keys(formState.error).length || processing}
                   style={{
                     width: "200px",
