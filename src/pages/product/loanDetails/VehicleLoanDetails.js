@@ -12,6 +12,7 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { UserContext } from "../../../reducer/userReducer";
 import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -40,6 +41,8 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
   } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
+  const { addToast } = useToasts();
+
   const history = useHistory();
 
   const onProceed = (data) => {
@@ -58,6 +61,10 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   return (

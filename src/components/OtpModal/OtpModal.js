@@ -9,6 +9,7 @@ import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import OtpInput from "./OtpInput";
 import OtpTimer from "./OtpTimer";
+import { useToasts } from "../Toast/ToastProvider";
 
 const ModalWrapper = styled.div`
   padding: 20px;
@@ -84,6 +85,7 @@ export default function OtpModal(props) {
 
   const { newRequest } = useFetch();
   const { register, formState } = useForm();
+  const { addToast } = useToasts();
 
   const [accounts, setAccounts] = useState(null);
   const [message, setMessage] = useState(null);
@@ -116,9 +118,7 @@ export default function OtpModal(props) {
     ) {
       setMessage(response.message);
       setAccountAvailable(false);
-    }
-
-    if (response.statusCode === NC_STATUS_CODE.NC200) {
+    } else if (response.statusCode === NC_STATUS_CODE.NC200) {
       const userData = {
         userAccountToken: response.accToken,
         userDetails: response.userDetails,
@@ -129,25 +129,32 @@ export default function OtpModal(props) {
       if (setUserDetails) setUserDetails(userData);
 
       onProceed(userData);
-    } else if (
-      response.statusCode === NC_STATUS_CODE.NC302 &&
-      response.message.includes("Invalid")
-    ) {
-      setMessage(response.message);
-    } else if (
+    }
+    // else if (
+    //   response.statusCode === NC_STATUS_CODE.NC302 &&
+    //   response.message.includes("Invalid")
+    // ) {
+    //   setMessage(response.message);
+    // }
+    else if (
       response.statusCode === NC_STATUS_CODE.NC302 &&
       response.message.includes("Multiple")
     ) {
       setAccounts(response.accountDetails);
+    } else {
+      addToast({
+        message: response.message,
+        type: "error",
+      });
     }
     setLoading(false);
   };
 
-  // // development only
-  // useEffect(() => {
-  //   setOtp(otpT?.toString());
-  // }, [otpT]);
-  // // end Developement
+  // development only
+  useEffect(() => {
+    setOtp(otpT?.toString());
+  }, [otpT]);
+  // end Developement
 
   const handleResend = async () => {
     resend({ mobileNo, customerId });
@@ -189,7 +196,11 @@ export default function OtpModal(props) {
                 </b>
               </OTPCaption>
               <OtpWrapper>
-                <OtpInput numInputs={6} handleChange={handleOtpChange} />
+                <OtpInput
+                  numInputs={6}
+                  handleChange={handleOtpChange}
+                  numberOnly
+                />
               </OtpWrapper>
               <OtpTimer
                 handleResend={handleResend}

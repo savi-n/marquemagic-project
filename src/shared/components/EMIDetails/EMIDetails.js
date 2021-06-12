@@ -60,9 +60,9 @@ export default function EMIDetails({
                     )}
                   {register({
                     type: "select",
-                    name: `${field.name}_bank`,
+                    name: field.subFieldName,
                     placeholder: "Select Bank",
-                    value: formState?.values?.[`${field.name}_bank`],
+                    value: formState?.values?.[field.subFieldName],
                   })}
                   {/* rules: { required: !!formState?.values?.[field.name] }, */}
                   {/* {(formState?.submit?.isSubmited ||

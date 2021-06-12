@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
@@ -163,24 +163,21 @@ export default function useForm() {
     updateFormState(uuidv4());
   };
 
-  const register = useCallback(
-    (newField) => {
-      fieldsRef.current[newField.name] = newField;
+  const register = (newField) => {
+    fieldsRef.current[newField.name] = newField;
 
-      setValue(newField.name, newField.value || "");
-      checkValidity(newField.name);
+    setValue(newField.name, newField.value || "");
+    checkValidity(newField.name);
 
-      return (
-        <InputField
-          field={newField}
-          onChange={onChange}
-          value={valuesRef.current[newField.name] || ""}
-          unregister={unregister}
-        />
-      );
-    },
-    [formRef.current]
-  );
+    return (
+      <InputField
+        field={newField}
+        onChange={onChange}
+        value={valuesRef.current[newField.name] || ""}
+        unregister={unregister}
+      />
+    );
+  };
 
   const onChange = (event, type) => {
     const { name, value } = event;
@@ -195,38 +192,38 @@ export default function useForm() {
     updateFormState(uuidv4());
   };
 
-  const handleSubmit = useCallback(
-    (valid = validDefault, invalid = invalidDefault) => async (e) => {
-      const { submitCount } = submitRef.current;
+  const handleSubmit = (
+    valid = validDefault,
+    invalid = invalidDefault
+  ) => async (e) => {
+    const { submitCount } = submitRef.current;
 
-      submitRef.current = {
-        isSubmitting: true,
-        isSubmited: true,
-        submitCount: submitCount + 1,
-      };
+    submitRef.current = {
+      isSubmitting: true,
+      isSubmited: true,
+      submitCount: submitCount + 1,
+    };
 
-      updateFormState(uuidv4());
+    updateFormState(uuidv4());
 
-      if (e) {
-        e.preventDefault && e.preventDefault();
-        e.persist && e.persist();
-      }
+    if (e) {
+      e.preventDefault && e.preventDefault();
+      e.persist && e.persist();
+    }
 
-      if (!Object.keys(errorsRef.current).length) {
-        await valid(valuesRef.current);
-      } else {
-        await invalid(valuesRef.current);
-      }
+    if (!Object.keys(errorsRef.current).length) {
+      await valid(valuesRef.current);
+    } else {
+      await invalid(valuesRef.current);
+    }
 
-      submitRef.current = {
-        ...submitRef.current,
-        isSubmitting: false,
-      };
+    submitRef.current = {
+      ...submitRef.current,
+      isSubmitting: false,
+    };
 
-      updateFormState(uuidv4());
-    },
-    [formRef.current]
-  );
+    updateFormState(uuidv4());
+  };
 
   return {
     register,

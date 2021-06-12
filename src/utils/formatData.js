@@ -11,7 +11,7 @@ const formaterHOF = (formData, fields, callback) => {
 export const formatEmiData = (formData, fields) => {
   return formaterHOF(formData, fields, (name, formData) => ({
     [name]: formData[name],
-    [`${name}_bank`]: formData[`${name}_bank`],
+    // [`${name}_bank`]: formData[`${name}_bank`],
   }));
 };
 

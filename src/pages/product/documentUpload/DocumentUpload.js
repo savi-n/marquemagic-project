@@ -109,7 +109,8 @@ export default function DocumentUpload({
   } = useContext(AppContext);
 
   const {
-    state: { userDetails, userToken },
+    state: { userDetails, userToken, coapplicant },
+    actions: { setOtherUserDetails },
   } = useContext(UserContext);
 
   const {
@@ -140,7 +141,10 @@ export default function DocumentUpload({
   const [toggleStatementModal, setToggleStatementModal] = useState(false);
   const [bankStatementFetchDone, setBankStatementFetchDone] = useState(false);
 
+  const [otherUserTypeDetails, setOtherUserTypeDetails] = useState(null);
+
   const onToggleStatementModal = () => {
+    if (bankStatementFetchDone) return;
     setToggleStatementModal(!toggleStatementModal);
   };
 
@@ -177,14 +181,14 @@ export default function DocumentUpload({
     return submitReq;
   };
 
-  const updateCubStatement = async (loanId, token) => {
+  const updateCubStatement = async (loanId, token, requestId) => {
     const submitReq = await newRequest(
       BORROWER_UPLOAD_URL,
       {
         method: "POST",
         data: {
           access_token: token,
-          request_id: "",
+          request_id: requestId,
           loan_id: loanId,
           doc_type_id: 6,
         },
@@ -212,12 +216,13 @@ export default function DocumentUpload({
       const caseRes = caseReq.data;
       if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
         const docsReq = await updateDocumentList(caseRes.loanId, user);
-        // const statementReq = await updateCubStatement(
-        //   caseRes.loanId,
-        //   "access_token"
-        // );
+        const statementReq = await updateCubStatement(
+          caseRes.loanId,
+          userToken,
+          otherUserTypeDetails.requestId
+        );
         const docsRes = docsReq.data;
-        // const statementRes = statementReq.data;
+        const statementRes = statementReq.data;
         if (docsRes.status === NC_STATUS_CODE.OK) {
           return caseRes;
         }
@@ -227,7 +232,7 @@ export default function DocumentUpload({
     }
   };
 
-  const caseCreationReqOtherUser = async (loan, role) => {
+  const caseCreationReqOtherUser = async (loan, role, requestId) => {
     if (!loan) return;
 
     const request = await newRequest(
@@ -248,6 +253,11 @@ export default function DocumentUpload({
     const response = request.data;
     if (response.status === NC_STATUS_CODE.OK) {
       const docsReq = await updateDocumentList(loan.loanId, USER_ROLES[role]);
+      const statementReq = await updateCubStatement(
+        loan.loanId,
+        userToken,
+        requestId
+      );
       const docsRes = docsReq.data;
       if (docsRes.status !== NC_STATUS_CODE.OK) {
         return;
@@ -286,7 +296,8 @@ export default function DocumentUpload({
       if (state.coapplicant) {
         const coAppilcantReq = await caseCreationReqOtherUser(
           loanReq,
-          "Co-applicant"
+          "Co-applicant",
+          coapplicant.requestId
         );
         if (!coAppilcantReq) {
           setPosting(false);
@@ -309,6 +320,8 @@ export default function DocumentUpload({
       return;
     }
 
+    setOtherUserDetails(otherUserTypeDetails, USER_ROLES[userType]);
+
     setCompleted(id);
     setCompleted(mainPageId);
     history.push(url + "/" + flowMap[id].main);
@@ -321,7 +334,8 @@ export default function DocumentUpload({
     setPosting(true);
     const GuarantorReq = await caseCreationReqOtherUser(
       caseDetails,
-      "Guarantor"
+      "Guarantor",
+      otherUserTypeDetails.request_id
     );
     if (!GuarantorReq) {
       setPosting(false);
@@ -353,7 +367,11 @@ export default function DocumentUpload({
         </UploadWrapper>
 
         <ButtonWrapper>
-          <Button name="Get CUB Statement" onClick={onToggleStatementModal} />
+          <Button
+            name="Get CUB Statement"
+            onClick={onToggleStatementModal}
+            disabled={bankStatementFetchDone}
+          />
           <Button name="Get Other Bank Statements" onClick={onToggle} />
           <Button name="Get ITR documents" disabled />
         </ButtonWrapper>
@@ -424,6 +442,7 @@ export default function DocumentUpload({
         <GetCUBStatementModal
           showModal={toggleStatementModal}
           onClose={onStatementModalClose}
+          setOtherUserTypeDetails={setOtherUserTypeDetails}
           userType={userType}
         />
       )}

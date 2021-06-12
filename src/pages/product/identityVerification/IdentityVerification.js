@@ -10,6 +10,7 @@ import { UserContext } from "../../../reducer/userReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import useForm from "../../../hooks/useForm";
 import useFetch from "../../../hooks/useFetch";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -66,6 +67,7 @@ export default function IdentityVerification({ productDetails, id }) {
   const { register, handleSubmit, formState } = useForm();
 
   const history = useHistory();
+  const { addToast } = useToasts();
 
   const [toggleModal, setToggleModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -101,14 +103,22 @@ export default function IdentityVerification({ productDetails, id }) {
       if (response.statusCode === NC_STATUS_CODE.NC500) {
         setErrorMessage(response.message);
         setAccountAvailable(false);
-      }
-
-      if (response.statusCode === NC_STATUS_CODE.NC200) {
+      } else if (response.statusCode === NC_STATUS_CODE.NC200) {
         setAccountAvailable(true);
         setUserId(response);
+      } else {
+        setToggleModal(false);
+        addToast({
+          message: response.message,
+          type: "error",
+        });
       }
     } catch (error) {
       console.error(error);
+      addToast({
+        message: "Something Went Wrong. Try Again!",
+        type: "error",
+      });
       setErrorMessage("Invalid Data Given");
     }
 

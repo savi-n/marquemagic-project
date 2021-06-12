@@ -9,6 +9,7 @@ import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -53,6 +54,8 @@ export default function AddressDetailsPage({ id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
+  const { addToast } = useToasts();
+
   const history = useHistory();
 
   const [saved, setSaved] = useState(false);
@@ -65,6 +68,10 @@ export default function AddressDetailsPage({ id, pageName }) {
 
     setUsertypeAddressData(formatedData);
     setSaved(true);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (formData) => {

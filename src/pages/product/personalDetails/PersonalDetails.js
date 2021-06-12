@@ -10,6 +10,7 @@ import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetail
 import Button from "../../../components/Button";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -34,10 +35,16 @@ export default function PersonalDetailsPage({ id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
+  const { addToast } = useToasts();
+
   const history = useHistory();
 
   const onSave = (data) => {
     setUsertypeApplicantData({ ...data, isApplicant: "1" });
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (data) => {

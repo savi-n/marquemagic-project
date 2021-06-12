@@ -271,7 +271,8 @@
 				"type": "text",
 				"visibility": true,
 				"option": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "auto_loan_bank_name"
 			},
 			{
 				"name": "existing_personal_loan",
@@ -279,7 +280,8 @@
 				"type": "text",
 				"visibility": true,
 				"option": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "personal_loan_bank_name"
 			},
 			{
 				"name": "existing_lap_loan",
@@ -287,7 +289,8 @@
 				"type": "text",
 				"visibility": true,
 				"option": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "lap_loan_bank_name"
 			}
 		]
 	},
