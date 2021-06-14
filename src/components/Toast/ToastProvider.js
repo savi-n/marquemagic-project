@@ -19,7 +19,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  /* justify-content: center; */
 `;
 
 const ToastContext = createContext();

@@ -35,6 +35,8 @@ const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
 
 const UPLOAD_CUB_STATEMENT = `${API_END_POINT}/uploadToSailsExp`;
 
+const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
+
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
@@ -73,4 +75,5 @@ export {
   SEARCH_LOAN_ASSET,
   CUB_ACCOUNT_MINI_STATEMENT,
   UPLOAD_CUB_STATEMENT,
+  UPDATE_LOAN_ASSETS,
 };

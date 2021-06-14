@@ -15,7 +15,7 @@ export default function Loading() {
         options={{
           animationData: NCLogo,
         }}
-        width={500}
+        width={"100%"}
       />
     </Wrapper>
   );

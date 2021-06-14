@@ -120,6 +120,10 @@ export default function useForm() {
   const [, updateFormState] = useState(uuidv4());
 
   const checkValidity = (name) => {
+    if (fieldsRef.current[name].disabled) {
+      return;
+    }
+
     const error = validate(
       fieldsRef.current[name]?.rules,
       valuesRef.current[name]
@@ -181,6 +185,10 @@ export default function useForm() {
 
   const onChange = (event, type) => {
     const { name, value } = event;
+
+    if (fieldsRef.current[name].disabled) {
+      return;
+    }
 
     setValue(name, value);
     checkValidity(name);
@@ -265,11 +273,13 @@ function InputField({ field, onChange, value, unregister }) {
 
   const fieldProps = {
     name: field.name,
-    onChange: (event) => {
-      event.preventDefault();
-      const { name, value } = event.target;
-      onChange({ name, value });
-    },
+    onChange: !field.disabled
+      ? (event) => {
+          event.preventDefault();
+          const { name, value } = event.target;
+          onChange({ name, value });
+        }
+      : () => {},
     onBlur: (event) => {
       event.preventDefault();
       const { name, value } = event.target;

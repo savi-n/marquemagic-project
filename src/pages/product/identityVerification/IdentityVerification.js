@@ -77,16 +77,16 @@ export default function IdentityVerification({ productDetails, id }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const onSubmit = async ({ customerId, mobileNo }) => {
-    setToggleModal(true);
-    setLoading(true);
-
     if (!customerId && !mobileNo) {
       return;
     }
 
-    if (customerId && mobileNo) {
-      return;
-    }
+    // if (customerId && mobileNo) {
+    //   return;
+    // }
+
+    setToggleModal(true);
+    setLoading(true);
 
     try {
       const otpReq = await newRequest(GENERATE_OTP_URL, {

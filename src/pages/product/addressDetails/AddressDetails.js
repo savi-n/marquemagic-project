@@ -59,10 +59,12 @@ export default function AddressDetailsPage({ id, pageName }) {
   const history = useHistory();
 
   const [saved, setSaved] = useState(false);
+  const [match, setMatch] = useState(false);
 
   const onSave = (formData) => {
     const formatedData = [
-      formatData("permanent", formData, jsonData.address_details.data),
+      !match &&
+        formatData("permanent", formData, jsonData.address_details.data),
       formatData("present", formData, jsonData.address_details.data),
     ];
 
@@ -91,6 +93,8 @@ export default function AddressDetailsPage({ id, pageName }) {
         pageName={pageName}
         register={register}
         formState={formState}
+        match={match}
+        setMatch={setMatch}
         jsonData={jsonData.address_details.data}
       />
       <ButtonWrap>

@@ -30,18 +30,20 @@ const InputCheckBox = styled.input`
       ${({ checked }) =>
         checked &&
         `
-                content:'';
-            `}
-      width: 2px;
-      height: 7px;
-      border-right: 1px solid;
-      border-bottom: 1px solid;
+          content:'\\2713';
+        `}
       position: absolute;
-      top: 8px;
-      left: 7px;
-      border-color: ${({ fg }) => fg ?? "white"};
+      left: 0;
+      width: 15px;
+      height: 15px;
+      top: 4px;
+      color: ${({ fg }) => fg ?? "white"};
+      font-size: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       background: transparent;
-      transform: rotate(45deg);
+      transform: rotate(10deg);
     }
   }
 `;

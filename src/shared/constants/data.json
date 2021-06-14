@@ -29,6 +29,7 @@
 					"required": true
 				},
 				"type": "date",
+				"disabled": true,
 				"visibility": true
 			},
 			{
@@ -38,6 +39,7 @@
 					"required": true,
 					"length": 10
 				},
+				"disabled": true,
 				"mask": {
 					"NumberOnly": true,
 					"CharacterLimit": 10
@@ -52,6 +54,7 @@
 					"required": true,
 					"email": true
 				},
+				"disabled": true,
 				"type": "text",
 				"visibility": true
 			},
@@ -81,6 +84,7 @@
 					"required": true,
 					"length": 10
 				},
+				"disabled": true,
 				"mask": {
 					"CharacterLimit": 10
 				},
@@ -92,12 +96,10 @@
 				"placeholder": "Aadhar Number",
 				"type": "text",
 				"rules": {
-					"required": true,
-					"length": 10
+					"required": true
 				},
 				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
+					"NumberOnly": true
 				},
 				"visibility": true
 			},

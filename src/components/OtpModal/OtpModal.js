@@ -156,7 +156,7 @@ export default function OtpModal(props) {
   }, [otpT]);
   // end Developement
 
-  const handleResend = async () => {
+  const handleResend = () => {
     resend({ mobileNo, customerId });
   };
 
