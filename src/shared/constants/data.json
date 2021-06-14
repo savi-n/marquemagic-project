@@ -8,6 +8,9 @@
 				"rules": {
 					"required": true
 				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
 				"type": "text",
 				"visibility": true,
 				"default_value": ""
@@ -17,6 +20,9 @@
 				"placeholder": "Last Name",
 				"rules": {
 					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
 				},
 				"type": "text",
 				"visibility": true,
@@ -96,10 +102,12 @@
 				"placeholder": "Aadhar Number",
 				"type": "text",
 				"rules": {
-					"required": true
+					"required": true,
+					"minLength": 12
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 12
 				},
 				"visibility": true
 			},
@@ -175,6 +183,9 @@
 				"rules": {
 					"required": true
 				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
 				"type": "text",
 				"visibility": true
 			},
@@ -183,6 +194,9 @@
 				"placeholder": "State",
 				"rules": {
 					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
 				},
 				"type": "text",
 				"visibility": true
@@ -271,6 +285,9 @@
 				"name": "existing_auto_loan",
 				"placeholder": "Auto Loan Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
 				"inrupees": true,
@@ -280,6 +297,9 @@
 				"name": "existing_personal_loan",
 				"placeholder": "Personal Loan Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
 				"inrupees": true,
@@ -289,6 +309,9 @@
 				"name": "existing_lap_loan",
 				"placeholder": "LAP Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
 				"inrupees": true,
@@ -307,7 +330,8 @@
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 7
 				},
 				"visibility": true
 			},
@@ -319,7 +343,8 @@
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 6
 				},
 				"visibility": true
 			}

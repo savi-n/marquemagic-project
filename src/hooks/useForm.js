@@ -54,7 +54,7 @@ const VALIDATION_RULES = {
   },
   minLength: {
     func: limitLength("min"),
-    message: "Less character",
+    message: "Minimum Character limit",
   },
   length: {
     func: limitLength(),
