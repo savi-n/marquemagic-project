@@ -12,27 +12,27 @@ const actionTypes = {
 
 const storeData = getStore();
 
-//  Development only
-const INITIAL_STATE = {
-  userId: storeData.userId || null,
-  userDetails: storeData.userDetails || null,
-  userBankDetails: storeData.userBankDetails || null,
-  userAccountToken: storeData.userAccountToken || null,
-  userToken: storeData.userToken || null, // ACCOUNT TOKEN
-  coapplicant: null,
-  gurantor: null,
-};
-//End Developement
-
+// //  Development only
 // const INITIAL_STATE = {
-//   userId: null,
-//   userDetails: null,
-//   userBankDetails: null,
-//   userAccountToken:null,
-//   userToken: null,
+//   userId: storeData.userId || null,
+//   userDetails: storeData.userDetails || null,
+//   userBankDetails: storeData.userBankDetails || null,
+//   userAccountToken: storeData.userAccountToken || null,
+//   userToken: storeData.userToken || null, // ACCOUNT TOKEN
 //   coapplicant: null,
 //   gurantor: null,
 // };
+// //End Developement
+
+const INITIAL_STATE = {
+  userId: null,
+  userDetails: null,
+  userBankDetails: null,
+  userAccountToken: null,
+  userToken: null,
+  coapplicant: null,
+  gurantor: null,
+};
 
 const useActions = (dispatch) => {
   const setUserId = (userId) => {

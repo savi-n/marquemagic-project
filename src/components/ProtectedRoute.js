@@ -19,23 +19,23 @@ const ProtectedRoute = ({
   } = useContext(UserContext);
 
   const authorize = !!userToken;
-  // if (protectedRoute) {
-  //   return (
-  //     <Route
-  //       exact
-  //       path={path}
-  //       component={({ match }) =>
-  //         authorize ? (
-  //           <Component productId={atob(match.params.product)} />
-  //         ) : (
-  //           <Redirect to={basePageUrl} />
-  //         )
-  //       }
-  //     >
-  //       {children}
-  //     </Route>
-  //   );
-  // }
+  if (protectedRoute) {
+    return (
+      <Route
+        exact
+        path={path}
+        component={({ match }) =>
+          authorize ? (
+            <Component productId={atob(match.params.product)} />
+          ) : (
+            <Redirect to={basePageUrl} />
+          )
+        }
+      >
+        {children}
+      </Route>
+    );
+  }
   return (
     <Route
       exact
