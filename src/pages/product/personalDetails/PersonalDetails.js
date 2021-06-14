@@ -10,6 +10,8 @@ import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetail
 import Button from "../../../components/Button";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { UserContext } from "../../../reducer/userReducer";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -33,11 +35,21 @@ export default function PersonalDetailsPage({ id, pageName }) {
     actions: { setUsertypeApplicantData },
   } = useContext(FormContext);
 
+  const {
+    state: { userBankDetails },
+  } = useContext(UserContext);
+
   const { handleSubmit, register, formState } = useForm();
+  const { addToast } = useToasts();
+
   const history = useHistory();
 
   const onSave = (data) => {
     setUsertypeApplicantData({ ...data, isApplicant: "1" });
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (data) => {
@@ -46,12 +58,22 @@ export default function PersonalDetailsPage({ id, pageName }) {
     history.push(flowMap[id].main);
   };
 
+  console.log(userBankDetails);
+
   return (
     <Div>
       <PersonalDetails
         pageName={pageName}
         register={register}
         formState={formState}
+        preData={{
+          firstName: userBankDetails.firstName,
+          lastName: userBankDetails.lastName,
+          dob: userBankDetails.dob,
+          email: userBankDetails.email,
+          mobileNo: userBankDetails.mobileNum,
+          panNumber: userBankDetails.pan,
+        }}
         jsonData={jsonData.personal_details.data}
       />
       <SalaryDetails

@@ -10,6 +10,8 @@ import SearchSelect from "../../../components/SearchSelect";
 import { UserContext } from "../../../reducer/userReducer";
 import useFetch from "../../../hooks/useFetch";
 import { NC_STATUS_CODE, SEARCH_LOAN_ASSET } from "../../../_config/app.config";
+import { useToasts } from "../../../components/Toast/ToastProvider";
+import { string } from "prop-types";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -76,6 +78,8 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     actions: { activateSubFlow },
   } = useContext(FlowContext);
 
+  const { addToast } = useToasts();
+
   const history = useHistory();
 
   const [count, setData] = useState(0);
@@ -117,6 +121,30 @@ export default function ApplicationSubmitted({ productDetails, id }) {
           <CaptionImg bg={productDetails.imageUrl} />
         )}
         <Caption>{d.caption}</Caption>
+        {/* <Button
+          name="Add success"
+          onClick={(e) => {
+            addToast({ message: new Date().toString(), type: "success" });
+          }}
+        />
+        <Button
+          name="Add warning"
+          onClick={(e) => {
+            addToast({ message: new Date().toString(), type: "warning" });
+          }}
+        />
+        <Button
+          name="Add info"
+          onClick={(e) => {
+            addToast({ message: new Date().toString(), type: "info" });
+          }}
+        />
+        <Button
+          name="Add error"
+          onClick={(e) => {
+            addToast({ message: new Date().toString(), type: "error" });
+          }}
+        /> */}
 
         {d.guarantor && (
           <>

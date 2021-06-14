@@ -9,6 +9,7 @@ import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -53,18 +54,26 @@ export default function AddressDetailsPage({ id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
+  const { addToast } = useToasts();
+
   const history = useHistory();
 
   const [saved, setSaved] = useState(false);
+  const [match, setMatch] = useState(false);
 
   const onSave = (formData) => {
     const formatedData = [
-      formatData("permanent", formData, jsonData.address_details.data),
+      !match &&
+        formatData("permanent", formData, jsonData.address_details.data),
       formatData("present", formData, jsonData.address_details.data),
     ];
 
     setUsertypeAddressData(formatedData);
     setSaved(true);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (formData) => {
@@ -84,6 +93,8 @@ export default function AddressDetailsPage({ id, pageName }) {
         pageName={pageName}
         register={register}
         formState={formState}
+        match={match}
+        setMatch={setMatch}
         jsonData={jsonData.address_details.data}
       />
       <ButtonWrap>

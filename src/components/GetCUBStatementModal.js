@@ -47,7 +47,11 @@ const Wrapper = styled.div`
   padding: 20px 0;
 `;
 
-export default function GetCUBStatementModal({ onClose, userType }) {
+export default function GetCUBStatementModal({
+  onClose,
+  userType,
+  setOtherUserTypeDetails,
+}) {
   const [loading, setLoading] = useState(true);
   const [toggleModal, setToggleModal] = useState(false);
   const [toggleOtpModal, setToggleOtpModal] = useState(false);
@@ -68,7 +72,6 @@ export default function GetCUBStatementModal({ onClose, userType }) {
 
   const {
     state: { userAccountToken },
-    actions: { setOtherUserDetails },
   } = useContext(UserContext);
 
   useEffect(() => {
@@ -92,14 +95,18 @@ export default function GetCUBStatementModal({ onClose, userType }) {
         const bankTokenRes = bankTokenReq?.data;
 
         if (bankTokenRes.statusCode === NC_STATUS_CODE.NC200) {
-          bankTokenRef.current = bankTokenRes.generated_key;
+          bankTokenRef.current = {
+            bankToken: bankTokenRes.generated_key,
+            requestId: bankTokenRes.request_id,
+          };
           if (!userType) {
             await fetchData(userAccountToken);
-            setLoading(false);
+            setOtherUserTypeDetails(bankTokenRef.current);
             onClose(true);
           } else {
             setToggleModal(true);
           }
+          setLoading(false);
         }
       } catch (error) {
         console.log(error);
@@ -115,7 +122,7 @@ export default function GetCUBStatementModal({ onClose, userType }) {
       const req = await newRequest(
         CUB_ACCOUNT_MINI_STATEMENT,
         { method: "POST", data: { accToken: token } },
-        { authorization: bankTokenRef.current }
+        { authorization: bankTokenRef.current.bankToken }
       );
 
       const res = req.data;
@@ -174,9 +181,9 @@ export default function GetCUBStatementModal({ onClose, userType }) {
   const onProceed = async (userTypeDetails) => {
     setLoading(true);
     setToggleOtpModal(false);
-
+    setToggleModal(false);
     await fetchData(userTypeDetails.userAccountToken);
-    setOtherUserDetails(userTypeDetails, USER_ROLES[userType]);
+    setOtherUserTypeDetails({ ...userTypeDetails, ...bankTokenRef.current });
     setLoading(false);
     onClose(true);
   };
@@ -184,46 +191,52 @@ export default function GetCUBStatementModal({ onClose, userType }) {
   return (
     <>
       <Modal show={!toggleModal} onClose={onClose} width="50%">
-        {loading && <Loading />}
+        <Loading />
       </Modal>
       <Modal show={toggleModal} onClose={onClose} width="50%">
-        <Wrapper>
-          <BankLogo
-            src={"https://picsum.photos/200/300"}
-            alt={"cub_bank_logo"}
-            loading="lazy"
-          />
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldWrapper>
-              {register({
-                name: "mobileNo",
-                placeholder: "Enter Mobile Number",
-                mask: {
-                  NumberOnly: true,
-                  CharacterLimit: 10,
-                },
-                value: formState?.values?.mobileNo,
-              })}
-            </FieldWrapper>
-            <H2>or</H2>
-            <FieldWrapper>
-              {register({
-                name: "customerId",
-                placeholder: "Use Customer ID to Login",
-                value: formState?.values?.customerId,
-              })}
-            </FieldWrapper>
-            <Button
-              type="submit"
-              name="Login"
-              fill
-              disabled={
-                !(formState.values?.customerId || formState.values?.mobileNo) ||
-                (formState.values?.customerId && formState.values?.mobileNo)
-              }
+        {loading ? (
+          <Loading />
+        ) : (
+          <Wrapper>
+            <BankLogo
+              src={"https://picsum.photos/200/300"}
+              alt={"cub_bank_logo"}
+              loading="lazy"
             />
-          </form>
-        </Wrapper>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <FieldWrapper>
+                {register({
+                  name: "mobileNo",
+                  placeholder: "Enter Mobile Number",
+                  mask: {
+                    NumberOnly: true,
+                    CharacterLimit: 10,
+                  },
+                  value: formState?.values?.mobileNo,
+                })}
+              </FieldWrapper>
+              <H2>or</H2>
+              <FieldWrapper>
+                {register({
+                  name: "customerId",
+                  placeholder: "Use Customer ID to Login",
+                  value: formState?.values?.customerId,
+                })}
+              </FieldWrapper>
+              <Button
+                type="submit"
+                name="Login"
+                fill
+                disabled={
+                  !(
+                    formState.values?.customerId || formState.values?.mobileNo
+                  ) ||
+                  (formState.values?.customerId && formState.values?.mobileNo)
+                }
+              />
+            </form>
+          </Wrapper>
+        )}
       </Modal>
       {toggleOtpModal && (
         <OtpModal

@@ -325,7 +325,7 @@ export default function FileUpload({
 
       <FileListWrap>
         {uploadingFiles.map((file) => (
-          <File progress={file.progress} tooltip={file.name}>
+          <File key={file.name} progress={file.progress} tooltip={file.name}>
             {file.name}
           </File>
         ))}

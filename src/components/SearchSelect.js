@@ -223,7 +223,7 @@ SearchSelect.propTypes = {
       value: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     })
-  ).isRequired,
+  ),
   fetchOptionsFunc: PropTypes.func,
   onSelectOptionCallback: PropTypes.func,
   searchOptionCallback: PropTypes.func,

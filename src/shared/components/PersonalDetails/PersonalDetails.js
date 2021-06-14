@@ -31,12 +31,24 @@ const ErrorMessage = styled.div`
 `;
 
 export default function PersonalDetails({
-  pageName,
+  preData = {},
   userType,
   jsonData,
   register,
   formState,
 }) {
+  const populateValue = (field) => {
+    if (field.disabled) {
+      return preData[field.name] || "";
+    }
+
+    if (formState?.values?.[field.name] !== undefined) {
+      return formState?.values?.[field.name];
+    }
+
+    return preData[field.name] || "";
+  };
+
   return (
     <>
       <H>
@@ -50,7 +62,7 @@ export default function PersonalDetails({
                 <FieldWrap key={field.name}>
                   {register({
                     ...field,
-                    value: formState?.values?.[field.name],
+                    value: populateValue(field),
                   })}
                   {(formState?.submit?.isSubmited ||
                     formState?.touched?.[field.name]) &&

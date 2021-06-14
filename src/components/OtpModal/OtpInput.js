@@ -90,6 +90,7 @@ export default function OtpInput({
   numInputs = 4,
   handleChange = (otp) => console.log(otp),
   isInputSecure = false,
+  numberOnly = false,
 }) {
   const [activeInput, setActiveInput] = useState(0);
 
@@ -98,6 +99,10 @@ export default function OtpInput({
   );
 
   const onChange = (index, value) => {
+    if (numberOnly && isNaN(value)) {
+      return;
+    }
+
     const otp = [...otpArray];
     otp[index] = value;
 

@@ -13,6 +13,7 @@ import {
   NC_STATUS_CODE,
 } from "../_config/app.config.js";
 import { AppContext } from "../reducer/appReducer";
+// import { useToasts } from "../components/Toast/ToastProvider";
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -37,6 +38,8 @@ const AppLayout = () => {
   const {
     actions: { setClientToken, setBankToken, setWhitelabelId, setLogo },
   } = useContext(AppContext);
+
+  // const { addToast } = useToasts();
 
   const [loading, setLoading] = useState(true);
 
@@ -78,6 +81,10 @@ const AppLayout = () => {
           }
         }
       } catch (error) {
+        // addToast({
+        //   message: "Something Went Wrong. Try Again Later!",
+        //   type: "error",
+        // });
         console.log("ERROR => ", error);
       }
       setLoading(false);

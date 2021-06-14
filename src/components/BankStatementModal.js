@@ -1,4 +1,4 @@
-import { useState, useContext, useCallback, useMemo } from "react";
+import { useState, useContext } from "react";
 import styled from "styled-components";
 
 import Modal from "./Modal";
@@ -131,6 +131,7 @@ export default function BankStatementModal({ showModal, onClose }) {
     const data = response.data;
     if (data?.imagePath) setCaptchaUrl(data?.imagePath);
   };
+
   const handleSubmitForm = async (formData) => {
     setProcessing(true);
 

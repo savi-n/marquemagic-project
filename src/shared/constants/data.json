@@ -8,6 +8,9 @@
 				"rules": {
 					"required": true
 				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
 				"type": "text",
 				"visibility": true,
 				"default_value": ""
@@ -17,6 +20,9 @@
 				"placeholder": "Last Name",
 				"rules": {
 					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
 				},
 				"type": "text",
 				"visibility": true,
@@ -29,6 +35,7 @@
 					"required": true
 				},
 				"type": "date",
+				"disabled": true,
 				"visibility": true
 			},
 			{
@@ -38,6 +45,7 @@
 					"required": true,
 					"length": 10
 				},
+				"disabled": true,
 				"mask": {
 					"NumberOnly": true,
 					"CharacterLimit": 10
@@ -52,6 +60,7 @@
 					"required": true,
 					"email": true
 				},
+				"disabled": true,
 				"type": "text",
 				"visibility": true
 			},
@@ -81,6 +90,7 @@
 					"required": true,
 					"length": 10
 				},
+				"disabled": true,
 				"mask": {
 					"CharacterLimit": 10
 				},
@@ -93,11 +103,11 @@
 				"type": "text",
 				"rules": {
 					"required": true,
-					"length": 10
+					"minLength": 12
 				},
 				"mask": {
 					"NumberOnly": true,
-					"CharacterLimit": 10
+					"CharacterLimit": 12
 				},
 				"visibility": true
 			},
@@ -173,6 +183,9 @@
 				"rules": {
 					"required": true
 				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
 				"type": "text",
 				"visibility": true
 			},
@@ -181,6 +194,9 @@
 				"placeholder": "State",
 				"rules": {
 					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
 				},
 				"type": "text",
 				"visibility": true
@@ -269,25 +285,37 @@
 				"name": "existing_auto_loan",
 				"placeholder": "Auto Loan Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "auto_loan_bank_name"
 			},
 			{
 				"name": "existing_personal_loan",
 				"placeholder": "Personal Loan Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "personal_loan_bank_name"
 			},
 			{
 				"name": "existing_lap_loan",
 				"placeholder": "LAP Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true
+				},
 				"visibility": true,
 				"option": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "lap_loan_bank_name"
 			}
 		]
 	},
@@ -302,7 +330,8 @@
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 7
 				},
 				"visibility": true
 			},
@@ -314,7 +343,8 @@
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 6
 				},
 				"visibility": true
 			}

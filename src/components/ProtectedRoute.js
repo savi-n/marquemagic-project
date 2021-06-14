@@ -19,7 +19,6 @@ const ProtectedRoute = ({
   } = useContext(UserContext);
 
   const authorize = !!userToken;
-
   if (protectedRoute) {
     return (
       <Route
@@ -37,7 +36,6 @@ const ProtectedRoute = ({
       </Route>
     );
   }
-
   return (
     <Route
       exact
