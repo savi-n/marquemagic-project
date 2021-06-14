@@ -150,11 +150,11 @@ export default function OtpModal(props) {
     setLoading(false);
   };
 
-  // development only
-  useEffect(() => {
-    setOtp(otpT?.toString());
-  }, [otpT]);
-  // end Developement
+  // // development only
+  // useEffect(() => {
+  //   setOtp(otpT?.toString());
+  // }, [otpT]);
+  // // end Developement
 
   const handleResend = () => {
     resend({ mobileNo, customerId });

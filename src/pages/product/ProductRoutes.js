@@ -22,6 +22,7 @@ const CoApplicantDetails = lazy(() =>
 const CoApplicantIncomeDetails = lazy(() =>
   import("./coappilcant/CoapplicantIncomeDetails")
 );
+const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
 
 const availableRoutes = {
   "identity-verification": { Component: IdentityVerification },
@@ -40,6 +41,7 @@ const availableRoutes = {
     protected: true,
     Component: userType("Co-applicant", DocumentUpload),
   },
+  "emi-details": { protected: true, Component: EmiDetails },
   "document-upload": { protected: true, Component: DocumentUpload },
   "application-submitted": { protected: true, Component: ApplicationSubmitted },
   "guarantor-details": {
