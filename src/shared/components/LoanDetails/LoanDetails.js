@@ -6,6 +6,7 @@ import useFetch from "../../../hooks/useFetch";
 import {
   NC_STATUS_CODE,
   SEARCH_BANK_BRANCH_LIST,
+  SEARCH_LOAN_ASSET,
 } from "../../../_config/app.config";
 
 const H = styled.h1`
@@ -75,6 +76,23 @@ export default function LoanDetails({
         .sort((a, b) => a.name.localeCompare(b.name));
     }
   };
+
+  const getBrandsOnSearch = async (data) => {
+    const opitionalDataReq = await newRequest(
+      SEARCH_LOAN_ASSET,
+      { method: "POST", data },
+      {
+        Authorization: `Bearer ${userToken}`,
+      }
+    );
+
+    const opitionalDataRes = opitionalDataReq.data;
+    if (opitionalDataRes.message) {
+      return opitionalDataRes.data;
+    }
+    return [];
+  };
+
   return (
     <>
       <H>
@@ -93,7 +111,12 @@ export default function LoanDetails({
                       ...(field.type === "search"
                         ? {
                             searchable: true,
-                            fetchOptionsFunc: getBranchOptions,
+                            ...(field.fetchOnInit && {
+                              fetchOptionsFunc: getBranchOptions,
+                            }),
+                            ...(field.fetchOnSearch && {
+                              searchOptionCallback: getBrandsOnSearch,
+                            }),
                           }
                         : {}),
                     })}

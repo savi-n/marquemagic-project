@@ -38,7 +38,7 @@ export default function PersonalDetails({
   formState,
 }) {
   const populateValue = (field) => {
-    if (field.disabled) {
+    if (!userType && field.disabled) {
       return preData[field.name] || "";
     }
 
@@ -63,6 +63,7 @@ export default function PersonalDetails({
                   {register({
                     ...field,
                     value: populateValue(field),
+                    ...(userType ? { disabled: false } : {}),
                   })}
                   {(formState?.submit?.isSubmited ||
                     formState?.touched?.[field.name]) &&

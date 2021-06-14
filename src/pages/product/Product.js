@@ -2,7 +2,7 @@ import { Suspense, lazy, useContext, useEffect, Fragment } from "react";
 import {
   Route,
   useRouteMatch,
-  // Link,
+  Link,
   useHistory,
   // Redirect,
 } from "react-router-dom";
@@ -73,7 +73,7 @@ const SubMenu = styled.h5`
   justify-content: space-between;
 `;
 
-const Link = styled.div``;
+// const Link = styled.div``;
 
 const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 

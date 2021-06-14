@@ -41,6 +41,10 @@ button:disabled:hover {
   color: white;
 }
 
+input:disabled {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+
 a {
   text-decoration: none;
   color: inherit;
