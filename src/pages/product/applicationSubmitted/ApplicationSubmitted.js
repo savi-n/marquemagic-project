@@ -6,13 +6,6 @@ import Button from "../../../components/Button";
 import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
 
-import SearchSelect from "../../../components/SearchSelect";
-import { UserContext } from "../../../reducer/userReducer";
-import useFetch from "../../../hooks/useFetch";
-import { NC_STATUS_CODE, SEARCH_LOAN_ASSET } from "../../../_config/app.config";
-import { useToasts } from "../../../components/Toast/ToastProvider";
-import { string } from "prop-types";
-
 const Colom1 = styled.div`
   flex: 1;
   padding: 50px;
@@ -78,8 +71,6 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     actions: { activateSubFlow },
   } = useContext(FlowContext);
 
-  const { addToast } = useToasts();
-
   const history = useHistory();
 
   const [count, setData] = useState(0);
@@ -89,27 +80,9 @@ export default function ApplicationSubmitted({ productDetails, id }) {
     history.push(flowMap[id].sub);
   };
 
-  const {
-    state: { userToken },
-  } = useContext(UserContext);
-
-  const { newRequest } = useFetch();
-
-  const getOptions = async (data) => {
-    const opitionalDataReq = await newRequest(
-      SEARCH_LOAN_ASSET,
-      { method: "POST", data },
-      {
-        Authorization: `Bearer ${userToken}`,
-      }
-    );
-
-    const opitionalDataRes = opitionalDataReq.data;
-    if (opitionalDataRes.message) {
-      return opitionalDataRes.data;
-    }
-    return [];
-  };
+  // const {
+  //   state: { userToken },
+  // } = useContext(UserContext);
 
   const d = data[count];
   return (
@@ -121,38 +94,9 @@ export default function ApplicationSubmitted({ productDetails, id }) {
           <CaptionImg bg={productDetails.imageUrl} />
         )}
         <Caption>{d.caption}</Caption>
-        {/* <Button
-          name="Add success"
-          onClick={(e) => {
-            addToast({ message: new Date().toString(), type: "success" });
-          }}
-        />
-        <Button
-          name="Add warning"
-          onClick={(e) => {
-            addToast({ message: new Date().toString(), type: "warning" });
-          }}
-        />
-        <Button
-          name="Add info"
-          onClick={(e) => {
-            addToast({ message: new Date().toString(), type: "info" });
-          }}
-        />
-        <Button
-          name="Add error"
-          onClick={(e) => {
-            addToast({ message: new Date().toString(), type: "error" });
-          }}
-        /> */}
 
         {d.guarantor && (
           <>
-            {/* <SearchSelect
-              searchable
-              title="Search Branch"
-              searchOptionCallback={getOptions}
-            /> */}
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />

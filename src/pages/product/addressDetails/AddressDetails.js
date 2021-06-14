@@ -62,11 +62,14 @@ export default function AddressDetailsPage({ id, pageName }) {
   const [match, setMatch] = useState(false);
 
   const onSave = (formData) => {
-    const formatedData = [
-      !match &&
-        formatData("permanent", formData, jsonData.address_details.data),
-      formatData("present", formData, jsonData.address_details.data),
+    let formatedData = [
+      formatData("permanent", formData, jsonData.address_details.data),
     ];
+
+    !match &&
+      formatedData.push(
+        formatData("present", formData, jsonData.address_details.data)
+      );
 
     setUsertypeAddressData(formatedData);
     setSaved(true);

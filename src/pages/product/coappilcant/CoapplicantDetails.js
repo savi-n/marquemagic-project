@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
@@ -11,6 +11,7 @@ import PersonalDetails from "../../../shared/components/PersonalDetails/Personal
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -65,18 +66,30 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
 
   const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
+  const { addToast } = useToasts();
+
+  const [match, setMatch] = useState(false);
 
   const onSave = (formData) => {
-    const formatedAddress = [
+    let formatedAddress = [
       formatAddressData("permanent", formData, jsonData.address_details.data),
-      formatAddressData("present", formData, jsonData.address_details.data),
     ];
+
+    !match &&
+      formatedAddress.push(
+        formatAddressData("present", formData, jsonData.address_details.data)
+      );
+
     const formatApplicantData = {
       ...formatPersonalData(formData, jsonData.personal_details.data),
       typeName: userType,
     };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
     setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (data) => {
@@ -99,6 +112,8 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
         pageName={pageName}
         register={register}
         formState={formState}
+        match={match}
+        setMatch={setMatch}
         jsonData={jsonData.address_details.data}
       />
       <ButtonWrap>

@@ -12,6 +12,7 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
 import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -37,6 +38,7 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
 
   const { handleSubmit, register, formState } = useForm();
   const history = useHistory();
+  const { addToast } = useToasts();
 
   const onSave = (formData) => {
     const emiData = formatEmiData(formData, jsonData.emi_details.data);
@@ -44,6 +46,10 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
 
     setUsertypeEmiData(emiData, USER_ROLES[userType]);
     setUsertypeSalaryData(salaryData, USER_ROLES[userType]);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (formData) => {

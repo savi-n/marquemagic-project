@@ -251,6 +251,7 @@
 				"type": "search",
 				"placeholder": "Home branch (for application processing)",
 				"visibility": true,
+				"fetchOnInit": true,
 				"rules": {
 					"required": true
 				},
@@ -258,8 +259,12 @@
 			},
 			{
 				"name": "vehicle",
+				"type": "search",
 				"placeholder": "Choose Vehicle",
-				"type": "select",
+				"rules": {
+					"required": true
+				},
+				"fetchOnSearch": true,
 				"visibility": true,
 				"options": []
 			},

@@ -140,23 +140,28 @@ export default function SearchSelect({
   };
 
   const onSearchChange = async (event) => {
-    setSearchKey(event.target.value);
+    const { value } = event.target;
+    setSearchKey(value);
 
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       setFetching(true);
       debounceFunction(async () => {
         const searchOptions = await searchOptionCallback({
-          brandName: event.target.value,
+          name: value,
           type: "2 wheeler",
         });
-        setSelectOptions(searchOptions);
+        setSelectOptions(
+          searchOptions.map((opt) => ({ name: opt, value: opt }))
+        );
         setFetching(false);
-      }, 2000);
+      }, 1000);
     }
   };
 
   const filterdOptions = selectOptions.filter(
-    ({ name, value }) => name.includes(searchKey) || value.includes(searchKey)
+    ({ name, value }) =>
+      name.toLowerCase().includes(searchKey) ||
+      value.toLowerCase().includes(searchKey)
   );
 
   return (
@@ -203,6 +208,11 @@ export default function SearchSelect({
                 {option.name}
               </Option>
             ))}
+            {!fetching && !filterdOptions.length && (
+              <Option onClick={(e) => e.preventDefault()} disabled>
+                Options Not Found
+              </Option>
+            )}
           </Options>
         )}
       </Wrapper>
