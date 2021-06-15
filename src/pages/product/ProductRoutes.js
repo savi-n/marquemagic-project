@@ -16,6 +16,7 @@ const ApplicationSubmitted = lazy(() =>
 const VehicleLoanDetails = lazy(() =>
   import("./loanDetails/VehicleLoanDetails")
 );
+const HomeLoanDetails = lazy(() => import("./loanDetails/HomeLoanDetails"));
 const CoApplicantDetails = lazy(() =>
   import("./coappilcant/CoapplicantDetails")
 );
@@ -28,7 +29,9 @@ const availableRoutes = {
   "identity-verification": { Component: IdentityVerification },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
+  // "loan-details": { protected: true, Component: HomeLoanDetails },
   "loan-details": { protected: true, Component: VehicleLoanDetails },
+  "home-loan-details": { protected: true, Component: HomeLoanDetails },
   "co-applicant-details": {
     protected: true,
     Component: userType("Co-applicant", CoApplicantDetails),
@@ -42,6 +45,7 @@ const availableRoutes = {
     Component: userType("Co-applicant", DocumentUpload),
   },
   "emi-details": { protected: true, Component: EmiDetails },
+  // "document-upload": { protected: true, Component: VehicleLoanDetails },
   "document-upload": { protected: true, Component: DocumentUpload },
   "application-submitted": { protected: true, Component: ApplicationSubmitted },
   "guarantor-details": {
@@ -63,7 +67,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
 
   const Page = availableRoutes[config.id];
 
-  if (!Page) return <Redirect to={path} />;
+  if (!Page) return <Redirect to={url} />;
 
   let subFlow = null;
   if (config.flow) {

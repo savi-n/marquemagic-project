@@ -354,5 +354,241 @@
 				"visibility": true
 			}
 		]
+	},
+	"home_loan_address_details": {
+		"label": "Address Details",
+		"data": [
+			{
+				"name": "address1",
+				"placeholder": "Address Line 1",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "address2",
+				"placeholder": "Address Line 2",
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "address3",
+				"placeholder": "Address Line 3",
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "city",
+				"placeholder": "City",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "state",
+				"placeholder": "State",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "pinCode",
+				"placeholder": "Pin Code",
+				"rules": {
+					"required": true,
+					"length": 6
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 6
+				},
+				"type": "text",
+				"visibility": true
+			}
+		]
+	},
+	"home_loan_details": {
+		"label": "Loan Details",
+		"data": [
+			{
+				"name": "loanAmount",
+				"placeholder": "Required Loan Amount",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true,
+				"mask": {
+					"NumberOnly": true
+				},
+				"inrupees": true
+			},
+			{
+				"name": "tenure",
+				"rules": {
+					"required": true
+				},
+				"placeholder": "Tenure (in months)",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 3
+				},
+				"visibility": true
+			},
+			{
+				"name": "branchId",
+				"type": "search",
+				"placeholder": "Home branch (for application processing)",
+				"visibility": true,
+				"fetchOnInit": true,
+				"rules": {
+					"required": true
+				},
+				"options": []
+			},
+			{
+				"name": "loanType",
+				"placeholder": "Select a Loan Type",
+				"type": "select",
+				"rules": {
+					"required": true
+				},
+				"options": [
+					{
+						"name": "Take over of existing loan from Bank",
+						"value": "Take over of existing loan from Bank"
+					},
+					{
+						"name": "Construction of House/Flat",
+						"value": "Construction of House/Flat"
+					},
+					{
+						"name": "Purchase of house site and construction",
+						"value": "Purchase of house site and construction"
+					},
+					{
+						"name": "Purchase of ready built House/Flat",
+						"value": "Purchase of ready built House/Flat"
+					}
+				],
+				"visibility": true,
+				"forType": {
+					"Take over of existing loan from Bank": [
+						{
+							"name": "bank",
+							"type": "select",
+							"placeholder": "Please Select the Bank/FI from which the loan(s) is/are to be taken over",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"options": [
+								{
+									"name": "HDFC",
+									"value": "hdfc"
+								},
+								{
+									"name": "ICICI",
+									"value": "icici"
+								}
+							]
+						},
+						{
+							"name": "bankName",
+							"type": "text",
+							"placeholder": "Enter your bank name if chosen Other",
+							"visibility": true
+						},
+						{
+							"name": "outstading",
+							"type": "text",
+							"placeholder": "Enter Present Outstanding",
+							"visibility": true,
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						}
+					],
+					"Construction of House/Flat": [
+						{
+							"name": "constructionValue",
+							"type": "text",
+							"placeholder": "Enter the Value as per the Construction Agreement",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						},
+						{
+							"name": "contructionArchitectValue",
+							"type": "text",
+							"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+							"visibility": true,
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						}
+					],
+					"Purchase of house site and construction": [
+						{
+							"name": "landValue",
+							"type": "text",
+							"placeholder": "Enter the Agreement Value for Purchase of Land",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						},
+						{
+							"name": "constructionValue",
+							"type": "text",
+							"placeholder": "Enter the Value as per the Construction Agreement",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						},
+						{
+							"name": "contructionArchitectValue",
+							"type": "text",
+							"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+							"visibility": true,
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						}
+					],
+					"Purchase of ready built House/Flat": [
+						{
+							"name": "salesValue",
+							"type": "text",
+							"placeholder": "Enter the Value as per sales agreement",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						}
+					]
+				}
+			}
+		]
 	}
 }
