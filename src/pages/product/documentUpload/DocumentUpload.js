@@ -143,6 +143,15 @@ export default function DocumentUpload({
 
   const [otherUserTypeDetails, setOtherUserTypeDetails] = useState(null);
 
+  const [documentChecklist, setDocumentChecklist] = useState([]);
+
+  const handleDocumentChecklist = (doc) => {
+    return (value) => {
+      if (value) setDocumentChecklist([...documentChecklist, doc]);
+      else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
+    };
+  };
+
   const onToggleStatementModal = () => {
     if (bankStatementFetchDone) return;
     setToggleStatementModal(!toggleStatementModal);
@@ -158,7 +167,13 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return !bankStatementFetchDone || !(checkbox1 && checkbox2) || posting;
+    return (
+      !bankStatementFetchDone ||
+      !(checkbox1 && checkbox2) ||
+      posting ||
+      !(documentChecklist.length === documentsRequired.length) ||
+      !state[USER_ROLES[userType || "User"]]?.docs.length
+    );
   };
 
   const updateDocumentList = async (loanId, user) => {
@@ -429,7 +444,13 @@ export default function DocumentUpload({
         <div>
           {documentsRequired.map((docs) => (
             <DocsCheckboxWrapper key={uuidv4()}>
-              <CheckBox name={docs} checked={true} disabled round bg="green" />
+              <CheckBox
+                name={docs}
+                checked={documentChecklist.includes(docs)}
+                onChange={handleDocumentChecklist(docs)}
+                round
+                bg="green"
+              />
             </DocsCheckboxWrapper>
           ))}
         </div>

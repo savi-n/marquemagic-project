@@ -27,7 +27,11 @@
     },
     {
         "name": "Loan Details",
-        "id": "loan-details"
+        "id": "home-loan-details"
+    },
+    {
+        "name": "EMI Details",
+        "id": "emi-details"
     },
     {
         "name": "Document Upload",
