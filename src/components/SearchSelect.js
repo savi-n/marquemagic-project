@@ -131,6 +131,7 @@ export default function SearchSelect({
       onSelectOptionCallback({ name, value: option.value });
     }
     setOptionShow(false);
+    setSearchKey("");
   };
 
   const onBlurSearchBox = (event) => {
@@ -181,6 +182,8 @@ export default function SearchSelect({
             onBlur={onBlurSearchBox}
             placeholder={placeholder || "Search"}
             onChange={onSearchChange}
+            value={searchKey}
+            autoComplete="off"
           />
         ) : (
           <button

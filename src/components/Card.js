@@ -44,9 +44,12 @@ const Description = styled.div`
 export default function Card({ product }) {
   const history = useHistory();
 
-  const handleClick = (e, url) => {
+  const handleClick = (e, id) => {
     e.preventDefault();
-    history.push(url);
+    history.push({
+      pathname: `/product/${btoa(id)}/`,
+      data: id,
+    });
   };
 
   return (
@@ -57,9 +60,7 @@ export default function Card({ product }) {
       <Div>
         <Link
           href={`/product/${btoa(product.product_id)}/`}
-          onClick={(e) =>
-            handleClick(e, `/product/${btoa(product.product_id)}/`)
-          }
+          onClick={(e) => handleClick(e, product.product_id)}
         >
           {product.name}
         </Link>

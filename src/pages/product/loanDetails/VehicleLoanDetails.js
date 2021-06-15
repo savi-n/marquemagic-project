@@ -26,7 +26,7 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function VehiclLoanDetailsPage({ id, pageName }) {
+export default function VehicleLoanDetailsPage({ id, pageName }) {
   const {
     state: { flowMap },
     actions: { setCompleted },

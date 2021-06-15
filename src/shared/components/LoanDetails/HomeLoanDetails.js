@@ -3,7 +3,6 @@ import styled from "styled-components";
 
 import { UserContext } from "../../../reducer/userReducer";
 import useFetch from "../../../hooks/useFetch";
-import Button from "../../../components/Button";
 import {
   NC_STATUS_CODE,
   SEARCH_BANK_BRANCH_LIST,
@@ -18,15 +17,9 @@ const H = styled.h1`
   }
 `;
 
-const Field = styled.div`
-  width: ${({ size }) => (size ? size : "45%")};
-  margin: 10px 0;
-`;
-
-const FieldWrapper = styled.div`
+const FieldWrap = styled.div`
   width: 100%;
-  display: flex;
-  align-items: center;
+  margin: 10px 0;
 `;
 
 const FormWrap = styled.div`
@@ -39,10 +32,8 @@ const FormWrap = styled.div`
 
 const Colom = styled.div`
   display: flex;
-  /* flex-basis: ${({ size }) => (size ? size : "45%")}; */
-  flex-direction: column;
-  /* align-items: center; */
-  width: 100%;
+  flex-basis: 45%;
+  align-items: center;
   flex-wrap: wrap;
 `;
 
@@ -53,17 +44,12 @@ const ErrorMessage = styled.div`
   font-weight: 500;
 `;
 
-const Currency = styled.div`
-  width: 20px;
-`;
-
-export default function LoanDetails({
+export default function HomeLoanDetails({
   pageName,
   jsonData,
   register,
   formState,
   userType,
-  size,
 }) {
   const {
     state: { userToken },
@@ -107,40 +93,6 @@ export default function LoanDetails({
     return [];
   };
 
-  const fieldTemplate = (field) => {
-    return (
-      <FieldWrapper>
-        <Field key={field.name} size={size}>
-          {register({
-            ...field,
-            value: formState?.values?.[field.name],
-            ...(field.type === "search"
-              ? {
-                  searchable: true,
-                  ...(field.fetchOnInit && {
-                    fetchOptionsFunc: getBranchOptions,
-                  }),
-                  ...(field.fetchOnSearch && {
-                    searchOptionCallback: getBrandsOnSearch,
-                  }),
-                }
-              : {}),
-          })}
-          {(formState?.submit?.isSubmited ||
-            formState?.touched?.[field.name]) &&
-            formState?.error?.[field.name] && (
-              <ErrorMessage>{formState?.error?.[field.name]}</ErrorMessage>
-            )}
-        </Field>
-        <Currency />
-
-        {field.uploadButton && (
-          <Button fill name={field.uploadButton} width="150px" />
-        )}
-      </FieldWrapper>
-    );
-  };
-
   return (
     <>
       <H>
@@ -152,14 +104,30 @@ export default function LoanDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <>
-                    {fieldTemplate(field)}
-                    {field.forType &&
-                      field.forType[(formState?.values?.[field.name])] &&
-                      field.forType[(formState?.values?.[field.name])].map(
-                        (f) => fieldTemplate(f)
+                  <FieldWrap key={field.name}>
+                    {register({
+                      ...field,
+                      value: formState?.values?.[field.name],
+                      ...(field.type === "search"
+                        ? {
+                            searchable: true,
+                            ...(field.fetchOnInit && {
+                              fetchOptionsFunc: getBranchOptions,
+                            }),
+                            ...(field.fetchOnSearch && {
+                              searchOptionCallback: getBrandsOnSearch,
+                            }),
+                          }
+                        : {}),
+                    })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[field.name]) &&
+                      formState?.error?.[field.name] && (
+                        <ErrorMessage>
+                          {formState?.error?.[field.name]}
+                        </ErrorMessage>
                       )}
-                  </>
+                  </FieldWrap>
                 )
             )}
         </Colom>

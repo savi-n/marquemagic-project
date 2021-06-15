@@ -6,7 +6,8 @@ import jsonData from "../../../shared/constants/data.json";
 
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
-import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
+import HomeLoanAddressDetails from "../../../shared/components/AddressDetails/HomeLoanAddress";
+import HomeLoanDetailsTable from "../../../shared/components/LoanDetails/HomeLoanDetailsTable";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
@@ -26,7 +27,16 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function VehiclLoanDetailsPage({ id, pageName }) {
+const FormWrapper = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const FlexColom = styled.div`
+  flex-basis: ${({ base }) => (base ? base : "100%")};
+`;
+
+export default function HomeLoanDetailsPage({ id, pageName }) {
   const {
     state: { flowMap },
     actions: { setCompleted },
@@ -69,17 +79,28 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
 
   return (
     <Div>
-      <LoanDetails
-        pageName={pageName}
-        register={register}
-        formState={formState}
-        jsonData={jsonData.loan_details.data}
-      />
-      <EMIDetails
-        register={register}
-        formState={formState}
-        jsonData={jsonData.emi_details.data}
-      />
+      <FormWrapper>
+        <FlexColom base="60%">
+          <LoanDetails
+            pageName={pageName}
+            register={register}
+            formState={formState}
+            jsonData={jsonData.home_loan_details.data}
+            size="60%"
+          />
+        </FlexColom>
+        <FlexColom base="40%">
+          <HomeLoanAddressDetails
+            jsonData={jsonData.home_loan_address_details.data}
+            register={register}
+            pageName={pageName}
+            formState={formState}
+            size="100%"
+          />
+        </FlexColom>
+      </FormWrapper>
+
+      <HomeLoanDetailsTable />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
