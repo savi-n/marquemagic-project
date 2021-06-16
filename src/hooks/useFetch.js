@@ -15,17 +15,12 @@ export default function useFetch({
     ...headers,
   };
 
-  const newRequest = (url, options, headers = {}, source) => {
-    return axios(
-      {
-        url,
-        headers,
-        ...options,
-      },
-      source && {
-        cancelToken: source.token,
-      }
-    );
+  const newRequest = (url, options, headers = {}) => {
+    return axios({
+      url,
+      headers,
+      ...options,
+    });
   };
 
   useEffect(() => {
@@ -33,7 +28,11 @@ export default function useFetch({
     const source = cancelToken.source();
     const fetchData = async () => {
       try {
-        const res = await newRequest(url, options, headers, source);
+        const res = await newRequest(
+          url,
+          { ...options, cancelToken: source.token },
+          headers
+        );
         const json = res.data;
         setResponse(json);
         setLoading(false);

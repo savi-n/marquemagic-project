@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 
 import useFetch from "../../../hooks/useFetch";
+import generateUID from "../../../utils/uid";
+import { NC_STATUS_CODE } from "../../../_config/app.config";
+
+const USER_CANCELED = "user cancelled";
 
 const Dropzone = styled.div`
   width: 100%;
@@ -108,11 +113,12 @@ const File = styled.div`
   padding: 5px;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   height: 35px;
   font-size: 13px;
   margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   transition: 0.2s;
 
   &::after {
@@ -122,8 +128,32 @@ const File = styled.div`
     position: absolute;
     width: ${({ progress }) => `${progress}%`};
     height: 2px;
-    background: ${({ theme }) => theme.buttonColor2 || "blue"};
+    background: ${({ theme, status }) => {
+      if (["error", "cancelled"].includes(status)) return "#ff0000";
+      return theme.buttonColor2 || "blue";
+    }};
   }
+`;
+
+const FileName = styled.span`
+  width: 80%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`;
+
+const CancelBtn = styled.span`
+  background: #f16a6a;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
 `;
 
 export default function FileUpload({
@@ -148,45 +178,76 @@ export default function FileUpload({
 
   let refCounter = 0;
 
+  const onCancel = (file, status) => {
+    const uploadFiles = uploadingProgressFiles.current.map((uFile) => {
+      if (uFile.id === file.id) {
+        return {
+          ...uFile,
+          status,
+        };
+      }
+
+      return uFile;
+    });
+    uploadingProgressFiles.current = uploadFiles;
+    setUploadingFiles(uploadFiles);
+  };
+
   const onProgress = (event, file) => {
     if (!uploadingProgressFiles.current.length) {
       return;
     }
 
-    const uploadFiles = uploadingProgressFiles.current
-      .map((uFile) => {
-        if (uFile.name === file.name) {
-          return {
-            name: uFile.name,
-            progress: ((event.loaded / event.total) * 100).toFixed(1),
-          };
-        }
+    const uploadFiles = uploadingProgressFiles.current.map((uFile) => {
+      if (uFile.id === file.id) {
+        const percentageCompleted = (
+          (event.loaded / event.total) *
+          100
+        ).toFixed();
 
-        return uFile;
-      })
-      .filter((uFile) => uFile.progress !== 100);
+        return {
+          ...uFile,
+          progress: percentageCompleted,
+          status:
+            Number(percentageCompleted) === 100 ? "completed" : "progress",
+        };
+      }
 
+      return uFile;
+    });
     uploadingProgressFiles.current = uploadFiles;
     setUploadingFiles(uploadFiles);
   };
 
   const handleUpload = async (files) => {
-    setUploading(true);
+    let filesToUpload = [];
+    for (let i = 0; i < files.length; i++) {
+      const source = axios.CancelToken.source();
+
+      const id = generateUID();
+
+      filesToUpload.push({
+        id,
+        name: files[i].name,
+        file: files[i],
+        progress: 0,
+        status: "progress",
+        cancelToken: source,
+      });
+    }
 
     uploadingProgressFiles.current = [
       ...uploadingProgressFiles.current,
-      ...files.map((f) => ({
-        name: f.name,
-        progress: 0,
-      })),
+      ...filesToUpload,
     ];
 
+    setUploading(true);
     setUploadingFiles(uploadingProgressFiles.current);
 
     return await Promise.all(
-      files.map((file) => {
+      filesToUpload.map((file) => {
         const formData = new FormData();
-        formData.append("document", file);
+        formData.append("document", file.file);
 
         return newRequest(
           upload.url,
@@ -194,11 +255,12 @@ export default function FileUpload({
             method: "POST",
             data: formData,
             onUploadProgress: (event) => onProgress(event, file),
+            cancelToken: file.cancelToken.token,
           },
           upload.header ?? {}
         )
           .then((res) => {
-            if (res.data.status === "ok") {
+            if (res.data.status === NC_STATUS_CODE.OK) {
               const file = res.data.files[0];
               const uploadfile = {
                 doc_type_id: "1",
@@ -208,17 +270,22 @@ export default function FileUpload({
               };
               return uploadfile;
             }
-            return res.data.files[0];
+            // return res.data.files[0];
+            return { ...file, status: "error" };
           })
           .catch((err) => {
             console.log(err);
+            if (err.message === USER_CANCELED) {
+              onCancel(file, "cancelled");
+            } else {
+              onCancel(file, "error");
+            }
             return { ...file, status: "error", error: err };
           });
       })
     ).then((files) => {
       setUploading(false);
-      // setUploadingFiles([]);
-      return files;
+      return files.filter((file) => file.status !== "error");
     });
   };
 
@@ -325,8 +392,18 @@ export default function FileUpload({
 
       <FileListWrap>
         {uploadingFiles.map((file) => (
-          <File key={file.name} progress={file.progress} tooltip={file.name}>
-            {file.name}
+          <File
+            key={file.id}
+            progress={file.progress}
+            status={file.status}
+            tooltip={file.name}
+          >
+            <FileName>{file.name}</FileName>
+            {file.status === "progress" && (
+              <CancelBtn onClick={() => file.cancelToken.cancel(USER_CANCELED)}>
+                &#10006;
+              </CancelBtn>
+            )}
           </File>
         ))}
       </FileListWrap>
