@@ -91,7 +91,7 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
         </FlexColom>
         <FlexColom base="40%">
           <HomeLoanAddressDetails
-            jsonData={jsonData.home_loan_address_details.data}
+            jsonData={jsonData.address_details.data}
             register={register}
             pageName={pageName}
             formState={formState}

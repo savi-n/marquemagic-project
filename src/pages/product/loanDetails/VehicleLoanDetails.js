@@ -26,7 +26,11 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function VehicleLoanDetailsPage({ id, pageName }) {
+export default function VehicleLoanDetailsPage({
+  id,
+  pageName,
+  productDetails,
+}) {
   const {
     state: { flowMap },
     actions: { setCompleted },
@@ -74,6 +78,7 @@ export default function VehicleLoanDetailsPage({ id, pageName }) {
         register={register}
         formState={formState}
         jsonData={jsonData.loan_details.data}
+        loanType={productDetails.loanType}
       />
       <EMIDetails
         register={register}

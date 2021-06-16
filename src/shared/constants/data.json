@@ -266,6 +266,7 @@
 				},
 				"fetchOnSearch": true,
 				"visibility": true,
+				"searchKeyAsValue": true,
 				"options": []
 			},
 			{
@@ -351,70 +352,6 @@
 					"NumberOnly": true,
 					"CharacterLimit": 6
 				},
-				"visibility": true
-			}
-		]
-	},
-	"home_loan_address_details": {
-		"label": "Address Details",
-		"data": [
-			{
-				"name": "address1",
-				"placeholder": "Address Line 1",
-				"rules": {
-					"required": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "address2",
-				"placeholder": "Address Line 2",
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "address3",
-				"placeholder": "Address Line 3",
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "city",
-				"placeholder": "City",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"AlphaCharOnly": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "state",
-				"placeholder": "State",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"AlphaCharOnly": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "pinCode",
-				"placeholder": "Pin Code",
-				"rules": {
-					"required": true,
-					"length": 6
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 6
-				},
-				"type": "text",
 				"visibility": true
 			}
 		]

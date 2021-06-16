@@ -63,6 +63,7 @@ export default function LoanDetails({
   register,
   formState,
   userType,
+  loanType,
   size,
 }) {
   const {
@@ -94,7 +95,7 @@ export default function LoanDetails({
   const getBrandsOnSearch = async (data) => {
     const opitionalDataReq = await newRequest(
       SEARCH_LOAN_ASSET,
-      { method: "POST", data },
+      { method: "POST", data: { ...data, type: loanType } },
       {
         Authorization: `Bearer ${userToken}`,
       }

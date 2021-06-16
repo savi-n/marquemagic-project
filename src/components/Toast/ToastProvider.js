@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 import ToastController from "./ToastController";
-import generateUID from "./uid";
+import generateUID from "../../utils/uid";
 
 const Wrapper = styled.div`
   box-sizing: border-box;

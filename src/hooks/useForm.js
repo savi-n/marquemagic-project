@@ -301,6 +301,7 @@ function InputField({ field, onChange, value, unregister }) {
         onBlurCallback={onChange}
         fetchOptionsFunc={field.fetchOptionsFunc}
         searchOptionCallback={field.searchOptionCallback}
+        searchKeyAsValue={field.searchKeyAsValue}
       />
     );
   }
