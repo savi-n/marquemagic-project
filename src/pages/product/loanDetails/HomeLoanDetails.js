@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
@@ -8,6 +8,7 @@ import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import HomeLoanAddressDetails from "../../../shared/components/AddressDetails/HomeLoanAddress";
 import HomeLoanDetailsTable from "../../../shared/components/LoanDetails/HomeLoanDetailsTable";
+import UploadAgreementModal from "../../../components/UploadAgreementModal";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
@@ -55,6 +56,8 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
 
   const history = useHistory();
 
+  const [uploadAgreementModal, setUploadAgreementModal] = useState(false);
+
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
@@ -87,6 +90,7 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
             formState={formState}
             jsonData={jsonData.home_loan_details.data}
             size="60%"
+            buttonAction={setUploadAgreementModal}
           />
         </FlexColom>
         <FlexColom base="40%">
@@ -105,6 +109,10 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
+
+      {uploadAgreementModal && (
+        <UploadAgreementModal onClose={() => setUploadAgreementModal(false)} />
+      )}
     </Div>
   );
 }

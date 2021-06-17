@@ -90,6 +90,7 @@ export default function SearchSelect({
   onSelectOptionCallback,
   searchOptionCallback,
   onBlurCallback,
+  searchKeyAsValue,
 }) {
   const [optionShow, setOptionShow] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -138,6 +139,11 @@ export default function SearchSelect({
     if (onBlurCallback && typeof onBlurCallback === "function") {
       onBlurCallback({ name, value: selectedOption?.value }, "blur");
     }
+    // if (!selectOptions.length && searchKeyAsValue && searchKey) {
+    //   onBlurCallback({ name, searchKey }, "blur");
+    //   setSelectedOption({ name: searchKey, value: searchKey });
+    // }
+    setSearchKey("");
   };
 
   const onSearchChange = async (event) => {
@@ -147,10 +153,7 @@ export default function SearchSelect({
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       setFetching(true);
       debounceFunction(async () => {
-        const searchOptions = await searchOptionCallback({
-          name: value,
-          type: "2 wheeler",
-        });
+        const searchOptions = await searchOptionCallback({ name: value });
         setSelectOptions(
           searchOptions.map((opt) => ({ name: opt, value: opt }))
         );

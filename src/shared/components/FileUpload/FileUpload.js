@@ -263,6 +263,7 @@ export default function FileUpload({
             if (res.data.status === NC_STATUS_CODE.OK) {
               const file = res.data.files[0];
               const uploadfile = {
+                id: file.id,
                 doc_type_id: "1",
                 upload_doc_name: file.filename,
                 document_key: file.fd,

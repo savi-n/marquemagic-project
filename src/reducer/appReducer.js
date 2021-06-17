@@ -12,7 +12,7 @@ const INITIAL_STATE = {
   whiteLabelId: null,
   clientToken: null, // CLIENT TOKEN
   bankToken: null, // CUSTOMER TOKEN
-  bankRequestId: null,
+  bankRequestId: null, //REQUEST ID
   logo: null,
 };
 

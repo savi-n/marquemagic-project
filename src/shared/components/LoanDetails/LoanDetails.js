@@ -65,6 +65,7 @@ export default function LoanDetails({
   userType,
   loanType,
   size,
+  buttonAction = () => {},
 }) {
   const {
     state: { userToken },
@@ -136,7 +137,12 @@ export default function LoanDetails({
         <Currency />
 
         {field.uploadButton && (
-          <Button fill name={field.uploadButton} width="150px" />
+          <Button
+            fill
+            name={field.uploadButton}
+            width="150px"
+            onClick={buttonAction}
+          />
         )}
       </FieldWrapper>
     );
