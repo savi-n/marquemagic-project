@@ -10,7 +10,9 @@ const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 const BANK_TOKEN_API = `${ENDPOINT_BANK}/generateLink`;
 const CUB_ACCOUNT_MINI_STATEMENT = `${ENDPOINT_BANK}/cub/accountMiniStatement`;
 
+const UPLOAD_CUB_STATEMENT = `${ENDPOINT_BANK}/uploadToSailsExp`;
 const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
+const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
 
 const CLIENT_EMAIL_ID = "cub@nc.com";
 
@@ -32,8 +34,6 @@ const SEARCH_BANK_BRANCH_LIST = taggedTemplate`${API_END_POINT}/getBranchList?ba
 `;
 
 const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
-
-const UPLOAD_CUB_STATEMENT = `${API_END_POINT}/uploadToSailsExp`;
 
 const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 
@@ -76,4 +76,5 @@ export {
   CUB_ACCOUNT_MINI_STATEMENT,
   UPLOAD_CUB_STATEMENT,
   UPDATE_LOAN_ASSETS,
+  FETCH_CIBIL_SCORE,
 };

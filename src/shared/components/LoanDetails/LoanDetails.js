@@ -63,7 +63,9 @@ export default function LoanDetails({
   register,
   formState,
   userType,
+  loanType,
   size,
+  buttonAction = () => {},
 }) {
   const {
     state: { userToken },
@@ -94,7 +96,7 @@ export default function LoanDetails({
   const getBrandsOnSearch = async (data) => {
     const opitionalDataReq = await newRequest(
       SEARCH_LOAN_ASSET,
-      { method: "POST", data },
+      { method: "POST", data: { ...data, type: loanType } },
       {
         Authorization: `Bearer ${userToken}`,
       }
@@ -135,7 +137,12 @@ export default function LoanDetails({
         <Currency />
 
         {field.uploadButton && (
-          <Button fill name={field.uploadButton} width="150px" />
+          <Button
+            fill
+            name={field.uploadButton}
+            width="150px"
+            onClick={buttonAction}
+          />
         )}
       </FieldWrapper>
     );

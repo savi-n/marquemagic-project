@@ -11,18 +11,24 @@ import FileUpload from "../../../shared/components/FileUpload/FileUpload";
 import {
   DOCS_UPLOAD_URL,
   BORROWER_UPLOAD_URL,
+  UPLOAD_CUB_STATEMENT,
   CREATE_CASE,
   CREATE_CASE_OTHER_USER,
+  UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
   USER_ROLES,
 } from "../../../_config/app.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
+import GetCIBILScoreModal from "../../../components/GetCIBILScoreModal";
 import useFetch from "../../../hooks/useFetch";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { AppContext } from "../../../reducer/appReducer";
 import { CaseContext } from "../../../reducer/caseReducer";
+import Loading from "../../../components/Loading";
+import Modal from "../../../components/Modal";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -105,12 +111,11 @@ export default function DocumentUpload({
   mainPageId,
 }) {
   const {
-    state: { whiteLabelId },
+    state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
 
   const {
-    state: { userDetails, userToken, coapplicant },
-    actions: { setOtherUserDetails },
+    state: { userDetails, userToken },
   } = useContext(UserContext);
 
   const {
@@ -120,7 +125,11 @@ export default function DocumentUpload({
 
   const {
     state,
-    actions: { setUsertypeDocuments },
+    actions: {
+      setUsertypeDocuments,
+      setUsertypeCibilData,
+      setUsertypeStatementData,
+    },
   } = useContext(FormContext);
 
   const {
@@ -131,26 +140,47 @@ export default function DocumentUpload({
   const history = useHistory();
 
   const { newRequest } = useFetch();
+  const { addToast } = useToasts();
 
-  const [checkbox1, setCheckbox1] = useState(false);
-  const [checkbox2, setCheckbox2] = useState(false);
+  const [cibilCheckbox, setCibilCheckbox] = useState(false);
+  const [declareCheck, setDeclareCheck] = useState(false);
 
-  const [showModal, setShowModal] = useState(false);
-  const [posting, setPosting] = useState(false);
+  const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
+  const [caseCreationProgress, setCaseCreationProgress] = useState(false);
 
-  const [toggleStatementModal, setToggleStatementModal] = useState(false);
-  const [bankStatementFetchDone, setBankStatementFetchDone] = useState(false);
+  const [toggleCUBStatementModal, setToggleCUBStatementModal] = useState(false);
+  const [bankCUBStatementFetchDone, setBankCUBStatementFetchDone] = useState(
+    false
+  );
 
-  const [otherUserTypeDetails, setOtherUserTypeDetails] = useState(null);
+  const [
+    otherCUBStatementUserTypeDetails,
+    setOtherCUBStatementUserTypeDetails,
+  ] = useState(null);
 
-  const onToggleStatementModal = () => {
-    if (bankStatementFetchDone) return;
-    setToggleStatementModal(!toggleStatementModal);
+  const [otherUserTypeCibilDetails, setOtherUserTypeCibilDetails] = useState(
+    null
+  );
+
+  const [documentChecklist, setDocumentChecklist] = useState([]);
+
+  const [cibilCheckModal, setCibilCheckModal] = useState(false);
+
+  const handleDocumentChecklist = (doc) => {
+    return (value) => {
+      if (value) setDocumentChecklist([...documentChecklist, doc]);
+      else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
+    };
   };
 
-  const onStatementModalClose = (success) => {
-    setToggleStatementModal(false);
-    if (success) setBankStatementFetchDone(true);
+  const onToggleCUBStatementModal = () => {
+    if (bankCUBStatementFetchDone) return;
+    setToggleCUBStatementModal(!toggleCUBStatementModal);
+  };
+
+  const onCUBStatementModalClose = (success) => {
+    setToggleCUBStatementModal(false);
+    if (success) setBankCUBStatementFetchDone(true);
   };
 
   const handleFileUpload = async (files) => {
@@ -158,50 +188,121 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return !bankStatementFetchDone || !(checkbox1 && checkbox2) || posting;
+    return (
+      !bankCUBStatementFetchDone ||
+      !(cibilCheckbox && declareCheck) ||
+      caseCreationProgress ||
+      !(documentChecklist.length === documentsRequired.length) ||
+      !state[USER_ROLES[userType || "User"]]?.uploadedDocs.length
+    );
   };
 
-  const updateDocumentList = async (loanId, user) => {
+  // step 4: loan asset upload
+  const loanAssetsUpload = async (loanId, data) => {
     const submitReq = await newRequest(
-      BORROWER_UPLOAD_URL,
+      UPDATE_LOAN_ASSETS,
       {
         method: "POST",
         data: {
-          upload_document: state[user]?.docs?.map((d) => ({
-            ...d,
-            loan_id: loanId,
-          })),
+          loanId: 2,
+          propertyType: "leased",
+          loan_asset_type_id: 2,
+          ownedType: "paid_off",
+          address1: "test address1",
+          address2: "test address2",
+          flat_no: "112",
+          locality: "ramnagar",
+          city: "banglore",
+          pincode: "570000",
+          landmark: "SI ATM",
+          autoMobileType: "qw",
+          brandName: "d",
+          modelName: "fd",
+          vehicalValue: "122",
+          dealershipName: "sd",
+          manufacturingYear: "123",
+          Value: "test@123",
+          ints: "",
+          cpath: "",
+          surveyNo: "",
+          cAssetId: "",
+          noOfAssets: 5,
         },
       },
       {
         Authorization: `Bearer ${userToken}`,
       }
     );
-
     return submitReq;
   };
 
-  const updateCubStatement = async (loanId, token, requestId) => {
-    const submitReq = await newRequest(
-      BORROWER_UPLOAD_URL,
-      {
-        method: "POST",
-        data: {
-          access_token: token,
-          request_id: requestId,
-          loan_id: loanId,
-          doc_type_id: 6,
+  // step 2: upload docs reference
+  const updateDocumentList = async (loanId, user) => {
+    try {
+      const uploadDocsReq = await newRequest(
+        BORROWER_UPLOAD_URL,
+        {
+          method: "POST",
+          data: {
+            upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
+              ...d,
+              loan_id: loanId,
+            })),
+          },
         },
-      },
-      {
-        authorization: userToken,
-      }
-    );
+        {
+          Authorization: `Bearer ${userToken}`,
+        }
+      );
 
-    return submitReq;
+      const uploadDocsRes = uploadDocsReq.data;
+      if (uploadDocsRes.status === NC_STATUS_CODE.OK) {
+        return uploadDocsRes;
+      }
+      throw new Error(uploadDocsRes.message);
+    } catch (err) {
+      console.log("STEP: 2 => UPLOAD DOCUMENT REFERENCE ERRRO", err.message);
+      throw new Error(err.message);
+    }
   };
 
-  const createCase = async (data, user, url) => {
+  // step: 3 upload cub statements to sails
+  const updateRefernceToSails = async (loanId, token, requestId) => {
+    try {
+      const statementUploadReq = await newRequest(
+        UPLOAD_CUB_STATEMENT,
+        {
+          method: "POST",
+          data: {
+            access_token: token,
+            request_id: requestId,
+            loan_id: loanId,
+            doc_type_id: 6,
+          },
+        },
+        {
+          Authorization: `${clientToken}`,
+        }
+      );
+
+      const statementUploadRes = statementUploadReq.data;
+
+      if (statementUploadRes.status === NC_STATUS_CODE.OK) {
+        return statementUploadRes;
+      }
+
+      throw new Error(statementUploadRes.message);
+    } catch (err) {
+      console.log(
+        "STEP: 3 => CUB STATEMENT UPLOAD TO SAILS ERRROR",
+        err.message
+      );
+      throw new Error(err.message);
+    }
+  };
+
+  // step: 1 if applicant submit request createCase
+  const createCaseReq = async (data, url) => {
     try {
       const caseReq = await newRequest(
         url,
@@ -214,93 +315,112 @@ export default function DocumentUpload({
         }
       );
       const caseRes = caseReq.data;
-      if (caseRes.statusCode === NC_STATUS_CODE.NC200) {
-        const docsReq = await updateDocumentList(caseRes.loanId, user);
-        const statementReq = await updateCubStatement(
-          caseRes.loanId,
-          userToken,
-          otherUserTypeDetails.requestId
-        );
-        const docsRes = docsReq.data;
-        const statementRes = statementReq.data;
-        if (docsRes.status === NC_STATUS_CODE.OK) {
-          return caseRes;
-        }
+      if (
+        caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+        caseRes.status === NC_STATUS_CODE.OK
+      ) {
+        return caseRes;
       }
-    } catch (error) {
-      console.log(error);
+
+      throw new Error(caseRes.message);
+    } catch (er) {
+      console.log("STEP: 1 => CASE CREATION ERRROR", er.message);
+      throw new Error(er.message);
+    }
+  };
+
+  const caseCreationSteps = async (data) => {
+    try {
+      // step 1: create case
+      const caseCreateRes = await createCaseReq(data, CREATE_CASE);
+
+      // step 2: upload documents reference [loanId from createcase]
+      await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
+
+      // step 3: upload cub statement to sailspld
+      await updateRefernceToSails(caseCreateRes.loanId, userToken, [
+        otherCUBStatementUserTypeDetails.requestId,
+        otherUserTypeCibilDetails.requestId,
+      ]);
+
+      // // step 4: loan assets request
+      // await loanAssetsUpload(
+      //   caseCreateRes.loanId,
+      //   userToken
+      //   // otherUserTypeDetails.requestId
+      // );
+
+      return caseCreateRes;
+    } catch (er) {
+      console.log("APPLICANT CASE CREATE STEP ERROR-----> ", er.message);
+      addToast({
+        message: er.message,
+        type: "error",
+      });
     }
   };
 
   const caseCreationReqOtherUser = async (loan, role, requestId) => {
-    if (!loan) return;
-
-    const request = await newRequest(
-      CREATE_CASE_OTHER_USER,
-      {
-        method: "POST",
-        data: {
+    if (!loan) return false;
+    try {
+      await createCaseReq(
+        {
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
           ...state[USER_ROLES[role]].loanData,
+          cibilScore:
+            state[USER_ROLES[role]].cibilScore ||
+            otherUserTypeCibilDetails.cibilScore,
         },
-      },
-      {
-        Authorization: `Bearer ${userToken}`,
-      }
-    );
-
-    const response = request.data;
-    if (response.status === NC_STATUS_CODE.OK) {
-      const docsReq = await updateDocumentList(loan.loanId, USER_ROLES[role]);
-      const statementReq = await updateCubStatement(
-        loan.loanId,
-        userToken,
-        requestId
+        CREATE_CASE_OTHER_USER
       );
-      const docsRes = docsReq.data;
-      if (docsRes.status !== NC_STATUS_CODE.OK) {
-        return;
-      }
+
+      await updateDocumentList(loan.loanId, USER_ROLES[role]);
+      await updateRefernceToSails(loan.loanId, userToken, requestId);
       return true;
-    } else {
-      return;
+    } catch (err) {
+      console.log("COAPPLICANT CASE CREATION STEPS ERRRO ==> ", err.message);
+      addToast({
+        message: err.message,
+        type: "error",
+      });
+      return false;
     }
   };
 
   const onSubmit = async () => {
-    if (!(checkbox1 && checkbox2)) {
+    if (buttonDisabledStatus()) {
       return;
     }
 
-    setPosting(true);
+    setCaseCreationProgress(true);
 
     if (!userType) {
-      const loanReq = await createCase(
-        {
-          white_label_id: whiteLabelId,
-          product_id: productId,
-          applicantData: state.user.applicantData,
-          loanData: { ...state.user.loanData, productId },
-          ...state.user.bankData,
-        },
-        USER_ROLES.User,
-        CREATE_CASE
-      );
+      const loanReq = await caseCreationSteps({
+        white_label_id: whiteLabelId,
+        product_id: productId,
+        applicantData: state.user.applicantData,
+        loanData: { ...state.user.loanData, productId },
+        ...state.user.bankData,
+        cibilScore: otherUserTypeCibilDetails.cibilScore,
+      });
 
       if (!loanReq && !loanReq?.loanId) {
-        setPosting(false);
+        setCaseCreationProgress(false);
         return;
       }
 
       if (state.coapplicant) {
-        const coAppilcantReq = await caseCreationReqOtherUser(
+        const coAppilcantCaseReq = await caseCreationReqOtherUser(
           loanReq,
           "Co-applicant",
-          coapplicant.requestId
+          [
+            state.coapplicant.cibilData.requestId,
+            state.coapplicant.cubStatement.requestId,
+          ]
         );
-        if (!coAppilcantReq) {
-          setPosting(false);
+        if (!coAppilcantCaseReq) {
+          setCaseCreationProgress(false);
           return;
         }
       }
@@ -311,16 +431,20 @@ export default function DocumentUpload({
     }
   };
 
-  const onToggle = () => {
-    setShowModal(!showModal);
+  const onOtherStatementModalToggle = () => {
+    setOtherBankStatementModal(!otherBankStatementModal);
   };
 
   const onSave = () => {
-    if (!(checkbox1 && checkbox2)) {
+    if (buttonDisabledStatus()) {
       return;
     }
 
-    setOtherUserDetails(otherUserTypeDetails, USER_ROLES[userType]);
+    // setOtherUserDetails(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
+    setUsertypeStatementData(
+      otherCUBStatementUserTypeDetails,
+      USER_ROLES[userType]
+    );
 
     setCompleted(id);
     setCompleted(mainPageId);
@@ -328,23 +452,53 @@ export default function DocumentUpload({
   };
 
   const onSubmitGuarantor = async () => {
-    if (!(checkbox1 && checkbox2)) {
+    if (buttonDisabledStatus()) {
       return;
     }
-    setPosting(true);
+
+    setCaseCreationProgress(true);
     const GuarantorReq = await caseCreationReqOtherUser(
       caseDetails,
       "Guarantor",
-      otherUserTypeDetails.request_id
+      [
+        otherCUBStatementUserTypeDetails.requestId,
+        otherUserTypeCibilDetails.requestId,
+      ]
     );
     if (!GuarantorReq) {
-      setPosting(false);
+      setCaseCreationProgress(false);
       return;
     }
 
     setCompleted(id);
     setCompleted(mainPageId);
     history.push(url + "/" + flowMap[id].main);
+  };
+
+  const onCibilModalClose = (success, data) => {
+    if (!success) {
+      setCibilCheckbox(false);
+    }
+
+    if (success) {
+      if (userType) {
+        setUsertypeCibilData({
+          cibilScore: data.cibilScore,
+          requestId: data.requestId,
+        });
+      } else {
+        setOtherUserTypeCibilDetails({
+          cibilScore: data.cibilScore,
+          requestId: data.requestId,
+        });
+      }
+    }
+    addToast({
+      message: data.message,
+      type: success ? "success" : "error",
+    });
+
+    setCibilCheckModal(false);
   };
 
   return (
@@ -369,23 +523,30 @@ export default function DocumentUpload({
         <ButtonWrapper>
           <Button
             name="Get CUB Statement"
-            onClick={onToggleStatementModal}
-            disabled={bankStatementFetchDone}
+            onClick={onToggleCUBStatementModal}
+            disabled={bankCUBStatementFetchDone}
           />
-          <Button name="Get Other Bank Statements" onClick={onToggle} />
+          <Button
+            name="Get Other Bank Statements"
+            onClick={onOtherStatementModalToggle}
+          />
           <Button name="Get ITR documents" disabled />
         </ButtonWrapper>
         <CheckboxWrapper>
           <CheckBox
             name={text.grantCibilAcces}
-            checked={checkbox1}
-            onChange={() => setCheckbox1(!checkbox1)}
+            checked={cibilCheckbox}
+            disabled={cibilCheckbox}
+            onChange={() => {
+              setCibilCheckbox(!cibilCheckbox);
+              setCibilCheckModal(true);
+            }}
             bg="blue"
           />
           <CheckBox
             name={text.declaration}
-            checked={checkbox2}
-            onChange={() => setCheckbox2(!checkbox2)}
+            checked={declareCheck}
+            onChange={() => setDeclareCheck(!declareCheck)}
             bg="blue"
           />
         </CheckboxWrapper>
@@ -429,22 +590,47 @@ export default function DocumentUpload({
         <div>
           {documentsRequired.map((docs) => (
             <DocsCheckboxWrapper key={uuidv4()}>
-              <CheckBox name={docs} checked={true} disabled round bg="green" />
+              <CheckBox
+                name={docs}
+                checked={documentChecklist.includes(docs)}
+                onChange={handleDocumentChecklist(docs)}
+                round
+                bg="green"
+              />
             </DocsCheckboxWrapper>
           ))}
         </div>
       </Colom2>
-      {showModal && (
-        <BankStatementModal showModal={showModal} onClose={onToggle} />
-      )}
 
-      {toggleStatementModal && (
+      {otherBankStatementModal && (
+        <BankStatementModal
+          showModal={otherBankStatementModal}
+          onClose={onOtherStatementModalToggle}
+        />
+      )}
+      {toggleCUBStatementModal && (
         <GetCUBStatementModal
-          showModal={toggleStatementModal}
-          onClose={onStatementModalClose}
-          setOtherUserTypeDetails={setOtherUserTypeDetails}
+          showModal={toggleCUBStatementModal}
+          onClose={onCUBStatementModalClose}
+          setOtherUserTypeDetails={setOtherCUBStatementUserTypeDetails}
           userType={userType}
         />
+      )}
+
+      {cibilCheckbox && cibilCheckModal && (
+        <GetCIBILScoreModal
+          userData={{
+            ...state[USER_ROLES[userType || "User"]].applicantData,
+            ...state[USER_ROLES[userType || "User"]].loanData,
+          }}
+          onClose={onCibilModalClose}
+        />
+      )}
+
+      {caseCreationProgress && (
+        <Modal show={true} onClose={() => {}} width="50%">
+          <Loading />
+        </Modal>
       )}
     </>
   );
