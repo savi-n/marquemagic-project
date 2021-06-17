@@ -478,13 +478,19 @@ export default function DocumentUpload({
   const onCibilModalClose = (success, data) => {
     if (!success) {
       setCibilCheckbox(false);
+    }
+
+    if (success) {
       if (userType) {
         setUsertypeCibilData({
           cibilScore: data.cibilScore,
-          requestId: data.request_id,
+          requestId: data.requestId,
         });
       } else {
-        setOtherUserTypeCibilDetails({ requestId: data.request_id });
+        setOtherUserTypeCibilDetails({
+          cibilScore: data.cibilScore,
+          requestId: data.requestId,
+        });
       }
     }
     addToast({
