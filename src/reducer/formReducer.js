@@ -8,15 +8,25 @@ const actionTypes = {
   SET_USERTYPE_SALARY_DATA: "SET_USERTYPE_SALARY_DATA",
   SET_USERTYPE_DOCUMENTS: "SET_USERTYPE_DOCUMENTS",
   SET_USERTYPE_BANK_DATA: "SET_USERTYPE_BANK_DATA",
+
+  SET_USERTYPE_CIBIL_DATA: "SET_USERTYPE_CIBIL_DATA",
+  SET_USERTYPE_CUB_STATEMENT_DATA: "SET_USERTYPE_CUB_STATEMENT_DATA",
+
+  REMOVE_USERTYPE_DOCUMENT: "REMOVE_USERTYPE_DOCUMENT",
+};
+
+const INIT_ROLE_DATA_TYPES = {
+  bankData: {},
+  applicantData: {},
+  loanData: {},
+  uploadedDocs: [],
+  cibilData: {},
+  cubStatement: {},
+  otherBankStatement: {},
 };
 
 const INITIAL_STATE = {
-  user: {
-    bankData: {},
-    applicantData: {},
-    loanData: {},
-    docs: [],
-  },
+  user: INIT_ROLE_DATA_TYPES,
   coapplicant: null,
   guarantor: null,
 };
@@ -62,6 +72,30 @@ const useActions = (dispatch) => {
     });
   };
 
+  const setUsertypeCibilData = (cibilData, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_CIBIL_DATA,
+      cibilData,
+      userType,
+    });
+  };
+
+  const setUsertypeStatementData = (statement, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_CUB_STATEMENT_DATA,
+      statement,
+      userType,
+    });
+  };
+
+  const removeUserTypeDocument = (docId, userType = "user") => {
+    dispatch({
+      type: actionTypes.REMOVE_USERTYPE_DOCUMENT,
+      docId,
+      userType,
+    });
+  };
+
   return {
     setUsertypeApplicantData,
     setUsertypeAddressData,
@@ -70,11 +104,51 @@ const useActions = (dispatch) => {
     setUsertypeSalaryData,
     setUsertypeDocuments,
     setUsertypeBankData,
+    setUsertypeCibilData,
+    setUsertypeStatementData,
+    removeUserTypeDocument,
   };
 };
 
 function reducer(state, action) {
   switch (action.type) {
+    case actionTypes.SET_USERTYPE_CUB_STATEMENT_DATA: {
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          cubStatement: action.statement,
+        },
+      };
+    }
+    case actionTypes.REMOVE_USERTYPE_DOCUMENT: {
+      const userDocs = (state[action.userType]?.uploadedDocs || []).filter(
+        (doc) => doc.id !== action.docId
+      );
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          uploadedDocs: userDocs,
+        },
+      };
+    }
+    case actionTypes.SET_USERTYPE_CIBIL_DATA: {
+      const cibilData = {
+        ...(state[action.userType]?.cibilData || {}),
+        ...action.cibilData,
+      };
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          cibilData,
+        },
+      };
+    }
+
     case actionTypes.SET_USERTYPE_APPLICANT_DATA: {
       const applicantData = {
         ...(state[action.userType]?.applicantData || {}),
@@ -165,13 +239,16 @@ function reducer(state, action) {
       };
     }
     case actionTypes.SET_USERTYPE_DOCUMENTS: {
-      const docs = [...(state[action.userType]?.docs || []), ...action.docs];
+      const uploadedDocs = [
+        ...(state[action.userType]?.uploadedDocs || []),
+        ...action.docs,
+      ];
 
       return {
         ...state,
         [action.userType]: {
           ...state[action.userType],
-          docs,
+          uploadedDocs,
         },
       };
     }

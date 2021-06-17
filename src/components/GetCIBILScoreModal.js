@@ -7,7 +7,6 @@ import {
   BANK_TOKEN_API,
 } from "../_config/app.config";
 import { AppContext } from "../reducer/appReducer";
-import { UserContext } from "../reducer/userReducer";
 import useFetch from "../hooks/useFetch";
 import Modal from "./Modal";
 
@@ -19,10 +18,6 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
   const {
     state: { clientToken },
   } = useContext(AppContext);
-
-  const {
-    state: { userAccountToken },
-  } = useContext(UserContext);
 
   useEffect(() => {
     async function getBankToken() {
@@ -49,8 +44,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
             bankToken: bankTokenRes.generated_key,
             requestId: bankTokenRes.request_id,
           };
-          // await fetchData(userAccountToken);
-          onClose(false, { message: "Something Went Wrong Try Again Later" });
+          await fetchData();
         }
       } catch (error) {
         onClose(false, { message: "Something Went Wrong Try Again Later" });
@@ -69,7 +63,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
     return () => {};
   }, []);
 
-  async function fetchData(token) {
+  async function fetchData() {
     try {
       const req = await newRequest(
         FETCH_CIBIL_SCORE,
@@ -96,7 +90,6 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
               },
             ],
             dob: userData.dob,
-            // gender: "M",
             panNumber: userData.panNumber,
             nationalIdCard: "",
             passportId: "",
@@ -109,7 +102,11 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
 
       const res = req.data;
       if (res.statusCode === NC_STATUS_CODE.NC200) {
-        onClose(true, { message: "CIBIL Fetch Completed Successfully" });
+        onClose(true, {
+          ...bankTokenRef.current,
+          cibilScore: res.cibilScore,
+          message: "CIBIL Fetch Completed Successfully",
+        });
       } else {
         onClose(false, { message: res.message });
       }

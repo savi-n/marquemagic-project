@@ -183,7 +183,10 @@ export default function GetCUBStatementModal({
     setToggleOtpModal(false);
     setToggleModal(false);
     await fetchData(userTypeDetails.userAccountToken);
-    setOtherUserTypeDetails({ ...userTypeDetails, ...bankTokenRef.current });
+    setOtherUserTypeDetails({
+      // ...userTypeDetails,
+      ...bankTokenRef.current,
+    });
     setLoading(false);
     onClose(true);
   };
