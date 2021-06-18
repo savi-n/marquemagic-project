@@ -440,14 +440,29 @@
 								{
 									"name": "ICICI",
 									"value": "icici"
+								},
+								{
+									"name": "OTHER",
+									"value": "other"
 								}
-							]
-						},
-						{
-							"name": "bankName",
-							"type": "text",
-							"placeholder": "Enter your bank name if chosen Other",
-							"visibility": true
+							],
+							"forType": {
+								"other": [
+									{
+										"name": "bankName",
+										"type": "text",
+										"placeholder": "Enter your bank name if chosen Other",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true
+									}
+								]
+							}
 						},
 						{
 							"name": "outstading",
@@ -455,29 +470,49 @@
 							"placeholder": "Enter Present Outstanding",
 							"visibility": true,
 							"inrupees": true,
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
 							"uploadButton": "Upload Agreement"
 						}
 					],
 					"Construction of House/Flat": [
-						{
-							"name": "constructionValue",
-							"type": "text",
-							"placeholder": "Enter the Value as per the Construction Agreement",
-							"visibility": true,
-							"rules": {
-								"required": true
+						[
+							{
+								"name": "constructionValue",
+								"type": "text",
+								"placeholder": "Enter the Value as per the Construction Agreement",
+								"visibility": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true,
+								"uploadButton": "Upload Agreement"
 							},
-							"inrupees": true,
-							"uploadButton": "Upload Agreement"
-						},
-						{
-							"name": "contructionArchitectValue",
-							"type": "text",
-							"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-							"visibility": true,
-							"inrupees": true,
-							"uploadButton": "Upload Agreement"
-						}
+							{
+								"name": "contructionArchitectValue",
+								"type": "text",
+								"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+								"visibility": true,
+								"inrupees": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"uploadButton": "Upload Agreement"
+							}
+						]
 					],
 					"Purchase of house site and construction": [
 						{
@@ -488,28 +523,45 @@
 							"rules": {
 								"required": true
 							},
-							"inrupees": true,
-							"uploadButton": "Upload Agreement"
-						},
-						{
-							"name": "constructionValue",
-							"type": "text",
-							"placeholder": "Enter the Value as per the Construction Agreement",
-							"visibility": true,
-							"rules": {
-								"required": true
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
 							},
 							"inrupees": true,
 							"uploadButton": "Upload Agreement"
 						},
-						{
-							"name": "contructionArchitectValue",
-							"type": "text",
-							"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-							"visibility": true,
-							"inrupees": true,
-							"uploadButton": "Upload Agreement"
-						}
+						[
+							{
+								"name": "constructionValue",
+								"type": "text",
+								"placeholder": "Enter the Value as per the Construction Agreement",
+								"visibility": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true,
+								"uploadButton": "Upload Agreement"
+							},
+							{
+								"name": "contructionArchitectValue",
+								"type": "text",
+								"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+								"visibility": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true,
+								"uploadButton": "Upload Agreement"
+							}
+						]
 					],
 					"Purchase of ready built House/Flat": [
 						{
@@ -519,6 +571,10 @@
 							"visibility": true,
 							"rules": {
 								"required": true
+							},
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
 							},
 							"inrupees": true,
 							"uploadButton": "Upload Agreement"

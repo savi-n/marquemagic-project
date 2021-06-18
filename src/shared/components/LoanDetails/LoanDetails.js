@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { Fragment, useContext } from "react";
 import styled from "styled-components";
 
 import { UserContext } from "../../../reducer/userReducer";
@@ -54,7 +54,15 @@ const ErrorMessage = styled.div`
 `;
 
 const Currency = styled.div`
-  width: 20px;
+  width: 40px;
+  font-size: 13px;
+  text-align: center;
+  font-weight: 500;
+`;
+
+const Or = styled.span`
+  text-align: center;
+  width: 60%;
 `;
 
 export default function LoanDetails({
@@ -111,41 +119,61 @@ export default function LoanDetails({
 
   const fieldTemplate = (field) => {
     return (
-      <FieldWrapper>
-        <Field key={field.name} size={size}>
-          {register({
-            ...field,
-            value: formState?.values?.[field.name],
-            ...(field.type === "search"
-              ? {
-                  searchable: true,
-                  ...(field.fetchOnInit && {
-                    fetchOptionsFunc: getBranchOptions,
-                  }),
-                  ...(field.fetchOnSearch && {
-                    searchOptionCallback: getBrandsOnSearch,
-                  }),
-                }
-              : {}),
-          })}
-          {(formState?.submit?.isSubmited ||
-            formState?.touched?.[field.name]) &&
-            formState?.error?.[field.name] && (
-              <ErrorMessage>{formState?.error?.[field.name]}</ErrorMessage>
-            )}
-        </Field>
-        <Currency />
+      <>
+        <FieldWrapper key={field.name}>
+          <Field size={size}>
+            {register({
+              ...field,
+              value: formState?.values?.[field.name],
+              ...(field.type === "search"
+                ? {
+                    searchable: true,
+                    ...(field.fetchOnInit && {
+                      fetchOptionsFunc: getBranchOptions,
+                    }),
+                    ...(field.fetchOnSearch && {
+                      searchOptionCallback: getBrandsOnSearch,
+                    }),
+                  }
+                : {}),
+            })}
+            {(formState?.submit?.isSubmited ||
+              formState?.touched?.[field.name]) &&
+              formState?.error?.[field.name] && (
+                <ErrorMessage>{formState?.error?.[field.name]}</ErrorMessage>
+              )}
+          </Field>
+          <Currency>{field.inrupees ? "(In  ₹ )" : ""}</Currency>
 
-        {field.uploadButton && (
-          <Button
-            fill
-            name={field.uploadButton}
-            width="150px"
-            onClick={buttonAction}
-          />
-        )}
-      </FieldWrapper>
+          {field.uploadButton && (
+            <Button
+              fill
+              name={field.uploadButton}
+              width="150px"
+              onClick={buttonAction}
+            />
+          )}
+        </FieldWrapper>
+        {field.forType &&
+          field.forType[(formState?.values?.[field.name])] &&
+          field.forType[(formState?.values?.[field.name])].map((f) =>
+            makeFields(f)
+          )}
+      </>
     );
+  };
+
+  const makeFields = (fields) => {
+    if (Array.isArray(fields)) {
+      let renderArray = [];
+      for (let i = 0; i < fields.length; i++) {
+        if (i) renderArray.push(<Or key={`or_key_${i}`}>Or</Or>);
+        renderArray.push(fieldTemplate(fields[i]));
+      }
+      return renderArray;
+    }
+
+    return fieldTemplate(fields);
   };
 
   return (
@@ -159,14 +187,7 @@ export default function LoanDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <>
-                    {fieldTemplate(field)}
-                    {field.forType &&
-                      field.forType[(formState?.values?.[field.name])] &&
-                      field.forType[(formState?.values?.[field.name])].map(
-                        (f) => fieldTemplate(f)
-                      )}
-                  </>
+                  <Fragment key={field.name}>{fieldTemplate(field)}</Fragment>
                 )
             )}
         </Colom>
