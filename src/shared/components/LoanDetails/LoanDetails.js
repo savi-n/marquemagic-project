@@ -74,6 +74,7 @@ export default function LoanDetails({
   loanType,
   size,
   buttonAction = () => {},
+  uploadedDocs = {},
 }) {
   const {
     state: { userToken },
@@ -117,6 +118,10 @@ export default function LoanDetails({
     return [];
   };
 
+  const onUploadAgreementAction = (name) => {
+    buttonAction(name);
+  };
+
   const fieldTemplate = (field) => {
     return (
       <>
@@ -125,6 +130,12 @@ export default function LoanDetails({
             {register({
               ...field,
               value: formState?.values?.[field.name],
+              rules: {
+                ...field.rules,
+                ...(field.uploadButton && {
+                  subAction: !uploadedDocs[field.name]?.length,
+                }),
+              },
               ...(field.type === "search"
                 ? {
                     searchable: true,
@@ -150,7 +161,8 @@ export default function LoanDetails({
               fill
               name={field.uploadButton}
               width="150px"
-              onClick={buttonAction}
+              onClick={() => onUploadAgreementAction(field.name)}
+              disabled={field.disabled}
             />
           )}
         </FieldWrapper>
@@ -166,9 +178,28 @@ export default function LoanDetails({
   const makeFields = (fields) => {
     if (Array.isArray(fields)) {
       let renderArray = [];
+
+      const oneOfHasValue = fields.find((f) => {
+        if (formState?.values?.[f.name]) {
+          return {
+            name: f.name,
+            value: formState?.values?.[f.name],
+          };
+        }
+        return false;
+      });
       for (let i = 0; i < fields.length; i++) {
         if (i) renderArray.push(<Or key={`or_key_${i}`}>Or</Or>);
-        renderArray.push(fieldTemplate(fields[i]));
+        renderArray.push(
+          fieldTemplate({
+            ...fields[i],
+            rules: {
+              ...fields[i].rules,
+              required: !oneOfHasValue,
+            },
+            disabled: oneOfHasValue && fields[i].name !== oneOfHasValue?.name,
+          })
+        );
       }
       return renderArray;
     }

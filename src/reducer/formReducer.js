@@ -11,6 +11,7 @@ const actionTypes = {
 
   SET_USERTYPE_CIBIL_DATA: "SET_USERTYPE_CIBIL_DATA",
   SET_USERTYPE_CUB_STATEMENT_DATA: "SET_USERTYPE_CUB_STATEMENT_DATA",
+  SET_USERTYPE_AGREEMENT_DOCS: "SET_USERTYPE_AGREEMENT_DOCS",
 
   REMOVE_USERTYPE_DOCUMENT: "REMOVE_USERTYPE_DOCUMENT",
 };
@@ -88,6 +89,14 @@ const useActions = (dispatch) => {
     });
   };
 
+  const setUsertypeAgreementData = (agreementFiles, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_AGREEMENT_DOCS,
+      agreementFiles,
+      userType,
+    });
+  };
+
   const removeUserTypeDocument = (docId, userType = "user") => {
     dispatch({
       type: actionTypes.REMOVE_USERTYPE_DOCUMENT,
@@ -106,12 +115,23 @@ const useActions = (dispatch) => {
     setUsertypeBankData,
     setUsertypeCibilData,
     setUsertypeStatementData,
+    setUsertypeAgreementData,
     removeUserTypeDocument,
   };
 };
 
 function reducer(state, action) {
   switch (action.type) {
+    case actionTypes.SET_USERTYPE_AGREEMENT_DOCS: {
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          uploadedDocs: [...state.uploadedDocs, ...action.agreementFiles],
+        },
+      };
+    }
+
     case actionTypes.SET_USERTYPE_CUB_STATEMENT_DATA: {
       return {
         ...state,
