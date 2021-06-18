@@ -44,7 +44,12 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
+    actions: {
+      setUsertypeLoanData,
+      setUsertypeEmiData,
+      setUsertypeBankData,
+      setUsertypeAgreementData,
+    },
   } = useContext(FormContext);
 
   const {
@@ -57,6 +62,8 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
   const history = useHistory();
 
   const [uploadAgreementModal, setUploadAgreementModal] = useState(false);
+  const [uploadAgreementName, setUploadAgreementName] = useState(null);
+  const [uploadAgreementDocs, setUploadAgreementDocs] = useState({});
 
   const onProceed = (data) => {
     onSave(data);
@@ -74,10 +81,23 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
+    setUsertypeAgreementData(uploadAgreementDocs);
     addToast({
       message: "Saved Succesfully",
       type: "success",
     });
+  };
+
+  const onUploadAgreement = (name) => {
+    setUploadAgreementName(name);
+    setUploadAgreementModal(true);
+  };
+
+  const onDone = (files, name) => {
+    setUploadAgreementDocs({
+      [name]: files,
+    });
+    setUploadAgreementModal(false);
   };
 
   return (
@@ -90,7 +110,8 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
             formState={formState}
             jsonData={jsonData.home_loan_details.data}
             size="60%"
-            buttonAction={setUploadAgreementModal}
+            buttonAction={onUploadAgreement}
+            uploadedDocs={uploadAgreementDocs}
           />
         </FlexColom>
         <FlexColom base="40%">
@@ -111,7 +132,11 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
       </ButtonWrap>
 
       {uploadAgreementModal && (
-        <UploadAgreementModal onClose={() => setUploadAgreementModal(false)} />
+        <UploadAgreementModal
+          onClose={() => setUploadAgreementModal(false)}
+          onDone={onDone}
+          name={uploadAgreementName}
+        />
       )}
     </Div>
   );

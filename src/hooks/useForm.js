@@ -64,6 +64,12 @@ const VALIDATION_RULES = {
     func: valueMatchWith,
     message: "Mismatch",
   },
+  subAction: {
+    func: (value, params) => {
+      return params;
+    },
+    message: "Must complete the form",
+  },
 };
 
 function validate(rules, value) {
@@ -71,8 +77,8 @@ function validate(rules, value) {
 
   for (const rule in rules) {
     if (rules[rule]) {
-      let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
-      if (VALIDATION_RULES[rule]?.func(value, passParams)) {
+      // let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
+      if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
         return VALIDATION_RULES[rule].message;
       }
     }
@@ -104,7 +110,7 @@ const validDefault = (formData) => {
 };
 
 export default function useForm() {
-  const formRef = useRef("");
+  // const formRef = useRef("");
 
   const fieldsRef = useRef({});
   const valuesRef = useRef({});
@@ -120,14 +126,12 @@ export default function useForm() {
   const [, updateFormState] = useState(uuidv4());
 
   const checkValidity = (name) => {
-    if (fieldsRef.current[name].disabled) {
-      return;
+    let error = false;
+
+    if (!fieldsRef.current[name].disabled) {
+      error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
     }
 
-    const error = validate(
-      fieldsRef.current[name]?.rules,
-      valuesRef.current[name]
-    );
     const { [name]: _, ...errorFields } = errorsRef.current;
     errorsRef.current = { ...errorFields, ...(error ? { [name]: error } : {}) };
 
@@ -170,8 +174,8 @@ export default function useForm() {
   const register = (newField) => {
     fieldsRef.current[newField.name] = newField;
 
-    setValue(newField.name, newField.value || "");
     checkValidity(newField.name);
+    setValue(newField.name, newField.value || "");
 
     return (
       <InputField
