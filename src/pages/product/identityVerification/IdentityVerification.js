@@ -100,7 +100,11 @@ export default function IdentityVerification({ productDetails, id }) {
 
       const response = otpReq.data;
 
-      if (response.statusCode === NC_STATUS_CODE.NC500) {
+      if (
+        [NC_STATUS_CODE.NC500, NC_STATUS_CODE.NC305].includes(
+          response.statusCode
+        )
+      ) {
         setErrorMessage(response.message);
         setAccountAvailable(false);
       } else if (response.statusCode === NC_STATUS_CODE.NC200) {
