@@ -64,11 +64,24 @@ export default function GetCUBStatementModal({
 
   const { register, handleSubmit, formState } = useForm();
 
-  const { newRequest } = useFetch();
-
   const {
     state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
+
+  const { response, newRequest } = useFetch({
+    url: BANK_TOKEN_API,
+    options: {
+      method: "POST",
+      data: {
+        type: "BANK",
+        linkRequired: false,
+        isEncryption: false,
+      },
+    },
+    headers: {
+      authorization: clientToken,
+    },
+  });
 
   const {
     state: { userAccountToken },
@@ -76,46 +89,26 @@ export default function GetCUBStatementModal({
 
   useEffect(() => {
     async function getBankToken() {
-      try {
-        const bankTokenReq = await newRequest(
-          BANK_TOKEN_API,
-          {
-            method: "POST",
-            data: {
-              type: "BANK",
-              linkRequired: false,
-              isEncryption: false,
-            },
-          },
-          {
-            authorization: clientToken,
-          }
-        );
-
-        const bankTokenRes = bankTokenReq?.data;
-
-        if (bankTokenRes.statusCode === NC_STATUS_CODE.NC200) {
-          bankTokenRef.current = {
-            bankToken: bankTokenRes.generated_key,
-            requestId: bankTokenRes.request_id,
-          };
-          if (!userType) {
-            await fetchData(userAccountToken);
-            setOtherUserTypeDetails(bankTokenRef.current);
-            onClose(true);
-          } else {
-            setToggleModal(true);
-          }
-          setLoading(false);
+      if (response.statusCode === NC_STATUS_CODE.NC200) {
+        bankTokenRef.current = {
+          bankToken: response.generated_key,
+          requestId: response.request_id,
+        };
+        if (!userType) {
+          await fetchData(userAccountToken);
+          setOtherUserTypeDetails(bankTokenRef.current);
+          onClose(true);
+        } else {
+          setToggleModal(true);
         }
-      } catch (error) {
-        console.log(error);
+        setLoading(false);
+        return;
       }
     }
 
-    getBankToken();
+    if (response) getBankToken();
     return () => {};
-  }, []);
+  }, [response]);
 
   async function fetchData(token) {
     try {

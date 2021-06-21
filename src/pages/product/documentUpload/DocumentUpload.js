@@ -87,7 +87,7 @@ const Doc = styled.h2`
   font-weight: 500;
 `;
 
-const text = {
+const textForCheckbox = {
   grantCibilAcces: "I here by give consent to pull my CIBIL records",
   declaration:
     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
@@ -204,7 +204,7 @@ export default function DocumentUpload({
       {
         method: "POST",
         data: {
-          loanId: 2,
+          loanId: loanId,
           propertyType: "leased",
           loan_asset_type_id: 2,
           ownedType: "paid_off",
@@ -534,7 +534,7 @@ export default function DocumentUpload({
         </ButtonWrapper>
         <CheckboxWrapper>
           <CheckBox
-            name={text.grantCibilAcces}
+            name={textForCheckbox.grantCibilAcces}
             checked={cibilCheckbox}
             disabled={cibilCheckbox}
             onChange={() => {
@@ -544,7 +544,7 @@ export default function DocumentUpload({
             bg="blue"
           />
           <CheckBox
-            name={text.declaration}
+            name={textForCheckbox.declaration}
             checked={declareCheck}
             onChange={() => setDeclareCheck(!declareCheck)}
             bg="blue"
