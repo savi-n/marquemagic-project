@@ -65,7 +65,7 @@ const SubMenu = styled.h5`
 `;
 
 const Link = styled.div`
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 export default function Product({ product, url }) {
@@ -103,14 +103,16 @@ export default function Product({ product, url }) {
     response.data && (
       <Wrapper>
         <Colom1>
-          <Link to={`/product/${product}/`} onClick={(e) => onFlowChange("")}>
+          <Link>
+            {/* onClick={(e) => onFlowChange("")} */}
             <Head active={currentFlow === ""}>
               {response.data.name} <small>{response.data.description}</small>
             </Head>
           </Link>
           {response?.data?.product_details?.flow?.map((m) => (
             <Fragment key={uuidv4()}>
-              <Link onClick={(e) => onFlowChange(m.id)}>
+              <Link>
+                {/* onClick={(e) => onFlowChange(m.id)} */}
                 <Menu active={currentFlow === m.id}>
                   <div>{m.name}</div>
                   {completedMenu.includes(m.id) && (
@@ -121,7 +123,8 @@ export default function Product({ product, url }) {
               {m.flow &&
                 subFlowMenu.includes(m.id) &&
                 m.flow.map((item) => (
-                  <Link key={item.id} onClick={(e) => onFlowChange(item.id)}>
+                  <Link key={item.id}>
+                    {/* onClick={(e) => onFlowChange(item.id)} */}
                     <SubMenu active={currentFlow === item.id}>
                       <div>{item.name}</div>
                       {completedMenu.includes(item.id) && (
