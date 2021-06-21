@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
-import { oneOf } from "prop-types";
+import { func, object, oneOfType, string, oneOf } from "prop-types";
 
 import { UserContext } from "../../../reducer/userReducer";
 import Button from "../../../components/Button";
@@ -103,13 +103,25 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
+DocumentUpload.propTypes = {
+  onFlowChange: func.isRequired,
+  productDetails: object,
+  map: oneOfType([string, object]),
+  id: string,
+  userType: oneOf(["Co-Applicant", "Gurantor", "", undefined]),
+  productId: string.isRequired,
+};
+
 export default function DocumentUpload({
+  productDetails,
   userType,
-  productId,
   id,
-  url,
-  mainPageId,
+  onFlowChange,
+  map,
+  productId,
+  // mainPageId,
 }) {
+  console.log(productId);
   const {
     state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
@@ -119,7 +131,6 @@ export default function DocumentUpload({
   } = useContext(UserContext);
 
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -136,8 +147,6 @@ export default function DocumentUpload({
     state: { caseDetails },
     actions: { setCase },
   } = useContext(CaseContext);
-
-  const history = useHistory();
 
   const { newRequest } = useFetch();
   const { addToast } = useToasts();
@@ -427,7 +436,7 @@ export default function DocumentUpload({
 
       setCase(loanReq);
       setCompleted(id);
-      history.push(flowMap[id].main);
+      onFlowChange(map.main);
     }
   };
 
@@ -447,8 +456,8 @@ export default function DocumentUpload({
     );
 
     setCompleted(id);
-    setCompleted(mainPageId);
-    history.push(url + "/" + flowMap[id].main);
+    // setCompleted(mainPageId);
+    onFlowChange(map.main);
   };
 
   const onSubmitGuarantor = async () => {
@@ -471,8 +480,8 @@ export default function DocumentUpload({
     }
 
     setCompleted(id);
-    setCompleted(mainPageId);
-    history.push(url + "/" + flowMap[id].main);
+    // setCompleted(mainPageId);
+    onFlowChange(map.main);
   };
 
   const onCibilModalClose = (success, data) => {

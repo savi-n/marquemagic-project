@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { func, object, oneOfType, string, array } from "prop-types";
 
 const H = styled.h1`
   font-size: 1.5em;
@@ -63,3 +64,11 @@ export default function SalaryDetails({
     </>
   );
 }
+
+SalaryDetails.propTypes = {
+  preData: object,
+  register: func.isRequired,
+  jsonData: oneOfType([array, object]),
+  userType: string,
+  formState: object,
+};

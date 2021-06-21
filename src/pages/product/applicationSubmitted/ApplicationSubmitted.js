@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { func, object, oneOfType, string } from "prop-types";
 
 import Button from "../../../components/Button";
 import GuageMeter from "../../../components/GuageMeter";
@@ -65,19 +65,28 @@ const data = [
   },
 ];
 
-export default function ApplicationSubmitted({ productDetails, id }) {
+ApplicationSubmitted.propTypes = {
+  productDetails: object,
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};
+
+export default function ApplicationSubmitted({
+  productDetails,
+  id,
+  map,
+  onFlowChange,
+}) {
   const {
-    state: { flowMap },
     actions: { activateSubFlow },
   } = useContext(FlowContext);
-
-  const history = useHistory();
 
   const [count, setData] = useState(0);
 
   const subFlowActivate = () => {
     activateSubFlow(id);
-    history.push(flowMap[id].sub);
+    onFlowChange(map.sub);
   };
 
   // const {

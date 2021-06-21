@@ -1,5 +1,6 @@
 import { Fragment, useContext } from "react";
 import styled from "styled-components";
+import { func, object, oneOfType, string, array } from "prop-types";
 
 import { UserContext } from "../../../reducer/userReducer";
 import useFetch from "../../../hooks/useFetch";
@@ -65,8 +66,18 @@ const Or = styled.span`
   width: 60%;
 `;
 
+LoanDetails.propTypes = {
+  userType: string,
+  jsonData: oneOfType([array, object]),
+  register: func,
+  formState: object,
+  loanType: string,
+  size: string,
+  buttonAction: func,
+  uploadedDocs: func,
+};
+
 export default function LoanDetails({
-  pageName,
   jsonData,
   register,
   formState,

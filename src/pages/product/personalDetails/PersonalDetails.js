@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -25,9 +25,8 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function PersonalDetailsPage({ id, pageName }) {
+export default function PersonalDetailsPage({ id, map, onFlowChange }) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -42,8 +41,6 @@ export default function PersonalDetailsPage({ id, pageName }) {
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
-  const history = useHistory();
-
   const onSave = (data) => {
     setUsertypeApplicantData({ ...data, isApplicant: "1" });
     addToast({
@@ -55,7 +52,7 @@ export default function PersonalDetailsPage({ id, pageName }) {
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   console.log(userBankDetails);
@@ -63,7 +60,6 @@ export default function PersonalDetailsPage({ id, pageName }) {
   return (
     <Div>
       <PersonalDetails
-        pageName={pageName}
         register={register}
         formState={formState}
         preData={{
@@ -77,7 +73,6 @@ export default function PersonalDetailsPage({ id, pageName }) {
         jsonData={jsonData.personal_details.data}
       />
       <SalaryDetails
-        pageName={pageName}
         jsonData={jsonData.salary_details.data}
         register={register}
         formState={formState}
@@ -89,3 +84,10 @@ export default function PersonalDetailsPage({ id, pageName }) {
     </Div>
   );
 }
+
+PersonalDetailsPage.propTypes = {
+  productDetails: object,
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};

@@ -1,10 +1,8 @@
-import { useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
 import Button from "../../../components/Button";
-import { FlowContext } from "../../../reducer/flowReducer";
 
 const Colom1 = styled.section`
   flex: 1;
@@ -60,14 +58,11 @@ const H = styled.h1`
   }
 `;
 
-export default function ProductDetails({ productDetails }) {
-  const {
-    state: { basePageUrl },
-  } = useContext(FlowContext);
-  const history = useHistory();
+export default function ProductDetails({ productDetails, onFlowChange, map }) {
   const startFlow = () => {
-    history.push(basePageUrl);
+    onFlowChange(map);
   };
+
   return (
     productDetails && (
       <>
@@ -80,7 +75,7 @@ export default function ProductDetails({ productDetails }) {
               ))}
             </ul>
           </div>
-          {basePageUrl && (
+          {map && (
             <Div>
               <Button name="Next" onClick={startFlow} />
             </Div>
@@ -93,3 +88,9 @@ export default function ProductDetails({ productDetails }) {
     )
   );
 }
+
+ProductDetails.propTypes = {
+  productDetails: object,
+  onFlowChange: func,
+  map: oneOfType([string, object]),
+};
