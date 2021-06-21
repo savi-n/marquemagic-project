@@ -105,7 +105,6 @@ const documentsRequired = [
 
 DocumentUpload.propTypes = {
   onFlowChange: func.isRequired,
-  productDetails: object,
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor", "", undefined]),
@@ -113,15 +112,13 @@ DocumentUpload.propTypes = {
 };
 
 export default function DocumentUpload({
-  productDetails,
   userType,
   id,
   onFlowChange,
   map,
   productId,
-  // mainPageId,
 }) {
-  console.log(productId);
+  console.log(map);
   const {
     state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
@@ -456,7 +453,7 @@ export default function DocumentUpload({
     );
 
     setCompleted(id);
-    // setCompleted(mainPageId);
+    setCompleted(map.mainPageId);
     onFlowChange(map.main);
   };
 
@@ -480,7 +477,7 @@ export default function DocumentUpload({
     }
 
     setCompleted(id);
-    // setCompleted(mainPageId);
+    setCompleted(map.mainPageId);
     onFlowChange(map.main);
   };
 
