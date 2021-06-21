@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -26,13 +26,20 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
+VehicleLoanDetailsPage.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  productDetails: object,
+};
+
 export default function VehicleLoanDetailsPage({
   id,
-  pageName,
+  onFlowChange,
+  map,
   productDetails,
 }) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -47,12 +54,10 @@ export default function VehicleLoanDetailsPage({
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
-  const history = useHistory();
-
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   const onSave = (data) => {
@@ -74,7 +79,6 @@ export default function VehicleLoanDetailsPage({
   return (
     <Div>
       <LoanDetails
-        pageName={pageName}
         register={register}
         formState={formState}
         jsonData={jsonData.loan_details.data}

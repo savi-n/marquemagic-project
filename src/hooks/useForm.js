@@ -14,7 +14,7 @@ function numberOnly(value) {
 
 function validatePattern(pattern) {
   return function(value, pat) {
-    pat = pat || pattern;
+    pat = typeof pat === "boolean" ? pattern : pat;
     return !new RegExp(pat).test(value);
   };
 }

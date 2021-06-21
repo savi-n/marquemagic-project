@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -45,9 +45,14 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-export default function EMIDetailsPage({ id, pageName }) {
+EMIDetailsPage.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};
+
+export default function EMIDetailsPage({ id, onFlowChange, map }) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -55,19 +60,13 @@ export default function EMIDetailsPage({ id, pageName }) {
     actions: { setUsertypeEmiData },
   } = useContext(FormContext);
 
-  const {
-    state: { userDetails },
-  } = useContext(UserContext);
-
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
-
-  const history = useHistory();
 
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   const onSave = (data) => {

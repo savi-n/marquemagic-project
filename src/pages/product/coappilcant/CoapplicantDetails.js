@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOf, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -54,9 +54,20 @@ const formatPersonalData = (data, fields) => {
   return { ...formatedData, isApplicant: "0" };
 };
 
-export default function CoapplicantDetails({ userType, id, pageName }) {
+CoapplicantDetails.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  userType: oneOf(["Co-Applicant", "Gurantor"]),
+};
+
+export default function CoapplicantDetails({
+  userType,
+  id,
+  onFlowChange,
+  map,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -65,7 +76,6 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
   const { addToast } = useToasts();
 
   const [match, setMatch] = useState(false);
@@ -95,21 +105,19 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   return (
     <Div>
       <PersonalDetails
         userType={userType}
-        pageName={pageName}
         register={register}
         formState={formState}
         jsonData={jsonData.personal_details.data}
       />
       <AddressDetails
         userType={userType}
-        pageName={pageName}
         register={register}
         formState={formState}
         match={match}

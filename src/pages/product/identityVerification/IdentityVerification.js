@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 import styled from "styled-components";
 
 import Button from "../../../components/Button";
@@ -49,7 +49,12 @@ const H2 = styled.h2`
   font-weight: 500;
 `;
 
-export default function IdentityVerification({ productDetails, id }) {
+export default function IdentityVerification({
+  productDetails,
+  map,
+  onFlowChange,
+  id,
+}) {
   const {
     state: { whiteLabelId },
   } = useContext(AppContext);
@@ -59,14 +64,12 @@ export default function IdentityVerification({ productDetails, id }) {
   } = useContext(UserContext);
 
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
   const { newRequest } = useFetch();
   const { register, handleSubmit, formState } = useForm();
 
-  const history = useHistory();
   const { addToast } = useToasts();
 
   const [toggleModal, setToggleModal] = useState(false);
@@ -80,10 +83,6 @@ export default function IdentityVerification({ productDetails, id }) {
     if (!customerId && !mobileNo) {
       return;
     }
-
-    // if (customerId && mobileNo) {
-    //   return;
-    // }
 
     setToggleModal(true);
     setLoading(true);
@@ -135,7 +134,7 @@ export default function IdentityVerification({ productDetails, id }) {
 
   const onProceed = () => {
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   return (
@@ -198,3 +197,10 @@ export default function IdentityVerification({ productDetails, id }) {
     )
   );
 }
+
+IdentityVerification.propTypes = {
+  productDetails: object,
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};

@@ -47,7 +47,7 @@ export default function Card({ product }) {
   const handleClick = (e, id) => {
     e.preventDefault();
     history.push({
-      pathname: `/product/${btoa(id)}/`,
+      pathname: `/product/${btoa(id)}`,
       data: id,
     });
   };
@@ -59,7 +59,7 @@ export default function Card({ product }) {
       </ImgDiv>
       <Div>
         <Link
-          href={`/product/${btoa(product.product_id)}/`}
+          href={`/product/${btoa(product.product_id)}`}
           onClick={(e) => handleClick(e, product.product_id)}
         >
           {product.name}

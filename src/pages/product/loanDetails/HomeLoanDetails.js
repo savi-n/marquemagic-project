@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -37,9 +37,14 @@ const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
 
-export default function HomeLoanDetailsPage({ id, pageName }) {
+HomeLoanDetailsPage.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};
+
+export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -59,8 +64,6 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
-  const history = useHistory();
-
   const [uploadAgreementModal, setUploadAgreementModal] = useState(false);
   const [uploadAgreementName, setUploadAgreementName] = useState(null);
   const [uploadAgreementDocs, setUploadAgreementDocs] = useState({});
@@ -68,7 +71,7 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   const onSave = (data) => {
@@ -105,7 +108,6 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
       <FormWrapper>
         <FlexColom base="60%">
           <LoanDetails
-            pageName={pageName}
             register={register}
             formState={formState}
             jsonData={jsonData.home_loan_details.data}
@@ -118,7 +120,6 @@ export default function HomeLoanDetailsPage({ id, pageName }) {
           <HomeLoanAddressDetails
             jsonData={jsonData.address_details.data}
             register={register}
-            pageName={pageName}
             formState={formState}
             size="100%"
           />

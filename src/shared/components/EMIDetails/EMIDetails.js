@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { array, func, object, oneOf, oneOfType, string } from "prop-types";
 
 const H = styled.h1`
   font-size: 1.5em;
@@ -30,12 +31,13 @@ const ErrorMessage = styled.div`
   font-weight: 500;
 `;
 
-export default function EMIDetails({
-  pageName,
-  jsonData,
-  register,
-  formState,
-}) {
+EMIDetails.propTypes = {
+  register: func.isRequired,
+  jsonData: oneOfType([array, object]),
+  formState: object,
+};
+
+export default function EMIDetails({ jsonData, register, formState }) {
   return (
     <>
       <H>

@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
-import { oneOf } from "prop-types";
+import { func, object, oneOfType, string, oneOf } from "prop-types";
 
 import { UserContext } from "../../../reducer/userReducer";
 import Button from "../../../components/Button";
@@ -87,7 +87,7 @@ const Doc = styled.h2`
   font-weight: 500;
 `;
 
-const text = {
+const textForCheckbox = {
   grantCibilAcces: "I here by give consent to pull my CIBIL records",
   declaration:
     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
@@ -103,13 +103,25 @@ const documentsRequired = [
   "Any other relevent doxuments",
 ];
 
+DocumentUpload.propTypes = {
+  onFlowChange: func.isRequired,
+  productDetails: object,
+  map: oneOfType([string, object]),
+  id: string,
+  userType: oneOf(["Co-Applicant", "Gurantor", "", undefined]),
+  productId: string.isRequired,
+};
+
 export default function DocumentUpload({
+  productDetails,
   userType,
-  productId,
   id,
-  url,
-  mainPageId,
+  onFlowChange,
+  map,
+  productId,
+  // mainPageId,
 }) {
+  console.log(productId);
   const {
     state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
@@ -119,7 +131,6 @@ export default function DocumentUpload({
   } = useContext(UserContext);
 
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -136,8 +147,6 @@ export default function DocumentUpload({
     state: { caseDetails },
     actions: { setCase },
   } = useContext(CaseContext);
-
-  const history = useHistory();
 
   const { newRequest } = useFetch();
   const { addToast } = useToasts();
@@ -204,7 +213,7 @@ export default function DocumentUpload({
       {
         method: "POST",
         data: {
-          loanId: 2,
+          loanId: loanId,
           propertyType: "leased",
           loan_asset_type_id: 2,
           ownedType: "paid_off",
@@ -427,7 +436,7 @@ export default function DocumentUpload({
 
       setCase(loanReq);
       setCompleted(id);
-      history.push(flowMap[id].main);
+      onFlowChange(map.main);
     }
   };
 
@@ -447,8 +456,8 @@ export default function DocumentUpload({
     );
 
     setCompleted(id);
-    setCompleted(mainPageId);
-    history.push(url + "/" + flowMap[id].main);
+    // setCompleted(mainPageId);
+    onFlowChange(map.main);
   };
 
   const onSubmitGuarantor = async () => {
@@ -471,8 +480,8 @@ export default function DocumentUpload({
     }
 
     setCompleted(id);
-    setCompleted(mainPageId);
-    history.push(url + "/" + flowMap[id].main);
+    // setCompleted(mainPageId);
+    onFlowChange(map.main);
   };
 
   const onCibilModalClose = (success, data) => {
@@ -534,7 +543,7 @@ export default function DocumentUpload({
         </ButtonWrapper>
         <CheckboxWrapper>
           <CheckBox
-            name={text.grantCibilAcces}
+            name={textForCheckbox.grantCibilAcces}
             checked={cibilCheckbox}
             disabled={cibilCheckbox}
             onChange={() => {
@@ -544,7 +553,7 @@ export default function DocumentUpload({
             bg="blue"
           />
           <CheckBox
-            name={text.declaration}
+            name={textForCheckbox.declaration}
             checked={declareCheck}
             onChange={() => setDeclareCheck(!declareCheck)}
             bg="blue"

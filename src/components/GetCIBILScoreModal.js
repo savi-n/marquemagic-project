@@ -13,42 +13,37 @@ import Modal from "./Modal";
 export default function GetCIBILScoreModal({ onClose, userData }) {
   const bankTokenRef = useRef();
 
-  const { newRequest } = useFetch();
-
   const {
     state: { clientToken },
   } = useContext(AppContext);
 
+  const { response, loading, newRequest } = useFetch({
+    url: BANK_TOKEN_API,
+    options: {
+      method: "POST",
+      data: {
+        type: "EQFAX",
+        linkRequired: false,
+        isEncryption: false,
+      },
+    },
+    headers: {
+      authorization: clientToken,
+    },
+  });
+
   useEffect(() => {
     async function getBankToken() {
-      try {
-        const bankTokenReq = await newRequest(
-          BANK_TOKEN_API,
-          {
-            method: "POST",
-            data: {
-              type: "EQFAX",
-              linkRequired: false,
-              isEncryption: false,
-            },
-          },
-          {
-            authorization: clientToken,
-          }
-        );
-
-        const bankTokenRes = bankTokenReq?.data;
-
-        if (bankTokenRes.statusCode === NC_STATUS_CODE.NC200) {
-          bankTokenRef.current = {
-            bankToken: bankTokenRes.generated_key,
-            requestId: bankTokenRes.request_id,
-          };
-          await fetchData();
-        }
-      } catch (error) {
-        onClose(false, { message: "Something Went Wrong Try Again Later" });
+      if (response.statusCode === NC_STATUS_CODE.NC200) {
+        bankTokenRef.current = {
+          bankToken: response.generated_key,
+          requestId: response.request_id,
+        };
+        await fetchData();
+        return;
       }
+
+      onCloseMessage();
     }
 
     if (
@@ -59,9 +54,15 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
       return;
     }
 
-    getBankToken();
+    if (response && !loading) {
+      getBankToken();
+    }
     return () => {};
-  }, []);
+  }, [response]);
+
+  function onCloseMessage() {
+    onClose(false, { message: "Something Went Wrong Try Again Later" });
+  }
 
   async function fetchData() {
     try {
@@ -111,7 +112,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
         onClose(false, { message: res.message });
       }
     } catch (error) {
-      onClose(false, { message: "Something Went Wrong Try Again Later" });
+      onCloseMessage();
     }
   }
 

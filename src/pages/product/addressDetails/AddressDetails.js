@@ -1,9 +1,8 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
@@ -43,9 +42,14 @@ const formatData = (type, data, fields) => {
   return { addressType: type, ...formatedData };
 };
 
-export default function AddressDetailsPage({ id, pageName }) {
+AddressDetailsPage.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};
+
+export default function AddressDetailsPage({ id, onFlowChange, map }) {
   const {
-    state: { flowMap },
     actions: { setCompleted, activateSubFlow },
   } = useContext(FlowContext);
 
@@ -55,8 +59,6 @@ export default function AddressDetailsPage({ id, pageName }) {
 
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
-
-  const history = useHistory();
 
   const [saved, setSaved] = useState(false);
   const [match, setMatch] = useState(false);
@@ -82,18 +84,17 @@ export default function AddressDetailsPage({ id, pageName }) {
   const onProceed = (formData) => {
     onSave(formData);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   const subFlowActivate = () => {
     activateSubFlow(id);
-    history.push(flowMap[id].sub);
+    onFlowChange(map.sub);
   };
 
   return (
     <Div>
       <AddressDetails
-        pageName={pageName}
         register={register}
         formState={formState}
         match={match}

@@ -1,5 +1,5 @@
-// import { useState } from "react";
 import styled from "styled-components";
+import { func, object, oneOfType, string, array } from "prop-types";
 
 const H = styled.h1`
   font-size: 1.5em;
@@ -16,7 +16,6 @@ const FieldWrap = styled.div`
 
 const FormWrap = styled.div`
   display: flex;
-  /* align-items: center; */
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
@@ -43,9 +42,14 @@ const ErrorMessage = styled.div`
   font-weight: 500;
 `;
 
+HomeLoanAddressDetails.propTypes = {
+  jsonData: oneOfType([array, object]),
+  register: func,
+  formState: object,
+  size: string,
+};
+
 export default function HomeLoanAddressDetails({
-  pageName,
-  userType,
   jsonData,
   register,
   formState,

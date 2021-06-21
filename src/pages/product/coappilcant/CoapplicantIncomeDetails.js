@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { func, object, oneOf, oneOfType, string } from "prop-types";
 
 import jsonData from "../../../shared/constants/data.json";
 
@@ -26,9 +26,20 @@ const Div = styled.div`
   background: #ffffff;
 `;
 
-export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
+CoapplicantIncomeDetails.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  userType: oneOf(["Co-Applicant", "Gurantor"]),
+};
+
+export default function CoapplicantIncomeDetails({
+  userType,
+  id,
+  onFlowChange,
+  map,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -37,7 +48,6 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
   const { addToast } = useToasts();
 
   const onSave = (formData) => {
@@ -55,20 +65,18 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
   const onProceed = (formData) => {
     onSave(formData);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   return (
     <Div>
       <SalaryDetails
         userType={userType}
-        pageName={pageName}
         register={register}
         formState={formState}
         jsonData={jsonData.salary_details.data}
       />
       <EMIDetails
-        pageName={pageName}
         register={register}
         formState={formState}
         jsonData={jsonData.emi_details.data}
