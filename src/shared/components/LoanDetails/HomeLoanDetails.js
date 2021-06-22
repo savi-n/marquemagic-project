@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
+import { func, object, oneOfType, string, array } from "prop-types";
 
 import { UserContext } from "../../../reducer/userReducer";
 import useFetch from "../../../hooks/useFetch";
@@ -42,10 +43,17 @@ const ErrorMessage = styled.div`
   text-align: center;
   font-size: 14px;
   font-weight: 500;
+  width: 60%;
 `;
 
+HomeLoanDetails.propTypes = {
+  userType: string,
+  jsonData: oneOfType([array, object]),
+  register: func,
+  formState: object,
+};
+
 export default function HomeLoanDetails({
-  pageName,
   jsonData,
   register,
   formState,
@@ -104,22 +112,22 @@ export default function HomeLoanDetails({
             jsonData.map(
               (field) =>
                 field.visibility && (
-                  <FieldWrap key={field.name}>
-                    {register({
-                      ...field,
-                      value: formState?.values?.[field.name],
-                      ...(field.type === "search"
-                        ? {
-                            searchable: true,
-                            ...(field.fetchOnInit && {
-                              fetchOptionsFunc: getBranchOptions,
-                            }),
-                            ...(field.fetchOnSearch && {
-                              searchOptionCallback: getBrandsOnSearch,
-                            }),
-                          }
-                        : {}),
-                    })}
+                  <>
+                    <FieldWrap key={field.name}>
+                      {register({
+                        ...field,
+                        value: formState?.values?.[field.name],
+                        ...(field.type === "search" && {
+                          searchable: true,
+                          ...(field.fetchOnInit && {
+                            fetchOptionsFunc: getBranchOptions,
+                          }),
+                          ...(field.fetchOnSearch && {
+                            searchOptionCallback: getBrandsOnSearch,
+                          }),
+                        }),
+                      })}
+                    </FieldWrap>
                     {(formState?.submit?.isSubmited ||
                       formState?.touched?.[field.name]) &&
                       formState?.error?.[field.name] && (
@@ -127,7 +135,8 @@ export default function HomeLoanDetails({
                           {formState?.error?.[field.name]}
                         </ErrorMessage>
                       )}
-                  </FieldWrap>
+                    Why
+                  </>
                 )
             )}
         </Colom>

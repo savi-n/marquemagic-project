@@ -76,12 +76,12 @@ function validate(rules, value) {
   if (!rules) return false;
 
   for (const rule in rules) {
-    if (rules[rule]) {
-      // let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
-      if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
-        return VALIDATION_RULES[rule].message;
-      }
+    // if (rules[rule]) {
+    // let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
+    if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
+      return VALIDATION_RULES[rule].message;
     }
+    // }
   }
 }
 
