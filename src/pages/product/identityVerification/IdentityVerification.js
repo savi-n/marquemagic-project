@@ -166,7 +166,7 @@ export default function IdentityVerification({
             </FieldWrapper>
             <Button
               type="submit"
-              name="Login"
+              name="LOGIN"
               fill
               disabled={
                 !(formState.values?.customerId || formState.values?.mobileNo) ||

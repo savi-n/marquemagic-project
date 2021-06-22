@@ -20,8 +20,9 @@ const FormWrap = styled.div`
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
-  flex-flow: wrap column;
-  max-height: 400px;
+  justify-content: space-between;
+  /* flex-flow: wrap column; */
+  /* max-height: 400px; */
 `;
 
 const ErrorMessage = styled.div`

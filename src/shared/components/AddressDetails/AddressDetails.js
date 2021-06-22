@@ -20,6 +20,7 @@ const FormWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10%;
+  justify-content: space-between;
   margin: 20px 0;
 `;
 
