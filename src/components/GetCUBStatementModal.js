@@ -221,7 +221,7 @@ export default function GetCUBStatementModal({
               </FieldWrapper>
               <Button
                 type="submit"
-                name="Login"
+                name="LOGIN"
                 fill
                 disabled={
                   !(

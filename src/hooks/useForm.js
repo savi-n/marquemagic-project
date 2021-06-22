@@ -76,12 +76,12 @@ function validate(rules, value) {
   if (!rules) return false;
 
   for (const rule in rules) {
-    if (rules[rule]) {
-      // let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
-      if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
-        return VALIDATION_RULES[rule].message;
-      }
+    // if (rules[rule]) {
+    // let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
+    if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
+      return VALIDATION_RULES[rule].message;
     }
+    // }
   }
 }
 
@@ -89,6 +89,7 @@ const MASKS = {
   NumberOnly: (value) => value?.replace(/[^\d]+/g, "") || "",
   CharacterLimit: (value, n) => String(value).substring(0, n) || "",
   AlphaCharOnly: (value) => value?.replace(/[^a-zA-Z]/g, "") || "",
+  AlphaNumericOnly: (value) => value?.replace(/[^a-zA-Z0-9]+$/i, ""),
 };
 
 function revealMask(masks, value) {

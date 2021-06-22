@@ -84,7 +84,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
-    setUsertypeAgreementData(uploadAgreementDocs);
+    setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
     addToast({
       message: "Saved Succesfully",
       type: "success",
