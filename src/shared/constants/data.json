@@ -151,6 +151,29 @@
 						"value": "Other"
 					}
 				]
+			},
+			{
+				"name": "maritalStatus",
+				"placeholder": "Marital Status",
+				"rules": {
+					"required": true
+				},
+				"type": "select",
+				"visibility": true,
+				"options": [
+					{
+						"value": "Married",
+						"name": "Married"
+					},
+					{
+						"value": "Single",
+						"name": "Single"
+					},
+					{
+						"value": "Divorced",
+						"name": "Divorced"
+					}
+				]
 			}
 		]
 	},
@@ -230,7 +253,8 @@
 				"type": "text",
 				"visibility": true,
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"inrupees": true
 			},
@@ -278,7 +302,8 @@
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"visibility": true,
 				"inrupees": true
@@ -293,7 +318,8 @@
 				"placeholder": "Auto Loan Amount",
 				"type": "text",
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"visibility": true,
 				"option": [],
@@ -305,7 +331,8 @@
 				"placeholder": "Personal Loan Amount",
 				"type": "text",
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"visibility": true,
 				"option": [],
@@ -317,7 +344,8 @@
 				"placeholder": "LAP Amount",
 				"type": "text",
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"visibility": true,
 				"option": [],
@@ -369,7 +397,8 @@
 				"type": "text",
 				"visibility": true,
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"inrupees": true
 			},

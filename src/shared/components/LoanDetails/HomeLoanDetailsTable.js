@@ -32,35 +32,36 @@ const Head = styled(Colom)`
   font-weight: 700;
 `;
 
+const tableContent = {
+  heads: [
+    "Particulars(Period)",
+    "Upto 30 Lakhs",
+    "Above 30 Lakhs and Upto 75 Lakhs",
+    "Above 75 Lakhs",
+  ],
+  content: [
+    ["Upto 5 years", "10.25%", "10.75%", "11.25%"],
+    ["Above 5 years and Upto 10 years", "10.25%", "10.75%", "11.25%"],
+    ["Above 10 years and Upto 15 years", "10.25%", "10.75%", "11.25%"],
+  ],
+};
+
 export default function HomeLoanDetailsTable() {
   return (
     <TableWrapper>
       <Row>
-        <Head>Particulars(Period)</Head>
-        <Head>Upto 30 Lakhs</Head>
-        <Head>Above 30 Lakhs and Upto 75 Lakhs</Head>
-        <Head>Above 75 Lakhs</Head>
+        {tableContent.heads.map((head) => (
+          <Head>{head}</Head>
+        ))}
       </Row>
 
-      <Row>
-        <Colom>Upto 5 years</Colom>
-        <Colom>10.25%</Colom>
-        <Colom>10.75%</Colom>
-        <Colom>11.25%</Colom>
-      </Row>
-      <Row>
-        <Colom>Above 5 years and Upto 10 years</Colom>
-        <Colom>10.25%</Colom>
-        <Colom>10.75%</Colom>
-        <Colom>11.25%</Colom>
-      </Row>
-
-      <Row>
-        <Colom>Above 10 years and Upto 15 years</Colom>
-        <Colom>10.25%</Colom>
-        <Colom>10.75%</Colom>
-        <Colom>11.25%</Colom>
-      </Row>
+      {tableContent.content.map((row) => (
+        <Row>
+          {row.map((colom) => (
+            <Colom>{colom}</Colom>
+          ))}
+        </Row>
+      ))}
     </TableWrapper>
   );
 }

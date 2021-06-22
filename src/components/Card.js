@@ -8,6 +8,7 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.themeColor1};
   overflow: hidden;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+  margin: 0 calc(12% / 6);
 `;
 
 const ImgDiv = styled.div`
@@ -38,7 +39,7 @@ const Link = styled.a`
 
 const Description = styled.div`
   color: ${({ theme }) => theme.themeColor2};
-  padding: 10px 20px;
+  padding: 10px 0;
 `;
 
 export default function Card({ product }) {
