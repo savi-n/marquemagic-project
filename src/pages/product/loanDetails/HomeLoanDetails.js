@@ -114,6 +114,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
             size="60%"
             buttonAction={onUploadAgreement}
             uploadedDocs={uploadAgreementDocs}
+            label={jsonData.home_loan_details.label}
           />
         </FlexColom>
         <FlexColom base="40%">

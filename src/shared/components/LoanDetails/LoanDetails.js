@@ -70,6 +70,7 @@ const Or = styled.span`
 LoanDetails.propTypes = {
   userType: string,
   jsonData: oneOfType([array, object]),
+  label: string.isRequired,
   register: func,
   formState: object,
   loanType: string,
@@ -84,6 +85,7 @@ export default function LoanDetails({
   formState,
   userType,
   loanType,
+  label,
   size,
   buttonAction = () => {},
   uploadedDocs = {},
@@ -221,7 +223,7 @@ export default function LoanDetails({
   return (
     <>
       <H>
-        {userType || "Help us with your"} <span>Loan Details</span>
+        {userType || "Help us with "} <span>{label}</span>
       </H>
       <FormWrap>
         <Colom>

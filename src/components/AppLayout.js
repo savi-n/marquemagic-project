@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import styled, { ThemeProvider } from "styled-components";
 
+import GlobalStyle from "../components/Styles/GlobalStyles";
 import Header from "./Header";
 import Content from "./Content";
 import Loading from "./Loading";
@@ -101,6 +102,7 @@ const AppLayout = () => {
   ) : (
     response && (
       <ThemeProvider theme={response.permission.color_theme_react}>
+        <GlobalStyle />
         <HeaderWrapper>
           <Header logo={response.permission.logo} />
         </HeaderWrapper>

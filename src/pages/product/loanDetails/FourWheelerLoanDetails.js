@@ -26,19 +26,22 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-VehicleLoanDetailsPage.propTypes = {
+const FormWrapper = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const FlexColom = styled.div`
+  flex-basis: ${({ base }) => (base ? base : "100%")};
+`;
+
+HomeLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  productDetails: object,
 };
 
-export default function VehicleLoanDetailsPage({
-  id,
-  onFlowChange,
-  map,
-  productDetails,
-}) {
+export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -78,12 +81,26 @@ export default function VehicleLoanDetailsPage({
 
   return (
     <Div>
-      <LoanDetails
-        register={register}
-        formState={formState}
-        jsonData={jsonData.loan_details.data}
-        loanType={productDetails.loanType}
-      />
+      <FormWrapper>
+        <FlexColom base="50%">
+          <LoanDetails
+            register={register}
+            formState={formState}
+            jsonData={jsonData.four_wheeler_loan_details.data}
+            label={jsonData.four_wheeler_loan_details.label}
+            size="80%"
+          />
+        </FlexColom>
+        <FlexColom base="50%">
+          <LoanDetails
+            register={register}
+            formState={formState}
+            jsonData={jsonData.four_wheeler_loan_details_additional.data}
+            label={jsonData.four_wheeler_loan_details_additional.label}
+            size="80%"
+          />
+        </FlexColom>
+      </FormWrapper>
       <EMIDetails
         register={register}
         formState={formState}

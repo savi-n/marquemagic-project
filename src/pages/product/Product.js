@@ -92,7 +92,7 @@ export default function Product({ product, url }) {
     if (response) configure(response.data?.product_details?.flow);
   }, [response]);
 
-  const [currentFlow, setCurrentFlow] = useState("");
+  const [currentFlow, setCurrentFlow] = useState("product-details");
 
   const onFlowChange = (flow) => {
     setCurrentFlow(flow);
@@ -104,15 +104,13 @@ export default function Product({ product, url }) {
       <Wrapper>
         <Colom1>
           <Link>
-            {/* onClick={(e) => onFlowChange("")} */}
-            <Head active={currentFlow === ""}>
+            <Head active={currentFlow === "product-details"}>
               {response.data.name} <small>{response.data.description}</small>
             </Head>
           </Link>
           {response?.data?.product_details?.flow?.map((m) => (
             <Fragment key={uuidv4()}>
               <Link>
-                {/* onClick={(e) => onFlowChange(m.id)} */}
                 <Menu active={currentFlow === m.id}>
                   <div>{m.name}</div>
                   {completedMenu.includes(m.id) && (
@@ -124,7 +122,6 @@ export default function Product({ product, url }) {
                 subFlowMenu.includes(m.id) &&
                 m.flow.map((item) => (
                   <Link key={item.id}>
-                    {/* onClick={(e) => onFlowChange(item.id)} */}
                     <SubMenu active={currentFlow === item.id}>
                       <div>{item.name}</div>
                       {completedMenu.includes(item.id) && (
