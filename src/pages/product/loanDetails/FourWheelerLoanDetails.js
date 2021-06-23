@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
@@ -6,9 +6,7 @@ import jsonData from "../../../shared/constants/data.json";
 
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
-import HomeLoanAddressDetails from "../../../shared/components/AddressDetails/HomeLoanAddress";
-import HomeLoanDetailsTable from "../../../shared/components/LoanDetails/HomeLoanDetailsTable";
-import UploadAgreementModal from "../../../components/UploadAgreementModal";
+import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
@@ -37,24 +35,19 @@ const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
 
-HomeLoanDetailsPage.propTypes = {
+FourWheelerLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
 };
 
-export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
+export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange }) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
 
   const {
-    actions: {
-      setUsertypeLoanData,
-      setUsertypeEmiData,
-      setUsertypeBankData,
-      setUsertypeAgreementData,
-    },
+    actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
   } = useContext(FormContext);
 
   const {
@@ -64,10 +57,6 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
-  const [uploadAgreementModal, setUploadAgreementModal] = useState(false);
-  const [uploadAgreementName, setUploadAgreementName] = useState(null);
-  const [uploadAgreementDocs, setUploadAgreementDocs] = useState({});
-
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
@@ -76,7 +65,10 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
   const onSave = (data) => {
     const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(data, jsonData.home_loan_details.data);
+    const loanData = formatLoanData(
+      data,
+      jsonData.four_wheeler_loan_details.data
+    );
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
@@ -84,62 +76,43 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
-    setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
     addToast({
       message: "Saved Succesfully",
       type: "success",
     });
   };
 
-  const onUploadAgreement = (name) => {
-    setUploadAgreementName(name);
-    setUploadAgreementModal(true);
-  };
-
-  const onDone = (files, name) => {
-    setUploadAgreementDocs({
-      [name]: files,
-    });
-    setUploadAgreementModal(false);
-  };
-
   return (
     <Div>
       <FormWrapper>
-        <FlexColom base="60%">
+        <FlexColom base="50%">
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={jsonData.home_loan_details.data}
-            size="60%"
-            buttonAction={onUploadAgreement}
-            uploadedDocs={uploadAgreementDocs}
-            label={jsonData.home_loan_details.label}
+            jsonData={jsonData.four_wheeler_loan_details.data}
+            label={jsonData.four_wheeler_loan_details.label}
+            size="80%"
           />
         </FlexColom>
-        <FlexColom base="40%">
-          <HomeLoanAddressDetails
-            jsonData={jsonData.address_details.data}
+        <FlexColom base="50%">
+          <LoanDetails
             register={register}
             formState={formState}
-            size="100%"
+            jsonData={jsonData.four_wheeler_loan_details_additional.data}
+            label={jsonData.four_wheeler_loan_details_additional.label}
+            size="80%"
           />
         </FlexColom>
       </FormWrapper>
-
-      <HomeLoanDetailsTable />
+      <EMIDetails
+        register={register}
+        formState={formState}
+        jsonData={jsonData.emi_details.data}
+      />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
-
-      {uploadAgreementModal && (
-        <UploadAgreementModal
-          onClose={() => setUploadAgreementModal(false)}
-          onDone={onDone}
-          name={uploadAgreementName}
-        />
-      )}
     </Div>
   );
 }

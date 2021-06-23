@@ -241,7 +241,7 @@
 			}
 		]
 	},
-	"loan_details": {
+	"two_wheeler_loan_details": {
 		"label": "Loan Details",
 		"data": [
 			{
@@ -310,6 +310,135 @@
 			}
 		]
 	},
+	"four_wheeler_loan_details": {
+		"label": "Loan Details",
+		"data": [
+			{
+				"name": "loanAmount",
+				"placeholder": "Required Loan Amount",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true,
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"inrupees": true
+			},
+			{
+				"name": "tenure",
+				"rules": {
+					"required": true
+				},
+				"placeholder": "Tenure (in months)",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 3
+				},
+				"visibility": true
+			},
+			{
+				"name": "branchId",
+				"type": "search",
+				"placeholder": "Home branch (for application processing)",
+				"visibility": true,
+				"fetchOnInit": true,
+				"rules": {
+					"required": true
+				},
+				"options": []
+			},
+			{
+				"name": "vehicle",
+				"type": "search",
+				"placeholder": "Choose Vehicle",
+				"rules": {
+					"required": true
+				},
+				"fetchOnSearch": true,
+				"visibility": true,
+				"searchKeyAsValue": true,
+				"options": []
+			},
+			{
+				"name": "assetsValue",
+				"placeholder": "Cost of the Vehicle",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			}
+		]
+	},
+	"four_wheeler_loan_details_additional": {
+		"label": "Breakup price of the vehicle",
+		"data": [
+			{
+				"name": "exShowroomPrice",
+				"placeholder": "Ex Show Room Price",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "Accessories",
+				"placeholder": "Accessories",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "insurance",
+				"placeholder": "Insurance",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "roadTaxRegistration",
+				"placeholder": "Road Tax and Registration",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "total",
+				"placeholder": "Total",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			}
+		]
+	},
 	"emi_details": {
 		"label": "EMI Details",
 		"data": [
@@ -359,7 +488,7 @@
 		"data": [
 			{
 				"name": "grossIncome",
-				"placeholder": "Gross Total Income",
+				"placeholder": "Gross Total Income (as per the latest ITR slip)",
 				"type": "text",
 				"rules": {
 					"required": true
@@ -372,7 +501,7 @@
 			},
 			{
 				"name": "netMonthlyIncome",
-				"placeholder": "Net Monthly Income",
+				"placeholder": "Net Monthly Income (as per the latest Salary slip)",
 				"type": "text",
 				"rules": {
 					"required": true

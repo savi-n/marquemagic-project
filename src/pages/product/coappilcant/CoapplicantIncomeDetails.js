@@ -75,6 +75,7 @@ export default function CoapplicantIncomeDetails({
         register={register}
         formState={formState}
         jsonData={jsonData.salary_details.data}
+        size="40%"
       />
       <EMIDetails
         register={register}

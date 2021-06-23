@@ -54,7 +54,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
       return;
     }
 
-    if (response && !loading) {
+    if (response) {
       getBankToken();
     }
     return () => {};
@@ -117,7 +117,11 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
   }
 
   return (
-    <Modal show={true} onClose={() => {}} width="50%">
+    <Modal
+      show={true}
+      onClose={() => onClose(false, { message: "not working" })}
+      width="50%"
+    >
       <Loading />
     </Modal>
   );

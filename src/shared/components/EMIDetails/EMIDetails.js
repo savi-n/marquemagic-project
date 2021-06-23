@@ -41,7 +41,7 @@ const Currency = styled.div`
 `;
 
 const Field = styled.div`
-  width: 45%;
+  width: 40%;
 `;
 
 EMIDetails.propTypes = {

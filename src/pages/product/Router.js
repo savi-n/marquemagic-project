@@ -14,8 +14,11 @@ const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
 const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
-const VehicleLoanDetails = lazy(() =>
-  import("./loanDetails/VehicleLoanDetails")
+const TwoWheelerLoanDetails = lazy(() =>
+  import("./loanDetails/TwoWheelerLoanDetails")
+);
+const FourWheelerLoanDetails = lazy(() =>
+  import("./loanDetails/FourWheelerLoanDetails")
 );
 const HomeLoanDetails = lazy(() => import("./loanDetails/HomeLoanDetails"));
 const CoApplicantDetails = lazy(() =>
@@ -27,11 +30,22 @@ const CoApplicantIncomeDetails = lazy(() =>
 const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
 
 const availableRoutes = {
-  "": { Component: ProductDetails },
+  "product-details": { Component: ProductDetails },
   "identity-verification": { Component: IdentityVerification },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
-  "loan-details": { protected: true, Component: VehicleLoanDetails },
+  "two-wheeler-loan-details": {
+    protected: true,
+    Component: TwoWheelerLoanDetails,
+  },
+  "four-wheeler-loan-details": {
+    protected: true,
+    Component: FourWheelerLoanDetails,
+  },
+  "loan-details": {
+    protected: true,
+    Component: FourWheelerLoanDetails,
+  },
   "home-loan-details": { protected: true, Component: HomeLoanDetails },
   "co-applicant-details": {
     protected: true,

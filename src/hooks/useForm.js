@@ -68,7 +68,7 @@ const VALIDATION_RULES = {
     func: (value, params) => {
       return params;
     },
-    message: "Must complete the form",
+    message: "Upload agreement is mandatory",
   },
 };
 

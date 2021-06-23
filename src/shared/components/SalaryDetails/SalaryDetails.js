@@ -10,7 +10,7 @@ const H = styled.h1`
 `;
 
 const FieldWrap = styled.div`
-  width: 45%;
+  width: ${({ size }) => (size ? size : "45%")};
   margin: 10px 0;
 `;
 
@@ -34,6 +34,7 @@ export default function SalaryDetails({
   register,
   userType,
   formState,
+  size,
 }) {
   return (
     <>
@@ -45,7 +46,7 @@ export default function SalaryDetails({
           jsonData.map(
             (field) =>
               field.visibility && (
-                <FieldWrap key={field.name}>
+                <FieldWrap key={field.name} size={size}>
                   {register({
                     ...field,
                     value: formState?.values?.[field.name],
@@ -71,4 +72,5 @@ SalaryDetails.propTypes = {
   jsonData: oneOfType([array, object]),
   userType: string,
   formState: object,
+  size: string,
 };
