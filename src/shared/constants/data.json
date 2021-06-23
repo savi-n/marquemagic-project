@@ -488,7 +488,7 @@
 		"data": [
 			{
 				"name": "grossIncome",
-				"placeholder": "Gross Total Income",
+				"placeholder": "Gross Total Income (as per the latest ITR slip)",
 				"type": "text",
 				"rules": {
 					"required": true
@@ -501,7 +501,7 @@
 			},
 			{
 				"name": "netMonthlyIncome",
-				"placeholder": "Net Monthly Income",
+				"placeholder": "Net Monthly Income (as per the latest Salary slip)",
 				"type": "text",
 				"rules": {
 					"required": true

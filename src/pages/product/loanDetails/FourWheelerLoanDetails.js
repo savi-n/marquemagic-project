@@ -35,13 +35,13 @@ const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
 
-HomeLoanDetailsPage.propTypes = {
+FourWheelerLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
 };
 
-export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
+export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange }) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -65,7 +65,10 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
   const onSave = (data) => {
     const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(data, jsonData.loan_details.data);
+    const loanData = formatLoanData(
+      data,
+      jsonData.four_wheeler_loan_details.data
+    );
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({

@@ -76,7 +76,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
   const onSave = (data) => {
     const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(data, jsonData.loan_details.data);
+    const loanData = formatLoanData(data, jsonData.home_loan_details.data);
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({

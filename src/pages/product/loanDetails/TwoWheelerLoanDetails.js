@@ -26,14 +26,14 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-VehicleLoanDetailsPage.propTypes = {
+TwoWheelerLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
   productDetails: object,
 };
 
-export default function VehicleLoanDetailsPage({
+export default function TwoWheelerLoanDetailsPage({
   id,
   onFlowChange,
   map,
@@ -62,7 +62,10 @@ export default function VehicleLoanDetailsPage({
 
   const onSave = (data) => {
     const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(data, jsonData.loan_details.data);
+    const loanData = formatLoanData(
+      data,
+      jsonData.two_wheeler_loan_details.data
+    );
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
