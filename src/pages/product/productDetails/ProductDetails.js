@@ -6,13 +6,11 @@ import Button from "../../../components/Button";
 
 const Colom1 = styled.section`
   flex: 1;
-  background: ${({ theme }) => theme.themeColor1};
   padding: 50px;
 `;
 
 const Colom2 = styled.section`
   width: 30%;
-  background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`
@@ -46,7 +44,7 @@ const Li = styled.li`
   }
 
   a {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 
@@ -54,7 +52,7 @@ const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 

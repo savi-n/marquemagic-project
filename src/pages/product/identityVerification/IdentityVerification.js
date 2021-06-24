@@ -15,12 +15,10 @@ import { useToasts } from "../../../components/Toast/ToastProvider";
 const Colom1 = styled.div`
   flex: 1;
   padding: 50px;
-  background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Colom2 = styled.div`
   width: 30%;
-  background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`
@@ -34,7 +32,7 @@ const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 

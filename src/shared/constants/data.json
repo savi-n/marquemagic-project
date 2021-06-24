@@ -624,7 +624,7 @@
 							}
 						},
 						{
-							"name": "outstading",
+							"name": "outstanding",
 							"type": "text",
 							"placeholder": "Enter Present Outstanding",
 							"visibility": true,

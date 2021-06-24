@@ -26,7 +26,6 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
   };
 
   const onDoneClick = () => {
-    console.log(agreementFiles);
     onDone(agreementFiles, name);
   };
 

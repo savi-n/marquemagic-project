@@ -5,7 +5,7 @@ import { shape, string, number } from "prop-types";
 const Wrapper = styled.div`
   width: 22%;
   border-radius: 10px;
-  background: ${({ theme }) => theme.themeColor1};
+  /* background: ${({ theme }) => theme.themeColor1}; */
   overflow: hidden;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
   margin: 0 calc(12% / 6);
@@ -23,16 +23,16 @@ const Img = styled.img`
 `;
 
 const Div = styled.div`
-  background: ${({ theme }) => theme.themeColor1};
+  /* background: ${({ theme }) => theme.themeColor1}; */
   text-align: center;
   padding: 40px;
 `;
 
 const Link = styled.a`
   text-decoration: none;
-  color: ${({ theme }) => theme.themeColor1};
-  background: ${({ theme }) => theme.buttonColor1};
-  padding: 10px 30px;
+  color: #fff;
+  background: ${({ theme }) => theme.main_theme_color};
+  padding: 5px 40px;
   display: inline-block;
   border-radius: 20px;
 `;
