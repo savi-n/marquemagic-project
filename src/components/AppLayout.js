@@ -19,7 +19,7 @@ import { AppContext } from "../reducer/appReducer";
 const HeaderWrapper = styled.div`
   min-height: 80px;
   max-height: 80px;
-  background: ${({ theme }) => theme.themeColor1};
+  /* background: ${({ theme }) => theme.themeColor1}; */
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
   display: flex;
   align-items: center;

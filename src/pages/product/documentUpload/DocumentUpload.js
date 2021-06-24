@@ -1,5 +1,4 @@
 import { useState, useContext } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { func, object, oneOfType, string, oneOf } from "prop-types";
@@ -18,6 +17,7 @@ import {
   NC_STATUS_CODE,
   USER_ROLES,
 } from "../../../_config/app.config";
+import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
 import GetCIBILScoreModal from "../../../components/GetCIBILScoreModal";
@@ -32,7 +32,6 @@ import Modal from "../../../components/Modal";
 
 const Colom1 = styled.div`
   flex: 1;
-  background: ${({ theme }) => theme.themeColor1};
   padding: 50px;
 `;
 
@@ -78,7 +77,7 @@ const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 
@@ -93,18 +92,9 @@ const textForCheckbox = {
     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
 };
 
-const documentsRequired = [
-  "Latest Three months salary slip",
-  "Latest Six months bank account statement(in which the salary gets credited)",
-  "Last 2 years ITR(in pdf)",
-  "Quotation letter",
-  "SB account statment for the latest six months(other banks)",
-  "Form 16 from the Employee of the borrower",
-  "Any other relevent doxuments",
-];
-
 DocumentUpload.propTypes = {
   onFlowChange: func.isRequired,
+  productDetails: object,
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor", "", undefined]),
@@ -112,13 +102,13 @@ DocumentUpload.propTypes = {
 };
 
 export default function DocumentUpload({
+  productDetails,
   userType,
   id,
   onFlowChange,
   map,
   productId,
 }) {
-  console.log(map);
   const {
     state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
@@ -198,7 +188,9 @@ export default function DocumentUpload({
       !bankCUBStatementFetchDone ||
       !(cibilCheckbox && declareCheck) ||
       caseCreationProgress ||
-      !(documentChecklist.length === documentsRequired.length) ||
+      !(
+        documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
+      ) ||
       !state[USER_ROLES[userType || "User"]]?.uploadedDocs.length
     );
   };
@@ -594,7 +586,7 @@ export default function DocumentUpload({
       <Colom2>
         <Doc>Documents Required</Doc>
         <div>
-          {documentsRequired.map((docs) => (
+          {productDetails[DOCUMENTS_REQUIRED]?.map((docs) => (
             <DocsCheckboxWrapper key={uuidv4()}>
               <CheckBox
                 name={docs}

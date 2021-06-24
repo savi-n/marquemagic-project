@@ -18,14 +18,14 @@ const Wrapper = styled.div`
 
 const Colom1 = styled.div`
   width: 25%;
-  background: ${({ theme }) => theme.buttonColor1};
-  color: ${({ theme }) => theme.themeColor1};
+  background: ${({ theme }) => theme.main_theme_color};
+  color: #fff;
   padding: 50px 20px;
 `;
 
 const Colom2 = styled.div`
   flex: 1;
-  background: ${({ theme }) => theme.themeColor1};
+  background: #fff;
   display: flex;
   overflow: scroll;
   &::-webkit-scrollbar {
@@ -38,6 +38,13 @@ const Head = styled.h4`
   border-radius: 10px;
   padding: 10px 20px;
   margin: 5px 0;
+  font-size: 20px;
+  font-weight: 500;
+
+  span {
+    font-size: 14px;
+    font-weight: 400;
+  }
 `;
 
 const Menu = styled.h5`
@@ -49,6 +56,7 @@ const Menu = styled.h5`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 14px;
 `;
 
 const SubMenu = styled.h5`
@@ -62,6 +70,7 @@ const SubMenu = styled.h5`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 14px;
 `;
 
 const Link = styled.div`
@@ -105,7 +114,7 @@ export default function Product({ product, url }) {
         <Colom1>
           <Link>
             <Head active={currentFlow === "product-details"}>
-              {response.data.name} <small>{response.data.description}</small>
+              {response.data.name} <span>{response.data.description}</span>
             </Head>
           </Link>
           {response?.data?.product_details?.flow?.map((m) => (

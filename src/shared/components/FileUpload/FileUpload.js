@@ -19,7 +19,7 @@ const Dropzone = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: ${({ bg }) => bg ?? "rgba(0,0,0,0.1)"};
+  background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
   border-radius: 20px;
   overflow: hidden;
 
@@ -79,7 +79,7 @@ const Label = styled.label`
   color: #fff;
   font-size: 15px;
   cursor: pointer;
-  background: ${({ theme, bg }) => bg ?? theme.buttonColor2};
+  background: ${({ theme, bg }) => bg ?? theme.upload_button_color};
   border-radius: 5px;
 `;
 

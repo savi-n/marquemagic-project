@@ -9,7 +9,6 @@ import { FlowContext } from "../../../reducer/flowReducer";
 const Colom1 = styled.div`
   flex: 1;
   padding: 50px;
-  background: ${({ theme }) => theme.themeColor1};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +17,6 @@ const Colom1 = styled.div`
 
 const Colom2 = styled.div`
   width: 30%;
-  background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`

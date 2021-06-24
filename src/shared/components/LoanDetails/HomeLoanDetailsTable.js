@@ -51,14 +51,14 @@ export default function HomeLoanDetailsTable() {
     <TableWrapper>
       <Row>
         {tableContent.heads.map((head) => (
-          <Head>{head}</Head>
+          <Head key={head}>{head}</Head>
         ))}
       </Row>
 
-      {tableContent.content.map((row) => (
-        <Row>
+      {tableContent.content.map((row, i) => (
+        <Row key={i}>
           {row.map((colom) => (
-            <Colom>{colom}</Colom>
+            <Colom key={colom}>{colom}</Colom>
           ))}
         </Row>
       ))}

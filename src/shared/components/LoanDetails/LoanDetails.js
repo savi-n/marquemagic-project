@@ -76,7 +76,7 @@ LoanDetails.propTypes = {
   loanType: string,
   size: string,
   buttonAction: func,
-  uploadedDocs: func,
+  uploadedDocs: object,
 };
 
 export default function LoanDetails({
@@ -138,8 +138,8 @@ export default function LoanDetails({
 
   const fieldTemplate = (field) => {
     return (
-      <>
-        <FieldWrapper key={field.name}>
+      <Fragment key={field.name}>
+        <FieldWrapper>
           <Field size={size}>
             {register({
               ...field,
@@ -184,7 +184,7 @@ export default function LoanDetails({
           field.forType[(formState?.values?.[field.name])].map((f) =>
             makeFields(f)
           )}
-      </>
+      </Fragment>
     );
   };
 

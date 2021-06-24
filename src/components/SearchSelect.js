@@ -116,7 +116,8 @@ export default function SearchSelect({
     if (
       fetchOptionsFunc &&
       typeof fetchOptionsFunc === "function" &&
-      !selectOptions.length
+      !selectOptions.length &&
+      !fetching
     ) {
       fetchOption();
     }

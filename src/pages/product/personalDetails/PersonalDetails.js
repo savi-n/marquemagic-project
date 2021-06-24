@@ -55,8 +55,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
     onFlowChange(map.main);
   };
 
-  console.log(userBankDetails);
-
   return (
     <Div>
       <PersonalDetails
