@@ -39,9 +39,15 @@ FourWheelerLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
+  productDetails: object,
 };
 
-export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange }) {
+export default function FourWheelerLoanDetailsPage({
+  id,
+  map,
+  onFlowChange,
+  productDetails,
+}) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -91,6 +97,7 @@ export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange }) {
             formState={formState}
             jsonData={jsonData.four_wheeler_loan_details.data}
             label={jsonData.four_wheeler_loan_details.label}
+            loanType={productDetails.loanType}
             size="80%"
           />
         </FlexColom>

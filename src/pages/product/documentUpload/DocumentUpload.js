@@ -285,7 +285,7 @@ export default function DocumentUpload({
 
       const statementUploadRes = statementUploadReq.data;
 
-      if (statementUploadRes.status === NC_STATUS_CODE.OK) {
+      if (statementUploadRes.statusCode === NC_STATUS_CODE.NC200) {
         return statementUploadRes;
       }
 
