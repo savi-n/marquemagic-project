@@ -366,9 +366,9 @@ export default function DocumentUpload({
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
           ...state[USER_ROLES[role]].loanData,
-          cibilScore:
-            state[USER_ROLES[role]].cibilScore ||
-            otherUserTypeCibilDetails.cibilScore,
+          cibilScore: userType
+            ? state[USER_ROLES[role]].cibilData.cibilScore
+            : otherUserTypeCibilDetails.cibilScore,
         },
         CREATE_CASE_OTHER_USER
       );
@@ -460,7 +460,7 @@ export default function DocumentUpload({
       "Guarantor",
       [
         otherCUBStatementUserTypeDetails.requestId,
-        otherUserTypeCibilDetails.requestId,
+        state.guarantor.cibilData.requestId,
       ]
     );
     if (!GuarantorReq) {
@@ -480,10 +480,13 @@ export default function DocumentUpload({
 
     if (success) {
       if (userType) {
-        setUsertypeCibilData({
-          cibilScore: data.cibilScore,
-          requestId: data.requestId,
-        });
+        setUsertypeCibilData(
+          {
+            cibilScore: data.cibilScore,
+            requestId: data.requestId,
+          },
+          USER_ROLES[userType]
+        );
       } else {
         setOtherUserTypeCibilDetails({
           cibilScore: data.cibilScore,
