@@ -2,8 +2,6 @@ import { useContext, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOf, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
@@ -59,6 +57,7 @@ CoapplicantDetails.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor"]),
+  fieldConfig: object,
 };
 
 export default function CoapplicantDetails({
@@ -66,6 +65,7 @@ export default function CoapplicantDetails({
   id,
   onFlowChange,
   map,
+  fieldConfig,
 }) {
   const {
     actions: { setCompleted },
@@ -82,16 +82,20 @@ export default function CoapplicantDetails({
 
   const onSave = (formData) => {
     let formatedAddress = [
-      formatAddressData("permanent", formData, jsonData.address_details.data),
+      formatAddressData(
+        "permanent",
+        formData,
+        fieldConfig.address_details.data
+      ),
     ];
 
     !match &&
       formatedAddress.push(
-        formatAddressData("present", formData, jsonData.address_details.data)
+        formatAddressData("present", formData, fieldConfig.address_details.data)
       );
 
     const formatApplicantData = {
-      ...formatPersonalData(formData, jsonData.personal_details.data),
+      ...formatPersonalData(formData, fieldConfig.personal_details.data),
       typeName: userType,
     };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
@@ -114,7 +118,7 @@ export default function CoapplicantDetails({
         userType={userType}
         register={register}
         formState={formState}
-        jsonData={jsonData.personal_details.data}
+        jsonData={fieldConfig.personal_details.data}
       />
       <AddressDetails
         userType={userType}
@@ -122,7 +126,7 @@ export default function CoapplicantDetails({
         formState={formState}
         match={match}
         setMatch={setMatch}
-        jsonData={jsonData.address_details.data}
+        jsonData={fieldConfig.address_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

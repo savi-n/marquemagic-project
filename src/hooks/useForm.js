@@ -124,7 +124,7 @@ export default function useForm() {
   const checkValidity = (name) => {
     let error = false;
 
-    if (!fieldsRef.current[name].disabled) {
+    if (!fieldsRef.current[name]?.disabled) {
       error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
     }
 
@@ -139,7 +139,7 @@ export default function useForm() {
   };
 
   const setValue = (name, value) => {
-    const mask = fieldsRef.current[name].mask;
+    const mask = fieldsRef.current[name]?.mask;
     if (mask) {
       value = revealMask(mask, value);
     }
@@ -186,7 +186,7 @@ export default function useForm() {
   const onChange = (event, type) => {
     const { name, value } = event;
 
-    if (fieldsRef.current[name].disabled) {
+    if (fieldsRef.current[name]?.disabled) {
       return;
     }
 

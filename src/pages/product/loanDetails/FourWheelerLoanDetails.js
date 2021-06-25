@@ -2,8 +2,6 @@ import { useContext } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
@@ -40,6 +38,7 @@ FourWheelerLoanDetailsPage.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   productDetails: object,
+  fieldConfig: object,
 };
 
 export default function FourWheelerLoanDetailsPage({
@@ -47,6 +46,7 @@ export default function FourWheelerLoanDetailsPage({
   map,
   onFlowChange,
   productDetails,
+  fieldConfig,
 }) {
   const {
     actions: { setCompleted },
@@ -70,11 +70,8 @@ export default function FourWheelerLoanDetailsPage({
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(
-      data,
-      jsonData.four_wheeler_loan_details.data
-    );
+    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
+    const loanData = formatLoanData(data, fieldConfig.loan_details.data);
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
@@ -95,8 +92,8 @@ export default function FourWheelerLoanDetailsPage({
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={jsonData.four_wheeler_loan_details.data}
-            label={jsonData.four_wheeler_loan_details.label}
+            jsonData={fieldConfig.loan_details.data}
+            label={fieldConfig.loan_details.label}
             loanType={productDetails.loanType}
             size="80%"
           />
@@ -105,8 +102,8 @@ export default function FourWheelerLoanDetailsPage({
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={jsonData.four_wheeler_loan_details_additional.data}
-            label={jsonData.four_wheeler_loan_details_additional.label}
+            jsonData={fieldConfig.loan_details_additional.data}
+            label={fieldConfig.loan_details_additional.label}
             size="80%"
           />
         </FlexColom>
@@ -114,7 +111,7 @@ export default function FourWheelerLoanDetailsPage({
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={jsonData.emi_details.data}
+        jsonData={fieldConfig.emi_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

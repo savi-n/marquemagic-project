@@ -2,7 +2,6 @@ import { useContext, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
@@ -46,9 +45,15 @@ AddressDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
+  fieldConfig: object,
 };
 
-export default function AddressDetailsPage({ id, onFlowChange, map }) {
+export default function AddressDetailsPage({
+  id,
+  onFlowChange,
+  map,
+  fieldConfig,
+}) {
   const {
     actions: { setCompleted, activateSubFlow },
   } = useContext(FlowContext);
@@ -65,12 +70,12 @@ export default function AddressDetailsPage({ id, onFlowChange, map }) {
 
   const onSave = (formData) => {
     let formatedData = [
-      formatData("permanent", formData, jsonData.address_details.data),
+      formatData("permanent", formData, fieldConfig.address_details.data),
     ];
 
     !match &&
       formatedData.push(
-        formatData("present", formData, jsonData.address_details.data)
+        formatData("present", formData, fieldConfig.address_details.data)
       );
 
     setUsertypeAddressData(formatedData);
@@ -99,7 +104,7 @@ export default function AddressDetailsPage({ id, onFlowChange, map }) {
         formState={formState}
         match={match}
         setMatch={setMatch}
-        jsonData={jsonData.address_details.data}
+        jsonData={fieldConfig.address_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

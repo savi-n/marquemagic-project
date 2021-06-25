@@ -3,7 +3,11 @@ import styled from "styled-components";
 
 import Modal from "./Modal";
 import Button from "./Button";
-import { BANK_LIST_API, NC_STATUS_CODE } from "../_config/app.config";
+import {
+  BANK_LIST_API,
+  BANK_TOKEN_API,
+  NC_STATUS_CODE,
+} from "../_config/app.config";
 import BANK_FLOW from "../_config/bankflow.config";
 import { AppContext } from "../reducer/appReducer";
 import useFetch from "../hooks/useFetch";
@@ -88,12 +92,27 @@ const Captcha = styled.img`
 
 export default function BankStatementModal({ showModal, onClose }) {
   const {
-    state: { bankToken },
+    state: { bankToken, clientToken },
   } = useContext(AppContext);
 
-  const { response, loading, newRequest } = useFetch({
+  const { response: bankList, loading, newRequest } = useFetch({
     url: BANK_LIST_API,
     headers: { authorization: `${bankToken}` },
+  });
+
+  const { response: token } = useFetch({
+    url: BANK_TOKEN_API,
+    options: {
+      method: "POST",
+      data: {
+        type: "EQFAX",
+        linkRequired: false,
+        isEncryption: false,
+      },
+    },
+    headers: {
+      authorization: clientToken,
+    },
   });
 
   const [processing, setProcessing] = useState(false);
@@ -141,10 +160,10 @@ export default function BankStatementModal({ showModal, onClose }) {
         formData
       );
 
-      const reponse = post.data;
-      if (reponse.statusCode === NC_STATUS_CODE.NC500) {
-        if (reponse.imagePath) {
-          setCaptchaUrl(reponse.imagePath);
+      const response = post.data;
+      if (response.statusCode === NC_STATUS_CODE.NC200) {
+        if (response.imagePath) {
+          setCaptchaUrl(response.imagePath);
         }
         if (response.noOfAccounts > 1) {
           setAccountsList(response.noOfAccounts.accounts);
@@ -161,7 +180,7 @@ export default function BankStatementModal({ showModal, onClose }) {
   };
 
   const { register, handleSubmit, formState } = useForm();
-  const { banks = [] } = response || {};
+  const { banks = [] } = bankList || {};
 
   const buildTemplate = (flow) => {
     if (flow.type === "captcha") {
@@ -170,11 +189,7 @@ export default function BankStatementModal({ showModal, onClose }) {
       }
       return (
         <div key={flow.name}>
-          <Captcha
-            src={captchaUrl || "https://picsum.photos/200/300"}
-            alt="Captcha"
-            loading="lazy"
-          />
+          <Captcha src={captchaUrl} alt="Captcha" loading="lazy" />
           {register({ ...flow, value: formState?.values[flow.name] })}
         </div>
       );

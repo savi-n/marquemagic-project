@@ -2,14 +2,11 @@ import { useContext, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
-import { UserContext } from "../../../reducer/userReducer";
 import { formatEmiData } from "../../../utils/formatData";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
@@ -49,9 +46,10 @@ EMIDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
+  fieldConfig: object,
 };
 
-export default function EMIDetailsPage({ id, onFlowChange, map }) {
+export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -70,7 +68,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, jsonData.emi_details.data);
+    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
 
     setUsertypeEmiData(emiData);
 
@@ -84,7 +82,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 
   const onAdd = () => {
     const newField = {
-      ...jsonData.emi_details.data[0],
+      ...fieldConfig.emi_details.data[0],
       name: `addDed_${additionalField.length + 1}`,
       placeholder: "Additional Deductions/repayment",
     };
@@ -96,7 +94,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={[...jsonData.emi_details.data, ...additionalField]}
+        jsonData={[...fieldConfig.emi_details.data, ...additionalField]}
       />
 
       <Wrapper>
