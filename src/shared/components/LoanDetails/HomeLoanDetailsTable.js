@@ -41,8 +41,8 @@ const tableContent = {
   ],
   content: [
     ["Upto 5 years", "10.25%", "10.75%", "11.25%"],
-    ["Above 5 years and Upto 10 years", "10.25%", "10.75%", "11.25%"],
-    ["Above 10 years and Upto 15 years", "10.25%", "10.75%", "11.25%"],
+    ["Above 5 years and Upto 10 years", "10.75%", "11.25%", "11.75%"],
+    ["Above 10 years and Upto 15 years", "11.25%", "11.75%", "12.25%"],
   ],
 };
 
