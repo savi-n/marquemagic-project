@@ -97,9 +97,10 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   };
 
   const onDone = (files, name) => {
-    setUploadAgreementDocs({
+    setUploadAgreementDocs((p) => ({
+      ...p,
       [name]: files,
-    });
+    }));
     setUploadAgreementModal(false);
   };
 
