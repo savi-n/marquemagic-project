@@ -2,8 +2,6 @@ import { useContext } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
 import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetails";
@@ -25,7 +23,12 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function PersonalDetailsPage({ id, map, onFlowChange }) {
+export default function PersonalDetailsPage({
+  id,
+  map,
+  onFlowChange,
+  fieldConfig,
+}) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -68,10 +71,10 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
           mobileNo: userBankDetails.mobileNum,
           panNumber: userBankDetails.pan,
         }}
-        jsonData={jsonData.personal_details.data}
+        jsonData={fieldConfig.personal_details.data}
       />
       <SalaryDetails
-        jsonData={jsonData.salary_details.data}
+        jsonData={fieldConfig.salary_details.data}
         register={register}
         formState={formState}
       />
@@ -88,4 +91,5 @@ PersonalDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
+  fieldConfig: object,
 };

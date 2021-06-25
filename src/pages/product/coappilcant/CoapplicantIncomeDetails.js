@@ -2,8 +2,6 @@ import { useContext } from "react";
 import styled from "styled-components";
 import { func, object, oneOf, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
@@ -31,6 +29,7 @@ CoapplicantIncomeDetails.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor"]),
+  fieldConfig: object,
 };
 
 export default function CoapplicantIncomeDetails({
@@ -38,6 +37,7 @@ export default function CoapplicantIncomeDetails({
   id,
   onFlowChange,
   map,
+  fieldConfig,
 }) {
   const {
     actions: { setCompleted },
@@ -51,8 +51,11 @@ export default function CoapplicantIncomeDetails({
   const { addToast } = useToasts();
 
   const onSave = (formData) => {
-    const emiData = formatEmiData(formData, jsonData.emi_details.data);
-    const salaryData = formatLoanData(formData, jsonData.salary_details.data);
+    const emiData = formatEmiData(formData, fieldConfig.emi_details.data);
+    const salaryData = formatLoanData(
+      formData,
+      fieldConfig.salary_details.data
+    );
 
     setUsertypeEmiData(emiData, USER_ROLES[userType]);
     setUsertypeSalaryData(salaryData, USER_ROLES[userType]);
@@ -74,13 +77,13 @@ export default function CoapplicantIncomeDetails({
         userType={userType}
         register={register}
         formState={formState}
-        jsonData={jsonData.salary_details.data}
+        jsonData={fieldConfig.salary_details.data}
         size="40%"
       />
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={jsonData.emi_details.data}
+        jsonData={fieldConfig.emi_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

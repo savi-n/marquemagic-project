@@ -2,8 +2,6 @@ import { useContext, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
-import jsonData from "../../../shared/constants/data.json";
-
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import HomeLoanAddressDetails from "../../../shared/components/AddressDetails/HomeLoanAddress";
@@ -41,9 +39,15 @@ HomeLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
+  fieldConfig: object,
 };
 
-export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
+export default function HomeLoanDetailsPage({
+  id,
+  map,
+  onFlowChange,
+  fieldConfig,
+}) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -75,8 +79,8 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(data, jsonData.home_loan_details.data);
+    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
+    const loanData = formatLoanData(data, fieldConfig.loan_details.data);
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
@@ -111,16 +115,16 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={jsonData.home_loan_details.data}
+            jsonData={fieldConfig.loan_details.data}
             size="60%"
             buttonAction={onUploadAgreement}
             uploadedDocs={uploadAgreementDocs}
-            label={jsonData.home_loan_details.label}
+            label={fieldConfig.loan_details.label}
           />
         </FlexColom>
         <FlexColom base="40%">
           <HomeLoanAddressDetails
-            jsonData={jsonData.address_details.data}
+            jsonData={fieldConfig.address_details.data}
             register={register}
             formState={formState}
             size="100%"

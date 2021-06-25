@@ -76,6 +76,12 @@ const availableRoutes = {
   },
 };
 
+const fieldConfig = {
+  "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
+  "4 wheeler": require("../../shared/constants/fourWheelerFields.json"),
+  "Home Loan": require("../../shared/constants/homeFields.json"),
+};
+
 export default function Router({
   currentFlow,
   productDetails = {},
@@ -83,12 +89,14 @@ export default function Router({
   onFlowChange,
   productId,
 }) {
+  console.log(fieldConfig["2 wheeler"]);
   const component = availableRoutes[currentFlow];
 
   return (
     <Suspense fallback={<Loading />}>
       <component.Component
         productDetails={productDetails}
+        fieldConfig={fieldConfig[productDetails.loanType]}
         onFlowChange={onFlowChange}
         map={map}
         id={currentFlow}
