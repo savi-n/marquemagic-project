@@ -34,6 +34,7 @@
 		"start:dev:aws": "env-cmd -f ./env/.env.aws.dev craco start",
 		"start:dev:azure": "env-cmd -f ./env/.env.azure.dev craco start",
 		"build": "craco build",
+		"build:prod": "env-cmd -f ./env/.env.prod craco build",
 		"test": "craco test",
 		"eject": "react-scripts eject"
 	},
