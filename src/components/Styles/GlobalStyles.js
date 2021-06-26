@@ -1,11 +1,17 @@
 // globalStyles.js
 import { createGlobalStyle } from "styled-components";
+import font1 from "../../assets/fonts/OpenSans-Regular.ttf";
 
 const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: 'CUBFont';
+    src:  url(${font1})  format('truetype');
+  }
+
   body {
     margin: 0;
     padding: 0;
-    font-family: Open-Sans, Helvetica, Sans-Serif;
+    font-family: 'CUBFont';
   }
 `;
 

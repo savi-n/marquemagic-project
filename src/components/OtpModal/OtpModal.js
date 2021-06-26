@@ -10,6 +10,7 @@ import Modal from "../../components/Modal";
 import OtpInput from "./OtpInput";
 import OtpTimer from "./OtpTimer";
 import { useToasts } from "../Toast/ToastProvider";
+import errorImg from "../../assets/images/v1.png";
 
 const ModalWrapper = styled.div`
   padding: 20px;
@@ -61,7 +62,8 @@ const ImgBox = styled.div`
   width: 80%;
   background: ${({ bg }) => `url(${bg})`};
   background-position: center;
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
 `;
 
 const OtpWrapper = styled.div`
@@ -186,15 +188,17 @@ export default function OtpModal(props) {
             <>
               <OTPHead>OTP Verification</OTPHead>
               <hr />
-              <OTPCaption>
-                A 6 digit OTP has been sent to your mobile number{" "}
-                {"*".repeat(mobileNo.length - 4)}
-                {mobileNo.substring(mobileNo.length - 4)} Kindly enter it below.
-                &nbsp;
-                <b className="cursor-pointer" onClick={toggle}>
-                  Wrong number?
-                </b>
-              </OTPCaption>
+              {mobileNo && (
+                <OTPCaption>
+                  A 6 digit OTP has been sent to your mobile number{" "}
+                  {"*".repeat(mobileNo.length - 4)}
+                  {mobileNo.substring(mobileNo.length - 4)} Kindly enter it
+                  below. &nbsp;
+                  <b className="cursor-pointer" onClick={toggle}>
+                    Wrong number?
+                  </b>
+                </OTPCaption>
+              )}
               <OtpWrapper>
                 <OtpInput
                   numInputs={6}
@@ -248,7 +252,7 @@ export default function OtpModal(props) {
           )
         ) : (
           <MessageBox>
-            <ImgBox />
+            <ImgBox bg={errorImg} />
             <SorrySpan>Sorry!</SorrySpan>
             <Message>{errorMessage || message}</Message>
           </MessageBox>
