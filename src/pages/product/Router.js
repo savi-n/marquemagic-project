@@ -4,28 +4,6 @@ import { func, object, oneOfType, string } from "prop-types";
 import userType from "../../_hoc/userType";
 import Loading from "../../components/Loading";
 
-import twoWheelerProduct from "../../assets/product images/2pd.jpg";
-import twoWheelerSubmitted from "../../assets/product images/2as.jpg";
-import fourWheelerProduct from "../../assets/product images/4pd.jpg";
-import fourWheelerSubmitted from "../../assets/product images/4as.jpg";
-import homeLoabProduct from "../../assets/product images/hpd.jpg";
-import homeLoabSubmitted from "../../assets/product images/has.jpg";
-
-const imagesConfig = {
-  "2 wheeler": {
-    productImage: twoWheelerProduct,
-    applicationSubmitted: twoWheelerSubmitted,
-  },
-  "4 wheeler": {
-    productImage: fourWheelerProduct,
-    applicationSubmitted: fourWheelerSubmitted,
-  },
-  "Home Loan": {
-    productImage: homeLoabProduct,
-    applicationSubmitted: homeLoabSubmitted,
-  },
-};
-
 const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 const IdentityVerification = lazy(() =>
   import("./identityVerification/IdentityVerification")
@@ -116,10 +94,7 @@ export default function Router({
   return (
     <Suspense fallback={<Loading />}>
       <component.Component
-        productDetails={{
-          ...productDetails,
-          ...imagesConfig[productDetails.loanType],
-        }}
+        productDetails={productDetails}
         fieldConfig={fieldConfig[productDetails.loanType]}
         onFlowChange={onFlowChange}
         map={map}
