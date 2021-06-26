@@ -113,7 +113,10 @@ export default function ApplicationSubmitted({
         )}
       </Colom1>
       <Colom2>
-        <Img src={productDetails.applicationSubmitted} alt="Loan Caption" />
+        <Img
+          src={productDetails.applicationSubmittedImage}
+          alt="Loan Caption"
+        />
       </Colom2>
     </>
   );

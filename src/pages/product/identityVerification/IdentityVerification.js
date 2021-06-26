@@ -174,7 +174,7 @@ export default function IdentityVerification({
           </form>
         </Colom1>
         <Colom2>
-          <Img src={productDetails.productImage} alt="Loan Caption" />
+          <Img src={productDetails.productDetailsImage} alt="Loan Caption" />
         </Colom2>
         {toggleModal && (
           <OtpModal

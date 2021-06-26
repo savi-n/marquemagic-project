@@ -80,7 +80,7 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
           )}
         </Colom1>
         <Colom2>
-          <Img src={productDetails.productImage} alt="Loan Caption" />
+          <Img src={productDetails.productDetailsImage} alt="Loan Caption" />
         </Colom2>
       </>
     )
