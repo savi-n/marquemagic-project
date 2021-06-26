@@ -5,6 +5,8 @@ import { func, object, oneOfType, string } from "prop-types";
 import Button from "../../../components/Button";
 import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
+import img1 from "../../../assets/images/v3.png";
+import img2 from "../../../assets/images/v4.png";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -44,7 +46,7 @@ const CaptionImg = styled.div`
   height: 150px;
   width: 70%;
   background-position: center;
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
 `;
 
@@ -52,10 +54,12 @@ const data = [
   {
     caption: `Your application has been forwarded to the branch, desicion shall be communicated within 2-3 working days.`,
     guarantor: true,
+    img: img1,
   },
   {
     caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
     guarantor: true,
+    img: img2,
   },
   {
     caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
@@ -95,11 +99,7 @@ export default function ApplicationSubmitted({
   return (
     <>
       <Colom1>
-        {!d.guarantor ? (
-          <GuageMeter />
-        ) : (
-          <CaptionImg bg={productDetails.imageUrl} />
-        )}
+        {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
         <Caption>{d.caption}</Caption>
 
         {d.guarantor && (
