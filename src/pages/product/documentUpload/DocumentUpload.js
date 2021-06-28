@@ -542,10 +542,10 @@ export default function DocumentUpload({
           <CheckBox
             name={textForCheckbox.grantCibilAcces}
             checked={cibilCheckbox}
-            disabled={cibilCheckbox}
+            // disabled={cibilCheckbox}
             onChange={() => {
               setCibilCheckbox(!cibilCheckbox);
-              setCibilCheckModal(true);
+              // setCibilCheckModal(true);
             }}
             bg="blue"
           />
