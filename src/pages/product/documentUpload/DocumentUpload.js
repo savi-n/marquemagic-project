@@ -176,7 +176,7 @@ export default function DocumentUpload({
 
   const onCUBStatementModalClose = (success) => {
     setToggleCUBStatementModal(false);
-    if (success) setBankCUBStatementFetchDone(true);
+    if (typeof success === "boolean") setBankCUBStatementFetchDone(true);
   };
 
   const handleFileUpload = async (files) => {

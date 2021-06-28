@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import styled from "styled-components";
 
+import cubLogo from "../assets/bankLogos/cub.png";
+
 import Loading from "../components/Loading";
 import {
   CUB_ACCOUNT_MINI_STATEMENT,
@@ -35,8 +37,8 @@ const H2 = styled.h2`
 `;
 
 const BankLogo = styled.img`
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
 `;
 
 const Wrapper = styled.div`
@@ -194,11 +196,7 @@ export default function GetCUBStatementModal({
           <Loading />
         ) : (
           <Wrapper>
-            <BankLogo
-              src={"https://picsum.photos/200/300"}
-              alt={"cub_bank_logo"}
-              loading="lazy"
-            />
+            <BankLogo src={cubLogo} alt={"cub_bank_logo"} loading="lazy" />
             <form onSubmit={handleSubmit(onSubmit)}>
               <FieldWrapper>
                 {register({
