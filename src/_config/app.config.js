@@ -5,6 +5,8 @@ const API_END_POINT =
 const ENDPOINT_BANK =
   process.env.REACT_APP_BANK_API || "http://40.80.80.135:1337";
 
+const APP_DOMAIN = process.env.REACT_APP_DOMAIN || "";
+
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
 const BANK_TOKEN_API = `${ENDPOINT_BANK}/generateLink`;
@@ -36,6 +38,8 @@ const SEARCH_BANK_BRANCH_LIST = taggedTemplate`${API_END_POINT}/getBranchList?ba
 const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
 
 const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
+
+const PINCODE_ADRRESS_FETCH = `${API_END_POINT}/pincode?code=${"pinCode"}`;
 
 const NC_STATUS_CODE = {
   OK: "ok",
@@ -77,4 +81,6 @@ export {
   UPLOAD_CUB_STATEMENT,
   UPDATE_LOAN_ASSETS,
   FETCH_CIBIL_SCORE,
+  PINCODE_ADRRESS_FETCH,
+  APP_DOMAIN,
 };
