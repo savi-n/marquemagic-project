@@ -1,10 +1,13 @@
 import { useState, lazy } from 'react';
 import '../../components/styles/index.scss';
+import { getNCStatus } from '../../utils/requests';
 const Applications = lazy(() => import('../../components/Applications'));
 const Home = lazy(() => import('../../components/Home'));
 const Layout = lazy(() => import('../../Layout'));
 
 export default function Dashboard(props) {
+	getNCStatus();
+
 	const isIdentifier = () => {
 		return props.location.pathname === '/branch-user';
 	};
@@ -66,7 +69,7 @@ export default function Dashboard(props) {
 	const [current, setCurrent] = useState('Home');
 	const d = [
 		{
-			label: 'Pending Approvals',
+			label: 'Pending Applications',
 			data: [
 				{
 					customer_name: 'XYZ Private Limited',
@@ -74,7 +77,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 580,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -82,7 +88,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 610,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 1.25,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -90,7 +99,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 280,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 1.75,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -98,7 +110,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 380,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -106,7 +121,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 680,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -114,7 +132,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 680,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				}
 			]
 		},
@@ -127,7 +148,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 480,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -135,7 +159,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 410,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -143,7 +170,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 180,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -151,7 +181,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 700,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				}
 			]
 		},
@@ -164,7 +197,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 290,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
@@ -172,7 +208,10 @@ export default function Dashboard(props) {
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
 					cibil: 530,
-					preEligibleAmount: 540000
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				}
 			]
 		},
@@ -184,31 +223,92 @@ export default function Dashboard(props) {
 					loan_type: 'Auto Loan',
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
-					cibil: 480,
-					preEligibleAmount: 540000
+					cibil: 100,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
 					loan_type: 'Auto Loan',
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
-					cibil: 480,
-					preEligibleAmount: 540000
+					cibil: 590,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				},
 				{
 					customer_name: 'XYZ Private Limited',
 					loan_type: 'Auto Loan',
 					loan_value: '6 Lakhs',
 					assigned_at: new Date().toDateString(),
-					cibil: 480,
-					preEligibleAmount: 540000
+					cibil: 200,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
 				}
 			]
 		},
-		{ label: 'Sanctioned', data: [] },
-		{ label: 'Rejected', data: [] }
+		{
+			label: 'Sanctioned',
+			data: [
+				{
+					customer_name: 'XYZ Private Limited',
+					loan_type: 'Auto Loan',
+					loan_value: '6 Lakhs',
+					assigned_at: new Date().toDateString(),
+					cibil: 200,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
+				},
+				{
+					customer_name: 'XYZ Private Limited',
+					loan_type: 'Auto Loan',
+					loan_value: '6 Lakhs',
+					assigned_at: new Date().toDateString(),
+					cibil: 200,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
+				}
+			]
+		},
+		{
+			label: 'Rejected',
+			data: [
+				{
+					customer_name: 'XYZ Private Limited',
+					loan_type: 'Auto Loan',
+					loan_value: '6 Lakhs',
+					assigned_at: new Date().toDateString(),
+					cibil: 200,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
+				},
+				{
+					customer_name: 'XYZ Private Limited',
+					loan_type: 'Auto Loan',
+					loan_value: '6 Lakhs',
+					assigned_at: new Date().toDateString(),
+					cibil: 200,
+					preEligibleAmount: '5,40,000',
+					DSCR: 2.5,
+					monthly_income: '40,000',
+					assigned_by: 'Himanshu'
+				}
+			]
+		}
 	];
-	const [lActive, setLActive] = useState('Pending Approvals');
+	const [lActive, setLActive] = useState('Pending Applications');
 
 	const onTabChange = e => setCurrent(e);
 
@@ -223,6 +323,7 @@ export default function Dashboard(props) {
 						getTabData={getTabData}
 						d={d}
 						isIdentifier={isIdentifier}
+						lActive={lActive}
 					/>
 				)}
 			</Layout>

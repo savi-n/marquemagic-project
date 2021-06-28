@@ -1,11 +1,45 @@
 export default function Card(props) {
-	const { approve, reject, security, full } = props;
+	const {
+		reconsider,
+		reopen,
+		security,
+		status,
+		download,
+		approvalHistory,
+		reassign,
+		queries,
+		comments,
+		recommendation,
+		reasonForRejection,
+		AR,
+		full
+	} = props;
+
+	const getter = () => {
+		if (
+			reconsider ||
+			reopen ||
+			security ||
+			status ||
+			download ||
+			approvalHistory ||
+			reassign ||
+			queries ||
+			comments ||
+			recommendation ||
+			reasonForRejection ||
+			AR
+		)
+			return true;
+	};
+
 	return (
 		<main
 			style={{
 				boxShadow: '0 0 19px 0px #98AFC7',
-				maxHeight: `${reject || approve || security ? '50rem' : '280px'}`,
-				width: `${!full && 'calc(100%/3)'}`
+				maxHeight: `350px`,
+				width: `${getter() ? '65rem' : !full ? 'calc(100%/3)' : '100%'}`,
+				maxWidth: `${getter() ? '80rem' : '40rem'}`
 			}}
 			className={`${full && 'w-full'} p-6 h-full rounded-md flex-flex-col`}
 		>

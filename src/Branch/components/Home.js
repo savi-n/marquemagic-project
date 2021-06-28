@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { LineChart, Line, Pie, PieChart, Cell } from 'recharts';
 import './styles/index.scss';
 import Card from '../shared/components/Card';
 import CardDetails from '../shared/components/CardDetails';
+import { getCase } from '../utils/requests';
 
-export default function Home({ data, sortList, dChartData, d, isIdentifier }) {
+export default function Home({ data, sortList, dChartData, d, isIdentifier, lActive }) {
 	var pieD1 = [];
 	var pieD2 = [];
 
@@ -17,6 +19,18 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier }) {
 			)
 		)
 	);
+
+	const [paData, setPaData] = useState(null);
+	const [sanData, setSanData] = useState(null);
+
+	useEffect(async () => {
+		getCase('Pending Applications').then(res => {
+			setPaData(res);
+		});
+		getCase('Sanctioned').then(res => {
+			setSanData(res);
+		});
+	}, []);
 
 	return (
 		<section className='flex flex-col gap-y-10 pt-24'>
@@ -105,28 +119,32 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier }) {
 					</Card>
 				</section>
 			</section>
-			<section className='flex flex-col gap-y-10'>
-				<h1 className='text-xl'>Pending Approvals</h1>
-				<section className='flex gap-x-10'>
-					{d.map(
-						item =>
-							item.label === 'Pending Approvals' && (
-								<>{item.data.map((e, idx) => idx < 3 && <CardDetails item={e} />)}</>
+			<section className='flex flex-col gap-y-24'>
+				<section className='flex flex-col gap-y-10'>
+					<h1 className='text-xl'>Pending Applications</h1>
+					<section className='flex gap-x-10'>
+						{paData && paData.length ? (
+							paData.map(
+								(item, idx) =>
+									idx < 3 && <CardDetails label={lActive} full={true} item={item} lActive={lActive} />
 							)
-					)}
-				</section>
-				{!isIdentifier() && <h1 className='text-xl'>Pending Sanctions</h1>}
-				<section className='flex gap-x-10'>
-					{!isIdentifier() &&
-						d.map(
-							item =>
-								item.label === 'In-Progress@AO' &&
-								(item.data.length > 0 ? (
-									<>{item.data.map((e, idx) => idx < 3 && <CardDetails item={e && e} />)}</>
-								) : (
-									<section className='w-full text-center opacity-75'>No Data!</section>
-								))
+						) : (
+							<span className='text-center w-full opacity-50'>No Applications</span>
 						)}
+					</section>
+				</section>
+				<section className='flex flex-col gap-y-10'>
+					{!isIdentifier() && <h1 className='text-xl'>Pending Sanctions</h1>}
+					<section className='flex gap-x-10'>
+						{!isIdentifier() && sanData && sanData.length ? (
+							sanData.map(
+								(item, idx) =>
+									idx < 3 && <CardDetails label={lActive} full={true} item={item} lActive={lActive} />
+							)
+						) : (
+							<span className='text-center w-full opacity-50'>No Data found</span>
+						)}
+					</section>
 				</section>
 			</section>
 		</section>

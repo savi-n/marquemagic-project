@@ -1,17 +1,48 @@
+import { useEffect, useState } from 'react';
 import './styles/index.scss';
 import Tabs from '../shared/components/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import CardDetails from '../shared/components/CardDetails';
+import { getCase } from '../utils/requests';
+import Loading from '../../components/Loading';
 
 export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier }) {
+	const [data, setData] = useState(null);
+
+	const mapp = {
+		'Pending Applications': 'Pending Applications',
+		'In-Progress@NC': 'NC In-Progress',
+		'Branch Review': 'Branch Review',
+		'In-Progress@AO': 'In-Progress At AO',
+		Sanctioned: 'Sanctioned',
+		Rejected: 'Rejected'
+	};
+
+	const [loading, setLoading] = useState(false);
+
+	useEffect(async () => {
+		setLoading(true);
+		Object.keys(mapp).map(e => {
+			if (e === lActive) {
+				getCase(mapp[e]).then(res => {
+					setLoading(false);
+					setData(res);
+				});
+			}
+		});
+	}, []);
+
 	const getTabs = item => (
 		<Tabs
-			length={item.data.length}
+			length={data && data.length}
 			k={item.label}
 			active={lActive === item.label}
 			click={setLActive}
 			align='vertical'
+			lActive={lActive}
+			setData={setData}
+			setLoading={setLoading}
 		/>
 	);
 
@@ -46,7 +77,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 					<section className='w-1/2 flex items-center mt-10'>
 						<input
 							className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none  rounded-l-full'
-							placeholder=''
+							placeholder='Search application name, loan type, loan amount'
 						/>
 						<FontAwesomeIcon
 							className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2'
@@ -64,20 +95,11 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 						</div>
 					</section>
 				</section>
-				<section
-					className='w-full gap-x-20 gap-y-20 flex grid grid-cols-2 pb-10'
-					style={{ paddingTop: '16em' }}
-				>
-					{d.map(
-						item =>
-							getTabData(item.label) && (
-								<>
-									{item.data.map((e, idx) => (
-										<CardDetails full={true} item={e} />
-									))}
-								</>
-							)
-					)}
+				<section className='w-full gap-20 flex grid grid-cols-2 pb-10' style={{ paddingTop: '16em' }}>
+					{loading && <Loading />}
+					{data && data.length
+						? data.map(item => <CardDetails label={lActive} full={true} item={item} lActive={lActive} />)
+						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}
 				</section>
 			</section>
 		</section>

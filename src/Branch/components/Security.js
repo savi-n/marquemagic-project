@@ -48,26 +48,7 @@ export default function Security({ setSecurity, productId }) {
 	};
 
 	return (
-		<section className=' py-10 rounded-md flex flex-col gap-y-4 justify-end'>
-			<select
-				placeholder='Choose Security Type'
-				className='bg-transparent rounded-md border border-gray-300 text-sm p-2 focus:outline-none'
-			>
-				<option disabled selected className='text-sm'>
-					Choose Security Type
-				</option>
-				{[1, 2, 3].map(e => (
-					<option>{e}</option>
-				))}
-			</select>
-			<input
-				placeholder='Security Value'
-				className='bg-transparent rounded-md border border-gray-300 text-sm p-2 focus:outline-none'
-			/>
-			<input
-				placeholder='Security Details'
-				className='bg-transparent rounded-md border border-gray-300 text-sm p-2 focus:outline-none'
-			/>
+		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
 			<section className='h-auto overflow-hidden'>
 				<FileUpload onDrop={handleFileUpload} accept='' />
 			</section>
