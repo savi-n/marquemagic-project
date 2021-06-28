@@ -191,7 +191,7 @@ export default function DocumentUpload({
       // !(
       //   documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
       // ) ||
-      !state[USER_ROLES[userType || "User"]]?.uploadedDocs.length
+      !state[USER_ROLES[userType || "User"]]?.uploadedDocs?.length
     );
   };
 
@@ -415,6 +415,9 @@ export default function DocumentUpload({
           [
             state.coapplicant.cibilData.requestId,
             state.coapplicant.cubStatement.requestId,
+            ...(state.coapplicant.cubStatement?.requestId
+              ? [state.coapplicant.cubStatement?.requestId]
+              : []),
           ]
         );
         if (!coAppilcantCaseReq) {
@@ -459,8 +462,10 @@ export default function DocumentUpload({
       caseDetails,
       "Guarantor",
       [
-        otherCUBStatementUserTypeDetails.requestId,
         state.guarantor.cibilData.requestId,
+        ...(otherCUBStatementUserTypeDetails?.requestId
+          ? [otherCUBStatementUserTypeDetails?.requestId]
+          : []),
       ]
     );
     if (!GuarantorReq) {
