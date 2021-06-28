@@ -154,10 +154,13 @@ export default function SearchSelect({
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       setFetching(true);
       debounceFunction(async () => {
-        const searchOptions = await searchOptionCallback({ name: value });
-        setSelectOptions(
-          searchOptions.map((opt) => ({ name: opt, value: opt }))
-        );
+        let searchOptions = await searchOptionCallback({ name: value });
+
+        searchOptions = searchOptions.map((opt) => ({ name: opt, value: opt }));
+        if (!searchOptions.length) {
+          searchOptions = [{ name: value, value: value }];
+        }
+        setSelectOptions(searchOptions);
         setFetching(false);
       }, 1000);
     }

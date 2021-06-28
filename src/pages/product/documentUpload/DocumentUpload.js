@@ -176,7 +176,7 @@ export default function DocumentUpload({
 
   const onCUBStatementModalClose = (success) => {
     setToggleCUBStatementModal(false);
-    if (success) setBankCUBStatementFetchDone(true);
+    if (typeof success === "boolean") setBankCUBStatementFetchDone(true);
   };
 
   const handleFileUpload = async (files) => {
@@ -185,12 +185,12 @@ export default function DocumentUpload({
 
   const buttonDisabledStatus = () => {
     return (
-      !bankCUBStatementFetchDone ||
+      !(!!userType || bankCUBStatementFetchDone) ||
       !(cibilCheckbox && declareCheck) ||
       caseCreationProgress ||
-      !(
-        documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
-      ) ||
+      // !(
+      //   documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
+      // ) ||
       !state[USER_ROLES[userType || "User"]]?.uploadedDocs.length
     );
   };
@@ -621,8 +621,8 @@ export default function DocumentUpload({
       {cibilCheckbox && cibilCheckModal && (
         <GetCIBILScoreModal
           userData={{
-            ...state[USER_ROLES[userType || "User"]].applicantData,
-            ...state[USER_ROLES[userType || "User"]].loanData,
+            ...state[USER_ROLES[userType || "User"]]?.applicantData,
+            ...state[USER_ROLES[userType || "User"]]?.loanData,
           }}
           onClose={onCibilModalClose}
         />

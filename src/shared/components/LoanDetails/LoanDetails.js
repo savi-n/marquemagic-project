@@ -52,7 +52,7 @@ const ErrorMessage = styled.div`
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-  width: 60%;
+  width: ${({ size }) => (size ? size : "60%")};
 `;
 
 const Currency = styled.div`
@@ -177,7 +177,9 @@ export default function LoanDetails({
         </FieldWrapper>
         {(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
           formState?.error?.[field.name] && (
-            <ErrorMessage>{formState?.error?.[field.name]}</ErrorMessage>
+            <ErrorMessage size={size}>
+              {formState?.error?.[field.name]}
+            </ErrorMessage>
           )}
         {field.forType &&
           field.forType[(formState?.values?.[field.name])] &&
