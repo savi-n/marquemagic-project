@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
 import Loading from "./Loading";
 
@@ -12,13 +12,14 @@ export default function Content() {
       <BrowserRouter>
         <Suspense fallback={<Loading />}>
           <Switch>
-            <Route exact path="/" component={Products} />
+            <Route exact path="/applyloan" component={Products} />
             <Route
               path="/product/:product"
               component={({ match }) => (
                 <Product product={match.params.product} url={match.url} />
               )}
             />
+            <Route render={() => <Redirect to="/applyloan" />} />
           </Switch>
         </Suspense>
       </BrowserRouter>
