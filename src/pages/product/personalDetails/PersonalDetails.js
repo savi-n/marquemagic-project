@@ -1,8 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
-
-import jsonData from "../../../shared/constants/data.json";
+import { func, object, oneOfType, string } from "prop-types";
 
 import useForm from "../../../hooks/useForm";
 import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
@@ -10,6 +8,8 @@ import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetail
 import Button from "../../../components/Button";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { UserContext } from "../../../reducer/userReducer";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -23,9 +23,13 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function PersonalDetailsPage({ id, pageName }) {
+export default function PersonalDetailsPage({
+  id,
+  map,
+  onFlowChange,
+  fieldConfig,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -33,30 +37,44 @@ export default function PersonalDetailsPage({ id, pageName }) {
     actions: { setUsertypeApplicantData },
   } = useContext(FormContext);
 
+  const {
+    state: { userBankDetails },
+  } = useContext(UserContext);
+
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
+  const { addToast } = useToasts();
 
   const onSave = (data) => {
     setUsertypeApplicantData({ ...data, isApplicant: "1" });
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   return (
     <Div>
       <PersonalDetails
-        pageName={pageName}
         register={register}
         formState={formState}
-        jsonData={jsonData.personal_details.data}
+        preData={{
+          firstName: userBankDetails.firstName,
+          lastName: userBankDetails.lastName,
+          dob: userBankDetails.dob,
+          email: userBankDetails.email,
+          mobileNo: userBankDetails.mobileNum,
+          panNumber: userBankDetails.pan,
+        }}
+        jsonData={fieldConfig.personal_details.data}
       />
       <SalaryDetails
-        pageName={pageName}
-        jsonData={jsonData.salary_details.data}
+        jsonData={fieldConfig.salary_details.data}
         register={register}
         formState={formState}
       />
@@ -67,3 +85,11 @@ export default function PersonalDetailsPage({ id, pageName }) {
     </Div>
   );
 }
+
+PersonalDetailsPage.propTypes = {
+  productDetails: object,
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  fieldConfig: object,
+};

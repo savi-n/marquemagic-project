@@ -1,10 +1,11 @@
 import styled from "styled-components";
+import { array, func, object, oneOfType } from "prop-types";
 
 const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 
@@ -12,7 +13,7 @@ const FieldWrap = styled.div`
   width: 100%;
   margin: 10px 0;
   display: flex;
-  gap: 10%;
+  /* gap: 10%; */
 `;
 
 const FormWrap = styled.div`
@@ -30,12 +31,26 @@ const ErrorMessage = styled.div`
   font-weight: 500;
 `;
 
-export default function EMIDetails({
-  pageName,
-  jsonData,
-  register,
-  formState,
-}) {
+const Currency = styled.div`
+  width: 10%;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+`;
+
+const Field = styled.div`
+  width: 40%;
+`;
+
+EMIDetails.propTypes = {
+  register: func.isRequired,
+  jsonData: oneOfType([array, object]),
+  formState: object,
+};
+
+export default function EMIDetails({ jsonData, register, formState }) {
   return (
     <>
       <H>
@@ -47,23 +62,28 @@ export default function EMIDetails({
             (field) =>
               field.visibility && (
                 <FieldWrap key={field.name}>
-                  {register({
-                    ...field,
-                    value: formState?.values?.[field.name],
-                  })}
-                  {(formState?.submit?.isSubmited ||
-                    formState?.touched?.[field.name]) &&
-                    formState?.error?.[field.name] && (
-                      <ErrorMessage>
-                        {formState?.error?.[field.name]}
-                      </ErrorMessage>
-                    )}
-                  {register({
-                    type: "select",
-                    name: `${field.name}_bank`,
-                    placeholder: "Select Bank",
-                    value: formState?.values?.[`${field.name}_bank`],
-                  })}
+                  <Field>
+                    {register({
+                      ...field,
+                      value: formState?.values?.[field.name],
+                    })}
+                    {(formState?.submit?.isSubmited ||
+                      formState?.touched?.[field.name]) &&
+                      formState?.error?.[field.name] && (
+                        <ErrorMessage>
+                          {formState?.error?.[field.name]}
+                        </ErrorMessage>
+                      )}
+                  </Field>
+                  <Currency>{field.inrupees ? "(In  ₹ )" : ""}</Currency>
+                  <Field>
+                    {register({
+                      type: "select",
+                      name: field.subFieldName,
+                      placeholder: "Select Bank",
+                      value: formState?.values?.[field.subFieldName],
+                    })}
+                  </Field>
                   {/* rules: { required: !!formState?.values?.[field.name] }, */}
                   {/* {(formState?.submit?.isSubmited ||
                     formState?.touched?.[`${field.name}_bank`]) &&

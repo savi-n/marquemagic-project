@@ -1,15 +1,16 @@
 import styled from "styled-components";
+import { func, object, oneOfType, string, array } from "prop-types";
 
 const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 
 const FieldWrap = styled.div`
-  width: 45%;
+  width: ${({ size }) => (size ? size : "45%")};
   margin: 10px 0;
 `;
 
@@ -33,6 +34,7 @@ export default function SalaryDetails({
   register,
   userType,
   formState,
+  size,
 }) {
   return (
     <>
@@ -44,7 +46,7 @@ export default function SalaryDetails({
           jsonData.map(
             (field) =>
               field.visibility && (
-                <FieldWrap key={field.name}>
+                <FieldWrap key={field.name} size={size}>
                   {register({
                     ...field,
                     value: formState?.values?.[field.name],
@@ -63,3 +65,12 @@ export default function SalaryDetails({
     </>
   );
 }
+
+SalaryDetails.propTypes = {
+  preData: object,
+  register: func.isRequired,
+  jsonData: oneOfType([array, object]),
+  userType: string,
+  formState: object,
+  size: string,
+};

@@ -16,18 +16,22 @@ const ApplicationSubmitted = lazy(() =>
 const VehicleLoanDetails = lazy(() =>
   import("./loanDetails/VehicleLoanDetails")
 );
+const HomeLoanDetails = lazy(() => import("./loanDetails/HomeLoanDetails"));
 const CoApplicantDetails = lazy(() =>
   import("./coappilcant/CoapplicantDetails")
 );
 const CoApplicantIncomeDetails = lazy(() =>
   import("./coappilcant/CoapplicantIncomeDetails")
 );
+const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
 
 const availableRoutes = {
   "identity-verification": { Component: IdentityVerification },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
+  // "loan-details": { protected: true, Component: HomeLoanDetails },
   "loan-details": { protected: true, Component: VehicleLoanDetails },
+  "home-loan-details": { protected: true, Component: HomeLoanDetails },
   "co-applicant-details": {
     protected: true,
     Component: userType("Co-applicant", CoApplicantDetails),
@@ -40,6 +44,8 @@ const availableRoutes = {
     protected: true,
     Component: userType("Co-applicant", DocumentUpload),
   },
+  "emi-details": { protected: true, Component: EmiDetails },
+  // "document-upload": { protected: true, Component: VehicleLoanDetails },
   "document-upload": { protected: true, Component: DocumentUpload },
   "application-submitted": { protected: true, Component: ApplicationSubmitted },
   "guarantor-details": {
@@ -61,7 +67,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
 
   const Page = availableRoutes[config.id];
 
-  if (!Page) return <Redirect to={path} />;
+  if (!Page) return <Redirect to={url} />;
 
   let subFlow = null;
   if (config.flow) {
@@ -72,6 +78,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
           key={f.id}
           path={`${path}/${config.id}/${f.id}`}
           protectedRoute={InnerPage.protected || false}
+          pageName={f.name}
           Component={(props) => (
             <InnerPage.Component
               productDetails={productDetails}
@@ -91,6 +98,7 @@ export default function FlowRoutes({ config, productDetails = {} }) {
       <ProtectedRoute
         path={`${path}/${config.id}`}
         protectedRoute={Page.protected || false}
+        pageName={config.name}
         Component={(props) => (
           <Page.Component
             productDetails={productDetails}

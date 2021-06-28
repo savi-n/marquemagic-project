@@ -9,6 +9,8 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import OtpInput from './OtpInput';
 import OtpTimer from './OtpTimer';
+import { useToasts } from '../Toast/ToastProvider';
+import errorImg from '../../assets/images/v1.png';
 
 const ModalWrapper = styled.div`
 	padding: 20px;
@@ -60,7 +62,8 @@ const ImgBox = styled.div`
 	width: 80%;
 	background: ${({ bg }) => `url(${bg})`};
 	background-position: center;
-	background-size: cover;
+	background-size: contain;
+	background-repeat: no-repeat;
 `;
 
 const OtpWrapper = styled.div`
@@ -84,6 +87,7 @@ export default function OtpModal(props) {
 
 	const { newRequest } = useFetch();
 	const { register, formState } = useForm();
+	const { addToast } = useToasts();
 
 	const [accounts, setAccounts] = useState(null);
 	const [message, setMessage] = useState(null);
@@ -110,20 +114,31 @@ export default function OtpModal(props) {
 		if ([NC_STATUS_CODE.NC305, NC_STATUS_CODE.NC306, NC_STATUS_CODE.NC308].includes(response.statusCode)) {
 			setMessage(response.message);
 			setAccountAvailable(false);
-		}
-
-		if (response.statusCode === NC_STATUS_CODE.NC200) {
-			setUserDetails({
+		} else if (response.statusCode === NC_STATUS_CODE.NC200) {
+			const userData = {
+				userAccountToken: response.accToken,
 				userDetails: response.userDetails,
 				userBankDetails: response.cubDetails,
 				userToken: response.token
-			});
+			};
 
-			onProceed();
-		} else if (response.statusCode === NC_STATUS_CODE.NC302 && response.message.includes('Invalid')) {
-			setMessage(response.message);
-		} else if (response.statusCode === NC_STATUS_CODE.NC302 && response.message.includes('Multiple')) {
+			if (setUserDetails) setUserDetails(userData);
+
+			onProceed(userData);
+		}
+		// else if (
+		//   response.statusCode === NC_STATUS_CODE.NC302 &&
+		//   response.message.includes("Invalid")
+		// ) {
+		//   setMessage(response.message);
+		// }
+		else if (response.statusCode === NC_STATUS_CODE.NC302 && response.message.includes('Multiple')) {
 			setAccounts(response.accountDetails);
+		} else {
+			addToast({
+				message: response.message,
+				type: 'error'
+			});
 		}
 		setLoading(false);
 	};
@@ -134,7 +149,7 @@ export default function OtpModal(props) {
 	// }, [otpT]);
 	// // end Developement
 
-	const handleResend = async () => {
+	const handleResend = () => {
 		resend({ mobileNo, customerId });
 	};
 
@@ -164,15 +179,17 @@ export default function OtpModal(props) {
 						<>
 							<OTPHead>OTP Verification</OTPHead>
 							<hr />
-							<OTPCaption>
-								A 6 digit OTP has been sent to your mobile number {'*'.repeat(mobileNo.length - 4)}
-								{mobileNo.substring(mobileNo.length - 4)} Kindly enter it below. &nbsp;
-								<b className='cursor-pointer' onClick={toggle}>
-									Wrong number?
-								</b>
-							</OTPCaption>
+							{mobileNo && (
+								<OTPCaption>
+									A 6 digit OTP has been sent to your mobile number {'*'.repeat(mobileNo.length - 4)}
+									{mobileNo.substring(mobileNo.length - 4)} Kindly enter it below. &nbsp;
+									<b className='cursor-pointer' onClick={toggle}>
+										Wrong number?
+									</b>
+								</OTPCaption>
+							)}
 							<OtpWrapper>
-								<OtpInput numInputs={6} handleChange={handleOtpChange} />
+								<OtpInput numInputs={6} handleChange={handleOtpChange} numberOnly />
 							</OtpWrapper>
 							<OtpTimer
 								handleResend={handleResend}
@@ -215,7 +232,7 @@ export default function OtpModal(props) {
 					)
 				) : (
 					<MessageBox>
-						<ImgBox />
+						<ImgBox bg={errorImg} />
 						<SorrySpan>Sorry!</SorrySpan>
 						<Message>{errorMessage || message}</Message>
 					</MessageBox>

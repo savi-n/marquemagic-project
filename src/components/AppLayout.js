@@ -2,8 +2,8 @@ import { useEffect, useState, useContext, Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
+import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
-import Dashboard from '../Branch/pages/Dashboard';
 import Content from './Content';
 import Loading from './Loading';
 import useFetch from '../hooks/useFetch';
@@ -15,16 +15,17 @@ import {
 	NC_STATUS_CODE
 } from '../_config/app.config.js';
 import { AppContext } from '../reducer/appReducer';
+// import { useToasts } from "../components/Toast/ToastProvider";
 
 const HeaderWrapper = styled.div`
-	min-height: 80px;
-	max-height: 80px;
-	background: ${({ theme }) => theme.themeColor1};
-	box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
-	display: flex;
-	align-items: center;
-	padding: 0 50px;
-	z-index: 1;
+  min-height: 80px;
+  max-height: 80px;
+  /* background: ${({ theme }) => theme.themeColor1}; */
+  box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+  display: flex;
+  align-items: center;
+  padding: 0 50px;
+  z-index: 1;
 `;
 
 const Div = styled.div`
@@ -36,7 +37,11 @@ const AppLayout = () => {
 		url: WHITE_LABEL_URL({ name: 'CUB UAT' })
 	});
 
-	const { actions } = useContext(AppContext);
+	const {
+		actions: { setClientToken, setBankToken, setWhitelabelId, setLogo }
+	} = useContext(AppContext);
+
+	// const { addToast } = useToasts();
 
 	const [loading, setLoading] = useState(true);
 
@@ -70,50 +75,38 @@ const AppLayout = () => {
 					);
 
 					if (bankToken?.data?.statusCode === NC_STATUS_CODE.NC200) {
-						actions.setClientToken(bankToken?.data.generated_key);
+						setClientToken(clientId.token);
+						setBankToken(bankToken?.data.generated_key, bankToken?.data.request_id);
 					}
 				}
 			} catch (error) {
+				// addToast({
+				//   message: "Something Went Wrong. Try Again Later!",
+				//   type: "error",
+				// });
 				console.log('ERROR => ', error);
 			}
 			setLoading(false);
 		}
 		if (response) {
-			actions.setWhitelabelId(response?.permission?.id);
-			actions.setLogo(response?.permission?.logo);
+			setWhitelabelId(response?.permission?.id);
+			setLogo(response?.permission?.logo);
 			fetchData();
 		}
 	}, [response]);
-
-	const pathName = window.location.pathname;
 
 	return loading ? (
 		<Loading />
 	) : (
 		response && (
 			<ThemeProvider theme={response.permission.color_theme_react}>
-				{pathName !== '/branch-user' && pathName !== '/branch-manager' ? (
-					<>
-						<HeaderWrapper>
-							<Header logo={response.permission.logo} />
-						</HeaderWrapper>
-						<Div>
-							<Content />
-						</Div>
-					</>
-				) : (
-					<BrowserRouter>
-						<Suspense fallback={<Loading />}>
-							<Switch>
-								<Route
-									path={['/branch-user', '/branch-manager']}
-									manager={true}
-									component={Dashboard}
-								/>
-							</Switch>
-						</Suspense>
-					</BrowserRouter>
-				)}
+				<GlobalStyle />
+				<HeaderWrapper>
+					<Header logo={response.permission.logo} />
+				</HeaderWrapper>
+				<Div>
+					<Content />
+				</Div>
 			</ThemeProvider>
 		)
 	);

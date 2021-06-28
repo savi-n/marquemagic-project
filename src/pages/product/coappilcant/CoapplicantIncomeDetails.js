@@ -1,8 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
-
-import jsonData from "../../../shared/constants/data.json";
+import { func, object, oneOf, oneOfType, string } from "prop-types";
 
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
@@ -12,6 +10,7 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
 import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -25,9 +24,22 @@ const Div = styled.div`
   background: #ffffff;
 `;
 
-export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
+CoapplicantIncomeDetails.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  userType: oneOf(["Co-Applicant", "Gurantor"]),
+  fieldConfig: object,
+};
+
+export default function CoapplicantIncomeDetails({
+  userType,
+  id,
+  onFlowChange,
+  map,
+  fieldConfig,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -36,36 +48,42 @@ export default function CoapplicantIncomeDetails({ userType, id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
+  const { addToast } = useToasts();
 
   const onSave = (formData) => {
-    const emiData = formatEmiData(formData, jsonData.emi_details.data);
-    const salaryData = formatLoanData(formData, jsonData.salary_details.data);
+    const emiData = formatEmiData(formData, fieldConfig.emi_details.data);
+    const salaryData = formatLoanData(
+      formData,
+      fieldConfig.salary_details.data
+    );
 
     setUsertypeEmiData(emiData, USER_ROLES[userType]);
     setUsertypeSalaryData(salaryData, USER_ROLES[userType]);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (formData) => {
     onSave(formData);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   return (
     <Div>
       <SalaryDetails
         userType={userType}
-        pageName={pageName}
         register={register}
         formState={formState}
-        jsonData={jsonData.salary_details.data}
+        jsonData={fieldConfig.salary_details.data}
+        size="40%"
       />
       <EMIDetails
-        pageName={pageName}
         register={register}
         formState={formState}
-        jsonData={jsonData.emi_details.data}
+        jsonData={fieldConfig.emi_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

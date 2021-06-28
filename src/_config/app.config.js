@@ -5,10 +5,16 @@ const API_END_POINT =
 const ENDPOINT_BANK =
   process.env.REACT_APP_BANK_API || "http://40.80.80.135:1337";
 
+const APP_DOMAIN = process.env.REACT_APP_DOMAIN || "";
+
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
 const BANK_TOKEN_API = `${ENDPOINT_BANK}/generateLink`;
+const CUB_ACCOUNT_MINI_STATEMENT = `${ENDPOINT_BANK}/cub/accountMiniStatement`;
+
+const UPLOAD_CUB_STATEMENT = `${ENDPOINT_BANK}/uploadToSailsExp`;
 const BANK_LIST_API = `${ENDPOINT_BANK}/bank_list`;
+const FETCH_CIBIL_SCORE = `${ENDPOINT_BANK}/equifax/fetchData`;
 
 const CLIENT_EMAIL_ID = "cub@nc.com";
 
@@ -30,6 +36,10 @@ const SEARCH_BANK_BRANCH_LIST = taggedTemplate`${API_END_POINT}/getBranchList?ba
 `;
 
 const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
+
+const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
+
+const PINCODE_ADRRESS_FETCH = `${API_END_POINT}/pincode?code=${"pinCode"}`;
 
 const NC_STATUS_CODE = {
   OK: "ok",
@@ -67,4 +77,10 @@ export {
   USER_ROLES,
   SEARCH_BANK_BRANCH_LIST,
   SEARCH_LOAN_ASSET,
+  CUB_ACCOUNT_MINI_STATEMENT,
+  UPLOAD_CUB_STATEMENT,
+  UPDATE_LOAN_ASSETS,
+  FETCH_CIBIL_SCORE,
+  PINCODE_ADRRESS_FETCH,
+  APP_DOMAIN,
 };

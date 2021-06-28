@@ -90,6 +90,7 @@ export default function SearchSelect({
   onSelectOptionCallback,
   searchOptionCallback,
   onBlurCallback,
+  searchKeyAsValue,
 }) {
   const [optionShow, setOptionShow] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -115,7 +116,8 @@ export default function SearchSelect({
     if (
       fetchOptionsFunc &&
       typeof fetchOptionsFunc === "function" &&
-      !selectOptions.length
+      !selectOptions.length &&
+      !fetching
     ) {
       fetchOption();
     }
@@ -131,32 +133,43 @@ export default function SearchSelect({
       onSelectOptionCallback({ name, value: option.value });
     }
     setOptionShow(false);
+    setSearchKey("");
   };
 
   const onBlurSearchBox = (event) => {
     if (onBlurCallback && typeof onBlurCallback === "function") {
       onBlurCallback({ name, value: selectedOption?.value }, "blur");
     }
+    // if (!selectOptions.length && searchKeyAsValue && searchKey) {
+    //   onBlurCallback({ name, searchKey }, "blur");
+    //   setSelectedOption({ name: searchKey, value: searchKey });
+    // }
+    setSearchKey("");
   };
 
   const onSearchChange = async (event) => {
-    setSearchKey(event.target.value);
+    const { value } = event.target;
+    setSearchKey(value);
 
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       setFetching(true);
       debounceFunction(async () => {
-        const searchOptions = await searchOptionCallback({
-          brandName: event.target.value,
-          type: "2 wheeler",
-        });
+        let searchOptions = await searchOptionCallback({ name: value });
+
+        searchOptions = searchOptions.map((opt) => ({ name: opt, value: opt }));
+        if (!searchOptions.length) {
+          searchOptions = [{ name: value, value: value }];
+        }
         setSelectOptions(searchOptions);
         setFetching(false);
-      }, 2000);
+      }, 1000);
     }
   };
 
   const filterdOptions = selectOptions.filter(
-    ({ name, value }) => name.includes(searchKey) || value.includes(searchKey)
+    ({ name, value }) =>
+      name.toLowerCase().includes(searchKey) ||
+      value.toLowerCase().includes(searchKey)
   );
 
   return (
@@ -176,6 +189,8 @@ export default function SearchSelect({
             onBlur={onBlurSearchBox}
             placeholder={placeholder || "Search"}
             onChange={onSearchChange}
+            value={searchKey}
+            autoComplete="off"
           />
         ) : (
           <button
@@ -203,6 +218,11 @@ export default function SearchSelect({
                 {option.name}
               </Option>
             ))}
+            {!fetching && !filterdOptions.length && (
+              <Option onClick={(e) => e.preventDefault()} disabled>
+                Options Not Found
+              </Option>
+            )}
           </Options>
         )}
       </Wrapper>
@@ -223,7 +243,7 @@ SearchSelect.propTypes = {
       value: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     })
-  ).isRequired,
+  ),
   fetchOptionsFunc: PropTypes.func,
   onSelectOptionCallback: PropTypes.func,
   searchOptionCallback: PropTypes.func,

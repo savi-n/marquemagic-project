@@ -1,8 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
-
-import jsonData from "../../../shared/constants/data.json";
+import { func, object, oneOfType, string } from "prop-types";
 
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
@@ -12,6 +10,7 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { UserContext } from "../../../reducer/userReducer";
 import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -25,9 +24,31 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function VehiclLoanDetailsPage({ id, pageName }) {
+const FormWrapper = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const FlexColom = styled.div`
+  flex-basis: ${({ base }) => (base ? base : "100%")};
+`;
+
+FourWheelerLoanDetailsPage.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  productDetails: object,
+  fieldConfig: object,
+};
+
+export default function FourWheelerLoanDetailsPage({
+  id,
+  map,
+  onFlowChange,
+  productDetails,
+  fieldConfig,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -40,17 +61,17 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
   } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
+  const { addToast } = useToasts();
 
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, jsonData.emi_details.data);
-    const loanData = formatLoanData(data, jsonData.loan_details.data);
+    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
+    const loanData = formatLoanData(data, fieldConfig.loan_details.data);
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
@@ -58,20 +79,39 @@ export default function VehiclLoanDetailsPage({ id, pageName }) {
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   return (
     <Div>
-      <LoanDetails
-        pageName={pageName}
-        register={register}
-        formState={formState}
-        jsonData={jsonData.loan_details.data}
-      />
+      <FormWrapper>
+        <FlexColom base="50%">
+          <LoanDetails
+            register={register}
+            formState={formState}
+            jsonData={fieldConfig.loan_details.data}
+            label={fieldConfig.loan_details.label}
+            loanType={productDetails.loanType}
+            size="80%"
+          />
+        </FlexColom>
+        <FlexColom base="50%">
+          <LoanDetails
+            register={register}
+            formState={formState}
+            jsonData={fieldConfig.loan_details_additional.data}
+            label={fieldConfig.loan_details_additional.label}
+            size="80%"
+          />
+        </FlexColom>
+      </FormWrapper>
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={jsonData.emi_details.data}
+        jsonData={fieldConfig.emi_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

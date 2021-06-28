@@ -1,10 +1,11 @@
 import styled from "styled-components";
+import { array, func, object, oneOfType, string } from "prop-types";
 
 const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 
@@ -19,8 +20,9 @@ const FormWrap = styled.div`
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
-  flex-flow: wrap column;
-  max-height: 400px;
+  justify-content: space-between;
+  /* flex-flow: wrap column; */
+  /* max-height: 400px; */
 `;
 
 const ErrorMessage = styled.div`
@@ -31,12 +33,24 @@ const ErrorMessage = styled.div`
 `;
 
 export default function PersonalDetails({
-  pageName,
+  preData = {},
   userType,
   jsonData,
   register,
   formState,
 }) {
+  const populateValue = (field) => {
+    if (!userType && field.disabled) {
+      return preData[field.name] || "";
+    }
+
+    if (formState?.values?.[field.name] !== undefined) {
+      return formState?.values?.[field.name];
+    }
+
+    return preData[field.name] || "";
+  };
+
   return (
     <>
       <H>
@@ -50,7 +64,8 @@ export default function PersonalDetails({
                 <FieldWrap key={field.name}>
                   {register({
                     ...field,
-                    value: formState?.values?.[field.name],
+                    value: populateValue(field),
+                    ...(userType ? { disabled: false } : {}),
                   })}
                   {(formState?.submit?.isSubmited ||
                     formState?.touched?.[field.name]) &&
@@ -66,3 +81,11 @@ export default function PersonalDetails({
     </>
   );
 }
+
+PersonalDetails.propTypes = {
+  preData: object,
+  register: func.isRequired,
+  jsonData: oneOfType([array, object]),
+  userType: string,
+  formState: object,
+};

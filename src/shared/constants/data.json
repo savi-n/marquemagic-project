@@ -8,20 +8,8 @@
 				"rules": {
 					"required": true
 				},
-				"type": "text",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "firstName",
-				"validation": []
-			},
-			{
-				"name": "lastName",
-				"placeholder": "Last Name",
-				"rules": {
-					"required": true
+				"mask": {
+					"AlphaCharOnly": true
 				},
 				"type": "text",
 				"visibility": true,
@@ -31,45 +19,6 @@
 				"default_value": "",
 				"key": "lastName",
 				"validation": []
-			},
-			{
-				"name": "dob",
-				"placeholder": "Date of Birth (dd-mm-yyyy)",
-				"rules": {
-					"required": true
-				},
-				"type": "date",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": null,
-				"key": "dob",
-				"validation": []
-			},
-			{
-				"name": "mobileNo",
-				"placeholder": "Mobile Number",
-				"rules": {
-					"required": true,
-					"length": 10
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "email",
-				"placeholder": "Email ID",
-				"rules": {
-					"required": true,
-					"email": true
-				},
-				"type": "text",
-				"visibility": true
 			},
 			{
 				"name": "incomeType",
@@ -91,16 +40,41 @@
 				]
 			},
 			{
+				"name": "lastName",
+				"placeholder": "Last Name",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
+				"type": "text",
+				"visibility": true,
+				"default_value": ""
+			},
+			{
 				"name": "panNumber",
 				"placeholder": "PAN Number",
 				"rules": {
 					"required": true,
 					"length": 10
 				},
+				"disabled": true,
 				"mask": {
-					"CharacterLimit": 10
+					"CharacterLimit": 10,
+					"AlphaNumericOnly": true
 				},
 				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "dob",
+				"placeholder": "Date of Birth (dd-mm-yyyy)",
+				"rules": {
+					"required": true
+				},
+				"type": "date",
+				"disabled": true,
 				"visibility": true
 			},
 			{
@@ -109,12 +83,27 @@
 				"type": "text",
 				"rules": {
 					"required": true,
+					"minLength": 12
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 12
+				},
+				"visibility": true
+			},
+			{
+				"name": "mobileNo",
+				"placeholder": "Mobile Number",
+				"rules": {
+					"required": true,
 					"length": 10
 				},
+				"disabled": true,
 				"mask": {
 					"NumberOnly": true,
 					"CharacterLimit": 10
 				},
+				"type": "text",
 				"visibility": true
 			},
 			{
@@ -142,6 +131,17 @@
 				]
 			},
 			{
+				"name": "email",
+				"placeholder": "Email ID",
+				"rules": {
+					"required": true,
+					"email": true
+				},
+				"disabled": true,
+				"type": "text",
+				"visibility": true
+			},
+			{
 				"name": "countryResidence",
 				"placeholder": "Country of Residence",
 				"type": "select",
@@ -154,6 +154,29 @@
 					{
 						"name": "Other",
 						"value": "Other"
+					}
+				]
+			},
+			{
+				"name": "maritalStatus",
+				"placeholder": "Marital Status",
+				"rules": {
+					"required": true
+				},
+				"type": "select",
+				"visibility": true,
+				"options": [
+					{
+						"value": "Married",
+						"name": "Married"
+					},
+					{
+						"value": "Single",
+						"name": "Single"
+					},
+					{
+						"value": "Divorced",
+						"name": "Divorced"
 					}
 				]
 			}
@@ -184,29 +207,28 @@
 				"visibility": true
 			},
 			{
-				"label": "City",
-				"mandatory": true,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "city",
-				"validation": []
+				"name": "city",
+				"placeholder": "City",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
+				"type": "text",
+				"visibility": true
 			},
 			{
-				"label": "State",
-				"mandatory": true,
-				"type": "input",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "state",
-				"validation": [],
-				"sequence": 13
+				"name": "state",
+				"placeholder": "State",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"AlphaCharOnly": true
+				},
+				"type": "text",
+				"visibility": true
 			},
 			{
 				"name": "pinCode",
@@ -224,7 +246,7 @@
 			}
 		]
 	},
-	"loan_details": {
+	"two_wheeler_loan_details": {
 		"label": "Loan Details",
 		"data": [
 			{
@@ -235,16 +257,10 @@
 				},
 				"type": "text",
 				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "loanAmount",
-				"validation": [
-					{
-						"type": "number"
-					}
-				],
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
 				"inrupees": true
 			},
 			{
@@ -265,16 +281,22 @@
 				"type": "search",
 				"placeholder": "Home branch (for application processing)",
 				"visibility": true,
+				"fetchOnInit": true,
 				"rules": {
 					"required": true
 				},
 				"options": []
 			},
 			{
-				"label": "Choose Vehicle",
-				"mandatory": false,
-				"type": "dropdown",
+				"name": "vehicle",
+				"type": "search",
+				"placeholder": "Choose Vehicle",
+				"rules": {
+					"required": true
+				},
+				"fetchOnSearch": true,
 				"visibility": true,
+				"searchKeyAsValue": true,
 				"options": []
 			},
 			{
@@ -285,7 +307,137 @@
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			}
+		]
+	},
+	"four_wheeler_loan_details": {
+		"label": "Loan Details",
+		"data": [
+			{
+				"name": "loanAmount",
+				"placeholder": "Required Loan Amount",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true,
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"inrupees": true
+			},
+			{
+				"name": "tenure",
+				"rules": {
+					"required": true
+				},
+				"placeholder": "Tenure (in months)",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 3
+				},
+				"visibility": true
+			},
+			{
+				"name": "branchId",
+				"type": "search",
+				"placeholder": "Home branch (for application processing)",
+				"visibility": true,
+				"fetchOnInit": true,
+				"rules": {
+					"required": true
+				},
+				"options": []
+			},
+			{
+				"name": "vehicle",
+				"type": "search",
+				"placeholder": "Choose Vehicle",
+				"rules": {
+					"required": true
+				},
+				"fetchOnSearch": true,
+				"visibility": true,
+				"searchKeyAsValue": true,
+				"options": []
+			},
+			{
+				"name": "assetsValue",
+				"placeholder": "Cost of the Vehicle",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			}
+		]
+	},
+	"four_wheeler_loan_details_additional": {
+		"label": "Breakup price of the vehicle",
+		"data": [
+			{
+				"name": "exShowroomPrice",
+				"placeholder": "Ex Show Room Price",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "Accessories",
+				"placeholder": "Accessories",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "insurance",
+				"placeholder": "Insurance",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "roadTaxRegistration",
+				"placeholder": "Road Tax and Registration",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"visibility": true,
+				"inrupees": true
+			},
+			{
+				"name": "total",
+				"placeholder": "Total",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
 				},
 				"visibility": true,
 				"option": [],
@@ -305,40 +457,40 @@
 				"name": "existing_auto_loan",
 				"placeholder": "Auto Loan Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
 				"visibility": true,
 				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "existing_auto_loan",
-				"validation": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "auto_loan_bank_name"
 			},
 			{
 				"name": "existing_personal_loan",
 				"placeholder": "Personal Loan Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
 				"visibility": true,
 				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "existing_personal_loan",
-				"validation": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "personal_loan_bank_name"
 			},
 			{
 				"name": "existing_lap_loan",
 				"placeholder": "LAP Amount",
 				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
 				"visibility": true,
 				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "existing_lap_loan",
-				"validation": [],
-				"inrupees": true
+				"inrupees": true,
+				"subFieldName": "lap_loan_bank_name"
 			}
 		]
 	},
@@ -347,27 +499,258 @@
 		"data": [
 			{
 				"name": "grossIncome",
-				"placeholder": "Gross Total Income",
+				"placeholder": "Gross Total Income (as per the latest ITR slip)",
 				"type": "text",
 				"rules": {
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 7
 				},
 				"visibility": true
 			},
 			{
 				"name": "netMonthlyIncome",
-				"placeholder": "Net Monthly Income",
+				"placeholder": "Net Monthly Income (as per the latest Salary slip)",
 				"type": "text",
 				"rules": {
 					"required": true
 				},
 				"mask": {
-					"NumberOnly": true
+					"NumberOnly": true,
+					"CharacterLimit": 6
 				},
 				"visibility": true
+			}
+		]
+	},
+	"home_loan_details": {
+		"label": "Loan Details",
+		"data": [
+			{
+				"name": "loanAmount",
+				"placeholder": "Required Loan Amount",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true,
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 10
+				},
+				"inrupees": true
+			},
+			{
+				"name": "tenure",
+				"rules": {
+					"required": true
+				},
+				"placeholder": "Tenure (in months)",
+				"type": "text",
+				"mask": {
+					"NumberOnly": true,
+					"CharacterLimit": 3
+				},
+				"visibility": true
+			},
+			{
+				"name": "branchId",
+				"type": "search",
+				"placeholder": "Home branch (for application processing)",
+				"visibility": true,
+				"fetchOnInit": true,
+				"rules": {
+					"required": true
+				},
+				"options": []
+			},
+			{
+				"name": "loanType",
+				"placeholder": "Select a Loan Type",
+				"type": "select",
+				"rules": {
+					"required": true
+				},
+				"options": [
+					{
+						"name": "Take over of existing loan from Bank",
+						"value": "Take over of existing loan from Bank"
+					},
+					{
+						"name": "Construction of House/Flat",
+						"value": "Construction of House/Flat"
+					},
+					{
+						"name": "Purchase of house site and construction",
+						"value": "Purchase of house site and construction"
+					},
+					{
+						"name": "Purchase of ready built House/Flat",
+						"value": "Purchase of ready built House/Flat"
+					}
+				],
+				"visibility": true,
+				"forType": {
+					"Take over of existing loan from Bank": [
+						{
+							"name": "bank",
+							"type": "select",
+							"placeholder": "Please Select the Bank/FI from which the loan(s) is/are to be taken over",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"options": [
+								{
+									"name": "HDFC",
+									"value": "hdfc"
+								},
+								{
+									"name": "ICICI",
+									"value": "icici"
+								},
+								{
+									"name": "OTHER",
+									"value": "other"
+								}
+							],
+							"forType": {
+								"other": [
+									{
+										"name": "bankName",
+										"type": "text",
+										"placeholder": "Enter your bank name if chosen Other",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true
+									}
+								]
+							}
+						},
+						{
+							"name": "outstanding",
+							"type": "text",
+							"placeholder": "Enter Present Outstanding",
+							"visibility": true,
+							"inrupees": true,
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
+							"uploadButton": "Upload Agreement"
+						}
+					],
+					"Construction of House/Flat": [
+						[
+							{
+								"name": "constructionValue",
+								"type": "text",
+								"placeholder": "Enter the Value as per the Construction Agreement",
+								"visibility": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true,
+								"uploadButton": "Upload Agreement"
+							},
+							{
+								"name": "contructionArchitectValue",
+								"type": "text",
+								"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+								"visibility": true,
+								"inrupees": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"uploadButton": "Upload Agreement"
+							}
+						]
+					],
+					"Purchase of house site and construction": [
+						{
+							"name": "landValue",
+							"type": "text",
+							"placeholder": "Enter the Agreement Value for Purchase of Land",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						},
+						[
+							{
+								"name": "constructionValue",
+								"type": "text",
+								"placeholder": "Enter the Value as per the Construction Agreement",
+								"visibility": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true,
+								"uploadButton": "Upload Agreement"
+							},
+							{
+								"name": "contructionArchitectValue",
+								"type": "text",
+								"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+								"visibility": true,
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true,
+								"uploadButton": "Upload Agreement"
+							}
+						]
+					],
+					"Purchase of ready built House/Flat": [
+						{
+							"name": "salesValue",
+							"type": "text",
+							"placeholder": "Enter the Value as per sales agreement",
+							"visibility": true,
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
+							"inrupees": true,
+							"uploadButton": "Upload Agreement"
+						}
+					]
+				}
 			}
 		]
 	}

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import styled from "styled-components";
+import { array, bool, func, object, oneOfType, string } from "prop-types";
 
 import CheckBox from "../Checkbox/CheckBox";
 
@@ -7,7 +7,7 @@ const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
-    color: blue;
+    color: ${({ theme }) => theme.main_theme_color};
   }
 `;
 
@@ -18,9 +18,9 @@ const FieldWrap = styled.div`
 
 const FormWrap = styled.div`
   display: flex;
-  /* align-items: center; */
   flex-wrap: wrap;
   gap: 10%;
+  justify-content: space-between;
   margin: 20px 0;
 `;
 
@@ -45,14 +45,23 @@ const ErrorMessage = styled.div`
   font-weight: 500;
 `;
 
+AddressDetails.propTypes = {
+  userType: string,
+  jsonData: oneOfType([array, object]),
+  register: func,
+  formState: object,
+  match: bool,
+  setMatch: func.isRequired,
+};
+
 export default function AddressDetails({
-  pageName,
   userType,
   jsonData,
   register,
   formState,
+  match,
+  setMatch,
 }) {
-  const [match, setMatch] = useState(false);
   return (
     <>
       <H>

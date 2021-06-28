@@ -1,14 +1,13 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
-
-import jsonData from "../../../shared/constants/data.json";
+import { func, object, oneOfType, string } from "prop-types";
 
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
   flex: 1;
@@ -42,9 +41,20 @@ const formatData = (type, data, fields) => {
   return { addressType: type, ...formatedData };
 };
 
-export default function AddressDetailsPage({ id, pageName }) {
+AddressDetailsPage.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  fieldConfig: object,
+};
+
+export default function AddressDetailsPage({
+  id,
+  onFlowChange,
+  map,
+  fieldConfig,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted, activateSubFlow },
   } = useContext(FlowContext);
 
@@ -53,38 +63,48 @@ export default function AddressDetailsPage({ id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
+  const { addToast } = useToasts();
 
   const [saved, setSaved] = useState(false);
+  const [match, setMatch] = useState(false);
 
   const onSave = (formData) => {
-    const formatedData = [
-      formatData("permanent", formData, jsonData.address_details.data),
-      formatData("present", formData, jsonData.address_details.data),
+    let formatedData = [
+      formatData("permanent", formData, fieldConfig.address_details.data),
     ];
+
+    !match &&
+      formatedData.push(
+        formatData("present", formData, fieldConfig.address_details.data)
+      );
 
     setUsertypeAddressData(formatedData);
     setSaved(true);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (formData) => {
     onSave(formData);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   const subFlowActivate = () => {
     activateSubFlow(id);
-    history.push(flowMap[id].sub);
+    onFlowChange(map.sub);
   };
 
   return (
     <Div>
       <AddressDetails
-        pageName={pageName}
         register={register}
         formState={formState}
-        jsonData={jsonData.address_details.data}
+        match={match}
+        setMatch={setMatch}
+        jsonData={fieldConfig.address_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

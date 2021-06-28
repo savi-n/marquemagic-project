@@ -27,7 +27,7 @@ const useActions = (dispatch) => {
     const flowMap = {};
     menu.forEach((element, index) => {
       const main = menu[index + 1] ? menu[index + 1].id : null;
-      const sub = element.flow ? element.id + "/" + element.flow?.[0].id : null;
+      const sub = element.flow ? element.flow?.[0].id : null;
       flowMap[element.id] = { main, sub };
 
       element.flow?.forEach((e, i) => {
@@ -37,7 +37,7 @@ const useActions = (dispatch) => {
           ? menu[index + 1].id
           : element.id;
         const s = menu[index + 1] ? menu[index + 1].id : element.id;
-        flowMap[e.id] = { main: m, sub: s };
+        flowMap[e.id] = { main: m, sub: s, mainPageId: element.id };
       });
     });
 

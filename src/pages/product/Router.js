@@ -1,0 +1,114 @@
+import { Suspense, lazy } from "react";
+import { func, object, oneOfType, string } from "prop-types";
+
+import userType from "../../_hoc/userType";
+import Loading from "../../components/Loading";
+
+const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
+const IdentityVerification = lazy(() =>
+  import("./identityVerification/IdentityVerification")
+);
+const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
+const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
+const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
+const ApplicationSubmitted = lazy(() =>
+  import("./applicationSubmitted/ApplicationSubmitted")
+);
+const TwoWheelerLoanDetails = lazy(() =>
+  import("./loanDetails/TwoWheelerLoanDetails")
+);
+const FourWheelerLoanDetails = lazy(() =>
+  import("./loanDetails/FourWheelerLoanDetails")
+);
+const HomeLoanDetails = lazy(() => import("./loanDetails/HomeLoanDetails"));
+const CoApplicantDetails = lazy(() =>
+  import("./coappilcant/CoapplicantDetails")
+);
+const CoApplicantIncomeDetails = lazy(() =>
+  import("./coappilcant/CoapplicantIncomeDetails")
+);
+const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
+
+const availableRoutes = {
+  "product-details": { Component: ProductDetails },
+  "identity-verification": { Component: IdentityVerification },
+  "personal-details": { protected: true, Component: PersonalDetails },
+  "address-details": { protected: true, Component: AddressDetails },
+  "two-wheeler-loan-details": {
+    protected: true,
+    Component: TwoWheelerLoanDetails,
+  },
+  "four-wheeler-loan-details": {
+    protected: true,
+    Component: FourWheelerLoanDetails,
+  },
+  "loan-details": {
+    protected: true,
+    Component: FourWheelerLoanDetails,
+  },
+  "home-loan-details": { protected: true, Component: HomeLoanDetails },
+  "co-applicant-details": {
+    protected: true,
+    Component: userType("Co-applicant", CoApplicantDetails),
+  },
+  "co-applicant-income-details": {
+    protected: true,
+    Component: userType("Co-applicant", CoApplicantIncomeDetails),
+  },
+  "co-applicant-document-upload": {
+    protected: true,
+    Component: userType("Co-applicant", DocumentUpload),
+  },
+  "emi-details": { protected: true, Component: EmiDetails },
+  "document-upload": { protected: true, Component: DocumentUpload },
+  "application-submitted": { protected: true, Component: ApplicationSubmitted },
+  "guarantor-details": {
+    protected: true,
+    Component: userType("Guarantor", CoApplicantDetails),
+  },
+  "guarantor-income-details": {
+    protected: true,
+    Component: userType("Guarantor", CoApplicantIncomeDetails),
+  },
+  "guarantor-document-upload": {
+    protected: true,
+    Component: userType("Guarantor", DocumentUpload),
+  },
+};
+
+const fieldConfig = {
+  "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
+  "4 wheeler": require("../../shared/constants/fourWheelerFields.json"),
+  "Home Loan": require("../../shared/constants/homeFields.json"),
+};
+
+export default function Router({
+  currentFlow,
+  productDetails = {},
+  map,
+  onFlowChange,
+  productId,
+}) {
+  const component = availableRoutes[currentFlow];
+
+  return (
+    <Suspense fallback={<Loading />}>
+      <component.Component
+        productDetails={productDetails}
+        fieldConfig={fieldConfig[productDetails.loanType]}
+        onFlowChange={onFlowChange}
+        map={map}
+        id={currentFlow}
+        productId={atob(productId)}
+      />
+    </Suspense>
+  );
+}
+
+Router.propTypes = {
+  currentFlow: string.isRequired,
+  productDetails: object,
+  onFlowChange: func,
+  map: oneOfType([string, object]),
+  productId: string.isRequired,
+};

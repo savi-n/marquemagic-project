@@ -1,20 +1,16 @@
-import { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
 import Button from '../../../components/Button';
-import { FlowContext } from '../../../reducer/flowReducer';
 
 const Colom1 = styled.section`
 	flex: 1;
-	background: ${({ theme }) => theme.themeColor1};
 	padding: 50px;
 `;
 
 const Colom2 = styled.section`
 	width: 30%;
-	background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`
@@ -48,7 +44,7 @@ const Li = styled.li`
 	}
 
 	a {
-		color: blue;
+		color: ${({ theme }) => theme.main_theme_color};
 	}
 `;
 
@@ -56,18 +52,15 @@ const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
 	span {
-		color: blue;
+		color: ${({ theme }) => theme.main_theme_color};
 	}
 `;
 
-export default function ProductDetails({ productDetails }) {
-	const {
-		state: { basePageUrl }
-	} = useContext(FlowContext);
-	const history = useHistory();
+export default function ProductDetails({ productDetails, onFlowChange, map }) {
 	const startFlow = () => {
-		history.push(basePageUrl);
+		onFlowChange(map);
 	};
+
 	return (
 		productDetails && (
 			<>
@@ -80,16 +73,22 @@ export default function ProductDetails({ productDetails }) {
 							))}
 						</ul>
 					</div>
-					{basePageUrl && (
+					{map && (
 						<Div>
 							<Button name='Next' onClick={startFlow} />
 						</Div>
 					)}
 				</Colom1>
 				<Colom2>
-					<Img src={productDetails.imageUrl} alt='Loan Caption' />
+					<Img src={productDetails.productDetailsImage} alt='Loan Caption' />
 				</Colom2>
 			</>
 		)
 	);
 }
+
+ProductDetails.propTypes = {
+	productDetails: object,
+	onFlowChange: func,
+	map: oneOfType([string, object])
+};

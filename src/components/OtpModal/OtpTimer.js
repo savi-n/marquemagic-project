@@ -45,6 +45,7 @@ export default function OtpTimer({
 
   const handleClick = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (seconds) return;
     handleResend();
   };

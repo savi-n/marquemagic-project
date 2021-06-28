@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';
 
 import Button from '../../../components/Button';
@@ -10,16 +10,15 @@ import { UserContext } from '../../../reducer/userReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
+import { useToasts } from '../../../components/Toast/ToastProvider';
 
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
-	background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Colom2 = styled.div`
 	width: 30%;
-	background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`
@@ -33,7 +32,7 @@ const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
 	span {
-		color: blue;
+		color: ${({ theme }) => theme.main_theme_color};
 	}
 `;
 
@@ -48,7 +47,7 @@ const H2 = styled.h2`
 	font-weight: 500;
 `;
 
-export default function IdentityVerification({ productDetails, id }) {
+export default function IdentityVerification({ productDetails, map, onFlowChange, id }) {
 	const {
 		state: { whiteLabelId }
 	} = useContext(AppContext);
@@ -58,14 +57,13 @@ export default function IdentityVerification({ productDetails, id }) {
 	} = useContext(UserContext);
 
 	const {
-		state: { flowMap },
 		actions: { setCompleted }
 	} = useContext(FlowContext);
 
 	const { newRequest } = useFetch();
 	const { register, handleSubmit, formState } = useForm();
 
-	const history = useHistory();
+	const { addToast } = useToasts();
 
 	const [toggleModal, setToggleModal] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -75,16 +73,12 @@ export default function IdentityVerification({ productDetails, id }) {
 	const [errorMessage, setErrorMessage] = useState('');
 
 	const onSubmit = async ({ customerId, mobileNo }) => {
-		setToggleModal(true);
-		setLoading(true);
-
 		if (!customerId && !mobileNo) {
 			return;
 		}
 
-		if (customerId && mobileNo) {
-			return;
-		}
+		setToggleModal(true);
+		setLoading(true);
 
 		try {
 			const otpReq = await newRequest(GENERATE_OTP_URL, {
@@ -98,17 +92,25 @@ export default function IdentityVerification({ productDetails, id }) {
 
 			const response = otpReq.data;
 
-			if (response.statusCode === NC_STATUS_CODE.NC500) {
+			if ([NC_STATUS_CODE.NC500, NC_STATUS_CODE.NC305].includes(response.statusCode)) {
 				setErrorMessage(response.message);
 				setAccountAvailable(false);
-			}
-
-			if (response.statusCode === NC_STATUS_CODE.NC200) {
+			} else if (response.statusCode === NC_STATUS_CODE.NC200) {
 				setAccountAvailable(true);
 				setUserId(response);
+			} else {
+				setToggleModal(false);
+				addToast({
+					message: response.message,
+					type: 'error'
+				});
 			}
 		} catch (error) {
 			console.error(error);
+			addToast({
+				message: 'Something Went Wrong. Try Again!',
+				type: 'error'
+			});
 			setErrorMessage('Invalid Data Given');
 		}
 
@@ -121,7 +123,7 @@ export default function IdentityVerification({ productDetails, id }) {
 
 	const onProceed = () => {
 		setCompleted(id);
-		history.push(flowMap[id].main);
+		onFlowChange(map.main);
 	};
 
 	return (
@@ -153,7 +155,7 @@ export default function IdentityVerification({ productDetails, id }) {
 						</FieldWrapper>
 						<Button
 							type='submit'
-							name='Login'
+							name='LOGIN'
 							fill
 							disabled={
 								!(formState.values?.customerId || formState.values?.mobileNo) ||
@@ -163,7 +165,7 @@ export default function IdentityVerification({ productDetails, id }) {
 					</form>
 				</Colom1>
 				<Colom2>
-					<Img src={productDetails.imageUrl} alt='Loan Caption' />
+					<Img src={productDetails.productDetailsImage} alt='Loan Caption' />
 				</Colom2>
 				{toggleModal && (
 					<OtpModal
@@ -184,3 +186,10 @@ export default function IdentityVerification({ productDetails, id }) {
 		)
 	);
 }
+
+IdentityVerification.propTypes = {
+	productDetails: object,
+	onFlowChange: func.isRequired,
+	map: oneOfType([string, object]),
+	id: string
+};

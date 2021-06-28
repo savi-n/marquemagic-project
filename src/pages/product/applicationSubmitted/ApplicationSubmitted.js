@@ -1,20 +1,16 @@
 import { useState, useContext } from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { func, object, oneOfType, string } from "prop-types";
 
 import Button from "../../../components/Button";
 import GuageMeter from "../../../components/GuageMeter";
 import { FlowContext } from "../../../reducer/flowReducer";
-
-import SearchSelect from "../../../components/SearchSelect";
-import { UserContext } from "../../../reducer/userReducer";
-import useFetch from "../../../hooks/useFetch";
-import { NC_STATUS_CODE, SEARCH_LOAN_ASSET } from "../../../_config/app.config";
+import img1 from "../../../assets/images/v3.png";
+import img2 from "../../../assets/images/v4.png";
 
 const Colom1 = styled.div`
   flex: 1;
   padding: 50px;
-  background: ${({ theme }) => theme.themeColor1};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,7 +19,6 @@ const Colom1 = styled.div`
 
 const Colom2 = styled.div`
   width: 30%;
-  background: ${({ theme }) => theme.themeColor1};
 `;
 
 const Img = styled.img`
@@ -51,7 +46,7 @@ const CaptionImg = styled.div`
   height: 150px;
   width: 70%;
   background-position: center;
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
 `;
 
@@ -59,10 +54,12 @@ const data = [
   {
     caption: `Your application has been forwarded to the branch, desicion shall be communicated within 2-3 working days.`,
     guarantor: true,
+    img: img1,
   },
   {
     caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
     guarantor: true,
+    img: img2,
   },
   {
     caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
@@ -70,61 +67,43 @@ const data = [
   },
 ];
 
-export default function ApplicationSubmitted({ productDetails, id }) {
+ApplicationSubmitted.propTypes = {
+  productDetails: object,
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+};
+
+export default function ApplicationSubmitted({
+  productDetails,
+  id,
+  map,
+  onFlowChange,
+}) {
   const {
-    state: { flowMap },
     actions: { activateSubFlow },
   } = useContext(FlowContext);
-
-  const history = useHistory();
 
   const [count, setData] = useState(0);
 
   const subFlowActivate = () => {
     activateSubFlow(id);
-    history.push(flowMap[id].sub);
+    onFlowChange(map.sub);
   };
 
-  const {
-    state: { userToken },
-  } = useContext(UserContext);
-
-  const { newRequest } = useFetch();
-
-  const getOptions = async (data) => {
-    const opitionalDataReq = await newRequest(
-      SEARCH_LOAN_ASSET,
-      { method: "POST", data },
-      {
-        Authorization: `Bearer ${userToken}`,
-      }
-    );
-
-    const opitionalDataRes = opitionalDataReq.data;
-    if (opitionalDataRes.message) {
-      return opitionalDataRes.data;
-    }
-    return [];
-  };
+  // const {
+  //   state: { userToken },
+  // } = useContext(UserContext);
 
   const d = data[count];
   return (
     <>
       <Colom1>
-        {!d.guarantor ? (
-          <GuageMeter />
-        ) : (
-          <CaptionImg bg={productDetails.imageUrl} />
-        )}
+        {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
         <Caption>{d.caption}</Caption>
 
         {d.guarantor && (
           <>
-            <SearchSelect
-              searchable
-              title="Search Branch"
-              searchOptionCallback={getOptions}
-            />
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>
               <Button name="Yes" onClick={subFlowActivate} />
@@ -134,7 +113,10 @@ export default function ApplicationSubmitted({ productDetails, id }) {
         )}
       </Colom1>
       <Colom2>
-        <Img src={productDetails.imageUrl} alt="Loan Caption" />
+        <Img
+          src={productDetails.applicationSubmittedImage}
+          alt="Loan Caption"
+        />
       </Colom2>
     </>
   );

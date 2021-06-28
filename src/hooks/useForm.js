@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,7 +14,7 @@ function numberOnly(value) {
 
 function validatePattern(pattern) {
   return function(value, pat) {
-    pat = pat || pattern;
+    pat = typeof pat === "boolean" ? pattern : pat;
     return !new RegExp(pat).test(value);
   };
 }
@@ -54,7 +54,7 @@ const VALIDATION_RULES = {
   },
   minLength: {
     func: limitLength("min"),
-    message: "Less character",
+    message: "Minimum Character limit",
   },
   length: {
     func: limitLength(),
@@ -64,17 +64,20 @@ const VALIDATION_RULES = {
     func: valueMatchWith,
     message: "Mismatch",
   },
+  subAction: {
+    func: (value, params) => {
+      return params;
+    },
+    message: "Upload agreement is mandatory",
+  },
 };
 
 function validate(rules, value) {
   if (!rules) return false;
 
   for (const rule in rules) {
-    if (rules[rule]) {
-      let passParams = typeof rules[rule] === "boolean" ? null : rules[rule];
-      if (VALIDATION_RULES[rule]?.func(value, passParams)) {
-        return VALIDATION_RULES[rule].message;
-      }
+    if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
+      return VALIDATION_RULES[rule].message;
     }
   }
 }
@@ -83,6 +86,7 @@ const MASKS = {
   NumberOnly: (value) => value?.replace(/[^\d]+/g, "") || "",
   CharacterLimit: (value, n) => String(value).substring(0, n) || "",
   AlphaCharOnly: (value) => value?.replace(/[^a-zA-Z]/g, "") || "",
+  AlphaNumericOnly: (value) => value?.replace(/[^a-zA-Z0-9]+$/i, ""),
 };
 
 function revealMask(masks, value) {
@@ -104,8 +108,6 @@ const validDefault = (formData) => {
 };
 
 export default function useForm() {
-  const formRef = useRef("");
-
   const fieldsRef = useRef({});
   const valuesRef = useRef({});
   const touchedRef = useRef({});
@@ -120,10 +122,12 @@ export default function useForm() {
   const [, updateFormState] = useState(uuidv4());
 
   const checkValidity = (name) => {
-    const error = validate(
-      fieldsRef.current[name]?.rules,
-      valuesRef.current[name]
-    );
+    let error = false;
+
+    if (!fieldsRef.current[name]?.disabled) {
+      error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
+    }
+
     const { [name]: _, ...errorFields } = errorsRef.current;
     errorsRef.current = { ...errorFields, ...(error ? { [name]: error } : {}) };
 
@@ -135,7 +139,7 @@ export default function useForm() {
   };
 
   const setValue = (name, value) => {
-    const mask = fieldsRef.current[name].mask;
+    const mask = fieldsRef.current[name]?.mask;
     if (mask) {
       value = revealMask(mask, value);
     }
@@ -163,27 +167,28 @@ export default function useForm() {
     updateFormState(uuidv4());
   };
 
-  const register = useCallback(
-    (newField) => {
-      fieldsRef.current[newField.name] = newField;
+  const register = (newField) => {
+    fieldsRef.current[newField.name] = newField;
 
-      setValue(newField.name, newField.value || "");
-      checkValidity(newField.name);
+    setValue(newField.name, newField.value || "");
+    checkValidity(newField.name);
 
-      return (
-        <InputField
-          field={newField}
-          onChange={onChange}
-          value={valuesRef.current[newField.name] || ""}
-          unregister={unregister}
-        />
-      );
-    },
-    [formRef.current]
-  );
+    return (
+      <InputField
+        field={newField}
+        onChange={onChange}
+        value={valuesRef.current[newField.name] || ""}
+        unregister={unregister}
+      />
+    );
+  };
 
   const onChange = (event, type) => {
     const { name, value } = event;
+
+    if (fieldsRef.current[name]?.disabled) {
+      return;
+    }
 
     setValue(name, value);
     checkValidity(name);
@@ -195,38 +200,38 @@ export default function useForm() {
     updateFormState(uuidv4());
   };
 
-  const handleSubmit = useCallback(
-    (valid = validDefault, invalid = invalidDefault) => async (e) => {
-      const { submitCount } = submitRef.current;
+  const handleSubmit = (
+    valid = validDefault,
+    invalid = invalidDefault
+  ) => async (e) => {
+    const { submitCount } = submitRef.current;
 
-      submitRef.current = {
-        isSubmitting: true,
-        isSubmited: true,
-        submitCount: submitCount + 1,
-      };
+    submitRef.current = {
+      isSubmitting: true,
+      isSubmited: true,
+      submitCount: submitCount + 1,
+    };
 
-      updateFormState(uuidv4());
+    updateFormState(uuidv4());
 
-      if (e) {
-        e.preventDefault && e.preventDefault();
-        e.persist && e.persist();
-      }
+    if (e) {
+      e.preventDefault && e.preventDefault();
+      e.persist && e.persist();
+    }
 
-      if (!Object.keys(errorsRef.current).length) {
-        await valid(valuesRef.current);
-      } else {
-        await invalid(valuesRef.current);
-      }
+    if (!Object.keys(errorsRef.current).length) {
+      await valid(valuesRef.current);
+    } else {
+      await invalid(valuesRef.current);
+    }
 
-      submitRef.current = {
-        ...submitRef.current,
-        isSubmitting: false,
-      };
+    submitRef.current = {
+      ...submitRef.current,
+      isSubmitting: false,
+    };
 
-      updateFormState(uuidv4());
-    },
-    [formRef.current]
-  );
+    updateFormState(uuidv4());
+  };
 
   return {
     register,
@@ -258,7 +263,7 @@ const Select = styled.select`
 `;
 
 function InputField({ field, onChange, value, unregister }) {
-  const { type = "text" } = field;
+  const { type = "text", rules } = field;
 
   useEffect(() => {
     return () => {
@@ -266,13 +271,19 @@ function InputField({ field, onChange, value, unregister }) {
     };
   }, []);
 
+  useEffect(() => {
+    onChange({ name: field.name, value: value || "" });
+  }, [value]);
+
   const fieldProps = {
     name: field.name,
-    onChange: (event) => {
-      event.preventDefault();
-      const { name, value } = event.target;
-      onChange({ name, value });
-    },
+    onChange: !field.disabled
+      ? (event) => {
+          event.preventDefault();
+          const { name, value } = event.target;
+          onChange({ name, value });
+        }
+      : () => {},
     onBlur: (event) => {
       event.preventDefault();
       const { name, value } = event.target;
@@ -293,6 +304,8 @@ function InputField({ field, onChange, value, unregister }) {
         onSelectOptionCallback={onChange}
         onBlurCallback={onChange}
         fetchOptionsFunc={field.fetchOptionsFunc}
+        searchOptionCallback={field.searchOptionCallback}
+        searchKeyAsValue={field.searchKeyAsValue}
       />
     );
   }

@@ -1,8 +1,6 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
-
-import jsonData from "../../../shared/constants/data.json";
+import { func, object, oneOf, oneOfType, string } from "prop-types";
 
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
@@ -11,6 +9,7 @@ import PersonalDetails from "../../../shared/components/PersonalDetails/Personal
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
+import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -53,9 +52,22 @@ const formatPersonalData = (data, fields) => {
   return { ...formatedData, isApplicant: "0" };
 };
 
-export default function CoapplicantDetails({ userType, id, pageName }) {
+CoapplicantDetails.propTypes = {
+  onFlowChange: func.isRequired,
+  map: oneOfType([string, object]),
+  id: string,
+  userType: oneOf(["Co-Applicant", "Gurantor"]),
+  fieldConfig: object,
+};
+
+export default function CoapplicantDetails({
+  userType,
+  id,
+  onFlowChange,
+  map,
+  fieldConfig,
+}) {
   const {
-    state: { flowMap },
     actions: { setCompleted },
   } = useContext(FlowContext);
 
@@ -64,42 +76,57 @@ export default function CoapplicantDetails({ userType, id, pageName }) {
   } = useContext(FormContext);
 
   const { handleSubmit, register, formState } = useForm();
-  const history = useHistory();
+  const { addToast } = useToasts();
+
+  const [match, setMatch] = useState(false);
 
   const onSave = (formData) => {
-    const formatedAddress = [
-      formatAddressData("permanent", formData, jsonData.address_details.data),
-      formatAddressData("present", formData, jsonData.address_details.data),
+    let formatedAddress = [
+      formatAddressData(
+        "permanent",
+        formData,
+        fieldConfig.address_details.data
+      ),
     ];
+
+    !match &&
+      formatedAddress.push(
+        formatAddressData("present", formData, fieldConfig.address_details.data)
+      );
+
     const formatApplicantData = {
-      ...formatPersonalData(formData, jsonData.personal_details.data),
+      ...formatPersonalData(formData, fieldConfig.personal_details.data),
       typeName: userType,
     };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
     setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
   };
 
   const onProceed = (data) => {
     onSave(data);
     setCompleted(id);
-    history.push(flowMap[id].main);
+    onFlowChange(map.main);
   };
 
   return (
     <Div>
       <PersonalDetails
         userType={userType}
-        pageName={pageName}
         register={register}
         formState={formState}
-        jsonData={jsonData.personal_details.data}
+        jsonData={fieldConfig.personal_details.data}
       />
       <AddressDetails
         userType={userType}
-        pageName={pageName}
         register={register}
         formState={formState}
-        jsonData={jsonData.address_details.data}
+        match={match}
+        setMatch={setMatch}
+        jsonData={fieldConfig.address_details.data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

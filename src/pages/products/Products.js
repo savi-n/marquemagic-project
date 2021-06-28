@@ -20,7 +20,7 @@ const Div = styled.div`
   padding: 20px 0;
   display: flex;
   align-items: center;
-  gap: calc(12% / 3);
+  /* gap: calc(12% / 3); */
 `;
 
 export default function Products() {
