@@ -250,7 +250,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 
 	const getRecom = data => {
 		const a = JSON.parse(data);
-		return a[0]?.message;
+		if (a) return a[0]?.message;
 	};
 
 	getRecom(item.remarks);
@@ -268,7 +268,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 				<input
 					placeholder='ROI'
 					className='resize-none rounded-lg w-full m-2 border border-silver-500 focus:outline-none p-2 text-sm'
-					defaultValue={item.pre_eligiblity.roi.toFixed(2)}
+					defaultValue={item?.pre_eligiblity?.roi.toFixed(2)}
 				/>
 				<input
 					placeholder='Add Recommendation'
