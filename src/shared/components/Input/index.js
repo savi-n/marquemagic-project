@@ -1,38 +1,36 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Select from 'react-select';
 import './style.scss';
 
 export default function Input(props) {
 	const { width, font, p, txtColor, classname } = props;
-	const aes = () => {
-		const data = document.querySelectorAll(`${props.type === 'dropdown' ? 'select' : 'input'}`);
-		data.forEach((el, idx) => {
-			var h = el.getAttribute('placeholder');
-			if (el.getAttribute('t') === '1') {
-				el.setAttribute('placeholder', h + ' *');
-				return;
-			}
-		});
+
+	const customStyled = {
+		control: () => ({
+			height: '60px',
+			padding: '1rem',
+			borderRadius: '1.5rem',
+			border: 'solid 1px silver',
+			width: '22rem'
+		})
 	};
-	useEffect(() => {
-		aes();
-	}, []);
 
 	return (
 		<section className={`flex items-center ${!props.sideHead && 'justify-between'}`}>
 			{props.type !== 'dropdown' && (
 				<input
 					{...props}
-					className={`w-${width || ''} font-${font || '3xl'} p-${p || '4'} text-${txtColor ||
-						'black'} border solid silver rounded-xl focus:outline-none focus:shadow-inner shadow-sm ${classname &&
+					className={`w-${width || ''} font-${font || ''} p-${p || '4'} px-6 text-${txtColor ||
+						'black'} border border-gray-400 rounded-3xl focus:outline-none focus:shadow-inner shadow-sm ${classname &&
 						classname}`}
 				/>
 			)}
-			{props.type === 'dropdown' && (
+			{/* {props.type === 'dropdown' && props.name !== 'productId' && (
 				<select
 					{...props}
 					className={`w-${width || ''} font-${font || '3xl'} p-${p || '4'} text-${txtColor ||
-						'gray-400'} border solid silver rounded-xl focus:outline-none focus:shadow-inner shadow-sm bg-transparent ${classname}`}
+						'gray-400'} border solid silver rounded-3xl focus:outline-none focus:shadow-inner shadow-sm bg-transparent ${classname}`}
 				>
 					{props.label && (
 						<option value={props.label} selected disabled>
@@ -46,6 +44,17 @@ export default function Input(props) {
 							</option>
 						))}
 				</select>
+			)} */}
+			{props.type === 'dropdown' && (
+				<Select
+					className='select'
+					{...props}
+					styles={customStyled}
+					options={props.options}
+					closeOnSelect={true}
+					{...props}
+					value={props.defaultValue}
+				/>
 			)}
 			{((props.link || props.sideHead) &&
 				(props.link && (

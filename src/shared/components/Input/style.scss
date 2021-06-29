@@ -1,33 +1,23 @@
 ::-webkit-input-placeholder {
-	text-align: center;
+	font-weight: 200;
+	font-size: small;
 }
 
 :-moz-placeholder {
 	/* Firefox 18- */
-	text-align: center;
+	font-weight: 200;
+	font-size: small;
 }
 
 ::-moz-placeholder {
 	/* Firefox 19+ */
-	text-align: center;
+	font-weight: 200;
+	font-size: small;
 }
 
 :-ms-input-placeholder {
-	text-align: center;
-}
-
-select {
-	text-align: center;
-	text-align-last: center;
-	/* webkit*/
-}
-option {
-	text-align: left;
-	/* reset to left*/
-
-	&:hover {
-		@apply bg-indigo-600;
-	}
+	font-weight: 200;
+	font-size: small;
 }
 
 input[type='date']:invalid::-webkit-datetime-edit {
@@ -35,7 +25,9 @@ input[type='date']:invalid::-webkit-datetime-edit {
 }
 
 input[type='date'] {
-	@apply text-gray-400 text-center;
+	@apply text-gray-400;
+	font-weight: 200;
+	font-size: small;
 }
 ::-webkit-calendar-picker-indicator {
 	display: none;

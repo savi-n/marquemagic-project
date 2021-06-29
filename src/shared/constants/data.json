@@ -13,7 +13,12 @@
 				},
 				"type": "text",
 				"visibility": true,
-				"default_value": ""
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": "",
+				"key": "lastName",
+				"validation": []
 			},
 			{
 				"name": "incomeType",
@@ -435,6 +440,12 @@
 					"CharacterLimit": 10
 				},
 				"visibility": true,
+				"option": [],
+				"switch_key": "",
+				"switch_default_value": "",
+				"default_value": "",
+				"key": "assetsValue",
+				"validation": [],
 				"inrupees": true
 			}
 		]
