@@ -95,15 +95,20 @@ const AppLayout = () => {
 		}
 	}, [response]);
 
+	const pathN = window.location.pathname;
+
 	return loading ? (
 		<Loading />
 	) : (
 		response && (
 			<ThemeProvider theme={response.permission.color_theme_react}>
 				<GlobalStyle />
-				<HeaderWrapper>
-					<Header logo={response.permission.logo} />
-				</HeaderWrapper>
+				{pathN !== '/branch-user' ||
+					(pathN !== '/branch-manager' && (
+						<HeaderWrapper>
+							<Header logo={response.permission.logo} />
+						</HeaderWrapper>
+					))}
 				<Div>
 					<Content />
 				</Div>
