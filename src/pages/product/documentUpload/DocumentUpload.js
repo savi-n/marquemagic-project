@@ -309,7 +309,7 @@ export default function DocumentUpload({
         url,
         {
           method: "POST",
-          data,
+          data: { assetsValue: 0, ...data },
         },
         {
           Authorization: `Bearer ${userToken}`,
@@ -339,14 +339,14 @@ export default function DocumentUpload({
       await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
 
       // step 3: upload cub statement to sailspld
-      await updateRefernceToSails(caseCreateRes.loanId, userToken, [
-        ...(otherCUBStatementUserTypeDetails?.requestId
-          ? [otherCUBStatementUserTypeDetails?.requestId]
-          : []),
-        ...(otherUserTypeCibilDetails?.requestId
-          ? otherUserTypeCibilDetails?.requestId
-          : []),
-      ]);
+      // await updateRefernceToSails(caseCreateRes.loanId, userToken, [
+      //   ...(otherCUBStatementUserTypeDetails?.requestId
+      //     ? [otherCUBStatementUserTypeDetails?.requestId]
+      //     : []),
+      //   ...(otherUserTypeCibilDetails?.requestId
+      //     ? otherUserTypeCibilDetails?.requestId
+      //     : []),
+      // ]);
 
       // // step 4: loan assets request
       // await loanAssetsUpload(
@@ -381,7 +381,7 @@ export default function DocumentUpload({
       );
 
       await updateDocumentList(loan.loanId, USER_ROLES[role]);
-      await updateRefernceToSails(loan.loanId, userToken, requestId);
+      // await updateRefernceToSails(loan.loanId, userToken, requestId);
       return true;
     } catch (err) {
       console.log("COAPPLICANT CASE CREATION STEPS ERRRO ==> ", err.message);
@@ -420,7 +420,9 @@ export default function DocumentUpload({
           loanReq,
           "Co-applicant",
           [
-            state.coapplicant.cibilData.requestId,
+            ...(state.coapplicant.cibilData.requestId
+              ? state.coapplicant?.cibilData?.requestId
+              : []),
             state.coapplicant.cubStatement.requestId,
             ...(state.coapplicant.cubStatement?.requestId
               ? [state.coapplicant.cubStatement?.requestId]
@@ -469,7 +471,9 @@ export default function DocumentUpload({
       caseDetails,
       "Guarantor",
       [
-        state.guarantor.cibilData.requestId,
+        ...(state.guarantor.cibilData.requestId
+          ? state.guarantor?.cibilData?.requestId
+          : []),
         ...(otherCUBStatementUserTypeDetails?.requestId
           ? [otherCUBStatementUserTypeDetails?.requestId]
           : []),
