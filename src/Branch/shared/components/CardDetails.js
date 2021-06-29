@@ -111,6 +111,7 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 
 	const getRecom = data => {
 		const a = JSON.parse(data);
+		console.log(data);
 		return a;
 	};
 
