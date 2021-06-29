@@ -373,9 +373,9 @@ export default function DocumentUpload({
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
           ...state[USER_ROLES[role]].loanData,
-          cibilScore: userType
-            ? state[USER_ROLES[role]].cibilData.cibilScore
-            : otherUserTypeCibilDetails.cibilScore,
+          // cibilScore: userType
+          //   ? state[USER_ROLES[role]].cibilData.cibilScore
+          //   : otherUserTypeCibilDetails.cibilScore,
         },
         CREATE_CASE_OTHER_USER
       );
@@ -407,7 +407,7 @@ export default function DocumentUpload({
         applicantData: state.user.applicantData,
         loanData: { ...state.user.loanData, productId },
         ...state.user.bankData,
-        cibilScore: otherUserTypeCibilDetails.cibilScore,
+        // cibilScore: otherUserTypeCibilDetails.cibilScore,
       });
 
       if (!loanReq && !loanReq?.loanId) {
