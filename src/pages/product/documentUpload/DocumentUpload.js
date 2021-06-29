@@ -337,8 +337,12 @@ export default function DocumentUpload({
 
       // step 3: upload cub statement to sailspld
       await updateRefernceToSails(caseCreateRes.loanId, userToken, [
-        otherCUBStatementUserTypeDetails.requestId,
-        otherUserTypeCibilDetails.requestId,
+        ...(otherCUBStatementUserTypeDetails?.requestId
+          ? [otherCUBStatementUserTypeDetails?.requestId]
+          : []),
+        ...(otherUserTypeCibilDetails?.requestId
+          ? otherUserTypeCibilDetails?.requestId
+          : []),
       ]);
 
       // // step 4: loan assets request
