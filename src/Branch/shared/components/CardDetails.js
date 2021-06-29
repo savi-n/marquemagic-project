@@ -184,9 +184,9 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 					<section className='flex justify-between'>
 						<section className='flex flex-col text-xs'>
 							<small>
-								Assigned at: {t.assignedAt || item.assigned_date || new Date().toDateString()}
+								Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
 							</small>
-							<small>Assigned by: {t.assignedBy || item.assigned_by}</small>
+							<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
 						</section>
 						<section className='flex gap-x-4'>
 							{label &&
