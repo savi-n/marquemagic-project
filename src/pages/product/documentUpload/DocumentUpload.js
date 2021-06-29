@@ -266,6 +266,9 @@ export default function DocumentUpload({
 
   // step: 3 upload cub statements to sails
   const updateRefernceToSails = async (loanId, token, requestId) => {
+    if (!requestId.length) {
+      return true;
+    }
     try {
       const statementUploadReq = await newRequest(
         UPLOAD_CUB_STATEMENT,
