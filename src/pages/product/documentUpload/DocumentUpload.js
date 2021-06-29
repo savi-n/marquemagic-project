@@ -309,7 +309,7 @@ export default function DocumentUpload({
         url,
         {
           method: "POST",
-          data: { assetsValue: 0, ...data },
+          data,
         },
         {
           Authorization: `Bearer ${userToken}`,
@@ -405,7 +405,7 @@ export default function DocumentUpload({
         white_label_id: whiteLabelId,
         product_id: productId,
         applicantData: state.user.applicantData,
-        loanData: { ...state.user.loanData, productId },
+        loanData: { assetsValue: 0, ...state.user.loanData, productId },
         ...state.user.bankData,
         // cibilScore: otherUserTypeCibilDetails.cibilScore,
       });
