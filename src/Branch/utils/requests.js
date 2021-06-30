@@ -58,7 +58,5 @@ export const getLoanDetails = async loanId => {
 			headers: { Authorization: `${token}` }
 		}
 	);
-
 	const t = await g;
-	console.log(t);
 };

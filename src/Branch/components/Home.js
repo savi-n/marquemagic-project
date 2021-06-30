@@ -4,6 +4,7 @@ import './styles/index.scss';
 import Card from '../shared/components/Card';
 import CardDetails from '../shared/components/CardDetails';
 import { getCase } from '../utils/requests';
+import Loading from '../../components/Loading';
 
 export default function Home({ data, sortList, dChartData, d, isIdentifier, lActive }) {
 	var pieD1 = [];
@@ -22,17 +23,25 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 
 	const [paData, setPaData] = useState(null);
 	const [sanData, setSanData] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(async () => {
+		setLoading(true);
 		getCase('Pending Applications').then(res => {
-			setPaData(res);
+			if (res.statusCode === 'NC200') {
+				setPaData(res);
+				setLoading(false);
+			}
 		});
 		getCase('Sanctioned').then(res => {
-			setSanData(res);
+			if ((res.statusCode = 'NC200')) {
+				setSanData(res);
+				setLoading(false);
+			}
 		});
 	}, []);
 
-	return (
+	return !loading ? (
 		<section className='flex flex-col gap-y-10 pt-24'>
 			<h1 className='text-xl'>Dashboard</h1>
 			<section className='flex justify-between gap-x-6'>
@@ -126,7 +135,14 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 						{paData && paData.length ? (
 							paData.map(
 								(item, idx) =>
-									idx < 3 && <CardDetails label={lActive} full={true} item={item} lActive={lActive} />
+									idx < 3 && (
+										<CardDetails
+											label='Pending Applications'
+											full={true}
+											item={item}
+											lActive={lActive}
+										/>
+									)
 							)
 						) : (
 							<span className='text-center w-full opacity-50'>No Applications</span>
@@ -139,14 +155,24 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 						{!isIdentifier() && sanData && sanData.length ? (
 							sanData.map(
 								(item, idx) =>
-									idx < 3 && <CardDetails label={lActive} full={true} item={item} lActive={lActive} />
+									idx < 3 && (
+										<CardDetails label='Sanctioned' full={true} item={item} lActive={lActive} />
+									)
 							)
 						) : (
-							<span className='text-center w-full opacity-50'>No Data found</span>
+							<span className='text-center w-full opacity-50'>No Applications</span>
 						)}
 					</section>
 				</section>
 			</section>
 		</section>
+	) : (
+		loading && (
+			<section className='flex items-center justify-center'>
+				<section className='w-7/12'>
+					<Loading />
+				</section>
+			</section>
+		)
 	);
 }
