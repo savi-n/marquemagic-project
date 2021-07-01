@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { LineChart, Line, Pie, PieChart, Cell } from 'recharts';
 import './styles/index.scss';
 import Card from '../shared/components/Card';
 import CardDetails from '../shared/components/CardDetails';
 import { getCase } from '../utils/requests';
 import Loading from '../../components/Loading';
+import { BranchUserContext } from '../../reducer/branchUserReducer';
 
 export default function Home({ data, sortList, dChartData, d, isIdentifier, lActive }) {
 	var pieD1 = [];
 	var pieD2 = [];
+	const {
+		state: { userToken }
+	} = useContext(BranchUserContext);
 
 	dChartData.map((item, index) =>
 		Object.keys(item).map(i =>
@@ -27,13 +31,13 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 
 	useEffect(async () => {
 		setLoading(true);
-		getCase('Pending Applications').then(res => {
+		getCase('Pending Applications', userToken).then(res => {
 			if (res.statusCode === 'NC200') {
 				setPaData(res);
 				setLoading(false);
 			}
 		});
-		getCase('Sanctioned').then(res => {
+		getCase('Sanctioned', userToken).then(res => {
 			if ((res.statusCode = 'NC200')) {
 				setSanData(res);
 				setLoading(false);

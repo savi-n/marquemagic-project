@@ -1,10 +1,9 @@
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
-import Content from './Content';
 import Loading from './Loading';
 import useFetch from '../hooks/useFetch';
 import {
@@ -12,7 +11,8 @@ import {
 	CLIENT_VERIFY_URL,
 	CLIENT_EMAIL_ID,
 	BANK_TOKEN_API,
-	NC_STATUS_CODE
+	NC_STATUS_CODE,
+	APP_DOMAIN
 } from '../_config/app.config.js';
 import { AppContext } from '../reducer/appReducer';
 // import { useToasts } from "../components/Toast/ToastProvider";
@@ -31,6 +31,9 @@ const HeaderWrapper = styled.div`
 const Div = styled.div`
 	flex: 1;
 `;
+
+const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
+const BranchUserContent = lazy(() => import('./BranchUserContent'));
 
 const AppLayout = () => {
 	const { response, newRequest } = useFetch({
@@ -95,22 +98,27 @@ const AppLayout = () => {
 		}
 	}, [response]);
 
-	const pathN = window.location.pathname;
-
 	return loading ? (
 		<Loading />
 	) : (
 		response && (
 			<ThemeProvider theme={response.permission.color_theme_react}>
 				<GlobalStyle />
-				{pathN !== '/branch-user' ||
-					(pathN !== '/branch-manager' && (
-						<HeaderWrapper>
-							<Header logo={response.permission.logo} />
-						</HeaderWrapper>
-					))}
+				{/* {!userToken && (
+					<HeaderWrapper>
+						<Header logo={response.permission.logo} />
+					</HeaderWrapper>
+				)} */}
 				<Div>
-					<Content />
+					<BrowserRouter basename={`${APP_DOMAIN}`}>
+						<Suspense fallback={<Loading />}>
+							<Switch>
+								<Route path='/branch' manager={true} component={BranchUserContent} />
+								<Route path='/applyloan' component={ApplyLoanContent} />
+								<Route render={() => <Redirect to='/applyloan' />} />
+							</Switch>
+						</Suspense>
+					</BrowserRouter>
 				</Div>
 			</ThemeProvider>
 		)

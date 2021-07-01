@@ -1,4 +1,4 @@
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { shape, string, number } from "prop-types";
 
@@ -44,11 +44,12 @@ const Description = styled.div`
 
 export default function Card({ product }) {
   const history = useHistory();
+  const { url } = useRouteMatch();
 
   const handleClick = (e, id) => {
     e.preventDefault();
     history.push({
-      pathname: `/product/${btoa(id)}`,
+      pathname: `${url}/product/${btoa(id)}`,
       data: id,
     });
   };
@@ -60,7 +61,7 @@ export default function Card({ product }) {
       </ImgDiv>
       <Div>
         <Link
-          href={`/product/${btoa(product.product_id)}`}
+          href={`${url}/product/${btoa(product.product_id)}`}
           onClick={(e) => handleClick(e, product.product_id)}
         >
           {product.name}
