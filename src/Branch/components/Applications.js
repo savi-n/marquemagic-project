@@ -6,6 +6,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import CardDetails from '../shared/components/CardDetails';
 import { getCase } from '../utils/requests';
 import Loading from '../../components/Loading';
+import Button from '../shared/components/Button';
 
 export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier }) {
 	const [data, setData] = useState(null);
@@ -73,7 +74,12 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 					overflow: 'scroll'
 				}}
 			>
-				<section className='top-24 w-full absolute flex justify-between gap-x-10 items-center'>
+				<section className='absolute top-32 flex self-end w-full'>
+					<Button rounded='rfull' type='gray-light' className='btn'>
+						Need Attention <span className='mx-1 bg-red-500 rounded-full px-2'>7</span>
+					</Button>
+				</section>
+				<section className='top-40 w-full absolute flex gap-x-10 items-center'>
 					<section className='w-1/2 flex items-center mt-10'>
 						<input
 							className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none  rounded-l-full'
@@ -95,8 +101,14 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 						</div>
 					</section>
 				</section>
-				<section className='w-full gap-20 flex grid grid-cols-2 pb-10' style={{ paddingTop: '16em' }}>
-					{loading && <Loading />}
+				<section className='w-full gap-20 flex grid grid-cols-2 pb-10' style={{ paddingTop: '20em' }}>
+					{loading && (
+						<section className='flex items-center justify-center'>
+							<section className='w-full'>
+								<Loading />
+							</section>
+						</section>
+					)}
 					{data && data.length
 						? data.map(item => <CardDetails label={lActive} full={true} item={item} lActive={lActive} />)
 						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}

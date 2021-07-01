@@ -111,13 +111,12 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 
 	const getRecom = data => {
 		const a = JSON.parse(data);
-		console.log(data);
 		return a;
 	};
 
 	const t = getRecom(item.remarks);
 
-	getLoanDetails(item.id);
+	// getLoanDetails(item.id);
 
 	return (
 		<Card
@@ -141,10 +140,11 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 						<section className='flex flex-col'>
 							<small>{item.businessname || 'Sample Case'}</small>
 							<span>
-								{item.loan_type || 'Auto Loan'}, {item.loan_amount} {item.loan_amount_um}
+								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
+								{item.loan_amount} {item.loan_amount_um}
 							</span>
 							<small>
-								₹ <span className='text-lg'>{item.monthly_income || '80000'}</span> Monthly Income
+								₹ <span className='text-lg'>{item.net_monthly_income || '80000'}</span> Monthly Income
 							</small>
 						</section>
 						<section className='flex flex-col items-end gap-y-2'>
@@ -160,12 +160,12 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 					<hr />
 					<section className='flex items-center items-center justify-between'>
 						<section className='flex flex-col'>
-							<span>CIBIL score: {item.cibil || 590}</span>
+							<span>CIBIL score: {item.dcibil_score || 590}</span>
 							<ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
 							<span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
 							<span
 								className={`p-1 rounded text-center text-white text-xs w-5/12 bg-${
-									item.DSCR > 2 ? 'green-500' : item.DSCR > 1.5 ? 'yellow-400' : 'red-600'
+									item.dscr > 2 ? 'green-500' : item.dscr > 1.5 ? 'yellow-400' : 'red-600'
 								}`}
 							>
 								DSCR: {item.dscr?.toFixed(2)}

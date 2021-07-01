@@ -57,7 +57,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
 					Submit
 				</Button>
-				<Button type='red-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
 					Cancel
 				</Button>
 			</section>
