@@ -8,8 +8,7 @@ const Products = lazy(() => import("../pages/products/Products"));
 const Product = lazy(() => import("../pages/product/Product"));
 
 export default function ApplyLoanContent() {
-  const { path, url } = useRouteMatch();
-  console.log(path, url);
+  const { path } = useRouteMatch();
   return (
     <CustomerStoreProvider>
       <Suspense fallback={<Loading />}>

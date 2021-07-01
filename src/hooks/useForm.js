@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
 import SearchSelect from "../components/SearchSelect";
+import Pincode from "../components/inputs/PinCode";
 
 function required(value) {
   return !value;
@@ -279,13 +280,13 @@ function InputField({ field, onChange, value, unregister }) {
     name: field.name,
     onChange: !field.disabled
       ? (event) => {
-          event.preventDefault();
+          // event.preventDefault();
           const { name, value } = event.target;
           onChange({ name, value });
         }
       : () => {},
     onBlur: (event) => {
-      event.preventDefault();
+      // event.preventDefault();
       const { name, value } = event.target;
       onChange({ name, value }, "blur");
     },
@@ -296,33 +297,41 @@ function InputField({ field, onChange, value, unregister }) {
     style: field.style,
   };
 
-  if (type === "search") {
-    return (
-      <SearchSelect
-        name={field.name}
-        placeholder={field.placeholder || ""}
-        onSelectOptionCallback={onChange}
-        onBlurCallback={onChange}
-        fetchOptionsFunc={field.fetchOptionsFunc}
-        searchOptionCallback={field.searchOptionCallback}
-        searchKeyAsValue={field.searchKeyAsValue}
-      />
-    );
-  }
+  switch (type) {
+    case "search": {
+      return (
+        <SearchSelect
+          name={field.name}
+          placeholder={field.placeholder || ""}
+          onSelectOptionCallback={onChange}
+          onBlurCallback={onChange}
+          fetchOptionsFunc={field.fetchOptionsFunc}
+          searchOptionCallback={field.searchOptionCallback}
+          searchKeyAsValue={field.searchKeyAsValue}
+        />
+      );
+    }
 
-  if (type === "select") {
-    return (
-      <Select {...fieldProps}>
-        <option disabled value="">
-          {field.placeholder}
-        </option>
-        {field.options?.map(({ value, name }) => (
-          <option key={value} value={value}>
-            {name}
+    case "select": {
+      return (
+        <Select {...fieldProps}>
+          <option disabled value="">
+            {field.placeholder}
           </option>
-        ))}
-      </Select>
-    );
+          {field.options?.map(({ value, name }) => (
+            <option key={value} value={value}>
+              {name}
+            </option>
+          ))}
+        </Select>
+      );
+    }
+
+    case "pincode": {
+      return <Pincode {...{ ...field, ...fieldProps }} />;
+    }
+    default: {
+      return <Input type={type} {...fieldProps} />;
+    }
   }
-  return <Input type={type} {...fieldProps} />;
 }
