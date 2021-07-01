@@ -7,6 +7,7 @@ import Button from "../../../components/Button";
 import AddressDetails from "../../../shared/components/AddressDetails/AddressDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { UserContext } from "../../../reducer/userReducer";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
@@ -62,6 +63,12 @@ export default function AddressDetailsPage({
     actions: { setUsertypeAddressData },
   } = useContext(FormContext);
 
+  const {
+    state: { userBankDetails },
+  } = useContext(UserContext);
+
+  console.log(userBankDetails);
+
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
@@ -105,6 +112,14 @@ export default function AddressDetailsPage({
         match={match}
         setMatch={setMatch}
         jsonData={fieldConfig.address_details.data}
+        preData={{
+          address1: userBankDetails.address1,
+          address2: userBankDetails.address2,
+          address3: userBankDetails.address3,
+          city: userBankDetails.city,
+          state: userBankDetails.state,
+          pinCode: userBankDetails.pin,
+        }}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

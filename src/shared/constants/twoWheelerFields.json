@@ -179,6 +179,31 @@
                 "visibility": true
             },
             {
+                "name": "pinCode",
+                "placeholder": "Pin Code",
+                "rules": {
+                    "required": true,
+                    "length": 6
+                },
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 6
+                },
+                "makeApiCall": 6,
+                "type": "pincode",
+                "valueForFields": [
+                    [
+                        "city",
+                        "district"
+                    ],
+                    [
+                        "state",
+                        "state"
+                    ]
+                ],
+                "visibility": true
+            },
+            {
                 "name": "city",
                 "placeholder": "City",
                 "rules": {
@@ -198,20 +223,6 @@
                 },
                 "mask": {
                     "AlphaCharOnly": true
-                },
-                "type": "text",
-                "visibility": true
-            },
-            {
-                "name": "pinCode",
-                "placeholder": "Pin Code",
-                "rules": {
-                    "required": true,
-                    "length": 6
-                },
-                "mask": {
-                    "NumberOnly": true,
-                    "CharacterLimit": 6
                 },
                 "type": "text",
                 "visibility": true
