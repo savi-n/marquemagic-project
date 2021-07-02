@@ -8,6 +8,14 @@ const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 const IdentityVerification = lazy(() =>
   import("./identityVerification/IdentityVerification")
 );
+
+const BussinessVerification = lazy(() =>
+  import("./bussinessVerification/BussinessVerification")
+);
+const BussinessDetails = lazy(() =>
+  import("./bussinessDetails/BussinessDetails")
+);
+
 const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
 const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
@@ -29,9 +37,13 @@ const CoApplicantIncomeDetails = lazy(() =>
 );
 const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
 
+const FormDefaultPage = lazy(() => import("./formPage/FormController"));
+
 const availableRoutes = {
   "product-details": { Component: ProductDetails },
   "identity-verification": { Component: IdentityVerification },
+  "bussiness-verification": { Component: BussinessVerification },
+  // "bussiness-details": { Component: BussinessDetails },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
   "two-wheeler-loan-details": {
@@ -77,9 +89,11 @@ const availableRoutes = {
 };
 
 const fieldConfig = {
-  "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
+  // "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
   "4 wheeler": require("../../shared/constants/fourWheelerFields.json"),
   "Home Loan": require("../../shared/constants/homeFields.json"),
+  "Unsecured Bussines Loan": require("../../shared/constants/unsecuredBussinessLoanFields.json"),
+  "2 wheeler": require("../../shared/constants/unsecuredBussinessLoanFields.json"),
 };
 
 export default function Router({
@@ -89,7 +103,9 @@ export default function Router({
   onFlowChange,
   productId,
 }) {
-  const component = availableRoutes[currentFlow];
+  const component = availableRoutes[currentFlow] || {
+    Component: FormDefaultPage,
+  };
 
   return (
     <Suspense fallback={<Loading />}>

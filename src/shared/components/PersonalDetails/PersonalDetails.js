@@ -34,6 +34,7 @@ const ErrorMessage = styled.div`
 
 export default function PersonalDetails({
   preData = {},
+  pageName,
   userType,
   jsonData,
   register,
@@ -54,7 +55,8 @@ export default function PersonalDetails({
   return (
     <>
       <H>
-        {userType || "Help us with your"} <span>Personal Details</span>
+        {userType || "Help us with your"}{" "}
+        <span>{pageName || "Personal Details"}</span>
       </H>
       <FormWrap>
         {jsonData &&

@@ -41,6 +41,8 @@ const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 
 const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${"pinCode"}`;
 
+const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
+
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
@@ -83,4 +85,5 @@ export {
   FETCH_CIBIL_SCORE,
   PINCODE_ADRRESS_FETCH,
   APP_DOMAIN,
+  ROC_DATA_FETCH,
 };
