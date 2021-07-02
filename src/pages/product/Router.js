@@ -9,10 +9,10 @@ const IdentityVerification = lazy(() =>
   import("./identityVerification/IdentityVerification")
 );
 
-const BussinessVerification = lazy(() =>
+const BusinessVerification = lazy(() =>
   import("./bussinessVerification/BussinessVerification")
 );
-const BussinessDetails = lazy(() =>
+const BusinessDetails = lazy(() =>
   import("./bussinessDetails/BussinessDetails")
 );
 
@@ -46,7 +46,7 @@ const FormDefaultPage = lazy(() => import("./formPage/FormController"));
 const availableRoutes = {
   "product-details": { Component: ProductDetails },
   "identity-verification": { Component: IdentityVerification },
-  "bussiness-verification": { Component: BussinessVerification },
+  "business-verification": { Component: BusinessVerification },
   // "bussiness-details": { Component: BussinessDetails },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },

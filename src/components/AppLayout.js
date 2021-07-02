@@ -107,11 +107,11 @@ const AppLayout = () => {
     response && (
       <ThemeProvider theme={response.permission.color_theme_react}>
         <GlobalStyle />
-        {/* {!userToken && (
-					<HeaderWrapper>
-						<Header logo={response.permission.logo} />
-					</HeaderWrapper>
-				)} */}
+        {/* {!userToken && ( */}
+        <HeaderWrapper>
+          <Header logo={response.permission.logo} />
+        </HeaderWrapper>
+        {/* )} */}
         <Div>
           <BrowserRouter basename={`${APP_DOMAIN}`}>
             <Suspense fallback={<Loading />}>

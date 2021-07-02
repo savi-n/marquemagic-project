@@ -49,7 +49,7 @@ const LOGIN_CREATEUSER = `${API_END_POINT}/login/createUser`;
 
 const WHITELABEL_ENCRYPTION_API = `${API_END_POINT}/case-whitelabelEncrypt`;
 
-const SEARCH_COMPANY_NAME = `${ENDPOINT_BANK}/companySearch`;
+const SEARCH_COMPANY_NAME = `${API_END_POINT}/companySearch`;
 
 const NC_STATUS_CODE = {
   OK: "ok",

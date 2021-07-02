@@ -90,17 +90,17 @@ const Doc = styled.h2`
 //     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
 // };
 
-function caseCreationDataFormat(data) {
+function caseCreationDataFormat(data, companyData) {
   const formatedData = {
     Business_details: {
-      business_name: data.company_master_data.company_name,
+      business_name: data?.["business-details"].BusinessName,
       business_type: "",
-      business_email: data.company_master_data.email_id,
+      business_email: data?.["business-details"].EmailId,
       contact: "",
     },
     loan_details: {
       loan_product_id: data.productId,
-      white_label_id: data.encryptedWhitelabel,
+      white_label_id: companyData.encryptedWhitelabel,
     },
     document: {
       KYC: {
@@ -259,7 +259,13 @@ export default function DocumentUpload({
         BUSSINESS_LOAN_CASE_CREATION,
         {
           method: "POST",
-          data: caseCreationDataFormat({ ...state, productId }),
+          data: caseCreationDataFormat(
+            {
+              ...state,
+              productId,
+            },
+            companyDetail
+          ),
         },
         { authorization: `Bearer ${companyDetail.token}` }
       );
@@ -421,7 +427,7 @@ export default function DocumentUpload({
             onDrop={handleFileUpload}
             accept=""
             upload={{
-              url: DOCS_UPLOAD_URL({ userId: companyDetail.userId }),
+              url: DOCS_UPLOAD_URL({ userId: companyDetail?.userId || "" }),
               header: {
                 Authorization: `Bearer ${companyDetail.token}`,
               },
