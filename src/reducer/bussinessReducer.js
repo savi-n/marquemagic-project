@@ -2,10 +2,6 @@ import { createContext, useReducer } from "react";
 
 const actionTypes = {
   SET_COMPANY_DETAILS: "SET_BUSSINESS_DETAILS",
-  // SET_USER_BANK_DETAILS: "SET_USER_BANK_DETAILS",
-  // SET_USER_DETAILS: "SET_USER_DETAILS",
-  // SET_USER_TOKEN: "SET_USER_TOKEN",
-  // SET_OTHER_USER_TOKEN: "SET_OTHER_USER_TOKEN",
 };
 
 const INITIAL_STATE = {
@@ -30,23 +26,6 @@ function reducer(state, action) {
         companyDetail: action.companyDetail,
       };
     }
-
-    // case actionTypes.SET_USER_DETAILS: {
-    //   return {
-    //     ...state,
-    //     userDetails: action.data.userDetails,
-    //     userBankDetails: action.data.userBankDetails,
-    //     userAccountToken: action.data.userAccountToken,
-    //     userToken: action.data.userToken,
-    //   };
-    // }
-
-    // case actionTypes.SET_OTHER_USER_TOKEN: {
-    //   return {
-    //     ...state,
-    //     [action.userType]: action.data,
-    //   };
-    // }
 
     default: {
       return { ...state };

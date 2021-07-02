@@ -5,9 +5,9 @@ import { func, object, oneOfType, string } from "prop-types";
 import useForm from "../../../hooks/useForm";
 import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
 import Button from "../../../components/Button";
-import { FormContext } from "../../../reducer/formReducer";
+import { LoanFormContext } from "../../../reducer/loanFormDataReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
-import { UserContext } from "../../../reducer/userReducer";
+import { BussinesContext } from "../../../reducer/bussinessReducer";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
@@ -33,14 +33,16 @@ export default function FormController({
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeApplicantData },
-  } = useContext(FormContext);
+    actions: { setLoanData },
+  } = useContext(LoanFormContext);
+
+  const { state } = useContext(BussinesContext);
 
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
   const onSave = (data) => {
-    setUsertypeApplicantData({ ...data, isApplicant: "1" });
+    setLoanData({ ...data }, id);
     addToast({
       message: "Saved Succesfully",
       type: "success",
@@ -59,6 +61,7 @@ export default function FormController({
         register={register}
         formState={formState}
         pageName={map.name}
+        preData={state.companyDetail}
         jsonData={map.fields[id].data}
       />
       <ButtonWrap>

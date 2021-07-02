@@ -16,7 +16,7 @@ const FieldWrap = styled.div`
 
 const FormWrap = styled.div`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
@@ -42,14 +42,14 @@ export default function PersonalDetails({
 }) {
   const populateValue = (field) => {
     if (!userType && field.disabled) {
-      return preData[field.name] || "";
+      return preData?.[field.name] || "";
     }
 
     if (formState?.values?.[field.name] !== undefined) {
       return formState?.values?.[field.name];
     }
 
-    return preData[field.name] || "";
+    return preData?.[field.name] || "";
   };
 
   return (

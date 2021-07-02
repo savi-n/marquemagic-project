@@ -16,7 +16,11 @@ const BussinessDetails = lazy(() =>
   import("./bussinessDetails/BussinessDetails")
 );
 
-const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
+// const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
+const DocumentUpload = lazy(() =>
+  import("./documentUpload/LoanDocumentsUpload")
+);
+
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
 const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
 const ApplicationSubmitted = lazy(() =>

@@ -3,7 +3,12 @@ import { func, object, oneOfType, string } from "prop-types";
 import styled from "styled-components";
 
 import Button from "../../../components/Button";
-import { ROC_DATA_FETCH, NC_STATUS_CODE } from "../../../_config/app.config";
+import {
+  ROC_DATA_FETCH,
+  LOGIN_CREATEUSER,
+  WHITELABEL_ENCRYPTION_API,
+  NC_STATUS_CODE,
+} from "../../../_config/app.config";
 import { AppContext } from "../../../reducer/appReducer";
 import { BussinesContext } from "../../../reducer/bussinessReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
@@ -46,6 +51,14 @@ const H2 = styled.h2`
   font-weight: 500;
 `;
 
+function formatCompanyData(data) {
+  return {
+    BusinessName: data.company_master_data.company_name,
+    Email: data.company_master_data.email_id,
+    unformatedData: data,
+  };
+}
+
 export default function BussinessDetails({
   productDetails,
   map,
@@ -53,7 +66,7 @@ export default function BussinessDetails({
   id,
 }) {
   const {
-    state: { bankToken },
+    state: { whiteLabelId, bankToken },
   } = useContext(AppContext);
 
   const {
@@ -94,9 +107,43 @@ export default function BussinessDetails({
         const companyData = cinNumberResponse.data;
 
         if (companyData.status === NC_STATUS_CODE.OK) {
-          setCompanyDetails(companyData.data);
-          onProceed();
-          return;
+          const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+            method: "POST",
+            data: {
+              email: companyData.data.company_master_data.email_id,
+              white_label_id: whiteLabelId,
+              source: "Clixcapital",
+              name: companyData.data.company_master_data.company_name,
+              mobileNo: "9999999999",
+              addrr1: "",
+              addrr2: "",
+            },
+          });
+
+          const userDetailsRes = userDetailsReq.data;
+
+          if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+            const encryptWhiteLabelReq = await newRequest(
+              WHITELABEL_ENCRYPTION_API,
+              {
+                method: "GET",
+              },
+              { Authorization: `Bearer ${userDetailsRes.token}` }
+            );
+
+            const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+            if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+              setCompanyDetails({
+                token: userDetailsRes.token,
+                userId: userDetailsRes.userId,
+                encryptedWhitelabel:
+                  encryptWhiteLabelRes.encrypted_whitelabel[0],
+                ...formatCompanyData(companyData.data),
+              });
+            onProceed();
+            return;
+          }
         }
 
         throw new Error(companyData?.result);

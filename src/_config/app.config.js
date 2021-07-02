@@ -43,6 +43,14 @@ const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${"pi
 
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
 
+const BUSSINESS_LOAN_CASE_CREATION = `${API_END_POINT}/casecreation_uiux`;
+
+const LOGIN_CREATEUSER = `${API_END_POINT}/login/createUser`;
+
+const WHITELABEL_ENCRYPTION_API = `${API_END_POINT}/case-whitelabelEncrypt`;
+
+const SEARCH_COMPANY_NAME = `${ENDPOINT_BANK}/companySearch`;
+
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
@@ -86,4 +94,11 @@ export {
   PINCODE_ADRRESS_FETCH,
   APP_DOMAIN,
   ROC_DATA_FETCH,
+  BUSSINESS_LOAN_CASE_CREATION,
+  WHITELABEL_ENCRYPTION_API,
+  LOGIN_CREATEUSER,
+  SEARCH_COMPANY_NAME,
 };
+
+// http://3.0.103.80:1337/companySearch
+// {search: "Mindtree"}

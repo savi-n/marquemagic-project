@@ -8,7 +8,6 @@ import { AppContext } from "../../reducer/appReducer";
 import { FlowContext } from "../../reducer/flowReducer";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 import Router from "./Router";
-import flow from "../../shared/constants/unsecuredBussinessLoanFlow";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -98,8 +97,8 @@ export default function Product({ product, url }) {
   });
 
   useEffect(() => {
-    // if (response) configure(response.data?.product_details?.flow);
-    if (response) configure(flow);
+    if (response) configure(response.data?.product_details?.flow);
+    // if (response) configure(flow);
   }, [response]);
 
   const [currentFlow, setCurrentFlow] = useState("product-details");
@@ -118,7 +117,7 @@ export default function Product({ product, url }) {
               {response.data.name} <span>{response.data.description}</span>
             </Head>
           </Link>
-          {flow?.map((m) => (
+          {response.data?.product_details?.flow?.map((m) => (
             <Fragment key={m.id}>
               <Link onClick={(e) => {}}>
                 <Menu active={currentFlow === m.id}>

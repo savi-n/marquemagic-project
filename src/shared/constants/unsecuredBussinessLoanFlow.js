@@ -17,9 +17,6 @@ const flow = [
             rules: {
               required: true,
             },
-            mask: {
-              AlphaCharOnly: true,
-            },
             type: "text",
             visibility: true,
             default_value: "",
@@ -27,21 +24,10 @@ const flow = [
           {
             name: "BusinessType",
             placeholder: "Business Type",
-            rules: {
-              required: true,
-            },
+            rules: {},
             type: "select",
             visibility: true,
-            options: [
-              {
-                value: "salaried",
-                name: "Salaried",
-              },
-              {
-                value: "business",
-                name: "Business",
-              },
-            ],
+            options: [],
           },
           {
             name: "BusinessVintage",
@@ -76,7 +62,6 @@ const flow = [
               required: true,
               length: 10,
             },
-            disabled: true,
             mask: {
               CharacterLimit: 10,
               AlphaNumericOnly: true,
@@ -91,11 +76,10 @@ const flow = [
               required: true,
             },
             mask: {
-              AlphaCharOnly: true,
+              AlphaNumericOnly: true,
             },
             type: "text",
             visibility: true,
-            default_value: "",
           },
           {
             name: "PAT",
@@ -104,7 +88,6 @@ const flow = [
               required: true,
             },
             type: "text",
-            disabled: true,
             visibility: true,
           },
           {
@@ -113,11 +96,11 @@ const flow = [
             type: "text",
             rules: {
               required: true,
-              minLength: 12,
+              minLength: 10,
             },
             mask: {
               NumberOnly: true,
-              CharacterLimit: 12,
+              CharacterLimit: 10,
             },
             visibility: true,
           },
@@ -153,22 +136,13 @@ const flow = [
             },
             type: "text",
             visibility: true,
-            options: [
-              {
-                value: "salaried",
-                name: "Salaried",
-              },
-              {
-                value: "business",
-                name: "Business",
-              },
-            ],
           },
           {
             name: "Email",
             placeholder: "Email",
             rules: {
               required: true,
+              email: true,
             },
             mask: {
               AlphaCharOnly: true,
@@ -184,7 +158,8 @@ const flow = [
               required: true,
             },
             mask: {
-              AlphaCharOnly: true,
+              NumberOnly: true,
+              CharacterLimit: 10,
             },
             type: "text",
             visibility: true,
@@ -232,11 +207,6 @@ const flow = [
             type: "text",
             rules: {
               required: true,
-              minLength: 12,
-            },
-            mask: {
-              NumberOnly: true,
-              CharacterLimit: 12,
             },
             visibility: true,
           },
@@ -246,11 +216,9 @@ const flow = [
             type: "text",
             rules: {
               required: true,
-              minLength: 12,
             },
             mask: {
-              NumberOnly: true,
-              CharacterLimit: 12,
+              AlphaCharOnly: true,
             },
             visibility: true,
           },
@@ -272,7 +240,7 @@ const flow = [
               required: true,
             },
             mask: {
-              AlphaCharOnly: true,
+              NumberOnly: true,
             },
             type: "text",
             visibility: true,
@@ -306,11 +274,9 @@ const flow = [
             type: "text",
             rules: {
               required: true,
-              minLength: 12,
             },
             mask: {
-              NumberOnly: true,
-              CharacterLimit: 12,
+              AlphaCharOnly: true,
             },
             visibility: true,
           },
@@ -378,26 +344,11 @@ const flow = [
             default_value: "",
           },
           {
-            name: "Name",
-            placeholder: "Name",
-            rules: {
-              required: true,
-            },
-            mask: {
-              AlphaCharOnly: true,
-            },
-            type: "text",
-            visibility: true,
-            default_value: "",
-          },
-          {
             name: "Email",
             placeholder: "Email",
             rules: {
               required: true,
-            },
-            mask: {
-              AlphaCharOnly: true,
+              email: true,
             },
             type: "text",
             visibility: true,
@@ -410,11 +361,10 @@ const flow = [
               required: true,
             },
             mask: {
-              AlphaCharOnly: true,
+              NumberOnly: true,
             },
             type: "text",
             visibility: true,
-            default_value: "",
           },
           {
             name: "Pincode",
@@ -423,7 +373,7 @@ const flow = [
               required: true,
             },
             mask: {
-              AlphaCharOnly: true,
+              NumberOnly: true,
             },
             type: "text",
             visibility: true,
@@ -448,7 +398,6 @@ const flow = [
             },
             type: "text",
             visibility: true,
-            default_value: "",
           },
           {
             name: "Applicationid",
@@ -464,6 +413,9 @@ const flow = [
             placeholder: "Loan Amount",
             rules: {
               required: true,
+            },
+            mask: {
+              NumberOnly: true,
             },
             type: "text",
             visibility: true,
@@ -491,18 +443,27 @@ const flow = [
           {
             name: "BankName",
             placeholder: "Bank Name",
+            rules: {
+              required: true,
+            },
             type: "text",
             visibility: true,
           },
           {
             name: "AccountNumber",
             placeholder: "Account Number",
+            rules: {
+              required: true,
+            },
             type: "text",
             visibility: true,
           },
           {
             name: "Relation ",
             placeholder: "Relation ",
+            rules: {
+              required: true,
+            },
             options: [
               {
                 name: "Subsidiary Company",
@@ -566,12 +527,19 @@ const flow = [
             rules: {
               required: true,
             },
+            mask: {
+              NumberOnly: true,
+              CharacterLimit: 2,
+            },
             type: "text",
             visibility: true,
           },
           {
             name: "Relation ",
             placeholder: "Relation ",
+            rules: {
+              required: true,
+            },
             options: [
               {
                 name: "Subsidiary Company",
@@ -624,6 +592,10 @@ const flow = [
             rules: {
               required: true,
             },
+            mask: {
+              NumberOnly: true,
+              CharacterLimit: 6,
+            },
             type: "text",
             visibility: true,
           },
@@ -659,6 +631,9 @@ const flow = [
           {
             name: "Relation ",
             placeholder: "Relation ",
+            rules: {
+              required: true,
+            },
             options: [
               {
                 name: "Subsidiary Company",
