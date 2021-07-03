@@ -159,6 +159,7 @@ export default function BussinessDetails({
           setCompanyDetails({
             token: userDetailsRes.token,
             userId: userDetailsRes.userId,
+            branchId: userDetailsRes.branchId,
             encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
             ...formatCompanyData(companyData.data),
           });
