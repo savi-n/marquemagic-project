@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Route, BrowserRouter, useRouteMatch, useHistory } from 'react-router-dom';
 import Card from './Card';
 import Button from './Button';
 import ProgressBar from './progressBar';
@@ -18,9 +19,13 @@ import {
 	faCampground
 } from '@fortawesome/free-solid-svg-icons';
 import SharedCAT from '../../components/sharedCAT';
-import { getLoanDetails } from '../../utils/requests';
+import { getLoanDetails, loanDocMapping, getUsersList } from '../../utils/requests';
+import checkApplication from '../../pages/checkApplication';
 
-export default function CardDetails({ item, label, full, idx, lActive }) {
+export default function CardDetails({ item, label, full, idx, lActive, setViewLoan, setId, setActiv, setClicked }) {
+	const history = useHistory();
+	const { path, url } = useRouteMatch();
+
 	const [security, setSecurity] = useState(false);
 	const [recommendation, setRecommendation] = useState(false);
 	const [download, setDownload] = useState(false);
@@ -37,6 +42,14 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 	const cibilPercentage = cibil => {
 		return Math.floor((Number(cibil) / 900) * 100);
 	};
+
+	const [userList, setUserList] = useState(null);
+
+	// useEffect(() => {
+	// 	getUsersList().then(res => {
+	// 		setUserList(res.data.userList);
+	// 	});
+	// }, [userList]);
 
 	const mapper = {
 		'Pending Applications': ['Upload', 'Reassign', 'Recommendation'],
@@ -150,7 +163,19 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 						<section className='flex flex-col items-end gap-y-2'>
 							{label
 								? getBMapper(label)[0].data.map(e => (
-										<Button size='small' type='blue-light' rounded='rfull' width='fulll'>
+										<Button
+											size='small'
+											type='blue-light'
+											rounded='rfull'
+											width='fulll'
+											onClick={() => {
+												setViewLoan(true);
+												setId(item.id);
+												e === 'Check Documents'
+													? setActiv('Document Details')
+													: setActiv('Applicant');
+											}}
+										>
 											{e}
 										</Button>
 								  ))
@@ -174,7 +199,17 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 						<section className='flex flex-col items-end gap-y-2'>
 							{label
 								? getBMapper(label)[1].data.map(e => (
-										<Button size='small' type='blue-light' rounded='rfull' width='fulll'>
+										<Button
+											size='small'
+											type='blue-light'
+											rounded='rfull'
+											width='fulll'
+											onClick={() => {
+												e === 'Pre-Eligibility' && setViewLoan(true);
+												e === 'Pre-Eligibility' && setId(item.id);
+												e === 'Pre-Eligibility' && setActiv('Pre-Eligibility Details');
+											}}
+										>
 											{e}
 										</Button>
 								  ))
@@ -188,6 +223,21 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 								Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
 							</small>
 							<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
+							{userList && item.assignmentLog && (
+								<small>
+									Assigned To:{' '}
+									{
+										userList.filter(
+											e => e.id === JSON.parse(item.assignmentLog.remarks).assignedTo
+										)[0].name
+									}
+									{console.log(
+										userList.filter(
+											e => e.id === JSON.parse(item.assignmentLog.remarks).assignedTo
+										)[0].name
+									)}
+								</small>
+							)}
 						</section>
 						<section className='flex gap-x-4'>
 							{label &&
@@ -232,6 +282,7 @@ export default function CardDetails({ item, label, full, idx, lActive }) {
 						getCLicker={getClicker}
 						item={item}
 						lActive={lActive}
+						setClicked={setClicked}
 					/>
 				)}
 			</section>
