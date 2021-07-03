@@ -23,6 +23,8 @@ const Modalbody = styled.div`
   max-width: 50%;
   min-width: ${({ width }) => width};
   min-height: 50%;
+  max-height: 70%;
+  overflow: auto;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
 `;
 

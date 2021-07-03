@@ -92,13 +92,42 @@ function caseCreationDataFormat(data, companyData) {
       business_name: data?.["business-details"].BusinessName,
       business_type: data?.["business-details"].BusinessType,
       business_email: data?.["business-details"].EmailId,
+      // business_industry_type: 20,
       contact: "",
+      businesspancardnumber: "",
+      crime_check: "Yes",
+    },
+    businessaddress: {
+      city: "County Durham",
+      line1: "1 High Burnigill Cottages",
+      locality: "Croxdale",
+      pincode: "DH6 5JJ",
+      state: "England",
+    },
+    director_details: {
+      director_0: {
+        dfirstname0: "dir",
+        dlastname0: "1",
+        dpancard0: "",
+        crime_check0: null,
+        dcontact0: null,
+        daddress10: "gjhsgduhfgdu",
+        daddress20: "jhgdjfdj",
+        dcity0: "mnbsd",
+        dstate0: "jkbdsf",
+        dpincode0: "571440",
+      },
     },
     loan_details: {
       loan_product_id: data.productId,
       white_label_id: companyData.encryptedWhitelabel,
+      branchId: companyData.branchId,
+      // loan_type_id: 1,
+      // case_priority: null,
+      // origin: "New_UI",
     },
-    document: {
+    branchId: companyData.branchId,
+    documents: {
       KYC: {
         fd: "",
         size: "",
@@ -132,18 +161,67 @@ function caseCreationDataFormat(data, companyData) {
   return formatedData;
 }
 
-function subsidiaryDataFomat(caseId, data) {
+function subsidiaryDataFormat(caseId, data) {
   const formatedData = {
     case_id: caseId,
-    account_number: "",
-    subsidiary_name: "",
-    bank_name: "",
-    relative: "",
+    account_number: data["subsidiary-details"].AccountNumber,
+    subsidiary_name: data["subsidiary-details"].SubsidiaryName,
+    bank_name: data["subsidiary-details"].BankName,
+    relative: data["subsidiary-details"].Relation,
   };
 
   return formatedData;
 }
 
+function bankDetailsDataFormat(caseId, data) {
+  const formatedData = {
+    case_id: caseId,
+    account_number: data["bank-details"].AccountNumber,
+    // subsidiary_name: data['bank-details'].,
+    bank_name: data["bank-details"].BankName,
+    account_holder_name: data["bank-details"].AccountHolderName,
+    start_date: data["bank-details"].StartDate,
+    end_date: data["bank-details"].EndDate,
+    // limit_type: data['bank-details'],
+    // sanction_limit: data['bank-details'],
+    // drawing_limit: data['bank-details'],
+    // IFSC: "",
+  };
+
+  return formatedData;
+}
+
+function shareHolderDataFormat(caseId, data) {
+  const formatedData = {
+    // case_id: caseId,
+    percentage: data["shareholder-details"].ShareholderPercentage,
+    // businessID: data["shareholder-details"].BankName,
+    name: data["shareholder-details"].ShareholderName,
+    relationship: data["shareholder-details"].Relation,
+    address: data["shareholder-details"].CompanyAddress,
+    pincode: data["shareholder-details"].Pincode,
+  };
+
+  return { shareholderData: [formatedData] };
+}
+
+function refereneceDataFormat(loanId, data) {
+  const formatedData = {
+    loanId: loanId,
+    loanReferenceData: {
+      ref_name: data["reference-details"].Name,
+      ref_email: data["reference-details"].ReferenceEmail,
+      ref_contact: data["reference-details"]["Contact number"],
+      // ref_state :  data["reference-details"],
+      // ref_city :  data["reference-details"],
+      ref_pincode: data["reference-details"].Pincode,
+      // ref_locality :  data["reference-details"],
+      // reference_truecaller_info : data["reference-details"],
+    },
+  };
+
+  return formatedData;
+}
 export default function DocumentUpload({
   productDetails,
   userType,
@@ -184,46 +262,7 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return;
-  };
-
-  // step 4: loan asset upload
-  const loanAssetsUpload = async (loanId, data) => {
-    const submitReq = await newRequest(
-      UPDATE_LOAN_ASSETS,
-      {
-        method: "POST",
-        data: {
-          loanId: loanId,
-          propertyType: "leased",
-          loan_asset_type_id: 2,
-          ownedType: "paid_off",
-          address1: "test address1",
-          address2: "test address2",
-          flat_no: "112",
-          locality: "ramnagar",
-          city: "banglore",
-          pincode: "570000",
-          landmark: "SI ATM",
-          autoMobileType: "qw",
-          brandName: "d",
-          modelName: "fd",
-          vehicalValue: "122",
-          dealershipName: "sd",
-          manufacturingYear: "123",
-          Value: "test@123",
-          ints: "",
-          cpath: "",
-          surveyNo: "",
-          cAssetId: "",
-          noOfAssets: 5,
-        },
-      },
-      {
-        // Authorization: `Bearer ${userToken}`,
-      }
-    );
-    return submitReq;
+    return caseCreationProgress;
   };
 
   // step 2: upload docs reference
@@ -278,24 +317,24 @@ export default function DocumentUpload({
         caseRes.statusCode === NC_STATUS_CODE.NC200 ||
         caseRes.status === NC_STATUS_CODE.OK
       ) {
-        return caseRes;
+        return caseRes.data;
       }
 
       throw new Error(caseRes.message);
     } catch (er) {
-      console.log("STEP: 1 => CASE CREATION ERRROR", er.message);
+      console.log("STEP: 1 => CASE CREATION ERROR", er.message);
       throw new Error(er.message);
     }
   };
 
   // step: 2 if subsidary details submit request
-  const addSubsidiaryReq = async () => {
+  const addSubsidiaryReq = async (caseId) => {
     try {
       const caseReq = await newRequest(
         ADD_SUBSIDIARY_DETAILS,
         {
           method: "POST",
-          data: subsidiaryDataFomat("caseid", state),
+          data: subsidiaryDataFormat(caseId, state),
         },
         { authorization: `Bearer ${companyDetail.token}` }
       );
@@ -304,12 +343,90 @@ export default function DocumentUpload({
         caseRes.statusCode === NC_STATUS_CODE.NC200 ||
         caseRes.status === NC_STATUS_CODE.OK
       ) {
-        return caseRes;
+        return caseRes.data;
       }
 
       throw new Error(caseRes.message);
     } catch (er) {
-      console.log("STEP: 1 => CASE CREATION ERRROR", er.message);
+      console.log("STEP: 2 => CASE CREATION ERRROR", er.message);
+      throw new Error(er.message);
+    }
+  };
+
+  // step: 3 if subsidary details submit request
+  const addBankDetailsReq = async (caseId) => {
+    try {
+      const caseReq = await newRequest(
+        ADD_BANK_DETAILS,
+        {
+          method: "POST",
+          data: bankDetailsDataFormat(caseId, state),
+        },
+        { authorization: `Bearer ${companyDetail.token}` }
+      );
+      const caseRes = caseReq.data;
+      if (
+        caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+        caseRes.status === NC_STATUS_CODE.OK
+      ) {
+        return caseRes.data;
+      }
+
+      throw new Error(caseRes.message);
+    } catch (er) {
+      console.log("STEP:3 => ADD BANK DETAILS ERRROR", er.message);
+      throw new Error(er.message);
+    }
+  };
+
+  // step: 4 if subsidary details submit request
+  const addShareHolderDetailsReq = async (caseId) => {
+    try {
+      const caseReq = await newRequest(
+        ADD_SHAREHOLDER_DETAILS,
+        {
+          method: "POST",
+          data: shareHolderDataFormat(caseId, state),
+        },
+        { authorization: `Bearer ${companyDetail.token}` }
+      );
+      const caseRes = caseReq.data;
+      if (
+        caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+        caseRes.status === NC_STATUS_CODE.OK
+      ) {
+        return caseRes.data;
+      }
+
+      throw new Error(caseRes.message);
+    } catch (er) {
+      console.log("STEP:3 => ADD BANK DETAILS ERRROR", er.message);
+      throw new Error(er.message);
+    }
+  };
+
+  // step: 5 if subsidary details submit request
+  const addReferenceDetailsReq = async (loanId) => {
+    try {
+      const caseReq = await newRequest(
+        ADD_SHAREHOLDER_DETAILS,
+        {
+          method: "POST",
+          data: refereneceDataFormat(loanId, state),
+        },
+        { authorization: `Bearer ${companyDetail.token}` }
+      );
+      const caseRes = caseReq.data;
+      if (
+        caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+        caseRes.status === NC_STATUS_CODE.OK
+      ) {
+        return caseRes.data;
+      }
+
+      throw new Error(caseRes.message);
+    } catch (er) {
+      console.log("STEP:3 => ADD BANK DETAILS ERRROR", er.message);
       throw new Error(er.message);
     }
   };
@@ -318,16 +435,16 @@ export default function DocumentUpload({
     try {
       // step 1: create case
       const caseCreateRes = await createCaseReq();
+      const caseId = caseCreateRes.loan_details.loan_ref_id;
+      const loanId = caseCreateRes.loan_details.id;
+
+      await addSubsidiaryReq(caseId);
+      await addBankDetailsReq(caseId);
+      await addShareHolderDetailsReq(caseId);
+      await addReferenceDetailsReq(loanId);
 
       // step 2: upload documents reference [loanId from createcase]
       // await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
-
-      // // step 4: loan assets request
-      // await loanAssetsUpload(
-      //   caseCreateRes.loanId,
-      //   userToken
-      //   // otherUserTypeDetails.requestId
-      // );
 
       return caseCreateRes;
     } catch (er) {
