@@ -51,6 +51,10 @@ const WHITELABEL_ENCRYPTION_API = `${API_END_POINT}/case-whitelabelEncrypt`;
 
 const SEARCH_COMPANY_NAME = `${API_END_POINT}/companySearch`;
 
+const ADD_BANK_DETAILS = `${API_END_POINT}/addBankDetailsUiux`;
+const ADD_SHAREHOLDER_DETAILS = `${API_END_POINT}/businessShareholder/create`;
+const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
+
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
@@ -63,8 +67,8 @@ const NC_STATUS_CODE = {
 
 const USER_ROLES = {
   User: "user",
-  "Co-applicant": "coapplicant",
-  Guarantor: "guarantor",
+  "Co-applicant": "Co-applicant",
+  Guarantor: "Guarantor",
 };
 
 export {
@@ -98,7 +102,7 @@ export {
   WHITELABEL_ENCRYPTION_API,
   LOGIN_CREATEUSER,
   SEARCH_COMPANY_NAME,
+  ADD_BANK_DETAILS,
+  ADD_SHAREHOLDER_DETAILS,
+  ADD_REFENCE_DETAILS,
 };
-
-// http://3.0.103.80:1337/companySearch
-// {search: "Mindtree"}

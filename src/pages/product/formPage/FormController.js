@@ -62,7 +62,7 @@ export default function FormController({
         formState={formState}
         pageName={map.name}
         preData={state.companyDetail}
-        jsonData={map.fields[id].data}
+        jsonData={map?.fields[id].data || []}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

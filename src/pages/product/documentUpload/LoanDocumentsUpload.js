@@ -1,7 +1,6 @@
 import { useState, useContext } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
-import { func, object, oneOfType, string, oneOf } from "prop-types";
 
 import { LoanFormContext } from "../../../reducer/loanFormDataReducer";
 import Button from "../../../components/Button";
@@ -13,20 +12,16 @@ import {
   BUSSINESS_LOAN_CASE_CREATION,
   UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
-  USER_ROLES,
+  ADD_BANK_DETAILS,
+  ADD_SHAREHOLDER_DETAILS,
+  ADD_REFENCE_DETAILS,
 } from "../../../_config/app.config";
 import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
-// import BankStatementModal from "../../../components/BankStatementModal";
-// import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
-// import GetCIBILScoreModal from "../../../components/GetCIBILScoreModal";
 import useFetch from "../../../hooks/useFetch";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 import { BussinesContext } from "../../../reducer/bussinessReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { AppContext } from "../../../reducer/appReducer";
-// import { CaseContext } from "../../../reducer/caseReducer";
-// import Loading from "../../../components/Loading";
-// import Modal from "../../../components/Modal";
 
 const Colom1 = styled.div`
   flex: 1;
@@ -94,7 +89,7 @@ function caseCreationDataFormat(data, companyData) {
   const formatedData = {
     Business_details: {
       business_name: data?.["business-details"].BusinessName,
-      business_type: "",
+      business_type: data?.["business-details"].BusinessType,
       business_email: data?.["business-details"].EmailId,
       contact: "",
     },
@@ -292,16 +287,6 @@ export default function DocumentUpload({
       // step 2: upload documents reference [loanId from createcase]
       // await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
 
-      // step 3: upload cub statement to sailspld
-      // await updateRefernceToSails(caseCreateRes.loanId, userToken, [
-      //   ...(otherCUBStatementUserTypeDetails?.requestId
-      //     ? [otherCUBStatementUserTypeDetails?.requestId]
-      //     : []),
-      //   ...(otherUserTypeCibilDetails?.requestId
-      //     ? otherUserTypeCibilDetails?.requestId
-      //     : []),
-      // ]);
-
       // // step 4: loan assets request
       // await loanAssetsUpload(
       //   caseCreateRes.loanId,
@@ -339,83 +324,6 @@ export default function DocumentUpload({
     }
   };
 
-  //   const onOtherStatementModalToggle = () => {
-  //     setOtherBankStatementModal(!otherBankStatementModal);
-  //   };
-
-  //   const onSave = () => {
-  //     if (buttonDisabledStatus()) {
-  //       return;
-  //     }
-
-  //     // setOtherUserDetails(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
-  //     setUsertypeStatementData(
-  //       otherCUBStatementUserTypeDetails,
-  //       USER_ROLES[userType]
-  //     );
-
-  //     setCompleted(id);
-  //     setCompleted(map.mainPageId);
-  //     onFlowChange(map.main);
-  //   };
-
-  //   const onSubmitGuarantor = async () => {
-  //     if (buttonDisabledStatus()) {
-  //       return;
-  //     }
-
-  //     setCaseCreationProgress(true);
-  //     const GuarantorReq = await caseCreationReqOtherUser(
-  //       caseDetails,
-  //       "Guarantor",
-  //       [
-  //         ...(state.guarantor.cibilData.requestId
-  //           ? state.guarantor?.cibilData?.requestId
-  //           : []),
-  //         ...(otherCUBStatementUserTypeDetails?.requestId
-  //           ? [otherCUBStatementUserTypeDetails?.requestId]
-  //           : []),
-  //       ]
-  //     );
-  //     if (!GuarantorReq) {
-  //       setCaseCreationProgress(false);
-  //       return;
-  //     }
-
-  //     setCompleted(id);
-  //     setCompleted(map.mainPageId);
-  //     onFlowChange(map.main);
-  //   };
-
-  //   const onCibilModalClose = (success, data) => {
-  //     if (!success) {
-  //       setCibilCheckbox(false);
-  //     }
-
-  //     if (success) {
-  //       if (userType) {
-  //         setUsertypeCibilData(
-  //           {
-  //             cibilScore: data.cibilScore,
-  //             requestId: data.requestId,
-  //           },
-  //           USER_ROLES[userType]
-  //         );
-  //       } else {
-  //         setOtherUserTypeCibilDetails({
-  //           cibilScore: data.cibilScore,
-  //           requestId: data.requestId,
-  //         });
-  //       }
-  //     }
-  //     addToast({
-  //       message: data.message,
-  //       type: success ? "success" : "error",
-  //     });
-
-  //     setCibilCheckModal(false);
-  //   };
-
   return (
     <>
       <Colom1>
@@ -435,18 +343,7 @@ export default function DocumentUpload({
           />
         </UploadWrapper>
 
-        {/* <ButtonWrapper>
-          <Button
-            name="Get CUB Statement"
-            onClick={onToggleCUBStatementModal}
-            disabled={bankCUBStatementFetchDone}
-          />
-          <Button
-            name="Get Other Bank Statements"
-            onClick={onOtherStatementModalToggle}
-          />
-          <Button name="Get ITR documents" disabled />
-        </ButtonWrapper>
+        {/* 
         <CheckboxWrapper>
           <CheckBox
             name={textForCheckbox.grantCibilAcces}
@@ -476,26 +373,6 @@ export default function DocumentUpload({
             disabled={buttonDisabledStatus()}
             onClick={onSubmit}
           />
-          {/* {userType === "Co-applicant" && (
-            <Button
-              name="Save"
-              style={{
-                width: "200px",
-              }}
-              onClick={onSave}
-              disabled={buttonDisabledStatus()}
-            />
-          )}
-          {userType === "Guarantor" && (
-            <Button
-              name="Submit"
-              style={{
-                width: "200px",
-              }}
-              onClick={onSubmitGuarantor}
-              disabled={buttonDisabledStatus()}
-            />
-          )} */}
         </SubmitWrapper>
       </Colom1>
       <Colom2>
@@ -514,37 +391,6 @@ export default function DocumentUpload({
           ))}
         </div>
       </Colom2>
-
-      {/* {otherBankStatementModal && (
-        <BankStatementModal
-          showModal={otherBankStatementModal}
-          onClose={onOtherStatementModalToggle}
-        />
-      )}
-      {toggleCUBStatementModal && (
-        <GetCUBStatementModal
-          showModal={toggleCUBStatementModal}
-          onClose={onCUBStatementModalClose}
-          setOtherUserTypeDetails={setOtherCUBStatementUserTypeDetails}
-          userType={userType}
-        />
-      )}
-
-      {cibilCheckbox && cibilCheckModal && (
-        <GetCIBILScoreModal
-          userData={{
-            ...state[USER_ROLES[userType || "User"]]?.applicantData,
-            ...state[USER_ROLES[userType || "User"]]?.loanData,
-          }}
-          onClose={onCibilModalClose}
-        />
-      )}
-
-      {caseCreationProgress && (
-        <Modal show={true} onClose={() => {}} width="50%">
-          <Loading />
-        </Modal>
-      )} */}
     </>
   );
 }

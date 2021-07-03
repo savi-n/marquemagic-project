@@ -98,10 +98,9 @@ export default function Product({ product, url }) {
 
   useEffect(() => {
     if (response) configure(response.data?.product_details?.flow);
-    // if (response) configure(flow);
   }, [response]);
 
-  const [currentFlow, setCurrentFlow] = useState("product-details");
+  const [currentFlow, setCurrentFlow] = useState(basePageUrl);
 
   const onFlowChange = (flow) => {
     setCurrentFlow(flow);
@@ -144,8 +143,8 @@ export default function Product({ product, url }) {
         </Colom1>
         <Colom2>
           <Router
-            currentFlow={currentFlow || ""}
-            map={flowMap?.[currentFlow] || basePageUrl}
+            currentFlow={currentFlow || basePageUrl}
+            map={flowMap?.[currentFlow]}
             productDetails={response.data.product_details}
             onFlowChange={onFlowChange}
             productId={product}

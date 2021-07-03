@@ -12,15 +12,13 @@ const IdentityVerification = lazy(() =>
 const BusinessVerification = lazy(() =>
   import("./bussinessVerification/BussinessVerification")
 );
-const BusinessDetails = lazy(() =>
-  import("./bussinessDetails/BussinessDetails")
-);
 
-// const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
 const DocumentUpload = lazy(() =>
   import("./documentUpload/LoanDocumentsUpload")
 );
-
+const CubDocumentUpload = lazy(() =>
+  import("./documentUpload/CubDocumentUpload")
+);
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
 const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
 const ApplicationSubmitted = lazy(() =>
@@ -47,7 +45,6 @@ const availableRoutes = {
   "product-details": { Component: ProductDetails },
   "identity-verification": { Component: IdentityVerification },
   "business-verification": { Component: BusinessVerification },
-  // "bussiness-details": { Component: BussinessDetails },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
   "two-wheeler-loan-details": {
@@ -77,6 +74,7 @@ const availableRoutes = {
   },
   "emi-details": { protected: true, Component: EmiDetails },
   "document-upload": { protected: true, Component: DocumentUpload },
+  "cub-document-upload": { protected: true, Component: CubDocumentUpload },
   "application-submitted": { protected: true, Component: ApplicationSubmitted },
   "guarantor-details": {
     protected: true,
@@ -93,11 +91,9 @@ const availableRoutes = {
 };
 
 const fieldConfig = {
-  // "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
+  "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
   "4 wheeler": require("../../shared/constants/fourWheelerFields.json"),
   "Home Loan": require("../../shared/constants/homeFields.json"),
-  "Unsecured Bussines Loan": require("../../shared/constants/unsecuredBussinessLoanFields.json"),
-  "2 wheeler": require("../../shared/constants/unsecuredBussinessLoanFields.json"),
 };
 
 export default function Router({
@@ -107,6 +103,10 @@ export default function Router({
   onFlowChange,
   productId,
 }) {
+  if (!currentFlow) {
+    return <Loading />;
+  }
+
   const component = availableRoutes[currentFlow] || {
     Component: FormDefaultPage,
   };
@@ -126,7 +126,7 @@ export default function Router({
 }
 
 Router.propTypes = {
-  currentFlow: string.isRequired,
+  currentFlow: string,
   productDetails: object,
   onFlowChange: func,
   map: oneOfType([string, object]),
