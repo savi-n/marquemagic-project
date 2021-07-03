@@ -37,8 +37,8 @@ const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
 
 const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 
-const PINCODE_ADRRESS_FETCH = `${API_END_POINT}/pincode?code=${'pinCode'}`;
 const SECRET = 'htde6458dgej2164';
+const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}`;
 
 const NC_STATUS_CODE = {
 	OK: 'ok',

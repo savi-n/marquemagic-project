@@ -55,6 +55,7 @@ AddressDetails.propTypes = {
 };
 
 export default function AddressDetails({
+  preData = {},
   userType,
   jsonData,
   register,
@@ -62,6 +63,18 @@ export default function AddressDetails({
   match,
   setMatch,
 }) {
+  const populateValue = (field) => {
+    if (!userType && field.disabled) {
+      return preData[field.name] || "";
+    }
+
+    if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
+      return formState?.values?.[`permanent_${field.name}`];
+    }
+
+    return preData[field.name] || "";
+  };
+
   return (
     <>
       <H>
@@ -78,7 +91,15 @@ export default function AddressDetails({
                     {register({
                       ...field,
                       name: `permanent_${field.name}`,
-                      value: formState?.values?.[`permanent_${field.name}`],
+                      value: populateValue(field),
+                      ...(field.valueForFields
+                        ? {
+                            valueForFields: field.valueForFields.map((f) => [
+                              `permanent_${f[0]}`,
+                              f[1],
+                            ]),
+                          }
+                        : {}),
                     })}
                     {(formState?.submit?.isSubmited ||
                       formState?.touched?.[`permanent_${field.name}`]) &&
@@ -112,6 +133,14 @@ export default function AddressDetails({
                       value: match
                         ? formState?.values?.[`permanent_${field.name}`]
                         : formState?.values?.[`present_${field.name}`],
+                      ...(field.valueForFields
+                        ? {
+                            valueForFields: field.valueForFields.map((f) => [
+                              `present_${f[0]}`,
+                              f[1],
+                            ]),
+                          }
+                        : {}),
                     })}
                     {(formState?.submit?.isSubmited ||
                       formState?.touched?.[`present_${field.name}`]) &&
