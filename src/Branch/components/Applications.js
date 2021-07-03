@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import './styles/index.scss';
 import Tabs from '../shared/components/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import CardDetails from '../shared/components/CardDetails';
-import { getCase } from '../utils/requests';
+import { getCase, needAction, searchData } from '../utils/requests';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
+import CheckApplication from '../pages/checkApplication';
+import SkeletonLoader from '../shared/components/SkeletonLoader';
 
 export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier }) {
 	const [data, setData] = useState(null);
-
 	const mapp = {
 		'Pending Applications': 'Pending Applications',
 		'In-Progress@NC': 'NC In-Progress',
@@ -30,9 +32,11 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 					setLoading(false);
 					setData(res);
 				});
+				needAction(JSON.stringify(['Branch Review', 'Pending Applications'])); // @todo - make it dynamic
 			}
 		});
 	}, []);
+	const [clicked, setClicked] = useState(false);
 
 	const getTabs = item => (
 		<Tabs
@@ -47,7 +51,34 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 		/>
 	);
 
-	return (
+	const history = useHistory();
+	const [id, setId] = useState(null);
+	const [viewLoan, setViewLoan] = useState(false);
+	const [activ, setActiv] = useState('Applicant');
+	const [serachStarted, setSearch] = useState(false);
+
+	const search = e => {
+		if (e.target.value.length === 0) {
+			setSearch(true);
+			Object.keys(mapp).map(async e => {
+				if (e === lActive) {
+					const res = await getCase(mapp[e]);
+					setSearch(false);
+					setData(res);
+				}
+			});
+		} else if (e.target.value.length > 2) {
+			setSearch(true);
+			setTimeout(() => {
+				searchData(e.target.value).then(res => {
+					setSearch(false);
+					setData(res);
+				});
+			}, 3000);
+		}
+	};
+
+	return !viewLoan ? (
 		<section className='flex'>
 			<section
 				style={{
@@ -74,16 +105,17 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 					overflow: 'scroll'
 				}}
 			>
-				<section className='absolute top-32 flex self-end w-full'>
+				{/* <section className='absolute top-32 flex self-end w-full'>
 					<Button rounded='rfull' type='gray-light' className='btn'>
 						Need Attention <span className='mx-1 bg-red-500 rounded-full px-2'>7</span>
 					</Button>
-				</section>
+				</section> */}
 				<section className='top-40 w-full absolute flex gap-x-10 items-center'>
 					<section className='w-1/2 flex items-center mt-10'>
 						<input
 							className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none  rounded-l-full'
 							placeholder='Search application name, loan type, loan amount'
+							onChange={e => search(e)}
 						/>
 						<FontAwesomeIcon
 							className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2'
@@ -109,11 +141,25 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 							</section>
 						</section>
 					)}
-					{data && data.length
-						? data.map(item => <CardDetails label={lActive} full={true} item={item} lActive={lActive} />)
+					{data && typeof data === 'object' && data.length
+						? data.map(item => (
+								<CardDetails
+									setViewLoan={setViewLoan}
+									label={lActive}
+									full={true}
+									item={item}
+									lActive={lActive}
+									setId={setId}
+									setActiv={setActiv}
+									setClicked={setClicked}
+								/>
+						  ))
 						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}
+					{serachStarted && <Loading />}
 				</section>
 			</section>
 		</section>
+	) : (
+		<CheckApplication id={id && id} activ={activ} />
 	);
 }

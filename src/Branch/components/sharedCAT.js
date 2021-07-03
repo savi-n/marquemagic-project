@@ -1,17 +1,30 @@
-import { useState, useRef, useContext } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import useFetch from '../../hooks/useFetch';
 import { UserContext } from '../../reducer/userReducer';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import Button from '../shared/components/Button';
 import { DOCS_UPLOAD_URL } from '../../_config/app.config';
-import { getUsersList, reassignLoan } from '../utils/requests';
+import {
+	getUsersList,
+	reassignLoan,
+	loanDocMapping,
+	getApprovalStatus,
+	assignUserToLoan,
+	getLoanDocs
+} from '../utils/requests';
 
-export default function SharedCAT({ getCLicker, type, productId, item, lActive }) {
-	const {
-		state: { userId, userToken, userDetails }
-	} = useContext(UserContext);
+export default function SharedCAT({ getCLicker, type, productId, item, lActive, userId, userToken, setClicked }) {
 	const { newRequest } = useFetch();
 	const uploadedFiles = useRef([]);
+	const [users, setUsers] = useState(null);
+	useEffect(() => {
+		getUsersList().then(res => {
+			setUsers(res.data.userList);
+		});
+	}, []);
+
+	const [commen, setComments] = useState('');
+	const [user, setUser] = useState(null);
 
 	const handleFileUpload = async files => {
 		Promise.all(
@@ -125,7 +138,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 				<input
 					placeholder='ROI'
 					className='resize-none rounded-lg w-full m-2 border border-silver-500 focus:outline-none p-2 text-sm'
-					defaultValue={item.pre_eligiblity.roi.toFixed(2)}
+					defaultValue={item?.interest_rate?.toFixed(2)}
 				/>
 				<input
 					placeholder='Add Recommendation'
@@ -133,7 +146,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 				/>
 				<select className='rounded w-full border p-2 m-2 focus:outline-none bg-transparent'>
 					<option>Assign to</option>
-					{userList()?.map(e => <option>{e}</option>)}
+					{users?.map(e => <option>{e.name}</option>)}
 				</select>
 			</section>
 			<section className='w-full gap-x-4 flex justify-end'>
@@ -143,6 +156,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 					rounded='rfull'
 					onClick={() => {
 						reassignLoan(item.id, lActive === 'Final Sanction');
+						setClicked(true);
 						getCLicker(null);
 					}}
 				>
@@ -175,18 +189,36 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 	);
 
 	const approvalHistory = () => (
-		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
-			<section className='h-auto overflow-hidden'>
-				<FileUpload onDrop={handleFileUpload} accept='' />
-			</section>
-			<section className='w-full gap-x-4 flex justify-end'>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Submit
-				</Button>
-				<Button type='red-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Cancel
-				</Button>
-			</section>
+		<section className='rounded-md flex flex-col gap-y-4 z-20 bg-white pl-10 w-full'>
+			<h1 className='font-bold'>History</h1>
+			<table className='border rounded-full'>
+				<thead className='border'>
+					<th>Recommended By</th>
+					<th>Timestamp</th>
+					<th>ROI</th>
+					<th>Comments</th>
+				</thead>
+				<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
 		</section>
 	);
 
@@ -209,25 +241,33 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 		);
 	};
 
-	const userList = () => {
-		getUsersList().then(res => {
-			return res.data.userList;
-		});
-	};
-
 	const reassign = () => (
 		<section className='rounded-md flex flex-col gap-y-4 z-20 bg-white pl-10 w-full'>
 			<select
 				className='rounded w-11/12 self-end border p-2 focus:outline-none bg-transparent'
 				placeholder='Reassign to'
+				onChange={e => users && users.map(el => el.name === e.target.value && setUser(el))}
 			>
 				<option selected disabled>
 					Reassign to
 				</option>
-				{userList()?.map(e => <option>{e}</option>)}
+				{users && users.map(e => <option>{e.name}</option>)}
 			</select>
+			<textarea
+				placeholder='Comments'
+				className='rounded focus:outline-none p-2 w-11/12 self-end border'
+				onChange={e => setComments(e.target.value)}
+			/>
 			<section className='w-full gap-x-4 self-end h-full flex justify-end'>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+				<Button
+					type='blue-light'
+					size='small'
+					rounded='rfull'
+					onClick={() => {
+						assignUserToLoan(item.id, user && user.id, commen);
+						getCLicker(null);
+					}}
+				>
 					Submit
 				</Button>
 				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
@@ -268,7 +308,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 				<input
 					placeholder='ROI'
 					className='resize-none rounded-lg w-full m-2 border border-silver-500 focus:outline-none p-2 text-sm'
-					defaultValue={item?.pre_eligiblity?.roi.toFixed(2)}
+					defaultValue={item?.interest_rate?.toFixed(2)}
 				/>
 				<input
 					placeholder='Add Recommendation'
@@ -276,7 +316,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive }
 				/>
 				<select className='rounded w-full border p-2 m-2 focus:outline-none bg-transparent'>
 					<option>Assign to</option>
-					{userList()?.map(e => <option>{e}</option>)}
+					{users?.map(e => <option>{e.name}</option>)}
 				</select>
 			</section>
 			<section className='w-full gap-x-4 flex justify-end'>
