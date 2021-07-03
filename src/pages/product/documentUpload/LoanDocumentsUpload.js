@@ -12,6 +12,7 @@ import {
   BUSSINESS_LOAN_CASE_CREATION,
   UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
+  ADD_SUBSIDIARY_DETAILS,
   ADD_BANK_DETAILS,
   ADD_SHAREHOLDER_DETAILS,
   ADD_REFENCE_DETAILS,
@@ -131,6 +132,18 @@ function caseCreationDataFormat(data, companyData) {
   return formatedData;
 }
 
+function subsidiaryDataFomat(caseId, data) {
+  const formatedData = {
+    case_id: caseId,
+    account_number: "",
+    subsidiary_name: "",
+    bank_name: "",
+    relative: "",
+  };
+
+  return formatedData;
+}
+
 export default function DocumentUpload({
   productDetails,
   userType,
@@ -139,10 +152,6 @@ export default function DocumentUpload({
   map,
   productId,
 }) {
-  const {
-    state: { whiteLabelId, clientToken },
-  } = useContext(AppContext);
-
   const {
     state,
     actions: { setLoanDocuments },
@@ -261,6 +270,32 @@ export default function DocumentUpload({
             },
             companyDetail
           ),
+        },
+        { authorization: `Bearer ${companyDetail.token}` }
+      );
+      const caseRes = caseReq.data;
+      if (
+        caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+        caseRes.status === NC_STATUS_CODE.OK
+      ) {
+        return caseRes;
+      }
+
+      throw new Error(caseRes.message);
+    } catch (er) {
+      console.log("STEP: 1 => CASE CREATION ERRROR", er.message);
+      throw new Error(er.message);
+    }
+  };
+
+  // step: 2 if subsidary details submit request
+  const addSubsidiaryReq = async () => {
+    try {
+      const caseReq = await newRequest(
+        ADD_SUBSIDIARY_DETAILS,
+        {
+          method: "POST",
+          data: subsidiaryDataFomat("caseid", state),
         },
         { authorization: `Bearer ${companyDetail.token}` }
       );
