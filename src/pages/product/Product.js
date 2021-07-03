@@ -2,7 +2,6 @@ import { useContext, useEffect, Fragment, useState } from "react";
 import { string } from "prop-types";
 import styled from "styled-components";
 
-import { v4 as uuidv4 } from "uuid";
 import { PRODUCT_DETAILS_URL } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import { AppContext } from "../../reducer/appReducer";
@@ -101,7 +100,7 @@ export default function Product({ product, url }) {
     if (response) configure(response.data?.product_details?.flow);
   }, [response]);
 
-  const [currentFlow, setCurrentFlow] = useState("product-details");
+  const [currentFlow, setCurrentFlow] = useState(basePageUrl);
 
   const onFlowChange = (flow) => {
     setCurrentFlow(flow);
@@ -112,14 +111,14 @@ export default function Product({ product, url }) {
     response.data && (
       <Wrapper>
         <Colom1>
-          <Link>
+          <Link onClick={(e) => {}}>
             <Head active={currentFlow === "product-details"}>
               {response.data.name} <span>{response.data.description}</span>
             </Head>
           </Link>
-          {response?.data?.product_details?.flow?.map((m) => (
-            <Fragment key={uuidv4()}>
-              <Link>
+          {response.data?.product_details?.flow?.map((m) => (
+            <Fragment key={m.id}>
+              <Link onClick={(e) => {}}>
                 <Menu active={currentFlow === m.id}>
                   <div>{m.name}</div>
                   {completedMenu.includes(m.id) && (
@@ -130,7 +129,7 @@ export default function Product({ product, url }) {
               {m.flow &&
                 subFlowMenu.includes(m.id) &&
                 m.flow.map((item) => (
-                  <Link key={item.id}>
+                  <Link key={item.id} onClick={(e) => {}}>
                     <SubMenu active={currentFlow === item.id}>
                       <div>{item.name}</div>
                       {completedMenu.includes(item.id) && (
@@ -144,8 +143,8 @@ export default function Product({ product, url }) {
         </Colom1>
         <Colom2>
           <Router
-            currentFlow={currentFlow || ""}
-            map={flowMap?.[currentFlow] || basePageUrl}
+            currentFlow={currentFlow || basePageUrl}
+            map={flowMap?.[currentFlow]}
             productDetails={response.data.product_details}
             onFlowChange={onFlowChange}
             productId={product}

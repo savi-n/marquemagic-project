@@ -28,7 +28,12 @@ const useActions = (dispatch) => {
     menu.forEach((element, index) => {
       const main = menu[index + 1] ? menu[index + 1].id : null;
       const sub = element.flow ? element.flow?.[0].id : null;
-      flowMap[element.id] = { main, sub };
+      flowMap[element.id] = {
+        main,
+        sub,
+        fields: element.fields || {},
+        name: element.name,
+      };
 
       element.flow?.forEach((e, i) => {
         const m = element.flow[i + 1]

@@ -1,757 +1,744 @@
 {
-	"personal_details": {
-		"label": "Personal Details",
-		"data": [
-			{
-				"name": "firstName",
-				"placeholder": "First Name",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"AlphaCharOnly": true
-				},
-				"type": "text",
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "lastName",
-				"validation": []
-			},
-			{
-				"name": "incomeType",
-				"placeholder": "Income Type",
-				"rules": {
-					"required": true
-				},
-				"type": "select",
-				"visibility": true,
-				"options": [
-					{
-						"value": "salaried",
-						"name": "Salaried"
-					},
-					{
-						"value": "business",
-						"name": "Business"
-					}
-				]
-			},
-			{
-				"name": "lastName",
-				"placeholder": "Last Name",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"AlphaCharOnly": true
-				},
-				"type": "text",
-				"visibility": true,
-				"default_value": ""
-			},
-			{
-				"name": "panNumber",
-				"placeholder": "PAN Number",
-				"rules": {
-					"required": true,
-					"length": 10
-				},
-				"disabled": true,
-				"mask": {
-					"CharacterLimit": 10,
-					"AlphaNumericOnly": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "dob",
-				"placeholder": "Date of Birth (dd-mm-yyyy)",
-				"rules": {
-					"required": true
-				},
-				"type": "date",
-				"disabled": true,
-				"visibility": true
-			},
-			{
-				"name": "aadhaar",
-				"placeholder": "Aadhar Number",
-				"type": "text",
-				"rules": {
-					"required": true,
-					"minLength": 12
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 12
-				},
-				"visibility": true
-			},
-			{
-				"name": "mobileNo",
-				"placeholder": "Mobile Number",
-				"rules": {
-					"required": true,
-					"length": 10
-				},
-				"disabled": true,
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "residenceStatus",
-				"placeholder": "Residence Status",
-				"type": "select",
-				"visibility": true,
-				"options": [
-					{
-						"name": "Resident",
-						"value": "Resident"
-					},
-					{
-						"name": "Resident and Ordinarily Resident",
-						"value": "Resident and Ordinarily Resident"
-					},
-					{
-						"name": "Resident but Not Ordinarily Resident",
-						"value": "Resident but Not Ordinarily Resident"
-					},
-					{
-						"name": "Non-Resident",
-						"value": "Non-Resident"
-					}
-				]
-			},
-			{
-				"name": "email",
-				"placeholder": "Email ID",
-				"rules": {
-					"required": true,
-					"email": true
-				},
-				"disabled": true,
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "countryResidence",
-				"placeholder": "Country of Residence",
-				"type": "select",
-				"visibility": true,
-				"options": [
-					{
-						"name": "India",
-						"value": "India"
-					},
-					{
-						"name": "Other",
-						"value": "Other"
-					}
-				]
-			},
-			{
-				"name": "maritalStatus",
-				"placeholder": "Marital Status",
-				"rules": {
-					"required": true
-				},
-				"type": "select",
-				"visibility": true,
-				"options": [
-					{
-						"value": "Married",
-						"name": "Married"
-					},
-					{
-						"value": "Single",
-						"name": "Single"
-					},
-					{
-						"value": "Divorced",
-						"name": "Divorced"
-					}
-				]
-			}
-		]
-	},
-	"address_details": {
-		"label": "Address Details",
-		"data": [
-			{
-				"name": "address1",
-				"placeholder": "Address Line 1",
-				"rules": {
-					"required": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "address2",
-				"placeholder": "Address Line 2",
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "address3",
-				"placeholder": "Address Line 3",
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "city",
-				"placeholder": "City",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"AlphaCharOnly": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "state",
-				"placeholder": "State",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"AlphaCharOnly": true
-				},
-				"type": "text",
-				"visibility": true
-			},
-			{
-				"name": "pinCode",
-				"placeholder": "Pin Code",
-				"rules": {
-					"required": true,
-					"length": 6
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 6
-				},
-				"type": "text",
-				"visibility": true
-			}
-		]
-	},
-	"two_wheeler_loan_details": {
-		"label": "Loan Details",
-		"data": [
-			{
-				"name": "loanAmount",
-				"placeholder": "Required Loan Amount",
-				"rules": {
-					"required": true
-				},
-				"type": "text",
-				"visibility": true,
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"inrupees": true
-			},
-			{
-				"name": "tenure",
-				"rules": {
-					"required": true
-				},
-				"placeholder": "Tenure (in months)",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 3
-				},
-				"visibility": true
-			},
-			{
-				"name": "branchId",
-				"type": "search",
-				"placeholder": "Home branch (for application processing)",
-				"visibility": true,
-				"fetchOnInit": true,
-				"rules": {
-					"required": true
-				},
-				"options": []
-			},
-			{
-				"name": "vehicle",
-				"type": "search",
-				"placeholder": "Choose Vehicle",
-				"rules": {
-					"required": true
-				},
-				"fetchOnSearch": true,
-				"visibility": true,
-				"searchKeyAsValue": true,
-				"options": []
-			},
-			{
-				"name": "assetsValue",
-				"placeholder": "Cost of the Vehicle",
-				"type": "text",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"inrupees": true
-			}
-		]
-	},
-	"four_wheeler_loan_details": {
-		"label": "Loan Details",
-		"data": [
-			{
-				"name": "loanAmount",
-				"placeholder": "Required Loan Amount",
-				"rules": {
-					"required": true
-				},
-				"type": "text",
-				"visibility": true,
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"inrupees": true
-			},
-			{
-				"name": "tenure",
-				"rules": {
-					"required": true
-				},
-				"placeholder": "Tenure (in months)",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 3
-				},
-				"visibility": true
-			},
-			{
-				"name": "branchId",
-				"type": "search",
-				"placeholder": "Home branch (for application processing)",
-				"visibility": true,
-				"fetchOnInit": true,
-				"rules": {
-					"required": true
-				},
-				"options": []
-			},
-			{
-				"name": "vehicle",
-				"type": "search",
-				"placeholder": "Choose Vehicle",
-				"rules": {
-					"required": true
-				},
-				"fetchOnSearch": true,
-				"visibility": true,
-				"searchKeyAsValue": true,
-				"options": []
-			},
-			{
-				"name": "assetsValue",
-				"placeholder": "Cost of the Vehicle",
-				"type": "text",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"inrupees": true
-			}
-		]
-	},
-	"four_wheeler_loan_details_additional": {
-		"label": "Breakup price of the vehicle",
-		"data": [
-			{
-				"name": "exShowroomPrice",
-				"placeholder": "Ex Show Room Price",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"inrupees": true
-			},
-			{
-				"name": "Accessories",
-				"placeholder": "Accessories",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"inrupees": true
-			},
-			{
-				"name": "insurance",
-				"placeholder": "Insurance",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"inrupees": true
-			},
-			{
-				"name": "roadTaxRegistration",
-				"placeholder": "Road Tax and Registration",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"inrupees": true
-			},
-			{
-				"name": "total",
-				"placeholder": "Total",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"option": [],
-				"switch_key": "",
-				"switch_default_value": "",
-				"default_value": "",
-				"key": "assetsValue",
-				"validation": [],
-				"inrupees": true
-			}
-		]
-	},
-	"emi_details": {
-		"label": "EMI Details",
-		"data": [
-			{
-				"name": "existing_auto_loan",
-				"placeholder": "Auto Loan Amount",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"option": [],
-				"inrupees": true,
-				"subFieldName": "auto_loan_bank_name"
-			},
-			{
-				"name": "existing_personal_loan",
-				"placeholder": "Personal Loan Amount",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"option": [],
-				"inrupees": true,
-				"subFieldName": "personal_loan_bank_name"
-			},
-			{
-				"name": "existing_lap_loan",
-				"placeholder": "LAP Amount",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"visibility": true,
-				"option": [],
-				"inrupees": true,
-				"subFieldName": "lap_loan_bank_name"
-			}
-		]
-	},
-	"salary_details": {
-		"label": "Salary Details",
-		"data": [
-			{
-				"name": "grossIncome",
-				"placeholder": "Gross Total Income (as per the latest ITR slip)",
-				"type": "text",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 7
-				},
-				"visibility": true
-			},
-			{
-				"name": "netMonthlyIncome",
-				"placeholder": "Net Monthly Income (as per the latest Salary slip)",
-				"type": "text",
-				"rules": {
-					"required": true
-				},
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 6
-				},
-				"visibility": true
-			}
-		]
-	},
-	"home_loan_details": {
-		"label": "Loan Details",
-		"data": [
-			{
-				"name": "loanAmount",
-				"placeholder": "Required Loan Amount",
-				"rules": {
-					"required": true
-				},
-				"type": "text",
-				"visibility": true,
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 10
-				},
-				"inrupees": true
-			},
-			{
-				"name": "tenure",
-				"rules": {
-					"required": true
-				},
-				"placeholder": "Tenure (in months)",
-				"type": "text",
-				"mask": {
-					"NumberOnly": true,
-					"CharacterLimit": 3
-				},
-				"visibility": true
-			},
-			{
-				"name": "branchId",
-				"type": "search",
-				"placeholder": "Home branch (for application processing)",
-				"visibility": true,
-				"fetchOnInit": true,
-				"rules": {
-					"required": true
-				},
-				"options": []
-			},
-			{
-				"name": "loanType",
-				"placeholder": "Select a Loan Type",
-				"type": "select",
-				"rules": {
-					"required": true
-				},
-				"options": [
-					{
-						"name": "Take over of existing loan from Bank",
-						"value": "Take over of existing loan from Bank"
-					},
-					{
-						"name": "Construction of House/Flat",
-						"value": "Construction of House/Flat"
-					},
-					{
-						"name": "Purchase of house site and construction",
-						"value": "Purchase of house site and construction"
-					},
-					{
-						"name": "Purchase of ready built House/Flat",
-						"value": "Purchase of ready built House/Flat"
-					}
-				],
-				"visibility": true,
-				"forType": {
-					"Take over of existing loan from Bank": [
+	"head": "CUB offers loan for purchase of two-wheelers in a <span>speedy manner</span>",
+	"loanType": "2 wheeler",
+	"productDetailsImage": "https://www.imagesbazaar.com/previewImage/SM859421/loan/0/0/0/0/0/4/1",
+	"applicationSubmittedImage": "https://www.imagesbazaar.com/previewImage/SM859421/loan/0/0/0/0/0/4/1",
+	"li": [
+		"CUB offers two-wheelers loans to individuals(Salaried/Self Employed) for new vehicles",
+		"Eligibility : 10 months net take home pay in case of salaried employee(maximum)/50% of the gross annual income declared in the lastest ITR in case of non salaried group(maximum)",
+		"Loan amount : maximum of Rs. 1.5 Lakhs",
+		"Margin : 10%",
+		"Repayment tenor : 36 to 60 Months",
+		"<a href=link>Click here</a> for Interest rate and required documents",
+		"<a href=link>Click here</a> for Schemes",
+		"<a href=link>Click here</a> for Processing Charges",
+		"<a href=link>EMI Calculator</a>"
+	],
+	"Required Documents": [
+		"KYC documents",
+		"Financial Documents",
+		"Other documents"
+	],
+	"flow": [
+		{
+			"name": "Business Verification",
+			"id": "business-verification",
+			"fields": ""
+		},
+		{
+			"name": "Business Details",
+			"id": "business-details",
+			"fields": {
+				"business-details": {
+					"label": "Business Details",
+					"data": [
 						{
-							"name": "bank",
+							"name": "BusinessName",
+							"placeholder": "Business Name",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "BusinessType",
+							"placeholder": "Business Type",
+							"rules": {
+								"required": true
+							},
 							"type": "select",
-							"placeholder": "Please Select the Bank/FI from which the loan(s) is/are to be taken over",
 							"visibility": true,
+							"options": [
+								{
+									"value": "private limited",
+									"name": "Private Limited"
+								},
+								{
+									"value": "public limited",
+									"name": "Public Limited"
+								},
+								{
+									"value": "llp",
+									"name": "LLP"
+								}
+							]
+						},
+						{
+							"name": "BusinessVintage",
+							"placeholder": "Business Vintage",
+							"rules": {
+								"required": true
+							},
+							"type": "date",
+							"visibility": true
+						},
+						{
+							"name": "BusinessIndustry",
+							"placeholder": "Business Industry",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "panNumber",
+							"placeholder": "PAN Number",
+							"rules": {
+								"required": true,
+								"length": 10
+							},
+							"mask": {
+								"CharacterLimit": 10,
+								"AlphaNumericOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "GSTVerification",
+							"placeholder": "GST Verification",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaNumericOnly": true
+							},
+							"type": "text",
+							"visibility": true,
+							"default_value": ""
+						},
+						{
+							"name": "PAT",
+							"placeholder": "PAT",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "AnnualTurnover",
+							"placeholder": "Annual Turnover",
+							"type": "text",
+							"rules": {
+								"required": true,
+								"minLength": 12
+							},
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 12
+							},
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Partner/Director Details",
+			"id": "partner-director-details",
+			"fields": {
+				"partner-director-details": {
+					"label": "Partner/Director Details",
+					"data": [
+						{
+							"name": "FirstName",
+							"placeholder": "First Name",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "LastName",
+							"placeholder": "Last Name",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Email",
+							"placeholder": "Email",
+							"rules": {
+								"required": true,
+								"email": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "PhoneNumber",
+							"placeholder": "Phone Number",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "panNumber",
+							"placeholder": "PAN Number",
+							"rules": {
+								"required": true,
+								"length": 10
+							},
+							"mask": {
+								"CharacterLimit": 10,
+								"AlphaNumericOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "City",
+							"placeholder": "City",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Location",
+							"placeholder": "Location",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Address",
+							"placeholder": "Address",
+							"type": "text",
+							"rules": {
+								"required": true
+							},
+							"visibility": true
+						},
+						{
+							"name": "State",
+							"placeholder": "State",
+							"type": "text",
+							"rules": {
+								"required": true
+							},
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Address Details",
+			"id": "business-address-details",
+			"fields": {
+				"business-address-details": {
+					"label": "Address Details",
+					"data": [
+						{
+							"name": "Pincode",
+							"placeholder": "Pincode",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "BusinessCode",
+							"placeholder": "Business Code",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "City",
+							"placeholder": "City",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"type": "text",
+							"visibility": true,
+							"default_value": ""
+						},
+						{
+							"name": "State",
+							"placeholder": "State",
+							"type": "text",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"visibility": true
+						},
+						{
+							"name": "Address",
+							"placeholder": "Address Line 1",
+							"type": "text",
+							"rules": {
+								"required": true
+							},
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Collateral Details",
+			"id": "collateral-details",
+			"fields": {
+				"collateral-details": {
+					"label": "Collateral Details",
+					"data": [
+						{
+							"name": "Collateraltype",
+							"placeholder": "Collateral type",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "CurrentMarketValue",
+							"placeholder": "Current Market Value",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Reference Details",
+			"id": "reference-details",
+			"fields": {
+				"reference-details": {
+					"label": "Reference Details",
+					"data": [
+						{
+							"name": "Name",
+							"placeholder": "Name",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"AlphaCharOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Email",
+							"placeholder": "Email",
+							"rules": {
+								"required": true,
+								"email": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Contact number",
+							"placeholder": "Contact number",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Pincode",
+							"placeholder": "Pincode",
+							"rules": {
+								"required": true
+							},
+							"mask": {
+								"NumberOnly": true
+							},
+							"type": "text",
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Loan Details",
+			"id": "business-loan-details",
+			"fields": {
+				"business-loan-details": {
+					"label": "Loan Details",
+					"data": [
+						{
+							"name": "NC Reference Number",
+							"placeholder": "NC reference number",
+							"type": "text",
+							"visibility": true,
+							"value": 12345,
+							"disabled": true
+						},
+						{
+							"name": "Applicationid",
+							"placeholder": "Application id",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Loan Amount",
+							"placeholder": "Loan Amount",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Subsidiary Details",
+			"id": "subsidiary-details",
+			"fields": {
+				"subsidiary-details": {
+					"label": "Subsidiary Details",
+					"data": [
+						{
+							"name": "SubsidiaryName",
+							"placeholder": "Subsidiary Name",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "BankName",
+							"rules": {
+								"required": true
+							},
+							"placeholder": "Bank Name",
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "AccountNumber",
+							"placeholder": "Account Number",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Relation ",
+							"placeholder": "Relation ",
 							"rules": {
 								"required": true
 							},
 							"options": [
 								{
-									"name": "HDFC",
-									"value": "hdfc"
+									"name": "Subsidiary Company",
+									"value": "Subsidiary Company"
 								},
 								{
-									"name": "ICICI",
-									"value": "icici"
+									"name": " Associated",
+									"value": " Associated"
 								},
 								{
-									"name": "OTHER",
-									"value": "other"
+									"name": " Relative",
+									"value": " Relative"
+								},
+								{
+									"name": " Holding Company",
+									"value": " Holding Company"
+								},
+								{
+									"name": " Promoter/Proprietor",
+									"value": " Promoter/Proprietor"
+								},
+								{
+									"name": " Director/Partner",
+									"value": " Director/Partner"
+								},
+								{
+									"name": " Other Account",
+									"value": " Other Account"
+								},
+								{
+									"name": " Other Group Company",
+									"value": " Other Group Company"
 								}
 							],
-							"forType": {
-								"other": [
-									{
-										"name": "bankName",
-										"type": "text",
-										"placeholder": "Enter your bank name if chosen Other",
-										"rules": {
-											"required": true
-										},
-										"mask": {
-											"NumberOnly": true,
-											"CharacterLimit": 10
-										},
-										"visibility": true
-									}
-								]
-							}
-						},
-						{
-							"name": "outstanding",
-							"type": "text",
-							"placeholder": "Enter Present Outstanding",
-							"visibility": true,
-							"inrupees": true,
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"uploadButton": "Upload Agreement"
-						}
-					],
-					"Construction of House/Flat": [
-						[
-							{
-								"name": "constructionValue",
-								"type": "text",
-								"placeholder": "Enter the Value as per the Construction Agreement",
-								"visibility": true,
-								"rules": {
-									"required": true
-								},
-								"mask": {
-									"NumberOnly": true,
-									"CharacterLimit": 10
-								},
-								"inrupees": true,
-								"uploadButton": "Upload Agreement"
-							},
-							{
-								"name": "contructionArchitectValue",
-								"type": "text",
-								"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-								"visibility": true,
-								"inrupees": true,
-								"rules": {
-									"required": true
-								},
-								"mask": {
-									"NumberOnly": true,
-									"CharacterLimit": 10
-								},
-								"uploadButton": "Upload Agreement"
-							}
-						]
-					],
-					"Purchase of house site and construction": [
-						{
-							"name": "landValue",
-							"type": "text",
-							"placeholder": "Enter the Agreement Value for Purchase of Land",
-							"visibility": true,
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"inrupees": true,
-							"uploadButton": "Upload Agreement"
-						},
-						[
-							{
-								"name": "constructionValue",
-								"type": "text",
-								"placeholder": "Enter the Value as per the Construction Agreement",
-								"visibility": true,
-								"rules": {
-									"required": true
-								},
-								"mask": {
-									"NumberOnly": true,
-									"CharacterLimit": 10
-								},
-								"inrupees": true,
-								"uploadButton": "Upload Agreement"
-							},
-							{
-								"name": "contructionArchitectValue",
-								"type": "text",
-								"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-								"visibility": true,
-								"rules": {
-									"required": true
-								},
-								"mask": {
-									"NumberOnly": true,
-									"CharacterLimit": 10
-								},
-								"inrupees": true,
-								"uploadButton": "Upload Agreement"
-							}
-						]
-					],
-					"Purchase of ready built House/Flat": [
-						{
-							"name": "salesValue",
-							"type": "text",
-							"placeholder": "Enter the Value as per sales agreement",
-							"visibility": true,
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"inrupees": true,
-							"uploadButton": "Upload Agreement"
+							"type": "select",
+							"visibility": true
 						}
 					]
 				}
 			}
-		]
-	}
+		},
+		{
+			"name": "Shareholder Details",
+			"id": "shareholder-details",
+			"fields": {
+				"shareholder-details": {
+					"label": "Shareholder Details",
+					"data": [
+						{
+							"name": "ShareholderName",
+							"placeholder": "Shareholder Name",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "ShareholderPercentage",
+							"placeholder": "Shareholder Percentage",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Relation ",
+							"placeholder": "Relation ",
+							"rules": {
+								"required": true
+							},
+							"options": [
+								{
+									"name": "Subsidiary Company",
+									"value": "Subsidiary Company"
+								},
+								{
+									"name": " Associated",
+									"value": " Associated"
+								},
+								{
+									"name": " Relative",
+									"value": " Relative"
+								},
+								{
+									"name": " Holding Company",
+									"value": " Holding Company"
+								},
+								{
+									"name": " Promoter/Proprietor",
+									"value": " Promoter/Proprietor"
+								},
+								{
+									"name": " Director/Partner",
+									"value": " Director/Partner"
+								},
+								{
+									"name": " Other Account",
+									"value": " Other Account"
+								},
+								{
+									"name": " Other Group Company",
+									"value": " Other Group Company"
+								}
+							],
+							"type": "select",
+							"visibility": true
+						},
+						{
+							"name": "CompanyAddress",
+							"placeholder": "Company Address",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "Pincode",
+							"placeholder": "Pincode",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Bank  Details",
+			"id": "bank-details",
+			"fields": {
+				"bank-details": {
+					"label": "Bank  Details",
+					"data": [
+						{
+							"name": "BankName",
+							"placeholder": "Bank Name",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "AccountNumber",
+							"placeholder": "Account Number",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "AccountType",
+							"placeholder": "Account Type",
+							"options": [
+								{
+									"name": "OD",
+									"value": "OD"
+								},
+								{
+									"name": "CC",
+									"value": "CC"
+								},
+								{
+									"name": "Current",
+									"value": "Current"
+								},
+								{
+									"name": "Saving",
+									"value": "Saving"
+								}
+							],
+							"rules": {
+								"required": true
+							},
+							"type": "select",
+							"visibility": true
+						},
+						{
+							"name": "Relation ",
+							"placeholder": "Relation ",
+							"options": [
+								{
+									"name": "Subsidiary Company",
+									"value": "Subsidiary Company"
+								},
+								{
+									"name": " Associated",
+									"value": " Associated"
+								},
+								{
+									"name": " Relative",
+									"value": " Relative"
+								},
+								{
+									"name": " Holding Company",
+									"value": " Holding Company"
+								},
+								{
+									"name": " Promoter/Proprietor",
+									"value": " Promoter/Proprietor"
+								},
+								{
+									"name": " Director/Partner",
+									"value": " Director/Partner"
+								},
+								{
+									"name": " Other Account",
+									"value": " Other Account"
+								},
+								{
+									"name": " Other Group Company",
+									"value": " Other Group Company"
+								}
+							],
+							"type": "select",
+							"visibility": true
+						},
+						{
+							"name": "AccountHolderName",
+							"placeholder": "Account Holder Name",
+							"rules": {
+								"required": true
+							},
+							"type": "text",
+							"visibility": true
+						},
+						{
+							"name": "StartDate",
+							"placeholder": "Start Date",
+							"rules": {
+								"required": true
+							},
+							"type": "date",
+							"visibility": true
+						},
+						{
+							"name": "EndDate",
+							"placeholder": "End Date",
+							"rules": {
+								"required": true
+							},
+							"type": "date",
+							"visibility": true
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Document Upload",
+			"id": "document-upload"
+		},
+		{
+			"name": "Application Submitted",
+			"id": "application-submitted"
+		}
+	]
 }
