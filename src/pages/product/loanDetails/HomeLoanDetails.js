@@ -55,7 +55,7 @@ export default function HomeLoanDetailsPage({
   const {
     actions: {
       setUsertypeLoanData,
-      setUsertypeEmiData,
+      // setUsertypeEmiData,
       setUsertypeBankData,
       setUsertypeAgreementData,
     },
@@ -79,10 +79,10 @@ export default function HomeLoanDetailsPage({
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
-    const loanData = formatLoanData(data, fieldConfig.loan_details.data);
+    // const emiData = formatEmiData(data, map.fields["emi-details"].data);
+    const loanData = formatLoanData(data, map.fields[id].data);
 
-    setUsertypeEmiData(emiData);
+    // setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: userDetails.lender_id,
       branchId: data.branchId,
@@ -115,16 +115,16 @@ export default function HomeLoanDetailsPage({
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={fieldConfig.loan_details.data}
+            jsonData={map.fields[id].data}
             size="60%"
             buttonAction={onUploadAgreement}
             uploadedDocs={uploadAgreementDocs}
-            label={fieldConfig.loan_details.label}
+            label={map.fields[id].label}
           />
         </FlexColom>
         <FlexColom base="40%">
           <HomeLoanAddressDetails
-            jsonData={fieldConfig.address_details.data}
+            jsonData={map.fields["address-details"].data}
             register={register}
             formState={formState}
             size="100%"

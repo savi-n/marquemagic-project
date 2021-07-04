@@ -99,10 +99,10 @@ export default function AddressDetailsPage({
     onFlowChange(map.main);
   };
 
-  const subFlowActivate = () => {
-    activateSubFlow(id);
-    onFlowChange(map.sub);
-  };
+  //   const subFlowActivate = () => {
+  //     activateSubFlow(id);
+  //     onFlowChange(map.sub);
+  //   };
 
   return (
     <Div>
@@ -112,28 +112,11 @@ export default function AddressDetailsPage({
         match={match}
         setMatch={setMatch}
         jsonData={map.fields[id].data}
-        preData={{
-          address1: userBankDetails?.address1 || "",
-          address2: userBankDetails?.address2 || "",
-          address3: userBankDetails?.address3 || "",
-          city: userBankDetails?.city || "",
-          state: userBankDetails?.state || "",
-          pinCode: userBankDetails?.pin || "",
-        }}
+        preData={{}}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
-        {/* <DivWrap>
-          <Question>Co-Applicants?</Question>
-          <Button
-            width="auto"
-            fill
-            name="Add"
-            disabled={!saved}
-            onClick={subFlowActivate}
-          />
-        </DivWrap> */}
       </ButtonWrap>
     </Div>
   );
