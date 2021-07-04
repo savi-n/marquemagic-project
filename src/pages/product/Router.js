@@ -21,6 +21,10 @@ const CubDocumentUpload = lazy(() =>
 );
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
 const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
+const LoanAddressDetails = lazy(() =>
+  import("./addressDetails/LoanAddressDetails")
+);
+
 const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
@@ -47,6 +51,7 @@ const availableRoutes = {
   "business-verification": { Component: BusinessVerification },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
+  "loan-address-details": { protected: true, Component: LoanAddressDetails },
   "two-wheeler-loan-details": {
     protected: true,
     Component: TwoWheelerLoanDetails,

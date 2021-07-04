@@ -94,7 +94,7 @@ function caseCreationDataFormat(data, companyData) {
       business_email: data?.["business-details"].EmailId,
       // business_industry_type: 20,
       contact: "",
-      businesspancardnumber: "",
+      businesspancardnumber: companyData.PancardNumber,
       crime_check: "Yes",
     },
     businessaddress: {
@@ -489,7 +489,7 @@ export default function DocumentUpload({
             upload={{
               url: DOCS_UPLOAD_URL({ userId: companyDetail?.userId || "" }),
               header: {
-                Authorization: `Bearer ${companyDetail.token}`,
+                Authorization: `Bearer ${companyDetail?.token || ""}`,
               },
             }}
           />

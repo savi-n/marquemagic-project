@@ -184,15 +184,16 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return (
-      !(!!userType || bankCUBStatementFetchDone) ||
-      !(cibilCheckbox && declareCheck) ||
-      caseCreationProgress ||
-      // !(
-      //   documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
-      // ) ||
-      !state[USER_ROLES[userType || "User"]]?.uploadedDocs?.length
-    );
+    return caseCreationProgress;
+    // return (
+    //   !(!!userType || bankCUBStatementFetchDone) ||
+    //   !(cibilCheckbox && declareCheck) ||
+    //   caseCreationProgress ||
+    //   // !(
+    //   //   documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
+    //   // ) ||
+    //   !state[USER_ROLES[userType || "User"]]?.uploadedDocs?.length
+    // );
   };
 
   // step 4: loan asset upload
@@ -529,15 +530,15 @@ export default function DocumentUpload({
             onDrop={handleFileUpload}
             accept=""
             upload={{
-              url: DOCS_UPLOAD_URL({ userId: userDetails.id }),
+              url: DOCS_UPLOAD_URL({ userId: userDetails?.id || "" }),
               header: {
-                Authorization: `Bearer ${userToken}`,
+                Authorization: `Bearer ${userToken ?? ""}`,
               },
             }}
           />
         </UploadWrapper>
 
-        <ButtonWrapper>
+        {/* <ButtonWrapper>
           <Button
             name="Get CUB Statement"
             onClick={onToggleCUBStatementModal}
@@ -548,8 +549,8 @@ export default function DocumentUpload({
             onClick={onOtherStatementModalToggle}
           />
           <Button name="Get ITR documents" disabled />
-        </ButtonWrapper>
-        <CheckboxWrapper>
+        </ButtonWrapper> */}
+        {/* <CheckboxWrapper>
           <CheckBox
             name={textForCheckbox.grantCibilAcces}
             checked={cibilCheckbox}
@@ -566,7 +567,7 @@ export default function DocumentUpload({
             onChange={() => setDeclareCheck(!declareCheck)}
             bg="blue"
           />
-        </CheckboxWrapper>
+        </CheckboxWrapper> */}
         <SubmitWrapper>
           {!userType && (
             <Button

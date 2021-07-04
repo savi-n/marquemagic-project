@@ -57,6 +57,7 @@ function formatCompanyData(data) {
   return {
     BusinessName: data.company_master_data.company_name,
     Email: data.company_master_data.email_id,
+    PancardNumber: "",
     unformatedData: data,
   };
 }

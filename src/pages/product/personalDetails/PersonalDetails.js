@@ -64,17 +64,17 @@ export default function PersonalDetailsPage({
         register={register}
         formState={formState}
         preData={{
-          firstName: userBankDetails.firstName,
-          lastName: userBankDetails.lastName,
-          dob: userBankDetails.dob,
-          email: userBankDetails.email,
-          mobileNo: userBankDetails.mobileNum,
-          panNumber: userBankDetails.pan,
+          firstName: userBankDetails?.firstName || "",
+          lastName: userBankDetails?.lastName || "",
+          dob: userBankDetails?.dob || "",
+          email: userBankDetails?.email || "",
+          mobileNo: userBankDetails?.mobileNum || "",
+          panNumber: userBankDetails?.pan || "",
         }}
-        jsonData={fieldConfig.personal_details.data}
+        jsonData={map.fields[id].data}
       />
       <SalaryDetails
-        jsonData={fieldConfig.salary_details.data}
+        jsonData={map.fields["salary-details"].data}
         register={register}
         formState={formState}
       />
