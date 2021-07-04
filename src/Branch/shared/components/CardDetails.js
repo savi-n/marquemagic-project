@@ -22,7 +22,21 @@ import SharedCAT from '../../components/sharedCAT';
 import { getLoanDetails, loanDocMapping, getUsersList } from '../../utils/requests';
 import checkApplication from '../../pages/checkApplication';
 
-export default function CardDetails({ item, label, full, idx, lActive, setViewLoan, setId, setActiv, setClicked }) {
+export default function CardDetails({
+	item,
+	label,
+	full,
+	idx,
+	lActive,
+	setViewLoan,
+	setId,
+	setActiv,
+	setClicked,
+	setProduct,
+	setAssignmentLog,
+	usersList,
+	submitCase
+}) {
 	const history = useHistory();
 	const { path, url } = useRouteMatch();
 
@@ -169,7 +183,11 @@ export default function CardDetails({ item, label, full, idx, lActive, setViewLo
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
+												item.assignmentLog
+													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
+													: setAssignmentLog && setAssignmentLog(null);
 												setViewLoan(true);
+												setProduct(item.product);
 												setId(item.id);
 												e === 'Check Documents'
 													? setActiv('Document Details')
@@ -205,9 +223,21 @@ export default function CardDetails({ item, label, full, idx, lActive, setViewLo
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
-												e === 'Pre-Eligibility' && setViewLoan(true);
-												e === 'Pre-Eligibility' && setId(item.id);
-												e === 'Pre-Eligibility' && setActiv('Pre-Eligibility Details');
+												setProduct && setProduct(item.product);
+												item.assignmentLog
+													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
+													: setAssignmentLog && setAssignmentLog(null);
+												e === 'Pre-Eligibility' ||
+													(e === 'Eligibility Details' && setViewLoan(true));
+												e === 'Pre-Eligibility' ||
+													(e === 'Eligibility Details' && setId(item.id));
+												e === 'Pre-Eligibility' ||
+													(e === 'Eligibility Details' &&
+														setActiv(
+															e === 'Eligibility Details'
+																? 'Eligibility Data'
+																: 'Pre-Eligibility Details'
+														));
 											}}
 										>
 											{e}
@@ -225,17 +255,12 @@ export default function CardDetails({ item, label, full, idx, lActive, setViewLo
 							<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
 							{userList && item.assignmentLog && (
 								<small>
-									Assigned To:{' '}
+									Assigned To:
 									{
-										userList.filter(
+										usersList.filter(
 											e => e.id === JSON.parse(item.assignmentLog.remarks).assignedTo
-										)[0].name
+										)[0]?.name
 									}
-									{console.log(
-										userList.filter(
-											e => e.id === JSON.parse(item.assignmentLog.remarks).assignedTo
-										)[0].name
-									)}
 								</small>
 							)}
 						</section>
@@ -283,6 +308,7 @@ export default function CardDetails({ item, label, full, idx, lActive, setViewLo
 						item={item}
 						lActive={lActive}
 						setClicked={setClicked}
+						submitCase={submitCase}
 					/>
 				)}
 			</section>

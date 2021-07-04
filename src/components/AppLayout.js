@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Redirect, useHistory } from 'react-router-dom';
 
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
@@ -104,11 +104,11 @@ const AppLayout = () => {
 		response && (
 			<ThemeProvider theme={response.permission.color_theme_react}>
 				<GlobalStyle />
-				{/* {!userToken && (
+				{!window.location.href.includes('branch') && (
 					<HeaderWrapper>
 						<Header logo={response.permission.logo} />
 					</HeaderWrapper>
-				)} */}
+				)}
 				<Div>
 					<BrowserRouter basename={`${APP_DOMAIN}`}>
 						<Suspense fallback={<Loading />}>

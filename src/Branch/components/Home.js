@@ -8,8 +8,10 @@ import Loading from '../../components/Loading';
 import { BranchUserContext } from '../../reducer/branchUserReducer';
 import CheckApplication from '../pages/checkApplication';
 
-export default function Home({ data, sortList, dChartData, d, isIdentifier, lActive, setLActive }) {
+export default function Home({ data, sortList, dChartData, d, isIdentifier, lActive, setLActive, usersList }) {
 	getWhiteLabelPermission();
+	const [product, setProduct] = useState(null);
+	const [assignmentLog, setAssignmentLog] = useState(null);
 	var pieD1 = [];
 	var pieD2 = [];
 	const {
@@ -156,6 +158,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 												setActiv={setActiv}
 												setViewLoan={setViewLoan}
 												setLActive={setLActive}
+												setAssignmentLog={setAssignmentLog}
+												setProduct={setProduct}
 											/>
 										)
 								)
@@ -180,6 +184,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 												item={item}
 												lActive={lActive}
 												setLActive={setLActive}
+												setAssignmentLog={setAssignmentLog}
+												setProduct={setProduct}
 											/>
 										)
 								)
@@ -191,7 +197,14 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 				</section>
 			</section>
 		) : (
-			<CheckApplication home={true} id={id && id} activ={activ} />
+			<CheckApplication
+				assignmentLog={assignmentLog}
+				home={true}
+				product={product && product}
+				id={id && id}
+				activ={activ}
+				usersList={usersList && usersList}
+			/>
 		)
 	) : (
 		loading && (

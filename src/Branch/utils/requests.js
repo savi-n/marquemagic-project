@@ -111,7 +111,7 @@ export const needAction = async (ncStatusManageName, token = userToken) => {
 		{ headers: { Authorization: `Bearer ${token}` } }
 	);
 	const t = await g;
-	console.log(t);
+	return t.data.loanList;
 };
 
 export const getApprovalStatus = async (loanId, token = userToken) => {

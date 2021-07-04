@@ -13,7 +13,17 @@ import {
 	getLoanDocs
 } from '../utils/requests';
 
-export default function SharedCAT({ getCLicker, type, productId, item, lActive, userId, userToken, setClicked }) {
+export default function SharedCAT({
+	getCLicker,
+	type,
+	productId,
+	item,
+	lActive,
+	userId,
+	userToken,
+	setClicked,
+	submitCase
+}) {
 	const { newRequest } = useFetch();
 	const uploadedFiles = useRef([]);
 	const [users, setUsers] = useState(null);
@@ -158,6 +168,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive, 
 						reassignLoan(item.id, lActive === 'Final Sanction');
 						setClicked(true);
 						getCLicker(null);
+						submitCase && submitCase();
 					}}
 				>
 					Submit
@@ -169,6 +180,7 @@ export default function SharedCAT({ getCLicker, type, productId, item, lActive, 
 					onClick={() => {
 						reassignLoan(item.id, 'Rejected');
 						getCLicker(null);
+						submitCase && submitCase();
 					}}
 				>
 					Reject

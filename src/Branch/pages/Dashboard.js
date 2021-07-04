@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { BranchUserContext } from '../../reducer/branchUserReducer';
 
 import '../components/styles/index.scss';
+import { getUsersList } from '../utils/requests';
 // import { getNCStatus } from "../utils/requests";
 
 const Applications = lazy(() => import('../components/Applications'));
@@ -15,8 +16,12 @@ export default function Dashboard(props) {
 
 	const { state } = useContext(BranchUserContext);
 	const history = useHistory();
+	const [usersList, setUsersList] = useState(null);
 
 	useEffect(() => {
+		getUsersList().then(res => {
+			setUsersList(res);
+		});
 		if (!state.userToken) {
 			history.push(`/branch/login`);
 		}
@@ -387,6 +392,7 @@ export default function Dashboard(props) {
 						isIdentifier={isIdentifier}
 						lActive={lActive}
 						setLActive={setLActive}
+						usersList={usersList && usersList}
 					/>
 				)}
 			</Layout>
@@ -398,6 +404,7 @@ export default function Dashboard(props) {
 					getTabData={getTabData}
 					lActive={lActive}
 					isIdentifier={isIdentifier}
+					usersList={usersList && usersList}
 				/>
 			)}
 		</>
