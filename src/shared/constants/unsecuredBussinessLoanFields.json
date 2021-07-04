@@ -1,0 +1,327 @@
+{
+    "bussiness_details": {
+        "label": "Bussiness Details",
+        "data": [
+            {
+                "name": "BusinessName",
+                "placeholder": "Business Name",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "AlphaCharOnly": true
+                },
+                "type": "text",
+                "visibility": true,
+                "default_value": ""
+            },
+            {
+                "name": "BusinessType",
+                "placeholder": "Business Type",
+                "rules": {
+                    "required": true
+                },
+                "type": "select",
+                "visibility": true,
+                "options": [
+                    {
+                        "value": "salaried",
+                        "name": "Salaried"
+                    },
+                    {
+                        "value": "business",
+                        "name": "Business"
+                    }
+                ]
+            },
+            {
+                "name": "BusinessVintage",
+                "placeholder": "Business Vintage",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "AlphaCharOnly": true
+                },
+                "type": "text",
+                "visibility": true,
+                "default_value": ""
+            },
+            {
+                "name": "BusinessIndustry",
+                "placeholder": "Business Industry",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "AlphaCharOnly": true
+                },
+                "type": "text",
+                "visibility": true,
+                "default_value": ""
+            },
+            {
+                "name": "panNumber",
+                "placeholder": "PAN Number",
+                "rules": {
+                    "required": true,
+                    "length": 10
+                },
+                "disabled": true,
+                "mask": {
+                    "CharacterLimit": 10,
+                    "AlphaNumericOnly": true
+                },
+                "type": "text",
+                "visibility": true
+            },
+            {
+                "name": "GSTVerification",
+                "placeholder": "GST Verification",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "AlphaCharOnly": true
+                },
+                "type": "text",
+                "visibility": true,
+                "default_value": ""
+            },
+            {
+                "name": "PAT",
+                "placeholder": "PAT",
+                "rules": {
+                    "required": true
+                },
+                "type": "text",
+                "disabled": true,
+                "visibility": true
+            },
+            {
+                "name": "AnnualTurnover",
+                "placeholder": "Annual Turnover",
+                "type": "text",
+                "rules": {
+                    "required": true,
+                    "minLength": 12
+                },
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 12
+                },
+                "visibility": true
+            }
+        ]
+    },
+    "subsidiary_details": {
+        "label": "Subsidiary Details",
+        "data": [
+            {
+                "name": "SubsidiaryName",
+                "placeholder": "Subsidiary Name",
+                "rules": {
+                    "required": true
+                },
+                "type": "text",
+                "visibility": true
+            },
+            {
+                "name": "BankName",
+                "placeholder": "Bank Name",
+                "type": "text",
+                "visibility": true
+            },
+            {
+                "name": "AccountNumber",
+                "placeholder": "Account Number",
+                "type": "text",
+                "visibility": true
+            },
+            {
+                "name": "Relation ",
+                "placeholder": "Relation ",
+                "options": [
+                    {
+                        "name": "Subsidiary Company",
+                        "value": "Subsidiary Company"
+                    },
+                    {
+                        "name": " Associated",
+                        "value": " Associated"
+                    },
+                    {
+                        "name": " Relative",
+                        "value": " Relative"
+                    },
+                    {
+                        "name": " Holding Company",
+                        "value": " Holding Company"
+                    },
+                    {
+                        "name": " Promoter/Proprietor",
+                        "value": " Promoter/Proprietor"
+                    },
+                    {
+                        "name": " Director/Partner",
+                        "value": " Director/Partner"
+                    },
+                    {
+                        "name": " Other Account",
+                        "value": " Other Account"
+                    },
+                    {
+                        "name": " Other Group Company",
+                        "value": " Other Group Company"
+                    }
+                ],
+                "type": "select",
+                "visibility": true
+            }
+        ]
+    },
+    "loan_details": {
+        "label": "Loan Details",
+        "data": [
+            {
+                "name": "loanAmount",
+                "placeholder": "Required Loan Amount",
+                "rules": {
+                    "required": true
+                },
+                "type": "text",
+                "visibility": true,
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 10
+                },
+                "inrupees": true
+            },
+            {
+                "name": "tenure",
+                "rules": {
+                    "required": true
+                },
+                "placeholder": "Tenure (in months)",
+                "type": "text",
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 3
+                },
+                "visibility": true
+            },
+            {
+                "name": "branchId",
+                "type": "search",
+                "placeholder": "Home branch (for application processing)",
+                "visibility": true,
+                "fetchOnInit": true,
+                "rules": {
+                    "required": true
+                },
+                "options": []
+            },
+            {
+                "name": "vehicle",
+                "type": "search",
+                "placeholder": "Choose Vehicle",
+                "rules": {
+                    "required": true
+                },
+                "fetchOnSearch": true,
+                "visibility": true,
+                "searchKeyAsValue": true,
+                "options": []
+            },
+            {
+                "name": "assetsValue",
+                "placeholder": "Cost of the Vehicle",
+                "type": "text",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 10
+                },
+                "visibility": true,
+                "inrupees": true
+            }
+        ]
+    },
+    "emi_details": {
+        "label": "EMI Details",
+        "data": [
+            {
+                "name": "existing_auto_loan",
+                "placeholder": "Auto Loan Amount",
+                "type": "text",
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 10
+                },
+                "visibility": true,
+                "option": [],
+                "inrupees": true,
+                "subFieldName": "auto_loan_bank_name"
+            },
+            {
+                "name": "existing_personal_loan",
+                "placeholder": "Personal Loan Amount",
+                "type": "text",
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 10
+                },
+                "visibility": true,
+                "option": [],
+                "inrupees": true,
+                "subFieldName": "personal_loan_bank_name"
+            },
+            {
+                "name": "existing_lap_loan",
+                "placeholder": "LAP Amount",
+                "type": "text",
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 10
+                },
+                "visibility": true,
+                "option": [],
+                "inrupees": true,
+                "subFieldName": "lap_loan_bank_name"
+            }
+        ]
+    },
+    "salary_details": {
+        "label": "Salary Details",
+        "data": [
+            {
+                "name": "grossIncome",
+                "placeholder": "Gross Total Income (as per the latest ITR slip)",
+                "type": "text",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 7
+                },
+                "visibility": true
+            },
+            {
+                "name": "netMonthlyIncome",
+                "placeholder": "Net Monthly Income (as per the latest Salary slip)",
+                "type": "text",
+                "rules": {
+                    "required": true
+                },
+                "mask": {
+                    "NumberOnly": true,
+                    "CharacterLimit": 6
+                },
+                "visibility": true
+            }
+        ]
+    }
+}

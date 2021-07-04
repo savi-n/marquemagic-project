@@ -16,7 +16,7 @@ const FieldWrap = styled.div`
 
 const FormWrap = styled.div`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   flex-wrap: wrap;
   gap: 10%;
   margin: 20px 0;
@@ -34,6 +34,7 @@ const ErrorMessage = styled.div`
 
 export default function PersonalDetails({
   preData = {},
+  pageName,
   userType,
   jsonData,
   register,
@@ -41,20 +42,21 @@ export default function PersonalDetails({
 }) {
   const populateValue = (field) => {
     if (!userType && field.disabled) {
-      return preData[field.name] || "";
+      return preData?.[field.name] || "";
     }
 
     if (formState?.values?.[field.name] !== undefined) {
       return formState?.values?.[field.name];
     }
 
-    return preData[field.name] || "";
+    return preData?.[field.name] || "";
   };
 
   return (
     <>
       <H>
-        {userType || "Help us with your"} <span>Personal Details</span>
+        {userType || "Help us with your"}{" "}
+        <span>{pageName || "Personal Details"}</span>
       </H>
       <FormWrap>
         {jsonData &&

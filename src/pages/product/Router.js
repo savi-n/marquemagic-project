@@ -8,9 +8,23 @@ const ProductDetails = lazy(() => import("./productDetails/ProductDetails"));
 const IdentityVerification = lazy(() =>
   import("./identityVerification/IdentityVerification")
 );
-const DocumentUpload = lazy(() => import("./documentUpload/DocumentUpload"));
+
+const BusinessVerification = lazy(() =>
+  import("./bussinessVerification/BussinessVerification")
+);
+
+const DocumentUpload = lazy(() =>
+  import("./documentUpload/LoanDocumentsUpload")
+);
+const CubDocumentUpload = lazy(() =>
+  import("./documentUpload/CubDocumentUpload")
+);
 const PersonalDetails = lazy(() => import("./personalDetails/PersonalDetails"));
 const AddressDetails = lazy(() => import("./addressDetails/AddressDetails"));
+const LoanAddressDetails = lazy(() =>
+  import("./addressDetails/LoanAddressDetails")
+);
+
 const ApplicationSubmitted = lazy(() =>
   import("./applicationSubmitted/ApplicationSubmitted")
 );
@@ -29,11 +43,15 @@ const CoApplicantIncomeDetails = lazy(() =>
 );
 const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
 
+const FormDefaultPage = lazy(() => import("./formPage/FormController"));
+
 const availableRoutes = {
   "product-details": { Component: ProductDetails },
   "identity-verification": { Component: IdentityVerification },
+  "business-verification": { Component: BusinessVerification },
   "personal-details": { protected: true, Component: PersonalDetails },
   "address-details": { protected: true, Component: AddressDetails },
+  "loan-address-details": { protected: true, Component: LoanAddressDetails },
   "two-wheeler-loan-details": {
     protected: true,
     Component: TwoWheelerLoanDetails,
@@ -61,6 +79,7 @@ const availableRoutes = {
   },
   "emi-details": { protected: true, Component: EmiDetails },
   "document-upload": { protected: true, Component: DocumentUpload },
+  "cub-document-upload": { protected: true, Component: CubDocumentUpload },
   "application-submitted": { protected: true, Component: ApplicationSubmitted },
   "guarantor-details": {
     protected: true,
@@ -89,7 +108,13 @@ export default function Router({
   onFlowChange,
   productId,
 }) {
-  const component = availableRoutes[currentFlow];
+  if (!currentFlow) {
+    return <Loading />;
+  }
+
+  const component = availableRoutes[currentFlow] || {
+    Component: FormDefaultPage,
+  };
 
   return (
     <Suspense fallback={<Loading />}>
@@ -106,7 +131,7 @@ export default function Router({
 }
 
 Router.propTypes = {
-  currentFlow: string.isRequired,
+  currentFlow: string,
   productDetails: object,
   onFlowChange: func,
   map: oneOfType([string, object]),
