@@ -3,13 +3,16 @@ import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
 import useForm from "../../../hooks/useForm";
+import useFetch from "../../../hooks/useFetch";
 import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
 import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetails";
 import Button from "../../../components/Button";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { UserContext } from "../../../reducer/userReducer";
+import { AppContext } from "../../../reducer/appReducer";
 import { useToasts } from "../../../components/Toast/ToastProvider";
+import { LOGIN_CREATEUSER } from "../../../_config/app.config";
 
 const Div = styled.div`
   flex: 1;
@@ -30,21 +33,57 @@ export default function PersonalDetailsPage({
   fieldConfig,
 }) {
   const {
+    state: { whiteLabelId },
+  } = useContext(AppContext);
+  const {
     actions: { setCompleted },
   } = useContext(FlowContext);
 
   const {
-    actions: { setUsertypeApplicantData },
+    actions: { setUsertypeApplicantData, setUsertypeBankData },
   } = useContext(FormContext);
 
   const {
-    state: { userBankDetails },
+    state: { userBankDetails, userToken },
+    actions: { setUserDetails, setUserId },
   } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
+  const { newRequest } = useFetch();
 
-  const onSave = (data) => {
+  const onSave = async (data) => {
+    if (!userToken) {
+      const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+        method: "POST",
+        data: {
+          email: data.email,
+          white_label_id: whiteLabelId,
+          source: "Clixcapital",
+          name: data.firstName,
+          mobileNo: data.mobileNo,
+          addrr1: "",
+          addrr2: "",
+        },
+      });
+
+      const userDataRes = userDetailsReq.data;
+
+      const userData = {
+        // userAccountToken: userDetailsReq.accToken,
+        // userDetails: userDetailsReq.userDetails,
+        // userBankDetails: userDetailsReq.cubDetails,
+
+        userToken: userDataRes.token,
+      };
+      setUserId(userDataRes.userId);
+      setUserDetails(userData);
+      setUsertypeBankData({
+        bankId: userDataRes.bankId,
+        branchId: userDataRes.branchId,
+      });
+    }
+
     setUsertypeApplicantData({ ...data, isApplicant: "1" });
     addToast({
       message: "Saved Succesfully",
