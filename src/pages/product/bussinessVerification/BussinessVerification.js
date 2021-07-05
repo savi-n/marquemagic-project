@@ -58,6 +58,7 @@ function formatCompanyData(data) {
     BusinessName: data.company_master_data.company_name,
     Email: data.company_master_data.email_id,
     PancardNumber: "",
+    CIN: data.company_master_data["cin "],
     unformatedData: data,
   };
 }
