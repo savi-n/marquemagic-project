@@ -148,7 +148,7 @@ export default function SearchSelect({
     //   onBlurCallback({ name, searchKey }, "blur");
     //   setSelectedOption({ name: searchKey, value: searchKey });
     // }
-    setSearchKey("");
+    // setSearchKey("");
   };
 
   const onSearchChange = async (event) => {
