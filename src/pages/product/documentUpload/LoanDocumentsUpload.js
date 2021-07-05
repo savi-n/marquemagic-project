@@ -105,20 +105,7 @@ function caseCreationDataFormat(data, companyData) {
       pincode: "DH6 5JJ",
       state: "England",
     },
-    director_details: {
-      director_0: {
-        dfirstname0: "dir",
-        dlastname0: "1",
-        dpancard0: "",
-        crime_check0: null,
-        dcontact0: null,
-        daddress10: "gjhsgduhfgdu",
-        daddress20: "jhgdjfdj",
-        dcity0: "mnbsd",
-        dstate0: "jkbdsf",
-        dpincode0: "571440",
-      },
-    },
+    director_details: companyData.DirectorDetails,
     loan_details: {
       loan_product_id: data.productId,
       white_label_id: companyData.encryptedWhitelabel,

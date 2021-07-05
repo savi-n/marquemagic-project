@@ -54,11 +54,20 @@ const H2 = styled.h2`
 `;
 
 function formatCompanyData(data) {
+  let directors = {};
+
+  for (const [i, dir] of data["directors/signatory_details"].entries()) {
+    directors[`directors_${i}`] = {
+      ddin_no: dir["din/pan"],
+    };
+  }
+
   return {
     BusinessName: data.company_master_data.company_name,
     Email: data.company_master_data.email_id,
     PancardNumber: "",
     CIN: data.company_master_data["cin "],
+    DirectorDetails: directors,
     unformatedData: data,
   };
 }

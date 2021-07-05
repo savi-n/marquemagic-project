@@ -53,7 +53,8 @@ const WHITELABEL_ENCRYPTION_API = `${API_END_POINT}/case-whitelabelEncrypt`;
 const SEARCH_COMPANY_NAME = `${API_END_POINT}/companySearch`;
 
 const ADD_SUBSIDIARY_DETAILS = `${API_END_POINT}/addSubsidiaryDetails`;
-const ADD_BANK_DETAILS = `${API_END_POINT}/addBankDetailsUiux`;
+const ADD_BANK_DETAILS = `${API_END_POINT}/addBankDetailsNew`; // addBankDetailsUiux
+
 const ADD_SHAREHOLDER_DETAILS = `${API_END_POINT}/businessShareholder/create`;
 const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 
