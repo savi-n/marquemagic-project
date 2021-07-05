@@ -88,51 +88,15 @@ export default function SharedCAT({
 	);
 
 	const reconsider = () => (
-		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
-			<section className='h-auto overflow-hidden'>
-				<FileUpload onDrop={handleFileUpload} accept='' />
-			</section>
-			<section className='w-full gap-x-4 flex justify-end'>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Submit
-				</Button>
-				<Button type='red-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Cancel
-				</Button>
-			</section>
-		</section>
+		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'></section>
 	);
 
 	const status = () => (
-		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
-			<section className='h-auto overflow-hidden'>
-				<FileUpload onDrop={handleFileUpload} accept='' />
-			</section>
-			<section className='w-full gap-x-4 flex justify-end'>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Submit
-				</Button>
-				<Button type='red-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Cancel
-				</Button>
-			</section>
-		</section>
+		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'></section>
 	);
 
 	const reopen = () => (
-		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
-			<section className='h-auto overflow-hidden'>
-				<FileUpload onDrop={handleFileUpload} accept='' />
-			</section>
-			<section className='w-full gap-x-4 flex justify-end'>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Submit
-				</Button>
-				<Button type='red-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Cancel
-				</Button>
-			</section>
-		</section>
+		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'></section>
 	);
 
 	const approveReject = () => (
@@ -276,6 +240,7 @@ export default function SharedCAT({
 					size='small'
 					rounded='rfull'
 					onClick={() => {
+						console.log(user);
 						assignUserToLoan(item.id, user && user.id, commen);
 						getCLicker(null);
 					}}

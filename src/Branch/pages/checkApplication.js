@@ -82,16 +82,12 @@ export default function CheckApplication(props) {
 				dlastname: 'Last Name',
 				dpancard: 'Pan Number',
 				ddob: 'DOB',
-				gender: 'Gender',
 				demail: 'Email',
 				dcontact: 'Contact',
 				country_residence: 'Country of Residence',
 				marital_status: 'Maritial Status',
 				residence_status: 'Residence Status',
-				daadhaar: 'Aadhar',
-				dpassport: 'Passport',
-				profession: 'Profession',
-				dvoterid: 'Voter ID'
+				daadhaar: 'Aadhar'
 			},
 			'Address Details': {
 				address1: 'Address 1',
@@ -119,16 +115,12 @@ export default function CheckApplication(props) {
 				dlastname: 'Last Name',
 				dpancard: 'Pan Number',
 				ddob: 'DOB',
-				gender: 'Gender',
 				demail: 'Email',
 				dcontact: 'Contact',
 				country_residence: 'Country of Residence',
 				marital_status: 'Maritial Status',
 				residence_status: 'Residence Status',
-				daadhaar: 'Aadhar',
-				dpassport: 'Passport',
-				profession: 'Profession',
-				dvoterid: 'Voter ID'
+				daadhaar: 'Aadhar'
 			},
 			'Address Details': {
 				address1: 'Address 1',
@@ -251,7 +243,12 @@ export default function CheckApplication(props) {
 																								placeholder={
 																									mapper[e][i][k]
 																								}
-																								defaultValue={j[k]}
+																								defaultValue={
+																									j[k] === 'NULL' ||
+																									j[k] === 'null'
+																										? 'NA'
+																										: j[k]
+																								}
 																							/>
 																						</section>
 																					)
