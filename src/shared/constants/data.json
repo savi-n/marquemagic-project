@@ -618,6 +618,56 @@
 			}
 		},
 		{
+			"name": "EMI Details",
+			"id": "emi-details",
+			"fields": {
+				"emi-details": {
+					"label": "EMI Details",
+					"data": [
+						{
+							"name": "existing_auto_loan",
+							"placeholder": "Auto Loan Amount",
+							"type": "text",
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
+							"visibility": true,
+							"option": [],
+							"inrupees": true,
+							"subFieldName": "auto_loan_bank_name"
+						},
+						{
+							"name": "existing_personal_loan",
+							"placeholder": "Personal Loan Amount",
+							"type": "text",
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
+							"visibility": true,
+							"option": [],
+							"inrupees": true,
+							"subFieldName": "personal_loan_bank_name"
+						},
+						{
+							"name": "existing_lap_loan",
+							"placeholder": "LAP Amount",
+							"type": "text",
+							"mask": {
+								"NumberOnly": true,
+								"CharacterLimit": 10
+							},
+							"visibility": true,
+							"option": [],
+							"inrupees": true,
+							"subFieldName": "lap_loan_bank_name"
+						}
+					]
+				}
+			}
+		},
+		{
 			"name": "Document Upload",
 			"id": "cub-document-upload"
 		},

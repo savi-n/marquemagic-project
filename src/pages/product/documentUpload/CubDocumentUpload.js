@@ -407,6 +407,7 @@ export default function DocumentUpload({
         product_id: productId,
         applicantData: state.user.applicantData,
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
+        emi: state.user?.emi || [],
         ...state.user.bankData,
         // cibilScore: otherUserTypeCibilDetails.cibilScore,
       });

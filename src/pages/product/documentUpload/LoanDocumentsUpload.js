@@ -97,6 +97,7 @@ function caseCreationDataFormat(data, companyData) {
       businesspancardnumber: companyData.PancardNumber,
       crime_check: "Yes",
     },
+    corporateid: companyData.CIN,
     businessaddress: {
       city: "County Durham",
       line1: "1 High Burnigill Cottages",
@@ -104,20 +105,7 @@ function caseCreationDataFormat(data, companyData) {
       pincode: "DH6 5JJ",
       state: "England",
     },
-    director_details: {
-      director_0: {
-        dfirstname0: "dir",
-        dlastname0: "1",
-        dpancard0: "",
-        crime_check0: null,
-        dcontact0: null,
-        daddress10: "gjhsgduhfgdu",
-        daddress20: "jhgdjfdj",
-        dcity0: "mnbsd",
-        dstate0: "jkbdsf",
-        dpincode0: "571440",
-      },
-    },
+    director_details: companyData.DirectorDetails,
     loan_details: {
       loan_product_id: data.productId,
       white_label_id: companyData.encryptedWhitelabel,
@@ -180,6 +168,7 @@ function bankDetailsDataFormat(caseId, data) {
     // subsidiary_name: data['bank-details'].,
     bank_name: data["bank-details"].BankName,
     account_holder_name: data["bank-details"].AccountHolderName,
+    account_type: data["bank-details"].AccountType,
     start_date: data["bank-details"].StartDate,
     end_date: data["bank-details"].EndDate,
     // limit_type: data['bank-details'],

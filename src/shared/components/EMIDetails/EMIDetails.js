@@ -78,10 +78,10 @@ export default function EMIDetails({ jsonData, register, formState }) {
                   <Currency>{field.inrupees ? "(In  ₹ )" : ""}</Currency>
                   <Field>
                     {register({
-                      type: "select",
-                      name: field.subFieldName,
+                      type: "banklist",
+                      name: `${field.name}_bank_name`,
                       placeholder: "Select Bank",
-                      value: formState?.values?.[field.subFieldName],
+                      value: formState?.values?.[`${field.name}_bank_name`],
                     })}
                   </Field>
                   {/* rules: { required: !!formState?.values?.[field.name] }, */}

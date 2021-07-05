@@ -314,15 +314,6 @@ function InputField({ field, onChange, value, unregister }) {
     style: field.style,
   };
 
-  // if (field.name === "BankName") {
-  //   return (
-  //     <BankList
-  //       field={{ ...field, ...fieldProps }}
-  //       onSelectOptionCallback={onChange}
-  //     />
-  //   );
-  // }
-
   switch (type) {
     case "search": {
       return (

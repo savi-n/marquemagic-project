@@ -32,9 +32,9 @@ export default function BankList({ field, onSelectOptionCallback }) {
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
-    if (response && response.status === NC_STATUS_CODE.OK) {
+    if (response) {
       setOptions(
-        response.data.map((bank) => ({
+        response.map((bank) => ({
           value: bank.id.toString(),
           name: bank.bankname,
         }))

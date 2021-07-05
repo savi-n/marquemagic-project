@@ -7,7 +7,6 @@ import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
-import { formatEmiData } from "../../../utils/formatData";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
@@ -42,6 +41,14 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
+const formatEmiData = (formData, fields) => {
+  return fields.map((f) => ({
+    type: f.name,
+    amount: formData[f.name],
+    bank: formData[`${f.name}_bank_name`],
+  }));
+};
+
 EMIDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
@@ -68,7 +75,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
+    const emiData = formatEmiData(data, map.fields[id].data);
 
     setUsertypeEmiData(emiData);
 
@@ -80,27 +87,28 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
 
   const [additionalField, setAdditionalField] = useState([]);
 
-  const onAdd = () => {
-    const newField = {
-      ...fieldConfig.emi_details.data[0],
-      name: `addDed_${additionalField.length + 1}`,
-      placeholder: "Additional Deductions/repayment",
-    };
-    setAdditionalField([...additionalField, newField]);
-  };
+  // const onAdd = () => {
+  //   const newField = {
+  //     ...fieldConfig.emi_details.data[0],
+  //     name: `addDed_${additionalField.length + 1}`,
+  //     placeholder: "Additional Deductions/repayment",
+  //   };
+  //   setAdditionalField([...additionalField, newField]);
+  // };
 
   return (
     <Div>
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={[...fieldConfig.emi_details.data, ...additionalField]}
+        jsonData={map.fields[id].data}
+        // {[...fieldConfig.emi_details.data, ...additionalField]}
       />
 
-      <Wrapper>
+      {/* <Wrapper>
         <RoundButton onClick={onAdd}>+</RoundButton> click to add additional
         deductions/repayment obligations
-      </Wrapper>
+      </Wrapper> */}
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
