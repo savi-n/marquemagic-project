@@ -109,7 +109,12 @@ const AppLayout = () => {
         <GlobalStyle />
         {!window.location.href.includes("branch") && (
           <HeaderWrapper>
-            <Header logo={response.permission.logo} />
+            <Header
+              logo={response.permission.logo}
+              openAccount={
+                response?.permission?.color_theme_react?.openAccount?.status
+              }
+            />
           </HeaderWrapper>
         )}
         <Div>
