@@ -101,31 +101,35 @@ const AppLayout = () => {
     }
   }, [response]);
 
-	return loading ? (
-		<Loading />
-	) : (
-		response && (
-			<ThemeProvider theme={response.permission.color_theme_react}>
-				<GlobalStyle />
-				{!window.location.href.includes('branch') && (
-					<HeaderWrapper>
-						<Header logo={response.permission.logo} />
-					</HeaderWrapper>
-				)}
-				<Div>
-					<BrowserRouter basename={`${APP_DOMAIN}`}>
-						<Suspense fallback={<Loading />}>
-							<Switch>
-								<Route path='/branch' manager={true} component={BranchUserContent} />
-								<Route path='/applyloan' component={ApplyLoanContent} />
-								<Route render={() => <Redirect to='/applyloan' />} />
-							</Switch>
-						</Suspense>
-					</BrowserRouter>
-				</Div>
-			</ThemeProvider>
-		)
-	);
+  return loading ? (
+    <Loading />
+  ) : (
+    response && (
+      <ThemeProvider theme={response.permission.color_theme_react}>
+        <GlobalStyle />
+        {!window.location.href.includes("branch") && (
+          <HeaderWrapper>
+            <Header logo={response.permission.logo} />
+          </HeaderWrapper>
+        )}
+        <Div>
+          <BrowserRouter basename={`${APP_DOMAIN}`}>
+            <Suspense fallback={<Loading />}>
+              <Switch>
+                <Route
+                  path="/branch"
+                  manager={true}
+                  component={BranchUserContent}
+                />
+                <Route path="/applyloan" component={ApplyLoanContent} />
+                <Route render={() => <Redirect to="/applyloan" />} />
+              </Switch>
+            </Suspense>
+          </BrowserRouter>
+        </Div>
+      </ThemeProvider>
+    )
+  );
 };
 
 export default AppLayout;
