@@ -114,7 +114,7 @@ export default function DocumentUpload({
   } = useContext(AppContext);
 
   const {
-    state: { userDetails, userToken },
+    state: { userId, userToken },
   } = useContext(UserContext);
 
   const {
@@ -530,7 +530,7 @@ export default function DocumentUpload({
             onDrop={handleFileUpload}
             accept=""
             upload={{
-              url: DOCS_UPLOAD_URL({ userId: userDetails?.id || "" }),
+              url: DOCS_UPLOAD_URL({ userId: userId || "" }),
               header: {
                 Authorization: `Bearer ${userToken ?? ""}`,
               },

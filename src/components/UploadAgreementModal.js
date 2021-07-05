@@ -16,7 +16,7 @@ const Div = styled.div`
 
 export default function UploadAgreementModal({ onClose, onDone, name }) {
   const {
-    state: { userDetails, userToken },
+    state: { userId, userToken },
   } = useContext(UserContext);
 
   const [agreementFiles, setAgreementFiles] = useState([]);
@@ -37,7 +37,7 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
         onDrop={handleFileUpload}
         accept=""
         upload={{
-          url: DOCS_UPLOAD_URL({ userId: userDetails.id }),
+          url: DOCS_UPLOAD_URL({ userId }),
           header: {
             Authorization: `Bearer ${userToken}`,
           },
