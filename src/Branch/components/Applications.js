@@ -45,7 +45,6 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 	const submitCase = () => {
 		setLoading(true);
 		Object.keys(mapp).map(e => {
-			console.log('ff');
 			if (e === lActive) {
 				getCase(mapp[e]).then(res => {
 					setLoading(false);
