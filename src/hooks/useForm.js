@@ -120,6 +120,22 @@ export default function useForm() {
     submitCount: 0,
   });
 
+  useEffect(() => {
+    return () => {
+      console.log("useHook Unmount");
+      fieldsRef.current = {};
+      valuesRef.current = {};
+      touchedRef.current = {};
+      errorsRef.current = {};
+      validRef.current = {};
+      submitRef.current = {
+        isSubmitting: false,
+        isSubmited: false,
+        submitCount: 0,
+      };
+    };
+  }, []);
+
   const [, updateFormState] = useState(uuidv4());
 
   const checkValidity = (name) => {
