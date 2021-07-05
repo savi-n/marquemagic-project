@@ -164,7 +164,7 @@ export default function CardDetails({
 			<section className='flex justify-between'>
 				<section className='flex flex-col gap-y-4 w-full z-10'>
 					<section className='flex items-center items-center justify-between'>
-						<section className='flex flex-col'>
+						<section className='flex flex-col w-1/2'>
 							<small>{item.businessname || 'Sample Case'}</small>
 							<span>
 								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
@@ -174,7 +174,7 @@ export default function CardDetails({
 								₹ <span className='text-lg'>{item.net_monthly_income || '80000'}</span> Monthly Income
 							</small>
 						</section>
-						<section className='flex flex-col items-end gap-y-2'>
+						<section className='flex flex-col items-end gap-y-2 w-1/2'>
 							{label
 								? getBMapper(label)[0].data.map(e => (
 										<Button
