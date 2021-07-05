@@ -227,17 +227,16 @@ export default function CardDetails({
 												item.assignmentLog
 													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
 													: setAssignmentLog && setAssignmentLog(null);
-												e === 'Pre-Eligibility' ||
-													(e === 'Eligibility Details' && setViewLoan(true));
-												e === 'Pre-Eligibility' ||
-													(e === 'Eligibility Details' && setId(item.id));
-												e === 'Pre-Eligibility' ||
-													(e === 'Eligibility Details' &&
-														setActiv(
-															e === 'Eligibility Details'
-																? 'Eligibility Data'
-																: 'Pre-Eligibility Details'
-														));
+												(e === 'Pre-Eligibility' || e === 'Eligibility Details') &&
+													setViewLoan(true);
+												(e === 'Pre-Eligibility' || e === 'Eligibility Details') &&
+													setId(item.id);
+												(e === 'Pre-Eligibility' || e === 'Eligibility Details') &&
+													setActiv(
+														e === 'Eligibility Details'
+															? 'Eligibility Data'
+															: 'Pre-Eligibility Details'
+													);
 											}}
 										>
 											{e}
