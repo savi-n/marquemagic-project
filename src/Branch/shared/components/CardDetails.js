@@ -174,7 +174,7 @@ export default function CardDetails({
 								₹ <span className='text-lg'>{item.net_monthly_income || '80000'}</span> Monthly Income
 							</small>
 						</section>
-						<section className='flex flex-col items-end gap-y-2 w-1/2'>
+						<section className='flex flex-col items-end gap-y-2'>
 							{label
 								? getBMapper(label)[0].data.map(e => (
 										<Button
