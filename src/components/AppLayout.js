@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { useEffect, useState, useContext, Suspense, lazy } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
-import { BrowserRouter, Route, Switch, Redirect, useHistory } from 'react-router-dom';
-=======
 import { useEffect, useState, useContext, Suspense, lazy } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
->>>>>>> ba1035020077a700e844f3345d6d6cb5a641b591
 
 import GlobalStyle from "../components/Styles/GlobalStyles";
 import Header from "./Header";
@@ -107,31 +101,35 @@ const AppLayout = () => {
     }
   }, [response]);
 
-	return loading ? (
-		<Loading />
-	) : (
-		response && (
-			<ThemeProvider theme={response.permission.color_theme_react}>
-				<GlobalStyle />
-				{!window.location.href.includes('branch') && (
-					<HeaderWrapper>
-						<Header logo={response.permission.logo} />
-					</HeaderWrapper>
-				)}
-				<Div>
-					<BrowserRouter basename={`${APP_DOMAIN}`}>
-						<Suspense fallback={<Loading />}>
-							<Switch>
-								<Route path='/branch' manager={true} component={BranchUserContent} />
-								<Route path='/applyloan' component={ApplyLoanContent} />
-								<Route render={() => <Redirect to='/applyloan' />} />
-							</Switch>
-						</Suspense>
-					</BrowserRouter>
-				</Div>
-			</ThemeProvider>
-		)
-	);
+  return loading ? (
+    <Loading />
+  ) : (
+    response && (
+      <ThemeProvider theme={response.permission.color_theme_react}>
+        <GlobalStyle />
+        {!window.location.href.includes("branch") && (
+          <HeaderWrapper>
+            <Header logo={response.permission.logo} />
+          </HeaderWrapper>
+        )}
+        <Div>
+          <BrowserRouter basename={`${APP_DOMAIN}`}>
+            <Suspense fallback={<Loading />}>
+              <Switch>
+                <Route
+                  path="/branch"
+                  manager={true}
+                  component={BranchUserContent}
+                />
+                <Route path="/applyloan" component={ApplyLoanContent} />
+                <Route render={() => <Redirect to="/applyloan" />} />
+              </Switch>
+            </Suspense>
+          </BrowserRouter>
+        </Div>
+      </ThemeProvider>
+    )
+  );
 };
 
 export default AppLayout;
