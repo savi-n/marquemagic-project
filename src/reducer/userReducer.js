@@ -72,6 +72,7 @@ function reducer(state, action) {
     case actionTypes.SET_USER_DETAILS: {
       return {
         ...state,
+        ...action.data,
         userDetails: action.data.userDetails,
         userBankDetails: action.data.userBankDetails,
         userAccountToken: action.data.userAccountToken,

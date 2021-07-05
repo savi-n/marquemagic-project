@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
 import SearchSelect from "../components/SearchSelect";
+import BankList from "../components/inputs/BankList";
 import Pincode from "../components/inputs/PinCode";
 
 function required(value) {
@@ -313,6 +314,15 @@ function InputField({ field, onChange, value, unregister }) {
     style: field.style,
   };
 
+  // if (field.name === "BankName") {
+  //   return (
+  //     <BankList
+  //       field={{ ...field, ...fieldProps }}
+  //       onSelectOptionCallback={onChange}
+  //     />
+  //   );
+  // }
+
   switch (type) {
     case "search": {
       return (
@@ -345,6 +355,14 @@ function InputField({ field, onChange, value, unregister }) {
 
     case "pincode": {
       return <Pincode {...{ ...field, ...fieldProps }} />;
+    }
+    case "banklist": {
+      return (
+        <BankList
+          field={{ ...field, ...fieldProps }}
+          onSelectOptionCallback={onChange}
+        />
+      );
     }
     default: {
       return <Input type={type} {...fieldProps} />;
