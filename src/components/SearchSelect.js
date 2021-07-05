@@ -107,7 +107,7 @@ export default function SearchSelect({
   });
 
   useEffect(() => {
-    setSelectOptions(options);
+    if (options.length) setSelectOptions(options);
   }, [options]);
 
   useEffect(() => {

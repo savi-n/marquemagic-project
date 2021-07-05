@@ -91,14 +91,14 @@ export default function LoanDetails({
   uploadedDocs = {},
 }) {
   const {
-    state: { userToken },
+    state: { bankId, userToken },
   } = useContext(UserContext);
 
   const { newRequest } = useFetch();
 
   const getBranchOptions = async () => {
     const opitionalDataReq = await newRequest(
-      SEARCH_BANK_BRANCH_LIST({ bankId: 32 }),
+      SEARCH_BANK_BRANCH_LIST({ bankId }),
       {},
       {
         Authorization: `Bearer ${userToken}`,
