@@ -107,6 +107,10 @@ export default function SearchSelect({
   });
 
   useEffect(() => {
+    if (options.length) setSelectOptions(options);
+  }, [options]);
+
+  useEffect(() => {
     async function fetchOption() {
       setFetching(true);
       const options = await fetchOptionsFunc();

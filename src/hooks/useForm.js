@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
 import SearchSelect from "../components/SearchSelect";
+import BankList from "../components/inputs/BankList";
 import Pincode from "../components/inputs/PinCode";
 
 function required(value) {
@@ -119,6 +120,22 @@ export default function useForm() {
     isSubmited: false,
     submitCount: 0,
   });
+
+  useEffect(() => {
+    return () => {
+      console.log("useHook Unmount");
+      fieldsRef.current = {};
+      valuesRef.current = {};
+      touchedRef.current = {};
+      errorsRef.current = {};
+      validRef.current = {};
+      submitRef.current = {
+        isSubmitting: false,
+        isSubmited: false,
+        submitCount: 0,
+      };
+    };
+  }, []);
 
   const [, updateFormState] = useState(uuidv4());
 
@@ -329,6 +346,14 @@ function InputField({ field, onChange, value, unregister }) {
 
     case "pincode": {
       return <Pincode {...{ ...field, ...fieldProps }} />;
+    }
+    case "banklist": {
+      return (
+        <BankList
+          field={{ ...field, ...fieldProps }}
+          onSelectOptionCallback={onChange}
+        />
+      );
     }
     default: {
       return <Input type={type} {...fieldProps} />;

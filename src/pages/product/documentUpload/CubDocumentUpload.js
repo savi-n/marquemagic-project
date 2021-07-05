@@ -114,7 +114,7 @@ export default function DocumentUpload({
   } = useContext(AppContext);
 
   const {
-    state: { userDetails, userToken },
+    state: { userId, userToken },
   } = useContext(UserContext);
 
   const {
@@ -407,6 +407,7 @@ export default function DocumentUpload({
         product_id: productId,
         applicantData: state.user.applicantData,
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
+        emi: state.user?.emi || [],
         ...state.user.bankData,
         // cibilScore: otherUserTypeCibilDetails.cibilScore,
       });
@@ -530,7 +531,7 @@ export default function DocumentUpload({
             onDrop={handleFileUpload}
             accept=""
             upload={{
-              url: DOCS_UPLOAD_URL({ userId: userDetails?.id || "" }),
+              url: DOCS_UPLOAD_URL({ userId: userId || "" }),
               header: {
                 Authorization: `Bearer ${userToken ?? ""}`,
               },

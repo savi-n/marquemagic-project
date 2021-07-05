@@ -73,7 +73,8 @@ export default function PersonalDetailsPage({
         // userAccountToken: userDetailsReq.accToken,
         // userDetails: userDetailsReq.userDetails,
         // userBankDetails: userDetailsReq.cubDetails,
-
+        bankId: userDataRes.bankId,
+        branchId: userDataRes.branchId,
         userToken: userDataRes.token,
       };
       setUserId(userDataRes.userId);
