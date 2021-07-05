@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import useFetch from "../../hooks/useFetch";
@@ -10,10 +10,31 @@ const Input = styled.input`
   width: 100%;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
+  position: relative;
+`;
+
+const Div = styled.div`
+  position: relative;
+  overflow: hidden;
+`;
+
+const Label = styled.label`
+  position: absolute;
+  background: rgba(0, 0, 0, 0.3);
+  top: 0%;
+  bottom: 0%;
+  left: 0%;
+  right: 0%;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export default function Pincode(props) {
   const { newRequest } = useFetch();
+
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (props.value) {
@@ -29,6 +50,7 @@ export default function Pincode(props) {
     props.onChange(event);
 
     if (value.length === props.makeApiCall) {
+      setProcessing(true);
       const response = await newRequest(
         PINCODE_ADRRESS_FETCH({ pinCode: value }),
         {}
@@ -43,8 +65,19 @@ export default function Pincode(props) {
         const target = { name: k, value: pincodeData[v][0] };
         props.onChange({ target });
       }
+      setProcessing(false);
     }
   };
 
-  return <Input type={"text"} {...props} onChange={onPinChange} />;
+  return (
+    <Div>
+      <Input
+        type={"text"}
+        {...props}
+        onChange={onPinChange}
+        processing={processing}
+      />
+      {processing && <Label>Fetching...</Label>}
+    </Div>
+  );
 }
