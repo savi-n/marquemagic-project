@@ -57,7 +57,7 @@ const ADD_BANK_DETAILS = `${API_END_POINT}/addBankDetailsUiux`;
 const ADD_SHAREHOLDER_DETAILS = `${API_END_POINT}/businessShareholder/create`;
 const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 
-const BANK_LIST_FETCH = `${API_END_POINT}/bankList`;
+const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 
 const NC_STATUS_CODE = {
   OK: "ok",
