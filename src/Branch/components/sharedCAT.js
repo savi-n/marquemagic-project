@@ -240,7 +240,6 @@ export default function SharedCAT({
 					size='small'
 					rounded='rfull'
 					onClick={() => {
-						console.log(user);
 						assignUserToLoan(item.id, user && user.id, commen);
 						getCLicker(null);
 					}}
