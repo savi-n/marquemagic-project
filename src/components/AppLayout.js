@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { useEffect, useState, useContext, Suspense, lazy } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
-import { BrowserRouter, Route, Switch, Redirect, useHistory } from 'react-router-dom';
-=======
 import { useEffect, useState, useContext, Suspense, lazy } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
->>>>>>> ba1035020077a700e844f3345d6d6cb5a641b591
 
 import GlobalStyle from "../components/Styles/GlobalStyles";
 import Header from "./Header";
