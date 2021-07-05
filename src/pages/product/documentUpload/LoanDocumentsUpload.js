@@ -197,16 +197,28 @@ function shareHolderDataFormat(caseId, data) {
 function refereneceDataFormat(loanId, data) {
   const formatedData = {
     loanId: loanId,
-    loanReferenceData: {
-      ref_name: data["reference-details"].Name,
-      ref_email: data["reference-details"].ReferenceEmail,
-      ref_contact: data["reference-details"]["Contact number"],
-      // ref_state :  data["reference-details"],
-      // ref_city :  data["reference-details"],
-      ref_pincode: data["reference-details"].Pincode,
-      // ref_locality :  data["reference-details"],
-      // reference_truecaller_info : data["reference-details"],
-    },
+    loanReferenceData: [
+      {
+        ref_name: data["reference-details"].Name0,
+        ref_email: data["reference-details"].ReferenceEmail0,
+        ref_contact: data["reference-details"]["Contact number0"],
+        ref_state: "null",
+        ref_city: "null",
+        ref_pincode: data["reference-details"].Pincode0,
+        ref_locality: "null",
+        reference_truecaller_info: "",
+      },
+      {
+        ref_name: data["reference-details"].Name1,
+        ref_email: data["reference-details"].ReferenceEmail1,
+        ref_contact: data["reference-details"]["Contact number1"],
+        ref_state: "null",
+        ref_city: "null",
+        ref_pincode: data["reference-details"].Pincode1,
+        ref_locality: "null",
+        reference_truecaller_info: "",
+      },
+    ],
   };
 
   return formatedData;
@@ -398,7 +410,7 @@ export default function DocumentUpload({
   const addReferenceDetailsReq = async (loanId) => {
     try {
       const caseReq = await newRequest(
-        ADD_SHAREHOLDER_DETAILS,
+        ADD_REFENCE_DETAILS,
         {
           method: "POST",
           data: refereneceDataFormat(loanId, state),

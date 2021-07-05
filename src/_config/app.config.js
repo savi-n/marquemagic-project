@@ -60,6 +60,8 @@ const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 
+const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
+
 const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
@@ -112,5 +114,6 @@ export {
   ADD_SHAREHOLDER_DETAILS,
   ADD_REFENCE_DETAILS,
   BANK_LIST_FETCH,
+  DOCTYPES_FETCH,
   SECRET,
 };
