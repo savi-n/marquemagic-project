@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 
@@ -40,6 +40,9 @@ const ErrorMessage = styled.div`
 `;
 
 export default function Login() {
+	useEffect(() => {
+		localStorage.removeItem('token');
+	}, []);
 	const { register, handleSubmit, formState } = useForm();
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();

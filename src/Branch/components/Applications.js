@@ -11,7 +11,7 @@ import Button from '../shared/components/Button';
 import CheckApplication from '../pages/checkApplication';
 import SkeletonLoader from '../shared/components/SkeletonLoader';
 
-export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier }) {
+export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier, usersList }) {
 	const [data, setData] = useState(null);
 	const mapp = {
 		'Pending Applications': 'Pending Applications',
@@ -23,6 +23,9 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 	};
 
 	const [loading, setLoading] = useState(false);
+	const [alert, setAlert] = useState(null);
+	const [product, setProduct] = useState(null);
+	const [assignmentLog, setAssignmentLog] = useState(null);
 
 	useEffect(async () => {
 		setLoading(true);
@@ -32,10 +35,26 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 					setLoading(false);
 					setData(res);
 				});
-				needAction(JSON.stringify(['Branch Review', 'Pending Applications'])); // @todo - make it dynamic
+				needAction(JSON.stringify(['Branch Review', 'Pending Applications'])).then(res => {
+					setAlert(res.length);
+				});
 			}
 		});
 	}, []);
+
+	const submitCase = () => {
+		setLoading(true);
+		Object.keys(mapp).map(e => {
+			console.log('ff');
+			if (e === lActive) {
+				getCase(mapp[e]).then(res => {
+					setLoading(false);
+					setData(res);
+				});
+			}
+		});
+	};
+
 	const [clicked, setClicked] = useState(false);
 
 	const getTabs = item => (
@@ -97,7 +116,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 				</section>
 			</section>
 			<section
-				className='absolute right-0 px-24 scroll'
+				className='absolute right-0 px-24 scroll flex flex-col'
 				style={{
 					width: '100%',
 					maxWidth: 'calc(100vw - 20%)',
@@ -105,11 +124,15 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 					overflow: 'scroll'
 				}}
 			>
-				{/* <section className='absolute top-32 flex self-end w-full'>
-					<Button rounded='rfull' type='gray-light' className='btn'>
-						Need Attention <span className='mx-1 bg-red-500 rounded-full px-2'>7</span>
+				<section
+					style={{ boxShadow: '0 0 10px 0px #98AFC7' }}
+					className='absolute top-32 flex self-end rounded-full self-end'
+				>
+					<Button rounded='rfull' type='gray-white' className='btn'>
+						<small>Need Attention</small>{' '}
+						<span className='mx-1 bg-red-500 rounded-full px-2 text-white'>{alert !== null && alert}</span>
 					</Button>
-				</section> */}
+				</section>
 				<section className='top-40 w-full absolute flex gap-x-10 items-center'>
 					<section className='w-1/2 flex items-center mt-10'>
 						<input
@@ -152,6 +175,9 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 									setId={setId}
 									setActiv={setActiv}
 									setClicked={setClicked}
+									setProduct={setProduct}
+									setAssignmentLog={setAssignmentLog}
+									submitCase={submitCase}
 								/>
 						  ))
 						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}
@@ -160,6 +186,12 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 			</section>
 		</section>
 	) : (
-		<CheckApplication id={id && id} activ={activ} />
+		<CheckApplication
+			usersList={usersList && usersList}
+			assignmentLog={assignmentLog}
+			product={product && product}
+			id={id && id}
+			activ={activ}
+		/>
 	);
 }

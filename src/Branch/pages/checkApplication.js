@@ -69,6 +69,7 @@ export default function CheckApplication(props) {
 				'Document Details': getDocDetails(data),
 				'Security Details': 'No Data',
 				'Pre-Eligibility Details': getPreEligibleData(data),
+				'Eligibility Data': getEligibileData(data),
 				'Business Data': getBusinessData(data)
 			};
 		}
@@ -143,7 +144,7 @@ export default function CheckApplication(props) {
 		'Pre-Eligibility Details': {
 			'Pre-Eligible Details': {
 				roi: 'ROI',
-				case0: 'Eligible Amount'
+				minimumPreEligiblity: 'Eligible Amount'
 			}
 		},
 		'Business Data': {
@@ -156,6 +157,12 @@ export default function CheckApplication(props) {
 				businessstartdate: 'Business Start Date',
 				gstin: 'GSTIN',
 				businessindustry: 'Business Industry'
+			}
+		},
+		'Eligibility Data': {
+			'Eligibility Details': {
+				dscr: 'DSCR',
+				financial_amt: 'Final Amount'
 			}
 		}
 	};
@@ -175,10 +182,13 @@ export default function CheckApplication(props) {
 	const [message, setMessage] = useState(false);
 
 	const clickSub = () => {
-		setMessage(true);
-		setTimeout(() => {
-			setMessage(false);
-		}, 4000);
+		if (!disabled) {
+			setMessage(true);
+			setDisabled(true);
+			setTimeout(() => {
+				setMessage(false);
+			}, 4000);
+		}
 	};
 
 	return (
@@ -197,7 +207,7 @@ export default function CheckApplication(props) {
 				}}
 				className={`scroll absolute bg-blue-700 w-1/5 py-16 flex flex-col bottom-0 ${props.home && '-mx-10'}`}
 			>
-				<span className='text-white font-medium text-xl pl-4 pb-6'>Application Details</span>
+				<span className='text-white font-medium text-xl pl-4 pb-6'>{props.product}</span>
 				<section>{data && tabs.map(e => getTabs(e))}</section>
 			</section>
 			<section
@@ -221,26 +231,33 @@ export default function CheckApplication(props) {
 													<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
 
 													<section className='flex grid grid-cols-2 gap-y-4 gap-x-20'>
-														{d()[e].map(j =>
-															Object.keys(j).map(k =>
-																Object.keys(mapper[e][i]).map(
-																	l =>
-																		l === k && (
-																			<section className='flex space-evenly items-center'>
-																				<label className='w-1/2'>
-																					{mapper[e][i][k]}
-																				</label>
-																				<input
-																					className='rounded-lg p-4 border'
-																					disabled={disabled}
-																					placeholder={mapper[e][i][k]}
-																					defaultValue={j[k]}
-																				/>
-																			</section>
-																		)
-																)
-															)
-														)}
+														{d()[e] &&
+															d()[e].map(
+																j =>
+																	j &&
+																	Object.keys(j).map(
+																		k =>
+																			mapper[e][i] &&
+																			Object.keys(mapper[e][i]).map(
+																				l =>
+																					l === k && (
+																						<section className='flex space-evenly items-center'>
+																							<label className='w-1/2'>
+																								{mapper[e][i][k]}
+																							</label>
+																							<input
+																								className='rounded-lg p-4 border'
+																								disabled={disabled}
+																								placeholder={
+																									mapper[e][i][k]
+																								}
+																								defaultValue={j[k]}
+																							/>
+																						</section>
+																					)
+																			)
+																	)
+															)}
 													</section>
 												</section>
 											))}
@@ -250,56 +267,67 @@ export default function CheckApplication(props) {
 										</>
 									)}
 
-									{e === sec.sec_2 &&
-										d()[e].map(e => e === false) &&
-										d()[e][0] === false &&
-										!coApplicant && (
-											<section className='flex gap-x-8 items-center'>
-												No Co-Applicant for this case
-											</section>
-										)}
-									{e === sec.sec_2 && d()[e].length > 1 && (
+									{e === sec.sec_2 && d()[e].length > 1 ? (
 										<section>
 											{Object.keys(mapper[e]).map(i => (
 												<section>
-													{d()[e].map(
-														j =>
-															j !== false && (
-																<section className='flex grid grid-cols-2 gap-y-4 gap-x-20'>
-																	<p className='text-blue-700 font-medium text-xl pb-8'>
-																		{i}
-																		{console.log(d()[e])}
-																	</p>
+													{d()[e] &&
+														d()[e].map(
+															j =>
+																j !== false && (
+																	<section className='flex grid grid-cols-2 gap-y-4 gap-x-20'>
+																		<p className='text-blue-700 font-medium text-xl pb-8'>
+																			{i}
+																		</p>
 
-																	{Object.keys(j).map(k =>
-																		Object.keys(mapper[e][i]).map(
-																			l =>
-																				l === k && (
-																					<section className='flex space-evenly items-center'>
-																						<label className='w-1/2'>
-																							{mapper[e][i][k]}
-																						</label>
-																						<input
-																							className='rounded-lg p-4 border'
-																							disabled={disabled}
-																							placeholder={
-																								mapper[e][i][k]
-																							}
-																							defaultValue={j[k]}
-																						/>
-																					</section>
-																				)
-																		)
-																	)}
-																</section>
-															)
-													)}
+																		{j &&
+																			Object.keys(j).map(
+																				k =>
+																					mapper[e][i] &&
+																					Object.keys(mapper[e][i]).map(
+																						l =>
+																							l === k && (
+																								<section className='flex space-evenly items-center'>
+																									<label className='w-1/2'>
+																										{
+																											mapper[e][
+																												i
+																											][k]
+																										}
+																									</label>
+																									<input
+																										className='rounded-lg p-4 border'
+																										disabled={
+																											disabled
+																										}
+																										placeholder={
+																											mapper[e][
+																												i
+																											][k]
+																										}
+																										defaultValue={
+																											j[k]
+																										}
+																									/>
+																								</section>
+																							)
+																					)
+																			)}
+																	</section>
+																)
+														)}
 												</section>
 											))}
 											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
 												Submit
 											</Button>
 										</section>
+									) : (
+										e === sec.sec_2 && (
+											<section className='flex gap-x-8 items-center'>
+												No Co-Applicant for this case
+											</section>
+										)
 									)}
 
 									{e === sec.sec_3 && (
@@ -310,14 +338,17 @@ export default function CheckApplication(props) {
 												</p>
 												<FileUpload />
 												<section className='flex gap-x-4'>
-													{d()[e].map((j, idx) => (
-														<Button
-															type='blue-light'
-															onClick={() => viewDocument(j.loan, j.user_id, j.doc_name)}
-														>
-															Document {idx + 1}
-														</Button>
-													))}
+													{d()[e] &&
+														d()[e].map((j, idx) => (
+															<Button
+																type='blue-light'
+																onClick={() =>
+																	viewDocument(j.loan, j.user_id, j.doc_name)
+																}
+															>
+																Document {idx + 1}
+															</Button>
+														))}
 												</section>
 											</section>
 											{coApplicant && (
@@ -339,71 +370,103 @@ export default function CheckApplication(props) {
 										</section>
 									)}
 									{e === sec.sec_5 && (
-										<section>
-											{Object.keys(mapper[e]).map(i => (
-												<section>
-													<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
-													{Object.keys(d()[e]).map(k =>
-														Object.keys(mapper[e][i]).map(
-															l =>
-																l === k && (
-																	<section className='flex space-evenly py-2 items-center'>
-																		<label className='w-1/2'>
-																			{mapper[e][i][k]}
-																		</label>
-																		<input
-																			className='rounded-lg p-4 border'
-																			disabled={disabled}
-																			placeholder={mapper[e][i][k]}
-																			defaultValue={d()[e][k]}
-																		/>
-																	</section>
-																)
-														)
-													)}
-													<section className='flex space-evenly py-2 items-center'>
-														<label className='w-1/2'>Loan Amount</label>
-														<input
-															className='rounded-lg p-4 border'
-															disabled={disabled}
-															defaultValue={data.loan_price}
-														/>
+										<section className='w-full flex'>
+											<section className='w-1/2'>
+												{Object.keys(mapper[e]).map(i => (
+													<section>
+														<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
+														{d()[e] &&
+															Object.keys(d()[e]).map(
+																k =>
+																	mapper[e][i] &&
+																	Object.keys(mapper[e][i]).map(
+																		l =>
+																			l === k && (
+																				<section className='flex space-evenly py-2 items-center'>
+																					<label className='w-1/2'>
+																						{mapper[e][i][k]}
+																					</label>
+																					<input
+																						className='rounded-lg p-4 border'
+																						disabled={disabled}
+																						placeholder={mapper[e][i][k]}
+																						defaultValue={d()[e][k]}
+																					/>
+																				</section>
+																			)
+																	)
+															)}
+														<section className='flex space-evenly py-2 items-center'>
+															<label className='w-1/2'>Loan Amount</label>
+															<input
+																className='rounded-lg p-4 border'
+																disabled={disabled}
+																defaultValue={data.loan_price}
+															/>
+														</section>
 													</section>
-												</section>
-											))}
-											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
-												Submit
-											</Button>
+												))}
+												<Button
+													onClick={() => clickSub()}
+													type='blue'
+													rounded='rfull'
+													size='small'
+												>
+													Submit
+												</Button>
+											</section>
+											<section className='w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6'>
+												<p className='text-xl font-medium'>Comments</p>
+												{props.assignmentLog && (
+													<section className='bg-white flex flex-col gap-y-6 p-2 rounded-lg'>
+														<span className='text-xs'>
+															By:
+															{
+																props.usersList.data.userList.filter(
+																	e => e.id === props.assignmentLog.userData.id
+																)[0]?.name
+															}
+														</span>
+														{JSON.parse(props.assignmentLog.remarks).comments}
+														<span className='text-xs text-blue-700'>
+															{props.assignmentLog.ints}
+														</span>
+													</section>
+												)}
+											</section>
 										</section>
 									)}
 									{e === sec.sec_6 && (
 										<section>
-											{console.log(e)}
 											{Object.keys(mapper[e]).map(i => (
 												<section>
 													<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
-													{Object.keys(d()[e]).map(k =>
-														Object.keys(mapper[e][i]).map(
-															l =>
-																l === k && (
-																	<section className='flex space-evenly py-2 items-center'>
-																		<label className='w-1/2'>
-																			{mapper[e][i][k]}
-																		</label>
-																		<input
-																			className='rounded-lg p-4 border'
-																			disabled={disabled}
-																			placeholder={mapper[e][i][k]}
-																			defaultValue={
-																				mapper[e][i][k] !== 'Business Industry'
-																					? d()[e][k]
-																					: d()[e][k]['IndustryName']
-																			}
-																		/>
-																	</section>
+													{d()[e] &&
+														Object.keys(d()[e]).map(
+															k =>
+																mapper[e][i] &&
+																Object.keys(mapper[e][i]).map(
+																	l =>
+																		l === k && (
+																			<section className='flex space-evenly py-2 items-center'>
+																				<label className='w-1/2'>
+																					{mapper[e][i][k]}
+																				</label>
+																				<input
+																					className='rounded-lg p-4 border'
+																					disabled={disabled}
+																					placeholder={mapper[e][i][k]}
+																					defaultValue={
+																						mapper[e][i][k] !==
+																						'Business Industry'
+																							? d()[e][k]
+																							: d()[e][k]['IndustryName']
+																					}
+																				/>
+																			</section>
+																		)
 																)
-														)
-													)}
+														)}
 												</section>
 											))}
 											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
