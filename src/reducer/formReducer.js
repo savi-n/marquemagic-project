@@ -203,16 +203,16 @@ function reducer(state, action) {
     }
 
     case actionTypes.SET_USERTYPE_EMI_DATA: {
-      const applicantData = {
-        ...(state[action.userType]?.applicantData || {}),
-        ...action.emiData,
-      };
+      // const applicantData = {
+      //   ...(state[action.userType]?.applicantData || {}),
+      //   emi: action.emiData,
+      // };
 
       return {
         ...state,
         [action.userType]: {
           ...state[action.userType],
-          applicantData,
+          emi: action.emiData,
         },
       };
     }
