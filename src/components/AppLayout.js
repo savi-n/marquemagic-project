@@ -36,9 +36,9 @@ const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
 const BranchUserContent = lazy(() => import('./BranchUserContent'));
 
 const AppLayout = () => {
-	const checkUrl = window.location.href.includes('cubuat');
+	const checkUrl = window.location.hostname;
 	const { response, newRequest } = useFetch({
-		url: WHITE_LABEL_URL({ name: checkUrl ? 'CUB%20UAT' : 'Clixcapital' }) // Clixcapital || CUB%20UAT
+		url: WHITE_LABEL_URL({ name: checkUrl })
 	});
 
 	const {
