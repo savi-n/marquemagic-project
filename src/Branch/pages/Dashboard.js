@@ -17,8 +17,17 @@ export default function Dashboard(props) {
 	const { state } = useContext(BranchUserContext);
 	const history = useHistory();
 	const [usersList, setUsersList] = useState(null);
+	const { actions } = useContext(BranchUserContext);
+	const arr = window.location.href.split('?');
+	const arrr = arr[1]?.split('=');
+	const t = arrr?.splice(0, 1);
+	const token = t?.join('=');
 
 	useEffect(() => {
+		if (token) {
+			localStorage.setItem('token', token);
+			actions.setBranchUserToken(token);
+		}
 		getUsersList().then(res => {
 			setUsersList(res);
 		});
