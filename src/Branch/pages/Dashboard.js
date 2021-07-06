@@ -20,20 +20,21 @@ export default function Dashboard(props) {
 	const { actions } = useContext(BranchUserContext);
 	const arr = window.location.href.split('?');
 	const arrr = arr[1]?.split('=');
-	const t = arrr?.splice(0, 1);
-	const token = t?.join('=');
+	arrr?.splice(0, 1);
+	const y = arrr?.join('=');
+	const o = y?.split('&');
+	const token = o && o[0];
 
 	useEffect(() => {
 		if (token) {
 			localStorage.setItem('token', token);
 			actions.setBranchUserToken(token);
+		} else {
+			history.push(`/branch/login`);
 		}
 		getUsersList().then(res => {
 			setUsersList(res);
 		});
-		if (!state.userToken) {
-			history.push(`/branch/login`);
-		}
 	}, []);
 
 	const isIdentifier = () => {
