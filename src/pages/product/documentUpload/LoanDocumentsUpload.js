@@ -150,27 +150,42 @@ function caseCreationDataFormat(data, companyData) {
 }
 
 function subsidiaryDataFormat(caseId, data) {
+  if (
+    !data["subsidiary-details"]?.SubsidiaryName &&
+    !data["subsidiary-details"]?.BankName
+  ) {
+    return false;
+  }
   const formatedData = {
     case_id: caseId,
-    account_number: data["subsidiary-details"].AccountNumber,
-    subsidiary_name: data["subsidiary-details"].SubsidiaryName,
-    bank_name: data["subsidiary-details"].BankName,
-    relative: data["subsidiary-details"].Relation,
+    account_number: data["subsidiary-details"]?.AccountNumber,
+    subsidiary_name: data["subsidiary-details"]?.SubsidiaryName,
+    bank_name: data["subsidiary-details"]?.BankName,
+    relative: data["subsidiary-details"]?.Relation,
   };
 
   return formatedData;
 }
 
 function bankDetailsDataFormat(caseId, data) {
+  if (
+    !data["bank-details"]?.AccountNumber &&
+    !data["bank-details"]?.BankName &&
+    !data["bank-details"]?.AccountHolderName
+  ) {
+    return false;
+  }
+
   const formatedData = {
     case_id: caseId,
-    account_number: data["bank-details"].AccountNumber,
+    emiDetails: data["emi-details"],
+    account_number: data["bank-details"]?.AccountNumber,
     // subsidiary_name: data['bank-details'].,
-    bank_name: data["bank-details"].BankName,
-    account_holder_name: data["bank-details"].AccountHolderName,
-    account_type: data["bank-details"].AccountType,
-    start_date: data["bank-details"].StartDate,
-    end_date: data["bank-details"].EndDate,
+    bank_name: data["bank-details"]?.BankName,
+    account_holder_name: data["bank-details"]?.AccountHolderName,
+    account_type: data["bank-details"]?.AccountType,
+    start_date: data["bank-details"]?.StartDate,
+    end_date: data["bank-details"]?.EndDate,
     // limit_type: data['bank-details'],
     // sanction_limit: data['bank-details'],
     // drawing_limit: data['bank-details'],
@@ -181,44 +196,67 @@ function bankDetailsDataFormat(caseId, data) {
 }
 
 function shareHolderDataFormat(caseId, data) {
+  if (
+    !data["shareholder-details"]?.ShareholderPercentage &&
+    !data["shareholder-details"]?.ShareholderName &&
+    !data["shareholder-details"]?.CompanyAddress
+  ) {
+    return false;
+  }
   const formatedData = {
     // case_id: caseId,
-    percentage: data["shareholder-details"].ShareholderPercentage,
+    percentage: data["shareholder-details"]?.ShareholderPercentage,
     // businessID: data["shareholder-details"].BankName,
-    name: data["shareholder-details"].ShareholderName,
-    relationship: data["shareholder-details"].Relation,
-    address: data["shareholder-details"].CompanyAddress,
-    pincode: data["shareholder-details"].Pincode,
+    name: data["shareholder-details"]?.ShareholderName,
+    relationship: data["shareholder-details"]?.Relation,
+    address: data["shareholder-details"]?.CompanyAddress,
+    pincode: data["shareholder-details"]?.Pincode,
   };
 
   return { shareholderData: [formatedData] };
 }
 
 function refereneceDataFormat(loanId, data) {
+  const loanReferenceData = [];
+  if (
+    !data["reference-details"]?.Name0 &&
+    !data["reference-details"]?.ReferenceEmail0 &&
+    !data["reference-details"]?.["Contact number0"] &&
+    data["reference-details"]?.Pincode0
+  ) {
+    loanReferenceData.push({
+      ref_name: data["reference-details"]?.Name0,
+      ref_email: data["reference-details"]?.ReferenceEmail0,
+      ref_contact: data["reference-details"]["Contact number0"],
+      ref_state: "null",
+      ref_city: "null",
+      ref_pincode: data["reference-details"]?.Pincode0,
+      ref_locality: "null",
+      reference_truecaller_info: "",
+    });
+  }
+
+  if (
+    !data["reference-details"]?.Name1 &&
+    !data["reference-details"]?.ReferenceEmail1 &&
+    !data["reference-details"]?.["Contact number1"] &&
+    data["reference-details"]?.Pincode1
+  ) {
+    loanReferenceData.push({
+      ref_name: data["reference-details"]?.Name1,
+      ref_email: data["reference-details"]?.ReferenceEmail1,
+      ref_contact: data["reference-details"]["Contact number1"],
+      ref_state: "null",
+      ref_city: "null",
+      ref_pincode: data["reference-details"]?.Pincode1,
+      ref_locality: "null",
+      reference_truecaller_info: "",
+    });
+  }
+
   const formatedData = {
     loanId: loanId,
-    loanReferenceData: [
-      {
-        ref_name: data["reference-details"].Name0,
-        ref_email: data["reference-details"].ReferenceEmail0,
-        ref_contact: data["reference-details"]["Contact number0"],
-        ref_state: "null",
-        ref_city: "null",
-        ref_pincode: data["reference-details"].Pincode0,
-        ref_locality: "null",
-        reference_truecaller_info: "",
-      },
-      {
-        ref_name: data["reference-details"].Name1,
-        ref_email: data["reference-details"].ReferenceEmail1,
-        ref_contact: data["reference-details"]["Contact number1"],
-        ref_state: "null",
-        ref_city: "null",
-        ref_pincode: data["reference-details"].Pincode1,
-        ref_locality: "null",
-        reference_truecaller_info: "",
-      },
-    ],
+    loanReferenceData: loanReferenceData,
   };
 
   return formatedData;
@@ -330,6 +368,10 @@ export default function DocumentUpload({
 
   // step: 2 if subsidary details submit request
   const addSubsidiaryReq = async (caseId) => {
+    const postData = subsidiaryDataFormat(caseId, state);
+    if (!postData) {
+      return true;
+    }
     try {
       const caseReq = await newRequest(
         ADD_SUBSIDIARY_DETAILS,
@@ -356,12 +398,17 @@ export default function DocumentUpload({
 
   // step: 3 if subsidary details submit request
   const addBankDetailsReq = async (caseId) => {
+    const formData = bankDetailsDataFormat(caseId, state);
+    if (!formData) {
+      return true;
+    }
+
     try {
       const caseReq = await newRequest(
         ADD_BANK_DETAILS,
         {
           method: "POST",
-          data: bankDetailsDataFormat(caseId, state),
+          data: formData,
         },
         { authorization: `Bearer ${companyDetail.token}` }
       );
@@ -382,12 +429,16 @@ export default function DocumentUpload({
 
   // step: 4 if subsidary details submit request
   const addShareHolderDetailsReq = async (caseId) => {
+    const formData = shareHolderDataFormat(caseId, state);
+    if (!formData) {
+      return true;
+    }
     try {
       const caseReq = await newRequest(
         ADD_SHAREHOLDER_DETAILS,
         {
           method: "POST",
-          data: shareHolderDataFormat(caseId, state),
+          data: formData,
         },
         { authorization: `Bearer ${companyDetail.token}` }
       );
@@ -408,12 +459,16 @@ export default function DocumentUpload({
 
   // step: 5 if subsidary details submit request
   const addReferenceDetailsReq = async (loanId) => {
+    const formData = refereneceDataFormat(loanId, state);
+    if (formData.loanReferenceData.length === 0) {
+      return true;
+    }
     try {
       const caseReq = await newRequest(
         ADD_REFENCE_DETAILS,
         {
           method: "POST",
-          data: refereneceDataFormat(loanId, state),
+          data: formData,
         },
         { authorization: `Bearer ${companyDetail.token}` }
       );

@@ -12,7 +12,8 @@ import {
 	CLIENT_EMAIL_ID,
 	BANK_TOKEN_API,
 	NC_STATUS_CODE,
-	APP_DOMAIN
+	APP_DOMAIN,
+	APP_CLIENT
 } from '../_config/app.config.js';
 import { AppContext } from '../reducer/appReducer';
 // import { useToasts } from "../components/Toast/ToastProvider";
@@ -36,9 +37,9 @@ const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
 const BranchUserContent = lazy(() => import('./BranchUserContent'));
 
 const AppLayout = () => {
-	const checkUrl = window.location.hostname;
+	// const checkUrl = window.location.hostname;
 	const { response, newRequest } = useFetch({
-		url: WHITE_LABEL_URL({ name: checkUrl })
+		url: WHITE_LABEL_URL({ name: APP_CLIENT })
 	});
 
 	const {

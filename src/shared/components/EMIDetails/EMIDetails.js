@@ -50,12 +50,10 @@ EMIDetails.propTypes = {
   formState: object,
 };
 
-export default function EMIDetails({ jsonData, register, formState }) {
+export default function EMIDetails({ jsonData, register, formState, label }) {
   return (
     <>
-      <H>
-        EMI details of exsisting loans availed by CUB or other banks, if any..
-      </H>
+      <H>{label}</H>
       <FormWrap>
         {jsonData &&
           jsonData.map(

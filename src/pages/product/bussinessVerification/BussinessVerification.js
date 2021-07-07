@@ -9,6 +9,7 @@ import {
   WHITELABEL_ENCRYPTION_API,
   SEARCH_COMPANY_NAME,
   NC_STATUS_CODE,
+  APP_CLIENT,
 } from "../../../_config/app.config";
 import { AppContext } from "../../../reducer/appReducer";
 import { BussinesContext } from "../../../reducer/bussinessReducer";
@@ -56,7 +57,7 @@ const H2 = styled.h2`
 function formatCompanyData(data) {
   let directors = {};
 
-  for (const [i, dir] of data["directors/signatory_details"].entries()) {
+  for (const [i, dir] of data["directors/signatory_details"]?.entries() || []) {
     directors[`directors_${i}`] = {
       ddin_no: dir["din/pan"],
     };
@@ -145,7 +146,7 @@ export default function BussinessDetails({
         data: {
           email: companyData.data.company_master_data.email_id,
           white_label_id: whiteLabelId,
-          source: "Clixcapital",
+          source: APP_CLIENT,
           name: companyData.data.company_master_data.company_name,
           mobileNo: "9999999999",
           addrr1: "",
