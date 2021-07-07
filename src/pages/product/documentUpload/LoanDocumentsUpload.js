@@ -150,6 +150,12 @@ function caseCreationDataFormat(data, companyData) {
 }
 
 function subsidiaryDataFormat(caseId, data) {
+  if (
+    !data["subsidiary-details"].SubsidiaryName &&
+    !data["subsidiary-details"].BankName
+  ) {
+    return false;
+  }
   const formatedData = {
     case_id: caseId,
     account_number: data["subsidiary-details"].AccountNumber,
@@ -330,6 +336,10 @@ export default function DocumentUpload({
 
   // step: 2 if subsidary details submit request
   const addSubsidiaryReq = async (caseId) => {
+    const postData = subsidiaryDataFormat(caseId, state);
+    if (!postData) {
+      return true;
+    }
     try {
       const caseReq = await newRequest(
         ADD_SUBSIDIARY_DETAILS,
