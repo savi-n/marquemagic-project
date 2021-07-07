@@ -7,11 +7,20 @@ const userToken = localStorage.getItem('token');
 export const getNCStatus = (token = userToken) => {
 	axios
 		.get(`${API_END_POINT}/case_nc_status`, {
-			headers: { Authorization: `${token}` }
+			headers: { Authorization: `Bearer ${token}` }
 		})
 		.then(res => {
 			return res;
 		});
+};
+
+export const getLoan = async (product_id, white_label_id = localStorage.getItem('wt_lbl'), token = userToken) => {
+	const g = await axios.get(`${API_END_POINT}/productDetails`, {
+		headers: { Authorization: `Bearer ${token}` },
+		params: { white_label_id, product_id }
+	});
+	const t = await g;
+	console.log(JSON.parse(t.data.data.edit_json));
 };
 
 export const getCase = async (order, token = userToken) => {
@@ -66,6 +75,7 @@ export const getWhiteLabelPermission = async (token = userToken) => {
 		headers: { Authorization: `Bearer ${token}` }
 	});
 	const t = await g;
+	localStorage.setItem('wt_lbl', t.data.data.white_label);
 	localStorage.setItem('permission', JSON.stringify(t.data.data.permission));
 };
 
