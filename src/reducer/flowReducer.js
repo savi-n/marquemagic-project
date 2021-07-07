@@ -33,6 +33,7 @@ const useActions = (dispatch) => {
         sub,
         fields: element.fields || {},
         name: element.name,
+        actions: element.actions || {},
       };
 
       element.flow?.forEach((e, i) => {
@@ -42,7 +43,14 @@ const useActions = (dispatch) => {
           ? menu[index + 1].id
           : element.id;
         const s = menu[index + 1] ? menu[index + 1].id : element.id;
-        flowMap[e.id] = { main: m, sub: s, mainPageId: element.id };
+        flowMap[e.id] = {
+          main: m,
+          sub: s,
+          mainPageId: element.id,
+          fields: e.fields || {},
+          name: e.name,
+          actions: e.actions || {},
+        };
       });
     });
 
