@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import '../components/styles/index.scss';
-import { getLoanDetails, viewDocument } from '../utils/requests';
+import { getLoanDetails, viewDocument, getLoan } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 
 export default function CheckApplication(props) {
+	const [fields, setFields] = useState(null);
 	const id = props.id;
 	const [data, setData] = useState(null);
 	const [loading, setLoading] = useState(false);
@@ -21,6 +22,9 @@ export default function CheckApplication(props) {
 
 	useEffect(() => {
 		setLoading(true);
+		getLoan(props.productId).then(res => {
+			res.length > 7 && setFields(res);
+		});
 		getLoanDetails(id).then(res => {
 			if (!data) setData(res);
 			setLoading(false);
@@ -31,14 +35,15 @@ export default function CheckApplication(props) {
 	const [disabled, setDisabled] = useState(true);
 
 	const tabs = [
-		'Applicant',
-		'Co-Applicant',
+		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases'
+			? 'Applicant'
+			: 'Business Details',
+		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases' ? 'Co-Applicant' : null,
 		'Document Details',
 		'Security Details',
 		data && getPreEligibleData(data)
 			? 'Pre-Eligibility Details'
-			: data && getEligibileData(data) && 'Eligibility Data',
-		data && getBusinessData(data) && 'Business Data'
+			: data && getEligibileData(data) && 'Eligibility Data'
 	];
 
 	const getTabs = item => (
@@ -65,12 +70,15 @@ export default function CheckApplication(props) {
 		if (data) {
 			return {
 				Applicant: getApplicantData(data),
-				'Co-Applicant': getCoApplicantData(data),
+				'Co-Applicant':
+					props.product !== 'Unsecured Business/Self-Employed' &&
+					props.product !== 'LAP Cases' &&
+					getCoApplicantData(data),
 				'Document Details': getDocDetails(data),
 				'Security Details': 'No Data',
 				'Pre-Eligibility Details': getPreEligibleData(data),
 				'Eligibility Data': getEligibileData(data),
-				'Business Data': getBusinessData(data)
+				'Business Details': ''
 			};
 		}
 	};
@@ -139,18 +147,6 @@ export default function CheckApplication(props) {
 				minimumPreEligiblity: 'Eligible Amount'
 			}
 		},
-		'Business Data': {
-			'Business Details': {
-				business_email: 'Email',
-				contactno: 'Contact No',
-				crime_check: 'Crime Check',
-				businessname: 'Business Name',
-				businesspancardnumber: 'Business Pan Number',
-				businessstartdate: 'Business Start Date',
-				gstin: 'GSTIN',
-				businessindustry: 'Business Industry'
-			}
-		},
 		'Eligibility Data': {
 			'Eligibility Details': {
 				dscr: 'DSCR',
@@ -160,15 +156,17 @@ export default function CheckApplication(props) {
 	};
 
 	const sec = {
-		sec_1: 'Applicant',
+		sec_1:
+			props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases'
+				? 'Applicant'
+				: 'Business Details',
 		sec_2: 'Co-Applicant',
 		sec_3: 'Document Details',
 		sec_4: 'Security Details',
 		sec_5:
 			data && getPreEligibleData(data)
 				? 'Pre-Eligibility Details'
-				: data && getEligibileData(data) && 'Eligibility Data',
-		sec_6: data && getBusinessData(data) && 'Business Data'
+				: data && getEligibileData(data) && 'Eligibility Data'
 	};
 
 	const [message, setMessage] = useState(false);
@@ -200,7 +198,7 @@ export default function CheckApplication(props) {
 				className={`scroll absolute bg-blue-700 w-1/5 py-16 flex flex-col bottom-0 ${props.home && '-mx-10'}`}
 			>
 				<span className='text-white font-medium text-xl pl-4 pb-6'>{props.product}</span>
-				<section>{data && tabs.map(e => getTabs(e))}</section>
+				<section>{data && tabs.map(e => e !== null && getTabs(e))}</section>
 			</section>
 			<section
 				className='absolute right-0 px-24 py-24 scroll'
@@ -218,53 +216,200 @@ export default function CheckApplication(props) {
 								<>
 									{e === sec.sec_1 && (
 										<>
-											{Object.keys(mapper[e]).map(i => (
-												<section>
-													<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
-
-													<section className='flex grid grid-cols-2 gap-y-4 gap-x-20'>
-														{d()[e] &&
-															d()[e].map(
-																j =>
-																	j &&
-																	Object.keys(j).map(
-																		k =>
-																			mapper[e][i] &&
-																			Object.keys(mapper[e][i]).map(
-																				l =>
-																					l === k && (
-																						<section className='flex space-evenly items-center'>
-																							<label className='w-1/2'>
-																								{mapper[e][i][k]}
-																							</label>
+											{fields && fields.length > 7 ? (
+												fields.map(
+													(i, idx) =>
+														i &&
+														idx > 0 &&
+														idx < 8 && (
+															<section className='flex flex-col gap-y-4 gap-x-20'>
+																<p className='text-blue-700 font-medium text-xl pb-8'>
+																	{i.name}
+																</p>
+																{i.fields[(i?.id)]?.data.map(
+																	el =>
+																		el && (
+																			<section className='flex space-evenly items-center'>
+																				<label className='w-1/2'>
+																					{el.placeholder}
+																				</label>
+																				{el.type !== 'select' ? (
+																					<>
+																						{i.name ===
+																							'Business Details' && (
 																							<input
-																								className='rounded-lg p-4 border'
 																								disabled={disabled}
-																								placeholder={
-																									mapper[e][i][k]
-																								}
+																								className='rounded-lg p-4 border w-1/3'
 																								defaultValue={
-																									j[k] === 'NULL' ||
-																									j[k] === 'null'
-																										? 'NA'
-																										: j[k]
+																									data?.business_id[
+																										el.db_name
+																									] || 'N/A'
 																								}
 																							/>
-																						</section>
-																					)
-																			)
-																	)
-															)}
-													</section>
-												</section>
-											))}
+																						)}
+																						{i.name === 'Loan Details' && (
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={data?.loanFinancialDetails?.map(
+																									o =>
+																										o[el.db_name] ||
+																										'N/A'
+																								)}
+																							/>
+																						)}
+																						{i.name === 'EMI Details' && (
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={data?.loanFinancialDetails?.map(
+																									o =>
+																										o[el.db_name] ||
+																										'N/A'
+																								)}
+																							/>
+																						)}
+																						{i.name ===
+																							'Subsidiary Details' && (
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={
+																									data?.business_id[
+																										el.db_name
+																									] || 'N/A'
+																								}
+																							/>
+																						)}
+																						{i.name === 'Bank  Details' && (
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={
+																									data
+																										?.loanFinancialDetails[
+																										el.db_name
+																									] || 'N/A'
+																								}
+																							/>
+																						)}
+																						{i.name ===
+																							'Shareholder Details' && (
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={
+																									data
+																										?.businessShareData[
+																										el.db_name
+																									] || 'N/A'
+																								}
+																							/>
+																						)}
+																						{i.name ===
+																							'Reference Details' && (
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={
+																									data
+																										?.loanReferenceData[
+																										el.db_name
+																									] || 'N/A'
+																								}
+																							/>
+																						)}
+																					</>
+																				) : null}
+
+																				{el.type === 'select' && (
+																					<select
+																						disabled={disabled}
+																						className='rounded-lg p-4 border w-1/3'
+																					>
+																						{el.options &&
+																							el.options.map(r => (
+																								<option>
+																									{r?.name}
+																								</option>
+																							))}
+																					</select>
+																				)}
+																			</section>
+																		)
+																)}
+															</section>
+														)
+												)
+											) : (
+												<>
+													{Object.keys(mapper[e]).map(i => (
+														<section>
+															{d()[e] &&
+																d()[e].map(
+																	j =>
+																		j !== false && (
+																			<section className='flex flex-col gap-y-4 gap-x-20'>
+																				<p className='text-blue-700 font-medium text-xl pb-8'>
+																					{i}
+																				</p>
+
+																				{j &&
+																					Object.keys(j).map(
+																						k =>
+																							mapper[e][i] &&
+																							Object.keys(
+																								mapper[e][i]
+																							).map(
+																								l =>
+																									l === k && (
+																										<section className='flex space-evenly items-center'>
+																											<label className='w-1/2'>
+																												{
+																													mapper[
+																														e
+																													][
+																														i
+																													][k]
+																												}
+																											</label>
+																											<input
+																												className='rounded-lg p-4 border'
+																												disabled={
+																													disabled
+																												}
+																												placeholder={
+																													mapper[
+																														e
+																													][
+																														i
+																													][k]
+																												}
+																												defaultValue={
+																													j[k]
+																												}
+																											/>
+																										</section>
+																									)
+																							)
+																					)}
+																			</section>
+																		)
+																)}
+														</section>
+													))}
+												</>
+											)}
 											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
 												Submit
 											</Button>
 										</>
 									)}
 
-									{e === sec.sec_2 && d()[e].length > 1 ? (
+									{e === sec.sec_2 &&
+									d()[e].length > 1 &&
+									props.product !== 'Unsecured Business/Self-Employed' &&
+									props.product !== 'LAP Cases' ? (
 										<section>
 											{Object.keys(mapper[e]).map(i => (
 												<section>
@@ -272,7 +417,7 @@ export default function CheckApplication(props) {
 														d()[e].map(
 															j =>
 																j !== false && (
-																	<section className='flex grid grid-cols-2 gap-y-4 gap-x-20'>
+																	<section className='flex flex-col gap-y-4 gap-x-20'>
 																		<p className='text-blue-700 font-medium text-xl pb-8'>
 																			{i}
 																		</p>

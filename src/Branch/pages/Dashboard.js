@@ -30,7 +30,7 @@ export default function Dashboard(props) {
 			localStorage.setItem('token', token);
 			actions.setBranchUserToken(token);
 		} else {
-			history.push(`/branch/login`);
+			// history.push(`/branch/login`);
 		}
 		getUsersList().then(res => {
 			setUsersList(res);
