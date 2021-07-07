@@ -92,8 +92,8 @@ export default function FourWheelerLoanDetailsPage({
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={fieldConfig.loan_details.data}
-            label={fieldConfig.loan_details.label}
+            jsonData={map.fields["loan-details"].data}
+            label={map.fields["loan-details"].label}
             loanType={productDetails.loanType}
             size="80%"
           />
@@ -102,8 +102,8 @@ export default function FourWheelerLoanDetailsPage({
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={fieldConfig.loan_details_additional.data}
-            label={fieldConfig.loan_details_additional.label}
+            jsonData={map.fields["loan-details-additional"].data}
+            label={map.fields["loan-details-additional"].label}
             size="80%"
           />
         </FlexColom>
@@ -111,7 +111,7 @@ export default function FourWheelerLoanDetailsPage({
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={fieldConfig.emi_details.data}
+        jsonData={map.fields["emi-details"].data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

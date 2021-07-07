@@ -27,12 +27,7 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
-export default function PersonalDetailsPage({
-  id,
-  map,
-  onFlowChange,
-  fieldConfig,
-}) {
+export default function PersonalDetailsPage({ id, map, onFlowChange }) {
   const {
     state: { whiteLabelId },
   } = useContext(AppContext);
@@ -132,5 +127,4 @@ PersonalDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  fieldConfig: object,
 };

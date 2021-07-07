@@ -118,7 +118,7 @@ export default function CoapplicantDetails({
         userType={userType}
         register={register}
         formState={formState}
-        jsonData={fieldConfig.personal_details.data}
+        jsonData={map.fields["personal-details"].data}
       />
       <AddressDetails
         userType={userType}
@@ -126,7 +126,7 @@ export default function CoapplicantDetails({
         formState={formState}
         match={match}
         setMatch={setMatch}
-        jsonData={fieldConfig.address_details.data}
+        jsonData={map.fields["address-details"].data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

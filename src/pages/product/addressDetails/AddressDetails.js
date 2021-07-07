@@ -120,16 +120,18 @@ export default function AddressDetailsPage({
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
-        {/* <DivWrap>
-          <Question>Co-Applicants?</Question>
-          <Button
-            width="auto"
-            fill
-            name="Add"
-            disabled={!saved}
-            onClick={subFlowActivate}
-          />
-        </DivWrap> */}
+        {map.sub && (
+          <DivWrap>
+            <Question>Co-Applicants?</Question>
+            <Button
+              width="auto"
+              fill
+              name="Add"
+              disabled={!saved}
+              onClick={subFlowActivate}
+            />
+          </DivWrap>
+        )}
       </ButtonWrap>
     </Div>
   );

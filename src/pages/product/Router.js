@@ -75,7 +75,7 @@ const availableRoutes = {
   },
   "co-applicant-document-upload": {
     protected: true,
-    Component: userType("Co-applicant", DocumentUpload),
+    Component: userType("Co-applicant", CubDocumentUpload),
   },
   "emi-details": { protected: true, Component: EmiDetails },
   "document-upload": { protected: true, Component: DocumentUpload },
@@ -91,7 +91,7 @@ const availableRoutes = {
   },
   "guarantor-document-upload": {
     protected: true,
-    Component: userType("Guarantor", DocumentUpload),
+    Component: userType("Guarantor", CubDocumentUpload),
   },
 };
 

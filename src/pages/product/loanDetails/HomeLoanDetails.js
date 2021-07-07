@@ -39,15 +39,9 @@ HomeLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  fieldConfig: object,
 };
 
-export default function HomeLoanDetailsPage({
-  id,
-  map,
-  onFlowChange,
-  fieldConfig,
-}) {
+export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);

@@ -29,7 +29,6 @@ CoapplicantIncomeDetails.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor"]),
-  fieldConfig: object,
 };
 
 export default function CoapplicantIncomeDetails({
@@ -37,7 +36,6 @@ export default function CoapplicantIncomeDetails({
   id,
   onFlowChange,
   map,
-  fieldConfig,
 }) {
   const {
     actions: { setCompleted },
@@ -51,10 +49,10 @@ export default function CoapplicantIncomeDetails({
   const { addToast } = useToasts();
 
   const onSave = (formData) => {
-    const emiData = formatEmiData(formData, fieldConfig.emi_details.data);
+    const emiData = formatEmiData(formData, map.fields["emi-details"].data);
     const salaryData = formatLoanData(
       formData,
-      fieldConfig.salary_details.data
+      map.fields["salary-details"].data
     );
 
     setUsertypeEmiData(emiData, USER_ROLES[userType]);
@@ -77,13 +75,13 @@ export default function CoapplicantIncomeDetails({
         userType={userType}
         register={register}
         formState={formState}
-        jsonData={fieldConfig.salary_details.data}
+        jsonData={map.fields["salary-details"].data}
         size="40%"
       />
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={fieldConfig.emi_details.data}
+        jsonData={map.fields["emi-details"].data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

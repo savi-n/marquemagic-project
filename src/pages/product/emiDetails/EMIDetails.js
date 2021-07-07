@@ -52,10 +52,12 @@ const formatEmiData = (formData, fields) => {
 };
 
 const formatLoanEmiData = (formData, fields) => {
-  return fields.map((f) => ({
-    emiAmount: formData[f.name],
-    bank_name: formData[`${f.name}_bank_name`],
-  }));
+  return fields
+    .map((f) => ({
+      emiAmount: formData[f.name],
+      bank_name: formData[`${f.name}_bank_name`],
+    }))
+    .filter((f) => f.emiAmount);
 };
 
 EMIDetailsPage.propTypes = {
@@ -99,7 +101,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
     });
   };
 
-  const [additionalField, setAdditionalField] = useState([]);
+  // const [additionalField, setAdditionalField] = useState([]);
 
   // const onAdd = () => {
   //   const newField = {
