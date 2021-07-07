@@ -73,7 +73,7 @@ const SubMenu = styled.h5`
 `;
 
 const Link = styled.div`
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 export default function Product({ product, url }) {
@@ -120,36 +120,38 @@ export default function Product({ product, url }) {
               {response.data.name} <span>{response.data.description}</span>
             </Head>
           </Link>
-          {response.data?.product_details?.flow?.map((m) => (
-            <Fragment key={m.id}>
-              <Link onClick={(e) => {}}>
-                <Menu active={currentFlow === m.id}>
-                  <div>{m.name}</div>
-                  {completedMenu.includes(m.id) && (
-                    <CheckBox bg="white" checked round fg={"blue"} />
-                  )}
-                </Menu>
-              </Link>
-              {m.flow &&
-                subFlowMenu.includes(m.id) &&
-                m.flow.map((item) => (
-                  <Link key={item.id} onClick={(e) => {}}>
-                    <SubMenu active={currentFlow === item.id}>
-                      <div>{item.name}</div>
-                      {completedMenu.includes(item.id) && (
-                        <CheckBox bg="white" checked round fg={"blue"} />
-                      )}
-                    </SubMenu>
-                  </Link>
-                ))}
-            </Fragment>
-          ))}
+          {response.data?.product_details?.flow?.map((m) =>
+            !m.hidden ? (
+              <Fragment key={m.id}>
+                <Link onClick={(e) => {}}>
+                  <Menu active={currentFlow === m.id}>
+                    <div>{m.name}</div>
+                    {completedMenu.includes(m.id) && (
+                      <CheckBox bg="white" checked round fg={"blue"} />
+                    )}
+                  </Menu>
+                </Link>
+                {m.flow &&
+                  subFlowMenu.includes(m.id) &&
+                  m.flow.map((item) => (
+                    <Link key={item.id} onClick={(e) => {}}>
+                      <SubMenu active={currentFlow === item.id}>
+                        <div>{item.name}</div>
+                        {completedMenu.includes(item.id) && (
+                          <CheckBox bg="white" checked round fg={"blue"} />
+                        )}
+                      </SubMenu>
+                    </Link>
+                  ))}
+              </Fragment>
+            ) : null
+          )}
         </Colom1>
         <Colom2>
           <Router
             currentFlow={currentFlow || basePageUrl}
             map={flowMap?.[currentFlow]}
-            productDetails={response.data.product_details}
+            productDetails={response.data?.product_details}
             onFlowChange={onFlowChange}
             productId={product}
           />

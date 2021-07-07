@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import SearchSelect from "../components/SearchSelect";
 import BankList from "../components/inputs/BankList";
 import Pincode from "../components/inputs/PinCode";
+import DateField from "../components/inputs/DateField";
 
 function required(value) {
   return !value;
@@ -123,7 +124,7 @@ export default function useForm() {
 
   useEffect(() => {
     return () => {
-      console.log("useHook Unmount");
+      // console.log("useHook Unmount");
       fieldsRef.current = {};
       valuesRef.current = {};
       touchedRef.current = {};
@@ -336,7 +337,7 @@ function InputField({ field, onChange, value, unregister }) {
             {field.placeholder}
           </option>
           {field.options?.map(({ value, name }) => (
-            <option key={value} value={value}>
+            <option key={value} value={value.toString().trim()}>
               {name}
             </option>
           ))}
@@ -354,6 +355,10 @@ function InputField({ field, onChange, value, unregister }) {
           onSelectOptionCallback={onChange}
         />
       );
+    }
+
+    case "date": {
+      return <DateField {...{ ...field, ...fieldProps }} />;
     }
     default: {
       return <Input type={type} {...fieldProps} />;

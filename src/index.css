@@ -54,6 +54,20 @@ ul {
   list-style: none;
 }
 
+/* input[type="date"] {
+  color: white;
+} */
+
+/* input[type="date"]:before {
+  color: lightgray;
+  content: attr(placeholder);
+  margin-right: 3px;
+} */
+
+/* input[type="date"]:focus:before {
+  content: "" !important;
+} */
+
 ::-webkit-scrollbar {
   width: 5px;
   background-color: #f5f5f5;
