@@ -19,7 +19,7 @@ import {
 	faCampground
 } from '@fortawesome/free-solid-svg-icons';
 import SharedCAT from '../../components/sharedCAT';
-import { getLoanDetails, loanDocMapping, getUsersList } from '../../utils/requests';
+import { getLoanDetails, loanDocMapping, getUsersList, getLoan } from '../../utils/requests';
 import checkApplication from '../../pages/checkApplication';
 
 export default function CardDetails({
@@ -37,9 +37,6 @@ export default function CardDetails({
 	usersList,
 	submitCase
 }) {
-	const history = useHistory();
-	const { path, url } = useRouteMatch();
-
 	const [security, setSecurity] = useState(false);
 	const [recommendation, setRecommendation] = useState(false);
 	const [download, setDownload] = useState(false);

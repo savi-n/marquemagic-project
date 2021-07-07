@@ -38,7 +38,7 @@ const BranchUserContent = lazy(() => import('./BranchUserContent'));
 const AppLayout = () => {
 	const checkUrl = window.location.hostname;
 	const { response, newRequest } = useFetch({
-		url: WHITE_LABEL_URL({ name: 'nctestnew.namastecredit.com' })
+		url: WHITE_LABEL_URL({ name: checkUrl })
 	});
 
 	const {
