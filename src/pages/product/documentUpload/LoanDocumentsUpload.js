@@ -86,6 +86,42 @@ const Doc = styled.h2`
 //     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
 // };
 
+// {
+//   "Business_details": {
+//       "business_type": 1,
+//       "business_industry_type": 20,
+//       "business_name": "test case",
+//       "business_email": "testsavi@credit.com",
+//       "contact": 8989898989,
+//       "businesspancardnumber": "",
+//       "crime_check": "Yes",
+//       "gstin": "",
+//       "businessstartdate": ""
+//   },
+//   "businessaddress": {
+//       "city": "County Durham",
+//       "line1": "1 High Burnigill Cottages",
+//       "locality": "Croxdale",
+//       "pincode": "DH6 5JJ",
+//       "state": "England"
+//   },
+//   "loan_details": {
+//       "loan_type_id": 1,
+//       "case_priority": null,
+//       "loan_product_id": "10",
+//       "loan_request_type": "1",
+//       "origin": "New_UI",
+//       "white_label_id": "c3bc022673a835674f7c4eb5d43239f3",
+//       "application_ref": null,
+//       "branchId": null,
+//       "loan_amount": null,
+//       "applied_tenure": 0,
+//       "annual_turn_over": null,
+//       "annual_op_expense": null
+//   },
+
+// }
+
 function caseCreationDataFormat(data, companyData) {
   const formatedData = {
     Business_details: {
@@ -96,8 +132,8 @@ function caseCreationDataFormat(data, companyData) {
       contact: "",
       businesspancardnumber: companyData.PancardNumber,
       crime_check: "Yes",
+      corporateid: companyData.CIN,
     },
-    corporateid: companyData.CIN,
     businessaddress: {
       city: "County Durham",
       line1: "1 High Burnigill Cottages",
@@ -195,7 +231,7 @@ function bankDetailsDataFormat(caseId, data) {
   return formatedData;
 }
 
-function shareHolderDataFormat(caseId, data) {
+function shareHolderDataFormat(businessId, data) {
   if (
     !data["shareholder-details"]?.ShareholderPercentage &&
     !data["shareholder-details"]?.ShareholderName &&
@@ -206,7 +242,7 @@ function shareHolderDataFormat(caseId, data) {
   const formatedData = {
     // case_id: caseId,
     percentage: data["shareholder-details"]?.ShareholderPercentage,
-    // businessID: data["shareholder-details"].BankName,
+    businessID: businessId,
     name: data["shareholder-details"]?.ShareholderName,
     relationship: data["shareholder-details"]?.Relation,
     address: data["shareholder-details"]?.CompanyAddress,
@@ -428,8 +464,8 @@ export default function DocumentUpload({
   };
 
   // step: 4 if subsidary details submit request
-  const addShareHolderDetailsReq = async (caseId) => {
-    const formData = shareHolderDataFormat(caseId, state);
+  const addShareHolderDetailsReq = async (businessId) => {
+    const formData = shareHolderDataFormat(businessId, state);
     if (!formData) {
       return true;
     }
@@ -493,10 +529,11 @@ export default function DocumentUpload({
       const caseCreateRes = await createCaseReq();
       const caseId = caseCreateRes.loan_details.loan_ref_id;
       const loanId = caseCreateRes.loan_details.id;
+      const businessId = caseCreateRes.loan_details.business_id;
 
       await addSubsidiaryReq(caseId);
       await addBankDetailsReq(caseId);
-      await addShareHolderDetailsReq(caseId);
+      await addShareHolderDetailsReq(businessId);
       await addReferenceDetailsReq(loanId);
 
       // step 2: upload documents reference [loanId from createcase]

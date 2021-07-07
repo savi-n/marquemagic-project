@@ -16,6 +16,7 @@ import {
   UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
   USER_ROLES,
+  // DOCTYPES_FETCH,
 } from "../../../_config/app.config";
 import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
@@ -136,6 +137,18 @@ export default function DocumentUpload({
   } = useContext(CaseContext);
 
   const { newRequest } = useFetch();
+
+  // const { response } = useFetch({
+  //   url: DOCTYPES_FETCH,
+  //   options: {
+  //     method: "POST",
+  //     data: { business_type: 7, loan_product: productId },
+  //   },
+  //   headers: {
+  //     Authorization: `Bearer ${userToken}`,
+  //   },
+  // });
+
   const { addToast } = useToasts();
 
   const [cibilCheckbox, setCibilCheckbox] = useState(false);
@@ -340,14 +353,14 @@ export default function DocumentUpload({
       await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
 
       // step 3: upload cub statement to sailspld
-      // await updateRefernceToSails(caseCreateRes.loanId, userToken, [
-      //   ...(otherCUBStatementUserTypeDetails?.requestId
-      //     ? [otherCUBStatementUserTypeDetails?.requestId]
-      //     : []),
-      //   ...(otherUserTypeCibilDetails?.requestId
-      //     ? otherUserTypeCibilDetails?.requestId
-      //     : []),
-      // ]);
+      await updateRefernceToSails(caseCreateRes.loanId, userToken, [
+        ...(otherCUBStatementUserTypeDetails?.requestId
+          ? [otherCUBStatementUserTypeDetails?.requestId]
+          : []),
+        ...(otherUserTypeCibilDetails?.requestId
+          ? otherUserTypeCibilDetails?.requestId
+          : []),
+      ]);
 
       // // step 4: loan assets request
       // await loanAssetsUpload(
@@ -539,36 +552,47 @@ export default function DocumentUpload({
           />
         </UploadWrapper>
 
-        {/* <ButtonWrapper>
-          <Button
-            name="Get CUB Statement"
-            onClick={onToggleCUBStatementModal}
-            disabled={bankCUBStatementFetchDone}
-          />
-          <Button
-            name="Get Other Bank Statements"
-            onClick={onOtherStatementModalToggle}
-          />
-          <Button name="Get ITR documents" disabled />
-        </ButtonWrapper> */}
-        {/* <CheckboxWrapper>
-          <CheckBox
-            name={textForCheckbox.grantCibilAcces}
-            checked={cibilCheckbox}
-            // disabled={cibilCheckbox}
-            onChange={() => {
-              setCibilCheckbox(!cibilCheckbox);
-              // setCibilCheckModal(true);
-            }}
-            bg="blue"
-          />
-          <CheckBox
-            name={textForCheckbox.declaration}
-            checked={declareCheck}
-            onChange={() => setDeclareCheck(!declareCheck)}
-            bg="blue"
-          />
-        </CheckboxWrapper> */}
+        <ButtonWrapper>
+          {map.actions["cub-statement"]?.show && (
+            <Button
+              name="Get CUB Statement"
+              onClick={onToggleCUBStatementModal}
+              disabled={bankCUBStatementFetchDone}
+            />
+          )}
+
+          {map.actions["other-bank-statement"]?.show && (
+            <Button
+              name="Get Other Bank Statements"
+              onClick={onOtherStatementModalToggle}
+            />
+          )}
+          {map.actions["itr-fetch"]?.show && (
+            <Button name="Get ITR documents" disabled />
+          )}
+        </ButtonWrapper>
+        <CheckboxWrapper>
+          {map.actions["cibil-fetch"]?.show && (
+            <CheckBox
+              name={textForCheckbox.grantCibilAcces}
+              checked={cibilCheckbox}
+              // disabled={cibilCheckbox}
+              onChange={() => {
+                setCibilCheckbox(!cibilCheckbox);
+                // setCibilCheckModal(true);
+              }}
+              bg="blue"
+            />
+          )}
+          {map.actions["agreement"]?.show && (
+            <CheckBox
+              name={textForCheckbox.declaration}
+              checked={declareCheck}
+              onChange={() => setDeclareCheck(!declareCheck)}
+              bg="blue"
+            />
+          )}
+        </CheckboxWrapper>
         <SubmitWrapper>
           {!userType && (
             <Button

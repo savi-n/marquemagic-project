@@ -1,696 +1,1362 @@
 {
-	"head": "NC offers Housing loan in a <span>speedy manner</span>",
-	"loanType": "Housing Loan Salaried",
-	"productDetailsImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
-	"applicationSubmittedImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
-	"li": [
-		"CUB offers two-wheelers loans to individuals(Salaried/Self Employed) for new vehicles",
-		"Eligibility : 10 months net take home pay in case of salaried employee(maximum)/50% of the gross annual income declared in the lastest ITR in case of non salaried group(maximum)",
-		"Loan amount : maximum of Rs. 1.5 Lakhs",
-		"Margin : 10%",
-		"Repayment tenor : 36 to 60 Months",
-		"<a href=link>Click here</a> for Interest rate and required documents",
-		"<a href=link>Click here</a> for Schemes",
-		"<a href=link>Click here</a> for Processing Charges",
-		"<a href=link>EMI Calculator</a>"
-	],
-	"flow": [
-		{
-			"name": "Personal Details",
-			"id": "personal-details",
-			"fields": {
-				"personal-details": {
-					"label": "Personal Details",
-					"data": [
-						{
-							"name": "firstName",
-							"placeholder": "First Name",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"AlphaCharOnly": true
-							},
-							"type": "text",
-							"visibility": true,
-							"default_value": ""
-						},
-						{
-							"name": "incomeType",
-							"placeholder": "Income Type",
-							"rules": {
-								"required": true
-							},
-							"type": "select",
-							"visibility": true,
-							"options": [
-								{
-									"value": "salaried",
-									"name": "Salaried"
+	"name": "SwayamGraha",
+	"description": "(Housing Loan)",
+	"url": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM854911.jpg",
+	"id": 3,
+	"loan_request_type": 2,
+	"loan_type_id": "1",
+	"product_details": {
+		"head": "CUB offers easy and quick processing of housing loan to individuals for purchase of : ",
+		"loanType": "Home Loan",
+		"productDetailsImage": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/20-SM854909.jpg",
+		"applicationSubmittedImage": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM854879.jpg",
+		"li": [
+			"Site for construction of a house",
+			"Purchase of a ready built house/flat",
+			"To carryout repairs/ renovations/ alterations/ extension of the existing house",
+			"Purschase of a flat under construction",
+			"Takeover of existing housing loans from other banks.",
+			"Eligibility : Salaried Employees : 60 months net take home pay; Professionals/ Business/ Self employed : 5 times of income declared in the lastest ITR",
+			"Loan amount : Maximum of Rs. 1 Crore",
+			"Margin : 25%",
+			"Repayment tenor : Maximum 180 months for purchase and construction of house.",
+			"<a href=link>Click here</a> for Interest rate and required documents",
+			"<a href=link>Click here</a> for Schemes",
+			"<a href=link>Click here</a> for Processing Charges",
+			"<a href=link>EMI Calculator</a>"
+		],
+		"flow": [
+			{
+				"name": "Identity Verification",
+				"id": "identity-verification"
+			},
+			{
+				"name": "Personal Details",
+				"id": "personal-details",
+				"fields": {
+					"personal-details": {
+						"label": "Personal Details",
+						"data": [
+							{
+								"name": "firstName",
+								"placeholder": "First Name",
+								"rules": {
+									"required": true
 								},
-								{
-									"value": "business",
-									"name": "Business"
-								}
-							]
-						},
-						{
-							"name": "lastName",
-							"placeholder": "Last Name",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"AlphaCharOnly": true
-							},
-							"type": "text",
-							"visibility": true,
-							"default_value": ""
-						},
-						{
-							"name": "panNumber",
-							"placeholder": "PAN Number",
-							"rules": {
-								"required": true,
-								"length": 10
-							},
-							"mask": {
-								"CharacterLimit": 10,
-								"AlphaNumericOnly": true
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "dob",
-							"placeholder": "Date of Birth (dd-mm-yyyy)",
-							"rules": {
-								"required": true
-							},
-							"type": "date",
-							"visibility": true
-						},
-						{
-							"name": "aadhaar",
-							"placeholder": "Aadhar Number",
-							"type": "text",
-							"rules": {
-								"required": true,
-								"minLength": 12
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 12
-							},
-							"visibility": true
-						},
-						{
-							"name": "mobileNo",
-							"placeholder": "Mobile Number",
-							"rules": {
-								"required": true,
-								"length": 10
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "residenceStatus",
-							"placeholder": "Residence Status",
-							"type": "select",
-							"visibility": true,
-							"options": [
-								{
-									"name": "Resident",
-									"value": "Resident"
+								"mask": {
+									"AlphaCharOnly": true
 								},
-								{
-									"name": "Resident and Ordinarily Resident",
-									"value": "Resident and Ordinarily Resident"
+								"type": "text",
+								"visibility": true,
+								"default_value": ""
+							},
+							{
+								"name": "incomeType",
+								"placeholder": "Income Type",
+								"rules": {
+									"required": true
 								},
-								{
-									"name": "Resident but Not Ordinarily Resident",
-									"value": "Resident but Not Ordinarily Resident"
-								},
-								{
-									"name": "Non-Resident",
-									"value": "Non-Resident"
-								}
-							]
-						},
-						{
-							"name": "email",
-							"placeholder": "Email ID",
-							"rules": {
-								"required": true,
-								"email": true
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "countryResidence",
-							"placeholder": "Country of Residence",
-							"type": "select",
-							"visibility": true,
-							"options": [
-								{
-									"name": "India",
-									"value": "India"
-								},
-								{
-									"name": "Other",
-									"value": "Other"
-								}
-							]
-						},
-						{
-							"name": "maritalStatus",
-							"placeholder": "Marital Status",
-							"rules": {
-								"required": true
-							},
-							"type": "select",
-							"visibility": true,
-							"options": [
-								{
-									"value": "Married",
-									"name": "Married"
-								},
-								{
-									"value": "Single",
-									"name": "Single"
-								},
-								{
-									"value": "Divorced",
-									"name": "Divorced"
-								}
-							]
-						}
-					]
-				},
-				"salary-details": {
-					"label": "Salary Details",
-					"data": [
-						{
-							"name": "grossIncome",
-							"placeholder": "Gross Total Income (as per the latest ITR slip)",
-							"type": "text",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 7
-							},
-							"visibility": true
-						},
-						{
-							"name": "netMonthlyIncome",
-							"placeholder": "Net Monthly Income (as per the latest Salary slip)",
-							"type": "text",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 6
-							},
-							"visibility": true
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Address Details",
-			"id": "address-details",
-			"fields": {
-				"address-details": {
-					"label": "Address Details",
-					"data": [
-						{
-							"name": "address1",
-							"placeholder": "Address Line 1",
-							"rules": {
-								"required": true
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "address2",
-							"placeholder": "Address Line 2",
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "address3",
-							"placeholder": "Address Line 3",
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "pinCode",
-							"placeholder": "Pin Code",
-							"rules": {
-								"required": true,
-								"length": 6
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 6
-							},
-							"makeApiCall": 6,
-							"type": "pincode",
-							"valueForFields": [
-								[
-									"city",
-									"district"
-								],
-								[
-									"state",
-									"state"
-								]
-							],
-							"visibility": true
-						},
-						{
-							"name": "city",
-							"placeholder": "City",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"AlphaCharOnly": true
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "state",
-							"placeholder": "State",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"AlphaCharOnly": true
-							},
-							"type": "text",
-							"visibility": true
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Loan Details",
-			"id": "home-loan-details",
-			"fields": {
-				"address-details": {
-					"label": "Address Details",
-					"data": [
-						{
-							"name": "address1",
-							"placeholder": "Address Line 1",
-							"rules": {
-								"required": true
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "address2",
-							"placeholder": "Address Line 2",
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "address3",
-							"placeholder": "Address Line 3",
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "pinCode",
-							"placeholder": "Pin Code",
-							"rules": {
-								"required": true,
-								"length": 6
-							},
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 6
-							},
-							"makeApiCall": 6,
-							"type": "pincode",
-							"valueForFields": [
-								[
-									"city",
-									"district"
-								],
-								[
-									"state",
-									"state"
-								]
-							],
-							"visibility": true
-						},
-						{
-							"name": "city",
-							"placeholder": "City",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"AlphaCharOnly": true
-							},
-							"type": "text",
-							"visibility": true
-						},
-						{
-							"name": "state",
-							"placeholder": "State",
-							"rules": {
-								"required": true
-							},
-							"mask": {
-								"AlphaCharOnly": true
-							},
-							"type": "text",
-							"visibility": true
-						}
-					]
-				},
-				"home-loan-details": {
-					"label": "Loan Details",
-					"data": [
-						{
-							"name": "loanAmount",
-							"placeholder": "Required Loan Amount",
-							"rules": {
-								"required": true
-							},
-							"type": "text",
-							"visibility": true,
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"inrupees": true
-						},
-						{
-							"name": "tenure",
-							"rules": {
-								"required": true
-							},
-							"placeholder": "Tenure (in months)",
-							"type": "text",
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 3
-							},
-							"visibility": true
-						},
-						{
-							"name": "branchId",
-							"type": "search",
-							"placeholder": "Home branch (for application processing)",
-							"visibility": true,
-							"fetchOnInit": true,
-							"rules": {
-								"required": true
-							},
-							"options": []
-						},
-						{
-							"name": "loanType",
-							"placeholder": "Select a Loan Type",
-							"type": "select",
-							"rules": {
-								"required": true
-							},
-							"options": [
-								{
-									"name": "Take over of existing loan from Bank",
-									"value": "Take over of existing loan from Bank"
-								},
-								{
-									"name": "Construction of House/Flat",
-									"value": "Construction of House/Flat"
-								},
-								{
-									"name": "Purchase of house site and construction",
-									"value": "Purchase of house site and construction"
-								},
-								{
-									"name": "Purchase of ready built House/Flat",
-									"value": "Purchase of ready built House/Flat"
-								}
-							],
-							"visibility": true,
-							"forType": {
-								"Take over of existing loan from Bank": [
+								"type": "select",
+								"visibility": true,
+								"options": [
 									{
-										"name": "bank",
-										"type": "select",
-										"placeholder": "Please Select the Bank/FI from which the loan(s) is/are to be taken over",
-										"visibility": true,
+										"value": "salaried",
+										"name": "Salaried"
+									},
+									{
+										"value": "business",
+										"name": "Business"
+									}
+								]
+							},
+							{
+								"name": "lastName",
+								"placeholder": "Last Name",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true,
+								"default_value": ""
+							},
+							{
+								"name": "panNumber",
+								"placeholder": "PAN Number",
+								"rules": {
+									"required": true,
+									"length": 10
+								},
+								"disabled": true,
+								"mask": {
+									"CharacterLimit": 10,
+									"AlphaNumericOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "dob",
+								"placeholder": "Date of Birth (dd-mm-yyyy)",
+								"rules": {
+									"required": true
+								},
+								"type": "date",
+								"disabled": true,
+								"visibility": true
+							},
+							{
+								"name": "aadhaar",
+								"placeholder": "Aadhar Number",
+								"type": "text",
+								"rules": {
+									"required": true,
+									"minLength": 12
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 12
+								},
+								"visibility": true
+							},
+							{
+								"name": "mobileNo",
+								"placeholder": "Mobile Number",
+								"rules": {
+									"required": true,
+									"length": 10
+								},
+								"disabled": true,
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "residenceStatus",
+								"placeholder": "Residence Status",
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"name": "Resident",
+										"value": "Resident"
+									},
+									{
+										"name": "Resident and Ordinarily Resident",
+										"value": "Resident and Ordinarily Resident"
+									},
+									{
+										"name": "Resident but Not Ordinarily Resident",
+										"value": "Resident but Not Ordinarily Resident"
+									},
+									{
+										"name": "Non-Resident",
+										"value": "Non-Resident"
+									}
+								]
+							},
+							{
+								"name": "email",
+								"placeholder": "Email ID",
+								"rules": {
+									"required": true,
+									"email": true
+								},
+								"disabled": true,
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "countryResidence",
+								"placeholder": "Country of Residence",
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"name": "India",
+										"value": "India"
+									},
+									{
+										"name": "Other",
+										"value": "Other"
+									}
+								]
+							},
+							{
+								"name": "maritalStatus",
+								"placeholder": "Marital Status",
+								"rules": {
+									"required": true
+								},
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"value": "Married",
+										"name": "Married"
+									},
+									{
+										"value": "Single",
+										"name": "Single"
+									},
+									{
+										"value": "Divorced",
+										"name": "Divorced"
+									}
+								]
+							}
+						]
+					},
+					"salary-details": {
+						"label": "Salary Details",
+						"data": [
+							{
+								"name": "grossIncome",
+								"placeholder": "Gross Total Income (as per the latest ITR slip)",
+								"type": "text",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 7
+								},
+								"visibility": true
+							},
+							{
+								"name": "netMonthlyIncome",
+								"placeholder": "Net Monthly Income (as per the latest Salary slip)",
+								"type": "text",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 6
+								},
+								"visibility": true
+							}
+						]
+					}
+				}
+			},
+			{
+				"name": "Address Details",
+				"id": "address-details",
+				"fields": {
+					"address-details": {
+						"label": "Address Details",
+						"data": [
+							{
+								"name": "address1",
+								"placeholder": "Address Line 1",
+								"rules": {
+									"required": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address2",
+								"placeholder": "Address Line 2",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address3",
+								"placeholder": "Address Line 3",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "pinCode",
+								"placeholder": "Pin Code",
+								"rules": {
+									"required": true,
+									"length": 6
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 6
+								},
+								"makeApiCall": 6,
+								"type": "pincode",
+								"valueForFields": [
+									[
+										"city",
+										"district"
+									],
+									[
+										"state",
+										"state"
+									]
+								],
+								"visibility": true
+							},
+							{
+								"name": "city",
+								"placeholder": "City",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "state",
+								"placeholder": "State",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							}
+						]
+					}
+				},
+				"flow": [
+					{
+						"name": "Co-applicant Details",
+						"id": "co-applicant-details",
+						"fields": {
+							"personal-details": {
+								"label": "Personal Details",
+								"data": [
+									{
+										"name": "firstName",
+										"placeholder": "First Name",
 										"rules": {
 											"required": true
 										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true,
+										"default_value": ""
+									},
+									{
+										"name": "incomeType",
+										"placeholder": "Income Type",
+										"rules": {
+											"required": true
+										},
+										"type": "select",
+										"visibility": true,
 										"options": [
 											{
-												"name": "HDFC",
-												"value": "hdfc"
+												"value": "salaried",
+												"name": "Salaried"
 											},
 											{
-												"name": "ICICI",
-												"value": "icici"
-											},
-											{
-												"name": "OTHER",
-												"value": "other"
+												"value": "business",
+												"name": "Business"
 											}
-										],
-										"forType": {
-											"other": [
-												{
-													"name": "bankName",
-													"type": "text",
-													"placeholder": "Enter your bank name if chosen Other",
-													"rules": {
-														"required": true
-													},
-													"mask": {
-														"NumberOnly": true,
-														"CharacterLimit": 10
-													},
-													"visibility": true
-												}
-											]
-										}
+										]
 									},
 									{
-										"name": "outstanding",
-										"type": "text",
-										"placeholder": "Enter Present Outstanding",
-										"visibility": true,
-										"inrupees": true,
+										"name": "lastName",
+										"placeholder": "Last Name",
 										"rules": {
 											"required": true
 										},
 										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true,
+										"default_value": ""
+									},
+									{
+										"name": "panNumber",
+										"placeholder": "PAN Number",
+										"rules": {
+											"required": true,
+											"length": 10
+										},
+										"disabled": true,
+										"mask": {
+											"CharacterLimit": 10,
+											"AlphaNumericOnly": true
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "dob",
+										"placeholder": "Date of Birth (dd-mm-yyyy)",
+										"rules": {
+											"required": true
+										},
+										"type": "date",
+										"disabled": true,
+										"visibility": true
+									},
+									{
+										"name": "aadhaar",
+										"placeholder": "Aadhar Number",
+										"type": "text",
+										"rules": {
+											"required": true,
+											"minLength": 12
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 12
+										},
+										"visibility": true
+									},
+									{
+										"name": "mobileNo",
+										"placeholder": "Mobile Number",
+										"rules": {
+											"required": true,
+											"length": 10
+										},
+										"disabled": true,
+										"mask": {
 											"NumberOnly": true,
 											"CharacterLimit": 10
 										},
-										"uploadButton": "Upload Agreement"
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "residenceStatus",
+										"placeholder": "Residence Status",
+										"type": "select",
+										"visibility": true,
+										"options": [
+											{
+												"name": "Resident",
+												"value": "Resident"
+											},
+											{
+												"name": "Resident and Ordinarily Resident",
+												"value": "Resident and Ordinarily Resident"
+											},
+											{
+												"name": "Resident but Not Ordinarily Resident",
+												"value": "Resident but Not Ordinarily Resident"
+											},
+											{
+												"name": "Non-Resident",
+												"value": "Non-Resident"
+											}
+										]
+									},
+									{
+										"name": "email",
+										"placeholder": "Email ID",
+										"rules": {
+											"required": true,
+											"email": true
+										},
+										"disabled": true,
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "countryResidence",
+										"placeholder": "Country of Residence",
+										"type": "select",
+										"visibility": true,
+										"options": [
+											{
+												"name": "India",
+												"value": "India"
+											},
+											{
+												"name": "Other",
+												"value": "Other"
+											}
+										]
 									}
-								],
-								"Construction of House/Flat": [
-									[
-										{
-											"name": "constructionValue",
-											"type": "text",
-											"placeholder": "Enter the Value as per the Construction Agreement",
-											"visibility": true,
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"inrupees": true,
-											"uploadButton": "Upload Agreement"
-										},
-										{
-											"name": "contructionArchitectValue",
-											"type": "text",
-											"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-											"visibility": true,
-											"inrupees": true,
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"uploadButton": "Upload Agreement"
-										}
-									]
-								],
-								"Purchase of house site and construction": [
+								]
+							},
+							"address-details": {
+								"label": "Address Details",
+								"data": [
 									{
-										"name": "landValue",
-										"type": "text",
-										"placeholder": "Enter the Agreement Value for Purchase of Land",
-										"visibility": true,
+										"name": "address1",
+										"placeholder": "Address Line 1",
 										"rules": {
 											"required": true
 										},
-										"mask": {
-											"NumberOnly": true,
-											"CharacterLimit": 10
-										},
-										"inrupees": true,
-										"uploadButton": "Upload Agreement"
+										"type": "text",
+										"visibility": true
 									},
-									[
-										{
-											"name": "constructionValue",
-											"type": "text",
-											"placeholder": "Enter the Value as per the Construction Agreement",
-											"visibility": true,
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"inrupees": true,
-											"uploadButton": "Upload Agreement"
-										},
-										{
-											"name": "contructionArchitectValue",
-											"type": "text",
-											"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-											"visibility": true,
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"inrupees": true,
-											"uploadButton": "Upload Agreement"
-										}
-									]
-								],
-								"Purchase of ready built House/Flat": [
 									{
-										"name": "salesValue",
+										"name": "address2",
+										"placeholder": "Address Line 2",
 										"type": "text",
-										"placeholder": "Enter the Value as per sales agreement",
-										"visibility": true,
+										"visibility": true
+									},
+									{
+										"name": "address3",
+										"placeholder": "Address Line 3",
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "pinCode",
+										"placeholder": "Pin Code",
+										"rules": {
+											"required": true,
+											"length": 6
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 6
+										},
+										"makeApiCall": 6,
+										"type": "pincode",
+										"valueForFields": [
+											[
+												"city",
+												"district"
+											],
+											[
+												"state",
+												"state"
+											]
+										],
+										"visibility": true
+									},
+									{
+										"name": "city",
+										"placeholder": "City",
 										"rules": {
 											"required": true
 										},
 										"mask": {
-											"NumberOnly": true,
-											"CharacterLimit": 10
+											"AlphaCharOnly": true
 										},
-										"inrupees": true,
-										"uploadButton": "Upload Agreement"
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "state",
+										"placeholder": "State",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true
 									}
 								]
 							}
 						}
-					]
-				}
-			}
-		},
-		{
-			"name": "EMI Details",
-			"id": "emi-details",
-			"fields": {
-				"emi-details": {
-					"label": "EMI Details",
-					"data": [
-						{
-							"name": "existing_auto_loan",
-							"placeholder": "Auto Loan Amount",
-							"type": "text",
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
+					},
+					{
+						"name": "Co-applicant Income Details",
+						"id": "co-applicant-income-details",
+						"fields": {
+							"salary-details": {
+								"label": "Salary Details",
+								"data": [
+									{
+										"name": "grossIncome",
+										"placeholder": "Gross Total Income (as per the latest ITR slip)",
+										"type": "text",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 7
+										},
+										"visibility": true
+									},
+									{
+										"name": "netMonthlyIncome",
+										"placeholder": "Net Monthly Income (as per the latest Salary slip)",
+										"type": "text",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 6
+										},
+										"visibility": true
+									}
+								]
 							},
-							"visibility": true,
-							"option": [],
-							"inrupees": true,
-							"subFieldName": "auto_loan_bank_name"
-						},
-						{
-							"name": "existing_personal_loan",
-							"placeholder": "Personal Loan Amount",
-							"type": "text",
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"visibility": true,
-							"option": [],
-							"inrupees": true,
-							"subFieldName": "personal_loan_bank_name"
-						},
-						{
-							"name": "existing_lap_loan",
-							"placeholder": "LAP Amount",
-							"type": "text",
-							"mask": {
-								"NumberOnly": true,
-								"CharacterLimit": 10
-							},
-							"visibility": true,
-							"option": [],
-							"inrupees": true,
-							"subFieldName": "lap_loan_bank_name"
+							"emi-details": {
+								"label": "EMI Details",
+								"data": [
+									{
+										"name": "existing_auto_loan",
+										"placeholder": "Auto Loan Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "auto_loan_bank_name"
+									},
+									{
+										"name": "existing_personal_loan",
+										"placeholder": "Personal Loan Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "personal_loan_bank_name"
+									},
+									{
+										"name": "existing_lap_loan",
+										"placeholder": "LAP Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "lap_loan_bank_name"
+									}
+								]
+							}
 						}
-					]
+					},
+					{
+						"name": "Co-applicant Document Upload",
+						"id": "co-applicant-document-upload",
+						"actions": {
+							"cub-statement": {
+								"show": true,
+								"required": true
+							},
+							"other-bank-statement": {
+								"show": true,
+								"required": false
+							},
+							"itr-fetch": {
+								"show": true,
+								"required": false
+							},
+							"cibil-fetch": {
+								"show": true,
+								"required": true
+							},
+							"agreement": {
+								"show": true,
+								"required": true
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Loan Details",
+				"id": "home-loan-details",
+				"fields": {
+					"loan_details": {
+						"label": "Loan Details",
+						"data": [
+							{
+								"name": "loanAmount",
+								"placeholder": "Required Loan Amount",
+								"rules": {
+									"required": true
+								},
+								"type": "text",
+								"visibility": true,
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true
+							},
+							{
+								"name": "tenure",
+								"rules": {
+									"required": true
+								},
+								"placeholder": "Tenure (in months)",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 3
+								},
+								"visibility": true
+							},
+							{
+								"name": "branchId",
+								"type": "search",
+								"placeholder": "Home branch (for application processing)",
+								"visibility": true,
+								"fetchOnInit": true,
+								"rules": {
+									"required": true
+								},
+								"options": []
+							},
+							{
+								"name": "loanType",
+								"placeholder": "Select a Loan Type",
+								"type": "select",
+								"rules": {
+									"required": true
+								},
+								"options": [
+									{
+										"name": "Take over of existing loan from Bank",
+										"value": "Take over of existing loan from Bank"
+									},
+									{
+										"name": "Construction of House/Flat",
+										"value": "Construction of House/Flat"
+									},
+									{
+										"name": "Purchase of house site and construction",
+										"value": "Purchase of house site and construction"
+									},
+									{
+										"name": "Purchase of ready built House/Flat",
+										"value": "Purchase of ready built House/Flat"
+									}
+								],
+								"visibility": true,
+								"forType": {
+									"Take over of existing loan from Bank": [
+										{
+											"name": "bank",
+											"type": "select",
+											"placeholder": "Please Select the Bank/FI from which the loan(s) is/are to be taken over",
+											"visibility": true,
+											"rules": {
+												"required": true
+											},
+											"options": [
+												{
+													"name": "HDFC",
+													"value": "hdfc"
+												},
+												{
+													"name": "ICICI",
+													"value": "icici"
+												},
+												{
+													"name": "OTHER",
+													"value": "other"
+												}
+											],
+											"forType": {
+												"other": [
+													{
+														"name": "bankName",
+														"type": "text",
+														"placeholder": "Enter your bank name if chosen Other",
+														"rules": {
+															"required": true
+														},
+														"mask": {
+															"NumberOnly": true,
+															"CharacterLimit": 10
+														},
+														"visibility": true
+													}
+												]
+											}
+										},
+										{
+											"name": "outstanding",
+											"type": "text",
+											"placeholder": "Enter Present Outstanding",
+											"visibility": true,
+											"inrupees": true,
+											"rules": {
+												"required": true
+											},
+											"mask": {
+												"NumberOnly": true,
+												"CharacterLimit": 10
+											},
+											"uploadButton": "Upload Agreement"
+										}
+									],
+									"Construction of House/Flat": [
+										[
+											{
+												"name": "constructionValue",
+												"type": "text",
+												"placeholder": "Enter the Value as per the Construction Agreement",
+												"visibility": true,
+												"rules": {
+													"required": true
+												},
+												"mask": {
+													"NumberOnly": true,
+													"CharacterLimit": 10
+												},
+												"inrupees": true,
+												"uploadButton": "Upload Agreement"
+											},
+											{
+												"name": "contructionArchitectValue",
+												"type": "text",
+												"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+												"visibility": true,
+												"inrupees": true,
+												"rules": {
+													"required": true
+												},
+												"mask": {
+													"NumberOnly": true,
+													"CharacterLimit": 10
+												},
+												"uploadButton": "Upload Agreement"
+											}
+										]
+									],
+									"Purchase of house site and construction": [
+										{
+											"name": "landValue",
+											"type": "text",
+											"placeholder": "Enter the Agreement Value for Purchase of Land",
+											"visibility": true,
+											"rules": {
+												"required": true
+											},
+											"mask": {
+												"NumberOnly": true,
+												"CharacterLimit": 10
+											},
+											"inrupees": true,
+											"uploadButton": "Upload Agreement"
+										},
+										[
+											{
+												"name": "constructionValue",
+												"type": "text",
+												"placeholder": "Enter the Value as per the Construction Agreement",
+												"visibility": true,
+												"rules": {
+													"required": true
+												},
+												"mask": {
+													"NumberOnly": true,
+													"CharacterLimit": 10
+												},
+												"inrupees": true,
+												"uploadButton": "Upload Agreement"
+											},
+											{
+												"name": "contructionArchitectValue",
+												"type": "text",
+												"placeholder": "Enter Value of Construction as per the Estimates of Architect",
+												"visibility": true,
+												"rules": {
+													"required": true
+												},
+												"mask": {
+													"NumberOnly": true,
+													"CharacterLimit": 10
+												},
+												"inrupees": true,
+												"uploadButton": "Upload Agreement"
+											}
+										]
+									],
+									"Purchase of ready built House/Flat": [
+										{
+											"name": "salesValue",
+											"type": "text",
+											"placeholder": "Enter the Value as per sales agreement",
+											"visibility": true,
+											"rules": {
+												"required": true
+											},
+											"mask": {
+												"NumberOnly": true,
+												"CharacterLimit": 10
+											},
+											"inrupees": true,
+											"uploadButton": "Upload Agreement"
+										}
+									]
+								}
+							}
+						]
+					}
 				}
+			},
+			{
+				"name": "EMI Details",
+				"id": "emi-details",
+				"fields": {
+					"emi_details": {
+						"label": "EMI Details",
+						"data": [
+							{
+								"name": "existing_auto_loan",
+								"placeholder": "Auto Loan Amount",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"option": [],
+								"inrupees": true,
+								"subFieldName": "auto_loan_bank_name"
+							},
+							{
+								"name": "existing_personal_loan",
+								"placeholder": "Personal Loan Amount",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"option": [],
+								"inrupees": true,
+								"subFieldName": "personal_loan_bank_name"
+							},
+							{
+								"name": "existing_lap_loan",
+								"placeholder": "LAP Amount",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"option": [],
+								"inrupees": true,
+								"subFieldName": "lap_loan_bank_name"
+							}
+						]
+					}
+				}
+			},
+			{
+				"name": "Document Upload",
+				"id": "document-upload",
+				"actions": {
+					"cub-statement": {
+						"show": true,
+						"required": true
+					},
+					"other-bank-statement": {
+						"show": true,
+						"required": false
+					},
+					"itr-fetch": {
+						"show": true,
+						"required": false
+					},
+					"cibil-fetch": {
+						"show": true,
+						"required": true
+					},
+					"agreement": {
+						"show": true,
+						"required": true
+					}
+				}
+			},
+			{
+				"name": "Application Submitted",
+				"id": "application-submitted",
+				"flow": [
+					{
+						"name": "Guarantor Details",
+						"id": "guarantor-details",
+						"fields": {
+							"personal-details": {
+								"label": "Personal Details",
+								"data": [
+									{
+										"name": "firstName",
+										"placeholder": "First Name",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true,
+										"default_value": ""
+									},
+									{
+										"name": "incomeType",
+										"placeholder": "Income Type",
+										"rules": {
+											"required": true
+										},
+										"type": "select",
+										"visibility": true,
+										"options": [
+											{
+												"value": "salaried",
+												"name": "Salaried"
+											},
+											{
+												"value": "business",
+												"name": "Business"
+											}
+										]
+									},
+									{
+										"name": "lastName",
+										"placeholder": "Last Name",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true,
+										"default_value": ""
+									},
+									{
+										"name": "panNumber",
+										"placeholder": "PAN Number",
+										"rules": {
+											"required": true,
+											"length": 10
+										},
+										"disabled": true,
+										"mask": {
+											"CharacterLimit": 10,
+											"AlphaNumericOnly": true
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "dob",
+										"placeholder": "Date of Birth (dd-mm-yyyy)",
+										"rules": {
+											"required": true
+										},
+										"type": "date",
+										"disabled": true,
+										"visibility": true
+									},
+									{
+										"name": "aadhaar",
+										"placeholder": "Aadhar Number",
+										"type": "text",
+										"rules": {
+											"required": true,
+											"minLength": 12
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 12
+										},
+										"visibility": true
+									},
+									{
+										"name": "mobileNo",
+										"placeholder": "Mobile Number",
+										"rules": {
+											"required": true,
+											"length": 10
+										},
+										"disabled": true,
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "residenceStatus",
+										"placeholder": "Residence Status",
+										"type": "select",
+										"visibility": true,
+										"options": [
+											{
+												"name": "Resident",
+												"value": "Resident"
+											},
+											{
+												"name": "Resident and Ordinarily Resident",
+												"value": "Resident and Ordinarily Resident"
+											},
+											{
+												"name": "Resident but Not Ordinarily Resident",
+												"value": "Resident but Not Ordinarily Resident"
+											},
+											{
+												"name": "Non-Resident",
+												"value": "Non-Resident"
+											}
+										]
+									},
+									{
+										"name": "email",
+										"placeholder": "Email ID",
+										"rules": {
+											"required": true,
+											"email": true
+										},
+										"disabled": true,
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "countryResidence",
+										"placeholder": "Country of Residence",
+										"type": "select",
+										"visibility": true,
+										"options": [
+											{
+												"name": "India",
+												"value": "India"
+											},
+											{
+												"name": "Other",
+												"value": "Other"
+											}
+										]
+									}
+								]
+							},
+							"address-details": {
+								"label": "Address Details",
+								"data": [
+									{
+										"name": "address1",
+										"placeholder": "Address Line 1",
+										"rules": {
+											"required": true
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "address2",
+										"placeholder": "Address Line 2",
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "address3",
+										"placeholder": "Address Line 3",
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "pinCode",
+										"placeholder": "Pin Code",
+										"rules": {
+											"required": true,
+											"length": 6
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 6
+										},
+										"makeApiCall": 6,
+										"type": "pincode",
+										"valueForFields": [
+											[
+												"city",
+												"district"
+											],
+											[
+												"state",
+												"state"
+											]
+										],
+										"visibility": true
+									},
+									{
+										"name": "city",
+										"placeholder": "City",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "state",
+										"placeholder": "State",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true
+									}
+								]
+							}
+						}
+					},
+					{
+						"name": "Guarantor Income Details",
+						"id": "guarantor-income-details",
+						"fields": {
+							"salary-details": {
+								"label": "Salary Details",
+								"data": [
+									{
+										"name": "grossIncome",
+										"placeholder": "Gross Total Income (as per the latest ITR slip)",
+										"type": "text",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 7
+										},
+										"visibility": true
+									},
+									{
+										"name": "netMonthlyIncome",
+										"placeholder": "Net Monthly Income (as per the latest Salary slip)",
+										"type": "text",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 6
+										},
+										"visibility": true
+									}
+								]
+							},
+							"emi-details": {
+								"label": "EMI Details",
+								"data": [
+									{
+										"name": "existing_auto_loan",
+										"placeholder": "Auto Loan Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "auto_loan_bank_name"
+									},
+									{
+										"name": "existing_personal_loan",
+										"placeholder": "Personal Loan Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "personal_loan_bank_name"
+									},
+									{
+										"name": "existing_lap_loan",
+										"placeholder": "LAP Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "lap_loan_bank_name"
+									}
+								]
+							}
+						}
+					},
+					{
+						"name": "Guarantor Document Upload",
+						"id": "guarantor-document-upload",
+						"actions": {
+							"cub-statement": {
+								"show": true,
+								"required": true
+							},
+							"other-bank-statement": {
+								"show": true,
+								"required": false
+							},
+							"itr-fetch": {
+								"show": true,
+								"required": false
+							},
+							"cibil-fetch": {
+								"show": true,
+								"required": true
+							},
+							"agreement": {
+								"show": true,
+								"required": true
+							}
+						}
+					}
+				]
+			}
+		],
+		"error": {
+			"message": "The application is currently for individuals only. Please contact your branch for processing your application",
+			"button": {
+				"header": "<b>Become a customer with </b><a href=link>City Union Bank</a>",
+				"link": "www.google.com",
+				"message": "Click here to complete your e-kyc"
 			}
 		},
-		{
-			"name": "Document Upload",
-			"id": "cub-document-upload"
-		},
-		{
-			"name": "Application Submitted",
-			"id": "application-submitted"
-		}
-	],
-	"error": {
-		"message": "The application is currently for individuals only. Please contact your branch for processing your application",
-		"button": {
-			"header": "<b>Become a customer with </b><a href=link>City Union Bank</a>",
-			"link": "www.google.com",
-			"message": "Click here to complete your e-kyc"
-		}
+		"Required Documents": [
+			"Latest Three months salary slip",
+			"Latest Six months bank account statement(in which the salary gets credited)",
+			"Last 2 years ITR(in pdf)",
+			"Quotation letter",
+			"SB account statment for the latest six months(other banks)",
+			"Form 16 from the Employee of the borrower",
+			"Any other relevent doxuments"
+		]
 	},
-	"Required Documents": [
-		"Latest Three months salary slip",
-		"Latest Six months bank account statement(in which the salary gets credited)",
-		"Last 2 years ITR(in pdf)",
-		"Quotation letter",
-		"SB account statment for the latest six months(other banks)",
-		"Form 16 from the Employee of the borrower",
-		"Any other relevent doxuments"
-	]
+	"color_theme_react": {
+		"buttonColor1": "#01914a",
+		"buttonColor2": "#01914a",
+		"buttonTextColor": "#ffffff",
+		"themeColor1": "#ffffff",
+		"themeColor2": "#082080",
+		"bankIcon": ""
+	},
+	"edit_json": "{\n\t\"head\": \"CUB offers easy and quick processing of housing loan to individuals for purchase of : \",\n\t\"loanType\": \"Home Loan\",\n\t\"productDetailsImage\": \"https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/20-SM854909.jpg\",\n\"applicationSubmittedImage\":\"https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM854879.jpg\",\n\t\"li\": [\"Site for construction of a house\", \"Purchase of a ready built house/flat\", \"To carryout repairs/ renovations/ alterations/ extension of the existing house\", \"Purschase of a flat under construction\", \"Takeover of existing housing loans from other banks.\", \"Eligibility : Salaried Employees : 60 months net take home pay; Professionals/ Business/ Self employed : 5 times of income declared in the lastest ITR\", \"Loan amount : Maximum of Rs. 1 Crore\", \"Margin : 25%\", \"Repayment tenor : Maximum 180 months for purchase and construction of house.\", \"<a href=link>Click here</a> for Interest rate and required documents\", \"<a href=link>Click here</a> for Schemes\", \"<a href=link>Click here</a> for Processing Charges\", \"<a href=link>EMI Calculator</a>\"],\n\t\"flow\": [{\n\t\t\t\"name\": \"Identity Verification\",\n\t\t\t\"id\": \"identity-verification\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Personal Details\",\n\t\t\t\"id\": \"personal-details\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Address Details\",\n\t\t\t\"id\": \"address-details\",\n\t\t\t\"flow\": [{\n\t\t\t\t\t\"name\": \"Co-applicant Details\",\n\t\t\t\t\t\"id\": \"co-applicant-details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Co-applicant Income Details\",\n\t\t\t\t\t\"id\": \"co-applicant-income-details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Co-applicant Document Upload\",\n\t\t\t\t\t\"id\": \"co-applicant-document-upload\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Loan Details\",\n\t\t\t\"id\": \"home-loan-details\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"EMI Details\",\n\t\t\t\"id\": \"emi-details\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Document Upload\",\n\t\t\t\"id\": \"document-upload\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Application Submitted\",\n\t\t\t\"id\": \"application-submitted\",\n\t\t\t\"flow\": [{\n\t\t\t\t\t\"name\": \"Guarantor Details\",\n\t\t\t\t\t\"id\": \"guarantor-details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Guarantor Income Details\",\n\t\t\t\t\t\"id\": \"guarantor-income-details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Guarantor Document Upload\",\n\t\t\t\t\t\"id\": \"guarantor-document-upload\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t],\n\t\"error\": {\n\t\t\"message\": \"The application is currently for individuals only. Please contact your branch for processing your application\",\n\t\t\"button\": {\n\t\t\t\"header\": \"<b>Become a customer with </b><a href=link>City Union Bank</a>\",\n\t\t\t\"link\": \"www.google.com\",\n\t\t\t\"message\": \"Click here to complete your e-kyc\"\n\t\t}\n\n\t},\n\n\t\"Required Documents\": [\n\t\t\"Latest Three months salary slip\",\n\t\t\"Latest Six months bank account statement(in which the salary gets credited)\",\n\t\t\"Last 2 years ITR(in pdf)\",\n\t\t\"Quotation letter\",\n\t\t\"SB account statment for the latest six months(other banks)\",\n\t\t\"Form 16 from the Employee of the borrower\",\n\t\t\"Any other relevent doxuments\"\n\t]\n\n}"
 }
