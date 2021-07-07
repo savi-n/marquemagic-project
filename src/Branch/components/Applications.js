@@ -26,7 +26,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 	const [alert, setAlert] = useState(null);
 	const [product, setProduct] = useState(null);
 	const [assignmentLog, setAssignmentLog] = useState(null);
-
+	const [productId, setProductId] = useState(null);
 	useEffect(async () => {
 		setLoading(true);
 		Object.keys(mapp).map(e => {
@@ -177,6 +177,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 									setProduct={setProduct}
 									setAssignmentLog={setAssignmentLog}
 									submitCase={submitCase}
+									setProductId={setProductId}
 								/>
 						  ))
 						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}
@@ -191,6 +192,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 			product={product && product}
 			id={id && id}
 			activ={activ}
+			productId={productId}
 		/>
 	);
 }

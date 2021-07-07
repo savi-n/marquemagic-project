@@ -35,7 +35,8 @@ export default function CardDetails({
 	setProduct,
 	setAssignmentLog,
 	usersList,
-	submitCase
+	submitCase,
+	setProductId
 }) {
 	const [security, setSecurity] = useState(false);
 	const [recommendation, setRecommendation] = useState(false);
@@ -180,6 +181,7 @@ export default function CardDetails({
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
+												setProductId && setProductId(item.loan_product_id);
 												item.assignmentLog
 													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
 													: setAssignmentLog && setAssignmentLog(null);
@@ -188,7 +190,10 @@ export default function CardDetails({
 												setId(item.id);
 												e === 'Check Documents'
 													? setActiv('Document Details')
-													: setActiv('Applicant');
+													: item.product !== 'Unsecured Business/Self-Employed' &&
+													  item.product !== 'LAP Cases'
+													? setActiv('Applicant')
+													: setActiv('Business Details');
 											}}
 										>
 											{e}
@@ -221,6 +226,7 @@ export default function CardDetails({
 											width='fulll'
 											onClick={() => {
 												setProduct && setProduct(item.product);
+												setProductId && setProductId(item.loan_product_id);
 												item.assignmentLog
 													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
 													: setAssignmentLog && setAssignmentLog(null);
