@@ -60,7 +60,7 @@ function formatCompanyData(data) {
 
   for (const [i, dir] of data["directors/signatory_details"]?.entries() || []) {
     directors[`directors_${i}`] = {
-      ddin_no: dir["din/pan"],
+      [`ddin_no${i}`]: dir["din/pan"],
     };
     directorsForShow.push({
       Name: dir.assosiate_company_details?.director_data.name,
