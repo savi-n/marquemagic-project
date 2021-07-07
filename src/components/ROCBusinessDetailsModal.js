@@ -5,8 +5,6 @@ import Modal from "./Modal";
 import Button from "./Button";
 import { BussinesContext } from "../reducer/bussinessReducer";
 
-// 188,187,186,189,182,148,133
-
 const Div = styled.div`
   padding: 20px;
 `;
