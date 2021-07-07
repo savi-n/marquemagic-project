@@ -124,7 +124,7 @@ export default function useForm() {
 
   useEffect(() => {
     return () => {
-      console.log("useHook Unmount");
+      // console.log("useHook Unmount");
       fieldsRef.current = {};
       valuesRef.current = {};
       touchedRef.current = {};
