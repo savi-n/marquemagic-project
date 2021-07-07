@@ -7,6 +7,8 @@ import Button from "../../../components/Button";
 import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
+import { LoanFormContext } from "../../../reducer/loanFormDataReducer";
+
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
@@ -49,6 +51,13 @@ const formatEmiData = (formData, fields) => {
   }));
 };
 
+const formatLoanEmiData = (formData, fields) => {
+  return fields.map((f) => ({
+    emiAmount: formData[f.name],
+    bank_name: formData[`${f.name}_bank_name`],
+  }));
+};
+
 EMIDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
@@ -65,6 +74,10 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
     actions: { setUsertypeEmiData },
   } = useContext(FormContext);
 
+  const {
+    actions: { setLoanData },
+  } = useContext(LoanFormContext);
+
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
@@ -78,6 +91,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
     const emiData = formatEmiData(data, map.fields[id].data);
 
     setUsertypeEmiData(emiData);
+    setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
 
     addToast({
       message: "Saved Succesfully",
@@ -102,6 +116,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
         register={register}
         formState={formState}
         jsonData={map.fields[id].data}
+        label={map.fields[id].label}
         // {[...fieldConfig.emi_details.data, ...additionalField]}
       />
 
