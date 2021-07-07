@@ -29,7 +29,6 @@ TwoWheelerLoanDetailsPage.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   productDetails: object,
-  fieldConfig: object,
 };
 
 export default function TwoWheelerLoanDetailsPage({
@@ -37,7 +36,6 @@ export default function TwoWheelerLoanDetailsPage({
   onFlowChange,
   map,
   productDetails,
-  fieldConfig,
 }) {
   const {
     actions: { setCompleted },
@@ -61,8 +59,8 @@ export default function TwoWheelerLoanDetailsPage({
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
-    const loanData = formatLoanData(data, fieldConfig.loan_details.data);
+    const emiData = formatEmiData(data, map.fields["emi-details"].data);
+    const loanData = formatLoanData(data, map.fields["loan-details"].data);
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
@@ -81,15 +79,15 @@ export default function TwoWheelerLoanDetailsPage({
       <LoanDetails
         register={register}
         formState={formState}
-        jsonData={fieldConfig.loan_details.data}
-        label={fieldConfig.loan_details.label}
+        jsonData={map.fields["loan-details"].data}
+        label={map.fields["loan-details"].label}
         loanType={productDetails.loanType}
         size="40%"
       />
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={fieldConfig.emi_details.data}
+        jsonData={map.fields["emi-details"].data}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
