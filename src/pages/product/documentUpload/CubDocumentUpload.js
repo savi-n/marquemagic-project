@@ -425,7 +425,14 @@ export default function DocumentUpload({
         product_id: productId,
         applicantData: {
           ...state.user.applicantData,
-          ...(state.user?.emi ? { emiDetails: state.user?.emi } : {}),
+          ...(state.user?.emi
+            ? {
+                emiDetails: state.user?.emi?.map((em) => ({
+                  emiAmount: em.amount,
+                  bank_name: em.bank,
+                })),
+              }
+            : {}),
         },
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
         ...state.user.bankData,
