@@ -9,7 +9,7 @@ import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { UserContext } from "../../../reducer/userReducer";
-import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { formatLoanData } from "../../../utils/formatData";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
@@ -23,6 +23,14 @@ const ButtonWrap = styled.div`
   align-items: center;
   gap: 20px;
 `;
+
+const formatEmiData = (formData, fields) => {
+  return fields.map((f) => ({
+    type: f.name,
+    amount: formData[f.name],
+    bank: formData[`${f.name}_bank_name`],
+  }));
+};
 
 TwoWheelerLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
@@ -46,7 +54,7 @@ export default function TwoWheelerLoanDetailsPage({
   } = useContext(FormContext);
 
   const {
-    state: { userDetails },
+    state: { bankId },
   } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
@@ -64,7 +72,7 @@ export default function TwoWheelerLoanDetailsPage({
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
-      bankId: userDetails.lender_id,
+      bankId: bankId,
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
@@ -88,6 +96,7 @@ export default function TwoWheelerLoanDetailsPage({
         register={register}
         formState={formState}
         jsonData={map.fields["emi-details"].data}
+        label={map.fields["emi-details"].label}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

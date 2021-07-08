@@ -86,42 +86,6 @@ const Doc = styled.h2`
 //     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
 // };
 
-// {
-//   "Business_details": {
-//       "business_type": 1,
-//       "business_industry_type": 20,
-//       "business_name": "test case",
-//       "business_email": "testsavi@credit.com",
-//       "contact": 8989898989,
-//       "businesspancardnumber": "",
-//       "crime_check": "Yes",
-//       "gstin": "",
-//       "businessstartdate": ""
-//   },
-//   "businessaddress": {
-//       "city": "County Durham",
-//       "line1": "1 High Burnigill Cottages",
-//       "locality": "Croxdale",
-//       "pincode": "DH6 5JJ",
-//       "state": "England"
-//   },
-//   "loan_details": {
-//       "loan_type_id": 1,
-//       "case_priority": null,
-//       "loan_product_id": "10",
-//       "loan_request_type": "1",
-//       "origin": "New_UI",
-//       "white_label_id": "c3bc022673a835674f7c4eb5d43239f3",
-//       "application_ref": null,
-//       "branchId": null,
-//       "loan_amount": null,
-//       "applied_tenure": 0,
-//       "annual_turn_over": null,
-//       "annual_op_expense": null
-//   },
-
-// }
-
 function caseCreationDataFormat(data, companyData) {
   const formatedData = {
     Business_details: {
@@ -132,6 +96,8 @@ function caseCreationDataFormat(data, companyData) {
       contact: "",
       businesspancardnumber: companyData.PancardNumber,
       crime_check: "Yes",
+      //       "gstin": "",
+      //       "businessstartdate": ""
       corporateid: companyData.CIN,
     },
     businessaddress: {
@@ -141,11 +107,21 @@ function caseCreationDataFormat(data, companyData) {
       pincode: "DH6 5JJ",
       state: "England",
     },
+
     director_details: companyData.DirectorDetails,
     loan_details: {
+      // loan_type_id: 1,
+      // case_priority: null,
+      // loan_product_id: "10",
+      // loan_request_type: "1",
+      // origin: "New_UI",
       loan_product_id: data.productId,
       white_label_id: companyData.encryptedWhitelabel,
       branchId: companyData.branchId,
+      loan_amount: data['business-loan-details'].['Loan Amount'],
+      applied_tenure: 0,
+      annual_turn_over: null,
+      annual_op_expense: null,
       // loan_type_id: 1,
       // case_priority: null,
       // origin: "New_UI",
