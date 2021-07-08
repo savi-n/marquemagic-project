@@ -199,12 +199,13 @@ export default function DocumentUpload({
   const buttonDisabledStatus = () => {
     return caseCreationProgress;
     // return (
+    //   caseCreationProgress ||
     //   !(!!userType || bankCUBStatementFetchDone) ||
     //   !(cibilCheckbox && declareCheck) ||
     //   caseCreationProgress ||
-    //   // !(
-    //   //   documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
-    //   // ) ||
+    //   !(
+    //     documentChecklist.length === productDetails[DOCUMENTS_REQUIRED].length
+    //   ) ||
     //   !state[USER_ROLES[userType || "User"]]?.uploadedDocs?.length
     // );
   };
@@ -250,6 +251,10 @@ export default function DocumentUpload({
 
   // step 2: upload docs reference
   const updateDocumentList = async (loanId, user) => {
+    if (!state[user]?.uploadedDocs.length) {
+      return true;
+    }
+
     try {
       const uploadDocsReq = await newRequest(
         BORROWER_UPLOAD_URL,
@@ -418,9 +423,11 @@ export default function DocumentUpload({
       const loanReq = await caseCreationSteps({
         white_label_id: whiteLabelId,
         product_id: productId,
-        applicantData: state.user.applicantData,
+        applicantData: {
+          ...state.user.applicantData,
+          emiDetails: state.user?.emi || [],
+        },
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
-        emi: state.user?.emi || [],
         ...state.user.bankData,
         // cibilScore: otherUserTypeCibilDetails.cibilScore,
       });

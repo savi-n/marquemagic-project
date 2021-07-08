@@ -10,8 +10,8 @@ import UploadAgreementModal from "../../../components/UploadAgreementModal";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
-// import { UserContext } from "../../../reducer/userReducer";
-import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { UserContext } from "../../../reducer/userReducer";
+import { formatLoanData } from "../../../utils/formatData";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const Div = styled.div`
@@ -55,9 +55,9 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
     },
   } = useContext(FormContext);
 
-  // const {
-  //   state: { userDetails },
-  // } = useContext(UserContext);
+  const {
+    state: { bankId },
+  } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
@@ -78,7 +78,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
     // setUsertypeEmiData(emiData);
     setUsertypeBankData({
-      // bankId: userDetails.lender_id,
+      bankId: bankId,
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });

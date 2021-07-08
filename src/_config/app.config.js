@@ -1,6 +1,7 @@
 import taggedTemplate from "../utils/taggedTemplate";
 
-const API_END_POINT = process.env.REACT_APP_API_URL || "http://3.0.103.80:1337";
+const API_END_POINT =
+  process.env.REACT_APP_API_URL || "http://3.108.54.252:1337";
 const ENDPOINT_BANK =
   process.env.REACT_APP_BANK_API || "http://40.80.80.135:1337";
 
@@ -63,7 +64,7 @@ const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 
 const APP_CLIENT =
   window.location.hostname === "localhost"
-    ? "clix.loan2pal.com"
+    ? "cub.loan2pal.com"
     : window.location.hostname;
 
 const NC_STATUS_CODE = {
