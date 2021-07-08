@@ -133,6 +133,7 @@ export default function AddressDetails({
                       value: match
                         ? formState?.values?.[`permanent_${field.name}`]
                         : formState?.values?.[`present_${field.name}`],
+                      noActionTrigger: match,
                       ...(field.valueForFields
                         ? {
                             valueForFields: field.valueForFields.map((f) => [
