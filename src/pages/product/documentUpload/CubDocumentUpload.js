@@ -16,7 +16,7 @@ import {
   UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
   USER_ROLES,
-  // DOCTYPES_FETCH,
+  DOCTYPES_FETCH,
 } from "../../../_config/app.config";
 import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
@@ -126,6 +126,8 @@ export default function DocumentUpload({
     state,
     actions: {
       setUsertypeDocuments,
+      removeUserTypeDocument,
+      setUserTypeDocumentType,
       setUsertypeCibilData,
       setUsertypeStatementData,
     },
@@ -138,16 +140,17 @@ export default function DocumentUpload({
 
   const { newRequest } = useFetch();
 
-  // const { response } = useFetch({
-  //   url: DOCTYPES_FETCH,
-  //   options: {
-  //     method: "POST",
-  //     data: { business_type: 7, loan_product: productId },
-  //   },
-  //   headers: {
-  //     Authorization: `Bearer ${userToken}`,
-  //   },
-  // });
+  const { response } = useFetch({
+    url: DOCTYPES_FETCH,
+    options: {
+      method: "POST",
+      data: { business_type: 7, loan_product: productId },
+    },
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+    },
+  });
+  console.log(response);
 
   const { addToast } = useToasts();
 
@@ -171,16 +174,16 @@ export default function DocumentUpload({
     null
   );
 
-  const [documentChecklist, setDocumentChecklist] = useState([]);
+  // const [documentChecklist, setDocumentChecklist] = useState([]);
 
   const [cibilCheckModal, setCibilCheckModal] = useState(false);
 
-  const handleDocumentChecklist = (doc) => {
-    return (value) => {
-      if (value) setDocumentChecklist([...documentChecklist, doc]);
-      else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
-    };
-  };
+  // const handleDocumentChecklist = (doc) => {
+  //   return (value) => {
+  //     if (value) setDocumentChecklist([...documentChecklist, doc]);
+  //     else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
+  //   };
+  // };
 
   const onToggleCUBStatementModal = () => {
     if (bankCUBStatementFetchDone) return;
@@ -194,6 +197,15 @@ export default function DocumentUpload({
 
   const handleFileUpload = async (files) => {
     setUsertypeDocuments(files, USER_ROLES[userType || "User"]);
+  };
+
+  const handleFileRemove = async (file) => {
+    removeUserTypeDocument(file, USER_ROLES[userType || "User"]);
+  };
+
+  const handleDocumentTypeChange = async (fileId, type) => {
+    // setDocumentChecklist([...documentChecklist, type]);
+    setUserTypeDocumentType(fileId, type, USER_ROLES[userType || "User"]);
   };
 
   const buttonDisabledStatus = () => {
@@ -547,6 +559,10 @@ export default function DocumentUpload({
     setCibilCheckModal(false);
   };
 
+  const documentChecklist =
+    state[USER_ROLES[userType || "User"]]?.uploadedDocs?.map(
+      (docs) => docs.type
+    ) || [];
   return (
     <>
       <Colom1>
@@ -557,6 +573,12 @@ export default function DocumentUpload({
           <FileUpload
             onDrop={handleFileUpload}
             accept=""
+            onRemoveFile={handleFileRemove}
+            docTypeOptions={productDetails[DOCUMENTS_REQUIRED]?.map((docs) => ({
+              value: docs,
+              name: docs,
+            }))}
+            documentTypeChangeCallback={handleDocumentTypeChange}
             upload={{
               url: DOCS_UPLOAD_URL({ userId: userId || "" }),
               header: {
@@ -650,8 +672,9 @@ export default function DocumentUpload({
               <CheckBox
                 name={docs}
                 checked={documentChecklist.includes(docs)}
-                onChange={handleDocumentChecklist(docs)}
+                // onChange={handleDocumentChecklist(docs)}
                 round
+                disabled
                 bg="green"
               />
             </DocsCheckboxWrapper>

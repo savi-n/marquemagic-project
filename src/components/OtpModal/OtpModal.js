@@ -127,6 +127,7 @@ export default function OtpModal(props) {
         userBankDetails: response.cubDetails,
         userToken: response.token,
         bankId: bankId,
+        userId,
       };
 
       if (setUserDetails) setUserDetails(userData);

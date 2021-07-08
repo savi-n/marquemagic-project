@@ -107,13 +107,14 @@ const FileListWrap = styled.div`
 `;
 
 const File = styled.div`
-  flex-basis: 30%;
+  /* flex-basis: 30%; */
+  width: 100%;
   position: relative;
   overflow: hidden;
   padding: 5px;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  height: 35px;
+  height: 50px;
   font-size: 13px;
   margin: 10px 0;
   display: flex;
@@ -135,8 +136,16 @@ const File = styled.div`
   }
 `;
 
+const SelectDocType = styled.select`
+  height: 40px;
+  padding: 10px;
+  width: 40%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+`;
+
 const FileName = styled.span`
-  width: 80%;
+  width: 50%;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -163,6 +172,13 @@ export default function FileUpload({
   bg,
   disabled = false,
   upload = null,
+  onRemoveFile = (id) => {
+    console.log("REMOVED FILE " + id);
+  },
+  docTypeOptions = [],
+  documentTypeChangeCallback = (id, value) => {
+    console.log("DOCUMENT TYPE CHANGED " + id);
+  },
 }) {
   const ref = useRef(uuidv4());
 
@@ -171,6 +187,8 @@ export default function FileUpload({
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState([]);
+
+  const [docTypeFileMap, setDocTypeFileMap] = useState({});
 
   const selectedFiles = useRef([]);
   const uploadingProgressFiles = useRef([]);
@@ -190,6 +208,15 @@ export default function FileUpload({
       return uFile;
     });
     uploadingProgressFiles.current = uploadFiles;
+    setUploadingFiles(uploadFiles);
+  };
+
+  const onFileRemove = (file) => {
+    const uploadFiles = uploadingProgressFiles.current.filter(
+      (uFile) => uFile.id !== file.id
+    );
+    uploadingProgressFiles.current = uploadFiles;
+    onRemoveFile(file.id);
     setUploadingFiles(uploadFiles);
   };
 
@@ -347,6 +374,14 @@ export default function FileUpload({
     selectedFiles.current = [...selectedFiles.current, ...event.target.files];
   };
 
+  const onDocTypeChange = (fileId, value) => {
+    documentTypeChangeCallback(fileId, value);
+    setDocTypeFileMap({
+      ...docTypeFileMap,
+      [fileId]: value,
+    });
+  };
+
   useEffect(() => {
     let div = ref.current;
 
@@ -400,10 +435,28 @@ export default function FileUpload({
             tooltip={file.name}
           >
             <FileName>{file.name}</FileName>
+            {file.status === "completed" && !!docTypeOptions.length && (
+              <SelectDocType
+                value={docTypeFileMap[file.id] || ""}
+                onChange={(e) => onDocTypeChange(file.id, e.target.value)}
+              >
+                <option value="" disabled>
+                  Select Document Type
+                </option>
+                {docTypeOptions.map((docType) => (
+                  <option key={docType.value} value={docType.value}>
+                    {docType.name}
+                  </option>
+                ))}
+              </SelectDocType>
+            )}
             {file.status === "progress" && (
               <CancelBtn onClick={() => file.cancelToken.cancel(USER_CANCELED)}>
                 &#10006;
               </CancelBtn>
+            )}
+            {file.status === "completed" && (
+              <CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
             )}
           </File>
         ))}
