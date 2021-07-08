@@ -169,8 +169,13 @@ export default function OtpModal(props) {
       return;
     }
 
+    const accountsDetails = accounts.find(
+      (acc) => acc.accNum === selectedAccount
+    );
+
     await submitOtp({
       customerId: selectedAccount,
+      aadharNum: accountsDetails.aadharNum,
     });
   };
 

@@ -108,6 +108,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
           panNumber: userBankDetails?.pan || "",
           residenceStatus: userBankDetails?.residentStatus || "",
           countryResidence: "india",
+          aadhaar: userBankDetails?.aadharNum || "",
         }}
         jsonData={map.fields[id].data}
       />
