@@ -54,7 +54,7 @@ export default function TwoWheelerLoanDetailsPage({
   } = useContext(FormContext);
 
   const {
-    state: { userDetails },
+    state: { bankId },
   } = useContext(UserContext);
 
   const { handleSubmit, register, formState } = useForm();
@@ -72,7 +72,7 @@ export default function TwoWheelerLoanDetailsPage({
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
-      // bankId: userDetails.lender_id,
+      bankId: bankId,
       branchId: data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
