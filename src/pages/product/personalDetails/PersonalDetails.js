@@ -106,7 +106,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
           email: userBankDetails?.email || "",
           mobileNo: userBankDetails?.mobileNum || "",
           panNumber: userBankDetails?.pan || "",
-          residenceStatus: userBankDetails?.residentStatus || "",
+          residenceStatus: userBankDetails?.residentTypess || "",
           countryResidence: "india",
           aadhaar: userBankDetails?.aadharNum || "",
         }}
