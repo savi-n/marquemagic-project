@@ -13,6 +13,7 @@ const actionTypes = {
   SET_USERTYPE_CUB_STATEMENT_DATA: "SET_USERTYPE_CUB_STATEMENT_DATA",
   SET_USERTYPE_AGREEMENT_DOCS: "SET_USERTYPE_AGREEMENT_DOCS",
 
+  SET_USERTYPE_DOCUMENT_TYPE: "SET_USERTYPE_DOCUMENT_TYPE",
   REMOVE_USERTYPE_DOCUMENT: "REMOVE_USERTYPE_DOCUMENT",
 };
 
@@ -105,6 +106,15 @@ const useActions = (dispatch) => {
     });
   };
 
+  const setUserTypeDocumentType = (docId, docType, userType = "user") => {
+    dispatch({
+      type: actionTypes.SET_USERTYPE_DOCUMENT_TYPE,
+      docId,
+      docType,
+      userType,
+    });
+  };
+
   return {
     setUsertypeApplicantData,
     setUsertypeAddressData,
@@ -117,6 +127,7 @@ const useActions = (dispatch) => {
     setUsertypeStatementData,
     setUsertypeAgreementData,
     removeUserTypeDocument,
+    setUserTypeDocumentType,
   };
 };
 
@@ -144,6 +155,21 @@ function reducer(state, action) {
         },
       };
     }
+
+    case actionTypes.SET_USERTYPE_DOCUMENT_TYPE: {
+      const userDocs = (state[action.userType]?.uploadedDocs || []).map((doc) =>
+        doc.id === action.docId ? { ...doc, type: action.docType } : doc
+      );
+
+      return {
+        ...state,
+        [action.userType]: {
+          ...state[action.userType],
+          uploadedDocs: userDocs,
+        },
+      };
+    }
+
     case actionTypes.REMOVE_USERTYPE_DOCUMENT: {
       const userDocs = (state[action.userType]?.uploadedDocs || []).filter(
         (doc) => doc.id !== action.docId
@@ -157,6 +183,7 @@ function reducer(state, action) {
         },
       };
     }
+
     case actionTypes.SET_USERTYPE_CIBIL_DATA: {
       const cibilData = {
         ...(state[action.userType]?.cibilData || {}),

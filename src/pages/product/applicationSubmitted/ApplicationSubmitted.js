@@ -52,7 +52,7 @@ const CaptionImg = styled.div`
 
 const data = [
   {
-    caption: `Your application has been forwarded to the branch, desicion shall be communicated within 2-3 working days.`,
+    caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
     guarantor: true,
     img: img1,
   },
