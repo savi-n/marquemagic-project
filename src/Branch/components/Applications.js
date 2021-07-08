@@ -9,7 +9,6 @@ import { getCase, needAction, searchData } from '../utils/requests';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import CheckApplication from '../pages/checkApplication';
-import SkeletonLoader from '../shared/components/SkeletonLoader';
 
 export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier, usersList }) {
 	const [data, setData] = useState(null);
@@ -187,6 +186,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 		</section>
 	) : (
 		<CheckApplication
+			setViewLoan={setViewLoan}
 			usersList={usersList && usersList}
 			assignmentLog={assignmentLog}
 			product={product && product}

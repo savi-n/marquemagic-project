@@ -6,6 +6,8 @@ import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export default function CheckApplication(props) {
 	const [fields, setFields] = useState(null);
@@ -38,7 +40,7 @@ export default function CheckApplication(props) {
 		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases'
 			? 'Applicant'
 			: 'Business Details',
-		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases' ? 'Co-Applicant' : null,
+		'Co-Applicant',
 		'Document Details',
 		'Security Details',
 		data && getPreEligibleData(data)
@@ -70,10 +72,7 @@ export default function CheckApplication(props) {
 		if (data) {
 			return {
 				Applicant: getApplicantData(data),
-				'Co-Applicant':
-					props.product !== 'Unsecured Business/Self-Employed' &&
-					props.product !== 'LAP Cases' &&
-					getCoApplicantData(data),
+				'Co-Applicant': getCoApplicantData(data),
 				'Document Details': getDocDetails(data),
 				'Security Details': 'No Data',
 				'Pre-Eligibility Details': getPreEligibleData(data),
@@ -188,6 +187,12 @@ export default function CheckApplication(props) {
 					Data Saved Successfully
 				</div>
 			)}
+			<div
+				onClick={() => props.setViewLoan(false)}
+				className='absolute text-xl z-50 top-32 cursor-pointer right-4 p-2 rounded-md text-gray-400'
+			>
+				<FontAwesomeIcon icon={faTimes} />
+			</div>
 			<section
 				style={{
 					overflow: 'scroll',
@@ -286,54 +291,126 @@ export default function CheckApplication(props) {
 																								disabled={disabled}
 																								className='rounded-lg p-4 border w-1/3'
 																								defaultValue={
-																									data
-																										?.loanFinancialDetails[
-																										el.db_name
-																									] || 'N/A'
+																									data?.loanFinancialDetails?.map(
+																										o =>
+																											o[
+																												el
+																													.db_name
+																											] || 'N/A'
+																									)[0]
 																								}
 																							/>
 																						)}
+
 																						{i.name ===
-																							'Shareholder Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={
-																									data
-																										?.businessShareData[
-																										el.db_name
-																									] || 'N/A'
-																								}
-																							/>
-																						)}
+																						'Shareholder Details' ? (
+																							data?.businessShareData
+																								.length > 0 ? (
+																								data?.businessShareData.map(
+																									(o, idx) => (
+																										<>
+																											<input
+																												disabled={
+																													disabled
+																												}
+																												className='rounded-lg p-4 border w-1/3 mx-2'
+																												defaultValue={
+																													o[
+																														el
+																															.db_name
+																													] ||
+																													'N/A'
+																												}
+																											/>
+																										</>
+																									)
+																								)
+																							) : (
+																								<input
+																									disabled={disabled}
+																									className='rounded-lg p-4 border w-1/3 mx-2'
+																									defaultValue={'N/A'}
+																								/>
+																							)
+																						) : null}
 																						{i.name ===
-																							'Reference Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={
-																									data
-																										?.loanReferenceData[
-																										el.db_name
-																									] || 'N/A'
-																								}
-																							/>
-																						)}
+																						'Reference Details' ? (
+																							data?.loanReferenceData
+																								.length > 0 ? (
+																								data?.loanReferenceData.map(
+																									(o, idx) => (
+																										<>
+																											<input
+																												disabled={
+																													disabled
+																												}
+																												className='rounded-lg p-4 border w-1/3 mx-2'
+																												defaultValue={
+																													o[
+																														el
+																															.db_name
+																													] ||
+																													'N/A'
+																												}
+																											/>
+																										</>
+																									)
+																								)
+																							) : (
+																								<input
+																									disabled={disabled}
+																									className='rounded-lg p-4 border w-1/3 mx-2'
+																									defaultValue={'N/A'}
+																								/>
+																							)
+																						) : null}
 																					</>
 																				) : null}
 
 																				{el.type === 'select' && (
-																					<select
-																						disabled={disabled}
-																						className='rounded-lg p-4 border w-1/3'
-																					>
-																						{el.options &&
-																							el.options.map(r => (
-																								<option>
-																									{r?.name}
-																								</option>
-																							))}
-																					</select>
+																					<>
+																						{i.name ===
+																							'Shareholder Details' &&
+																							data?.businessShareData.map(
+																								(o, idx) => (
+																									<select
+																										disabled={
+																											disabled
+																										}
+																										className='rounded-lg p-4 border w-1/3 mx-2'
+																									>
+																										{el.options &&
+																											el.options.map(
+																												r => (
+																													<option>
+																														{
+																															r?.name
+																														}
+																													</option>
+																												)
+																											)}
+																									</select>
+																								)
+																							)}
+																						{i.name !==
+																							'Shareholder Details' && (
+																							<select
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																							>
+																								{el.options &&
+																									el.options.map(
+																										r => (
+																											<option>
+																												{
+																													r?.name
+																												}
+																											</option>
+																										)
+																									)}
+																							</select>
+																						)}
+																					</>
 																				)}
 																			</section>
 																		)

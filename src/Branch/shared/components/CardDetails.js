@@ -90,7 +90,7 @@ export default function CardDetails({
 	const bMapper = {
 		'Pending Applications': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Pre-Eligibility', 'Co-applicants', 'Create Security'] }
+			{ data: ['Pre-Eligibility', 'Co-Applicant', 'Create Security'] }
 		],
 		'In-Progress@NC': [
 			{ data: ['Check Application', 'Check Documents'] },
@@ -98,17 +98,17 @@ export default function CardDetails({
 		],
 		'Branch Review': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Details', 'Co-applicants', 'Check Security'] }
+			{ data: ['Eligibility Data', 'Co-Applicant', 'Check Security'] }
 		],
 		'In-Progress@AO': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Details', 'Branch Notes'] }
+			{ data: ['Eligibility Data', 'Branch Notes'] }
 		],
 		Sanctioned: [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Details', 'Sanction details', 'Branch Notes'] }
+			{ data: ['Eligibility Data', 'Sanction details', 'Branch Notes'] }
 		],
-		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Details'] }]
+		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Data'] }]
 	};
 
 	const getMapper = d => {
@@ -168,9 +168,11 @@ export default function CardDetails({
 								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
 								{item.loan_amount} {item.loan_amount_um}
 							</span>
-							<small>
-								₹ <span className='text-lg'>{item.net_monthly_income || '80000'}</span> Monthly Income
-							</small>
+							{item.net_monthly_income && (
+								<small>
+									₹ <span className='text-lg'>{item.net_monthly_income}</span> Monthly Income
+								</small>
+							)}
 						</section>
 						<section className='flex flex-col items-end gap-y-2'>
 							{label
@@ -230,15 +232,15 @@ export default function CardDetails({
 												item.assignmentLog
 													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
 													: setAssignmentLog && setAssignmentLog(null);
-												(e === 'Pre-Eligibility' || e === 'Eligibility Details') &&
-													setViewLoan(true);
-												(e === 'Pre-Eligibility' || e === 'Eligibility Details') &&
-													setId(item.id);
-												(e === 'Pre-Eligibility' || e === 'Eligibility Details') &&
+												setViewLoan && setViewLoan(true);
+												setId && setId(item.id);
+												setActiv &&
 													setActiv(
-														e === 'Eligibility Details'
-															? 'Eligibility Data'
-															: 'Pre-Eligibility Details'
+														e === 'Pre-Eligibility'
+															? 'Pre-Eligibility Details'
+															: e === 'Create Security'
+															? 'Security Details'
+															: e
 													);
 											}}
 										>
