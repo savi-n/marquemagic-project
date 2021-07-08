@@ -425,7 +425,7 @@ export default function DocumentUpload({
         product_id: productId,
         applicantData: {
           ...state.user.applicantData,
-          emiDetails: state.user?.emi || [],
+          ...(state.user?.emi ? { emiDetails: state.user?.emi } : {}),
         },
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
         ...state.user.bankData,

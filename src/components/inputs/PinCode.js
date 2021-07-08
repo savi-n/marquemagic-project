@@ -49,6 +49,10 @@ export default function Pincode(props) {
 
     props.onChange(event);
 
+    if (props.noActionTrigger) {
+      return;
+    }
+
     if (value.length === props.makeApiCall) {
       setProcessing(true);
       const response = await newRequest(
