@@ -117,7 +117,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   //   setAdditionalField([...additionalField, newField]);
   // };
 
-  const skipButton = map.fields[id].data.some((f) => f?.rules?.isRequired);
+  const skipButton = map.fields[id].data.some((f) => f?.rules?.required);
 
   return (
     <Div>
