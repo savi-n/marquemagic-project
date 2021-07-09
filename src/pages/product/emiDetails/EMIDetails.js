@@ -89,6 +89,11 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
     onFlowChange(map.main);
   };
 
+  const onSkip = () => {
+    setCompleted(id);
+    onFlowChange(map.main);
+  };
+
   const onSave = (data) => {
     const emiData = formatEmiData(data, map.fields[id].data);
 
@@ -112,6 +117,8 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   //   setAdditionalField([...additionalField, newField]);
   // };
 
+  const skipButton = map.fields[id].data.some((f) => f?.rules?.isRequired);
+
   return (
     <Div>
       <EMIDetails
@@ -129,6 +136,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
+        {!skipButton && <Button name="Skip" onClick={onSkip} />}
       </ButtonWrap>
     </Div>
   );
