@@ -24,7 +24,7 @@ const Options = styled.div`
   background: white;
   right: 0;
   left: 0;
-  z-index: 9;
+  z-index: 99;
   max-height: 160px;
   overflow: auto;
   box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%);

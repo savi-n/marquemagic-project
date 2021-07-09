@@ -62,6 +62,11 @@ export default function FormController({
     onFlowChange(map.main);
   };
 
+  const onSkip = () => {
+    setCompleted(id);
+    onFlowChange(map.main);
+  };
+
   // const [actions, setActions] = useState({});
 
   // const onClickActions = (action) => {
@@ -71,6 +76,7 @@ export default function FormController({
   // };
 
   const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
+  const skipButton = map.fields[id].data.some((f) => f?.rules?.required);
 
   return (
     <>
@@ -92,6 +98,7 @@ export default function FormController({
           )}
           <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
           <Button name="Save" onClick={handleSubmit(onSave)} />
+          {!skipButton && <Button name="Skip" onClick={onSkip} />}
         </ButtonWrap>
       </Div>
 

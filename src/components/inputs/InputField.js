@@ -18,6 +18,7 @@ const Label = styled.label`
   display: flex;
   align-items: center;
   background: white;
+  overflow: hidden;
   transition: 0.2s;
 
   ${Input}:focus ~ & {
@@ -43,10 +44,11 @@ const Label = styled.label`
       top: 3%;  
       left: 1%;
       height: 90%;
-      width: 90%;
+      width: 98%;
       color: lightgray;
       padding: 0 10px;
   `}
+
   ${({ disabled }) =>
     disabled &&
     `
@@ -58,12 +60,12 @@ const Asteris = styled.span`
   color: red;
 `;
 
-export default function DateField(props) {
+export default function InputField(props) {
   return (
     <Div>
       <Input id={props.name} type={props.type} {...props} />
       <Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
-        {props.placeholder} (dd-mm-yyyy)
+        <span>{props.placeholder}</span>
         {props.rules?.required && !props.disabled && <Asteris>*</Asteris>}
       </Label>
     </Div>

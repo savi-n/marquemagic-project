@@ -121,7 +121,7 @@ export default function Product({ product, url }) {
             </Head>
           </Link>
           {response.data?.product_details?.flow?.map((m) =>
-            !m.hidden ? (
+            !m.hidden && m.id !== "product-details" ? (
               <Fragment key={m.id}>
                 <Link onClick={(e) => {}}>
                   <Menu active={currentFlow === m.id}>
