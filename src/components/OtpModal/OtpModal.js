@@ -127,6 +127,7 @@ export default function OtpModal(props) {
         userBankDetails: response.cubDetails,
         userToken: response.token,
         bankId: bankId,
+        userId,
       };
 
       if (setUserDetails) setUserDetails(userData);
@@ -169,8 +170,13 @@ export default function OtpModal(props) {
       return;
     }
 
+    const accountsDetails = accounts.find(
+      (acc) => acc.accNum === selectedAccount
+    );
+
     await submitOtp({
       customerId: selectedAccount,
+      aadharNum: accountsDetails.aadharNum,
     });
   };
 

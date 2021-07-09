@@ -16,6 +16,7 @@ import {
   ADD_BANK_DETAILS,
   ADD_SHAREHOLDER_DETAILS,
   ADD_REFENCE_DETAILS,
+  DOCTYPES_FETCH,
 } from "../../../_config/app.config";
 import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
 import useFetch from "../../../hooks/useFetch";
@@ -118,7 +119,7 @@ function caseCreationDataFormat(data, companyData) {
       loan_product_id: data.productId,
       white_label_id: companyData.encryptedWhitelabel,
       branchId: companyData.branchId,
-      loan_amount: data['business-loan-details'].['Loan Amount'],
+      loan_amount: data["business-loan-details"].LoanAmount,
       applied_tenure: 0,
       annual_turn_over: null,
       annual_op_expense: null,
@@ -233,13 +234,13 @@ function refereneceDataFormat(loanId, data) {
   if (
     !data["reference-details"]?.Name0 &&
     !data["reference-details"]?.ReferenceEmail0 &&
-    !data["reference-details"]?.["Contact number0"] &&
+    !data["reference-details"]?.Contactnumber0 &&
     data["reference-details"]?.Pincode0
   ) {
     loanReferenceData.push({
       ref_name: data["reference-details"]?.Name0,
       ref_email: data["reference-details"]?.ReferenceEmail0,
-      ref_contact: data["reference-details"]["Contact number0"],
+      ref_contact: data["reference-details"].Contactnumber0,
       ref_state: "null",
       ref_city: "null",
       ref_pincode: data["reference-details"]?.Pincode0,
@@ -251,13 +252,13 @@ function refereneceDataFormat(loanId, data) {
   if (
     !data["reference-details"]?.Name1 &&
     !data["reference-details"]?.ReferenceEmail1 &&
-    !data["reference-details"]?.["Contact number1"] &&
+    !data["reference-details"]?.Contactnumber1 &&
     data["reference-details"]?.Pincode1
   ) {
     loanReferenceData.push({
       ref_name: data["reference-details"]?.Name1,
       ref_email: data["reference-details"]?.ReferenceEmail1,
-      ref_contact: data["reference-details"]["Contact number1"],
+      ref_contact: data["reference-details"].Contactnumber1,
       ref_state: "null",
       ref_city: "null",
       ref_pincode: data["reference-details"]?.Pincode1,
@@ -283,7 +284,7 @@ export default function DocumentUpload({
 }) {
   const {
     state,
-    actions: { setLoanDocuments },
+    actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType },
   } = useContext(LoanFormContext);
 
   const {
@@ -301,6 +302,22 @@ export default function DocumentUpload({
 
   const [documentChecklist, setDocumentChecklist] = useState([]);
 
+  const { response } = useFetch({
+    url: DOCTYPES_FETCH,
+    options: {
+      method: "POST",
+      data: {
+        business_type: state?.["business-details"].BusinessType,
+        loan_product: productId,
+      },
+    },
+    headers: {
+      Authorization: `Bearer ${companyDetail.token}`,
+    },
+  });
+
+  console.log(response);
+
   const handleDocumentChecklist = (doc) => {
     return (value) => {
       if (value) setDocumentChecklist([...documentChecklist, doc]);
@@ -310,6 +327,14 @@ export default function DocumentUpload({
 
   const handleFileUpload = async (files) => {
     setLoanDocuments(files);
+  };
+
+  const handleFileRemove = async (fileId) => {
+    // removeLoanDocument(fileId);
+  };
+
+  const handleDocumentTypeChange = async (fileId, type) => {
+    // setLoanDocumentType(fileId, type);
   };
 
   const buttonDisabledStatus = () => {
@@ -554,6 +579,12 @@ export default function DocumentUpload({
         <UploadWrapper>
           <FileUpload
             onDrop={handleFileUpload}
+            onRemoveFile={handleFileRemove}
+            docTypeOptions={productDetails[DOCUMENTS_REQUIRED]?.map((docs) => ({
+              value: docs,
+              name: docs,
+            }))}
+            documentTypeChangeCallback={handleDocumentTypeChange}
             accept=""
             upload={{
               url: DOCS_UPLOAD_URL({ userId: companyDetail?.userId || "" }),
