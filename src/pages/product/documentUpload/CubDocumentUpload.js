@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect, Fragment } from "react";
 import styled from "styled-components";
-import { v4 as uuidv4 } from "uuid";
 import { func, object, oneOfType, string, oneOf } from "prop-types";
 
 import { UserContext } from "../../../reducer/userReducer";
@@ -13,15 +12,12 @@ import {
   UPLOAD_CUB_STATEMENT,
   CREATE_CASE,
   CREATE_CASE_OTHER_USER,
-  UPDATE_LOAN_ASSETS,
+  // UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
   USER_ROLES,
   DOCTYPES_FETCH,
 } from "../../../_config/app.config";
-import {
-  DOCUMENTS_REQUIRED,
-  DOCUMENTS_TYPE,
-} from "../../../_config/key.config";
+import { DOCUMENTS_TYPE } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
 import GetCIBILScoreModal from "../../../components/GetCIBILScoreModal";

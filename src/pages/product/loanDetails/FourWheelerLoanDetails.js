@@ -33,6 +33,18 @@ const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
 
+const additionalLoanData = (formData) => {
+  const formatData = {
+    modelName: formData.vehicle,
+    exShowroomPrice: formData.exShowroomPrice,
+    accessories: formData.Accessories,
+    insurance: formData.insurance,
+    roadTax: formData.roadTaxRegistration,
+  };
+
+  return formatData;
+};
+
 const formatEmiData = (formData, fields) => {
   return fields.map((f) => ({
     type: f.name,
@@ -86,7 +98,11 @@ export default function FourWheelerLoanDetailsPage({
       bankId: bankId,
       branchId: data.branchId,
     });
-    setUsertypeLoanData({ ...loanData, summary: "summary" });
+    setUsertypeLoanData({
+      ...loanData,
+      summary: "summary",
+      ...additionalLoanData(data, map.fields["loan-details-additional"].data),
+    });
     addToast({
       message: "Saved Succesfully",
       type: "success",
