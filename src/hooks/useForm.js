@@ -6,6 +6,7 @@ import SearchSelect from "../components/SearchSelect";
 import BankList from "../components/inputs/BankList";
 import Pincode from "../components/inputs/PinCode";
 import DateField from "../components/inputs/DateField";
+import InputField from "../components/inputs/InputField";
 
 function required(value) {
   return !value;
@@ -194,7 +195,7 @@ export default function useForm() {
     checkValidity(newField.name);
 
     return (
-      <InputField
+      <InputFieldRender
         field={newField}
         onChange={onChange}
         value={valuesRef.current[newField.name] || ""}
@@ -266,14 +267,6 @@ export default function useForm() {
   };
 }
 
-const Input = styled.input`
-  height: 50px;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-`;
-
 const Select = styled.select`
   height: 50px;
   padding: 10px;
@@ -282,7 +275,7 @@ const Select = styled.select`
   border-radius: 6px;
 `;
 
-function InputField({ field, onChange, value, unregister }) {
+function InputFieldRender({ field, onChange, value, unregister }) {
   const { type = "text", rules } = field;
 
   useEffect(() => {
@@ -362,7 +355,7 @@ function InputField({ field, onChange, value, unregister }) {
       return <DateField {...{ ...field, ...fieldProps }} />;
     }
     default: {
-      return <Input type={type} {...fieldProps} />;
+      return <InputField type={type} {...{ ...field, ...fieldProps }} />;
     }
   }
 }

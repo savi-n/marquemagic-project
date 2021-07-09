@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import useFetch from "../../hooks/useFetch";
 import { PINCODE_ADRRESS_FETCH } from "../../_config/app.config";
+import InputField from "./InputField";
 
 const Input = styled.input`
   height: 50px;
@@ -15,7 +16,7 @@ const Input = styled.input`
 
 const Div = styled.div`
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
 `;
 
 const Label = styled.label`
@@ -69,13 +70,13 @@ export default function Pincode(props) {
         const target = { name: k, value: pincodeData[v][0] };
         props.onChange({ target });
       }
-      setProcessing(false);
     }
+    setProcessing(false);
   };
 
   return (
     <Div>
-      <Input
+      <InputField
         type={"text"}
         {...props}
         onChange={onPinChange}
