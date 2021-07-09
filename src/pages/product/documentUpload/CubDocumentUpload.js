@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, Fragment } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import { func, object, oneOfType, string, oneOf } from "prop-types";
@@ -18,7 +18,10 @@ import {
   USER_ROLES,
   DOCTYPES_FETCH,
 } from "../../../_config/app.config";
-import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
+import {
+  DOCUMENTS_REQUIRED,
+  DOCUMENTS_TYPE,
+} from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
 import GetCIBILScoreModal from "../../../components/GetCIBILScoreModal";
@@ -30,6 +33,11 @@ import { AppContext } from "../../../reducer/appReducer";
 import { CaseContext } from "../../../reducer/caseReducer";
 import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
+
+const DocTypeHead = styled.div`
+  font-weight: 600;
+  margin: 10px 0;
+`;
 
 const Colom1 = styled.div`
   flex: 1;
@@ -71,7 +79,7 @@ const SubmitWrapper = styled.div`
 `;
 
 const DocsCheckboxWrapper = styled.div`
-  margin: 20px 0;
+  margin: 10px 0;
 `;
 
 const H = styled.h1`
@@ -150,7 +158,24 @@ export default function DocumentUpload({
       Authorization: `Bearer ${userToken}`,
     },
   });
-  console.log(response);
+
+  useEffect(() => {
+    if (response) {
+      let optionArray = [];
+      DOCUMENTS_TYPE.forEach((docType) => {
+        optionArray = [
+          ...optionArray,
+          ...response?.[docType[1]]?.map((dT) => ({
+            value: dT.name,
+            name: dT.name,
+          })),
+        ];
+      });
+      setDocumentTypeOptions(optionArray);
+    }
+  }, [response]);
+
+  const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
 
   const { addToast } = useToasts();
 
@@ -563,6 +588,7 @@ export default function DocumentUpload({
     state[USER_ROLES[userType || "User"]]?.uploadedDocs?.map(
       (docs) => docs.type
     ) || [];
+
   return (
     <>
       <Colom1>
@@ -574,10 +600,7 @@ export default function DocumentUpload({
             onDrop={handleFileUpload}
             accept=""
             onRemoveFile={handleFileRemove}
-            docTypeOptions={productDetails[DOCUMENTS_REQUIRED]?.map((docs) => ({
-              value: docs,
-              name: docs,
-            }))}
+            docTypeOptions={documentTypeOptions}
             documentTypeChangeCallback={handleDocumentTypeChange}
             upload={{
               url: DOCS_UPLOAD_URL({ userId: userId || "" }),
@@ -612,10 +635,10 @@ export default function DocumentUpload({
             <CheckBox
               name={textForCheckbox.grantCibilAcces}
               checked={cibilCheckbox}
-              // disabled={cibilCheckbox}
+              disabled={cibilCheckbox}
               onChange={() => {
                 setCibilCheckbox(!cibilCheckbox);
-                // setCibilCheckModal(true);
+                setCibilCheckModal(true);
               }}
               bg="blue"
             />
@@ -667,18 +690,25 @@ export default function DocumentUpload({
       <Colom2>
         <Doc>Documents Required</Doc>
         <div>
-          {productDetails[DOCUMENTS_REQUIRED]?.map((docs) => (
-            <DocsCheckboxWrapper key={uuidv4()}>
-              <CheckBox
-                name={docs}
-                checked={documentChecklist.includes(docs)}
-                // onChange={handleDocumentChecklist(docs)}
-                round
-                disabled
-                bg="green"
-              />
-            </DocsCheckboxWrapper>
-          ))}
+          {DOCUMENTS_TYPE.map((docType) =>
+            response?.[docType[1]].length ? (
+              <Fragment key={docType[0]}>
+                <DocTypeHead>{docType[0]}</DocTypeHead>
+                {response?.[docType[1]]?.map((doc) => (
+                  <DocsCheckboxWrapper key={doc.doc_type_id}>
+                    <CheckBox
+                      name={doc.name}
+                      checked={documentChecklist.includes(doc.name)}
+                      // onChange={handleDocumentChecklist(docs)}
+                      round
+                      disabled
+                      bg="green"
+                    />
+                  </DocsCheckboxWrapper>
+                ))}
+              </Fragment>
+            ) : null
+          )}
         </div>
       </Colom2>
 
