@@ -248,43 +248,43 @@ export default function DocumentUpload({
   };
 
   // step 4: loan asset upload
-  const loanAssetsUpload = async (loanId, data) => {
-    const submitReq = await newRequest(
-      UPDATE_LOAN_ASSETS,
-      {
-        method: "POST",
-        data: {
-          loanId: loanId,
-          propertyType: "leased",
-          loan_asset_type_id: 2,
-          ownedType: "paid_off",
-          address1: "test address1",
-          address2: "test address2",
-          flat_no: "112",
-          locality: "ramnagar",
-          city: "banglore",
-          pincode: "570000",
-          landmark: "SI ATM",
-          autoMobileType: "qw",
-          brandName: "d",
-          modelName: "fd",
-          vehicalValue: "122",
-          dealershipName: "sd",
-          manufacturingYear: "123",
-          Value: "test@123",
-          ints: "",
-          cpath: "",
-          surveyNo: "",
-          cAssetId: "",
-          noOfAssets: 5,
-        },
-      },
-      {
-        Authorization: `Bearer ${userToken}`,
-      }
-    );
-    return submitReq;
-  };
+  // const loanAssetsUpload = async (loanId, data) => {
+  //   const submitReq = await newRequest(
+  //     UPDATE_LOAN_ASSETS,
+  //     {
+  //       method: "POST",
+  //       data: {
+  //         loanId: loanId,
+  //         propertyType: "leased",
+  //         loan_asset_type_id: 2,
+  //         ownedType: "paid_off",
+  //         address1: "test address1",
+  //         address2: "test address2",
+  //         flat_no: "112",
+  //         locality: "ramnagar",
+  //         city: "banglore",
+  //         pincode: "570000",
+  //         landmark: "SI ATM",
+  //         autoMobileType: "qw",
+  //         brandName: "d",
+  //         modelName: "fd",
+  //         vehicalValue: "122",
+  //         dealershipName: "sd",
+  //         manufacturingYear: "123",
+  //         Value: "test@123",
+  //         ints: "",
+  //         cpath: "",
+  //         surveyNo: "",
+  //         cAssetId: "",
+  //         noOfAssets: 5,
+  //       },
+  //     },
+  //     {
+  //       Authorization: `Bearer ${userToken}`,
+  //     }
+  //   );
+  //   return submitReq;
+  // };
 
   // step 2: upload docs reference
   const updateDocumentList = async (loanId, user) => {
