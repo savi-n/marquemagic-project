@@ -164,6 +164,7 @@ export default function DocumentUpload({
           ...response?.[docType[1]]?.map((dT) => ({
             value: dT.name,
             name: dT.name,
+            main: docType[0],
           })),
         ];
       });
@@ -582,7 +583,7 @@ export default function DocumentUpload({
 
   const documentChecklist =
     state[USER_ROLES[userType || "User"]]?.uploadedDocs?.map(
-      (docs) => docs.type
+      (docs) => docs.typeName
     ) || [];
 
   return (

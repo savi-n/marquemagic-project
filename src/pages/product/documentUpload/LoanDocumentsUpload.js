@@ -91,6 +91,22 @@ const Doc = styled.h2`
 //     "I here do declare that what is stated above is true to the best of my knowledge and  belief",
 // };
 
+function fileStructure(documents, type) {
+  return documents
+    .filter((file) => file.mainType === type)
+    .map((file) => ({
+      // value, filename, fd, password
+      fd: file.document_key, //fd from loan document repsone
+      size: file.size, //size from loan document repsone
+      // type: "",
+      filename: file.upload_doc_name, //fd from loan document repsone
+      // status: "",
+      // field: "",
+      value: file.typeId, // doctype_id
+      password: file?.password,
+    }));
+}
+
 function caseCreationDataFormat(data, companyData) {
   const formatedData = {
     Business_details: {
@@ -134,41 +150,9 @@ function caseCreationDataFormat(data, companyData) {
     },
     branchId: companyData.branchId,
     documents: {
-      KYC: [
-        {
-          // value, filename, fd, password
-          fd: "", //fd from loan document repsone
-          size: "", //size from loan document repsone
-          type: "",
-          filename: "", //fd from loan document repsone
-          status: "",
-          field: "",
-          value: "", // doctype_id
-          password: "",
-        },
-      ],
-      others: [
-        {
-          fd: "",
-          size: "",
-          type: "",
-          filename: "",
-          status: "",
-          field: "",
-          value: "",
-        },
-      ],
-      financials: [
-        {
-          fd: "",
-          size: "",
-          type: "",
-          filename: "",
-          status: "",
-          field: "",
-          value: "",
-        },
-      ],
+      KYC: fileStructure(data?.documents || [], "KYC"),
+      others: fileStructure(data?.documents || [], "Others"),
+      financials: fileStructure(data?.documents || [], "financials"),
     },
   };
 
@@ -339,6 +323,7 @@ export default function DocumentUpload({
           ...response?.[docType[1]]?.map((dT) => ({
             value: dT.name,
             name: dT.name,
+            main: docType[0],
           })),
         ];
       });
@@ -598,7 +583,8 @@ export default function DocumentUpload({
     }
   };
 
-  const documentChecklist = state?.documents?.map((docs) => docs.type) || [];
+  const documentChecklist =
+    state?.documents?.map((docs) => docs.typeName) || [];
 
   return (
     <>

@@ -66,7 +66,14 @@ function reducer(state, action) {
 
     case actionTypes.SET_DOCUMENT_TYPE: {
       const userDocs = (state.documents || []).map((doc) =>
-        doc.id === action.fileId ? { ...doc, type: action.fileType } : doc
+        doc.id === action.fileId
+          ? {
+              ...doc,
+              typeId: action.fileType.value,
+              typeName: action.fileType.name,
+              mainType: action.fileType.main,
+            }
+          : doc
       );
 
       return {

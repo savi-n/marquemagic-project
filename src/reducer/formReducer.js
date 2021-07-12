@@ -158,7 +158,14 @@ function reducer(state, action) {
 
     case actionTypes.SET_USERTYPE_DOCUMENT_TYPE: {
       const userDocs = (state[action.userType]?.uploadedDocs || []).map((doc) =>
-        doc.id === action.docId ? { ...doc, type: action.docType } : doc
+        doc.id === action.docId
+          ? {
+              ...doc,
+              typeId: action.docType.value,
+              typeName: action.docType.name,
+              mainType: action.docType.main,
+            }
+          : doc
       );
 
       return {
