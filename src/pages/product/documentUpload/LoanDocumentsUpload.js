@@ -1,6 +1,5 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, Fragment } from "react";
 import styled from "styled-components";
-import { v4 as uuidv4 } from "uuid";
 
 import { LoanFormContext } from "../../../reducer/loanFormDataReducer";
 import Button from "../../../components/Button";
@@ -18,7 +17,7 @@ import {
   ADD_REFENCE_DETAILS,
   DOCTYPES_FETCH,
 } from "../../../_config/app.config";
-import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
+import { DOCUMENTS_TYPE } from "../../../_config/key.config";
 import useFetch from "../../../hooks/useFetch";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 import { BussinesContext } from "../../../reducer/bussinessReducer";
@@ -28,6 +27,11 @@ import { AppContext } from "../../../reducer/appReducer";
 const Colom1 = styled.div`
   flex: 1;
   padding: 50px;
+`;
+
+const DocTypeHead = styled.div`
+  font-weight: 600;
+  margin: 10px 0;
 `;
 
 const Colom2 = styled.div`
@@ -96,18 +100,18 @@ function caseCreationDataFormat(data, companyData) {
       // business_industry_type: 20,
       contact: "",
       businesspancardnumber: companyData.PancardNumber,
-      crime_check: "Yes",
-      //       "gstin": "",
-      //       "businessstartdate": ""
+      // crime_check: "Yes",
+      gstin: data?.["business-details"].GSTVerification,
+      businessstartdate: data?.["business-details"].BusinessVintage,
       corporateid: companyData.CIN,
     },
-    businessaddress: {
-      city: "County Durham",
-      line1: "1 High Burnigill Cottages",
-      locality: "Croxdale",
-      pincode: "DH6 5JJ",
-      state: "England",
-    },
+    // businessaddress: {
+    //   city: "County Durham",
+    //   line1: "1 High Burnigill Cottages",
+    //   locality: "Croxdale",
+    //   pincode: "DH6 5JJ",
+    //   state: "England",
+    // },
 
     director_details: companyData.DirectorDetails,
     loan_details: {
@@ -120,42 +124,51 @@ function caseCreationDataFormat(data, companyData) {
       white_label_id: companyData.encryptedWhitelabel,
       branchId: companyData.branchId,
       loan_amount: data["business-loan-details"].LoanAmount,
-      applied_tenure: 0,
-      annual_turn_over: null,
-      annual_op_expense: null,
+      applied_tenure: data["business-loan-details"].tenure || "",
+      application_ref: data["business-loan-details"].Applicationid || "",
+      annual_turn_over: data?.["business-details"].AnnualTurnover,
+      annual_op_expense: data?.["business-details"].PAT,
       // loan_type_id: 1,
       // case_priority: null,
       // origin: "New_UI",
     },
     branchId: companyData.branchId,
     documents: {
-      KYC: {
-        fd: "",
-        size: "",
-        type: "",
-        filename: "",
-        status: "",
-        field: "",
-        value: "",
-      },
-      others: {
-        fd: "",
-        size: "",
-        type: "",
-        filename: "",
-        status: "",
-        field: "",
-        value: "",
-      },
-      financials: {
-        fd: "",
-        size: "",
-        type: "",
-        filename: "",
-        status: "",
-        field: "",
-        value: "",
-      },
+      KYC: [
+        {
+          // value, filename, fd, password
+          fd: "", //fd from loan document repsone
+          size: "", //size from loan document repsone
+          type: "",
+          filename: "", //fd from loan document repsone
+          status: "",
+          field: "",
+          value: "", // doctype_id
+          password: "",
+        },
+      ],
+      others: [
+        {
+          fd: "",
+          size: "",
+          type: "",
+          filename: "",
+          status: "",
+          field: "",
+          value: "",
+        },
+      ],
+      financials: [
+        {
+          fd: "",
+          size: "",
+          type: "",
+          filename: "",
+          status: "",
+          field: "",
+          value: "",
+        },
+      ],
     },
   };
 
@@ -299,8 +312,9 @@ export default function DocumentUpload({
   const { addToast } = useToasts();
 
   const [caseCreationProgress, setCaseCreationProgress] = useState(false);
+  const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
 
-  const [documentChecklist, setDocumentChecklist] = useState([]);
+  // const [documentChecklist, setDocumentChecklist] = useState([]);
 
   const { response } = useFetch({
     url: DOCTYPES_FETCH,
@@ -316,25 +330,39 @@ export default function DocumentUpload({
     },
   });
 
-  console.log(response);
+  useEffect(() => {
+    if (response) {
+      let optionArray = [];
+      DOCUMENTS_TYPE.forEach((docType) => {
+        optionArray = [
+          ...optionArray,
+          ...response?.[docType[1]]?.map((dT) => ({
+            value: dT.name,
+            name: dT.name,
+          })),
+        ];
+      });
+      setDocumentTypeOptions(optionArray);
+    }
+  }, [response]);
 
-  const handleDocumentChecklist = (doc) => {
-    return (value) => {
-      if (value) setDocumentChecklist([...documentChecklist, doc]);
-      else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
-    };
-  };
+  // const handleDocumentChecklist = (doc) => {
+  //   return (value) => {
+  //     if (value) setDocumentChecklist([...documentChecklist, doc]);
+  //     else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
+  //   };
+  // };
 
   const handleFileUpload = async (files) => {
     setLoanDocuments(files);
   };
 
   const handleFileRemove = async (fileId) => {
-    // removeLoanDocument(fileId);
+    removeLoanDocument(fileId);
   };
 
   const handleDocumentTypeChange = async (fileId, type) => {
-    // setLoanDocumentType(fileId, type);
+    setLoanDocumentType(fileId, type);
   };
 
   const buttonDisabledStatus = () => {
@@ -570,6 +598,8 @@ export default function DocumentUpload({
     }
   };
 
+  const documentChecklist = state?.documents?.map((docs) => docs.type) || [];
+
   return (
     <>
       <Colom1>
@@ -580,10 +610,7 @@ export default function DocumentUpload({
           <FileUpload
             onDrop={handleFileUpload}
             onRemoveFile={handleFileRemove}
-            docTypeOptions={productDetails[DOCUMENTS_REQUIRED]?.map((docs) => ({
-              value: docs,
-              name: docs,
-            }))}
+            docTypeOptions={documentTypeOptions}
             documentTypeChangeCallback={handleDocumentTypeChange}
             accept=""
             upload={{
@@ -630,17 +657,25 @@ export default function DocumentUpload({
       <Colom2>
         <Doc>Documents Required</Doc>
         <div>
-          {productDetails[DOCUMENTS_REQUIRED]?.map((docs) => (
-            <DocsCheckboxWrapper key={uuidv4()}>
-              <CheckBox
-                name={docs}
-                checked={documentChecklist.includes(docs)}
-                onChange={handleDocumentChecklist(docs)}
-                round
-                bg="green"
-              />
-            </DocsCheckboxWrapper>
-          ))}
+          {DOCUMENTS_TYPE.map((docType) =>
+            response?.[docType[1]].length ? (
+              <Fragment key={docType[0]}>
+                <DocTypeHead>{docType[0]}</DocTypeHead>
+                {response?.[docType[1]]?.map((doc) => (
+                  <DocsCheckboxWrapper key={doc.doc_type_id}>
+                    <CheckBox
+                      name={doc.name}
+                      checked={documentChecklist.includes(doc.name)}
+                      // onChange={handleDocumentChecklist(docs)}
+                      round
+                      disabled
+                      bg="green"
+                    />
+                  </DocsCheckboxWrapper>
+                ))}
+              </Fragment>
+            ) : null
+          )}
         </div>
       </Colom2>
     </>
