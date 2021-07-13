@@ -20,6 +20,7 @@ const Wrapper = styled.div`
   margin-bottom: 10px;
   border-radius: 10px;
   display: flex;
+  align-items: center;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
   &::after {
     content: "";
@@ -39,7 +40,7 @@ const Button = styled.button`
   --base-color: ${({ theme }) => (theme ? theme.main_theme_color : "black")};
   margin-left: 10px;
   border: 2px solid var(--base-color);
-  padding: 5px;
+  padding: 8px;
   border-radius: 10px;
   font-weight: 800;
   color: var(--base-color);
@@ -57,7 +58,7 @@ const CancelBtn = styled.span`
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  align-self: center;
+  /* align-self: center; */
   margin-left: 10px;
 `;
 

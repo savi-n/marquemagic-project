@@ -137,6 +137,10 @@ const File = styled.div`
   }
 `;
 
+const PasswordWrapper = styled.div`
+  position: relative;
+`;
+
 const RoundButton = styled.div`
   /* padding: 10px; */
   background: white;
@@ -452,12 +456,14 @@ export default function FileUpload({
   };
 
   const onClosePasswordEnterArea = () => {
-    setPasswordForFileId("xxxxxxx");
+    setPasswordForFileId(null);
   };
 
   const onDocTypePassword = (fileId, value) => {
+    if (value) {
+      documentTypeChangeCallback(fileId, { password: value });
+    }
     onClosePasswordEnterArea();
-    // documentTypeChangeCallback(fileId, { password: value });
   };
 
   return (
@@ -510,11 +516,13 @@ export default function FileUpload({
                     </option>
                   ))}
                 </SelectDocType>
-                <RoundButton
-                  showTooltip={passwordForFileId !== file.id}
-                  onClick={() => onPasswordClick(file.id)}
-                >
-                  <FontAwesomeIcon icon={faUnlockAlt} size="1x" />
+                <PasswordWrapper>
+                  <RoundButton
+                    showTooltip={passwordForFileId !== file.id}
+                    onClick={() => onPasswordClick(file.id)}
+                  >
+                    <FontAwesomeIcon icon={faUnlockAlt} size="1x" />
+                  </RoundButton>
                   {passwordForFileId === file.id && (
                     <FilePasswordInput
                       fileId={file.id}
@@ -522,7 +530,7 @@ export default function FileUpload({
                       onClose={onClosePasswordEnterArea}
                     />
                   )}
-                </RoundButton>
+                </PasswordWrapper>
               </>
             )}
             {file.status === "progress" && (
