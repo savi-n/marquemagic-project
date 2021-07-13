@@ -97,7 +97,7 @@ function formatCompanyData(data) {
     BusinessName: data.company_master_data.company_name,
     BusinessType: businesType,
     Email: data.company_master_data.email_id,
-    BusinessVintage: `${date}-${month}-${year}`,
+    BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
     PancardNumber: "",
     CIN: data.company_master_data["cin "],
     CompanyCategory: data.company_master_data.company_category,
