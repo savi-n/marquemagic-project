@@ -188,7 +188,8 @@ export default function useForm() {
   };
 
   const register = (newField) => {
-    newField.name = newField.name.replaceAll(" ", "");
+    // newField.name = newField.name.replaceAll(" ", "");
+    newField.name = newField.name.split(" ").join("");
     fieldsRef.current[newField.name] = newField;
 
     setValue(newField.name, newField.value || "");

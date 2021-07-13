@@ -298,6 +298,8 @@ export default function DocumentUpload({
             upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
               ...d,
               loan_id: loanId,
+              // doc_type_id: "",
+              // password: "",
             })),
           },
         },

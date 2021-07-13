@@ -161,9 +161,19 @@ function reducer(state, action) {
         doc.id === action.docId
           ? {
               ...doc,
-              typeId: action.docType.value,
-              typeName: action.docType.name,
-              mainType: action.docType.main,
+              ...(action.docType?.value
+                ? { typeId: action.docType.value }
+                : {}),
+
+              ...(action.docType?.name
+                ? { typeName: action.docType.name }
+                : {}),
+              ...(action.docType?.main
+                ? { mainType: action.docType.main }
+                : {}),
+              ...(action.docType?.password
+                ? { password: action.docType.password }
+                : {}),
             }
           : doc
       );
