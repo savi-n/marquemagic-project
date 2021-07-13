@@ -3,11 +3,12 @@ import styled from "styled-components";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faUpload, faUnlockAlt } from "@fortawesome/free-solid-svg-icons";
 
 import useFetch from "../../../hooks/useFetch";
 import generateUID from "../../../utils/uid";
 import { NC_STATUS_CODE } from "../../../_config/app.config";
+import FilePasswordInput from "./FilePasswordInput";
 
 const USER_CANCELED = "user cancelled";
 
@@ -110,7 +111,7 @@ const File = styled.div`
   /* flex-basis: 30%; */
   width: 100%;
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding: 5px;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -134,6 +135,54 @@ const File = styled.div`
       return theme.buttonColor2 || "blue";
     }};
   }
+`;
+
+const PasswordWrapper = styled.div`
+  position: relative;
+`;
+
+const RoundButton = styled.div`
+  /* padding: 10px; */
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  ${({ showTooltip }) =>
+    showTooltip &&
+    `&:hover {
+      &::before {
+        content: "If the document is password protected, please help us with the Password.";
+        position: absolute;
+        color: white;
+        padding: 10px;
+        bottom: 105%;
+        width: 250px;
+        background: black;
+        z-index: 999;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        font-size: 500;
+        text-align: center;
+        /* clip-path: path("M 0 200 L 0,75 A 5,5 0,0,1 150,75 L 200 200 z"); */
+      }
+
+      &::after {
+        content: "";
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid black;
+        position: absolute;
+        bottom: 105%;
+      }
+  }`}
 `;
 
 const SelectDocType = styled.select`
@@ -187,6 +236,7 @@ export default function FileUpload({
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState([]);
+  const [passwordForFileId, setPasswordForFileId] = useState(null);
 
   const [docTypeFileMap, setDocTypeFileMap] = useState({});
 
@@ -375,7 +425,8 @@ export default function FileUpload({
   };
 
   const onDocTypeChange = (fileId, value) => {
-    documentTypeChangeCallback(fileId, value);
+    const selectedDocType = docTypeOptions.find((d) => d.value === value);
+    documentTypeChangeCallback(fileId, selectedDocType);
     setDocTypeFileMap({
       ...docTypeFileMap,
       [fileId]: value,
@@ -399,6 +450,21 @@ export default function FileUpload({
       div.removeEventListener("dragend", handleDrag);
     };
   }, []);
+
+  const onPasswordClick = (fileId) => {
+    setPasswordForFileId(fileId);
+  };
+
+  const onClosePasswordEnterArea = () => {
+    setPasswordForFileId(null);
+  };
+
+  const onDocTypePassword = (fileId, value) => {
+    if (value) {
+      documentTypeChangeCallback(fileId, { password: value });
+    }
+    onClosePasswordEnterArea();
+  };
 
   return (
     <>
@@ -436,19 +502,36 @@ export default function FileUpload({
           >
             <FileName>{file.name}</FileName>
             {file.status === "completed" && !!docTypeOptions.length && (
-              <SelectDocType
-                value={docTypeFileMap[file.id] || ""}
-                onChange={(e) => onDocTypeChange(file.id, e.target.value)}
-              >
-                <option value="" disabled>
-                  Select Document Type
-                </option>
-                {docTypeOptions.map((docType) => (
-                  <option key={docType.value} value={docType.value}>
-                    {docType.name}
+              <>
+                <SelectDocType
+                  value={docTypeFileMap[file.id] || ""}
+                  onChange={(e) => onDocTypeChange(file.id, e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select Document Type
                   </option>
-                ))}
-              </SelectDocType>
+                  {docTypeOptions.map((docType) => (
+                    <option key={docType.value} value={docType.value}>
+                      {docType.name}
+                    </option>
+                  ))}
+                </SelectDocType>
+                <PasswordWrapper>
+                  <RoundButton
+                    showTooltip={passwordForFileId !== file.id}
+                    onClick={() => onPasswordClick(file.id)}
+                  >
+                    <FontAwesomeIcon icon={faUnlockAlt} size="1x" />
+                  </RoundButton>
+                  {passwordForFileId === file.id && (
+                    <FilePasswordInput
+                      fileId={file.id}
+                      onClickCallback={onDocTypePassword}
+                      onClose={onClosePasswordEnterArea}
+                    />
+                  )}
+                </PasswordWrapper>
+              </>
             )}
             {file.status === "progress" && (
               <CancelBtn onClick={() => file.cancelToken.cancel(USER_CANCELED)}>

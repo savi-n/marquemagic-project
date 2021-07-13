@@ -65,6 +65,7 @@ const availableRoutes = {
     Component: FourWheelerLoanDetails,
   },
   "home-loan-details": { protected: true, Component: HomeLoanDetails },
+  "lap-loan-details": { protected: true, Component: HomeLoanDetails },
   "co-applicant-details": {
     protected: true,
     Component: userType("Co-applicant", CoApplicantDetails),

@@ -3,6 +3,8 @@ import { createContext, useReducer } from "react";
 const actionTypes = {
   SET_LOAN_DATA: "SET_LOAN_DATA",
   SET_LOAN_DOCUMENT: "SET_LOAN_DOCUMENT",
+  REMOVE_LOAN_DOCUMENT: "REMOVE_LOAN_DOCUMENT",
+  SET_DOCUMENT_TYPE: "SET_DOCUMENT_TYPE",
 };
 
 const INITIAL_STATE = {};
@@ -23,9 +25,26 @@ const useActions = (dispatch) => {
     });
   };
 
+  const removeLoanDocument = (fileId) => {
+    dispatch({
+      type: actionTypes.REMOVE_LOAN_DOCUMENT,
+      fileId,
+    });
+  };
+
+  const setLoanDocumentType = (fileId, fileType) => {
+    dispatch({
+      type: actionTypes.SET_DOCUMENT_TYPE,
+      fileId,
+      fileType,
+    });
+  };
+
   return {
     setLoanData,
     setLoanDocuments,
+    removeLoanDocument,
+    setLoanDocumentType,
   };
 };
 
@@ -37,10 +56,39 @@ function reducer(state, action) {
         [action.page]: action.formData,
       };
     }
+
     case actionTypes.SET_LOAN_DOCUMENT: {
       return {
         ...state,
         documents: [...(state.documents || []), ...action.files],
+      };
+    }
+
+    case actionTypes.SET_DOCUMENT_TYPE: {
+      const userDocs = (state.documents || []).map((doc) =>
+        doc.id === action.fileId
+          ? {
+              ...doc,
+              typeId: action.fileType.value,
+              typeName: action.fileType.name,
+              mainType: action.fileType.main,
+            }
+          : doc
+      );
+
+      return {
+        ...state,
+        documents: userDocs,
+      };
+    }
+
+    case actionTypes.REMOVE_LOAN_DOCUMENT: {
+      const filteredDocs = (state.documents || []).filter(
+        (doc) => doc.id !== action.fileId
+      );
+      return {
+        ...state,
+        documents: filteredDocs,
       };
     }
 
