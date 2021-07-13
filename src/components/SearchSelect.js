@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import useClickOutside from "../hooks/useOutsideClick";
 import debounceFunction from "../utils/debounce";
+import { style } from "dom-helpers";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -81,6 +82,29 @@ const Label = styled.label`
     `}
 `;
 
+const Div = styled.div`
+  position: relative;
+`;
+
+const Asteris = styled.span`
+  color: red;
+`;
+
+const PlaceHolder = styled.label`
+  position: absolute;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  background: white;
+  overflow: hidden;
+  top: 3%;
+  left: 1%;
+  height: 90%;
+  width: 98%;
+  color: lightgray;
+  padding: 0 10px;
+`;
+
 export default function SearchSelect({
   name,
   options = [],
@@ -91,6 +115,8 @@ export default function SearchSelect({
   searchOptionCallback,
   onBlurCallback,
   searchKeyAsValue,
+  rules,
+  disabled,
 }) {
   const [optionShow, setOptionShow] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -185,17 +211,25 @@ export default function SearchSelect({
           </Label>
         )}
         {searchable ? (
-          <Input
-            id={name}
-            name={name}
-            type="text"
-            onFocus={() => setOptionShow(true)}
-            onBlur={onBlurSearchBox}
-            placeholder={placeholder || "Search"}
-            onChange={onSearchChange}
-            value={searchKey}
-            autoComplete="off"
-          />
+          <Div>
+            <Input
+              id={name}
+              name={name}
+              type="text"
+              onFocus={() => setOptionShow(true)}
+              onBlur={onBlurSearchBox}
+              placeholder={placeholder || "Search"}
+              onChange={onSearchChange}
+              value={searchKey}
+              autoComplete="off"
+            />
+            {!optionShow && (
+              <PlaceHolder htmlFor={name} disabled={disabled}>
+                <span>{placeholder}</span>
+                {rules?.required && !disabled && <Asteris>*</Asteris>}
+              </PlaceHolder>
+            )}
+          </Div>
         ) : (
           <button
             onFocus={() => setOptionShow(true)}
