@@ -299,7 +299,7 @@ export default function DocumentUpload({
               ({ id, ...d }) => ({
                 ...d,
                 loan_id: loanId,
-                // doc_type_id: "",
+                doc_type_id: d.typeId,
                 // password: "",
               }),
               directorId
@@ -425,7 +425,7 @@ export default function DocumentUpload({
       // await loanAssetsUpload(
       //   caseCreateRes.loanId,
       //   userToken
-      //   // otherUserTypeDetails.requestId
+      //    otherUserTypeDetails.requestId
       // );
 
       return caseCreateRes;
