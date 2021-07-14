@@ -231,7 +231,7 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return caseCreationProgress;
+    return caseCreationProgress || !declareCheck;
     // return (
     //   caseCreationProgress ||
     //   !(!!userType || bankCUBStatementFetchDone) ||
