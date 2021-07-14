@@ -502,12 +502,12 @@ export default function DocumentUpload({
           loanReq,
           "Co-applicant",
           [
-            ...(state.coapplicant.cibilData.requestId
-              ? state.coapplicant?.cibilData?.requestId
+            ...(state["Co-applicant"]?.cibilData?.requestId
+              ? state["Co-applicant"]?.cibilData?.requestId
               : []),
-            state.coapplicant.cubStatement.requestId,
-            ...(state.coapplicant.cubStatement?.requestId
-              ? [state.coapplicant.cubStatement?.requestId]
+            state["Co-applicant"]?.cubStatement?.requestId,
+            ...(state["Co-applicant"].cubStatement?.requestId
+              ? [state["Co-applicant"].cubStatement?.requestId]
               : []),
           ]
         );
@@ -553,8 +553,8 @@ export default function DocumentUpload({
       caseDetails,
       "Guarantor",
       [
-        ...(state.guarantor.cibilData.requestId
-          ? state.guarantor?.cibilData?.requestId
+        ...(state?.Guarantor?.cibilData?.requestId
+          ? state?.Guarantor?.cibilData?.requestId
           : []),
         ...(otherCUBStatementUserTypeDetails?.requestId
           ? [otherCUBStatementUserTypeDetails?.requestId]
