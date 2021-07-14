@@ -444,9 +444,10 @@ export default function DocumentUpload({
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
           ...state[USER_ROLES[role]].loanData,
-          // cibilScore: userType
-          //   ? state[USER_ROLES[role]].cibilData.cibilScore
-          //   : otherUserTypeCibilDetails.cibilScore,
+          cibilScore:
+            (userType
+              ? state[USER_ROLES[role]]?.cibilData?.cibilScore
+              : otherUserTypeCibilDetails?.cibilScore) || "",
         },
         CREATE_CASE_OTHER_USER
       );
@@ -488,7 +489,7 @@ export default function DocumentUpload({
         },
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
         ...state.user.bankData,
-        // cibilScore: otherUserTypeCibilDetails.cibilScore,
+        cibilScore: otherUserTypeCibilDetails?.cibilScore || "",
       });
 
       if (!loanReq && !loanReq?.loanId) {
@@ -496,7 +497,7 @@ export default function DocumentUpload({
         return;
       }
 
-      if (state.coapplicant) {
+      if (state["Co-applicant"]) {
         const coAppilcantCaseReq = await caseCreationReqOtherUser(
           loanReq,
           "Co-applicant",
