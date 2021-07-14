@@ -162,7 +162,7 @@ export default function DocumentUpload({
         optionArray = [
           ...optionArray,
           ...response?.[docType[1]]?.map((dT) => ({
-            value: dT.name,
+            value: dT.doc_type_id,
             name: dT.name,
             main: docType[0],
           })),
@@ -231,7 +231,7 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return caseCreationProgress;
+    return caseCreationProgress || !declareCheck;
     // return (
     //   caseCreationProgress ||
     //   !(!!userType || bankCUBStatementFetchDone) ||
@@ -295,15 +295,13 @@ export default function DocumentUpload({
         {
           method: "POST",
           data: {
-            upload_document: state[user]?.uploadedDocs?.map(
-              ({ id, ...d }) => ({
-                ...d,
-                loan_id: loanId,
-                // doc_type_id: "",
-                // password: "",
-              }),
-              directorId
-            ),
+            upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
+              ...d,
+              loan_id: loanId,
+              ...(d.typeId && { doc_type_id: d.typeId }),
+              // password: "",
+            })),
+            directorId,
           },
         },
         {
@@ -425,7 +423,7 @@ export default function DocumentUpload({
       // await loanAssetsUpload(
       //   caseCreateRes.loanId,
       //   userToken
-      //   // otherUserTypeDetails.requestId
+      //    otherUserTypeDetails.requestId
       // );
 
       return caseCreateRes;
@@ -446,9 +444,10 @@ export default function DocumentUpload({
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
           ...state[USER_ROLES[role]].loanData,
-          // cibilScore: userType
-          //   ? state[USER_ROLES[role]].cibilData.cibilScore
-          //   : otherUserTypeCibilDetails.cibilScore,
+          cibilScore:
+            (userType
+              ? state[USER_ROLES[role]]?.cibilData?.cibilScore
+              : otherUserTypeCibilDetails?.cibilScore) || "",
         },
         CREATE_CASE_OTHER_USER
       );
@@ -490,7 +489,7 @@ export default function DocumentUpload({
         },
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
         ...state.user.bankData,
-        // cibilScore: otherUserTypeCibilDetails.cibilScore,
+        cibilScore: otherUserTypeCibilDetails?.cibilScore || "",
       });
 
       if (!loanReq && !loanReq?.loanId) {
@@ -498,7 +497,7 @@ export default function DocumentUpload({
         return;
       }
 
-      if (state.coapplicant) {
+      if (state["Co-applicant"]) {
         const coAppilcantCaseReq = await caseCreationReqOtherUser(
           loanReq,
           "Co-applicant",
