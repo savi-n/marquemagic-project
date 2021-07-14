@@ -35,7 +35,7 @@ const FlexColom = styled.div`
 
 const additionalLoanData = (formData) => {
   const formatData = {
-    modelName: formData.vehicle,
+    modelName: formData.vehicle.value,
     exShowroomPrice: formData.exShowroomPrice,
     accessories: formData.Accessories,
     insurance: formData.insurance,
@@ -98,7 +98,7 @@ export default function FourWheelerLoanDetailsPage({
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: bankId,
-      branchId: data.branchId,
+      branchId: data.branchId.value,
     });
     setUsertypeLoanData({
       ...loanData,
