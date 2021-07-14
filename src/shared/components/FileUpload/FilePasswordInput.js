@@ -15,7 +15,8 @@ const Wrapper = styled.div`
   bottom: 105%;
   /* width: 250px; */
   right: -100%;
-  background: #fff8f8;
+  /* background: #fff8f8; */
+  backdrop-filter: blur(10px);
   z-index: 998;
   margin-bottom: 10px;
   border-radius: 10px;

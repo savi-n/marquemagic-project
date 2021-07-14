@@ -46,11 +46,13 @@ const additionalLoanData = (formData) => {
 };
 
 const formatEmiData = (formData, fields) => {
-  return fields.map((f) => ({
-    type: f.name,
-    amount: formData[f.name],
-    bank: formData[`${f.name}_bank_name`],
-  }));
+  return fields
+    .map((f) => ({
+      type: f.name,
+      amount: formData[f.name],
+      bank: formData[`${f.name}_bank_name`]?.name,
+    }))
+    .filter((f) => f.bank);
 };
 
 FourWheelerLoanDetailsPage.propTypes = {
