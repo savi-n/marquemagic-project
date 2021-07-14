@@ -162,7 +162,7 @@ export default function DocumentUpload({
         optionArray = [
           ...optionArray,
           ...response?.[docType[1]]?.map((dT) => ({
-            value: dT.name,
+            value: dT.doc_type_id,
             name: dT.name,
             main: docType[0],
           })),
@@ -295,15 +295,13 @@ export default function DocumentUpload({
         {
           method: "POST",
           data: {
-            upload_document: state[user]?.uploadedDocs?.map(
-              ({ id, ...d }) => ({
-                ...d,
-                loan_id: loanId,
-                doc_type_id: d.typeId,
-                // password: "",
-              }),
-              directorId
-            ),
+            upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
+              ...d,
+              loan_id: loanId,
+              ...(d.typeId && { doc_type_id: d.typeId }),
+              // password: "",
+            })),
+            directorId,
           },
         },
         {

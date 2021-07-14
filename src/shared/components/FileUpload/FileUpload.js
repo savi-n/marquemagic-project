@@ -425,7 +425,9 @@ export default function FileUpload({
   };
 
   const onDocTypeChange = (fileId, value) => {
-    const selectedDocType = docTypeOptions.find((d) => d.value === value);
+    const selectedDocType = docTypeOptions.find(
+      (d) => d.value.toString() === value
+    );
     documentTypeChangeCallback(fileId, selectedDocType);
     setDocTypeFileMap({
       ...docTypeFileMap,
