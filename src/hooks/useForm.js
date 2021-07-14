@@ -7,6 +7,7 @@ import BankList from "../components/inputs/BankList";
 import Pincode from "../components/inputs/PinCode";
 import DateField from "../components/inputs/DateField";
 import InputField from "../components/inputs/InputField";
+import SelectField from "../components/inputs/SelectField";
 
 function required(value) {
   return !value;
@@ -321,23 +322,14 @@ function InputFieldRender({ field, onChange, value, unregister }) {
           fetchOptionsFunc={field.fetchOptionsFunc}
           searchOptionCallback={field.searchOptionCallback}
           searchKeyAsValue={field.searchKeyAsValue}
+          disabled={field.disabled}
+          rules={field.rules}
         />
       );
     }
 
     case "select": {
-      return (
-        <Select {...fieldProps}>
-          <option disabled value="">
-            {field.placeholder}
-          </option>
-          {field.options?.map(({ value, name }) => (
-            <option key={value} value={value.toString().trim()}>
-              {name}
-            </option>
-          ))}
-        </Select>
-      );
+      return <SelectField {...{ ...field, ...fieldProps }} />;
     }
 
     case "pincode": {

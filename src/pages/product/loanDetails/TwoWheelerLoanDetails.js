@@ -25,11 +25,13 @@ const ButtonWrap = styled.div`
 `;
 
 const formatEmiData = (formData, fields) => {
-  return fields.map((f) => ({
-    type: f.name,
-    amount: formData[f.name],
-    bank: formData[`${f.name}_bank_name`],
-  }));
+  return fields
+    .map((f) => ({
+      type: f.name,
+      amount: formData[f.name],
+      bank: formData[`${f.name}_bank_name`]?.name,
+    }))
+    .filter((f) => f.bank);
 };
 
 TwoWheelerLoanDetailsPage.propTypes = {
@@ -73,7 +75,7 @@ export default function TwoWheelerLoanDetailsPage({
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: bankId,
-      branchId: data.branchId,
+      branchId: data.branchId.value,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
     addToast({

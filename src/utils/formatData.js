@@ -1,8 +1,8 @@
 const formaterHOF = (formData, fields, callback) => {
   let data = {};
 
-  for (let { name } of fields) {
-    data = { ...data, ...callback(name, formData) };
+  for (let { name, type } of fields) {
+    data = { ...data, ...callback(name, formData, type) };
   }
 
   return data;
@@ -16,7 +16,7 @@ export const formatEmiData = (formData, fields) => {
 };
 
 export const formatLoanData = (formData, fields) => {
-  return formaterHOF(formData, fields, (name, formData) => ({
-    [name]: formData[name],
+  return formaterHOF(formData, fields, (name, formData, type) => ({
+    [name]: type === "search" ? formData[name].value : formData[name],
   }));
 };

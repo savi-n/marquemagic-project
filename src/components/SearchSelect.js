@@ -25,7 +25,7 @@ const Options = styled.div`
   background: white;
   right: 0;
   left: 0;
-  z-index: 99;
+  z-index: 999;
   max-height: 160px;
   overflow: auto;
   box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%);
@@ -67,6 +67,7 @@ const Label = styled.label`
   align-items: center;
   transition: 0.2s;
   cursor: pointer;
+  z-index: 99;
   ${({ focus }) =>
     focus
       ? `
@@ -160,7 +161,8 @@ export default function SearchSelect({
       onSelectOptionCallback &&
       typeof onSelectOptionCallback === "function"
     ) {
-      onSelectOptionCallback({ name, value: option.value });
+      onSelectOptionCallback({ name, value: option });
+      // value: option.value
     }
     setOptionShow(false);
     setSearchKey("");
@@ -223,7 +225,7 @@ export default function SearchSelect({
               value={searchKey}
               autoComplete="off"
             />
-            {!optionShow && (
+            {!optionShow && !selectedOption?.name && (
               <PlaceHolder htmlFor={name} disabled={disabled}>
                 <span>{placeholder}</span>
                 {rules?.required && !disabled && <Asteris>*</Asteris>}

@@ -82,6 +82,7 @@ export default function CoapplicantIncomeDetails({
         register={register}
         formState={formState}
         jsonData={map.fields["emi-details"].data}
+        label={map.fields["emi-details"].label}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

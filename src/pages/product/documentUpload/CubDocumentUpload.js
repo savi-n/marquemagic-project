@@ -284,7 +284,7 @@ export default function DocumentUpload({
   // };
 
   // step 2: upload docs reference
-  const updateDocumentList = async (loanId, user) => {
+  const updateDocumentList = async (loanId, directorId, user) => {
     if (!state[user]?.uploadedDocs.length) {
       return true;
     }
@@ -295,12 +295,15 @@ export default function DocumentUpload({
         {
           method: "POST",
           data: {
-            upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
-              ...d,
-              loan_id: loanId,
-              // doc_type_id: "",
-              // password: "",
-            })),
+            upload_document: state[user]?.uploadedDocs?.map(
+              ({ id, ...d }) => ({
+                ...d,
+                loan_id: loanId,
+                // doc_type_id: "",
+                // password: "",
+              }),
+              directorId
+            ),
           },
         },
         {
@@ -320,7 +323,12 @@ export default function DocumentUpload({
   };
 
   // step: 3 upload cub statements to sails
-  const updateRefernceToSails = async (loanId, token, requestId) => {
+  const updateRefernceToSails = async (
+    loanId,
+    directorId,
+    token,
+    requestId
+  ) => {
     if (!requestId.length) {
       return true;
     }
@@ -332,6 +340,7 @@ export default function DocumentUpload({
           data: {
             access_token: token,
             request_id: requestId,
+            directorId: directorId,
             loan_id: loanId,
             doc_type_id: 6,
           },
@@ -391,17 +400,26 @@ export default function DocumentUpload({
       const caseCreateRes = await createCaseReq(data, CREATE_CASE);
 
       // step 2: upload documents reference [loanId from createcase]
-      await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
+      await updateDocumentList(
+        caseCreateRes.loanId,
+        caseCreateRes.directorId,
+        USER_ROLES.User
+      );
 
       // step 3: upload cub statement to sailspld
-      await updateRefernceToSails(caseCreateRes.loanId, userToken, [
-        ...(otherCUBStatementUserTypeDetails?.requestId
-          ? [otherCUBStatementUserTypeDetails?.requestId]
-          : []),
-        ...(otherUserTypeCibilDetails?.requestId
-          ? otherUserTypeCibilDetails?.requestId
-          : []),
-      ]);
+      await updateRefernceToSails(
+        caseCreateRes.loanId,
+        caseCreateRes.directorId,
+        userToken,
+        [
+          ...(otherCUBStatementUserTypeDetails?.requestId
+            ? [otherCUBStatementUserTypeDetails?.requestId]
+            : []),
+          ...(otherUserTypeCibilDetails?.requestId
+            ? otherUserTypeCibilDetails?.requestId
+            : []),
+        ]
+      );
 
       // // step 4: loan assets request
       // await loanAssetsUpload(
@@ -435,8 +453,8 @@ export default function DocumentUpload({
         CREATE_CASE_OTHER_USER
       );
 
-      await updateDocumentList(loan.loanId, USER_ROLES[role]);
-      // await updateRefernceToSails(loan.loanId, userToken, requestId);
+      await updateDocumentList(loan.loanId, loan.directorId, USER_ROLES[role]);
+      // await updateRefernceToSails(loan.loanId, loan.directorId, userToken, requestId);
       return true;
     } catch (err) {
       console.log("COAPPLICANT CASE CREATION STEPS ERRRO ==> ", err.message);
