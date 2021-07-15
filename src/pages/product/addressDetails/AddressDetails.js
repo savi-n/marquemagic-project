@@ -88,14 +88,18 @@ export default function AddressDetailsPage({
   const [saved, setSaved] = useState(false);
   const [match, setMatch] = useState(false);
 
-  const onSave = async (formData) => {
+  const saveData = (formData) => {
     let formatedData = [formatData("permanent", formData, map.fields[id].data)];
 
     !match &&
       formatedData.push(formatData("present", formData, map.fields[id].data));
 
-    await setUsertypeAddressData(formatedData);
-    await setSaved(true);
+    setUsertypeAddressData(formatedData);
+    setSaved(true);
+  };
+
+  const onSave = (formData) => {
+    saveData(formData);
     addToast({
       message: "Saved Succesfully",
       type: "success",
@@ -119,8 +123,8 @@ export default function AddressDetailsPage({
     }
   }, [proceed]);
 
-  const onProceed = async (formData) => {
-    await onSave(formData);
+  const onProceed = (formData) => {
+    saveData(formData);
     setProceed(true);
   };
 
