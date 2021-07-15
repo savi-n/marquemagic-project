@@ -207,7 +207,7 @@ export default function CardDetails({
 					<hr />
 					<section className='flex items-center items-center justify-between'>
 						<section className='flex flex-col'>
-							<span>CIBIL score: {item.dcibil_score || 590}</span>
+							<span>Credit score: {item.dcibil_score || 590}</span>
 							<ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
 							<span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
 							<span
@@ -259,6 +259,7 @@ export default function CardDetails({
 							<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
 							{userList && item.assignmentLog && (
 								<small>
+									{console.log(userList)}
 									Assigned To:
 									{
 										usersList.filter(

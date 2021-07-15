@@ -10,7 +10,8 @@ import {
 	loanDocMapping,
 	getApprovalStatus,
 	assignUserToLoan,
-	getLoanDocs
+	getLoanDocs,
+	getCommentList
 } from '../utils/requests';
 
 export default function SharedCAT({
@@ -253,6 +254,8 @@ export default function SharedCAT({
 		</section>
 	);
 
+	getCommentList(item.id);
+
 	const comments = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
 			<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-transparent'>
@@ -289,6 +292,7 @@ export default function SharedCAT({
 				<input
 					placeholder='Add Recommendation'
 					className='resize-none rounded-lg w-full m-2 border border-silver-500 focus:outline-none p-2 text-sm'
+					onChange={e => setComments(e.target.value)}
 				/>
 				<select className='rounded w-full border p-2 m-2 focus:outline-none bg-transparent'>
 					<option>Assign to</option>

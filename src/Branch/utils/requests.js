@@ -4,6 +4,12 @@ import { API_END_POINT, SECRET } from '../../_config/app.config';
 
 const userToken = localStorage.getItem('token');
 
+export const dashboardData = async (token = localStorage.getItem('token')) => {
+	const g = await axios.get(`${API_END_POINT}/branch/dashboard`, { headers: { Authorization: `Bearer ${token}` } });
+	const t = await g;
+	return t.data.data;
+};
+
 export const getNCStatus = (token = localStorage.getItem('token')) => {
 	axios
 		.get(`${API_END_POINT}/case_nc_status`, {
@@ -42,7 +48,16 @@ export const getUsersList = async (token = localStorage.getItem('token')) => {
 		params: { userType: 'Branch' }
 	});
 	const t = await g;
-	return t;
+	return t.data.userList;
+};
+
+export const getCommentList = async (loanId, token = localStorage.getItem('token')) => {
+	const g = await axios.get(`${API_END_POINT}/branch/commentList`, {
+		headers: { Authorization: `Bearer ${token}` },
+		params: { loanId }
+	});
+	const t = await g;
+	console.log(t);
 };
 
 export const reassignLoan = async (

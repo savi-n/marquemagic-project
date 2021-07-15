@@ -13,9 +13,6 @@ const Layout = lazy(() => import('../Layout'));
 
 export default function Dashboard(props) {
 	// getNCStatus();
-
-	const { state } = useContext(BranchUserContext);
-	const history = useHistory();
 	const [usersList, setUsersList] = useState(null);
 	const { actions } = useContext(BranchUserContext);
 	const arr = window.location.href.split('?');
