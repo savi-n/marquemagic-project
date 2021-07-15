@@ -24,6 +24,15 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
+const FormWrapper = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const FlexColom = styled.div`
+  flex-basis: ${({ base }) => (base ? base : "100%")};
+`;
+
 const formatEmiData = (formData, fields) => {
   return fields
     .map((f) => ({
@@ -86,14 +95,27 @@ export default function TwoWheelerLoanDetailsPage({
 
   return (
     <Div>
-      <LoanDetails
-        register={register}
-        formState={formState}
-        jsonData={map.fields["loan-details"].data}
-        label={map.fields["loan-details"].label}
-        loanType={productDetails.loanType}
-        size="40%"
-      />
+      <FormWrapper>
+        <FlexColom base="50%">
+          <LoanDetails
+            register={register}
+            formState={formState}
+            jsonData={map.fields["loan-details"].data}
+            label={map.fields["loan-details"].label}
+            loanType={productDetails.loanType}
+            size="80%"
+          />
+        </FlexColom>
+        <FlexColom base="50%">
+          <LoanDetails
+            register={register}
+            formState={formState}
+            jsonData={map.fields["loan-details-additional"].data}
+            label={map.fields["loan-details-additional"].label}
+            size="80%"
+          />
+        </FlexColom>
+      </FormWrapper>
       <EMIDetails
         register={register}
         formState={formState}

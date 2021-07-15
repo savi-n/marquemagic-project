@@ -10,6 +10,9 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
 import { useToasts } from "../../../components/Toast/ToastProvider";
+import useCaseCreation from "../../../components/CaseCreation";
+import Loading from "../../../components/Loading";
+import Modal from "../../../components/Modal";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -66,6 +69,7 @@ export default function CoapplicantDetails({
   onFlowChange,
   map,
   fieldConfig,
+  productId,
 }) {
   const {
     actions: { setCompleted },
@@ -79,6 +83,11 @@ export default function CoapplicantDetails({
   const { addToast } = useToasts();
 
   const [match, setMatch] = useState(false);
+  const { processing, caseCreationUserType } = useCaseCreation(
+    "Co-applicant",
+    productId,
+    "Co-applicant"
+  );
 
   const onSave = (formData) => {
     let formatedAddress = [
@@ -106,8 +115,12 @@ export default function CoapplicantDetails({
     });
   };
 
-  const onProceed = (data) => {
+  const onProceed = async (data) => {
     onSave(data);
+    if (userType === "Gurantor") {
+      const res = await caseCreationUserType();
+      if (!res) return;
+    }
     setCompleted(id);
     onFlowChange(map.main);
   };
@@ -132,6 +145,11 @@ export default function CoapplicantDetails({
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
+      {processing && (
+        <Modal show={true} onClose={() => {}} width="50%">
+          <Loading />
+        </Modal>
+      )}
     </Div>
   );
 }
