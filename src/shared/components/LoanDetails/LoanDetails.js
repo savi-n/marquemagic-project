@@ -225,7 +225,7 @@ export default function LoanDetails({
   return (
     <>
       <H>
-        {userType || "Help us with "} <span>{label}</span>
+        {(userType && label) || "Help us with "} <span>{label}</span>
       </H>
       <FormWrap>
         <Colom>
