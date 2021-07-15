@@ -71,6 +71,7 @@ const NC_STATUS_CODE = {
   OK: "ok",
   NC200: "NC200",
   NC302: "NC302",
+  NC303: "NC303",
   NC305: "NC305",
   NC306: "NC306 ",
   NC308: "NC308 ",
