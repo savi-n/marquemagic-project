@@ -1,6 +1,5 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, Fragment } from "react";
 import styled from "styled-components";
-import { v4 as uuidv4 } from "uuid";
 import { func, object, oneOfType, string, oneOf } from "prop-types";
 
 import { UserContext } from "../../../reducer/userReducer";
@@ -13,12 +12,12 @@ import {
   UPLOAD_CUB_STATEMENT,
   CREATE_CASE,
   CREATE_CASE_OTHER_USER,
-  UPDATE_LOAN_ASSETS,
+  // UPDATE_LOAN_ASSETS,
   NC_STATUS_CODE,
   USER_ROLES,
   DOCTYPES_FETCH,
 } from "../../../_config/app.config";
-import { DOCUMENTS_REQUIRED } from "../../../_config/key.config";
+import { DOCUMENTS_TYPE } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
 import GetCUBStatementModal from "../../../components/GetCUBStatementModal";
 import GetCIBILScoreModal from "../../../components/GetCIBILScoreModal";
@@ -30,6 +29,11 @@ import { AppContext } from "../../../reducer/appReducer";
 import { CaseContext } from "../../../reducer/caseReducer";
 import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
+
+const DocTypeHead = styled.div`
+  font-weight: 600;
+  margin: 10px 0;
+`;
 
 const Colom1 = styled.div`
   flex: 1;
@@ -71,7 +75,7 @@ const SubmitWrapper = styled.div`
 `;
 
 const DocsCheckboxWrapper = styled.div`
-  margin: 20px 0;
+  margin: 10px 0;
 `;
 
 const H = styled.h1`
@@ -150,7 +154,25 @@ export default function DocumentUpload({
       Authorization: `Bearer ${userToken}`,
     },
   });
-  console.log(response);
+
+  useEffect(() => {
+    if (response) {
+      let optionArray = [];
+      DOCUMENTS_TYPE.forEach((docType) => {
+        optionArray = [
+          ...optionArray,
+          ...response?.[docType[1]]?.map((dT) => ({
+            value: dT.doc_type_id,
+            name: dT.name,
+            main: docType[0],
+          })),
+        ];
+      });
+      setDocumentTypeOptions(optionArray);
+    }
+  }, [response]);
+
+  const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
 
   const { addToast } = useToasts();
 
@@ -209,7 +231,7 @@ export default function DocumentUpload({
   };
 
   const buttonDisabledStatus = () => {
-    return caseCreationProgress;
+    return caseCreationProgress || !declareCheck;
     // return (
     //   caseCreationProgress ||
     //   !(!!userType || bankCUBStatementFetchDone) ||
@@ -223,46 +245,46 @@ export default function DocumentUpload({
   };
 
   // step 4: loan asset upload
-  const loanAssetsUpload = async (loanId, data) => {
-    const submitReq = await newRequest(
-      UPDATE_LOAN_ASSETS,
-      {
-        method: "POST",
-        data: {
-          loanId: loanId,
-          propertyType: "leased",
-          loan_asset_type_id: 2,
-          ownedType: "paid_off",
-          address1: "test address1",
-          address2: "test address2",
-          flat_no: "112",
-          locality: "ramnagar",
-          city: "banglore",
-          pincode: "570000",
-          landmark: "SI ATM",
-          autoMobileType: "qw",
-          brandName: "d",
-          modelName: "fd",
-          vehicalValue: "122",
-          dealershipName: "sd",
-          manufacturingYear: "123",
-          Value: "test@123",
-          ints: "",
-          cpath: "",
-          surveyNo: "",
-          cAssetId: "",
-          noOfAssets: 5,
-        },
-      },
-      {
-        Authorization: `Bearer ${userToken}`,
-      }
-    );
-    return submitReq;
-  };
+  // const loanAssetsUpload = async (loanId, data) => {
+  //   const submitReq = await newRequest(
+  //     UPDATE_LOAN_ASSETS,
+  //     {
+  //       method: "POST",
+  //       data: {
+  //         loanId: loanId,
+  //         propertyType: "leased",
+  //         loan_asset_type_id: 2,
+  //         ownedType: "paid_off",
+  //         address1: "test address1",
+  //         address2: "test address2",
+  //         flat_no: "112",
+  //         locality: "ramnagar",
+  //         city: "banglore",
+  //         pincode: "570000",
+  //         landmark: "SI ATM",
+  //         autoMobileType: "qw",
+  //         brandName: "d",
+  //         modelName: "fd",
+  //         vehicalValue: "122",
+  //         dealershipName: "sd",
+  //         manufacturingYear: "123",
+  //         Value: "test@123",
+  //         ints: "",
+  //         cpath: "",
+  //         surveyNo: "",
+  //         cAssetId: "",
+  //         noOfAssets: 5,
+  //       },
+  //     },
+  //     {
+  //       Authorization: `Bearer ${userToken}`,
+  //     }
+  //   );
+  //   return submitReq;
+  // };
 
   // step 2: upload docs reference
-  const updateDocumentList = async (loanId, user) => {
+  const updateDocumentList = async (loanId, directorId, user) => {
     if (!state[user]?.uploadedDocs.length) {
       return true;
     }
@@ -276,7 +298,10 @@ export default function DocumentUpload({
             upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
               ...d,
               loan_id: loanId,
+              ...(d.typeId && { doc_type_id: d.typeId }),
+              // password: "",
             })),
+            directorId,
           },
         },
         {
@@ -296,7 +321,12 @@ export default function DocumentUpload({
   };
 
   // step: 3 upload cub statements to sails
-  const updateRefernceToSails = async (loanId, token, requestId) => {
+  const updateRefernceToSails = async (
+    loanId,
+    directorId,
+    token,
+    requestId
+  ) => {
     if (!requestId.length) {
       return true;
     }
@@ -308,6 +338,7 @@ export default function DocumentUpload({
           data: {
             access_token: token,
             request_id: requestId,
+            directorId: directorId,
             loan_id: loanId,
             doc_type_id: 6,
           },
@@ -367,23 +398,32 @@ export default function DocumentUpload({
       const caseCreateRes = await createCaseReq(data, CREATE_CASE);
 
       // step 2: upload documents reference [loanId from createcase]
-      await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
+      await updateDocumentList(
+        caseCreateRes.loanId,
+        caseCreateRes.directorId,
+        USER_ROLES.User
+      );
 
       // step 3: upload cub statement to sailspld
-      await updateRefernceToSails(caseCreateRes.loanId, userToken, [
-        ...(otherCUBStatementUserTypeDetails?.requestId
-          ? [otherCUBStatementUserTypeDetails?.requestId]
-          : []),
-        ...(otherUserTypeCibilDetails?.requestId
-          ? otherUserTypeCibilDetails?.requestId
-          : []),
-      ]);
+      await updateRefernceToSails(
+        caseCreateRes.loanId,
+        caseCreateRes.directorId,
+        userToken,
+        [
+          ...(otherCUBStatementUserTypeDetails?.requestId
+            ? [otherCUBStatementUserTypeDetails?.requestId]
+            : []),
+          ...(otherUserTypeCibilDetails?.requestId
+            ? otherUserTypeCibilDetails?.requestId
+            : []),
+        ]
+      );
 
       // // step 4: loan assets request
       // await loanAssetsUpload(
       //   caseCreateRes.loanId,
       //   userToken
-      //   // otherUserTypeDetails.requestId
+      //    otherUserTypeDetails.requestId
       // );
 
       return caseCreateRes;
@@ -404,15 +444,16 @@ export default function DocumentUpload({
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
           ...state[USER_ROLES[role]].loanData,
-          // cibilScore: userType
-          //   ? state[USER_ROLES[role]].cibilData.cibilScore
-          //   : otherUserTypeCibilDetails.cibilScore,
+          cibilScore:
+            (userType
+              ? state[USER_ROLES[role]]?.cibilData?.cibilScore
+              : otherUserTypeCibilDetails?.cibilScore) || "",
         },
         CREATE_CASE_OTHER_USER
       );
 
-      await updateDocumentList(loan.loanId, USER_ROLES[role]);
-      // await updateRefernceToSails(loan.loanId, userToken, requestId);
+      await updateDocumentList(loan.loanId, loan.directorId, USER_ROLES[role]);
+      // await updateRefernceToSails(loan.loanId, loan.directorId, userToken, requestId);
       return true;
     } catch (err) {
       console.log("COAPPLICANT CASE CREATION STEPS ERRRO ==> ", err.message);
@@ -448,7 +489,7 @@ export default function DocumentUpload({
         },
         loanData: { assetsValue: 0, ...state.user.loanData, productId },
         ...state.user.bankData,
-        // cibilScore: otherUserTypeCibilDetails.cibilScore,
+        cibilScore: otherUserTypeCibilDetails?.cibilScore || "",
       });
 
       if (!loanReq && !loanReq?.loanId) {
@@ -456,17 +497,17 @@ export default function DocumentUpload({
         return;
       }
 
-      if (state.coapplicant) {
+      if (state["Co-applicant"]) {
         const coAppilcantCaseReq = await caseCreationReqOtherUser(
           loanReq,
           "Co-applicant",
           [
-            ...(state.coapplicant.cibilData.requestId
-              ? state.coapplicant?.cibilData?.requestId
+            ...(state["Co-applicant"]?.cibilData?.requestId
+              ? state["Co-applicant"]?.cibilData?.requestId
               : []),
-            state.coapplicant.cubStatement.requestId,
-            ...(state.coapplicant.cubStatement?.requestId
-              ? [state.coapplicant.cubStatement?.requestId]
+            state["Co-applicant"]?.cubStatement?.requestId,
+            ...(state["Co-applicant"].cubStatement?.requestId
+              ? [state["Co-applicant"].cubStatement?.requestId]
               : []),
           ]
         );
@@ -512,8 +553,8 @@ export default function DocumentUpload({
       caseDetails,
       "Guarantor",
       [
-        ...(state.guarantor.cibilData.requestId
-          ? state.guarantor?.cibilData?.requestId
+        ...(state?.Guarantor?.cibilData?.requestId
+          ? state?.Guarantor?.cibilData?.requestId
           : []),
         ...(otherCUBStatementUserTypeDetails?.requestId
           ? [otherCUBStatementUserTypeDetails?.requestId]
@@ -561,8 +602,9 @@ export default function DocumentUpload({
 
   const documentChecklist =
     state[USER_ROLES[userType || "User"]]?.uploadedDocs?.map(
-      (docs) => docs.type
+      (docs) => docs.typeName
     ) || [];
+
   return (
     <>
       <Colom1>
@@ -574,10 +616,7 @@ export default function DocumentUpload({
             onDrop={handleFileUpload}
             accept=""
             onRemoveFile={handleFileRemove}
-            docTypeOptions={productDetails[DOCUMENTS_REQUIRED]?.map((docs) => ({
-              value: docs,
-              name: docs,
-            }))}
+            docTypeOptions={documentTypeOptions}
             documentTypeChangeCallback={handleDocumentTypeChange}
             upload={{
               url: DOCS_UPLOAD_URL({ userId: userId || "" }),
@@ -612,10 +651,10 @@ export default function DocumentUpload({
             <CheckBox
               name={textForCheckbox.grantCibilAcces}
               checked={cibilCheckbox}
-              // disabled={cibilCheckbox}
+              disabled={cibilCheckbox}
               onChange={() => {
                 setCibilCheckbox(!cibilCheckbox);
-                // setCibilCheckModal(true);
+                setCibilCheckModal(true);
               }}
               bg="blue"
             />
@@ -667,18 +706,25 @@ export default function DocumentUpload({
       <Colom2>
         <Doc>Documents Required</Doc>
         <div>
-          {productDetails[DOCUMENTS_REQUIRED]?.map((docs) => (
-            <DocsCheckboxWrapper key={uuidv4()}>
-              <CheckBox
-                name={docs}
-                checked={documentChecklist.includes(docs)}
-                // onChange={handleDocumentChecklist(docs)}
-                round
-                disabled
-                bg="green"
-              />
-            </DocsCheckboxWrapper>
-          ))}
+          {DOCUMENTS_TYPE.map((docType) =>
+            response?.[docType[1]].length ? (
+              <Fragment key={docType[0]}>
+                <DocTypeHead>{docType[0]}</DocTypeHead>
+                {response?.[docType[1]]?.map((doc) => (
+                  <DocsCheckboxWrapper key={doc.doc_type_id}>
+                    <CheckBox
+                      name={doc.name}
+                      checked={documentChecklist.includes(doc.name)}
+                      // onChange={handleDocumentChecklist(docs)}
+                      round
+                      disabled
+                      bg="green"
+                    />
+                  </DocsCheckboxWrapper>
+                ))}
+              </Fragment>
+            ) : null
+          )}
         </div>
       </Colom2>
 

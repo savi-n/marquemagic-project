@@ -6,6 +6,8 @@ import SearchSelect from "../components/SearchSelect";
 import BankList from "../components/inputs/BankList";
 import Pincode from "../components/inputs/PinCode";
 import DateField from "../components/inputs/DateField";
+import InputField from "../components/inputs/InputField";
+import SelectField from "../components/inputs/SelectField";
 
 function required(value) {
   return !value;
@@ -187,14 +189,15 @@ export default function useForm() {
   };
 
   const register = (newField) => {
-    newField.name = newField.name.replaceAll(" ", "");
+    // newField.name = newField.name.replaceAll(" ", "");
+    newField.name = newField.name.split(" ").join("");
     fieldsRef.current[newField.name] = newField;
 
     setValue(newField.name, newField.value || "");
     checkValidity(newField.name);
 
     return (
-      <InputField
+      <InputFieldRender
         field={newField}
         onChange={onChange}
         value={valuesRef.current[newField.name] || ""}
@@ -266,14 +269,6 @@ export default function useForm() {
   };
 }
 
-const Input = styled.input`
-  height: 50px;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-`;
-
 const Select = styled.select`
   height: 50px;
   padding: 10px;
@@ -282,7 +277,7 @@ const Select = styled.select`
   border-radius: 6px;
 `;
 
-function InputField({ field, onChange, value, unregister }) {
+function InputFieldRender({ field, onChange, value, unregister }) {
   const { type = "text", rules } = field;
 
   useEffect(() => {
@@ -327,23 +322,14 @@ function InputField({ field, onChange, value, unregister }) {
           fetchOptionsFunc={field.fetchOptionsFunc}
           searchOptionCallback={field.searchOptionCallback}
           searchKeyAsValue={field.searchKeyAsValue}
+          disabled={field.disabled}
+          rules={field.rules}
         />
       );
     }
 
     case "select": {
-      return (
-        <Select {...fieldProps}>
-          <option disabled value="">
-            {field.placeholder}
-          </option>
-          {field.options?.map(({ value, name }) => (
-            <option key={value} value={value.toString().trim()}>
-              {name}
-            </option>
-          ))}
-        </Select>
-      );
+      return <SelectField {...{ ...field, ...fieldProps }} />;
     }
 
     case "pincode": {
@@ -362,7 +348,7 @@ function InputField({ field, onChange, value, unregister }) {
       return <DateField {...{ ...field, ...fieldProps }} />;
     }
     default: {
-      return <Input type={type} {...fieldProps} />;
+      return <InputField type={type} {...{ ...field, ...fieldProps }} />;
     }
   }
 }

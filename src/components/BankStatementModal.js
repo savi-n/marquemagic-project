@@ -123,7 +123,11 @@ export default function BankStatementModal({ showModal, onClose }) {
   const [accountsList, setAccountsList] = useState([]);
 
   const postData = async (api, data, method = "POST") => {
-    return newRequest(api, { method, data }, { authorization: bankToken });
+    return newRequest(
+      api,
+      { method, data, timeout: 240000 },
+      { authorization: bankToken }
+    );
   };
 
   const flowCompleted = () => {

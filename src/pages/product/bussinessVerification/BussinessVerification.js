@@ -54,6 +54,12 @@ const H2 = styled.h2`
   font-weight: 500;
 `;
 
+const businessTypeMaps = [
+  [["private", "pvt"], 4],
+  [["public", "pub"], 5],
+  [["llp"], 3],
+];
+
 function formatCompanyData(data) {
   let directors = {};
   let directorsForShow = [];
@@ -68,9 +74,30 @@ function formatCompanyData(data) {
     });
   }
 
+  let businesType;
+
+  for (const type of businessTypeMaps) {
+    const typeAllowed = type[0].find((t) =>
+      data.company_master_data.company_name.toLowerCase().includes(t)
+    );
+
+    if (typeAllowed) {
+      businesType = type[1];
+      break;
+    }
+  }
+
+  const [
+    date,
+    month,
+    year,
+  ] = data.company_master_data.date_of_incorporation.split(/\/|-/);
+
   return {
     BusinessName: data.company_master_data.company_name,
+    BusinessType: businesType,
     Email: data.company_master_data.email_id,
+    BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
     PancardNumber: "",
     CIN: data.company_master_data["cin "],
     CompanyCategory: data.company_master_data.company_category,
@@ -90,7 +117,7 @@ export default function BussinessDetails({
   id,
 }) {
   const {
-    state: { whiteLabelId, bankToken },
+    state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
 
   const {
@@ -145,7 +172,7 @@ export default function BussinessDetails({
           cin_number: cinNumber,
         },
       },
-      { authorization: bankToken }
+      { authorization: clientToken }
     );
 
     const companyData = cinNumberResponse.data;

@@ -90,6 +90,8 @@ export default function OtpModal(props) {
 	const { addToast } = useToasts();
 
 	const [accounts, setAccounts] = useState(null);
+	const [customers, setCustomers] = useState(null);
+
 	const [message, setMessage] = useState(null);
 	const [otp, setOtp] = useState('');
 	const [error, setError] = useState(false);
@@ -134,7 +136,14 @@ export default function OtpModal(props) {
 		// ) {
 		//   setMessage(response.message);
 		// }
+
+		// 302 multiple customerid
+		// customer name customer id
+		// 303 multiple account number
+		// accType = ['SB - Saving Account', 'CA - Current Account', 'OLCC - OD Account']
 		else if (response.statusCode === NC_STATUS_CODE.NC302 && response.message.includes('Multiple')) {
+			setCustomers(response.accountDetails);
+		} else if (response.statusCode === NC_STATUS_CODE.NC303 && response.message.includes('Multiple')) {
 			setAccounts(response.accountDetails);
 		} else {
 			addToast({
@@ -161,16 +170,52 @@ export default function OtpModal(props) {
 			return;
 		}
 
-		const accountsDetails = accounts.find(acc => acc.accNum === selectedAccount);
+		let accountsDetails;
+		if (accounts) {
+			accountsDetails = accounts.find(acc => acc.accNum === selectedAccount);
+		}
+
+		if (customers) {
+			accountsDetails = customers.find(acc => acc.customerId === selectedAccount);
+		}
 
 		await submitOtp({
 			customerId: selectedAccount,
-			aadharNum: accountsDetails.aadharNum
+			aadharNum: accountsDetails?.aadharNum || ''
 		});
 	};
 
 	const handleOtpChange = otp => {
 		setOtp(otp);
+	};
+
+	const selectPlaceholder = () => {
+		if (accounts) {
+			return 'Select Account';
+		}
+
+		if (customers) {
+			return 'Select Customer Id';
+		}
+	};
+
+	const selectCustomerOptions = () => {
+		if (accounts) {
+			return accounts.map(a => ({
+				value: a.accNum,
+				name: `${a.accType} - ${'*'.repeat(a.accNum.length - 4)}${a.accNum.substring(a.accNum.length - 4)}`
+			}));
+		}
+
+		if (customers) {
+			return customers.map(a => ({
+				value: a.customerId,
+				name: `${a.customerName} - ${a.customerId}`
+				// `${"*".repeat(a.customerId.length - 4)}${a.customerId.substring(
+				//   a.customerId.length - 4
+				// )}`,
+			}));
+		}
 	};
 
 	return (
@@ -180,7 +225,7 @@ export default function OtpModal(props) {
 				{loading ? (
 					<Loading />
 				) : accountAvailable ? (
-					!accounts ? (
+					!accounts && !customers ? (
 						<>
 							<OTPHead>OTP Verification</OTPHead>
 							<hr />
@@ -205,20 +250,28 @@ export default function OtpModal(props) {
 							<Button fill onClick={() => submitOtp()} name='Confirm OTP' disabled={otp?.length !== 6} />
 						</>
 					) : (
-						accounts && (
+						(accounts || customers) && (
 							<section className='flex flex-col items-center gap-y-6'>
-								<OTPCaption>Please Choose the Accounts</OTPCaption>
+								<OTPCaption>
+									{customers && (
+										<>
+											Multiple customer id found. <br /> Please select a customer id you want to
+											continue your application with
+										</>
+									)}
+									{accounts && (
+										<>
+											Multiple accounts found. <br /> Please select the account you want to
+											continue your application with
+										</>
+									)}
+								</OTPCaption>
 								<Field>
 									{register({
 										name: 'account',
-										placeholder: 'Select account',
+										placeholder: selectPlaceholder(),
 										type: 'select',
-										options: accounts.map(a => ({
-											value: a.accNum,
-											name: `${'*'.repeat(a.accNum.length - 4)}${a.accNum.substring(
-												a.accNum.length - 4
-											)}`
-										})),
+										options: selectCustomerOptions(),
 										value: formState?.values?.account
 									})}
 								</Field>

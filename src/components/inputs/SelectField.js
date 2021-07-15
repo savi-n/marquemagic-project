@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Input = styled.input`
+const Select = styled.select`
   height: 50px;
   padding: 10px;
   width: 100%;
@@ -18,35 +18,15 @@ const Label = styled.label`
   display: flex;
   align-items: center;
   background: white;
-  transition: 0.2s;
+  overflow: hidden;
+  top: -10%;
+  left: 2%;
+  font-size: 10px;
+  color: black;
+  height: 20%;
+  padding: 0 5px;
+  width: inherit;
 
-  ${Input}:focus ~ & {
-    top: -10%;
-    left: 2%;
-    font-size: 10px;
-    color: black;
-    height: 20%;
-    padding: 0 5px;
-    width: inherit;
-  }
-  ${({ value }) =>
-    value
-      ? `
-      top: -10%;
-      left: 2%;
-      font-size:10px;
-      color:black;
-      height: 20%;
-      padding:0 5px;
-  `
-      : `
-      top: 3%;  
-      left: 1%;
-      height: 90%;
-      width: 90%;
-      color: lightgray;
-      padding: 0 10px;
-  `}
   ${({ disabled }) =>
     disabled &&
     `
@@ -58,12 +38,21 @@ const Asteris = styled.span`
   color: red;
 `;
 
-export default function DateField(props) {
+export default function SelectField(props) {
   return (
     <Div>
-      <Input id={props.name} type={props.type} {...props} />
+      <Select {...props}>
+        <option disabled value="">
+          {props.placeholder}
+        </option>
+        {props.options?.map(({ value, name }) => (
+          <option key={value} value={value.toString().trim()}>
+            {name}
+          </option>
+        ))}
+      </Select>
       <Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
-        {props.placeholder} (dd-mm-yyyy)
+        <span>{props.placeholder}</span>
         {props.rules?.required && !props.disabled && <Asteris>*</Asteris>}
       </Label>
     </Div>

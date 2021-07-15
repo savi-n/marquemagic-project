@@ -44,11 +44,13 @@ const Wrapper = styled.div`
 `;
 
 const formatEmiData = (formData, fields) => {
-  return fields.map((f) => ({
-    type: f.name,
-    amount: formData[f.name],
-    bank: formData[`${f.name}_bank_name`],
-  }));
+  return fields
+    .map((f) => ({
+      type: f.name,
+      amount: formData[f.name],
+      bank: formData[`${f.name}_bank_name`]?.name,
+    }))
+    .filter((f) => f.bank);
 };
 
 const formatLoanEmiData = (formData, fields) => {
@@ -89,6 +91,11 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
     onFlowChange(map.main);
   };
 
+  const onSkip = () => {
+    setCompleted(id);
+    onFlowChange(map.main);
+  };
+
   const onSave = (data) => {
     const emiData = formatEmiData(data, map.fields[id].data);
 
@@ -112,6 +119,8 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   //   setAdditionalField([...additionalField, newField]);
   // };
 
+  const skipButton = map.fields[id].data.some((f) => f?.rules?.required);
+
   return (
     <Div>
       <EMIDetails
@@ -129,6 +138,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
+        {!skipButton && <Button name="Skip" onClick={onSkip} />}
       </ButtonWrap>
     </Div>
   );

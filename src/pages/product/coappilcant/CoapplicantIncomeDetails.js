@@ -9,7 +9,7 @@ import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetail
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
-import { formatEmiData, formatLoanData } from "../../../utils/formatData";
+import { formatLoanData } from "../../../utils/formatData";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const ButtonWrap = styled.div`
@@ -23,6 +23,16 @@ const Div = styled.div`
   padding: 50px;
   background: #ffffff;
 `;
+
+const formatEmiData = (formData, fields) => {
+  return fields
+    .map((f) => ({
+      type: f.name,
+      amount: formData[f.name],
+      bank: formData[`${f.name}_bank_name`]?.name,
+    }))
+    .filter((f) => f.bank);
+};
 
 CoapplicantIncomeDetails.propTypes = {
   onFlowChange: func.isRequired,
@@ -82,6 +92,7 @@ export default function CoapplicantIncomeDetails({
         register={register}
         formState={formState}
         jsonData={map.fields["emi-details"].data}
+        label={map.fields["emi-details"].label}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
