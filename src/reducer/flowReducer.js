@@ -26,23 +26,34 @@ const useActions = (dispatch) => {
   const configure = (menu) => {
     const flowMap = {};
     menu.forEach((element, index) => {
-      const main = menu[index + 1] ? menu[index + 1].id : null;
+      let main = menu[index + 1] ? menu[index + 1].id : null;
       const sub = element.flow ? element.flow?.[0].id : null;
+      let hidden;
+      if (menu[index + 1]?.hidden) {
+        main = menu[index + 2].id || null;
+        hidden = menu[index + 1].id || null;
+      }
       flowMap[element.id] = {
         main,
         sub,
+        hidden,
         fields: element.fields || {},
         name: element.name,
         actions: element.actions || {},
       };
 
       element.flow?.forEach((e, i) => {
-        const m = element.flow[i + 1]
+        let m = element.flow[i + 1]
           ? element.flow[i + 1].id
           : menu[index + 1]
           ? menu[index + 1].id
           : element.id;
         const s = menu[index + 1] ? menu[index + 1].id : element.id;
+
+        if (menu[index + 1]?.hidden) {
+          m = menu[index + 2].id || null;
+        }
+
         flowMap[e.id] = {
           main: m,
           sub: s,

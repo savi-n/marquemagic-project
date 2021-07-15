@@ -62,10 +62,10 @@ const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 
-const APP_CLIENT = "cub.loan2pal.com";
-// window.location.hostname === "localhost"
-//   ? "cub.loan2pal.com"
-//   : window.location.hostname;
+const APP_CLIENT =
+  window.location.hostname === "localhost"
+    ? "cub.loan2pal.com"
+    : window.location.hostname;
 
 const NC_STATUS_CODE = {
   OK: "ok",

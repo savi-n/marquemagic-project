@@ -62,11 +62,12 @@ export default function AddressDetails({
   formState,
   match,
   setMatch,
+  disablePermenanet = false,
 }) {
   const populateValue = (field) => {
-    if (!userType && field.disabled) {
-      return preData[field.name] || "";
-    }
+    // if (!userType && field.disabled) {
+    //   return preData[field.name] || "";
+    // }
 
     if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
       return formState?.values?.[`permanent_${field.name}`];
@@ -92,6 +93,7 @@ export default function AddressDetails({
                       ...field,
                       name: `permanent_${field.name}`,
                       value: populateValue(field),
+                      disabled: disablePermenanet,
                       ...(field.valueForFields
                         ? {
                             valueForFields: field.valueForFields.map((f) => [
