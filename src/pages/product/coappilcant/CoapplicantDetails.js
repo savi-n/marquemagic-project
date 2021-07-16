@@ -125,7 +125,7 @@ export default function CoapplicantDetails({
       const res = await caseCreationUserType();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.main);
+        onFlowChange(map.sub);
       }
       setProceed(false);
     }
@@ -140,6 +140,9 @@ export default function CoapplicantDetails({
 
     if (userType === "Gurantor") {
       setProceed(true);
+    } else {
+      setCompleted(id);
+      onFlowChange(map.main);
     }
   };
 
