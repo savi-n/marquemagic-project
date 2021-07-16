@@ -254,6 +254,8 @@ export default function useCaseCreation(userType, productId, role) {
 
   async function caseCreationUser() {
     try {
+      setProcessing(true);
+
       const loanReq = await caseCreationSteps(
         {
           white_label_id: whiteLabelId,
@@ -284,11 +286,16 @@ export default function useCaseCreation(userType, productId, role) {
       );
 
       if (!loanReq) {
+        setProcessing(false);
         return false;
       }
       setCase(loanReq);
+      setProcessing(false);
+
       return true;
     } catch (err) {
+      setProcessing(false);
+
       return false;
     }
   }

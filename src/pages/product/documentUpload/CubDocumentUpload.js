@@ -446,11 +446,28 @@ export default function DocumentUpload({
   //   }
   // };
 
-  const onSubmitCopplicant = async () => {
-    const res = await caseCreationUserType();
-    if (res) {
-      onSubmit();
+  const [proceed, setProceed] = useState(false);
+  useEffect(() => {
+    async function request() {
+      const res = await caseCreationUserType();
+      if (res) {
+        setCompleted(id);
+        onFlowChange(map.main);
+      }
+      setProceed(false);
     }
+
+    if (proceed) {
+      request();
+    }
+  }, [proceed]);
+
+  const onSubmitCopplicant = async () => {
+    setUsertypeStatementData(
+      otherCUBStatementUserTypeDetails,
+      USER_ROLES[userType]
+    );
+    setProceed(true);
   };
 
   const onSubmit = async () => {
@@ -527,7 +544,7 @@ export default function DocumentUpload({
     // setOtherUserDetails(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
     setUsertypeStatementData(
       otherCUBStatementUserTypeDetails,
-      USER_ROLES[userType]
+      USER_ROLES[userType || "User"]
     );
 
     setCompleted(id);
@@ -590,9 +607,12 @@ export default function DocumentUpload({
       (docs) => docs.typeName
     ) || [];
 
-  const subFlowActivate = () => {
-    activateSubFlow(id);
-    onFlowChange(map.sub);
+  const subFlowActivate = async () => {
+    const res = await caseCreationUserType();
+    if (res) {
+      activateSubFlow(id);
+      onFlowChange(map.sub);
+    }
   };
 
   return (
