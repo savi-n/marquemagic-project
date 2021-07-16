@@ -27,6 +27,14 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
+function formatUserDetails(data, fields) {
+  let formatedData = {};
+  fields.forEach((f) => {
+    formatedData[f.name] = data[f.name] || "0";
+  });
+  return formatedData;
+}
+
 export default function PersonalDetailsPage({ id, map, onFlowChange }) {
   const {
     state: { whiteLabelId },
@@ -81,7 +89,11 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
       });
     }
 
-    setUsertypeApplicantData({ ...data, isApplicant: "1" });
+    setUsertypeApplicantData({
+      ...data,
+      isApplicant: "1",
+      ...formatUserDetails(data, map.fields["salary-details"].data),
+    });
     addToast({
       message: "Saved Succesfully",
       type: "success",

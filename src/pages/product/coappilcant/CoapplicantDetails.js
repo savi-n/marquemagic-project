@@ -60,7 +60,6 @@ CoapplicantDetails.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor"]),
-  fieldConfig: object,
 };
 
 export default function CoapplicantDetails({
@@ -68,7 +67,6 @@ export default function CoapplicantDetails({
   id,
   onFlowChange,
   map,
-  fieldConfig,
   productId,
 }) {
   const {
@@ -94,17 +92,21 @@ export default function CoapplicantDetails({
       formatAddressData(
         "permanent",
         formData,
-        fieldConfig.address_details.data
+        map.fields["address-details"].data
       ),
     ];
 
     !match &&
       formatedAddress.push(
-        formatAddressData("present", formData, fieldConfig.address_details.data)
+        formatAddressData(
+          "present",
+          formData,
+          map.fields["address-details"].data
+        )
       );
 
     const formatApplicantData = {
-      ...formatPersonalData(formData, fieldConfig.personal_details.data),
+      ...formatPersonalData(formData, map.fields["personal-details"].data),
       typeName: userType,
     };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);

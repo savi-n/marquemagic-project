@@ -118,5 +118,4 @@ FormController.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  fieldConfig: object,
 };

@@ -69,7 +69,6 @@ FourWheelerLoanDetailsPage.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   productDetails: object,
-  fieldConfig: object,
 };
 
 export default function FourWheelerLoanDetailsPage({
@@ -77,7 +76,6 @@ export default function FourWheelerLoanDetailsPage({
   map,
   onFlowChange,
   productDetails,
-  fieldConfig,
 }) {
   const {
     actions: { setCompleted },
@@ -101,8 +99,8 @@ export default function FourWheelerLoanDetailsPage({
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, fieldConfig.emi_details.data);
-    const loanData = formatLoanData(data, fieldConfig.loan_details.data);
+    const emiData = formatEmiData(data, map.fields["emi-details"].data);
+    const loanData = formatLoanData(data, map.fields["loan-details"].data);
 
     setUsertypeEmiData(emiData);
     setUsertypeBankData({

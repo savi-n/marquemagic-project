@@ -66,10 +66,9 @@ EMIDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  fieldConfig: object,
 };
 
-export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
+export default function EMIDetailsPage({ id, onFlowChange, map }) {
   const {
     actions: { setCompleted },
   } = useContext(FlowContext);
@@ -131,7 +130,6 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
         formState={formState}
         jsonData={[...map.fields[id].data, ...additionalField]}
         label={map.fields[id].label}
-        // {[...fieldConfig.emi_details.data, ...additionalField]}
       />
 
       <Wrapper>
