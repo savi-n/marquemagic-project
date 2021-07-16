@@ -263,14 +263,28 @@ export default function CheckApplication(props) {
 																								)}
 																							/>
 																						)}
+
 																						{i.name === 'EMI Details' && (
 																							<input
 																								disabled={disabled}
 																								className='rounded-lg p-4 border w-1/3'
 																								defaultValue={data?.loanFinancialDetails?.map(
 																									o =>
-																										o[el.db_name] ||
-																										'N/A'
+																										o[el.db_name]
+																											? JSON.parse(
+																													o[
+																														el
+																															.db_name
+																													]
+																											  ).map(
+																													r =>
+																														r[
+																															el
+																																.db_name
+																														]
+																											  )
+																											: 'N/A' ||
+																											  'N/A'
 																								)}
 																							/>
 																						)}

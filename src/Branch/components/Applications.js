@@ -5,7 +5,7 @@ import Tabs from '../shared/components/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import CardDetails from '../shared/components/CardDetails';
-import { getCase, needAction, searchData } from '../utils/requests';
+import { getCase, needAction, searchData, getNCStatus } from '../utils/requests';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import CheckApplication from '../pages/checkApplication';

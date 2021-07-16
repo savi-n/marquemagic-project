@@ -3,12 +3,13 @@ import { LineChart, Line, Pie, PieChart, Cell } from 'recharts';
 import './styles/index.scss';
 import Card from '../shared/components/Card';
 import CardDetails from '../shared/components/CardDetails';
-import { getCase, getWhiteLabelPermission } from '../utils/requests';
+import { getCase, getWhiteLabelPermission, dashboardData } from '../utils/requests';
 import Loading from '../../components/Loading';
 import { BranchUserContext } from '../../reducer/branchUserReducer';
 import CheckApplication from '../pages/checkApplication';
 
 export default function Home({ data, sortList, dChartData, d, isIdentifier, lActive, setLActive, usersList }) {
+	dashboardData();
 	getWhiteLabelPermission();
 	const [product, setProduct] = useState(null);
 	const [assignmentLog, setAssignmentLog] = useState(null);
@@ -35,13 +36,13 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 
 	useEffect(async () => {
 		setLoading(true);
-		getCase('Pending Applications', userToken).then(res => {
+		getCase('Pending Applications').then(res => {
 			if (res.statusCode === 'NC200') {
 				setPaData(res);
 				setLoading(false);
 			}
 		});
-		getCase('Sanctioned', userToken).then(res => {
+		getCase('Sanctioned').then(res => {
 			if ((res.statusCode = 'NC200')) {
 				setSanData(res);
 				setLoading(false);
