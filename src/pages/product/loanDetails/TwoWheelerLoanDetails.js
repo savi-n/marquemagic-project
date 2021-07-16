@@ -46,7 +46,7 @@ const formatEmiData = (formData, fields) => {
 const additionalLoanData = (formData) => {
   const formatData = {
     modelName: formData.vehicle.value,
-    accessories: formData.rtoMisscellaneosCharges,
+    roadTax: formData.rtoMisscellaneosCharges,
     insurance: formData.insurance,
   };
 

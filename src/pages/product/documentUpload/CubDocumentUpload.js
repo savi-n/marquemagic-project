@@ -671,7 +671,7 @@ export default function DocumentUpload({
               disabled={cibilCheckbox}
               onChange={() => {
                 setCibilCheckbox(!cibilCheckbox);
-                setCibilCheckModal(true);
+                // setCibilCheckModal(true);
               }}
               bg="blue"
             />
