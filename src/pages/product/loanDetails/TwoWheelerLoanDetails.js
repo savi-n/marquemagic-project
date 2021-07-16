@@ -43,6 +43,16 @@ const formatEmiData = (formData, fields) => {
     .filter((f) => f.bank);
 };
 
+const additionalLoanData = (formData) => {
+  const formatData = {
+    modelName: formData.vehicle.value,
+    roadTax: formData.rtoMisscellaneosCharges,
+    insurance: formData.insurance,
+  };
+
+  return formatData;
+};
+
 TwoWheelerLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
@@ -86,7 +96,11 @@ export default function TwoWheelerLoanDetailsPage({
       bankId: bankId,
       branchId: data.branchId.value,
     });
-    setUsertypeLoanData({ ...loanData, summary: "summary" });
+    setUsertypeLoanData({
+      ...loanData,
+      summary: "summary",
+      ...additionalLoanData(data, map.fields["loan-details-additional"].data),
+    });
     addToast({
       message: "Saved Succesfully",
       type: "success",
