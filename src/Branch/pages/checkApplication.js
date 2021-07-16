@@ -12,15 +12,14 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 export default function CheckApplication(props) {
 	const [fields, setFields] = useState(null);
 	const id = props.id;
+	const [comment, setComment] = useState(null);
 	const [data, setData] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [coApplicant, setCoApplicant] = useState(false);
 	const getCoApplicantData = data => data.directors.map(e => !e.isApplicant && e);
 	const getDocDetails = data => data.loan_document;
 	const getPreEligibleData = data => data.eligiblityData[0]?.pre_eligiblity;
-	const getBusinessData = data => data.business_id;
 	const getEligibileData = data => data.eligiblityData;
-	const history = useHistory();
 
 	useEffect(() => {
 		setLoading(true);
@@ -264,30 +263,39 @@ export default function CheckApplication(props) {
 																							/>
 																						)}
 
-																						{i.name === 'EMI Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={data?.loanFinancialDetails?.map(
-																									o =>
-																										o[el.db_name]
-																											? JSON.parse(
-																													o[
-																														el
-																															.db_name
-																													]
-																											  ).map(
-																													r =>
-																														r[
-																															el
-																																.db_name
-																														]
-																											  )
-																											: 'N/A' ||
-																											  'N/A'
-																								)}
-																							/>
-																						)}
+																						{i.name === 'EMI Details' &&
+																							data?.loanFinancialDetails?.map(
+																								o => (
+																									<>
+																										<input
+																											disabled={
+																												disabled
+																											}
+																											className='rounded-lg p-4 border w-1/3'
+																											defaultValue={
+																												o[
+																													el
+																														.db_name
+																												]
+																													? JSON.parse(
+																															o[
+																																el
+																																	.db_name
+																															]
+																													  ).map(
+																															r =>
+																																r[
+																																	el
+																																		.db_name
+																																]
+																													  )
+																													: 'N/A' ||
+																													  'N/A'
+																											}
+																										/>
+																									</>
+																								)
+																							)}
 																						{i.name ===
 																							'Subsidiary Details' && (
 																							<input
@@ -300,21 +308,26 @@ export default function CheckApplication(props) {
 																								}
 																							/>
 																						)}
-																						{i.name === 'Bank  Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={
-																									data?.loanFinancialDetails?.map(
-																										o =>
-																											o[
-																												el
-																													.db_name
-																											] || 'N/A'
-																									)[0]
-																								}
-																							/>
-																						)}
+																						{i.name === 'Bank Details' &&
+																							data?.loanFinancialDetails?.map(
+																								o => (
+																									<>
+																										<input
+																											disabled={
+																												disabled
+																											}
+																											className='rounded-lg p-4 border w-1/3'
+																											defaultValue={
+																												o[
+																													el
+																														.db_name
+																												] ||
+																												'N/A'
+																											}
+																										/>
+																									</>
+																								)
+																							)}
 
 																						{i.name ===
 																						'Shareholder Details' ? (
@@ -651,21 +664,38 @@ export default function CheckApplication(props) {
 											<section className='w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6'>
 												<p className='text-xl font-medium'>Comments</p>
 												{props.assignmentLog && (
-													<section className='bg-white flex flex-col gap-y-6 p-2 rounded-lg'>
-														<span className='text-xs'>
-															By:
-															{
-																props.usersList.data.userList.filter(
-																	e => e.id === props.assignmentLog.userData.id
-																)[0]?.name
-															}
-														</span>
-														{JSON.parse(props.assignmentLog.remarks).comments}
-														<span className='text-xs text-blue-700'>
-															{props.assignmentLog.ints}
-														</span>
-													</section>
+													<>
+														{Object.keys(JSON.parse(props.assignmentLog)).map(el => (
+															<section className='bg-white flex flex-col gap-y-6 p-2 rounded-lg'>
+																<span className='text-xs'>
+																	By:
+																	{
+																		props.usersList.filter(
+																			e =>
+																				e.id ===
+																				JSON.parse(props.assignmentLog)[el]
+																					?.userId
+																		)[0]?.name
+																	}
+																</span>
+																{JSON.parse(props.assignmentLog)[el]?.type ===
+																	'ReAssign Comments' &&
+																	JSON.parse(props.assignmentLog)[el]?.message}
+																<span className='text-xs text-blue-700'>{el}</span>
+															</section>
+														))}
+													</>
 												)}
+												<section className='flex gap-x-2 items-center justify-between'>
+													<input
+														placeholder='Add Comment'
+														className='p-1 rounded-md px-2 focus:outline-none'
+														onChange={e => setComment(e.target.value)}
+													/>
+													<Button type='blue-light' size='small' onClick={() => {}}>
+														Submit
+													</Button>
+												</section>
 											</section>
 										</section>
 									)}
