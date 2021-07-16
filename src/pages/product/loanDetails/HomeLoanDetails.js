@@ -26,6 +26,15 @@ const ButtonWrap = styled.div`
   gap: 20px;
 `;
 
+const Caption = styled.div`
+  background: #e6e7e9;
+  padding: 15px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  font-weight: 500;
+`;
+
 const FormWrapper = styled.div`
   display: flex;
   width: 100%;
@@ -125,6 +134,10 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
           />
         </FlexColom>
       </FormWrapper>
+
+      {map.fields["loan-details"].message && (
+        <Caption>{map.fields["loan-details"].message}</Caption>
+      )}
 
       <HomeLoanDetailsTable />
       <ButtonWrap>
