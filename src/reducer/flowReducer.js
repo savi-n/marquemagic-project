@@ -27,7 +27,7 @@ const useActions = (dispatch) => {
     const flowMap = {};
     menu.forEach((element, index) => {
       let main = menu[index + 1] ? menu[index + 1].id : null;
-      const sub = element.flow ? element.flow?.[0].id : null;
+      const sub = element.flow?.length ? element.flow?.[0].id : null;
       let hidden;
       if (menu[index + 1]?.hidden) {
         main = menu[index + 2].id || null;
