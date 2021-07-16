@@ -47,7 +47,8 @@ export default function SalaryDetails({
             (field) =>
               field.visibility &&
               (formState?.values?.incomeType === field.forType ||
-              !formState?.values?.incomeType ? (
+              !formState?.values?.incomeType ||
+              !field.forType ? (
                 <FieldWrap key={field.name} size={size}>
                   {register({
                     ...field,
