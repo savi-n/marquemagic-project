@@ -126,7 +126,6 @@ export default function useForm() {
 
 	useEffect(() => {
 		return () => {
-			// console.log("useHook Unmount");
 			fieldsRef.current = {};
 			valuesRef.current = {};
 			touchedRef.current = {};
@@ -209,9 +208,9 @@ export default function useForm() {
 	const onChange = (event, type) => {
 		const { name, value } = event;
 
-		if (fieldsRef.current[name]?.disabled) {
-			return;
-		}
+		// if (fieldsRef.current[name]?.disabled) {
+		//   return;
+		// }
 
 		setValue(name, value);
 		checkValidity(name);

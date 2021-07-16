@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOf, oneOfType, string } from "prop-types";
 
@@ -10,6 +10,9 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
 import { useToasts } from "../../../components/Toast/ToastProvider";
+import useCaseCreation from "../../../components/CaseCreation";
+import Loading from "../../../components/Loading";
+import Modal from "../../../components/Modal";
 
 const ButtonWrap = styled.div`
   display: flex;
@@ -66,6 +69,7 @@ export default function CoapplicantDetails({
   onFlowChange,
   map,
   fieldConfig,
+  productId,
 }) {
   const {
     actions: { setCompleted },
@@ -79,8 +83,13 @@ export default function CoapplicantDetails({
   const { addToast } = useToasts();
 
   const [match, setMatch] = useState(false);
+  const { processing, caseCreationUserType } = useCaseCreation(
+    "Co-applicant",
+    productId,
+    "Co-applicant"
+  );
 
-  const onSave = (formData) => {
+  const saveData = (formData) => {
     let formatedAddress = [
       formatAddressData(
         "permanent",
@@ -100,16 +109,38 @@ export default function CoapplicantDetails({
     };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
     setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
+  };
+
+  const onSave = (formData) => {
+    saveData(formData);
     addToast({
       message: "Saved Succesfully",
       type: "success",
     });
   };
 
-  const onProceed = (data) => {
-    onSave(data);
-    setCompleted(id);
-    onFlowChange(map.main);
+  const [proceed, setProceed] = useState(false);
+  useEffect(() => {
+    async function request() {
+      const res = await caseCreationUserType();
+      if (res) {
+        setCompleted(id);
+        onFlowChange(map.main);
+      }
+      setProceed(false);
+    }
+
+    if (proceed) {
+      request();
+    }
+  }, [proceed]);
+
+  const onProceed = async (data) => {
+    saveData(data);
+
+    if (userType === "Gurantor") {
+      setProceed(true);
+    }
   };
 
   return (
@@ -132,6 +163,11 @@ export default function CoapplicantDetails({
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
       </ButtonWrap>
+      {processing && (
+        <Modal show={true} onClose={() => {}} width="50%">
+          <Loading />
+        </Modal>
+      )}
     </Div>
   );
 }

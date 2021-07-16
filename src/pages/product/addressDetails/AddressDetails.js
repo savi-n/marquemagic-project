@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOfType, string } from "prop-types";
 
@@ -9,6 +9,9 @@ import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { UserContext } from "../../../reducer/userReducer";
 import { useToasts } from "../../../components/Toast/ToastProvider";
+import useCaseCreation from "../../../components/CaseCreation";
+import Loading from "../../../components/Loading";
+import Modal from "../../../components/Modal";
 
 const Div = styled.div`
   flex: 1;
@@ -18,20 +21,25 @@ const Div = styled.div`
 
 const ButtonWrap = styled.div`
   display: flex;
-  align-items: center;
   gap: 20px;
+  align-items: start;
 `;
 
 const DivWrap = styled.div`
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 10px;
 `;
 
 const Question = styled.div`
   font-weight: 500;
   color: blue;
+`;
+
+const UserAddButton = styled.div`
+  margin-left: auto;
 `;
 
 const formatData = (type, data, fields) => {
@@ -53,6 +61,7 @@ export default function AddressDetailsPage({
   id,
   onFlowChange,
   map,
+  productId,
   fieldConfig,
 }) {
   const {
@@ -67,15 +76,19 @@ export default function AddressDetailsPage({
     state: { userBankDetails },
   } = useContext(UserContext);
 
-  console.log(userBankDetails);
-
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
+
+  const { processing, caseCreationUser } = useCaseCreation(
+    "User",
+    productId,
+    "User"
+  );
 
   const [saved, setSaved] = useState(false);
   const [match, setMatch] = useState(false);
 
-  const onSave = (formData) => {
+  const saveData = (formData) => {
     let formatedData = [formatData("permanent", formData, map.fields[id].data)];
 
     !match &&
@@ -83,21 +96,52 @@ export default function AddressDetailsPage({
 
     setUsertypeAddressData(formatedData);
     setSaved(true);
+  };
+
+  const onSave = (formData) => {
+    saveData(formData);
     addToast({
       message: "Saved Succesfully",
       type: "success",
     });
   };
 
+  const [proceed, setProceed] = useState(false);
+
+  useEffect(() => {
+    async function request() {
+      const res = await caseCreationUser();
+      if (res) {
+        setCompleted(id);
+        onFlowChange(map.main);
+      }
+      setProceed(false);
+    }
+
+    if (proceed) {
+      request();
+    }
+  }, [proceed]);
+
   const onProceed = (formData) => {
-    onSave(formData);
-    setCompleted(id);
-    onFlowChange(map.main);
+    saveData(formData);
+    setProceed(true);
   };
 
-  const subFlowActivate = () => {
-    activateSubFlow(id);
-    onFlowChange(map.sub);
+  const subFlowActivate = async () => {
+    const res = await caseCreationUser();
+    if (res) {
+      activateSubFlow(id);
+      onFlowChange(map.sub);
+    }
+  };
+
+  const subHiddenActivate = async () => {
+    const res = await caseCreationUser();
+    if (res) {
+      activateSubFlow(id);
+      onFlowChange(map.hidden);
+    }
   };
 
   return (
@@ -108,31 +152,59 @@ export default function AddressDetailsPage({
         match={match}
         setMatch={setMatch}
         jsonData={map.fields[id].data}
+        disablePermenanet={true}
         preData={{
           address1: userBankDetails?.address1 || "",
           address2: userBankDetails?.address2 || "",
           address3: userBankDetails?.address3 || "",
+          address4: userBankDetails?.address4 || "",
           city: userBankDetails?.city || "",
           state: userBankDetails?.state || "",
           pinCode: userBankDetails?.pin || "",
         }}
       />
       <ButtonWrap>
-        <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
-        <Button name="Save" onClick={handleSubmit(onSave)} />
+        <Button
+          fill
+          name="Proceed"
+          onClick={handleSubmit(onProceed)}
+          disabled={processing}
+        />
+        <Button
+          name="Save"
+          onClick={handleSubmit(onSave)}
+          disabled={processing}
+        />
         {map.sub && (
-          <DivWrap>
-            <Question>Co-Applicants?</Question>
-            <Button
-              width="auto"
-              fill
-              name="Add"
-              disabled={!saved}
-              onClick={subFlowActivate}
-            />
-          </DivWrap>
+          <UserAddButton>
+            <DivWrap>
+              <Question>Co-Applicants?</Question>
+              <Button
+                width="auto"
+                fill
+                name="Add"
+                disabled={!saved}
+                onClick={subFlowActivate}
+              />
+            </DivWrap>
+            <DivWrap>
+              <Question>Gurantor?</Question>
+              <Button
+                width="auto"
+                fill
+                name="Add"
+                disabled={!saved}
+                onClick={subHiddenActivate}
+              />
+            </DivWrap>
+          </UserAddButton>
         )}
       </ButtonWrap>
+      {processing && (
+        <Modal show={true} onClose={() => {}} width="50%">
+          <Loading />
+        </Modal>
+      )}
     </Div>
   );
 }
