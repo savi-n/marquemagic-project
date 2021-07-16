@@ -33,6 +33,15 @@ const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
 
+const Caption = styled.div`
+  background: #e6e7e9;
+  padding: 15px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  font-weight: 500;
+`;
+
 const formatEmiData = (formData, fields) => {
   return fields
     .map((f) => ({
@@ -130,6 +139,9 @@ export default function TwoWheelerLoanDetailsPage({
           />
         </FlexColom>
       </FormWrapper>
+      {map.fields["loan-details"].message && (
+        <Caption>{map.fields["loan-details"].message}</Caption>
+      )}
       <EMIDetails
         register={register}
         formState={formState}

@@ -29,6 +29,15 @@ const FormWrapper = styled.div`
   width: 100%;
 `;
 
+const Caption = styled.div`
+  background: #e6e7e9;
+  padding: 15px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  font-weight: 500;
+`;
+
 const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
@@ -103,7 +112,8 @@ export default function FourWheelerLoanDetailsPage({
     setUsertypeLoanData({
       ...loanData,
       summary: "summary",
-      ...additionalLoanData(data, map.fields["loan-details-additional"].data),
+      ...(map.fields["loan-details-additional"]?.data &&
+        additionalLoanData(data, map.fields["loan-details-additional"]?.data)),
     });
     addToast({
       message: "Saved Succesfully",
@@ -128,12 +138,15 @@ export default function FourWheelerLoanDetailsPage({
           <LoanDetails
             register={register}
             formState={formState}
-            jsonData={map.fields["loan-details-additional"].data}
-            label={map.fields["loan-details-additional"].label}
+            jsonData={map.fields["loan-details-additional"]?.data}
+            label={map.fields["loan-details-additional"]?.label}
             size="80%"
           />
         </FlexColom>
       </FormWrapper>
+      {map.fields["loan-details"].message && (
+        <Caption>{map.fields["loan-details"].message}</Caption>
+      )}
       <EMIDetails
         register={register}
         formState={formState}
