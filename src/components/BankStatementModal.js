@@ -134,7 +134,10 @@ export default function BankStatementModal({ showModal, onClose }) {
     onClose();
   };
 
-  const onBankSelect = (bank) => {
+  const onBankSelect = async (bank) => {
+    if (!captchaUrl && BANK_FLOW[bank.name.toLowerCase()][0]?.captchaGet) {
+      await getCaptcha(BANK_FLOW[bank.name.toLowerCase()][0]?.captchaGet);
+    }
     setBankChoosen(bank);
   };
 
@@ -188,9 +191,6 @@ export default function BankStatementModal({ showModal, onClose }) {
 
   const buildTemplate = (flow) => {
     if (flow.type === "captcha") {
-      if (!captchaUrl && flow?.captchaGet) {
-        getCaptcha(flow?.captchaGet);
-      }
       return (
         <div key={flow.name}>
           <Captcha src={captchaUrl} alt="Captcha" loading="lazy" />

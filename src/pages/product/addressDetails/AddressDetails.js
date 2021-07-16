@@ -188,7 +188,7 @@ export default function AddressDetailsPage({
               />
             </DivWrap>
             <DivWrap>
-              <Question>Gurantor?</Question>
+              <Question>Guarantor?</Question>
               <Button
                 width="auto"
                 fill

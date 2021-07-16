@@ -45,7 +45,10 @@ export default function SalaryDetails({
         {jsonData &&
           jsonData.map(
             (field) =>
-              field.visibility && (
+              field.visibility &&
+              (formState?.values?.incomeType === field.forType ||
+              !formState?.values?.incomeType ||
+              !field.forType ? (
                 <FieldWrap key={field.name} size={size}>
                   {register({
                     ...field,
@@ -59,7 +62,7 @@ export default function SalaryDetails({
                       </ErrorMessage>
                     )}
                 </FieldWrap>
-              )
+              ) : null)
           )}
       </FormWrap>
     </>

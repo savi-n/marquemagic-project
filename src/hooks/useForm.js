@@ -36,6 +36,14 @@ function valueMatchWith(value, matchWith) {
   return !(value === matchWith);
 }
 
+function maxValue(value, limit) {
+  return +value > +limit;
+}
+
+function minValue(value, limit) {
+  return +value < +limit;
+}
+
 const VALIDATION_RULES = {
   required: {
     func: required,
@@ -64,6 +72,14 @@ const VALIDATION_RULES = {
   length: {
     func: limitLength(),
     message: "Character Length Mismatch",
+  },
+  maxValue: {
+    func: maxValue,
+    message: "Value Limit Exceedeed",
+  },
+  minValue: {
+    func: minValue,
+    message: "Minimum limit needed",
   },
   valueMatchWith: {
     func: valueMatchWith,
