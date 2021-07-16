@@ -16,6 +16,7 @@ import {
   // NC_STATUS_CODE,
   USER_ROLES,
   DOCTYPES_FETCH,
+  PINCODE_ADRRESS_FETCH,
 } from "../../../_config/app.config";
 import { DOCUMENTS_TYPE } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
@@ -133,7 +134,7 @@ export default function DocumentUpload({
   // } = useContext(AppContext);
 
   const {
-    state: { userId, userToken },
+    state: { userId, userToken, userBankDetails },
   } = useContext(UserContext);
 
   const {
@@ -162,9 +163,7 @@ export default function DocumentUpload({
   //   actions: { setCase },
   // } = useContext(CaseContext);
 
-  // const { newRequest } = useFetch();
-
-  const { response } = useFetch({
+  const { response, newRequest } = useFetch({
     url: DOCTYPES_FETCH,
     options: {
       method: "POST",
@@ -622,6 +621,32 @@ export default function DocumentUpload({
     }
   };
 
+  const [userAddress, setUserAddress] = useState();
+
+  useEffect(() => {
+    if (!userType) {
+      getAddressDetails();
+    }
+  }, [userType]);
+
+  const getAddressDetails = async () => {
+    const response = await newRequest(
+      PINCODE_ADRRESS_FETCH({ pinCode: userBankDetails?.pin || "" }),
+      {}
+    );
+    const data = response.data;
+
+    setUserAddress({
+      address1: userBankDetails?.address1 || "",
+      address2: userBankDetails?.address2 || "",
+      address3: userBankDetails?.address3 || "",
+      address4: userBankDetails?.address4 || "",
+      city: data?.district[0] || "",
+      state: data?.state[0] || "",
+      pinCode: userBankDetails?.pin || "",
+    });
+  };
+
   return (
     <>
       <Colom1>
@@ -671,7 +696,7 @@ export default function DocumentUpload({
               disabled={cibilCheckbox}
               onChange={() => {
                 setCibilCheckbox(!cibilCheckbox);
-                // setCibilCheckModal(true);
+                setCibilCheckModal(true);
               }}
               bg="blue"
             />
@@ -808,7 +833,12 @@ export default function DocumentUpload({
       {cibilCheckbox && cibilCheckModal && (
         <GetCIBILScoreModal
           userData={{
-            ...state[USER_ROLES[userType || "User"]]?.applicantData,
+            ...{
+              ...state[USER_ROLES[userType || "User"]]?.applicantData,
+              ...(!userType && {
+                address: [userAddress],
+              }),
+            },
             ...state[USER_ROLES[userType || "User"]]?.loanData,
           }}
           onClose={onCibilModalClose}

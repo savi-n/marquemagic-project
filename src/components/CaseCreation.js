@@ -66,7 +66,7 @@ export default function useCaseCreation(userType, productId, role) {
 
   // step 2: upload docs reference
   const updateDocumentList = async (loanId, directorId, user) => {
-    if (!state[user]?.uploadedDocs.length) {
+    if (!state[user]?.uploadedDocs?.length) {
       return true;
     }
 
