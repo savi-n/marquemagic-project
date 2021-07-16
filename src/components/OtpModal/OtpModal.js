@@ -36,7 +36,7 @@ const OTPCaption = styled.p`
 `;
 
 const Field = styled.div`
-	width: 60%;
+	width: 100%;
 `;
 
 const Message = styled.div`
@@ -251,26 +251,16 @@ export default function OtpModal(props) {
 						</>
 					) : (
 						(accounts || customers) && (
-							<section className='flex flex-col items-center gap-y-6'>
+							<section className='flex flex-col w-full items-center gap-y-6'>
 								<OTPCaption>
-									{customers && (
-										<>
-											Multiple customer id found. <br /> Please select a customer id you want to
-											continue your application with
-										</>
-									)}
-									{accounts && (
-										<>
-											Multiple accounts found. <br /> Please select the account you want to
-											continue your application with
-										</>
-									)}
+									{customers && <>Please Select Accounts</>}
+									{accounts && <>Please Select Accounts</>}
 								</OTPCaption>
 								<Field>
 									{register({
 										name: 'account',
 										placeholder: selectPlaceholder(),
-										type: 'select',
+										type: 'radio',
 										options: selectCustomerOptions(),
 										value: formState?.values?.account
 									})}
