@@ -102,7 +102,7 @@ export default function ApplicationSubmitted({
         {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
         <Caption>{d.caption}</Caption>
 
-        {d.guarantor && map.sub && (
+        {/* {d.guarantor && map.sub && (
           <>
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>
@@ -110,7 +110,7 @@ export default function ApplicationSubmitted({
               <Button name="No" onClick={() => setData(count + 1)} />
             </BtnWrap>
           </>
-        )}
+        )} */}
       </Colom1>
       <Colom2>
         <Img

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { func, object, oneOf, oneOfType, string } from "prop-types";
 
@@ -89,7 +89,7 @@ export default function CoapplicantDetails({
     "Co-applicant"
   );
 
-  const onSave = (formData) => {
+  const saveData = (formData) => {
     let formatedAddress = [
       formatAddressData(
         "permanent",
@@ -109,20 +109,38 @@ export default function CoapplicantDetails({
     };
     setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
     setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
+  };
+
+  const onSave = (formData) => {
+    saveData(formData);
     addToast({
       message: "Saved Succesfully",
       type: "success",
     });
   };
 
-  const onProceed = async (data) => {
-    onSave(data);
-    if (userType === "Gurantor") {
+  const [proceed, setProceed] = useState(false);
+  useEffect(() => {
+    async function request() {
       const res = await caseCreationUserType();
-      if (!res) return;
+      if (res) {
+        setCompleted(id);
+        onFlowChange(map.main);
+      }
+      setProceed(false);
     }
-    setCompleted(id);
-    onFlowChange(map.main);
+
+    if (proceed) {
+      request();
+    }
+  }, [proceed]);
+
+  const onProceed = async (data) => {
+    saveData(data);
+
+    if (userType === "Gurantor") {
+      setProceed(true);
+    }
   };
 
   return (

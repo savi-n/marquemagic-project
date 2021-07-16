@@ -128,14 +128,20 @@ export default function AddressDetailsPage({
     setProceed(true);
   };
 
-  const subFlowActivate = () => {
-    activateSubFlow(id);
-    onFlowChange(map.sub);
+  const subFlowActivate = async () => {
+    const res = await caseCreationUser();
+    if (res) {
+      activateSubFlow(id);
+      onFlowChange(map.sub);
+    }
   };
 
-  const subHiddenActivate = () => {
-    activateSubFlow(id);
-    onFlowChange(map.hidden);
+  const subHiddenActivate = async () => {
+    const res = await caseCreationUser();
+    if (res) {
+      activateSubFlow(id);
+      onFlowChange(map.hidden);
+    }
   };
 
   return (
