@@ -48,15 +48,17 @@ const useActions = (dispatch) => {
           : menu[index + 1]
           ? menu[index + 1].id
           : element.id;
-        const s = menu[index + 1] ? menu[index + 1].id : element.id;
-
+        let s = menu[index + 1] ? menu[index + 1].id : element.id;
+        let h;
         if (menu[index + 1]?.hidden) {
-          m = menu[index + 2].id || null;
+          s = menu[index + 2].id || null;
+          h = menu[index + 1].id || null;
         }
 
         flowMap[e.id] = {
           main: m,
           sub: s,
+          hidden: h,
           mainPageId: element.id,
           fields: e.fields || {},
           name: e.name,

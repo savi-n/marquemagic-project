@@ -536,6 +536,8 @@ export default function DocumentUpload({
     setOtherBankStatementModal(!otherBankStatementModal);
   };
 
+  const [saved, setSaved] = useState(false);
+
   const onSave = () => {
     if (buttonDisabledStatus()) {
       return;
@@ -546,10 +548,15 @@ export default function DocumentUpload({
       otherCUBStatementUserTypeDetails,
       USER_ROLES[userType || "User"]
     );
+    setSaved(true);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
 
-    setCompleted(id);
-    setCompleted(map.mainPageId);
-    onFlowChange(map.main);
+    // setCompleted(id);
+    // setCompleted(map.mainPageId);
+    // onFlowChange(map.main);
   };
 
   // const onSubmitGuarantor = async () => {
@@ -611,7 +618,7 @@ export default function DocumentUpload({
     const res = await caseCreationUserType();
     if (res) {
       activateSubFlow(id);
-      onFlowChange(map.sub);
+      onFlowChange(map.hidden);
     }
   };
 
@@ -751,7 +758,7 @@ export default function DocumentUpload({
                 width="auto"
                 fill
                 name="Add"
-                // disabled={buttonDisabledStatus}
+                disabled={!saved}
                 onClick={subFlowActivate}
               />
             </DivWrap>
