@@ -1,1440 +1,1135 @@
 {
-	"status": "ok",
-	"data": {
-		"name": "SwayamGraha",
-		"description": "(Housing Loan)",
-		"url": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM854911.jpg",
-		"id": 3,
-		"loan_request_type": 2,
-		"loan_type_id": "1",
-		"product_details": {
-			"head": "CUB offers easy and quick processing of housing loan to individuals for purchase of : ",
-			"loanType": "Home Loan",
-			"productDetailsImage": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/20-SM854909.jpg",
-			"applicationSubmittedImage": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM854879.jpg",
-			"li": [
-				"Site for construction of a house",
-				"Purchase of a ready built house/flat",
-				"To carryout repairs/ renovations/ alterations/ extension of the existing house",
-				"Purschase of a flat under construction",
-				"Takeover of existing housing loans from other banks.",
-				"Eligibility : Salaried Employees : 60 months net take home pay; Professionals/ Business/ Self employed : 5 times of income declared in the lastest ITR",
-				"Loan amount : Maximum of Rs. 1 Crore",
-				"Margin : 25%",
-				"Repayment tenor : Maximum 180 months for purchase and construction of house.",
-				"<a href=link>Click here</a> for Interest rate and required documents",
-				"<a href=link>Click here</a> for Schemes",
-				"<a href=link>Click here</a> for Processing Charges",
-				"<a href=link>EMI Calculator</a>"
-			],
-			"flow": [
-				{
-					"name": "Identity Verification",
-					"id": "identity-verification"
-				},
-				{
-					"name": "Personal Details",
-					"id": "personal-details",
-					"fields": {
-						"personal-details": {
-							"label": "Personal Details",
-							"data": [
-								{
-									"name": "firstName",
-									"placeholder": "First Name",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"AlphaCharOnly": true
-									},
-									"type": "text",
-									"visibility": true,
-									"default_value": ""
+	"name": "Yohavahana",
+	"description": "(Four wheeler Loan)",
+	"url": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM520124.jpg",
+	"id": 2,
+	"loan_request_type": 2,
+	"loan_type_id": "2",
+	"product_details": {
+		"head": "CUB offers easy scheme for purchase of four-wheelers in a <span>speedy manner</span>",
+		"loanType": "4 wheeler",
+		"productDetailsImage": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/120-SM865948.jpg",
+		"applicationSubmittedImage": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/18-SM669077.jpg",
+		"li": [
+			"CUB offers four-wheelers loans for NEW vehicles",
+			"Eligibility : Salaried :Monthly Salary not less than Rs.50000 ; For Self Employed/Professionals Income not less than Rs.3.00Lakhs",
+			"Loan amount : Maximum of Rs. 25.00 Lakhs",
+			"Margin : 10%",
+			"Repayment tenor : 36 to 60 Months",
+			"<a href=link>Click here</a> for Interest rate and required documents",
+			"<a href=link>Click here</a> for Schemes",
+			"<a href=link>Click here</a> for Processing Charges",
+			"<a href=link>EMI Calculator</a>"
+		],
+		"flow": [
+			{
+				"name": "Product Details",
+				"id": "product-details"
+			},
+			{
+				"name": "Identity Verification",
+				"id": "identity-verification"
+			},
+			{
+				"name": "Personal Details",
+				"id": "personal-details",
+				"fields": {
+					"personal-details": {
+						"label": "Personal Details",
+						"data": [
+							{
+								"name": "firstName",
+								"placeholder": "First Name",
+								"rules": {
+									"required": true
 								},
-								{
-									"name": "incomeType",
-									"placeholder": "Income Type",
-									"rules": {
-										"required": true
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true,
+								"default_value": ""
+							},
+							{
+								"name": "incomeType",
+								"placeholder": "Income Type",
+								"rules": {
+									"required": true
+								},
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"value": "salaried",
+										"name": "Salaried"
 									},
-									"type": "select",
-									"visibility": true,
-									"options": [
-										{
-											"value": "salaried",
-											"name": "Salaried"
-										},
-										{
-											"value": "business",
-											"name": "Business"
-										}
+									{
+										"value": "business",
+										"name": "Business"
+									}
+								]
+							},
+							{
+								"name": "lastName",
+								"placeholder": "Last Name",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true,
+								"default_value": ""
+							},
+							{
+								"name": "panNumber",
+								"placeholder": "PAN Number",
+								"rules": {
+									"required": true,
+									"length": 10
+								},
+								"disabled": true,
+								"mask": {
+									"CharacterLimit": 10,
+									"AlphaNumericOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "dob",
+								"placeholder": "Date of Birth",
+								"rules": {
+									"required": true
+								},
+								"type": "date",
+								"disabled": true,
+								"visibility": true
+							},
+							{
+								"name": "aadhaar",
+								"placeholder": "Aadhar Number",
+								"type": "text",
+								"rules": {
+									"required": true,
+									"minLength": 12
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 12
+								},
+								"visibility": true
+							},
+							{
+								"name": "mobileNo",
+								"placeholder": "Mobile Number",
+								"rules": {
+									"required": true,
+									"length": 10
+								},
+								"disabled": true,
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "residenceStatus",
+								"placeholder": "Residence Status",
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"name": "Resident",
+										"value": "Resident"
+									},
+									{
+										"name": "Resident and Ordinarily Resident",
+										"value": "Resident and Ordinarily Resident"
+									},
+									{
+										"name": "Resident but Not Ordinarily Resident",
+										"value": "Resident but Not Ordinarily Resident"
+									},
+									{
+										"name": "Non-Resident",
+										"value": "Non-Resident"
+									}
+								]
+							},
+							{
+								"name": "email",
+								"placeholder": "Email ID",
+								"rules": {
+									"required": true,
+									"email": true
+								},
+								"disabled": false,
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "countryResidence",
+								"placeholder": "Country of Residence",
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"name": "India",
+										"value": "India"
+									},
+									{
+										"name": "Other",
+										"value": "Other"
+									}
+								]
+							}
+						]
+					},
+					"salary-details": {
+						"label": "Salary Details",
+						"data": [
+							{
+								"name": "grossIncome",
+								"placeholder": "Gross Total Income (as per the latest ITR slip)",
+								"type": "text",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 7
+								},
+								"visibility": true
+							},
+							{
+								"name": "netMonthlyIncome",
+								"placeholder": "Net Monthly Income (as per the latest Salary slip)",
+								"type": "text",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 6
+								},
+								"visibility": true
+							}
+						]
+					}
+				}
+			},
+			{
+				"name": "Loan Details",
+				"id": "four-wheeler-loan-details",
+				"fields": {
+					"loan-details": {
+						"label": "Loan Details",
+						"message": "Tentative interest rates:12.75% ** Final interest rate will be communicated to you after loan is sanctioned",
+						"data": [
+							{
+								"name": "loanAmount",
+								"placeholder": "Required Loan Amount",
+								"rules": {
+									"required": true
+								},
+								"type": "text",
+								"visibility": true,
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"inrupees": true
+							},
+							{
+								"name": "tenure",
+								"rules": {
+									"required": true
+								},
+								"placeholder": "Tenure (in months)",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 3
+								},
+								"visibility": true
+							},
+							{
+								"name": "branchId",
+								"type": "search",
+								"placeholder": "Home branch (for application processing)",
+								"visibility": true,
+								"fetchOnInit": true,
+								"rules": {
+									"required": true
+								},
+								"options": []
+							},
+							{
+								"name": "vehicle",
+								"type": "search",
+								"placeholder": "Choose Vehicle",
+								"rules": {
+									"required": true
+								},
+								"fetchOnSearch": true,
+								"visibility": true,
+								"searchKeyAsValue": true,
+								"options": []
+							},
+							{
+								"name": "assetsValue",
+								"placeholder": "Cost of the Vehicle",
+								"type": "text",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"inrupees": true
+							}
+						]
+					},
+					"loan-details-additional": {
+						"label": "Breakup price of the vehicle",
+						"data": [
+							{
+								"name": "exShowroomPrice",
+								"placeholder": "Ex Show Room Price",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"inrupees": true
+							},
+							{
+								"name": "Accessories",
+								"placeholder": "Accessories",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"inrupees": true
+							},
+							{
+								"name": "insurance",
+								"placeholder": "Insurance",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"inrupees": true
+							},
+							{
+								"name": "roadTaxRegistration",
+								"placeholder": "Road Tax and Registration",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"inrupees": true
+							},
+							{
+								"name": "total",
+								"placeholder": "Total",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"inrupees": true
+							}
+						]
+					},
+					"emi-details": {
+						"label": "EMI Details",
+						"data": [
+							{
+								"name": "existing_auto_loan",
+								"placeholder": "Auto Loan Amount",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"option": [],
+								"inrupees": true,
+								"subFieldName": "auto_loan_bank_name"
+							},
+							{
+								"name": "existing_personal_loan",
+								"placeholder": "Personal Loan Amount",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"option": [],
+								"inrupees": true,
+								"subFieldName": "personal_loan_bank_name"
+							},
+							{
+								"name": "existing_lap_loan",
+								"placeholder": "LAP Amount",
+								"type": "text",
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"visibility": true,
+								"option": [],
+								"inrupees": true,
+								"subFieldName": "lap_loan_bank_name"
+							}
+						]
+					}
+				}
+			},
+			{
+				"name": "Document Upload",
+				"id": "cub-document-upload",
+				"actions": {
+					"cub-statement": {
+						"show": true,
+						"required": true
+					},
+					"other-bank-statement": {
+						"show": true,
+						"required": false
+					},
+					"itr-fetch": {
+						"show": true,
+						"required": false
+					},
+					"cibil-fetch": {
+						"show": true,
+						"required": true
+					},
+					"agreement": {
+						"show": true,
+						"required": true
+					}
+				}
+			},
+			{
+				"name": "Address Details",
+				"id": "address-details",
+				"fields": {
+					"address-details": {
+						"label": "Address Details",
+						"data": [
+							{
+								"name": "address1",
+								"placeholder": "Address Line 1",
+								"rules": {
+									"required": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address2",
+								"placeholder": "Address Line 2",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address3",
+								"placeholder": "Address Line 3",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address4",
+								"placeholder": "District",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "pinCode",
+								"placeholder": "Pin Code",
+								"rules": {
+									"required": true,
+									"length": 6
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 6
+								},
+								"makeApiCall": 6,
+								"type": "pincode",
+								"valueForFields": [
+									[
+										"city",
+										"district"
+									],
+									[
+										"state",
+										"state"
 									]
+								],
+								"visibility": true
+							},
+							{
+								"name": "city",
+								"placeholder": "City",
+								"rules": {
+									"required": true
 								},
-								{
-									"name": "lastName",
-									"placeholder": "Last Name",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"AlphaCharOnly": true
-									},
-									"type": "text",
-									"visibility": true,
-									"default_value": ""
+								"mask": {
+									"AlphaCharOnly": true
 								},
-								{
-									"name": "panNumber",
-									"placeholder": "PAN Number",
-									"rules": {
-										"required": true,
-										"length": 10
-									},
-									"disabled": true,
-									"mask": {
-										"CharacterLimit": 10,
-										"AlphaNumericOnly": true
-									},
-									"type": "text",
-									"visibility": true
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "state",
+								"placeholder": "State",
+								"rules": {
+									"required": true
 								},
-								{
-									"name": "dob",
-									"placeholder": "Date of Birth (dd-mm-yyyy)",
-									"rules": {
-										"required": true
-									},
-									"type": "date",
-									"disabled": true,
-									"visibility": true
+								"mask": {
+									"AlphaCharOnly": true
 								},
-								{
-									"name": "aadhaar",
-									"placeholder": "Aadhar Number",
-									"type": "text",
-									"rules": {
-										"required": true,
-										"minLength": 12
-									},
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 12
-									},
-									"visibility": true
-								},
-								{
-									"name": "mobileNo",
-									"placeholder": "Mobile Number",
-									"rules": {
-										"required": true,
-										"length": 10
-									},
-									"disabled": true,
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 10
-									},
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "residenceStatus",
-									"placeholder": "Residence Status",
-									"type": "select",
-									"visibility": true,
-									"options": [
-										{
-											"name": "Resident",
-											"value": "Resident"
-										},
-										{
-											"name": "Resident and Ordinarily Resident",
-											"value": "Resident and Ordinarily Resident"
-										},
-										{
-											"name": "Resident but Not Ordinarily Resident",
-											"value": "Resident but Not Ordinarily Resident"
-										},
-										{
-											"name": "Non-Resident",
-											"value": "Non-Resident"
-										}
-									]
-								},
-								{
-									"name": "email",
-									"placeholder": "Email ID",
-									"rules": {
-										"required": true,
-										"email": true
-									},
-									"disabled": true,
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "countryResidence",
-									"placeholder": "Country of Residence",
-									"type": "select",
-									"visibility": true,
-									"options": [
-										{
-											"name": "India",
-											"value": "India"
-										},
-										{
-											"name": "Other",
-											"value": "Other"
-										}
-									]
-								},
-								{
-									"name": "maritalStatus",
-									"placeholder": "Marital Status",
-									"rules": {
-										"required": true
-									},
-									"type": "select",
-									"visibility": true,
-									"options": [
-										{
-											"value": "Married",
-											"name": "Married"
-										},
-										{
-											"value": "Single",
-											"name": "Single"
-										},
-										{
-											"value": "Divorced",
-											"name": "Divorced"
-										}
-									]
-								}
-							]
-						},
-						"salary-details": {
-							"label": "Salary Details",
-							"data": [
-								{
-									"name": "grossIncome",
-									"placeholder": "Gross Total Income (as per the latest ITR slip)",
-									"type": "text",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 7
-									},
-									"visibility": true
-								},
-								{
-									"name": "netMonthlyIncome",
-									"placeholder": "Net Monthly Income (as per the latest Salary slip)",
-									"type": "text",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 6
-									},
-									"visibility": true
-								}
-							]
-						}
+								"type": "text",
+								"visibility": true
+							}
+						]
 					}
 				},
-				{
-					"name": "Address Details",
-					"id": "address-details",
-					"fields": {
-						"address-details": {
-							"label": "Address Details",
-							"data": [
-								{
-									"name": "address1",
-									"placeholder": "Address Line 1",
-									"rules": {
-										"required": true
+				"flow": [
+					{
+						"name": "Co-applicant Details",
+						"id": "co-applicant-details",
+						"fields": {
+							"personal-details": {
+								"label": "Personal Details",
+								"data": [
+									{
+										"name": "firstName",
+										"placeholder": "First Name",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true,
+										"default_value": ""
 									},
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "address2",
-									"placeholder": "Address Line 2",
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "address3",
-									"placeholder": "Address Line 3",
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "pinCode",
-									"placeholder": "Pin Code",
-									"rules": {
-										"required": true,
-										"length": 6
-									},
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 6
-									},
-									"makeApiCall": 6,
-									"type": "pincode",
-									"valueForFields": [
-										[
-											"city",
-											"district"
-										],
-										[
-											"state",
-											"state"
-										]
-									],
-									"visibility": true
-								},
-								{
-									"name": "city",
-									"placeholder": "City",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"AlphaCharOnly": true
-									},
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "state",
-									"placeholder": "State",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"AlphaCharOnly": true
-									},
-									"type": "text",
-									"visibility": true
-								}
-							]
-						}
-					},
-					"flow": [
-						{
-							"name": "Co-applicant Details",
-							"id": "co-applicant-details",
-							"fields": {
-								"personal-details": {
-									"label": "Personal Details",
-									"data": [
-										{
-											"name": "firstName",
-											"placeholder": "First Name",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true,
-											"default_value": ""
+									{
+										"name": "incomeType",
+										"placeholder": "Income Type",
+										"rules": {
+											"required": true
 										},
-										{
-											"name": "incomeType",
-											"placeholder": "Income Type",
-											"rules": {
-												"required": true
-											},
-											"type": "select",
-											"visibility": true,
-											"options": [
-												{
-													"value": "salaried",
-													"name": "Salaried"
-												},
-												{
-													"value": "business",
-													"name": "Business"
-												}
-											]
-										},
-										{
-											"name": "lastName",
-											"placeholder": "Last Name",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true,
-											"default_value": ""
-										},
-										{
-											"name": "panNumber",
-											"placeholder": "PAN Number",
-											"rules": {
-												"required": true,
-												"length": 10
-											},
-											"disabled": true,
-											"mask": {
-												"CharacterLimit": 10,
-												"AlphaNumericOnly": true
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "dob",
-											"placeholder": "Date of Birth (dd-mm-yyyy)",
-											"rules": {
-												"required": true
-											},
-											"type": "date",
-											"disabled": true,
-											"visibility": true
-										},
-										{
-											"name": "aadhaar",
-											"placeholder": "Aadhar Number",
-											"type": "text",
-											"rules": {
-												"required": true,
-												"minLength": 12
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 12
-											},
-											"visibility": true
-										},
-										{
-											"name": "mobileNo",
-											"placeholder": "Mobile Number",
-											"rules": {
-												"required": true,
-												"length": 10
-											},
-											"disabled": true,
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "residenceStatus",
-											"placeholder": "Residence Status",
-											"type": "select",
-											"visibility": true,
-											"options": [
-												{
-													"name": "Resident",
-													"value": "Resident"
-												},
-												{
-													"name": "Resident and Ordinarily Resident",
-													"value": "Resident and Ordinarily Resident"
-												},
-												{
-													"name": "Resident but Not Ordinarily Resident",
-													"value": "Resident but Not Ordinarily Resident"
-												},
-												{
-													"name": "Non-Resident",
-													"value": "Non-Resident"
-												}
-											]
-										},
-										{
-											"name": "email",
-											"placeholder": "Email ID",
-											"rules": {
-												"required": true,
-												"email": true
-											},
-											"disabled": true,
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "countryResidence",
-											"placeholder": "Country of Residence",
-											"type": "select",
-											"visibility": true,
-											"options": [
-												{
-													"name": "India",
-													"value": "India"
-												},
-												{
-													"name": "Other",
-													"value": "Other"
-												}
-											]
-										}
-									]
-								},
-								"address-details": {
-									"label": "Address Details",
-									"data": [
-										{
-											"name": "address1",
-											"placeholder": "Address Line 1",
-											"rules": {
-												"required": true
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "address2",
-											"placeholder": "Address Line 2",
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "address3",
-											"placeholder": "Address Line 3",
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "pinCode",
-											"placeholder": "Pin Code",
-											"rules": {
-												"required": true,
-												"length": 6
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 6
-											},
-											"makeApiCall": 6,
-											"type": "pincode",
-											"valueForFields": [
-												[
-													"city",
-													"district"
-												],
-												[
-													"state",
-													"state"
-												]
-											],
-											"visibility": true
-										},
-										{
-											"name": "city",
-											"placeholder": "City",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "state",
-											"placeholder": "State",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true
-										}
-									]
-								}
-							}
-						},
-						{
-							"name": "Co-applicant Income Details",
-							"id": "co-applicant-income-details",
-							"fields": {
-								"salary-details": {
-									"label": "Salary Details",
-									"data": [
-										{
-											"name": "grossIncome",
-											"placeholder": "Gross Total Income (as per the latest ITR slip)",
-											"type": "text",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 7
-											},
-											"visibility": true
-										},
-										{
-											"name": "netMonthlyIncome",
-											"placeholder": "Net Monthly Income (as per the latest Salary slip)",
-											"type": "text",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 6
-											},
-											"visibility": true
-										}
-									]
-								},
-								"emi-details": {
-									"label": "EMI Details",
-									"data": [
-										{
-											"name": "existing_auto_loan",
-											"placeholder": "Auto Loan Amount",
-											"type": "text",
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"visibility": true,
-											"option": [],
-											"inrupees": true,
-											"subFieldName": "auto_loan_bank_name"
-										},
-										{
-											"name": "existing_personal_loan",
-											"placeholder": "Personal Loan Amount",
-											"type": "text",
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"visibility": true,
-											"option": [],
-											"inrupees": true,
-											"subFieldName": "personal_loan_bank_name"
-										},
-										{
-											"name": "existing_lap_loan",
-											"placeholder": "LAP Amount",
-											"type": "text",
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"visibility": true,
-											"option": [],
-											"inrupees": true,
-											"subFieldName": "lap_loan_bank_name"
-										}
-									]
-								}
-							}
-						},
-						{
-							"name": "Co-applicant Document Upload",
-							"id": "co-applicant-document-upload",
-							"actions": {
-								"cub-statement": {
-									"show": true,
-									"required": true
-								},
-								"other-bank-statement": {
-									"show": true,
-									"required": false
-								},
-								"itr-fetch": {
-									"show": true,
-									"required": false
-								},
-								"cibil-fetch": {
-									"show": true,
-									"required": true
-								},
-								"agreement": {
-									"show": true,
-									"required": true
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "Loan Details",
-					"id": "home-loan-details",
-					"fields": {
-						"home-loan-details": {
-							"label": "Loan Details",
-							"data": [
-								{
-									"name": "loanAmount",
-									"placeholder": "Required Loan Amount",
-									"rules": {
-										"required": true
-									},
-									"type": "text",
-									"visibility": true,
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 10
-									},
-									"inrupees": true
-								},
-								{
-									"name": "tenure",
-									"rules": {
-										"required": true
-									},
-									"placeholder": "Tenure (in months)",
-									"type": "text",
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 3
-									},
-									"visibility": true
-								},
-								{
-									"name": "branchId",
-									"type": "search",
-									"placeholder": "Home branch (for application processing)",
-									"visibility": true,
-									"fetchOnInit": true,
-									"rules": {
-										"required": true
-									},
-									"options": []
-								},
-								{
-									"name": "loanType",
-									"placeholder": "Select a Loan Type",
-									"type": "select",
-									"rules": {
-										"required": true
-									},
-									"options": [
-										{
-											"name": "Take over of existing loan from Bank",
-											"value": "Take over of existing loan from Bank"
-										},
-										{
-											"name": "Construction of House/Flat",
-											"value": "Construction of House/Flat"
-										},
-										{
-											"name": "Purchase of house site and construction",
-											"value": "Purchase of house site and construction"
-										},
-										{
-											"name": "Purchase of ready built House/Flat",
-											"value": "Purchase of ready built House/Flat"
-										}
-									],
-									"visibility": true,
-									"forType": {
-										"Take over of existing loan from Bank": [
+										"type": "select",
+										"visibility": true,
+										"options": [
 											{
-												"name": "bank",
-												"type": "select",
-												"placeholder": "Please Select the Bank/FI from which the loan(s) is/are to be taken over",
-												"visibility": true,
-												"rules": {
-													"required": true
-												},
-												"options": [
-													{
-														"name": "HDFC",
-														"value": "hdfc"
-													},
-													{
-														"name": "ICICI",
-														"value": "icici"
-													},
-													{
-														"name": "OTHER",
-														"value": "other"
-													}
-												],
-												"forType": {
-													"other": [
-														{
-															"name": "bankName",
-															"type": "text",
-															"placeholder": "Enter your bank name if chosen Other",
-															"rules": {
-																"required": true
-															},
-															"mask": {
-																"NumberOnly": true,
-																"CharacterLimit": 10
-															},
-															"visibility": true
-														}
-													]
-												}
+												"value": "salaried",
+												"name": "Salaried"
 											},
 											{
-												"name": "outstanding",
-												"type": "text",
-												"placeholder": "Enter Present Outstanding",
-												"visibility": true,
-												"inrupees": true,
-												"rules": {
-													"required": true
-												},
-												"mask": {
-													"NumberOnly": true,
-													"CharacterLimit": 10
-												},
-												"uploadButton": "Upload Agreement"
+												"value": "business",
+												"name": "Business"
 											}
-										],
-										"Construction of House/Flat": [
-											[
-												{
-													"name": "constructionValue",
-													"type": "text",
-													"placeholder": "Enter the Value as per the Construction Agreement",
-													"visibility": true,
-													"rules": {
-														"required": true
-													},
-													"mask": {
-														"NumberOnly": true,
-														"CharacterLimit": 10
-													},
-													"inrupees": true,
-													"uploadButton": "Upload Agreement"
-												},
-												{
-													"name": "contructionArchitectValue",
-													"type": "text",
-													"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-													"visibility": true,
-													"inrupees": true,
-													"rules": {
-														"required": true
-													},
-													"mask": {
-														"NumberOnly": true,
-														"CharacterLimit": 10
-													},
-													"uploadButton": "Upload Agreement"
-												}
-											]
-										],
-										"Purchase of house site and construction": [
+										]
+									},
+									{
+										"name": "lastName",
+										"placeholder": "Last Name",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"AlphaCharOnly": true
+										},
+										"type": "text",
+										"visibility": true,
+										"default_value": ""
+									},
+									{
+										"name": "panNumber",
+										"placeholder": "PAN Number",
+										"rules": {
+											"required": true,
+											"length": 10
+										},
+										"disabled": true,
+										"mask": {
+											"CharacterLimit": 10,
+											"AlphaNumericOnly": true
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "dob",
+										"placeholder": "Date of Birth",
+										"rules": {
+											"required": true
+										},
+										"type": "date",
+										"disabled": true,
+										"visibility": true
+									},
+									{
+										"name": "aadhaar",
+										"placeholder": "Aadhar Number",
+										"type": "text",
+										"rules": {
+											"required": true,
+											"minLength": 12
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 12
+										},
+										"visibility": true
+									},
+									{
+										"name": "mobileNo",
+										"placeholder": "Mobile Number",
+										"rules": {
+											"required": true,
+											"length": 10
+										},
+										"disabled": true,
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "residenceStatus",
+										"placeholder": "Residence Status",
+										"type": "select",
+										"visibility": true,
+										"options": [
 											{
-												"name": "landValue",
-												"type": "text",
-												"placeholder": "Enter the Agreement Value for Purchase of Land",
-												"visibility": true,
-												"rules": {
-													"required": true
-												},
-												"mask": {
-													"NumberOnly": true,
-													"CharacterLimit": 10
-												},
-												"inrupees": true,
-												"uploadButton": "Upload Agreement"
+												"name": "Resident",
+												"value": "Resident"
 											},
-											[
-												{
-													"name": "constructionValue",
-													"type": "text",
-													"placeholder": "Enter the Value as per the Construction Agreement",
-													"visibility": true,
-													"rules": {
-														"required": true
-													},
-													"mask": {
-														"NumberOnly": true,
-														"CharacterLimit": 10
-													},
-													"inrupees": true,
-													"uploadButton": "Upload Agreement"
-												},
-												{
-													"name": "contructionArchitectValue",
-													"type": "text",
-													"placeholder": "Enter Value of Construction as per the Estimates of Architect",
-													"visibility": true,
-													"rules": {
-														"required": true
-													},
-													"mask": {
-														"NumberOnly": true,
-														"CharacterLimit": 10
-													},
-													"inrupees": true,
-													"uploadButton": "Upload Agreement"
-												}
-											]
-										],
-										"Purchase of ready built House/Flat": [
 											{
-												"name": "salesValue",
-												"type": "text",
-												"placeholder": "Enter the Value as per sales agreement",
-												"visibility": true,
-												"rules": {
-													"required": true
-												},
-												"mask": {
-													"NumberOnly": true,
-													"CharacterLimit": 10
-												},
-												"inrupees": true,
-												"uploadButton": "Upload Agreement"
+												"name": "Resident and Ordinarily Resident",
+												"value": "Resident and Ordinarily Resident"
+											},
+											{
+												"name": "Resident but Not Ordinarily Resident",
+												"value": "Resident but Not Ordinarily Resident"
+											},
+											{
+												"name": "Non-Resident",
+												"value": "Non-Resident"
+											}
+										]
+									},
+									{
+										"name": "email",
+										"placeholder": "Email ID",
+										"rules": {
+											"required": true,
+											"email": true
+										},
+										"disabled": false,
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "countryResidence",
+										"placeholder": "Country of Residence",
+										"type": "select",
+										"visibility": true,
+										"options": [
+											{
+												"name": "India",
+												"value": "India"
+											},
+											{
+												"name": "Other",
+												"value": "Other"
 											}
 										]
 									}
-								}
-							]
-						},
-						"address-details": {
-							"label": "Address Details",
-							"data": [
-								{
-									"name": "address1",
-									"placeholder": "Address Line 1",
-									"rules": {
-										"required": true
+								]
+							},
+							"address-details": {
+								"label": "Address Details",
+								"data": [
+									{
+										"name": "address1",
+										"placeholder": "Address Line 1",
+										"rules": {
+											"required": true
+										},
+										"type": "text",
+										"visibility": true
 									},
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "address2",
-									"placeholder": "Address Line 2",
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "address3",
-									"placeholder": "Address Line 3",
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "pinCode",
-									"placeholder": "Pin Code",
-									"rules": {
-										"required": true,
-										"length": 6
+									{
+										"name": "address2",
+										"placeholder": "Address Line 2",
+										"type": "text",
+										"visibility": true
 									},
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 6
+									{
+										"name": "address3",
+										"placeholder": "Address Line 3",
+										"type": "text",
+										"visibility": true
 									},
-									"makeApiCall": 6,
-									"type": "pincode",
-									"valueForFields": [
-										[
-											"city",
-											"district"
-										],
-										[
-											"state",
-											"state"
-										]
-									],
-									"visibility": true
-								},
-								{
-									"name": "city",
-									"placeholder": "City",
-									"rules": {
-										"required": true
+									{
+										"name": "address4",
+										"placeholder": "District",
+										"type": "text",
+										"visibility": true
 									},
-									"mask": {
-										"AlphaCharOnly": true
-									},
-									"type": "text",
-									"visibility": true
-								},
-								{
-									"name": "state",
-									"placeholder": "State",
-									"rules": {
-										"required": true
-									},
-									"mask": {
-										"AlphaCharOnly": true
-									},
-									"type": "text",
-									"visibility": true
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "EMI Details",
-					"id": "emi-details",
-					"fields": {
-						"emi_details": {
-							"label": "EMI Details",
-							"data": [
-								{
-									"name": "existing_auto_loan",
-									"placeholder": "Auto Loan Amount",
-									"type": "text",
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 10
-									},
-									"visibility": true,
-									"option": [],
-									"inrupees": true,
-									"subFieldName": "auto_loan_bank_name"
-								},
-								{
-									"name": "existing_personal_loan",
-									"placeholder": "Personal Loan Amount",
-									"type": "text",
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 10
-									},
-									"visibility": true,
-									"option": [],
-									"inrupees": true,
-									"subFieldName": "personal_loan_bank_name"
-								},
-								{
-									"name": "existing_lap_loan",
-									"placeholder": "LAP Amount",
-									"type": "text",
-									"mask": {
-										"NumberOnly": true,
-										"CharacterLimit": 10
-									},
-									"visibility": true,
-									"option": [],
-									"inrupees": true,
-									"subFieldName": "lap_loan_bank_name"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Document Upload",
-					"id": "cub-document-upload",
-					"actions": {
-						"cub-statement": {
-							"show": true,
-							"required": true
-						},
-						"other-bank-statement": {
-							"show": true,
-							"required": false
-						},
-						"itr-fetch": {
-							"show": true,
-							"required": false
-						},
-						"cibil-fetch": {
-							"show": true,
-							"required": true
-						},
-						"agreement": {
-							"show": true,
-							"required": true
-						}
-					}
-				},
-				{
-					"name": "Application Submitted",
-					"id": "application-submitted",
-					"flow": [
-						{
-							"name": "Guarantor Details",
-							"id": "guarantor-details",
-							"fields": {
-								"personal-details": {
-									"label": "Personal Details",
-									"data": [
-										{
-											"name": "firstName",
-											"placeholder": "First Name",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true,
-											"default_value": ""
+									{
+										"name": "pinCode",
+										"placeholder": "Pin Code",
+										"rules": {
+											"required": true,
+											"length": 6
 										},
-										{
-											"name": "incomeType",
-											"placeholder": "Income Type",
-											"rules": {
-												"required": true
-											},
-											"type": "select",
-											"visibility": true,
-											"options": [
-												{
-													"value": "salaried",
-													"name": "Salaried"
-												},
-												{
-													"value": "business",
-													"name": "Business"
-												}
-											]
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 6
 										},
-										{
-											"name": "lastName",
-											"placeholder": "Last Name",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true,
-											"default_value": ""
-										},
-										{
-											"name": "panNumber",
-											"placeholder": "PAN Number",
-											"rules": {
-												"required": true,
-												"length": 10
-											},
-											"disabled": true,
-											"mask": {
-												"CharacterLimit": 10,
-												"AlphaNumericOnly": true
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "dob",
-											"placeholder": "Date of Birth (dd-mm-yyyy)",
-											"rules": {
-												"required": true
-											},
-											"type": "date",
-											"disabled": true,
-											"visibility": true
-										},
-										{
-											"name": "aadhaar",
-											"placeholder": "Aadhar Number",
-											"type": "text",
-											"rules": {
-												"required": true,
-												"minLength": 12
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 12
-											},
-											"visibility": true
-										},
-										{
-											"name": "mobileNo",
-											"placeholder": "Mobile Number",
-											"rules": {
-												"required": true,
-												"length": 10
-											},
-											"disabled": true,
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "residenceStatus",
-											"placeholder": "Residence Status",
-											"type": "select",
-											"visibility": true,
-											"options": [
-												{
-													"name": "Resident",
-													"value": "Resident"
-												},
-												{
-													"name": "Resident and Ordinarily Resident",
-													"value": "Resident and Ordinarily Resident"
-												},
-												{
-													"name": "Resident but Not Ordinarily Resident",
-													"value": "Resident but Not Ordinarily Resident"
-												},
-												{
-													"name": "Non-Resident",
-													"value": "Non-Resident"
-												}
-											]
-										},
-										{
-											"name": "email",
-											"placeholder": "Email ID",
-											"rules": {
-												"required": true,
-												"email": true
-											},
-											"disabled": true,
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "countryResidence",
-											"placeholder": "Country of Residence",
-											"type": "select",
-											"visibility": true,
-											"options": [
-												{
-													"name": "India",
-													"value": "India"
-												},
-												{
-													"name": "Other",
-													"value": "Other"
-												}
-											]
-										}
-									]
-								},
-								"address-details": {
-									"label": "Address Details",
-									"data": [
-										{
-											"name": "address1",
-											"placeholder": "Address Line 1",
-											"rules": {
-												"required": true
-											},
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "address2",
-											"placeholder": "Address Line 2",
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "address3",
-											"placeholder": "Address Line 3",
-											"type": "text",
-											"visibility": true
-										},
-										{
-											"name": "pinCode",
-											"placeholder": "Pin Code",
-											"rules": {
-												"required": true,
-												"length": 6
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 6
-											},
-											"makeApiCall": 6,
-											"type": "pincode",
-											"valueForFields": [
-												[
-													"city",
-													"district"
-												],
-												[
-													"state",
-													"state"
-												]
+										"makeApiCall": 6,
+										"type": "pincode",
+										"valueForFields": [
+											[
+												"city",
+												"district"
 											],
-											"visibility": true
+											[
+												"state",
+												"state"
+											]
+										],
+										"visibility": true
+									},
+									{
+										"name": "city",
+										"placeholder": "City",
+										"rules": {
+											"required": true
 										},
-										{
-											"name": "city",
-											"placeholder": "City",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true
+										"mask": {
+											"AlphaCharOnly": true
 										},
-										{
-											"name": "state",
-											"placeholder": "State",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"AlphaCharOnly": true
-											},
-											"type": "text",
-											"visibility": true
-										}
-									]
-								}
-							}
-						},
-						{
-							"name": "Guarantor Income Details",
-							"id": "guarantor-income-details",
-							"fields": {
-								"salary-details": {
-									"label": "Salary Details",
-									"data": [
-										{
-											"name": "grossIncome",
-											"placeholder": "Gross Total Income (as per the latest ITR slip)",
-											"type": "text",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 7
-											},
-											"visibility": true
+										"type": "text",
+										"visibility": true
+									},
+									{
+										"name": "state",
+										"placeholder": "State",
+										"rules": {
+											"required": true
 										},
-										{
-											"name": "netMonthlyIncome",
-											"placeholder": "Net Monthly Income (as per the latest Salary slip)",
-											"type": "text",
-											"rules": {
-												"required": true
-											},
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 6
-											},
-											"visibility": true
-										}
-									]
-								},
-								"emi-details": {
-									"label": "EMI Details",
-									"data": [
-										{
-											"name": "existing_auto_loan",
-											"placeholder": "Auto Loan Amount",
-											"type": "text",
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"visibility": true,
-											"option": [],
-											"inrupees": true,
-											"subFieldName": "auto_loan_bank_name"
+										"mask": {
+											"AlphaCharOnly": true
 										},
-										{
-											"name": "existing_personal_loan",
-											"placeholder": "Personal Loan Amount",
-											"type": "text",
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"visibility": true,
-											"option": [],
-											"inrupees": true,
-											"subFieldName": "personal_loan_bank_name"
-										},
-										{
-											"name": "existing_lap_loan",
-											"placeholder": "LAP Amount",
-											"type": "text",
-											"mask": {
-												"NumberOnly": true,
-												"CharacterLimit": 10
-											},
-											"visibility": true,
-											"option": [],
-											"inrupees": true,
-											"subFieldName": "lap_loan_bank_name"
-										}
-									]
-								}
-							}
-						},
-						{
-							"name": "Guarantor Document Upload",
-							"id": "guarantor-document-upload",
-							"actions": {
-								"cub-statement": {
-									"show": true,
-									"required": true
-								},
-								"other-bank-statement": {
-									"show": true,
-									"required": false
-								},
-								"itr-fetch": {
-									"show": true,
-									"required": false
-								},
-								"cibil-fetch": {
-									"show": true,
-									"required": true
-								},
-								"agreement": {
-									"show": true,
-									"required": true
-								}
+										"type": "text",
+										"visibility": true
+									}
+								]
 							}
 						}
-					]
-				}
-			],
-			"error": {
-				"message": "The application is currently for individuals only. Please contact your branch for processing your application",
-				"button": {
-					"header": "<b>Become a customer with </b><a href=link>City Union Bank</a>",
-					"link": "www.google.com",
-					"message": "Click here to complete your e-kyc"
+					},
+					{
+						"name": "Co-applicant Income Details",
+						"id": "co-applicant-income-details",
+						"fields": {
+							"salary-details": {
+								"label": "Salary Details",
+								"data": [
+									{
+										"name": "grossIncome",
+										"placeholder": "Gross Total Income (as per the latest ITR slip)",
+										"type": "text",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 7
+										},
+										"visibility": true
+									},
+									{
+										"name": "netMonthlyIncome",
+										"placeholder": "Net Monthly Income (as per the latest Salary slip)",
+										"type": "text",
+										"rules": {
+											"required": true
+										},
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 6
+										},
+										"visibility": true
+									}
+								]
+							},
+							"emi-details": {
+								"label": "EMI Details",
+								"data": [
+									{
+										"name": "existing_auto_loan",
+										"placeholder": "Auto Loan Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "auto_loan_bank_name"
+									},
+									{
+										"name": "existing_personal_loan",
+										"placeholder": "Personal Loan Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "personal_loan_bank_name"
+									},
+									{
+										"name": "existing_lap_loan",
+										"placeholder": "LAP Amount",
+										"type": "text",
+										"mask": {
+											"NumberOnly": true,
+											"CharacterLimit": 10
+										},
+										"visibility": true,
+										"option": [],
+										"inrupees": true,
+										"subFieldName": "lap_loan_bank_name"
+									}
+								]
+							}
+						}
+					},
+					{
+						"name": "Co-applicant Document Upload",
+						"id": "co-applicant-document-upload",
+						"actions": {
+							"cub-statement": {
+								"show": true,
+								"required": true
+							},
+							"other-bank-statement": {
+								"show": true,
+								"required": false
+							},
+							"itr-fetch": {
+								"show": true,
+								"required": false
+							},
+							"cibil-fetch": {
+								"show": true,
+								"required": true
+							},
+							"agreement": {
+								"show": true,
+								"required": true
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Guarantor Details",
+				"id": "guarantor-details",
+				"hidden": true,
+				"fields": {
+					"personal-details": {
+						"label": "Personal Details",
+						"data": [
+							{
+								"name": "firstName",
+								"placeholder": "First Name",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true,
+								"default_value": ""
+							},
+							{
+								"name": "incomeType",
+								"placeholder": "Income Type",
+								"rules": {
+									"required": true
+								},
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"value": "salaried",
+										"name": "Salaried"
+									},
+									{
+										"value": "business",
+										"name": "Business"
+									}
+								]
+							},
+							{
+								"name": "lastName",
+								"placeholder": "Last Name",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true,
+								"default_value": ""
+							},
+							{
+								"name": "panNumber",
+								"placeholder": "PAN Number",
+								"rules": {
+									"required": true,
+									"length": 10
+								},
+								"disabled": true,
+								"mask": {
+									"CharacterLimit": 10,
+									"AlphaNumericOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "dob",
+								"placeholder": "Date of Birth",
+								"rules": {
+									"required": true
+								},
+								"type": "date",
+								"disabled": true,
+								"visibility": true
+							},
+							{
+								"name": "aadhaar",
+								"placeholder": "Aadhar Number",
+								"type": "text",
+								"rules": {
+									"required": true,
+									"minLength": 12
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 12
+								},
+								"visibility": true
+							},
+							{
+								"name": "mobileNo",
+								"placeholder": "Mobile Number",
+								"rules": {
+									"required": true,
+									"length": 10
+								},
+								"disabled": true,
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 10
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "residenceStatus",
+								"placeholder": "Residence Status",
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"name": "Resident",
+										"value": "Resident"
+									},
+									{
+										"name": "Resident and Ordinarily Resident",
+										"value": "Resident and Ordinarily Resident"
+									},
+									{
+										"name": "Resident but Not Ordinarily Resident",
+										"value": "Resident but Not Ordinarily Resident"
+									},
+									{
+										"name": "Non-Resident",
+										"value": "Non-Resident"
+									}
+								]
+							},
+							{
+								"name": "email",
+								"placeholder": "Email ID",
+								"rules": {
+									"required": true,
+									"email": true
+								},
+								"disabled": false,
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "countryResidence",
+								"placeholder": "Country of Residence",
+								"type": "select",
+								"visibility": true,
+								"options": [
+									{
+										"name": "India",
+										"value": "India"
+									},
+									{
+										"name": "Other",
+										"value": "Other"
+									}
+								]
+							}
+						]
+					},
+					"address-details": {
+						"label": "Address Details",
+						"data": [
+							{
+								"name": "address1",
+								"placeholder": "Address Line 1",
+								"rules": {
+									"required": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address2",
+								"placeholder": "Address Line 2",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address3",
+								"placeholder": "Address Line 3",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "address4",
+								"placeholder": "District",
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "pinCode",
+								"placeholder": "Pin Code",
+								"rules": {
+									"required": true,
+									"length": 6
+								},
+								"mask": {
+									"NumberOnly": true,
+									"CharacterLimit": 6
+								},
+								"makeApiCall": 6,
+								"type": "pincode",
+								"valueForFields": [
+									[
+										"city",
+										"district"
+									],
+									[
+										"state",
+										"state"
+									]
+								],
+								"visibility": true
+							},
+							{
+								"name": "city",
+								"placeholder": "City",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							},
+							{
+								"name": "state",
+								"placeholder": "State",
+								"rules": {
+									"required": true
+								},
+								"mask": {
+									"AlphaCharOnly": true
+								},
+								"type": "text",
+								"visibility": true
+							}
+						]
+					}
 				}
 			},
-			"Required Documents": [
-				"Latest Three months salary slip",
-				"Latest Six months bank account statement(in which the salary gets credited)",
-				"Last 2 years ITR(in pdf)",
-				"Quotation letter",
-				"SB account statment for the latest six months(other banks)",
-				"Form 16 from the Employee of the borrower",
-				"Any other relevent doxuments"
-			]
-		},
-		"color_theme_react": {
-			"buttonColor1": "#01914a",
-			"buttonColor2": "#01914a",
-			"buttonTextColor": "#ffffff",
-			"themeColor1": "#ffffff",
-			"themeColor2": "#082080",
-			"bankIcon": ""
-		},
-		"edit_json": "{\n\t\"head\": \"CUB offers easy and quick processing of housing loan to individuals for purchase of : \",\n\t\"loanType\": \"Home Loan\",\n\t\"productDetailsImage\": \"https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/20-SM854909.jpg\",\n\t\"applicationSubmittedImage\": \"https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/220-SM854879.jpg\",\n\t\"li\": [\n\t\t\"Site for construction of a house\",\n\t\t\"Purchase of a ready built house/flat\",\n\t\t\"To carryout repairs/ renovations/ alterations/ extension of the existing house\",\n\t\t\"Purschase of a flat under construction\",\n\t\t\"Takeover of existing housing loans from other banks.\",\n\t\t\"Eligibility : Salaried Employees : 60 months net take home pay; Professionals/ Business/ Self employed : 5 times of income declared in the lastest ITR\",\n\t\t\"Loan amount : Maximum of Rs. 1 Crore\",\n\t\t\"Margin : 25%\",\n\t\t\"Repayment tenor : Maximum 180 months for purchase and construction of house.\",\n\t\t\"<a href=link>Click here</a> for Interest rate and required documents\",\n\t\t\"<a href=link>Click here</a> for Schemes\",\n\t\t\"<a href=link>Click here</a> for Processing Charges\",\n\t\t\"<a href=link>EMI Calculator</a>\"\n\t],\n\t\"flow\": [{\n\t\t\t\"name\": \"Identity Verification\",\n\t\t\t\"id\": \"identity-verification\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Personal Details\",\n\t\t\t\"id\": \"personal-details\",\n\t\t\t\"fields\": {\n\t\t\t\t\"personal-details\": {\n\t\t\t\t\t\"label\": \"Personal Details\",\n\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\"name\": \"firstName\",\n\t\t\t\t\t\t\t\"placeholder\": \"First Name\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"default_value\": \"\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"incomeType\",\n\t\t\t\t\t\t\t\"placeholder\": \"Income Type\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\"value\": \"salaried\",\n\t\t\t\t\t\t\t\t\t\"name\": \"Salaried\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"value\": \"business\",\n\t\t\t\t\t\t\t\t\t\"name\": \"Business\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"lastName\",\n\t\t\t\t\t\t\t\"placeholder\": \"Last Name\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"default_value\": \"\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"panNumber\",\n\t\t\t\t\t\t\t\"placeholder\": \"PAN Number\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\"length\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 10,\n\t\t\t\t\t\t\t\t\"AlphaNumericOnly\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"dob\",\n\t\t\t\t\t\t\t\"placeholder\": \"Date of Birth (dd-mm-yyyy)\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"date\",\n\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"aadhaar\",\n\t\t\t\t\t\t\t\"placeholder\": \"Aadhar Number\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\"minLength\": 12\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 12\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"mobileNo\",\n\t\t\t\t\t\t\t\"placeholder\": \"Mobile Number\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\"length\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"residenceStatus\",\n\t\t\t\t\t\t\t\"placeholder\": \"Residence Status\",\n\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"Resident\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Resident\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Resident and Ordinarily Resident\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Resident and Ordinarily Resident\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Resident but Not Ordinarily Resident\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Resident but Not Ordinarily Resident\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Non-Resident\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Non-Resident\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"email\",\n\t\t\t\t\t\t\t\"placeholder\": \"Email ID\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\"email\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"countryResidence\",\n\t\t\t\t\t\t\t\"placeholder\": \"Country of Residence\",\n\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"India\",\n\t\t\t\t\t\t\t\t\t\"value\": \"India\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Other\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Other\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"maritalStatus\",\n\t\t\t\t\t\t\t\"placeholder\": \"Marital Status\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\"value\": \"Married\",\n\t\t\t\t\t\t\t\t\t\"name\": \"Married\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"value\": \"Single\",\n\t\t\t\t\t\t\t\t\t\"name\": \"Single\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"value\": \"Divorced\",\n\t\t\t\t\t\t\t\t\t\"name\": \"Divorced\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t\"salary-details\": {\n\t\t\t\t\t\"label\": \"Salary Details\",\n\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\"name\": \"grossIncome\",\n\t\t\t\t\t\t\t\"placeholder\": \"Gross Total Income (as per the latest ITR slip)\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 7\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"netMonthlyIncome\",\n\t\t\t\t\t\t\t\"placeholder\": \"Net Monthly Income (as per the latest Salary slip)\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 6\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Address Details\",\n\t\t\t\"id\": \"address-details\",\n\t\t\t\"fields\": {\n\t\t\t\t\"address-details\": {\n\t\t\t\t\t\"label\": \"Address Details\",\n\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\"name\": \"address1\",\n\t\t\t\t\t\t\t\"placeholder\": \"Address Line 1\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"address2\",\n\t\t\t\t\t\t\t\"placeholder\": \"Address Line 2\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"address3\",\n\t\t\t\t\t\t\t\"placeholder\": \"Address Line 3\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"pinCode\",\n\t\t\t\t\t\t\t\"placeholder\": \"Pin Code\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\"length\": 6\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 6\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"makeApiCall\": 6,\n\t\t\t\t\t\t\t\"type\": \"pincode\",\n\t\t\t\t\t\t\t\"valueForFields\": [\n\t\t\t\t\t\t\t\t[\n\t\t\t\t\t\t\t\t\t\"city\",\n\t\t\t\t\t\t\t\t\t\"district\"\n\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t[\n\t\t\t\t\t\t\t\t\t\"state\",\n\t\t\t\t\t\t\t\t\t\"state\"\n\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"city\",\n\t\t\t\t\t\t\t\"placeholder\": \"City\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"state\",\n\t\t\t\t\t\t\t\"placeholder\": \"State\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"flow\": [{\n\t\t\t\t\t\"name\": \"Co-applicant Details\",\n\t\t\t\t\t\"id\": \"co-applicant-details\",\n\t\t\t\t\t\"fields\": {\n\t\t\t\t\t\t\"personal-details\": {\n\t\t\t\t\t\t\t\"label\": \"Personal Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"firstName\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"First Name\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"default_value\": \"\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"incomeType\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Income Type\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"salaried\",\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Salaried\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"business\",\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Business\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"lastName\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Last Name\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"default_value\": \"\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"panNumber\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"PAN Number\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"length\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10,\n\t\t\t\t\t\t\t\t\t\t\"AlphaNumericOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"dob\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Date of Birth (dd-mm-yyyy)\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"date\",\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"aadhaar\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Aadhar Number\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"minLength\": 12\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 12\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"mobileNo\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Mobile Number\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"length\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"residenceStatus\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Residence Status\",\n\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Resident\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Resident and Ordinarily Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Resident and Ordinarily Resident\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Resident but Not Ordinarily Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Resident but Not Ordinarily Resident\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Non-Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Non-Resident\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"email\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Email ID\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"email\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"countryResidence\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Country of Residence\",\n\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"India\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"India\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Other\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Other\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"address-details\": {\n\t\t\t\t\t\t\t\"label\": \"Address Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"address1\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Address Line 1\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"address2\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Address Line 2\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"address3\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Address Line 3\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"pinCode\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Pin Code\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"length\": 6\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 6\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"makeApiCall\": 6,\n\t\t\t\t\t\t\t\t\t\"type\": \"pincode\",\n\t\t\t\t\t\t\t\t\t\"valueForFields\": [\n\t\t\t\t\t\t\t\t\t\t[\n\t\t\t\t\t\t\t\t\t\t\t\"city\",\n\t\t\t\t\t\t\t\t\t\t\t\"district\"\n\t\t\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\t\t[\n\t\t\t\t\t\t\t\t\t\t\t\"state\",\n\t\t\t\t\t\t\t\t\t\t\t\"state\"\n\t\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"city\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"City\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"state\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"State\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Co-applicant Income Details\",\n\t\t\t\t\t\"id\": \"co-applicant-income-details\",\n\t\t\t\t\t\"fields\": {\n\t\t\t\t\t\t\"salary-details\": {\n\t\t\t\t\t\t\t\"label\": \"Salary Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"grossIncome\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Gross Total Income (as per the latest ITR slip)\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 7\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"netMonthlyIncome\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Net Monthly Income (as per the latest Salary slip)\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 6\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"emi-details\": {\n\t\t\t\t\t\t\t\"label\": \"EMI Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"existing_auto_loan\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Auto Loan Amount\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"subFieldName\": \"auto_loan_bank_name\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"existing_personal_loan\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Personal Loan Amount\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"subFieldName\": \"personal_loan_bank_name\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"existing_lap_loan\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"LAP Amount\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"subFieldName\": \"lap_loan_bank_name\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Co-applicant Document Upload\",\n\t\t\t\t\t\"id\": \"co-applicant-document-upload\",\n\t\t\t\t\t\"actions\": {\n\t\t\t\t\t\t\"cub-statement\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"other-bank-statement\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": false\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"itr-fetch\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": false\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"cibil-fetch\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"agreement\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Loan Details\",\n\t\t\t\"id\": \"home-loan-details\",\n\t\t\t\"fields\": {\n\t\t\t\t\"home-loan-details\": {\n\t\t\t\t\t\"label\": \"Loan Details\",\n\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\"name\": \"loanAmount\",\n\t\t\t\t\t\t\t\"placeholder\": \"Required Loan Amount\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"inrupees\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"tenure\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"placeholder\": \"Tenure (in months)\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 3\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"branchId\",\n\t\t\t\t\t\t\t\"type\": \"search\",\n\t\t\t\t\t\t\t\"placeholder\": \"Home branch (for application processing)\",\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"fetchOnInit\": true,\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"options\": []\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"loanType\",\n\t\t\t\t\t\t\t\"placeholder\": \"Select a Loan Type\",\n\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"Take over of existing loan from Bank\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Take over of existing loan from Bank\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Construction of House/Flat\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Construction of House/Flat\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Purchase of house site and construction\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Purchase of house site and construction\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"Purchase of ready built House/Flat\",\n\t\t\t\t\t\t\t\t\t\"value\": \"Purchase of ready built House/Flat\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"forType\": {\n\t\t\t\t\t\t\t\t\"Take over of existing loan from Bank\": [{\n\t\t\t\t\t\t\t\t\t\t\"name\": \"bank\",\n\t\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Please Select the Bank/FI from which the loan(s) is/are to be taken over\",\n\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\t\"name\": \"HDFC\",\n\t\t\t\t\t\t\t\t\t\t\t\t\"value\": \"hdfc\"\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\t\"name\": \"ICICI\",\n\t\t\t\t\t\t\t\t\t\t\t\t\"value\": \"icici\"\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\t\"name\": \"OTHER\",\n\t\t\t\t\t\t\t\t\t\t\t\t\"value\": \"other\"\n\t\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\t\t\"forType\": {\n\t\t\t\t\t\t\t\t\t\t\t\"other\": [{\n\t\t\t\t\t\t\t\t\t\t\t\t\"name\": \"bankName\",\n\t\t\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter your bank name if chosen Other\",\n\t\t\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t\t\t\t}]\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\"name\": \"outstanding\",\n\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter Present Outstanding\",\n\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\"Construction of House/Flat\": [\n\t\t\t\t\t\t\t\t\t[{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"constructionValue\",\n\t\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter the Value as per the Construction Agreement\",\n\t\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"contructionArchitectValue\",\n\t\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter Value of Construction as per the Estimates of Architect\",\n\t\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\"Purchase of house site and construction\": [{\n\t\t\t\t\t\t\t\t\t\t\"name\": \"landValue\",\n\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter the Agreement Value for Purchase of Land\",\n\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t[{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"constructionValue\",\n\t\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter the Value as per the Construction Agreement\",\n\t\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"contructionArchitectValue\",\n\t\t\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter Value of Construction as per the Estimates of Architect\",\n\t\t\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\"Purchase of ready built House/Flat\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"salesValue\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Enter the Value as per sales agreement\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"uploadButton\": \"Upload Agreement\"\n\t\t\t\t\t\t\t\t}]\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"name\": \"EMI Details\",\n\t\t\t\"id\": \"emi-details\",\n\t\t\t\"fields\": {\n\t\t\t\t\"emi_details\": {\n\t\t\t\t\t\"label\": \"EMI Details\",\n\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\"name\": \"existing_auto_loan\",\n\t\t\t\t\t\t\t\"placeholder\": \"Auto Loan Amount\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\"subFieldName\": \"auto_loan_bank_name\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"existing_personal_loan\",\n\t\t\t\t\t\t\t\"placeholder\": \"Personal Loan Amount\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\"subFieldName\": \"personal_loan_bank_name\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"name\": \"existing_lap_loan\",\n\t\t\t\t\t\t\t\"placeholder\": \"LAP Amount\",\n\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\"subFieldName\": \"lap_loan_bank_name\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Document Upload\",\n\t\t\t\"id\": \"cub-document-upload\",\n\t\t\t\"actions\": {\n\t\t\t\t\"cub-statement\": {\n\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\"required\": true\n\t\t\t\t},\n\t\t\t\t\"other-bank-statement\": {\n\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\"required\": false\n\t\t\t\t},\n\t\t\t\t\"itr-fetch\": {\n\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\"required\": false\n\t\t\t\t},\n\t\t\t\t\"cibil-fetch\": {\n\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\"required\": true\n\t\t\t\t},\n\t\t\t\t\"agreement\": {\n\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\"required\": true\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Application Submitted\",\n\t\t\t\"id\": \"application-submitted\",\n\t\t\t\"flow\": [{\n\t\t\t\t\t\"name\": \"Guarantor Details\",\n\t\t\t\t\t\"id\": \"guarantor-details\",\n\t\t\t\t\t\"fields\": {\n\t\t\t\t\t\t\"personal-details\": {\n\t\t\t\t\t\t\t\"label\": \"Personal Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"firstName\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"First Name\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"default_value\": \"\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"incomeType\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Income Type\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"salaried\",\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Salaried\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"business\",\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Business\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"lastName\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Last Name\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"default_value\": \"\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"panNumber\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"PAN Number\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"length\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10,\n\t\t\t\t\t\t\t\t\t\t\"AlphaNumericOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"dob\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Date of Birth (dd-mm-yyyy)\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"date\",\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"aadhaar\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Aadhar Number\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"minLength\": 12\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 12\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"mobileNo\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Mobile Number\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"length\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"residenceStatus\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Residence Status\",\n\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Resident\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Resident and Ordinarily Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Resident and Ordinarily Resident\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Resident but Not Ordinarily Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Resident but Not Ordinarily Resident\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Non-Resident\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Non-Resident\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"email\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Email ID\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"email\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"disabled\": true,\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"countryResidence\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Country of Residence\",\n\t\t\t\t\t\t\t\t\t\"type\": \"select\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"options\": [{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"India\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"India\"\n\t\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\t\t\"name\": \"Other\",\n\t\t\t\t\t\t\t\t\t\t\t\"value\": \"Other\"\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"address-details\": {\n\t\t\t\t\t\t\t\"label\": \"Address Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"address1\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Address Line 1\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"address2\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Address Line 2\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"address3\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Address Line 3\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"pinCode\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Pin Code\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true,\n\t\t\t\t\t\t\t\t\t\t\"length\": 6\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 6\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"makeApiCall\": 6,\n\t\t\t\t\t\t\t\t\t\"type\": \"pincode\",\n\t\t\t\t\t\t\t\t\t\"valueForFields\": [\n\t\t\t\t\t\t\t\t\t\t[\n\t\t\t\t\t\t\t\t\t\t\t\"city\",\n\t\t\t\t\t\t\t\t\t\t\t\"district\"\n\t\t\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\t\t[\n\t\t\t\t\t\t\t\t\t\t\t\"state\",\n\t\t\t\t\t\t\t\t\t\t\t\"state\"\n\t\t\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"city\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"City\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"state\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"State\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"AlphaCharOnly\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Guarantor Income Details\",\n\t\t\t\t\t\"id\": \"guarantor-income-details\",\n\t\t\t\t\t\"fields\": {\n\t\t\t\t\t\t\"salary-details\": {\n\t\t\t\t\t\t\t\"label\": \"Salary Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"grossIncome\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Gross Total Income (as per the latest ITR slip)\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 7\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"netMonthlyIncome\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Net Monthly Income (as per the latest Salary slip)\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"rules\": {\n\t\t\t\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 6\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"emi-details\": {\n\t\t\t\t\t\t\t\"label\": \"EMI Details\",\n\t\t\t\t\t\t\t\"data\": [{\n\t\t\t\t\t\t\t\t\t\"name\": \"existing_auto_loan\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Auto Loan Amount\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"subFieldName\": \"auto_loan_bank_name\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"existing_personal_loan\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"Personal Loan Amount\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"subFieldName\": \"personal_loan_bank_name\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"name\": \"existing_lap_loan\",\n\t\t\t\t\t\t\t\t\t\"placeholder\": \"LAP Amount\",\n\t\t\t\t\t\t\t\t\t\"type\": \"text\",\n\t\t\t\t\t\t\t\t\t\"mask\": {\n\t\t\t\t\t\t\t\t\t\t\"NumberOnly\": true,\n\t\t\t\t\t\t\t\t\t\t\"CharacterLimit\": 10\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t\t\"visibility\": true,\n\t\t\t\t\t\t\t\t\t\"option\": [],\n\t\t\t\t\t\t\t\t\t\"inrupees\": true,\n\t\t\t\t\t\t\t\t\t\"subFieldName\": \"lap_loan_bank_name\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"Guarantor Document Upload\",\n\t\t\t\t\t\"id\": \"guarantor-document-upload\",\n\t\t\t\t\t\"actions\": {\n\t\t\t\t\t\t\"cub-statement\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"other-bank-statement\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": false\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"itr-fetch\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": false\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"cibil-fetch\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"agreement\": {\n\t\t\t\t\t\t\t\"show\": true,\n\t\t\t\t\t\t\t\"required\": true\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t],\n\t\"error\": {\n\t\t\"message\": \"The application is currently for individuals only. Please contact your branch for processing your application\",\n\t\t\"button\": {\n\t\t\t\"header\": \"<b>Become a customer with </b><a href=link>City Union Bank</a>\",\n\t\t\t\"link\": \"www.google.com\",\n\t\t\t\"message\": \"Click here to complete your e-kyc\"\n\t\t}\n\t},\n\t\"Required Documents\": [\n\t\t\"Latest Three months salary slip\",\n\t\t\"Latest Six months bank account statement(in which the salary gets credited)\",\n\t\t\"Last 2 years ITR(in pdf)\",\n\t\t\"Quotation letter\",\n\t\t\"SB account statment for the latest six months(other banks)\",\n\t\t\"Form 16 from the Employee of the borrower\",\n\t\t\"Any other relevent doxuments\"\n\t]\n}"
-	}
+			{
+				"name": "Application Submitted",
+				"id": "application-submitted"
+			}
+		],
+		"error": {
+			"message": "The application is currently for individuals only. Please contact your branch for processing your application",
+			"button": {
+				"header": "<b>Become a customer with </b><a href=link>City Union Bank</a>",
+				"link": "www.google.com",
+				"message": "Click here to complete your e-kyc"
+			}
+		}
+	},
+	"color_theme_react": {
+		"buttonColor1": "#01914a",
+		"buttonColor2": "#01914a",
+		"buttonTextColor": "#ffffff",
+		"themeColor1": "#ffffff",
+		"themeColor2": "#082080",
+		"bankIcon": ""
+	},
+	"edit_json": "{ \"head\": \"CUB offers easy scheme for purchase of four-wheelers in a <span>speedy manner</span>\", \"loanType\": \"4 wheeler\", \"productDetailsImage\": \"https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/120-SM865948.jpg\", \"applicationSubmittedImage\": \"https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/18-SM669077.jpg\", \"li\": [\"CUB offers four-wheelers loans for NEW vehicles\", \"Eligibility : Salaried :Monthly Salary not less than Rs.50000 ; For Self Employed/Professionals Income not less than Rs.3.00Lakhs\", \"Loan amount : Maximum of Rs. 25.00 Lakhs\", \"Margin : 10%\", \"Repayment tenor : 36 to 60 Months\", \"<a href=link>Click here</a> for Interest rate and required documents\", \"<a href=link>Click here</a> for Schemes\", \"<a href=link>Click here</a> for Processing Charges\", \"<a href=link>EMI Calculator</a>\"], \"flow\": [{ \"name\": \"Product Details\", \"id\": \"product-details\" }, { \"name\": \"Identity Verification\", \"id\": \"identity-verification\" }, { \"name\": \"Personal Details\", \"id\": \"personal-details\", \"fields\": { \"personal-details\": { \"label\": \"Personal Details\", \"data\": [{ \"name\": \"firstName\", \"placeholder\": \"First Name\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true, \"default_value\": \"\" }, { \"name\": \"incomeType\", \"placeholder\": \"Income Type\", \"rules\": { \"required\": true }, \"type\": \"select\", \"visibility\": true, \"options\": [{ \"value\": \"salaried\", \"name\": \"Salaried\" }, { \"value\": \"business\", \"name\": \"Business\" }] }, { \"name\": \"lastName\", \"placeholder\": \"Last Name\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true, \"default_value\": \"\" }, { \"name\": \"panNumber\", \"placeholder\": \"PAN Number\", \"rules\": { \"required\": true, \"length\": 10 }, \"disabled\": true, \"mask\": { \"CharacterLimit\": 10, \"AlphaNumericOnly\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"dob\", \"placeholder\": \"Date of Birth\", \"rules\": { \"required\": true }, \"type\": \"date\", \"disabled\": true, \"visibility\": true }, { \"name\": \"aadhaar\", \"placeholder\": \"Aadhar Number\", \"type\": \"text\", \"rules\": { \"required\": true, \"minLength\": 12 }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 12 }, \"visibility\": true }, { \"name\": \"mobileNo\", \"placeholder\": \"Mobile Number\", \"rules\": { \"required\": true, \"length\": 10 }, \"disabled\": true, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"residenceStatus\", \"placeholder\": \"Residence Status\", \"type\": \"select\", \"visibility\": true, \"options\": [{ \"name\": \"Resident\", \"value\": \"Resident\" }, { \"name\": \"Resident and Ordinarily Resident\", \"value\": \"Resident and Ordinarily Resident\" }, { \"name\": \"Resident but Not Ordinarily Resident\", \"value\": \"Resident but Not Ordinarily Resident\" }, { \"name\": \"Non-Resident\", \"value\": \"Non-Resident\" }] }, { \"name\": \"email\", \"placeholder\": \"Email ID\", \"rules\": { \"required\": true, \"email\": true }, \"disabled\": false, \"type\": \"text\", \"visibility\": true }, { \"name\": \"countryResidence\", \"placeholder\": \"Country of Residence\", \"type\": \"select\", \"visibility\": true, \"options\": [{ \"name\": \"India\", \"value\": \"India\" }, { \"name\": \"Other\", \"value\": \"Other\" }] }] }, \"salary-details\": { \"label\": \"Salary Details\", \"data\": [{ \"name\": \"grossIncome\", \"placeholder\": \"Gross Total Income (as per the latest ITR slip)\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 7 }, \"visibility\": true }, { \"name\": \"netMonthlyIncome\", \"placeholder\": \"Net Monthly Income (as per the latest Salary slip)\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 6 }, \"visibility\": true }] } } }, { \"name\": \"Address Details\", \"id\": \"address-details\", \"fields\": { \"address-details\": { \"label\": \"Address Details\", \"data\": [{ \"name\": \"address1\", \"placeholder\": \"Address Line 1\", \"rules\": { \"required\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"address2\", \"placeholder\": \"Address Line 2\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"address3\", \"placeholder\": \"Address Line 3\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"address4\", \"placeholder\": \"District\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"pinCode\", \"placeholder\": \"Pin Code\", \"rules\": { \"required\": true, \"length\": 6 }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 6 }, \"makeApiCall\": 6, \"type\": \"pincode\", \"valueForFields\": [ [\"city\", \"district\"], [\"state\", \"state\"] ], \"visibility\": true }, { \"name\": \"city\", \"placeholder\": \"City\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"state\", \"placeholder\": \"State\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true }] } }, \"flow\": [{ \"name\": \"Co-applicant Details\", \"id\": \"co-applicant-details\", \"fields\": { \"personal-details\": { \"label\": \"Personal Details\", \"data\": [{ \"name\": \"firstName\", \"placeholder\": \"First Name\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true, \"default_value\": \"\" }, { \"name\": \"incomeType\", \"placeholder\": \"Income Type\", \"rules\": { \"required\": true }, \"type\": \"select\", \"visibility\": true, \"options\": [{ \"value\": \"salaried\", \"name\": \"Salaried\" }, { \"value\": \"business\", \"name\": \"Business\" }] }, { \"name\": \"lastName\", \"placeholder\": \"Last Name\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true, \"default_value\": \"\" }, { \"name\": \"panNumber\", \"placeholder\": \"PAN Number\", \"rules\": { \"required\": true, \"length\": 10 }, \"disabled\": true, \"mask\": { \"CharacterLimit\": 10, \"AlphaNumericOnly\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"dob\", \"placeholder\": \"Date of Birth\", \"rules\": { \"required\": true }, \"type\": \"date\", \"disabled\": true, \"visibility\": true }, { \"name\": \"aadhaar\", \"placeholder\": \"Aadhar Number\", \"type\": \"text\", \"rules\": { \"required\": true, \"minLength\": 12 }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 12 }, \"visibility\": true }, { \"name\": \"mobileNo\", \"placeholder\": \"Mobile Number\", \"rules\": { \"required\": true, \"length\": 10 }, \"disabled\": true, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"residenceStatus\", \"placeholder\": \"Residence Status\", \"type\": \"select\", \"visibility\": true, \"options\": [{ \"name\": \"Resident\", \"value\": \"Resident\" }, { \"name\": \"Resident and Ordinarily Resident\", \"value\": \"Resident and Ordinarily Resident\" }, { \"name\": \"Resident but Not Ordinarily Resident\", \"value\": \"Resident but Not Ordinarily Resident\" }, { \"name\": \"Non-Resident\", \"value\": \"Non-Resident\" }] }, { \"name\": \"email\", \"placeholder\": \"Email ID\", \"rules\": { \"required\": true, \"email\": true }, \"disabled\": false, \"type\": \"text\", \"visibility\": true }, { \"name\": \"countryResidence\", \"placeholder\": \"Country of Residence\", \"type\": \"select\", \"visibility\": true, \"options\": [{ \"name\": \"India\", \"value\": \"India\" }, { \"name\": \"Other\", \"value\": \"Other\" }] }] }, \"address-details\": { \"label\": \"Address Details\", \"data\": [{ \"name\": \"address1\", \"placeholder\": \"Address Line 1\", \"rules\": { \"required\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"address2\", \"placeholder\": \"Address Line 2\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"address3\", \"placeholder\": \"Address Line 3\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"address4\", \"placeholder\": \"District\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"pinCode\", \"placeholder\": \"Pin Code\", \"rules\": { \"required\": true, \"length\": 6 }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 6 }, \"makeApiCall\": 6, \"type\": \"pincode\", \"valueForFields\": [ [\"city\", \"district\"], [\"state\", \"state\"] ], \"visibility\": true }, { \"name\": \"city\", \"placeholder\": \"City\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"state\", \"placeholder\": \"State\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true }] } } }, { \"name\": \"Co-applicant Income Details\", \"id\": \"co-applicant-income-details\", \"fields\": { \"salary-details\": { \"label\": \"Salary Details\", \"data\": [{ \"name\": \"grossIncome\", \"placeholder\": \"Gross Total Income (as per the latest ITR slip)\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 7 }, \"visibility\": true }, { \"name\": \"netMonthlyIncome\", \"placeholder\": \"Net Monthly Income (as per the latest Salary slip)\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 6 }, \"visibility\": true }] }, \"emi-details\": { \"label\": \"EMI Details\", \"data\": [{ \"name\": \"existing_auto_loan\", \"placeholder\": \"Auto Loan Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"auto_loan_bank_name\" }, { \"name\": \"existing_personal_loan\", \"placeholder\": \"Personal Loan Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"personal_loan_bank_name\" }, { \"name\": \"existing_lap_loan\", \"placeholder\": \"LAP Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"lap_loan_bank_name\" }] } } }, { \"name\": \"Co-applicant Document Upload\", \"id\": \"co-applicant-document-upload\", \"actions\": { \"cub-statement\": { \"show\": true, \"required\": true }, \"other-bank-statement\": { \"show\": true, \"required\": false }, \"itr-fetch\": { \"show\": true, \"required\": false }, \"cibil-fetch\": { \"show\": true, \"required\": true }, \"agreement\": { \"show\": true, \"required\": true } } }] }, { \"name\": \"Loan Details\", \"id\": \"four-wheeler-loan-details\", \"fields\": { \"loan-details\": { \"label\": \"Loan Details\", \"data\": [{ \"name\": \"loanAmount\", \"placeholder\": \"Required Loan Amount\", \"rules\": { \"required\": true }, \"type\": \"text\", \"visibility\": true, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"inrupees\": true }, { \"name\": \"tenure\", \"rules\": { \"required\": true }, \"placeholder\": \"Tenure (in months)\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 3 }, \"visibility\": true }, { \"name\": \"branchId\", \"type\": \"search\", \"placeholder\": \"Home branch (for application processing)\", \"visibility\": true, \"fetchOnInit\": true, \"rules\": { \"required\": true }, \"options\": [] }, { \"name\": \"vehicle\", \"type\": \"search\", \"placeholder\": \"Choose Vehicle\", \"rules\": { \"required\": true }, \"fetchOnSearch\": true, \"visibility\": true, \"searchKeyAsValue\": true, \"options\": [] }, { \"name\": \"assetsValue\", \"placeholder\": \"Cost of the Vehicle\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"inrupees\": true }] }, \"loan-details-additional\": { \"label\": \"Breakup price of the vehicle\", \"data\": [{ \"name\": \"exShowroomPrice\", \"placeholder\": \"Ex Show Room Price\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"inrupees\": true }, { \"name\": \"Accessories\", \"placeholder\": \"Accessories\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"inrupees\": true }, { \"name\": \"insurance\", \"placeholder\": \"Insurance\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"inrupees\": true }, { \"name\": \"roadTaxRegistration\", \"placeholder\": \"Road Tax and Registration\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"inrupees\": true }, { \"name\": \"total\", \"placeholder\": \"Total\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"inrupees\": true }] }, \"emi-details\": { \"label\": \"EMI Details\", \"data\": [{ \"name\": \"existing_auto_loan\", \"placeholder\": \"Auto Loan Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"auto_loan_bank_name\" }, { \"name\": \"existing_personal_loan\", \"placeholder\": \"Personal Loan Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"personal_loan_bank_name\" }, { \"name\": \"existing_lap_loan\", \"placeholder\": \"LAP Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"lap_loan_bank_name\" }] } } }, { \"name\": \"Document Upload\", \"id\": \"cub-document-upload\", \"actions\": { \"cub-statement\": { \"show\": true, \"required\": true }, \"other-bank-statement\": { \"show\": true, \"required\": false }, \"itr-fetch\": { \"show\": true, \"required\": false }, \"cibil-fetch\": { \"show\": true, \"required\": true }, \"agreement\": { \"show\": true, \"required\": true } } }, { \"name\": \"Application Submitted\", \"id\": \"application-submitted\", \"flow\": [{ \"name\": \"Guarantor Details\", \"id\": \"guarantor-details\", \"fields\": { \"personal-details\": { \"label\": \"Personal Details\", \"data\": [{ \"name\": \"firstName\", \"placeholder\": \"First Name\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true, \"default_value\": \"\" }, { \"name\": \"incomeType\", \"placeholder\": \"Income Type\", \"rules\": { \"required\": true }, \"type\": \"select\", \"visibility\": true, \"options\": [{ \"value\": \"salaried\", \"name\": \"Salaried\" }, { \"value\": \"business\", \"name\": \"Business\" }] }, { \"name\": \"lastName\", \"placeholder\": \"Last Name\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true, \"default_value\": \"\" }, { \"name\": \"panNumber\", \"placeholder\": \"PAN Number\", \"rules\": { \"required\": true, \"length\": 10 }, \"disabled\": true, \"mask\": { \"CharacterLimit\": 10, \"AlphaNumericOnly\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"dob\", \"placeholder\": \"Date of Birth\", \"rules\": { \"required\": true }, \"type\": \"date\", \"disabled\": true, \"visibility\": true }, { \"name\": \"aadhaar\", \"placeholder\": \"Aadhar Number\", \"type\": \"text\", \"rules\": { \"required\": true, \"minLength\": 12 }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 12 }, \"visibility\": true }, { \"name\": \"mobileNo\", \"placeholder\": \"Mobile Number\", \"rules\": { \"required\": true, \"length\": 10 }, \"disabled\": true, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"residenceStatus\", \"placeholder\": \"Residence Status\", \"type\": \"select\", \"visibility\": true, \"options\": [{ \"name\": \"Resident\", \"value\": \"Resident\" }, { \"name\": \"Resident and Ordinarily Resident\", \"value\": \"Resident and Ordinarily Resident\" }, { \"name\": \"Resident but Not Ordinarily Resident\", \"value\": \"Resident but Not Ordinarily Resident\" }, { \"name\": \"Non-Resident\", \"value\": \"Non-Resident\" }] }, { \"name\": \"email\", \"placeholder\": \"Email ID\", \"rules\": { \"required\": true, \"email\": true }, \"disabled\": false, \"type\": \"text\", \"visibility\": true }, { \"name\": \"countryResidence\", \"placeholder\": \"Country of Residence\", \"type\": \"select\", \"visibility\": true, \"options\": [{ \"name\": \"India\", \"value\": \"India\" }, { \"name\": \"Other\", \"value\": \"Other\" }] }] }, \"address-details\": { \"label\": \"Address Details\", \"data\": [{ \"name\": \"address1\", \"placeholder\": \"Address Line 1\", \"rules\": { \"required\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"address2\", \"placeholder\": \"Address Line 2\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"address3\", \"placeholder\": \"Address Line 3\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"address4\", \"placeholder\": \"District\", \"type\": \"text\", \"visibility\": true }, { \"name\": \"pinCode\", \"placeholder\": \"Pin Code\", \"rules\": { \"required\": true, \"length\": 6 }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 6 }, \"makeApiCall\": 6, \"type\": \"pincode\", \"valueForFields\": [ [\"city\", \"district\"], [\"state\", \"state\"] ], \"visibility\": true }, { \"name\": \"city\", \"placeholder\": \"City\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true }, { \"name\": \"state\", \"placeholder\": \"State\", \"rules\": { \"required\": true }, \"mask\": { \"AlphaCharOnly\": true }, \"type\": \"text\", \"visibility\": true }] } } }, { \"name\": \"Guarantor Income Details\", \"id\": \"guarantor-income-details\", \"fields\": { \"salary-details\": { \"label\": \"Salary Details\", \"data\": [{ \"name\": \"grossIncome\", \"placeholder\": \"Gross Total Income (as per the latest ITR slip)\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 7 }, \"visibility\": true }, { \"name\": \"netMonthlyIncome\", \"placeholder\": \"Net Monthly Income (as per the latest Salary slip)\", \"type\": \"text\", \"rules\": { \"required\": true }, \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 6 }, \"visibility\": true }] }, \"emi-details\": { \"label\": \"EMI Details\", \"data\": [{ \"name\": \"existing_auto_loan\", \"placeholder\": \"Auto Loan Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"auto_loan_bank_name\" }, { \"name\": \"existing_personal_loan\", \"placeholder\": \"Personal Loan Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"personal_loan_bank_name\" }, { \"name\": \"existing_lap_loan\", \"placeholder\": \"LAP Amount\", \"type\": \"text\", \"mask\": { \"NumberOnly\": true, \"CharacterLimit\": 10 }, \"visibility\": true, \"option\": [], \"inrupees\": true, \"subFieldName\": \"lap_loan_bank_name\" }] } } }, { \"name\": \"Guarantor Document Upload\", \"id\": \"guarantor-document-upload\", \"actions\": { \"cub-statement\": { \"show\": true, \"required\": true }, \"other-bank-statement\": { \"show\": true, \"required\": false }, \"itr-fetch\": { \"show\": true, \"required\": false }, \"cibil-fetch\": { \"show\": true, \"required\": true }, \"agreement\": { \"show\": true, \"required\": true } } }] } ], \"error\": { \"message\": \"The application is currently for individuals only. Please contact your branch for processing your application\", \"button\": { \"header\": \"<b>Become a customer with </b><a href=link>City Union Bank</a>\", \"link\": \"www.google.com\", \"message\": \"Click here to complete your e-kyc\" } } }"
 }
