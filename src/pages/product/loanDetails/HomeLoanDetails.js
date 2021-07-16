@@ -135,7 +135,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
         </FlexColom>
       </FormWrapper>
 
-      {map.fields["loan-details"].message && (
+      {map.fields[id].message && (
         <Caption>{map.fields["loan-details"].message}</Caption>
       )}
 
