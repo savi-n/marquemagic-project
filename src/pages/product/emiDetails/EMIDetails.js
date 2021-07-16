@@ -97,10 +97,10 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, {
+    const emiData = formatEmiData(data, [
       ...map.fields[id].data,
       ...additionalField,
-    });
+    ]);
 
     setUsertypeEmiData(emiData);
     setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
@@ -115,7 +115,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
 
   const onAdd = () => {
     const newField = {
-      ...fieldConfig.emi_details.data[0],
+      ...map.fields[id].data[0],
       name: `addDed_${additionalField.length + 1}`,
       placeholder: "Additional Deductions/repayment",
     };
@@ -129,7 +129,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={{ ...map.fields[id].data, ...additionalField }}
+        jsonData={[...map.fields[id].data, ...additionalField]}
         label={map.fields[id].label}
         // {[...fieldConfig.emi_details.data, ...additionalField]}
       />
