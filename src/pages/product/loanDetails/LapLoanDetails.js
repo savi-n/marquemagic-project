@@ -5,7 +5,7 @@ import { func, object, oneOfType, string } from "prop-types";
 import useForm from "../../../hooks/useForm";
 import Button from "../../../components/Button";
 import HomeLoanAddressDetails from "../../../shared/components/AddressDetails/HomeLoanAddress";
-import HomeLoanDetailsTable from "../../../shared/components/LoanDetails/HomeLoanDetailsTable";
+import EMIDetails from "../../../shared/components/EMIDetails/EMIDetails";
 import UploadAgreementModal from "../../../components/UploadAgreementModal";
 import LoanDetails from "../../../shared/components/LoanDetails/LoanDetails";
 import { FormContext } from "../../../reducer/formReducer";
@@ -44,6 +44,36 @@ const FlexColom = styled.div`
   flex-basis: ${({ base }) => (base ? base : "100%")};
 `;
 
+const RoundButton = styled.button`
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 17px;
+  /* font-weight: 700; */
+  background: ${({ theme }) => theme.buttonColor2};
+  margin-right: 10px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  margin: 20px 0;
+  align-items: center;
+`;
+
+const formatEmiData = (formData, fields) => {
+  return fields
+    .map((f) => ({
+      type: f.name,
+      amount: formData[f.name],
+      bank: formData[`${f.name}_bank_name`]?.name,
+    }))
+    .filter((f) => f.bank);
+};
+
 HomeLoanDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
@@ -58,7 +88,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   const {
     actions: {
       setUsertypeLoanData,
-      // setUsertypeEmiData,
+      setUsertypeEmiData,
       setUsertypeBankData,
       setUsertypeAgreementData,
     },
@@ -82,10 +112,14 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
   };
 
   const onSave = (data) => {
-    // const emiData = formatEmiData(data, map.fields["emi-details"].data);
+    const emiData = formatEmiData(data, [
+      ...map.fields["emi-details"].data,
+      ...additionalField,
+    ]);
+
     const loanData = formatLoanData(data, map.fields[id].data);
 
-    // setUsertypeEmiData(emiData);
+    setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: bankId,
       branchId: data.branchId.value,
@@ -109,6 +143,17 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
       [name]: files,
     }));
     setUploadAgreementModal(false);
+  };
+
+  const [additionalField, setAdditionalField] = useState([]);
+
+  const onAdd = () => {
+    const newField = {
+      ...map.fields[id].data[0],
+      name: `addDed_${additionalField.length + 1}`,
+      placeholder: "Additional Deductions/repayment",
+    };
+    setAdditionalField([...additionalField, newField]);
   };
 
   return (
@@ -135,11 +180,17 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
         </FlexColom>
       </FormWrapper>
 
-      {map.fields[id].message && (
+      {map.fields[id]?.message && (
         <Caption>{map.fields["loan-details"].message}</Caption>
       )}
 
-      <HomeLoanDetailsTable />
+      <EMIDetails
+        register={register}
+        formState={formState}
+        jsonData={[...map.fields["emi-details"].data, ...additionalField]}
+        label={map.fields["emi-details"].label}
+      />
+
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
@@ -152,6 +203,10 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
           name={uploadAgreementName}
         />
       )}
+      <Wrapper>
+        <RoundButton onClick={onAdd}>+</RoundButton> click to add additional
+        deductions/repayment obligations
+      </Wrapper>
     </Div>
   );
 }

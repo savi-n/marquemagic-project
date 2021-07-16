@@ -2,6 +2,7 @@ import { ENDPOINT_BANK } from "../_config/app.config";
 const BANK_FLOW = {
   sbi: [
     {
+      captchaGet: `${ENDPOINT_BANK}/spGetCaptcha`,
       fields: [
         {
           name: "userId",
@@ -22,7 +23,6 @@ const BANK_FLOW = {
           type: "captcha",
           name: "captcha",
           placeholder: "Captcha",
-          captchaGet: `${ENDPOINT_BANK}/spGetCaptcha`,
           rules: {
             required: true,
           },

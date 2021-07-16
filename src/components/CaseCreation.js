@@ -66,7 +66,7 @@ export default function useCaseCreation(userType, productId, role) {
 
   // step 2: upload docs reference
   const updateDocumentList = async (loanId, directorId, user) => {
-    if (!state[user]?.uploadedDocs.length) {
+    if (!state[user]?.uploadedDocs?.length) {
       return true;
     }
 
@@ -231,12 +231,14 @@ export default function useCaseCreation(userType, productId, role) {
       );
 
       await updateDocumentList(loan.loanId, loan.directorId, USER_ROLES[role]);
-      await updateRefernceToSails(
-        loan.loanId,
-        loan.directorId,
-        userToken,
-        requestId
-      );
+      if (requestId.length) {
+        await updateRefernceToSails(
+          loan.loanId,
+          loan.directorId,
+          userToken,
+          requestId
+        );
+      }
       setProcessing(false);
 
       return true;
@@ -279,9 +281,9 @@ export default function useCaseCreation(userType, productId, role) {
           ...(state[USER_ROLES[role]]?.cubStatement?.requestId
             ? [state[USER_ROLES[role]]?.cubStatement?.requestId]
             : []),
-          //   ...(otherUserTypeCibilDetails?.requestId
-          //     ? otherUserTypeCibilDetails?.requestId
-          //     : []),
+          ...(state[USER_ROLES[role]]?.cibilData?.requestId
+            ? state[USER_ROLES[role]]?.cibilData?.requestId
+            : []),
         ]
       );
 
@@ -309,7 +311,6 @@ export default function useCaseCreation(userType, productId, role) {
           ...(state[role]?.cibilData?.requestId
             ? state[role]?.cibilData?.requestId
             : []),
-          state[role]?.cubStatement?.requestId,
           ...(state[role].cubStatement?.requestId
             ? [state[role].cubStatement?.requestId]
             : []),

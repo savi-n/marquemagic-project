@@ -45,6 +45,8 @@ const EmiDetails = lazy(() => import("./emiDetails/EMIDetails"));
 
 const FormDefaultPage = lazy(() => import("./formPage/FormController"));
 
+const LapLoanDetails = lazy(() => import("./loanDetails/LapLoanDetails.js"));
+
 const availableRoutes = {
   "product-details": { Component: ProductDetails },
   "identity-verification": { Component: IdentityVerification },
@@ -65,7 +67,7 @@ const availableRoutes = {
     Component: FourWheelerLoanDetails,
   },
   "home-loan-details": { protected: true, Component: HomeLoanDetails },
-  "lap-loan-details": { protected: true, Component: HomeLoanDetails },
+  "lap-loan-details": { protected: true, Component: LapLoanDetails },
   "co-applicant-details": {
     protected: true,
     Component: userType("Co-applicant", CoApplicantDetails),
@@ -96,11 +98,11 @@ const availableRoutes = {
   },
 };
 
-const fieldConfig = {
-  "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
-  "4 wheeler": require("../../shared/constants/fourWheelerFields.json"),
-  "Home Loan": require("../../shared/constants/homeFields.json"),
-};
+// const fieldConfig = {
+//   "2 wheeler": require("../../shared/constants/twoWheelerFields.json"),
+//   "4 wheeler": require("../../shared/constants/fourWheelerFields.json"),
+//   "Home Loan": require("../../shared/constants/homeFields.json"),
+// };
 
 export default function Router({
   currentFlow,
@@ -121,7 +123,7 @@ export default function Router({
     <Suspense fallback={<Loading />}>
       <component.Component
         productDetails={productDetails}
-        fieldConfig={fieldConfig[productDetails.loanType]}
+        // fieldConfig={fieldConfig[productDetails.loanType]}
         onFlowChange={onFlowChange}
         map={map}
         id={currentFlow}

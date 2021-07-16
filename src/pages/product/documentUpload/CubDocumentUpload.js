@@ -16,6 +16,7 @@ import {
   // NC_STATUS_CODE,
   USER_ROLES,
   DOCTYPES_FETCH,
+  PINCODE_ADRRESS_FETCH,
 } from "../../../_config/app.config";
 import { DOCUMENTS_TYPE } from "../../../_config/key.config";
 import BankStatementModal from "../../../components/BankStatementModal";
@@ -133,7 +134,7 @@ export default function DocumentUpload({
   // } = useContext(AppContext);
 
   const {
-    state: { userId, userToken },
+    state: { userId, userToken, userBankDetails },
   } = useContext(UserContext);
 
   const {
@@ -162,13 +163,18 @@ export default function DocumentUpload({
   //   actions: { setCase },
   // } = useContext(CaseContext);
 
-  // const { newRequest } = useFetch();
-
-  const { response } = useFetch({
+  const { response, newRequest } = useFetch({
     url: DOCTYPES_FETCH,
     options: {
       method: "POST",
-      data: { business_type: 7, loan_product: productId },
+      data: {
+        business_type:
+          state[USER_ROLES[userType || "User"]]?.applicantData?.incomeType ===
+          "salaried"
+            ? 1
+            : 7,
+        loan_product: productId,
+      },
     },
     headers: {
       Authorization: `Bearer ${userToken}`,
@@ -536,6 +542,8 @@ export default function DocumentUpload({
     setOtherBankStatementModal(!otherBankStatementModal);
   };
 
+  const [saved, setSaved] = useState(false);
+
   const onSave = () => {
     if (buttonDisabledStatus()) {
       return;
@@ -546,10 +554,15 @@ export default function DocumentUpload({
       otherCUBStatementUserTypeDetails,
       USER_ROLES[userType || "User"]
     );
+    setSaved(true);
+    addToast({
+      message: "Saved Succesfully",
+      type: "success",
+    });
 
-    setCompleted(id);
-    setCompleted(map.mainPageId);
-    onFlowChange(map.main);
+    // setCompleted(id);
+    // setCompleted(map.mainPageId);
+    // onFlowChange(map.main);
   };
 
   // const onSubmitGuarantor = async () => {
@@ -611,8 +624,34 @@ export default function DocumentUpload({
     const res = await caseCreationUserType();
     if (res) {
       activateSubFlow(id);
-      onFlowChange(map.sub);
+      onFlowChange(map.hidden);
     }
+  };
+
+  const [userAddress, setUserAddress] = useState();
+
+  useEffect(() => {
+    if (!userType) {
+      getAddressDetails();
+    }
+  }, [userType]);
+
+  const getAddressDetails = async () => {
+    const response = await newRequest(
+      PINCODE_ADRRESS_FETCH({ pinCode: userBankDetails?.pin || "" }),
+      {}
+    );
+    const data = response.data;
+
+    setUserAddress({
+      address1: userBankDetails?.address1 || "",
+      address2: userBankDetails?.address2 || "",
+      address3: userBankDetails?.address3 || "",
+      address4: userBankDetails?.address4 || "",
+      city: data?.district[0] || "",
+      state: data?.state[0] || "",
+      pinCode: userBankDetails?.pin || "",
+    });
   };
 
   return (
@@ -751,7 +790,7 @@ export default function DocumentUpload({
                 width="auto"
                 fill
                 name="Add"
-                // disabled={buttonDisabledStatus}
+                disabled={!saved}
                 onClick={subFlowActivate}
               />
             </DivWrap>
@@ -801,7 +840,12 @@ export default function DocumentUpload({
       {cibilCheckbox && cibilCheckModal && (
         <GetCIBILScoreModal
           userData={{
-            ...state[USER_ROLES[userType || "User"]]?.applicantData,
+            ...{
+              ...state[USER_ROLES[userType || "User"]]?.applicantData,
+              ...(!userType && {
+                address: [userAddress],
+              }),
+            },
             ...state[USER_ROLES[userType || "User"]]?.loanData,
           }}
           onClose={onCibilModalClose}

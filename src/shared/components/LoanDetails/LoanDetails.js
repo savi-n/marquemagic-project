@@ -12,6 +12,7 @@ import {
 } from "../../../_config/app.config";
 
 const H = styled.h1`
+  min-height: 1.5em;
   font-size: 1.5em;
   font-weight: 500;
   span {
@@ -225,7 +226,7 @@ export default function LoanDetails({
   return (
     <>
       <H>
-        {(userType && label) || "Help us with "} <span>{label}</span>
+        {label?.trim() ? "Help us with " : ""} <span>{label}</span>
       </H>
       <FormWrap>
         <Colom>
