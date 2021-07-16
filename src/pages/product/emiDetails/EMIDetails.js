@@ -97,7 +97,10 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
   };
 
   const onSave = (data) => {
-    const emiData = formatEmiData(data, map.fields[id].data);
+    const emiData = formatEmiData(data, {
+      ...map.fields[id].data,
+      ...additionalField,
+    });
 
     setUsertypeEmiData(emiData);
     setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
@@ -108,16 +111,16 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
     });
   };
 
-  // const [additionalField, setAdditionalField] = useState([]);
+  const [additionalField, setAdditionalField] = useState([]);
 
-  // const onAdd = () => {
-  //   const newField = {
-  //     ...fieldConfig.emi_details.data[0],
-  //     name: `addDed_${additionalField.length + 1}`,
-  //     placeholder: "Additional Deductions/repayment",
-  //   };
-  //   setAdditionalField([...additionalField, newField]);
-  // };
+  const onAdd = () => {
+    const newField = {
+      ...fieldConfig.emi_details.data[0],
+      name: `addDed_${additionalField.length + 1}`,
+      placeholder: "Additional Deductions/repayment",
+    };
+    setAdditionalField([...additionalField, newField]);
+  };
 
   const skipButton = map.fields[id].data.some((f) => f?.rules?.required);
 
@@ -126,15 +129,15 @@ export default function EMIDetailsPage({ id, onFlowChange, map, fieldConfig }) {
       <EMIDetails
         register={register}
         formState={formState}
-        jsonData={map.fields[id].data}
+        jsonData={{ ...map.fields[id].data, ...additionalField }}
         label={map.fields[id].label}
         // {[...fieldConfig.emi_details.data, ...additionalField]}
       />
 
-      {/* <Wrapper>
+      <Wrapper>
         <RoundButton onClick={onAdd}>+</RoundButton> click to add additional
         deductions/repayment obligations
-      </Wrapper> */}
+      </Wrapper>
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />

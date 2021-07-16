@@ -167,7 +167,14 @@ export default function DocumentUpload({
     url: DOCTYPES_FETCH,
     options: {
       method: "POST",
-      data: { business_type: 7, loan_product: productId },
+      data: {
+        business_type:
+          state[USER_ROLES[userType || "User"]]?.applicantData?.incomeType ===
+          "salaried"
+            ? 1
+            : 7,
+        loan_product: productId,
+      },
     },
     headers: {
       Authorization: `Bearer ${userToken}`,
