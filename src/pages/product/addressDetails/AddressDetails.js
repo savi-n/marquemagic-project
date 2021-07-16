@@ -54,7 +54,6 @@ AddressDetailsPage.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  fieldConfig: object,
 };
 
 export default function AddressDetailsPage({
@@ -62,7 +61,6 @@ export default function AddressDetailsPage({
   onFlowChange,
   map,
   productId,
-  fieldConfig,
 }) {
   const {
     actions: { setCompleted, activateSubFlow },
