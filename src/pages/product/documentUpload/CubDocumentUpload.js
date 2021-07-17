@@ -783,7 +783,7 @@ export default function DocumentUpload({
             </>
           )} */}
 
-          {userType === "Co-applicant" && (
+          {userType === "Co-applicant" && map.hidden && (
             <DivWrap>
               <Question>Gurantor?</Question>
               <Button
