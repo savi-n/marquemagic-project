@@ -171,8 +171,8 @@ export default function DocumentUpload({
         business_type:
           state[USER_ROLES[userType || "User"]]?.applicantData?.incomeType ===
           "salaried"
-            ? 1
-            : 7,
+            ? 7
+            : 1,
         loan_product: productId,
       },
     },
