@@ -30,7 +30,7 @@ export default function SharedCAT({
 	const [users, setUsers] = useState(null);
 	useEffect(() => {
 		getUsersList().then(res => {
-			setUsers(res.data.userList);
+			setUsers(res);
 		});
 	}, []);
 
@@ -272,12 +272,10 @@ export default function SharedCAT({
 		if (a) return a[0]?.message;
 	};
 
-	getRecom(item.remarks);
-
 	const recommendation = () => (
 		<section className='rounded-md flex flex-col gap-y-4 z-20 bg-white pl-10 w-full'>
 			<section className='flex flex-col items-end pl-12 gap-y-2 w-full'>
-				<span className='text-sm text-start w-full'>Recommended by: {}</span>
+				<span className='text-sm text-start w-full'>Recommended by: {item.assignmentLog?.userData?.name}</span>
 				{getRecom(item.remarks) && (
 					<textarea
 						className='resize-none rounded-lg w-full m-2 border border-silver-500 focus:outline-none p-2 text-sm'
@@ -307,7 +305,8 @@ export default function SharedCAT({
 					onClick={() => {
 						reassignLoan(
 							item.id,
-							lActive === 'Pending Applications' ? 'NC In-Progress' : 'In-Progress At AO'
+							lActive === 'Pending Applications' ? 'NC In-Progress' : 'In-Progress At AO',
+							commen
 						);
 						getCLicker(null);
 					}}
