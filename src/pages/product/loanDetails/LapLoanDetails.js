@@ -184,12 +184,23 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
         <Caption>{map.fields["loan-details"].message}</Caption>
       )}
 
-      <EMIDetails
-        register={register}
-        formState={formState}
-        jsonData={[...map.fields["emi-details"].data, ...additionalField]}
-        label={map.fields["emi-details"].label}
-      />
+      {map.fields["emi-details"]?.data && (
+        <>
+          <EMIDetails
+            register={register}
+            formState={formState}
+            jsonData={[
+              ...(map.fields["emi-details"]?.data || []),
+              ...additionalField,
+            ]}
+            label={map.fields["emi-details"]?.label}
+          />
+          <Wrapper>
+            <RoundButton onClick={onAdd}>+</RoundButton> click to add additional
+            deductions/repayment obligations
+          </Wrapper>
+        </>
+      )}
 
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
@@ -203,10 +214,6 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
           name={uploadAgreementName}
         />
       )}
-      <Wrapper>
-        <RoundButton onClick={onAdd}>+</RoundButton> click to add additional
-        deductions/repayment obligations
-      </Wrapper>
     </Div>
   );
 }
