@@ -458,7 +458,7 @@ export default function DocumentUpload({
       const res = await caseCreationUserType();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.main);
+        onFlowChange(map.sub);
       }
       setProceed(false);
     }
