@@ -224,8 +224,8 @@ export default function CheckApplication(props) {
 												fields.map(
 													(i, idx) =>
 														i &&
-														idx > 0 &&
-														idx < 8 && (
+														idx > 1 &&
+														idx < 7 && (
 															<section className='flex flex-col gap-y-4 gap-x-20'>
 																<p className='text-blue-700 font-medium text-xl pb-8'>
 																	{i.name}
