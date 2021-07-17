@@ -59,7 +59,7 @@ CoapplicantDetails.propTypes = {
   onFlowChange: func.isRequired,
   map: oneOfType([string, object]),
   id: string,
-  userType: oneOf(["Co-Applicant", "Gurantor"]),
+  userType: oneOf(["Co-Applicant", "Guarantor"]),
 };
 
 export default function CoapplicantDetails({
@@ -82,9 +82,9 @@ export default function CoapplicantDetails({
 
   const [match, setMatch] = useState(false);
   const { processing, caseCreationUserType } = useCaseCreation(
-    "Co-applicant",
+    userType,
     productId,
-    "Co-applicant"
+    userType
   );
 
   const saveData = (formData) => {
@@ -140,7 +140,7 @@ export default function CoapplicantDetails({
   const onProceed = async (data) => {
     saveData(data);
 
-    if (userType === "Gurantor") {
+    if (userType === "Guarantor") {
       setProceed(true);
     } else {
       setCompleted(id);

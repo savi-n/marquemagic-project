@@ -23,9 +23,10 @@ const Label = styled.label`
   left: 2%;
   font-size: 10px;
   color: black;
-  height: 20%;
+  /* height: 20%; */
   padding: 0 5px;
   width: inherit;
+  max-width: 85%;
 
   ${({ disabled }) =>
     disabled &&
@@ -36,6 +37,14 @@ const Label = styled.label`
 
 const Asteris = styled.span`
   color: red;
+`;
+
+const Span = styled.span`
+  max-width: 100%;
+  max-height: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export default function SelectField(props) {
@@ -52,7 +61,7 @@ export default function SelectField(props) {
         ))}
       </Select>
       <Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
-        <span>{props.placeholder}</span>
+        <Span>{props.placeholder}</Span>
         {props.rules?.required && !props.disabled && <Asteris>*</Asteris>}
       </Label>
     </Div>
