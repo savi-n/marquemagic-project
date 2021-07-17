@@ -128,6 +128,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
         jsonData={map.fields["salary-details"].data}
         register={register}
         formState={formState}
+        incomeType={formState?.values?.incomeType || null}
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />

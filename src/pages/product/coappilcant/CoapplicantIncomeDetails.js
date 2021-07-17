@@ -52,6 +52,7 @@ export default function CoapplicantIncomeDetails({
   } = useContext(FlowContext);
 
   const {
+    state,
     actions: { setUsertypeSalaryData, setUsertypeEmiData },
   } = useContext(FormContext);
 
@@ -86,6 +87,7 @@ export default function CoapplicantIncomeDetails({
         register={register}
         formState={formState}
         jsonData={map.fields["salary-details"].data}
+        incomeType={state[userType]?.applicantData.incomeType || null}
         size="40%"
       />
       <EMIDetails

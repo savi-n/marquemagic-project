@@ -26,7 +26,7 @@ const Label = styled.label`
     left: 2%;
     font-size: 10px;
     color: black;
-    /* height: 20%; */
+    height: auto;
     padding: 0 2px;
     line-height: 1;
     width: inherit;
