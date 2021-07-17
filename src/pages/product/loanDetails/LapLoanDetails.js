@@ -113,7 +113,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
   const onSave = (data) => {
     const emiData = formatEmiData(data, [
-      ...map.fields["emi-details"].data,
+        ...map.fields["emi-details"]?.data||[,
       ...additionalField,
     ]);
 
