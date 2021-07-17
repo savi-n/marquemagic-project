@@ -16,7 +16,9 @@ import {
 	faFolderOpen,
 	faAddressCard,
 	faHistory,
-	faCampground
+	faCampground,
+	faCheck,
+	faAngleRight
 } from '@fortawesome/free-solid-svg-icons';
 import SharedCAT from '../../components/sharedCAT';
 import { getLoanDetails, loanDocMapping, getUsersList, getLoan } from '../../utils/requests';
@@ -50,18 +52,11 @@ export default function CardDetails({
 	const [AR, setAR] = useState(false);
 	const [approvalHistory, setApprovalHistory] = useState(false);
 	const [reasonForRejection, setReasonforRejection] = useState(false);
+	const [arrow, setArrow] = useState(true);
 
 	const cibilPercentage = cibil => {
 		return Math.floor((Number(cibil) / 900) * 100);
 	};
-
-	const [userList, setUserList] = useState(null);
-
-	// useEffect(() => {
-	// 	getUsersList().then(res => {
-	// 		setUserList(res.data.userList);
-	// 	});
-	// }, [userList]);
 
 	const mapper = {
 		'Pending Applications': ['Upload', 'Reassign', 'Recommendation'],
@@ -75,7 +70,7 @@ export default function CardDetails({
 	const iconMapper = {
 		Upload: faUpload,
 		Reassign: faUser,
-		Recommendation: faEnvelopeOpenText,
+		Recommendation: faCheck,
 		Download: faDownload,
 		Queries: faInfo,
 		Status: faPlayCircle,
@@ -94,7 +89,7 @@ export default function CardDetails({
 		],
 		'In-Progress@NC': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Pre-Eligibility', 'Branch Notes'] }
+			{ data: ['Pre-Eligibility', 'Compliance'] }
 		],
 		'Branch Review': [
 			{ data: ['Check Application', 'Check Documents'] },
@@ -102,11 +97,11 @@ export default function CardDetails({
 		],
 		'In-Progress@AO': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Branch Notes'] }
+			{ data: ['Eligibility Data', 'Compliance'] }
 		],
 		Sanctioned: [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Sanction details', 'Branch Notes'] }
+			{ data: ['Eligibility Data', 'Sanction details', 'Compliance'] }
 		],
 		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Data'] }]
 	};
@@ -184,8 +179,8 @@ export default function CardDetails({
 											width='fulll'
 											onClick={() => {
 												setProductId && setProductId(item.loan_product_id);
-												item.assignmentLog
-													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
+												item.remarks
+													? setAssignmentLog && setAssignmentLog(item.remarks)
 													: setAssignmentLog && setAssignmentLog(null);
 												setViewLoan(true);
 												setProduct(item.product);
@@ -229,8 +224,8 @@ export default function CardDetails({
 											onClick={() => {
 												setProduct && setProduct(item.product);
 												setProductId && setProductId(item.loan_product_id);
-												item.assignmentLog
-													? setAssignmentLog && setAssignmentLog(item.assignmentLog)
+												item.remarks
+													? setAssignmentLog && setAssignmentLog(item.remarks)
 													: setAssignmentLog && setAssignmentLog(null);
 												setViewLoan && setViewLoan(true);
 												setId && setId(item.id);
@@ -252,23 +247,33 @@ export default function CardDetails({
 					</section>
 					<hr />
 					<section className='flex justify-between'>
-						<section className='flex flex-col text-xs'>
-							<small>
-								Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
-							</small>
-							<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
-							{userList && item.assignmentLog && (
-								<small>
-									{console.log(userList)}
-									Assigned To:
-									{
-										usersList.filter(
-											e => e.id === JSON.parse(item.assignmentLog.remarks).assignedTo
-										)[0]?.name
-									}
-								</small>
-							)}
-						</section>
+						{arrow ? (
+							<section
+								className='border border-blue-600 rounded-full p-2 w-8 h-8 items-center justify-center flex hover:bg-blue-600 hover:text-white cursor-pointer'
+								onClick={() => setArrow(false)}
+							>
+								<FontAwesomeIcon size='1x' icon={faAngleRight} />
+							</section>
+						) : (
+							<>
+								<section className='flex flex-col text-xs'>
+									<small>
+										Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
+									</small>
+									<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
+									{usersList && item.assignmentLog && (
+										<small>
+											Assigned To:{' '}
+											{
+												usersList.filter(
+													e => e.id === JSON.parse(item?.assignmentLog?.remarks).assignedTo
+												)[0]?.name
+											}
+										</small>
+									)}
+								</section>
+							</>
+						)}
 						<section className='flex gap-x-4'>
 							{label &&
 								getMapper(label).map(e => (

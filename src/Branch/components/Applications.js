@@ -177,6 +177,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 									setAssignmentLog={setAssignmentLog}
 									submitCase={submitCase}
 									setProductId={setProductId}
+									usersList={usersList}
 								/>
 						  ))
 						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}
@@ -187,7 +188,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 	) : (
 		<CheckApplication
 			setViewLoan={setViewLoan}
-			usersList={usersList && usersList}
+			usersList={usersList}
 			assignmentLog={assignmentLog}
 			product={product && product}
 			id={id && id}
