@@ -173,8 +173,9 @@ export default function AddressDetailsPage({
           onClick={handleSubmit(onSave)}
           disabled={processing}
         />
-        {map.sub && (
-          <UserAddButton>
+
+        <UserAddButton>
+          {map.sub && (
             <DivWrap>
               <Question>Co-Applicants?</Question>
               <Button
@@ -185,6 +186,8 @@ export default function AddressDetailsPage({
                 onClick={subFlowActivate}
               />
             </DivWrap>
+          )}
+          {map.hidden && (
             <DivWrap>
               <Question>Guarantor?</Question>
               <Button
@@ -195,8 +198,8 @@ export default function AddressDetailsPage({
                 onClick={subHiddenActivate}
               />
             </DivWrap>
-          </UserAddButton>
-        )}
+          )}
+        </UserAddButton>
       </ButtonWrap>
       {processing && (
         <Modal show={true} onClose={() => {}} width="50%">
