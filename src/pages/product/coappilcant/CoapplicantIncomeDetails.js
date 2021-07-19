@@ -9,7 +9,6 @@ import SalaryDetails from "../../../shared/components/SalaryDetails/SalaryDetail
 import { FormContext } from "../../../reducer/formReducer";
 import { FlowContext } from "../../../reducer/flowReducer";
 import { USER_ROLES } from "../../../_config/app.config";
-import { formatLoanData } from "../../../utils/formatData";
 import { useToasts } from "../../../components/Toast/ToastProvider";
 
 const ButtonWrap = styled.div`
@@ -33,6 +32,14 @@ const formatEmiData = (formData, fields) => {
     }))
     .filter((f) => f.bank);
 };
+
+function formatSalaryData(data, fields) {
+  let formatedData = {};
+  fields.forEach((f) => {
+    formatedData[f.name] = data[f.name] || "0";
+  });
+  return formatedData;
+}
 
 CoapplicantIncomeDetails.propTypes = {
   onFlowChange: func.isRequired,
@@ -61,7 +68,7 @@ export default function CoapplicantIncomeDetails({
 
   const onSave = (formData) => {
     const emiData = formatEmiData(formData, map.fields["emi-details"].data);
-    const salaryData = formatLoanData(
+    const salaryData = formatSalaryData(
       formData,
       map.fields["salary-details"].data
     );

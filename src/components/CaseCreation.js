@@ -223,7 +223,17 @@ export default function useCaseCreation(userType, productId, role) {
       const caseReq = await createCaseReq(
         {
           loan_ref_id: loan.loan_ref_id,
-          applicantData: state[USER_ROLES[role]].applicantData,
+          applicantData: {
+            ...state[USER_ROLES[role]].applicantData,
+            ...(state[USER_ROLES[role]]?.emi?.length
+              ? {
+                  emiDetails: state[USER_ROLES[role]]?.emi?.map((em) => ({
+                    emiAmount: em.amount,
+                    bank_name: em.bank,
+                  })),
+                }
+              : {}),
+          },
           ...state[USER_ROLES[role]].loanData,
           cibilScore: state[USER_ROLES[role]]?.cibilData?.cibilScore || "",
         },

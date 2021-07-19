@@ -47,7 +47,7 @@ const DivWrap = styled.div`
   align-items: center;
   gap: 20px;
   justify-content: space-between;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 `;
 
 const Question = styled.div`
