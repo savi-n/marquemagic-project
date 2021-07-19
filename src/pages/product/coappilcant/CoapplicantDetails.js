@@ -187,7 +187,7 @@ export default function CoapplicantDetails({
         {userType === "Co-applicant" && (
           <EligibiltiyWrapper>
             <Text>
-              Do you want to included the co-applicant's salary to included in
+              Do you want to include the co-applicant's salary to be included in
               the loan eligibility calculations?
             </Text>
             <ButtonWrap>
