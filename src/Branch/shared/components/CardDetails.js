@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	faUpload,
 	faUser,
-	faEnvelopeOpenText,
 	faDownload,
 	faInfo,
 	faPlayCircle,
@@ -222,24 +221,29 @@ export default function CardDetails({
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
-												setProduct && setProduct(item.product);
-												setProductId && setProductId(item.loan_product_id);
-												item.remarks
-													? setAssignmentLog && setAssignmentLog(item.remarks)
-													: setAssignmentLog && setAssignmentLog(null);
-												setViewLoan && setViewLoan(true);
-												setId && setId(item.id);
-												setActiv &&
-													setActiv(
-														e === 'Pre-Eligibility'
-															? 'Pre-Eligibility Details'
-															: e === 'Create Security'
-															? 'Security Details'
-															: e
-													);
+												if (e !== 'Compliance') {
+													setProduct && setProduct(item.product);
+													setProductId && setProductId(item.loan_product_id);
+													item.remarks
+														? setAssignmentLog && setAssignmentLog(item.remarks)
+														: setAssignmentLog && setAssignmentLog(null);
+													setViewLoan && setViewLoan(true);
+													setId && setId(item.id);
+													setActiv &&
+														setActiv(
+															e === 'Pre-Eligibility' && e !== 'Compliance'
+																? 'Pre-Eligibility Details'
+																: e === 'Create Security'
+																? 'Security Details'
+																: e !== 'Compliance' && e
+														);
+												} else {
+													getClicker('Comments');
+												}
 											}}
 										>
 											{e}
+											{console.log(e)}
 										</Button>
 								  ))
 								: null}
