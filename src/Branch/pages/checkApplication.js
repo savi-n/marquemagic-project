@@ -251,6 +251,13 @@ export default function CheckApplication(props) {
 																								}
 																							/>
 																						)}
+																						{i.name ===
+																							'Personal Details' &&
+																							data?.directors.map(
+																								el =>
+																									el.type ===
+																									'Applicant'
+																							)}
 																						{i.name === 'Loan Details' && (
 																							<input
 																								disabled={disabled}
