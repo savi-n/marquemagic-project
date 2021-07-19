@@ -357,7 +357,11 @@ function InputFieldRender({ field, onChange, value, unregister }) {
               {el.name.split("-")[0]}
             </label>
             <label className="p-2 border rounded-md w-full">
-              {el.name.split("-")[1]}
+              {/* {el.name.split("-")[1]} */}
+              {"*".repeat(el.name.split("-")[1].length - 4)}
+              {el.name
+                .split("-")[1]
+                .substring(el.name.split("-")[1].length - 4)}
             </label>
           </section>
         </section>

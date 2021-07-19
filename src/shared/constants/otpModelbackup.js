@@ -166,11 +166,11 @@ export default function OtpModal(props) {
     setLoading(false);
   };
 
-  // // development only
-  // useEffect(() => {
-  //   setOtp(otpT?.toString());
-  // }, [otpT]);
-  // // end Developement
+  // development only
+  useEffect(() => {
+    setOtp(otpT?.toString());
+  }, [otpT]);
+  // end Developement
 
   const handleResend = () => {
     resend({ mobileNo, customerId });
@@ -278,16 +278,26 @@ export default function OtpModal(props) {
             </>
           ) : (
             (accounts || customers) && (
-              <section className="flex flex-col w-full items-center gap-y-6">
-                <OTPHead>
-                  {customers && <>Please choose the Customer Id</>}
-                  {accounts && <>Please choose the Account</>}
-                </OTPHead>
+              <section className="flex flex-col items-center gap-y-6">
+                <OTPCaption>
+                  {customers && (
+                    <>
+                      Multiple customer id found. <br /> Please select a
+                      customer id you want to continue your application with
+                    </>
+                  )}
+                  {accounts && (
+                    <>
+                      Multiple accounts found. <br /> Please select the account
+                      you want to continue your application with
+                    </>
+                  )}
+                </OTPCaption>
                 <Field>
                   {register({
                     name: "account",
                     placeholder: selectPlaceholder(),
-                    type: "radio",
+                    type: "select",
                     options: selectCustomerOptions(),
                     value: formState?.values?.account,
                   })}

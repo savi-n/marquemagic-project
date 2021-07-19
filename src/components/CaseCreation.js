@@ -220,7 +220,7 @@ export default function useCaseCreation(userType, productId, role) {
     if (!loan) return false;
     try {
       setProcessing(true);
-      await createCaseReq(
+      const caseReq = await createCaseReq(
         {
           loan_ref_id: loan.loan_ref_id,
           applicantData: state[USER_ROLES[role]].applicantData,
@@ -230,11 +230,15 @@ export default function useCaseCreation(userType, productId, role) {
         CREATE_CASE_OTHER_USER
       );
 
-      await updateDocumentList(loan.loanId, loan.directorId, USER_ROLES[role]);
+      await updateDocumentList(
+        loan.loanId,
+        caseReq.directorId,
+        USER_ROLES[role]
+      );
       if (requestId.length) {
         await updateRefernceToSails(
           loan.loanId,
-          loan.directorId,
+          caseReq.directorId,
           userToken,
           requestId
         );
