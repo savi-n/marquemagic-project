@@ -150,6 +150,11 @@ export default function SharedCAT({
 				>
 					Reject
 				</Button>
+
+				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+					Cancel
+				</Button>
+				
 			</section>
 		</section>
 	);
