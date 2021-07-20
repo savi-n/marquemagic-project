@@ -144,7 +144,7 @@ export default function CoapplicantDetails({
       const res = await caseCreationUserType();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.sub);
+        onFlowChange(map.main);
       }
       setProceed(false);
     }
