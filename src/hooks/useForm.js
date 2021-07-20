@@ -106,7 +106,7 @@ function validate(rules, value) {
 const MASKS = {
   NumberOnly: (value) => value?.replace(/[^\d]+/g, "") || "",
   CharacterLimit: (value, n) => String(value).substring(0, n) || "",
-  AlphaCharOnly: (value) => value?.replace(/[^a-zA-Z]/g, "") || "",
+  AlphaCharOnly: (value) => value?.replace(/[^a-zA-Z ]/g, "") || "",
   AlphaNumericOnly: (value) => value?.replace(/[^a-zA-Z0-9]+$/i, ""),
 };
 

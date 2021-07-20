@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 import '../components/styles/index.scss';
 import { getLoanDetails, viewDocument, getLoan } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
@@ -8,6 +7,7 @@ import Button from '../shared/components/Button';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN } from '../../_config/app.config';
 
 export default function CheckApplication(props) {
 	const [fields, setFields] = useState(null);
@@ -224,11 +224,13 @@ export default function CheckApplication(props) {
 												fields.map(
 													(i, idx) =>
 														i &&
+														i.id !== 'guarantor-document-upload' &&
 														idx > 1 &&
 														idx < 7 && (
 															<section className='flex flex-col gap-y-4 gap-x-20'>
 																<p className='text-blue-700 font-medium text-xl pb-8'>
 																	{i.name}
+																	{console.log(i)}
 																</p>
 																{i.fields[(i?.id)]?.data.map(
 																	el =>
@@ -253,22 +255,69 @@ export default function CheckApplication(props) {
 																						)}
 																						{i.name ===
 																							'Personal Details' &&
-																							data?.directors.map(
-																								el =>
-																									el.type ===
-																									'Applicant'
+																							Object.keys(i.fields).map(
+																								j =>
+																									j.label ===
+																										'Personal Details' &&
+																									data?.directors.map(
+																										o =>
+																											o?.type_name ===
+																												'Applicant' &&
+																											j.data.map(
+																												g => (
+																													<input
+																														defaultValue={
+																															o[
+																																g
+																																	.db_name
+																															]
+																														}
+																													/>
+																												)
+																											)
+																									)
 																							)}
-																						{i.name === 'Loan Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={data?.loanFinancialDetails?.map(
-																									o =>
-																										o[el.db_name] ||
-																										'N/A'
-																								)}
-																							/>
-																						)}
+
+																						{i.name === 'Loan Details' &&
+																							data?.loanFinancialDetails?.map(
+																								o => (
+																									<>
+																										<input
+																											disabled={
+																												disabled
+																											}
+																											className='rounded-lg p-4 border w-1/3'
+																											defaultValue={
+																												o[
+																													el
+																														.db_name
+																												] ||
+																												'N/A'
+																											}
+																										/>
+																									</>
+																								)
+																							)}
+																						{i.name === 'Address Details' &&
+																							data?.business_id?.business_address.map(
+																								o => (
+																									<>
+																										<input
+																											disabled={
+																												disabled
+																											}
+																											className='rounded-lg p-4 border w-1/3'
+																											defaultValue={
+																												o[
+																													el
+																														.db_name
+																												] ||
+																												'N/A'
+																											}
+																										/>
+																									</>
+																								)
+																							)}
 
 																						{i.name === 'EMI Details' &&
 																							data?.loanFinancialDetails?.map(
@@ -589,7 +638,17 @@ export default function CheckApplication(props) {
 												<p className='text-blue-600 font-medium text-xl'>
 													Applicant Documents Uploaded
 												</p>
-												<FileUpload />
+												<FileUpload
+													accept=''
+													upload={{
+														url: DOCS_UPLOAD_URL_LOAN({
+															userId: data?.business_id?.userid
+														}),
+														header: {
+															Authorization: `Bearer ${localStorage.getItem('token')}`
+														}
+													}}
+												/>
 												<section className='flex gap-x-4'>
 													{d()[e] &&
 														d()[e].map((j, idx) => (

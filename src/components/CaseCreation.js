@@ -296,7 +296,7 @@ export default function useCaseCreation(userType, productId, role) {
             ? [state[USER_ROLES[role]]?.cubStatement?.requestId]
             : []),
           ...(state[USER_ROLES[role]]?.cibilData?.requestId
-            ? state[USER_ROLES[role]]?.cibilData?.requestId
+            ? [state[USER_ROLES[role]]?.cibilData?.requestId]
             : []),
         ]
       );
@@ -311,7 +311,7 @@ export default function useCaseCreation(userType, productId, role) {
       return true;
     } catch (err) {
       setProcessing(false);
-
+      console.log("APPLICANT CASE CREATION INIT ERRRO ==> ", err.message);
       return false;
     }
   }
@@ -323,7 +323,7 @@ export default function useCaseCreation(userType, productId, role) {
         role,
         [
           ...(state[role]?.cibilData?.requestId
-            ? state[role]?.cibilData?.requestId
+            ? [state[role]?.cibilData?.requestId]
             : []),
           ...(state[role].cubStatement?.requestId
             ? [state[role].cubStatement?.requestId]
@@ -336,6 +336,7 @@ export default function useCaseCreation(userType, productId, role) {
 
       return true;
     } catch (err) {
+      console.log("OTHER APPLICANT CASE CREATION INIT ERRRO ==> ", err.message);
       return false;
     }
   }
