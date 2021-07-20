@@ -99,7 +99,7 @@ export default function CoapplicantDetails({
     userType
   );
 
-  const [isEligibility, setEligibility] = useState(null);
+  const [isEligibility, setEligibility] = useState(false);
 
   const saveData = (formData) => {
     let formatedAddress = [
