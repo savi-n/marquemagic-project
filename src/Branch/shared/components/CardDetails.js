@@ -37,8 +37,12 @@ export default function CardDetails({
 	setAssignmentLog,
 	usersList,
 	submitCase,
-	setProductId
+	setProductId,
+	setItem
 }) {
+	useEffect(() => {
+		setItem(item);
+	}, []);
 	const [security, setSecurity] = useState(false);
 	const [recommendation, setRecommendation] = useState(false);
 	const [download, setDownload] = useState(false);

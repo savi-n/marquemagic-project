@@ -78,7 +78,7 @@ export default function SharedCAT({
 				<FileUpload
 					accept=''
 					upload={{
-						url: DOCS_UPLOAD_URL_LOAN({}),
+						url: DOCS_UPLOAD_URL_LOAN({ userid: item.createdUserId }),
 						header: {
 							Authorization: `Bearer ${localStorage.getItem('token')}`
 						}

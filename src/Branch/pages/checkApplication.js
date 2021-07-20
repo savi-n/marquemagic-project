@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import '../components/styles/index.scss';
-import { getLoanDetails, viewDocument, getLoan } from '../utils/requests';
+import { getLoanDetails, viewDocument, getLoan, docTypes, uploadDoc } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN } from '../../_config/app.config';
+import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_config/app.config';
+import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
 export default function CheckApplication(props) {
 	const [fields, setFields] = useState(null);
@@ -20,11 +21,15 @@ export default function CheckApplication(props) {
 	const getDocDetails = data => data.loan_document;
 	const getPreEligibleData = data => data.eligiblityData[0]?.pre_eligiblity;
 	const getEligibileData = data => data.eligiblityData;
+	const [docType, setDocTypes] = useState(null);
 
 	useEffect(() => {
 		setLoading(true);
 		getLoan(props.productId).then(res => {
 			res.length > 7 && setFields(res);
+		});
+		docTypes(props.productId, data?.business_id?.businesstype?.id).then(res => {
+			setDocTypes(res);
 		});
 		getLoanDetails(id).then(res => {
 			if (!data) setData(res);
@@ -179,6 +184,10 @@ export default function CheckApplication(props) {
 		}
 	};
 
+	const uploader = userid => {
+		uploadDoc(userid).then(res => {});
+	};
+
 	return (
 		<main>
 			{message && (
@@ -225,12 +234,12 @@ export default function CheckApplication(props) {
 													(i, idx) =>
 														i &&
 														i.id !== 'guarantor-document-upload' &&
+														i.id !== 'cub-document-upload' &&
 														idx > 1 &&
 														idx < 7 && (
 															<section className='flex flex-col gap-y-4 gap-x-20'>
 																<p className='text-blue-700 font-medium text-xl pb-8'>
 																	{i.name}
-																	{console.log(i)}
 																</p>
 																{i.fields[(i?.id)]?.data.map(
 																	el =>
@@ -634,7 +643,7 @@ export default function CheckApplication(props) {
 
 									{e === sec.sec_3 && (
 										<>
-											<section className='flex flex-col gap-y-5'>
+											<section className='flex flex-col gap-y-5 w-8/12'>
 												<p className='text-blue-600 font-medium text-xl'>
 													Applicant Documents Uploaded
 												</p>
@@ -642,7 +651,7 @@ export default function CheckApplication(props) {
 													accept=''
 													upload={{
 														url: DOCS_UPLOAD_URL_LOAN({
-															userId: data?.business_id?.userid
+															userid: data?.business_id?.userid
 														}),
 														header: {
 															Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -663,6 +672,25 @@ export default function CheckApplication(props) {
 														))}
 												</section>
 											</section>
+											{docType && (
+												<section className='absolute right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16'>
+													{Object.keys(docType).map(el => (
+														<section className='py-6'>
+															<p className='font-semibold'>{el}</p>
+															{docType[el].map(doc => (
+																<section>
+																	<CheckBox
+																		name={doc.name}
+																		round
+																		disabled
+																		bg='green'
+																	/>
+																</section>
+															))}
+														</section>
+													))}
+												</section>
+											)}
 											{coApplicant && (
 												<section className='flex flex-col gap-y-5'>
 													<p className='text-blue-600 font-medium text-xl'>
@@ -714,6 +742,24 @@ export default function CheckApplication(props) {
 																className='rounded-lg p-4 border'
 																disabled={disabled}
 																defaultValue={data.loan_price}
+															/>
+														</section>
+														<section className='flex space-evenly py-2 items-center'>
+															<label className='w-1/2'>DSCR</label>
+															<input
+																className='rounded-lg p-4 border'
+																disabled={disabled}
+																placeholder='DSCR'
+																defaultValue={Number(props.item.dscr).toFixed(2)}
+															/>
+														</section>
+														<section className='flex space-evenly py-2 items-center'>
+															<label className='w-1/2'>Tenure</label>
+															<input
+																className='rounded-lg p-4 border'
+																disabled={disabled}
+																placeholder='Tenure'
+																defaultValue={props.item.applied_tenure}
 															/>
 														</section>
 													</section>

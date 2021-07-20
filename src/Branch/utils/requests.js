@@ -173,3 +173,35 @@ export const searchData = async (caseData, token = localStorage.getItem('token')
 		return t.data.result ? t.data.result : t.data.message;
 	}
 };
+
+export const docTypes = async (loan_product, business_type, token = localStorage.getItem('token')) => {
+	const g = await axios.post(
+		`${API_END_POINT}/loan/documentTypes`,
+		{ loan_product, business_type },
+		{
+			headers: { Authorization: `Bearer ${token}` }
+		}
+	);
+	const t = await g;
+	console.log(t);
+	return t.data;
+};
+
+export const borrowerDocUpload = async (docArr, token = localStorage.getItem('token')) => {
+	const g = await axios.post(`${API_END_POINT}/borrowerdoc-uploadLoan`, docArr, {
+		headers: { Authorization: `Bearer ${token}` }
+	});
+	const t = await g;
+	console.log(t);
+};
+
+export const uploadDoc = async (userid, token = localStorage.getItem('token')) => {
+	const g = await axios.post(
+		`${API_END_POINT}/loanDocumentUpload`,
+		{ userid },
+		{ headers: { Authorization: `Bearer ${token}` } }
+	);
+
+	const t = await g;
+	console.log(t);
+};

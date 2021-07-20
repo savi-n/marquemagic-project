@@ -4,6 +4,7 @@ import Tabs from '../shared/components/Tabs';
 import Button from '../shared/components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { REDIRECT_CREATE } from '../../_config/app.config';
 
 export default function Header({ click, active }) {
 	const history = useHistory();
@@ -26,7 +27,7 @@ export default function Header({ click, active }) {
 					))}
 				</section>
 				<Button
-					onClick={() => (window.location.href = '/')}
+					onClick={() => (window.location.href = REDIRECT_CREATE)}
 					rounded='rfull'
 					type={active !== 'Home' ? 'blue-light' : 'white'}
 				>
