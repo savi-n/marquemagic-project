@@ -195,6 +195,7 @@ export default function OtpModal(props) {
 
     await submitOtp({
       customerId: selectedAccount,
+      ...(accountsDetails?.accNum && { accNum: accountsDetails?.accNum }),
       aadharNum: accountsDetails?.aadharNum || "",
     });
   };
@@ -220,6 +221,7 @@ export default function OtpModal(props) {
         name: `${a.accType} - ${"*".repeat(
           a.accNum.length - 4
         )}${a.accNum.substring(a.accNum.length - 4)}`,
+        customerId: a.customerId,
       }));
     }
 
@@ -227,6 +229,7 @@ export default function OtpModal(props) {
       return customers.map((a) => ({
         value: a.customerId,
         name: `${a.customerName} - ${a.customerId}`,
+        accNum: a.accNum,
         // `${"*".repeat(a.customerId.length - 4)}${a.customerId.substring(
         //   a.customerId.length - 4
         // )}`,
