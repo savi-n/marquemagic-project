@@ -3,7 +3,7 @@ import useFetch from '../../hooks/useFetch';
 import { UserContext } from '../../reducer/userReducer';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import Button from '../shared/components/Button';
-import { DOCS_UPLOAD_URL } from '../../_config/app.config';
+import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN } from '../../_config/app.config';
 import {
 	getUsersList,
 	reassignLoan,
@@ -75,7 +75,15 @@ export default function SharedCAT({
 	const upload = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
 			<section className='h-auto overflow-hidden'>
-				<FileUpload onDrop={handleFileUpload} accept='' />
+				<FileUpload
+					accept=''
+					upload={{
+						url: DOCS_UPLOAD_URL_LOAN({}),
+						header: {
+							Authorization: `Bearer ${localStorage.getItem('token')}`
+						}
+					}}
+				/>
 			</section>
 			<section className='w-full gap-x-4 flex justify-end'>
 				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
@@ -149,6 +157,10 @@ export default function SharedCAT({
 					}}
 				>
 					Reject
+				</Button>
+
+				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+					Cancel
 				</Button>
 			</section>
 		</section>

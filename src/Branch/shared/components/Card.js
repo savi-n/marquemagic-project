@@ -37,9 +37,10 @@ export default function Card(props) {
 		<main
 			style={{
 				boxShadow: '0 0 19px 0px #98AFC7',
-				maxHeight: `350px`,
-				width: `${getter() ? '65rem' : !full ? 'calc(100%/3)' : '100%'}`,
-				maxWidth: `${getter() ? '80rem' : '100%'}`
+				height: `${getter() ? '40rem' : 'auto'}`,
+				maxHeight: `${getter() ? '80rem' : '350px'}`,
+				width: `${!full ? 'calc(100%/3)' : '100%'}`,
+				maxWidth: `${getter() ? '100%' : '100%'}`
 			}}
 			className={`${full && 'w-full'} p-6 h-full rounded-md flex-flex-col`}
 		>
