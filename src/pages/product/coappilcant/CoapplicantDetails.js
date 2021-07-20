@@ -16,7 +16,7 @@ import Modal from "../../../components/Modal";
 
 const ButtonWrap = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 20px;
 `;
 
@@ -36,6 +36,18 @@ const Div = styled.div`
   flex: 1;
   padding: 50px;
   background: #ffffff;
+`;
+
+const EligibiltiyWrapper = styled.div`
+  flex-basis: 45%;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Text = styled.span`
+  margin-bottom: 10px;
+  color: ${({ theme }) => theme.main_theme_color};
 `;
 
 const formatAddressData = (type, data, fields) => {
@@ -87,6 +99,8 @@ export default function CoapplicantDetails({
     userType
   );
 
+  const [isEligibility, setEligibility] = useState(null);
+
   const saveData = (formData) => {
     let formatedAddress = [
       formatAddressData(
@@ -109,7 +123,10 @@ export default function CoapplicantDetails({
       ...formatPersonalData(formData, map.fields["personal-details"].data),
       typeName: userType,
     };
-    setUsertypeApplicantData(formatApplicantData, USER_ROLES[userType]);
+    setUsertypeApplicantData(
+      { ...formatApplicantData, isEligibility: isEligibility },
+      USER_ROLES[userType]
+    );
     setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
   };
 
@@ -167,6 +184,26 @@ export default function CoapplicantDetails({
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
         <Button name="Save" onClick={handleSubmit(onSave)} />
+        {userType === "Co-applicant" && (
+          <EligibiltiyWrapper>
+            <Text>
+              Do you want to include the co-applicant's salary to be included in
+              the loan eligibility calculations?
+            </Text>
+            <ButtonWrap>
+              <Button
+                {...isEligibility === true && { fill: isEligibility }}
+                name="Yes"
+                onClick={() => setEligibility(true)}
+              />
+              <Button
+                {...isEligibility === false && { fill: !isEligibility }}
+                name="No"
+                onClick={() => setEligibility(false)}
+              />
+            </ButtonWrap>
+          </EligibiltiyWrapper>
+        )}
       </ButtonWrap>
       {processing && (
         <Modal show={true} onClose={() => {}} width="50%">

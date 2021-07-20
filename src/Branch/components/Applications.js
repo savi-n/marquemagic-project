@@ -144,7 +144,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 						/>
 					</section>
 					<section className='flex w-1/3 gap-x-4 mt-10 items-center'>
-						<span className='w-16'>Sort by</span>
+						<span className='w-16'>Filter by</span>
 						<div className='select_box w-full'>
 							<select className='dropdown focus:outline-none bg-transparent'>
 								{sortList.map(el => (

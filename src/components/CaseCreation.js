@@ -223,7 +223,17 @@ export default function useCaseCreation(userType, productId, role) {
       const caseReq = await createCaseReq(
         {
           loan_ref_id: loan.loan_ref_id,
-          applicantData: state[USER_ROLES[role]].applicantData,
+          applicantData: {
+            ...state[USER_ROLES[role]].applicantData,
+            ...(state[USER_ROLES[role]]?.emi?.length
+              ? {
+                  emiDetails: state[USER_ROLES[role]]?.emi?.map((em) => ({
+                    emiAmount: em.amount,
+                    bank_name: em.bank,
+                  })),
+                }
+              : {}),
+          },
           ...state[USER_ROLES[role]].loanData,
           cibilScore: state[USER_ROLES[role]]?.cibilData?.cibilScore || "",
         },
@@ -286,7 +296,7 @@ export default function useCaseCreation(userType, productId, role) {
             ? [state[USER_ROLES[role]]?.cubStatement?.requestId]
             : []),
           ...(state[USER_ROLES[role]]?.cibilData?.requestId
-            ? state[USER_ROLES[role]]?.cibilData?.requestId
+            ? [state[USER_ROLES[role]]?.cibilData?.requestId]
             : []),
         ]
       );
@@ -301,7 +311,7 @@ export default function useCaseCreation(userType, productId, role) {
       return true;
     } catch (err) {
       setProcessing(false);
-
+      console.log("APPLICANT CASE CREATION INIT ERRRO ==> ", err.message);
       return false;
     }
   }
@@ -313,7 +323,7 @@ export default function useCaseCreation(userType, productId, role) {
         role,
         [
           ...(state[role]?.cibilData?.requestId
-            ? state[role]?.cibilData?.requestId
+            ? [state[role]?.cibilData?.requestId]
             : []),
           ...(state[role].cubStatement?.requestId
             ? [state[role].cubStatement?.requestId]
@@ -326,6 +336,7 @@ export default function useCaseCreation(userType, productId, role) {
 
       return true;
     } catch (err) {
+      console.log("OTHER APPLICANT CASE CREATION INIT ERRRO ==> ", err.message);
       return false;
     }
   }

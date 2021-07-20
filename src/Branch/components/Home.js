@@ -81,7 +81,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 					))}
 				</section>
 				<section className='flex gap-x-4 items-center'>
-					<span className='w-16'>Sort by</span>
+					<span className='w-16'>Filter by</span>
 					<div className='select_box w-full'>
 						<select className='dropdown focus:outline-none bg-transparent'>
 							{sortList.map(el => (
@@ -170,7 +170,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 						</section>
 					</section>
 					<section className='flex flex-col gap-y-10'>
-						{!isIdentifier() && <h1 className='text-xl'>Pending Sanctions</h1>}
+						{!isIdentifier() && <h1 className='text-xl'>Sanctioned Applications</h1>}
 						<section className='flex gap-x-10'>
 							{!isIdentifier() && sanData && sanData.length ? (
 								sanData.map(

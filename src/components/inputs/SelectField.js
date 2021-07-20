@@ -50,7 +50,7 @@ const Span = styled.span`
 export default function SelectField(props) {
   return (
     <Div>
-      <Select {...props}>
+      <Select {...props} title={props.placeholder}>
         <option disabled value="">
           {props.placeholder}
         </option>
