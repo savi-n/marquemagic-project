@@ -1,6 +1,6 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-import { API_END_POINT, SECRET } from '../../_config/app.config';
+import { API_END_POINT, SECRET, BORROWER_UPLOAD_URL } from '../../_config/app.config';
 
 const userToken = localStorage.getItem('token');
 
@@ -187,12 +187,17 @@ export const docTypes = async (loan_product, business_type, token = localStorage
 	return t.data;
 };
 
-export const borrowerDocUpload = async (docArr, token = localStorage.getItem('token')) => {
-	const g = await axios.post(`${API_END_POINT}/borrowerdoc-uploadLoan`, docArr, {
-		headers: { Authorization: `Bearer ${token}` }
-	});
-	const t = await g;
-	console.log(t);
+export const borrowerDocUpload = async (upload_document, token = localStorage.getItem('token')) => {
+	try {
+		const g = await axios.post(BORROWER_UPLOAD_URL, upload_document, {
+			headers: { Authorization: `Bearer ${token}` }
+		});
+		const t = await g;
+		console.log(t);
+		return t;
+	} catch {
+		return 'Error in uploading';
+	}
 };
 
 export const uploadDoc = async (userid, token = localStorage.getItem('token')) => {
