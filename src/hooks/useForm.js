@@ -292,6 +292,14 @@ const Select = styled.select`
   border-radius: 6px;
 `;
 
+// function patternSynthesize(value, pattern, name) {
+//   console.log(value, pattern, name);
+//   if (pattern) {
+//     return "***";
+//   }
+//   return value;
+// }
+
 function InputFieldRender({ field, onChange, value, unregister }) {
   const { type = "text", rules } = field;
 
@@ -353,11 +361,21 @@ function InputFieldRender({ field, onChange, value, unregister }) {
             value={el.value}
           />
           <section className="flex justify-evenly w-full gap-x-4">
-            <label className="p-2 border rounded-md w-full">
+            <label className="p-2 border rounded-md w-full flex items-center">
               {el.name.split("-")[0]}
             </label>
+            {el.accNum && (
+              <label className="p-2 border rounded-md w-full">
+                Account Number: <br />
+                {"*".repeat(el.accNum.length - 4)}
+                {el.accNum.substring(el.accNum.length - 4)}
+              </label>
+            )}
             <label className="p-2 border rounded-md w-full">
-              {/* {el.name.split("-")[1]} */}
+              {/* {el.accNum && `Account Number: ${el.accNum}`}
+              <br /> */}
+              Customer Id:
+              <br />
               {"*".repeat(el.name.split("-")[1].length - 4)}
               {el.name
                 .split("-")[1]
@@ -384,7 +402,13 @@ function InputFieldRender({ field, onChange, value, unregister }) {
       return <DateField {...{ ...field, ...fieldProps }} />;
     }
     default: {
-      return <InputField type={type} {...{ ...field, ...fieldProps }} />;
+      return (
+        <InputField
+          type={type}
+          {...{ ...field, ...fieldProps }}
+          // value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
+        />
+      );
     }
   }
 }

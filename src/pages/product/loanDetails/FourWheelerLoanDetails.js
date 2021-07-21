@@ -110,6 +110,7 @@ export default function FourWheelerLoanDetailsPage({
     setUsertypeLoanData({
       ...loanData,
       summary: "summary",
+      automobileType: productDetails.loanType,
       ...(map.fields["loan-details-additional"]?.data &&
         additionalLoanData(data, map.fields["loan-details-additional"]?.data)),
     });

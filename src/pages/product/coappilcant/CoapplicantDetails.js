@@ -99,7 +99,7 @@ export default function CoapplicantDetails({
     userType
   );
 
-  const [isEligibility, setEligibility] = useState(null);
+  const [isEligibility, setEligibility] = useState(false);
 
   const saveData = (formData) => {
     let formatedAddress = [
@@ -144,7 +144,7 @@ export default function CoapplicantDetails({
       const res = await caseCreationUserType();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.sub);
+        onFlowChange(map.main);
       }
       setProceed(false);
     }

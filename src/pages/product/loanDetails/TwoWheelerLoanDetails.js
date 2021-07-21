@@ -108,6 +108,7 @@ export default function TwoWheelerLoanDetailsPage({
     setUsertypeLoanData({
       ...loanData,
       summary: "summary",
+      automobileType: productDetails.loanType,
       ...additionalLoanData(data, map.fields["loan-details-additional"].data),
     });
     addToast({

@@ -80,7 +80,7 @@ export default function useCaseCreation(userType, productId, role) {
               ...d,
               loan_id: loanId,
               ...(d.typeId && { doc_type_id: d.typeId }),
-              // password: "",
+              directorId,
             })),
             directorId,
           },
