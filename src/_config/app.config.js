@@ -20,7 +20,7 @@ const WHITE_LABEL_URL = taggedTemplate`${API_END_POINT}/wot/whitelabelsolution?n
 const PRODUCT_LIST_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${'whiteLabelId'}`;
 const PRODUCT_DETAILS_URL = taggedTemplate`${API_END_POINT}/productDetails?white_label_id=${'whiteLabelId'}&product_id=${'productId'}`;
 const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userId=${'userId'}`;
-const DOCS_UPLOAD_URL_LOAN = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userid=${'userId'}`;
+const DOCS_UPLOAD_URL_LOAN = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userid=${'userid'}`;
 
 const BORROWER_UPLOAD_URL = `${API_END_POINT}/borrowerdoc-upload`;
 
@@ -63,6 +63,7 @@ const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 
 const APP_CLIENT = window.location.hostname === 'localhost' ? 'cub.loan2pal.com' : window.location.hostname;
+const REDIRECT_CREATE = window.location.hostname === 'localhost' ? '/' : '/onboarding/applyloan';
 
 const NC_STATUS_CODE = {
 	OK: 'ok',
@@ -120,5 +121,6 @@ export {
 	DOCTYPES_FETCH,
 	APP_CLIENT,
 	SECRET,
-	DOCS_UPLOAD_URL_LOAN
+	DOCS_UPLOAD_URL_LOAN,
+	REDIRECT_CREATE
 };
