@@ -41,7 +41,7 @@ export default function CardDetails({
 	setItem
 }) {
 	useEffect(() => {
-		setItem(item);
+		setItem && setItem(item);
 	}, []);
 	const [security, setSecurity] = useState(false);
 	const [recommendation, setRecommendation] = useState(false);
