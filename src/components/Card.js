@@ -44,7 +44,7 @@ const Description = styled.div`
 
 export default function Card({ product }) {
   const history = useHistory();
-  const { url } = useRouteMatch();
+  // const { url } = useRouteMatch();
 
   const handleClick = (e, id) => {
     e.preventDefault();
@@ -61,8 +61,8 @@ export default function Card({ product }) {
       </ImgDiv>
       <Div>
         <Link
-          href={`/applyloan/product/${btoa(product.product_id)}`}
-          onClick={(e) => handleClick(e, product.product_id)}
+          href={`/applyloan/product/${btoa(product.id)}`}
+          onClick={(e) => handleClick(e, product.id)}
         >
           {product.name}
         </Link>

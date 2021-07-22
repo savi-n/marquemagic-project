@@ -49,7 +49,7 @@ export default function PersonalDetails({
       return formState?.values?.[field.name];
     }
 
-    return preData?.[field.name] || "";
+    return preData?.[field.name] || field.value || "";
   };
 
   return (
@@ -67,6 +67,7 @@ export default function PersonalDetails({
                   {register({
                     ...field,
                     value: populateValue(field),
+                    ...(preData?.[field.name] && { disabled: true }),
                     ...(userType ? { disabled: false } : {}),
                   })}
                   {(formState?.submit?.isSubmited ||

@@ -154,7 +154,7 @@ export default function Product({ product, url }) {
             map={flowMap?.[currentFlow]}
             productDetails={response.data?.product_details}
             onFlowChange={onFlowChange}
-            productId={product}
+            productId={response.data?.product_id}
           />
         </Colom2>
       </Wrapper>

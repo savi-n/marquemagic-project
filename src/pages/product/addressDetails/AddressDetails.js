@@ -30,7 +30,7 @@ const DivWrap = styled.div`
   align-items: center;
   gap: 20px;
   justify-content: space-between;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 `;
 
 const Question = styled.div`
@@ -40,6 +40,9 @@ const Question = styled.div`
 
 const UserAddButton = styled.div`
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 `;
 
 const formatData = (type, data, fields) => {
@@ -67,6 +70,7 @@ export default function AddressDetailsPage({
   } = useContext(FlowContext);
 
   const {
+    state,
     actions: { setUsertypeAddressData },
   } = useContext(FormContext);
 
@@ -79,7 +83,7 @@ export default function AddressDetailsPage({
 
   const { processing, caseCreationUser } = useCaseCreation(
     "User",
-    productId,
+    productId[state.user.applicantData.incomeType],
     "User"
   );
 
@@ -104,16 +108,19 @@ export default function AddressDetailsPage({
     });
   };
 
-  const [proceed, setProceed] = useState(false);
+  const [proceed, setProceed] = useState(null);
 
   useEffect(() => {
     async function request() {
       const res = await caseCreationUser();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.main);
+        onFlowChange(proceed?.flow);
+        if (proceed?.subType) {
+          activateSubFlow(id);
+        }
       }
-      setProceed(false);
+      setProceed(null);
     }
 
     if (proceed) {
@@ -121,26 +128,29 @@ export default function AddressDetailsPage({
     }
   }, [proceed]);
 
-  const onProceed = (formData) => {
-    saveData(formData);
-    setProceed(true);
+  const onProceed = (flow, subType = false) => {
+    return (formData) => {
+      saveData(formData);
+      setProceed({ flow, subType });
+    };
   };
 
-  const subFlowActivate = async () => {
-    const res = await caseCreationUser();
-    if (res) {
-      activateSubFlow(id);
-      onFlowChange(map.sub);
-    }
-  };
+  // const subFlowActivate = async () => {
+  //   const res = await caseCreationUser();
+  //   if (res) {
+  //     activateSubFlow(id);
+  //     onFlowChange(map.sub);
+  //   }
+  // };
 
-  const subHiddenActivate = async () => {
-    const res = await caseCreationUser();
-    if (res) {
-      activateSubFlow(id);
-      onFlowChange(map.hidden);
-    }
-  };
+  // const subHiddenActivate = async () => {
+  //   console.log(formState);
+  //   const res = await caseCreationUser();
+  //   if (res) {
+  //     activateSubFlow(id);
+  //     onFlowChange(map.hidden);
+  //   }
+  // };
 
   return (
     <Div>
@@ -165,14 +175,14 @@ export default function AddressDetailsPage({
         <Button
           fill
           name="Proceed"
-          onClick={handleSubmit(onProceed)}
+          onClick={handleSubmit(onProceed(map.main))}
           disabled={processing}
         />
-        <Button
+        {/* <Button
           name="Save"
           onClick={handleSubmit(onSave)}
           disabled={processing}
-        />
+        /> */}
 
         <UserAddButton>
           {map.sub && (
@@ -182,8 +192,7 @@ export default function AddressDetailsPage({
                 width="auto"
                 fill
                 name="Add"
-                disabled={!saved}
-                onClick={subFlowActivate}
+                onClick={handleSubmit(onProceed(map.sub, true))}
               />
             </DivWrap>
           )}
@@ -194,8 +203,7 @@ export default function AddressDetailsPage({
                 width="auto"
                 fill
                 name="Add"
-                disabled={!saved}
-                onClick={subHiddenActivate}
+                onClick={handleSubmit(onProceed(map.hidden, true))}
               />
             </DivWrap>
           )}
