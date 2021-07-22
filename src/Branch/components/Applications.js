@@ -12,6 +12,7 @@ import CheckApplication from '../pages/checkApplication';
 
 export default function Applications({ d, sortList, setLActive, lActive, getTabData, isIdentifier, usersList }) {
 	const [data, setData] = useState(null);
+	const [item, setItem] = useState(null);
 	const mapp = {
 		'Pending Applications': 'Pending Applications',
 		'In-Progress@NC': 'NC In-Progress',
@@ -178,6 +179,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 									submitCase={submitCase}
 									setProductId={setProductId}
 									usersList={usersList}
+									setItem={setItem}
 								/>
 						  ))
 						: !loading && <span className='text-start w-full opacity-50'>No Applications</span>}
@@ -193,6 +195,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 			product={product && product}
 			id={id && id}
 			activ={activ}
+			item={item}
 			productId={productId}
 		/>
 	);

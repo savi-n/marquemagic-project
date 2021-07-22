@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import '../components/styles/index.scss';
-import { getLoanDetails, viewDocument, getLoan } from '../utils/requests';
+import { getLoanDetails, viewDocument, getLoan, docTypes, uploadDoc, borrowerDocUpload } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN } from '../../_config/app.config';
+import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_config/app.config';
+import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
 export default function CheckApplication(props) {
 	const [fields, setFields] = useState(null);
@@ -20,8 +21,11 @@ export default function CheckApplication(props) {
 	const getDocDetails = data => data.loan_document;
 	const getPreEligibleData = data => data.eligiblityData[0]?.pre_eligiblity;
 	const getEligibileData = data => data.eligiblityData;
+	const [docType, setDocTypes] = useState(null);
+	const [option, setOption] = useState([]);
 
 	useEffect(() => {
+		const arr = [];
 		setLoading(true);
 		getLoan(props.productId).then(res => {
 			res.length > 7 && setFields(res);
@@ -29,8 +33,31 @@ export default function CheckApplication(props) {
 		getLoanDetails(id).then(res => {
 			if (!data) setData(res);
 			setLoading(false);
+			if (res) {
+				docTypes(props.productId, res?.business_id?.businesstype?.id).then(res => {
+					setDocTypes(res);
+					Object.keys(res).map(k => {
+						res[k].map(p => {
+							arr.push(p);
+						});
+					});
+					setOption(arr);
+				});
+			}
 		});
 	}, []);
+
+	const [checkedDocs, setCheckedDocs] = useState([]);
+	const [docs, setDocs] = useState([]);
+
+	const changeHandler = value => {
+		const out = option.find(d => d?.name === value);
+		setCheckedDocs([...checkedDocs, out?.name]);
+	};
+
+	const removeHandler = value => {
+		console.log(value);
+	};
 
 	const [lActive, setLActive] = useState(props.activ);
 	const [disabled, setDisabled] = useState(true);
@@ -66,6 +93,10 @@ export default function CheckApplication(props) {
 		data.incomeData.map(e => arr.push(e));
 		return arr;
 	};
+
+	useEffect(() => {
+		console.log(docs);
+	}, [docs]);
 
 	const d = () => {
 		if (data) {
@@ -179,11 +210,22 @@ export default function CheckApplication(props) {
 		}
 	};
 
+	const uploader = userid => {
+		uploadDoc(userid).then(res => {});
+	};
+
+	const [errorMsg, setError] = useState(false);
+
 	return (
 		<main>
 			{message && (
-				<div className='absolute z-50 top-32 right-4 shadow-md p-2 rounded-md text-green-500'>
+				<div className='absolute z-50 top-32 right-10 shadow-md p-2 rounded-md text-green-500'>
 					Data Saved Successfully
+				</div>
+			)}
+			{errorMsg && (
+				<div className='absolute z-50 top-32 right-10 shadow-md p-2 bg-white rounded-md text-red-500'>
+					Error in uploading
 				</div>
 			)}
 			<div
@@ -225,12 +267,12 @@ export default function CheckApplication(props) {
 													(i, idx) =>
 														i &&
 														i.id !== 'guarantor-document-upload' &&
+														i.id !== 'cub-document-upload' &&
 														idx > 1 &&
 														idx < 7 && (
 															<section className='flex flex-col gap-y-4 gap-x-20'>
 																<p className='text-blue-700 font-medium text-xl pb-8'>
 																	{i.name}
-																	{console.log(i)}
 																</p>
 																{i.fields[(i?.id)]?.data.map(
 																	el =>
@@ -560,7 +602,13 @@ export default function CheckApplication(props) {
 													))}
 												</>
 											)}
-											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
+											<Button
+												onClick={() => clickSub()}
+												disabled={disabled}
+												type='blue'
+												rounded='rfull'
+												size='small'
+											>
 												Submit
 											</Button>
 										</>
@@ -620,7 +668,13 @@ export default function CheckApplication(props) {
 														)}
 												</section>
 											))}
-											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
+											<Button
+												onClick={() => clickSub()}
+												disabled={disabled}
+												type='blue'
+												rounded='rfull'
+												size='small'
+											>
 												Submit
 											</Button>
 										</section>
@@ -634,7 +688,7 @@ export default function CheckApplication(props) {
 
 									{e === sec.sec_3 && (
 										<>
-											<section className='flex flex-col gap-y-5'>
+											<section className='flex flex-col gap-y-5 w-8/12'>
 												<p className='text-blue-600 font-medium text-xl'>
 													Applicant Documents Uploaded
 												</p>
@@ -642,12 +696,21 @@ export default function CheckApplication(props) {
 													accept=''
 													upload={{
 														url: DOCS_UPLOAD_URL_LOAN({
-															userId: data?.business_id?.userid
+															userid: data?.business_id?.userid
 														}),
 														header: {
 															Authorization: `Bearer ${localStorage.getItem('token')}`
 														}
 													}}
+													docTypeOptions={option}
+													branch={true}
+													changeHandler={changeHandler}
+													onRemoveFile={e => removeHandler(e)}
+													docsPush={true}
+													docs={docs}
+													loan_id={data?.id}
+													directorId={data?.directors?.[0].id}
+													setDocs={setDocs}
 												/>
 												<section className='flex gap-x-4'>
 													{d()[e] &&
@@ -663,6 +726,26 @@ export default function CheckApplication(props) {
 														))}
 												</section>
 											</section>
+											{docType && (
+												<section className='fixed z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16'>
+													{Object.keys(docType).map(el => (
+														<section className='py-6'>
+															<p className='font-semibold'>{el}</p>
+															{docType[el].map(doc => (
+																<section>
+																	<CheckBox
+																		name={doc.name}
+																		round
+																		disabled
+																		bg='green'
+																		checked={checkedDocs.includes(doc.name)}
+																	/>
+																</section>
+															))}
+														</section>
+													))}
+												</section>
+											)}
 											{coApplicant && (
 												<section className='flex flex-col gap-y-5'>
 													<p className='text-blue-600 font-medium text-xl'>
@@ -671,7 +754,23 @@ export default function CheckApplication(props) {
 													<FileUpload />
 												</section>
 											)}
-											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
+											<Button
+												onClick={() => {
+													borrowerDocUpload(docs).then(res => {
+														if (res === 'Error in uploading') {
+															setError(true);
+															setTimeout(() => {
+																setError(false);
+															}, 4000);
+														}
+													});
+													clickSub();
+												}}
+												disabled={docs.length === 0 ? true : false}
+												type='blue'
+												rounded='rfull'
+												size='small'
+											>
 												Submit
 											</Button>
 										</>
@@ -716,6 +815,24 @@ export default function CheckApplication(props) {
 																defaultValue={data.loan_price}
 															/>
 														</section>
+														<section className='flex space-evenly py-2 items-center'>
+															<label className='w-1/2'>DSCR</label>
+															<input
+																className='rounded-lg p-4 border'
+																disabled={disabled}
+																placeholder='DSCR'
+																defaultValue={Number(props.item.dscr).toFixed(2)}
+															/>
+														</section>
+														<section className='flex space-evenly py-2 items-center'>
+															<label className='w-1/2'>Tenure</label>
+															<input
+																className='rounded-lg p-4 border'
+																disabled={disabled}
+																placeholder='Tenure'
+																defaultValue={props.item.applied_tenure}
+															/>
+														</section>
 													</section>
 												))}
 												<Button
@@ -723,6 +840,7 @@ export default function CheckApplication(props) {
 													type='blue'
 													rounded='rfull'
 													size='small'
+													disabled={disabled}
 												>
 													Submit
 												</Button>
@@ -763,44 +881,6 @@ export default function CheckApplication(props) {
 													</Button>
 												</section>
 											</section>
-										</section>
-									)}
-									{e === sec.sec_6 && (
-										<section>
-											{Object.keys(mapper[e]).map(i => (
-												<section>
-													<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
-													{d()[e] &&
-														Object.keys(d()[e]).map(
-															k =>
-																mapper[e][i] &&
-																Object.keys(mapper[e][i]).map(
-																	l =>
-																		l === k && (
-																			<section className='flex space-evenly py-2 items-center'>
-																				<label className='w-1/2'>
-																					{mapper[e][i][k]}
-																				</label>
-																				<input
-																					className='rounded-lg p-4 border'
-																					disabled={disabled}
-																					placeholder={mapper[e][i][k]}
-																					defaultValue={
-																						mapper[e][i][k] !==
-																						'Business Industry'
-																							? d()[e][k]
-																							: d()[e][k]['IndustryName']
-																					}
-																				/>
-																			</section>
-																		)
-																)
-														)}
-												</section>
-											))}
-											<Button onClick={() => clickSub()} type='blue' rounded='rfull' size='small'>
-												Submit
-											</Button>
 										</section>
 									)}
 								</>
