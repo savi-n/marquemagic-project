@@ -77,7 +77,7 @@ export default function InputField(props) {
           {props?.rules?.minValue && props?.rules?.maxValue ? " - " : " "}
           {props?.rules?.maxValue && `max ${props?.rules?.maxValue}`}
         </Span>
-        {props.rules?.required && !props.disabled && <Asteris>*</Asteris>}
+        {props.rules?.required && <Asteris>*</Asteris>}
       </Label>
     </Div>
   );
