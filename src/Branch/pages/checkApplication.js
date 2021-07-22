@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import '../components/styles/index.scss';
-import { getLoanDetails, viewDocument, getLoan, docTypes, uploadDoc, borrowerDocUpload } from '../utils/requests';
+import {
+	getLoanDetails,
+	viewDocument,
+	getLoan,
+	docTypes,
+	uploadDoc,
+	borrowerDocUpload,
+	reassignLoan
+} from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
@@ -27,9 +35,6 @@ export default function CheckApplication(props) {
 	useEffect(() => {
 		const arr = [];
 		setLoading(true);
-		getLoan(props.productId).then(res => {
-			res.length > 7 && setFields(res);
-		});
 		getLoanDetails(id).then(res => {
 			if (!data) setData(res);
 			setLoading(false);
@@ -43,8 +48,23 @@ export default function CheckApplication(props) {
 					});
 					setOption(arr);
 				});
+				getLoan().then(resp => {
+					resp.data?.map(
+						k =>
+							props.product.includes(k?.name) &&
+							Object.keys(k.product_id).map(
+								y =>
+									y === res.directors[0].income_type &&
+									getLoan(k.id).then(res => {
+										res.length > 7 && setFields(res);
+									})
+							)
+					);
+				});
 			}
 		});
+		if (data) {
+		}
 	}, []);
 
 	const [checkedDocs, setCheckedDocs] = useState([]);
@@ -219,7 +239,7 @@ export default function CheckApplication(props) {
 	return (
 		<main>
 			{message && (
-				<div className='absolute z-50 top-32 right-10 shadow-md p-2 rounded-md text-green-500'>
+				<div className='absolute bg-white z-50 top-32 right-10 shadow-md p-2 rounded-md text-green-500'>
 					Data Saved Successfully
 				</div>
 			)}
@@ -712,7 +732,7 @@ export default function CheckApplication(props) {
 													directorId={data?.directors?.[0].id}
 													setDocs={setDocs}
 												/>
-												<section className='flex gap-x-4'>
+												<section className='flex gap-x-4 flex-wrap gap-y-4'>
 													{d()[e] &&
 														d()[e].map((j, idx) => (
 															<Button
@@ -721,13 +741,13 @@ export default function CheckApplication(props) {
 																	viewDocument(j.loan, j.user_id, j.doc_name)
 																}
 															>
-																Document {idx + 1}
+																{j.original_doc_name}
 															</Button>
 														))}
 												</section>
 											</section>
 											{docType && (
-												<section className='fixed z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16'>
+												<section className='fixed overflow-scroll z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16'>
 													{Object.keys(docType).map(el => (
 														<section className='py-6'>
 															<p className='font-semibold'>{el}</p>
@@ -762,9 +782,14 @@ export default function CheckApplication(props) {
 															setTimeout(() => {
 																setError(false);
 															}, 4000);
+														} else {
+															setMessage(true);
+															setTimeout(() => {
+																setMessage(false);
+															}, 4000);
+															setDocs([]);
 														}
 													});
-													clickSub();
 												}}
 												disabled={docs.length === 0 ? true : false}
 												type='blue'
@@ -876,7 +901,13 @@ export default function CheckApplication(props) {
 														className='p-1 rounded-md px-2 focus:outline-none'
 														onChange={e => setComment(e.target.value)}
 													/>
-													<Button type='blue-light' size='small' onClick={() => {}}>
+													<Button
+														type='blue-light'
+														size='small'
+														onClick={() => {
+															reassignLoan(props.item.id, null, comment);
+														}}
+													>
 														Submit
 													</Button>
 												</section>

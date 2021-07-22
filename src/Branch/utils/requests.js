@@ -26,7 +26,7 @@ export const getLoan = async (product_id, white_label_id = localStorage.getItem(
 		params: { white_label_id, product_id }
 	});
 	const t = await g;
-	return JSON.parse(t.data.data.edit_json).flow;
+	return t.data?.data?.edit_json ? JSON.parse(t.data.data.edit_json).flow : t.data;
 };
 
 export const getCase = async (order, token = localStorage.getItem('token')) => {
