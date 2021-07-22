@@ -127,7 +127,7 @@ export default function Router({
         onFlowChange={onFlowChange}
         map={map}
         id={currentFlow}
-        productId={atob(productId)}
+        productId={productId}
       />
     </Suspense>
   );
@@ -138,5 +138,5 @@ Router.propTypes = {
   productDetails: object,
   onFlowChange: func,
   map: oneOfType([string, object]),
-  productId: string.isRequired,
+  productId: object.isRequired,
 };

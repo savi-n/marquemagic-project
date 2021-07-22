@@ -113,7 +113,7 @@ DocumentUpload.propTypes = {
   map: oneOfType([string, object]),
   id: string,
   userType: oneOf(["Co-Applicant", "Gurantor", "", undefined]),
-  productId: string.isRequired,
+  productId: object.isRequired,
 };
 
 export default function DocumentUpload({
@@ -149,7 +149,7 @@ export default function DocumentUpload({
 
   const { processing, caseCreationUserType } = useCaseCreation(
     "Co-applicant",
-    productId,
+    productId[state[USER_ROLES[userType || "User"]].applicantData.incomeType],
     "Co-applicant"
   );
 
@@ -168,7 +168,10 @@ export default function DocumentUpload({
           "salaried"
             ? 7
             : 1,
-        loan_product: productId,
+        loan_product:
+          productId[
+            state[USER_ROLES[userType || "User"]].applicantData.incomeType
+          ],
       },
     },
     headers: {

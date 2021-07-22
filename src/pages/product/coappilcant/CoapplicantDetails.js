@@ -86,6 +86,7 @@ export default function CoapplicantDetails({
   } = useContext(FlowContext);
 
   const {
+    state,
     actions: { setUsertypeApplicantData, setUsertypeAddressData },
   } = useContext(FormContext);
 
@@ -95,7 +96,7 @@ export default function CoapplicantDetails({
   const [match, setMatch] = useState(false);
   const { processing, caseCreationUserType } = useCaseCreation(
     userType,
-    productId,
+    productId[state[userType].applicantData.incomeType],
     userType
   );
 

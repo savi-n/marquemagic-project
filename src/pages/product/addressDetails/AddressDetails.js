@@ -70,6 +70,7 @@ export default function AddressDetailsPage({
   } = useContext(FlowContext);
 
   const {
+    state,
     actions: { setUsertypeAddressData },
   } = useContext(FormContext);
 
@@ -82,7 +83,7 @@ export default function AddressDetailsPage({
 
   const { processing, caseCreationUser } = useCaseCreation(
     "User",
-    productId,
+    productId[state.user.applicantData.incomeType],
     "User"
   );
 
