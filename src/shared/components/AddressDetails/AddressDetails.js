@@ -73,7 +73,7 @@ export default function AddressDetails({
       return formState?.values?.[`permanent_${field.name}`];
     }
 
-    return preData[field.name] || "";
+    return preData[field.name] || field.value || "";
   };
 
   return (
