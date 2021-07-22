@@ -96,7 +96,7 @@ export default function CoapplicantDetails({
   const [match, setMatch] = useState(false);
   const { processing, caseCreationUserType } = useCaseCreation(
     userType,
-    productId[state[userType].applicantData.incomeType],
+    productId[(state[userType]?.applicantData?.incomeType)] || "",
     userType
   );
 
