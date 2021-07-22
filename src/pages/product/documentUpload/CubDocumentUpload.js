@@ -8,12 +8,6 @@ import CheckBox from "../../../shared/components/Checkbox/CheckBox";
 import FileUpload from "../../../shared/components/FileUpload/FileUpload";
 import {
   DOCS_UPLOAD_URL,
-  // BORROWER_UPLOAD_URL,
-  // UPLOAD_CUB_STATEMENT,
-  // CREATE_CASE,
-  // CREATE_CASE_OTHER_USER,
-  // UPDATE_LOAN_ASSETS,
-  // NC_STATUS_CODE,
   USER_ROLES,
   DOCTYPES_FETCH,
   PINCODE_ADRRESS_FETCH,
@@ -47,6 +41,7 @@ const DivWrap = styled.div`
   align-items: center;
   gap: 20px;
   justify-content: space-between;
+  margin-left: auto;
   /* margin-bottom: 10px; */
 `;
 
@@ -206,7 +201,6 @@ export default function DocumentUpload({
   const [declareCheck, setDeclareCheck] = useState(false);
 
   const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
-  // const [caseCreationProgress, setCaseCreationProgress] = useState(false);
 
   const [toggleCUBStatementModal, setToggleCUBStatementModal] = useState(false);
   const [bankCUBStatementFetchDone, setBankCUBStatementFetchDone] = useState(
@@ -218,20 +212,7 @@ export default function DocumentUpload({
     setOtherCUBStatementUserTypeDetails,
   ] = useState(null);
 
-  // const [otherUserTypeCibilDetails, setOtherUserTypeCibilDetails] = useState(
-  //   null
-  // );
-
-  // const [documentChecklist, setDocumentChecklist] = useState([]);
-
   const [cibilCheckModal, setCibilCheckModal] = useState(false);
-
-  // const handleDocumentChecklist = (doc) => {
-  //   return (value) => {
-  //     if (value) setDocumentChecklist([...documentChecklist, doc]);
-  //     else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
-  //   };
-  // };
 
   const onToggleCUBStatementModal = () => {
     if (bankCUBStatementFetchDone) return;
@@ -270,197 +251,15 @@ export default function DocumentUpload({
     // );
   };
 
-  // step 2: upload docs reference
-  // const updateDocumentList = async (loanId, directorId, user) => {
-  //   if (!state[user]?.uploadedDocs.length) {
-  //     return true;
-  //   }
-
-  //   try {
-  //     const uploadDocsReq = await newRequest(
-  //       BORROWER_UPLOAD_URL,
-  //       {
-  //         method: "POST",
-  //         data: {
-  //           upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
-  //             ...d,
-  //             loan_id: loanId,
-  //             ...(d.typeId && { doc_type_id: d.typeId }),
-  //             // password: "",
-  //           })),
-  //           directorId,
-  //         },
-  //       },
-  //       {
-  //         Authorization: `Bearer ${userToken}`,
-  //       }
-  //     );
-
-  //     const uploadDocsRes = uploadDocsReq.data;
-  //     if (uploadDocsRes.status === NC_STATUS_CODE.OK) {
-  //       return uploadDocsRes;
-  //     }
-  //     throw new Error(uploadDocsRes.message);
-  //   } catch (err) {
-  //     console.log("STEP: 2 => UPLOAD DOCUMENT REFERENCE ERRRO", err.message);
-  //     throw new Error(err.message);
-  //   }
-  // };
-
-  // // step: 3 upload cub statements to sails
-  // const updateRefernceToSails = async (
-  //   loanId,
-  //   directorId,
-  //   token,
-  //   requestId
-  // ) => {
-  //   if (!requestId.length) {
-  //     return true;
-  //   }
-  //   try {
-  //     const statementUploadReq = await newRequest(
-  //       UPLOAD_CUB_STATEMENT,
-  //       {
-  //         method: "POST",
-  //         data: {
-  //           access_token: token,
-  //           request_id: requestId,
-  //           directorId: directorId,
-  //           loan_id: loanId,
-  //           doc_type_id: 6,
-  //         },
-  //       },
-  //       {
-  //         Authorization: `${clientToken}`,
-  //       }
-  //     );
-
-  //     const statementUploadRes = statementUploadReq.data;
-
-  //     if (statementUploadRes.statusCode === NC_STATUS_CODE.NC200) {
-  //       return statementUploadRes;
-  //     }
-
-  //     throw new Error(statementUploadRes.message);
-  //   } catch (err) {
-  //     console.log(
-  //       "STEP: 3 => CUB STATEMENT UPLOAD TO SAILS ERRROR",
-  //       err.message
-  //     );
-  //     throw new Error(err.message);
-  //   }
-  // };
-
-  // // step: 1 if applicant submit request createCase
-  // const createCaseReq = async (data, url) => {
-  //   try {
-  //     const caseReq = await newRequest(
-  //       url,
-  //       {
-  //         method: "POST",
-  //         data,
-  //       },
-  //       {
-  //         Authorization: `Bearer ${userToken}`,
-  //       }
-  //     );
-  //     const caseRes = caseReq.data;
-  //     if (
-  //       caseRes.statusCode === NC_STATUS_CODE.NC200 ||
-  //       caseRes.status === NC_STATUS_CODE.OK
-  //     ) {
-  //       return caseRes;
-  //     }
-
-  //     throw new Error(caseRes.message);
-  //   } catch (er) {
-  //     console.log("STEP: 1 => CASE CREATION ERRROR", er.message);
-  //     throw new Error(er.message);
-  //   }
-  // };
-
-  // const caseCreationSteps = async (data) => {
-  //   try {
-  //     // step 1: create case
-  //     const caseCreateRes = await createCaseReq(data, CREATE_CASE);
-
-  //     // step 2: upload documents reference [loanId from createcase]
-  //     await updateDocumentList(
-  //       caseCreateRes.loanId,
-  //       caseCreateRes.directorId,
-  //       USER_ROLES.User
-  //     );
-
-  //     // step 3: upload cub statement to sailspld
-  //     await updateRefernceToSails(
-  //       caseCreateRes.loanId,
-  //       caseCreateRes.directorId,
-  //       userToken,
-  //       [
-  //         ...(otherCUBStatementUserTypeDetails?.requestId
-  //           ? [otherCUBStatementUserTypeDetails?.requestId]
-  //           : []),
-  //         ...(otherUserTypeCibilDetails?.requestId
-  //           ? otherUserTypeCibilDetails?.requestId
-  //           : []),
-  //       ]
-  //     );
-
-  //     // // step 4: loan assets request
-  //     // await loanAssetsUpload(
-  //     //   caseCreateRes.loanId,
-  //     //   userToken
-  //     //    otherUserTypeDetails.requestId
-  //     // );
-
-  //     return caseCreateRes;
-  //   } catch (er) {
-  //     console.log("APPLICANT CASE CREATE STEP ERROR-----> ", er.message);
-  //     addToast({
-  //       message: er.message,
-  //       type: "error",
-  //     });
-  //   }
-  // };
-
-  // const caseCreationReqOtherUser = async (loan, role, requestId) => {
-  //   if (!loan) return false;
-  //   try {
-  //     await createCaseReq(
-  //       {
-  //         loan_ref_id: loan.loan_ref_id,
-  //         applicantData: state[USER_ROLES[role]].applicantData,
-  //         ...state[USER_ROLES[role]].loanData,
-  //         cibilScore:
-  //           (userType
-  //             ? state[USER_ROLES[role]]?.cibilData?.cibilScore
-  //             : otherUserTypeCibilDetails?.cibilScore) || "",
-  //       },
-  //       CREATE_CASE_OTHER_USER
-  //     );
-
-  //     await updateDocumentList(loan.loanId, loan.directorId, USER_ROLES[role]);
-  //     // await updateRefernceToSails(loan.loanId, loan.directorId, userToken, requestId);
-  //     return true;
-  //   } catch (err) {
-  //     console.log("COAPPLICANT CASE CREATION STEPS ERRRO ==> ", err.message);
-  //     addToast({
-  //       message: err.message,
-  //       type: "error",
-  //     });
-  //     return false;
-  //   }
-  // };
-
-  const [proceed, setProceed] = useState(false);
+  const [proceed, setProceed] = useState(null);
   useEffect(() => {
     async function request() {
       const res = await caseCreationUserType();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.sub);
+        onFlowChange(proceed?.flow);
       }
-      setProceed(false);
+      setProceed(null);
     }
 
     if (proceed) {
@@ -468,12 +267,14 @@ export default function DocumentUpload({
     }
   }, [proceed]);
 
-  const onSubmitCopplicant = async () => {
-    setUsertypeStatementData(
-      otherCUBStatementUserTypeDetails,
-      USER_ROLES[userType]
-    );
-    setProceed(true);
+  const onSubmitCopplicant = (flow) => {
+    return () => {
+      setUsertypeStatementData(
+        otherCUBStatementUserTypeDetails,
+        USER_ROLES[userType]
+      );
+      setProceed({ flow });
+    };
   };
 
   const onSubmit = async () => {
@@ -481,61 +282,12 @@ export default function DocumentUpload({
       return;
     }
 
-    // setCaseCreationProgress(true);
-
-    // if (!userType) {
-    // const loanReq = await caseCreationSteps({
-    //   white_label_id: whiteLabelId,
-    //   product_id: productId,
-    //   applicantData: {
-    //     ...state.user.applicantData,
-    //     ...(state.user?.emi
-    //       ? {
-    //           emiDetails: state.user?.emi?.map((em) => ({
-    //             emiAmount: em.amount,
-    //             bank_name: em.bank,
-    //           })),
-    //         }
-    //       : {}),
-    //   },
-    //   loanData: { assetsValue: 0, ...state.user.loanData, productId },
-    //   ...state.user.bankData,
-    //   cibilScore: otherUserTypeCibilDetails?.cibilScore || "",
-    // });
-
-    // if (!loanReq && !loanReq?.loanId) {
-    //   setCaseCreationProgress(false);
-    //   return;
-    // }
-
-    // if (state["Co-applicant"]) {
-    //   const coAppilcantCaseReq = await caseCreationReqOtherUser(
-    //     loanReq,
-    //     "Co-applicant",
-    //     [
-    //       ...(state["Co-applicant"]?.cibilData?.requestId
-    //         ? state["Co-applicant"]?.cibilData?.requestId
-    //         : []),
-    //       state["Co-applicant"]?.cubStatement?.requestId,
-    //       ...(state["Co-applicant"].cubStatement?.requestId
-    //         ? [state["Co-applicant"].cubStatement?.requestId]
-    //         : []),
-    //     ]
-    //   );
-    //   if (!coAppilcantCaseReq) {
-    //     setCaseCreationProgress(false);
-    //     return;
-    //   }
-    // }
-
-    // setCase(loanReq);
     setUsertypeStatementData(
       otherCUBStatementUserTypeDetails,
       USER_ROLES[userType]
     );
     setCompleted(id);
     onFlowChange(map.main);
-    // }
   };
 
   const onOtherStatementModalToggle = () => {
@@ -564,34 +316,6 @@ export default function DocumentUpload({
     // setCompleted(map.mainPageId);
     // onFlowChange(map.main);
   };
-
-  // const onSubmitGuarantor = async () => {
-  //   if (buttonDisabledStatus()) {
-  //     return;
-  //   }
-
-  //   setCaseCreationProgress(true);
-  //   const GuarantorReq = await caseCreationReqOtherUser(
-  //     caseDetails,
-  //     "Guarantor",
-  //     [
-  //       ...(state?.Guarantor?.cibilData?.requestId
-  //         ? state?.Guarantor?.cibilData?.requestId
-  //         : []),
-  //       ...(otherCUBStatementUserTypeDetails?.requestId
-  //         ? [otherCUBStatementUserTypeDetails?.requestId]
-  //         : []),
-  //     ]
-  //   );
-  //   if (!GuarantorReq) {
-  //     setCaseCreationProgress(false);
-  //     return;
-  //   }
-
-  //   setCompleted(id);
-  //   setCompleted(map.mainPageId);
-  //   onFlowChange(map.main);
-  // };
 
   const onCibilModalClose = (success, data) => {
     if (!success) {
@@ -721,7 +445,7 @@ export default function DocumentUpload({
           {!userType && (
             <>
               <Button
-                name="Submit"
+                name="Proceed"
                 fill
                 style={{
                   width: "200px",
@@ -730,36 +454,36 @@ export default function DocumentUpload({
                 disabled={buttonDisabledStatus()}
                 onClick={onSubmit}
               />
-              <Button
+              {/* <Button
                 name="Save"
                 style={{
                   width: "200px",
                 }}
                 onClick={onSave}
                 disabled={buttonDisabledStatus()}
-              />
+              /> */}
             </>
           )}
           {userType === "Co-applicant" && (
             <>
               <Button
-                name="Submit"
+                name="Proceed"
                 fill
                 style={{
                   width: "200px",
                   background: "blue",
                 }}
                 disabled={buttonDisabledStatus()}
-                onClick={onSubmitCopplicant}
+                onClick={onSubmitCopplicant(map.sub)}
               />
-              <Button
+              {/* <Button
                 name="Save"
                 style={{
                   width: "200px",
                 }}
                 onClick={onSave}
                 disabled={buttonDisabledStatus()}
-              />
+              /> */}
             </>
           )}
           {/* {userType === "Guarantor" && (
@@ -790,8 +514,8 @@ export default function DocumentUpload({
                 width="auto"
                 fill
                 name="Add"
-                disabled={!saved}
-                onClick={subFlowActivate}
+                disabled={buttonDisabledStatus()}
+                onClick={onSubmitCopplicant(map.hidden)}
               />
             </DivWrap>
           )}

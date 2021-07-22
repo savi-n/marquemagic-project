@@ -119,7 +119,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
           mobileNo: userBankDetails?.mobileNum || "",
           panNumber: userBankDetails?.pan || "",
           residenceStatus: userBankDetails?.residentTypess || "",
-          countryResidence: "india",
+          // countryResidence: "india",
           aadhaar: userBankDetails?.aadharNum || "",
         }}
         jsonData={map.fields[id].data}
@@ -132,7 +132,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
-        <Button name="Save" onClick={handleSubmit(onSave)} />
+        {/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
       </ButtonWrap>
     </Div>
   );

@@ -142,7 +142,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
       <HomeLoanDetailsTable />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
-        <Button name="Save" onClick={handleSubmit(onSave)} />
+        {/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
       </ButtonWrap>
 
       {uploadAgreementModal && (

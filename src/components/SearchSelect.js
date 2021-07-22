@@ -183,9 +183,20 @@ export default function SearchSelect({
     const { value } = event.target;
     setSearchKey(value);
 
+    let options = [{ name: value, value: value }];
+    if (!value) {
+      options = [];
+    }
+
+    setSelectOptions(options);
+
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       setFetching(true);
       debounceFunction(async () => {
+        if (!value) {
+          setFetching(false);
+          return;
+        }
         let searchOptions = await searchOptionCallback({ name: value });
 
         searchOptions = searchOptions.map((opt) => ({ name: opt, value: opt }));

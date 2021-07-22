@@ -62,7 +62,7 @@ export default function SelectField(props) {
       </Select>
       <Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
         <Span>{props.placeholder}</Span>
-        {props.rules?.required && !props.disabled && <Asteris>*</Asteris>}
+        {props.rules?.required && <Asteris>*</Asteris>}
       </Label>
     </Div>
   );

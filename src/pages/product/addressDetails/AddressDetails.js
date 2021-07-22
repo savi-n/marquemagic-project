@@ -107,16 +107,19 @@ export default function AddressDetailsPage({
     });
   };
 
-  const [proceed, setProceed] = useState(false);
+  const [proceed, setProceed] = useState(null);
 
   useEffect(() => {
     async function request() {
       const res = await caseCreationUser();
       if (res) {
         setCompleted(id);
-        onFlowChange(proceed);
+        onFlowChange(proceed?.flow);
+        if (proceed?.subType) {
+          activateSubFlow(id);
+        }
       }
-      setProceed(false);
+      setProceed(null);
     }
 
     if (proceed) {
@@ -124,10 +127,10 @@ export default function AddressDetailsPage({
     }
   }, [proceed]);
 
-  const onProceed = (flow) => {
+  const onProceed = (flow, subType = false) => {
     return (formData) => {
       saveData(formData);
-      setProceed(flow);
+      setProceed({ flow, subType });
     };
   };
 
@@ -188,7 +191,7 @@ export default function AddressDetailsPage({
                 width="auto"
                 fill
                 name="Add"
-                onClick={handleSubmit(onProceed(map.sub))}
+                onClick={handleSubmit(onProceed(map.sub, true))}
               />
             </DivWrap>
           )}
@@ -199,7 +202,7 @@ export default function AddressDetailsPage({
                 width="auto"
                 fill
                 name="Add"
-                onClick={handleSubmit(onProceed(map.hidden))}
+                onClick={handleSubmit(onProceed(map.hidden, true))}
               />
             </DivWrap>
           )}
