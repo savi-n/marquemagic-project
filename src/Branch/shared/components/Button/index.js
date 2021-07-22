@@ -3,11 +3,15 @@ import Proptypes from 'prop-types';
 import './style.scoped.scss';
 
 export default function Button(props) {
-	const { type, size, width, rounded, to, children, onClick } = props;
+	const { type, size, width, rounded, to, children, onClick, disabled } = props;
 	return (
 		<main className={`${type} ${size} ${width} ${rounded} inline-flex items-center select-none`}>
 			{to ? (
-				<button className='focus:outline-none flex justify-center items-center' onClick={onClick}>
+				<button
+					disabled={disabled}
+					className='focus:outline-none flex justify-center items-center'
+					onClick={onClick}
+				>
 					{children}
 				</button>
 			) : (
