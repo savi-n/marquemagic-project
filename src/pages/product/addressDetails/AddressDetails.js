@@ -30,7 +30,7 @@ const DivWrap = styled.div`
   align-items: center;
   gap: 20px;
   justify-content: space-between;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 `;
 
 const Question = styled.div`
@@ -40,6 +40,9 @@ const Question = styled.div`
 
 const UserAddButton = styled.div`
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 `;
 
 const formatData = (type, data, fields) => {
@@ -111,7 +114,7 @@ export default function AddressDetailsPage({
       const res = await caseCreationUser();
       if (res) {
         setCompleted(id);
-        onFlowChange(map.main);
+        onFlowChange(proceed);
       }
       setProceed(false);
     }
@@ -121,26 +124,29 @@ export default function AddressDetailsPage({
     }
   }, [proceed]);
 
-  const onProceed = (formData) => {
-    saveData(formData);
-    setProceed(true);
+  const onProceed = (flow) => {
+    return (formData) => {
+      saveData(formData);
+      setProceed(flow);
+    };
   };
 
-  const subFlowActivate = async () => {
-    const res = await caseCreationUser();
-    if (res) {
-      activateSubFlow(id);
-      onFlowChange(map.sub);
-    }
-  };
+  // const subFlowActivate = async () => {
+  //   const res = await caseCreationUser();
+  //   if (res) {
+  //     activateSubFlow(id);
+  //     onFlowChange(map.sub);
+  //   }
+  // };
 
-  const subHiddenActivate = async () => {
-    const res = await caseCreationUser();
-    if (res) {
-      activateSubFlow(id);
-      onFlowChange(map.hidden);
-    }
-  };
+  // const subHiddenActivate = async () => {
+  //   console.log(formState);
+  //   const res = await caseCreationUser();
+  //   if (res) {
+  //     activateSubFlow(id);
+  //     onFlowChange(map.hidden);
+  //   }
+  // };
 
   return (
     <Div>
@@ -165,14 +171,14 @@ export default function AddressDetailsPage({
         <Button
           fill
           name="Proceed"
-          onClick={handleSubmit(onProceed)}
+          onClick={handleSubmit(onProceed(map.main))}
           disabled={processing}
         />
-        <Button
+        {/* <Button
           name="Save"
           onClick={handleSubmit(onSave)}
           disabled={processing}
-        />
+        /> */}
 
         <UserAddButton>
           {map.sub && (
@@ -182,8 +188,7 @@ export default function AddressDetailsPage({
                 width="auto"
                 fill
                 name="Add"
-                disabled={!saved}
-                onClick={subFlowActivate}
+                onClick={handleSubmit(onProceed(map.sub))}
               />
             </DivWrap>
           )}
@@ -194,8 +199,7 @@ export default function AddressDetailsPage({
                 width="auto"
                 fill
                 name="Add"
-                disabled={!saved}
-                onClick={subHiddenActivate}
+                onClick={handleSubmit(onProceed(map.hidden))}
               />
             </DivWrap>
           )}
