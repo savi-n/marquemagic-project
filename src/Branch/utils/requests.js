@@ -183,17 +183,19 @@ export const docTypes = async (loan_product, business_type, token = localStorage
 		}
 	);
 	const t = await g;
-	console.log(t);
 	return t.data;
 };
 
 export const borrowerDocUpload = async (upload_document, token = localStorage.getItem('token')) => {
 	try {
-		const g = await axios.post(BORROWER_UPLOAD_URL, upload_document, {
-			headers: { Authorization: `Bearer ${token}` }
-		});
+		const g = await axios.post(
+			BORROWER_UPLOAD_URL,
+			{ upload_document },
+			{
+				headers: { Authorization: `Bearer ${token}` }
+			}
+		);
 		const t = await g;
-		console.log(t);
 		return t;
 	} catch {
 		return 'Error in uploading';
@@ -208,5 +210,4 @@ export const uploadDoc = async (userid, token = localStorage.getItem('token')) =
 	);
 
 	const t = await g;
-	console.log(t);
 };
