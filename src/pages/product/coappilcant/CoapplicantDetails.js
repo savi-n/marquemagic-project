@@ -183,7 +183,7 @@ export default function CoapplicantDetails({
       />
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
-        <Button name="Save" onClick={handleSubmit(onSave)} />
+        {/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
         {userType === "Co-applicant" && (
           <EligibiltiyWrapper>
             <Text>

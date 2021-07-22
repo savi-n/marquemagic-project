@@ -138,7 +138,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
       </Wrapper>
       <ButtonWrap>
         <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
-        <Button name="Save" onClick={handleSubmit(onSave)} />
+        {/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
         {!skipButton && <Button name="Skip" onClick={onSkip} />}
       </ButtonWrap>
     </Div>

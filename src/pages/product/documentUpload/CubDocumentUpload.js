@@ -721,7 +721,7 @@ export default function DocumentUpload({
           {!userType && (
             <>
               <Button
-                name="Submit"
+                name="Proceed"
                 fill
                 style={{
                   width: "200px",
@@ -730,20 +730,20 @@ export default function DocumentUpload({
                 disabled={buttonDisabledStatus()}
                 onClick={onSubmit}
               />
-              <Button
+              {/* <Button
                 name="Save"
                 style={{
                   width: "200px",
                 }}
                 onClick={onSave}
                 disabled={buttonDisabledStatus()}
-              />
+              /> */}
             </>
           )}
           {userType === "Co-applicant" && (
             <>
               <Button
-                name="Submit"
+                name="Proceed"
                 fill
                 style={{
                   width: "200px",
