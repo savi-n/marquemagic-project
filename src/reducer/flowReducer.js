@@ -1,10 +1,18 @@
 import { createContext, useReducer } from "react";
 
+import { setStore, getStore } from "../utils/localStore";
+
+const FLOW_REDUCER = "flowReducer";
+
+const storeData = getStore()[FLOW_REDUCER] || {};
+
 const actionTypes = {
   SET_COMPLETED: "SET_COMPLETED",
   ACTIVATE_SUB_FLOW: "ACTIVATE_SUB_FLOW",
   SET_BASE_PAGE: "SET_BASE_PAGE",
   CONFIGURE_FLOW: "CONFIGURE_FLOW",
+  SET_CURRENT_FLOW: "SET_CURRENT_FLOW",
+  CLEAR_FLOW: "CLEAR_FLOW",
 };
 
 const INITIAL_STATE = {
@@ -12,6 +20,8 @@ const INITIAL_STATE = {
   activeSubFlow: [],
   basePageUrl: null,
   flowMap: null,
+  currentFlow: "",
+  productId: null,
 };
 
 const useActions = (dispatch) => {
@@ -21,6 +31,14 @@ const useActions = (dispatch) => {
 
   const activateSubFlow = (flow) => {
     dispatch({ type: actionTypes.ACTIVATE_SUB_FLOW, flow });
+  };
+
+  const clearFlowDetails = () => {
+    dispatch({ type: actionTypes.CLEAR_FLOW });
+  };
+
+  const setCurrentFlow = (flow, productId) => {
+    dispatch({ type: actionTypes.SET_CURRENT_FLOW, flow, productId });
   };
 
   const configure = (menu) => {
@@ -78,37 +96,67 @@ const useActions = (dispatch) => {
     setCompleted,
     activateSubFlow,
     configure,
+    setCurrentFlow,
+    clearFlowDetails,
   };
 };
 
 function reducer(state, action) {
+  let updatedState = state;
+
   switch (action.type) {
+    case actionTypes.CLEAR_FLOW: {
+      updatedState = {
+        ...state,
+        completed: [],
+        activeSubFlow: [],
+        currentFlow: state.basePageUrl,
+      };
+      break;
+    }
+
+    case actionTypes.SET_CURRENT_FLOW: {
+      updatedState = {
+        ...state,
+        currentFlow: action.flow,
+        productId: action.productId,
+      };
+      break;
+    }
     case actionTypes.SET_COMPLETED: {
-      return {
+      updatedState = {
         ...state,
         completed: [...state.completed, action.flow],
       };
+      break;
     }
 
     case actionTypes.ACTIVATE_SUB_FLOW: {
-      return {
+      updatedState = {
         ...state,
         activeSubFlow: [...state.activeSubFlow, action.flow],
       };
+      break;
     }
 
     case actionTypes.CONFIGURE_FLOW: {
-      return {
+      updatedState = {
         ...state,
         basePageUrl: action.basePageUrl,
         flowMap: action.flowMap,
       };
+      break;
     }
 
     default: {
-      return { ...state };
+      updatedState = { ...state };
+      break;
     }
   }
+
+  setStore(updatedState, FLOW_REDUCER);
+
+  return updatedState;
 }
 
 const FlowContext = createContext();
@@ -116,6 +164,10 @@ const FlowContext = createContext();
 const FlowProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
+    ...storeData,
+    ...(!storeData?.completed?.length && {
+      currentFlow: storeData.basePageUrl,
+    }),
   });
   const actions = useActions(dispatch);
 
