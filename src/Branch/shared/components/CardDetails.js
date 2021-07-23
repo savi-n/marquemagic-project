@@ -209,11 +209,11 @@ export default function CardDetails({
 							<span>Credit score: {item.dcibil_score || 590}</span>
 							<ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
 							<span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
-							<span
-								className={`p-1 rounded text-center text-white text-xs w-5/12 bg-${
-									item.dscr > 2 ? 'green-500' : item.dscr > 1.5 ? 'yellow-400' : 'red-600'
-								}`}
-							>
+							<span style= {{backgroundColor: 
+									item.dscr > 2 ? '#00a152' : item.dscr > 1.5 ? '#ffea00' : 'red'
+								}}
+								className={`p-1 rounded text-center text-white text-xs w-5/12  `}
+							> 
 								DSCR: {item.dscr?.toFixed(2)}
 							</span>
 						</section>
@@ -267,6 +267,7 @@ export default function CardDetails({
 								<section className='flex flex-col text-xs'>
 									<small>
 										Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
+										,{t?.assignedAt || item.assigned_time || new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}
 									</small>
 									<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
 									{usersList && item.assignmentLog && (
