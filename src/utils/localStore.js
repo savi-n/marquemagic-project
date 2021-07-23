@@ -1,14 +1,23 @@
-export function localStore(data) {
-  localStorage.setItem("cub_details_dev", JSON.stringify(data));
+const name = window.location.hostname;
+
+export function setStore(data, dataFrom) {
+  const storeData = {
+    ...(JSON.parse(localStorage.getItem(name)) || {}),
+    [dataFrom]: data,
+  };
+  localStorage.setItem(name, JSON.stringify(storeData));
+}
+
+export function getStore() {
+  return {
+    ...(JSON.parse(localStorage.getItem(name)) || {}),
+  };
 }
 
 export function localStoreUserId(data) {
   localStorage.setItem("cub_user_id_dev", JSON.stringify(data));
 }
 
-export function getStore() {
-  return {
-    ...JSON.parse(localStorage.getItem("cub_details_dev")),
-    userId: JSON.parse(localStorage.getItem("cub_user_id_dev")),
-  };
+export function removeStore() {
+  localStorage.removeItem(name);
 }
