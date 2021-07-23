@@ -11,7 +11,9 @@ import {
 	getApprovalStatus,
 	assignUserToLoan,
 	getLoanDocs,
-	getCommentList
+	getCommentList,
+	docTypes,
+	borrowerDocUpload
 } from '../utils/requests';
 
 export default function SharedCAT({
@@ -72,21 +74,73 @@ export default function SharedCAT({
 		).then(files => console.log(files));
 	};
 
+	const [docType, setDocTypes] = useState(null);
+	const [option, setOption] = useState([]);
+
+	useEffect(() => {
+		const arr = [];
+		docTypes(item.loan_product_id, item?.Business_Type).then(res => {
+			setDocTypes(res);
+			if (res) {
+				Object.keys(res).map(k => {
+					res[k].map(p => {
+						arr.push(p);
+					});
+				});
+				setOption(arr);
+			}
+		});
+	}, []);
+
+	const [checkedDocs, setCheckedDocs] = useState([]);
+	const [docs, setDocs] = useState([]);
+
+	const changeHandler = value => {
+		const out = option.find(d => d?.name === value);
+		setCheckedDocs([...checkedDocs, out?.name]);
+	};
+
+	const removeHandler = value => {
+		console.log(value);
+	};
+
 	const upload = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full'>
 			<section className='h-auto overflow-hidden'>
 				<FileUpload
 					accept=''
 					upload={{
-						url: DOCS_UPLOAD_URL_LOAN({ userid: item.createdUserId }),
+						url: DOCS_UPLOAD_URL_LOAN({
+							userid: item?.sales_id
+						}),
 						header: {
 							Authorization: `Bearer ${localStorage.getItem('token')}`
 						}
 					}}
+					docTypeOptions={option}
+					branch={true}
+					changeHandler={changeHandler}
+					onRemoveFile={e => removeHandler(e)}
+					docsPush={true}
+					docs={docs}
+					loan_id={item?.id}
+					directorId={item?.directors?.[0].id}
+					setDocs={setDocs}
 				/>
 			</section>
 			<section className='w-full gap-x-4 flex justify-end'>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+				<Button
+					disabled={docs.length === 0}
+					type='blue-light'
+					size='small'
+					rounded='rfull'
+					onClick={() => {
+						borrowerDocUpload(docs).then(res => {
+							setDocs([]);
+						});
+						getCLicker(null);
+					}}
+				>
 					Submit
 				</Button>
 				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
@@ -266,7 +320,7 @@ export default function SharedCAT({
 		</section>
 	);
 
-	getCommentList(item.id);
+	// getCommentList(item.id);
 
 	const comments = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
