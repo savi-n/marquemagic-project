@@ -26,7 +26,7 @@ export default function BankList({ field, onSelectOptionCallback }) {
 
   const { response } = useFetch({
     url: BANK_LIST_FETCH,
-    headers: { authorization: `Bearer ${userToken || companyDetail.token}` },
+    headers: { authorization: `Bearer ${userToken || companyDetail?.token}` },
   });
 
   const [options, setOptions] = useState([]);

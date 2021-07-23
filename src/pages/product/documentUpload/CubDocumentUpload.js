@@ -149,7 +149,9 @@ export default function DocumentUpload({
 
   const { processing, caseCreationUserType } = useCaseCreation(
     "Co-applicant",
-    productId[state[USER_ROLES[userType || "User"]].applicantData.incomeType],
+    productId[
+      (state[USER_ROLES[userType || "User"]]?.applicantData?.incomeType)
+    ] || "",
     "Co-applicant"
   );
 
@@ -170,7 +172,7 @@ export default function DocumentUpload({
             : 1,
         loan_product:
           productId[
-            state[USER_ROLES[userType || "User"]].applicantData.incomeType
+            (state[USER_ROLES[userType || "User"]]?.applicantData?.incomeType)
           ],
       },
     },
@@ -528,7 +530,7 @@ export default function DocumentUpload({
         <Doc>Documents Required</Doc>
         <div>
           {DOCUMENTS_TYPE.map((docType) =>
-            response?.[docType[1]].length ? (
+            response?.[docType[1]]?.length ? (
               <Fragment key={docType[0]}>
                 <DocTypeHead>{docType[0]}</DocTypeHead>
                 {response?.[docType[1]]?.map((doc) => (

@@ -38,7 +38,7 @@ const Li = styled.li`
     font-weight: bold;
     width: 5px;
     height: 5px;
-    border-radius: 5px;
+    border-radius: 50%;
     left: -20px;
     top: 8px;
   }
@@ -48,12 +48,25 @@ const Li = styled.li`
   }
 `;
 
+const SubLi = styled(Li)`
+  &::before {
+    border: 1px solid black;
+    background: white;
+  }
+`;
+
 const H = styled.h1`
   font-size: 1.5em;
   font-weight: 500;
   span {
     color: ${({ theme }) => theme.main_theme_color};
   }
+`;
+
+const SubHead = styled.div`
+  margin: 20px 0;
+  font-size: 18px;
+  font-weight: 500;
 `;
 
 export default function ProductDetails({ productDetails, onFlowChange, map }) {
@@ -66,11 +79,28 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
       <>
         <Colom1>
           <H dangerouslySetInnerHTML={{ __html: productDetails.head }} />
+          {productDetails.description && (
+            <div>{productDetails.description}</div>
+          )}
           <div>
+            {productDetails.listHead && (
+              <SubHead>{productDetails.listHead}</SubHead>
+            )}
             <ul>
-              {productDetails.li.map((l) => (
-                <Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()} />
-              ))}
+              {productDetails.li.map((l) =>
+                Array.isArray(l) ? (
+                  <ul style={{ marginLeft: "40px" }}>
+                    {l.map((sub) => (
+                      <SubLi
+                        dangerouslySetInnerHTML={{ __html: sub }}
+                        key={uuidv4()}
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  <Li dangerouslySetInnerHTML={{ __html: l }} key={uuidv4()} />
+                )
+              )}
             </ul>
           </div>
           {map && (

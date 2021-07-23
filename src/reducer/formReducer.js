@@ -1,5 +1,11 @@
 import { createContext, useReducer } from "react";
 
+import { setStore, getStore } from "../utils/localStore";
+
+const FORM_REDUCER = "formReducer";
+
+const storeData = getStore()[FORM_REDUCER] || {};
+
 const actionTypes = {
   SET_USERTYPE_APPLICANT_DATA: "SET_USERTYPE_APPLICANT_DATA",
   SET_USERTYPE_ADDRESS_DATA: "SET_USERTYPE_ADDRESS_DATA",
@@ -132,9 +138,11 @@ const useActions = (dispatch) => {
 };
 
 function reducer(state, action) {
+  let updatedState = state;
+
   switch (action.type) {
     case actionTypes.SET_USERTYPE_AGREEMENT_DOCS: {
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
@@ -144,16 +152,18 @@ function reducer(state, action) {
           ],
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_CUB_STATEMENT_DATA: {
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           cubStatement: action.statement,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_DOCUMENT_TYPE: {
@@ -178,13 +188,14 @@ function reducer(state, action) {
           : doc
       );
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           uploadedDocs: userDocs,
         },
       };
+      break;
     }
 
     case actionTypes.REMOVE_USERTYPE_DOCUMENT: {
@@ -192,13 +203,14 @@ function reducer(state, action) {
         (doc) => doc.id !== action.docId
       );
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           uploadedDocs: userDocs,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_CIBIL_DATA: {
@@ -207,13 +219,14 @@ function reducer(state, action) {
         ...action.cibilData,
       };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           cibilData,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_APPLICANT_DATA: {
@@ -222,13 +235,14 @@ function reducer(state, action) {
         ...action.applicantData,
       };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           applicantData,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_ADDRESS_DATA: {
@@ -237,13 +251,14 @@ function reducer(state, action) {
         address: action.addressData,
       };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           applicantData,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_EMI_DATA: {
@@ -252,13 +267,14 @@ function reducer(state, action) {
       //   emi: action.emiData,
       // };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           emi: action.emiData,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_BANK_DATA: {
@@ -267,13 +283,14 @@ function reducer(state, action) {
         ...action.bankData,
       };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           bankData,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_SALARY_DATA: {
@@ -282,13 +299,14 @@ function reducer(state, action) {
         ...action.salaryData,
       };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           applicantData,
         },
       };
+      break;
     }
 
     case actionTypes.SET_USERTYPE_LOAN_DATA: {
@@ -297,13 +315,14 @@ function reducer(state, action) {
         ...action.loanData,
       };
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           loanData,
         },
       };
+      break;
     }
     case actionTypes.SET_USERTYPE_DOCUMENTS: {
       const uploadedDocs = [
@@ -311,19 +330,25 @@ function reducer(state, action) {
         ...action.docs,
       ];
 
-      return {
+      updatedState = {
         ...state,
         [action.userType]: {
           ...state[action.userType],
           uploadedDocs,
         },
       };
+      break;
     }
 
     default: {
-      return { ...state };
+      updatedState = { ...state };
+      break;
     }
   }
+
+  setStore(updatedState, FORM_REDUCER);
+
+  return updatedState;
 }
 
 const FormContext = createContext();
@@ -331,6 +356,7 @@ const FormContext = createContext();
 const FormProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
+    ...storeData,
   });
   const actions = useActions(dispatch);
 

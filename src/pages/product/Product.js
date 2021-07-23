@@ -7,6 +7,7 @@ import useFetch from "../../hooks/useFetch";
 import { AppContext } from "../../reducer/appReducer";
 import { FlowContext } from "../../reducer/flowReducer";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
+import ContinueModal from "../../components/modals/ContinueModal";
 import Router from "./Router";
 
 const Wrapper = styled.div`
@@ -77,6 +78,7 @@ const Link = styled.div`
 `;
 
 export default function Product({ product, url }) {
+  const productIdPage = atob(product);
   const {
     state: { whiteLabelId },
   } = useContext(AppContext);
@@ -87,8 +89,10 @@ export default function Product({ product, url }) {
       activeSubFlow: subFlowMenu,
       flowMap,
       basePageUrl,
+      currentFlow,
+      productId,
     },
-    actions: { configure },
+    actions: { configure, setCurrentFlow, clearFlowDetails },
   } = useContext(FlowContext);
 
   const { response } = useFetch({
@@ -97,18 +101,53 @@ export default function Product({ product, url }) {
   });
 
   useEffect(() => {
-    if (response) configure(response.data?.product_details?.flow);
+    if (response) {
+      configure(response.data?.product_details?.flow);
+    }
   }, [response]);
 
   useEffect(() => {
-    if (basePageUrl) setCurrentFlow(basePageUrl);
-  }, [basePageUrl]);
+    if (productId !== productIdPage) {
+      clearFlowDetails();
+    }
+  }, []);
 
-  const [currentFlow, setCurrentFlow] = useState("");
+  // useEffect(() => {
+  //   if (basePageUrl) setCurrentFlow(basePageUrl);
+  // }, [basePageUrl]);
+
+  const [
+    continueExistingApplication,
+    setContinueExistingApplication,
+  ] = useState(false);
+
+  const [showContinueModal, setShowContinueModal] = useState(false);
+
+  const onYesClick = () => {
+    setContinueExistingApplication(true);
+    setShowContinueModal(true);
+  };
+
+  const onNoClick = () => {
+    setContinueExistingApplication(false);
+    setShowContinueModal(true);
+    clearFlowDetails(basePageUrl);
+  };
 
   const onFlowChange = (flow) => {
-    setCurrentFlow(flow);
+    setCurrentFlow(flow, atob(product));
+    setShowContinueModal(true);
   };
+
+  const currentFlowDetect = () => {
+    if (completedMenu.length && productId === productIdPage) {
+      return showContinueModal ? currentFlow : basePageUrl;
+    }
+
+    return currentFlow;
+  };
+
+  let flow = currentFlowDetect();
 
   return (
     response &&
@@ -116,16 +155,15 @@ export default function Product({ product, url }) {
       <Wrapper>
         <Colom1>
           <Link onClick={(e) => {}}>
-            <Head active={currentFlow === "product-details"}>
+            <Head active={flow === "product-details"}>
               {response.data.name} <span>{response.data.description}</span>
             </Head>
           </Link>
           {response.data?.product_details?.flow?.map((m) =>
-            (!m.hidden || m.id === currentFlow) &&
-            m.id !== "product-details" ? (
+            (!m.hidden || m.id === flow) && m.id !== "product-details" ? (
               <Fragment key={m.id}>
                 <Link onClick={(e) => {}}>
-                  <Menu active={currentFlow === m.id}>
+                  <Menu active={flow === m.id}>
                     <div>{m.name}</div>
                     {completedMenu.includes(m.id) && (
                       <CheckBox bg="white" checked round fg={"blue"} />
@@ -136,7 +174,7 @@ export default function Product({ product, url }) {
                   subFlowMenu.includes(m.id) &&
                   m.flow.map((item) => (
                     <Link key={item.id} onClick={(e) => {}}>
-                      <SubMenu active={currentFlow === item.id}>
+                      <SubMenu active={flow === item.id}>
                         <div>{item.name}</div>
                         {completedMenu.includes(item.id) && (
                           <CheckBox bg="white" checked round fg={"blue"} />
@@ -150,13 +188,18 @@ export default function Product({ product, url }) {
         </Colom1>
         <Colom2>
           <Router
-            currentFlow={currentFlow || basePageUrl}
-            map={flowMap?.[currentFlow]}
+            currentFlow={flow || basePageUrl}
+            map={flowMap?.[flow]}
             productDetails={response.data?.product_details}
             onFlowChange={onFlowChange}
             productId={response.data?.product_id}
           />
         </Colom2>
+        {!!completedMenu.length &&
+          !showContinueModal &&
+          productId === productIdPage && (
+            <ContinueModal onYes={onYesClick} onNo={onNoClick} />
+          )}
       </Wrapper>
     )
   );
