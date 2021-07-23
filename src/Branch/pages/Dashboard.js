@@ -1,11 +1,9 @@
 import { useState, lazy, useContext, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import { BranchUserContext } from '../../reducer/branchUserReducer';
 
 import '../components/styles/index.scss';
 import { getUsersList } from '../utils/requests';
-// import { getNCStatus } from "../utils/requests";
 
 const Applications = lazy(() => import('../components/Applications'));
 const Home = lazy(() => import('../components/Home'));
