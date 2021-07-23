@@ -1,5 +1,11 @@
 import { createContext, useReducer } from "react";
 
+import { setStore, getStore } from "../utils/localStore";
+
+const APP_REDUCER = "appReducer";
+
+const storeData = getStore()[APP_REDUCER] || {};
+
 const actionTypes = {
   SET_WHITELABEL_ID: "SET_WHITELABEL_ID",
   SET_CLIENT_TOKEN: "SET_CLIENT_TOKEN", //ClientVerify api
@@ -12,7 +18,7 @@ const INITIAL_STATE = {
   whiteLabelId: null,
   clientToken: null, // CLIENT TOKEN
   bankToken: null, // CUSTOMER TOKEN
-  bankRequestId: null, //REQUEST ID
+  bankRequestId: null, // REQUEST ID
   logo: null,
 };
 
@@ -38,34 +44,45 @@ const useActions = (dispatch) => {
 };
 
 function reducer(state, action) {
+  let updatedState = state;
+
   switch (action.type) {
     case actionTypes.SET_WHITELABEL_ID: {
-      return { ...state, whiteLabelId: action.id };
+      updatedState = { ...state, whiteLabelId: action.id };
+      break;
     }
 
     case actionTypes.SET_CLIENT_TOKEN: {
-      return { ...state, clientToken: action.token };
+      updatedState = { ...state, clientToken: action.token };
+      break;
     }
 
     case actionTypes.SET_BANK_TOKEN: {
-      return {
+      updatedState = {
         ...state,
         bankToken: action.bankToken,
         bankRequestId: action.requestId,
       };
+      break;
     }
 
     case actionTypes.SET_LOGO: {
-      return {
+      updatedState = {
         ...state,
         logo: action.logo,
       };
+      break;
     }
 
     default: {
-      return { ...state };
+      updatedState = { ...state };
+      break;
     }
   }
+
+  setStore(updatedState, APP_REDUCER);
+
+  return updatedState;
 }
 
 const AppContext = createContext();
@@ -73,6 +90,7 @@ const AppContext = createContext();
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
+    ...storeData,
   });
   const actions = useActions(dispatch);
 

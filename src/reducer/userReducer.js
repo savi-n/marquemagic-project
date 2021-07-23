@@ -1,6 +1,8 @@
 import { createContext, useReducer } from "react";
 
-import { localStore, getStore, localStoreUserId } from "../utils/localStore";
+import { setStore, getStore } from "../utils/localStore";
+
+const USER_REDUCER = "userReducer";
 
 const actionTypes = {
   SET_USERID: "SET_USERID",
@@ -10,38 +12,24 @@ const actionTypes = {
   SET_OTHER_USER_TOKEN: "SET_OTHER_USER_TOKEN",
 };
 
-const storeData = getStore();
+const storeData = getStore()[USER_REDUCER] || {};
 
-//  Development only
 const INITIAL_STATE = {
-  userId: storeData.userId || null,
-  userDetails: storeData.userDetails || null,
-  userBankDetails: storeData.userBankDetails || null,
-  userAccountToken: storeData.userAccountToken || null,
-  userToken: storeData.userToken || null, // ACCOUNT TOKEN
+  userId: null,
+  userDetails: null,
+  userBankDetails: null,
+  userAccountToken: null,
+  userToken: null, // ACCOUNT TOKEN
   coapplicant: null,
   gurantor: null,
 };
-//End Developement
-
-// const INITIAL_STATE = {
-//   userId: null,
-//   userDetails: null,
-//   userBankDetails: null,
-//   userAccountToken: null,
-//   userToken: null,
-//   coapplicant: null,
-//   gurantor: null,
-// };
 
 const useActions = (dispatch) => {
   const setUserId = (userId) => {
-    localStoreUserId(userId);
     dispatch({ type: actionTypes.SET_USERID, userId });
   };
 
   const setUserDetails = (userDetails) => {
-    localStore(userDetails);
     dispatch({ type: actionTypes.SET_USER_DETAILS, data: userDetails });
   };
 
@@ -61,16 +49,18 @@ const useActions = (dispatch) => {
 };
 
 function reducer(state, action) {
+  let updatedState = state;
   switch (action.type) {
     case actionTypes.SET_USERID: {
-      return {
+      updatedState = {
         ...state,
         userId: action.userId,
       };
+      break;
     }
 
     case actionTypes.SET_USER_DETAILS: {
-      return {
+      updatedState = {
         ...state,
         ...action.data,
         userDetails: action.data.userDetails,
@@ -78,19 +68,26 @@ function reducer(state, action) {
         userAccountToken: action.data.userAccountToken,
         userToken: action.data.userToken,
       };
+      break;
     }
 
     case actionTypes.SET_OTHER_USER_TOKEN: {
-      return {
+      updatedState = {
         ...state,
         [action.userType]: action.data,
       };
+      break;
     }
 
     default: {
-      return { ...state };
+      updatedState = { ...state };
+      break;
     }
   }
+
+  setStore(updatedState, USER_REDUCER);
+
+  return updatedState;
 }
 
 const UserContext = createContext();
@@ -98,6 +95,7 @@ const UserContext = createContext();
 const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
+    ...storeData,
   });
   const actions = useActions(dispatch);
 
