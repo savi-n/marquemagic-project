@@ -115,6 +115,7 @@ export const loanDocMapping = async (loanId, token = localStorage.getItem('token
 };
 
 export const viewDocument = async (loan_id, userid, filename, token = localStorage.getItem('token')) => {
+	console.log(loan_id, filename, userid);
 	const g = await axios.post(
 		`${API_END_POINT}/viewDocument`,
 		{ filename, userid, loan_id },
@@ -122,16 +123,18 @@ export const viewDocument = async (loan_id, userid, filename, token = localStora
 	);
 	const t = await g;
 
-	const dec = data => {
-		var rawData = CryptoJS.enc.Base64.parse(data);
-		var key = CryptoJS.enc.Latin1.parse(SECRET);
-		var iv = CryptoJS.enc.Latin1.parse(SECRET);
-		var plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, { iv: iv });
-		var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
-		t.data.signedurl = plaintext;
-		window.open(plaintext);
-	};
-	dec(t.data.signedurl);
+	if (t.data.status !== 'nok') {
+		const dec = data => {
+			var rawData = CryptoJS.enc.Base64.parse(data);
+			var key = CryptoJS.enc.Latin1.parse(SECRET);
+			var iv = CryptoJS.enc.Latin1.parse(SECRET);
+			var plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, { iv: iv });
+			var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
+			t.data.signedurl = plaintext;
+			window.open(plaintext);
+		};
+		dec(t.data.signedurl);
+	}
 };
 
 export const needAction = async (ncStatusManageName, token = localStorage.getItem('token')) => {
@@ -210,4 +213,22 @@ export const uploadDoc = async (userid, token = localStorage.getItem('token')) =
 	);
 
 	const t = await g;
+};
+
+export const getGroupedDocs = async (
+	case_id,
+	white_label_id = localStorage.getItem('wt_lbl'),
+	token = localStorage.getItem('token')
+) => {
+	const gq = await axios.get(`${API_END_POINT}/case-whitelabelEncrypt`, {
+		headers: { Authorization: `Bearer ${token}` },
+		params: { white_label_id }
+	});
+	const tq = await gq;
+	const g = await axios.get(`${API_END_POINT}/uploaded_doc_list`, {
+		headers: { Authorization: `Bearer ${token}` },
+		params: { case_id, white_label_id: tq.data.encrypted_whitelabel[0] }
+	});
+	const t = await g;
+	return t.data.data;
 };

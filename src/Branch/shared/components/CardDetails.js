@@ -133,8 +133,10 @@ export default function CardDetails({
 	};
 
 	const getRecom = data => {
-		const a = JSON.parse(data);
-		return a;
+		if (data !== 'Not Qualified') {
+			const a = JSON.parse(data);
+			return a;
+		}
 	};
 
 	const t = getRecom(item.remarks);

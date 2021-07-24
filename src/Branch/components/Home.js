@@ -37,13 +37,13 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 	useEffect(async () => {
 		setLoading(true);
 		getCase('Pending Applications').then(res => {
-			if (res.statusCode === 'NC200') {
+			if (res && res.length > 0) {
 				setPaData(res);
 				setLoading(false);
 			}
 		});
 		getCase('Sanctioned').then(res => {
-			if ((res.statusCode = 'NC200')) {
+			if (res && res.length > 0) {
 				setSanData(res);
 				setLoading(false);
 			}
