@@ -167,9 +167,9 @@ export default function CardDetails({
 								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
 								{item.loan_amount} {item.loan_amount_um}
 							</span>
-							{item.net_monthly_income && (
+							{(item.net_monthly_income || item.gross_income)  && (
 								<small>
-									₹ <span className='text-lg'>{item.net_monthly_income}</span> Monthly Income
+									₹ <span className='text-lg'>{(item.net_monthly_income || item.gross_income)}</span> Monthly Income
 								</small>
 							)}
 						</section>
