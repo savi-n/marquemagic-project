@@ -266,8 +266,9 @@ export default function CardDetails({
 							<>
 								<section className='flex flex-col text-xs'>
 									<small>
-										Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
-										,{t?.assignedAt || item.assigned_time || new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}
+										Assigned at: 
+										{t?.assignedAt || new Date(item?.RequestDate ).toDateString('en-US') || item?.modified_on?.toDateString('en-US')  },
+										{t?.assignedAt || new Date(item?.RequestDate ).toLocaleTimeString('en-US') || item?.modified_on?.toLocaleTimeString('en-US')  }
 									</small>
 									<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
 									{usersList && item.assignmentLog && (
