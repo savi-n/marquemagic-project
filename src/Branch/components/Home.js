@@ -37,13 +37,13 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 	useEffect(async () => {
 		setLoading(true);
 		getCase('Pending Applications').then(res => {
-			if (res.statusCode === 'NC200') {
+			if (res && res.length > 0) {
 				setPaData(res);
 				setLoading(false);
 			}
 		});
 		getCase('Sanctioned').then(res => {
-			if ((res.statusCode = 'NC200')) {
+			if (res && res.length > 0) {
 				setSanData(res);
 				setLoading(false);
 			}
@@ -93,8 +93,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 				<section className='flex justify-between gap-x-10'>
 					{dChartData.map((item, index) =>
 						Object.keys(item).map(i => (
-							<Card small={true} key={item[i].label} head={item[i].label}>
-								<section className='w-full flex items-center'>
+							<Card medium={true} full={true} key={item[i].label} head={item[i].label}>
+								<section className='w-full flex items-center justify-between'>
 									<section>
 										<PieChart width={300} height={180}>
 											<Pie
@@ -137,7 +137,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 						))
 					)}
 					<section className='w-9/12'>
-						<Card full={true} head='Average Tat'>
+						<Card medium={true} full={true} head='Average Tat'>
 							<span>4 Hours</span>
 						</Card>
 					</section>
