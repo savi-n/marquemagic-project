@@ -46,6 +46,7 @@ export default function CheckApplication(props) {
 			if (!data) setData(res);
 			setLoading(false);
 			if (res) {
+				console.log(props.productId, res?.business_id?.businesstype?.id);
 				docTypes(props.productId, res?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
@@ -728,7 +729,7 @@ export default function CheckApplication(props) {
 													setDocs={setDocs}
 												/>
 												<section className='flex gap-x-4 flex-wrap gap-y-4'>
-													{docsUploaded && (
+													{docsUploaded.length > 0 && (
 														<>
 															<section>
 																<span>KYC Docs</span>
