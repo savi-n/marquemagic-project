@@ -60,7 +60,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 				<h1 className='text-xl'>Dashboard</h1>
 				<section className='flex justify-between gap-x-6'>
 					{data.map(item => (
-						<Card full={true} key={item} head={item.label}>
+						<Card small={true} key={item} head={item.label}>
 							<section className='flex justify-between'>
 								<span className='flex flex-col items-center'>
 									{item.week}
@@ -93,7 +93,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 				<section className='flex justify-between gap-x-10'>
 					{dChartData.map((item, index) =>
 						Object.keys(item).map(i => (
-							<Card full={true} key={item[i].label} head={item[i].label}>
+							<Card small={true} key={item[i].label} head={item[i].label}>
 								<section className='w-full flex items-center'>
 									<section>
 										<PieChart width={300} height={180}>

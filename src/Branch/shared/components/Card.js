@@ -12,7 +12,8 @@ export default function Card(props) {
 		recommendation,
 		reasonForRejection,
 		AR,
-		full
+		full,
+		small
 	} = props;
 
 	const getter = () => {
@@ -37,7 +38,7 @@ export default function Card(props) {
 		<main
 			style={{
 				boxShadow: '0 0 19px 0px #98AFC7',
-				height: `${getter() ? '40rem' : 'auto'}`,
+				height: `${getter() ? 'auto' : small ? 'auto' : '22rem'}`,
 				maxHeight: `${getter() ? '80rem' : '350px'}`,
 				width: `${!full ? 'calc(100%/3)' : '100%'}`,
 				maxWidth: `${getter() ? '100%' : '100%'}`
