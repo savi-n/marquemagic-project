@@ -28,6 +28,13 @@ const BANK_FLOW = {
           },
         },
       ],
+      status: {
+        NC500: "error",
+        NC201: "accounts",
+        NC202: "next",
+        NC302: "updateCaptcha",
+        NC200: "done",
+      },
       api: `${ENDPOINT_BANK}/spSubmitCaptcha`,
     },
     {
@@ -41,6 +48,12 @@ const BANK_FLOW = {
         },
       ],
       api: `${ENDPOINT_BANK}/spSubmitOtp`,
+      status: {
+        NC500: "error",
+        NC201: "accounts",
+        NC302: "invalidOtp",
+        NC200: "next",
+      },
     },
     {
       type: "accountslist",
@@ -53,6 +66,10 @@ const BANK_FLOW = {
         },
       ],
       api: `${ENDPOINT_BANK}/spSelectAccount`,
+      status: {
+        NC500: "error",
+        NC200: "done",
+      },
     },
   ],
   axis: [
@@ -74,19 +91,32 @@ const BANK_FLOW = {
           },
         },
       ],
+      status: {
+        NC500: "error",
+        NC302: "error",
+        NC202: "skip",
+        NC203: "next",
+        NC200: "next",
+      },
       api: `${ENDPOINT_BANK}/apSubmitDetails`,
     },
     {
       fields: [
         {
           name: "otp",
-          placeholder: "OTP",
+          placeholder: "Security Question",
           rules: {
             required: true,
           },
         },
       ],
       api: `${ENDPOINT_BANK}/apSubmitSecurityAnswer`,
+      status: {
+        NC500: "error",
+        NC302: "error",
+        NC202: "next",
+        NC200: "next",
+      },
     },
     {
       fields: [
@@ -99,6 +129,12 @@ const BANK_FLOW = {
         },
       ],
       api: `${ENDPOINT_BANK}/apSubmitOtp`,
+      status: {
+        NC500: "error",
+        NC302: "error",
+        // NC203: "next",
+        NC200: "done",
+      },
     },
   ],
   axisCorp: [
@@ -186,6 +222,12 @@ const BANK_FLOW = {
           },
         },
       ],
+      status: {
+        NC500: "error",
+        NC202: "next",
+        NC302: "error",
+        NC200: "next",
+      },
       api: `${ENDPOINT_BANK}/hsSubmitdetails`,
     },
     {
@@ -200,6 +242,11 @@ const BANK_FLOW = {
         },
       ],
       api: `${ENDPOINT_BANK}/hsSubmitOtp`,
+      status: {
+        NC500: "error",
+        NC302: "error",
+        NC200: "accounts",
+      },
     },
     {
       type: "accountslist",
@@ -211,6 +258,10 @@ const BANK_FLOW = {
           },
         },
       ],
+      status: {
+        NC500: "error",
+        NC200: "captcha",
+      },
       api: `${ENDPOINT_BANK}/hsSelectAccount`,
     },
     {
@@ -224,6 +275,11 @@ const BANK_FLOW = {
           },
         },
       ],
+      status: {
+        NC302: "error",
+        NC500: "error",
+        NC200: "done",
+      },
       api: `${ENDPOINT_BANK}/hsSubmitCaptcha`,
     },
   ],
@@ -246,6 +302,11 @@ const BANK_FLOW = {
           },
         },
       ],
+      status: {
+        NC500: "error",
+        NC302: "error",
+        NC200: "next",
+      },
       api: `${ENDPOINT_BANK}/isSubmitDetails`,
     },
   ],
