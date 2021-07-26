@@ -377,8 +377,8 @@ export default function DocumentUpload({
       address2: userBankDetails?.address2 || "",
       address3: userBankDetails?.address3 || "",
       address4: userBankDetails?.address4 || "",
-      city: data?.district[0] || "",
-      state: data?.state[0] || "",
+      city: data?.district?.[0] || "",
+      state: data?.state?.[0] || "",
       pinCode: userBankDetails?.pin || "",
     });
   };
