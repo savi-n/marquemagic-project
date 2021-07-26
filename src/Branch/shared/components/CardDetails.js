@@ -188,7 +188,7 @@ export default function CardDetails({
       approvalHistory={approvalHistory}
       queries={queries}
     >
-      <section className="w-full">
+      <section className="">
         <section className="flex flex-col gap-y-4 w-full z-10">
           <section className="flex items-center items-center justify-between">
             <section className="flex flex-col w-1/2">

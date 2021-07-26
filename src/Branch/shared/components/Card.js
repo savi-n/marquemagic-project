@@ -38,15 +38,14 @@ export default function Card(props) {
     <main
       style={{
         boxShadow: "0 0 19px 0px #98AFC7",
-        flex: "1",
-        flexDirection: "column",
-        // height: `${getter() ? 'auto' : small ? 'auto' : medium ? '16rem' : '23rem'}`,
-        // maxHeight: `${getter() ? '80rem' : 'auto'}`,
-        // width: `${!full ? 'calc(100%/3)' : '100%'}`,
-        // maxWidth: `${getter() ? '100%' : '100%'}`
+        // height: `${
+        //   getter() ? "auto" : small ? "auto" : medium ? "16rem" : "23rem"
+        // }`,
+        // maxHeight: `${getter() ? "80rem" : "auto"}`,
+        width: `${!full ? "calc(100%/3)" : "100%"}`,
+        maxWidth: `${getter() ? "100%" : "100%"}`,
       }}
-      className={` p-6  rounded-md flex-flex-col flex`}
-      //   ${full && "w-full"}
+      className={`${full && "w-full"} p-6 h-full rounded-md flex-flex-col`}
     >
       {props.head && (
         <section className="pb-6 flex flex-col gap-y-2">
