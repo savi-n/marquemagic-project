@@ -109,6 +109,9 @@ const AppLayout = () => {
               openAccount={
                 response?.permission?.color_theme_react?.openAccount?.status
               }
+              openAccountLink={
+                response?.permission?.color_theme_react?.openAccount?.link
+              }
             />
           </HeaderWrapper>
         )}
