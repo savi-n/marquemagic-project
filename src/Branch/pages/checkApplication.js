@@ -7,7 +7,8 @@ import {
 	docTypes,
 	uploadDoc,
 	borrowerDocUpload,
-	reassignLoan
+	reassignLoan,
+	getGroupedDocs
 } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
@@ -19,6 +20,11 @@ import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_co
 import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
 export default function CheckApplication(props) {
+	const checkTab = activeTab => {
+		if (activeTab === 'Pending Applications' || activeTab === 'In-Progress@NC') return false;
+		return true;
+	};
+
 	const [fields, setFields] = useState(null);
 	const id = props.id;
 	const [comment, setComment] = useState(null);
@@ -27,10 +33,11 @@ export default function CheckApplication(props) {
 	const [coApplicant, setCoApplicant] = useState(false);
 	const getCoApplicantData = data => data.directors.map(e => !e.isApplicant && e);
 	const getDocDetails = data => data.loan_document;
-	const getPreEligibleData = data => data.eligiblityData[0]?.pre_eligiblity;
-	const getEligibileData = data => data.eligiblityData;
+	const getPreEligibleData = data => !checkTab(props.activeTab) && data.eligiblityData[0]?.pre_eligiblity;
+	const getEligibileData = data => checkTab(props.activeTab) && data.eligiblityData;
 	const [docType, setDocTypes] = useState(null);
 	const [option, setOption] = useState([]);
+	const [docsUploaded, setDocsUPloaded] = useState([]);
 
 	useEffect(() => {
 		const arr = [];
@@ -39,6 +46,7 @@ export default function CheckApplication(props) {
 			if (!data) setData(res);
 			setLoading(false);
 			if (res) {
+				console.log(props.productId, res?.business_id?.businesstype?.id);
 				docTypes(props.productId, res?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
@@ -61,6 +69,7 @@ export default function CheckApplication(props) {
 							)
 					);
 				});
+				getGroupedDocs(props.item.loan_ref_id).then(val => setDocsUPloaded(val));
 			}
 		});
 		if (data) {
@@ -294,7 +303,10 @@ export default function CheckApplication(props) {
 																<p className='text-blue-700 font-medium text-xl pb-8'>
 																	{i.name}
 																</p>
-																{i.fields[(i?.id)]?.data.map(
+
+																{i.fields[
+																	i.name === 'Loan Details' ? ['loan-details'] : i?.id
+																]?.data.map(
 																	el =>
 																		el && (
 																			<section className='flex space-evenly items-center'>
@@ -315,51 +327,35 @@ export default function CheckApplication(props) {
 																								}
 																							/>
 																						)}
-																						{i.name ===
-																							'Personal Details' &&
-																							Object.keys(i.fields).map(
-																								j =>
-																									j.label ===
-																										'Personal Details' &&
-																									data?.directors.map(
-																										o =>
-																											o?.type_name ===
-																												'Applicant' &&
-																											j.data.map(
-																												g => (
-																													<input
-																														defaultValue={
-																															o[
-																																g
-																																	.db_name
-																															]
-																														}
-																													/>
-																												)
-																											)
-																									)
-																							)}
 
-																						{i.name === 'Loan Details' &&
-																							data?.loanFinancialDetails?.map(
-																								o => (
-																									<>
-																										<input
-																											disabled={
-																												disabled
-																											}
-																											className='rounded-lg p-4 border w-1/3'
-																											defaultValue={
-																												o[
-																													el
-																														.db_name
-																												] ||
-																												'N/A'
-																											}
-																										/>
-																									</>
-																								)
-																							)}
+																						{i.name === 'Loan Details' && (
+																							<>
+																								<input
+																									disabled={disabled}
+																									className='rounded-lg p-4 border w-1/3'
+																									defaultValue={
+																										data[
+																											el.db_name
+																										] || 'N/A'
+																									}
+																								/>
+																							</>
+																						)}
+																						{i.name ===
+																							'Personal Details' && (
+																							<>
+																								<input
+																									disabled={disabled}
+																									className='rounded-lg p-4 border w-1/3'
+																									defaultValue={
+																										data
+																											?.directors[0][
+																											el.db_name
+																										] || 'N/A'
+																									}
+																								/>
+																							</>
+																						)}
 																						{i.name === 'Address Details' &&
 																							data?.business_id?.business_address.map(
 																								o => (
@@ -733,17 +729,82 @@ export default function CheckApplication(props) {
 													setDocs={setDocs}
 												/>
 												<section className='flex gap-x-4 flex-wrap gap-y-4'>
-													{d()[e] &&
-														d()[e].map((j, idx) => (
-															<Button
-																type='blue-light'
-																onClick={() =>
-																	viewDocument(j.loan, j.user_id, j.doc_name)
-																}
-															>
-																{j.original_doc_name}
-															</Button>
-														))}
+													{docsUploaded.length > 0 && (
+														<>
+															<section>
+																<span>KYC Docs</span>
+																{docsUploaded.map(
+																	(j, idx) =>
+																		j.document_type === 'KYC Documents' && (
+																			<section className='py-2 flex justify-evenly items-center w-full'>
+																				<section className='w-full'>
+																					<Button
+																						type='blue-light'
+																						onClick={() =>
+																							viewDocument(
+																								data?.id,
+																								j.uploadedBy,
+																								j.document_fd_key
+																							)
+																						}
+																					>
+																						{j.document_name}
+																					</Button>
+																				</section>
+																			</section>
+																		)
+																)}
+															</section>
+															<section>
+																<span>Financial Docs</span>
+																{docsUploaded.map(
+																	(j, idx) =>
+																		j.document_type === 'Financial Documents' && (
+																			<section className='py-2 flex justify-evenly items-center w-full'>
+																				<section className='w-full'>
+																					<Button
+																						type='blue-light'
+																						onClick={() =>
+																							viewDocument(
+																								data?.id,
+																								j.uploadedBy,
+																								j.document_fd_key
+																							)
+																						}
+																					>
+																						{j.document_name}
+																					</Button>
+																				</section>
+																			</section>
+																		)
+																)}
+															</section>
+															<section>
+																<span>Other Docs</span>
+																{docsUploaded.map(
+																	(j, idx) =>
+																		j.document_type === 'Other Documents' && (
+																			<section className='py-2 flex justify-evenly items-center w-full'>
+																				<section className='w-full'>
+																					<Button
+																						type='blue-light'
+																						onClick={() =>
+																							viewDocument(
+																								data?.id,
+																								j.uploadedBy,
+																								j.document_fd_key
+																							)
+																						}
+																					>
+																						{j.document_name}
+																					</Button>
+																				</section>
+																			</section>
+																		)
+																)}
+															</section>
+														</>
+													)}
 												</section>
 											</section>
 											{docType && (
@@ -856,6 +917,18 @@ export default function CheckApplication(props) {
 																disabled={disabled}
 																placeholder='Tenure'
 																defaultValue={props.item.applied_tenure}
+															/>
+														</section>
+														<section className='flex space-evenly py-2 items-center'>
+															<label className='w-1/2'>Income</label>
+															<input
+																className='rounded-lg p-4 border'
+																disabled={disabled}
+																placeholder='Tenure'
+																defaultValue={
+																	props.item.net_monthly_income ||
+																	props.item.gross_income
+																}
 															/>
 														</section>
 													</section>

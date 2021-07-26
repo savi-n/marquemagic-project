@@ -12,6 +12,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 	dashboardData();
 	getWhiteLabelPermission();
 	const [product, setProduct] = useState(null);
+	const [item, setItem] = useState(null);
+	const [productId, setProductId] = useState(null);
 	const [assignmentLog, setAssignmentLog] = useState(null);
 	var pieD1 = [];
 	var pieD2 = [];
@@ -37,13 +39,13 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 	useEffect(async () => {
 		setLoading(true);
 		getCase('Pending Applications').then(res => {
-			if (res.statusCode === 'NC200') {
+			if (res && res.length > 0) {
 				setPaData(res);
 				setLoading(false);
 			}
 		});
 		getCase('Sanctioned').then(res => {
-			if ((res.statusCode = 'NC200')) {
+			if (res && res.length > 0) {
 				setSanData(res);
 				setLoading(false);
 			}
@@ -153,14 +155,16 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 											<CardDetails
 												label='Pending Applications'
 												full={true}
+												setId={setId}
+												setViewLoan={setViewLoan}
+												setActiv={setActiv}
 												item={item}
 												lActive={lActive}
-												setId={setId}
-												setActiv={setActiv}
-												setViewLoan={setViewLoan}
 												setLActive={setLActive}
 												setAssignmentLog={setAssignmentLog}
 												setProduct={setProduct}
+												setItem={setItem}
+												setProductId={setProductId}
 											/>
 										)
 								)
@@ -187,6 +191,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 												setLActive={setLActive}
 												setAssignmentLog={setAssignmentLog}
 												setProduct={setProduct}
+												setItem={setItem}
+												setProductId={setProductId}
 											/>
 										)
 								)
@@ -199,12 +205,15 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 			</section>
 		) : (
 			<CheckApplication
+				setViewLoan={setViewLoan}
 				assignmentLog={assignmentLog}
 				home={true}
 				product={product && product}
 				id={id && id}
 				activ={activ}
 				usersList={usersList && usersList}
+				item={item}
+				productId={productId}
 			/>
 		)
 	) : (

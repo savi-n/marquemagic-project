@@ -133,8 +133,10 @@ export default function CardDetails({
 	};
 
 	const getRecom = data => {
-		const a = JSON.parse(data);
-		return a;
+		if (data !== 'Not Qualified') {
+			const a = JSON.parse(data);
+			return a;
+		}
 	};
 
 	const t = getRecom(item.remarks);
@@ -162,7 +164,7 @@ export default function CardDetails({
 					<section className='flex items-center items-center justify-between'>
 						<section className='flex flex-col w-1/2'>
 							<small>{item.businessname || 'Sample Case'}</small>
-							<span className='text-xs'>{item.loan_ref_id}</span>
+							<span className='text-xs text-blue-700'>{item.loan_ref_id}</span>
 							<span>
 								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
 								{item.loan_amount} {item.loan_amount_um}

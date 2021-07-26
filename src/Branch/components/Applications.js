@@ -115,7 +115,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 				</section>
 			</section>
 			<section
-				className='absolute right-0 px-24 flex flex-col'
+				className='absolute scroll right-0 px-24 flex flex-col'
 				style={{
 					width: '100%',
 					maxWidth: 'calc(100vw - 20%)',
@@ -197,6 +197,7 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 			activ={activ}
 			item={item}
 			productId={productId}
+			activeTab={lActive}
 		/>
 	);
 }
