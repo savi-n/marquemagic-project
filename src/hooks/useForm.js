@@ -8,6 +8,7 @@ import Pincode from "../components/inputs/PinCode";
 import DateField from "../components/inputs/DateField";
 import InputField from "../components/inputs/InputField";
 import SelectField from "../components/inputs/SelectField";
+import DisabledInput from "../components/inputs/DisabledInput";
 
 function required(value) {
   return !value;
@@ -329,6 +330,10 @@ function InputFieldRender({ field, onChange, value, unregister }) {
     className: field.className,
     style: field.style,
   };
+
+  if (field.disabled && field.pattern) {
+    return <DisabledInput {...{ ...field, ...fieldProps }} />;
+  }
 
   switch (type) {
     case "search": {
