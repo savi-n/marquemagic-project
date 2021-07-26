@@ -15,6 +15,7 @@ import { AppContext } from "../reducer/appReducer";
 import { UserContext } from "../reducer/userReducer";
 import useFetch from "../hooks/useFetch";
 import useForm from "../hooks/useForm";
+import { useToasts } from "../components/Toast/ToastProvider";
 import Modal from "./Modal";
 import Button from "./Button";
 import OtpModal from "../components/OtpModal/OtpModal";
@@ -70,6 +71,8 @@ export default function GetCUBStatementModal({
     state: { whiteLabelId, clientToken },
   } = useContext(AppContext);
 
+  const { addToast } = useToasts();
+
   const { response, newRequest } = useFetch({
     url: BANK_TOKEN_API,
     options: {
@@ -122,6 +125,10 @@ export default function GetCUBStatementModal({
 
       const res = req.data;
       if (res.statusCode === NC_STATUS_CODE.NC200) {
+        addToast({
+          message: "CUB Bank Statement Fetch Successfull",
+          type: "success",
+        });
         console.log("Success Message");
       } else {
         setError(res.message);
@@ -177,11 +184,14 @@ export default function GetCUBStatementModal({
     setLoading(true);
     setToggleOtpModal(false);
     setToggleModal(false);
+
     await fetchData(userTypeDetails.userAccountToken);
+
     setOtherUserTypeDetails({
       // ...userTypeDetails,
       ...bankTokenRef.current,
     });
+
     setLoading(false);
     onClose(true);
   };
