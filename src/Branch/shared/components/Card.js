@@ -12,7 +12,9 @@ export default function Card(props) {
 		recommendation,
 		reasonForRejection,
 		AR,
-		full
+		full,
+		small,
+		medium
 	} = props;
 
 	const getter = () => {
@@ -32,13 +34,12 @@ export default function Card(props) {
 		)
 			return true;
 	};
-
 	return (
 		<main
 			style={{
 				boxShadow: '0 0 19px 0px #98AFC7',
-				height: `${getter() ? '40rem' : 'auto'}`,
-				maxHeight: `${getter() ? '80rem' : '350px'}`,
+				height: `${getter() ? 'auto' : small ? 'auto' : medium ? '16rem' : '23rem'}`,
+				maxHeight: `${getter() ? '80rem' : 'auto'}`,
 				width: `${!full ? 'calc(100%/3)' : '100%'}`,
 				maxWidth: `${getter() ? '100%' : '100%'}`
 			}}

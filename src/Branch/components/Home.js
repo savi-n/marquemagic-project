@@ -12,6 +12,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 	dashboardData();
 	getWhiteLabelPermission();
 	const [product, setProduct] = useState(null);
+	const [item, setItem] = useState(null);
+	const [productId, setProductId] = useState(null);
 	const [assignmentLog, setAssignmentLog] = useState(null);
 	var pieD1 = [];
 	var pieD2 = [];
@@ -37,13 +39,13 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 	useEffect(async () => {
 		setLoading(true);
 		getCase('Pending Applications').then(res => {
-			if (res.statusCode === 'NC200') {
+			if (res && res.length > 0) {
 				setPaData(res);
 				setLoading(false);
 			}
 		});
 		getCase('Sanctioned').then(res => {
-			if ((res.statusCode = 'NC200')) {
+			if (res && res.length > 0) {
 				setSanData(res);
 				setLoading(false);
 			}
@@ -60,7 +62,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 				<h1 className='text-xl'>Dashboard</h1>
 				<section className='flex justify-between gap-x-6'>
 					{data.map(item => (
-						<Card full={true} key={item} head={item.label}>
+						<Card small={true} key={item} head={item.label}>
 							<section className='flex justify-between'>
 								<span className='flex flex-col items-center'>
 									{item.week}
@@ -93,8 +95,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 				<section className='flex justify-between gap-x-10'>
 					{dChartData.map((item, index) =>
 						Object.keys(item).map(i => (
-							<Card full={true} key={item[i].label} head={item[i].label}>
-								<section className='w-full flex items-center'>
+							<Card medium={true} full={true} key={item[i].label} head={item[i].label}>
+								<section className='w-full flex items-center justify-between'>
 									<section>
 										<PieChart width={300} height={180}>
 											<Pie
@@ -137,7 +139,7 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 						))
 					)}
 					<section className='w-9/12'>
-						<Card full={true} head='Average Tat'>
+						<Card medium={true} full={true} head='Average Tat'>
 							<span>4 Hours</span>
 						</Card>
 					</section>
@@ -153,14 +155,16 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 											<CardDetails
 												label='Pending Applications'
 												full={true}
+												setId={setId}
+												setViewLoan={setViewLoan}
+												setActiv={setActiv}
 												item={item}
 												lActive={lActive}
-												setId={setId}
-												setActiv={setActiv}
-												setViewLoan={setViewLoan}
 												setLActive={setLActive}
 												setAssignmentLog={setAssignmentLog}
 												setProduct={setProduct}
+												setItem={setItem}
+												setProductId={setProductId}
 											/>
 										)
 								)
@@ -187,6 +191,8 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 												setLActive={setLActive}
 												setAssignmentLog={setAssignmentLog}
 												setProduct={setProduct}
+												setItem={setItem}
+												setProductId={setProductId}
 											/>
 										)
 								)
@@ -199,12 +205,15 @@ export default function Home({ data, sortList, dChartData, d, isIdentifier, lAct
 			</section>
 		) : (
 			<CheckApplication
+				setViewLoan={setViewLoan}
 				assignmentLog={assignmentLog}
 				home={true}
 				product={product && product}
 				id={id && id}
 				activ={activ}
 				usersList={usersList && usersList}
+				item={item}
+				productId={productId}
 			/>
 		)
 	) : (
