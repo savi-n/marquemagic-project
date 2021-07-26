@@ -63,7 +63,7 @@ export default function Pincode(props) {
       );
       const pincodeData = response.data;
 
-      if (pincodeData.status === "nok") {
+      if (pincodeData.status === "nok" || !pincodeData) {
         setProcessing(false);
         return;
       }
