@@ -326,6 +326,7 @@ export default function CardDetails({
 							(approvalHistory && 'Approval History') ||
 							(reasonForRejection && 'Reason for Rejection')
 						}
+						usersList={usersList}
 						getCLicker={getClicker}
 						item={item}
 						lActive={lActive}

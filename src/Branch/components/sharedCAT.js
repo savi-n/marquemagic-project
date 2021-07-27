@@ -7,17 +7,20 @@ import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN } from '../../_config/app.config'
 import {
 	getUsersList,
 	reassignLoan,
+	reassignLoanQuery,
 	loanDocMapping,
 	getApprovalStatus,
 	assignUserToLoan,
 	getLoanDocs,
 	getCommentList,
 	docTypes,
-	borrowerDocUpload
+	borrowerDocUpload,
+	getCase
 } from '../utils/requests';
 
 export default function SharedCAT({
 	getCLicker,
+	usersList,
 	type,
 	productId,
 	item,
@@ -30,14 +33,22 @@ export default function SharedCAT({
 	const { newRequest } = useFetch();
 	const uploadedFiles = useRef([]);
 	const [users, setUsers] = useState(null);
+	const [commen, setComments] = useState('');
+	const [query, setQuery] = useState('');
+	const [user, setUser] = useState(null);
+	const [queryComment, setQueryComment] = useState(getCommentList(item.id));
 	useEffect(() => {
+
 		getUsersList().then(res => {
 			setUsers(res);
 		});
 	}, []);
 
-	const [commen, setComments] = useState('');
-	const [user, setUser] = useState(null);
+	useEffect(() => {
+		getCommentList(item.id).then(res => {
+			setQueryComment(res);
+		});
+	},[query]);
 
 	const handleFileUpload = async files => {
 		Promise.all(
@@ -101,7 +112,7 @@ export default function SharedCAT({
 	};
 
 	const removeHandler = value => {
-		console.log(value);
+		// console.log(value);
 	};
 
 	const upload = () => (
@@ -271,15 +282,78 @@ export default function SharedCAT({
 		</section>
 	);
 
+	const comment_text = () => {
+		let leng = queryComment.data ? (queryComment.data.commentList ? queryComment.data.commentList.length : 0) : 0;
+		if(leng == 0) {
+			return null;
+		}
+		return queryComment.data.commentList[leng - 1].comment_text;
+	}
+	
+	const user_name = () => {
+		let leng = queryComment.data ? (queryComment.data.commentList ? queryComment.data.commentList.length : 0) : 0;
+		if(leng == 0) {
+			return null;
+		}
+		return queryComment.data.commentList[leng - 1].user_id;
+	}
+
 	const queries = () => {
 		return (
-			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
-				<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-transparent'>
-					No Queries
+			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-4 w-full'>
+				{user_name() && comment_text() ? <section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-gray-300'>
+					<text className='font-bold'>{user_name()}</text><br/>
+					<text>{comment_text()}</text>
+				</section> :<span className='w-11/12 items-center pl-1'>No Queries</span> }
+
+				<textarea
+				placeholder='Add Comment'
+				className='rounded focus:outline-none p-2 w-11/12 self-end border'
+				onChange={e => setQuery(e.target.value)}
+				/>
+				<section className='h-auto overflow-hidden rounded focus:outline-none w-11/12 self-end'>
+					<FileUpload
+						accept=''
+						upload={{
+							url: DOCS_UPLOAD_URL_LOAN({
+								userid: item?.sales_id
+							}),
+							header: {
+								Authorization: `Bearer ${localStorage.getItem('token')}`
+							}
+						}}
+						docTypeOptions={option}
+						branch={true}
+						changeHandler={changeHandler}
+						onRemoveFile={e => removeHandler(e)}
+						docsPush={true}
+						docs={docs}
+						loan_id={item?.id}
+						directorId={item?.directors?.[0].id}
+						setDocs={setDocs}
+					/>
 				</section>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Cancel
-				</Button>
+				<section className='w-full gap-x-4 self-end h-full flex justify-end'>
+					<Button
+						type='blue-light'
+						size='small'
+						rounded='rfull'
+						onClick={() => {
+							console.log("docs ", docs);
+							if(docs.length !== 0) 
+								borrowerDocUpload(docs).then(res => {
+									setDocs([]);
+								});
+							reassignLoanQuery(item.id, query);
+							getCLicker(null);
+						}}
+					>
+						Save
+					</Button>
+					<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+						Cancel
+					</Button>
+				</section>
 			</section>
 		);
 	};
@@ -319,8 +393,6 @@ export default function SharedCAT({
 			</section>
 		</section>
 	);
-
-	// getCommentList(item.id);
 
 	const comments = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
