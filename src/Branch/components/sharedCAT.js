@@ -36,7 +36,8 @@ export default function SharedCAT({
 	const [commen, setComments] = useState('');
 	const [query, setQuery] = useState('');
 	const [user, setUser] = useState(null);
-	const [queryComment, setQueryComment] = useState(getCommentList(item.id));
+	const [queryList, setqueryList] = useState(null);
+	const [querySaved, setQuerySaved] = useState(0);
 	useEffect(() => {
 
 		getUsersList().then(res => {
@@ -45,10 +46,11 @@ export default function SharedCAT({
 	}, []);
 
 	useEffect(() => {
+		console.log(query);
 		getCommentList(item.id).then(res => {
-			setQueryComment(res);
+			setqueryList(res);
 		});
-	},[query]);
+	},[querySaved]);
 
 	const handleFileUpload = async files => {
 		Promise.all(
@@ -283,14 +285,17 @@ export default function SharedCAT({
 	);
 
 	const comment_text = () => {
-		let leng = queryComment.data ? (queryComment.data.commentList ? queryComment.data.commentList.length : 0) : 0;
+		if(queryList == null) {
+			return null;
+		}
+		let leng = queryList.data ? (queryList.data.commentList ? queryList.data.commentList.length : 0) : 0;
 		if(leng == 0) {
 			return null;
 		}
 		leng = leng - 1;
 		let comment = null;
 		start: while(true) {
-			comment = queryComment.data.commentList[leng]
+			comment = queryList.data.commentList[leng]
 			if(comment.type !== 'Query'){
 				leng = leng - 1;
 				continue start;
@@ -301,14 +306,17 @@ export default function SharedCAT({
 	}
 	
 	const user_name = () => {
-		let leng = queryComment.data ? (queryComment.data.commentList ? queryComment.data.commentList.length : 0) : 0;
+		if(queryList == null) {
+			return null;
+		}
+		let leng = queryList.data ? (queryList.data.commentList ? queryList.data.commentList.length : 0) : 0;
 		if(leng == 0) {
 			return null;
 		}
 		leng = leng - 1;
 		let comment = null;
 		start: while(true) {
-			comment = queryComment.data.commentList[leng]
+			comment = queryList.data.commentList[leng]
 			if(comment.type !== 'Query'){
 				leng = leng - 1;
 				continue start;
@@ -339,6 +347,7 @@ export default function SharedCAT({
 						rounded='rfull'
 						onClick={() => {
 							reassignLoanQuery(item.id, query);
+							setQuerySaved(querySaved + 1);
 							getCLicker(null);
 						}}
 					>
