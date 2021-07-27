@@ -194,8 +194,21 @@ export default function CardDetails({
             <section className="flex flex-col w-1/2">
               <small>{item.businessname || "Sample Case"}</small>
               <span className="text-xs text-blue-700">{item.loan_ref_id}</span>
+              <span
+                className="text-xs"
+                title={item.product}
+                // style={{
+                //   overflow: "hidden",
+                //   whiteSpace: "nowrap",
+                //   textOverflow: "ellipsis",
+                //   width: "100%",
+                // }}
+              >
+                {item.product.length > 25
+                  ? item.product.substring(0, 20) + "..."
+                  : item.product || "Auto Loan"}
+              </span>
               <span>
-                <span className="text-xs">{item.product || "Auto Loan"}</span>,{" "}
                 <br />
                 {item.loan_amount} {item.loan_amount_um}
               </span>
