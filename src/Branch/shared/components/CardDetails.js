@@ -172,218 +172,198 @@ export default function CardDetails({
 
   // getLoanDetails(item.id);
 
-  return (
-    <Card
-      full={full}
-      security={security}
-      recommendation={recommendation}
-      AR={AR}
-      status={status}
-      download={download}
-      reconsider={reconsider}
-      comments={comments}
-      reasonForRejection={reasonForRejection}
-      reopen={reopen}
-      reassign={reassign}
-      approvalHistory={approvalHistory}
-      queries={queries}
-    >
-      <section className="">
-        <section className="flex flex-col gap-y-4 w-full z-10">
-          <section className="flex items-center items-center justify-between">
-            <section className="flex flex-col w-1/2">
-              <small>{item.businessname || "Sample Case"}</small>
-              <span className="text-xs text-blue-700">{item.loan_ref_id}</span>
-              <span>
-                <span className="text-xs">{item.product || "Auto Loan"}</span>,{" "}
-                <br />
-                {item.loan_amount} {item.loan_amount_um}
-              </span>
-              {(item.net_monthly_income || item.gross_income) && (
-                <small>
-                  ₹{" "}
-                  <span className="text-lg">
-                    {item.net_monthly_income || item.gross_income}
-                  </span>{" "}
-                  Monthly Income
-                </small>
-              )}
-            </section>
-            <section className="flex flex-col items-end gap-y-2">
-              {label
-                ? getBMapper(label)[0].data.map((e) => (
-                    <Button
-                      size="small"
-                      type="blue-light"
-                      rounded="rfull"
-                      width="fulll"
-                      onClick={() => {
-                        setProductId && setProductId(item.loan_product_id);
-                        item.remarks
-                          ? setAssignmentLog && setAssignmentLog(item.remarks)
-                          : setAssignmentLog && setAssignmentLog(null);
-                        setViewLoan(true);
-                        setProduct(item.product);
-                        setId(item.id);
-                        e === "Check Documents"
-                          ? setActiv("Document Details")
-                          : item.product !==
-                              "Unsecured Business/Self-Employed" &&
-                            item.product !== "LAP Cases"
-                          ? setActiv("Applicant")
-                          : setActiv("Business Details");
-                      }}
-                    >
-                      {e}
-                    </Button>
-                  ))
-                : null}
-            </section>
-          </section>
-          <hr />
-          <section className="flex items-center items-center justify-between">
-            <section className="flex flex-col">
-              <span>Credit score: {item.dcibil_score || 590}</span>
-              <ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
-              <span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
-              <span
-                style={{
-                  backgroundColor:
-                    item.dscr > 2
-                      ? "#00a152"
-                      : item.dscr > 1.5
-                      ? "#ffea00"
-                      : "red",
-                }}
-                className={`p-1 rounded text-center text-white text-xs w-5/12  `}
-              >
-                DSCR: {item.dscr?.toFixed(2)}
-              </span>
-            </section>
-            <section className="flex flex-col items-end gap-y-2">
-              {label
-                ? getBMapper(label)[1].data.map((e) => (
-                    <Button
-                      size="small"
-                      type="blue-light"
-                      rounded="rfull"
-                      width="fulll"
-                      onClick={() => {
-                        if (e !== "Compliance") {
-                          setProduct && setProduct(item.product);
-                          setProductId && setProductId(item.loan_product_id);
-                          item.remarks
-                            ? setAssignmentLog && setAssignmentLog(item.remarks)
-                            : setAssignmentLog && setAssignmentLog(null);
-                          setViewLoan && setViewLoan(true);
-                          setId && setId(item.id);
-                          setActiv &&
-                            setActiv(
-                              e === "Pre-Eligibility" && e !== "Compliance"
-                                ? "Pre-Eligibility Details"
-                                : e === "Create Security"
-                                ? "Security Details"
-                                : e !== "Compliance" && e
-                            );
-                        } else {
-                          getClicker("Comments");
-                        }
-                      }}
-                    >
-                      {e}
-                    </Button>
-                  ))
-                : null}
-            </section>
-          </section>
-          <hr />
-          <section className="flex justify-between">
-            {arrow ? (
-              <section
-                className="border border-blue-600 rounded-full p-2 w-8 h-8 items-center justify-center flex hover:bg-blue-600 hover:text-white cursor-pointer"
-                onClick={() => setArrow(false)}
-              >
-                <FontAwesomeIcon size="1x" icon={faAngleRight} />
-              </section>
-            ) : (
-              <>
-                <section className="flex flex-col text-xs">
-                  <small>
-                    Assigned at:
-                    {t?.assignedAt ||
-                      new Date(item?.RequestDate).toDateString("en-US") ||
-                      item?.modified_on?.toDateString("en-US")}
-                    ,
-                    {t?.assignedAt ||
-                      new Date(item?.RequestDate).toLocaleTimeString("en-US") ||
-                      item?.modified_on?.toLocaleTimeString("en-US")}
-                  </small>
-                  <small>
-                    Assigned by: {t?.assignedBy || item.assigned_by}
-                  </small>
-                  {usersList && item.assignmentLog && (
-                    <small>
-                      Assigned To:{" "}
-                      {
-                        usersList.filter(
-                          (e) =>
-                            e.id ===
-                            JSON.parse(item?.assignmentLog?.remarks).assignedTo
-                        )[0]?.name
-                      }
-                    </small>
-                  )}
-                </section>
-              </>
-            )}
-            <section className="flex gap-x-4">
-              {label &&
-                getMapper(label).map((e) => (
-                  <section className="flex justify-end cursor-pointer">
-                    <div class="tooltip" onClick={() => getClicker(e)}>
-                      <FontAwesomeIcon icon={iconMapper[e]} />
-                      <span class="tooltiptext">{e}</span>
-                    </div>
-                  </section>
-                ))}
-            </section>
-          </section>
-        </section>
-        {(security ||
-          recommendation ||
-          queries ||
-          reconsider ||
-          status ||
-          download ||
-          comments ||
-          reopen ||
-          AR ||
-          reassign ||
-          approvalHistory ||
-          reasonForRejection) && (
-          <SharedCAT
-            type={
-              (security && "Upload") ||
-              (recommendation && "Recommendation") ||
-              (queries && "Queries") ||
-              (reconsider && "Reconsider") ||
-              (status && "Status") ||
-              (download && "Download") ||
-              (comments && "Comments") ||
-              (reopen && "Reopen") ||
-              (AR && "Approve/Reject") ||
-              (reassign && "Reassign") ||
-              (approvalHistory && "Approval History") ||
-              (reasonForRejection && "Reason for Rejection")
-            }
-            getCLicker={getClicker}
-            item={item}
-            lActive={lActive}
-            setClicked={setClicked}
-            submitCase={submitCase}
-          />
-        )}
-      </section>
-    </Card>
-  );
+	return (
+		<Card
+			full={full}
+			security={security}
+			recommendation={recommendation}
+			AR={AR}
+			status={status}
+			download={download}
+			reconsider={reconsider}
+			comments={comments}
+			reasonForRejection={reasonForRejection}
+			reopen={reopen}
+			reassign={reassign}
+			approvalHistory={approvalHistory}
+			queries={queries}
+		>
+			<section className=''>
+				<section className='flex flex-col gap-y-4 w-full z-10'>
+					<section className='flex items-center items-center justify-between'>
+						<section className='flex flex-col w-1/2'>
+							<small>{item.businessname || 'Sample Case'}</small>
+							<span className='text-xs text-blue-700'>{item.loan_ref_id}</span>
+							<span>
+								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
+								{item.loan_amount} {item.loan_amount_um}
+							</span>
+							{(item.net_monthly_income || item.gross_income)  && (
+								<small>
+									₹ <span className='text-lg'>{(item.net_monthly_income || item.gross_income)}</span> Monthly Income
+								</small>
+							)}
+						</section>
+						<section className='flex flex-col items-end gap-y-2'>
+							{label
+								? getBMapper(label)[0].data.map(e => (
+										<Button
+											size='small'
+											type='blue-light'
+											rounded='rfull'
+											width='fulll'
+											onClick={() => {
+												setProductId && setProductId(item.loan_product_id);
+												item.remarks
+													? setAssignmentLog && setAssignmentLog(item.remarks)
+													: setAssignmentLog && setAssignmentLog(null);
+												setViewLoan(true);
+												setProduct(item.product);
+												setId(item.id);
+												e === 'Check Documents'
+													? setActiv('Document Details')
+													: item.product !== 'Unsecured Business/Self-Employed' &&
+													  item.product !== 'LAP Cases'
+													? setActiv('Applicant')
+													: setActiv('Business Details');
+											}}
+										>
+											{e}
+										</Button>
+								  ))
+								: null}
+						</section>
+					</section>
+					<hr />
+					<section className='flex items-center items-center justify-between'>
+						<section className='flex flex-col'>
+							<span>Credit score: {item.dcibil_score || 590}</span>
+							<ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
+							<span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
+							<span style= {{backgroundColor: 
+									item.dscr > 2 ? '#00a152' : item.dscr > 1.5 ? '#ffea00' : 'red'
+								}}
+								className={`p-1 rounded text-center text-white text-xs w-5/12  `}
+							> 
+								DSCR: {item.dscr?.toFixed(2)}
+							</span>
+						</section>
+						<section className='flex flex-col items-end gap-y-2'>
+							{label
+								? getBMapper(label)[1].data.map(e => (
+										<Button
+											size='small'
+											type='blue-light'
+											rounded='rfull'
+											width='fulll'
+											onClick={() => {
+												if (e !== 'Compliance') {
+													setProduct && setProduct(item.product);
+													setProductId && setProductId(item.loan_product_id);
+													item.remarks
+														? setAssignmentLog && setAssignmentLog(item.remarks)
+														: setAssignmentLog && setAssignmentLog(null);
+													setViewLoan && setViewLoan(true);
+													setId && setId(item.id);
+													setActiv &&
+														setActiv(
+															e === 'Pre-Eligibility' && e !== 'Compliance'
+																? 'Pre-Eligibility Details'
+																: e === 'Create Security'
+																? 'Security Details'
+																: e !== 'Compliance' && e
+														);
+												} else {
+													getClicker('Comments');
+												}
+											}}
+										>
+											{e}
+										</Button>
+								  ))
+								: null}
+						</section>
+					</section>
+					<hr />
+					<section className='flex justify-between'>
+						{arrow ? (
+							<section
+								className='border border-blue-600 rounded-full p-2 w-8 h-8 items-center justify-center flex hover:bg-blue-600 hover:text-white cursor-pointer'
+								onClick={() => setArrow(false)}
+							>
+								<FontAwesomeIcon size='1x' icon={faAngleRight} />
+							</section>
+						) : (
+							<>
+								<section className='flex flex-col text-xs'>
+									<small>
+										Assigned at: 
+										{t?.assignedAt || new Date(item?.RequestDate ).toDateString('en-US') || item?.modified_on?.toDateString('en-US')  },
+										{t?.assignedAt || new Date(item?.RequestDate ).toLocaleTimeString('en-US') || item?.modified_on?.toLocaleTimeString('en-US')  }
+									</small>
+									<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
+									{usersList && item.assignmentLog && (
+										<small>
+											Assigned To:{' '}
+											{
+												usersList.filter(
+													e => e.id === JSON.parse(item?.assignmentLog?.remarks).assignedTo
+												)[0]?.name
+											}
+										</small>
+									)}
+								</section>
+							</>
+						)}
+						<section className='flex gap-x-4'>
+							{label &&
+								getMapper(label).map(e => (
+									<section className='flex justify-end cursor-pointer'>
+										<div class='tooltip' onClick={() => getClicker(e)}>
+											<FontAwesomeIcon icon={iconMapper[e]} />
+											<span class='tooltiptext'>{e}</span>
+										</div>
+									</section>
+								))}
+						</section>
+					</section>
+				</section>
+				{(security ||
+					recommendation ||
+					queries ||
+					reconsider ||
+					status ||
+					download ||
+					comments ||
+					reopen ||
+					AR ||
+					reassign ||
+					approvalHistory ||
+					reasonForRejection) && (
+					<SharedCAT
+						type={
+							(security && 'Upload') ||
+							(recommendation && 'Recommendation') ||
+							(queries && 'Queries') ||
+							(reconsider && 'Reconsider') ||
+							(status && 'Status') ||
+							(download && 'Download') ||
+							(comments && 'Comments') ||
+							(reopen && 'Reopen') ||
+							(AR && 'Approve/Reject') ||
+							(reassign && 'Reassign') ||
+							(approvalHistory && 'Approval History') ||
+							(reasonForRejection && 'Reason for Rejection')
+						}
+						usersList={usersList}
+						getCLicker={getClicker}
+						item={item}
+						lActive={lActive}
+						setClicked={setClicked}
+						submitCase={submitCase}
+					/>
+				)}
+			</section>
+		</Card>
+	);
 }

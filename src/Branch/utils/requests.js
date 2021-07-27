@@ -58,6 +58,7 @@ export const getCommentList = async (loanId, token = localStorage.getItem('token
 	});
 	const t = await g;
 	console.log(t);
+	return t;
 };
 
 export const reassignLoan = async (
@@ -70,6 +71,23 @@ export const reassignLoan = async (
 	const g = await axios.post(
 		`${API_END_POINT}/branch/reAssignLoans`,
 		{ loanId, reAssignTo, comments, recommendation },
+		{
+			headers: { Authorization: `Bearer ${token}` }
+		}
+	);
+
+	const t = await g;
+	return t;
+};
+
+export const reassignLoanQuery = async (
+	loanId,
+	query,
+	token = localStorage.getItem('token')
+) => {
+	const g = await axios.post(
+		`${API_END_POINT}/branch/reAssignLoans`,
+		{ loanId, query},
 		{
 			headers: { Authorization: `Bearer ${token}` }
 		}
