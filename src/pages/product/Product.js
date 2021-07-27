@@ -6,6 +6,7 @@ import { PRODUCT_DETAILS_URL } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import { AppContext } from "../../reducer/appReducer";
 import { FlowContext } from "../../reducer/flowReducer";
+import { FormContext } from "../../reducer/formReducer";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 import ContinueModal from "../../components/modals/ContinueModal";
 import Router from "./Router";
@@ -94,6 +95,9 @@ export default function Product({ product, url }) {
     },
     actions: { configure, setCurrentFlow, clearFlowDetails },
   } = useContext(FlowContext);
+  const {
+    actions: { clearFormData },
+  } = useContext(FormContext);
 
   const { response } = useFetch({
     url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
@@ -109,6 +113,7 @@ export default function Product({ product, url }) {
   useEffect(() => {
     if (productId !== productIdPage) {
       clearFlowDetails();
+      clearFormData();
     }
   }, []);
 
