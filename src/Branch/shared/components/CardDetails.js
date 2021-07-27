@@ -1,147 +1,176 @@
-import { useState, useEffect } from 'react';
-import { Route, BrowserRouter, useRouteMatch, useHistory } from 'react-router-dom';
-import Card from './Card';
-import Button from './Button';
-import ProgressBar from './progressBar';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState, useEffect } from "react";
 import {
-	faUpload,
-	faUser,
-	faDownload,
-	faInfo,
-	faPlayCircle,
-	faComment,
-	faChevronCircleDown,
-	faFolderOpen,
-	faAddressCard,
-	faHistory,
-	faCampground,
-	faCheck,
-	faAngleRight
-} from '@fortawesome/free-solid-svg-icons';
-import SharedCAT from '../../components/sharedCAT';
-import { getLoanDetails, loanDocMapping, getUsersList, getLoan } from '../../utils/requests';
-import checkApplication from '../../pages/checkApplication';
+  Route,
+  BrowserRouter,
+  useRouteMatch,
+  useHistory,
+} from "react-router-dom";
+import Card from "./Card";
+import Button from "./Button";
+import ProgressBar from "./progressBar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUpload,
+  faUser,
+  faDownload,
+  faInfo,
+  faPlayCircle,
+  faComment,
+  faChevronCircleDown,
+  faFolderOpen,
+  faAddressCard,
+  faHistory,
+  faCampground,
+  faCheck,
+  faAngleRight,
+} from "@fortawesome/free-solid-svg-icons";
+import SharedCAT from "../../components/sharedCAT";
+import {
+  getLoanDetails,
+  loanDocMapping,
+  getUsersList,
+  getLoan,
+} from "../../utils/requests";
+import checkApplication from "../../pages/checkApplication";
 
 export default function CardDetails({
-	item,
-	label,
-	full,
-	idx,
-	lActive,
-	setViewLoan,
-	setId,
-	setActiv,
-	setClicked,
-	setProduct,
-	setAssignmentLog,
-	usersList,
-	submitCase,
-	setProductId,
-	setItem
+  item,
+  label,
+  full,
+  idx,
+  lActive,
+  setViewLoan,
+  setId,
+  setActiv,
+  setClicked,
+  setProduct,
+  setAssignmentLog,
+  usersList,
+  submitCase,
+  setProductId,
+  setItem,
 }) {
-	useEffect(() => {
-		setItem && setItem(item);
-	}, []);
-	const [security, setSecurity] = useState(false);
-	const [recommendation, setRecommendation] = useState(false);
-	const [download, setDownload] = useState(false);
-	const [queries, setQuery] = useState(false);
-	const [status, setStatus] = useState(false);
-	const [reassign, setReassign] = useState(false);
-	const [reconsider, setReconsider] = useState(false);
-	const [comments, setComments] = useState(false);
-	const [reopen, setReopen] = useState(false);
-	const [AR, setAR] = useState(false);
-	const [approvalHistory, setApprovalHistory] = useState(false);
-	const [reasonForRejection, setReasonforRejection] = useState(false);
-	const [arrow, setArrow] = useState(true);
+  useEffect(() => {
+    setItem && setItem(item);
+  }, []);
+  const [security, setSecurity] = useState(false);
+  const [recommendation, setRecommendation] = useState(false);
+  const [download, setDownload] = useState(false);
+  const [queries, setQuery] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [reassign, setReassign] = useState(false);
+  const [reconsider, setReconsider] = useState(false);
+  const [comments, setComments] = useState(false);
+  const [reopen, setReopen] = useState(false);
+  const [AR, setAR] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState(false);
+  const [reasonForRejection, setReasonforRejection] = useState(false);
+  const [arrow, setArrow] = useState(true);
 
-	const cibilPercentage = cibil => {
-		return Math.floor((Number(cibil) / 900) * 100);
-	};
+  const cibilPercentage = (cibil) => {
+    return Math.floor((Number(cibil) / 900) * 100);
+  };
 
-	const mapper = {
-		'Pending Applications': ['Upload', 'Reassign', 'Recommendation'],
-		'In-Progress@NC': [],
-		'Branch Review': ['Reassign', 'Upload', 'Recommendation', 'Download', 'Queries'],
-		'In-Progress@AO': ['Download', 'Status', 'Queries'],
-		Sanctioned: ['Download', 'Reassign', 'Upload', 'Reconsider', 'Comments', 'Approve/Reject'],
-		Rejected: ['Reopen', 'Reason for Rejection', 'Approval History', 'Download', 'Reconsider']
-	};
+  const mapper = {
+    "Pending Applications": ["Upload", "Reassign", "Recommendation"],
+    "In-Progress@NC": [],
+    "Branch Review": [
+      "Reassign",
+      "Upload",
+      "Recommendation",
+      "Download",
+      "Queries",
+    ],
+    "In-Progress@AO": ["Download", "Status", "Queries"],
+    Sanctioned: [
+      "Download",
+      "Reassign",
+      "Upload",
+      "Reconsider",
+      "Comments",
+      "Approve/Reject",
+    ],
+    Rejected: [
+      "Reopen",
+      "Reason for Rejection",
+      "Approval History",
+      "Download",
+      "Reconsider",
+    ],
+  };
 
-	const iconMapper = {
-		Upload: faUpload,
-		Reassign: faUser,
-		Recommendation: faCheck,
-		Download: faDownload,
-		Queries: faInfo,
-		Status: faPlayCircle,
-		Comments: faComment,
-		'Approve/Reject': faChevronCircleDown,
-		Reopen: faFolderOpen,
-		'Reason for Rejection': faAddressCard,
-		'Approval History': faHistory,
-		Reconsider: faCampground
-	};
+  const iconMapper = {
+    Upload: faUpload,
+    Reassign: faUser,
+    Recommendation: faCheck,
+    Download: faDownload,
+    Queries: faInfo,
+    Status: faPlayCircle,
+    Comments: faComment,
+    "Approve/Reject": faChevronCircleDown,
+    Reopen: faFolderOpen,
+    "Reason for Rejection": faAddressCard,
+    "Approval History": faHistory,
+    Reconsider: faCampground,
+  };
 
-	const bMapper = {
-		'Pending Applications': [
-			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Pre-Eligibility', 'Co-Applicant', 'Create Security'] }
-		],
-		'In-Progress@NC': [
-			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Pre-Eligibility', 'Compliance'] }
-		],
-		'Branch Review': [
-			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Co-Applicant', 'Check Security'] }
-		],
-		'In-Progress@AO': [
-			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Compliance'] }
-		],
-		Sanctioned: [
-			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Sanction details', 'Compliance'] }
-		],
-		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Data'] }]
-	};
+  const bMapper = {
+    "Pending Applications": [
+      { data: ["Check Application", "Check Documents"] },
+      { data: ["Pre-Eligibility", "Co-Applicant", "Create Security"] },
+    ],
+    "In-Progress@NC": [
+      { data: ["Check Application", "Check Documents"] },
+      { data: ["Pre-Eligibility", "Compliance"] },
+    ],
+    "Branch Review": [
+      { data: ["Check Application", "Check Documents"] },
+      { data: ["Eligibility Data", "Co-Applicant", "Check Security"] },
+    ],
+    "In-Progress@AO": [
+      { data: ["Check Application", "Check Documents"] },
+      { data: ["Eligibility Data", "Compliance"] },
+    ],
+    Sanctioned: [
+      { data: ["Check Application", "Check Documents"] },
+      { data: ["Eligibility Data", "Sanction details", "Compliance"] },
+    ],
+    Rejected: [{ data: ["Check Application"] }, { data: ["Eligibility Data"] }],
+  };
 
-	const getMapper = d => {
-		return mapper[d];
-	};
+  const getMapper = (d) => {
+    return mapper[d];
+  };
 
-	const getBMapper = d => {
-		return bMapper[d];
-	};
+  const getBMapper = (d) => {
+    return bMapper[d];
+  };
 
-	const getClicker = e => {
-		setSecurity(e === 'Upload');
-		setRecommendation(e === 'Recommendation');
-		setReconsider(e === 'Reconsider');
-		setComments(e === 'Comments');
-		setQuery(e === 'Queries');
-		setReasonforRejection(e === 'Reason for Rejection');
-		setApprovalHistory(e === 'Approval History');
-		setAR(e === 'Approve/Reject');
-		setReopen(e === 'Reopen');
-		setReassign(e === 'Reassign');
-		setStatus(e === 'Status');
-		setDownload(e === 'Download');
-	};
+  const getClicker = (e) => {
+    setSecurity(e === "Upload");
+    setRecommendation(e === "Recommendation");
+    setReconsider(e === "Reconsider");
+    setComments(e === "Comments");
+    setQuery(e === "Queries");
+    setReasonforRejection(e === "Reason for Rejection");
+    setApprovalHistory(e === "Approval History");
+    setAR(e === "Approve/Reject");
+    setReopen(e === "Reopen");
+    setReassign(e === "Reassign");
+    setStatus(e === "Status");
+    setDownload(e === "Download");
+  };
 
-	const getRecom = data => {
-		if (data !== 'Not Qualified') {
-			const a = JSON.parse(data);
-			return a;
-		}
-	};
+  const getRecom = (data) => {
+    if (data !== "Not Qualified") {
+      const a = JSON.parse(data);
+      return a;
+    }
+  };
 
-	const t = getRecom(item.remarks);
+  const t = getRecom(item.remarks);
 
-	// getLoanDetails(item.id);
+  // getLoanDetails(item.id);
 
 	return (
 		<Card

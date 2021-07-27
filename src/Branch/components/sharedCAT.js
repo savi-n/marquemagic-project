@@ -142,7 +142,7 @@ export default function SharedCAT({
 			<section className='w-full gap-x-4 flex justify-end'>
 				<Button
 					disabled={docs.length === 0}
-					type='blue-light'
+					type='blue'
 					size='small'
 					rounded='rfull'
 					onClick={() => {

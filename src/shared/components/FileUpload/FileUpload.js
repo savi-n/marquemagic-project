@@ -191,6 +191,8 @@ const SelectDocType = styled.select`
 	width: 40%;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
+	color: black;
+	outline:none;
 `;
 
 const FileName = styled.span`
@@ -470,6 +472,8 @@ export default function FileUpload({
 		onClosePasswordEnterArea();
 	};
 
+	const [docSelected,setDocSelected]=useState('');
+
 	return (
 		<>
 			<Dropzone ref={ref} dragging={dragging} bg={bg} disabled={disabled} uploading={uploading}>
@@ -489,14 +493,16 @@ export default function FileUpload({
 						{file.status === 'completed' && !!docTypeOptions.length && (
 							<>
 								<SelectDocType
-									value={docTypeFileMap[file.id] || ''}
-									onChange={e =>
+									value={ branch ? docSelected : docTypeFileMap[file.id] || ''}
+									onChange={e =>{
+										branch && setDocSelected(e.target.value)
 										branch
 											? changeHandler(e.target.value)
 											: onDocTypeChange(file.id, e.target.value)
 									}
+									}
 								>
-									<option value='' disabled>
+									<option value='' disabled >
 										Select Document Type
 									</option>
 									{docTypeOptions.map(docType => (
