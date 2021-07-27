@@ -50,9 +50,6 @@ export default function CardDetails({
   setProductId,
   setItem,
 }) {
-  useEffect(() => {
-    setItem && setItem(item);
-  }, []);
   const [security, setSecurity] = useState(false);
   const [recommendation, setRecommendation] = useState(false);
   const [download, setDownload] = useState(false);
@@ -125,17 +122,20 @@ export default function CardDetails({
     ],
     "Branch Review": [
       { data: ["Check Application", "Check Documents"] },
-      { data: ["Eligibility Data", "Co-Applicant", "Check Security"] },
+      { data: ["Eligibility Details", "Co-Applicant", "Check Security"] },
     ],
     "In-Progress@AO": [
       { data: ["Check Application", "Check Documents"] },
-      { data: ["Eligibility Data", "Compliance"] },
+      { data: ["Eligibility Details", "Compliance"] },
     ],
     Sanctioned: [
       { data: ["Check Application", "Check Documents"] },
-      { data: ["Eligibility Data", "Sanction details", "Compliance"] },
+      { data: ["Eligibility Details", "Sanction details", "Compliance"] },
     ],
-    Rejected: [{ data: ["Check Application"] }, { data: ["Eligibility Data"] }],
+    Rejected: [
+      { data: ["Check Application"] },
+      { data: ["Eligibility Details"] },
+    ],
   };
 
   const getMapper = (d) => {
