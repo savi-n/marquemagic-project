@@ -287,7 +287,17 @@ export default function SharedCAT({
 		if(leng == 0) {
 			return null;
 		}
-		return queryComment.data.commentList[leng - 1].comment_text;
+		leng = leng - 1;
+		let comment = null;
+		start: while(true) {
+			comment = queryComment.data.commentList[leng]
+			if(comment.type !== 'Query'){
+				leng = leng - 1;
+				continue start;
+			}
+			break;
+		  }
+		return comment.comment_text;
 	}
 	
 	const user_name = () => {
@@ -295,7 +305,17 @@ export default function SharedCAT({
 		if(leng == 0) {
 			return null;
 		}
-		return queryComment.data.commentList[leng - 1].user_id;
+		leng = leng - 1;
+		let comment = null;
+		start: while(true) {
+			comment = queryComment.data.commentList[leng]
+			if(comment.type !== 'Query'){
+				leng = leng - 1;
+				continue start;
+			}
+			break;
+		  }
+		return comment.userName;
 	}
 
 	const queries = () => {
@@ -311,39 +331,13 @@ export default function SharedCAT({
 				className='rounded focus:outline-none p-2 w-11/12 self-end border'
 				onChange={e => setQuery(e.target.value)}
 				/>
-				<section className='h-auto overflow-hidden rounded focus:outline-none w-11/12 self-end'>
-					<FileUpload
-						accept=''
-						upload={{
-							url: DOCS_UPLOAD_URL_LOAN({
-								userid: item?.sales_id
-							}),
-							header: {
-								Authorization: `Bearer ${localStorage.getItem('token')}`
-							}
-						}}
-						docTypeOptions={option}
-						branch={true}
-						changeHandler={changeHandler}
-						onRemoveFile={e => removeHandler(e)}
-						docsPush={true}
-						docs={docs}
-						loan_id={item?.id}
-						directorId={item?.directors?.[0].id}
-						setDocs={setDocs}
-					/>
-				</section>
+				
 				<section className='w-full gap-x-4 self-end h-full flex justify-end'>
 					<Button
 						type='blue-light'
 						size='small'
 						rounded='rfull'
 						onClick={() => {
-							console.log("docs ", docs);
-							if(docs.length !== 0) 
-								borrowerDocUpload(docs).then(res => {
-									setDocs([]);
-								});
 							reassignLoanQuery(item.id, query);
 							getCLicker(null);
 						}}
