@@ -54,7 +54,7 @@ export default function CheckApplication(props) {
                             arr.push(p);
                         });
                     });
-                    setOption(arr);
+                    setOption(arr.map(fileoption=> ({name:fileoption.name, value: fileoption.name})));
                 });
                 getLoan().then(resp => {
                     resp.data?.map(
@@ -244,6 +244,27 @@ export default function CheckApplication(props) {
     };
 
     const [errorMsg, setError] = useState(false);
+
+    const [file,setFile]= useState([]);
+
+    const handleFileUpload = (files) =>{
+        setFile([...files,...file])
+
+    }
+    
+    const handleDocumentTypeChange = async (fileId, type) => {
+         const fileType = file.map(fi=> {
+
+            if(fi.id === fileId){
+              return {...fi, type: type.value}
+            } return fi
+            })
+            setFile(fileType)
+      };
+    const  checkDocType = file.map(f=>
+     f.type
+ 
+    )
 
     return (
         <main>
@@ -719,7 +740,9 @@ export default function CheckApplication(props) {
                                                         }
                                                     }}
                                                     docTypeOptions={option}
-                                                    branch={true}
+                                                    onDrop={handleFileUpload}
+                                                    documentTypeChangeCallback={handleDocumentTypeChange}
+                                                    // branch={true}
                                                     changeHandler={changeHandler}
                                                     onRemoveFile={e => removeHandler(e)}
                                                     docsPush={true}
@@ -819,7 +842,7 @@ export default function CheckApplication(props) {
                                                                         round
                                                                         disabled
                                                                         bg='green'
-                                                                        checked={checkedDocs.includes(doc.name)}
+                                                                        checked={checkDocType .includes(doc.name)}
                                                                     />
                                                                 </section>
                                                             ))}
