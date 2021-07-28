@@ -347,14 +347,12 @@ export default function SharedCAT({
 	const queries = () => {
 		return (
 			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-4 w-full'>
-				{user_name() && comment_text() ? (
+				{user_name() && comment_text() && (
 					<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-gray-300'>
 						<text className='font-bold'>{user_name()}</text>
 						<br />
 						<text>{comment_text()}</text>
 					</section>
-				) : (
-					<span className='w-11/12 items-center pl-1'>{compl}</span>
 				)}
 
 				<textarea

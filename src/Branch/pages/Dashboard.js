@@ -26,7 +26,9 @@ export default function Dashboard(props) {
 			localStorage.removeItem('lActive');
 			localStorage.setItem('token', token);
 			actions.setBranchUserToken(token);
-		} else {
+		}
+		if (!localStorage.getItem('token')) {
+			window.location.href = `${window.location.origin}/branch/login`;
 			// history.push(`/branch/login`);
 		}
 		getUsersList().then(res => {
