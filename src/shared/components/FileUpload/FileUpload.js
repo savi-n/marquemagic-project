@@ -192,7 +192,7 @@ const SelectDocType = styled.select`
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 	color: black;
-	outline:none;
+	outline: none;
 `;
 
 const FileName = styled.span`
@@ -472,7 +472,7 @@ export default function FileUpload({
 		onClosePasswordEnterArea();
 	};
 
-	const [docSelected,setDocSelected]=useState('');
+	const [docSelected, setDocSelected] = useState('');
 
 	return (
 		<>
@@ -493,20 +493,19 @@ export default function FileUpload({
 						{file.status === 'completed' && !!docTypeOptions.length && (
 							<>
 								<SelectDocType
-									value={ branch ? docSelected : docTypeFileMap[file.id] || ''}
-									onChange={e =>{
-										branch && setDocSelected(e.target.value)
+									value={branch ? docSelected : docTypeFileMap[file.id] || ''}
+									onChange={e => {
+										branch && setDocSelected(e.target.value);
 										branch
 											? changeHandler(e.target.value)
-											: onDocTypeChange(file.id, e.target.value)
-									}
-									}
+											: onDocTypeChange(file.id, e.target.value);
+									}}
 								>
-									<option value='' disabled >
+									<option value='' disabled>
 										Select Document Type
 									</option>
 									{docTypeOptions.map(docType => (
-										<option key={docType.value} value={docType.value}>
+										<option key={docType.value} value={docType.name}>
 											{docType.name}
 										</option>
 									))}
