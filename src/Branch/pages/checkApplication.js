@@ -38,6 +38,7 @@ export default function CheckApplication(props) {
 	const [docType, setDocTypes] = useState(null);
 	const [option, setOption] = useState([]);
 	const [docsUploaded, setDocsUPloaded] = useState([]);
+	const [commentSubmitted, setCommentSubmit] = useState(false);
 
 	useEffect(() => {
 		const arr = [];
@@ -46,7 +47,6 @@ export default function CheckApplication(props) {
 			if (!data) setData(res);
 			setLoading(false);
 			if (res) {
-				console.log(props.productId, res?.business_id?.businesstype?.id);
 				docTypes(props.productId, res?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
@@ -69,7 +69,7 @@ export default function CheckApplication(props) {
 							)
 					);
 				});
-				getGroupedDocs(props.item.loan_ref_id).then(val => setDocsUPloaded(val));
+				getGroupedDocs(props.item?.loan_ref_id).then(val => setDocsUPloaded(val));
 			}
 		});
 		if (data) {
@@ -245,6 +245,16 @@ export default function CheckApplication(props) {
 
 	const [errorMsg, setError] = useState(false);
 
+	const extractFields = i => {
+		if (i.name === 'Loan Details') {
+			i.id = 'loan-details';
+		}
+		if (i.name === 'Guarantor Details') {
+			i.id = 'personal-details';
+		}
+		return i?.id;
+	};
+
 	return (
 		<main>
 			{message && (
@@ -304,9 +314,7 @@ export default function CheckApplication(props) {
 																	{i.name}
 																</p>
 
-																{i.fields[
-																	i.name === 'Loan Details' ? ['loan-details'] : i?.id
-																]?.data.map(
+																{i.fields[extractFields(i)]?.data.map(
 																	el =>
 																		el && (
 																			<section className='flex space-evenly items-center'>
@@ -315,6 +323,27 @@ export default function CheckApplication(props) {
 																				</label>
 																				{el.type !== 'select' ? (
 																					<>
+																						{i.name ===
+																							'Guarantor Details' &&
+																							data?.directors?.map(
+																								item =>
+																									item.type_name ===
+																										'Guarantor' && (
+																										<input
+																											disabled={
+																												disabled
+																											}
+																											className='rounded-lg p-4 border w-1/3'
+																											defaultValue={
+																												item[
+																													el
+																														.db_name
+																												] ||
+																												'N/A'
+																											}
+																										/>
+																									)
+																							)}
 																						{i.name ===
 																							'Business Details' && (
 																							<input
@@ -728,7 +757,7 @@ export default function CheckApplication(props) {
 													directorId={data?.directors?.[0].id}
 													setDocs={setDocs}
 												/>
-												<section className='flex gap-x-4 flex-wrap gap-y-4'>
+												<section className='flex flex-col gap-x-4 flex-wrap gap-y-4'>
 													{docsUploaded.length > 0 && (
 														<>
 															<section>
@@ -898,7 +927,7 @@ export default function CheckApplication(props) {
 															<input
 																className='rounded-lg p-4 border'
 																disabled={disabled}
-																defaultValue={data.loan_price}
+																defaultValue={data?.loan_price}
 															/>
 														</section>
 														<section className='flex space-evenly py-2 items-center'>
@@ -907,7 +936,7 @@ export default function CheckApplication(props) {
 																className='rounded-lg p-4 border'
 																disabled={disabled}
 																placeholder='DSCR'
-																defaultValue={Number(props.item.dscr).toFixed(2)}
+																defaultValue={Number(props?.item?.dscr).toFixed(2)}
 															/>
 														</section>
 														<section className='flex space-evenly py-2 items-center'>
@@ -916,7 +945,7 @@ export default function CheckApplication(props) {
 																className='rounded-lg p-4 border'
 																disabled={disabled}
 																placeholder='Tenure'
-																defaultValue={props.item.applied_tenure}
+																defaultValue={props?.item?.applied_tenure}
 															/>
 														</section>
 														<section className='flex space-evenly py-2 items-center'>
@@ -926,8 +955,8 @@ export default function CheckApplication(props) {
 																disabled={disabled}
 																placeholder='Tenure'
 																defaultValue={
-																	props.item.net_monthly_income ||
-																	props.item.gross_income
+																	props.item?.net_monthly_income ||
+																	props.item?.gross_income
 																}
 															/>
 														</section>
@@ -943,11 +972,13 @@ export default function CheckApplication(props) {
 													Submit
 												</Button>
 											</section>
-											<section className='w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6'>
+											<section className='w-1/4 overflow-scroll scroll fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6'>
 												<p className='text-xl font-medium'>Comments</p>
-												{props.assignmentLog && (
+												{(props.assignmentLog || data?.remarks) && (
 													<>
-														{Object.keys(JSON.parse(props.assignmentLog)).map(el => (
+														{Object.keys(
+															JSON.parse(props.assignmentLog || data?.remarks)
+														).map(el => (
 															<section className='bg-white flex flex-col gap-y-6 p-2 rounded-lg'>
 																<span className='text-xs'>
 																	By:
@@ -955,30 +986,52 @@ export default function CheckApplication(props) {
 																		props.usersList.filter(
 																			e =>
 																				e.id ===
-																				JSON.parse(props.assignmentLog)[el]
-																					?.userId
+																				JSON.parse(
+																					props.assignmentLog || data?.remarks
+																				)[el]?.userId
 																		)[0]?.name
 																	}
 																</span>
-																{JSON.parse(props.assignmentLog)[el]?.type ===
-																	'ReAssign Comments' &&
-																	JSON.parse(props.assignmentLog)[el]?.message}
-																<span className='text-xs text-blue-700'>{el}</span>
+																{(JSON.parse(props.assignmentLog || data?.remarks)[el]
+																	?.type === 'ReAssign Comments' ||
+																	JSON.parse(props.assignmentLog || data?.remarks)[el]
+																		?.type === 'Comments') &&
+																	JSON.parse(props.assignmentLog || data?.remarks)[el]
+																		?.message}
+																<span className='text-xs text-blue-700'>
+																	{el || el.message}
+																</span>
 															</section>
 														))}
 													</>
 												)}
-												<section className='flex gap-x-2 items-center justify-between'>
-													<input
-														placeholder='Add Comment'
-														className='p-1 rounded-md px-2 focus:outline-none'
-														onChange={e => setComment(e.target.value)}
-													/>
+												<section className='flex gap-x-2 overflow-scroll scroll items-center justify-between'>
+													{commentSubmitted ? (
+														<input
+															placeholder='Add Comment'
+															className='p-1 rounded-md px-2 focus:outline-none'
+															onChange={e => setComment(e.target.value)}
+															value=''
+														/>
+													) : (
+														<input
+															placeholder='Add Comment'
+															className='p-1 rounded-md px-2 focus:outline-none'
+															onChange={e => setComment(e.target.value)}
+														/>
+													)}
+
 													<Button
 														type='blue-light'
 														size='small'
 														onClick={() => {
 															reassignLoan(props.item.id, null, comment);
+															setMessage(true);
+															setTimeout(() => {
+																setMessage(false);
+															}, 4000);
+
+															setCommentSubmit(true);
 														}}
 													>
 														Submit

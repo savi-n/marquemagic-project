@@ -25,16 +25,37 @@ export default function SharedCAT({
 	userId,
 	userToken,
 	setClicked,
-	submitCase
+	submitCase,
+	setAssignedBy,
+	setAssignedTo,
+	usersList
 }) {
 	const { newRequest } = useFetch();
 	const uploadedFiles = useRef([]);
 	const [users, setUsers] = useState(null);
+	const [compl, setCompl] = useState(null);
+
 	useEffect(() => {
 		getUsersList().then(res => {
 			setUsers(res);
 		});
+		getCommentList(item.id).then(res => {
+			if (res?.data?.message === 'No records Found') {
+				setCompl(res?.data?.message);
+			}
+		});
 	}, []);
+
+	const [assigned, setAssigned] = useState(false);
+
+	useEffect(() => {
+		setAssignedBy(item?.assignmentLog?.userData?.name);
+		setAssignedTo(
+			item?.assignmentLog?.remarks &&
+				usersList.filter(e => e.id === JSON.parse(item?.assignmentLog?.remarks).assignedTo)[0]?.name
+		);
+		setAssigned(false);
+	}, [assigned]);
 
 	const [commen, setComments] = useState('');
 	const [user, setUser] = useState(null);
@@ -275,7 +296,7 @@ export default function SharedCAT({
 		return (
 			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
 				<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-transparent'>
-					No Queries
+					{compl}
 				</section>
 				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
 					Cancel
@@ -309,6 +330,7 @@ export default function SharedCAT({
 					onClick={() => {
 						assignUserToLoan(item.id, user && user.id, commen);
 						getCLicker(null);
+						setAssigned(true);
 					}}
 				>
 					Submit
@@ -320,12 +342,10 @@ export default function SharedCAT({
 		</section>
 	);
 
-	// getCommentList(item.id);
-
 	const comments = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
 			<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-transparent'>
-				No Comments
+				{compl}
 			</section>
 			<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
 				Cancel

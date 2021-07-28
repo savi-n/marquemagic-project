@@ -75,6 +75,21 @@ export default function Applications({ d, sortList, setLActive, lActive, getTabD
 	const [activ, setActiv] = useState('Applicant');
 	const [serachStarted, setSearch] = useState(false);
 
+	useEffect(async () => {
+		setLoading(true);
+		Object.keys(mapp).map(e => {
+			if (e === lActive) {
+				getCase(mapp[e]).then(res => {
+					setLoading(false);
+					setData(res);
+				});
+				needAction(JSON.stringify(['Branch Review', 'Pending Applications'])).then(res => {
+					setAlert(res.length);
+				});
+			}
+		});
+	}, [viewLoan]);
+
 	const search = e => {
 		if (e.target.value.length === 0) {
 			setSearch(true);

@@ -40,9 +40,6 @@ export default function CardDetails({
 	setProductId,
 	setItem
 }) {
-	useEffect(() => {
-		setItem && setItem(item);
-	}, []);
 	const [security, setSecurity] = useState(false);
 	const [recommendation, setRecommendation] = useState(false);
 	const [download, setDownload] = useState(false);
@@ -141,7 +138,8 @@ export default function CardDetails({
 
 	const t = getRecom(item.remarks);
 
-	// getLoanDetails(item.id);
+	const [assignedTo, setAssignedTo] = useState(null);
+	const [assignedBy, setAssignedBy] = useState(null);
 
 	return (
 		<Card
@@ -169,9 +167,10 @@ export default function CardDetails({
 								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
 								{item.loan_amount} {item.loan_amount_um}
 							</span>
-							{(item.net_monthly_income || item.gross_income)  && (
+							{(item.net_monthly_income || item.gross_income) && (
 								<small>
-									₹ <span className='text-lg'>{(item.net_monthly_income || item.gross_income)}</span> Monthly Income
+									₹ <span className='text-lg'>{item.net_monthly_income || item.gross_income}</span>{' '}
+									Monthly Income
 								</small>
 							)}
 						</section>
@@ -184,6 +183,8 @@ export default function CardDetails({
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
+												setItem && setItem(item);
+
 												setProductId && setProductId(item.loan_product_id);
 												item.remarks
 													? setAssignmentLog && setAssignmentLog(item.remarks)
@@ -211,11 +212,12 @@ export default function CardDetails({
 							<span>Credit score: {item.dcibil_score || 590}</span>
 							<ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
 							<span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
-							<span style= {{backgroundColor: 
-									item.dscr > 2 ? '#00a152' : item.dscr > 1.5 ? '#ffea00' : 'red'
+							<span
+								style={{
+									backgroundColor: item.dscr > 2 ? '#00a152' : item.dscr > 1.5 ? '#ffea00' : 'red'
 								}}
 								className={`p-1 rounded text-center text-white text-xs w-5/12  `}
-							> 
+							>
 								DSCR: {item.dscr?.toFixed(2)}
 							</span>
 						</section>
@@ -228,6 +230,8 @@ export default function CardDetails({
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
+												setItem && setItem(item);
+
 												if (e !== 'Compliance') {
 													setProduct && setProduct(item.product);
 													setProductId && setProductId(item.loan_product_id);
@@ -268,18 +272,25 @@ export default function CardDetails({
 							<>
 								<section className='flex flex-col text-xs'>
 									<small>
-										Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()}
-										,{t?.assignedAt || item.assigned_time || new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}
+										Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()},
+										{t?.assignedAt ||
+											item.assigned_time ||
+											new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}
 									</small>
-									<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
-									{usersList && item.assignmentLog && (
+									<small>
+										Assigned by:{' '}
+										{assignedBy ||
+											t?.assignedBy ||
+											item.assigned_by ||
+											item?.assignmentLog?.userData?.name}
+									</small>
+									{((usersList && item.assignmentLog) || assignedBy || assignedTo) && (
 										<small>
 											Assigned To:{' '}
-											{
+											{assignedTo ||
 												usersList.filter(
 													e => e.id === JSON.parse(item?.assignmentLog?.remarks).assignedTo
-												)[0]?.name
-											}
+												)[0]?.name}
 										</small>
 									)}
 								</section>
@@ -330,6 +341,9 @@ export default function CardDetails({
 						lActive={lActive}
 						setClicked={setClicked}
 						submitCase={submitCase}
+						setAssignedBy={setAssignedBy}
+						setAssignedTo={setAssignedTo}
+						usersList={usersList}
 					/>
 				)}
 			</section>

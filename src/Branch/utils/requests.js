@@ -57,7 +57,7 @@ export const getCommentList = async (loanId, token = localStorage.getItem('token
 		params: { loanId }
 	});
 	const t = await g;
-	console.log(t);
+	return t;
 };
 
 export const reassignLoan = async (

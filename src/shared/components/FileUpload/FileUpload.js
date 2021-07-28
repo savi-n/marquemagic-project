@@ -489,7 +489,7 @@ export default function FileUpload({
 						{file.status === 'completed' && !!docTypeOptions.length && (
 							<>
 								<SelectDocType
-									value={docTypeFileMap[file.id] || ''}
+									value={!branch ? : (docTypeFileMap[file.id] || '')}
 									onChange={e =>
 										branch
 											? changeHandler(e.target.value)
@@ -500,7 +500,7 @@ export default function FileUpload({
 										Select Document Type
 									</option>
 									{docTypeOptions.map(docType => (
-										<option key={docType.value} value={docType.value}>
+										<option key={docType.value} value={docType.name}>
 											{docType.name}
 										</option>
 									))}
