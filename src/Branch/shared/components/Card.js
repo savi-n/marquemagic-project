@@ -39,7 +39,7 @@ export default function Card(props) {
       style={{
         boxShadow: "0 0 19px 0px #98AFC7",
         height: `${
-          getter() ? "auto" : small ? "auto" : medium ? "16rem" : "24rem"
+          getter() ? "auto" : small ? "auto" : medium ? "18rem" : "22rem"
         }`,
         maxHeight: `${getter() ? "80rem" : "auto"}`,
         width: `${!full ? "calc(100%/3)" : "100%"}`,

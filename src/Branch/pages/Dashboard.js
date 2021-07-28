@@ -99,6 +99,13 @@ export default function Dashboard(props) {
 						}
 					},
 					{
+						pending: {
+							label: 'Pending',
+							value: 4,
+							highlight: 'rgb(76, 187, 224)'
+						}
+					},
+					{
 						rejected: {
 							label: 'Rejected',
 							value: 2,
@@ -131,6 +138,13 @@ export default function Dashboard(props) {
 							label: 'In Progress',
 							value: 16,
 							highlight: ' rgba(59, 130, 246)'
+						}
+					},
+					{
+						pending: {
+							label: 'Pending',
+							value: 7,
+							highlight: 'rgb(76, 187, 224)'
 						}
 					},
 					{
