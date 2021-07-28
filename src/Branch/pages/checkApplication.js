@@ -990,14 +990,12 @@ export default function CheckApplication(props) {
                               (el) => (
                                 <section className="bg-white flex flex-col gap-y-6 p-2 rounded-lg">
                                   <span className="text-xs">
-                                    By:
+                                   
                                     {
-                                      props.usersList.filter(
-                                        (e) =>
-                                          e.id ===
-                                          JSON.parse(props.assignmentLog)[el]
-                                            ?.userId
-                                      )[0]?.name
+                                      e.id ===
+									  JSON.parse(props.assignmentLog)[el]
+										?.userId
+                                                                               
                                     }
                                   </span>
                                   {JSON.parse(props.assignmentLog)[el]?.type ===
