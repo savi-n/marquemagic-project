@@ -182,7 +182,7 @@ export default function DocumentUpload({
   });
 
   useEffect(() => {
-    if (response) {
+    if (response && response.length) {
       let optionArray = [];
       DOCUMENTS_TYPE.forEach((docType) => {
         optionArray = [

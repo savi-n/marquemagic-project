@@ -237,6 +237,11 @@ export default function BankStatementModal({ showModal, onClose }) {
       }
 
       case "updateCaptcha": {
+        addToast({
+          message:
+            response?.message || "Something Went Wrong. Try Again Later!",
+          type: "error",
+        });
         const getCaptchaRes = await getCaptcha(
           BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep - 1]?.captchaGet
         );

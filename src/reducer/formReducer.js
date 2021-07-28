@@ -21,6 +21,8 @@ const actionTypes = {
 
   SET_USERTYPE_DOCUMENT_TYPE: "SET_USERTYPE_DOCUMENT_TYPE",
   REMOVE_USERTYPE_DOCUMENT: "REMOVE_USERTYPE_DOCUMENT",
+
+  CLEAR_FORM: "CLEAR_FORM",
 };
 
 const INIT_ROLE_DATA_TYPES = {
@@ -121,6 +123,12 @@ const useActions = (dispatch) => {
     });
   };
 
+  const clearFormData = () => {
+    dispatch({
+      type: actionTypes.CLEAR_FORM,
+    });
+  };
+
   return {
     setUsertypeApplicantData,
     setUsertypeAddressData,
@@ -134,6 +142,7 @@ const useActions = (dispatch) => {
     setUsertypeAgreementData,
     removeUserTypeDocument,
     setUserTypeDocumentType,
+    clearFormData,
   };
 };
 
@@ -141,6 +150,12 @@ function reducer(state, action) {
   let updatedState = state;
 
   switch (action.type) {
+    case actionTypes.CLEAR_FORM: {
+      updatedState = {
+        ...INITIAL_STATE,
+      };
+      break;
+    }
     case actionTypes.SET_USERTYPE_AGREEMENT_DOCS: {
       updatedState = {
         ...state,

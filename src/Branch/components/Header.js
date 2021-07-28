@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import Tabs from '../shared/components/Tabs';
 import Button from '../shared/components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { REDIRECT_CREATE } from '../../_config/app.config';
 
 export default function Header({ click, active }) {
@@ -13,7 +13,7 @@ export default function Header({ click, active }) {
 			<header
 				className={`w-full ${
 					active === 'Home' ? ' bg-blue-700' : 'bg-white shadow-lg'
-				} flex gap-x-10 justify-end px-10`}
+				} flex gap-x-10 justify-end px-10 items-center`}
 			>
 				<section className='flex '>
 					{['Home', 'Loan Applications'].map(i => (
@@ -35,6 +35,18 @@ export default function Header({ click, active }) {
 						<span>Create Application</span> <FontAwesomeIcon icon={faChevronRight} />
 					</section>
 				</Button>
+				<FontAwesomeIcon
+					onClick={() => {
+						localStorage.removeItem('token');
+						window.location.href = `${
+							window.location.origin.includes('localhost')
+								? `${window.location.origin}/branch/login`
+								: `${window.location.origin}/login`
+						}`;
+					}}
+					icon={faPowerOff}
+					className={`text-${active === 'Home' ? 'white' : 'black'} cursor-pointer`}
+				/>
 			</header>
 		</main>
 	);

@@ -28,7 +28,9 @@ export default function SharedCAT({
 	userId,
 	userToken,
 	setClicked,
-	submitCase
+	submitCase,
+	setAssignedBy,
+	setAssignedTo
 }) {
 	const { newRequest } = useFetch();
 	const uploadedFiles = useRef([]);
@@ -38,19 +40,35 @@ export default function SharedCAT({
 	const [user, setUser] = useState(null);
 	const [queryList, setqueryList] = useState(null);
 	const [querySaved, setQuerySaved] = useState(0);
-	useEffect(() => {
+	const [compl, setCompl] = useState(null);
 
+	useEffect(() => {
 		getUsersList().then(res => {
 			setUsers(res);
 		});
+		getCommentList(item.id).then(res => {
+			if (res?.data?.message === 'No records Found') {
+				setCompl(res?.data?.message);
+			}
+		});
 	}, []);
 
+	const [assigned, setAssigned] = useState(false);
+
 	useEffect(() => {
-		console.log(query);
+		setAssignedBy(item?.assignmentLog?.userData?.name);
+		setAssignedTo(
+			item?.assignmentLog?.remarks &&
+				usersList.filter(e => e.id === JSON.parse(item?.assignmentLog?.remarks).assignedTo)[0]?.name
+		);
+		setAssigned(false);
+	}, [assigned]);
+
+	useEffect(() => {
 		getCommentList(item.id).then(res => {
 			setqueryList(res);
 		});
-	},[querySaved]);
+	}, [querySaved]);
 
 	const handleFileUpload = async files => {
 		Promise.all(
@@ -285,61 +303,64 @@ export default function SharedCAT({
 	);
 
 	const comment_text = () => {
-		if(queryList == null) {
+		if (queryList == null) {
 			return null;
 		}
 		let leng = queryList.data ? (queryList.data.commentList ? queryList.data.commentList.length : 0) : 0;
-		if(leng == 0) {
+		if (leng == 0) {
 			return null;
 		}
 		leng = leng - 1;
 		let comment = null;
-		start: while(true) {
-			comment = queryList.data.commentList[leng]
-			if(comment.type !== 'Query'){
+		start: while (true) {
+			comment = queryList.data.commentList[leng];
+			if (comment.type !== 'Query') {
 				leng = leng - 1;
 				continue start;
 			}
 			break;
-		  }
+		}
 		return comment.comment_text;
-	}
-	
+	};
+
 	const user_name = () => {
-		if(queryList == null) {
+		if (queryList == null) {
 			return null;
 		}
 		let leng = queryList.data ? (queryList.data.commentList ? queryList.data.commentList.length : 0) : 0;
-		if(leng == 0) {
+		if (leng == 0) {
 			return null;
 		}
 		leng = leng - 1;
 		let comment = null;
-		start: while(true) {
-			comment = queryList.data.commentList[leng]
-			if(comment.type !== 'Query'){
+		start: while (true) {
+			comment = queryList.data.commentList[leng];
+			if (comment.type !== 'Query') {
 				leng = leng - 1;
 				continue start;
 			}
 			break;
-		  }
+		}
 		return comment.userName;
-	}
+	};
 
 	const queries = () => {
 		return (
 			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-4 w-full'>
-				{user_name() && comment_text() ? <section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-gray-300'>
-					<text className='font-bold'>{user_name()}</text><br/>
-					<text>{comment_text()}</text>
-				</section> :<span className='w-11/12 items-center pl-1'>No Queries</span> }
+				{user_name() && comment_text() && (
+					<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-gray-300'>
+						<text className='font-bold'>{user_name()}</text>
+						<br />
+						<text>{comment_text()}</text>
+					</section>
+				)}
 
 				<textarea
-				placeholder='Add Comment'
-				className='rounded focus:outline-none p-2 w-11/12 self-end border'
-				onChange={e => setQuery(e.target.value)}
+					placeholder='Add Comment'
+					className='rounded focus:outline-none p-2 w-11/12 self-end border'
+					onChange={e => setQuery(e.target.value)}
 				/>
-				
+
 				<section className='w-full gap-x-4 self-end h-full flex justify-end'>
 					<Button
 						type='blue-light'
@@ -386,6 +407,7 @@ export default function SharedCAT({
 					onClick={() => {
 						assignUserToLoan(item.id, user && user.id, commen);
 						getCLicker(null);
+						setAssigned(true);
 					}}
 				>
 					Submit
@@ -400,7 +422,7 @@ export default function SharedCAT({
 	const comments = () => (
 		<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
 			<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-transparent'>
-				No Comments
+				{compl}
 			</section>
 			<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
 				Cancel

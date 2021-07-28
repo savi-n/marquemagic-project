@@ -1,176 +1,145 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { Route, BrowserRouter, useRouteMatch, useHistory } from 'react-router-dom';
+import Card from './Card';
+import Button from './Button';
+import ProgressBar from './progressBar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Route,
-  BrowserRouter,
-  useRouteMatch,
-  useHistory,
-} from "react-router-dom";
-import Card from "./Card";
-import Button from "./Button";
-import ProgressBar from "./progressBar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUpload,
-  faUser,
-  faDownload,
-  faInfo,
-  faPlayCircle,
-  faComment,
-  faChevronCircleDown,
-  faFolderOpen,
-  faAddressCard,
-  faHistory,
-  faCampground,
-  faCheck,
-  faAngleRight,
-} from "@fortawesome/free-solid-svg-icons";
-import SharedCAT from "../../components/sharedCAT";
-import {
-  getLoanDetails,
-  loanDocMapping,
-  getUsersList,
-  getLoan,
-} from "../../utils/requests";
-import checkApplication from "../../pages/checkApplication";
+	faUpload,
+	faUser,
+	faDownload,
+	faInfo,
+	faPlayCircle,
+	faComment,
+	faChevronCircleDown,
+	faFolderOpen,
+	faAddressCard,
+	faHistory,
+	faCampground,
+	faCheck,
+	faAngleRight
+} from '@fortawesome/free-solid-svg-icons';
+import SharedCAT from '../../components/sharedCAT';
+import { getLoanDetails, loanDocMapping, getUsersList, getLoan } from '../../utils/requests';
+import checkApplication from '../../pages/checkApplication';
 
 export default function CardDetails({
-  item,
-  label,
-  full,
-  idx,
-  lActive,
-  setViewLoan,
-  setId,
-  setActiv,
-  setClicked,
-  setProduct,
-  setAssignmentLog,
-  usersList,
-  submitCase,
-  setProductId,
-  setItem,
+	item,
+	label,
+	full,
+	idx,
+	lActive,
+	setViewLoan,
+	setId,
+	setActiv,
+	setClicked,
+	setProduct,
+	setAssignmentLog,
+	usersList,
+	submitCase,
+	setProductId,
+	setItem
 }) {
-  useEffect(() => {
-    setItem && setItem(item);
-  }, []);
-  const [security, setSecurity] = useState(false);
-  const [recommendation, setRecommendation] = useState(false);
-  const [download, setDownload] = useState(false);
-  const [queries, setQuery] = useState(false);
-  const [status, setStatus] = useState(false);
-  const [reassign, setReassign] = useState(false);
-  const [reconsider, setReconsider] = useState(false);
-  const [comments, setComments] = useState(false);
-  const [reopen, setReopen] = useState(false);
-  const [AR, setAR] = useState(false);
-  const [approvalHistory, setApprovalHistory] = useState(false);
-  const [reasonForRejection, setReasonforRejection] = useState(false);
-  const [arrow, setArrow] = useState(true);
+	const [security, setSecurity] = useState(false);
+	const [recommendation, setRecommendation] = useState(false);
+	const [download, setDownload] = useState(false);
+	const [queries, setQuery] = useState(false);
+	const [status, setStatus] = useState(false);
+	const [reassign, setReassign] = useState(false);
+	const [reconsider, setReconsider] = useState(false);
+	const [comments, setComments] = useState(false);
+	const [reopen, setReopen] = useState(false);
+	const [AR, setAR] = useState(false);
+	const [approvalHistory, setApprovalHistory] = useState(false);
+	const [reasonForRejection, setReasonforRejection] = useState(false);
+	const [arrow, setArrow] = useState(true);
 
-  const cibilPercentage = (cibil) => {
-    return Math.floor((Number(cibil) / 900) * 100);
-  };
+	const cibilPercentage = cibil => {
+		return Math.floor((Number(cibil) / 900) * 100);
+	};
 
-  const mapper = {
-    "Pending Applications": ["Upload", "Reassign", "Recommendation"],
-    "In-Progress@NC": [],
-    "Branch Review": [
-      "Reassign",
-      "Upload",
-      "Recommendation",
-      "Download",
-      "Queries",
-    ],
-    "In-Progress@AO": ["Download", "Status", "Queries"],
-    Sanctioned: [
-      "Download",
-      "Reassign",
-      "Upload",
-      "Reconsider",
-      "Comments",
-      "Approve/Reject",
-    ],
-    Rejected: [
-      "Reopen",
-      "Reason for Rejection",
-      "Approval History",
-      "Download",
-      "Reconsider",
-    ],
-  };
+	const mapper = {
+		'Pending Applications': ['Upload', 'Reassign', 'Recommendation', 'Queries'],
+		'In-Progress@NC': [],
+		'Branch Review': ['Reassign', 'Recommendation', 'Download', 'Queries'],
+		'In-Progress@AO': ['Download', 'Status', 'Queries'],
+		Sanctioned: ['Download', 'Reassign', 'Upload', 'Reconsider', 'Comments', 'Approve/Reject'],
+		Rejected: ['Reopen', 'Reason for Rejection', 'Approval History', 'Download', 'Reconsider']
+	};
 
-  const iconMapper = {
-    Upload: faUpload,
-    Reassign: faUser,
-    Recommendation: faCheck,
-    Download: faDownload,
-    Queries: faInfo,
-    Status: faPlayCircle,
-    Comments: faComment,
-    "Approve/Reject": faChevronCircleDown,
-    Reopen: faFolderOpen,
-    "Reason for Rejection": faAddressCard,
-    "Approval History": faHistory,
-    Reconsider: faCampground,
-  };
+	const iconMapper = {
+		Upload: faUpload,
+		Reassign: faUser,
+		Recommendation: faCheck,
+		Download: faDownload,
+		Queries: faInfo,
+		Status: faPlayCircle,
+		Comments: faComment,
+		'Approve/Reject': faChevronCircleDown,
+		Reopen: faFolderOpen,
+		'Reason for Rejection': faAddressCard,
+		'Approval History': faHistory,
+		Reconsider: faCampground
+	};
 
-  const bMapper = {
-    "Pending Applications": [
-      { data: ["Check Application", "Check Documents"] },
-      { data: ["Pre-Eligibility", "Co-Applicant", "Create Security"] },
-    ],
-    "In-Progress@NC": [
-      { data: ["Check Application", "Check Documents"] },
-      { data: ["Pre-Eligibility", "Compliance"] },
-    ],
-    "Branch Review": [
-      { data: ["Check Application", "Check Documents"] },
-      { data: ["Eligibility Data", "Co-Applicant", "Check Security"] },
-    ],
-    "In-Progress@AO": [
-      { data: ["Check Application", "Check Documents"] },
-      { data: ["Eligibility Data", "Compliance"] },
-    ],
-    Sanctioned: [
-      { data: ["Check Application", "Check Documents"] },
-      { data: ["Eligibility Data", "Sanction details", "Compliance"] },
-    ],
-    Rejected: [{ data: ["Check Application"] }, { data: ["Eligibility Data"] }],
-  };
+	const bMapper = {
+		'Pending Applications': [
+			{ data: ['Check Application', 'Check Documents'] },
+			{ data: ['Pre-Eligibility', 'Co-Applicant', 'Create Security'] }
+		],
+		'In-Progress@NC': [
+			{ data: ['Check Application', 'Check Documents'] },
+			{ data: ['Pre-Eligibility', 'Compliance'] }
+		],
+		'Branch Review': [
+			{ data: ['Check Application', 'Check Documents'] },
+			{ data: ['Eligibility Details', 'Co-Applicant', 'Check Security'] }
+		],
+		'In-Progress@AO': [
+			{ data: ['Check Application', 'Check Documents'] },
+			{ data: ['Eligibility Details', 'Compliance'] }
+		],
+		Sanctioned: [
+			{ data: ['Check Application', 'Check Documents'] },
+			{ data: ['Eligibility Details', 'Sanction details', 'Compliance'] }
+		],
+		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Details'] }]
+	};
 
-  const getMapper = (d) => {
-    return mapper[d];
-  };
+	const getMapper = d => {
+		return mapper[d];
+	};
 
-  const getBMapper = (d) => {
-    return bMapper[d];
-  };
+	const getBMapper = d => {
+		return bMapper[d];
+	};
 
-  const getClicker = (e) => {
-    setSecurity(e === "Upload");
-    setRecommendation(e === "Recommendation");
-    setReconsider(e === "Reconsider");
-    setComments(e === "Comments");
-    setQuery(e === "Queries");
-    setReasonforRejection(e === "Reason for Rejection");
-    setApprovalHistory(e === "Approval History");
-    setAR(e === "Approve/Reject");
-    setReopen(e === "Reopen");
-    setReassign(e === "Reassign");
-    setStatus(e === "Status");
-    setDownload(e === "Download");
-  };
+	const getClicker = e => {
+		setSecurity(e === 'Upload');
+		setRecommendation(e === 'Recommendation');
+		setReconsider(e === 'Reconsider');
+		setComments(e === 'Comments');
+		setQuery(e === 'Queries');
+		setReasonforRejection(e === 'Reason for Rejection');
+		setApprovalHistory(e === 'Approval History');
+		setAR(e === 'Approve/Reject');
+		setReopen(e === 'Reopen');
+		setReassign(e === 'Reassign');
+		setStatus(e === 'Status');
+		setDownload(e === 'Download');
+	};
 
-  const getRecom = (data) => {
-    if (data !== "Not Qualified") {
-      const a = JSON.parse(data);
-      return a;
-    }
-  };
+	const getRecom = data => {
+		if (data !== 'Not Qualified') {
+			const a = JSON.parse(data);
+			return a;
+		}
+	};
 
-  const t = getRecom(item.remarks);
+	const t = getRecom(item.remarks);
 
-  // getLoanDetails(item.id);
+	const [assignedTo, setAssignedTo] = useState(null);
+	const [assignedBy, setAssignedBy] = useState(null);
 
 	return (
 		<Card
@@ -198,9 +167,10 @@ export default function CardDetails({
 								<span className='text-xs'>{item.product || 'Auto Loan'}</span>, <br />
 								{item.loan_amount} {item.loan_amount_um}
 							</span>
-							{(item.net_monthly_income || item.gross_income)  && (
+							{(item.net_monthly_income || item.gross_income) && (
 								<small>
-									₹ <span className='text-lg'>{(item.net_monthly_income || item.gross_income)}</span> Monthly Income
+									₹ <span className='text-lg'>{item.net_monthly_income || item.gross_income}</span>{' '}
+									Monthly Income
 								</small>
 							)}
 						</section>
@@ -213,6 +183,8 @@ export default function CardDetails({
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
+												setItem && setItem(item);
+
 												setProductId && setProductId(item.loan_product_id);
 												item.remarks
 													? setAssignmentLog && setAssignmentLog(item.remarks)
@@ -240,11 +212,12 @@ export default function CardDetails({
 							<span>Credit score: {item.dcibil_score || 590}</span>
 							<ProgressBar percentage={cibilPercentage(item.cibil || 590)} />
 							<span>Pre-eligibility: Rs. {item.pre_eligiblity?.case0}</span>
-							<span style= {{backgroundColor: 
-									item.dscr > 2 ? '#00a152' : item.dscr > 1.5 ? '#ffea00' : 'red'
+							<span
+								style={{
+									backgroundColor: item.dscr > 2 ? '#00a152' : item.dscr > 1.5 ? '#ffea00' : 'red'
 								}}
 								className={`p-1 rounded text-center text-white text-xs w-5/12  `}
-							> 
+							>
 								DSCR: {item.dscr?.toFixed(2)}
 							</span>
 						</section>
@@ -257,6 +230,8 @@ export default function CardDetails({
 											rounded='rfull'
 											width='fulll'
 											onClick={() => {
+												setItem && setItem(item);
+
 												if (e !== 'Compliance') {
 													setProduct && setProduct(item.product);
 													setProductId && setProductId(item.loan_product_id);
@@ -297,19 +272,29 @@ export default function CardDetails({
 							<>
 								<section className='flex flex-col text-xs'>
 									<small>
-										Assigned at: 
-										{t?.assignedAt || new Date(item?.RequestDate ).toDateString('en-US') || item?.modified_on?.toDateString('en-US')  },
-										{t?.assignedAt || new Date(item?.RequestDate ).toLocaleTimeString('en-US') || item?.modified_on?.toLocaleTimeString('en-US')  }
+										Assigned at:
+										{t?.assignedAt ||
+											new Date(item?.RequestDate).toDateString('en-US') ||
+											item?.modified_on?.toDateString('en-US')}
+										,
+										{t?.assignedAt ||
+											new Date(item?.RequestDate).toLocaleTimeString('en-US') ||
+											item?.modified_on?.toLocaleTimeString('en-US')}
 									</small>
-									<small>Assigned by: {t?.assignedBy || item.assigned_by}</small>
-									{usersList && item.assignmentLog && (
+									<small>
+										Assigned by:{' '}
+										{assignedBy ||
+											t?.assignedBy ||
+											item.assigned_by ||
+											item?.assignmentLog?.userData?.name}
+									</small>
+									{((usersList && item.assignmentLog) || assignedBy || assignedTo) && (
 										<small>
 											Assigned To:{' '}
-											{
+											{assignedTo ||
 												usersList.filter(
 													e => e.id === JSON.parse(item?.assignmentLog?.remarks).assignedTo
-												)[0]?.name
-											}
+												)[0]?.name}
 										</small>
 									)}
 								</section>
@@ -355,12 +340,14 @@ export default function CardDetails({
 							(approvalHistory && 'Approval History') ||
 							(reasonForRejection && 'Reason for Rejection')
 						}
-						usersList={usersList}
 						getCLicker={getClicker}
 						item={item}
 						lActive={lActive}
 						setClicked={setClicked}
 						submitCase={submitCase}
+						setAssignedBy={setAssignedBy}
+						setAssignedTo={setAssignedTo}
+						usersList={usersList}
 					/>
 				)}
 			</section>

@@ -10,7 +10,6 @@ const BranchLogin = lazy(() => import('../Branch/pages/Login'));
 
 export default function BranchUserContent() {
 	const { path, url } = useRouteMatch();
-
 	return (
 		<BranchStoreProvider>
 			<Suspense fallback={<Loading />}>
