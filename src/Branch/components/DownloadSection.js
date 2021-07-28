@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
@@ -16,7 +17,6 @@ import {
   WHITELABEL_ENCRYPTION_API,
   SECRET,
 } from "../../_config/app.config";
-import { useState } from "react/cjs/react.development";
 
 const SectionWrap = styled.section`
   margin-top: 20px;
