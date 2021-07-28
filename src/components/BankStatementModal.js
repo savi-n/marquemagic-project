@@ -12,6 +12,7 @@ import BANK_FLOW from "../_config/bankflow.config";
 import { AppContext } from "../reducer/appReducer";
 import useFetch from "../hooks/useFetch";
 import useForm from "../hooks/useForm";
+import { useToasts } from "./Toast/ToastProvider";
 import Loading from "../components/Loading";
 
 const Bank = styled.div`
@@ -100,6 +101,8 @@ export default function BankStatementModal({ showModal, onClose }) {
     headers: { authorization: `${bankToken}` },
   });
 
+  const { addToast } = useToasts();
+
   const { response: token } = useFetch({
     url: BANK_TOKEN_API,
     options: {
@@ -125,7 +128,11 @@ export default function BankStatementModal({ showModal, onClose }) {
   const postData = async (api, data, method = "POST") => {
     return newRequest(
       api,
-      { method, data, timeout: 240000 },
+      {
+        method,
+        data,
+        timeout: 240000,
+      },
       { authorization: bankToken }
     );
   };
@@ -134,18 +141,33 @@ export default function BankStatementModal({ showModal, onClose }) {
     onClose();
   };
 
-  const onBankSelect = async (bank) => {
-    if (!captchaUrl && BANK_FLOW[bank.name.toLowerCase()][0]?.captchaGet) {
-      await getCaptcha(BANK_FLOW[bank.name.toLowerCase()][0]?.captchaGet);
-    }
+  const onBankSelect = (bank) => {
     setBankChoosen(bank);
   };
 
-  const handleNext = () => {
-    // const accountTypes = bankChoosen.bank_type || [];
+  const handleNext = async () => {
+    if (
+      !captchaUrl &&
+      BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep]?.captchaGet
+    ) {
+      setProcessing(true);
+      const getCaptchaRes = await getCaptcha(
+        BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep]?.captchaGet
+      );
 
-    // if (accountTypes.length > 1) {
-    // }
+      if (getCaptchaRes?.status) {
+        setCaptchaUrl(getCaptchaRes?.imagePath);
+      } else {
+        addToast({
+          message:
+            getCaptchaRes.message || "Something Went Wrong. Try Again Later!",
+          type: "error",
+        });
+      }
+      setProcessing(false);
+
+      if (!getCaptchaRes?.status) return;
+    }
 
     BANK_FLOW[bankChoosen.name.toLowerCase()]?.length
       ? setFlowStep(flowStep + 1)
@@ -155,11 +177,115 @@ export default function BankStatementModal({ showModal, onClose }) {
   const getCaptcha = async (url) => {
     const response = await postData(url, {}, "GET");
     const data = response.data;
-    if (data?.imagePath) setCaptchaUrl(data?.imagePath);
+
+    // NC200 and NC500
+    //   {
+    //     "statusCode": "NC500",
+    //     "message": errorMessage,
+    //     "imagePath": "null"
+    //  }
+    if (data?.imagePath && data?.statusCode === NC_STATUS_CODE.NC200) {
+      return {
+        status: true,
+        imagePath: data?.imagePath,
+      };
+    }
+    return {
+      status: false,
+      message: data?.message,
+    };
+  };
+
+  const processApiResponse = async (statusCode, response) => {
+    switch (statusCode) {
+      case "error": {
+        addToast({
+          message:
+            response?.message || "Something Went Wrong. Try Again Later!",
+          type: "error",
+        });
+        return;
+      }
+      case "accounts": {
+        setAccountsList(response.accounts);
+        BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
+          ? setFlowStep(flowStep + 1)
+          : flowCompleted();
+        return;
+      }
+
+      case "next": {
+        BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
+          ? setFlowStep(flowStep + 1)
+          : flowCompleted();
+        return;
+      }
+
+      case "skip": {
+        BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
+          ? setFlowStep(flowStep + 2)
+          : flowCompleted();
+        return;
+      }
+
+      case "captcha": {
+        setCaptchaUrl(response?.imagePath);
+        BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
+          ? setFlowStep(flowStep + 1)
+          : flowCompleted();
+        return;
+      }
+
+      case "updateCaptcha": {
+        addToast({
+          message:
+            response?.message || "Something Went Wrong. Try Again Later!",
+          type: "error",
+        });
+        const getCaptchaRes = await getCaptcha(
+          BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep - 1]?.captchaGet
+        );
+        if (getCaptchaRes?.status) {
+          setCaptchaUrl(getCaptchaRes?.imagePath);
+        }
+        return;
+      }
+
+      case "invalidOtp": {
+        addToast({
+          message:
+            response?.message || "Invalid OTP. Try Again with valid OTP!",
+          type: "error",
+        });
+        return;
+      }
+
+      case "done": {
+        flowCompleted();
+        return;
+      }
+
+      default: {
+        return;
+      }
+    }
+
+    // if (response.statusCode === NC_STATUS_CODE.NC201) {
+    //   // response.noOfAccounts
+    //   setAccountsList(response.accounts);
+    // }
+
+    // if (response.statusCode === NC_STATUS_CODE.NC302) {
+    //   // response.noOfAccounts
+    //   setAccountsList(response.accounts);
+    // }
   };
 
   const handleSubmitForm = async (formData) => {
     setProcessing(true);
+
+    const status =
+      BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.status || {};
 
     try {
       const post = await postData(
@@ -168,18 +294,73 @@ export default function BankStatementModal({ showModal, onClose }) {
       );
 
       const response = post.data;
-      if (response.statusCode === NC_STATUS_CODE.NC200) {
-        if (response.imagePath) {
-          setCaptchaUrl(response.imagePath);
-        }
-        if (response.noOfAccounts > 1) {
-          setAccountsList(response.noOfAccounts.accounts);
-        }
 
-        BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
-          ? setFlowStep(flowStep + 1)
-          : flowCompleted();
+      const statusCode = status[response.statusCode] || "00";
+
+      if (statusCode === "00") {
+        addToast({
+          message:
+            response?.message || "Something Went Wrong. Try Again Later!",
+          type: "error",
+        });
+        return;
       }
+
+      processApiResponse(statusCode, response);
+
+      // NC302 error message captcha api
+
+      // NC202 account success --> OTP Field show
+
+      // NC201 account list
+      //   {
+      //     "statusCode": "NC201",
+      //     "noOfAccounts": 2,
+      //     "accounts": [
+      //         {
+      //             "Account": "sese",
+      //             "AccountType": "sese",
+      //             "Branch": "sese",
+      //         },
+      //         {
+      //             "Account": "sese",
+      //             "AccountType": "sese",
+      //             "Branch": "sese",
+      //         }
+      //     ],
+      //     "message": "Success",
+      //     "imagePath": "null"
+      // }
+
+      // NC302 update captcha image
+
+      // NC500 error message
+
+      // NC200 done
+
+      // submit otp
+      // nc201
+      // nc200
+      // nc302 invalid otp
+      // nc500
+
+      //account select
+      // accountNumebr -> send in payload
+      // nc200- done
+      //nc500 error messae
+
+      // if (response.statusCode === NC_STATUS_CODE.NC202) {
+      //   if (response.imagePath) {
+      //     setCaptchaUrl(response.imagePath);
+      //   }
+      //   if (response.noOfAccounts > 1) {
+      //     setAccountsList(response.noOfAccounts.accounts);
+      //   }
+
+      // BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
+      //   ? setFlowStep(flowStep + 1)
+      //   : flowCompleted();
+      // }
     } catch (error) {
       console.log(error);
     }
@@ -228,13 +409,13 @@ export default function BankStatementModal({ showModal, onClose }) {
                 ))}
               </BankWrapper>
               <Button
-                name="Next"
+                name={processing ? "Please Wait... " : "Next"}
                 fill
                 style={{
                   width: "200px",
                   background: "blue",
                 }}
-                disabled={!bankChoosen.name}
+                disabled={!bankChoosen.name || processing}
                 onClick={handleNext}
               />
             </>
@@ -253,7 +434,7 @@ export default function BankStatementModal({ showModal, onClose }) {
                 ]?.fields.map((flow) => buildTemplate(flow))}
                 <Button
                   type="submit"
-                  name="Next"
+                  name={processing ? "Please Wait... " : "Next"}
                   fill
                   disabled={!!Object.keys(formState.error).length || processing}
                   style={{

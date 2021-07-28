@@ -31,6 +31,25 @@ const Label = styled.label`
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(15px);
+
+  &:before {
+    content: "";
+    border: 5px solid lightgrey;
+    border-bottom-color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: rotating 2s linear infinite;
+  }
+
+  @keyframes rotating {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 export default function Pincode(props) {
@@ -63,7 +82,7 @@ export default function Pincode(props) {
       );
       const pincodeData = response.data;
 
-      if (pincodeData.status === "nok") {
+      if (pincodeData.status === "nok" || !pincodeData) {
         setProcessing(false);
         return;
       }
@@ -84,7 +103,7 @@ export default function Pincode(props) {
         onChange={onPinChange}
         processing={processing}
       />
-      {processing && <Label>Fetching...</Label>}
+      {processing && <Label />}
     </Div>
   );
 }

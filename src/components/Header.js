@@ -16,7 +16,7 @@ const Logo = styled.img`
   object-position: left;
 `;
 
-export default function Header({ logo, openAccount }) {
+export default function Header({ logo, openAccount, openAccountLink }) {
   return (
     <>
       <a href="/">
@@ -24,7 +24,7 @@ export default function Header({ logo, openAccount }) {
       </a>
       {openAccount && (
         <div className="ml-auto">
-          <Button>
+          <Button onClick={() => window.open(openAccountLink, "_blank")}>
             <span className="px-4">Open Account</span>
             <FontAwesomeIcon icon={faChevronRight} size="1x" />
           </Button>

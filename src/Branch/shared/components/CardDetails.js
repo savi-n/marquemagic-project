@@ -93,17 +93,17 @@ export default function CardDetails({
 		],
 		'Branch Review': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Co-Applicant', 'Check Security'] }
+			{ data: ['Eligibility Details', 'Co-Applicant', 'Check Security'] }
 		],
 		'In-Progress@AO': [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Compliance'] }
+			{ data: ['Eligibility Details', 'Compliance'] }
 		],
 		Sanctioned: [
 			{ data: ['Check Application', 'Check Documents'] },
-			{ data: ['Eligibility Data', 'Sanction details', 'Compliance'] }
+			{ data: ['Eligibility Details', 'Sanction details', 'Compliance'] }
 		],
-		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Data'] }]
+		Rejected: [{ data: ['Check Application'] }, { data: ['Eligibility Details'] }]
 	};
 
 	const getMapper = d => {
@@ -272,10 +272,14 @@ export default function CardDetails({
 							<>
 								<section className='flex flex-col text-xs'>
 									<small>
-										Assigned at: {t?.assignedAt || item.assigned_date || new Date().toDateString()},
+										Assigned at:
 										{t?.assignedAt ||
-											item.assigned_time ||
-											new Date().toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })}
+											new Date(item?.RequestDate).toDateString('en-US') ||
+											item?.modified_on?.toDateString('en-US')}
+										,
+										{t?.assignedAt ||
+											new Date(item?.RequestDate).toLocaleTimeString('en-US') ||
+											item?.modified_on?.toLocaleTimeString('en-US')}
 									</small>
 									<small>
 										Assigned by:{' '}

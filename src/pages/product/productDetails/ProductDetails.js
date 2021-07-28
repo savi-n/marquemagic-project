@@ -55,8 +55,9 @@ const SubLi = styled(Li)`
   }
 `;
 
-const H = styled.h1`
-  font-size: 1.5em;
+const Head = styled.div`
+  /* font-size: 1.5em; */
+  font-size: 13px;
   font-weight: 500;
   span {
     color: ${({ theme }) => theme.main_theme_color};
@@ -78,7 +79,7 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
     productDetails && (
       <>
         <Colom1>
-          <H dangerouslySetInnerHTML={{ __html: productDetails.head }} />
+          <Head dangerouslySetInnerHTML={{ __html: productDetails.head }} />
           {productDetails.description && (
             <div>{productDetails.description}</div>
           )}

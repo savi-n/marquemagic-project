@@ -7,17 +7,20 @@ import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN } from '../../_config/app.config'
 import {
 	getUsersList,
 	reassignLoan,
+	reassignLoanQuery,
 	loanDocMapping,
 	getApprovalStatus,
 	assignUserToLoan,
 	getLoanDocs,
 	getCommentList,
 	docTypes,
-	borrowerDocUpload
+	borrowerDocUpload,
+	getCase
 } from '../utils/requests';
 
 export default function SharedCAT({
 	getCLicker,
+	usersList,
 	type,
 	productId,
 	item,
@@ -27,12 +30,16 @@ export default function SharedCAT({
 	setClicked,
 	submitCase,
 	setAssignedBy,
-	setAssignedTo,
-	usersList
+	setAssignedTo
 }) {
 	const { newRequest } = useFetch();
 	const uploadedFiles = useRef([]);
 	const [users, setUsers] = useState(null);
+	const [commen, setComments] = useState('');
+	const [query, setQuery] = useState('');
+	const [user, setUser] = useState(null);
+	const [queryList, setqueryList] = useState(null);
+	const [querySaved, setQuerySaved] = useState(0);
 	const [compl, setCompl] = useState(null);
 
 	useEffect(() => {
@@ -57,8 +64,11 @@ export default function SharedCAT({
 		setAssigned(false);
 	}, [assigned]);
 
-	const [commen, setComments] = useState('');
-	const [user, setUser] = useState(null);
+	useEffect(() => {
+		getCommentList(item.id).then(res => {
+			setqueryList(res);
+		});
+	}, [querySaved]);
 
 	const handleFileUpload = async files => {
 		Promise.all(
@@ -122,7 +132,7 @@ export default function SharedCAT({
 	};
 
 	const removeHandler = value => {
-		console.log(value);
+		// console.log(value);
 	};
 
 	const upload = () => (
@@ -152,7 +162,7 @@ export default function SharedCAT({
 			<section className='w-full gap-x-4 flex justify-end'>
 				<Button
 					disabled={docs.length === 0}
-					type='blue-light'
+					type='blue'
 					size='small'
 					rounded='rfull'
 					onClick={() => {
@@ -292,15 +302,84 @@ export default function SharedCAT({
 		</section>
 	);
 
+	const comment_text = () => {
+		if (queryList == null) {
+			return null;
+		}
+		let leng = queryList.data ? (queryList.data.commentList ? queryList.data.commentList.length : 0) : 0;
+		if (leng == 0) {
+			return null;
+		}
+		leng = leng - 1;
+		let comment = null;
+		start: while (true) {
+			comment = queryList.data.commentList[leng];
+			if (comment.type !== 'Query') {
+				leng = leng - 1;
+				continue start;
+			}
+			break;
+		}
+		return comment.comment_text;
+	};
+
+	const user_name = () => {
+		if (queryList == null) {
+			return null;
+		}
+		let leng = queryList.data ? (queryList.data.commentList ? queryList.data.commentList.length : 0) : 0;
+		if (leng == 0) {
+			return null;
+		}
+		leng = leng - 1;
+		let comment = null;
+		start: while (true) {
+			comment = queryList.data.commentList[leng];
+			if (comment.type !== 'Query') {
+				leng = leng - 1;
+				continue start;
+			}
+			break;
+		}
+		return comment.userName;
+	};
+
 	const queries = () => {
 		return (
-			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-10 w-full'>
-				<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-transparent'>
-					{compl}
+			<section className='rounded-md flex flex-col gap-y-4 justify-center items-end z-20 bg-white pl-4 w-full'>
+				{user_name() && comment_text() ? (
+					<section className='rounded w-11/12 self-end border p-2 focus:outline-none opacity-50 bg-gray-300'>
+						<text className='font-bold'>{user_name()}</text>
+						<br />
+						<text>{comment_text()}</text>
+					</section>
+				) : (
+					<span className='w-11/12 items-center pl-1'>{compl}</span>
+				)}
+
+				<textarea
+					placeholder='Add Comment'
+					className='rounded focus:outline-none p-2 w-11/12 self-end border'
+					onChange={e => setQuery(e.target.value)}
+				/>
+
+				<section className='w-full gap-x-4 self-end h-full flex justify-end'>
+					<Button
+						type='blue-light'
+						size='small'
+						rounded='rfull'
+						onClick={() => {
+							reassignLoanQuery(item.id, query);
+							setQuerySaved(querySaved + 1);
+							getCLicker(null);
+						}}
+					>
+						Save
+					</Button>
+					<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
+						Cancel
+					</Button>
 				</section>
-				<Button type='blue-light' size='small' rounded='rfull' onClick={() => getCLicker(null)}>
-					Cancel
-				</Button>
 			</section>
 		);
 	};
