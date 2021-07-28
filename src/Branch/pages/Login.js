@@ -42,6 +42,7 @@ const ErrorMessage = styled.div`
 export default function Login() {
 	useEffect(() => {
 		localStorage.removeItem('token');
+		localStorage.removeItem('lActive');
 	}, []);
 	const { register, handleSubmit, formState } = useForm();
 	const { newRequest } = useFetch();

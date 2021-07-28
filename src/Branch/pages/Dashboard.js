@@ -19,9 +19,11 @@ export default function Dashboard(props) {
 	const y = arrr?.join('=');
 	const o = y?.split('&');
 	const token = o && o[0];
+	const [current, setCurrent] = useState(localStorage.getItem('lActive') || 'Home');
 
 	useEffect(() => {
 		if (token) {
+			localStorage.removeItem('lActive');
 			localStorage.setItem('token', token);
 			actions.setBranchUserToken(token);
 		} else {
@@ -31,6 +33,10 @@ export default function Dashboard(props) {
 			setUsersList(res);
 		});
 	}, []);
+
+	useEffect(() => {
+		localStorage.setItem('lActive', current);
+	}, [current]);
 
 	const isIdentifier = () => {
 		return props.location.pathname === '/branch-user';
@@ -138,7 +144,6 @@ export default function Dashboard(props) {
 	];
 
 	const [data, setData] = useState(options);
-	const [current, setCurrent] = useState('Home');
 	const d = [
 		{
 			label: 'Pending Applications',

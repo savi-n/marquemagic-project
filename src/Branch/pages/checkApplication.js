@@ -268,7 +268,9 @@ export default function CheckApplication(props) {
 				</div>
 			)}
 			<div
-				onClick={() => props.setViewLoan(false)}
+				onClick={() => {
+					props.setViewLoan(false);
+				}}
 				className='absolute text-xl z-50 top-32 cursor-pointer right-4 p-2 rounded-md text-gray-400'
 			>
 				<FontAwesomeIcon icon={faTimes} />
@@ -772,11 +774,12 @@ export default function CheckApplication(props) {
 																						onClick={() =>
 																							viewDocument(
 																								data?.id,
-																								j.uploadedBy,
+																								data?.directors[0]?.id,
 																								j.document_fd_key
 																							)
 																						}
 																					>
+																						{console.log(j)}
 																						{j.document_name}
 																					</Button>
 																				</section>
