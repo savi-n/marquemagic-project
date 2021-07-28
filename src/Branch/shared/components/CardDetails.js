@@ -59,7 +59,7 @@ export default function CardDetails({
 	};
 
 	const mapper = {
-		'Pending Applications': ['Upload', 'Reassign', 'Recommendation'],
+		'Pending Applications': ['Upload', 'Reassign', 'Recommendation', 'Queries'],
 		'In-Progress@NC': [],
 		'Branch Review': ['Reassign', 'Upload', 'Recommendation', 'Download', 'Queries'],
 		'In-Progress@AO': ['Download', 'Status', 'Queries'],
