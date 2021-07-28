@@ -38,7 +38,11 @@ export default function Header({ click, active }) {
 				<FontAwesomeIcon
 					onClick={() => {
 						localStorage.removeItem('token');
-						window.location.href = `${window.location.origin}/branch/login`;
+						window.location.href = `${
+							window.location.origin.includes('localhost')
+								? `${window.location.origin}/branch/login`
+								: `${window.location.origin}/login`
+						}`;
 					}}
 					icon={faPowerOff}
 					className={`text-${active === 'Home' ? 'white' : 'black'} cursor-pointer`}
