@@ -54,7 +54,7 @@ export default function CheckApplication(props) {
 							arr.push(p);
 						});
 					});
-					setOption(arr);
+					setOption(arr.map(fileoption=> ({name:fileoption.name, value: fileoption.name})));
 				});
 				getLoan().then(resp => {
 					resp.data?.map(
@@ -90,6 +90,26 @@ export default function CheckApplication(props) {
 
 	const [lActive, setLActive] = useState(props.activ);
 	const [disabled, setDisabled] = useState(true);
+	const [file,setFile]= useState([]);
+
+    const handleFileUpload = (files) =>{
+        setFile([...files,...file])
+
+    }
+    
+    const handleDocumentTypeChange = async (fileId, type) => {
+         const fileType = file.map(fi=> {
+
+            if(fi.id === fileId){
+              return {...fi, type: type.value}
+            } return fi
+            })
+            setFile(fileType)
+      };
+    const  checkDocType = file.map(f=>
+     f.type
+ 
+    )
 
 	const tabs = [
 		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases'
@@ -750,7 +770,8 @@ export default function CheckApplication(props) {
 														}
 													}}
 													docTypeOptions={option}
-													branch={true}
+													onDrop={handleFileUpload}
+                                                    documentTypeChangeCallback={handleDocumentTypeChange}										
 													changeHandler={changeHandler}
 													onRemoveFile={e => removeHandler(e)}
 													docsPush={true}
@@ -846,13 +867,13 @@ export default function CheckApplication(props) {
 															<p className='font-semibold'>{el}</p>
 															{docType[el].map(doc => (
 																<section>
-																	<CheckBox
-																		name={doc.name}
-																		round
-																		disabled
-																		bg='green'
-																		checked={checkedDocs.includes(doc.name)}
-																	/>
+																	 <CheckBox
+                                                                        name={doc.name}
+                                                                        round
+                                                                        disabled
+                                                                        bg='green'
+                                                                        checked={checkDocType .includes(doc.name)}
+                                                                    />
 																</section>
 															))}
 														</section>
@@ -1024,9 +1045,10 @@ export default function CheckApplication(props) {
 														/>
 													)}
 
-													<Button
+													<Button 
 														type='blue-light'
 														size='small'
+														rounded='rfull'
 														onClick={() => {
 															reassignLoan(props.item.id, null, comment);
 															setMessage(true);
@@ -1037,7 +1059,8 @@ export default function CheckApplication(props) {
 															setCommentSubmit(true);
 														}}
 													>
-														Submit
+														<p className="focus: text-xs"> Add Comment</p>
+														
 													</Button>
 												</section>
 											</section>
