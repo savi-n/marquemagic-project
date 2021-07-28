@@ -184,7 +184,7 @@ export default function CardDetails({
       queries={queries}
     >
       <section className="">
-        <section className="flex flex-col gap-y-4 w-full z-10">
+        <section className="flex flex-col space-y-2 w-full z-10">
           <section className="flex items-center items-center justify-between">
             <section className="flex flex-col w-1/2">
               <small>{item.businessname || "Sample Case"}</small>
@@ -209,7 +209,7 @@ export default function CardDetails({
                 </small>
               )}
             </section>
-            <section className="flex flex-col items-end gap-y-2">
+            <section className="flex flex-col items-end space-y-2">
               {label
                 ? getBMapper(label)[0].data.map((e) => (
                     <Button
@@ -262,7 +262,7 @@ export default function CardDetails({
                 DSCR: {item.dscr?.toFixed(2)}
               </span>
             </section>
-            <section className="flex flex-col items-end gap-y-2">
+            <section className="flex flex-col items-end space-y-2">
               {label
                 ? getBMapper(label)[1].data.map((e) => (
                     <Button
@@ -345,7 +345,7 @@ export default function CardDetails({
                 </section>
               </>
             )}
-            <section className="flex gap-x-4">
+            <section className="flex space-x-3">
               {label &&
                 getMapper(label).map((e) => (
                   <section className="flex justify-end cursor-pointer">
