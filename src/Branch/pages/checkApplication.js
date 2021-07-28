@@ -1003,7 +1003,7 @@ export default function CheckApplication(props) {
 													Submit
 												</Button>
 											</section>
-											<section className='w-1/4 overflow-scroll scroll fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6'>
+											<section className='w-1/4 overflow-y-auto overflow-scroll scroll right-0 bg-gray-200 flex flex-col gap-y-8 top-24 fixed h-full p-6'>
 												<p className='text-xl font-medium'>Comments</p>
 												{(props.assignmentLog || data?.remarks) && (
 													<>
@@ -1014,19 +1014,14 @@ export default function CheckApplication(props) {
 																<span className='text-xs'>
 																	
 																	{
-																		props.usersList.filter(
-																			e =>
-																				e.id ===
-																				JSON.parse(
-																					props.assignmentLog || data?.remarks
-																				)[el]?.userId
-																		)[0]?.name
+																		JSON.parse(
+																			props.assignmentLog || data?.remarks
+																		)[el]?.name
 																	}
 																</span>
-																{(JSON.parse(props.assignmentLog || data?.remarks)[el]
-																	?.type === 'ReAssign Comments' ||
+																{
 																	JSON.parse(props.assignmentLog || data?.remarks)[el]
-																		?.type === 'Comments') &&
+																		?.type === ( 'Comments') &&
 																	JSON.parse(props.assignmentLog || data?.remarks)[el]
 																		?.message}
 																<span className='text-xs text-blue-700'>
