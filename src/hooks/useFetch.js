@@ -16,6 +16,9 @@ export default function useFetch({
   };
 
   const newRequest = (url, options, headers = {}) => {
+    if (options.timeout) {
+      axios.defaults.timeout = options.timeout;
+    }
     return axios({
       url,
       headers,
