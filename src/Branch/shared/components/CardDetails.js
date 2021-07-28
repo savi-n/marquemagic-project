@@ -61,7 +61,7 @@ export default function CardDetails({
 	const mapper = {
 		'Pending Applications': ['Upload', 'Reassign', 'Recommendation', 'Queries'],
 		'In-Progress@NC': [],
-		'Branch Review': ['Reassign', 'Upload', 'Recommendation', 'Download', 'Queries'],
+		'Branch Review': ['Reassign', 'Recommendation', 'Download', 'Queries'],
 		'In-Progress@AO': ['Download', 'Status', 'Queries'],
 		Sanctioned: ['Download', 'Reassign', 'Upload', 'Reconsider', 'Comments', 'Approve/Reject'],
 		Rejected: ['Reopen', 'Reason for Rejection', 'Approval History', 'Download', 'Reconsider']
