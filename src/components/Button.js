@@ -6,7 +6,7 @@ const StyledButton = styled.button`
   border: 2px solid
     ${({ theme, fill }) =>
       fill && (typeof fill === "string" ? fill : theme.main_theme_color)};
-  border-radius: 5px;
+  border-radius: ${({ roundCorner }) => (roundCorner ? "40px" : "5px")};
   padding: 10px 20px;
   background: ${({ theme, fill }) =>
     fill && (typeof fill === "string" ? fill : theme.main_theme_color)};
@@ -38,6 +38,7 @@ export default function Button({
   style,
   disabled = false,
   width,
+  roundCorner = false,
 }) {
   return (
     <StyledButton
@@ -46,6 +47,7 @@ export default function Button({
       disabled={disabled}
       altStyle={style}
       width={width}
+      roundCorner={roundCorner}
     >
       {name && <Div>{name}</Div>}
       {children}

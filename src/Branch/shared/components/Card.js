@@ -44,6 +44,7 @@ export default function Card(props) {
         maxHeight: `${getter() ? "80rem" : "auto"}`,
         width: `${!full ? "calc(100%/3)" : "100%"}`,
         maxWidth: `${getter() ? "100%" : "100%"}`,
+        position: "relative",
       }}
       className={`${full && "w-full"} p-6 h-full rounded-md flex-flex-col`}
     >

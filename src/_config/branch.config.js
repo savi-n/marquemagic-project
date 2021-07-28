@@ -10,3 +10,7 @@ export const BRANCH_COLLATERAL_DETAILS = taggedTemplate`${API_END_POINT}/cubColl
 
 export const BRANCH_COLLATERAL_SELCTED = taggedTemplate`${API_END_POINT}/cubCollateral/saveCollateralDetailsWithAccountNumber?custAccNo=${"custAccNo"}&pickedCollateralDetails={"collateral"}
 `;
+
+export const DOWNLOAD_CASE_DOCUMENTS = `${API_END_POINT}/viewDocument/`;
+
+export const VIEW_CASE_DOCUMENTS_LIST = taggedTemplate`${API_END_POINT}/uploaded_doc_list?case_id=${"caseId"}&white_label_id=${"whiteLabel"}`;
