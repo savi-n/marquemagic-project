@@ -60,6 +60,9 @@ function reducer(state, action) {
     }
 
     case actionTypes.SET_USER_DETAILS: {
+      let tokenValidTill = new Date();
+      tokenValidTill.setDate(tokenValidTill.getDate() + 1);
+
       updatedState = {
         ...state,
         ...action.data,
@@ -67,6 +70,7 @@ function reducer(state, action) {
         userBankDetails: action.data.userBankDetails,
         userAccountToken: action.data.userAccountToken,
         userToken: action.data.userToken,
+        timestamp: tokenValidTill,
       };
       break;
     }
