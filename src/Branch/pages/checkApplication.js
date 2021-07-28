@@ -46,7 +46,6 @@ export default function CheckApplication(props) {
             if (!data) setData(res);
             setLoading(false);
             if (res) {
-                console.log(props.productId, res?.business_id?.businesstype?.id);
                 docTypes(props.productId, res?.business_id?.businesstype?.id).then(res => {
                     setDocTypes(res);
                     Object.keys(res).map(k => {
@@ -100,7 +99,7 @@ export default function CheckApplication(props) {
         'Security Details',
         data && getPreEligibleData(data)
             ? 'Pre-Eligibility Details'
-            : data && getEligibileData(data) && 'Eligibility Details'
+            : data && getEligibileData(data) && 'Eligibility Data'
     ];
 
     const getTabs = item => (
@@ -135,7 +134,7 @@ export default function CheckApplication(props) {
                 'Document Details': getDocDetails(data),
                 'Security Details': 'No Data',
                 'Pre-Eligibility Details': getPreEligibleData(data),
-                'Eligibility Details': getEligibileData(data),
+                'Eligibility Data': getEligibileData(data),
                 'Business Details': ''
             };
         }
@@ -205,7 +204,7 @@ export default function CheckApplication(props) {
                 minimumPreEligiblity: 'Eligible Amount'
             }
         },
-        'Eligibility Details': {
+        'Eligibility Data': {
             'Eligibility Details': {
                 dscr: 'DSCR',
                 financial_amt: 'Final Amount'
@@ -224,7 +223,7 @@ export default function CheckApplication(props) {
         sec_5:
             data && getPreEligibleData(data)
                 ? 'Pre-Eligibility Details'
-                : data && getEligibileData(data) && 'Eligibility Details'
+                : data && getEligibileData(data) && 'Eligibility Data'
     };
 
     const [message, setMessage] = useState(false);
@@ -244,6 +243,16 @@ export default function CheckApplication(props) {
     };
 
     const [errorMsg, setError] = useState(false);
+
+    const extractFields = i => {
+        if (i.name === 'Loan Details') {
+            i.id = 'loan-details';
+        }
+        if (i.name === 'Guarantor Details') {
+            i.id = 'personal-details';
+        }
+        return i?.id;
+    };
 
     return (
         <main>
@@ -304,9 +313,7 @@ export default function CheckApplication(props) {
                                                                     {i.name}
                                                                 </p>
 
-                                                                {i.fields[
-                                                                    i.name === 'Loan Details' ? ['loan-details'] : i?.id
-                                                                ]?.data.map(
+                                                                {i.fields[extractFields(i)]?.data.map(
                                                                     el =>
                                                                         el && (
                                                                             <section className='flex space-evenly items-center'>
@@ -315,6 +322,27 @@ export default function CheckApplication(props) {
                                                                                 </label>
                                                                                 {el.type !== 'select' ? (
                                                                                     <>
+                                                                                        {i.name ===
+                                                                                            'Guarantor Details' &&
+                                                                                            data?.directors?.map(
+                                                                                                item =>
+                                                                                                    item.type_name ===
+                                                                                                        'Guarantor' && (
+                                                                                                        <input
+                                                                                                            disabled={
+                                                                                                                disabled
+                                                                                                            }
+                                                                                                            className='rounded-lg p-4 border w-1/3'
+                                                                                                            defaultValue={
+                                                                                                                item[
+                                                                                                                    el
+                                                                                                                        .db_name
+                                                                                                                ] ||
+                                                                                                                'N/A'
+                                                                                                            }
+                                                                                                        />
+                                                                                                    )
+                                                                                            )}
                                                                                         {i.name ===
                                                                                             'Business Details' && (
                                                                                             <input
@@ -396,15 +424,15 @@ export default function CheckApplication(props) {
                                                                                                                                 el
                                                                                                                                     .db_name
                                                                                                                             ]
-                                                                                                                     ).map(
+                                                                                                                      ).map(
                                                                                                                             r =>
                                                                                                                                 r[
                                                                                                                                     el
                                                                                                                                         .db_name
                                                                                                                                 ]
-                                                                                                                     )
+                                                                                                                      )
                                                                                                                     : 'N/A' ||
-                                                                                                                     'N/A'
+                                                                                                                      'N/A'
                                                                                                             }
                                                                                                         />
                                                                                                     </>
