@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_config/app.config';
 import CheckBox from '../../shared/components/Checkbox/CheckBox';
+import CollateralDetails from '../components/CollateralDetails';
 
 export default function CheckApplication(props) {
 	const checkTab = activeTab => {
@@ -895,7 +896,7 @@ export default function CheckApplication(props) {
 									)}
 									{e === sec.sec_4 && (
 										<section>
-											<p>No collateral details found</p>
+                                            <CollateralDetails loanId={props?.item.id} />
 										</section>
 									)}
 									{e === sec.sec_5 && (
