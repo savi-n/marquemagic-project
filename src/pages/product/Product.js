@@ -10,6 +10,7 @@ import { FormContext } from "../../reducer/formReducer";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 import ContinueModal from "../../components/modals/ContinueModal";
 import Router from "./Router";
+import { UserContext } from "../../reducer/userReducer";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -99,6 +100,10 @@ export default function Product({ product, url }) {
     actions: { clearFormData },
   } = useContext(FormContext);
 
+  const {
+    state: { timestamp },
+  } = useContext(UserContext);
+
   const { response } = useFetch({
     url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
     options: { method: "GET" },
@@ -111,7 +116,7 @@ export default function Product({ product, url }) {
   }, [response]);
 
   useEffect(() => {
-    if (productId !== productIdPage) {
+    if (productId !== productIdPage || timestamp < Date.now()) {
       clearFlowDetails();
       clearFormData();
     }
@@ -121,22 +126,23 @@ export default function Product({ product, url }) {
   //   if (basePageUrl) setCurrentFlow(basePageUrl);
   // }, [basePageUrl]);
 
-  const [
-    continueExistingApplication,
-    setContinueExistingApplication,
-  ] = useState(false);
+  // const [
+  //   continueExistingApplication,
+  //   setContinueExistingApplication,
+  // ] = useState(false);
 
   const [showContinueModal, setShowContinueModal] = useState(false);
 
   const onYesClick = () => {
-    setContinueExistingApplication(true);
+    // setContinueExistingApplication(true);
     setShowContinueModal(true);
   };
 
   const onNoClick = () => {
-    setContinueExistingApplication(false);
+    // setContinueExistingApplication(false);
     setShowContinueModal(true);
     clearFlowDetails(basePageUrl);
+    clearFormData();
   };
 
   const onFlowChange = (flow) => {
