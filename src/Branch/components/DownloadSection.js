@@ -101,6 +101,8 @@ const Col = styled.div`
 
 const Btn = styled.button``;
 
+const DocTypeNC = "Namastecredit Documents";
+
 export default function DownloadSection({
   getCLicker,
   item,
@@ -199,13 +201,17 @@ export default function DownloadSection({
     }
   };
 
+  const documentsToShow = documentList?.filter(
+    (doc) => doc.document_type.toLowerCase() === DocTypeNC.toLowerCase()
+  );
+
   return (
     <SectionWrap>
       <Content>
         {loading && <LoaderCircle />}
         {!loading && documentList && (
           <Div>
-            {documentList.map((doc) => (
+            {documentsToShow.map((doc) => (
               <File key={doc.document_fd_key}>
                 <Col title={doc.document_name} width={"45%"}>
                   {doc.document_name}
@@ -222,7 +228,9 @@ export default function DownloadSection({
             ))}
           </Div>
         )}
-        {!loading && !documentList && <Message>No Documents Found</Message>}
+        {!loading && !documentList && documentsToShow.length && (
+          <Message>No Documents Found</Message>
+        )}
       </Content>
       <ButtonWrapper>
         <Button
