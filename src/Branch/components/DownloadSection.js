@@ -10,7 +10,7 @@ import useFetch from "../../hooks/useFetch";
 import {
   DOWNLOAD_CASE_DOCUMENTS,
   VIEW_CASE_DOCUMENTS_LIST,
-  VIEW_CASE_DOCUMENTS_LIST_UIUX,
+  // VIEW_CASE_DOCUMENTS_LIST_UIUX,
 } from "../../_config/branch.config";
 
 import {
@@ -100,6 +100,8 @@ const Col = styled.div`
 `;
 
 const Btn = styled.button``;
+
+const DocTypeNC = "Namastecredit Documents";
 
 export default function DownloadSection({
   getCLicker,
@@ -194,10 +196,12 @@ export default function DownloadSection({
       });
       var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
       window.open(plaintext);
-
-      //   window.open(documentViewRes.signedurl, "_blank");
     }
   };
+
+  const documentsToShow = documentList?.filter(
+    (doc) => doc.document_type.toLowerCase() === DocTypeNC.toLowerCase()
+  );
 
   return (
     <SectionWrap>
@@ -205,7 +209,7 @@ export default function DownloadSection({
         {loading && <LoaderCircle />}
         {!loading && documentList && (
           <Div>
-            {documentList.map((doc) => (
+            {documentsToShow.map((doc) => (
               <File key={doc.document_fd_key}>
                 <Col title={doc.document_name} width={"45%"}>
                   {doc.document_name}
@@ -222,7 +226,9 @@ export default function DownloadSection({
             ))}
           </Div>
         )}
-        {!loading && !documentList && <Message>No Documents Found</Message>}
+        {!loading && !documentList && documentsToShow.length && (
+          <Message>No Documents Found</Message>
+        )}
       </Content>
       <ButtonWrapper>
         <Button
