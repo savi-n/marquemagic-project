@@ -10,7 +10,7 @@ import useFetch from "../../hooks/useFetch";
 import {
   DOWNLOAD_CASE_DOCUMENTS,
   VIEW_CASE_DOCUMENTS_LIST,
-  VIEW_CASE_DOCUMENTS_LIST_UIUX,
+  // VIEW_CASE_DOCUMENTS_LIST_UIUX,
 } from "../../_config/branch.config";
 
 import {
@@ -196,8 +196,6 @@ export default function DownloadSection({
       });
       var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
       window.open(plaintext);
-
-      //   window.open(documentViewRes.signedurl, "_blank");
     }
   };
 
