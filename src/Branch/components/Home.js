@@ -148,17 +148,24 @@ export default function Home({
                     <ul className="flex flex-col gap-y-1">
                       {item[i].data.map((el) =>
                         Object.keys(el).map((e) => (
-                          <li className="flex items-center justify-between bg-gray-300 rounded-full p-1 gap-x-4">
-                            <section className="flex items-center gap-x-1">
+                          <li className="flex items-center justify-between bg-gray-300 rounded-full p-1 ">
+                            <section className="flex items-center">
                               <span
                                 className={`h-4 w-4 rounded-full`}
                                 style={{
                                   backgroundColor: `${el[e].highlight}`,
                                 }}
                               />
-                              <small>{el[e].label}</small>
+                              <small
+                                style={{
+                                  margin: "0 5px",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {el[e].label}
+                              </small>
                             </section>
-                            <small className="px-2">{el[e].value}</small>
+                            <small className="pr-2">{el[e].value}</small>
                           </li>
                         ))
                       )}

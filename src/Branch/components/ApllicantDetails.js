@@ -1,5 +1,15 @@
 import Button from "../shared/components/Button";
 
+const valueConversion = {
+  Thousand: 1000,
+  Lakhs: 100000,
+  Crores: 10000000,
+  Millions: 1000000,
+  One: 1,
+};
+
+const amountFields = ["loan_amount", "value_Vehicle"];
+
 export default function ApplicantDetails({
   fields,
   disabled,
@@ -10,6 +20,14 @@ export default function ApplicantDetails({
   d,
   clickSub,
 }) {
+  const amountConverter = (value, name) => {
+    if (amountFields.includes(name)) {
+      return value * valueConversion[data?.assets_value_um || "One"];
+    }
+
+    return value;
+  };
+
   return (
     <>
       {fields && fields.length > 7 ? (
@@ -18,10 +36,11 @@ export default function ApplicantDetails({
             i &&
             i.id !== "guarantor-document-upload" &&
             i.id !== "cub-document-upload" &&
+            i.id !== "guarantor-details" &&
             idx > 1 &&
             idx < 7 && (
               <section className="flex flex-col gap-y-4 gap-x-20">
-                <p className="text-blue-700 font-medium text-xl pb-8">
+                <p className="text-blue-700 font-medium text-xl pb-8 p1">
                   {i.name}
                 </p>
 
@@ -53,13 +72,14 @@ export default function ApplicantDetails({
                                   className="rounded-lg p-4 border w-1/3 n2"
                                   name={el.db_name}
                                   onChange={onfieldChanges}
-                                  defaultValue={
+                                  defaultValue={amountConverter(
                                     data[el.db_name] ||
-                                    data?.loanAssestsDetails?.[0]?.[
-                                      el.db_name
-                                    ] ||
-                                    "N/A"
-                                  }
+                                      data?.loanAssestsDetails?.[0]?.[
+                                        el.db_name
+                                      ] ||
+                                      "N/A",
+                                    el.db_name
+                                  )}
                                 />
                               </>
                             )}
@@ -226,7 +246,7 @@ export default function ApplicantDetails({
                   (j) =>
                     j !== false && (
                       <section className="flex flex-col gap-y-4 gap-x-20">
-                        <p className="text-blue-700 font-medium text-xl pb-8">
+                        <p className="text-blue-700 font-medium text-xl pb-8 p2">
                           {i}
                         </p>
 
