@@ -226,7 +226,7 @@ export default function DownloadSection({
             ))}
           </Div>
         )}
-        {!loading && !documentList && documentsToShow.length && (
+        {!loading && (!documentList || !documentsToShow?.length) && (
           <Message>No Documents Found</Message>
         )}
       </Content>
