@@ -49,6 +49,7 @@ export default function CheckApplication(props) {
   const [docsUploaded, setDocsUPloaded] = useState([]);
   const [data, setData] = useState(null);
 
+
   //changes
   const [loading, setLoading] = useState(false);
   const [loanDetailsState, setLoanDetailsState] = useState(null);
@@ -126,7 +127,7 @@ export default function CheckApplication(props) {
 
   const tabs = [
     props.product !== "Unsecured Business/Self-Employed" &&
-    props.product !== "LAP Cases"
+      props.product !== "LAP Cases"
       ? "Applicant"
       : "Business Details",
     "Co-Applicant",
@@ -253,7 +254,7 @@ export default function CheckApplication(props) {
   const sec = {
     sec_1:
       props.product !== "Unsecured Business/Self-Employed" &&
-      props.product !== "LAP Cases"
+        props.product !== "LAP Cases"
         ? "Applicant"
         : "Business Details",
     sec_2: "Co-Applicant",
@@ -264,6 +265,9 @@ export default function CheckApplication(props) {
         ? "Pre-Eligibility Details"
         : data && getEligibileData(data) && "Eligibility Details",
   };
+
+  const coApplicantIds = data?.directors.filter(director=> 
+    director.type_name==="Co-Applicant").map(director=>director.id)
 
   const [message, setMessage] = useState(false);
 
@@ -280,7 +284,7 @@ export default function CheckApplication(props) {
   };
 
   const uploader = (userid) => {
-    uploadDoc(userid).then((res) => {});
+    uploadDoc(userid).then((res) => { });
   };
 
   const [errorMsg, setError] = useState(false);
@@ -375,9 +379,9 @@ export default function CheckApplication(props) {
                   )}
 
                   {e === sec.sec_2 &&
-                  d()[e].length > 1 &&
-                  props.product !== "Unsecured Business/Self-Employed" &&
-                  props.product !== "LAP Cases" ? (
+                    d()[e].length > 1 &&
+                    props.product !== "Unsecured Business/Self-Employed" &&
+                    props.product !== "LAP Cases" ? (
                     <section>
                       {Object.keys(mapper[e]).map((i) => (
                         <section>
@@ -498,7 +502,7 @@ export default function CheckApplication(props) {
                                 {docsUploaded.map(
                                   (j, idx) =>
                                     j.document_type ===
-                                      "Financial Documents" && (
+                                    "Financial Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
                                         <section className="w-full">
                                           <Button
@@ -566,13 +570,116 @@ export default function CheckApplication(props) {
                           ))}
                         </section>
                       )}
-                      {coApplicant && (
-                        <section className="flex flex-col gap-y-5">
+                      {(
+                        <section className="flex flex-col gap-y-5 w-8/12">
                           <p className="text-blue-600 font-medium text-xl">
                             Co-Applicant Documents Uploaded
                           </p>
-                          <FileUpload />
+                          <FileUpload
+                          accept=""
+                          upload={{
+                            url: DOCS_UPLOAD_URL_LOAN({
+                              userid: data?.business_id?.userid,
+                            }),
+                            header: {
+                              Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                              )}`,
+                            },
+                          }}
+                          docTypeOptions={option}
+                          onDrop={handleFileUpload}
+                          documentTypeChangeCallback={handleDocumentTypeChange}
+                          // branch={true}
+                          changeHandler={changeHandler}
+                          onRemoveFile={(e) => removeHandler(e)}
+                          docsPush={true}
+                          docs={docs}
+                          loan_id={data?.id}
+                          directorId={data?.directors?.[0].id}
+                          setDocs={setDocs}
+                        />
+                          <section className="flex gap-x-4 flex-wrap gap-y-4">
+                          {docsUploaded.length > 0 && (
+                            <>
+                              <section>
+                                <span>KYC Docs</span>
+                                {docsUploaded.filter((docs) =>coApplicantIds.includes(docs.directorId) ).map (
+                                  (j, idx) =>
+                                    j.document_type === "KYC Documents"(
+                                      <section className="py-2 flex justify-evenly items-center w-full">
+                                        <section className="w-full">
+                                          <Button
+                                            type="blue-light"
+                                            onClick={() =>
+                                              viewDocument(
+                                                data?.id,
+                                                j.uploadedBy,
+                                                j.document_fd_key
+                                              )
+                                            }
+                                          >
+                                            {j.document_name}
+                                          </Button>
+                                        </section>
+                                      </section>
+                                    )
+                                )}
+                              </section>
+                              <section>
+                                <span>Financial Docs</span>
+                                {docsUploaded.filter((docs) =>coApplicantIds.includes(docs.directorId) ).map (
+                                  (j, idx) =>
+                                    j.document_type ===
+                                    "Financial Documents" && (
+                                      <section className="py-2 flex justify-evenly items-center w-full">
+                                        <section className="w-full">
+                                          <Button
+                                            type="blue-light"
+                                            onClick={() =>
+                                              viewDocument(
+                                                data?.id,
+                                                j.uploadedBy,
+                                                j.document_fd_key
+                                              )
+                                            }
+                                          >
+                                            {j.document_name}
+                                          </Button>
+                                        </section>
+                                      </section>
+                                    )
+                                )}
+                              </section>
+                              <section>
+                                <span>Other Docs</span>
+                                {docsUploaded.filter((docs) =>coApplicantIds.includes(docs.directorId) ).map (
+                                  (j, idx) =>
+                                    j.document_type === "Other Documents" && (
+                                      <section className="py-2 flex justify-evenly items-center w-full">
+                                        <section className="w-full">
+                                          <Button
+                                            type="blue-light"
+                                            onClick={() =>
+                                              viewDocument(
+                                                data?.id,
+                                                j.uploadedBy,
+                                                j.document_fd_key
+                                              )
+                                            }
+                                          >
+                                            {j.document_name}
+                                          </Button>
+                                        </section>
+                                      </section>
+                                    )
+                                )}
+                              </section>
+                            </>
+                          )}
                         </section>
+                      </section>
+                        
                       )}
                       <Button
                         onClick={() => {
@@ -694,7 +801,12 @@ export default function CheckApplication(props) {
                           Submit
                         </Button>
                       </section>
-                      <section className="w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6">
+                    
+                      <section className="w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6"
+                       style={{
+                        overflow: "scroll",
+                       
+                      }}>
                         <p className="text-xl font-medium">Comments</p>
                         {props.assignmentLog && (
                           <>
@@ -702,9 +814,13 @@ export default function CheckApplication(props) {
                               (el) => (
                                 <section className="bg-white flex flex-col gap-y-6 p-2 rounded-lg">
                                   <span className="text-xs">
-                                    {e.id ===
+
+                                    {
+                                      e.id ===
                                       JSON.parse(props.assignmentLog)[el]
-                                        ?.userId}
+                                        ?.name
+
+                                    }
                                   </span>
                                   {JSON.parse(props.assignmentLog)[el]?.type ===
                                     "ReAssign Comments" &&
@@ -724,14 +840,17 @@ export default function CheckApplication(props) {
                             className="p-1 rounded-md px-2 focus:outline-none"
                             onChange={(e) => setComment(e.target.value)}
                           />
+                             
+                          
                           <Button
+                            rounded="rfull"
                             type="blue-light"
                             size="small"
                             onClick={() => {
                               reassignLoan(props.item.id, null, comment);
                             }}
                           >
-                            Submit
+                            Add comment
                           </Button>
                         </section>
                       </section>
