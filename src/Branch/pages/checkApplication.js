@@ -24,6 +24,7 @@ import {
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 
 import CollateralDetails from "../components/CollateralDetails";
+import ApplicantDetails from "../components/ApllicantDetails";
 import useCaseUpdate from "../useCaseUpdate";
 
 export default function CheckApplication(props) {
@@ -361,305 +362,16 @@ export default function CheckApplication(props) {
               e === lActive ? (
                 <>
                   {e === sec.sec_1 && (
-                    <>
-                      {fields && fields.length > 7 ? (
-                        fields.map(
-                          (i, idx) =>
-                            i &&
-                            i.id !== "guarantor-document-upload" &&
-                            i.id !== "cub-document-upload" &&
-                            idx > 1 &&
-                            idx < 7 && (
-                              <section className="flex flex-col gap-y-4 gap-x-20">
-                                <p className="text-blue-700 font-medium text-xl pb-8">
-                                  {i.name}
-                                </p>
-
-                                {i.fields[
-                                  i.name === "Loan Details"
-                                    ? ["loan-details"]
-                                    : i?.id
-                                ]?.data.map(
-                                  (el) =>
-                                    el && (
-                                      <section className="flex space-evenly items-center">
-                                        <label className="w-1/2">
-                                          {el.placeholder}
-                                        </label>
-                                        {el.type !== "select" ? (
-                                          <>
-                                            {i.name === "Business Details" && (
-                                              <input
-                                                disabled={disabled}
-                                                className="rounded-lg p-4 border w-1/3"
-                                                name={el.db_name}
-                                                onChange={onfieldChanges}
-                                                defaultValue={
-                                                  data?.business_id[
-                                                    el.db_name
-                                                  ] || "N/A"
-                                                }
-                                              />
-                                            )}
-
-                                            {i.name === "Loan Details" && (
-                                              <>
-                                                <input
-                                                  disabled={disabled}
-                                                  className="rounded-lg p-4 border w-1/3"
-                                                  name={el.db_name}
-                                                  onChange={onfieldChanges}
-                                                  defaultValue={
-                                                    data[el.db_name] || "N/A"
-                                                  }
-                                                />
-                                              </>
-                                            )}
-                                            {i.name === "Personal Details" && (
-                                              <>
-                                                <input
-                                                  disabled={disabled}
-                                                  className="rounded-lg p-4 border w-1/3"
-                                                  name={el.db_name}
-                                                  onChange={onfieldChanges}
-                                                  defaultValue={
-                                                    data?.directors[0][
-                                                      el.db_name
-                                                    ] || "N/A"
-                                                  }
-                                                />
-                                              </>
-                                            )}
-                                            {i.name === "Address Details" &&
-                                              data?.business_id?.business_address.map(
-                                                (o) => (
-                                                  <>
-                                                    <input
-                                                      disabled={disabled}
-                                                      className="rounded-lg p-4 border w-1/3"
-                                                      name={el.db_name}
-                                                      onChange={onfieldChanges}
-                                                      defaultValue={
-                                                        o[el.db_name] || "N/A"
-                                                      }
-                                                    />
-                                                  </>
-                                                )
-                                              )}
-
-                                            {i.name === "EMI Details" &&
-                                              data?.loanFinancialDetails?.map(
-                                                (o) => (
-                                                  <>
-                                                    <input
-                                                      disabled={disabled}
-                                                      className="rounded-lg p-4 border w-1/3"
-                                                      name={el.db_name}
-                                                      onChange={onfieldChanges}
-                                                      defaultValue={
-                                                        o[el.db_name]
-                                                          ? JSON.parse(
-                                                              o[el.db_name]
-                                                            ).map(
-                                                              (r) =>
-                                                                r[el.db_name]
-                                                            )
-                                                          : "N/A" || "N/A"
-                                                      }
-                                                    />
-                                                  </>
-                                                )
-                                              )}
-                                            {i.name ===
-                                              "Subsidiary Details" && (
-                                              <input
-                                                disabled={disabled}
-                                                className="rounded-lg p-4 border w-1/3"
-                                                name={el.db_name}
-                                                onChange={onfieldChanges}
-                                                defaultValue={
-                                                  data?.business_id[
-                                                    el.db_name
-                                                  ] || "N/A"
-                                                }
-                                              />
-                                            )}
-                                            {i.name === "Bank Details" &&
-                                              data?.loanFinancialDetails?.map(
-                                                (o) => (
-                                                  <>
-                                                    <input
-                                                      disabled={disabled}
-                                                      className="rounded-lg p-4 border w-1/3"
-                                                      name={el.db_name}
-                                                      onChange={onfieldChanges}
-                                                      defaultValue={
-                                                        o[el.db_name] || "N/A"
-                                                      }
-                                                    />
-                                                  </>
-                                                )
-                                              )}
-
-                                            {i.name ===
-                                            "Shareholder Details" ? (
-                                              data?.businessShareData.length >
-                                              0 ? (
-                                                data?.businessShareData.map(
-                                                  (o, idx) => (
-                                                    <>
-                                                      <input
-                                                        disabled={disabled}
-                                                        className="rounded-lg p-4 border w-1/3 mx-2"
-                                                        name={el.db_name}
-                                                        onChange={
-                                                          onfieldChanges
-                                                        }
-                                                        defaultValue={
-                                                          o[el.db_name] || "N/A"
-                                                        }
-                                                      />
-                                                    </>
-                                                  )
-                                                )
-                                              ) : (
-                                                <input
-                                                  disabled={disabled}
-                                                  className="rounded-lg p-4 border w-1/3 mx-2"
-                                                  name={el.db_name}
-                                                  onChange={onfieldChanges}
-                                                  defaultValue={"N/A"}
-                                                />
-                                              )
-                                            ) : null}
-                                            {i.name === "Reference Details" ? (
-                                              data?.loanReferenceData.length >
-                                              0 ? (
-                                                data?.loanReferenceData.map(
-                                                  (o, idx) => (
-                                                    <>
-                                                      <input
-                                                        disabled={disabled}
-                                                        className="rounded-lg p-4 border w-1/3 mx-2"
-                                                        name={el.db_name}
-                                                        onChange={
-                                                          onfieldChanges
-                                                        }
-                                                        defaultValue={
-                                                          o[el.db_name] || "N/A"
-                                                        }
-                                                      />
-                                                    </>
-                                                  )
-                                                )
-                                              ) : (
-                                                <input
-                                                  disabled={disabled}
-                                                  className="rounded-lg p-4 border w-1/3 mx-2"
-                                                  name={el.db_name}
-                                                  onChange={onfieldChanges}
-                                                  defaultValue={"N/A"}
-                                                />
-                                              )
-                                            ) : null}
-                                          </>
-                                        ) : null}
-
-                                        {el.type === "select" && (
-                                          <>
-                                            {i.name === "Shareholder Details" &&
-                                              data?.businessShareData.map(
-                                                (o, idx) => (
-                                                  <select
-                                                    disabled={disabled}
-                                                    className="rounded-lg p-4 border w-1/3 mx-2"
-                                                    name={el.db_name}
-                                                    onChange={onfieldChanges}
-                                                  >
-                                                    {el.options &&
-                                                      el.options.map((r) => (
-                                                        <option>
-                                                          {r?.name}
-                                                        </option>
-                                                      ))}
-                                                  </select>
-                                                )
-                                              )}
-                                            {i.name !==
-                                              "Shareholder Details" && (
-                                              <select
-                                                disabled={disabled}
-                                                className="rounded-lg p-4 border w-1/3"
-                                                name={el.db_name}
-                                                onChange={onfieldChanges}
-                                              >
-                                                {el.options &&
-                                                  el.options.map((r) => (
-                                                    <option>{r?.name}</option>
-                                                  ))}
-                                              </select>
-                                            )}
-                                          </>
-                                        )}
-                                      </section>
-                                    )
-                                )}
-                              </section>
-                            )
-                        )
-                      ) : (
-                        <>
-                          {Object.keys(mapper[e]).map((i) => (
-                            <section>
-                              {d()[e] &&
-                                d()[e].map(
-                                  (j) =>
-                                    j !== false && (
-                                      <section className="flex flex-col gap-y-4 gap-x-20">
-                                        <p className="text-blue-700 font-medium text-xl pb-8">
-                                          {i}
-                                        </p>
-
-                                        {j &&
-                                          Object.keys(j).map(
-                                            (k) =>
-                                              mapper[e][i] &&
-                                              Object.keys(mapper[e][i]).map(
-                                                (l) =>
-                                                  l === k && (
-                                                    <section className="flex space-evenly items-center">
-                                                      <label className="w-1/2">
-                                                        {mapper[e][i][k]}
-                                                      </label>
-                                                      <input
-                                                        className="rounded-lg p-4 border"
-                                                        disabled={disabled}
-                                                        placeholder={
-                                                          mapper[e][i][k]
-                                                        }
-                                                        defaultValue={j[k]}
-                                                      />
-                                                    </section>
-                                                  )
-                                              )
-                                          )}
-                                      </section>
-                                    )
-                                )}
-                            </section>
-                          ))}
-                        </>
-                      )}
-                      <Button
-                        onClick={() => clickSub()}
-                        disabled={disabled}
-                        type="blue"
-                        rounded="rfull"
-                        size="small"
-                      >
-                        Submit
-                      </Button>
-                    </>
+                    <ApplicantDetails
+                      fields={fields}
+                      disabled={disabled}
+                      onfieldChanges={onfieldChanges}
+                      data={data}
+                      mapper={mapper}
+                      e={e}
+                      d={d}
+                      clickSub={clickSub}
+                    />
                   )}
 
                   {e === sec.sec_2 &&
@@ -990,13 +702,9 @@ export default function CheckApplication(props) {
                               (el) => (
                                 <section className="bg-white flex flex-col gap-y-6 p-2 rounded-lg">
                                   <span className="text-xs">
-                                   
-                                    {
-                                      e.id ===
-									  JSON.parse(props.assignmentLog)[el]
-										?.userId
-                                                                               
-                                    }
+                                    {e.id ===
+                                      JSON.parse(props.assignmentLog)[el]
+                                        ?.userId}
                                   </span>
                                   {JSON.parse(props.assignmentLog)[el]?.type ===
                                     "ReAssign Comments" &&
