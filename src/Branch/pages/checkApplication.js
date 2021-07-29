@@ -488,7 +488,7 @@ export default function CheckApplication(props) {
                           docsPush={true}
                           docs={docs}
                           loan_id={data?.id}
-                          directorId={ap(data)[0].id}
+                          directorId={data?.directors?.[0].id}
                           setDocs={setDocs}
                         />
                         <section className="flex gap-x-4 flex-col flex-wrap gap-y-4">
@@ -496,7 +496,7 @@ export default function CheckApplication(props) {
                             <>
                               <section>
                                 <span>KYC Docs</span>
-                                {docsUploaded.filter((docs) =>App.includes(docs.directorId) ).map (
+                                {docsUploaded.filter((docs) => App.includes(docs.directorId) ).map (
                                   (j, idx) =>
                                     j.document_type === "KYC Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
@@ -520,7 +520,7 @@ export default function CheckApplication(props) {
                               </section>
                               <section>
                                 <span>Financial Docs</span>
-                                {docsUploaded.filter((docs) =>App.includes(docs.directorId) ).map (
+                                {docsUploaded.filter((docs) => App.includes(docs.directorId) ).map (
                                   (j, idx) =>
                                     j.document_type ===
                                     "Financial Documents" && (
@@ -545,7 +545,7 @@ export default function CheckApplication(props) {
                               </section>
                               <section>
                                 <span>Other Docs</span>
-                                {docsUploaded.filter((docs) =>App.includes(docs.directorId) ).map (
+                                {docsUploaded.filter((docs) => App.includes(docs.directorId) ).map (
                                   (j, idx) =>
                                     j.document_type === "Other Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
@@ -617,7 +617,7 @@ export default function CheckApplication(props) {
                           docsPush={true}
                           docs={docs}
                           loan_id={data?.id}
-                          directorId={cooap(data)[0].id}
+                          directorId={cooap(data)[0]?.id}
                           setDocs={setDocs}
                         />
                           <section className="flex flex-col gap-x-4 flex-wrap gap-y-4">
