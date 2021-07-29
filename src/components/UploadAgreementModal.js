@@ -22,7 +22,10 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
   const [agreementFiles, setAgreementFiles] = useState([]);
 
   const handleFileUpload = async (files) => {
-    setAgreementFiles((preFiles) => [...preFiles, ...files]);
+    setAgreementFiles((preFiles) => [
+      ...preFiles,
+      ...files.map((file) => ({ ...files, doc_type_id: "12" })),
+    ]);
   };
 
   const onDoneClick = () => {
