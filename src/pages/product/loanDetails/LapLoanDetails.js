@@ -130,7 +130,8 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
       assetsValue: data.valueoftheProperty || 0,
     });
 
-    setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
+    // setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
+
     addToast({
       message: "Saved Succesfully",
       type: "success",
