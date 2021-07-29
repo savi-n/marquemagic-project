@@ -49,6 +49,7 @@ export default function CardDetails({
   submitCase,
   setProductId,
   setItem,
+  width = false,
 }) {
   const [security, setSecurity] = useState(false);
   const [recommendation, setRecommendation] = useState(false);
@@ -182,6 +183,7 @@ export default function CardDetails({
       reassign={reassign}
       approvalHistory={approvalHistory}
       queries={queries}
+      width={width}
     >
       <section className="">
         <section className="flex flex-col space-y-2 w-full z-10">

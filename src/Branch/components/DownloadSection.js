@@ -10,6 +10,7 @@ import useFetch from "../../hooks/useFetch";
 import {
   DOWNLOAD_CASE_DOCUMENTS,
   VIEW_CASE_DOCUMENTS_LIST,
+  VIEW_CASE_DOCUMENTS_LIST_UIUX,
 } from "../../_config/branch.config";
 
 import {
@@ -83,10 +84,19 @@ const File = styled.div`
   font-size: 13px;
 `;
 
+const Div = styled.div`
+  max-height: 200px;
+  overflow: auto;
+`;
+
 const Col = styled.div`
   width: ${({ width }) => width || "auto"};
   padding: 5px 0;
   flex: 1;
+  padding-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Btn = styled.button``;
@@ -121,6 +131,16 @@ export default function DownloadSection({
       setEncryptedWhiteLabelId(encryptedWLId);
 
       if (encryptedWLId) {
+        // const documentListReq = await newRequest(
+        //   VIEW_CASE_DOCUMENTS_LIST_UIUX({
+        //     loanId: item?.loan_id,
+        //   }),
+        //   {
+        //     method: "GET",
+        //   },
+        //   { Authorization: `Bearer ${userToken}` }
+        // );
+
         const documentListReq = await newRequest(
           VIEW_CASE_DOCUMENTS_LIST({
             caseId: item?.loan_ref_id,
@@ -184,11 +204,15 @@ export default function DownloadSection({
       <Content>
         {loading && <LoaderCircle />}
         {!loading && documentList && (
-          <div>
+          <Div>
             {documentList.map((doc) => (
               <File key={doc.document_fd_key}>
-                <Col width={"45%"}>{doc.document_name}</Col>
-                <Col width={"45%"}>{doc.document_type_name}</Col>
+                <Col title={doc.document_name} width={"45%"}>
+                  {doc.document_name}
+                </Col>
+                <Col width={"45%"} title={doc.document_type_name}>
+                  {doc.document_type_name}
+                </Col>
                 <div>
                   <Btn onClick={(e) => onDownload(doc)}>
                     <FontAwesomeIcon icon={faDownload} />
@@ -196,7 +220,7 @@ export default function DownloadSection({
                 </div>
               </File>
             ))}
-          </div>
+          </Div>
         )}
         {!loading && !documentList && <Message>No Documents Found</Message>}
       </Content>

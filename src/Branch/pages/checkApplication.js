@@ -24,6 +24,7 @@ import {
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 
 import CollateralDetails from "../components/CollateralDetails";
+import ApplicantDetails from "../components/ApllicantDetails";
 import useCaseUpdate from "../useCaseUpdate";
 
 export default function CheckApplication(props) {
@@ -365,6 +366,7 @@ export default function CheckApplication(props) {
               e === lActive ? (
                 <>
                   {e === sec.sec_1 && (
+<<<<<<< HEAD
                     <>
                       {fields && fields.length > 7 ? (
                         fields.map(
@@ -664,6 +666,18 @@ export default function CheckApplication(props) {
                         Submit
                       </Button>
                     </>
+=======
+                    <ApplicantDetails
+                      fields={fields}
+                      disabled={disabled}
+                      onfieldChanges={onfieldChanges}
+                      data={data}
+                      mapper={mapper}
+                      e={e}
+                      d={d}
+                      clickSub={clickSub}
+                    />
+>>>>>>> b87c9e48a3b18ba89fe7192d66bba93d17e3a283
                   )}
 
                   {e === sec.sec_2 &&
