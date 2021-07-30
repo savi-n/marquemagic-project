@@ -264,6 +264,8 @@ export default function ApplicantDetails({
                                       <input
                                         className="rounded-lg p-4 border"
                                         disabled={disabled}
+                                        name={k}
+                                        onChange={onfieldChanges}
                                         placeholder={mapper[e][i][k]}
                                         defaultValue={j[k]}
                                       />
