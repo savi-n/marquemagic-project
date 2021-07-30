@@ -26,6 +26,7 @@ import CheckBox from "../../shared/components/Checkbox/CheckBox";
 import CollateralDetails from "../components/CollateralDetails";
 import ApplicantDetails from "../components/ApllicantDetails";
 import useCaseUpdate from "../useCaseUpdate";
+import { YAxis } from "recharts";
 
 export default function CheckApplication(props) {
   const checkTab = (activeTab) => {
@@ -821,9 +822,10 @@ export default function CheckApplication(props) {
                         </Button>
                       </section>
                     
-                      <section className="w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6"
+                      <section className="w-1/4 fixed right-0 bg-gray-200 flex flex-col  gap-y-8 pb-64 top-24 h-full p-6"
                        style={{
                         overflow: "scroll",
+                        
                        
                       }}>
                         <p className="text-xl font-medium">Comments</p>
@@ -832,20 +834,23 @@ export default function CheckApplication(props) {
                             {Object.keys(JSON.parse(props.assignmentLog)).map(
                               (el) => (
                                 <section className="bg-white flex flex-col gap-y-6 p-2 rounded-lg">
-                                  <span className="text-xs">
-
+                                  <span className="text-sm font-semibold">
+                                   
                                     {
-                                      e.id ===
-                                      JSON.parse(props.assignmentLog)[el]
-                                        ?.name
+
+                                      
+                                      JSON.parse(props.assignmentLog)[el]?.name
 
                                     }
+                                    
                                   </span>
+                                
                                   {JSON.parse(props.assignmentLog)[el]?.type ===
-                                    "ReAssign Comments" &&
+                                    "Comments" &&
                                     JSON.parse(props.assignmentLog)[el]
                                       ?.message}
-                                  <span className="text-xs text-blue-700">
+                                   
+                                  <span className="text-xs font-semibold text-blue-700">
                                     {el}
                                   </span>
                                 </section>
@@ -853,7 +858,7 @@ export default function CheckApplication(props) {
                             )}
                           </>
                         )}
-                        <section className="flex gap-x-2 items-center justify-between">
+                        <section className="flex gap-x-2 fixed bottom-0 pr-10 pl-2 rounded pb-4 pt-3 bg-gray-400  items-center ">
                           <input
                             placeholder="Add Comment"
                             className="p-1 rounded-md px-2 focus:outline-none"
@@ -861,7 +866,7 @@ export default function CheckApplication(props) {
                           />
                              
                           
-                          <Button
+                          <Button 
                             rounded="rfull"
                             type="blue-light"
                             size="small"
