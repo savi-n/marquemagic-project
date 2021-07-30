@@ -35,7 +35,7 @@ export default function Header({ click, active }) {
 						<span>Create Application</span> <FontAwesomeIcon icon={faChevronRight} />
 					</section>
 				</Button>
-				<FontAwesomeIcon
+				<FontAwesomeIcon title="Logout"
 					onClick={() => {
 						localStorage.removeItem('token');
 						window.location.href = `${
