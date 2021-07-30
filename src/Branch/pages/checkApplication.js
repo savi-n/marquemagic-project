@@ -26,6 +26,7 @@ import CheckBox from "../../shared/components/Checkbox/CheckBox";
 import CollateralDetails from "../components/CollateralDetails";
 import ApplicantDetails from "../components/ApllicantDetails";
 import useCaseUpdate from "../useCaseUpdate";
+import { YAxis } from "recharts";
 
 export default function CheckApplication(props) {
   const checkTab = (activeTab) => {
@@ -603,7 +604,7 @@ export default function CheckApplication(props) {
                           ))}
                         </section>
                       )}
-                      {cooap(data)[0]?.id && (
+                      {cooap(data)?.[0]?.id && (
                         <section className="flex flex-col space-y-5 w-8/12">
                           <p className="text-blue-600 font-medium text-xl">
                             Co-Applicant Documents Uploaded
@@ -850,7 +851,7 @@ export default function CheckApplication(props) {
                       </section>
 
                       <section
-                        className="w-1/4 fixed right-0 bg-gray-200 flex flex-col gap-y-8 top-24 h-full p-6"
+                        className="w-1/4 fixed right-0 bg-gray-200 flex flex-col  gap-y-8 pb-64 top-24 h-full p-6"
                         style={{
                           overflow: "scroll",
                         }}
@@ -861,15 +862,16 @@ export default function CheckApplication(props) {
                             {Object.keys(JSON.parse(props.assignmentLog)).map(
                               (el) => (
                                 <section className="bg-white flex flex-col gap-y-6 p-2 rounded-lg">
-                                  <span className="text-xs">
-                                    {e.id ===
-                                      JSON.parse(props.assignmentLog)[el]?.name}
+                                  <span className="text-sm font-semibold">
+                                    {JSON.parse(props.assignmentLog)[el]?.name}
                                   </span>
+
                                   {JSON.parse(props.assignmentLog)[el]?.type ===
-                                    "ReAssign Comments" &&
+                                    "Comments" &&
                                     JSON.parse(props.assignmentLog)[el]
                                       ?.message}
-                                  <span className="text-xs text-blue-700">
+
+                                  <span className="text-xs font-semibold text-blue-700">
                                     {el}
                                   </span>
                                 </section>
@@ -877,7 +879,7 @@ export default function CheckApplication(props) {
                             )}
                           </>
                         )}
-                        <section className="flex gap-x-2 items-center justify-between">
+                        <section className="flex gap-x-2 fixed bottom-0 pr-10 pl-2 rounded pb-4 pt-3 bg-gray-400  items-center ">
                           <input
                             placeholder="Add Comment"
                             className="p-1 rounded-md px-2 focus:outline-none"
