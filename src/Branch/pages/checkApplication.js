@@ -265,9 +265,30 @@ export default function CheckApplication(props) {
         ? "Pre-Eligibility Details"
         : data && getEligibileData(data) && "Eligibility Details",
   };
+  const coApp=[]
+  const coApplicantIds = data?.directors.map(director=> 
+    (director.type_name==="Co-Applicant"|| director.type_name==="Guarantor") && coApp.push(director.id))
+    
+    const cooap= (data)=>{
+      return data?.directors.filter(e =>
+        (e.type_name==="Co-Applicant" || e.type_name==="Guarantor")&& e.id
+        )
+}
 
-  const coApplicantIds = data?.directors.filter(director=> 
-    director.type_name==="Co-Applicant").map(director=>director.id)
+    const App=[]
+    const ApplicantIds = data?.directors.map(director=> 
+      (director.type_name==="Applicant") && App.push(director.id))
+
+      const ap= (data)=>{
+        return data?.directors.filter(e =>
+          (e.type_name==="Applicant" )&& e.id
+          )
+}
+
+
+    
+ 
+    console.log(cooap(data))
 
   const [message, setMessage] = useState(false);
 
@@ -470,12 +491,12 @@ export default function CheckApplication(props) {
                           directorId={data?.directors?.[0].id}
                           setDocs={setDocs}
                         />
-                        <section className="flex gap-x-4 flex-wrap gap-y-4">
-                          {docsUploaded.length > 0 && (
+                        <section className="flex gap-x-4 flex-col flex-wrap gap-y-4">
+                          {docsUploaded.length > 0 &&  (
                             <>
                               <section>
                                 <span>KYC Docs</span>
-                                {docsUploaded.map(
+                                {docsUploaded.filter((docs) => App.includes(docs.directorId) ).map (
                                   (j, idx) =>
                                     j.document_type === "KYC Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
@@ -499,7 +520,7 @@ export default function CheckApplication(props) {
                               </section>
                               <section>
                                 <span>Financial Docs</span>
-                                {docsUploaded.map(
+                                {docsUploaded.filter((docs) => App.includes(docs.directorId) ).map (
                                   (j, idx) =>
                                     j.document_type ===
                                     "Financial Documents" && (
@@ -524,7 +545,7 @@ export default function CheckApplication(props) {
                               </section>
                               <section>
                                 <span>Other Docs</span>
-                                {docsUploaded.map(
+                                {docsUploaded.filter((docs) => App.includes(docs.directorId) ).map (
                                   (j, idx) =>
                                     j.document_type === "Other Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
@@ -571,7 +592,7 @@ export default function CheckApplication(props) {
                         </section>
                       )}
                       {(
-                        <section className="flex flex-col gap-y-5 w-8/12">
+                        <section className="flex flex-col space-y-5 w-8/12">
                           <p className="text-blue-600 font-medium text-xl">
                             Co-Applicant Documents Uploaded
                           </p>
@@ -596,17 +617,17 @@ export default function CheckApplication(props) {
                           docsPush={true}
                           docs={docs}
                           loan_id={data?.id}
-                          directorId={data?.directors?.[0].id}
+                          directorId={cooap(data)[0]?.id}
                           setDocs={setDocs}
                         />
-                          <section className="flex gap-x-4 flex-wrap gap-y-4">
+                          <section className="flex flex-col gap-x-4 flex-wrap gap-y-4">
                           {docsUploaded.length > 0 && (
                             <>
                               <section>
                                 <span>KYC Docs</span>
-                                {docsUploaded.filter((docs) =>coApplicantIds.includes(docs.directorId) ).map (
+                             {docsUploaded.filter((docs) =>coApp.includes(docs.directorId) ).map (
                                   (j, idx) =>
-                                    j.document_type === "KYC Documents"(
+                                    j.document_type === "KYC Documents" &&(
                                       <section className="py-2 flex justify-evenly items-center w-full">
                                         <section className="w-full">
                                           <Button
@@ -628,8 +649,7 @@ export default function CheckApplication(props) {
                               </section>
                               <section>
                                 <span>Financial Docs</span>
-                                {docsUploaded.filter((docs) =>coApplicantIds.includes(docs.directorId) ).map (
-                                  (j, idx) =>
+                               {docsUploaded.filter((docs) =>coApp.includes(docs.directorId) ).map (                                  (j, idx) =>
                                     j.document_type ===
                                     "Financial Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
@@ -653,8 +673,7 @@ export default function CheckApplication(props) {
                               </section>
                               <section>
                                 <span>Other Docs</span>
-                                {docsUploaded.filter((docs) =>coApplicantIds.includes(docs.directorId) ).map (
-                                  (j, idx) =>
+                               {docsUploaded.filter((docs) =>coApp.includes(docs.directorId) ).map (                                  (j, idx) =>
                                     j.document_type === "Other Documents" && (
                                       <section className="py-2 flex justify-evenly items-center w-full">
                                         <section className="w-full">
