@@ -172,6 +172,7 @@ export default function SearchSelect({
     if (onBlurCallback && typeof onBlurCallback === "function") {
       onBlurCallback({ name, value: selectedOption?.value }, "blur");
     }
+    // setOptionShow(false);
     // if (!selectOptions.length && searchKeyAsValue && searchKey) {
     //   onBlurCallback({ name, searchKey }, "blur");
     //   setSelectedOption({ name: searchKey, value: searchKey });
@@ -211,8 +212,8 @@ export default function SearchSelect({
 
   const filterdOptions = selectOptions.filter(
     ({ name, value }) =>
-      name.toLowerCase().includes(searchKey) ||
-      value.toLowerCase().includes(searchKey)
+      name.toLowerCase().includes(searchKey.toLowerCase()) ||
+      value.toLowerCase().includes(searchKey.toLowerCase())
   );
 
   return (
@@ -229,7 +230,7 @@ export default function SearchSelect({
               id={name}
               name={name}
               type="text"
-              onFocus={() => setOptionShow(true)}
+              onKeyPress={() => setOptionShow(true)}
               onBlur={onBlurSearchBox}
               placeholder={placeholder || "Search"}
               onChange={onSearchChange}

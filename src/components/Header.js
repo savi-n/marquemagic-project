@@ -16,10 +16,15 @@ const Logo = styled.img`
   object-position: left;
 `;
 
-export default function Header({ logo, openAccount, openAccountLink }) {
+export default function Header({
+  logo,
+  openAccount,
+  openAccountLink,
+  logoLink,
+}) {
   return (
     <>
-      <a href="/">
+      <a href={logoLink ? logoLink : "/"} {...logoLink && { target: "_blank" }}>
         <Logo src={logo} alt="logo" />
       </a>
       {openAccount && (

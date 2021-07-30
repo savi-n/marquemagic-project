@@ -188,13 +188,13 @@ export default function DownloadSection({
     const documentViewRes = documentViewReq?.data;
 
     if (documentViewRes.status === NC_STATUS_CODE.OK) {
-      var rawData = CryptoJS.enc.Base64.parse(documentViewRes.signedurl);
-      var key = CryptoJS.enc.Latin1.parse(SECRET);
-      var iv = CryptoJS.enc.Latin1.parse(SECRET);
-      var plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, {
+      let rawData = CryptoJS.enc.Base64.parse(documentViewRes.signedurl);
+      let key = CryptoJS.enc.Latin1.parse(SECRET);
+      let iv = CryptoJS.enc.Latin1.parse(SECRET);
+      let plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, {
         iv: iv,
       });
-      var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
+      let plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
       window.open(plaintext);
     }
   };
@@ -226,7 +226,7 @@ export default function DownloadSection({
             ))}
           </Div>
         )}
-        {!loading && !documentList && documentsToShow.length && (
+        {!loading && (!documentList || !documentsToShow?.length) && (
           <Message>No Documents Found</Message>
         )}
       </Content>
