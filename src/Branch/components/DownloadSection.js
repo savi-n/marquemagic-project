@@ -10,6 +10,7 @@ import useFetch from "../../hooks/useFetch";
 import {
   DOWNLOAD_CASE_DOCUMENTS,
   VIEW_CASE_DOCUMENTS_LIST,
+  // VIEW_CASE_DOCUMENTS_LIST_UIUX,
 } from "../../_config/branch.config";
 
 import {
@@ -83,13 +84,24 @@ const File = styled.div`
   font-size: 13px;
 `;
 
+const Div = styled.div`
+  max-height: 200px;
+  overflow: auto;
+`;
+
 const Col = styled.div`
   width: ${({ width }) => width || "auto"};
   padding: 5px 0;
   flex: 1;
+  padding-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Btn = styled.button``;
+
+const DocTypeNC = "Namastecredit Documents";
 
 export default function DownloadSection({
   getCLicker,
@@ -121,6 +133,16 @@ export default function DownloadSection({
       setEncryptedWhiteLabelId(encryptedWLId);
 
       if (encryptedWLId) {
+        // const documentListReq = await newRequest(
+        //   VIEW_CASE_DOCUMENTS_LIST_UIUX({
+        //     loanId: item?.loan_id,
+        //   }),
+        //   {
+        //     method: "GET",
+        //   },
+        //   { Authorization: `Bearer ${userToken}` }
+        // );
+
         const documentListReq = await newRequest(
           VIEW_CASE_DOCUMENTS_LIST({
             caseId: item?.loan_ref_id,
@@ -166,29 +188,35 @@ export default function DownloadSection({
     const documentViewRes = documentViewReq?.data;
 
     if (documentViewRes.status === NC_STATUS_CODE.OK) {
-      var rawData = CryptoJS.enc.Base64.parse(documentViewRes.signedurl);
-      var key = CryptoJS.enc.Latin1.parse(SECRET);
-      var iv = CryptoJS.enc.Latin1.parse(SECRET);
-      var plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, {
+      let rawData = CryptoJS.enc.Base64.parse(documentViewRes.signedurl);
+      let key = CryptoJS.enc.Latin1.parse(SECRET);
+      let iv = CryptoJS.enc.Latin1.parse(SECRET);
+      let plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, {
         iv: iv,
       });
-      var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
+      let plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
       window.open(plaintext);
-
-      //   window.open(documentViewRes.signedurl, "_blank");
     }
   };
+
+  const documentsToShow = documentList?.filter(
+    (doc) => doc.document_type.toLowerCase() === DocTypeNC.toLowerCase()
+  );
 
   return (
     <SectionWrap>
       <Content>
         {loading && <LoaderCircle />}
         {!loading && documentList && (
-          <div>
-            {documentList.map((doc) => (
+          <Div>
+            {documentsToShow.map((doc) => (
               <File key={doc.document_fd_key}>
-                <Col width={"45%"}>{doc.document_name}</Col>
-                <Col width={"45%"}>{doc.document_type_name}</Col>
+                <Col title={doc.document_name} width={"45%"}>
+                  {doc.document_name}
+                </Col>
+                <Col width={"45%"} title={doc.document_type_name}>
+                  {doc.document_type_name}
+                </Col>
                 <div>
                   <Btn onClick={(e) => onDownload(doc)}>
                     <FontAwesomeIcon icon={faDownload} />
@@ -196,9 +224,11 @@ export default function DownloadSection({
                 </div>
               </File>
             ))}
-          </div>
+          </Div>
         )}
-        {!loading && !documentList && <Message>No Documents Found</Message>}
+        {!loading && (!documentList || !documentsToShow?.length) && (
+          <Message>No Documents Found</Message>
+        )}
       </Content>
       <ButtonWrapper>
         <Button

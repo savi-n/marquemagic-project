@@ -124,8 +124,14 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
       bankId: bankId,
       branchId: data.branchId.value,
     });
-    setUsertypeLoanData({ ...loanData, summary: "summary" });
-    setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
+    setUsertypeLoanData({
+      ...loanData,
+      summary: data.purposeoftheLoan || "summary",
+      assetsValue: data.valueoftheProperty || 0,
+    });
+
+    // setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
+
     addToast({
       message: "Saved Succesfully",
       type: "success",

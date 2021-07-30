@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 import useFetch from "../../hooks/useFetch";
@@ -7,7 +8,6 @@ import {
   BRANCH_COLLATERAL_DETAILS,
   BRANCH_COLLATERAL_SELCTED,
 } from "../../_config/branch.config";
-import { useState } from "react/cjs/react.development";
 
 const FieldWrapper = styled.div`
   padding: 20px 0;

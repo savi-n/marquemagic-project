@@ -202,7 +202,14 @@ export default function CardDetails({
                 {item.loan_amount} {item.loan_amount_um}
               </span>
               {(item.net_monthly_income || item.gross_income) && (
-                <small>
+                <small
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title="Monthly Income"
+                >
                   ₹{" "}
                   <span className="text-lg">
                     {item.net_monthly_income || item.gross_income}
