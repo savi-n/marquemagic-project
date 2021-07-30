@@ -25,6 +25,7 @@ import CheckBox from "../../shared/components/Checkbox/CheckBox";
 
 import CollateralDetails from "../components/CollateralDetails";
 import ApplicantDetails from "../components/ApllicantDetails";
+import EligibilitySection from "../components/EligibilitySection";
 import useCaseUpdate from "../useCaseUpdate";
 import { YAxis } from "recharts";
 
@@ -412,7 +413,7 @@ export default function CheckApplication(props) {
                               (j) =>
                                 j !== false && (
                                   <section className="flex flex-col gap-y-4 gap-x-20">
-                                    <p className="text-blue-700 font-medium text-xl pb-8">
+                                    <p className="text-blue-700 font-medium text-xl pb-8 p1">
                                       {i}
                                     </p>
 
@@ -761,144 +762,20 @@ export default function CheckApplication(props) {
                     </section>
                   )}
                   {e === sec.sec_5 && (
-                    <section className="w-full flex">
-                      <section className="w-1/2">
-                        {Object.keys(mapper[e]).map((i) => (
-                          <section>
-                            <p className="text-blue-700 font-medium text-xl pb-8">
-                              {i}
-                            </p>
-                            {d()[e] &&
-                              Object.keys(d()[e]).map(
-                                (k) =>
-                                  mapper[e][i] &&
-                                  Object.keys(mapper[e][i]).map(
-                                    (l) =>
-                                      l === k && (
-                                        <section className="flex space-evenly py-2 items-center">
-                                          <label className="w-1/2">
-                                            {mapper[e][i][k]}
-                                          </label>
-                                          <input
-                                            className="rounded-lg p-4 border"
-                                            disabled={disabled}
-                                            placeholder={mapper[e][i][k]}
-                                            defaultValue={d()[e][k]}
-                                          />
-                                        </section>
-                                      )
-                                  )
-                              )}
-                            <section className="flex space-evenly py-2 items-center">
-                              <label className="w-1/2">Loan Amount</label>
-                              <input
-                                className="rounded-lg p-4 border"
-                                disabled={disabled}
-                                name={"loan_price"}
-                                onChange={onfieldChanges}
-                                defaultValue={data?.loan_price}
-                              />
-                            </section>
-                            <section className="flex space-evenly py-2 items-center">
-                              <label className="w-1/2">DSCR</label>
-                              <input
-                                className="rounded-lg p-4 border"
-                                disabled={disabled}
-                                name={"DSCR"}
-                                onChange={onfieldChanges}
-                                placeholder="DSCR"
-                                defaultValue={Number(props?.item?.dscr).toFixed(
-                                  2
-                                )}
-                              />
-                            </section>
-                            <section className="flex space-evenly py-2 items-center">
-                              <label className="w-1/2">Tenure</label>
-                              <input
-                                className="rounded-lg p-4 border"
-                                disabled={disabled}
-                                name={"Tenure"}
-                                onChange={onfieldChanges}
-                                placeholder="Tenure"
-                                defaultValue={props?.item?.applied_tenure}
-                              />
-                            </section>
-                            <section className="flex space-evenly py-2 items-center">
-                              <label className="w-1/2">Income</label>
-                              <input
-                                className="rounded-lg p-4 border"
-                                disabled={disabled}
-                                name={"income"}
-                                onChange={onfieldChanges}
-                                placeholder="Tenure"
-                                defaultValue={
-                                  props.item?.net_monthly_income ||
-                                  props.item?.gross_income
-                                }
-                              />
-                            </section>
-                          </section>
-                        ))}
-                        <Button
-                          onClick={() => clickSub()}
-                          type="blue"
-                          rounded="rfull"
-                          size="small"
-                          disabled={disabled}
-                        >
-                          Submit
-                        </Button>
-                      </section>
-
-                      <section
-                        className="w-1/4 fixed right-0 bg-gray-200 flex flex-col  gap-y-8 pb-64 top-24 h-full p-6"
-                        style={{
-                          overflow: "scroll",
-                        }}
-                      >
-                        <p className="text-xl font-medium">Comments</p>
-                        {props.assignmentLog && (
-                          <>
-                            {Object.keys(JSON.parse(props.assignmentLog)).map(
-                              (el) => (
-                                <section className="bg-white flex flex-col gap-y-6 p-2 rounded-lg">
-                                  <span className="text-sm font-semibold">
-                                    {JSON.parse(props.assignmentLog)[el]?.name}
-                                  </span>
-
-                                  {JSON.parse(props.assignmentLog)[el]?.type ===
-                                    "Comments" &&
-                                    JSON.parse(props.assignmentLog)[el]
-                                      ?.message}
-
-                                  <span className="text-xs font-semibold text-blue-700">
-                                    {el}
-                                  </span>
-                                </section>
-                              )
-                            )}
-                          </>
-                        )}
-                        <section className="flex gap-x-2 fixed bottom-0 pr-10 pl-2 rounded pb-4 pt-3 bg-gray-400  items-center ">
-                          <input
-                            placeholder="Add Comment"
-                            className="p-1 rounded-md px-2 focus:outline-none"
-                            onChange={(e) => setComment(e.target.value)}
-                          />
-
-                          <Button
-                            rounded="rfull"
-                            type="blue-light"
-                            size="small"
-                            onClick={() => {
-                              reassignLoan(props.item.id, null, comment);
-                            }}
-                          >
-                            Add comment
-                          </Button>
-                        </section>
-                      </section>
-                    </section>
+                    <EligibilitySection
+                      disabled={disabled}
+                      onfieldChanges={onfieldChanges}
+                      data={data}
+                      mapper={mapper}
+                      item={props?.item}
+                      clickSub={clickSub}
+                      assignmentLog={props?.assignmentLog}
+                      setComment={setComment}
+                      reassignLoan={reassignLoan}
+                      comment={comment}
+                      e={e}
+                      d={d}
+                    />
                   )}
                 </>
               ) : (
