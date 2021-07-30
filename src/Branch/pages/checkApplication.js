@@ -23,7 +23,7 @@ import {
 } from "../../_config/app.config";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 
-import CollateralDetails from "../components/CollateralDetails";
+import CollateralsDetails from "../components/CollateralsDetails";
 import useCaseUpdate from "../useCaseUpdate";
 
 export default function CheckApplication(props) {
@@ -65,10 +65,6 @@ export default function CheckApplication(props) {
       setLoading(false);
 
       if (loanDetails) {
-        console.log(
-          props.productId,
-          loanDetails?.business_id?.businesstype?.id
-        );
         docTypes(
           props.productId,
           loanDetails?.business_id?.businesstype?.id
@@ -99,8 +95,9 @@ export default function CheckApplication(props) {
               )
           );
         });
-        getGroupedDocs(props.item?.loan_ref_id).then((val) =>
-          setDocsUPloaded(val)
+        getGroupedDocs(props.item?.loan_ref_id).then((val) =>{
+        console.log(val) 
+        setDocsUPloaded(val)}
         );
       }
     });
@@ -156,9 +153,9 @@ export default function CheckApplication(props) {
     return arr;
   };
 
-  useEffect(() => {
-    console.log(docs);
-  }, [docs]);
+  // useEffect(() => {
+  //   console.log(docs);
+  // }, [docs]);
 
   const d = () => {
     if (data) {
@@ -304,7 +301,6 @@ export default function CheckApplication(props) {
   const [formValues, setFormValues] = useState({});
   const onfieldChanges = (e) => {
     const { name, value } = e.target;
-
     setFormValues({ ...formValues, [name]: value });
   };
 
@@ -890,7 +886,7 @@ export default function CheckApplication(props) {
                   )}
                   {e === sec.sec_4 && (
                     <section>
-                      <CollateralDetails loanId={props?.item?.id} />
+                      <CollateralsDetails loanId={props?.item?.id} product={props.product}/>
                     </section>
                   )}
                   {e === sec.sec_5 && (
