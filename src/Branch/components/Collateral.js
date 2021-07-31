@@ -6,7 +6,7 @@ import {
 } from "../utils/requests";
 
 
-export default function Collateral({collateral, loanId, product, onUpdate,disabled}) {
+export default function Collateral({collateral, loanId, product, onUpdate,disabled, setViewLoan}) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [fields, setFields] = useState(null);
@@ -46,13 +46,21 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
       }, []);
 
     const gateway = data => {
-    
+        Object.keys(collateral).map(
+            key => {
+                if(key == 'accountDetails'){}
+                else if (key === data?.db_name){
+                    data.default_value = collateral[key];
+                }
+                  
+            }
+        )
         if(data.type === 'select') {
-            return <select onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full'>
+            return <select disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full'>
                 {data.options.map(op => <option name={op.name} value={op.value} >{op.name}</option>)}
             </select>
         } else {
-            return <input name={data.name} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} />
+            return <input name={data.name} disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} defaultValue={data.default_value} />
 
         }
     }
@@ -61,25 +69,64 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
         const jsonStr = JSON.stringify(val);
         onUpdate(jsonStr);
     }
-
+    console.log(fields);
     return (
         <div>
            <section className="flex flex-col gap-y-5 w-8/12">
                 <div className="text-blue-600 font-medium text-xl py-8">
                     Collateral details
+                </div>           
+              
+                {fields &&
+                    fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
+                        {
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'CollateralDetails' &&
+                                el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
+                                    <label className='w-full text-lg'>{e.placeholder}</label>
+                                    {gateway(e)}
+                                </section>)
+                            )
+                        }
+                    </section>)
+                }
+                <div className="text-blue-600 font-medium text-xl py-8">
+                    Linkage details
+                </div>
+                {fields &&
+                    fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
+                        {
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'LinkageDetails' &&
+                                el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
+                                    <label className='w-full text-lg'>{e.placeholder}</label>
+                                    {gateway(e)}
+                                </section>)
+                            )
+                        }
+                    </section>)
+                }
+                 <div className="text-blue-600 font-medium text-xl py-8">
+                    Property details
                 </div>
 
-                <div>
-                {Object.keys(collateral).map(function(key) {
-                    return <div>{key} : {collateral[key]}</div>;
-                })}
-                </div>             
-              
-                {console.log(fields)}
                 {fields &&
-                    fields?.map(el => el.id === 'security-details' && <section className='flex flex-col gap-y-4'>
+                    fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
                         {
-                            Object.keys(el.fields).map(item => el.fields[item].label === 'Collateral Details' &&
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'PropertyDetails' &&
+                                el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
+                                    <label className='w-full text-lg'>{e.placeholder}</label>
+                                    {gateway(e)}
+                                </section>)
+                            )
+                        }
+                    </section>)
+                }
+                <div className="text-blue-600 font-medium text-xl py-8">
+                    Other details
+                </div>
+                {fields &&
+                    fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
+                        {
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'OtherDetails' &&
                                 el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
                                     <label className='w-full text-lg'>{e.placeholder}</label>
                                     {gateway(e)}
@@ -89,13 +136,15 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                     </section>)
                 }
             </section>
+            <br />
             <ButtonS
                     type="submit"
                     name="Update"
                     fill
-                    onClick={update({formValues:'set form values'})}
+                    disabled={disabled}
+                    onClick={() => { update(formValues);
+                        setViewLoan(false)}}
             />
         </div>
-
     )
 }

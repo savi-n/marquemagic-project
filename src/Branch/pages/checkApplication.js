@@ -23,7 +23,7 @@ import {
 } from "../../_config/app.config";
 import CheckBox from "../../shared/components/Checkbox/CheckBox";
 
-import CollateralDetails from "../components/CollateralDetails";
+import CollateralsDetails from "../components/CollateralsDetails";
 import ApplicantDetails from "../components/ApllicantDetails";
 import EligibilitySection from "../components/EligibilitySection";
 import useCaseUpdate from "../useCaseUpdate";
@@ -754,7 +754,7 @@ export default function CheckApplication(props) {
                   )}
                   {e === sec.sec_4 && (
                     <section>
-                      <CollateralsDetails loanId={props?.item?.id} product={props.product}/>
+                      <CollateralsDetails loanId={props?.item?.id} product={props.product} disabled={disabled} setViewLoan={props.setViewLoan}/>
                     </section>
                   )}
                   {e === sec.sec_5 && (
