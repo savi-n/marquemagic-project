@@ -35,7 +35,6 @@ const ErrorMessage = styled.div`
 
 export default function PersonalDetails({ preData = {}, id, pageName, userType, jsonData, register, formState }) {
 	const populateValue = field => {
-		console.log(formState.values.firstName);
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
 		}
