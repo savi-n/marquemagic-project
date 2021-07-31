@@ -10,7 +10,6 @@ import useFetch from "../../hooks/useFetch";
 import useForm from "../../hooks/useForm";
 import Button from "../shared/components/Button";
 import ButtonS from "../../components/Button";
-import useCollateralSelect from "../../hooks/useCollateralSelect";
 
 const WrapContent = styled.div`
     height: 100%;
