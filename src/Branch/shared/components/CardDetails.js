@@ -303,7 +303,10 @@ export default function CardDetails({
                         }
                       }}
                     >
-                      {e}
+                      {e}{" "}
+                      {e === "Co-Applicant" && (
+                        <span> : {item.if_Co_Applicant}</span>
+                      )}
                     </Button>
                   ))
                 : null}

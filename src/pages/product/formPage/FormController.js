@@ -120,7 +120,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 	// };
 
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
-	const skipButton = map.fields[id]?.data?.some(f => f?.rules?.required);
+	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
 	return (
 		<>
