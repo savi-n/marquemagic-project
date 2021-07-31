@@ -33,7 +33,7 @@ const Options = styled.div`
   border: 1px solid rgb(0 0 0 / 20%);
 `;
 
-const Option = styled.button`
+const Option = styled.div`
   border: none;
   border-bottom: 2px solid #dddcdc;
   padding: 10px;
@@ -49,6 +49,13 @@ const Option = styled.button`
     selected &&
     `
       background:green;
+      color:white;
+    `}
+
+  ${({ disabled }) =>
+    disabled &&
+    `
+      background:grey;
       color:white;
     `}
   &:hover {
@@ -173,7 +180,7 @@ export default function SearchSelect({
       onBlurCallback({ name, value: selectedOption?.value }, "blur");
     }
     setFocus(false);
-    // setOptionShow(false);
+    setOptionShow(false);
     // if (!selectOptions.length && searchKeyAsValue && searchKey) {
     //   onBlurCallback({ name, searchKey }, "blur");
     //   setSelectedOption({ name: searchKey, value: searchKey });
@@ -216,6 +223,13 @@ export default function SearchSelect({
       name.toLowerCase().includes(searchKey.toLowerCase()) ||
       value.toLowerCase().includes(searchKey.toLowerCase())
   );
+
+  const onFocusOut = (event) => {
+    if (!event.relatedTarget) {
+      setOptionShow(false);
+    }
+    // console.log(event.currentTarget);
+  };
 
   return (
     <>
@@ -266,7 +280,7 @@ export default function SearchSelect({
                 key={option.value}
                 name={name}
                 value={option.value}
-                onClick={(e) => onOptionSelect(e, option)}
+                onMouseDown={(e) => onOptionSelect(e, option)}
                 selected={option.value === selectedOption?.value}
               >
                 {option.name}
