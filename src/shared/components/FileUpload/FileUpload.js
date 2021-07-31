@@ -12,6 +12,8 @@ import FilePasswordInput from "./FilePasswordInput";
 
 const USER_CANCELED = "user cancelled";
 
+const FINANCIAL_DOC_TYPES = "Financial";
+
 const Dropzone = styled.div`
   width: 100%;
   min-height: 150px;
@@ -446,7 +448,7 @@ export default function FileUpload({
     documentTypeChangeCallback(fileId, selectedDocType);
     setDocTypeFileMap({
       ...docTypeFileMap,
-      [fileId]: value,
+      [fileId]: selectedDocType, //value
     });
   };
 
@@ -523,7 +525,9 @@ export default function FileUpload({
             {file.status === "completed" && !!docTypeOptions.length && (
               <>
                 <SelectDocType
-                  value={branch ? docSelected : docTypeFileMap[file.id] || ""}
+                  value={
+                    branch ? docSelected : docTypeFileMap[file.id]?.name || ""
+                  }
                   onChange={(e) => {
                     branch && setDocSelected(e.target.value);
                     branch
@@ -540,21 +544,23 @@ export default function FileUpload({
                     </option>
                   ))}
                 </SelectDocType>
-                <PasswordWrapper>
-                  <RoundButton
-                    showTooltip={passwordForFileId !== file.id}
-                    onClick={() => onPasswordClick(file.id)}
-                  >
-                    <FontAwesomeIcon icon={faUnlockAlt} size="1x" />
-                  </RoundButton>
-                  {passwordForFileId === file.id && (
-                    <FilePasswordInput
-                      fileId={file.id}
-                      onClickCallback={onDocTypePassword}
-                      onClose={onClosePasswordEnterArea}
-                    />
-                  )}
-                </PasswordWrapper>
+                {docTypeFileMap[file.id]?.main === FINANCIAL_DOC_TYPES && (
+                  <PasswordWrapper>
+                    <RoundButton
+                      showTooltip={passwordForFileId !== file.id}
+                      onClick={() => onPasswordClick(file.id)}
+                    >
+                      <FontAwesomeIcon icon={faUnlockAlt} size="1x" />
+                    </RoundButton>
+                    {passwordForFileId === file.id && (
+                      <FilePasswordInput
+                        fileId={file.id}
+                        onClickCallback={onDocTypePassword}
+                        onClose={onClosePasswordEnterArea}
+                      />
+                    )}
+                  </PasswordWrapper>
+                )}
               </>
             )}
             {file.status === "progress" && (
