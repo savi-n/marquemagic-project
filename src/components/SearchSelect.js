@@ -245,8 +245,11 @@ export default function SearchSelect({
               id={name}
               name={name}
               type="text"
-              onFocus={() => setFocus(true)}
-              onKeyPress={() => setOptionShow(true)}
+              // onFocus={() => setFocus(true)}
+              onFocus={() => {
+                setOptionShow(true);
+                setFocus(true);
+              }}
               onBlur={onBlurSearchBox}
               placeholder={placeholder || "Search"}
               onChange={onSearchChange}
