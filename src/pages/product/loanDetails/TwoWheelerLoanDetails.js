@@ -103,7 +103,7 @@ export default function TwoWheelerLoanDetailsPage({
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: bankId,
-      branchId: data.branchId.value,
+      branchId: data.branchId?.value || data.branchId,
     });
     setUsertypeLoanData({
       ...loanData,

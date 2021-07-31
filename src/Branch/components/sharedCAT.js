@@ -150,7 +150,7 @@ export default function SharedCAT({
           accept=""
           upload={{
             url: DOCS_UPLOAD_URL_LOAN({
-              userid: item?.sales_id,
+              userid: item?.createdUserId,
             }),
             header: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -162,7 +162,7 @@ export default function SharedCAT({
           onRemoveFile={(e) => removeHandler(e)}
           docsPush={true}
           docs={docs}
-          loan_id={item?.id}
+          loan_id={item?.createdUserId}
           directorId={item?.directors?.[0].id}
           setDocs={setDocs}
         />

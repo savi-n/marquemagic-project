@@ -8,7 +8,7 @@ const valueConversion = {
   One: 1,
 };
 
-const amountFields = ["loan_amount", "value_Vehicle"];
+const amountFields = ["loan_amount"];
 
 export default function ApplicantDetails({
   fields,
@@ -56,7 +56,7 @@ export default function ApplicantDetails({
                             {i.name === "Business Details" && (
                               <input
                                 disabled={disabled}
-                                className="rounded-lg p-4 border w-1/3 n1"
+                                className="rounded-lg p-4 border mx-3 w-1/3 n1"
                                 name={el.db_name}
                                 onChange={onfieldChanges}
                                 defaultValue={
@@ -69,7 +69,7 @@ export default function ApplicantDetails({
                               <>
                                 <input
                                   disabled={disabled}
-                                  className="rounded-lg p-4 border w-1/3 n2"
+                                  className="rounded-lg p-4 border mx-3 w-1/3 n2"
                                   name={el.db_name}
                                   onChange={onfieldChanges}
                                   defaultValue={amountConverter(
@@ -87,7 +87,7 @@ export default function ApplicantDetails({
                               <>
                                 <input
                                   disabled={disabled}
-                                  className="rounded-lg p-4 border w-1/3 n3"
+                                  className="rounded-lg p-4 border mx-3 w-1/3 n3"
                                   name={el.db_name}
                                   onChange={onfieldChanges}
                                   defaultValue={
@@ -101,7 +101,7 @@ export default function ApplicantDetails({
                                 <>
                                   <input
                                     disabled={disabled}
-                                    className="rounded-lg p-4 border w-1/3 n4"
+                                    className="rounded-lg p-4 border mx-3 w-1/3 n4"
                                     name={el.db_name}
                                     onChange={onfieldChanges}
                                     defaultValue={o[el.db_name] || "N/A"}
@@ -114,7 +114,7 @@ export default function ApplicantDetails({
                                 <>
                                   <input
                                     disabled={disabled}
-                                    className="rounded-lg p-4 border w-1/3 n5"
+                                    className="rounded-lg p-4 border mx-3 w-1/3 n5"
                                     name={el.db_name}
                                     onChange={onfieldChanges}
                                     defaultValue={
@@ -130,7 +130,7 @@ export default function ApplicantDetails({
                             {i.name === "Subsidiary Details" && (
                               <input
                                 disabled={disabled}
-                                className="rounded-lg p-4 border w-1/3 n7"
+                                className="rounded-lg p-4 border mx-3 w-1/3 n7"
                                 name={el.db_name}
                                 onChange={onfieldChanges}
                                 defaultValue={
@@ -143,7 +143,7 @@ export default function ApplicantDetails({
                                 <>
                                   <input
                                     disabled={disabled}
-                                    className="rounded-lg p-4 border w-1/3 n8"
+                                    className="rounded-lg p-4 border mx-3 w-1/3 n8"
                                     name={el.db_name}
                                     onChange={onfieldChanges}
                                     defaultValue={o[el.db_name] || "N/A"}
@@ -157,7 +157,7 @@ export default function ApplicantDetails({
                                   <>
                                     <input
                                       disabled={disabled}
-                                      className="rounded-lg p-4 border w-1/3 mx-2 n9"
+                                      className="rounded-lg p-4 border mx-3 w-1/3 n9"
                                       name={el.db_name}
                                       onChange={onfieldChanges}
                                       defaultValue={o[el.db_name] || "N/A"}
@@ -167,7 +167,7 @@ export default function ApplicantDetails({
                               ) : (
                                 <input
                                   disabled={disabled}
-                                  className="rounded-lg p-4 border w-1/3 mx-2 n10"
+                                  className="rounded-lg p-4 border mx-3 w-1/3 n10"
                                   name={el.db_name}
                                   onChange={onfieldChanges}
                                   defaultValue={"N/A"}
@@ -180,7 +180,7 @@ export default function ApplicantDetails({
                                   <>
                                     <input
                                       disabled={disabled}
-                                      className="rounded-lg p-4 border w-1/3 mx-2 n11"
+                                      className="rounded-lg p-4 border mx-3 w-1/3  n11"
                                       name={el.db_name}
                                       onChange={onfieldChanges}
                                       defaultValue={o[el.db_name] || "N/A"}
@@ -190,7 +190,7 @@ export default function ApplicantDetails({
                               ) : (
                                 <input
                                   disabled={disabled}
-                                  className="rounded-lg p-4 border w-1/3 mx-2 n12"
+                                  className="rounded-lg p-4 border mx-3 w-1/3 n12"
                                   name={el.db_name}
                                   onChange={onfieldChanges}
                                   defaultValue={"N/A"}
@@ -206,7 +206,7 @@ export default function ApplicantDetails({
                               data?.businessShareData.map((o, idx) => (
                                 <select
                                   disabled={disabled}
-                                  className="rounded-lg p-4 border w-1/3 mx-2"
+                                  className="rounded-lg p-4 border mx-3 w-1/3 "
                                   name={el.db_name}
                                   onChange={onfieldChanges}
                                 >
@@ -219,7 +219,7 @@ export default function ApplicantDetails({
                             {i.name !== "Shareholder Details" && (
                               <select
                                 disabled={disabled}
-                                className="rounded-lg p-4 border w-1/3"
+                                className="rounded-lg p-4 border mx-3 w-1/3"
                                 name={el.db_name}
                                 onChange={onfieldChanges}
                               >
@@ -262,7 +262,7 @@ export default function ApplicantDetails({
                                         {mapper[e][i][k]}
                                       </label>
                                       <input
-                                        className="rounded-lg p-4 border"
+                                        className="rounded-lg p-4 border mx-3"
                                         disabled={disabled}
                                         name={k}
                                         onChange={onfieldChanges}
