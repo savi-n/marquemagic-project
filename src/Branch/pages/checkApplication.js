@@ -80,7 +80,7 @@ export default function CheckApplication(props) {
             arr.map((fileoption) => ({
               main: fileoption.doc_type,
               name: fileoption.name,
-              value: fileoption.name,
+              value: fileoption.doc_type_id,
             }))
           );
         });
@@ -316,7 +316,12 @@ export default function CheckApplication(props) {
   const handleDocumentTypeChange = async (fileId, type) => {
     const fileType = file.map((fi) => {
       if (fi.id === fileId) {
-        return { ...fi, type: type.value };
+        return {
+          ...fi,
+          type: type.name,
+          name: type.name,
+          doc_type_id: type.value,
+        };
       }
       return fi;
     });
