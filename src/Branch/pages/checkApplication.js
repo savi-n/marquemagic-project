@@ -19,8 +19,6 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_config/app.config';
 import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
-
-
 export default function CheckApplication(props) {
 	const checkTab = activeTab => {
 		if (activeTab === 'Pending Applications' || activeTab === 'In-Progress@NC') return false;
@@ -94,27 +92,20 @@ export default function CheckApplication(props) {
 	const [disabled, setDisabled] = useState(true);
 	const [file, setFile] = useState([]);
 
-	const handleFileUpload = (files) => {
-		setFile([...files, ...file])
-
-	}
-	
-
+	const handleFileUpload = files => {
+		setFile([...files, ...file]);
+	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
 		const fileType = file.map(fi => {
-
 			if (fi.id === fileId) {
-				return { ...fi, type: type.value }
-			} return fi
-		})
-		setFile(fileType)
+				return { ...fi, type: type.value };
+			}
+			return fi;
+		});
+		setFile(fileType);
 	};
-	const checkDocType = file.map(f =>
-		f.type
-
-	)
-
+	const checkDocType = file.map(f => f.type);
 
 	const tabs = [
 		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases'
@@ -265,7 +256,7 @@ export default function CheckApplication(props) {
 	};
 
 	const uploader = userid => {
-		uploadDoc(userid).then(res => { });
+		uploadDoc(userid).then(res => {});
 	};
 
 	const [errorMsg, setError] = useState(false);
@@ -355,7 +346,7 @@ export default function CheckApplication(props) {
 																							data?.directors?.map(
 																								item =>
 																									item.type_name ===
-																									'Guarantor' && (
+																										'Guarantor' && (
 																										<input
 																											disabled={
 																												disabled
@@ -363,8 +354,8 @@ export default function CheckApplication(props) {
 																											className='rounded-lg p-4 border w-1/3'
 																											defaultValue={
 																												item[
-																												el
-																													.db_name
+																													el
+																														.db_name
 																												] ||
 																												'N/A'
 																											}
@@ -373,16 +364,16 @@ export default function CheckApplication(props) {
 																							)}
 																						{i.name ===
 																							'Business Details' && (
-																								<input
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3'
-																									defaultValue={
-																										data?.business_id[
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={
+																									data?.business_id[
 																										el.db_name
-																										] || 'N/A'
-																									}
-																								/>
-																							)}
+																									] || 'N/A'
+																								}
+																							/>
+																						)}
 
 																						{i.name === 'Loan Details' && (
 																							<>
@@ -391,7 +382,7 @@ export default function CheckApplication(props) {
 																									className='rounded-lg p-4 border w-1/3'
 																									defaultValue={
 																										data[
-																										el.db_name
+																											el.db_name
 																										] || 'N/A'
 																									}
 																								/>
@@ -399,19 +390,19 @@ export default function CheckApplication(props) {
 																						)}
 																						{i.name ===
 																							'Personal Details' && (
-																								<>
-																									<input
-																										disabled={disabled}
-																										className='rounded-lg p-4 border w-1/3'
-																										defaultValue={
-																											data
-																												?.directors[0][
+																							<>
+																								<input
+																									disabled={disabled}
+																									className='rounded-lg p-4 border w-1/3'
+																									defaultValue={
+																										data
+																											?.directors[0][
 																											el.db_name
-																											] || 'N/A'
-																										}
-																									/>
-																								</>
-																							)}
+																										] || 'N/A'
+																									}
+																								/>
+																							</>
+																						)}
 																						{i.name === 'Address Details' &&
 																							data?.business_id?.business_address.map(
 																								o => (
@@ -423,8 +414,8 @@ export default function CheckApplication(props) {
 																											className='rounded-lg p-4 border w-1/3'
 																											defaultValue={
 																												o[
-																												el
-																													.db_name
+																													el
+																														.db_name
 																												] ||
 																												'N/A'
 																											}
@@ -448,19 +439,19 @@ export default function CheckApplication(props) {
 																														.db_name
 																												]
 																													? JSON.parse(
-																														o[
-																														el
-																															.db_name
-																														]
-																													).map(
-																														r =>
-																															r[
-																															el
-																																.db_name
+																															o[
+																																el
+																																	.db_name
 																															]
-																													)
+																													  ).map(
+																															r =>
+																																r[
+																																	el
+																																		.db_name
+																																]
+																													  )
 																													: 'N/A' ||
-																													'N/A'
+																													  'N/A'
 																											}
 																										/>
 																									</>
@@ -468,16 +459,16 @@ export default function CheckApplication(props) {
 																							)}
 																						{i.name ===
 																							'Subsidiary Details' && (
-																								<input
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3'
-																									defaultValue={
-																										data?.business_id[
+																							<input
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																								defaultValue={
+																									data?.business_id[
 																										el.db_name
-																										] || 'N/A'
-																									}
-																								/>
-																							)}
+																									] || 'N/A'
+																								}
+																							/>
+																						)}
 																						{i.name === 'Bank Details' &&
 																							data?.loanFinancialDetails?.map(
 																								o => (
@@ -489,8 +480,8 @@ export default function CheckApplication(props) {
 																											className='rounded-lg p-4 border w-1/3'
 																											defaultValue={
 																												o[
-																												el
-																													.db_name
+																													el
+																														.db_name
 																												] ||
 																												'N/A'
 																											}
@@ -500,7 +491,7 @@ export default function CheckApplication(props) {
 																							)}
 
 																						{i.name ===
-																							'Shareholder Details' ? (
+																						'Shareholder Details' ? (
 																							data?.businessShareData
 																								.length > 0 ? (
 																								data?.businessShareData.map(
@@ -513,8 +504,8 @@ export default function CheckApplication(props) {
 																												className='rounded-lg p-4 border w-1/3 mx-2'
 																												defaultValue={
 																													o[
-																													el
-																														.db_name
+																														el
+																															.db_name
 																													] ||
 																													'N/A'
 																												}
@@ -531,7 +522,7 @@ export default function CheckApplication(props) {
 																							)
 																						) : null}
 																						{i.name ===
-																							'Reference Details' ? (
+																						'Reference Details' ? (
 																							data?.loanReferenceData
 																								.length > 0 ? (
 																								data?.loanReferenceData.map(
@@ -544,8 +535,8 @@ export default function CheckApplication(props) {
 																												className='rounded-lg p-4 border w-1/3 mx-2'
 																												defaultValue={
 																													o[
-																													el
-																														.db_name
+																														el
+																															.db_name
 																													] ||
 																													'N/A'
 																												}
@@ -591,22 +582,22 @@ export default function CheckApplication(props) {
 																							)}
 																						{i.name !==
 																							'Shareholder Details' && (
-																								<select
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3'
-																								>
-																									{el.options &&
-																										el.options.map(
-																											r => (
-																												<option>
-																													{
-																														r?.name
-																													}
-																												</option>
-																											)
-																										)}
-																								</select>
-																							)}
+																							<select
+																								disabled={disabled}
+																								className='rounded-lg p-4 border w-1/3'
+																							>
+																								{el.options &&
+																									el.options.map(
+																										r => (
+																											<option>
+																												{
+																													r?.name
+																												}
+																											</option>
+																										)
+																									)}
+																							</select>
+																						)}
 																					</>
 																				)}
 																			</section>
@@ -641,9 +632,9 @@ export default function CheckApplication(props) {
 																											<label className='w-1/2'>
 																												{
 																													mapper[
-																													e
+																														e
 																													][
-																													i
+																														i
 																													][k]
 																												}
 																											</label>
@@ -654,9 +645,9 @@ export default function CheckApplication(props) {
 																												}
 																												placeholder={
 																													mapper[
-																													e
+																														e
 																													][
-																													i
+																														i
 																													][k]
 																												}
 																												defaultValue={
@@ -687,9 +678,9 @@ export default function CheckApplication(props) {
 									)}
 
 									{e === sec.sec_2 &&
-										d()[e].length > 1 &&
-										props.product !== 'Unsecured Business/Self-Employed' &&
-										props.product !== 'LAP Cases' ? (
+									d()[e].length > 1 &&
+									props.product !== 'Unsecured Business/Self-Employed' &&
+									props.product !== 'LAP Cases' ? (
 										<section>
 											{Object.keys(mapper[e]).map(i => (
 												<section>
@@ -713,7 +704,7 @@ export default function CheckApplication(props) {
 																									<label className='w-1/2'>
 																										{
 																											mapper[e][
-																											i
+																												i
 																											][k]
 																										}
 																									</label>
@@ -724,7 +715,7 @@ export default function CheckApplication(props) {
 																										}
 																										placeholder={
 																											mapper[e][
-																											i
+																												i
 																											][k]
 																										}
 																										defaultValue={
@@ -792,26 +783,27 @@ export default function CheckApplication(props) {
 																<span>KYC Docs</span>
 																{docsUploaded.map(
 																	(j, idx) =>
-																		j.document_type === 'KYC Documents' && (<>
-																			<section className='py-2 flex justify-evenly items-center w-full'>
-																				<section className='w-full'>
-																					<Button
-																						type='blue-light'
-																						onClick={() =>
-																							viewDocument(
-																								data?.id,
-																								data?.directors[0]?.id,
-																								j.document_fd_key
-																							)
-																						}
-																					>
-																						{console.log(j)}
-																						{j.document_name}
-
-																					</Button>
-																				
+																		j.document_type === 'KYC Documents' && (
+																			<>
+																				<section className='py-2 flex justify-evenly items-center w-full'>
+																					<section className='w-full'>
+																						<Button
+																							type='blue-light'
+																							onClick={() =>
+																								viewDocument(
+																									data?.id,
+																									data?.directors[0]
+																										?.id,
+																									j.document_fd_key
+																								)
+																							}
+																						>
+																							{console.log(j)}
+																							{j.document_name}
+																						</Button>
+																					</section>
 																				</section>
-																			</section></>
+																			</>
 																		)
 																)}
 															</section>
@@ -1012,16 +1004,14 @@ export default function CheckApplication(props) {
 														).map(el => (
 															<section className='bg-white flex flex-col gap-y-6 p-2 rounded-lg'>
 																<span className='text-xs'>
-																	
 																	{
 																		JSON.parse(
 																			props.assignmentLog || data?.remarks
 																		)[el]?.name
 																	}
 																</span>
-																{
-																	JSON.parse(props.assignmentLog || data?.remarks)[el]
-																		?.type === ( 'Comments') &&
+																{JSON.parse(props.assignmentLog || data?.remarks)[el]
+																	?.type === 'Comments' &&
 																	JSON.parse(props.assignmentLog || data?.remarks)[el]
 																		?.message}
 																<span className='text-xs text-blue-700'>
@@ -1061,8 +1051,7 @@ export default function CheckApplication(props) {
 															setCommentSubmit(true);
 														}}
 													>
-														<p className="focus: text-xs"> Add Comment</p>
-
+														<p className='focus: text-xs'> Add Comment</p>
 													</Button>
 												</section>
 											</section>
