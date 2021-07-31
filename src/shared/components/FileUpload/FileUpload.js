@@ -12,6 +12,8 @@ import FilePasswordInput from './FilePasswordInput';
 
 const USER_CANCELED = 'user cancelled';
 
+const FINANCIAL_DOC_TYPES = 'Financial';
+
 const Dropzone = styled.div`
 	width: 100%;
 	min-height: 150px;
@@ -301,7 +303,6 @@ export default function FileUpload({
 	};
 
 	const handleUpload = async files => {
-		console.log(files);
 		let filesToUpload = [];
 		for (let i = 0; i < files.length; i++) {
 			const source = axios.CancelToken.source();
@@ -325,60 +326,51 @@ export default function FileUpload({
 
 		return await Promise.all(
 			filesToUpload.map(file => {
-				if (!pan) {
-					const formData = new FormData();
-					formData.append('document', file.file);
+				const formData = new FormData();
+				formData.append('document', file.file);
 
-					return newRequest(
-						upload.url,
-						{
-							method: 'POST',
-							data: formData,
-							onUploadProgress: event => onProgress(event, file),
-							cancelToken: file.cancelToken.token
-						},
-						upload.header ?? {}
-					)
-						.then(res => {
-							if (res.data.status === NC_STATUS_CODE.OK) {
-								const resFile = res.data.files[0];
-
-								const uploadfile = {
-									id: file.id,
-									doc_type_id: '1',
-									upload_doc_name: resFile.filename,
-									document_key: resFile.fd,
-									size: resFile.size
-								};
-
-								if (docsPush) {
-									uploadfile['loan_id'] = loan_id;
-									uploadfile['directorId'] = directorId;
-									setDocs([...docs, uploadfile]);
-								}
-
-								return uploadfile;
+				return newRequest(
+					upload.url,
+					{
+						method: 'POST',
+						data: formData,
+						onUploadProgress: event => onProgress(event, file),
+						cancelToken: file.cancelToken.token
+					},
+					upload.header ?? {}
+				)
+					.then(res => {
+						if (res.data.status === NC_STATUS_CODE.OK) {
+							const resFile = res.data.files[0];
+							const uploadfile = {
+								id: file.id,
+								doc_type_id: '1',
+								upload_doc_name: resFile.filename,
+								document_key: resFile.fd,
+								size: resFile.size
+							};
+							if (docsPush) {
+								uploadfile['loan_id'] = loan_id;
+								uploadfile['directorId'] = directorId;
+								setDocs([...docs, uploadfile]);
 							}
-							// return res.data.files[0];
-							return { ...file, status: 'error' };
-						})
-						.catch(err => {
-							console.log(err);
-							if (err.message === USER_CANCELED) {
-								onCancel(file, 'cancelled');
-							} else {
-								onCancel(file, 'error');
-							}
-							return { ...file, status: 'error', error: err };
-						});
-				}
+							return uploadfile;
+						}
+						// return res.data.files[0];
+						return { ...file, status: 'error' };
+					})
+					.catch(err => {
+						console.log(err);
+						if (err.message === USER_CANCELED) {
+							onCancel(file, 'cancelled');
+						} else {
+							onCancel(file, 'error');
+						}
+						return { ...file, status: 'error', error: err };
+					});
 			})
 		).then(files => {
 			setUploading(false);
-			if (pan) {
-				setDocs([filesToUpload[0]]);
-				return [filesToUpload[0]];
-			}
 			return files.filter(file => file.status !== 'error');
 		});
 	};
@@ -446,7 +438,7 @@ export default function FileUpload({
 		documentTypeChangeCallback(fileId, selectedDocType);
 		setDocTypeFileMap({
 			...docTypeFileMap,
-			[fileId]: value
+			[fileId]: selectedDocType //value
 		});
 	};
 
@@ -504,7 +496,7 @@ export default function FileUpload({
 						{file.status === 'completed' && !!docTypeOptions.length && (
 							<>
 								<SelectDocType
-									value={branch ? docSelected : docTypeFileMap[file.id] || ''}
+									value={branch ? docSelected : docTypeFileMap[file.id]?.name || ''}
 									onChange={e => {
 										branch && setDocSelected(e.target.value);
 										branch
@@ -521,21 +513,23 @@ export default function FileUpload({
 										</option>
 									))}
 								</SelectDocType>
-								<PasswordWrapper>
-									<RoundButton
-										showTooltip={passwordForFileId !== file.id}
-										onClick={() => onPasswordClick(file.id)}
-									>
-										<FontAwesomeIcon icon={faUnlockAlt} size='1x' />
-									</RoundButton>
-									{passwordForFileId === file.id && (
-										<FilePasswordInput
-											fileId={file.id}
-											onClickCallback={onDocTypePassword}
-											onClose={onClosePasswordEnterArea}
-										/>
-									)}
-								</PasswordWrapper>
+								{docTypeFileMap[file.id]?.main === FINANCIAL_DOC_TYPES && (
+									<PasswordWrapper>
+										<RoundButton
+											showTooltip={passwordForFileId !== file.id}
+											onClick={() => onPasswordClick(file.id)}
+										>
+											<FontAwesomeIcon icon={faUnlockAlt} size='1x' />
+										</RoundButton>
+										{passwordForFileId === file.id && (
+											<FilePasswordInput
+												fileId={file.id}
+												onClickCallback={onDocTypePassword}
+												onClose={onClosePasswordEnterArea}
+											/>
+										)}
+									</PasswordWrapper>
+								)}
 							</>
 						)}
 						{file.status === 'progress' && (
