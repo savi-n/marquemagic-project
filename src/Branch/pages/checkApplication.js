@@ -16,7 +16,7 @@ import Button from "../shared/components/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
-import CollateralDetails from "../components/CollateralDetails";
+import CollateralsDetails from "../components/CollateralsDetails";
 import ApplicantDetails from "../components/ApllicantDetails";
 import EligibilitySection from "../components/EligibilitySection";
 import DocumentUploadSection from "../components/DocumentUploadSection";
@@ -62,10 +62,6 @@ export default function CheckApplication(props) {
       setLoading(false);
 
       if (loanDetails) {
-        console.log(
-          props.productId,
-          loanDetails?.business_id?.businesstype?.id
-        );
         docTypes(
           props.productId,
           loanDetails?.business_id?.businesstype?.id
@@ -154,9 +150,9 @@ export default function CheckApplication(props) {
     return arr;
   };
 
-  useEffect(() => {
-    console.log(docs);
-  }, [docs]);
+  // useEffect(() => {
+  //   console.log(docs);
+  // }, [docs]);
 
   const d = () => {
     if (data) {
@@ -332,7 +328,6 @@ export default function CheckApplication(props) {
   const [formValues, setFormValues] = useState({});
   const onfieldChanges = (e) => {
     const { name, value } = e.target;
-
     setFormValues({ ...formValues, [name]: value });
   };
 
@@ -490,7 +485,7 @@ export default function CheckApplication(props) {
                   )}
                   {e === sec.sec_4 && (
                     <section>
-                      <CollateralDetails loanId={props?.item?.id} />
+                      <CollateralsDetails loanId={props?.item?.id} product={props.product} disabled={disabled} setViewLoan={props.setViewLoan}/>
                     </section>
                   )}
                   {e === sec.sec_5 && (

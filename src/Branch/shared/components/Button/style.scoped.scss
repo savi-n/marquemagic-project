@@ -3,6 +3,11 @@
 	@apply w-auto;
 }
 
+.mr,
+.mr button {
+	@apply mr-8;
+}
+
 .fulll,
 .fulll button {
 	@apply w-full;
