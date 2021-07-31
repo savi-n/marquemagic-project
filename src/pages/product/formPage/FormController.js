@@ -1,121 +1,162 @@
-import { useContext, useEffect, useState } from "react";
-import styled from "styled-components";
-import { func, object, oneOfType, string } from "prop-types";
+import { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from "../../../hooks/useForm";
-import PersonalDetails from "../../../shared/components/PersonalDetails/PersonalDetails";
-import Button from "../../../components/Button";
-import ROCBusinessDetailsModal from "../../../components/ROCBusinessDetailsModal";
-import { LoanFormContext } from "../../../reducer/loanFormDataReducer";
-import { FlowContext } from "../../../reducer/flowReducer";
-import { BussinesContext } from "../../../reducer/bussinessReducer";
-import { useToasts } from "../../../components/Toast/ToastProvider";
+import useForm from '../../../hooks/useForm';
+import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
+import Button from '../../../components/Button';
+import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
+import { FlowContext } from '../../../reducer/flowReducer';
+import { BussinesContext } from '../../../reducer/bussinessReducer';
+import { useToasts } from '../../../components/Toast/ToastProvider';
+import { AppContext } from '../../../reducer/appReducer';
+import { LOGIN_CREATEUSER, WHITELABEL_ENCRYPTION_API, APP_CLIENT, NC_STATUS_CODE } from '../../../_config/app.config';
+import useFetch from '../../../hooks/useFetch';
 
 const Div = styled.div`
-  flex: 1;
-  padding: 50px;
-  background: #ffffff;
+	flex: 1;
+	padding: 50px;
+	background: #ffffff;
 `;
 
 const ButtonWrap = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
+	display: flex;
+	align-items: center;
+	gap: 20px;
 `;
 
-export default function FormController({
-  id,
-  map,
-  onFlowChange,
-  productDetails,
-}) {
-  const {
-    actions: { setCompleted },
-  } = useContext(FlowContext);
+export default function FormController({ id, map, onFlowChange, productDetails }) {
+	const {
+		actions: { setCompleted }
+	} = useContext(FlowContext);
 
-  const {
-    actions: { setLoanData },
-  } = useContext(LoanFormContext);
+	const {
+		actions: { setLoanData }
+	} = useContext(LoanFormContext);
 
-  const { state } = useContext(BussinesContext);
+	const { state } = useContext(BussinesContext);
 
-  const { handleSubmit, register, formState } = useForm();
-  const { addToast } = useToasts();
+	const { handleSubmit, register, formState } = useForm();
+	const {
+		state: { whiteLabelId }
+	} = useContext(AppContext);
 
-  useEffect(() => {
-    return () => {
-      console.log("unmount form");
-    };
-  }, []);
+	const {
+		actions: { setCompanyDetails }
+	} = useContext(BussinesContext);
 
-  const onSave = (data) => {
-    setLoanData({ ...data }, id);
-    addToast({
-      message: "Saved Succesfully",
-      type: "success",
-    });
-  };
+	const { newRequest } = useFetch();
+	const { addToast } = useToasts();
 
-  const onProceed = (data) => {
-    onSave(data);
-    setCompleted(id);
-    onFlowChange(map.main);
-  };
+	useEffect(() => {
+		return () => {
+			console.log('unmount form');
+		};
+	}, []);
 
-  const onSkip = () => {
-    setCompleted(id);
-    onFlowChange(map.main);
-  };
+	const onSave = data => {
+		setLoanData({ ...data }, id);
+		addToast({
+			message: 'Saved Succesfully',
+			type: 'success'
+		});
+	};
 
-  // const [actions, setActions] = useState({});
+	const onProceed = async data => {
+		if (id === 'business-details' && localStorage.getItem('product') === 'demo') {
+			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+				method: 'POST',
+				data: {
+					email: formState?.values?.email,
+					white_label_id: whiteLabelId,
+					source: APP_CLIENT,
+					name: formState?.values?.BusinessName,
+					mobileNo: formState?.values?.mobileNo,
+					addrr1: '',
+					addrr2: ''
+				}
+			});
 
-  // const onClickActions = (action) => {
-  //   const newActions = { ...actions, action };
+			const userDetailsRes = userDetailsReq.data;
 
-  //   setActions(newActions);
-  // };
+			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+				const encryptWhiteLabelReq = await newRequest(
+					WHITELABEL_ENCRYPTION_API,
+					{
+						method: 'GET'
+					},
+					{ Authorization: `Bearer ${userDetailsRes.token}` }
+				);
 
-  const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
-  const skipButton = map.fields[id].data.some((f) => f?.rules?.required);
+				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-  return (
-    <>
-      <Div>
-        <PersonalDetails
-          register={register}
-          formState={formState}
-          pageName={map.name}
-          preData={state.companyDetail}
-          jsonData={map?.fields[id].data || []}
-        />
-        <ButtonWrap>
-          {id === "business-details" && (
-            <Button
-              fill
-              name="View Business Details"
-              onClick={() => setViewBusinessDetail(true)}
-            />
-          )}
-          <Button fill name="Proceed" onClick={handleSubmit(onProceed)} />
-          <Button name="Save" onClick={handleSubmit(onSave)} />
-          {!skipButton && <Button name="Skip" onClick={onSkip} />}
-        </ButtonWrap>
-      </Div>
+				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+					setCompanyDetails({
+						token: userDetailsRes.token,
+						userId: userDetailsRes.userId,
+						branchId: userDetailsRes.branchId,
+						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0]
+					});
+			}
+		}
 
-      {id === "business-details" && viewBusinessDetail && (
-        <ROCBusinessDetailsModal
-          onClose={() => {
-            setViewBusinessDetail(false);
-          }}
-        />
-      )}
-    </>
-  );
+		onSave(data);
+		setCompleted(id);
+		onFlowChange(map.main);
+	};
+
+	const onSkip = () => {
+		setCompleted(id);
+		onFlowChange(map.main);
+	};
+
+	// const [actions, setActions] = useState({});
+
+	// const onClickActions = (action) => {
+	//   const newActions = { ...actions, action };
+
+	//   setActions(newActions);
+	// };
+
+	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
+	const skipButton = map.fields[id]?.data?.some(f => f?.rules?.required);
+
+	return (
+		<>
+			<Div>
+				<PersonalDetails
+					register={register}
+					formState={formState}
+					pageName={map.name}
+					preData={state.companyDetail}
+					jsonData={map?.fields[id]?.data || []}
+					id={id}
+				/>
+				<ButtonWrap>
+					{id === 'business-details' && (
+						<Button fill name='View Business Details' onClick={() => setViewBusinessDetail(true)} />
+					)}
+					<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+					<Button name='Save' onClick={handleSubmit(onSave)} />
+					{!skipButton && <Button name='Skip' onClick={onSkip} />}
+				</ButtonWrap>
+			</Div>
+
+			{id === 'business-details' && viewBusinessDetail && (
+				<ROCBusinessDetailsModal
+					onClose={() => {
+						setViewBusinessDetail(false);
+					}}
+				/>
+			)}
+		</>
+	);
 }
 
 FormController.propTypes = {
-  productDetails: object,
-  onFlowChange: func.isRequired,
-  map: oneOfType([string, object]),
-  id: string,
+	productDetails: object,
+	onFlowChange: func.isRequired,
+	map: oneOfType([string, object]),
+	id: string
 };

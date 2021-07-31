@@ -124,7 +124,7 @@ export default function SearchSelect({
   const [searchKey, setSearchKey] = useState("");
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectOptions, setSelectOptions] = useState(options);
-
+  const [focus, setFocus] = useState(false);
   const compRef = useRef("");
 
   useClickOutside(compRef, () => {
@@ -172,6 +172,7 @@ export default function SearchSelect({
     if (onBlurCallback && typeof onBlurCallback === "function") {
       onBlurCallback({ name, value: selectedOption?.value }, "blur");
     }
+    setFocus(false);
     // setOptionShow(false);
     // if (!selectOptions.length && searchKeyAsValue && searchKey) {
     //   onBlurCallback({ name, searchKey }, "blur");
@@ -220,7 +221,7 @@ export default function SearchSelect({
     <>
       <Wrapper ref={compRef}>
         {selectedOption && (
-          <Label focus={optionShow} htmlFor={name}>
+          <Label focus={optionShow || focus} htmlFor={name}>
             {selectedOption.name}
           </Label>
         )}
@@ -230,6 +231,7 @@ export default function SearchSelect({
               id={name}
               name={name}
               type="text"
+              onFocus={() => setFocus(true)}
               onKeyPress={() => setOptionShow(true)}
               onBlur={onBlurSearchBox}
               placeholder={placeholder || "Search"}
