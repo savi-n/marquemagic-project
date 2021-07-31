@@ -165,13 +165,16 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 			// case_priority: null,
 			// origin: "New_UI",
 		},
-		// branchId: companyData.branchId,
 		documents: {
 			KYC: fileStructure(data?.documents || [], 'KYC'),
 			others: fileStructure(data?.documents || [], 'Others'),
 			financials: fileStructure(data?.documents || [], 'financials')
 		}
 	};
+
+	if (localStorage.getItem('product') === 'demo') {
+		formatedData['branchId'] = companyData.branchId;
+	}
 
 	return formatedData;
 }
