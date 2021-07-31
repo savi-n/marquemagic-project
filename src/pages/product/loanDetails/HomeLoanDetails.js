@@ -88,7 +88,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
     // setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: bankId,
-      branchId: data.branchId.value,
+      branchId: data.branchId.value || data.branchId,
     });
     setUsertypeLoanData({ ...loanData, summary: "summary" });
     setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
