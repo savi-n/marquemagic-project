@@ -15,6 +15,7 @@ export default function Card(props) {
     full,
     small,
     medium,
+    width,
   } = props;
 
   const getter = () => {
@@ -38,12 +39,14 @@ export default function Card(props) {
     <main
       style={{
         boxShadow: "0 0 19px 0px #98AFC7",
-        height: `${
-          getter() ? "auto" : small ? "auto" : medium ? "16rem" : "24rem"
-        }`,
-        maxHeight: `${getter() ? "80rem" : "auto"}`,
-        width: `${!full ? "calc(100%/3)" : "100%"}`,
-        maxWidth: `${getter() ? "100%" : "100%"}`,
+        // height: `${
+        //   getter() ? "auto" : small ? "auto" : medium ? "16rem" : "24rem"
+        // }`,
+        // maxHeight: `${getter() ? "80rem" : "auto"}`,
+        // width: `${!full ? "calc(100%/3)" : "100%"}`,
+        // maxWidth: `${getter() ? "100%" : "100%"}`,
+        // position: "relative",
+        ...(width && { width: "45%" }),
       }}
       className={`${full && "w-full"} p-6 h-full rounded-md flex-flex-col`}
     >

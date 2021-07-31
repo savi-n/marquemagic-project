@@ -19,6 +19,12 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_config/app.config';
 import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
+import CollateralDetails from '../components/CollateralDetails';
+import ApplicantDetails from '../components/ApllicantDetails';
+import EligibilitySection from '../components/EligibilitySection';
+import useCaseUpdate from '../useCaseUpdate';
+import { YAxis } from 'recharts';
+
 export default function CheckApplication(props) {
 	const checkTab = activeTab => {
 		if (activeTab === 'Pending Applications' || activeTab === 'In-Progress@NC') return false;
@@ -26,10 +32,7 @@ export default function CheckApplication(props) {
 	};
 
 	const [fields, setFields] = useState(null);
-	const id = props.id;
 	const [comment, setComment] = useState(null);
-	const [data, setData] = useState(null);
-	const [loading, setLoading] = useState(false);
 	const [coApplicant, setCoApplicant] = useState(false);
 	const getCoApplicantData = data => data.directors.map(e => !e.isApplicant && e);
 	const getDocDetails = data => data.loan_document;
@@ -38,23 +41,39 @@ export default function CheckApplication(props) {
 	const [docType, setDocTypes] = useState(null);
 	const [option, setOption] = useState([]);
 	const [docsUploaded, setDocsUPloaded] = useState([]);
-	const [commentSubmitted, setCommentSubmit] = useState(false);
+	const [data, setData] = useState(null);
+
+	//changes
+	const [loading, setLoading] = useState(false);
+	const [loanDetailsState, setLoanDetailsState] = useState(null);
+
+	const id = props.id;
 
 	useEffect(() => {
 		const arr = [];
 		setLoading(true);
-		getLoanDetails(id).then(res => {
-			if (!data) setData(res);
+		getLoanDetails(id).then(loanDetails => {
+			if (loanDetails) {
+				setLoanDetailsState(loanDetails);
+				setData(loanDetails);
+			}
 			setLoading(false);
-			if (res) {
-				docTypes(props.productId, res?.business_id?.businesstype?.id).then(res => {
+
+			if (loanDetails) {
+				console.log(props.productId, loanDetails?.business_id?.businesstype?.id);
+				docTypes(props.productId, loanDetails?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
 						res[k].map(p => {
 							arr.push(p);
 						});
 					});
-					setOption(arr.map(fileoption => ({ name: fileoption.name, value: fileoption.name })));
+					setOption(
+						arr.map(fileoption => ({
+							name: fileoption.name,
+							value: fileoption.name
+						}))
+					);
 				});
 				getLoan().then(resp => {
 					resp.data?.map(
@@ -62,7 +81,7 @@ export default function CheckApplication(props) {
 							props.product.includes(k?.name) &&
 							Object.keys(k.product_id).map(
 								y =>
-									y === res.directors[0].income_type &&
+									y === loanDetails.directors[0].income_type &&
 									getLoan(k.id).then(res => {
 										res.length > 7 && setFields(res);
 									})
@@ -90,22 +109,6 @@ export default function CheckApplication(props) {
 
 	const [lActive, setLActive] = useState(props.activ);
 	const [disabled, setDisabled] = useState(true);
-	const [file, setFile] = useState([]);
-
-	const handleFileUpload = files => {
-		setFile([...files, ...file]);
-	};
-
-	const handleDocumentTypeChange = async (fileId, type) => {
-		const fileType = file.map(fi => {
-			if (fi.id === fileId) {
-				return { ...fi, type: type.value };
-			}
-			return fi;
-		});
-		setFile(fileType);
-	};
-	const checkDocType = file.map(f => f.type);
 
 	const tabs = [
 		props.product !== 'Unsecured Business/Self-Employed' && props.product !== 'LAP Cases'
@@ -116,7 +119,7 @@ export default function CheckApplication(props) {
 		'Security Details',
 		data && getPreEligibleData(data)
 			? 'Pre-Eligibility Details'
-			: data && getEligibileData(data) && 'Eligibility Data'
+			: data && getEligibileData(data) && 'Eligibility Details'
 	];
 
 	const getTabs = item => (
@@ -151,7 +154,7 @@ export default function CheckApplication(props) {
 				'Document Details': getDocDetails(data),
 				'Security Details': 'No Data',
 				'Pre-Eligibility Details': getPreEligibleData(data),
-				'Eligibility Data': getEligibileData(data),
+				'Eligibility Details': getEligibileData(data),
 				'Business Details': ''
 			};
 		}
@@ -181,7 +184,10 @@ export default function CheckApplication(props) {
 				state: 'State',
 				pincode: 'Pincode'
 			},
-			'Salary Details': { gross_income: 'Gross Income', net_monthly_income: 'Net Monthly Income' },
+			'Salary Details': {
+				gross_income: 'Gross Income',
+				net_monthly_income: 'Net Monthly Income'
+			},
 			'EMI Details': {
 				existing_personal_loan: 'Existing Personal Loan',
 				existing_auto_loan: 'Existing Auto Loan',
@@ -221,7 +227,7 @@ export default function CheckApplication(props) {
 				minimumPreEligiblity: 'Eligible Amount'
 			}
 		},
-		'Eligibility Data': {
+		'Eligibility Details': {
 			'Eligibility Details': {
 				dscr: 'DSCR',
 				financial_amt: 'Final Amount'
@@ -240,13 +246,33 @@ export default function CheckApplication(props) {
 		sec_5:
 			data && getPreEligibleData(data)
 				? 'Pre-Eligibility Details'
-				: data && getEligibileData(data) && 'Eligibility Data'
+				: data && getEligibileData(data) && 'Eligibility Details'
 	};
+	const coApp = [];
+	const coApplicantIds = data?.directors.map(
+		director =>
+			(director.type_name === 'Co-Applicant' || director.type_name === 'Guarantor') && coApp.push(director.id)
+	);
+
+	const cooap = data => {
+		return data?.directors.filter(e => (e.type_name === 'Co-Applicant' || e.type_name === 'Guarantor') && e.id);
+	};
+
+	const App = [];
+	const ApplicantIds = data?.directors.map(director => director.type_name === 'Applicant' && App.push(director.id));
+
+	const ap = data => {
+		return data?.directors.filter(e => e.type_name === 'Applicant' && e.id);
+	};
+
+	console.log(cooap(data));
 
 	const [message, setMessage] = useState(false);
 
-	const clickSub = () => {
+	const { caseUpdateInit } = useCaseUpdate();
+	const clickSub = async () => {
 		if (!disabled) {
+			await caseUpdateInit(formValues, localStorage.getItem('token') || '');
 			setMessage(true);
 			setDisabled(true);
 			setTimeout(() => {
@@ -261,14 +287,28 @@ export default function CheckApplication(props) {
 
 	const [errorMsg, setError] = useState(false);
 
-	const extractFields = i => {
-		if (i.name === 'Loan Details') {
-			i.id = 'loan-details';
-		}
-		if (i.name === 'Guarantor Details') {
-			i.id = 'personal-details';
-		}
-		return i?.id;
+	const [file, setFile] = useState([]);
+
+	const handleFileUpload = files => {
+		setFile([...files, ...file]);
+	};
+
+	const handleDocumentTypeChange = async (fileId, type) => {
+		const fileType = file.map(fi => {
+			if (fi.id === fileId) {
+				return { ...fi, type: type.value };
+			}
+			return fi;
+		});
+		setFile(fileType);
+	};
+	const checkDocType = file.map(f => f.type);
+
+	const [formValues, setFormValues] = useState({});
+	const onfieldChanges = e => {
+		const { name, value } = e.target;
+
+		setFormValues({ ...formValues, [name]: value });
 	};
 
 	return (
@@ -284,13 +324,13 @@ export default function CheckApplication(props) {
 				</div>
 			)}
 			<div
-				onClick={() => {
-					props.setViewLoan(false);
-				}}
+				onClick={() => props.setViewLoan(false)}
 				className='absolute text-xl z-50 top-32 cursor-pointer right-4 p-2 rounded-md text-gray-400'
 			>
 				<FontAwesomeIcon icon={faTimes} />
 			</div>
+
+			{/* left */}
 			<section
 				style={{
 					overflow: 'scroll',
@@ -303,6 +343,8 @@ export default function CheckApplication(props) {
 				<span className='text-white font-medium text-xl pl-4 pb-6'>{props.product}</span>
 				<section>{data && tabs.map(e => e !== null && getTabs(e))}</section>
 			</section>
+
+			{/* right */}
 			<section
 				className='absolute right-0 px-24 py-24 scroll'
 				style={{
@@ -313,368 +355,22 @@ export default function CheckApplication(props) {
 				}}
 			>
 				<section className='pt-32 flex flex-col pb-16 gap-y-24'>
+					{/* content for active tab */}
 					{data &&
 						Object.keys(d()).map(e =>
 							e === lActive ? (
 								<>
 									{e === sec.sec_1 && (
-										<>
-											{fields && fields.length > 7 ? (
-												fields.map(
-													(i, idx) =>
-														i &&
-														i.id !== 'guarantor-document-upload' &&
-														i.id !== 'cub-document-upload' &&
-														idx > 1 &&
-														idx < 7 && (
-															<section className='flex flex-col gap-y-4 gap-x-20'>
-																<p className='text-blue-700 font-medium text-xl pb-8'>
-																	{i.name}
-																</p>
-
-																{i.fields[extractFields(i)]?.data.map(
-																	el =>
-																		el && (
-																			<section className='flex space-evenly items-center'>
-																				<label className='w-1/2'>
-																					{el.placeholder}
-																				</label>
-																				{el.type !== 'select' ? (
-																					<>
-																						{i.name ===
-																							'Guarantor Details' &&
-																							data?.directors?.map(
-																								item =>
-																									item.type_name ===
-																										'Guarantor' && (
-																										<input
-																											disabled={
-																												disabled
-																											}
-																											className='rounded-lg p-4 border w-1/3'
-																											defaultValue={
-																												item[
-																													el
-																														.db_name
-																												] ||
-																												'N/A'
-																											}
-																										/>
-																									)
-																							)}
-																						{i.name ===
-																							'Business Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={
-																									data?.business_id[
-																										el.db_name
-																									] || 'N/A'
-																								}
-																							/>
-																						)}
-
-																						{i.name === 'Loan Details' && (
-																							<>
-																								<input
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3'
-																									defaultValue={
-																										data[
-																											el.db_name
-																										] || 'N/A'
-																									}
-																								/>
-																							</>
-																						)}
-																						{i.name ===
-																							'Personal Details' && (
-																							<>
-																								<input
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3'
-																									defaultValue={
-																										data
-																											?.directors[0][
-																											el.db_name
-																										] || 'N/A'
-																									}
-																								/>
-																							</>
-																						)}
-																						{i.name === 'Address Details' &&
-																							data?.business_id?.business_address.map(
-																								o => (
-																									<>
-																										<input
-																											disabled={
-																												disabled
-																											}
-																											className='rounded-lg p-4 border w-1/3'
-																											defaultValue={
-																												o[
-																													el
-																														.db_name
-																												] ||
-																												'N/A'
-																											}
-																										/>
-																									</>
-																								)
-																							)}
-
-																						{i.name === 'EMI Details' &&
-																							data?.loanFinancialDetails?.map(
-																								o => (
-																									<>
-																										<input
-																											disabled={
-																												disabled
-																											}
-																											className='rounded-lg p-4 border w-1/3'
-																											defaultValue={
-																												o[
-																													el
-																														.db_name
-																												]
-																													? JSON.parse(
-																															o[
-																																el
-																																	.db_name
-																															]
-																													  ).map(
-																															r =>
-																																r[
-																																	el
-																																		.db_name
-																																]
-																													  )
-																													: 'N/A' ||
-																													  'N/A'
-																											}
-																										/>
-																									</>
-																								)
-																							)}
-																						{i.name ===
-																							'Subsidiary Details' && (
-																							<input
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																								defaultValue={
-																									data?.business_id[
-																										el.db_name
-																									] || 'N/A'
-																								}
-																							/>
-																						)}
-																						{i.name === 'Bank Details' &&
-																							data?.loanFinancialDetails?.map(
-																								o => (
-																									<>
-																										<input
-																											disabled={
-																												disabled
-																											}
-																											className='rounded-lg p-4 border w-1/3'
-																											defaultValue={
-																												o[
-																													el
-																														.db_name
-																												] ||
-																												'N/A'
-																											}
-																										/>
-																									</>
-																								)
-																							)}
-
-																						{i.name ===
-																						'Shareholder Details' ? (
-																							data?.businessShareData
-																								.length > 0 ? (
-																								data?.businessShareData.map(
-																									(o, idx) => (
-																										<>
-																											<input
-																												disabled={
-																													disabled
-																												}
-																												className='rounded-lg p-4 border w-1/3 mx-2'
-																												defaultValue={
-																													o[
-																														el
-																															.db_name
-																													] ||
-																													'N/A'
-																												}
-																											/>
-																										</>
-																									)
-																								)
-																							) : (
-																								<input
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3 mx-2'
-																									defaultValue={'N/A'}
-																								/>
-																							)
-																						) : null}
-																						{i.name ===
-																						'Reference Details' ? (
-																							data?.loanReferenceData
-																								.length > 0 ? (
-																								data?.loanReferenceData.map(
-																									(o, idx) => (
-																										<>
-																											<input
-																												disabled={
-																													disabled
-																												}
-																												className='rounded-lg p-4 border w-1/3 mx-2'
-																												defaultValue={
-																													o[
-																														el
-																															.db_name
-																													] ||
-																													'N/A'
-																												}
-																											/>
-																										</>
-																									)
-																								)
-																							) : (
-																								<input
-																									disabled={disabled}
-																									className='rounded-lg p-4 border w-1/3 mx-2'
-																									defaultValue={'N/A'}
-																								/>
-																							)
-																						) : null}
-																					</>
-																				) : null}
-
-																				{el.type === 'select' && (
-																					<>
-																						{i.name ===
-																							'Shareholder Details' &&
-																							data?.businessShareData.map(
-																								(o, idx) => (
-																									<select
-																										disabled={
-																											disabled
-																										}
-																										className='rounded-lg p-4 border w-1/3 mx-2'
-																									>
-																										{el.options &&
-																											el.options.map(
-																												r => (
-																													<option>
-																														{
-																															r?.name
-																														}
-																													</option>
-																												)
-																											)}
-																									</select>
-																								)
-																							)}
-																						{i.name !==
-																							'Shareholder Details' && (
-																							<select
-																								disabled={disabled}
-																								className='rounded-lg p-4 border w-1/3'
-																							>
-																								{el.options &&
-																									el.options.map(
-																										r => (
-																											<option>
-																												{
-																													r?.name
-																												}
-																											</option>
-																										)
-																									)}
-																							</select>
-																						)}
-																					</>
-																				)}
-																			</section>
-																		)
-																)}
-															</section>
-														)
-												)
-											) : (
-												<>
-													{Object.keys(mapper[e]).map(i => (
-														<section>
-															{d()[e] &&
-																d()[e].map(
-																	j =>
-																		j !== false && (
-																			<section className='flex flex-col gap-y-4 gap-x-20'>
-																				<p className='text-blue-700 font-medium text-xl pb-8'>
-																					{i}
-																				</p>
-
-																				{j &&
-																					Object.keys(j).map(
-																						k =>
-																							mapper[e][i] &&
-																							Object.keys(
-																								mapper[e][i]
-																							).map(
-																								l =>
-																									l === k && (
-																										<section className='flex space-evenly items-center'>
-																											<label className='w-1/2'>
-																												{
-																													mapper[
-																														e
-																													][
-																														i
-																													][k]
-																												}
-																											</label>
-																											<input
-																												className='rounded-lg p-4 border'
-																												disabled={
-																													disabled
-																												}
-																												placeholder={
-																													mapper[
-																														e
-																													][
-																														i
-																													][k]
-																												}
-																												defaultValue={
-																													j[k]
-																												}
-																											/>
-																										</section>
-																									)
-																							)
-																					)}
-																			</section>
-																		)
-																)}
-														</section>
-													))}
-												</>
-											)}
-											<Button
-												onClick={() => clickSub()}
-												disabled={disabled}
-												type='blue'
-												rounded='rfull'
-												size='small'
-											>
-												Submit
-											</Button>
-										</>
+										<ApplicantDetails
+											fields={fields}
+											disabled={disabled}
+											onfieldChanges={onfieldChanges}
+											data={data}
+											mapper={mapper}
+											e={e}
+											d={d}
+											clickSub={clickSub}
+										/>
 									)}
 
 									{e === sec.sec_2 &&
@@ -689,7 +385,7 @@ export default function CheckApplication(props) {
 															j =>
 																j !== false && (
 																	<section className='flex flex-col gap-y-4 gap-x-20'>
-																		<p className='text-blue-700 font-medium text-xl pb-8'>
+																		<p className='text-blue-700 font-medium text-xl pb-8 p1'>
 																			{i}
 																		</p>
 
@@ -768,6 +464,7 @@ export default function CheckApplication(props) {
 													docTypeOptions={option}
 													onDrop={handleFileUpload}
 													documentTypeChangeCallback={handleDocumentTypeChange}
+													// branch={true}
 													changeHandler={changeHandler}
 													onRemoveFile={e => removeHandler(e)}
 													docsPush={true}
@@ -776,15 +473,16 @@ export default function CheckApplication(props) {
 													directorId={data?.directors?.[0].id}
 													setDocs={setDocs}
 												/>
-												<section className='flex flex-col gap-x-4 flex-wrap gap-y-4'>
+												<section className='flex gap-x-4 flex-col flex-wrap gap-y-4'>
 													{docsUploaded.length > 0 && (
 														<>
 															<section>
 																<span>KYC Docs</span>
-																{docsUploaded.map(
-																	(j, idx) =>
-																		j.document_type === 'KYC Documents' && (
-																			<>
+																{docsUploaded
+																	.filter(docs => App.includes(docs.directorId))
+																	.map(
+																		(j, idx) =>
+																			j.document_type === 'KYC Documents' && (
 																				<section className='py-2 flex justify-evenly items-center w-full'>
 																					<section className='w-full'>
 																						<Button
@@ -792,68 +490,70 @@ export default function CheckApplication(props) {
 																							onClick={() =>
 																								viewDocument(
 																									data?.id,
-																									data?.directors[0]
-																										?.id,
+																									j.uploadedBy,
 																									j.document_fd_key
 																								)
 																							}
 																						>
-																							{console.log(j)}
 																							{j.document_name}
 																						</Button>
 																					</section>
 																				</section>
-																			</>
-																		)
-																)}
+																			)
+																	)}
 															</section>
 															<section>
 																<span>Financial Docs</span>
-																{docsUploaded.map(
-																	(j, idx) =>
-																		j.document_type === 'Financial Documents' && (
-																			<section className='py-2 flex justify-evenly items-center w-full'>
-																				<section className='w-full'>
-																					<Button
-																						type='blue-light'
-																						onClick={() =>
-																							viewDocument(
-																								data?.id,
-																								j.uploadedBy,
-																								j.document_fd_key
-																							)
-																						}
-																					>
-																						{j.document_name}
-																					</Button>
+																{docsUploaded
+																	.filter(docs => App.includes(docs.directorId))
+																	.map(
+																		(j, idx) =>
+																			j.document_type ===
+																				'Financial Documents' && (
+																				<section className='py-2 flex justify-evenly items-center w-full'>
+																					<section className='w-full'>
+																						<Button
+																							type='blue-light'
+																							onClick={() =>
+																								viewDocument(
+																									data?.id,
+																									j.uploadedBy,
+																									j.document_fd_key
+																								)
+																							}
+																						>
+																							{j.document_name}
+																						</Button>
+																					</section>
 																				</section>
-																			</section>
-																		)
-																)}
+																			)
+																	)}
 															</section>
 															<section>
 																<span>Other Docs</span>
-																{docsUploaded.map(
-																	(j, idx) =>
-																		j.document_type === 'Other Documents' && (
-																			<section className='py-2 flex justify-evenly items-center w-full'>
-																				<section className='w-full'>
-																					<Button
-																						type='blue-light'
-																						onClick={() =>
-																							viewDocument(
-																								data?.id,
-																								j.uploadedBy,
-																								j.document_fd_key
-																							)
-																						}
-																					>
-																						{j.document_name}
-																					</Button>
+																{docsUploaded
+																	.filter(docs => App.includes(docs.directorId))
+																	.map(
+																		(j, idx) =>
+																			j.document_type === 'Other Documents' && (
+																				<section className='py-2 flex justify-evenly items-center w-full'>
+																					<section className='w-full'>
+																						<Button
+																							type='blue-light'
+																							onClick={() =>
+																								viewDocument(
+																									data?.id,
+																									j.uploadedBy,
+																									j.document_fd_key
+																								)
+																							}
+																						>
+																							{j.document_name}
+																						</Button>
+																					</section>
 																				</section>
-																			</section>
-																		)
-																)}
+																			)
+																	)}
 															</section>
 														</>
 													)}
@@ -879,12 +579,119 @@ export default function CheckApplication(props) {
 													))}
 												</section>
 											)}
-											{coApplicant && (
-												<section className='flex flex-col gap-y-5'>
+											{cooap(data)?.[0]?.id && (
+												<section className='flex flex-col space-y-5 w-8/12'>
 													<p className='text-blue-600 font-medium text-xl'>
 														Co-Applicant Documents Uploaded
 													</p>
-													<FileUpload />
+													<FileUpload
+														accept=''
+														upload={{
+															url: DOCS_UPLOAD_URL_LOAN({
+																userid: cooap(data)[0]?.id
+															}),
+															header: {
+																Authorization: `Bearer ${localStorage.getItem('token')}`
+															}
+														}}
+														docTypeOptions={option}
+														onDrop={handleFileUpload}
+														documentTypeChangeCallback={handleDocumentTypeChange}
+														// branch={true}
+														changeHandler={changeHandler}
+														onRemoveFile={e => removeHandler(e)}
+														docsPush={true}
+														docs={docs}
+														loan_id={data?.id}
+														directorId={cooap(data)[0]?.id}
+														setDocs={setDocs}
+													/>
+													<section className='flex flex-col gap-x-4 flex-wrap gap-y-4'>
+														{docsUploaded.length > 0 && (
+															<>
+																<section>
+																	<span>KYC Docs</span>
+																	{docsUploaded
+																		.filter(docs => coApp.includes(docs.directorId))
+																		.map(
+																			(j, idx) =>
+																				j.document_type === 'KYC Documents' && (
+																					<section className='py-2 flex justify-evenly items-center w-full'>
+																						<section className='w-full'>
+																							<Button
+																								type='blue-light'
+																								onClick={() =>
+																									viewDocument(
+																										data?.id,
+																										j.uploadedBy,
+																										j.document_fd_key
+																									)
+																								}
+																							>
+																								{j.document_name}
+																							</Button>
+																						</section>
+																					</section>
+																				)
+																		)}
+																</section>
+																<section>
+																	<span>Financial Docs</span>
+																	{docsUploaded
+																		.filter(docs => coApp.includes(docs.directorId))
+																		.map(
+																			(j, idx) =>
+																				j.document_type ===
+																					'Financial Documents' && (
+																					<section className='py-2 flex justify-evenly items-center w-full'>
+																						<section className='w-full'>
+																							<Button
+																								type='blue-light'
+																								onClick={() =>
+																									viewDocument(
+																										data?.id,
+																										j.uploadedBy,
+																										j.document_fd_key
+																									)
+																								}
+																							>
+																								{j.document_name}
+																							</Button>
+																						</section>
+																					</section>
+																				)
+																		)}
+																</section>
+																<section>
+																	<span>Other Docs</span>
+																	{docsUploaded
+																		.filter(docs => coApp.includes(docs.directorId))
+																		.map(
+																			(j, idx) =>
+																				j.document_type ===
+																					'Other Documents' && (
+																					<section className='py-2 flex justify-evenly items-center w-full'>
+																						<section className='w-full'>
+																							<Button
+																								type='blue-light'
+																								onClick={() =>
+																									viewDocument(
+																										data?.id,
+																										j.uploadedBy,
+																										j.document_fd_key
+																									)
+																								}
+																							>
+																								{j.document_name}
+																							</Button>
+																						</section>
+																					</section>
+																				)
+																		)}
+																</section>
+															</>
+														)}
+													</section>
 												</section>
 											)}
 											<Button
@@ -915,147 +722,24 @@ export default function CheckApplication(props) {
 									)}
 									{e === sec.sec_4 && (
 										<section>
-											<p>No collateral details found</p>
+											<CollateralDetails loanId={props?.item?.id} />
 										</section>
 									)}
 									{e === sec.sec_5 && (
-										<section className='w-full flex'>
-											<section className='w-1/2'>
-												{Object.keys(mapper[e]).map(i => (
-													<section>
-														<p className='text-blue-700 font-medium text-xl pb-8'>{i}</p>
-														{d()[e] &&
-															Object.keys(d()[e]).map(
-																k =>
-																	mapper[e][i] &&
-																	Object.keys(mapper[e][i]).map(
-																		l =>
-																			l === k && (
-																				<section className='flex space-evenly py-2 items-center'>
-																					<label className='w-1/2'>
-																						{mapper[e][i][k]}
-																					</label>
-																					<input
-																						className='rounded-lg p-4 border'
-																						disabled={disabled}
-																						placeholder={mapper[e][i][k]}
-																						defaultValue={d()[e][k]}
-																					/>
-																				</section>
-																			)
-																	)
-															)}
-														<section className='flex space-evenly py-2 items-center'>
-															<label className='w-1/2'>Loan Amount</label>
-															<input
-																className='rounded-lg p-4 border'
-																disabled={disabled}
-																defaultValue={data?.loan_price}
-															/>
-														</section>
-														<section className='flex space-evenly py-2 items-center'>
-															<label className='w-1/2'>DSCR</label>
-															<input
-																className='rounded-lg p-4 border'
-																disabled={disabled}
-																placeholder='DSCR'
-																defaultValue={Number(props?.item?.dscr).toFixed(2)}
-															/>
-														</section>
-														<section className='flex space-evenly py-2 items-center'>
-															<label className='w-1/2'>Tenure</label>
-															<input
-																className='rounded-lg p-4 border'
-																disabled={disabled}
-																placeholder='Tenure'
-																defaultValue={props?.item?.applied_tenure}
-															/>
-														</section>
-														<section className='flex space-evenly py-2 items-center'>
-															<label className='w-1/2'>Income</label>
-															<input
-																className='rounded-lg p-4 border'
-																disabled={disabled}
-																placeholder='Tenure'
-																defaultValue={
-																	props.item?.net_monthly_income ||
-																	props.item?.gross_income
-																}
-															/>
-														</section>
-													</section>
-												))}
-												<Button
-													onClick={() => clickSub()}
-													type='blue'
-													rounded='rfull'
-													size='small'
-													disabled={disabled}
-												>
-													Submit
-												</Button>
-											</section>
-											<section className='w-1/4 overflow-y-auto overflow-scroll scroll right-0 bg-gray-200 flex flex-col gap-y-8 top-24 fixed h-full p-6'>
-												<p className='text-xl font-medium'>Comments</p>
-												{(props.assignmentLog || data?.remarks) && (
-													<>
-														{Object.keys(
-															JSON.parse(props.assignmentLog || data?.remarks)
-														).map(el => (
-															<section className='bg-white flex flex-col gap-y-6 p-2 rounded-lg'>
-																<span className='text-xs'>
-																	{
-																		JSON.parse(
-																			props.assignmentLog || data?.remarks
-																		)[el]?.name
-																	}
-																</span>
-																{JSON.parse(props.assignmentLog || data?.remarks)[el]
-																	?.type === 'Comments' &&
-																	JSON.parse(props.assignmentLog || data?.remarks)[el]
-																		?.message}
-																<span className='text-xs text-blue-700'>
-																	{el || el.message}
-																</span>
-															</section>
-														))}
-													</>
-												)}
-												<section className='flex gap-x-2 overflow-scroll scroll items-center justify-between'>
-													{commentSubmitted ? (
-														<input
-															placeholder='Add Comment'
-															className='p-1 rounded-md px-2 focus:outline-none'
-															onChange={e => setComment(e.target.value)}
-															value=''
-														/>
-													) : (
-														<input
-															placeholder='Add Comment'
-															className='p-1 rounded-md px-2 focus:outline-none'
-															onChange={e => setComment(e.target.value)}
-														/>
-													)}
-
-													<Button
-														type='blue-light'
-														size='small'
-														rounded='rfull'
-														onClick={() => {
-															reassignLoan(props.item.id, null, comment);
-															setMessage(true);
-															setTimeout(() => {
-																setMessage(false);
-															}, 4000);
-
-															setCommentSubmit(true);
-														}}
-													>
-														<p className='focus: text-xs'> Add Comment</p>
-													</Button>
-												</section>
-											</section>
-										</section>
+										<EligibilitySection
+											disabled={disabled}
+											onfieldChanges={onfieldChanges}
+											data={data}
+											mapper={mapper}
+											item={props?.item}
+											clickSub={clickSub}
+											assignmentLog={props?.assignmentLog}
+											setComment={setComment}
+											reassignLoan={reassignLoan}
+											comment={comment}
+											e={e}
+											d={d}
+										/>
 									)}
 								</>
 							) : (
