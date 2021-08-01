@@ -8,7 +8,7 @@ const valueConversion = {
 	One: 1
 };
 
-const amountFields = ['loan_amount', 'value_Vehicle'];
+const amountFields = ['loan_amount'];
 
 export default function ApplicantDetails({ fields, disabled, onfieldChanges, data, mapper, e, d, clickSub }) {
 	const amountConverter = (value, name) => {

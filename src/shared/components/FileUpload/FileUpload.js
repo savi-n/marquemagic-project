@@ -12,6 +12,8 @@ import FilePasswordInput from './FilePasswordInput';
 
 const USER_CANCELED = 'user cancelled';
 
+const FINANCIAL_DOC_TYPES = 'Financial';
+
 const Dropzone = styled.div`
 	width: 100%;
 	min-height: 150px;
@@ -236,8 +238,7 @@ export default function FileUpload({
 	setDocs,
 	docsPush,
 	loan_id,
-	directorId,
-	pan
+	directorId
 }) {
 	const ref = useRef(uuidv4());
 

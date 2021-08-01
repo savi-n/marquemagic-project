@@ -17,6 +17,9 @@ export const formatEmiData = (formData, fields) => {
 
 export const formatLoanData = (formData, fields) => {
   return formaterHOF(formData, fields, (name, formData, type) => ({
-    [name]: type === "search" ? formData[name].value : formData[name],
+    [name]:
+      type === "search"
+        ? formData[name].value || formData[name]
+        : formData[name],
   }));
 };

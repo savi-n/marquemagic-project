@@ -101,6 +101,7 @@ export const getLoanDetails = async (loanId, token = localStorage.getItem('token
 		}
 	);
 	const t = await g;
+	console.log(t.data);
 	return t.data;
 };
 
@@ -243,7 +244,7 @@ export const getGroupedDocs = async (
 		params: { case_id, white_label_id: tq.data.encrypted_whitelabel[0] }
 	});
 	const t = await g;
-	return t.data.data;
+	return t?.data?.data;
 };
 
 export const verification = async (businessId, token = localStorage.getItem('token')) => {

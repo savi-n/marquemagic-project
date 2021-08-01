@@ -194,7 +194,7 @@ export default function SearchSelect({
 
     if (searchOptionCallback && typeof searchOptionCallback === "function") {
       let options = [{ name: value, value: value }];
-      if (!value) {
+      if (!value.trim()) {
         options = [];
       }
 
@@ -209,7 +209,7 @@ export default function SearchSelect({
         let searchOptions = await searchOptionCallback({ name: value });
 
         searchOptions = searchOptions.map((opt) => ({ name: opt, value: opt }));
-        if (!searchOptions.length) {
+        if (!searchOptions.length && value.trim()) {
           searchOptions = [{ name: value, value: value }];
         }
         setSelectOptions(searchOptions);

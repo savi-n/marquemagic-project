@@ -177,7 +177,7 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 		}
 	};
 
-	if (localStorage.getItem('product') === 'demo') {
+	if (localStorage.getItem('product') != 'demo') {
 		formatedData['branchId'] = companyData.branchId;
 	}
 

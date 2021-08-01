@@ -2,29 +2,26 @@ import { useState, useEffect } from 'react';
 import '../components/styles/index.scss';
 import {
 	getLoanDetails,
-	viewDocument,
 	getLoan,
 	docTypes,
 	uploadDoc,
-	borrowerDocUpload,
 	reassignLoan,
-	getGroupedDocs,
-	verification
+	// getGroupedDocs,
+	viewDocument,
+	borrowerDocUpload
 } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
-import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH, APP_CLIENT } from '../../_config/app.config';
-import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
-import CollateralDetails from '../components/CollateralDetails';
+import CollateralsDetails from '../components/CollateralsDetails';
 import ApplicantDetails from '../components/ApllicantDetails';
 import EligibilitySection from '../components/EligibilitySection';
+import DocumentUploadSection from '../components/DocumentUploadSection';
 import useCaseUpdate from '../useCaseUpdate';
-import { YAxis } from 'recharts';
+// import { YAxis } from "recharts";
 
 export default function CheckApplication(props) {
 	const checkTab = activeTab => {
@@ -61,10 +58,6 @@ export default function CheckApplication(props) {
 			setLoading(false);
 
 			if (loanDetails) {
-				verification(loanDetails.business_id?.id).then(res => {
-					console.log(res);
-				});
-
 				docTypes(props.productId, loanDetails?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
@@ -74,8 +67,9 @@ export default function CheckApplication(props) {
 					});
 					setOption(
 						arr.map(fileoption => ({
+							main: fileoption.doc_type,
 							name: fileoption.name,
-							value: fileoption.name
+							value: fileoption.doc_type_id
 						}))
 					);
 				});
@@ -83,23 +77,22 @@ export default function CheckApplication(props) {
 					resp.data?.map(
 						k =>
 							props.product.includes(k?.name) &&
-							Object.keys(k.product_id).map(y =>
-								loanDetails.directors.length > 0
-									? y === loanDetails.directors[0].income_type &&
-									  getLoan(k.id).then(res => {
-											console.log(res);
-											res.length > 7 && setFields(res);
-									  })
-									: getLoan(k.id).then(res => {
-											console.log(res);
-											res.length > 7 && setFields(res);
-									  })
+							Object.keys(k.product_id).map(
+								y =>
+									y === loanDetails.directors[0].income_type &&
+									getLoan(k.id).then(res => {
+										res.length > 7 && setFields(res);
+									})
 							)
 					);
 				});
-				getGroupedDocs(props.item?.loan_ref_id).then(val => setDocsUPloaded(val));
+				// getGroupedDocs(props.item?.loan_ref_id).then((val) =>
+				//   setDocsUPloaded(val)
+				// );
 			}
 		});
+		if (data) {
+		}
 	}, []);
 
 	const [checkedDocs, setCheckedDocs] = useState([]);
@@ -126,8 +119,7 @@ export default function CheckApplication(props) {
 		'Security Details',
 		data && getPreEligibleData(data)
 			? 'Pre-Eligibility Details'
-			: data && getEligibileData(data) && 'Eligibility Details',
-		(APP_CLIENT.includes('nctestnew') || APP_CLIENT.includes('clix')) && 'Verification Data'
+			: data && getEligibileData(data) && 'Eligibility Details'
 	];
 
 	const getTabs = item => (
@@ -150,9 +142,9 @@ export default function CheckApplication(props) {
 		return arr;
 	};
 
-	useEffect(() => {
-		console.log(docs);
-	}, [docs]);
+	// useEffect(() => {
+	//   console.log(docs);
+	// }, [docs]);
 
 	const d = () => {
 		if (data) {
@@ -304,7 +296,12 @@ export default function CheckApplication(props) {
 	const handleDocumentTypeChange = async (fileId, type) => {
 		const fileType = file.map(fi => {
 			if (fi.id === fileId) {
-				return { ...fi, type: type.value };
+				return {
+					...fi,
+					type: type.name,
+					name: type.name,
+					doc_type_id: type.value
+				};
 			}
 			return fi;
 		});
@@ -315,7 +312,6 @@ export default function CheckApplication(props) {
 	const [formValues, setFormValues] = useState({});
 	const onfieldChanges = e => {
 		const { name, value } = e.target;
-
 		setFormValues({ ...formValues, [name]: value });
 	};
 
@@ -370,7 +366,7 @@ export default function CheckApplication(props) {
 								<>
 									{e === sec.sec_1 && (
 										<ApplicantDetails
-											fields={fields && fields}
+											fields={fields}
 											disabled={disabled}
 											onfieldChanges={onfieldChanges}
 											data={data}
@@ -454,283 +450,38 @@ export default function CheckApplication(props) {
 									)}
 
 									{e === sec.sec_3 && (
-										<>
-											<section className='flex flex-col gap-y-5 w-8/12'>
-												<p className='text-blue-600 font-medium text-xl'>
-													Applicant Documents Uploaded
-												</p>
-												<FileUpload
-													accept=''
-													upload={{
-														url: DOCS_UPLOAD_URL_LOAN({
-															userid: data?.business_id?.userid
-														}),
-														header: {
-															Authorization: `Bearer ${localStorage.getItem('token')}`
-														}
-													}}
-													docTypeOptions={option}
-													onDrop={handleFileUpload}
-													documentTypeChangeCallback={handleDocumentTypeChange}
-													// branch={true}
-													changeHandler={changeHandler}
-													onRemoveFile={e => removeHandler(e)}
-													docsPush={true}
-													docs={docs}
-													loan_id={data?.id}
-													directorId={data?.directors.length > 0 && data?.directors?.[0].id}
-													setDocs={setDocs}
-												/>
-												<section className='flex gap-x-4 flex-col flex-wrap gap-y-4'>
-													{docsUploaded.length > 0 && (
-														<>
-															<section>
-																<span>KYC Docs</span>
-																{docsUploaded
-																	.filter(docs => App.includes(docs.directorId))
-																	.map(
-																		(j, idx) =>
-																			j.document_type === 'KYC Documents' && (
-																				<section className='py-2 flex justify-evenly items-center w-full'>
-																					<section className='w-full'>
-																						<Button
-																							type='blue-light'
-																							onClick={() =>
-																								viewDocument(
-																									data?.id,
-																									j.uploadedBy,
-																									j.document_fd_key
-																								)
-																							}
-																						>
-																							{j.document_name}
-																						</Button>
-																					</section>
-																				</section>
-																			)
-																	)}
-															</section>
-															<section>
-																<span>Financial Docs</span>
-																{docsUploaded
-																	.filter(docs => App.includes(docs.directorId))
-																	.map(
-																		(j, idx) =>
-																			j.document_type ===
-																				'Financial Documents' && (
-																				<section className='py-2 flex justify-evenly items-center w-full'>
-																					<section className='w-full'>
-																						<Button
-																							type='blue-light'
-																							onClick={() =>
-																								viewDocument(
-																									data?.id,
-																									j.uploadedBy,
-																									j.document_fd_key
-																								)
-																							}
-																						>
-																							{j.document_name}
-																						</Button>
-																					</section>
-																				</section>
-																			)
-																	)}
-															</section>
-															<section>
-																<span>Other Docs</span>
-																{docsUploaded
-																	.filter(docs => App.includes(docs.directorId))
-																	.map(
-																		(j, idx) =>
-																			j.document_type === 'Other Documents' && (
-																				<section className='py-2 flex justify-evenly items-center w-full'>
-																					<section className='w-full'>
-																						<Button
-																							type='blue-light'
-																							onClick={() =>
-																								viewDocument(
-																									data?.id,
-																									j.uploadedBy,
-																									j.document_fd_key
-																								)
-																							}
-																						>
-																							{j.document_name}
-																						</Button>
-																					</section>
-																				</section>
-																			)
-																	)}
-															</section>
-														</>
-													)}
-												</section>
-											</section>
-											{docType && (
-												<section className='fixed overflow-scroll z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16'>
-													{Object.keys(docType).map(el => (
-														<section className='py-6'>
-															<p className='font-semibold'>{el}</p>
-															{docType[el].map(doc => (
-																<section>
-																	<CheckBox
-																		name={doc.name}
-																		round
-																		disabled
-																		bg='green'
-																		checked={checkDocType.includes(doc.name)}
-																	/>
-																</section>
-															))}
-														</section>
-													))}
-												</section>
-											)}
-											{cooap(data)?.[0]?.id && (
-												<section className='flex flex-col space-y-5 w-8/12'>
-													<p className='text-blue-600 font-medium text-xl'>
-														Co-Applicant Documents Uploaded
-													</p>
-													<FileUpload
-														accept=''
-														upload={{
-															url: DOCS_UPLOAD_URL_LOAN({
-																userid: cooap(data)[0]?.id
-															}),
-															header: {
-																Authorization: `Bearer ${localStorage.getItem('token')}`
-															}
-														}}
-														docTypeOptions={option}
-														onDrop={handleFileUpload}
-														documentTypeChangeCallback={handleDocumentTypeChange}
-														// branch={true}
-														changeHandler={changeHandler}
-														onRemoveFile={e => removeHandler(e)}
-														docsPush={true}
-														docs={docs}
-														loan_id={data?.id}
-														directorId={cooap(data)[0]?.id}
-														setDocs={setDocs}
-													/>
-													<section className='flex flex-col gap-x-4 flex-wrap gap-y-4'>
-														{docsUploaded.length > 0 && (
-															<>
-																<section>
-																	<span>KYC Docs</span>
-																	{docsUploaded
-																		.filter(docs => coApp.includes(docs.directorId))
-																		.map(
-																			(j, idx) =>
-																				j.document_type === 'KYC Documents' && (
-																					<section className='py-2 flex justify-evenly items-center w-full'>
-																						<section className='w-full'>
-																							<Button
-																								type='blue-light'
-																								onClick={() =>
-																									viewDocument(
-																										data?.id,
-																										j.uploadedBy,
-																										j.document_fd_key
-																									)
-																								}
-																							>
-																								{j.document_name}
-																							</Button>
-																						</section>
-																					</section>
-																				)
-																		)}
-																</section>
-																<section>
-																	<span>Financial Docs</span>
-																	{docsUploaded
-																		.filter(docs => coApp.includes(docs.directorId))
-																		.map(
-																			(j, idx) =>
-																				j.document_type ===
-																					'Financial Documents' && (
-																					<section className='py-2 flex justify-evenly items-center w-full'>
-																						<section className='w-full'>
-																							<Button
-																								type='blue-light'
-																								onClick={() =>
-																									viewDocument(
-																										data?.id,
-																										j.uploadedBy,
-																										j.document_fd_key
-																									)
-																								}
-																							>
-																								{j.document_name}
-																							</Button>
-																						</section>
-																					</section>
-																				)
-																		)}
-																</section>
-																<section>
-																	<span>Other Docs</span>
-																	{docsUploaded
-																		.filter(docs => coApp.includes(docs.directorId))
-																		.map(
-																			(j, idx) =>
-																				j.document_type ===
-																					'Other Documents' && (
-																					<section className='py-2 flex justify-evenly items-center w-full'>
-																						<section className='w-full'>
-																							<Button
-																								type='blue-light'
-																								onClick={() =>
-																									viewDocument(
-																										data?.id,
-																										j.uploadedBy,
-																										j.document_fd_key
-																									)
-																								}
-																							>
-																								{j.document_name}
-																							</Button>
-																						</section>
-																					</section>
-																				)
-																		)}
-																</section>
-															</>
-														)}
-													</section>
-												</section>
-											)}
-											<Button
-												onClick={() => {
-													borrowerDocUpload(docs).then(res => {
-														if (res === 'Error in uploading') {
-															setError(true);
-															setTimeout(() => {
-																setError(false);
-															}, 4000);
-														} else {
-															setMessage(true);
-															setTimeout(() => {
-																setMessage(false);
-															}, 4000);
-															setDocs([]);
-														}
-													});
-												}}
-												disabled={docs.length === 0 ? true : false}
-												type='blue'
-												rounded='rfull'
-												size='small'
-											>
-												Submit
-											</Button>
-										</>
+										<DocumentUploadSection
+											item={props?.item}
+											userToken={localStorage.getItem('token')}
+											loanData={data}
+											option={option}
+											handleFileUpload={handleFileUpload}
+											file={file}
+											handleDocumentTypeChange={handleDocumentTypeChange}
+											changeHandler={changeHandler}
+											removeHandler={removeHandler}
+											docs={docs}
+											setDocs={setDocs}
+											docsUploaded={docsUploaded}
+											App={App}
+											viewDocument={viewDocument}
+											docType={docType}
+											checkDocType={checkDocType}
+											cooap={cooap}
+											coApp={coApp}
+											setError={setError}
+											setMessage={setMessage}
+											borrowerDocUpload={borrowerDocUpload}
+										/>
 									)}
 									{e === sec.sec_4 && (
 										<section>
-											<CollateralDetails loanId={props?.item?.id} />
+											<CollateralsDetails
+												loanId={props?.item?.id}
+												product={props.product}
+												disabled={disabled}
+												setViewLoan={props.setViewLoan}
+											/>
 										</section>
 									)}
 									{e === sec.sec_5 && (
