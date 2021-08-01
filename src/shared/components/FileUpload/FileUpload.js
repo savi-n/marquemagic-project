@@ -238,7 +238,8 @@ export default function FileUpload({
 	setDocs,
 	docsPush,
 	loan_id,
-	directorId
+	directorId,
+	pan
 }) {
 	const ref = useRef(uuidv4());
 
