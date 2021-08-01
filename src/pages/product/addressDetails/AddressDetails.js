@@ -12,6 +12,7 @@ import { useToasts } from '../../../components/Toast/ToastProvider';
 import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
+import { APP_CLIENT } from '../../../_config/app.config';
 
 const Div = styled.div`
 	flex: 1;
@@ -106,7 +107,9 @@ export default function AddressDetailsPage({ id, onFlowChange, map, productId })
 
 	useEffect(() => {
 		async function request() {
-			const res = await caseCreationUser();
+			if (!APP_CLIENT.includes('clix') || !APP_CLIENT.includes('nctestnew')) {
+				const res = await caseCreationUser();
+			}
 			setCompleted(id);
 			onFlowChange(proceed?.flow);
 			if (proceed?.subType) {

@@ -538,7 +538,7 @@ export default function FileUpload({
 							</>
 						)}
 						{file.status === 'progress' && (
-							<CancelBtn onClick={() => file.cancelToken.cancel(USER_CANCELED)}>&#10006;</CancelBtn>
+							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
 						)}
 						{file.status === 'completed' && (
 							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>

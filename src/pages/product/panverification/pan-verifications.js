@@ -348,6 +348,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
 	const [otherDoc, setOtherDoc] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
+	const [panNum, setPan] = useState(null);
 
 	const handlePanUpload = files => {
 		const formData = new FormData();
@@ -362,8 +363,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					type: 'error'
 				});
 			} else {
+				setPan(res.data.data['Pan_number']);
 				formState.values.panNumber = res.data.data['Pan_number'];
 				formState.values.companyName = res.data.data['Name'];
+				localStorage.setItem('formstate', JSON.stringify(formState));
 				if (productType === 'business') {
 					if (!res.data.data['Name'].toLowerCase().includes('private limited')) {
 						setBusiness(false);
@@ -373,7 +376,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					}
 				}
 				if (productType === 'salaried') {
-					console.log('ss');
 					setPanConfirm(true);
 				}
 				setResponse(res.data);
@@ -407,7 +409,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.dob = res?.data?.data?.DOB;
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
-				console.log(formState);
+				formState.values.panNumber = panNum;
+				localStorage.setItem('formstate', JSON.stringify(formState));
 				onProceed();
 			}
 		});

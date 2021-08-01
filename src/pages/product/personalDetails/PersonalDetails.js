@@ -106,21 +106,31 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		onFlowChange(map.main);
 	};
 
+	const r = () => {
+		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+			var formStat = JSON.parse(localStorage.getItem('formstate'));
+			console.log(formStat);
+			return formStat.values;
+		} else {
+			return userBankDetails;
+		}
+	};
+
 	return (
 		<Div>
 			<PersonalDetails
 				register={register}
 				formState={formState}
 				preData={{
-					firstName: userBankDetails?.firstName || formState.values.firstName || '',
-					lastName: userBankDetails?.lastName || formState.values.lastName || '',
-					dob: userBankDetails?.dob || formState.values.dob || '',
-					email: userBankDetails?.email || '',
-					mobileNo: userBankDetails?.mobileNum || '',
-					panNumber: userBankDetails?.pan || formState.values.panNumber || '',
-					residenceStatus: userBankDetails?.residentTypess || '',
+					firstName: r()?.firstName || '',
+					lastName: r()?.lastName || '',
+					dob: r()?.dob || '',
+					email: r()?.email || '',
+					mobileNo: r()?.mobileNum || '',
+					panNumber: r()?.pan || '',
+					residenceStatus: r()?.residentTypess || '',
 					// countryResidence: "india",
-					aadhaar: userBankDetails?.aadharNum || formState.values.aadhaar || ''
+					aadhaar: r()?.aadharNum || ''
 				}}
 				jsonData={map.fields[id].data}
 			/>

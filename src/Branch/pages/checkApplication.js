@@ -8,7 +8,8 @@ import {
 	uploadDoc,
 	borrowerDocUpload,
 	reassignLoan,
-	getGroupedDocs
+	getGroupedDocs,
+	verification
 } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
@@ -16,7 +17,7 @@ import Button from '../shared/components/Button';
 import FileUpload from '../../shared/components/FileUpload/FileUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH } from '../../_config/app.config';
+import { DOCS_UPLOAD_URL, DOCS_UPLOAD_URL_LOAN, DOCTYPES_FETCH, APP_CLIENT } from '../../_config/app.config';
 import CheckBox from '../../shared/components/Checkbox/CheckBox';
 
 import CollateralDetails from '../components/CollateralDetails';
@@ -60,7 +61,10 @@ export default function CheckApplication(props) {
 			setLoading(false);
 
 			if (loanDetails) {
-				console.log(props.productId, loanDetails?.business_id?.businesstype?.id);
+				verification(loanDetails.business_id?.id).then(res => {
+					console.log(res);
+				});
+
 				docTypes(props.productId, loanDetails?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
@@ -79,20 +83,23 @@ export default function CheckApplication(props) {
 					resp.data?.map(
 						k =>
 							props.product.includes(k?.name) &&
-							Object.keys(k.product_id).map(
-								y =>
-									y === loanDetails.directors[0].income_type &&
-									getLoan(k.id).then(res => {
-										res.length > 7 && setFields(res);
-									})
+							Object.keys(k.product_id).map(y =>
+								loanDetails.directors.length > 0
+									? y === loanDetails.directors[0].income_type &&
+									  getLoan(k.id).then(res => {
+											console.log(res);
+											res.length > 7 && setFields(res);
+									  })
+									: getLoan(k.id).then(res => {
+											console.log(res);
+											res.length > 7 && setFields(res);
+									  })
 							)
 					);
 				});
 				getGroupedDocs(props.item?.loan_ref_id).then(val => setDocsUPloaded(val));
 			}
 		});
-		if (data) {
-		}
 	}, []);
 
 	const [checkedDocs, setCheckedDocs] = useState([]);
@@ -119,7 +126,8 @@ export default function CheckApplication(props) {
 		'Security Details',
 		data && getPreEligibleData(data)
 			? 'Pre-Eligibility Details'
-			: data && getEligibileData(data) && 'Eligibility Details'
+			: data && getEligibileData(data) && 'Eligibility Details',
+		(APP_CLIENT.includes('nctestnew') || APP_CLIENT.includes('clix')) && 'Verification Data'
 	];
 
 	const getTabs = item => (
@@ -362,7 +370,7 @@ export default function CheckApplication(props) {
 								<>
 									{e === sec.sec_1 && (
 										<ApplicantDetails
-											fields={fields}
+											fields={fields && fields}
 											disabled={disabled}
 											onfieldChanges={onfieldChanges}
 											data={data}
@@ -470,7 +478,7 @@ export default function CheckApplication(props) {
 													docsPush={true}
 													docs={docs}
 													loan_id={data?.id}
-													directorId={data?.directors?.[0].id}
+													directorId={data?.directors.length > 0 && data?.directors?.[0].id}
 													setDocs={setDocs}
 												/>
 												<section className='flex gap-x-4 flex-col flex-wrap gap-y-4'>

@@ -119,19 +119,24 @@ function fileStructure(documents, type) {
 
 function caseCreationDataFormat(data, companyData, productDetails) {
 	const idType = productDetails.loanType.includes('Housing') ? 'salaried' : 'business';
+	const businessDetails = () => {
+		if (data && data['business-details']) {
+			return {
+				business_name: data['business-details'].BusinessName,
+				business_type: data['business-details'].BusinessType,
+				business_email: data['business-details'].EmailId,
+				// business_industry_type: 20,
+				contact: '',
+				businesspancardnumber: companyData.PancardNumber,
+				// crime_check: "Yes",
+				gstin: data['business-details'].GSTVerification,
+				businessstartdate: data['business-details'].BusinessVintage,
+				corporateid: companyData.CIN
+			};
+		}
+	};
 	const formatedData = {
-		Business_details: {
-			business_name: data?.['business-details'].BusinessName,
-			business_type: data?.['business-details'].BusinessType,
-			business_email: data?.['business-details'].EmailId,
-			// business_industry_type: 20,
-			contact: '',
-			businesspancardnumber: companyData.PancardNumber,
-			// crime_check: "Yes",
-			gstin: data?.['business-details'].GSTVerification,
-			businessstartdate: data?.['business-details'].BusinessVintage,
-			corporateid: companyData.CIN
-		},
+		Business_details: businessDetails() || null,
 		// businessaddress: {
 		//   city: "County Durham",
 		//   line1: "1 High Burnigill Cottages",
@@ -146,7 +151,7 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 						director_0: {},
 						director_1: {}
 				  }
-				: companyData.DirectorDetails,
+				: companyData?.DirectorDetails,
 		loan_details: {
 			// loan_type_id: 1,
 			// case_priority: null,
@@ -154,8 +159,8 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 			// loan_request_type: "1",
 			// origin: "New_UI",
 			loan_product_id: data.productId[idType],
-			white_label_id: companyData.encryptedWhitelabel,
-			branchId: companyData.branchId,
+			white_label_id: companyData?.encryptedWhitelabel,
+			branchId: companyData?.branchId,
 			loan_amount: data['business-loan-details'].LoanAmount,
 			applied_tenure: Number(data['business-loan-details'].tenure || ''),
 			application_ref: data['business-loan-details'].Applicationid || '',
@@ -439,7 +444,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 	// step: 1 if applicant submit request createCase
 	const createCaseReq = async () => {
-		console.log(companyDetail);
 		try {
 			const caseReq = await newRequest(
 				BUSSINESS_LOAN_CASE_CREATION,
@@ -581,7 +585,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		try {
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();
-			console.log(caseCreateRes, data);
 			const caseId = caseCreateRes.loan_details.loan_ref_id;
 			const loanId = caseCreateRes.loan_details.id;
 			const businessId = caseCreateRes.loan_details.business_id;
