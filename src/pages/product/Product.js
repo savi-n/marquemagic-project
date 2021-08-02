@@ -155,7 +155,7 @@ export default function Product({ product, url }) {
       return showContinueModal ? currentFlow : basePageUrl;
     }
 
-    return currentFlow;
+    return currentFlow || basePageUrl;
   };
 
   let flow = currentFlowDetect();
@@ -198,13 +198,15 @@ export default function Product({ product, url }) {
           )}
         </Colom1>
         <Colom2>
-          <Router
-            currentFlow={flow || basePageUrl}
-            map={flowMap?.[flow]}
-            productDetails={response.data?.product_details}
-            onFlowChange={onFlowChange}
-            productId={response.data?.product_id}
-          />
+          {flowMap && (
+            <Router
+              currentFlow={flow || basePageUrl}
+              map={flowMap?.[flow]}
+              productDetails={response.data?.product_details}
+              onFlowChange={onFlowChange}
+              productId={response.data?.product_id}
+            />
+          )}
         </Colom2>
         {!!completedMenu.length &&
           !showContinueModal &&
