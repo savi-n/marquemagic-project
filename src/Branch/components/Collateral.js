@@ -60,7 +60,7 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                 {data.options.map(op => <option name={op.name} value={op.value} >{op.name}</option>)}
             </select>
         } else {
-            return <input name={data.name} disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} defaultValue={data.default_value} />
+            return <input name={data.db_name} disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} defaultValue={data.default_value} />
 
         }
     }

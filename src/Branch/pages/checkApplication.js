@@ -41,7 +41,7 @@ export default function CheckApplication(props) {
 	const [docsUploaded, setDocsUPloaded] = useState([]);
 	const [data, setData] = useState(null);
   const [savedCollateral, setSavedCollateral] = useState(null);
-  const [modifiedCollateral, setModifiedCollateral] = useState(null);
+  const [initialCollateral, setInitialCollateral] = useState(null);
   const [collateralFlag, setCollateralFlag] = useState("null");
 
 	//changes
@@ -96,10 +96,14 @@ export default function CheckApplication(props) {
         if (loanDetails?.collateralData) {
           if (loanDetails.collateralData?.modified_collateral) {
             setSavedCollateral(loanDetails.collateralData?.modified_collateral);
+            setCollateralFlag("saved");
           } else if (loanDetails?.collateralData?.saved_collateral) {
             setSavedCollateral(loanDetails.collateralData?.saved_collateral);
+            setCollateralFlag("saved");
+          }else if (loanDetails.collateralData?.initial_collateral && loanDetails.collateralData?.initial_collateral.length > 0 ) {
+            setInitialCollateral(loanDetails.collateralData.initial_collateral);
+            setCollateralFlag("initial");
           }
-          setCollateralFlag("saved");
         }
 			}
 		});
@@ -495,7 +499,12 @@ export default function CheckApplication(props) {
                         product={props.product}
                         disabled={disabled}
                         setViewLoan={props.setViewLoan}/> 
-                      : <CollateralsDetails
+                      : collateralFlag === 'initial' ? <CollateralsDetails 
+                      initialCollateral={initialCollateral} 
+                      loanId={props?.item?.id}
+                      product={props.product}
+                      disabled={disabled}
+                      setViewLoan={props.setViewLoan}/>:<CollateralsDetails
                         loanId={props?.item?.id}
                         product={props.product}
                         disabled={disabled}

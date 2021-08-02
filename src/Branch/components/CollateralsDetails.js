@@ -57,13 +57,13 @@ const pageStates = {
     saved: "saved",
 };
 
-export default function CollateralsDetails({loanId, product, savedCollateral, disabled, setViewLoan}) {
+export default function CollateralsDetails({loanId, product, savedCollateral, initialCollateral,disabled, setViewLoan}) {
     
     const { newRequest } = useFetch();
     const { register, handleSubmit, formState } = useForm();
     const [fetching, setFetching] = useState(false);
     const [pageState, setPageState] = useState(pageStates.fetch);
-    const [colateralDetails, setColateralDetails] = useState(null);
+    const [colateralDetails, setColateralDetails] = useState(initialCollateral ? initialCollateral : null);
     const [seletedCollateral, setSelectedCollateral] = useState(savedCollateral ? savedCollateral : null);
     const [noOfCollaterals, setNoOfCollaterals] = useState(null);
     const [updatedCollateral, setUpdatedCollateral] = useState(null);
@@ -79,6 +79,8 @@ export default function CollateralsDetails({loanId, product, savedCollateral, di
     useEffect(() => {
         if(seletedCollateral !== null) {
             setPageState(pageStates.next);
+        } else if (colateralDetails !== null) {
+            setPageState(pageStates.available)
         }
     });
 
@@ -102,7 +104,7 @@ export default function CollateralsDetails({loanId, product, savedCollateral, di
         );
         const colateralDataRes = colateralDataReq?.data;
     
-        setColateralDetails(colateralDataRes.data);
+        setColateralDetails(colateralDataRes?.data?.initial_collateral);
         setNoOfCollaterals(colateralDataRes?.data?.initial_collateral.length);;
         setPageState(pageStates.available);
         setFetching(false);
@@ -169,7 +171,7 @@ export default function CollateralsDetails({loanId, product, savedCollateral, di
                         name: "collateralNumber",
                         type: "select",
                         placeholder: "Select Collateral",
-                        options: colateralDetails?.initial_collateral.map((col) => ({
+                        options: colateralDetails.map((col) => ({
                         value: col.collateralNumber,
                         name: col.collateralNumber,
                         })),
@@ -186,7 +188,6 @@ export default function CollateralsDetails({loanId, product, savedCollateral, di
                 </Wrapper>
                 </WrapContent>
             )} 
-            {/* ----------------------------------- */}
             
             {pageState === pageStates.next && (
                 <>
