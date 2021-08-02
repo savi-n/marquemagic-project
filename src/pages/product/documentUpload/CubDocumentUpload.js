@@ -343,6 +343,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 	return (
 		<>
+			{console.log('ddddddddd=')}
 			<Colom1>
 				<H>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
