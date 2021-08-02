@@ -46,8 +46,7 @@ export default function PersonalDetails({ preData = {}, id, pageName, userType, 
 		return preData?.[field.name] || field.value || '';
 	};
 	useEffect(() => {
-		console.log(id);
-		if (id === 'business-details' || id === 'personal-details') {
+		if (id === 'business-details') {
 			const mo = {
 				name: 'mobileNo',
 				options: [],
@@ -74,9 +73,8 @@ export default function PersonalDetails({ preData = {}, id, pageName, userType, 
 			<H>
 				{userType || 'Help us with your'} <span>{pageName || 'Personal Details'}</span>
 			</H>
-			{console.log(jsonData)}
 			<FormWrap>
-				{jsonData && (id === 'business-details' || id === 'personal-details')
+				{jsonData && id === 'business-details'
 					? jsonData.map(
 							field =>
 								field.visibility && (

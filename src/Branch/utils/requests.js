@@ -1,6 +1,6 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-import { API_END_POINT, SECRET, BORROWER_UPLOAD_URL } from '../../_config/app.config';
+import { API_END_POINT, SECRET, BORROWER_UPLOAD_URL, ENDPOINT_BANK } from '../../_config/app.config';
 
 const userToken = localStorage.getItem('token');
 
@@ -101,6 +101,7 @@ export const getLoanDetails = async (loanId, token = localStorage.getItem('token
 		}
 	);
 	const t = await g;
+	console.log(t.data);
 	return t.data;
 };
 
@@ -243,5 +244,14 @@ export const getGroupedDocs = async (
 		params: { case_id, white_label_id: tq.data.encrypted_whitelabel[0] }
 	});
 	const t = await g;
-	return t.data.data;
+	return t?.data?.data;
+};
+
+export const verification = async (businessId, token = localStorage.getItem('token')) => {
+	const g = await axios.get(`${ENDPOINT_BANK}/verificationDataApi_uiux`, {
+		headers: { Authorization: `Bearer ${token}` },
+		params: { businessId }
+	});
+	const t = await g;
+	console.log(t);
 };
