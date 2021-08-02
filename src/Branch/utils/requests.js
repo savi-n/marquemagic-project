@@ -254,7 +254,7 @@ export const getGroupedDocs = async (
 };
 
 export const verification = async (businessId, token) => {
-	const g = await axios.get(`http://52.66.213.5:3200/verificationDataApi_uiux`, {
+	const g = await axios.get(`http://52.66.213.5:3200/sails-exp/ClientVerify`, {
 		headers: { Authorization: token },
 		params: { businessId }
 	});
