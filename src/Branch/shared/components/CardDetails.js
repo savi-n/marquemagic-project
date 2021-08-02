@@ -187,9 +187,9 @@ export default function CardDetails({
     >
       <section className="">
         <section className="flex flex-col space-y-2 w-full z-10">
+          <small>{item.businessname || "Sample Case"}</small>
           <section className="flex items-center items-center justify-between">
             <section className="flex flex-col w-1/2">
-              <small>{item.businessname || "Sample Case"}</small>
               <span className="text-xs text-blue-700">{item.loan_ref_id}</span>
               <span className="text-xs" title={item.product}>
                 {item.product.length > 25
