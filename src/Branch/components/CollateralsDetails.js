@@ -57,19 +57,17 @@ const pageStates = {
     saved: "saved",
 };
 
-export default function CollateralsDetails({loanId, product, disabled, setViewLoan}) {
+export default function CollateralsDetails({loanId, product, savedCollateral, disabled, setViewLoan}) {
     
     const { newRequest } = useFetch();
     const { register, handleSubmit, formState } = useForm();
     const [fetching, setFetching] = useState(false);
     const [pageState, setPageState] = useState(pageStates.fetch);
     const [colateralDetails, setColateralDetails] = useState(null);
-    const [seletedCollateral, setSelectedCollateral] = useState(null);
+    const [seletedCollateral, setSelectedCollateral] = useState(savedCollateral ? savedCollateral : null);
     const [noOfCollaterals, setNoOfCollaterals] = useState(null);
     const [updatedCollateral, setUpdatedCollateral] = useState(null);
     const [saveUpdate, setSaveUpdate] = useState('save');
-
-    const [delLater, setDelLater] = useState('Not called');
     
     const onCollateralUpdate = (updateCollateral) => {
         setUpdatedCollateral(updateCollateral);
@@ -77,6 +75,12 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
             onUpdateCollateral(updateCollateral);
         }
     }
+
+    useEffect(() => {
+        if(seletedCollateral !== null) {
+            setPageState(pageStates.next);
+        }
+    });
 
     const fetchCollateralDetails = async (url) => {
         const fetchCollateral = await newRequest(
@@ -127,7 +131,6 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
             collateral: collateralType,
         }));
         const colateralUpdateDataRes = colateralUpdateDataReq?.data;
-        setDelLater("Update API was called successfully");
         setFetching(false);
     };
     
@@ -190,6 +193,7 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
                     <div>
                         <Collateral collateral={seletedCollateral} loanId={loanId} product={product} onUpdate={onCollateralUpdate} disabled={disabled} setViewLoan={setViewLoan}/>
                     </div>
+                    {updatedCollateral}
                 </>
             )}
         </>

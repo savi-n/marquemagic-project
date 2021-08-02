@@ -66,7 +66,8 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
     }
 
     const update = (val) => {
-        const jsonStr = JSON.stringify(val);
+        let updatedData = {...collateral, ...val};
+        const jsonStr = JSON.stringify(updatedData);
         onUpdate(jsonStr);
     }
     console.log(fields);
@@ -143,8 +144,10 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                     fill
                     disabled={disabled}
                     onClick={() => { update(formValues);
-                        setViewLoan(false)}}
+                        }}
             />
         </div>
     )
 }
+
+// setViewLoan(false)

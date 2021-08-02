@@ -40,6 +40,9 @@ export default function CheckApplication(props) {
 	const [option, setOption] = useState([]);
 	const [docsUploaded, setDocsUPloaded] = useState([]);
 	const [data, setData] = useState(null);
+  const [savedCollateral, setSavedCollateral] = useState(null);
+  const [modifiedCollateral, setModifiedCollateral] = useState(null);
+  const [collateralFlag, setCollateralFlag] = useState("null");
 
 	//changes
 	const [loading, setLoading] = useState(false);
@@ -89,6 +92,15 @@ export default function CheckApplication(props) {
 				// getGroupedDocs(props.item?.loan_ref_id).then((val) =>
 				//   setDocsUPloaded(val)
 				// );
+
+        if (loanDetails?.collateralData) {
+          if (loanDetails.collateralData?.modified_collateral) {
+            setSavedCollateral(loanDetails.collateralData?.modified_collateral);
+          } else if (loanDetails?.collateralData?.saved_collateral) {
+            setSavedCollateral(loanDetails.collateralData?.saved_collateral);
+          }
+          setCollateralFlag("saved");
+        }
 			}
 		});
 		if (data) {
@@ -475,13 +487,22 @@ export default function CheckApplication(props) {
 										/>
 									)}
 									{e === sec.sec_4 && (
-										<section>
-											<CollateralsDetails
-												loanId={props?.item?.id}
-												product={props.product}
-												disabled={disabled}
-												setViewLoan={props.setViewLoan}
-											/>
+										<section>{
+                      collateralFlag === 'saved' ?
+                      <CollateralsDetails 
+                        savedCollateral={savedCollateral} 
+                        loanId={props?.item?.id}
+                        product={props.product}
+                        disabled={disabled}
+                        setViewLoan={props.setViewLoan}/> 
+                      : <CollateralsDetails
+                        loanId={props?.item?.id}
+                        product={props.product}
+                        disabled={disabled}
+                        setViewLoan={props.setViewLoan}
+                      />
+                      }
+											
 										</section>
 									)}
 									{e === sec.sec_5 && (
