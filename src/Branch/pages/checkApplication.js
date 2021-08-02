@@ -496,6 +496,8 @@ export default function CheckApplication(props) {
 											setComment={setComment}
 											reassignLoan={reassignLoan}
 											comment={comment}
+                      setError={setError}
+											setMessage={setMessage}
 											e={e}
 											d={d}
 										/>
