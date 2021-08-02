@@ -88,9 +88,9 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const onProceed = data => {
 		onSave(data);
 		setCompleted(id);
-		// if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-		// 	map.main = 'document-upload';
-		// }
+		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+			map.main = 'document-upload';
+		}
 		onFlowChange(map.main);
 	};
 
