@@ -224,13 +224,6 @@ export default function SearchSelect({
       value.toLowerCase().includes(searchKey.toLowerCase())
   );
 
-  const onFocusOut = (event) => {
-    if (!event.relatedTarget) {
-      setOptionShow(false);
-    }
-    // console.log(event.currentTarget);
-  };
-
   return (
     <>
       <Wrapper ref={compRef}>
