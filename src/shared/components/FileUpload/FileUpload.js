@@ -12,7 +12,7 @@ import FilePasswordInput from './FilePasswordInput';
 
 const USER_CANCELED = 'user cancelled';
 
-const FINANCIAL_DOC_TYPES = 'Financial';
+const FINANCIAL_DOC_TYPES = ['Financial', 'Financial Documents'].map(fileTypes => fileTypes.toLowerCase());
 
 const Dropzone = styled.div`
 	width: 100%;

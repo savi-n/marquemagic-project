@@ -23,6 +23,9 @@ export default function EligibilitySection({
   comment,
   e,
   d,
+  setError,
+  setMessage,
+  
 }) {
   const amountConverter = (value, name) => {
     if (amountFields.includes(name)) {
@@ -140,7 +143,7 @@ export default function EligibilitySection({
         <section className="flex gap-x-2 fixed bottom-0 pr-10 pl-2 rounded pb-4 pt-3 bg-gray-400  items-center ">
           <input
             placeholder="Add Comment"
-            className="p-1 rounded-md px-2 focus:outline-none"
+            className="p-1 rounded-md px-2 focus:outline-none" 
             onChange={(e) => setComment(e.target.value)}
           />
 
@@ -149,7 +152,20 @@ export default function EligibilitySection({
             type="blue-light"
             size="small"
             onClick={() => {
-              reassignLoan(item.id, null, comment);
+              reassignLoan(item.id, null, comment).then((res) => {
+                if (res === "Error in uploading") {
+                  setError(true);
+                  setTimeout(() => {
+                    setError(false);
+                  }, 4000);
+                } else {
+                  setMessage(true);
+                  setTimeout(() => {
+                    setMessage(false);
+                  }, 4000);
+                  setComment([]);
+                }
+              });
             }}
           >
             Add comment

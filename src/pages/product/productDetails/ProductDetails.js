@@ -90,7 +90,7 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
             <ul>
               {productDetails.li.map((l) =>
                 Array.isArray(l) ? (
-                  <ul style={{ marginLeft: "40px" }}>
+                  <ul key={uuidv4()} style={{ marginLeft: "40px" }}>
                     {l.map((sub) => (
                       <SubLi
                         dangerouslySetInnerHTML={{ __html: sub }}

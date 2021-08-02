@@ -70,7 +70,9 @@ export default function FilePasswordInput({
 }) {
   const inputRef = useRef();
 
-  const onClick = () => {
+  const onClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     onClickCallback(fileId, inputRef.current.value);
   };
 

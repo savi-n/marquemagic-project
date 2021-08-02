@@ -22,6 +22,7 @@ import {
 } from "../utils/requests";
 
 import DownloadSection from "./DownloadSection";
+import CardFileUpload from "./CardFileUpload";
 
 export default function SharedCAT({
   getCLicker,
@@ -144,54 +145,13 @@ export default function SharedCAT({
   };
 
   const upload = () => (
-    <section className="rounded-md flex flex-col gap-y-4 justify-end z-20 bg-white pl-10 w-full">
-      <section className="h-auto overflow-hidden">
-        <FileUpload
-          accept=""
-          upload={{
-            url: DOCS_UPLOAD_URL_LOAN({
-              userid: item?.createdUserId,
-            }),
-            header: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }}
-          docTypeOptions={option}
-          branch={true}
-          changeHandler={changeHandler}
-          onRemoveFile={(e) => removeHandler(e)}
-          docsPush={true}
-          docs={docs}
-          loan_id={item?.createdUserId}
-          directorId={item?.directors?.[0].id}
-          setDocs={setDocs}
-        />
-      </section>
-      <section className="w-full gap-x-4 flex justify-end">
-        <Button
-          disabled={docs.length === 0}
-          type="blue"
-          size="small"
-          rounded="rfull"
-          onClick={() => {
-            borrowerDocUpload(docs).then((res) => {
-              setDocs([]);
-            });
-            getCLicker(null);
-          }}
-        >
-          Submit
-        </Button>
-        <Button
-          type="blue-light"
-          size="small"
-          rounded="rfull"
-          onClick={() => getCLicker(null)}
-        >
-          Cancel
-        </Button>
-      </section>
-    </section>
+    <CardFileUpload
+      item={item}
+      option={option}
+      getCLicker={getCLicker}
+      docs={docs}
+      userToken={localStorage.getItem("token")}
+    />
   );
 
   const reconsider = () => (
