@@ -4,7 +4,7 @@ import {
     getLoanDetails,
     getLoan,
 } from "../utils/requests";
-
+import Loading from "../../components/Loading";
 
 export default function Collateral({collateral, loanId, product, onUpdate,disabled, setViewLoan}) {
     const [data, setData] = useState(null);
@@ -22,9 +22,7 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
         getLoanDetails(loanId).then((loanDetails) => {
             if (loanDetails) {
                 setData(loanDetails);
-            }
-            setLoading(false);
-                
+            }               
             if (loanDetails) {
                 getLoan().then((resp) => {
                 resp.data?.map(
@@ -39,20 +37,19 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                         })
                     )
                 );
+                setLoading(false);
             });
-          }
+
+            }
         });
-        
       }, []);
 
     const gateway = data => {
         Object.keys(collateral).map(
             key => {
-                if(key == 'accountDetails'){}
-                else if (key === data?.db_name){
+                if (key !== 'accountDetails' && key === data?.db_name){
                     data.default_value = collateral[key];
-                }
-                  
+                } 
             }
         )
         if(data.type === 'select') {
@@ -60,18 +57,20 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                 {data.options.map(op => <option name={op.name} value={op.value} >{op.name}</option>)}
             </select>
         } else {
-            return <input name={data.name} disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} defaultValue={data.default_value} />
+            return <input name={data.db_name} disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} defaultValue={data.default_value} />
 
         }
     }
 
     const update = (val) => {
-        const jsonStr = JSON.stringify(val);
+        let updatedData = {...collateral, ...val};
+        const jsonStr = JSON.stringify(updatedData);
         onUpdate(jsonStr);
     }
     console.log(fields);
-    return (
+    return !loading ? (
         <div>
+            
            <section className="flex flex-col gap-y-5 w-8/12">
                 <div className="text-blue-600 font-medium text-xl py-8">
                     Collateral details
@@ -143,8 +142,18 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                     fill
                     disabled={disabled}
                     onClick={() => { update(formValues);
-                        setViewLoan(false)}}
+                        setViewLoan(false);
+                        }}
             />
         </div>
+    ): (
+        loading && (
+            <section className="flex items-center justify-center">
+                <section className="w-full">
+                    <Loading />
+                </section>
+            </section>)
     )
 }
+
+// setViewLoan(false)
