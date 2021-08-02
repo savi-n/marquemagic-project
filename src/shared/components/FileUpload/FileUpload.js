@@ -1,163 +1,165 @@
-import { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload, faUnlockAlt } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpload, faUnlockAlt } from "@fortawesome/free-solid-svg-icons";
 
-import useFetch from '../../../hooks/useFetch';
-import generateUID from '../../../utils/uid';
-import { NC_STATUS_CODE } from '../../../_config/app.config';
-import FilePasswordInput from './FilePasswordInput';
+import useFetch from "../../../hooks/useFetch";
+import generateUID from "../../../utils/uid";
+import { NC_STATUS_CODE } from "../../../_config/app.config";
+import FilePasswordInput from "./FilePasswordInput";
 
-const USER_CANCELED = 'user cancelled';
+const USER_CANCELED = "user cancelled";
 
-const FINANCIAL_DOC_TYPES = ['Financial', 'Financial Documents'].map(fileTypes => fileTypes.toLowerCase());
+const FINANCIAL_DOC_TYPES = ["Financial", "Financial Documents"].map(
+  (fileTypes) => fileTypes.toLowerCase()
+);
 
 const Dropzone = styled.div`
-	width: 100%;
-	min-height: 150px;
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 10px;
-	background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
-	border-radius: 20px;
-	overflow: hidden;
+  width: 100%;
+  min-height: 150px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
+  border-radius: 20px;
+  overflow: hidden;
 
-	${({ dragging }) =>
-		dragging &&
-		`border: dashed grey 4px;
+  ${({ dragging }) =>
+    dragging &&
+    `border: dashed grey 4px;
         background-color: rgba(255,255,255,.8);
         z-index: 9999;`}
 
-	${({ uploading }) =>
-		uploading &&
-		`
+  ${({ uploading }) =>
+    uploading &&
+    `
       pointer-events: none;
     `}
 	
   &::after {
-		${({ uploading }) =>
-			uploading &&
-			`
+    ${({ uploading }) =>
+      uploading &&
+      `
         content:'Uploading...';
       `}
-		inset: 0 0 0 0;
-		border-radius: 20px;
-		position: absolute;
-		background: rgba(0, 0, 0, 0.7);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 1.8em;
-		font-weight: 500;
-		color: white;
-		z-index: 999;
-		pointer-events: none;
-	}
+    inset: 0 0 0 0;
+    border-radius: 20px;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    font-weight: 500;
+    color: white;
+    z-index: 999;
+    pointer-events: none;
+  }
 `;
 
 const Caption = styled.p`
-	font-size: 15px;
-	font-weight: 400;
+  font-size: 15px;
+  font-weight: 400;
 `;
 
 const AcceptFilesTypes = styled.span`
-	font-size: 12px;
-	color: red;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  font-size: 12px;
+  color: red;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const UploadButton = styled.input`
-	display: none;
+  display: none;
 `;
 
 const Label = styled.label`
-	padding: 10px 15px;
-	color: #fff;
-	font-size: 15px;
-	cursor: pointer;
-	background: ${({ theme, bg }) => bg ?? theme.upload_button_color};
-	border-radius: 5px;
+  padding: 10px 15px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  background: ${({ theme, bg }) => bg ?? theme.upload_button_color};
+  border-radius: 5px;
 `;
 
 const Droping = styled.div`
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(255, 255, 255);
-	font-size: 20px;
-	z-index: 9999;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255);
+  font-size: 20px;
+  z-index: 9999;
 `;
 
 const FileListWrap = styled.div`
-	display: flex;
-	align-items: center;
-	/* gap: calc(10% / 3); */
-	justify-content: space-between;
-	flex-wrap: wrap;
-	margin: 10px;
+  display: flex;
+  align-items: center;
+  /* gap: calc(10% / 3); */
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 10px;
 `;
 
 const File = styled.div`
-	/* flex-basis: 30%; */
-	width: 100%;
-	position: relative;
-	/* overflow: hidden; */
-	padding: 5px;
-	background: rgba(0, 0, 0, 0.1);
-	border-radius: 5px;
-	height: 50px;
-	font-size: 13px;
-	margin: 10px 0;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	transition: 0.2s;
+  /* flex-basis: 30%; */
+  width: 100%;
+  position: relative;
+  /* overflow: hidden; */
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  height: 50px;
+  font-size: 13px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: 0.2s;
 
-	&::after {
-		content: '';
-		bottom: 0;
-		left: 0;
-		position: absolute;
-		width: ${({ progress }) => `${progress}%`};
-		height: 2px;
-		background: ${({ theme, status }) => {
-			if (['error', 'cancelled'].includes(status)) return '#ff0000';
-			return theme.buttonColor2 || 'blue';
-		}};
-	}
+  &::after {
+    content: "";
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    width: ${({ progress }) => `${progress}%`};
+    height: 2px;
+    background: ${({ theme, status }) => {
+      if (["error", "cancelled"].includes(status)) return "#ff0000";
+      return theme.buttonColor2 || "blue";
+    }};
+  }
 `;
 
 const PasswordWrapper = styled.div`
-	position: relative;
+  position: relative;
 `;
 
 const RoundButton = styled.div`
-	/* padding: 10px; */
-	background: white;
-	border-radius: 50%;
-	cursor: pointer;
-	width: 30px;
-	height: 30px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: relative;
+  /* padding: 10px; */
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 
-	${({ showTooltip }) =>
-		showTooltip &&
-		`&:hover {
+  ${({ showTooltip }) =>
+    showTooltip &&
+    `&:hover {
       &::before {
         content: "If the document is password protected, please help us with the Password.";
         position: absolute;
@@ -188,370 +190,404 @@ const RoundButton = styled.div`
 `;
 
 const SelectDocType = styled.select`
-	height: 40px;
-	padding: 10px;
-	width: 40%;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 6px;
-	color: black;
-	outline: none;
+  height: 40px;
+  padding: 10px;
+  width: 40%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  color: black;
+  outline: none;
 `;
 
 const FileName = styled.span`
-	width: 50%;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
+  width: 50%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const CancelBtn = styled.span`
-	background: #f16a6a;
-	border-radius: 50%;
-	width: 20px;
-	height: 20px;
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 11px;
-	font-weight: 700;
-	cursor: pointer;
+  background: #f16a6a;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
 `;
 
 export default function FileUpload({
-	onDrop,
-	accept = '',
-	caption,
-	bg,
-	disabled = false,
-	upload = null,
-	onRemoveFile = id => {
-		console.log('REMOVED FILE ' + id);
-	},
-	docTypeOptions = [],
-	documentTypeChangeCallback = (id, value) => {
-		console.log('DOCUMENT TYPE CHANGED ' + id);
-	},
-	changeHandler,
-	branch,
-	docs,
-	setDocs,
-	docsPush,
-	loan_id,
-	directorId,
-	pan
+  onDrop,
+  accept = "",
+  caption,
+  bg,
+  disabled = false,
+  upload = null,
+  onRemoveFile = (id) => {
+    console.log("REMOVED FILE " + id);
+  },
+  docTypeOptions = [],
+  documentTypeChangeCallback = (id, value) => {
+    console.log("DOCUMENT TYPE CHANGED " + id);
+  },
+  changeHandler,
+  branch,
+  docs,
+  setDocs,
+  docsPush,
+  loan_id,
+  directorId,
+  pan,
 }) {
-	const ref = useRef(uuidv4());
+  const ref = useRef(uuidv4());
 
-	const id = uuidv4();
+  const id = uuidv4();
 
-	const [dragging, setDragging] = useState(false);
-	const [uploading, setUploading] = useState(false);
-	const [uploadingFiles, setUploadingFiles] = useState([]);
-	const [passwordForFileId, setPasswordForFileId] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState([]);
+  const [passwordForFileId, setPasswordForFileId] = useState(null);
 
-	const [docTypeFileMap, setDocTypeFileMap] = useState({});
+  const [docTypeFileMap, setDocTypeFileMap] = useState({});
 
-	const selectedFiles = useRef([]);
-	const uploadingProgressFiles = useRef([]);
-	const { newRequest } = useFetch();
+  const selectedFiles = useRef([]);
+  const uploadingProgressFiles = useRef([]);
+  const { newRequest } = useFetch();
 
-	let refCounter = 0;
+  let refCounter = 0;
 
-	const onCancel = (file, status) => {
-		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
-			if (uFile.id === file.id) {
-				return {
-					...uFile,
-					status
-				};
-			}
+  const onCancel = (file, status) => {
+    const uploadFiles = uploadingProgressFiles.current.map((uFile) => {
+      if (uFile.id === file.id) {
+        return {
+          ...uFile,
+          status,
+        };
+      }
 
-			return uFile;
-		});
-		uploadingProgressFiles.current = uploadFiles;
-		setUploadingFiles(uploadFiles);
-	};
+      return uFile;
+    });
+    uploadingProgressFiles.current = uploadFiles;
+    setUploadingFiles(uploadFiles);
+  };
 
-	const onFileRemove = file => {
-		const uploadFiles = uploadingProgressFiles.current.filter(uFile => uFile.id !== file.id);
-		uploadingProgressFiles.current = uploadFiles;
-		onRemoveFile(file.id);
-		setUploadingFiles(uploadFiles);
-	};
+  const onFileRemove = (file) => {
+    const uploadFiles = uploadingProgressFiles.current.filter(
+      (uFile) => uFile.id !== file.id
+    );
+    uploadingProgressFiles.current = uploadFiles;
+    onRemoveFile(file.id);
+    setUploadingFiles(uploadFiles);
+  };
 
-	const onProgress = (event, file) => {
-		if (!uploadingProgressFiles.current.length) {
-			return;
-		}
+  const onProgress = (event, file) => {
+    if (!uploadingProgressFiles.current.length) {
+      return;
+    }
 
-		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
-			if (uFile.id === file.id) {
-				const percentageCompleted = ((event.loaded / event.total) * 100).toFixed();
+    const uploadFiles = uploadingProgressFiles.current.map((uFile) => {
+      if (uFile.id === file.id) {
+        const percentageCompleted = (
+          (event.loaded / event.total) *
+          100
+        ).toFixed();
 
-				return {
-					...uFile,
-					progress: percentageCompleted,
-					status: Number(percentageCompleted) === 100 ? 'completed' : 'progress'
-				};
-			}
+        return {
+          ...uFile,
+          progress: percentageCompleted,
+        };
+      }
+      // status:
+      // Number(percentageCompleted) === 100 ? "completed" : "progress",
+      return uFile;
+    });
+    uploadingProgressFiles.current = uploadFiles;
+    setUploadingFiles(uploadFiles);
+  };
 
-			return uFile;
-		});
-		uploadingProgressFiles.current = uploadFiles;
-		setUploadingFiles(uploadFiles);
-	};
+  const handleUpload = async (files) => {
+    let filesToUpload = [];
+    for (let i = 0; i < files.length; i++) {
+      const source = axios.CancelToken.source();
 
-	const handleUpload = async files => {
-		let filesToUpload = [];
-		for (let i = 0; i < files.length; i++) {
-			const source = axios.CancelToken.source();
+      const id = generateUID();
 
-			const id = generateUID();
+      filesToUpload.push({
+        id,
+        name: files[i].name,
+        file: files[i],
+        progress: 0,
+        status: "progress",
+        cancelToken: source,
+      });
+    }
 
-			filesToUpload.push({
-				id,
-				name: files[i].name,
-				file: files[i],
-				progress: 0,
-				status: 'progress',
-				cancelToken: source
-			});
-		}
+    uploadingProgressFiles.current = [
+      ...uploadingProgressFiles.current,
+      ...filesToUpload,
+    ];
 
-		uploadingProgressFiles.current = [...uploadingProgressFiles.current, ...filesToUpload];
+    setUploading(true);
+    setUploadingFiles(uploadingProgressFiles.current);
 
-		setUploading(true);
-		setUploadingFiles(uploadingProgressFiles.current);
+    return await Promise.all(
+      filesToUpload.map((file) => {
+        const formData = new FormData();
+        formData.append("document", file.file);
 
-		return await Promise.all(
-			filesToUpload.map(file => {
-				if (!pan) {
-					const formData = new FormData();
-					formData.append('document', file.file);
+        return newRequest(
+          upload.url,
+          {
+            method: "POST",
+            data: formData,
+            onUploadProgress: (event) => onProgress(event, file),
+            cancelToken: file.cancelToken.token,
+          },
+          upload.header ?? {}
+        )
+          .then((res) => {
+            if (res.data.status === NC_STATUS_CODE.OK) {
+              const resFile = res.data.files[0];
+              const uploadfile = {
+                id: file.id,
+                doc_type_id: "1",
+                status: resFile.status,
+                upload_doc_name: resFile.filename,
+                document_key: resFile.fd,
+                size: resFile.size,
+              };
+              if (docsPush) {
+                uploadfile["loan_id"] = loan_id;
+                uploadfile["directorId"] = directorId;
+                setDocs([...docs, uploadfile]);
+              }
+              return uploadfile;
+            }
+            // return res.data.files[0];
+            return { ...file, status: "error" };
+          })
+          .catch((err) => {
+            console.log(err);
+            if (err.message === USER_CANCELED) {
+              onCancel(file, "cancelled");
+            } else {
+              onCancel(file, "error");
+            }
+            return { ...file, status: "error", error: err };
+          });
+      })
+    ).then((files) => {
+      setUploading(false);
+      uploadingProgressFiles.current = uploadingProgressFiles.current.map(
+        (files) => ({ ...files, status: "completed" })
+      );
 
-					return newRequest(
-						upload.url,
-						{
-							method: 'POST',
-							data: formData,
-							onUploadProgress: event => onProgress(event, file),
-							cancelToken: file.cancelToken.token
-						},
-						upload.header ?? {}
-					)
-						.then(res => {
-							if (res.data.status === NC_STATUS_CODE.OK) {
-								const resFile = res.data.files[0];
+      setUploadingFiles(uploadingProgressFiles.current);
+      return files.filter((file) => file.status !== "error");
+    });
+  };
 
-								const uploadfile = {
-									id: file.id,
-									doc_type_id: '1',
-									upload_doc_name: resFile.filename,
-									document_key: resFile.fd,
-									size: resFile.size
-								};
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
-								if (docsPush) {
-									uploadfile['loan_id'] = loan_id;
-									uploadfile['directorId'] = directorId;
-									setDocs([...docs, uploadfile]);
-								}
+  const handleDragIn = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    ++refCounter;
 
-								return uploadfile;
-							}
-							// return res.data.files[0];
-							return { ...file, status: 'error' };
-						})
-						.catch(err => {
-							console.log(err);
-							if (err.message === USER_CANCELED) {
-								onCancel(file, 'cancelled');
-							} else {
-								onCancel(file, 'error');
-							}
-							return { ...file, status: 'error', error: err };
-						});
-				}
-			})
-		).then(files => {
-			setUploading(false);
-			if (pan) {
-				setDocs([filesToUpload[0]]);
-				return [filesToUpload[0]];
-			}
-			return files.filter(file => file.status !== 'error');
-		});
-	};
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setDragging(true);
+    }
+  };
 
-	const handleDrag = e => {
-		e.preventDefault();
-		e.stopPropagation();
-	};
+  const handleDragOut = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    --refCounter;
 
-	const handleDragIn = e => {
-		e.preventDefault();
-		e.stopPropagation();
-		++refCounter;
+    if (!refCounter) setDragging(false);
+  };
 
-		if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-			setDragging(true);
-		}
-	};
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragging(false);
 
-	const handleDragOut = e => {
-		e.preventDefault();
-		e.stopPropagation();
-		--refCounter;
+    let files = [...event.dataTransfer.files];
+    if (accept) {
+      files = files.filter((file) => accept.includes(file.type.split("/")[1]));
+    }
 
-		if (!refCounter) setDragging(false);
-	};
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      if (upload) {
+        files = await handleUpload(files);
+      }
+      onDrop(files);
 
-	const handleDrop = async event => {
-		event.preventDefault();
-		event.stopPropagation();
-		setDragging(false);
+      files = [...selectedFiles.current, ...files];
+      selectedFiles.current = files;
 
-		let files = [...event.dataTransfer.files];
-		if (accept) {
-			files = files.filter(file => accept.includes(file.type.split('/')[1]));
-		}
+      event.dataTransfer.clearData();
+      refCounter = 0;
+    }
+  };
 
-		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-			if (upload) {
-				files = await handleUpload(files);
-			}
-			onDrop(files);
+  const onChange = async (event) => {
+    let files = [...event.target.files];
+    if (upload) {
+      files = await handleUpload(files);
+    }
+    onDrop(files);
 
-			files = [...selectedFiles.current, ...files];
-			selectedFiles.current = files;
+    selectedFiles.current = [...selectedFiles.current, ...event.target.files];
+  };
 
-			event.dataTransfer.clearData();
-			refCounter = 0;
-		}
-	};
+  const onDocTypeChange = (fileId, value) => {
+    const selectedDocType = docTypeOptions.find(
+      (d) => d?.name?.toString() === value
+    );
 
-	const onChange = async event => {
-		let files = [...event.target.files];
-		if (upload) {
-			files = await handleUpload(files);
-		}
-		onDrop(files);
+    documentTypeChangeCallback(fileId, selectedDocType);
+    setDocTypeFileMap({
+      ...docTypeFileMap,
+      [fileId]: selectedDocType, //value
+    });
+  };
 
-		selectedFiles.current = [...selectedFiles.current, ...event.target.files];
-	};
+  useEffect(() => {
+    let div = ref.current;
 
-	const onDocTypeChange = (fileId, value) => {
-		const selectedDocType = docTypeOptions.find(d => d?.name?.toString() === value);
+    div.addEventListener("dragenter", handleDragIn);
+    div.addEventListener("dragleave", handleDragOut);
+    div.addEventListener("dragover", handleDrag);
+    div.addEventListener("drop", handleDrop);
+    div.addEventListener("dragend", handleDrag);
 
-		documentTypeChangeCallback(fileId, selectedDocType);
-		setDocTypeFileMap({
-			...docTypeFileMap,
-			[fileId]: value
-		});
-	};
+    return () => {
+      div.removeEventListener("dragenter", handleDragIn);
+      div.removeEventListener("dragleave", handleDragOut);
+      div.removeEventListener("dragover", handleDrag);
+      div.removeEventListener("drop", handleDrop);
+      div.removeEventListener("dragend", handleDrag);
+    };
+  }, []);
 
-	useEffect(() => {
-		let div = ref.current;
+  const onPasswordClick = (fileId) => {
+    setPasswordForFileId(fileId);
+  };
 
-		div.addEventListener('dragenter', handleDragIn);
-		div.addEventListener('dragleave', handleDragOut);
-		div.addEventListener('dragover', handleDrag);
-		div.addEventListener('drop', handleDrop);
-		div.addEventListener('dragend', handleDrag);
+  const onClosePasswordEnterArea = () => {
+    setPasswordForFileId(null);
+  };
 
-		return () => {
-			div.removeEventListener('dragenter', handleDragIn);
-			div.removeEventListener('dragleave', handleDragOut);
-			div.removeEventListener('dragover', handleDrag);
-			div.removeEventListener('drop', handleDrop);
-			div.removeEventListener('dragend', handleDrag);
-		};
-	}, []);
+  const onDocTypePassword = (fileId, value) => {
+    if (value) {
+      documentTypeChangeCallback(fileId, { password: value });
+    }
+    onClosePasswordEnterArea();
+  };
 
-	const onPasswordClick = fileId => {
-		setPasswordForFileId(fileId);
-	};
+  const [docSelected, setDocSelected] = useState("");
 
-	const onClosePasswordEnterArea = () => {
-		setPasswordForFileId(null);
-	};
+  return (
+    <>
+      <Dropzone
+        ref={ref}
+        dragging={dragging}
+        bg={bg}
+        disabled={disabled}
+        uploading={uploading}
+      >
+        {dragging && <Droping>Drop here :)</Droping>}
+        <FontAwesomeIcon icon={faUpload} size="1x" />
+        <Caption>
+          {caption || `Drag and drop or`}{" "}
+          {accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
+        </Caption>
+        <UploadButton
+          type="file"
+          id={id}
+          onChange={onChange}
+          multiple
+          accept={accept}
+          disabled={disabled}
+        />
+        <Label htmlFor={id}>Select from your Computer</Label>
+      </Dropzone>
 
-	const onDocTypePassword = (fileId, value) => {
-		if (value) {
-			documentTypeChangeCallback(fileId, { password: value });
-		}
-		onClosePasswordEnterArea();
-	};
-
-	const [docSelected, setDocSelected] = useState('');
-
-	return (
-		<>
-			<Dropzone ref={ref} dragging={dragging} bg={bg} disabled={disabled} uploading={uploading}>
-				{dragging && <Droping>Drop here :)</Droping>}
-				<FontAwesomeIcon icon={faUpload} size='1x' />
-				<Caption>
-					{caption || `Drag and drop or`} {accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
-				</Caption>
-				<UploadButton type='file' id={id} onChange={onChange} multiple accept={accept} disabled={disabled} />
-				<Label htmlFor={id}>Select from your Computer</Label>
-			</Dropzone>
-
-			<FileListWrap>
-				{uploadingFiles.map(file => (
-					<File key={file.id} progress={file.progress} status={file.status} tooltip={file.name}>
-						<FileName>{file.name}</FileName>
-						{file.status === 'completed' && !!docTypeOptions.length && (
-							<>
-								<SelectDocType
-									value={branch ? docSelected : docTypeFileMap[file.id] || ''}
-									onChange={e => {
-										branch && setDocSelected(e.target.value);
-										branch
-											? changeHandler(e.target.value)
-											: onDocTypeChange(file.id, e.target.value);
-									}}
-								>
-									<option value='' disabled>
-										Select Document Type
-									</option>
-									{docTypeOptions.map(docType => (
-										<option key={docType.value} value={docType.name}>
-											{docType.name}
-										</option>
-									))}
-								</SelectDocType>
-								<PasswordWrapper>
-									<RoundButton
-										showTooltip={passwordForFileId !== file.id}
-										onClick={() => onPasswordClick(file.id)}
-									>
-										<FontAwesomeIcon icon={faUnlockAlt} size='1x' />
-									</RoundButton>
-									{passwordForFileId === file.id && (
-										<FilePasswordInput
-											fileId={file.id}
-											onClickCallback={onDocTypePassword}
-											onClose={onClosePasswordEnterArea}
-										/>
-									)}
-								</PasswordWrapper>
-							</>
-						)}
-						{file.status === 'progress' && (
-							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
-						)}
-						{file.status === 'completed' && (
-							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
-						)}
-					</File>
-				))}
-			</FileListWrap>
-		</>
-	);
+      <FileListWrap>
+        {uploadingFiles.map((file) => (
+          <File
+            key={file.id}
+            progress={file.progress}
+            status={file.status}
+            tooltip={file.name}
+          >
+            <FileName>{file.name}</FileName>
+            {file.status === "completed" && !!docTypeOptions.length && (
+              <>
+                <SelectDocType
+                  value={
+                    branch ? docSelected : docTypeFileMap[file.id]?.name || ""
+                  }
+                  onChange={(e) => {
+                    branch && setDocSelected(e.target.value);
+                    branch
+                      ? changeHandler(e.target.value)
+                      : onDocTypeChange(file.id, e.target.value);
+                  }}
+                >
+                  <option value="" disabled>
+                    Select Document Type
+                  </option>
+                  {docTypeOptions.map((docType) => (
+                    <option key={docType.value} value={docType.name}>
+                      {docType.name}
+                    </option>
+                  ))}
+                </SelectDocType>
+                {FINANCIAL_DOC_TYPES.includes(
+                  docTypeFileMap[file.id]?.main?.toLowerCase()
+                ) && (
+                  <PasswordWrapper>
+                    <RoundButton
+                      showTooltip={passwordForFileId !== file.id}
+                      onClick={() => onPasswordClick(file.id)}
+                    >
+                      <FontAwesomeIcon icon={faUnlockAlt} size="1x" />
+                    </RoundButton>
+                    {passwordForFileId === file.id && (
+                      <FilePasswordInput
+                        fileId={file.id}
+                        onClickCallback={onDocTypePassword}
+                        onClose={onClosePasswordEnterArea}
+                      />
+                    )}
+                  </PasswordWrapper>
+                )}
+              </>
+            )}
+            {file.status === "progress" && (
+              <CancelBtn onClick={() => file.cancelToken.cancel(USER_CANCELED)}>
+                &#10006;
+              </CancelBtn>
+            )}
+            {file.status === "completed" && (
+              <CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
+            )}
+          </File>
+        ))}
+      </FileListWrap>
+    </>
+  );
 }
 
 FileUpload.defaultProps = {
-	onDrop: () => {}
+  onDrop: () => {},
 };

@@ -120,7 +120,7 @@ export default function Applications({
     } else if (e.target.value.length > 2) {
       setSearch(true);
       setTimeout(() => {
-        searchData(e.target.value).then((res) => {
+        searchData(e.target.value, mapp[lActive]).then((res) => {
           setSearch(false);
           setData(res);
         });
@@ -175,7 +175,7 @@ export default function Applications({
             <input
               className="h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none  rounded-l-full"
               placeholder="Search application name, loan type, loan amount"
-              onChange={(e) => search(e)}
+              onChange={search}
             />
             <FontAwesomeIcon
               className="h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2"
