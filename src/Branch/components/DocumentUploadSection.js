@@ -15,6 +15,7 @@ import {
   DOWNLOAD_CASE_DOCUMENTS,
   VIEW_CASE_DOCUMENTS_LIST,
 } from "../../_config/branch.config";
+import { DOCUMENTS_TYPE_MAP } from "../../_config/key.config";
 
 const cooap = (data, type) => {
   return data?.directors.find(
@@ -251,7 +252,7 @@ export default function DocumentUploadSection({
         <section className="fixed overflow-scroll z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16">
           {Object.keys(docType).map((el) => (
             <section className="py-6">
-              <p className="font-semibold">{el}</p>
+              <p className="font-semibold">{DOCUMENTS_TYPE_MAP[el]}</p>
               {docType[el].map((doc) => (
                 <section>
                   <CheckBox

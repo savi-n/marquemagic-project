@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import "./styles/index.scss";
 import Tabs from "../shared/components/Tabs";
@@ -34,6 +34,8 @@ export default function Applications({
     Sanctioned: "Sanctioned",
     Rejected: "Rejected",
   };
+
+  const searchRef = useRef();
 
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
@@ -76,7 +78,10 @@ export default function Applications({
       length={data && data.length}
       k={item.label}
       active={lActive === item.label}
-      click={setLActive}
+      click={(event) => {
+        searchRef.current.value = "";
+        setLActive(event);
+      }}
       align="vertical"
       lActive={lActive}
       setData={setData}
@@ -176,6 +181,7 @@ export default function Applications({
               className="h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none  rounded-l-full"
               placeholder="Search application name, loan type, loan amount"
               onChange={search}
+              ref={searchRef}
             />
             <FontAwesomeIcon
               className="h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2"
