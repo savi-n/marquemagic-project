@@ -303,6 +303,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 			}
 		} else {
+			console.log(aadhar, voter, otherDoc);
 			if (aadhar.length > 0) {
 				handleUpload(aadhar[0].file);
 			}
@@ -361,6 +362,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [panNum, setPan] = useState(null);
 
 	const handlePanUpload = files => {
+		setLoading(true);
 		const formData = new FormData();
 		formData.append('req_type', 'pan');
 		formData.append('process_type', 'extraction');
@@ -377,11 +379,21 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				});
 			} else {
 				setPan(res.data.data['Pan_number']);
+				localStorage.getItem('pan', res.data.data['Pan_number']);
 				formState.values.panNumber = res.data.data['Pan_number'];
 				formState.values.companyName = res.data.data['Name'];
-				localStorage.setItem('formstate', JSON.stringify(formState));
+				formState.values.dob = res.data.data['DOB'];
+				localStorage.getItem('DOB', res.data.data['DOB']);
+				localStorage.setItem('formstatepan', JSON.stringify(formState));
 				if (productType === 'business') {
-					if (!res.data.data['Name'].toLowerCase().includes('private limited')) {
+					if (
+						!(
+							res.data.data['Name'].toLowerCase().includes('private limited') ||
+							res.data.data['Name'].toLowerCase().includes('public limited') ||
+							res.data.data['Name'].toLowerCase().includes('limited') ||
+							res.data.data['Name'].toLowerCase().includes('pvt ltd')
+						)
+					) {
 						setBusiness(false);
 						setPanUpload(false);
 					} else {
@@ -393,6 +405,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 				setResponse(res.data);
 			}
+			setLoading(false);
 		});
 	};
 
@@ -415,6 +428,12 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			return 'voter';
 		}
 	};
+	const [backUpload, setBackUpload] = useState(false);
+	const [backUploading, setBackUploading] = useState(false);
+
+	useEffect(() => {
+		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0) setBackUpload(true);
+	}, [otherDoc, aadhar, voter]);
 
 	const handleUpload = files => {
 		const fileType = t();
@@ -430,7 +449,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				});
 			} else {
 				const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
-				formState.values.aadhaar = res?.data?.data?.Aadhar_number;
+				formState.values.aadhaar = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '');
+				localStorage.setItem('aadhar', res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, ''));
 				formState.values.dob = res?.data?.data?.DOB;
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
@@ -488,7 +508,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							{uploadOtherDocs ? (
 								<>
 									<p className='py-4 text-xl text-green-600'>
-										Upload your DL{' '}
+										Upload {backUploading && 'back picture of'} your DL{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -509,7 +529,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										setDocs={setOtherDoc}
 									/>
 									<p className='py-4 text-xl text-green-600'>
-										Upload your Aadhar{' '}
+										Upload {backUploading && 'back picture of'} your Aadhar{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -530,7 +550,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										setDocs={setAadhar}
 									/>
 									<p className='py-4 text-xl text-green-600'>
-										Upload your Voter ID{' '}
+										Upload {backUploading && 'back picture of'} your Voter ID{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -634,35 +654,42 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						</section>
 					</Modal>
 				)}
-				{selectDoc && (
-					<Modal>
-						<section className='p-4 flex flex-col gap-y-8'>
-							<span className='font-bold text-lg'>Please select doc type</span>
-							<section className='flex gap-x-4 items-center'>
-								<section>
-									<label>DL</label>
-									<input type='radio' name='doctype' value='DL' />
-								</section>
-								<section>
-									<label>Aadhar</label>
-									<input type='radio' name='doctype' value='aadhar' />
-								</section>
-								<section>
-									<label>VoterID</label>
-									<input type='radio' name='doctype' value='voter' />
-								</section>
+				{backUpload &&
+					!panUpload &&
+					(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
+					!backUploading && (
+						<Modal
+							show={backUpload}
+							onClose={() => {
+								setBackUpload(false);
+							}}
+							width='30%'
+						>
+							<span className='px-4 font-bold'>Upload back part of the document?</span>
+							<section className='p-4 py-16 flex gap-x-8'>
+								<Button
+									name='Yes'
+									fill
+									onClick={() => {
+										setBackUploading(true);
+										setBackUpload(false);
+										setAadhar([]);
+										setVoter([]);
+										setOtherDoc([]);
+									}}
+								/>
+								<Button
+									name='No'
+									fill
+									onClick={() => {
+										setBackUpload(false);
+
+										handleUpload();
+									}}
+								/>
 							</section>
-							<Button
-								name='Submit'
-								fill
-								onClick={() => {
-									selectDocs(false);
-								}}
-								disabled={!formState?.values?.panNumber}
-							/>
-						</section>
-					</Modal>
-				)}
+						</Modal>
+					)}
 			</>
 		)
 	);
