@@ -266,7 +266,7 @@ export default function DocumentUploadSection({
             accept=""
             upload={{
               url: DOCS_UPLOAD_URL_LOAN({
-                userid: cooap(loanData, "Co-Applicant")?.id,
+                userId: cooap(loanData, "Co-Applicant")?.id,
               }),
               header: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,

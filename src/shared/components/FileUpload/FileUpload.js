@@ -299,11 +299,10 @@ export default function FileUpload({
         return {
           ...uFile,
           progress: percentageCompleted,
-          status:
-            Number(percentageCompleted) === 100 ? "completed" : "progress",
         };
       }
-
+      // status:
+      // Number(percentageCompleted) === 100 ? "completed" : "progress",
       return uFile;
     });
     uploadingProgressFiles.current = uploadFiles;
@@ -356,6 +355,7 @@ export default function FileUpload({
               const uploadfile = {
                 id: file.id,
                 doc_type_id: "1",
+                status: resFile.status,
                 upload_doc_name: resFile.filename,
                 document_key: resFile.fd,
                 size: resFile.size,
@@ -382,6 +382,11 @@ export default function FileUpload({
       })
     ).then((files) => {
       setUploading(false);
+      uploadingProgressFiles.current = uploadingProgressFiles.current.map(
+        (files) => ({ ...files, status: "completed" })
+      );
+
+      setUploadingFiles(uploadingProgressFiles.current);
       return files.filter((file) => file.status !== "error");
     });
   };
