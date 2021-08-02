@@ -247,11 +247,12 @@ export const getGroupedDocs = async (
 	return t?.data?.data;
 };
 
-export const verification = async (businessId, token = localStorage.getItem('token')) => {
+export const verification = async (businessId, token) => {
 	const g = await axios.get(`${ENDPOINT_BANK}/verificationDataApi_uiux`, {
-		headers: { Authorization: `Bearer ${token}` },
+		headers: { Authorization: token },
 		params: { businessId }
 	});
 	const t = await g;
 	console.log(t);
+	return t;
 };
