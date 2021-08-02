@@ -117,7 +117,7 @@ function formatCompanyDataGST(data) {
 	let businesType;
 
 	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t => data.tradeNam.toLowerCase().includes(t));
+		const typeAllowed = type[0].find(t => data.tradeNam?.toLowerCase().includes(t));
 
 		if (typeAllowed) {
 			businesType = type[1];
@@ -303,7 +303,15 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 			}
 		} else {
-			handleUpload(otherDoc[0].file);
+			if (aadhar.length > 0) {
+				handleUpload(aadhar[0].file);
+			}
+			if (voter.length > 0) {
+				handleUpload(voter[0].file);
+			}
+			if (otherDoc.length > 0) {
+				handleUpload(otherDoc[0].file);
+			}
 		}
 
 		setLoading(false);
@@ -347,6 +355,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [openConfirm, setPanConfirm] = useState(false);
 	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
 	const [otherDoc, setOtherDoc] = useState([]);
+	const [aadhar, setAadhar] = useState([]);
+	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
 	const [panNum, setPan] = useState(null);
 
@@ -358,6 +368,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 		getKYCData(formData, clientToken).then(res => {
 			if (res.data.status === 'nok') {
+				if (productType === 'salaried') {
+					setPanConfirm(true);
+				}
 				addToast({
 					message: res.data.message,
 					type: 'error'
@@ -391,10 +404,22 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		return formatedData;
 	}
 
+	const t = () => {
+		if (otherDoc.length > 0) {
+			return 'DL';
+		}
+		if (aadhar.length > 0) {
+			return 'aadhar';
+		}
+		if (voter.length > 0) {
+			return 'voter';
+		}
+	};
+
 	const handleUpload = files => {
-		setOtherDoc([]);
+		const fileType = t();
 		const formData = new FormData();
-		formData.append('req_type', 'aadhar');
+		formData.append('req_type', fileType);
 		formData.append('process_type', 'extraction');
 		formData.append('document', files);
 		getKYCData(formData, clientToken).then(res => {
@@ -404,13 +429,16 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					type: 'error'
 				});
 			} else {
-				const name = res.data?.data?.Name.split(' ');
+				const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
 				formState.values.aadhaar = res?.data?.data?.Aadhar_number;
 				formState.values.dob = res?.data?.data?.DOB;
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
 				formState.values.panNumber = panNum;
 				localStorage.setItem('formstate', JSON.stringify(formState));
+				setOtherDoc([]);
+				setAadhar([]);
+				setVoter([]);
 				onProceed();
 			}
 		});
@@ -422,7 +450,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				<Colom1>
 					{panUpload ? (
 						<section className='flex flex-col gap-y-6'>
-							<p className='py-4 text-xl text-green-600'>Upload your PAN Card</p>
+							<p className='py-4 text-xl text-green-600'>
+								Upload your PAN Card <span className='text-xs'>supported formats - jpeg, png, jpg</span>
+							</p>
 							<FileUpload
 								accept=''
 								upload={{
@@ -457,7 +487,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						<form onSubmit={handleSubmit(onSubmit)}>
 							{uploadOtherDocs ? (
 								<>
-									<p className='py-4 text-xl text-green-600'>Upload your DL/Aadhar/VoterID Card</p>
+									<p className='py-4 text-xl text-green-600'>
+										Upload your DL{' '}
+										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
+									</p>
 
 									<FileUpload
 										accept=''
@@ -474,6 +507,48 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										onRemoveFile={e => removeHandler(e)}
 										docs={otherDoc}
 										setDocs={setOtherDoc}
+									/>
+									<p className='py-4 text-xl text-green-600'>
+										Upload your Aadhar{' '}
+										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
+									</p>
+
+									<FileUpload
+										accept=''
+										upload={{
+											url: DOCS_UPLOAD_URL_LOAN({
+												userid
+											}),
+											header: {
+												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+											}
+										}}
+										pan={true}
+										onDrop={handleFileUpload}
+										onRemoveFile={e => removeHandler(e)}
+										docs={aadhar}
+										setDocs={setAadhar}
+									/>
+									<p className='py-4 text-xl text-green-600'>
+										Upload your Voter ID{' '}
+										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
+									</p>
+
+									<FileUpload
+										accept=''
+										upload={{
+											url: DOCS_UPLOAD_URL_LOAN({
+												userid
+											}),
+											header: {
+												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+											}
+										}}
+										pan={true}
+										onDrop={handleFileUpload}
+										onRemoveFile={e => removeHandler(e)}
+										docs={voter}
+										setDocs={setVoter}
 									/>
 								</>
 							) : (
@@ -509,7 +584,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												: !(formState.values?.udhyogAadhar || formState.values?.panNumber) ||
 												  (formState.values?.udhyogAadhar && formState.values?.panNumber) ||
 												  loading
-											: !otherDoc.length > 0
+											: false
 									}
 								/>
 							</section>

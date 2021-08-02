@@ -218,43 +218,44 @@ export default function ApplicantDetails({ fields, disabled, onfieldChanges, dat
 				)
 			) : (
 				<>
-					{Object.keys(mapper[e]).map(i => (
-						<section>
-							{d()[e] &&
-								d()[e].map(
-									j =>
-										j !== false && (
-											<section className='flex flex-col gap-y-4 gap-x-20'>
-												<p className='text-blue-700 font-medium text-xl pb-8 p2'>{i}</p>
+					{mapper[e] &&
+						Object.keys(mapper[e]).map(i => (
+							<section>
+								{d()[e] &&
+									d()[e].map(
+										j =>
+											j !== false && (
+												<section className='flex flex-col gap-y-4 gap-x-20'>
+													<p className='text-blue-700 font-medium text-xl pb-8 p2'>{i}</p>
 
-												{j &&
-													Object.keys(j).map(
-														k =>
-															mapper[e][i] &&
-															Object.keys(mapper[e][i]).map(
-																l =>
-																	l === k && (
-																		<section className='flex space-evenly items-center'>
-																			<label className='w-1/2'>
-																				{mapper[e][i][k]}
-																			</label>
-																			<input
-																				className='rounded-lg p-4 border mx-3'
-																				disabled={disabled}
-																				name={k}
-																				onChange={onfieldChanges}
-																				placeholder={mapper[e][i][k]}
-																				defaultValue={j[k]}
-																			/>
-																		</section>
-																	)
-															)
-													)}
-											</section>
-										)
-								)}
-						</section>
-					))}
+													{j &&
+														Object.keys(j).map(
+															k =>
+																mapper[e][i] &&
+																Object.keys(mapper[e][i]).map(
+																	l =>
+																		l === k && (
+																			<section className='flex space-evenly items-center'>
+																				<label className='w-1/2'>
+																					{mapper[e][i][k]}
+																				</label>
+																				<input
+																					className='rounded-lg p-4 border mx-3'
+																					disabled={disabled}
+																					name={k}
+																					onChange={onfieldChanges}
+																					placeholder={mapper[e][i][k]}
+																					defaultValue={j[k]}
+																				/>
+																			</section>
+																		)
+																)
+														)}
+												</section>
+											)
+									)}
+							</section>
+						))}
 				</>
 			)}
 			<Button onClick={() => clickSub()} disabled={disabled} type='blue' rounded='rfull' size='small'>
