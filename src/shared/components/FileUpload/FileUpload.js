@@ -12,7 +12,9 @@ import FilePasswordInput from "./FilePasswordInput";
 
 const USER_CANCELED = "user cancelled";
 
-const FINANCIAL_DOC_TYPES = "Financial";
+const FINANCIAL_DOC_TYPES = ["Financial", "Financial Documents"].map(
+  (fileTypes) => fileTypes.toLowerCase()
+);
 
 const Dropzone = styled.div`
   width: 100%;
@@ -544,7 +546,9 @@ export default function FileUpload({
                     </option>
                   ))}
                 </SelectDocType>
-                {docTypeFileMap[file.id]?.main === FINANCIAL_DOC_TYPES && (
+                {FINANCIAL_DOC_TYPES.includes(
+                  docTypeFileMap[file.id]?.main?.toLowerCase()
+                ) && (
                   <PasswordWrapper>
                     <RoundButton
                       showTooltip={passwordForFileId !== file.id}
