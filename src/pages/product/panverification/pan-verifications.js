@@ -405,14 +405,14 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	}
 
 	const t = () => {
+		if (otherDoc.length > 0) {
+			return 'DL';
+		}
 		if (aadhar.length > 0) {
 			return 'aadhar';
 		}
 		if (voter.length > 0) {
 			return 'voter';
-		}
-		if (otherDoc.length > 0) {
-			return 'DL';
 		}
 	};
 
