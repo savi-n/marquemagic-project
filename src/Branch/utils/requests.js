@@ -5,7 +5,9 @@ import { API_END_POINT, SECRET, BORROWER_UPLOAD_URL, ENDPOINT_BANK } from '../..
 const userToken = localStorage.getItem('token');
 
 export const dashboardData = async (token = localStorage.getItem('token')) => {
-	const g = await axios.get(`${API_END_POINT}/branch/dashboard`, { headers: { Authorization: `Bearer ${token}` } });
+	const g = await axios.get(`${API_END_POINT}/branch/dashboard`, {
+		headers: { Authorization: `Bearer ${token}` }
+	});
 	const t = await g;
 	return t.data.data;
 };
@@ -115,7 +117,9 @@ export const getWhiteLabelPermission = async (token = localStorage.getItem('toke
 };
 
 export const getLoanDocs = async (token = localStorage.getItem('token')) => {
-	const g = await axios.get(`${API_END_POINT}/Loanrequest`, { headers: { Authorization: `Bearer ${token}` } });
+	const g = await axios.get(`${API_END_POINT}/Loanrequest`, {
+		headers: { Authorization: `Bearer ${token}` }
+	});
 	const t = await g;
 };
 
@@ -142,7 +146,9 @@ export const viewDocument = async (loan_id, userid, filename, token = localStora
 			var rawData = CryptoJS.enc.Base64.parse(data);
 			var key = CryptoJS.enc.Latin1.parse(SECRET);
 			var iv = CryptoJS.enc.Latin1.parse(SECRET);
-			var plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, { iv: iv });
+			var plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, {
+				iv: iv
+			});
 			var plaintext = plaintextData.toString(CryptoJS.enc.Latin1);
 			t.data.signedurl = plaintext;
 			window.open(plaintext);
@@ -179,11 +185,11 @@ export const assignUserToLoan = async (loanId, assignUserId, comment, token = lo
 	const t = await g;
 };
 
-export const searchData = async (caseData, token = localStorage.getItem('token')) => {
+export const searchData = async (caseData, ncStatus, token = localStorage.getItem('token')) => {
 	if (caseData !== '') {
 		const g = await axios.post(
 			`${API_END_POINT}/cub/viewCaseDetails`,
-			{ caseData },
+			{ caseData, ncStatus },
 			{ headers: { Authorization: `Bearer ${token}` } }
 		);
 		const t = await g;
