@@ -16,6 +16,12 @@ import {
   VIEW_CASE_DOCUMENTS_LIST,
 } from "../../_config/branch.config";
 
+const cooap = (data, type) => {
+  return data?.directors.find(
+    (e) => e?.type_name.toLowerCase() === type.toLowerCase() && e.id
+  );
+};
+
 export default function DocumentUploadSection({
   userToken,
   item,
@@ -32,15 +38,12 @@ export default function DocumentUploadSection({
   viewDocument,
   docType,
   checkDocType,
-  cooap,
   coApp,
   setError,
   setMessage,
   borrowerDocUpload,
   file,
 }) {
-  console.log(loanData);
-
   const appplicantId = loanData?.business_id?.userid;
 
   const [loading, setLoading] = useState(true);
@@ -254,7 +257,7 @@ export default function DocumentUploadSection({
           ))}
         </section>
       )}
-      {cooap(loanData)?.[0]?.id && (
+      {cooap(loanData, "Co-Applicant")?.id && (
         <section className="flex flex-col space-y-5 w-8/12">
           <p className="text-blue-600 font-medium text-xl">
             Co-Applicant Documents Uploaded
@@ -263,7 +266,7 @@ export default function DocumentUploadSection({
             accept=""
             upload={{
               url: DOCS_UPLOAD_URL_LOAN({
-                userid: cooap(loanData)[0]?.id,
+                userid: cooap(loanData, "Co-Applicant")?.id,
               }),
               header: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -272,13 +275,12 @@ export default function DocumentUploadSection({
             docTypeOptions={option}
             onDrop={handleFileUpload}
             documentTypeChangeCallback={handleDocumentTypeChange}
-            // branch={true}
             changeHandler={changeHandler}
             onRemoveFile={(e) => removeHandler(e)}
             docsPush={true}
             docs={docs}
             loan_id={loanData?.id}
-            directorId={cooap(loanData)[0]?.id}
+            directorId={cooap(loanData, "Co-Applicant")?.id}
             setDocs={setDocs}
           />
           <section className="flex flex-col gap-x-4 flex-wrap gap-y-4">
