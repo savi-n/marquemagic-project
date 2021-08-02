@@ -10,6 +10,7 @@ import useFetch from "../../hooks/useFetch";
 import useForm from "../../hooks/useForm";
 import Button from "../shared/components/Button";
 import ButtonS from "../../components/Button";
+import Loading from "../../components/Loading";
 
 const WrapContent = styled.div`
     height: 100%;
@@ -68,6 +69,7 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
     const [noOfCollaterals, setNoOfCollaterals] = useState(null);
     const [updatedCollateral, setUpdatedCollateral] = useState(null);
     const [saveUpdate, setSaveUpdate] = useState('save');
+    const [loading, setLoading] = useState(false);
     
     const onCollateralUpdate = (updateCollateral) => {
         setUpdatedCollateral(updateCollateral);
@@ -77,11 +79,13 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
     }
 
     useEffect(() => {
+        setLoading(true);
         if(seletedCollateral !== null) {
             setPageState(pageStates.next);
         } else if (colateralDetails !== null) {
             setPageState(pageStates.available)
         }
+        setLoading(false);
     });
 
     const fetchCollateralDetails = async (url) => {
@@ -137,7 +141,7 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
     };
     
     let no = 1;
-    return(
+    return !loading ? (
         <>
             {pageState === pageStates.fetch && (
                 <WrapContent>
@@ -159,9 +163,6 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
                 </WrapContent>
             )}
 
-            {/* ----------------------------------- */}
-
-             
           {pageState === pageStates.available && (
             <WrapContent>
                 <Wrapper onSubmit={handleSubmit(onSubmitCollateral)}>
@@ -194,9 +195,15 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
                     <div>
                         <Collateral collateral={seletedCollateral} loanId={loanId} product={product} onUpdate={onCollateralUpdate} disabled={disabled} setViewLoan={setViewLoan}/>
                     </div>
-                    {updatedCollateral}
                 </>
             )}
         </>
+    ) : (
+        loading && (
+            <section className="flex items-center justify-center">
+                <section className="w-full">
+                    <Loading />
+                </section>
+            </section>)
     )
 }
