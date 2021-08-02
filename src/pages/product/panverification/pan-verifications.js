@@ -436,6 +436,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	}, [otherDoc, aadhar, voter]);
 
 	const handleUpload = files => {
+		setLoading(true);
 		const fileType = t();
 		const formData = new FormData();
 		formData.append('req_type', fileType);
@@ -461,6 +462,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				setVoter([]);
 				onProceed();
 			}
+			setLoading(false);
 		});
 	};
 
@@ -497,7 +499,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											setDocs([]);
 										}
 									}}
-									name='Submit'
+									name={loading ? 'Please wait' : 'Submit'}
 									disabled={!docs.length > 0}
 									fill
 								/>
@@ -508,7 +510,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							{uploadOtherDocs ? (
 								<>
 									<p className='py-4 text-xl text-green-600'>
-										Upload {backUploading && 'back picture of'} your DL{' '}
+										Upload {(backUploading && 'back picture of') || 'front picture of'} your DL{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -529,7 +531,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										setDocs={setOtherDoc}
 									/>
 									<p className='py-4 text-xl text-green-600'>
-										Upload {backUploading && 'back picture of'} your Aadhar{' '}
+										Upload {(backUploading && 'back picture of') || 'front picture of'} your Aadhar{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -550,8 +552,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										setDocs={setAadhar}
 									/>
 									<p className='py-4 text-xl text-green-600'>
-										Upload {backUploading && 'back picture of'} your Voter ID{' '}
-										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
+										Upload {(backUploading && 'back picture of') || 'front picture of'} your Voter
+										ID <span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
 									<FileUpload
@@ -683,8 +685,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 									fill
 									onClick={() => {
 										setBackUpload(false);
-
-										handleUpload();
 									}}
 								/>
 							</section>
