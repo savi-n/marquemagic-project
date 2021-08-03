@@ -19,3 +19,5 @@ export const DOWNLOAD_CASE_DOCUMENTS = `${API_END_POINT}/viewDocument/`;
 export const VIEW_CASE_DOCUMENTS_LIST = taggedTemplate`${API_END_POINT}/uploaded_doc_list?case_id=${"caseId"}&white_label_id=${"whiteLabel"}`;
 
 export const VIEW_CASE_DOCUMENTS_LIST_UIUX = taggedTemplate`${API_END_POINT}/UploadedDocList_uiux?loanId=${"loanId"}`;
+
+export const DELETE_FILE_UPLOADED = `${API_END_POINT}/documentDelete/`;
