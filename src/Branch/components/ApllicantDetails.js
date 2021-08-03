@@ -39,7 +39,7 @@ export default function ApplicantDetails({ fields, disabled, onfieldChanges, dat
 											<section className='flex space-evenly items-center'>
 												<label className='w-1/2'>{el.placeholder}</label>
 												{el.type !== 'select' ? (
-													<>
+													<> 
 														{i.name === 'Guarantor Details' &&
 															data?.directors?.map(item =>
 																item.type_name === 'Guarantor' && (
