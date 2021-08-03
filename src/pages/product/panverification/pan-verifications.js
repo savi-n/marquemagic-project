@@ -60,7 +60,7 @@ const H2 = styled.h2`
 
 const businessTypeMaps = [[['private', 'pvt'], 4], [['public', 'pub'], 5], [['llp'], 3]];
 
-function formatCompanyData(data) {
+function formatCompanyData(data, panNum) {
 	let directors = {};
 	let directorsForShow = [];
 
@@ -92,7 +92,7 @@ function formatCompanyData(data) {
 		BusinessType: businesType,
 		Email: data.company_master_data.email_id,
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		PancardNumber: '',
+		panNumber: panNum,
 		CIN: data.company_master_data['cin '],
 		CompanyCategory: data.company_master_data.company_category,
 		Address: data.company_master_data.registered_address,
@@ -104,7 +104,7 @@ function formatCompanyData(data) {
 	};
 }
 
-function formatCompanyDataGST(data) {
+function formatCompanyDataGST(data, panNum) {
 	if (data.length > 1) data = data[0].data;
 	let directors = {};
 	let directorsForShow = [];
@@ -132,7 +132,7 @@ function formatCompanyDataGST(data) {
 		BusinessType: businesType,
 		Email: '',
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		PancardNumber: '',
+		panNumber: panNum,
 		CIN: '',
 		CompanyCategory: data.nba[0],
 		Address: data.pradr?.addr,
@@ -175,6 +175,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
+
+	const [panNum, setPan] = useState('');
 
 	const companyNameSearch = async companyName => {
 		setLoading(true);
@@ -244,7 +246,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data)
+						...formatCompanyData(companyData.data, panNum)
 					});
 				onProceed();
 				return;
@@ -318,14 +320,13 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				handleUpload(otherDoc[0].file);
 			}
 		}
-
 		setLoading(false);
 	};
 
 	const gstNumberFetch = async data => {
 		const companyData = data;
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData)
+			...formatCompanyDataGST(companyData, panNum)
 		});
 		onProceed();
 		return;
@@ -363,7 +364,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [aadhar, setAadhar] = useState([]);
 	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
-	const [panNum, setPan] = useState(null);
+	
 
 	const handlePanUpload = files => {
 		setLoading(true);
@@ -486,7 +487,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										userid
 									}),
 									header: {
-										Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+										Authorization: `Bearer ${clientToken}`
 									}
 								}}
 								pan={true}
@@ -525,7 +526,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+												Authorization: `Bearer ${clientToken}`
 											}
 										}}
 										pan={true}
@@ -546,7 +547,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+												Authorization: `Bearer ${clientToken}`
 											}
 										}}
 										pan={true}
@@ -567,7 +568,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+												Authorization: `Bearer ${clientToken}`
 											}
 										}}
 										pan={true}
