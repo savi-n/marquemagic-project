@@ -262,3 +262,16 @@ export const verification = async (businessId, token) => {
 	console.log(t);
 	return t;
 };
+
+export const filterList = async (filterBy, token = localStorage.getItem('token')) => {
+	if (filterBy !== '') {
+		const g = await axios.post(
+			`${API_END_POINT}/branch/viewLoan`,
+			{ filterBy },
+			{ headers: { Authorization: `Bearer ${token}` } }
+		);
+		const t = await g;
+		return t.data.result ? t.data.result : t.data.message;
+	}
+};
+
