@@ -146,7 +146,7 @@ export default function Applications({
       }, 3000);
     }
   };
-
+ 
 
   return !viewLoan ? (
     <section className="flex">

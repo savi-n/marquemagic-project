@@ -587,6 +587,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											value: formState?.values?.panNumber
 										})}
 									</FieldWrapper>
+									
 									<H2>or</H2>
 									<FieldWrapper>
 										{register({
