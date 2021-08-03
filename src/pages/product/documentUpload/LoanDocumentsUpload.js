@@ -118,7 +118,10 @@ function fileStructure(documents, type) {
 }
 
 function caseCreationDataFormat(data, companyData, productDetails) {
-	const idType = productDetails.loanType.includes('Housing') ? 'salaried' : 'business';
+	const idType =
+		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+			? 'business'
+			: 'salaried';
 	const businessDetails = () => {
 		if (data && data['business-details']) {
 			return {
@@ -305,7 +308,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
 	const [cibilCheckModal, setCibilCheckModal] = useState(false);
 
-	const idType = productDetails.loanType.includes('Housing') ? 'salaried' : 'business';
+	const idType =
+		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+			? 'business'
+			: 'salaried';
 
 	const {
 		state: { companyDetail }

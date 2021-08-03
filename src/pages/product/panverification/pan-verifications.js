@@ -145,7 +145,10 @@ function formatCompanyDataGST(data) {
 }
 
 export default function PanVerification({ productDetails, map, onFlowChange, id }) {
-	const productType = productDetails.loanType.includes('Housing') ? 'salaried' : 'business';
+	const productType =
+		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+			? 'business'
+			: 'salaried';
 	const {
 		state: { whiteLabelId, clientToken, bankToken }
 	} = useContext(AppContext);
@@ -252,6 +255,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [selectDoc, selectDocs] = useState(false);
 
 	const onSubmit = async ({ panNumber, companyName, udhyogAadhar, gstNumber }) => {
+		console.log(productType);
 		if (productType === 'business') {
 			if (isBusiness) {
 				if (!formState?.values?.companyName && !formState?.values?.panNumber) {
