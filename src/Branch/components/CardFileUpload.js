@@ -77,6 +77,7 @@ export default function CardFileUpload({
 
       if (uploadDocsRes.status === NC_STATUS_CODE.OK) {
         getCLicker(null);
+        setFiles([]);
         return uploadDocsRes;
       }
       throw new Error(uploadDocsRes.message);

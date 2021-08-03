@@ -15,6 +15,7 @@ import {
   DOWNLOAD_CASE_DOCUMENTS,
   VIEW_CASE_DOCUMENTS_LIST,
 } from "../../_config/branch.config";
+import { DOCUMENTS_TYPE_MAP } from "../../_config/key.config";
 
 const cooap = (data, type) => {
   return data?.directors.find(
@@ -53,6 +54,13 @@ export default function DocumentUploadSection({
   const [encryptedWhiteLabelId, setEncryptedWhiteLabelId] = useState(null);
 
   const { newRequest } = useFetch();
+
+  const applicantDirectorId = loanData?.directors.find(
+    (director) => director.type_name === "Applicant"
+  );
+  const coApplicantDirectorId = loanData?.directors.find(
+    (director) => director.type_name === "Co-applicant"
+  );
 
   const FetchDocumentLists = async () => {
     try {
@@ -99,7 +107,11 @@ export default function DocumentUploadSection({
   }, []);
 
   const applicantDocs = documentList?.filter(
-    (docs) => docs.uploadedBy === appplicantId
+    (docs) => docs.directorId === applicantDirectorId.id
+  );
+
+  const coApplicantDocs = documentList?.filter(
+    (docs) => docs.directorId === coApplicantDirectorId.id
   );
 
   const onDownload = async (doc) => {
@@ -149,9 +161,8 @@ export default function DocumentUploadSection({
           docTypeOptions={option}
           onDrop={handleFileUpload}
           documentTypeChangeCallback={handleDocumentTypeChange}
-          // branch={true}
           changeHandler={changeHandler}
-          onRemoveFile={(e) => removeHandler(e)}
+          onRemoveFile={removeHandler}
           docsPush={true}
           docs={docs}
           loan_id={loanData?.id}
@@ -204,7 +215,6 @@ export default function DocumentUploadSection({
                           >
                             {j.document_name}
                           </Button>
-
                         </section>
                       </section>
                     )
@@ -242,7 +252,7 @@ export default function DocumentUploadSection({
         <section className="fixed overflow-scroll z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16">
           {Object.keys(docType).map((el) => (
             <section className="py-6">
-              <p className="font-semibold">{el}</p>
+              <p className="font-semibold">{DOCUMENTS_TYPE_MAP[el]}</p>
               {docType[el].map((doc) => (
                 <section>
                   <CheckBox
@@ -267,7 +277,7 @@ export default function DocumentUploadSection({
             accept=""
             upload={{
               url: DOCS_UPLOAD_URL_LOAN({
-                userid: cooap(loanData, "Co-Applicant")?.id,
+                userId: appplicantId,
               }),
               header: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -277,7 +287,7 @@ export default function DocumentUploadSection({
             onDrop={handleFileUpload}
             documentTypeChangeCallback={handleDocumentTypeChange}
             changeHandler={changeHandler}
-            onRemoveFile={(e) => removeHandler(e)}
+            onRemoveFile={removeHandler}
             docsPush={true}
             docs={docs}
             loan_id={loanData?.id}
@@ -285,85 +295,79 @@ export default function DocumentUploadSection({
             setDocs={setDocs}
           />
           <section className="flex flex-col gap-x-4 flex-wrap gap-y-4">
-            {docsUploaded.length > 0 && (
+            {coApplicantDocs?.length > 0 && (
               <>
                 <section>
                   <span>KYC Docs</span>
-                  {docsUploaded
-                    .filter((docs) => coApp.includes(docs.directorId))
-                    .map(
-                      (j, idx) =>
-                        j.document_type === "KYC Documents" && (
-                          <section className="py-2 flex justify-evenly items-center w-full">
-                            <section className="w-full">
-                              <Button
-                                type="blue-light"
-                                onClick={() =>
-                                  viewDocument(
-                                    loanData?.id,
-                                    j.uploadedBy,
-                                    j.document_fd_key
-                                  )
-                                }
-                              >
-                                {j.document_name}
-                              </Button>
-                            </section>
+                  {coApplicantDocs.map(
+                    (j, idx) =>
+                      j.document_type === "KYC Documents" && (
+                        <section className="py-2 flex justify-evenly items-center w-full">
+                          <section className="w-full">
+                            <Button
+                              type="blue-light"
+                              onClick={() =>
+                                viewDocument(
+                                  loanData?.id,
+                                  j.uploadedBy,
+                                  j.document_fd_key
+                                )
+                              }
+                            >
+                              {j.document_name}
+                            </Button>
                           </section>
-                        )
-                    )}
+                        </section>
+                      )
+                  )}
                 </section>
                 <section>
                   <span>Financial Docs</span>
-                  {docsUploaded
-                    .filter((docs) => coApp.includes(docs.directorId))
-                    .map(
-                      (j, idx) =>
-                        j.document_type === "Financial Documents" && (
-                          <section className="py-2 flex justify-evenly items-center w-full">
-                            <section className="w-full">
-                              <Button
-                                type="blue-light"
-                                onClick={() =>
-                                  viewDocument(
-                                    loanData?.id,
-                                    j.uploadedBy,
-                                    j.document_fd_key
-                                  )
-                                }
-                              >
-                                {j.document_name}
-                              </Button>
-                            </section>
+                  {coApplicantDocs.map(
+                    (j, idx) =>
+                      j.document_type === "Financial Documents" && (
+                        <section className="py-2 flex justify-evenly items-center w-full">
+                          <section className="w-full">
+                            <Button
+                              type="blue-light"
+                              onClick={() =>
+                                viewDocument(
+                                  loanData?.id,
+                                  j.uploadedBy,
+                                  j.document_fd_key
+                                )
+                              }
+                            >
+                              {j.document_name}
+                            </Button>
                           </section>
-                        )
-                    )}
+                        </section>
+                      )
+                  )}
                 </section>
                 <section>
                   <span>Other Docs</span>
-                  {docsUploaded
-                    .filter((docs) => coApp.includes(docs.directorId))
-                    .map(
-                      (j, idx) =>
-                        j.document_type === "Other Documents" && (
-                          <section className="py-2 flex justify-evenly items-center w-full">
-                            <section className="w-full">
-                              <Button
-                                type="blue-light"
-                                onClick={() =>
-                                  viewDocument(
-                                    loanData?.id,
-                                    j.uploadedBy,
-                                    j.document_fd_key
-                                  )
-                                }
-                              >
-                                {j.document_name}
-                              </Button>
-                            </section>
+                  {coApplicantDocs.map(
+                    (j, idx) =>
+                      j.document_type === "Other Documents" && (
+                        <section className="py-2 flex justify-evenly items-center w-full">
+                          <section className="w-full">
+                            <Button
+                              type="blue-light"
+                              onClick={() =>
+                                viewDocument(
+                                  loanData?.id,
+                                  j.uploadedBy,
+                                  j.document_fd_key
+                                )
+                              }
+                            >
+                              {j.document_name}
+                            </Button>
                           </section>
-                        )
-                    )}
+                        </section>
+                      )
+                  )}
                 </section>
               </>
             )}

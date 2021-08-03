@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import '../components/styles/index.scss';
 import {
 	getLoanDetails,
@@ -8,7 +8,8 @@ import {
 	reassignLoan,
 	// getGroupedDocs,
 	viewDocument,
-	borrowerDocUpload
+	borrowerDocUpload,
+	verification
 } from '../utils/requests';
 import Tabs from '../shared/components/Tabs';
 import Loading from '../../components/Loading';
@@ -21,6 +22,7 @@ import ApplicantDetails from '../components/ApllicantDetails';
 import EligibilitySection from '../components/EligibilitySection';
 import DocumentUploadSection from '../components/DocumentUploadSection';
 import useCaseUpdate from '../useCaseUpdate';
+import { AppContext } from '../../reducer/appReducer';
 // import { YAxis } from "recharts";
 
 export default function CheckApplication(props) {
@@ -40,12 +42,19 @@ export default function CheckApplication(props) {
 	const [option, setOption] = useState([]);
 	const [docsUploaded, setDocsUPloaded] = useState([]);
 	const [data, setData] = useState(null);
+  const [savedCollateral, setSavedCollateral] = useState(null);
+  const [initialCollateral, setInitialCollateral] = useState(null);
+  const [collateralFlag, setCollateralFlag] = useState("null");
 
 	//changes
 	const [loading, setLoading] = useState(false);
 	const [loanDetailsState, setLoanDetailsState] = useState(null);
+	const {
+		state: { bankToken, clientToken }
+	} = useContext(AppContext);
 
 	const id = props.id;
+	const [verificationData, setVerificationData] = useState(null);
 
 	useEffect(() => {
 		const arr = [];
@@ -58,6 +67,9 @@ export default function CheckApplication(props) {
 			setLoading(false);
 
 			if (loanDetails) {
+				verification(loanDetails?.business_id?.id, clientToken).then(respo => {
+					setVerificationData(respo.data.data);
+				});
 				docTypes(props.productId, loanDetails?.business_id?.businesstype?.id).then(res => {
 					setDocTypes(res);
 					Object.keys(res).map(k => {
@@ -89,6 +101,19 @@ export default function CheckApplication(props) {
 				// getGroupedDocs(props.item?.loan_ref_id).then((val) =>
 				//   setDocsUPloaded(val)
 				// );
+
+        if (loanDetails?.collateralData) {
+          if (loanDetails.collateralData?.modified_collateral) {
+            setSavedCollateral(loanDetails.collateralData?.modified_collateral);
+            setCollateralFlag("saved");
+          } else if (loanDetails?.collateralData?.saved_collateral) {
+            setSavedCollateral(loanDetails.collateralData?.saved_collateral);
+            setCollateralFlag("saved");
+          }else if (loanDetails.collateralData?.initial_collateral && loanDetails.collateralData?.initial_collateral.length > 0 ) {
+            setInitialCollateral(loanDetails.collateralData.initial_collateral);
+            setCollateralFlag("initial");
+          }
+        }
 			}
 		});
 		if (data) {
@@ -117,9 +142,8 @@ export default function CheckApplication(props) {
 		'Co-Applicant',
 		'Document Details',
 		'Security Details',
-		data && getPreEligibleData(data)
-			? 'Pre-Eligibility Details'
-			: data && getEligibileData(data) && 'Eligibility Details'
+		data && getPreEligibleData(data) ? 'Pre-Eligibility Details' : data && 'Eligibility Details',
+		'Verification Details'
 	];
 
 	const getTabs = item => (
@@ -155,7 +179,8 @@ export default function CheckApplication(props) {
 				'Security Details': 'No Data',
 				'Pre-Eligibility Details': getPreEligibleData(data),
 				'Eligibility Details': getEligibileData(data),
-				'Business Details': ''
+				'Business Details': '',
+				'Verification Details': ''
 			};
 		}
 	};
@@ -475,13 +500,27 @@ export default function CheckApplication(props) {
 										/>
 									)}
 									{e === sec.sec_4 && (
-										<section>
-											<CollateralsDetails
-												loanId={props?.item?.id}
-												product={props.product}
-												disabled={disabled}
-												setViewLoan={props.setViewLoan}
-											/>
+										<section>{
+                      collateralFlag === 'saved' ?
+                      <CollateralsDetails 
+                        savedCollateral={savedCollateral} 
+                        loanId={props?.item?.id}
+                        product={props.product}
+                        disabled={disabled}
+                        setViewLoan={props.setViewLoan}/> 
+                      : collateralFlag === 'initial' ? <CollateralsDetails 
+                      initialCollateral={initialCollateral} 
+                      loanId={props?.item?.id}
+                      product={props.product}
+                      disabled={disabled}
+                      setViewLoan={props.setViewLoan}/>:<CollateralsDetails
+                        loanId={props?.item?.id}
+                        product={props.product}
+                        disabled={disabled}
+                        setViewLoan={props.setViewLoan}
+                      />
+                      }
+											
 										</section>
 									)}
 									{e === sec.sec_5 && (
@@ -501,6 +540,32 @@ export default function CheckApplication(props) {
 											e={e}
 											d={d}
 										/>
+									)}
+									{e === 'Verification Details' && (
+										<section>
+											{verificationData &&
+												Object.keys(verificationData).map(e => (
+													<section className='flex flex-col gap-y-6'>
+														<section>{e}</section>
+														<section className='pb-16'>
+															{verificationData[e] &&
+																verificationData[e].length > 0 &&
+																verificationData[e][0] !== null &&
+																Object.keys(JSON.parse(verificationData[e])).map(l => (
+																	<section className='flex w-1/2 items-center gap-x-6 px-10 justify-evenly'>
+																		<section className='w-1/2'>{l}</section>
+																		<section className='w-1/2'>
+																			{typeof JSON.parse(verificationData[e])[
+																				l
+																			] !== 'object' &&
+																				JSON.parse(verificationData[e])[l]}
+																		</section>
+																	</section>
+																))}
+														</section>
+													</section>
+												))}
+										</section>
 									)}
 								</>
 							) : (
