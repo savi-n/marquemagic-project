@@ -10,6 +10,7 @@ import {
   needAction,
   searchData,
   getNCStatus,
+  filterList
 } from "../utils/requests";
 import Loading from "../../components/Loading";
 import Button from "../shared/components/Button";
@@ -133,6 +134,20 @@ export default function Applications({
     }
   };
 
+  const [filtering, setFiltering] = useState(false);
+  const dropdown = (e) => {
+    console.log(e); if (e === 'week' || e === 'month' || e === 'year') {
+      setFiltering(true);
+      setTimeout(() => {
+        filterList(e.target.value).then((res) => {
+          setFiltering(false);
+          setData(res);
+        });
+      }, 3000);
+    }
+  };
+
+
   return !viewLoan ? (
     <section className="flex">
       <section
@@ -191,7 +206,9 @@ export default function Applications({
           <section className="flex w-1/3 gap-x-4 mt-10 items-center">
             <span className="w-16">Filter by</span>
             <div className="select_box w-full">
-              <select className="dropdown focus:outline-none bg-transparent">
+              <select className="dropdown focus:outline-none bg-transparent"
+                onChange={(e) => dropdown(e)}
+              >
                 {sortList.map((el) => (
                   <option>{el}</option>
                 ))}
@@ -213,29 +230,29 @@ export default function Applications({
           )}
           {data && typeof data === "object" && data.length
             ? data.map((item) => (
-                <CardDetails
-                  setViewLoan={setViewLoan}
-                  label={lActive}
-                  full={true}
-                  item={item}
-                  lActive={lActive}
-                  setId={setId}
-                  setActiv={setActiv}
-                  setClicked={setClicked}
-                  setProduct={setProduct}
-                  setAssignmentLog={setAssignmentLog}
-                  submitCase={submitCase}
-                  setProductId={setProductId}
-                  usersList={usersList}
-                  setItem={setItem}
-                  width={true}
-                />
-              ))
+              <CardDetails
+                setViewLoan={setViewLoan}
+                label={lActive}
+                full={true}
+                item={item}
+                lActive={lActive}
+                setId={setId}
+                setActiv={setActiv}
+                setClicked={setClicked}
+                setProduct={setProduct}
+                setAssignmentLog={setAssignmentLog}
+                submitCase={submitCase}
+                setProductId={setProductId}
+                usersList={usersList}
+                setItem={setItem}
+                width={true}
+              />
+            ))
             : !loading && (
-                <span className="text-start w-full opacity-50">
-                  No Applications
-                </span>
-              )}
+              <span className="text-start w-full opacity-50">
+                No Applications
+              </span>
+            )}
           {serachStarted && <Loading />}
         </section>
       </section>
