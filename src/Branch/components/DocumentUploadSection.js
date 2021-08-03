@@ -172,11 +172,11 @@ export default function DocumentUploadSection({
   };
 
   const applicantDocs = documentList?.filter(
-    (docs) => docs.directorId === applicantDirectorId.id
+    (docs) => docs.directorId === applicantDirectorId?.id
   );
 
   const coApplicantDocs = documentList?.filter(
-    (docs) => docs.directorId === coApplicantDirectorId.id
+    (docs) => docs.directorId === coApplicantDirectorId?.id
   );
 
   const [uploadedfiles, setUploadedfiles] = useState([]);
@@ -328,10 +328,10 @@ export default function DocumentUploadSection({
       {docType && (
         <section className="fixed overflow-scroll z-10 right-0 w-1/4 bg-gray-200 p-4 h-full top-24 py-16">
           {Object.keys(docType).map((el) => (
-            <section className="py-6">
+            <section className="py-6" key={el}>
               <p className="font-semibold">{DOCUMENTS_TYPE_MAP[el]}</p>
               {docType[el].map((doc) => (
-                <section>
+                <section key={doc.doc_type_id}>
                   <CheckBox
                     name={doc.name}
                     round
