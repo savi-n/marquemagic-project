@@ -542,7 +542,9 @@ export default function FileUpload({
             {file.status === "completed" && !!docTypeOptions.length && (
               <>
                 <SelectDocType
-                  value={branch ? docSelected : docTypeFileMap[file.id] || ""}
+                  value={
+                    branch ? docSelected : docTypeFileMap[file.id]?.name || ""
+                  }
                   onChange={(e) => {
                     branch && setDocSelected(e.target.value);
                     branch
