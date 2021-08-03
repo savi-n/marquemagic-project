@@ -147,6 +147,8 @@ export default function AddressDetailsPage({ id, onFlowChange, map, productId })
 	//   }
 	// };
 
+	console.log(userBankDetails, "userBankDetails")
+
 	return (
 		<Div>
 			<AddressDetails

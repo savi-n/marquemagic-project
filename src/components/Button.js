@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { string, func, object, oneOfType, bool } from "prop-types";
+import Loader from "../Branch/components/Loader";
 
 const StyledButton = styled.button`
   color: ${({ theme, fill }) => (fill ? "white" : theme.main_theme_color)};
@@ -18,6 +19,8 @@ const StyledButton = styled.button`
   font-weight: 500;
   text-align: center;
   transition: 0.2s;
+  display: flex;
+  justify-content: center;
 
   &:hover {
     color: #fff;
@@ -39,6 +42,7 @@ export default function Button({
   disabled = false,
   width,
   roundCorner = false,
+  isLoader
 }) {
   return (
     <StyledButton
@@ -49,7 +53,7 @@ export default function Button({
       width={width}
       roundCorner={roundCorner}
     >
-      {name && <Div>{name}</Div>}
+      {isLoader ? <Loader /> : name && <Div>{name}</Div>}
       {children}
     </StyledButton>
   );
