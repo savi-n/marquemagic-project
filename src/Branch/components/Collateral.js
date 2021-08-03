@@ -53,12 +53,11 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
             }
         )
         if(data.type === 'select') {
-            return <select disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full'>
+            return <select disabled={disabled} onChange={onfieldChanges} name={data.db_name} defaultValue={data.default_value} className='p-2 rounded-md text-lg border w-full'>
                 {data.options.map(op => <option name={op.name} value={op.value} >{op.name}</option>)}
             </select>
         } else {
             return <input name={data.db_name} disabled={disabled} onChange={onfieldChanges} className='p-2 rounded-md text-lg border w-full' type={data.type} placeholder={data.placeholder} defaultValue={data.default_value} />
-
         }
     }
 
@@ -94,7 +93,7 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                 {fields &&
                     fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
                         {
-                            Object.keys(el.fields).map(item => el.fields[item].label === 'LinkageDetails' &&
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'Linkage Details' &&
                                 el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
                                     <label className='w-full text-lg'>{e.placeholder}</label>
                                     {gateway(e)}
@@ -110,7 +109,7 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                 {fields &&
                     fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
                         {
-                            Object.keys(el.fields).map(item => el.fields[item].label === 'PropertyDetails' &&
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'Property Details' &&
                                 el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
                                     <label className='w-full text-lg'>{e.placeholder}</label>
                                     {gateway(e)}
@@ -125,7 +124,7 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
                 {fields &&
                     fields?.map(el => el.id == 'security-details' && <section className='flex flex-col gap-y-4'>
                         {
-                            Object.keys(el.fields).map(item => el.fields[item].label === 'OtherDetails' &&
+                            Object.keys(el.fields).map(item => el.fields[item].label === 'Other Details' &&
                                 el.fields[item].data.map(e => <section className='w-full flex gap-y-4 items-center justify-evenly'>   
                                     <label className='w-full text-lg'>{e.placeholder}</label>
                                     {gateway(e)}

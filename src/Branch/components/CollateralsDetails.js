@@ -73,6 +73,7 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
     
     const onCollateralUpdate = (updateCollateral) => {
         setUpdatedCollateral(updateCollateral);
+        // setSelectedCollateral(updatedCollateral);
         if(updateCollateral != null) {
             onUpdateCollateral(updateCollateral);
         }
