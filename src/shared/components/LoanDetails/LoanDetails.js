@@ -147,9 +147,7 @@ export default function LoanDetails({
               value: formState?.values?.[field.name],
               rules: {
                 ...field.rules,
-                ...(field.uploadButton && {
-                  subAction: !uploadedDocs[field.name]?.length,
-                }),
+                ...(field.uploadButton && {}),
               },
               ...(field.type === "search"
                 ? {
@@ -163,6 +161,8 @@ export default function LoanDetails({
                   }
                 : {}),
             })}
+
+            {/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
           </Field>
           <Currency>{field.inrupees ? "(In  ₹ )" : ""}</Currency>
 
