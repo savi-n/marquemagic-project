@@ -192,7 +192,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			KYC: fileStructure(data?.documents || [], 'KYC'),
 			others: fileStructure(data?.documents || [], 'Others'),
 			financials: fileStructure(data?.documents || [], 'financials')
-		}
+		},
+		branchId: companyData?.branchId
 	};
 
 	// if (localStorage.getItem('product') != 'demo') {
