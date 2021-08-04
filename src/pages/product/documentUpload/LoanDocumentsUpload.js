@@ -117,28 +117,46 @@ function fileStructure(documents, type) {
 		}));
 }
 
-function caseCreationDataFormat(data, companyData, productDetails) {
+let userToken = localStorage.getItem('localhost');
+
+function caseCreationDataFormat(data, companyData, productDetails, productId) {
+
+
+	console.log(productId,"productDetails")
+
+	let loan = JSON.parse(userToken).formReducer.user.loanData;
+
+	let form = JSON.parse(userToken).formReducer.user.applicantData;
+
+
+
+
+	console.log(loan,"loanloan")
+
+
 	const idType =
 		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
 			? 'business'
 			: 'salaried';
 	const businessDetails = () => {
-		if (data && data['business-details']) {
+
 			return {
-				business_name: data['business-details'].BusinessName,
-				business_type: data['business-details'].BusinessType,
-				business_email: data['business-details'].EmailId,
+				business_name: form.firstName,
+				business_type: form.incomeType==="salaried" ? 7 : 1,
+				business_email: form.email,
 				// business_industry_type: 20,
 				contact: '',
-				businesspancardnumber: companyData.PancardNumber,
-				// crime_check: "Yes",
-				gstin: data['business-details'].GSTVerification,
-				businessstartdate: data['business-details'].BusinessVintage,
-				corporateid: companyData.CIN
+				businesspancardnumber: form.panNumber,
+				// // crime_check: "Yes",
+				// gstin: data['business-details'].GSTVerification,
+				// businessstartdate: data['business-details'].BusinessVintage,
+				// corporateid: companyData.CIN
 			};
-		}
+
 	};
 	const formatedData = {
+
+
 		Business_details: businessDetails() || null,
 		// businessaddress: {
 		//   city: "County Durham",
@@ -148,27 +166,24 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 		//   state: "England",
 		// },
 
-		director_details:
-			localStorage.getItem('product') === 'demo'
-				? {
-						director_0: {},
-						director_1: {}
-				  }
-				: companyData?.DirectorDetails,
+
+
+
+		director_details: [],
 		loan_details: {
 			// loan_type_id: 1,
 			// case_priority: null,
 			// loan_product_id: "10",
 			// loan_request_type: "1",
 			// origin: "New_UI",
-			loan_product_id: data.productId[idType],
-			white_label_id: companyData?.encryptedWhitelabel,
-			branchId: companyData?.branchId,
-			loan_amount: data['business-loan-details'].LoanAmount,
-			applied_tenure: Number(data['business-loan-details'].tenure || ''),
-			application_ref: data['business-loan-details'].Applicationid || '',
-			annual_turn_over: data?.['business-details'].AnnualTurnover,
-			annual_op_expense: data?.['business-details'].PAT
+			loan_product_id: productId[form.incomeType],
+			white_label_id: localStorage.getItem('encryptWhiteLabel'),
+			branchId: loan.branchId,
+			loan_amount: loan.loanAmount,
+			applied_tenure: loan.loanAmount.tenure,
+			// application_ref: data['business-loan-details'].Applicationid || '',
+			// annual_turn_over: data?.['business-details'].AnnualTurnover,
+			// annual_op_expense: data?.['business-details'].PAT
 			// loan_type_id: 1,
 			// case_priority: null,
 			// origin: "New_UI",
@@ -181,9 +196,9 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 		branchId: companyData?.branchId
 	};
 
-	if (localStorage.getItem('product') != 'demo') {
-		formatedData['branchId'] = companyData.branchId;
-	}
+	// if (localStorage.getItem('product') != 'demo') {
+	// 	formatedData['branchId'] = companyData.branchId;
+	// }
 
 	return formatedData;
 }
@@ -298,12 +313,17 @@ function refereneceDataFormat(loanId, data) {
 	return formatedData;
 }
 export default function DocumentUpload({ productDetails, userType, id, onFlowChange, map, productId }) {
+
+
+
+
 	const {
 		state,
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType }
 	} = useContext(LoanFormContext);
 
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
+	const [message, setMessage] = useState('');
 	const [declareCheck, setDeclareCheck] = useState(false);
 
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
@@ -375,7 +395,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			}
 		},
 		headers: {
-			Authorization: `Bearer ${companyDetail?.token}`
+			Authorization: `Bearer ${JSON.parse(userToken).userReducer.userToken}`
 		}
 	});
 
@@ -462,13 +482,19 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 							productId
 						},
 						companyDetail,
-						productDetails
+						productDetails,
+						productId
 					)
 				},
-				{ authorization: `Bearer ${companyDetail.token}` }
+				{ authorization: `Bearer ${JSON.parse(userToken).userReducer.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
+
+				console.log(caseReq.data, "caseReq.data")
+
+				setMessage(caseReq.data.data.loan_details.loan_ref_id)
+
 				return caseRes.data;
 			}
 
@@ -492,7 +518,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: subsidiaryDataFormat(caseId, state)
 				},
-				{ authorization: `Bearer ${companyDetail.token}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -520,7 +546,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: formData
 				},
-				{ authorization: `Bearer ${companyDetail.token}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -547,7 +573,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: formData
 				},
-				{ authorization: `Bearer ${companyDetail.token}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -574,7 +600,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: formData
 				},
-				{ authorization: `Bearer ${companyDetail.token}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -620,7 +646,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		}
 
 		setCaseCreationProgress(true);
-		console.log(!userType);
 
 		if (!userType) {
 			const loanReq = await caseCreationSteps(state);
@@ -631,11 +656,18 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			}
 
 			setCompleted(id);
-			onFlowChange(map.main);
+
+
+
+
+			// onFlowChange(map.main);
 		}
 	};
 
 	const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
+
+
+
 
 	return (
 		<>
@@ -644,6 +676,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
 				</H>
 				<UploadWrapper>
+					{console.log(JSON.parse(userToken),"userToken")}
 					<FileUpload
 						onDrop={handleFileUpload}
 						onRemoveFile={handleFileRemove}
@@ -651,9 +684,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						documentTypeChangeCallback={handleDocumentTypeChange}
 						accept=''
 						upload={{
-							url: DOCS_UPLOAD_URL({ userId: companyDetail?.userId || '' }),
+							url: DOCS_UPLOAD_URL({ userId: companyDetail?.userId || JSON.parse(userToken).userReducer.userId || '' }),
 							header: {
-								Authorization: `Bearer ${companyDetail?.token || ''}`
+								Authorization: `Bearer ${companyDetail?.token || JSON.parse(userToken).userReducer.userToken ||   ''}`
 							}
 						}}
 					/>
@@ -690,6 +723,13 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						onClick={onSubmit}
 					/>
 				</SubmitWrapper>
+				{message &&
+					<div style={{color: 'blue'}}>
+						Your case is created and your reference number is {message}
+					</div>
+				}
+
+
 				{otherBankStatementModal && (
 					<BankStatementModal showModal={otherBankStatementModal} onClose={onOtherStatementModalToggle} />
 				)}

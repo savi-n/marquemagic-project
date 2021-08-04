@@ -35,7 +35,7 @@ const availableRoutes = {
 	'identity-verification': { Component: IdentityVerification },
 	'business-verification': { Component: BusinessVerification },
 	'personal-details': { protected: true, Component: PersonalDetails },
-	'address-details': { protected: true, Component: AddressDetails },
+	'address-details': { protected: true, Component: LoanAddressDetails },
 	'loan-address-details': { protected: true, Component: LoanAddressDetails },
 	'two-wheeler-loan-details': {
 		protected: true,

@@ -227,6 +227,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 			const userDetailsRes = userDetailsReq.data;
 
+			localStorage.setItem('branchId', userDetailsRes.branchId);
+
+			console.log();
+
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
@@ -237,6 +241,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+				console.log(encryptWhiteLabelRes, 'encryptWhiteLabelRes');
+
+				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
@@ -695,6 +703,36 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							</section>
 						</Modal>
 					)}
+				{selectDoc && (
+					<Modal>
+						<section className='p-4 flex flex-col gap-y-8'>
+							<span className='font-bold text-lg'>Please select doc type</span>
+							<section className='flex gap-x-4 items-center'>
+								<section>
+									<label>DL</label>
+									<input type='radio' name='doctype' value='DL' />
+								</section>
+								<section>
+									<label>Aadhar</label>
+									<input type='radio' name='doctype' value='aadhar' />
+								</section>
+								<section>
+									<label>VoterID</label>
+									<input type='radio' name='doctype' value='voter' />
+								</section>
+							</section>
+							<Button
+								name='Submit'
+								fill
+								onClick={() => {
+									selectDocs(false);
+								}}
+								isLoader={false}
+								disabled={!formState?.values?.panNumber}
+							/>
+						</section>
+					</Modal>
+				)}
 			</>
 		)
 	);
