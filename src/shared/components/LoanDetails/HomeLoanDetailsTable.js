@@ -32,30 +32,28 @@ const Head = styled(Colom)`
   font-weight: 700;
 `;
 
-const tableContent = {
-  heads: [
-    "Particulars(Period)",
-    "Upto 30 Lakhs",
-    "Above 30 Lakhs and Upto 75 Lakhs",
-    "Above 75 Lakhs",
-  ],
-  content: [
-    ["Upto 5 years", "10.25%", "10.75%", "11.25%"],
-    ["Above 5 years and Upto 10 years", "10.75%", "11.25%", "11.75%"],
-    ["Above 10 years and Upto 15 years", "11.25%", "11.75%", "12.25%"],
-  ],
-};
+// const tableContent = {
+//   heads: [
+//     "Particulars(Period)",
+//     "Upto 30 Lakhs",
+//     "Above 30 Lakhs and Upto 75 Lakhs",
+//     "Above 75 Lakhs",
+//   ],
+//   content: [
+//     ["Upto 5 years", "10.25%", "10.75%", "11.25%"],
+//     ["Above 5 years and Upto 10 years", "10.75%", "11.25%", "11.75%"],
+//     ["Above 10 years and Upto 15 years", "11.25%", "11.75%", "12.25%"],
+//   ],
+// };
 
-export default function HomeLoanDetailsTable() {
+export default function HomeLoanDetailsTable({ tableContent }) {
   return (
     <TableWrapper>
       <Row>
-        {tableContent.heads.map((head) => (
-          <Head key={head}>{head}</Head>
-        ))}
+        {tableContent?.heads?.map((head) => <Head key={head}>{head}</Head>)}
       </Row>
 
-      {tableContent.content.map((row, i) => (
+      {tableContent?.content?.map((row, i) => (
         <Row key={i}>
           {row.map((colom) => (
             <Colom key={colom}>{colom}</Colom>
