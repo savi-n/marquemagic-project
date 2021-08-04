@@ -21,6 +21,7 @@ export const verifyPan = async (ref_id, req_id, token) => {
 	const t = await g;
 };
 
+
 export const gstFetch = async (pan_number, state_code, token) => {
 	const url = `${ENDPOINT_BANK}/GSTData`;
 	if (state_code == null)

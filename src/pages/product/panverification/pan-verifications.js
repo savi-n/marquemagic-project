@@ -784,6 +784,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	);
 }
 
+
 PanVerification.propTypes = {
 	productDetails: object,
 	onFlowChange: func.isRequired,
