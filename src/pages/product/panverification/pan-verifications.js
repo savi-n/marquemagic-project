@@ -294,7 +294,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					return;
 				}
 
-				setLoading(true);
 
 				try {
 					if (formState?.values?.panNumber) {
@@ -311,6 +310,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						type: 'error'
 					});
 				}
+
+				// setLoading(false);
+
 			} else {
 				localStorage.setItem('product', 'demo');
 
@@ -318,7 +320,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					return;
 				}
 
-				setLoading(true);
 
 				try {
 					if (udhyogAadhar) {
@@ -349,6 +350,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					});
 				}
 			}
+
+			// setLoading(false);
+
 		} else {
 			console.log(aadhar, voter, otherDoc);
 			if (aadhar.length > 0 && aadhar[0]?.file) {
@@ -360,9 +364,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			if (otherDoc.length > 0 && otherDoc[0]?.file) {
 				handleUpload(otherDoc[0]?.file);
 			}
+
+			// setLoading(false);
+
 		}
 
-		setLoading(false);
 	};
 
 	const gstNumberFetch = async (data, gstNum) => {
@@ -454,7 +460,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			setLoading(false);
 		});
 
-		setLoading(false);
 	};
 
 	function formatUserDetails(data, fields) {
@@ -572,6 +577,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											setDocs([]);
 										}
 									}}
+									isLoader={loading}
 									name={loading ? 'Please wait...' : 'Submit'}
 									disabled={!docs.length > 0}
 									fill
@@ -677,6 +683,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								<Button onClick={() => setPanUpload(true)} name='Upload PAN again' fill />
 								<Button
 									type='submit'
+									isLoader={loading}
 									name={loading ? 'Please wait...' : 'SUBMIT'}
 									fill
 									disabled={
@@ -732,6 +739,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							<Button
 								name='Submit'
 								fill
+
 								onClick={() => {
 									setPanConfirm(false);
 									setPanUpload(false);
