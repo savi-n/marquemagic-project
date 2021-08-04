@@ -340,10 +340,10 @@ function reducer(state, action) {
       break;
     }
     case actionTypes.SET_USERTYPE_DOCUMENTS: {
-      const uploadedDocs = [
+      const uploadedDocs = {
         ...(state[action.userType]?.uploadedDocs || []),
         ...action.docs,
-      ];
+      };
 
       updatedState = {
         ...state,

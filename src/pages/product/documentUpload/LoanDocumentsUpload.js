@@ -117,7 +117,9 @@ function fileStructure(documents, type) {
 		}));
 }
 
-let userToken = localStorage.getItem('localhost');
+const url = window.location.hostname;
+
+let userToken = localStorage.getItem(url);
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
 
@@ -395,7 +397,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			}
 		},
 		headers: {
-			Authorization: `Bearer ${JSON.parse(userToken).userReducer.userToken}`
+			Authorization: `Bearer ${JSON.parse(userToken) && JSON.parse(userToken).userReducer && JSON.parse(userToken).userReducer.userToken}`
 		}
 	});
 

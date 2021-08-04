@@ -308,7 +308,17 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		setCibilCheckModal(false);
 	};
 
-	const documentChecklist = state[USER_ROLES[userType || 'User']]?.uploadedDocs?.map(docs => docs.typeName) || [];
+	let documentChecklist =  [];
+
+
+	console.log(state[USER_ROLES[userType || 'User']],"USER_ROLES[userType || 'User']")
+
+
+	if(state[USER_ROLES[userType || 'User']] && state[USER_ROLES[userType || 'User']].uploadedDocs && state[USER_ROLES[userType || 'User']].uploadedDoc){
+		documentChecklist = Object.keys(state[USER_ROLES[userType || 'User']]?.uploadedDocs).map(docs => docs.typeName)
+	}
+
+
 
 	const subFlowActivate = async () => {
 		const res = await caseCreationUserType();
