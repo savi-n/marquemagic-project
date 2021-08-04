@@ -257,14 +257,18 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [selectDoc, selectDocs] = useState(false);
 
 	const onSubmit = async ({ panNumber, companyName, udhyogAadhar, gstNumber }) => {
-		console.log(productType);
+
+
+
+		setLoading(true);
+
+
 		if (productType === 'business') {
 			if (isBusiness) {
 				if (!formState?.values?.companyName && !formState?.values?.panNumber) {
 					return;
 				}
 
-				setLoading(true);
 
 				try {
 					if (formState?.values?.panNumber) {
@@ -309,7 +313,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 			}
 		} else {
-			console.log(aadhar, voter, otherDoc);
 			if (aadhar.length > 0) {
 				handleUpload(aadhar[0].file);
 			}
@@ -364,7 +367,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [aadhar, setAadhar] = useState([]);
 	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
-	
+	const [isPanUploading, setIsPanUploading] = useState(false);
+
 
 	const handlePanUpload = files => {
 		setLoading(true);
@@ -377,12 +381,18 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			if (res.data.status === 'nok') {
 				if (productType === 'salaried') {
 					setPanConfirm(true);
+
+
 				}
 				addToast({
 					message: res.data.message,
 					type: 'error'
 				});
 			} else {
+
+				setIsPanUploading(false)
+
+
 				setPan(res.data.data['Pan_number']);
 				localStorage.getItem('pan', res.data.data['Pan_number']);
 				formState.values.panNumber = res.data.data['Pan_number'];
@@ -410,8 +420,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 				setResponse(res.data);
 			}
-			setLoading(false);
 		});
+
+
+
+
 	};
 
 	function formatUserDetails(data, fields) {
@@ -458,9 +471,25 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.aadhaar = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '');
 				localStorage.setItem('aadhar', res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, ''));
 				formState.values.dob = res?.data?.data?.DOB;
+				formState.values.aadhaar = res?.data?.data?.Aadhar_number;
+				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
 				formState.values.panNumber = panNum;
+				formState.values.dob = formState.values.dob;
+				formState.values.dl_no = res.data?.data?.dl_no;
+				formState.values.address1 = res.data?.data?.address;
+
+				let address = formState.values.address1;
+
+
+				let locationArr = address.split(' ');
+
+
+				let pinCode = address.match(/\d+/)[0];
+
+				formState.values.pin = pinCode
+
 				localStorage.setItem('formstate', JSON.stringify(formState));
 				setOtherDoc([]);
 				setAadhar([]);
@@ -504,7 +533,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											setDocs([]);
 										}
 									}}
-									name={loading ? 'Please wait' : 'Submit'}
+									name='Submit'
+									isLoader={isPanUploading}
 									disabled={!docs.length > 0}
 									fill
 								/>
@@ -587,7 +617,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											value: formState?.values?.panNumber
 										})}
 									</FieldWrapper>
-									
+
 									<H2>or</H2>
 									<FieldWrapper>
 										{register({
@@ -602,7 +632,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								<Button onClick={() => setPanUpload(true)} name='Upload PAN again' fill />
 								<Button
 									type='submit'
-									name={loading ? 'Please wait...' : 'SUBMIT'}
+									isLoader={loading}
+									name={'SUBMIT'}
 									fill
 									disabled={
 										productType !== 'salaried'
@@ -652,6 +683,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							<Button
 								name='Submit'
 								fill
+								isLoader={false}
 								onClick={() => {
 									setPanConfirm(false);
 									setPanUpload(false);
@@ -696,6 +728,36 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							</section>
 						</Modal>
 					)}
+				{selectDoc && (
+					<Modal>
+						<section className='p-4 flex flex-col gap-y-8'>
+							<span className='font-bold text-lg'>Please select doc type</span>
+							<section className='flex gap-x-4 items-center'>
+								<section>
+									<label>DL</label>
+									<input type='radio' name='doctype' value='DL' />
+								</section>
+								<section>
+									<label>Aadhar</label>
+									<input type='radio' name='doctype' value='aadhar' />
+								</section>
+								<section>
+									<label>VoterID</label>
+									<input type='radio' name='doctype' value='voter' />
+								</section>
+							</section>
+							<Button
+									name='Submit'
+								fill
+								onClick={() => {
+									selectDocs(false);
+								}}
+								isLoader={false}
+								disabled={!formState?.values?.panNumber}
+							/>
+						</section>
+					</Modal>
+				)}
 			</>
 		)
 	);

@@ -147,6 +147,21 @@ export default function AddressDetailsPage({ id, onFlowChange, map, productId })
 	//   }
 	// };
 
+	console.log(userBankDetails, "userBankDetails")
+
+	const r = () => {
+		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+			var formStat = JSON.parse(localStorage.getItem('formstate'));
+			console.log(formStat, "console" );
+			return formStat.values;
+		} else {
+			return userBankDetails;
+		}
+
+
+	};
+
+
 	return (
 		<Div>
 			<AddressDetails
@@ -157,13 +172,13 @@ export default function AddressDetailsPage({ id, onFlowChange, map, productId })
 				jsonData={map.fields[id].data}
 				disablePermenanet={true}
 				preData={{
-					address1: userBankDetails?.address1 || '',
-					address2: userBankDetails?.address2 || '',
-					address3: userBankDetails?.address3 || '',
-					address4: userBankDetails?.address4 || '',
-					city: userBankDetails?.city || '',
-					state: userBankDetails?.state || '',
-					pinCode: userBankDetails?.pin || ''
+					address1: r()?.address1 || '',
+					address2: r()?.address2 || '',
+					address3: r()?.address3 || '',
+					address4: r()?.address4 || '',
+					city: r()?.city || '',
+					state: r()?.state || '',
+					pinCode: r()?.pin || ''
 				}}
 			/>
 			<ButtonWrap>
