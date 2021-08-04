@@ -460,7 +460,18 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.panNumber = panNum;
 				formState.values.dob = formState.values.dob;
 				formState.values.dl_no = res.data?.data?.dl_no;
-				formState.values.address = res.data?.data?.address;
+				formState.values.address1 = res.data?.data?.address;
+
+				let address = formState.values.address1;
+
+
+				let locationArr = address.split(' ');
+
+
+				let pinCode = address.match(/\d+/)[0];
+
+				formState.values.pin = pinCode
+
 				localStorage.setItem('formstate', JSON.stringify(formState));
 				setOtherDoc([]);
 				setAadhar([]);
