@@ -39,6 +39,18 @@ const Img = styled.img`
 	object-position: center;
 `;
 
+const Lab = styled.h1`
+	font-size: 1.0em;
+	font-weight: 500;
+	color: grey;
+`;
+
+const LabRed = styled.h1`
+	font-size: 1.0em;
+	font-weight: 500;
+	color: red;
+`;
+
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
@@ -125,7 +137,7 @@ function formatCompanyDataGST(data, panNum) {
 		}
 	}
 
-	const [date, month, year] = data.rgdt.split(/\/|-/);
+	const [date, month, year] = data?.rgdt.split(/\/|-/);
 
 	return {
 		BusinessName: data.tradeNam,
@@ -267,12 +279,14 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	};
 
 	const [selectDoc, selectDocs] = useState(false);
+	const [verificationFailed,setVerificationFailed] = useState(null);
 
-	const onSubmit = async ({ panNumber, companyName, udhyogAadhar, gstNumber }) => {
+	const onSubmit = async ({ panNumber, companyName, udhyogAadhar, gstin, gstNumber }) => {
 
 
 
 		setLoading(true);
+		setVerificationFailed(null);
 
 
 		if (productType === 'business') {
@@ -311,9 +325,20 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						await verifyPan(response?.Info?.id, udhyogAadhar, clientToken);
 					}
 
+					let stateCode = null, panFromGstin = null;
+					if (gstin) {
+						stateCode = gstin.slice(0, 2);
+						panFromGstin = gstin.slice(2,12);
+						if (panFromGstin !== panNumber) {
+							setVerificationFailed("Invalid GSTIN for the given PAN");
+							setLoading(false);
+							return;
+						}
+					}
+
 					if (panNumber) {
-						await gstFetch(panNumber, clientToken).then(res => {
-							gstNumberFetch(res.data.data);
+						await gstFetch(panNumber, stateCode, clientToken).then(res => {
+							gstNumberFetch(res?.data?.data[0]?.data);
 						});
 					}
 				} catch (error) {
@@ -434,7 +459,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			}
 		});
 
-
+		setLoading(false);
 
 
 	};
@@ -623,14 +648,21 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							) : (
 								<>
 									<FieldWrapper>
+										<Lab>
+											PAN Number : {panNum}
+										</Lab>
+									</FieldWrapper>
+									
+									<FieldWrapper>
 										{register({
-											name: 'panNumber',
-											placeholder: 'PAN Number',
-											value: formState?.values?.panNumber
+											name: 'gstin',
+											placeholder: 'GST Identification Number',
+											value: formState?.values?.gstin,
 										})}
 									</FieldWrapper>
+									<br />
+									<H2>OR</H2>
 
-									<H2>or</H2>
 									<FieldWrapper>
 										{register({
 											name: 'udhyogAadhar',
@@ -649,16 +681,21 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 									fill
 									disabled={
 										productType !== 'salaried'
-											? isBusiness
-											? !(formState.values?.companyName || formState.values?.panNumber) ||
-											(formState.values?.companyName && formState.values?.panNumber)
-											: !(formState.values?.udhyogAadhar || formState.values?.panNumber) ||
+										? isBusiness
+											? !(formState.values?.companyName || formState.values?.panNumber ) ||
+											(formState.values?.companyName && formState.values?.panNumber )
+											: !(formState.values?.udhyogAadhar || formState.values?.panNumber ) ||
 											(formState.values?.udhyogAadhar && formState.values?.panNumber) ||
 											loading
-											: false
+										: false
 									}
 								/>
 							</section>
+							<FieldWrapper>
+										<LabRed>
+										{verificationFailed}
+										</LabRed>
+							</FieldWrapper>
 						</form>
 					)}
 				</Colom1>
