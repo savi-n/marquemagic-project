@@ -169,13 +169,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 
 
 
-		director_details:
-			localStorage.getItem('product') === 'demo'
-				? {
-					director_0: {},
-					director_1: {}
-				}
-				: companyData?.DirectorDetails,
+		director_details: [],
 		loan_details: {
 			// loan_type_id: 1,
 			// case_priority: null,
@@ -328,6 +322,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	} = useContext(LoanFormContext);
 
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
+	const [message, setMessage] = useState('');
 	const [declareCheck, setDeclareCheck] = useState(false);
 
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
@@ -494,6 +489,11 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
+
+				console.log(caseReq.data, "caseReq.data")
+
+				setMessage(caseReq.data.data.loan_details.loan_ref_id)
+
 				return caseRes.data;
 			}
 
@@ -649,16 +649,17 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		if (!userType) {
 			const loanReq = await caseCreationSteps(state);
 
-			console.log(loanReq,"dddddddddddddddddddddd");
-
-
 			if (!loanReq && !loanReq?.loanId) {
 				setCaseCreationProgress(false);
 				return;
 			}
 
 			setCompleted(id);
-			onFlowChange(map.main);
+
+
+
+
+			// onFlowChange(map.main);
 		}
 	};
 
@@ -721,6 +722,13 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						onClick={onSubmit}
 					/>
 				</SubmitWrapper>
+				{message &&
+					<div style={{color: 'blue'}}>
+						Your case is created and your reference number is {message}
+					</div>
+				}
+
+
 				{otherBankStatementModal && (
 					<BankStatementModal showModal={otherBankStatementModal} onClose={onOtherStatementModalToggle} />
 				)}
