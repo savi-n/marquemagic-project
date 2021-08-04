@@ -351,14 +351,14 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			}
 		} else {
 			console.log(aadhar, voter, otherDoc);
-			if (aadhar.length > 0) {
-				handleUpload(aadhar[0].file);
+			if (aadhar.length > 0 && aadhar[0]?.file) {
+				handleUpload(aadhar[0]?.file);
 			}
-			if (voter.length > 0) {
-				handleUpload(voter[0].file);
+			if (voter.length > 0 && voter[0].file) {
+				handleUpload(voter[0]?.file);
 			}
-			if (otherDoc.length > 0) {
-				handleUpload(otherDoc[0].file);
+			if (otherDoc.length > 0 && otherDoc[0]?.file) {
+				handleUpload(otherDoc[0]?.file);
 			}
 		}
 
@@ -514,12 +514,19 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				let address = formState.values.address1;
 
 
-				let locationArr = address.split(' ');
+
+				let pinCode = '';
+
+				if(address){
+					let locationArr = address && address.split(' ');
 
 
-				let pinCode = address.match(/\d+/)[0];
+					let pinCode = address.match(/\d+/)[0];
 
-				formState.values.pin = pinCode
+					formState.values.pin = pinCode
+				}
+
+
 
 				localStorage.setItem('formstate', JSON.stringify(formState));
 				setOtherDoc([]);

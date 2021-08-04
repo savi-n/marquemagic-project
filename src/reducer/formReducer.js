@@ -161,10 +161,10 @@ function reducer(state, action) {
         ...state,
         [action.userType]: {
           ...state[action.userType],
-          uploadedDocs: [
+          uploadedDocs: {
             ...state[action.userType].uploadedDocs,
             ...action.agreementFiles,
-          ],
+          }
         },
       };
       break;
