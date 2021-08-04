@@ -75,6 +75,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 			const userDataRes = userDetailsReq.data;
 
+			localStorage.setItem("userToken", userDataRes.token);
+
 			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,

@@ -117,7 +117,7 @@ function formatCompanyData(data, panNum) {
 }
 
 function formatCompanyDataGST(data, panNum, gstNum) {
-	if (data.length > 1) data = data[0].data;
+	if (data?.length > 1) data = data[0].data;
 	let directors = {};
 	let directorsForShow = [];
 
@@ -373,6 +373,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 	const gstNumberFetch = async (data, gstNum) => {
 		const companyData = data;
+		if (data?.error_code) {
+			return;
+		}
 		setCompanyDetails({
 			...formatCompanyDataGST(companyData, panNum, gstNum)
 		});

@@ -155,7 +155,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			}
 		},
 		headers: {
-			Authorization: `Bearer ${userToken}`
+			Authorization: `Bearer ${localStorage.getItem('userToken')}`
 		}
 	});
 
