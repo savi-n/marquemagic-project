@@ -113,7 +113,54 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		} else {
 			return userBankDetails;
 		}
+
+
 	};
+
+
+	const getAdhar = () => {
+
+
+		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+			var formStat = JSON.parse(localStorage.getItem('formstate'));
+
+			if(formStat.values.aadharNum){
+				const adharNum = formStat.values.aadharNum;
+
+				let d = `******${adharNum[adharNum.length-4]}${adharNum[adharNum.length-3]}${adharNum[adharNum.length-2]}${adharNum[adharNum.length-1]}`;
+
+				return d;
+			}
+
+
+		} else {
+			return userBankDetails?.aadharNum;
+		}
+
+
+	};
+
+
+	const getDOB = () => {
+		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+			var formStat = JSON.parse(localStorage.getItem('formstate'));
+
+			if(formStat.values.dob){
+				let d = formStat.values.dob.split('/');
+
+				d = `${d[2]}-${d[1]}-${d[0]}`
+
+				return d;
+			}
+
+
+		} else {
+			return userBankDetails?.dob;
+		}
+	}
+
+
+
 
 	return (
 		<Div>
@@ -123,13 +170,13 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				preData={{
 					firstName: r()?.firstName || '',
 					lastName: r()?.lastName || '',
-					dob: r()?.dob || JSON.parse(localStorage.getItem('formstatepan')).values.dob || '',
+					dob: getDOB() || JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob || '',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
-					panNumber: r()?.pan || JSON.parse(localStorage.getItem('formstatepan')).values.panNumber || '',
+					panNumber: r()?.pan || JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber || '',
 					residenceStatus: r()?.residentTypess || '',
-					// countryResidence: "india",
-					aadhaar: r()?.aadharNum || localStorage.getItem('aadhar') || ''
+					aadhaar: getAdhar() || localStorage.getItem('aadhar') || '',
+					countryResidence: "india",
 				}}
 				jsonData={map.fields[id].data}
 			/>

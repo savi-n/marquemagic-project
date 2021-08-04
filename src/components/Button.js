@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { string, func, object, oneOfType, bool } from "prop-types";
+import Loader from "../Branch/components/Loader";
 
 const StyledButton = styled.button`
   color: ${({ theme, fill }) => (fill ? "white" : theme.main_theme_color)};
@@ -18,6 +19,8 @@ const StyledButton = styled.button`
   font-weight: 500;
   text-align: center;
   transition: 0.2s;
+  display: flex;
+  justify-content: center;
 
   &:hover {
     color: #fff;
@@ -30,6 +33,32 @@ const Div = styled.div`
   flex: 1;
 `;
 
+const LoaderCircle = styled.label`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(15px);
+  margin: 0 auto;
+  &:before {
+    content: "";
+    border: 4px solid #e2e1e1;
+    border-bottom-color: #4750cf;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    animation: rotating 2s linear infinite;
+  }
+
+  @keyframes rotating {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 export default function Button({
   name,
   onClick,
@@ -39,6 +68,8 @@ export default function Button({
   disabled = false,
   width,
   roundCorner = false,
+  isLoader,
+  loading,
 }) {
   return (
     <StyledButton
@@ -49,8 +80,9 @@ export default function Button({
       width={width}
       roundCorner={roundCorner}
     >
-      {name && <Div>{name}</Div>}
-      {children}
+      {isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
+      {loading && <LoaderCircle />}
+      {!loading && children}
     </StyledButton>
   );
 }

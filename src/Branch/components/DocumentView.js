@@ -125,7 +125,9 @@ function DocumentList({
             Select Document Type
           </option>
           {options.map((option) => (
-            <option value={option.value}>{option.name}</option>
+            <option key={option.value} value={option.value}>
+              {option.name}
+            </option>
           ))}
         </Select>
       </DocumentType>
@@ -151,7 +153,7 @@ export default function DocumentView({
       <DocumentListWrapper>
         {documents.map((doc) => (
           <DocumentList
-            key={doc.document_fd_key}
+            key={doc.id}
             document={doc}
             loanId={loanId}
             userToken={userToken}
