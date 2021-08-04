@@ -166,6 +166,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		//   state: "England",
 		// },
 
+
+
+
 		director_details:
 			localStorage.getItem('product') === 'demo'
 				? {
