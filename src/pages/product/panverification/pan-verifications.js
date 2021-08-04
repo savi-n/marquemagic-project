@@ -229,6 +229,12 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 			const userDetailsRes = userDetailsReq.data;
 
+			localStorage.setItem("branchId", userDetailsRes.branchId);
+
+
+			console.log()
+
+
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
@@ -239,6 +245,12 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+
+				console.log(encryptWhiteLabelRes,"encryptWhiteLabelRes")
+
+
+				localStorage.setItem("encryptWhiteLabel", encryptWhiteLabelRes.encrypted_whitelabel[0]);
 
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
@@ -542,7 +554,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						</section>
 					) : (
 						<form onSubmit={handleSubmit(onSubmit)}>
-							
 							{uploadOtherDocs ? (
 								<>
 									<p className='py-4 text-xl text-green-600'>
@@ -639,11 +650,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 									disabled={
 										productType !== 'salaried'
 											? isBusiness
-												? !(formState.values?.companyName || formState.values?.panNumber) ||
-												  (formState.values?.companyName && formState.values?.panNumber)
-												: !(formState.values?.udhyogAadhar || formState.values?.panNumber) ||
-												  (formState.values?.udhyogAadhar && formState.values?.panNumber) ||
-												  loading
+											? !(formState.values?.companyName || formState.values?.panNumber) ||
+											(formState.values?.companyName && formState.values?.panNumber)
+											: !(formState.values?.udhyogAadhar || formState.values?.panNumber) ||
+											(formState.values?.udhyogAadhar && formState.values?.panNumber) ||
+											loading
 											: false
 									}
 								/>
@@ -696,39 +707,39 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					</Modal>
 				)}
 				{backUpload &&
-					!panUpload &&
-					(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
-					!backUploading && (
-						<Modal
-							show={backUpload}
-							onClose={() => {
-								setBackUpload(false);
-							}}
-							width='30%'
-						>
-							<span className='px-4 font-bold'>Upload back part of the document?</span>
-							<section className='p-4 py-16 flex gap-x-8'>
-								<Button
-									name='Yes'
-									fill
-									onClick={() => {
-										setBackUploading(true);
-										setBackUpload(false);
-										setAadhar([]);
-										setVoter([]);
-										setOtherDoc([]);
-									}}
-								/>
-								<Button
-									name='No'
-									fill
-									onClick={() => {
-										setBackUpload(false);
-									}}
-								/>
-							</section>
-						</Modal>
-					)}
+				!panUpload &&
+				(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
+				!backUploading && (
+					<Modal
+						show={backUpload}
+						onClose={() => {
+							setBackUpload(false);
+						}}
+						width='30%'
+					>
+						<span className='px-4 font-bold'>Upload back part of the document?</span>
+						<section className='p-4 py-16 flex gap-x-8'>
+							<Button
+								name='Yes'
+								fill
+								onClick={() => {
+									setBackUploading(true);
+									setBackUpload(false);
+									setAadhar([]);
+									setVoter([]);
+									setOtherDoc([]);
+								}}
+							/>
+							<Button
+								name='No'
+								fill
+								onClick={() => {
+									setBackUpload(false);
+								}}
+							/>
+						</section>
+					</Modal>
+				)}
 				{selectDoc && (
 					<Modal>
 						<section className='p-4 flex flex-col gap-y-8'>
@@ -748,7 +759,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								</section>
 							</section>
 							<Button
-									name='Submit'
+								name='Submit'
 								fill
 								onClick={() => {
 									selectDocs(false);

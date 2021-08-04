@@ -9,6 +9,7 @@ import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
+import {APP_CLIENT} from "../../../_config/app.config";
 
 const Div = styled.div`
 	flex: 1;
@@ -71,9 +72,9 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 	const [match, setMatch] = useState(false);
 
 	const onSave = formData => {
-		let formatedData = [formatData('permanent', formData, fieldConfig.address_details.data)];
+		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 
-		!match && formatedData.push(formatData('present', formData, fieldConfig.address_details.data));
+		!match && formatedData.push(formatData('present', formData, map.fields[id].data));
 
 		setUsertypeAddressData(formatedData);
 		setSaved(true);
@@ -94,6 +95,19 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 	//     onFlowChange(map.sub);
 	//   };
 
+
+	const r = () => {
+		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+			var formStat = JSON.parse(localStorage.getItem('formstate'));
+			console.log(formStat, "console" );
+			return formStat.values;
+		} else {
+			return userBankDetails;
+		}
+
+
+	};
+
 	return (
 		<Div>
 			<AddressDetails
@@ -102,7 +116,15 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields[id].data}
-				preData={{}}
+				preData={{
+					address1: r()?.address1 || '',
+					address2: r()?.address2 || '',
+					address3: r()?.address3 || '',
+					address4: r()?.address4 || '',
+					city: r()?.city || '',
+					state: r()?.state || '',
+					pinCode: r()?.pin || ''
+				}}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

@@ -208,11 +208,11 @@ export default function useCaseCreation(userType, productId, role) {
 						...state[USER_ROLES[role]].applicantData,
 						...(state[USER_ROLES[role]]?.emi?.length
 							? {
-									emiDetails: state[USER_ROLES[role]]?.emi?.map(em => ({
-										emiAmount: em.amount,
-										bank_name: em.bank
-									}))
-							  }
+								emiDetails: state[USER_ROLES[role]]?.emi?.map(em => ({
+									emiAmount: em.amount,
+									bank_name: em.bank
+								}))
+							}
 							: {})
 					},
 					...state[USER_ROLES[role]].loanData,
@@ -248,15 +248,16 @@ export default function useCaseCreation(userType, productId, role) {
 				{
 					white_label_id: whiteLabelId,
 					product_id: productId,
+					branchId: localStorage.getItem("branchId"),
 					applicantData: {
 						...state.user.applicantData,
 						...(state.user?.emi
 							? {
-									emiDetails: state.user?.emi?.map(em => ({
-										emiAmount: em.amount,
-										bank_name: em.bank
-									}))
-							  }
+								emiDetails: state.user?.emi?.map(em => ({
+									emiAmount: em.amount,
+									bank_name: em.bank
+								}))
+							}
 							: {})
 					},
 					loanData: { assetsValue: 0, ...state.user.loanData, productId },

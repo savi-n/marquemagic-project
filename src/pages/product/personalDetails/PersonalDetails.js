@@ -12,7 +12,7 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { AppContext } from '../../../reducer/appReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import { LOGIN_CREATEUSER } from '../../../_config/app.config';
+import {LOGIN_CREATEUSER, NC_STATUS_CODE, WHITELABEL_ENCRYPTION_API} from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 
 const Div = styled.div`
@@ -71,7 +71,31 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				}
 			});
 
+
+
 			const userDataRes = userDetailsReq.data;
+
+			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
+				const encryptWhiteLabelReq = await newRequest(
+					WHITELABEL_ENCRYPTION_API,
+					{
+						method: 'GET'
+					},
+					{ Authorization: `Bearer ${userDataRes.token}` }
+				);
+
+
+				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+
+				console.log(encryptWhiteLabelRes,"encryptWhiteLabelRes")
+
+
+				localStorage.setItem("encryptWhiteLabel", encryptWhiteLabelRes.encrypted_whitelabel[0]);
+
+			}
+
+
 
 			const userData = {
 				// userAccountToken: userDetailsReq.accToken,
