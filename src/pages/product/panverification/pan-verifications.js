@@ -60,7 +60,7 @@ const H2 = styled.h2`
 
 const businessTypeMaps = [[['private', 'pvt'], 4], [['public', 'pub'], 5], [['llp'], 3]];
 
-function formatCompanyData(data, panNum) {
+function formatCompanyData(data) {
 	let directors = {};
 	let directorsForShow = [];
 
@@ -92,7 +92,7 @@ function formatCompanyData(data, panNum) {
 		BusinessType: businesType,
 		Email: data.company_master_data.email_id,
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
+		PancardNumber: '',
 		CIN: data.company_master_data['cin '],
 		CompanyCategory: data.company_master_data.company_category,
 		Address: data.company_master_data.registered_address,
@@ -104,7 +104,7 @@ function formatCompanyData(data, panNum) {
 	};
 }
 
-function formatCompanyDataGST(data, panNum) {
+function formatCompanyDataGST(data) {
 	if (data.length > 1) data = data[0].data;
 	let directors = {};
 	let directorsForShow = [];
@@ -132,7 +132,7 @@ function formatCompanyDataGST(data, panNum) {
 		BusinessType: businesType,
 		Email: '',
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
+		PancardNumber: '',
 		CIN: '',
 		CompanyCategory: data.nba[0],
 		Address: data.pradr?.addr,
@@ -175,8 +175,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
-
-	const [panNum, setPan] = useState('');
 
 	const companyNameSearch = async companyName => {
 		setLoading(true);
@@ -246,7 +244,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data, panNum)
+						...formatCompanyData(companyData.data)
 					});
 				onProceed();
 				return;
@@ -257,18 +255,13 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [selectDoc, selectDocs] = useState(false);
 
 	const onSubmit = async ({ panNumber, companyName, udhyogAadhar, gstNumber }) => {
-
-
-
-		setLoading(true);
-
-
 		if (productType === 'business') {
 			if (isBusiness) {
 				if (!formState?.values?.companyName && !formState?.values?.panNumber) {
 					return;
 				}
 
+				setLoading(true);
 
 				try {
 					if (formState?.values?.panNumber) {
@@ -313,6 +306,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 			}
 		} else {
+			console.log(aadhar, voter, otherDoc);
 			if (aadhar.length > 0) {
 				handleUpload(aadhar[0].file);
 			}
@@ -323,13 +317,14 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				handleUpload(otherDoc[0].file);
 			}
 		}
+
 		setLoading(false);
 	};
 
 	const gstNumberFetch = async data => {
 		const companyData = data;
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData, panNum)
+			...formatCompanyDataGST(companyData)
 		});
 		onProceed();
 		return;
@@ -367,8 +362,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [aadhar, setAadhar] = useState([]);
 	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
-	const [isPanUploading, setIsPanUploading] = useState(false);
-
+	const [panNum, setPan] = useState(null);
 
 	const handlePanUpload = files => {
 		setLoading(true);
@@ -381,18 +375,12 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			if (res.data.status === 'nok') {
 				if (productType === 'salaried') {
 					setPanConfirm(true);
-
-
 				}
 				addToast({
 					message: res.data.message,
 					type: 'error'
 				});
 			} else {
-
-				setIsPanUploading(false)
-
-
 				setPan(res.data.data['Pan_number']);
 				localStorage.getItem('pan', res.data.data['Pan_number']);
 				formState.values.panNumber = res.data.data['Pan_number'];
@@ -420,11 +408,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				}
 				setResponse(res.data);
 			}
+			setLoading(false);
 		});
-
-
-
-
 	};
 
 	function formatUserDetails(data, fields) {
@@ -467,36 +452,22 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					type: 'error'
 				});
 			} else {
+				const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
+				const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
 				const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
-				formState.values.aadhaar = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '');
-				localStorage.setItem('aadhar', res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, ''));
+				formState.values.aadhaar = t;
+				localStorage.setItem('aadhar', t);
 				formState.values.dob = res?.data?.data?.DOB;
-				formState.values.aadhaar = res?.data?.data?.Aadhar_number;
-				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
 				formState.values.panNumber = panNum;
-				formState.values.dob = formState.values.dob;
-				formState.values.dl_no = res.data?.data?.dl_no;
-				formState.values.address1 = res.data?.data?.address;
-
-				let address = formState.values.address1;
-
-
-				let locationArr = address.split(' ');
-
-
-				let pinCode = address.match(/\d+/)[0];
-
-				formState.values.pin = pinCode
-
 				localStorage.setItem('formstate', JSON.stringify(formState));
 				setOtherDoc([]);
 				setAadhar([]);
 				setVoter([]);
 				onProceed();
+				setLoading(false);
 			}
-			setLoading(false);
 		});
 	};
 
@@ -516,7 +487,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										userid
 									}),
 									header: {
-										Authorization: `Bearer ${clientToken}`
+										Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
 									}
 								}}
 								pan={true}
@@ -533,8 +504,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											setDocs([]);
 										}
 									}}
-									name='Submit'
-									isLoader={isPanUploading}
+									name={loading ? 'Please wait...' : 'Submit'}
 									disabled={!docs.length > 0}
 									fill
 								/>
@@ -542,7 +512,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						</section>
 					) : (
 						<form onSubmit={handleSubmit(onSubmit)}>
-							
 							{uploadOtherDocs ? (
 								<>
 									<p className='py-4 text-xl text-green-600'>
@@ -557,7 +526,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer ${clientToken}`
+												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
 											}
 										}}
 										pan={true}
@@ -578,7 +547,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer ${clientToken}`
+												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
 											}
 										}}
 										pan={true}
@@ -599,7 +568,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer ${clientToken}`
+												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
 											}
 										}}
 										pan={true}
@@ -618,7 +587,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											value: formState?.values?.panNumber
 										})}
 									</FieldWrapper>
-
 									<H2>or</H2>
 									<FieldWrapper>
 										{register({
@@ -633,8 +601,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								<Button onClick={() => setPanUpload(true)} name='Upload PAN again' fill />
 								<Button
 									type='submit'
-									isLoader={loading}
-									name={'SUBMIT'}
+									name={loading ? 'Please wait...' : 'SUBMIT'}
 									fill
 									disabled={
 										productType !== 'salaried'
@@ -684,7 +651,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							<Button
 								name='Submit'
 								fill
-								isLoader={false}
 								onClick={() => {
 									setPanConfirm(false);
 									setPanUpload(false);
@@ -729,36 +695,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							</section>
 						</Modal>
 					)}
-				{selectDoc && (
-					<Modal>
-						<section className='p-4 flex flex-col gap-y-8'>
-							<span className='font-bold text-lg'>Please select doc type</span>
-							<section className='flex gap-x-4 items-center'>
-								<section>
-									<label>DL</label>
-									<input type='radio' name='doctype' value='DL' />
-								</section>
-								<section>
-									<label>Aadhar</label>
-									<input type='radio' name='doctype' value='aadhar' />
-								</section>
-								<section>
-									<label>VoterID</label>
-									<input type='radio' name='doctype' value='voter' />
-								</section>
-							</section>
-							<Button
-									name='Submit'
-								fill
-								onClick={() => {
-									selectDocs(false);
-								}}
-								isLoader={false}
-								disabled={!formState?.values?.panNumber}
-							/>
-						</section>
-					</Modal>
-				)}
 			</>
 		)
 	);

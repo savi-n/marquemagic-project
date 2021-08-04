@@ -50,6 +50,7 @@ AddressDetailsPage.propTypes = {
 };
 
 export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig }) {
+	console.log(fieldConfig);
 	const {
 		actions: { setCompleted, activateSubFlow }
 	} = useContext(FlowContext);

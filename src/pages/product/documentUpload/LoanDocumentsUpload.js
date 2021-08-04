@@ -177,7 +177,8 @@ function caseCreationDataFormat(data, companyData, productDetails) {
 			KYC: fileStructure(data?.documents || [], 'KYC'),
 			others: fileStructure(data?.documents || [], 'Others'),
 			financials: fileStructure(data?.documents || [], 'financials')
-		}
+		},
+		branchId: companyData?.branchId
 	};
 
 	if (localStorage.getItem('product') != 'demo') {
