@@ -69,7 +69,6 @@ export default function Collateral({collateral, loanId, product, onUpdate,disabl
     console.log(fields);
     return !loading ? (
         <div>
-            
            <section className="flex flex-col gap-y-5 w-8/12">
                 <div className="text-blue-600 font-medium text-xl py-8">
                     Collateral details

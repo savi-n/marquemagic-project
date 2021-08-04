@@ -16,7 +16,6 @@ import Loading from '../../components/Loading';
 import Button from '../shared/components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-
 import CollateralsDetails from '../components/CollateralsDetails';
 import ApplicantDetails from '../components/ApllicantDetails';
 import EligibilitySection from '../components/EligibilitySection';

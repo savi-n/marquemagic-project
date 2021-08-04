@@ -542,6 +542,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						</section>
 					) : (
 						<form onSubmit={handleSubmit(onSubmit)}>
+							
 							{uploadOtherDocs ? (
 								<>
 									<p className='py-4 text-xl text-green-600'>

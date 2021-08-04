@@ -79,6 +79,7 @@ export default function CollateralsDetails({loanId, product, savedCollateral, in
         }
     }
 
+    
     useEffect(() => {
         setLoading(true);
         if(seletedCollateral !== null) {
