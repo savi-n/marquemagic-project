@@ -60,7 +60,7 @@ const H2 = styled.h2`
 
 const businessTypeMaps = [[['private', 'pvt'], 4], [['public', 'pub'], 5], [['llp'], 3]];
 
-function formatCompanyData(data) {
+function formatCompanyData(data, panNum) {
 	let directors = {};
 	let directorsForShow = [];
 
@@ -92,7 +92,7 @@ function formatCompanyData(data) {
 		BusinessType: businesType,
 		Email: data.company_master_data.email_id,
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		PancardNumber: '',
+		panNumber: panNum,
 		CIN: data.company_master_data['cin '],
 		CompanyCategory: data.company_master_data.company_category,
 		Address: data.company_master_data.registered_address,
@@ -104,7 +104,7 @@ function formatCompanyData(data) {
 	};
 }
 
-function formatCompanyDataGST(data) {
+function formatCompanyDataGST(data, panNum) {
 	if (data.length > 1) data = data[0].data;
 	let directors = {};
 	let directorsForShow = [];
@@ -132,7 +132,7 @@ function formatCompanyDataGST(data) {
 		BusinessType: businesType,
 		Email: '',
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		PancardNumber: '',
+		panNumber: panNum,
 		CIN: '',
 		CompanyCategory: data.nba[0],
 		Address: data.pradr?.addr,
@@ -145,7 +145,10 @@ function formatCompanyDataGST(data) {
 }
 
 export default function PanVerification({ productDetails, map, onFlowChange, id }) {
-	const productType = productDetails.loanType.includes('Housing') ? 'salaried' : 'business';
+	const productType =
+		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+			? 'business'
+			: 'salaried';
 	const {
 		state: { whiteLabelId, clientToken, bankToken }
 	} = useContext(AppContext);
@@ -172,6 +175,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
+
+	const [panNum, setPan] = useState('');
 
 	const companyNameSearch = async companyName => {
 		setLoading(true);
@@ -241,7 +246,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data)
+						...formatCompanyData(companyData.data, panNum)
 					});
 				onProceed();
 				return;
@@ -318,14 +323,13 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				handleUpload(otherDoc[0].file);
 			}
 		}
-
 		setLoading(false);
 	};
 
 	const gstNumberFetch = async data => {
 		const companyData = data;
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData)
+			...formatCompanyDataGST(companyData, panNum)
 		});
 		onProceed();
 		return;
@@ -363,14 +367,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [aadhar, setAadhar] = useState([]);
 	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
-	const [panNum, setPan] = useState(null);
 	const [isPanUploading, setIsPanUploading] = useState(false);
 
+
 	const handlePanUpload = files => {
-
-		setIsPanUploading(true)
-
-
+		setLoading(true);
 		const formData = new FormData();
 		formData.append('req_type', 'pan');
 		formData.append('process_type', 'extraction');
@@ -393,11 +394,21 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 
 				setPan(res.data.data['Pan_number']);
+				localStorage.getItem('pan', res.data.data['Pan_number']);
 				formState.values.panNumber = res.data.data['Pan_number'];
 				formState.values.companyName = res.data.data['Name'];
-				localStorage.setItem('formstate', JSON.stringify(formState));
+				formState.values.dob = res.data.data['DOB'];
+				localStorage.getItem('DOB', res.data.data['DOB']);
+				localStorage.setItem('formstatepan', JSON.stringify(formState));
 				if (productType === 'business') {
-					if (!res.data.data['Name'].toLowerCase().includes('private limited')) {
+					if (
+						!(
+							res.data.data['Name'].toLowerCase().includes('private limited') ||
+							res.data.data['Name'].toLowerCase().includes('public limited') ||
+							res.data.data['Name'].toLowerCase().includes('limited') ||
+							res.data.data['Name'].toLowerCase().includes('pvt ltd')
+						)
+					) {
 						setBusiness(false);
 						setPanUpload(false);
 					} else {
@@ -435,8 +446,15 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			return 'voter';
 		}
 	};
+	const [backUpload, setBackUpload] = useState(false);
+	const [backUploading, setBackUploading] = useState(false);
+
+	useEffect(() => {
+		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0) setBackUpload(true);
+	}, [otherDoc, aadhar, voter]);
 
 	const handleUpload = files => {
+		setLoading(true);
 		const fileType = t();
 		const formData = new FormData();
 		formData.append('req_type', fileType);
@@ -449,10 +467,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					type: 'error'
 				});
 			} else {
-
-				console.log(res.data,"res.data")
-
 				const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
+				formState.values.aadhaar = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '');
+				localStorage.setItem('aadhar', res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, ''));
+				formState.values.dob = res?.data?.data?.DOB;
 				formState.values.aadhaar = res?.data?.data?.Aadhar_number;
 				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
 				formState.values.firstName = name[0];
@@ -478,6 +496,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				setVoter([]);
 				onProceed();
 			}
+			setLoading(false);
 		});
 	};
 
@@ -497,7 +516,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										userid
 									}),
 									header: {
-										Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+										Authorization: `Bearer ${clientToken}`
 									}
 								}}
 								pan={true}
@@ -526,7 +545,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							{uploadOtherDocs ? (
 								<>
 									<p className='py-4 text-xl text-green-600'>
-										Upload your DL{' '}
+										Upload {(backUploading && 'back picture of') || 'front picture of'} your DL{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -537,7 +556,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+												Authorization: `Bearer ${clientToken}`
 											}
 										}}
 										pan={true}
@@ -547,7 +566,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										setDocs={setOtherDoc}
 									/>
 									<p className='py-4 text-xl text-green-600'>
-										Upload your Aadhar{' '}
+										Upload {(backUploading && 'back picture of') || 'front picture of'} your Aadhar{' '}
 										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
@@ -558,7 +577,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+												Authorization: `Bearer ${clientToken}`
 											}
 										}}
 										pan={true}
@@ -568,8 +587,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										setDocs={setAadhar}
 									/>
 									<p className='py-4 text-xl text-green-600'>
-										Upload your Voter ID{' '}
-										<span className='text-xs'>supported formats - jpeg, png, jpg</span>
+										Upload {(backUploading && 'back picture of') || 'front picture of'} your Voter
+										ID <span className='text-xs'>supported formats - jpeg, png, jpg</span>
 									</p>
 
 									<FileUpload
@@ -579,7 +598,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												userid
 											}),
 											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`
+												Authorization: `Bearer ${clientToken}`
 											}
 										}}
 										pan={true}
@@ -598,6 +617,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											value: formState?.values?.panNumber
 										})}
 									</FieldWrapper>
+
 									<H2>or</H2>
 									<FieldWrapper>
 										{register({
@@ -674,6 +694,40 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						</section>
 					</Modal>
 				)}
+				{backUpload &&
+					!panUpload &&
+					(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
+					!backUploading && (
+						<Modal
+							show={backUpload}
+							onClose={() => {
+								setBackUpload(false);
+							}}
+							width='30%'
+						>
+							<span className='px-4 font-bold'>Upload back part of the document?</span>
+							<section className='p-4 py-16 flex gap-x-8'>
+								<Button
+									name='Yes'
+									fill
+									onClick={() => {
+										setBackUploading(true);
+										setBackUpload(false);
+										setAadhar([]);
+										setVoter([]);
+										setOtherDoc([]);
+									}}
+								/>
+								<Button
+									name='No'
+									fill
+									onClick={() => {
+										setBackUpload(false);
+									}}
+								/>
+							</section>
+						</Modal>
+					)}
 				{selectDoc && (
 					<Modal>
 						<section className='p-4 flex flex-col gap-y-8'>

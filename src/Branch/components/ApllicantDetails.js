@@ -39,7 +39,20 @@ export default function ApplicantDetails({ fields, disabled, onfieldChanges, dat
 											<section className='flex space-evenly items-center'>
 												<label className='w-1/2'>{el.placeholder}</label>
 												{el.type !== 'select' ? (
-													<>
+													<> 
+														{i.name === 'Guarantor Details' &&
+															data?.directors?.map(item =>
+																item.type_name === 'Guarantor' && (
+																	<input
+																		disabled={disabled}
+																		className='rounded-lg p-4 border w-1/3'
+																		name={el.db_name}
+																		onChange={onfieldChanges}
+																		defaultValue={item[el.db_name] || 'N/A'}
+																	/>
+																)
+															)}
+
 														{i.name === 'Business Details' && (
 															<input
 																disabled={disabled}
@@ -59,10 +72,10 @@ export default function ApplicantDetails({ fields, disabled, onfieldChanges, dat
 																	onChange={onfieldChanges}
 																	defaultValue={amountConverter(
 																		data[el.db_name] ||
-																			data?.loanAssestsDetails?.[0]?.[
-																				el.db_name
-																			] ||
-																			'N/A',
+																		data?.loanAssestsDetails?.[0]?.[
+																		el.db_name
+																		] ||
+																		'N/A',
 																		el.db_name
 																	)}
 																/>
@@ -105,8 +118,8 @@ export default function ApplicantDetails({ fields, disabled, onfieldChanges, dat
 																		defaultValue={
 																			o[el.db_name]
 																				? JSON.parse(o[el.db_name]).map(
-																						r => r[el.db_name]
-																				  )
+																					r => r[el.db_name]
+																				)
 																				: 'N/A' || 'N/A'
 																		}
 																	/>

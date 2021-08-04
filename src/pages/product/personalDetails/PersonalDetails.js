@@ -109,7 +109,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const r = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
-			console.log(formStat, "console" );
 			return formStat.values;
 		} else {
 			return userBankDetails;
@@ -171,13 +170,13 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				preData={{
 					firstName: r()?.firstName || '',
 					lastName: r()?.lastName || '',
-					dob: getDOB(),
+					dob: getDOB() || JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob || '',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
-					panNumber: r()?.panNumber || '',
+					panNumber: r()?.pan || JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber || '',
 					residenceStatus: r()?.residentTypess || '',
+					aadhaar: getAdhar() || localStorage.getItem('aadhar') || '',
 					countryResidence: "india",
-					aadhaar: getAdhar()
 				}}
 				jsonData={map.fields[id].data}
 			/>

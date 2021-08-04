@@ -10,6 +10,7 @@ import useFetch from "../../hooks/useFetch";
 import useForm from "../../hooks/useForm";
 import Button from "../shared/components/Button";
 import ButtonS from "../../components/Button";
+import Loading from "../../components/Loading";
 
 const WrapContent = styled.div`
     height: 100%;
@@ -57,26 +58,36 @@ const pageStates = {
     saved: "saved",
 };
 
-export default function CollateralsDetails({loanId, product, disabled, setViewLoan}) {
+export default function CollateralsDetails({loanId, product, savedCollateral, initialCollateral,disabled, setViewLoan}) {
     
     const { newRequest } = useFetch();
     const { register, handleSubmit, formState } = useForm();
     const [fetching, setFetching] = useState(false);
     const [pageState, setPageState] = useState(pageStates.fetch);
-    const [colateralDetails, setColateralDetails] = useState(null);
-    const [seletedCollateral, setSelectedCollateral] = useState(null);
+    const [colateralDetails, setColateralDetails] = useState(initialCollateral ? initialCollateral : null);
+    const [seletedCollateral, setSelectedCollateral] = useState(savedCollateral ? savedCollateral : null);
     const [noOfCollaterals, setNoOfCollaterals] = useState(null);
     const [updatedCollateral, setUpdatedCollateral] = useState(null);
     const [saveUpdate, setSaveUpdate] = useState('save');
-
-    const [delLater, setDelLater] = useState('Not called');
+    const [loading, setLoading] = useState(false);
     
     const onCollateralUpdate = (updateCollateral) => {
         setUpdatedCollateral(updateCollateral);
+        // setSelectedCollateral(updatedCollateral);
         if(updateCollateral != null) {
             onUpdateCollateral(updateCollateral);
         }
     }
+
+    useEffect(() => {
+        setLoading(true);
+        if(seletedCollateral !== null) {
+            setPageState(pageStates.next);
+        } else if (colateralDetails !== null) {
+            setPageState(pageStates.available)
+        }
+        setLoading(false);
+    });
 
     const fetchCollateralDetails = async (url) => {
         const fetchCollateral = await newRequest(
@@ -98,7 +109,7 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
         );
         const colateralDataRes = colateralDataReq?.data;
     
-        setColateralDetails(colateralDataRes.data);
+        setColateralDetails(colateralDataRes?.data?.initial_collateral);
         setNoOfCollaterals(colateralDataRes?.data?.initial_collateral.length);;
         setPageState(pageStates.available);
         setFetching(false);
@@ -127,12 +138,11 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
             collateral: collateralType,
         }));
         const colateralUpdateDataRes = colateralUpdateDataReq?.data;
-        setDelLater("Update API was called successfully");
         setFetching(false);
     };
     
     let no = 1;
-    return(
+    return !loading ? (
         <>
             {pageState === pageStates.fetch && (
                 <WrapContent>
@@ -154,9 +164,6 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
                 </WrapContent>
             )}
 
-            {/* ----------------------------------- */}
-
-             
           {pageState === pageStates.available && (
             <WrapContent>
                 <Wrapper onSubmit={handleSubmit(onSubmitCollateral)}>
@@ -166,7 +173,7 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
                         name: "collateralNumber",
                         type: "select",
                         placeholder: "Select Collateral",
-                        options: colateralDetails?.initial_collateral.map((col) => ({
+                        options: colateralDetails.map((col) => ({
                         value: col.collateralNumber,
                         name: col.collateralNumber,
                         })),
@@ -183,7 +190,6 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
                 </Wrapper>
                 </WrapContent>
             )} 
-            {/* ----------------------------------- */}
             
             {pageState === pageStates.next && (
                 <>
@@ -193,5 +199,12 @@ export default function CollateralsDetails({loanId, product, disabled, setViewLo
                 </>
             )}
         </>
+    ) : (
+        loading && (
+            <section className="flex items-center justify-center">
+                <section className="w-full">
+                    <Loading />
+                </section>
+            </section>)
     )
 }
