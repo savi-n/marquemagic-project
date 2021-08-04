@@ -72,7 +72,7 @@ const H2 = styled.h2`
 
 const businessTypeMaps = [[['private', 'pvt'], 4], [['public', 'pub'], 5], [['llp'], 3]];
 
-function formatCompanyData(data) {
+function formatCompanyData(data, panNum) {
 	let directors = {};
 	let directorsForShow = [];
 
@@ -104,7 +104,7 @@ function formatCompanyData(data) {
 		BusinessType: businesType,
 		Email: data.company_master_data.email_id,
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		PancardNumber: '',
+		panNumber: panNum,
 		CIN: data.company_master_data['cin '],
 		CompanyCategory: data.company_master_data.company_category,
 		Address: data.company_master_data.registered_address,
@@ -116,7 +116,7 @@ function formatCompanyData(data) {
 	};
 }
 
-function formatCompanyDataGST(data) {
+function formatCompanyDataGST(data, panNum, gstNum) {
 	if (data.length > 1) data = data[0].data;
 	let directors = {};
 	let directorsForShow = [];
@@ -144,8 +144,9 @@ function formatCompanyDataGST(data) {
 		BusinessType: businesType,
 		Email: '',
 		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		PancardNumber: '',
+		panNumber: panNum,
 		CIN: '',
+		GSTVerification: gstNum,
 		CompanyCategory: data.nba[0],
 		Address: data.pradr?.addr,
 		ClassOfCompany: data.ctb,
@@ -181,12 +182,13 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [loading, setLoading] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [companyListModal, setCompanyListModal] = useState(false);
-
+	
 	const onCompanySelect = cinNumber => {
 		setCompanyListModal(false);
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
+	const [panNum, setPan] = useState('');
 
 	const companyNameSearch = async companyName => {
 		setLoading(true);
@@ -264,7 +266,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data)
+						...formatCompanyData(companyData.data,panNum)
 					});
 				onProceed();
 				return;
@@ -274,6 +276,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 	const [selectDoc, selectDocs] = useState(false);
 	const [verificationFailed,setVerificationFailed] = useState(null);
+	const [gstNum, setGstNum] = useState(null);
+	
 
 	const onSubmit = async ({ panNumber, companyName, udhyogAadhar, gstin, gstNumber }) => {
 
@@ -281,6 +285,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 		setLoading(true);
 		setVerificationFailed(null);
+		setGstNum(gstin);
 
 
 		if (productType === 'business') {
@@ -309,7 +314,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			} else {
 				localStorage.setItem('product', 'demo');
 
-				if (!udhyogAadhar && !panNumber) {
+				if (!udhyogAadhar && !panNumber && (!gstin || gstin=='')) {
 					return;
 				}
 
@@ -333,7 +338,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 					if (panNumber) {
 						await gstFetch(panNumber, stateCode, clientToken).then(res => {
-							gstNumberFetch(res?.data?.data[0]?.data);
+							gstNumberFetch(res?.data?.data[0]?.data, gstin);
 						});
 					}
 				} catch (error) {
@@ -360,10 +365,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		setLoading(false);
 	};
 
-	const gstNumberFetch = async data => {
+	const gstNumberFetch = async (data, gstNum) => {
 		const companyData = data;
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData)
+			...formatCompanyDataGST(companyData, panNum, gstNum)
 		});
 		onProceed();
 		return;
@@ -401,8 +406,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [aadhar, setAadhar] = useState([]);
 	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
-	const [panNum, setPan] = useState(null);
-
+	
 	const handlePanUpload = files => {
 		setLoading(true);
 		const formData = new FormData();
@@ -502,13 +506,29 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
 				formState.values.panNumber = panNum;
+
+				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;;
+				formState.values.dl_no = res.data?.data?.dl_no;
+				formState.values.address1 = res.data?.data?.address;
+
+				let address = formState.values.address1;
+
+
+				let locationArr = address.split(' ');
+
+
+				let pinCode = address.match(/\d+/)[0];
+
+				formState.values.pin = pinCode
+
 				localStorage.setItem('formstate', JSON.stringify(formState));
 				setOtherDoc([]);
 				setAadhar([]);
 				setVoter([]);
 				onProceed();
-				setLoading(false);
+				
 			}
+			setLoading(false);
 		});
 	};
 
@@ -626,7 +646,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											PAN Number : {panNum}
 										</Lab>
 									</FieldWrapper>
-									
+
 									<FieldWrapper>
 										{register({
 											name: 'gstin',
@@ -654,20 +674,20 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 									fill
 									disabled={
 										productType !== 'salaried'
-										? isBusiness
+											? isBusiness
 											? !(formState.values?.companyName || formState.values?.panNumber ) ||
 											(formState.values?.companyName && formState.values?.panNumber )
 											: !(formState.values?.udhyogAadhar || formState.values?.panNumber ) ||
 											(formState.values?.udhyogAadhar && formState.values?.panNumber) ||
 											loading
-										: false
+											: false
 									}
 								/>
 							</section>
 							<FieldWrapper>
-										<LabRed>
-										{verificationFailed}
-										</LabRed>
+								<LabRed>
+									{verificationFailed}
+								</LabRed>
 							</FieldWrapper>
 						</form>
 					)}
@@ -716,39 +736,39 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					</Modal>
 				)}
 				{backUpload &&
-					!panUpload &&
-					(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
-					!backUploading && (
-						<Modal
-							show={backUpload}
-							onClose={() => {
-								setBackUpload(false);
-							}}
-							width='30%'
-						>
-							<span className='px-4 font-bold'>Upload back part of the document?</span>
-							<section className='p-4 py-16 flex gap-x-8'>
-								<Button
-									name='Yes'
-									fill
-									onClick={() => {
-										setBackUploading(true);
-										setBackUpload(false);
-										setAadhar([]);
-										setVoter([]);
-										setOtherDoc([]);
-									}}
-								/>
-								<Button
-									name='No'
-									fill
-									onClick={() => {
-										setBackUpload(false);
-									}}
-								/>
-							</section>
-						</Modal>
-					)}
+				!panUpload &&
+				(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
+				!backUploading && (
+					<Modal
+						show={backUpload}
+						onClose={() => {
+							setBackUpload(false);
+						}}
+						width='30%'
+					>
+						<span className='px-4 font-bold'>Upload back part of the document?</span>
+						<section className='p-4 py-16 flex gap-x-8'>
+							<Button
+								name='Yes'
+								fill
+								onClick={() => {
+									setBackUploading(true);
+									setBackUpload(false);
+									setAadhar([]);
+									setVoter([]);
+									setOtherDoc([]);
+								}}
+							/>
+							<Button
+								name='No'
+								fill
+								onClick={() => {
+									setBackUpload(false);
+								}}
+							/>
+						</section>
+					</Modal>
+				)}
 				{selectDoc && (
 					<Modal>
 						<section className='p-4 flex flex-col gap-y-8'>
