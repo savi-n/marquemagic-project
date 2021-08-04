@@ -506,6 +506,21 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
 				formState.values.panNumber = panNum;
+
+				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;;
+				formState.values.dl_no = res.data?.data?.dl_no;
+				formState.values.address1 = res.data?.data?.address;
+
+				let address = formState.values.address1;
+
+
+				let locationArr = address.split(' ');
+
+
+				let pinCode = address.match(/\d+/)[0];
+
+				formState.values.pin = pinCode
+
 				localStorage.setItem('formstate', JSON.stringify(formState));
 				setOtherDoc([]);
 				setAadhar([]);
@@ -631,7 +646,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 											PAN Number : {panNum}
 										</Lab>
 									</FieldWrapper>
-									
+
 									<FieldWrapper>
 										{register({
 											name: 'gstin',
@@ -659,20 +674,20 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 									fill
 									disabled={
 										productType !== 'salaried'
-										? isBusiness
+											? isBusiness
 											? !(formState.values?.companyName || formState.values?.panNumber ) ||
 											(formState.values?.companyName && formState.values?.panNumber )
 											: !(formState.values?.udhyogAadhar || formState.values?.panNumber ) ||
 											(formState.values?.udhyogAadhar && formState.values?.panNumber) ||
 											loading
-										: false
+											: false
 									}
 								/>
 							</section>
 							<FieldWrapper>
-										<LabRed>
-										{verificationFailed}
-										</LabRed>
+								<LabRed>
+									{verificationFailed}
+								</LabRed>
 							</FieldWrapper>
 						</form>
 					)}
@@ -721,39 +736,39 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					</Modal>
 				)}
 				{backUpload &&
-					!panUpload &&
-					(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
-					!backUploading && (
-						<Modal
-							show={backUpload}
-							onClose={() => {
-								setBackUpload(false);
-							}}
-							width='30%'
-						>
-							<span className='px-4 font-bold'>Upload back part of the document?</span>
-							<section className='p-4 py-16 flex gap-x-8'>
-								<Button
-									name='Yes'
-									fill
-									onClick={() => {
-										setBackUploading(true);
-										setBackUpload(false);
-										setAadhar([]);
-										setVoter([]);
-										setOtherDoc([]);
-									}}
-								/>
-								<Button
-									name='No'
-									fill
-									onClick={() => {
-										setBackUpload(false);
-									}}
-								/>
-							</section>
-						</Modal>
-					)}
+				!panUpload &&
+				(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
+				!backUploading && (
+					<Modal
+						show={backUpload}
+						onClose={() => {
+							setBackUpload(false);
+						}}
+						width='30%'
+					>
+						<span className='px-4 font-bold'>Upload back part of the document?</span>
+						<section className='p-4 py-16 flex gap-x-8'>
+							<Button
+								name='Yes'
+								fill
+								onClick={() => {
+									setBackUploading(true);
+									setBackUpload(false);
+									setAadhar([]);
+									setVoter([]);
+									setOtherDoc([]);
+								}}
+							/>
+							<Button
+								name='No'
+								fill
+								onClick={() => {
+									setBackUpload(false);
+								}}
+							/>
+						</section>
+					</Modal>
+				)}
 				{selectDoc && (
 					<Modal>
 						<section className='p-4 flex flex-col gap-y-8'>
