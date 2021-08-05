@@ -658,9 +658,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 							) : (
 								<>
 									<FieldWrapper>
-										<Lab>
-											PAN Number : {panNum}
-										</Lab>
+										{register({
+											name: 'panNumber',
+											placeholder: 'Pan Number',
+											value: formState?.values?.panNumber,
+										})}
 									</FieldWrapper>
 
 									<FieldWrapper>
