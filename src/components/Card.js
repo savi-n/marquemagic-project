@@ -35,6 +35,7 @@ const Link = styled.a`
 	padding: 5px 40px;
 	display: inline-block;
 	border-radius: 20px;
+	cursor: pointer;
 `;
 
 const Description = styled.div`
@@ -47,7 +48,7 @@ const ProductName = styled.div`
 	padding-top: 20px;
 `;
 
-export default function Card({ product }) {
+export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const history = useHistory();
 	// const { url } = useRouteMatch();
 
@@ -66,8 +67,14 @@ export default function Card({ product }) {
 			</ImgDiv>
 			<ProductName>{product.name}</ProductName>
 			<Div>
-				<Link href={`/applyloan/product/${btoa(product.id)}`} onClick={e => handleClick(e, product.id)}>
-					Get Loan
+				<Link
+					href={!add && `/applyloan/product/${btoa(product.id)}`}
+					onClick={e => {
+						!add ? handleClick(e, product.id) : setAddedProduct(product);
+						setAddProduct && setAddProduct(false);
+					}}
+				>
+					{add ? 'Add Loan' : 'Get Loan'}
 				</Link>
 				<Description>{product.description}</Description>
 			</Div>
