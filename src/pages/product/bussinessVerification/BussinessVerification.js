@@ -178,7 +178,17 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 
 			const userDetailsRes = userDetailsReq.data;
 
+
+
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+
+
+
+				console.log(userDetailsRes,"ddddddddddddddddddddd")
+
+
+				localStorage.setItem("userToken", userDetailsRes.token);
+
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
 					{
