@@ -1,6 +1,6 @@
-import { useHistory, useRouteMatch } from "react-router-dom";
-import styled from "styled-components";
-import { shape, string, number } from "prop-types";
+import { useHistory, useRouteMatch } from 'react-router-dom';
+import styled from 'styled-components';
+import { shape, string, number } from 'prop-types';
 
 const Wrapper = styled.div`
   width: 22%;
@@ -12,14 +12,14 @@ const Wrapper = styled.div`
 `;
 
 const ImgDiv = styled.div`
-  width: 100%;
-  height: 200px;
+	width: 100%;
+	height: 200px;
 `;
 
 const Img = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 `;
 
 const Div = styled.div`
@@ -29,55 +29,58 @@ const Div = styled.div`
 `;
 
 const Link = styled.a`
-  text-decoration: none;
-  color: #fff;
-  background: ${({ theme }) => theme.main_theme_color};
-  padding: 5px 40px;
-  display: inline-block;
-  border-radius: 20px;
+	text-decoration: none;
+	color: #fff;
+	background: ${({ theme }) => theme.main_theme_color};
+	padding: 5px 40px;
+	display: inline-block;
+	border-radius: 20px;
 `;
 
 const Description = styled.div`
-  color: ${({ theme }) => theme.themeColor2};
-  padding: 10px 0;
+	color: ${({ theme }) => theme.themeColor2};
+	padding: 10px 0;
+`;
+
+const ProductName = styled.div`
+	text-align: center;
+	padding-top: 20px;
 `;
 
 export default function Card({ product }) {
-  const history = useHistory();
-  // const { url } = useRouteMatch();
+	const history = useHistory();
+	// const { url } = useRouteMatch();
 
-  const handleClick = (e, id) => {
-    e.preventDefault();
-    history.push({
-      pathname: `/applyloan/product/${btoa(id)}`,
-      data: id,
-    });
-  };
+	const handleClick = (e, id) => {
+		e.preventDefault();
+		history.push({
+			pathname: `/applyloan/product/${btoa(id)}`,
+			data: id
+		});
+	};
 
-  return (
-    <Wrapper>
-      <ImgDiv>
-        <Img src={product.url} alt={product.name} />
-      </ImgDiv>
-      <Div>
-        <Link
-          href={`/applyloan/product/${btoa(product.id)}`}
-          onClick={(e) => handleClick(e, product.id)}
-        >
-          {product.name}
-        </Link>
-        <Description>{product.description}</Description>
-      </Div>
-    </Wrapper>
-  );
+	return (
+		<Wrapper>
+			<ImgDiv>
+				<Img src={product.url} alt={product.name} />
+			</ImgDiv>
+			<ProductName>{product.name}</ProductName>
+			<Div>
+				<Link href={`/applyloan/product/${btoa(product.id)}`} onClick={e => handleClick(e, product.id)}>
+					Get Loan
+				</Link>
+				<Description>{product.description}</Description>
+			</Div>
+		</Wrapper>
+	);
 }
 
 Card.propTypes = {
-  product: shape({
-    name: string.isRequired,
-    url: string.isRequired,
-    description: string.isRequired,
-    id: number.isRequired,
-    product_id: number.isRequired,
-  }),
+	product: shape({
+		name: string.isRequired,
+		url: string.isRequired,
+		description: string.isRequired,
+		id: number.isRequired,
+		product_id: number.isRequired
+	})
 };
