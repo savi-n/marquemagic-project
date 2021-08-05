@@ -108,11 +108,12 @@ function fileStructure(documents, type) {
 			// value, filename, fd, password
 			fd: file.document_key, //fd from loan document repsone
 			size: file.size, //size from loan document repsone
+			// doc_type_id: file.doc_type_id,
 			// type: "",
 			filename: file.upload_doc_name, //fd from loan document repsone
 			// status: "",
 			// field: "",
-			value: file.typeId, // doctype_id
+			value: file.doc_type_id || file.typeId , // doctype_id
 			password: file?.password
 		}));
 }
@@ -121,10 +122,17 @@ const url = window.location.hostname;
 
 let userToken = localStorage.getItem(url);
 
-function caseCreationDataFormat(data, companyData, productDetails, productId) {
-	let loan = JSON.parse(userToken).formReducer.user.loanData;
 
-	let form = JSON.parse(userToken).formReducer.user.applicantData;
+
+let loan = JSON.parse(userToken).formReducer.user.loanData;
+
+let form = JSON.parse(userToken).formReducer.user.applicantData;
+
+function caseCreationDataFormat(data, companyData, productDetails, productId) {
+
+
+	console.log(data,"productDetails")
+
 
 	const idType =
 		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
@@ -371,7 +379,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		options: {
 			method: 'POST',
 			data: {
-				business_type: state?.['business-details']?.BusinessType,
+				business_type: form.incomeType==="salaried" ? 7 : 1,
 				loan_product: productId[idType]
 			}
 		},

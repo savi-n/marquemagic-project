@@ -98,6 +98,8 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
     state: { bankId },
   } = useContext(UserContext);
 
+
+
   const { handleSubmit, register, formState } = useForm();
   const { addToast } = useToasts();
 
