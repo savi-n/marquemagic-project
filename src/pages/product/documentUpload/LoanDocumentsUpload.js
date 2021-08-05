@@ -122,43 +122,29 @@ const url = window.location.hostname;
 let userToken = localStorage.getItem(url);
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
-
-
-	console.log(productId,"productDetails")
-
 	let loan = JSON.parse(userToken).formReducer.user.loanData;
 
 	let form = JSON.parse(userToken).formReducer.user.applicantData;
-
-
-
-
-	console.log(loan,"loanloan")
-
 
 	const idType =
 		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
 			? 'business'
 			: 'salaried';
 	const businessDetails = () => {
-
-			return {
-				business_name: form.firstName,
-				business_type: form.incomeType==="salaried" ? 7 : 1,
-				business_email: form.email,
-				// business_industry_type: 20,
-				contact: '',
-				businesspancardnumber: form.panNumber,
-				// // crime_check: "Yes",
-				// gstin: data['business-details'].GSTVerification,
-				// businessstartdate: data['business-details'].BusinessVintage,
-				// corporateid: companyData.CIN
-			};
-
+		return {
+			business_name: form.firstName,
+			business_type: form.incomeType === 'salaried' ? 7 : 1,
+			business_email: form.email,
+			// business_industry_type: 20,
+			contact: '',
+			businesspancardnumber: form.panNumber
+			// // crime_check: "Yes",
+			// gstin: data['business-details'].GSTVerification,
+			// businessstartdate: data['business-details'].BusinessVintage,
+			// corporateid: companyData.CIN
+		};
 	};
 	const formatedData = {
-
-
 		Business_details: businessDetails() || null,
 		// businessaddress: {
 		//   city: "County Durham",
@@ -167,9 +153,6 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		//   pincode: "DH6 5JJ",
 		//   state: "England",
 		// },
-
-
-
 
 		director_details: [],
 		loan_details: {
@@ -182,7 +165,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: loan.loanAmount,
-			applied_tenure: loan.loanAmount.tenure,
+			applied_tenure: loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
 			// annual_op_expense: data?.['business-details'].PAT
@@ -315,10 +298,6 @@ function refereneceDataFormat(loanId, data) {
 	return formatedData;
 }
 export default function DocumentUpload({ productDetails, userType, id, onFlowChange, map, productId }) {
-
-
-
-
 	const {
 		state,
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType }
@@ -397,7 +376,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			}
 		},
 		headers: {
-			Authorization: `Bearer ${JSON.parse(userToken) && JSON.parse(userToken).userReducer && JSON.parse(userToken).userReducer.userToken}`
+			Authorization: `Bearer ${JSON.parse(userToken) &&
+				JSON.parse(userToken).userReducer &&
+				JSON.parse(userToken).userReducer.userToken}`
 		}
 	});
 
@@ -492,10 +473,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
+				console.log(caseReq.data, 'caseReq.data');
 
-				console.log(caseReq.data, "caseReq.data")
-
-				setMessage(caseReq.data.data.loan_details.loan_ref_id)
+				setMessage(caseReq.data.data.loan_details.loan_ref_id);
 
 				return caseRes.data;
 			}
@@ -659,17 +639,11 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 			setCompleted(id);
 
-
-
-
 			// onFlowChange(map.main);
 		}
 	};
 
 	const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
-
-
-
 
 	return (
 		<>
@@ -678,7 +652,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
 				</H>
 				<UploadWrapper>
-					{console.log(JSON.parse(userToken),"userToken")}
 					<FileUpload
 						onDrop={handleFileUpload}
 						onRemoveFile={handleFileRemove}
@@ -686,9 +659,13 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						documentTypeChangeCallback={handleDocumentTypeChange}
 						accept=''
 						upload={{
-							url: DOCS_UPLOAD_URL({ userId: companyDetail?.userId || JSON.parse(userToken).userReducer.userId || '' }),
+							url: DOCS_UPLOAD_URL({
+								userId: companyDetail?.userId || JSON.parse(userToken).userReducer.userId || ''
+							}),
 							header: {
-								Authorization: `Bearer ${companyDetail?.token || JSON.parse(userToken).userReducer.userToken ||   ''}`
+								Authorization: `Bearer ${companyDetail?.token ||
+									JSON.parse(userToken).userReducer.userToken ||
+									''}`
 							}
 						}}
 					/>
@@ -725,12 +702,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						onClick={onSubmit}
 					/>
 				</SubmitWrapper>
-				{message &&
-					<div style={{color: 'blue'}}>
-						Your case is created and your reference number is {message}
-					</div>
-				}
-
+				{message && (
+					<div style={{ color: 'blue' }}>Your case is created and your reference number is {message}</div>
+				)}
 
 				{otherBankStatementModal && (
 					<BankStatementModal showModal={otherBankStatementModal} onClose={onOtherStatementModalToggle} />

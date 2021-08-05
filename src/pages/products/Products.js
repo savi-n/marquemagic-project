@@ -19,6 +19,8 @@ const Head = styled.h3`
 const Div = styled.div`
 	padding: 20px 0;
 	display: flex;
+	flex-wrap: wrap;
+	gap: 50px;
 	/* align-items: center; */
 	/* gap: calc(12% / 3); */
 `;
