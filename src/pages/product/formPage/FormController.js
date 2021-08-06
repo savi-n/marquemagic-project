@@ -80,6 +80,25 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 
 			const userDetailsRes = userDetailsReq.data;
 
+
+			const url = window.location.hostname;
+
+			let userToken = localStorage.getItem(url);
+
+			userToken = JSON.parse(userToken)
+
+			userToken = {
+				...userToken,
+				userReducer: {
+					...userToken.userReducer,
+					userToken: userDetailsRes.token
+				}
+			}
+
+
+			localStorage.setItem('userToken', userDetailsRes.token);
+			localStorage.setItem(url, JSON.stringify(userToken));
+
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
@@ -90,6 +109,10 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+				console.log(encryptWhiteLabelRes, 'encryptWhiteLabelRes');
+
+				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
@@ -122,6 +145,20 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
 	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
+
+	const url = window.location.hostname;
+
+	let userToken = localStorage.getItem(url);
+
+
+
+	let loan = JSON.parse(userToken).formReducer.user.loanData;
+
+	let form = JSON.parse(userToken).formReducer.user.applicantData;
+
+
+	console.log(state.companyDetail,"userBankDetails")
+
 	return (
 		<>
 			<Div>
@@ -129,7 +166,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 					register={register}
 					formState={formState}
 					pageName={map.name}
-					preData={state.companyDetail}
+					preData={form}
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
 				/>

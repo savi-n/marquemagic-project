@@ -374,6 +374,36 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		setCompanyDetails({
 			...formatCompanyDataGST(companyData, panNum, gstNum)
 		});
+
+
+		const url = window.location.hostname;
+
+		let userToken = localStorage.getItem(url);
+
+		let form = JSON.parse(userToken);
+
+		form = {
+			...form,
+			formReducer:{
+				...form.formReducer,
+				user: {
+					...form.formReducer.user,
+					applicantData: {
+						...form.formReducer.user.applicantData,
+						...formatCompanyDataGST(companyData, panNum, gstNum)
+					}
+				}
+			}
+		}
+
+		console.log(form,"formformformform")
+
+		localStorage.setItem(url, JSON.stringify(form));
+		localStorage.setItem('BusinessName', form.formReducer.user.applicantData.BusinessName);
+
+
+
+
 		onProceed();
 		return;
 	};

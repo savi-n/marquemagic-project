@@ -193,6 +193,20 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	}
 
 
+	const url = window.location.hostname;
+
+	let userTokensss = localStorage.getItem(url);
+
+
+
+	let loan = JSON.parse(userTokensss).formReducer.user.loanData;
+
+	let form = JSON.parse(userTokensss).formReducer.user.applicantData;
+
+
+	console.log('dddddddddddddddddddd',"userBankDetails")
+
+
 
 
 	return (
