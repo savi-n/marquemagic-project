@@ -121,6 +121,28 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
     const loanData = formatLoanData(data, map.fields[id].data);
 
+    const url = window.location.hostname;
+
+    let userToken = localStorage.getItem(url);
+
+    let form = JSON.parse(userToken);
+
+    form = {
+      ...form,
+      formReducer:{
+        ...form.formReducer,
+        user: {
+          ...form.formReducer.user,
+          loanData: {
+            ...form.formReducer.user.loanData,
+            ...formatLoanData(data, map.fields[id].data)
+          }
+        }
+      }
+    }
+
+    localStorage.setItem(url, JSON.stringify(form));
+
     setUsertypeEmiData(emiData);
     setUsertypeBankData({
       bankId: bankId,
