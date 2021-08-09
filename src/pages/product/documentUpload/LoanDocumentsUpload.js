@@ -131,7 +131,7 @@ let form = JSON.parse(userToken).formReducer.user.applicantData;
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
 
 
-	console.log(data,"productDetails")
+	console.log(productId,"productDetails")
 
 
 	const idType =
@@ -140,7 +140,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			: 'salaried';
 	const businessDetails = () => {
 		return {
-			business_name: form.firstName,
+			business_name: form.firstName || localStorage.getItem('BusinessName'),
 			business_type: form.incomeType === 'salaried' ? 7 : 1,
 			business_email: form.email,
 			// business_industry_type: 20,
@@ -169,7 +169,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// loan_product_id: "10",
 			// loan_request_type: "1",
 			// origin: "New_UI",
-			loan_product_id: productId[form.incomeType],
+			loan_product_id: productId[form.incomeType] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: loan.loanAmount,
@@ -485,6 +485,8 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 				setMessage(caseReq.data.data.loan_details.loan_ref_id);
 
+				localStorage.clear();
+
 				return caseRes.data;
 			}
 
@@ -668,7 +670,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						accept=''
 						upload={{
 							url: DOCS_UPLOAD_URL({
-								userId: companyDetail?.userId || JSON.parse(userToken).userReducer.userId || ''
+								userId: companyDetail?.userId || JSON.parse(userToken)?.userReducer?.userId || ''
 							}),
 							header: {
 								Authorization: `Bearer ${companyDetail?.token ||
