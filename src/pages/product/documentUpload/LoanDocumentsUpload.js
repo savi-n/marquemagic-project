@@ -16,7 +16,7 @@ import {
 	ADD_SHAREHOLDER_DETAILS,
 	ADD_REFENCE_DETAILS,
 	DOCTYPES_FETCH,
-	USER_ROLES
+	USER_ROLES, PINCODE_ADRRESS_FETCH
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -124,9 +124,18 @@ let userToken = localStorage.getItem(url);
 
 
 
+
+
 let loan = JSON.parse(userToken).formReducer.user.loanData;
 
 let form = JSON.parse(userToken).formReducer.user.applicantData;
+
+let busniess = JSON.parse(localStorage.getItem('busniess'));
+
+
+
+
+
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
 
@@ -152,15 +161,19 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// corporateid: companyData.CIN
 		};
 	};
+
+
+
+
 	const formatedData = {
 		Business_details: businessDetails() || null,
-		// businessaddress: {
-		//   city: "County Durham",
-		//   line1: "1 High Burnigill Cottages",
-		//   locality: "Croxdale",
-		//   pincode: "DH6 5JJ",
-		//   state: "England",
-		// },
+		businessaddress:busniess && busniess.Address ? {
+		  city: busniess && busniess.Address.city ,
+		  line1: busniess && `${busniess.Address.flno} ${busniess.Address.lg} ${busniess.Address.bnm} ${busniess.Address.bno} ${busniess.Address.dst} `,
+		  locality: busniess && busniess.Address.loc,
+		  pincode: busniess && busniess.Address.pncd,
+		  state: busniess && busniess.Address.st,
+		} : {},
 
 		director_details: [],
 		loan_details: {
@@ -318,6 +331,30 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
 	const [cibilCheckModal, setCibilCheckModal] = useState(false);
 
+
+
+	useEffect(() => {
+		if(busniess && busniess.Address){
+
+			const getAddressDetails = async () => {
+				const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
+				const data = response.data;
+
+
+				busniess = {
+
+					...busniess,
+					Address:{
+						...busniess.Address,
+						st: data?.state?.[0],
+						city: data?.district?.[0]
+					}
+				}
+			};
+
+		}
+	});
+
 	const idType =
 		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
 			? 'business'
@@ -392,6 +429,35 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 	useEffect(() => {
 		if (response) {
+
+			console.log('dddddddddddddddd')
+
+
+
+
+			const getAddressDetails = async () => {
+				const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
+				const data = response.data;
+
+
+				busniess = {
+
+					...busniess,
+					Address:{
+						...busniess.Address,
+						st: data?.state?.[0],
+						city: data?.district?.[0]
+					}
+				}
+			};
+
+			if(busniess && busniess.Address){
+				getAddressDetails();
+
+			}
+
+
+
 			let optionArray = [];
 			DOCUMENTS_TYPE.forEach(docType => {
 				optionArray = [
@@ -404,8 +470,16 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 				];
 			});
 			setDocumentTypeOptions(optionArray);
+
+
+
+
 		}
 	}, [response]);
+
+
+
+
 
 	// const handleDocumentChecklist = (doc) => {
 	//   return (value) => {
@@ -429,6 +503,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const buttonDisabledStatus = () => {
 		return caseCreationProgress;
 	};
+
+
+
 
 	// step 2: upload docs reference
 	const updateDocumentList = async (loanId, user) => {

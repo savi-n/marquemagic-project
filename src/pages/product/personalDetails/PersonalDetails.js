@@ -155,14 +155,16 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'));
+			var formStat = JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum || localStorage.getItem('aadhar') ;
 
-			if(formStat.values.aadharNum){
-				const adharNum = formStat.values.aadharNum;
 
-				let d = `******${adharNum[adharNum.length-4]}${adharNum[adharNum.length-3]}${adharNum[adharNum.length-2]}${adharNum[adharNum.length-1]}`;
+			if(formStat){
+				const adharNum = formStat;
 
-				return d;
+				let d = `xxxxxxxx${adharNum[adharNum.length-4]}${adharNum[adharNum.length-3]}${adharNum[adharNum.length-2]}${adharNum[adharNum.length-1]}`;
+
+
+				return `${d}`;
 			}
 
 
@@ -222,7 +224,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					mobileNo: r()?.mobileNum || '',
 					panNumber: r()?.pan || JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber || '',
 					residenceStatus: r()?.residentTypess || '',
-					aadhaar: getAdhar() || localStorage.getItem('aadhar') || '',
+					aadhaar: getAdhar() || '',
 					countryResidence: "india",
 				}}
 				jsonData={map.fields[id].data}

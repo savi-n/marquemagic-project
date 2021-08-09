@@ -10,7 +10,7 @@ import {
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
 	APP_CLIENT,
-	DOCS_UPLOAD_URL_LOAN
+	DOCS_UPLOAD_URL_LOAN, PINCODE_ADRRESS_FETCH
 } from '../../../_config/app.config';
 import { AppContext } from '../../../reducer/appReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -396,10 +396,50 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			}
 		}
 
-		console.log(form,"formformformform")
 
 		localStorage.setItem(url, JSON.stringify(form));
 		localStorage.setItem('BusinessName', form.formReducer.user.applicantData.BusinessName);
+		localStorage.setItem('busniess', JSON.stringify(form.formReducer.user.applicantData));
+
+
+		let busniess = form.formReducer.user.applicantData;
+
+		console.log(busniess,"formformformform")
+
+
+		if(busniess && busniess.Address) {
+			const getAddressDetails = async () => {
+				const companyNameSearchReq = await newRequest(
+					PINCODE_ADRRESS_FETCH,
+					{
+						method: 'GET',
+						params: {
+							pinCode: busniess.Address?.pncd || ''
+						}
+					},
+					{}
+				);
+
+
+
+
+				// const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
+				const data = companyNameSearchReq.data;
+
+
+				busniess = {
+
+					...busniess,
+					Address:{
+						...busniess.Address,
+						st: data?.state?.[0],
+						city: data?.district?.[0]
+					}
+				}
+			}
+		}
+
+
 
 
 
