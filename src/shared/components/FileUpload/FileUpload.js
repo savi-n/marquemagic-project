@@ -276,7 +276,7 @@ export default function FileUpload({
 	};
 
 	const onFileRemove = file => {
-		setDocs([]);
+		setDocs && setDocs([]);
 		const uploadFiles = uploadingProgressFiles.current.filter(uFile => uFile.id !== file.id);
 		uploadingProgressFiles.current = uploadFiles;
 		onRemoveFile(file.id);

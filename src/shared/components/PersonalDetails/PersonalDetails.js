@@ -59,15 +59,16 @@ export default function PersonalDetails({ preData = {}, id, pageName, userType, 
 			const mo = {
 				name: 'mobileNo',
 				options: [],
-				rules: { required: true },
+				rules: { required: true, length: 10 },
 				placeholder: 'Mobile Number',
+				mask: { NumberOnly: true, CharacterLimit: 10 },
 				type: 'text',
 				visibility: true
 			};
 			const email = {
 				name: 'email',
 				options: [],
-				rules: { required: true },
+				rules: { required: true, email: true },
 				placeholder: 'Email',
 				type: 'text',
 				visibility: true

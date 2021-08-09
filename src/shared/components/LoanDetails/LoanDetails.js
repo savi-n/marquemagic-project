@@ -53,7 +53,8 @@ const ErrorMessage = styled.div`
 `;
 
 const Currency = styled.div`
-	width: 40px;
+	width: auto;
+	padding: 0 10px 0 10px;
 	font-size: 13px;
 	text-align: center;
 	font-weight: 500;

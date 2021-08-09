@@ -351,7 +351,17 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 			// setLoading(false);
 		} else {
-			console.log(aadhar, voter, otherDoc);
+			if (
+				(aadhar.length > 0 && otherDoc.length > 0) ||
+				(aadhar.length > 0 && voter.length > 0) ||
+				(voter.length > 0 && otherDoc.length > 0)
+			) {
+				setLoading(false);
+				return addToast({
+					message: `please upload only one type of document`,
+					type: 'error'
+				});
+			}
 			if (aadhar.length > 0 && aadhar[0]?.file) {
 				handleUpload(aadhar[0]?.file);
 			}
@@ -719,7 +729,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										{register({
 											name: 'panNumber',
 											placeholder: 'Pan Number',
-											value: formState?.values?.panNumber,
+											value: formState?.values?.panNumber
 										})}
 									</FieldWrapper>
 
@@ -757,10 +767,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												: !(formState.values?.udhyogAadhar || formState.values?.panNumber) ||
 												  (formState.values?.udhyogAadhar && formState.values?.panNumber) ||
 												  loading
-											: false
+											: !(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0)
 									}
 								/>
 							</section>
+
 							<FieldWrapper>
 								<LabRed>{verificationFailed}</LabRed>
 							</FieldWrapper>
