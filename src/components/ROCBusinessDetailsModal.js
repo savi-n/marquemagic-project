@@ -61,20 +61,31 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					<Colm1>Address</Colm1>
 					{!isDemo && <Colm2>{companyDetail.Address}</Colm2>}
 					{isDemo && (
-						<section className='flex flex-col items-center'>
-							<span>{companyDetail.Address.bno}</span>
-							<span>{companyDetail.Address.st}</span>
-							<span>{companyDetail.Address.loc}</span>
-							<span>{companyDetail.Address.dst}</span>
-							<span>{companyDetail.Address.pncd}</span>
-							<span>{companyDetail.Address.stcd}</span>
-						</section>
+						<Colm2 className='flex flex-col items-start'>
+							<span>
+								{companyDetail.Address.bno +
+									' ' +
+									companyDetail.Address.st +
+									' ' +
+									companyDetail.Address.loc +
+									' ' +
+									companyDetail.Address.dst +
+									' ' +
+									companyDetail.Address.pncd +
+									' ' +
+									companyDetail.Address.stcd}
+							</span>
+						</Colm2>
 					)}
 				</Row>
 
 				<Row>
 					<Colm1>Pancard Number</Colm1>
-					<Colm2>{companyDetail.PancardNumber}</Colm2>
+					<Colm2>
+						{companyDetail.PancardNumber ||
+							JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber ||
+							JSON.parse(localStorage.getItem('formstate'))}
+					</Colm2>
 				</Row>
 
 				<Row>

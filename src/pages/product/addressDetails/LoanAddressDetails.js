@@ -9,7 +9,7 @@ import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import {APP_CLIENT} from "../../../_config/app.config";
+import { APP_CLIENT } from '../../../_config/app.config';
 
 const Div = styled.div`
 	flex: 1;
@@ -96,17 +96,13 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 	//     onFlowChange(map.sub);
 	//   };
 
-
 	const r = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
-			console.log(formStat, "console" );
-			return formStat.values;
+			return formStat?.values;
 		} else {
 			return userBankDetails;
 		}
-
-
 	};
 
 	return (
