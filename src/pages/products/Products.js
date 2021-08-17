@@ -69,9 +69,7 @@ export default function Products() {
 		localStorage.removeItem('aadhar');
 	}, []);
 
-	useEffect(() => {
-		console.log(addedProduct);
-	}, [addedProduct]);
+	useEffect(() => {}, [addedProduct]);
 
 	const [addProduct, setAddProduct] = useState(false);
 
@@ -83,7 +81,7 @@ export default function Products() {
 					products.data.map(
 						(product, idx) => idx < 3 && <Card product={product} key={`product__${product.id}`} />
 					)}
-				{!addedProduct ? (
+				{!addedProduct && products?.data?.length > 3 ? (
 					<Add onClick={() => setAddProduct(true)}>
 						<FontAwesomeIcon icon={faPlus} />
 						<span className='text-black text-xl'>Add Product</span>

@@ -10,7 +10,8 @@ import {
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
 	APP_CLIENT,
-	DOCS_UPLOAD_URL_LOAN, PINCODE_ADRRESS_FETCH
+	DOCS_UPLOAD_URL_LOAN,
+	PINCODE_ADRRESS_FETCH
 } from '../../../_config/app.config';
 import { AppContext } from '../../../reducer/appReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -385,7 +386,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			...formatCompanyDataGST(companyData, panNum, gstNum)
 		});
 
-
 		const url = window.location.hostname;
 
 		let userToken = localStorage.getItem(url);
@@ -394,7 +394,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 		form = {
 			...form,
-			formReducer:{
+			formReducer: {
 				...form.formReducer,
 				user: {
 					...form.formReducer.user,
@@ -404,20 +404,17 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					}
 				}
 			}
-		}
-
+		};
 
 		localStorage.setItem(url, JSON.stringify(form));
 		localStorage.setItem('BusinessName', form.formReducer.user.applicantData.BusinessName);
 		localStorage.setItem('busniess', JSON.stringify(form.formReducer.user.applicantData));
 
-
 		let busniess = form.formReducer.user.applicantData;
 
-		console.log(busniess,"formformformform")
+		console.log(busniess, 'formformformform');
 
-
-		if(busniess && busniess.Address) {
+		if (busniess && busniess.Address) {
 			const getAddressDetails = async () => {
 				const companyNameSearchReq = await newRequest(
 					PINCODE_ADRRESS_FETCH,
@@ -430,29 +427,19 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					{}
 				);
 
-
-
-
 				// const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
 				const data = companyNameSearchReq.data;
 
-
 				busniess = {
-
 					...busniess,
-					Address:{
+					Address: {
 						...busniess.Address,
 						st: data?.state?.[0],
 						city: data?.district?.[0]
 					}
-				}
-			}
+				};
+			};
 		}
-
-
-
-
-
 
 		onProceed();
 		return;
@@ -578,6 +565,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					message: res.data.message,
 					type: 'error'
 				});
+				setOtherDoc([]);
+				setAadhar([]);
+				setVoter([]);
+				onProceed();
 			} else {
 				const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
 				const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';

@@ -16,7 +16,8 @@ import {
 	ADD_SHAREHOLDER_DETAILS,
 	ADD_REFENCE_DETAILS,
 	DOCTYPES_FETCH,
-	USER_ROLES, PINCODE_ADRRESS_FETCH
+	USER_ROLES,
+	PINCODE_ADRRESS_FETCH
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -108,12 +109,12 @@ function fileStructure(documents, type) {
 			// value, filename, fd, password
 			fd: file.document_key, //fd from loan document repsone
 			size: file.size, //size from loan document repsone
-			// doc_type_id: file.doc_type_id,
+			doc_type_id: file.doc_type_id,
 			// type: "",
 			filename: file.upload_doc_name, //fd from loan document repsone
 			// status: "",
 			// field: "",
-			value: file.doc_type_id || file.typeId , // doctype_id
+			value: file.doc_type_id || file.typeId, // doctype_id
 			password: file?.password
 		}));
 }
@@ -122,27 +123,13 @@ const url = window.location.hostname;
 
 let userToken = localStorage.getItem(url);
 
-
-
-
-
 let loan = JSON.parse(userToken).formReducer.user.loanData;
 
 let form = JSON.parse(userToken).formReducer.user.applicantData;
 
 let busniess = JSON.parse(localStorage.getItem('busniess'));
 
-
-
-
-
-
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
-
-
-	console.log(productId,"productDetails")
-
-
 	const idType =
 		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
 			? 'business'
@@ -162,18 +149,20 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		};
 	};
 
-
-
-
 	const formatedData = {
 		Business_details: businessDetails() || null,
-		businessaddress:busniess && busniess.Address ? {
-		  city: busniess && busniess.Address.city ,
-		  line1: busniess && `${busniess.Address.flno} ${busniess.Address.lg} ${busniess.Address.bnm} ${busniess.Address.bno} ${busniess.Address.dst} `,
-		  locality: busniess && busniess.Address.loc,
-		  pincode: busniess && busniess.Address.pncd,
-		  state: busniess && busniess.Address.st,
-		} : {},
+		businessaddress:
+			busniess && busniess.Address
+				? {
+						city: busniess && busniess.Address.city,
+						line1:
+							busniess &&
+							`${busniess.Address.flno} ${busniess.Address.lg} ${busniess.Address.bnm} ${busniess.Address.bno} ${busniess.Address.dst} `,
+						locality: busniess && busniess.Address.loc,
+						pincode: busniess && busniess.Address.pncd,
+						state: busniess && busniess.Address.st
+				  }
+				: {},
 
 		director_details: [],
 		loan_details: {
@@ -331,27 +320,21 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
 	const [cibilCheckModal, setCibilCheckModal] = useState(false);
 
-
-
 	useEffect(() => {
-		if(busniess && busniess.Address){
-
+		if (busniess && busniess.Address) {
 			const getAddressDetails = async () => {
 				const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
 				const data = response.data;
 
-
 				busniess = {
-
 					...busniess,
-					Address:{
+					Address: {
 						...busniess.Address,
 						st: data?.state?.[0],
 						city: data?.district?.[0]
 					}
-				}
+				};
 			};
-
 		}
 	});
 
@@ -416,7 +399,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		options: {
 			method: 'POST',
 			data: {
-				business_type: form.incomeType==="salaried" ? 7 : 1,
+				business_type: form.incomeType === 'salaried' ? 7 : 1,
 				loan_product: productId[idType]
 			}
 		},
@@ -429,57 +412,38 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 	useEffect(() => {
 		if (response) {
-
-			console.log('dddddddddddddddd')
-
-
-
-
 			const getAddressDetails = async () => {
 				const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
 				const data = response.data;
 
-
 				busniess = {
-
 					...busniess,
-					Address:{
+					Address: {
 						...busniess.Address,
 						st: data?.state?.[0],
 						city: data?.district?.[0]
 					}
-				}
+				};
 			};
 
-			if(busniess && busniess.Address){
+			if (busniess && busniess.Address) {
 				getAddressDetails();
-
 			}
-
-
 
 			let optionArray = [];
 			DOCUMENTS_TYPE.forEach(docType => {
 				optionArray = [
 					...optionArray,
 					...response?.[docType[1]]?.map(dT => ({
-						value: dT.name,
+						value: dT.doc_type_id,
 						name: dT.name,
 						main: docType[0]
 					}))
 				];
 			});
 			setDocumentTypeOptions(optionArray);
-
-
-
-
 		}
 	}, [response]);
-
-
-
-
 
 	// const handleDocumentChecklist = (doc) => {
 	//   return (value) => {
@@ -503,9 +467,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const buttonDisabledStatus = () => {
 		return caseCreationProgress;
 	};
-
-
-
 
 	// step 2: upload docs reference
 	const updateDocumentList = async (loanId, user) => {
@@ -558,8 +519,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
-				console.log(caseReq.data, 'caseReq.data');
-
 				setMessage(caseReq.data.data.loan_details.loan_ref_id);
 
 				localStorage.clear();
