@@ -174,7 +174,6 @@ export default function useCaseCreation(userType, productId, role) {
 	// };
 
 	const caseCreationSteps = async (data, referenceData) => {
-		console.log(data);
 		try {
 			// step 1: create case
 			const caseCreateRes = await createCaseReq(data, CREATE_CASE);
@@ -208,11 +207,11 @@ export default function useCaseCreation(userType, productId, role) {
 						...state[USER_ROLES[role]].applicantData,
 						...(state[USER_ROLES[role]]?.emi?.length
 							? {
-								emiDetails: state[USER_ROLES[role]]?.emi?.map(em => ({
-									emiAmount: em.amount,
-									bank_name: em.bank
-								}))
-							}
+									emiDetails: state[USER_ROLES[role]]?.emi?.map(em => ({
+										emiAmount: em.amount,
+										bank_name: em.bank
+									}))
+							  }
 							: {})
 					},
 					...state[USER_ROLES[role]].loanData,
@@ -243,21 +242,20 @@ export default function useCaseCreation(userType, productId, role) {
 	async function caseCreationUser() {
 		try {
 			setProcessing(true);
-			console.log(state.user.loanData);
 			const loanReq = await caseCreationSteps(
 				{
 					white_label_id: whiteLabelId,
 					product_id: productId,
-					branchId: localStorage.getItem("branchId"),
+					branchId: localStorage.getItem('branchId'),
 					applicantData: {
 						...state.user.applicantData,
 						...(state.user?.emi
 							? {
-								emiDetails: state.user?.emi?.map(em => ({
-									emiAmount: em.amount,
-									bank_name: em.bank
-								}))
-							}
+									emiDetails: state.user?.emi?.map(em => ({
+										emiAmount: em.amount,
+										bank_name: em.bank
+									}))
+							  }
 							: {})
 					},
 					loanData: { assetsValue: 0, ...state.user.loanData, productId },

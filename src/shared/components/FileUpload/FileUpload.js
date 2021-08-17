@@ -347,10 +347,8 @@ export default function FileUpload({
 						.then(res => {
 							if (res.data.status === NC_STATUS_CODE.OK) {
 								const resFile = res.data.files[0];
-
 								const uploadfile = {
 									id: file.id,
-									doc_type_id: '1',
 									upload_doc_name: resFile.filename,
 									document_key: resFile.fd,
 									size: resFile.size
