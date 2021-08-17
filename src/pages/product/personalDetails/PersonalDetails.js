@@ -12,7 +12,7 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { AppContext } from '../../../reducer/appReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import {LOGIN_CREATEUSER, NC_STATUS_CODE, WHITELABEL_ENCRYPTION_API} from '../../../_config/app.config';
+import { LOGIN_CREATEUSER, NC_STATUS_CODE, WHITELABEL_ENCRYPTION_API } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 
 const Div = styled.div`
@@ -71,19 +71,12 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				}
 			});
 
-
-
 			const userDataRes = userDetailsReq.data;
 
-
 			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
+				console.log(userDataRes, 'ddddddddddddddddddddd');
 
-
-				console.log(userDataRes,"ddddddddddddddddddddd")
-
-
-				localStorage.setItem("userToken", userDataRes.token);
-
+				localStorage.setItem('userToken', userDataRes.token);
 
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
@@ -93,18 +86,12 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					{ Authorization: `Bearer ${userDataRes.token}` }
 				);
 
-
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
+				console.log(encryptWhiteLabelRes, 'encryptWhiteLabelRes');
 
-				console.log(encryptWhiteLabelRes,"encryptWhiteLabelRes")
-
-
-				localStorage.setItem("encryptWhiteLabel", encryptWhiteLabelRes.encrypted_whitelabel[0]);
-
+				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 			}
-
-
 
 			const userData = {
 				// userAccountToken: userDetailsReq.accToken,
@@ -142,74 +129,56 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const r = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
-			return formStat.values;
+			return formStat?.values;
 		} else {
 			return userBankDetails;
 		}
-
-
 	};
 
-
 	const getAdhar = () => {
-
-
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum || localStorage.getItem('aadhar') ;
+			var formStat =
+				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum || localStorage.getItem('aadhar');
 
-
-			if(formStat){
+			if (formStat) {
 				const adharNum = formStat;
 
-				let d = `xxxxxxxx${adharNum[adharNum.length-4]}${adharNum[adharNum.length-3]}${adharNum[adharNum.length-2]}${adharNum[adharNum.length-1]}`;
-
+				let d = `xxxxxxxx${adharNum[adharNum.length - 4]}${adharNum[adharNum.length - 3]}${
+					adharNum[adharNum.length - 2]
+				}${adharNum[adharNum.length - 1]}`;
 
 				return `${d}`;
 			}
-
-
 		} else {
 			return userBankDetails?.aadharNum;
 		}
-
-
 	};
-
 
 	const getDOB = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
 
-			if(formStat.values.dob){
+			if (formStat && formStat.values.dob) {
 				let d = formStat.values.dob.split('/');
 
-				d = `${d[2]}-${d[1]}-${d[0]}`
+				d = `${d[2]}-${d[1]}-${d[0]}`;
 
 				return d;
 			}
-
-
 		} else {
 			return userBankDetails?.dob;
 		}
-	}
-
+	};
 
 	const url = window.location.hostname;
 
 	let userTokensss = localStorage.getItem(url);
 
-
-
 	let loan = JSON.parse(userTokensss).formReducer.user.loanData;
 
 	let form = JSON.parse(userTokensss).formReducer.user.applicantData;
 
-
-	console.log('dddddddddddddddddddd',"userBankDetails")
-
-
-
+	console.log('dddddddddddddddddddd', 'userBankDetails');
 
 	return (
 		<Div>
@@ -225,7 +194,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					panNumber: r()?.pan || JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber || '',
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || '',
-					countryResidence: "india",
+					countryResidence: 'india'
 				}}
 				jsonData={map.fields[id].data}
 			/>

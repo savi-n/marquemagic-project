@@ -69,9 +69,7 @@ export default function Products() {
 		localStorage.removeItem('aadhar');
 	}, []);
 
-	useEffect(() => {
-		console.log(addedProduct);
-	}, [addedProduct]);
+	useEffect(() => {}, [addedProduct]);
 
 	const [addProduct, setAddProduct] = useState(false);
 
