@@ -259,7 +259,6 @@ export const verification = async (businessId, token) => {
 		params: { businessId }
 	});
 	const t = await g;
-	console.log(t);
 	return t;
 };
 
@@ -274,5 +273,3 @@ export const filterList = async (filterBy, token = localStorage.getItem('token')
 		return t.data.result ? t.data.result : t.data.message;
 	}
 };
-
- 

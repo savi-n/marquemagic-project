@@ -27,6 +27,7 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { AppContext } from '../../../reducer/appReducer';
 import { FormContext } from '../../../reducer/formReducer';
 import BankStatementModal from '../../../components/BankStatementModal';
+import { CaseContext } from '../../../reducer/caseReducer';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -131,10 +132,14 @@ let busniess = JSON.parse(localStorage.getItem('busniess'));
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	const idType =
-		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+		productDetails.loanType.includes('Business') ||
+		productDetails.loanType.includes('LAP') ||
+		productDetails.loanType.includes('Working')
 			? 'business'
 			: 'salaried';
+
 	const businessDetails = () => {
+		console.log(form);
 		return {
 			business_name: form.firstName || localStorage.getItem('BusinessName'),
 			business_type: form.incomeType === 'salaried' ? 7 : 1,
@@ -308,6 +313,7 @@ function refereneceDataFormat(loanId, data) {
 	return formatedData;
 }
 export default function DocumentUpload({ productDetails, userType, id, onFlowChange, map, productId }) {
+	console.log(productId);
 	const {
 		state,
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType }
@@ -339,7 +345,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	});
 
 	const idType =
-		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+		productDetails.loanType.includes('Business') ||
+		productDetails.loanType.includes('LAP') ||
+		productDetails.loanType.includes('Working')
 			? 'business'
 			: 'salaried';
 
@@ -350,6 +358,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const {
 		actions: { setCompleted }
 	} = useContext(FlowContext);
+
+	const {
+		actions: { setLoanRef }
+	} = useContext(CaseContext);
 
 	const {
 		actions: {
@@ -406,7 +418,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		headers: {
 			Authorization: `Bearer ${JSON.parse(userToken) &&
 				JSON.parse(userToken).userReducer &&
-				JSON.parse(userToken).userReducer.userToken}`
+				JSON.parse(userToken).userReducer?.userToken}`
 		}
 	});
 
@@ -515,11 +527,12 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						productId
 					)
 				},
-				{ authorization: `Bearer ${JSON.parse(userToken).userReducer.userToken}` }
+				{ authorization: `Bearer ${JSON.parse(userToken).userReducer?.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
 				setMessage(caseReq.data.data.loan_details.loan_ref_id);
+				setLoanRef(caseReq.data.data.loan_details.loan_ref_id);
 
 				localStorage.clear();
 
@@ -546,7 +559,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: subsidiaryDataFormat(caseId, state)
 				},
-				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer?.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -574,7 +587,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: formData
 				},
-				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer?.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -601,7 +614,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					method: 'POST',
 					data: formData
 				},
-				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer.userToken}` }
+				{ authorization: `Bearer ${companyDetail.token || JSON.parse(userToken).userReducer?.userToken}` }
 			);
 			const caseRes = caseReq.data;
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
@@ -684,8 +697,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			}
 
 			setCompleted(id);
-
-			// onFlowChange(map.main);
+			onFlowChange(!map ? 'application-submitted' : map.main);
 		}
 	};
 
@@ -710,7 +722,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 							}),
 							header: {
 								Authorization: `Bearer ${companyDetail?.token ||
-									JSON.parse(userToken).userReducer.userToken ||
+									JSON.parse(userToken).userReducer?.userToken ||
 									''}`
 							}
 						}}
@@ -760,7 +772,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 				<Doc>Documents Required</Doc>
 				<div>
 					{DOCUMENTS_TYPE.map(docType =>
-						response?.[docType[1]].length ? (
+						response?.[docType[1]]?.length ? (
 							<Fragment key={docType[0]}>
 								<DocTypeHead>{docType[0]}</DocTypeHead>
 								{response?.[docType[1]]?.map(doc => (

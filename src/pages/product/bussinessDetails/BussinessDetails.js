@@ -25,8 +25,6 @@ const ButtonWrap = styled.div`
 	gap: 20px;
 `;
 
-
-
 export default function BussinessDetailsPage({ id, map, onFlowChange, fieldConfig }) {
 	const {
 		actions: { setCompleted }
@@ -57,24 +55,13 @@ export default function BussinessDetailsPage({ id, map, onFlowChange, fieldConfi
 		onFlowChange(map.main);
 	};
 
-
-
 	const url = window.location.hostname;
 
 	let userToken = localStorage.getItem(url);
 
-
-
 	let loan = JSON.parse(userToken).formReducer.user.loanData;
 
 	let form = JSON.parse(userToken).formReducer.user.applicantData;
-
-
-	console.log(form,"userBankDetails")
-
-
-
-
 
 	return (
 		<Div>

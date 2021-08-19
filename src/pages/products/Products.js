@@ -64,9 +64,14 @@ export default function Products() {
 	const [addedProduct, setAddedProduct] = useState(null);
 
 	useEffect(() => {
+		const url = window.location.hostname;
 		localStorage.removeItem('formstate');
 		localStorage.removeItem('formstatepan');
 		localStorage.removeItem('aadhar');
+		localStorage.removeItem('encryptWhiteLabel');
+		localStorage.removeItem('userToken');
+		localStorage.removeItem(url);
+		localStorage.clear();
 	}, []);
 
 	useEffect(() => {}, [addedProduct]);

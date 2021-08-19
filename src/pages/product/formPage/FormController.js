@@ -64,7 +64,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 	};
 
 	const onProceed = async data => {
-		if (id === 'business-details' && localStorage.getItem('product') === 'demo') {
+		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
 				data: {
@@ -80,12 +80,11 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 
 			const userDetailsRes = userDetailsReq.data;
 
-
 			const url = window.location.hostname;
 
 			let userToken = localStorage.getItem(url);
 
-			userToken = JSON.parse(userToken)
+			userToken = JSON.parse(userToken);
 
 			userToken = {
 				...userToken,
@@ -93,8 +92,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 					...userToken.userReducer,
 					userToken: userDetailsRes.token
 				}
-			}
-
+			};
 
 			localStorage.setItem('userToken', userDetailsRes.token);
 			localStorage.setItem(url, JSON.stringify(userToken));
@@ -109,8 +107,6 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				console.log(encryptWhiteLabelRes, 'encryptWhiteLabelRes');
 
 				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 
@@ -145,19 +141,13 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
 	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
-
 	const url = window.location.hostname;
 
 	let userToken = localStorage.getItem(url);
 
-
-
 	let loan = JSON.parse(userToken).formReducer.user.loanData;
 
 	let form = JSON.parse(userToken).formReducer.user.applicantData;
-
-
-	console.log(state.companyDetail,"userBankDetails")
 
 	return (
 		<>

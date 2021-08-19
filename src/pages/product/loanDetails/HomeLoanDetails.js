@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
@@ -111,6 +111,10 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		}));
 		setUploadAgreementModal(false);
 	};
+
+	useEffect(() => {
+		localStorage.removeItem('pan');
+	}, []);
 
 	return (
 		<Div>

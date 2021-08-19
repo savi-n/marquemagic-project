@@ -165,7 +165,9 @@ function formatCompanyDataGST(data, panNum, gstNum) {
 
 export default function PanVerification({ productDetails, map, onFlowChange, id }) {
 	const productType =
-		productDetails.loanType.includes('Business') || productDetails.loanType.includes('LAP')
+		productDetails.loanType.includes('Business') ||
+		productDetails.loanType.includes('LAP') ||
+		productDetails.loanType.includes('Working')
 			? 'business'
 			: 'salaried';
 	const {
@@ -249,8 +251,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 			localStorage.setItem('branchId', userDetailsRes.branchId);
 
-			console.log();
-
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
@@ -261,8 +261,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				console.log(encryptWhiteLabelRes, 'encryptWhiteLabelRes');
 
 				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 
@@ -412,8 +410,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 		let busniess = form.formReducer.user.applicantData;
 
-		console.log(busniess, 'formformformform');
-
 		if (busniess && busniess.Address) {
 			const getAddressDetails = async () => {
 				const companyNameSearchReq = await newRequest(
@@ -484,46 +480,57 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		formData.append('req_type', 'pan');
 		formData.append('process_type', 'extraction');
 		formData.append('document', files);
-
-		getKYCData(formData, clientToken).then(res => {
-			if (res.data.status === 'nok') {
-				if (productType === 'salaried') {
+		getKYCData(formData, clientToken)
+			.then(res => {
+				if (res.data.status === 'nok') {
 					setPanConfirm(true);
+					setBusiness(false);
+
+					addToast({
+						message: res.data.message,
+						type: 'error'
+					});
+				} else {
+					setPan(res.data.data['Pan_number']);
+					localStorage.setItem('pan', res.data.data['Pan_number']);
+					formState.values.panNumber = res.data.data['Pan_number'];
+					formState.values.companyName = res.data.data['Name'];
+					formState.values.dob = res.data.data['DOB'];
+					localStorage.getItem('DOB', res.data.data['DOB']);
+					localStorage.setItem('formstatepan', JSON.stringify(formState));
+					if (productType === 'business') {
+						if (
+							!(
+								res.data.data['Name'].toLowerCase().includes('private limited') ||
+								res.data.data['Name'].toLowerCase().includes('public limited') ||
+								res.data.data['Name'].toLowerCase().includes('limited') ||
+								res.data.data['Name'].toLowerCase().includes('pvt ltd')
+							)
+						) {
+							setBusiness(false);
+							setPanUpload(false);
+						} else {
+							onSubmit(formState);
+						}
+					}
+					if (productType === 'salaried') {
+						setPanConfirm(true);
+					}
+					setResponse(res.data);
 				}
+				setLoading(false);
+			})
+			.catch(err => {
+				console.log(err);
+				setPanConfirm(true);
+				setBusiness(false);
+
 				addToast({
-					message: res.data.message,
+					message: err.message,
 					type: 'error'
 				});
-			} else {
-				setPan(res.data.data['Pan_number']);
-				localStorage.getItem('pan', res.data.data['Pan_number']);
-				formState.values.panNumber = res.data.data['Pan_number'];
-				formState.values.companyName = res.data.data['Name'];
-				formState.values.dob = res.data.data['DOB'];
-				localStorage.getItem('DOB', res.data.data['DOB']);
-				localStorage.setItem('formstatepan', JSON.stringify(formState));
-				if (productType === 'business') {
-					if (
-						!(
-							res.data.data['Name'].toLowerCase().includes('private limited') ||
-							res.data.data['Name'].toLowerCase().includes('public limited') ||
-							res.data.data['Name'].toLowerCase().includes('limited') ||
-							res.data.data['Name'].toLowerCase().includes('pvt ltd')
-						)
-					) {
-						setBusiness(false);
-						setPanUpload(false);
-					} else {
-						onSubmit(formState);
-					}
-				}
-				if (productType === 'salaried') {
-					setPanConfirm(true);
-				}
-				setResponse(res.data);
-			}
-			setLoading(false);
-		});
+				setLoading(false);
+			});
 	};
 
 	function formatUserDetails(data, fields) {
@@ -578,7 +585,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.dob = res?.data?.data?.DOB;
 				formState.values.firstName = name[0];
 				formState.values.lastName = name[1];
-				formState.values.panNumber = panNum;
 
 				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
 				formState.values.dl_no = res.data?.data?.dl_no;
@@ -591,7 +597,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				if (address) {
 					let locationArr = address && address.split(' ');
 
-					let pinCode = address.match(/\d+/)[0];
+					let pinCode = address.match(/\d+/) && address.match(/\d+/)[0];
 
 					formState.values.pin = pinCode;
 				}
@@ -780,7 +786,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						onCompanySelect={onCompanySelect}
 					/>
 				}
-				{openConfirm && productType === 'salaried' && (
+				{openConfirm && (
 					<Modal
 						show={openConfirm}
 						onClose={() => {
@@ -803,9 +809,12 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								name='Submit'
 								fill
 								onClick={() => {
+									localStorage.setItem('pan', formState?.values?.panNumber);
 									setPanConfirm(false);
 									setPanUpload(false);
-									setUploadOtherDocs(true);
+									if (productType === 'salaried') {
+										setUploadOtherDocs(true);
+									}
 								}}
 								disabled={!formState?.values?.panNumber}
 							/>

@@ -74,8 +74,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 			const userDataRes = userDetailsReq.data;
 
 			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-				console.log(userDataRes, 'ddddddddddddddddddddd');
-
 				localStorage.setItem('userToken', userDataRes.token);
 
 				const encryptWhiteLabelReq = await newRequest(
@@ -87,8 +85,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				console.log(encryptWhiteLabelRes, 'encryptWhiteLabelRes');
 
 				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 			}
@@ -178,8 +174,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	let form = JSON.parse(userTokensss).formReducer.user.applicantData;
 
-	console.log('dddddddddddddddddddd', 'userBankDetails');
-
 	return (
 		<Div>
 			<PersonalDetails
@@ -191,7 +185,11 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					dob: getDOB() || JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob || '',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
-					panNumber: r()?.pan || JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber || '',
+					panNumber:
+						r()?.pan ||
+						JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber ||
+						localStorage.getItem('pan') ||
+						'',
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || '',
 					countryResidence: 'india'

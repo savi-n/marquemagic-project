@@ -51,7 +51,6 @@ AddressDetailsPage.propTypes = {
 };
 
 export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig }) {
-	console.log(fieldConfig);
 	const {
 		actions: { setCompleted, activateSubFlow }
 	} = useContext(FlowContext);
@@ -63,8 +62,6 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 	const {
 		state: { userBankDetails }
 	} = useContext(UserContext);
-
-	console.log(userBankDetails);
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();

@@ -1,108 +1,111 @@
-import { useState, useContext } from "react";
-import styled from "styled-components";
-import { func, object, oneOfType, string } from "prop-types";
+import { useState, useContext } from 'react';
+import styled from 'styled-components';
+import { func, object, oneOfType, string } from 'prop-types';
 
-import Button from "../../../components/Button";
-import GuageMeter from "../../../components/GuageMeter";
-import { FlowContext } from "../../../reducer/flowReducer";
-import img1 from "../../../assets/images/v3.png";
-import img2 from "../../../assets/images/v4.png";
+import Button from '../../../components/Button';
+import GuageMeter from '../../../components/GuageMeter';
+import { FlowContext } from '../../../reducer/flowReducer';
+import img1 from '../../../assets/images/v3.png';
+import img2 from '../../../assets/images/v4.png';
+import { CaseContext } from '../../../reducer/caseReducer';
 
 const Colom1 = styled.div`
-  flex: 1;
-  padding: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+	flex: 1;
+	padding: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
 `;
 
 const Colom2 = styled.div`
-  width: 30%;
+	width: 30%;
 `;
 
 const Img = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
 `;
 
 const Caption = styled.h2`
-  text-align: center;
-  font-size: 1em;
-  font-weight: 500;
-  margin: 20px 0;
+	text-align: center;
+	font-size: 1em;
+	font-weight: 500;
+	margin: 20px 0;
 `;
 
 const BtnWrap = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
+	display: flex;
+	align-items: center;
+	gap: 20px;
 `;
 
 const CaptionImg = styled.div`
-  background: ${({ bg }) => (bg ? `url(${bg})` : "transparent")};
-  height: 150px;
-  width: 70%;
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
+	background: ${({ bg }) => (bg ? `url(${bg})` : 'transparent')};
+	height: 150px;
+	width: 70%;
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
 `;
 
 const data = [
-  {
-    caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
-    guarantor: true,
-    img: img1,
-  },
-  {
-    caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
-    guarantor: true,
-    img: img2,
-  },
-  {
-    caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
-    guarantor: false,
-  },
+	{
+		caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
+		guarantor: true,
+		img: img1
+	},
+	{
+		caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
+		guarantor: true,
+		img: img2
+	},
+	{
+		caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
+		guarantor: false
+	}
 ];
 
 ApplicationSubmitted.propTypes = {
-  productDetails: object,
-  onFlowChange: func.isRequired,
-  map: oneOfType([string, object]),
-  id: string,
+	productDetails: object,
+	onFlowChange: func.isRequired,
+	map: oneOfType([string, object]),
+	id: string
 };
 
-export default function ApplicationSubmitted({
-  productDetails,
-  id,
-  map,
-  onFlowChange,
-}) {
-  const {
-    actions: { activateSubFlow },
-  } = useContext(FlowContext);
+export default function ApplicationSubmitted({ productDetails, id, map, onFlowChange }) {
+	const {
+		actions: { activateSubFlow }
+	} = useContext(FlowContext);
 
-  const [count, setData] = useState(0);
+	const {
+		state: { loan_ref_id }
+	} = useContext(CaseContext);
 
-  const subFlowActivate = () => {
-    activateSubFlow(id);
-    onFlowChange(map.sub);
-  };
+	const [count, setData] = useState(0);
 
-  // const {
-  //   state: { userToken },
-  // } = useContext(UserContext);
+	const subFlowActivate = () => {
+		activateSubFlow(id);
+		onFlowChange(map.sub);
+	};
 
-  const d = data[count];
-  return (
-    <>
-      <Colom1>
-        {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
-        <Caption>{d.caption}</Caption>
+	// const {
+	//   state: { userToken },
+	// } = useContext(UserContext);
 
-        {/* {d.guarantor && map.sub && (
+	const d = data[count];
+	return (
+		<>
+			<Colom1>
+				{!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
+				<Caption>{d.caption}</Caption>
+				<section>
+					Application Reference Number: <span className='font-bold'> {loan_ref_id}</span>
+				</section>
+
+				{/* {d.guarantor && map.sub && (
           <>
             <Caption>Any Guarantor?</Caption>
             <BtnWrap>
@@ -111,13 +114,10 @@ export default function ApplicationSubmitted({
             </BtnWrap>
           </>
         )} */}
-      </Colom1>
-      <Colom2>
-        <Img
-          src={productDetails.applicationSubmittedImage}
-          alt="Loan Caption"
-        />
-      </Colom2>
-    </>
-  );
+			</Colom1>
+			<Colom2>
+				<Img src={productDetails.applicationSubmittedImage} alt='Loan Caption' />
+			</Colom2>
+		</>
+	);
 }
