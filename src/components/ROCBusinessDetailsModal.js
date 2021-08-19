@@ -46,7 +46,6 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 	const isDemo = localStorage.getItem('product') === 'demo';
 	return (
 		<Modal show={true} onClose={onClose} width='50%'>
-			{console.log(companyDetail)}
 			<Div>
 				<Row>
 					<Colm1>Business Name</Colm1>

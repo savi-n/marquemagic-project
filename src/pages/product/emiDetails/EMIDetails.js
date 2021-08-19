@@ -89,7 +89,9 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		onSave(data);
 		setCompleted(id);
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			map.main = 'document-upload';
+			if (map.main === 'cub-document-upload') {
+				map.main = 'document-upload';
+			}
 		}
 		onFlowChange(map.main);
 	};

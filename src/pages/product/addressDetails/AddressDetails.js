@@ -147,20 +147,16 @@ export default function AddressDetailsPage({ id, onFlowChange, map, productId })
 	//   }
 	// };
 
-	console.log(userBankDetails, "userBankDetails")
+	console.log(userBankDetails, 'userBankDetails');
 
 	const r = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
-			console.log(formStat, "console" );
 			return formStat.values;
 		} else {
 			return userBankDetails;
 		}
-
-
 	};
-
 
 	return (
 		<Div>
