@@ -152,7 +152,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	const getDOB = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'));
+			var formStat =
+				JSON.parse(localStorage.getItem('formstate')) || JSON.parse(localStorage.getItem('formstatepan'));
 
 			if (formStat && formStat.values.dob) {
 				let d = formStat.values.dob.split('/');
@@ -174,14 +175,22 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	let form = JSON.parse(userTokensss).formReducer.user.applicantData;
 
+	const getDataFromPan = () => {
+		const t = JSON.parse(localStorage.getItem('formstatepan'));
+		const name = t?.values?.companyName?.split(' ');
+		if (name) {
+			return name;
+		}
+	};
+
 	return (
 		<Div>
 			<PersonalDetails
 				register={register}
 				formState={formState}
 				preData={{
-					firstName: r()?.firstName || '',
-					lastName: r()?.lastName || '',
+					firstName: r()?.firstName || '' || getDataFromPan()[0],
+					lastName: r()?.lastName || '' || getDataFromPan()[1],
 					dob: getDOB() || JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob || '',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
