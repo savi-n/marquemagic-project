@@ -33,7 +33,16 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
-export default function PersonalDetails({ preData = {}, id, pageName, userType, jsonData, register, formState }) {
+export default function PersonalDetails({
+	preData = {},
+	id,
+	pageName,
+	userType,
+	jsonData,
+	register,
+	formState,
+	companyDetail
+}) {
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -42,8 +51,7 @@ export default function PersonalDetails({ preData = {}, id, pageName, userType, 
 		if (formState?.values?.[field.name] !== undefined) {
 			return formState?.values?.[field.name];
 		}
-
-		return preData?.[field.name] || field.value || '';
+		return companyDetail ? companyDetail?.[field.name] : preData?.[field.name] || field.value || '';
 	};
 	useEffect(() => {
 		jsonData.map(field => {
@@ -62,7 +70,7 @@ export default function PersonalDetails({ preData = {}, id, pageName, userType, 
 				visibility: true
 			};
 			const email = {
-				name: 'email',
+				name: 'Email',
 				options: [],
 				rules: { required: true, email: true },
 				placeholder: 'Email',

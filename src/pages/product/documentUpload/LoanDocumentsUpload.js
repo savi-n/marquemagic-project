@@ -139,14 +139,16 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			: 'salaried';
 
 	const businessDetails = () => {
-		console.log(form);
+		if (!companyData) {
+			companyData = localStorage.getItem('companyData') && JSON.parse(localStorage.getItem('companyData'));
+		}
 		return {
-			business_name: form.firstName || localStorage.getItem('BusinessName'),
-			business_type: form.incomeType === 'salaried' ? 7 : 1,
-			business_email: form.email,
+			business_name: form?.firstName || localStorage.getItem('BusinessName') || companyData?.BusinessName,
+			business_type: form?.incomeType === 'salaried' ? 7 : 1,
+			business_email: form?.email || companyData?.Email,
 			// business_industry_type: 20,
 			contact: '',
-			businesspancardnumber: form.panNumber
+			businesspancardnumber: form?.panNumber || companyData?.panNumber
 			// // crime_check: "Yes",
 			// gstin: data['business-details'].GSTVerification,
 			// businessstartdate: data['business-details'].BusinessVintage,
@@ -313,7 +315,6 @@ function refereneceDataFormat(loanId, data) {
 	return formatedData;
 }
 export default function DocumentUpload({ productDetails, userType, id, onFlowChange, map, productId }) {
-	console.log(productId);
 	const {
 		state,
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType }

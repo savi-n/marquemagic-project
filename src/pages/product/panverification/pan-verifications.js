@@ -205,7 +205,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			{
 				method: 'POST',
 				data: {
-					search: companyName
+					search: companyName.trim()
 				}
 			},
 			{}
@@ -504,7 +504,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								res.data.data['Name'].toLowerCase().includes('private limited') ||
 								res.data.data['Name'].toLowerCase().includes('public limited') ||
 								res.data.data['Name'].toLowerCase().includes('limited') ||
-								res.data.data['Name'].toLowerCase().includes('pvt ltd')
+								res.data.data['Name'].toLowerCase().includes('pvt ltd') ||
+								res.data.data['Name'].toLowerCase().includes('private')
 							)
 						) {
 							setBusiness(false);
