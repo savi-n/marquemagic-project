@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
@@ -76,6 +76,10 @@ ApplicationSubmitted.propTypes = {
 };
 
 export default function ApplicationSubmitted({ productDetails, id, map, onFlowChange }) {
+	useEffect(() => {
+		localStorage.clear();
+	}, []);
+
 	const {
 		actions: { activateSubFlow }
 	} = useContext(FlowContext);

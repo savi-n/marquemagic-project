@@ -43,6 +43,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 	} = useContext(AppContext);
 
 	const {
+		state: { companyDetail },
 		actions: { setCompanyDetails }
 	} = useContext(BussinesContext);
 
@@ -112,6 +113,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
+						...companyDetail,
 						token: userDetailsRes.token,
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
@@ -155,6 +157,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 				<PersonalDetails
 					register={register}
 					formState={formState}
+					companyDetail={companyDetail}
 					pageName={map.name}
 					preData={form}
 					jsonData={map?.fields[id]?.data || []}
