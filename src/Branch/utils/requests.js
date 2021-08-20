@@ -103,7 +103,6 @@ export const getLoanDetails = async (loanId, token = localStorage.getItem('token
 		}
 	);
 	const t = await g;
-	console.log(t.data);
 	return t.data;
 };
 
@@ -133,7 +132,6 @@ export const loanDocMapping = async (loanId, token = localStorage.getItem('token
 };
 
 export const viewDocument = async (loan_id, userid, filename, token = localStorage.getItem('token')) => {
-	console.log(loan_id, filename, userid);
 	const g = await axios.post(
 		`${API_END_POINT}/viewDocument`,
 		{ filename, userid, loan_id },

@@ -143,6 +143,7 @@ export default function Product({ product, url }) {
 	const onNoClick = () => {
 		// setContinueExistingApplication(false);
 		setShowContinueModal(true);
+		localStorage.clear();
 		clearFlowDetails(basePageUrl);
 		clearFormData();
 	};

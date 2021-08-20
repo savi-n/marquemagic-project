@@ -515,6 +515,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						}
 					}
 					if (productType === 'salaried') {
+						const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
+						if (name) {
+							formState.values.firstName = name[0];
+							formState.values.lastName = name[1];
+						}
 						setPanConfirm(true);
 					}
 					setResponse(res.data);
@@ -589,16 +594,18 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 				formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
 				formState.values.dl_no = res.data?.data?.dl_no;
-				formState.values.address1 = res.data?.data?.address;
-
+				formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
 				let address = formState.values.address1;
 
 				let pinCode = '';
 
 				if (address) {
-					let locationArr = address && address.split(' ');
-
-					let pinCode = address.match(/\d+/) && address.match(/\d+/)[0];
+					let locationArr = address && address?.split(' ');
+					let y = locationArr?.map(e => Number(e) !== NaN && e);
+					let pinCode;
+					y.map(e => {
+						if (e?.length === 6) pinCode = e;
+					});
 
 					formState.values.pin = pinCode;
 				}

@@ -18,9 +18,6 @@ const Company = styled.div`
 `;
 
 export default function CompanySelectModal({ companyList, show, onClose, onCompanySelect }) {
-	{
-		console.log(companyList);
-	}
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>
 			<Wrapper>

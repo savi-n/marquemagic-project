@@ -65,7 +65,6 @@ export default function BussinessDetailsPage({ id, map, onFlowChange, fieldConfi
 
 	return (
 		<Div>
-			{console.log(formState, userBankDetails)}
 			<PersonalDetails
 				register={register}
 				formState={formState}

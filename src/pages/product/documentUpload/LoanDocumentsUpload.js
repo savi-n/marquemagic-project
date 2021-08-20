@@ -761,9 +761,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						onClick={onSubmit}
 					/>
 				</SubmitWrapper>
-				{message && (
-					<div style={{ color: 'blue' }}>Your case is created and your reference number is {message}</div>
-				)}
 
 				{otherBankStatementModal && (
 					<BankStatementModal showModal={otherBankStatementModal} onClose={onOtherStatementModalToggle} />
