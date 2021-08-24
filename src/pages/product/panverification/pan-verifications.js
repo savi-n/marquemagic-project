@@ -597,17 +597,17 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
 				let address = formState.values.address1;
 
-				let pinCode = '';
+				var pinCode = res?.data?.data?.pincode;
 
 				if (address) {
 					let locationArr = address && address?.split(' ');
 					let y = locationArr?.map(e => Number(e) !== NaN && e);
-					let pinCode;
+					let pin;
 					y.map(e => {
-						if (e?.length === 6) pinCode = e;
+						if (e?.length === 6) pin = e;
 					});
 
-					formState.values.pin = pinCode;
+					formState.values.pin = pinCode || pin;
 				}
 
 				localStorage.setItem('formstate', JSON.stringify(formState));
