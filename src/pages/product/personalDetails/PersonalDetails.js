@@ -189,8 +189,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				register={register}
 				formState={formState}
 				preData={{
-					firstName: r()?.firstName || '' || getDataFromPan()[0],
-					lastName: r()?.lastName || '' || getDataFromPan()[1],
+					firstName: r()?.firstName || '' || (getDataFromPan() && getDataFromPan()[0]),
+					lastName: r()?.lastName || '' || (getDataFromPan() && getDataFromPan()[1]),
 					dob: getDOB() || JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob || '',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
