@@ -583,6 +583,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				setVoter([]);
 				onProceed();
 			} else {
+				// data ---> extractionData
+				// ref_id: pass the id from the first doc response
+				// combine data
 				const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
 				const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
 				const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
