@@ -213,7 +213,10 @@ function subsidiaryDataFormat(caseId, data) {
 		case_id: caseId,
 		account_number: data['subsidiary-details']?.AccountNumber,
 		subsidiary_name: data['subsidiary-details']?.SubsidiaryName,
-		bank_name: data['subsidiary-details']?.BankName,
+		bank_name:
+			typeof data['subsidiary-details']?.BankName === 'object'
+				? Number(data['subsidiary-details']?.BankName?.value)
+				: data['subsidiary-details']?.BankName,
 		relative: data['subsidiary-details']?.Relation
 	};
 
@@ -234,7 +237,10 @@ function bankDetailsDataFormat(caseId, data) {
 		emiDetails: data['emi-details'],
 		account_number: data['bank-details']?.AccountNumber,
 		// subsidiary_name: data['bank-details'].,
-		bank_name: data['bank-details']?.BankName,
+		bank_name:
+			typeof data['bank-details']?.BankName === 'object'
+				? Number(data['bank-details']?.BankName?.value)
+				: data['bank-details']?.BankName,
 		account_holder_name: data['bank-details']?.AccountHolderName,
 		account_type: data['bank-details']?.AccountType,
 		start_date: data['bank-details']?.StartDate,
