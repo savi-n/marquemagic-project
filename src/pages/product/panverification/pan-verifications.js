@@ -505,7 +505,7 @@ export default function PanVerification({
             await verifyPan(
               formState.values.responseId,
               formState?.values?.panNumber,
-              formState.values.companyName,
+              formState?.values?.companyName,
               clientToken
             );
           }
@@ -531,7 +531,12 @@ export default function PanVerification({
 
         try {
           if (udhyogAadhar) {
-            await verifyPan(response?.Info?.id, udhyogAadhar, clientToken);
+            await verifyPan(
+              formState.values.responseId,
+              formState.values?.udhyogAadhar,
+              formState?.values?.companyName,
+              clientToken
+            );
           }
 
           let stateCode = null,
