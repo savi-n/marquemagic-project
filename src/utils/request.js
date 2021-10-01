@@ -1,41 +1,41 @@
-import axios from 'axios'
-import { API_END_POINT, ENDPOINT_BANK } from '../_config/app.config'
+import axios from "axios";
+import { API_END_POINT, ENDPOINT_BANK } from "../_config/app.config";
 
 export const getKYCData = async (formData, token) => {
   try {
-    const url = `${ENDPOINT_BANK}/getKycData`
+    const url = `${ENDPOINT_BANK}/getKycData`;
     const config = {
       headers: {
-        'Content-type': 'multipart/form-data',
+        "Content-type": "multipart/form-data",
         Authorization: token,
       },
-    }
-    const g = await axios.post(url, formData, config)
-    const t = await g
-    return t
+    };
+    const g = await axios.post(url, formData, config);
+    const t = await g;
+    return t;
   } catch (err) {
-    return { data: { message: err.message, status: 'nok' } }
+    return { data: { message: err.message, status: "nok" } };
   }
-}
+};
 
-export const verifyPan = async (ref_id, req_id, token) => {
-  const url = `${ENDPOINT_BANK}/verifyKycData`
+export const verifyPan = async (ref_id, number, name, token) => {
+  const url = `${ENDPOINT_BANK}/verifyKycData`;
   const g = await axios.post(
     url,
-    { req_id, ref_id },
-    { headers: { Authorization: token } },
-  )
-  const t = await g
-}
+    { ref_id, number, name },
+    { headers: { Authorization: token } }
+  );
+  const t = await g;
+};
 
 export const gstFetch = async (pan_number, state_code, token) => {
-  const url = `${ENDPOINT_BANK}/GSTData`
-  if (state_code == null) state_code = '22'
+  const url = `${ENDPOINT_BANK}/GSTData`;
+  if (state_code == null) state_code = "22";
   const g = await axios.post(
     url,
     { pan_number, state_code },
-    { headers: { Authorization: token } },
-  )
-  const t = await g
-  return t
-}
+    { headers: { Authorization: token } }
+  );
+  const t = await g;
+  return t;
+};
