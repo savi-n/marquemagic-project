@@ -157,9 +157,13 @@ export default function CardDetails({
   };
 
   const getRecom = (data) => {
-    if (data !== "Not Qualified") {
-      const a = JSON.parse(data);
-      return a;
+    try {
+      if (data !== "Not Qualified") {
+        const a = JSON.parse(data);
+        return a;
+      }
+    } catch (err) {
+      return data;
     }
   };
 
