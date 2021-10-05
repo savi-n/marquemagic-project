@@ -10,11 +10,12 @@ import {
   needAction,
   searchData,
   getNCStatus,
-  filterList
+  filterList,
 } from "../utils/requests";
 import Loading from "../../components/Loading";
 import Button from "../shared/components/Button";
 import CheckApplication from "../pages/checkApplication";
+import { useSelector } from "react-redux";
 
 export default function Applications({
   d,
@@ -43,6 +44,7 @@ export default function Applications({
   const [product, setProduct] = useState(null);
   const [assignmentLog, setAssignmentLog] = useState(null);
   const [productId, setProductId] = useState(null);
+  const selector = useSelector((state) => state.branchFlow);
   useEffect(async () => {
     setLoading(true);
     Object.keys(mapp).map((e) => {
@@ -136,7 +138,7 @@ export default function Applications({
 
   const [filtering, setFiltering] = useState(false);
   const dropdown = (e) => {
-    console.log(e); if (e === 'week' || e === 'month' || e === 'year') {
+    if (e === "week" || e === "month" || e === "year") {
       setFiltering(true);
       setTimeout(() => {
         filterList(e.target.value).then((res) => {
@@ -146,9 +148,8 @@ export default function Applications({
       }, 3000);
     }
   };
- 
 
-  return !viewLoan ? (
+  return !selector?.viewLoan ? (
     <section className="flex">
       <section
         style={{
@@ -206,7 +207,8 @@ export default function Applications({
           <section className="flex w-1/3 gap-x-4 mt-10 items-center">
             <span className="w-16">Filter by</span>
             <div className="select_box w-full">
-              <select className="dropdown focus:outline-none bg-transparent"
+              <select
+                className="dropdown focus:outline-none bg-transparent"
                 onChange={(e) => dropdown(e)}
               >
                 {sortList.map((el) => (
@@ -230,43 +232,35 @@ export default function Applications({
           )}
           {data && typeof data === "object" && data.length
             ? data.map((item) => (
-              <CardDetails
-                setViewLoan={setViewLoan}
-                label={lActive}
-                full={true}
-                item={item}
-                lActive={lActive}
-                setId={setId}
-                setActiv={setActiv}
-                setClicked={setClicked}
-                setProduct={setProduct}
-                setAssignmentLog={setAssignmentLog}
-                submitCase={submitCase}
-                setProductId={setProductId}
-                usersList={usersList}
-                setItem={setItem}
-                width={true}
-              />
-            ))
+                <CardDetails
+                  label={lActive}
+                  full={true}
+                  item={item}
+                  lActive={lActive}
+                  setClicked={setClicked}
+                  submitCase={submitCase}
+                  usersList={usersList}
+                  width={true}
+                />
+              ))
             : !loading && (
-              <span className="text-start w-full opacity-50">
-                No Applications
-              </span>
-            )}
+                <span className="text-start w-full opacity-50">
+                  No Applications
+                </span>
+              )}
           {serachStarted && <Loading />}
         </section>
       </section>
     </section>
   ) : (
     <CheckApplication
-      setViewLoan={setViewLoan}
       usersList={usersList}
-      assignmentLog={assignmentLog}
-      product={product && product}
-      id={id && id}
-      activ={activ}
-      item={item}
-      productId={productId}
+      assignmentLog={selector?.assignmentLog}
+      product={selector?.product}
+      id={selector?.id}
+      activ={selector?.activ}
+      item={selector?.item}
+      productId={selector?.productID}
       activeTab={lActive}
     />
   );

@@ -217,6 +217,7 @@ export default function PanVerification({
 
   const companyNameSearch = async (companyName) => {
     setLoading(true);
+    setCompanyListModal(false);
     const companyNameSearchReq = await newRequest(
       SEARCH_COMPANY_NAME,
       {
@@ -232,6 +233,7 @@ export default function PanVerification({
 
     if (companyNameSearchRes.status === NC_STATUS_CODE.OK) {
       setCompanyListModal(true);
+      setLoading(false);
       setCompanyList(companyNameSearchRes.data);
     }
   };
@@ -873,10 +875,13 @@ export default function PanVerification({
         </Colom2>
         {
           <CompanySelectModal
+            companyNameSearch={companyNameSearch}
             show={companyListModal}
+            companyName={formState?.values?.companyName}
             companyList={companyList}
             onClose={() => setCompanyListModal(false)}
             onCompanySelect={onCompanySelect}
+            formState={formState}
           />
         }
         {openConfirm && (
