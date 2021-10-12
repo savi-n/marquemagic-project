@@ -3,7 +3,7 @@ import { API_END_POINT, ENDPOINT_BANK } from "../_config/app.config";
 
 export const getKYCData = async (formData, token) => {
   try {
-    const url = `${ENDPOINT_BANK}/getKycData`;
+    const url = `${ENDPOINT_BANK}/getKycDataUiUx`;
     const config = {
       headers: {
         "Content-type": "multipart/form-data",
