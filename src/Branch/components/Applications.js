@@ -40,9 +40,6 @@ export default function Applications({
 
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
-  const [product, setProduct] = useState(null);
-  const [assignmentLog, setAssignmentLog] = useState(null);
-  const [productId, setProductId] = useState(null);
   const selector = useSelector((state) => state.branchFlow);
   useEffect(async () => {
     setLoading(true);
@@ -92,9 +89,6 @@ export default function Applications({
   );
 
   const history = useHistory();
-  const [id, setId] = useState(null);
-  const [viewLoan, setViewLoan] = useState(false);
-  const [activ, setActiv] = useState("Applicant");
   const [serachStarted, setSearch] = useState(false);
 
   useEffect(async () => {
@@ -112,7 +106,7 @@ export default function Applications({
         });
       }
     });
-  }, [viewLoan]);
+  }, [selector?.viewLoan]);
 
   const search = (e) => {
     if (e.target.value.length === 0) {
