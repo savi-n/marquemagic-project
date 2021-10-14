@@ -1,11 +1,10 @@
 import { useState, lazy, useContext, useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { BranchUserContext } from "../../reducer/branchUserReducer";
 
 import "../components/styles/index.scss";
 import { getUsersList } from "../utils/requests";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { branchAction } from "../../Store/branchSlice";
 
 const Applications = lazy(() => import("../components/Applications"));
@@ -29,7 +28,6 @@ export default function Dashboard(props) {
 
   const dispatch = useDispatch();
 
-  console.log(selector);
   useEffect(() => {
     if (token) {
       localStorage.removeItem("lActive");
@@ -55,7 +53,7 @@ export default function Dashboard(props) {
   };
 
   const getTabData = (i) => {
-    return i === lActive;
+    return i === selector?.lActive;
   };
   const options = [
     {
@@ -411,7 +409,6 @@ export default function Dashboard(props) {
       ],
     },
   ];
-  const [lActive, setLActive] = useState("Pending Applications");
 
   const onTabChange = (e) => setCurrent(e);
 
@@ -430,8 +427,6 @@ export default function Dashboard(props) {
             getTabData={getTabData}
             d={d}
             isIdentifier={isIdentifier}
-            lActive={lActive}
-            setLActive={setLActive}
             usersList={usersList && usersList}
           />
         )}
@@ -439,10 +434,8 @@ export default function Dashboard(props) {
       {current === "Loan Applications" && (
         <Applications
           d={d}
-          setLActive={setLActive}
           sortList={sortList}
           getTabData={getTabData}
-          lActive={lActive}
           isIdentifier={isIdentifier}
           usersList={usersList && usersList}
         />

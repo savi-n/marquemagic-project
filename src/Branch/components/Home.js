@@ -19,8 +19,6 @@ export default function Home({
   dChartData,
   d,
   isIdentifier,
-  lActive,
-  setLActive,
   usersList,
 }) {
   dashboardData();
@@ -195,8 +193,6 @@ export default function Home({
                         label="Pending Applications"
                         full={true}
                         item={item}
-                        lActive={lActive}
-                        setLActive={setLActive}
                         usersList={usersList}
                       />
                     )
@@ -221,7 +217,6 @@ export default function Home({
                         label="Sanctioned"
                         full={true}
                         item={item}
-                        lActive={lActive}
                         usersList={usersList}
                       />
                     )
