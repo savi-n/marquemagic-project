@@ -23,6 +23,7 @@ import {
 
 import DownloadSection from "./DownloadSection";
 import CardFileUpload from "./CardFileUpload";
+import { useSelector } from "react-redux";
 
 export default function SharedCAT({
   getCLicker,
@@ -30,7 +31,6 @@ export default function SharedCAT({
   type,
   productId,
   item,
-  lActive,
   userId,
   setClicked,
   submitCase,
@@ -57,7 +57,7 @@ export default function SharedCAT({
       }
     });
   }, []);
-
+  const selector = useSelector((state) => state.branchFlow);
   const [assigned, setAssigned] = useState(false);
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function SharedCAT({
           size="small"
           rounded="rfull"
           onClick={() => {
-            reassignLoan(item.id, lActive === "Final Sanction");
+            reassignLoan(item.id, selector?.lActive === "Final Sanction");
             setClicked(true);
             getCLicker(null);
             submitCase && submitCase();
@@ -473,7 +473,7 @@ export default function SharedCAT({
           onClick={() => {
             reassignLoan(
               item.id,
-              lActive === "Pending Applications"
+              selector?.lActive === "Pending Applications"
                 ? "NC In-Progress"
                 : "In-Progress At AO",
               commen

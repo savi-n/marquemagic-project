@@ -5,6 +5,7 @@ const branchFlowSlice = createSlice({
   initialState: {
     activ: "Applicant",
     viewLoan: false,
+    lActive: "Pending Applications",
   },
   reducers: {
     setProductIdAction(state, action) {
@@ -38,7 +39,10 @@ const branchFlowSlice = createSlice({
       const activ = action.payload;
       state.activ = activ;
     },
-
+    setLActiveAction(state, action) {
+      const setLActive = action.payload;
+      state.lActive = setLActive;
+    },
     setAssignmentLogAction(state, action) {
       const assignmentLog = action.payload;
       state.assignmentLog = assignmentLog;

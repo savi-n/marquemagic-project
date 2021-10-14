@@ -40,7 +40,6 @@ export default function CardDetails({
   label,
   full,
   idx,
-  lActive,
   setViewLoan,
   setId,
   setActiv,
@@ -441,7 +440,6 @@ export default function CardDetails({
             }
             getCLicker={getClicker}
             item={item}
-            lActive={lActive}
             setClicked={setClicked}
             submitCase={submitCase}
             setAssignedBy={setAssignedBy}

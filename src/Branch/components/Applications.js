@@ -15,13 +15,12 @@ import {
 import Loading from "../../components/Loading";
 import Button from "../shared/components/Button";
 import CheckApplication from "../pages/checkApplication";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { branchAction } from "../../Store/branchSlice";
 
 export default function Applications({
   d,
   sortList,
-  setLActive,
-  lActive,
   getTabData,
   isIdentifier,
   usersList,
@@ -37,6 +36,7 @@ export default function Applications({
   };
 
   const searchRef = useRef();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
@@ -44,7 +44,7 @@ export default function Applications({
   useEffect(async () => {
     setLoading(true);
     Object.keys(mapp).map((e) => {
-      if (e === lActive) {
+      if (e === selector?.lActive) {
         getCase(mapp[e]).then((res) => {
           setLoading(false);
           setData(res);
@@ -52,7 +52,7 @@ export default function Applications({
         needAction(
           JSON.stringify(["Branch Review", "Pending Applications"])
         ).then((res) => {
-          setAlert(res.length);
+          setAlert(res?.length);
         });
       }
     });
@@ -61,7 +61,7 @@ export default function Applications({
   const submitCase = () => {
     setLoading(true);
     Object.keys(mapp).map((e) => {
-      if (e === lActive) {
+      if (e === selector?.lActive) {
         getCase(mapp[e]).then((res) => {
           setLoading(false);
           setData(res);
@@ -76,13 +76,13 @@ export default function Applications({
     <Tabs
       length={data && data.length}
       k={item.label}
-      active={lActive === item.label}
+      active={selector?.lActive === item.label}
       click={(event) => {
         searchRef.current.value = "";
-        setLActive(event);
+        dispatch(branchAction.setLActiveAction(event));
       }}
       align="vertical"
-      lActive={lActive}
+      lActive={selector?.lActive}
       setData={setData}
       setLoading={setLoading}
     />
@@ -94,7 +94,7 @@ export default function Applications({
   useEffect(async () => {
     setLoading(true);
     Object.keys(mapp).map((e) => {
-      if (e === lActive) {
+      if (e === selector?.lActive) {
         getCase(mapp[e]).then((res) => {
           setLoading(false);
           setData(res);
@@ -102,7 +102,7 @@ export default function Applications({
         needAction(
           JSON.stringify(["Branch Review", "Pending Applications"])
         ).then((res) => {
-          setAlert(res.length);
+          setAlert(res?.length);
         });
       }
     });
@@ -112,7 +112,7 @@ export default function Applications({
     if (e.target.value.length === 0) {
       setSearch(true);
       Object.keys(mapp).map(async (e) => {
-        if (e === lActive) {
+        if (e === selector?.lActive) {
           const res = await getCase(mapp[e]);
           setSearch(false);
           setData(res);
@@ -121,7 +121,7 @@ export default function Applications({
     } else if (e.target.value.length > 2) {
       setSearch(true);
       setTimeout(() => {
-        searchData(e.target.value, mapp[lActive]).then((res) => {
+        searchData(e.target.value, mapp[(selector?.lActive)]).then((res) => {
           setSearch(false);
           setData(res);
         });
@@ -226,10 +226,9 @@ export default function Applications({
           {data && typeof data === "object" && data.length
             ? data.map((item) => (
                 <CardDetails
-                  label={lActive}
+                  label={selector?.lActive}
                   full={true}
                   item={item}
-                  lActive={lActive}
                   setClicked={setClicked}
                   submitCase={submitCase}
                   usersList={usersList}
@@ -254,7 +253,7 @@ export default function Applications({
       activ={selector?.activ}
       item={selector?.item}
       productId={selector?.productID}
-      activeTab={lActive}
+      activeTab={selector?.lActive}
     />
   );
 }
