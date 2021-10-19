@@ -100,7 +100,7 @@ function formatCompanyData(data, panNum) {
 
   for (const type of businessTypeMaps) {
     const typeAllowed = type[0].find((t) =>
-      data.company_master_data.company_name.toLowerCase().includes(t)
+      data?.company_master_data.company_name?.toLowerCase().includes(t)
     );
 
     if (typeAllowed) {
@@ -138,7 +138,7 @@ function formatCompanyDataGST(data, panNum, gstNum) {
   let directorsForShow = [];
 
   directorsForShow.push({
-    Name: data.lgnm,
+    Name: data?.lgnm,
     Din: "",
   });
 
@@ -146,7 +146,7 @@ function formatCompanyDataGST(data, panNum, gstNum) {
 
   for (const type of businessTypeMaps) {
     const typeAllowed = type[0].find((t) =>
-      data.tradeNam?.toLowerCase().includes(t)
+      data?.tradeNam?.toLowerCase().includes(t)
     );
 
     if (typeAllowed) {
@@ -155,7 +155,7 @@ function formatCompanyDataGST(data, panNum, gstNum) {
     }
   }
 
-  const [date, month, year] = data?.rgdt.split(/\/|-/);
+  const [date, month, year] = data?.rgdt?.split(/\/|-/);
 
   return {
     BusinessName: data.tradeNam,
@@ -459,8 +459,10 @@ export default function PanVerification({
               res.data?.data?.name?.split(" ") ||
               res.data?.data?.Name?.split(" ");
             if (name) {
-              formState.values.firstName = name[0];
-              formState.values.lastName = name[1];
+              let fName = [...name];
+              fName.pop();
+              formState.values.firstName = fName.join(" ");
+              formState.values.lastName = name[name.length - 1];
             }
             setPanConfirm(true);
           }
@@ -654,9 +656,11 @@ export default function PanVerification({
         formState.values.aadhaar = t;
         localStorage.setItem("aadhar", t);
         formState.values.dob = res?.data?.data?.DOB;
-        formState.values.firstName = name[0];
-        formState.values.lastName = name[1];
-
+        let firstName = [...name];
+        firstName.pop();
+        formState.values.firstName = firstName.join(" ");
+        formState.values.lastName = name[name.length - 1];
+ 
         formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
         formState.values.dl_no = res.data?.data?.dl_no;
         formState.values.address1 =

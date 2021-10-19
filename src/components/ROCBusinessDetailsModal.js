@@ -105,7 +105,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					<Colm2>{companyDetail?.CompanyCategory}</Colm2>
 				</Row>
 
-				{companyDetail?.directorsForShow.length && (
+				{companyDetail?.directorsForShow.length > 0 && (
 					<>
 						<Header>Directors/Partners</Header>
 						<Row>
