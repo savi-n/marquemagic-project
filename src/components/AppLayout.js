@@ -111,7 +111,7 @@ const AppLayout = () => {
 					</HeaderWrapper>
 				)}
 				<Div>
-					<BrowserRouter basename={`${APP_DOMAIN}`}>
+					<BrowserRouter basename='/nconboarding'>
 						<Suspense fallback={<Loading />}>
 							<Switch>
 								<Route path='/branch' manager={true} component={BranchUserContent} />

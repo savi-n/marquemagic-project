@@ -9,6 +9,8 @@ import Card from "./Card";
 import Button from "./Button";
 import ProgressBar from "./progressBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useDispatch } from "react-redux";
+import { branchAction } from "../../../Store/branchSlice";
 import {
   faUpload,
   faUser,
@@ -38,7 +40,6 @@ export default function CardDetails({
   label,
   full,
   idx,
-  lActive,
   setViewLoan,
   setId,
   setActiv,
@@ -64,6 +65,7 @@ export default function CardDetails({
   const [approvalHistory, setApprovalHistory] = useState(false);
   const [reasonForRejection, setReasonforRejection] = useState(false);
   const [arrow, setArrow] = useState(true);
+  const dispatch = useDispatch();
 
   const cibilPercentage = (cibil) => {
     return Math.floor((Number(cibil) / 900) * 100);
@@ -196,8 +198,8 @@ export default function CardDetails({
             <section className="flex flex-col w-1/2">
               <span className="text-xs text-blue-700">{item.loan_ref_id}</span>
               <span className="text-xs" title={item.product}>
-                {item.product.length > 25
-                  ? item.product.substring(0, 20) + "..."
+                {item.product?.length > 25
+                  ? item.product?.substring(0, 20) + "..."
                   : item.product || "Auto Loan"}
               </span>
 
@@ -231,22 +233,36 @@ export default function CardDetails({
                       rounded="rfull"
                       width="fulll"
                       onClick={() => {
-                        setItem && setItem(item);
+                        branchAction.setItemAction &&
+                          dispatch(branchAction.setItemAction(item));
 
-                        setProductId && setProductId(item.loan_product_id);
+                        branchAction.setProductIdAction &&
+                          dispatch(
+                            branchAction.setProductIdAction(
+                              item.loan_product_id
+                            )
+                          );
                         item.remarks
-                          ? setAssignmentLog && setAssignmentLog(item.remarks)
-                          : setAssignmentLog && setAssignmentLog(null);
-                        setViewLoan(true);
-                        setProduct(item.product);
-                        setId(item.id);
+                          ? branchAction.setAssignmentLogAction &&
+                            dispatch(
+                              branchAction.setAssignmentLogAction(item.remarks)
+                            )
+                          : branchAction.setAssignmentLogAction &&
+                            dispatch(branchAction.setAssignmentLogAction(null));
+                        dispatch(branchAction.setViewLoanAction(true));
+                        dispatch(branchAction.setProductAction(item.product));
+                        dispatch(branchAction.setIdAction(item.id));
                         e === "Check Documents"
-                          ? setActiv("Document Details")
+                          ? dispatch(
+                              branchAction.setActivAction("Document Details")
+                            )
                           : item.product !==
                               "Unsecured Business/Self-Employed" &&
                             item.product !== "LAP Cases"
-                          ? setActiv("Applicant")
-                          : setActiv("Business Details");
+                          ? dispatch(branchAction.setActivAction("Applicant"))
+                          : dispatch(
+                              branchAction.setActivAction("Business Details")
+                            );
                       }}
                     >
                       {e}
@@ -284,23 +300,44 @@ export default function CardDetails({
                       rounded="rfull"
                       width="fulll"
                       onClick={() => {
-                        setItem && setItem(item);
+                        branchAction.setItemAction &&
+                          dispatch(branchAction.setItemAction(item));
 
                         if (e !== "Compliance") {
-                          setProduct && setProduct(item.product);
-                          setProductId && setProductId(item.loan_product_id);
+                          branchAction.setProductAction &&
+                            dispatch(
+                              branchAction.setProductAction(item.product)
+                            );
+                          branchAction.setProductIdAction &&
+                            dispatch(
+                              branchAction.setProductIdAction(
+                                item.loan_product_id
+                              )
+                            );
                           item.remarks
-                            ? setAssignmentLog && setAssignmentLog(item.remarks)
-                            : setAssignmentLog && setAssignmentLog(null);
-                          setViewLoan && setViewLoan(true);
-                          setId && setId(item.id);
-                          setActiv &&
-                            setActiv(
-                              e === "Pre-Eligibility" && e !== "Compliance"
-                                ? "Pre-Eligibility Details"
-                                : e === "Create Security"
-                                ? "Security Details"
-                                : e !== "Compliance" && e
+                            ? branchAction.setAssignmentLogAction &&
+                              dispatch(
+                                branchAction.setAssignmentLogAction(
+                                  item.remarks
+                                )
+                              )
+                            : branchAction.setAssignmentLogAction &&
+                              dispatch(
+                                branchAction.setAssignmentLogAction(null)
+                              );
+                          branchAction.setViewLoanAction &&
+                            dispatch(branchAction.setViewLoanAction(true));
+                          branchAction.setItemAction &&
+                            dispatch(branchAction.setIdAction(item.id));
+                          branchAction.setActivAction &&
+                            dispatch(
+                              branchAction.setActivAction(
+                                e === "Pre-Eligibility" && e !== "Compliance"
+                                  ? "Pre-Eligibility Details"
+                                  : e === "Create Security"
+                                  ? "Security Details"
+                                  : e !== "Compliance" && e
+                              )
                             );
                         } else {
                           getClicker("Comments");
@@ -403,7 +440,6 @@ export default function CardDetails({
             }
             getCLicker={getClicker}
             item={item}
-            lActive={lActive}
             setClicked={setClicked}
             submitCase={submitCase}
             setAssignedBy={setAssignedBy}
