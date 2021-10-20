@@ -104,6 +104,11 @@ export default function Product({ product, url }) {
 	});
 
 	useEffect(() => {
+		clearFlowDetails(basePageUrl);
+		clearFormData();
+	}, []);
+
+	useEffect(() => {
 		if (response) {
 			configure(response.data?.product_details?.flow);
 		}
@@ -143,7 +148,9 @@ export default function Product({ product, url }) {
 	const onNoClick = () => {
 		// setContinueExistingApplication(false);
 		setShowContinueModal(true);
+		const wt_lbl = localStorage.getItem('wt_lbl');
 		localStorage.clear();
+		localStorage.setItem('wt_lbl', wt_lbl);
 		clearFlowDetails(basePageUrl);
 		clearFormData();
 	};

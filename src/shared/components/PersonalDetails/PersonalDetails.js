@@ -97,7 +97,8 @@ export default function PersonalDetails({
 											...field,
 											value: populateValue(field),
 											...(preData?.[field.name] && field?.preDataDisable && { disabled: true }),
-											...(userType ? { disabled: false } : {})
+											...(userType ? { disabled: false } : {}),
+											max: field.type === 'date' && '9999-12-31'
 										})}
 										{(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name] && (
@@ -115,7 +116,8 @@ export default function PersonalDetails({
 											...field,
 											value: populateValue(field),
 											...(preData?.[field.name] && field?.preDataDisable && { disabled: true }),
-											...(userType ? { disabled: false } : {})
+											...(userType ? { disabled: false } : {}),
+											max: field.type === 'date' && '9999-12-31'
 										})}
 										{(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name] && (
