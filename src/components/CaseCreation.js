@@ -244,7 +244,7 @@ export default function useCaseCreation(userType, productId, role) {
 			setProcessing(true);
 			const loanReq = await caseCreationSteps(
 				{
-					white_label_id: whiteLabelId,
+					white_label_id: whiteLabelId || localStorage.getItem('wt_lbl'),
 					product_id: productId,
 					branchId: localStorage.getItem('branchId'),
 					applicantData: {

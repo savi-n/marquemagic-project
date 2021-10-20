@@ -77,7 +77,9 @@ ApplicationSubmitted.propTypes = {
 
 export default function ApplicationSubmitted({ productDetails, id, map, onFlowChange }) {
 	useEffect(() => {
+		const wt_lbl = localStorage.getItem('wt_lbl');
 		localStorage.clear();
+		localStorage.setItem('wt_lbl', wt_lbl);
 	}, []);
 
 	const {
