@@ -437,7 +437,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 				setLoading(false);
 			})
 			.catch(err => {
-				console.log(err);
 				setPanConfirm(true);
 				setBusiness(false);
 
@@ -474,7 +473,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						await companyNameSearch(formState?.values?.companyName);
 					}
 				} catch (error) {
-					console.error(error);
 					addToast({
 						message: error.message || 'Something Went Wrong. Try Again!',
 						type: 'error'
@@ -536,7 +534,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 						});
 					}
 				} catch (error) {
-					console.error(error);
 					addToast({
 						message: error.message || 'Something Went Wrong. Try Again!',
 						type: 'error'
