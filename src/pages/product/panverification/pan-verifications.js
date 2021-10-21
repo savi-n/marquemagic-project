@@ -502,12 +502,20 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					if (panNumber && !gstin) {
 					}
 					if (udhyogAadhar) {
-						await verifyPan(
+						const y = await verifyPan(
 							formState.values.responseId,
 							formState.values?.udhyogAadhar,
 							formState?.values?.companyName,
 							clientToken
 						);
+						if (y.status === 500) {
+							setLoading(false);
+							addToast({
+								type: 'error',
+								message: y.message
+							});
+							return;
+						}
 					}
 
 					let stateCode = null,
@@ -797,7 +805,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 												? !(formState.values?.companyName || formState.values?.panNumber) ||
 												  (formState.values?.companyName && formState.values?.panNumber)
 												: !(formState.values?.udhyogAadhar || formState.values?.panNumber) ||
-												  (formState.values?.udhyogAadhar && formState.values?.panNumber) ||
+												  (formState.values?.udhyogAadhar &&
+														formState.values?.panNumber &&
+														formState?.values?.gstin) ||
 												  loading
 											: !(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0)
 									}
