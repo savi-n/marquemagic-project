@@ -103,10 +103,10 @@ export default function Product({ product, url }) {
 		options: { method: 'GET' }
 	});
 
-	useEffect(() => {
-		clearFlowDetails(basePageUrl);
-		clearFormData();
-	}, []);
+	// useEffect(() => {
+	// 	clearFlowDetails(basePageUrl);
+	// 	clearFormData();
+	// }, []);
 
 	useEffect(() => {
 		if (response) {
