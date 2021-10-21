@@ -484,7 +484,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	};
 
 	const buttonDisabledStatus = () => {
-		return caseCreationProgress;
+		return !(cibilCheckbox && declareCheck);
 	};
 
 	// step 2: upload docs reference
