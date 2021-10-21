@@ -171,9 +171,9 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	let userTokensss = localStorage.getItem(url);
 
-	let loan = JSON.parse(userTokensss).formReducer.user.loanData;
+	let loan = JSON.parse(userTokensss).formReducer?.user?.loanData;
 
-	let form = JSON.parse(userTokensss).formReducer.user.applicantData;
+	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
 		const t = JSON.parse(localStorage.getItem('formstatepan'));
