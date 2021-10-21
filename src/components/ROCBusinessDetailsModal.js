@@ -62,17 +62,17 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					{isDemo && (
 						<Colm2 className='flex flex-col items-start'>
 							<span>
-								{companyDetail.Address.bno +
+								{companyDetail?.Address?.bno +
 									' ' +
-									companyDetail.Address.st +
+									companyDetail?.Address?.st +
 									' ' +
-									companyDetail.Address.loc +
+									companyDetail?.Address?.loc +
 									' ' +
-									companyDetail.Address.dst +
+									companyDetail?.Address?.dst +
 									' ' +
-									companyDetail.Address.pncd +
+									companyDetail?.Address?.pncd +
 									' ' +
-									companyDetail.Address.stcd}
+									companyDetail?.Address?.stcd}
 							</span>
 						</Colm2>
 					)}
@@ -81,7 +81,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 				<Row>
 					<Colm1>Pancard Number</Colm1>
 					<Colm2>
-						{companyDetail.PancardNumber ||
+						{companyDetail?.PancardNumber ||
 							JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber ||
 							JSON.parse(localStorage.getItem('formstate'))}
 					</Colm2>
@@ -105,17 +105,17 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					<Colm2>{companyDetail?.CompanyCategory}</Colm2>
 				</Row>
 
-				{companyDetail?.directorsForShow.length > 0 && (
+				{companyDetail?.directorsForShow?.length > 0 && (
 					<>
 						<Header>Directors/Partners</Header>
 						<Row>
 							<Colm1>Name</Colm1>
 							<Colm2>Din</Colm2>
 						</Row>
-						{companyDetail?.directorsForShow.map((dir, index) => (
+						{companyDetail?.directorsForShow?.map((dir, index) => (
 							<Row key={index}>
-								<Colm1>{dir.Name}</Colm1>
-								<Colm2>{dir.Din}</Colm2>
+								<Colm1>{dir?.Name}</Colm1>
+								<Colm2>{dir?.Din}</Colm2>
 							</Row>
 						))}
 					</>
