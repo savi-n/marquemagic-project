@@ -25,7 +25,6 @@ export const verifyPan = async (ref_id, number, name, token) => {
 		const t = await g;
 		return t;
 	} catch (err) {
-		console.log(err);
 		return { status: 500, message: err.message };
 	}
 };
