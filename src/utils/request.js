@@ -17,7 +17,22 @@ export const getKYCData = async (formData, token) => {
 		return { data: { message: err.message, status: 'nok' } };
 	}
 };
-
+export const getKYCDataId = async (id, formData, token) => {
+	try {
+		const url = `${ENDPOINT_BANK}/getKycDataUiUx?ref_id=${id}`;
+		const config = {
+			headers: {
+				'Content-type': 'multipart/form-data',
+				Authorization: token
+			}
+		};
+		const g = await axios.post(url, formData, config);
+		const t = await g;
+		return t;
+	} catch (err) {
+		return { data: { message: err.message, status: 'nok' } };
+	}
+};
 export const verifyPan = async (ref_id, number, name, token) => {
 	try {
 		const url = `${ENDPOINT_BANK}/verifyKycData`;
