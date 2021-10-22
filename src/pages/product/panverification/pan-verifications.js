@@ -374,9 +374,9 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const userid = '10626';
 	const removeHandler = e => {
 		setDocs([]);
-    var index = file.findIndex(x=> x.id === e);
-    file.splice(index,1);
-    setFile(file);
+		var index = file.findIndex(x => x.id === e);
+		file.splice(index, 1);
+		setFile(file);
 	};
 
 	const [openConfirm, setPanConfirm] = useState(false);
@@ -438,7 +438,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 					setResponse(res.data);
 				}
 				setLoading(false);
-        setFile([]);
+				setFile([]);
 			})
 			.catch(err => {
 				console.log(err);
@@ -604,137 +604,133 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const handleUpload = files => {
 		setLoading(true);
 		const fileType = t();
-		
-    if(file.length > 1){
-      const formData1 = new FormData();
-		formData1.append('req_type', fileType);
-		formData1.append('process_type', 'extraction');
-		formData1.append('document', file[1].file);
-      getKYCData(formData1, clientToken).then(re => {
-        if (re.data.status === 'nok') {
-          addToast({
-            message: re.data.message,
-            type: 'error'
-          });
-          setOtherDoc([]);
-          setAadhar([]);
-          setVoter([]);
-          onProceed();
-        } else {
-          const formData2 = new FormData();
-          formData2.append('req_type', fileType);
-		      formData2.append('process_type', 'extraction');
-		      formData2.append('document', file[0].file);
-          getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
-            if (res.data.status === 'nok') {
-              addToast({
-                message: res.data.message,
-                type: 'error'
-              });
-              setOtherDoc([]);
-              setAadhar([]);
-              setVoter([]);
-              onProceed();
-            } else {
-          
-          const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
-          const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
-          const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
-          formState.values.aadhaar = t;
-          localStorage.setItem('aadhar', t);
-          formState.values.dob = res?.data?.data?.DOB;
-          let firstName = [...name];
-          firstName.pop();
-          formState.values.firstName = firstName.join(" ");
-          formState.values.lastName = name[name.length - 1];
-          formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
-          formState.values.dl_no = res.data?.data?.dl_no;
-          formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
-          let address = formState.values.address1;
-  
-          var pinCode = res?.data?.data?.pincode;
-  
-          if (address) {
-            let locationArr = address && address?.split(' ');
-            let y = locationArr?.map(e => Number(e) !== NaN && e);
-            let pin;
-            y.map(e => {
-              if (e?.length === 6) pin = e;
-            });
-  
-            formState.values.pin = pinCode || pin;
-          }
-  
-          localStorage.setItem('formstate', JSON.stringify(formState));
-          setOtherDoc([]);
-          setAadhar([]);
-          setVoter([]);
-          onProceed();
-        }
-        setLoading(false);
-      });
-    }
-    });
-    }
-    else {
-      const formData = new FormData();
-		  formData.append('req_type', fileType);
-		  formData.append('process_type', 'extraction');
-		  formData.append('document', files);
-      getKYCData(formData, clientToken).then(res => {
-        if (res.data.status === 'nok') {
-          addToast({
-            message: res.data.message,
-            type: 'error'
-          });
-          setOtherDoc([]);
-          setAadhar([]);
-          setVoter([]);
-          onProceed();
-        } else {
-          // data ---> extractionData
-          // ref_id: pass the id from the first doc response
-          // combine data
-          const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
-          const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
-          const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
-          formState.values.aadhaar = t;
-          localStorage.setItem('aadhar', t);
-          formState.values.dob = res?.data?.data?.DOB;
-          let fName = [...name];
-          fName.pop();
-          formState.values.firstName = fName.join(" ");
-          formState.values.lastName = name[name.length - 1];
 
-  
-          formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
-          formState.values.dl_no = res.data?.data?.dl_no;
-          formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
-          let address = formState.values.address1;
-  
-          var pinCode = res?.data?.data?.pincode;
-  
-          if (address) {
-            let locationArr = address && address?.split(' ');
-            let y = locationArr?.map(e => Number(e) !== NaN && e);
-            let pin;
-            y.map(e => {
-              if (e?.length === 6) pin = e;
-            });
-  
-            formState.values.pin = pinCode || pin;
-          }
-  
-          localStorage.setItem('formstate', JSON.stringify(formState));
-          setOtherDoc([]);
-          setAadhar([]);
-          setVoter([]);
-          onProceed();
-        }
-        setLoading(false);
-      });
-    }
-		
+		if (file.length > 1) {
+			const formData1 = new FormData();
+			formData1.append('req_type', fileType);
+			formData1.append('process_type', 'extraction');
+			formData1.append('document', file[1].file);
+			getKYCData(formData1, clientToken).then(re => {
+				if (re.data.status === 'nok') {
+					addToast({
+						message: re.data.message,
+						type: 'error'
+					});
+					setOtherDoc([]);
+					setAadhar([]);
+					setVoter([]);
+					onProceed();
+				} else {
+					const formData2 = new FormData();
+					formData2.append('req_type', fileType);
+					formData2.append('process_type', 'extraction');
+					formData2.append('document', file[0].file);
+					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
+						if (res.data.status === 'nok') {
+							addToast({
+								message: res.data.message,
+								type: 'error'
+							});
+							setOtherDoc([]);
+							setAadhar([]);
+							setVoter([]);
+							onProceed();
+						} else {
+							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
+							const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
+							const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
+							formState.values.aadhaar = t;
+							localStorage.setItem('aadhar', t);
+							formState.values.dob = res?.data?.data?.DOB;
+							let firstName = [...name];
+							firstName.pop();
+							formState.values.firstName = firstName.join(' ');
+							formState.values.lastName = name[name.length - 1];
+							formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
+							formState.values.dl_no = res.data?.data?.dl_no;
+							formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
+							let address = formState.values.address1;
+
+							var pinCode = res?.data?.data?.pincode;
+
+							if (address) {
+								let locationArr = address && address?.split(' ');
+								let y = locationArr?.map(e => Number(e) !== NaN && e);
+								let pin;
+								y.map(e => {
+									if (e?.length === 6) pin = e;
+								});
+
+								formState.values.pin = pinCode || pin;
+							}
+
+							localStorage.setItem('formstate', JSON.stringify(formState));
+							setOtherDoc([]);
+							setAadhar([]);
+							setVoter([]);
+							onProceed();
+						}
+						setLoading(false);
+					});
+				}
+			});
+		} else {
+			const formData = new FormData();
+			formData.append('req_type', fileType);
+			formData.append('process_type', 'extraction');
+			formData.append('document', files);
+			getKYCData(formData, clientToken).then(res => {
+				if (res.data.status === 'nok') {
+					addToast({
+						message: res.data.message,
+						type: 'error'
+					});
+					setOtherDoc([]);
+					setAadhar([]);
+					setVoter([]);
+					onProceed();
+				} else {
+					// data ---> extractionData
+					// ref_id: pass the id from the first doc response
+					// combine data
+					const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(/\s/g, '').split('');
+					const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
+					const name = res.data?.data?.name?.split(' ') || res.data?.data?.Name?.split(' ');
+					formState.values.aadhaar = t;
+					localStorage.setItem('aadhar', t);
+					formState.values.dob = res?.data?.data?.DOB;
+					let fName = [...name];
+					fName.pop();
+					formState.values.firstName = fName.join(' ');
+					formState.values.lastName = name[name.length - 1];
+
+					formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
+					formState.values.dl_no = res.data?.data?.dl_no;
+					formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
+					let address = formState.values.address1;
+
+					var pinCode = res?.data?.data?.pincode;
+
+					if (address) {
+						let locationArr = address && address?.split(' ');
+						let y = locationArr?.map(e => Number(e) !== NaN && e);
+						let pin;
+						y.map(e => {
+							if (e?.length === 6) pin = e;
+						});
+
+						formState.values.pin = pinCode || pin;
+					}
+
+					localStorage.setItem('formstate', JSON.stringify(formState));
+					setOtherDoc([]);
+					setAadhar([]);
+					setVoter([]);
+					onProceed();
+				}
+				setLoading(false);
+			});
+		}
 	};
 
 	return (
@@ -859,7 +855,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										{register({
 											name: 'gstin',
 											placeholder: 'GST Identification Number',
-                      mask:{AlphaNumericOnly: true, CharacterLimit: 15},
+											mask: { AlphaNumericOnly: true, CharacterLimit: 15 },
 											value: formState?.values?.gstin
 										})}
 									</FieldWrapper>
@@ -876,7 +872,15 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								</>
 							)}
 							<section className='flex items-center gap-x-4'>
-								<Button onClick={() => {setPanUpload(true); setVerificationFailed(null);}} name='Upload PAN again' fill />
+								<Button
+									onClick={() => {
+										setPanUpload(true);
+										setVerificationFailed(null);
+										setBusiness(true);
+									}}
+									name='Upload PAN again'
+									fill
+								/>
 								<Button
 									type='submit'
 									isLoader={loading}
