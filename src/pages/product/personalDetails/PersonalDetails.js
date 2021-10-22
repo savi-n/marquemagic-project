@@ -117,9 +117,16 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onProceed = data => {
-		onSave(data);
-		setCompleted(id);
-		onFlowChange(map.main);
+		if (Number(formState?.values?.grossIncome) === 0 || Number(formState?.values?.netMonthlyIncome) === 0) {
+			return addToast({
+				message: 'Income cannot be 0',
+				type: 'error'
+			});
+		} else {
+			onSave(data);
+			setCompleted(id);
+			onFlowChange(map.main);
+		}
 	};
 
 	const r = () => {
