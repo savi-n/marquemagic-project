@@ -375,7 +375,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const removeHandler = e => {
 		setDocs([]);
     var index = file.findIndex(x=> x.id === e);
-    setFile(file.splice(index,1));
+    file.splice(index,1);
+    setFile(file);
 	};
 
 	const [openConfirm, setPanConfirm] = useState(false);
@@ -623,7 +624,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
           const formData2 = new FormData();
           formData2.append('req_type', fileType);
 		      formData2.append('process_type', 'extraction');
-		      formData2.append('document', file[1].file);
+		      formData2.append('document', file[0].file);
           getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
             if (res.data.status === 'nok') {
               addToast({
