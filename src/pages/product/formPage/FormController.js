@@ -147,9 +147,9 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 
 	let userToken = localStorage.getItem(url);
 
-	let loan = JSON.parse(userToken).formReducer.user.loanData;
+	let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
-	let form = JSON.parse(userToken).formReducer.user.applicantData;
+	let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 
 	return (
 		<>
