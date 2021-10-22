@@ -643,9 +643,10 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
           formState.values.aadhaar = t;
           localStorage.setItem('aadhar', t);
           formState.values.dob = res?.data?.data?.DOB;
-          formState.values.firstName = name[0];
-          formState.values.lastName = name[1];
-  
+          let firstName = [...name];
+          firstName.pop();
+          formState.values.firstName = firstName.join(" ");
+          formState.values.lastName = name[name.length - 1];
           formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
           formState.values.dl_no = res.data?.data?.dl_no;
           formState.values.address1 = res.data?.data?.address || res?.data?.data?.Address;
@@ -700,8 +701,11 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
           formState.values.aadhaar = t;
           localStorage.setItem('aadhar', t);
           formState.values.dob = res?.data?.data?.DOB;
-          formState.values.firstName = name[0];
-          formState.values.lastName = name[1];
+          let fName = [...name];
+          fName.pop();
+          formState.values.firstName = fName.join(" ");
+          formState.values.lastName = name[name.length - 1];
+
   
           formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
           formState.values.dl_no = res.data?.data?.dl_no;
@@ -855,6 +859,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 										{register({
 											name: 'gstin',
 											placeholder: 'GST Identification Number',
+                      mask:{AlphaNumericOnly: true, CharacterLimit: 15},
 											value: formState?.values?.gstin
 										})}
 									</FieldWrapper>
@@ -871,7 +876,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 								</>
 							)}
 							<section className='flex items-center gap-x-4'>
-								<Button onClick={() => setPanUpload(true)} name='Upload PAN again' fill />
+								<Button onClick={() => {setPanUpload(true); setVerificationFailed(null);}} name='Upload PAN again' fill />
 								<Button
 									type='submit'
 									isLoader={loading}
