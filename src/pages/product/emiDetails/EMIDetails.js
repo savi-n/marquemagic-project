@@ -86,6 +86,17 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const { addToast } = useToasts();
 
 	const onProceed = data => {
+		console.log(formState, data);
+		if (
+			(data?.existing_auto_loan && Number(data?.existing_auto_loan) === 0) ||
+			(data?.existing_lap_loan && Number(data?.existing_lap_loan) === 0) ||
+			(data?.existing_personal_loan && Number(data?.existing_personal_loan) === 0)
+		) {
+			return addToast({
+				message: 'EMI cannot be zero',
+				type: 'error'
+			});
+		}
 		onSave(data);
 		setCompleted(id);
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
