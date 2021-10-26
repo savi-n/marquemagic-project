@@ -17,7 +17,8 @@ import {
 	ADD_REFENCE_DETAILS,
 	DOCTYPES_FETCH,
 	USER_ROLES,
-	PINCODE_ADRRESS_FETCH
+	PINCODE_ADRRESS_FETCH,
+	WHITELABEL_ENCRYPTION_API
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -28,6 +29,7 @@ import { AppContext } from '../../../reducer/appReducer';
 import { FormContext } from '../../../reducer/formReducer';
 import BankStatementModal from '../../../components/BankStatementModal';
 import { CaseContext } from '../../../reducer/caseReducer';
+import { UserContext } from '../../../reducer/userReducer';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -326,6 +328,27 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType }
 	} = useContext(LoanFormContext);
 
+	const getWhiteLabel = async () => {
+		const encryptWhiteLabelReq = await newRequest(
+			WHITELABEL_ENCRYPTION_API,
+			{
+				method: 'GET'
+			},
+			{
+				Authorization: `Bearer ${JSON.parse(userToken) &&
+					JSON.parse(userToken).userReducer &&
+					JSON.parse(userToken).userReducer?.userToken}`
+			}
+		);
+
+		const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+		localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
+	};
+	useEffect(() => {
+		getWhiteLabel();
+	}, []);
+
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [message, setMessage] = useState('');
 	const [declareCheck, setDeclareCheck] = useState(false);
@@ -540,9 +563,6 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
 				setMessage(caseReq.data.data.loan_details.loan_ref_id);
 				setLoanRef(caseReq.data.data.loan_details.loan_ref_id);
-
-				localStorage.clear();
-
 				return caseRes.data;
 			}
 
