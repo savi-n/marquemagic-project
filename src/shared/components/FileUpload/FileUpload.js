@@ -502,7 +502,9 @@ export default function FileUpload({
 				<Caption>
 					{caption || `Drag and drop or`} {accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
 				</Caption>
-				<UploadButton type='file' id={id} onChange={onChange} accept={accept} disabled={disabled} />
+				<UploadButton type='file' id={id} onChange={onChange} onClick={e => {
+										 e.target.value = "";
+										}} accept={accept} disabled={disabled} />
 				<Label htmlFor={id}>Select from your Computer</Label>
 			</Dropzone>
 
@@ -520,6 +522,7 @@ export default function FileUpload({
 											? changeHandler(e.target.value)
 											: onDocTypeChange(file.id, e.target.value);
 									}}
+									
 								>
 									<option value='' disabled>
 										Select Document Type
