@@ -78,11 +78,6 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
 	const startFlow = () => {
 		onFlowChange(map.main);
 	};
-
-	const {
-		actions: { setWhitelabelId }
-	} = useContext(AppContext);
-
 	return (
 		productDetails && (
 			<>
