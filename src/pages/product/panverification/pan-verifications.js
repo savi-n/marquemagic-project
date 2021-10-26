@@ -11,7 +11,8 @@ import {
 	NC_STATUS_CODE,
 	APP_CLIENT,
 	DOCS_UPLOAD_URL_LOAN,
-	PINCODE_ADRRESS_FETCH
+	PINCODE_ADRRESS_FETCH,
+	WHITE_LABEL_URL
 } from '../../../_config/app.config';
 import { AppContext } from '../../../reducer/appReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -171,7 +172,8 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			? 'business'
 			: 'salaried';
 	const {
-		state: { whiteLabelId, clientToken, bankToken }
+		state: { whiteLabelId, clientToken, bankToken },
+		actions: { setWhitelabelId }
 	} = useContext(AppContext);
 
 	const {
@@ -181,6 +183,17 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const {
 		actions: { setCompleted }
 	} = useContext(FlowContext);
+
+	const { response } = useFetch({
+		url: WHITE_LABEL_URL({ name: APP_CLIENT })
+	});
+
+	useEffect(() => {
+		if (response) {
+			setWhitelabelId(response?.permission?.id);
+			localStorage.setItem('wt_lbl', response?.permission?.id);
+		}
+	}, []);
 
 	const { newRequest } = useFetch();
 	const { register, handleSubmit, formState } = useForm();
@@ -360,7 +373,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const [docs, setDocs] = useState([]);
 	const [dataSelector, setDataSelector] = useState(false);
 	const [selectedData, setData] = useState(null);
-	const [response, setResponse] = useState(null);
+	const [responsee, setResponse] = useState(null);
 	const [isBusiness, setBusiness] = useState(true);
 
 	const handleFileUpload = files => {

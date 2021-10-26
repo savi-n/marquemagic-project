@@ -224,11 +224,11 @@ export default function useForm() {
 
 	const onChange = (event, type) => {
 		const { name, value } = event;
-
+		
 		// if (fieldsRef.current[name]?.disabled) {
 		//   return;
 		// }
-
+		
 		setValue(name, value);
 		checkValidity(name);
 
@@ -326,6 +326,12 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		onBlur: event => {
 			const { name, value } = event.target;
 			onChange({ name, value }, 'blur');
+		},
+		onKeyDown: event => {
+			const keyCode = event.keyCode;
+			if(keyCode === 69 && field.type === 'number') {
+			event.preventDefault();
+			}
 		},
 		value: value || '',
 		placeholder: field.placeholder || '',
