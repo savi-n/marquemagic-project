@@ -117,9 +117,16 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onProceed = data => {
-		onSave(data);
-		setCompleted(id);
-		onFlowChange(map.main);
+		if (Number(formState?.values?.grossIncome) === 0 || Number(formState?.values?.netMonthlyIncome) === 0) {
+			return addToast({
+				message: 'Income cannot be 0',
+				type: 'error'
+			});
+		} else {
+			onSave(data);
+			setCompleted(id);
+			onFlowChange(map.main);
+		}
 	};
 
 	const r = () => {
@@ -171,9 +178,9 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	let userTokensss = localStorage.getItem(url);
 
-	let loan = JSON.parse(userTokensss).formReducer.user.loanData;
+	let loan = JSON.parse(userTokensss).formReducer?.user?.loanData;
 
-	let form = JSON.parse(userTokensss).formReducer.user.applicantData;
+	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
 		const t = JSON.parse(localStorage.getItem('formstatepan'));

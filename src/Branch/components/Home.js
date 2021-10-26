@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { LineChart, Line, Pie, PieChart, Cell } from "recharts";
+import { useSelector } from "react-redux";
 import "./styles/index.scss";
 import Card from "../shared/components/Card";
 import CardDetails from "../shared/components/CardDetails";
@@ -18,8 +19,6 @@ export default function Home({
   dChartData,
   d,
   isIdentifier,
-  lActive,
-  setLActive,
   usersList,
 }) {
   dashboardData();
@@ -68,9 +67,10 @@ export default function Home({
   const [id, setId] = useState(null);
   const [viewLoan, setViewLoan] = useState(false);
   const [activ, setActiv] = useState("Applicant");
+  const selector = useSelector((state) => state.branchFlow);
 
   return !loading ? (
-    !viewLoan ? (
+    !selector?.viewLoan ? (
       <section className="flex flex-col gap-y-10 pt-24">
         <h1 className="text-xl">Dashboard</h1>
         <section className="flex justify-between gap-x-6">
@@ -192,16 +192,7 @@ export default function Home({
                       <CardDetails
                         label="Pending Applications"
                         full={true}
-                        setId={setId}
-                        setViewLoan={setViewLoan}
-                        setActiv={setActiv}
                         item={item}
-                        lActive={lActive}
-                        setLActive={setLActive}
-                        setAssignmentLog={setAssignmentLog}
-                        setProduct={setProduct}
-                        setItem={setItem}
-                        setProductId={setProductId}
                         usersList={usersList}
                       />
                     )
@@ -225,16 +216,7 @@ export default function Home({
                       <CardDetails
                         label="Sanctioned"
                         full={true}
-                        setId={setId}
-                        setViewLoan={setViewLoan}
-                        setActiv={setActiv}
                         item={item}
-                        lActive={lActive}
-                        setLActive={setLActive}
-                        setAssignmentLog={setAssignmentLog}
-                        setProduct={setProduct}
-                        setItem={setItem}
-                        setProductId={setProductId}
                         usersList={usersList}
                       />
                     )
@@ -250,15 +232,15 @@ export default function Home({
       </section>
     ) : (
       <CheckApplication
-        setViewLoan={setViewLoan}
-        assignmentLog={assignmentLog}
+        setViewLoan={selector?.viewLoan}
+        assignmentLog={selector?.assignmentLog}
         home={true}
-        product={product && product}
-        id={id && id}
-        activ={activ}
+        product={selector?.product}
+        id={selector?.id}
+        activ={selector?.activ}
         usersList={usersList && usersList}
-        item={item}
-        productId={productId}
+        item={selector?.item}
+        productId={selector?.productID}
       />
     )
   ) : (

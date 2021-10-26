@@ -71,7 +71,9 @@ export default function Products() {
 		localStorage.removeItem('encryptWhiteLabel');
 		localStorage.removeItem('userToken');
 		localStorage.removeItem(url);
+		const wt_lbl = localStorage.getItem('wt_lbl');
 		localStorage.clear();
+		localStorage.setItem('wt_lbl', wt_lbl);
 	}, []);
 
 	useEffect(() => {}, [addedProduct]);
