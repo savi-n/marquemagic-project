@@ -172,8 +172,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 			? 'business'
 			: 'salaried';
 	const {
-		state: { whiteLabelId, clientToken, bankToken },
-		actions: { setWhitelabelId }
+		state: { whiteLabelId, clientToken, bankToken }
 	} = useContext(AppContext);
 
 	const {
@@ -183,17 +182,6 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 	const {
 		actions: { setCompleted }
 	} = useContext(FlowContext);
-
-	const { response } = useFetch({
-		url: WHITE_LABEL_URL({ name: APP_CLIENT })
-	});
-
-	useEffect(() => {
-		if (response) {
-			setWhitelabelId(response?.permission?.id);
-			localStorage.setItem('wt_lbl', response?.permission?.id);
-		}
-	}, []);
 
 	const { newRequest } = useFetch();
 	const { register, handleSubmit, formState } = useForm();
