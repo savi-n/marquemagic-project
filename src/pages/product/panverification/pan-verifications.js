@@ -370,6 +370,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 	const [panUpload, setPanUpload] = useState(true);
 	const [file, setFile] = useState([]);
+	const [panFile, setPanFile] = useState([]);
 	const [docs, setDocs] = useState([]);
 	const [dataSelector, setDataSelector] = useState(false);
 	const [selectedData, setData] = useState(null);
@@ -378,6 +379,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 
 	const handleFileUpload = files => {
 		setFile([...files, ...file]);
+		setPanFile([...files, ...file]);
 	};
 
 	useEffect(() => {
@@ -390,6 +392,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 		var index = file.findIndex(x => x.id === e);
 		file.splice(index, 1);
 		setFile(file);
+		setPanFile([]);
 	};
 
 	const [openConfirm, setPanConfirm] = useState(false);
@@ -766,6 +769,7 @@ export default function PanVerification({ productDetails, map, onFlowChange, id 
 									}
 								}}
 								pan={true}
+								disabled={panFile.length > 0 ? true : false}
 								onDrop={handleFileUpload}
 								onRemoveFile={e => removeHandler(e)}
 								docs={docs}
