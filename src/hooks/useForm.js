@@ -55,7 +55,7 @@ const VALIDATION_RULES = {
 		message: 'Numbers only Allowed'
 	},
 	email: {
-		func: validatePattern(/\S+@\S+\.\S+/g),
+		func: validatePattern(/^[a-z0-9+_.-]+@[a-z0-9.-]+$/g),
 		message: 'Invalid Email Address'
 	},
 	pattern: {
@@ -224,11 +224,11 @@ export default function useForm() {
 
 	const onChange = (event, type) => {
 		const { name, value } = event;
-		
+
 		// if (fieldsRef.current[name]?.disabled) {
 		//   return;
 		// }
-		
+
 		setValue(name, value);
 		checkValidity(name);
 
@@ -329,8 +329,8 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		},
 		onKeyDown: event => {
 			const keyCode = event.keyCode;
-			if(keyCode === 69 && field.type === 'number') {
-			event.preventDefault();
+			if (keyCode === 69 && field.type === 'number') {
+				event.preventDefault();
 			}
 		},
 		value: value || '',
