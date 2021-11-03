@@ -217,8 +217,10 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 
 function subsidiaryDataFormat(caseId, data) {
   if (
-    !data["subsidiary-details"]?.SubsidiaryName &&
-    !data["subsidiary-details"]?.BankName
+    !(
+      data["subsidiary-details"]?.SubsidiaryName &&
+      data["subsidiary-details"]?.BankName
+    )
   ) {
     return false;
   }
@@ -269,9 +271,10 @@ function bankDetailsDataFormat(caseId, data) {
 
 function shareHolderDataFormat(businessId, data) {
   if (
-    !data["shareholder-details"]?.ShareholderPercentage &&
-    !data["shareholder-details"]?.ShareholderName &&
-    !data["shareholder-details"]?.CompanyAddress
+    !(
+      data["shareholder-details"]?.ShareholderPercentage &&
+      data["shareholder-details"]?.ShareholderName
+    )
   ) {
     return false;
   }
