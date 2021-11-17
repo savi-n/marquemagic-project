@@ -9,22 +9,30 @@ import useFetch from '../../../hooks/useFetch';
 import generateUID from '../../../utils/uid';
 import { NC_STATUS_CODE } from '../../../_config/app.config';
 import FilePasswordInput from './FilePasswordInput';
+import uploadIcon from '../../../assets/icons/upload_icon.png';
+import uploadCircleIcon from '../../../assets/icons/upload-icon-with-circle.png';
 
 const USER_CANCELED = 'user cancelled';
 
-const FINANCIAL_DOC_TYPES = ['Financial', 'Financial Documents'].map(fileTypes => fileTypes.toLowerCase());
+const FINANCIAL_DOC_TYPES = ['Financial', 'Financial Documents'].map(
+	fileTypes => fileTypes.toLowerCase()
+);
 
 const Dropzone = styled.div`
-	width: 100%;
-	min-height: 150px;
+	width: ${({ width }) => width};
+	min-height: 100px;
 	position: relative;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	/* justify-content: center; */
 	gap: 10px;
 	background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
-	border-radius: 20px;
+	border-radius: 10px;
 	overflow: hidden;
+	border: dashed;
+	border-width: medium;
+	border-color: darkgrey;
+	border-width: 2px;
 
 	${({ dragging }) =>
 		dragging &&
@@ -37,7 +45,7 @@ const Dropzone = styled.div`
 		`
       pointer-events: none;
     `}
-	
+
   &::after {
 		${({ uploading }) =>
 			uploading &&
@@ -45,7 +53,7 @@ const Dropzone = styled.div`
         content:'Uploading...';
       `}
 		inset: 0 0 0 0;
-		border-radius: 20px;
+		border-radius: 10px;
 		position: absolute;
 		background: rgba(0, 0, 0, 0.7);
 		display: flex;
@@ -62,6 +70,7 @@ const Dropzone = styled.div`
 const Caption = styled.p`
 	font-size: 15px;
 	font-weight: 400;
+	margin-left: 20px;
 `;
 
 const AcceptFilesTypes = styled.span`
@@ -102,13 +111,14 @@ const Droping = styled.div`
 `;
 
 const FileListWrap = styled.div`
-	display: flex;
+	/* display: flex; */
 	flex-direction: column;
 	align-items: start;
 	/* gap: calc(10% / 3); */
 	justify-content: space-between;
 	flex-wrap: wrap;
 	margin: 10px;
+	display: -webkit-box;
 `;
 
 const File = styled.div`
@@ -121,7 +131,7 @@ const File = styled.div`
 	border-radius: 5px;
 	height: 50px;
 	font-size: 13px;
-	margin: 10px 0;
+	margin: 10px -5px;
 	display: flex;
 	border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px;
 	align-items: center;
@@ -220,6 +230,11 @@ const CancelBtn = styled.span`
 	cursor: pointer;
 `;
 
+const UploadCircle = styled.label`
+	/* align-self: flex-end; */
+	cursor: pointer;
+`;
+
 export default function FileUpload({
 	onDrop,
 	accept = '',
@@ -241,7 +256,8 @@ export default function FileUpload({
 	docsPush,
 	loan_id,
 	directorId,
-	pan
+	pan,
+	section = '',
 }) {
 	const ref = useRef(uuidv4());
 
@@ -265,7 +281,7 @@ export default function FileUpload({
 			if (uFile.id === file.id) {
 				return {
 					...uFile,
-					status
+					status,
 				};
 			}
 
@@ -277,7 +293,9 @@ export default function FileUpload({
 
 	const onFileRemove = file => {
 		setDocs && setDocs([]);
-		const uploadFiles = uploadingProgressFiles.current.filter(uFile => uFile.id !== file.id);
+		const uploadFiles = uploadingProgressFiles.current.filter(
+			uFile => uFile.id !== file.id
+		);
 		uploadingProgressFiles.current = uploadFiles;
 		onRemoveFile(file.id);
 		setUploadingFiles(uploadFiles);
@@ -290,11 +308,14 @@ export default function FileUpload({
 
 		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
 			if (uFile.id === file.id) {
-				const percentageCompleted = ((event.loaded / event.total) * 100).toFixed();
+				const percentageCompleted = (
+					(event.loaded / event.total) *
+					100
+				).toFixed();
 
 				return {
 					...uFile,
-					progress: percentageCompleted
+					progress: percentageCompleted,
 				};
 				// status:
 				//     Number(percentageCompleted) === 100 ? "completed" : "progress",
@@ -319,11 +340,14 @@ export default function FileUpload({
 				file: files[i],
 				progress: 0,
 				status: 'progress',
-				cancelToken: source
+				cancelToken: source,
 			});
 		}
 
-		uploadingProgressFiles.current = [...uploadingProgressFiles.current, ...filesToUpload];
+		uploadingProgressFiles.current = [
+			...uploadingProgressFiles.current,
+			...filesToUpload,
+		];
 
 		setUploading(true);
 		setUploadingFiles(uploadingProgressFiles.current);
@@ -340,7 +364,7 @@ export default function FileUpload({
 							method: 'POST',
 							data: formData,
 							onUploadProgress: event => onProgress(event, file),
-							cancelToken: file.cancelToken.token
+							cancelToken: file.cancelToken.token,
 						},
 						upload.header ?? {}
 					)
@@ -351,7 +375,7 @@ export default function FileUpload({
 									id: file.id,
 									upload_doc_name: resFile.filename,
 									document_key: resFile.fd,
-									size: resFile.size
+									size: resFile.size,
 								};
 
 								if (docsPush) {
@@ -382,10 +406,12 @@ export default function FileUpload({
 				setDocs([filesToUpload[0]]);
 				return [filesToUpload[0]];
 			}
-			uploadingProgressFiles.current = uploadingProgressFiles.current.map(files => ({
-				...files,
-				status: 'completed'
-			}));
+			uploadingProgressFiles.current = uploadingProgressFiles.current.map(
+				files => ({
+					...files,
+					status: 'completed',
+				})
+			);
 
 			setUploadingFiles(uploadingProgressFiles.current);
 			return files.filter(file => file.status !== 'error');
@@ -450,12 +476,14 @@ export default function FileUpload({
 	};
 
 	const onDocTypeChange = (fileId, value) => {
-		const selectedDocType = docTypeOptions.find(d => d?.name?.toString() === value);
+		const selectedDocType = docTypeOptions.find(
+			d => d?.name?.toString() === value
+		);
 
 		documentTypeChangeCallback(fileId, selectedDocType);
 		setDocTypeFileMap({
 			...docTypeFileMap,
-			[fileId]: selectedDocType // value
+			[fileId]: selectedDocType, // value
 		});
 	};
 
@@ -496,34 +524,69 @@ export default function FileUpload({
 
 	return (
 		<>
-			<Dropzone ref={ref} dragging={dragging} bg={bg} disabled={disabled} uploading={uploading}>
+			<Dropzone
+				ref={ref}
+				dragging={dragging}
+				bg={bg}
+				disabled={disabled}
+				uploading={uploading}>
 				{dragging && <Droping>Drop here :)</Droping>}
-				<FontAwesomeIcon icon={faUpload} size='1x' />
+				{/* <FontAwesomeIcon icon={faUpload} size='1x' /> */}
+				{section !== 'document-upload' && (
+					<img src={uploadIcon} width={20} style={{ marginLeft: 20 }} />
+				)}
 				<Caption>
-					{caption || `Drag and drop or`} {accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
+					{caption || `Drag and drop or`}{' '}
+					{accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
 				</Caption>
-				<UploadButton type='file' id={id} onChange={onChange} onClick={e => {
-										 e.target.value = "";
-										}} accept={accept} disabled={disabled} />
-				<Label htmlFor={id}>Select from your Computer</Label>
+				<UploadButton
+					type='file'
+					id={id}
+					onChange={onChange}
+					onClick={e => {
+						e.target.value = '';
+					}}
+					accept={accept}
+					disabled={disabled}
+				/>
+				<Label htmlFor={id}>Browse</Label>
+				{section && section === 'document-upload' && (
+					// <Label htmlFor={id}>
+					<UploadCircle htmlFor={id} style={{ marginLeft: 390 }}>
+						<img
+							htmlFor={id}
+							src={uploadCircleIcon}
+							width={40}
+							// style={{ marginLeft: 390 }}
+							// onClick={e => {
+							// 	console.log('onClick');
+							// 	// e.target.value = '';
+							// }}
+						/>
+					</UploadCircle>
+				)}
 			</Dropzone>
 
 			<FileListWrap>
 				{uploadingFiles.map(file => (
-					<File key={file.id} progress={file.progress} status={file.status} tooltip={file.name}>
+					<File
+						key={file.id}
+						progress={file.progress}
+						status={file.status}
+						tooltip={file.name}>
 						<FileName>{file.name}</FileName>
 						{file.status === 'completed' && !!docTypeOptions.length && (
 							<>
 								<SelectDocType
-									value={branch ? docSelected : docTypeFileMap[file.id]?.name || ''}
+									value={
+										branch ? docSelected : docTypeFileMap[file.id]?.name || ''
+									}
 									onChange={e => {
 										branch && setDocSelected(e.target.value);
 										branch
 											? changeHandler(e.target.value)
 											: onDocTypeChange(file.id, e.target.value);
-									}}
-									
-								>
+									}}>
 									<option value='' disabled>
 										Select Document Type
 									</option>
@@ -533,12 +596,13 @@ export default function FileUpload({
 										</option>
 									))}
 								</SelectDocType>
-								{FINANCIAL_DOC_TYPES.includes(docTypeFileMap[file.id]?.main?.toLowerCase()) && (
+								{FINANCIAL_DOC_TYPES.includes(
+									docTypeFileMap[file.id]?.main?.toLowerCase()
+								) && (
 									<PasswordWrapper>
 										<RoundButton
 											showTooltip={passwordForFileId !== file.id}
-											onClick={() => onPasswordClick(file.id)}
-										>
+											onClick={() => onPasswordClick(file.id)}>
 											<FontAwesomeIcon icon={faUnlockAlt} size='1x' />
 										</RoundButton>
 										{passwordForFileId === file.id && (
@@ -566,5 +630,5 @@ export default function FileUpload({
 }
 
 FileUpload.defaultProps = {
-	onDrop: () => {}
+	onDrop: () => {},
 };
