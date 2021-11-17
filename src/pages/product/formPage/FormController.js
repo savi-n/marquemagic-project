@@ -11,7 +11,12 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import { AppContext } from '../../../reducer/appReducer';
-import { LOGIN_CREATEUSER, WHITELABEL_ENCRYPTION_API, APP_CLIENT, NC_STATUS_CODE } from '../../../_config/app.config';
+import {
+	LOGIN_CREATEUSER,
+	WHITELABEL_ENCRYPTION_API,
+	APP_CLIENT,
+	NC_STATUS_CODE,
+} from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
 
 const Div = styled.div`
@@ -26,25 +31,30 @@ const ButtonWrap = styled.div`
 	gap: 20px;
 `;
 
-export default function FormController({ id, map, onFlowChange, productDetails }) {
+export default function FormController({
+	id,
+	map,
+	onFlowChange,
+	productDetails,
+}) {
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setLoanData }
+		actions: { setLoanData },
 	} = useContext(LoanFormContext);
 
 	const { state } = useContext(BussinesContext);
 
 	const { handleSubmit, register, formState } = useForm();
 	const {
-		state: { whiteLabelId }
+		state: { whiteLabelId },
 	} = useContext(AppContext);
 
 	const {
 		state: { companyDetail },
-		actions: { setCompanyDetails }
+		actions: { setCompanyDetails },
 	} = useContext(BussinesContext);
 
 	const { newRequest } = useFetch();
@@ -60,7 +70,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 		setLoanData({ ...data }, id);
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
@@ -75,8 +85,8 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 					name: formState?.values?.BusinessName,
 					mobileNo: formState?.values?.mobileNo,
 					addrr1: '',
-					addrr2: ''
-				}
+					addrr2: '',
+				},
 			});
 
 			const userDetailsRes = userDetailsReq.data;
@@ -91,8 +101,8 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 				...userToken,
 				userReducer: {
 					...userToken.userReducer,
-					userToken: userDetailsRes.token
-				}
+					userToken: userDetailsRes.token,
+				},
 			};
 
 			localStorage.setItem('userToken', userDetailsRes.token);
@@ -102,14 +112,17 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
 					{
-						method: 'GET'
+						method: 'GET',
 					},
 					{ Authorization: `Bearer ${userDetailsRes.token}` }
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
+				localStorage.setItem(
+					'encryptWhiteLabel',
+					encryptWhiteLabelRes.encrypted_whitelabel[0]
+				);
 
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
@@ -117,7 +130,7 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 						token: userDetailsRes.token,
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
-						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0]
+						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
 					});
 			}
 		}
@@ -165,10 +178,14 @@ export default function FormController({ id, map, onFlowChange, productDetails }
 				/>
 				<ButtonWrap>
 					{id === 'business-details' && (
-						<Button fill name='View Business Details' onClick={() => setViewBusinessDetail(true)} />
+						<Button
+							fill
+							name='View Business Details'
+							onClick={() => setViewBusinessDetail(true)}
+						/>
 					)}
 					<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-					<Button name='Save' onClick={handleSubmit(onSave)} />
+					{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
 					{!skipButton && <Button name='Skip' onClick={onSkip} />}
 				</ButtonWrap>
 			</Div>
@@ -188,5 +205,5 @@ FormController.propTypes = {
 	productDetails: object,
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string
+	id: string,
 };
