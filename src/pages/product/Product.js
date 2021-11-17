@@ -12,6 +12,8 @@ import ContinueModal from '../../components/modals/ContinueModal';
 import Router from './Router';
 import { UserContext } from '../../reducer/userReducer';
 import { useToasts } from '../../components/Toast/ToastProvider';
+import imgSideNav from 'assets/images/bg/Left-Nav_BG.png';
+import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -19,9 +21,12 @@ const Wrapper = styled.div`
 	display: flex;
 `;
 
+/* background: ${({ theme }) => theme.main_theme_color}; */
 const Colom1 = styled.div`
+	background-image: url(${imgSideNav});
+	background-size: cover;
+	background-position-y: -120px;
 	width: 25%;
-	background: ${({ theme }) => theme.main_theme_color};
 	color: #fff;
 	padding: 50px 20px;
 `;
@@ -63,7 +68,8 @@ const Menu = styled.h5`
 `;
 
 const SubMenu = styled.h5`
-	background: ${({ active }) => (active ? 'rgba(255,255,255,0.2)' : 'transparent')};
+	background: ${({ active }) =>
+		active ? 'rgba(255,255,255,0.2)' : 'transparent'};
 	border-radius: 10px;
 	padding: 10px 20px;
 	margin: 5px 0;
@@ -78,29 +84,51 @@ const SubMenu = styled.h5`
 const Link = styled.div`
 	/* cursor: pointer; */
 `;
+const HeadingBox = styled.div`
+	cursor: pointer;
+	display: flex;
+	margin-bottom: 20px;
+`;
+const ProductName = styled.h5`
+	border: ${({ active }) => (active ? '1px solid' : 'none')};
+	font-size: 16px;
+	font-weight: bold;
+	padding-left: 10px;
+	line-height: 30px;
+`;
+const BackButton = styled.img`
+	height: 30px;
+`;
 
 export default function Product({ product, url }) {
 	const productIdPage = atob(product);
 	const { addToast } = useToasts();
 	const {
-		state: { whiteLabelId }
+		state: { whiteLabelId },
 	} = useContext(AppContext);
 
 	const {
-		state: { completed: completedMenu, activeSubFlow: subFlowMenu, flowMap, basePageUrl, currentFlow, productId },
-		actions: { configure, setCurrentFlow, clearFlowDetails }
+		state: {
+			completed: completedMenu,
+			activeSubFlow: subFlowMenu,
+			flowMap,
+			basePageUrl,
+			currentFlow,
+			productId,
+		},
+		actions: { configure, setCurrentFlow, clearFlowDetails },
 	} = useContext(FlowContext);
 	const {
-		actions: { clearFormData }
+		actions: { clearFormData },
 	} = useContext(FormContext);
 
 	const {
-		state: { timestamp }
+		state: { timestamp },
 	} = useContext(UserContext);
 
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
-		options: { method: 'GET' }
+		options: { method: 'GET' },
 	});
 
 	// useEffect(() => {
@@ -140,7 +168,7 @@ export default function Product({ product, url }) {
 			onNoClick();
 			addToast({
 				message: 'Application already created',
-				type: 'error'
+				type: 'error',
 			});
 		}
 	};
@@ -175,11 +203,16 @@ export default function Product({ product, url }) {
 		response.data && (
 			<Wrapper>
 				<Colom1>
-					<Link onClick={e => {}}>
-						<Head active={flow === 'product-details'}>
+					<HeadingBox onClick={e => {}}>
+						<BackButton
+							src={imgBackArrowCircle}
+							alt='goback'
+							onClick={() => window.open('/', '_self')}
+						/>
+						<ProductName active={flow === 'product-details'}>
 							{response.data.name} <span>{response.data.description}</span>
-						</Head>
-					</Link>
+						</ProductName>
+					</HeadingBox>
 					{response.data?.product_details?.flow?.map(m =>
 						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
 							<Fragment key={m.id}>
@@ -218,14 +251,16 @@ export default function Product({ product, url }) {
 						/>
 					)}
 				</Colom2>
-				{!!completedMenu.length && !showContinueModal && productId === productIdPage && (
-					<ContinueModal onYes={onYesClick} onNo={onNoClick} />
-				)}
+				{!!completedMenu.length &&
+					!showContinueModal &&
+					productId === productIdPage && (
+						<ContinueModal onYes={onYesClick} onNo={onNoClick} />
+					)}
 			</Wrapper>
 		)
 	);
 }
 
 Product.propTypes = {
-	product: string.isRequired
+	product: string.isRequired,
 };
