@@ -1,7 +1,7 @@
 import { useContext, useEffect, Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
-
+import { useHistory } from 'react-router';
 import { PRODUCT_DETAILS_URL } from '../../_config/app.config';
 import useFetch from '../../hooks/useFetch';
 import { AppContext } from '../../reducer/appReducer';
@@ -130,6 +130,7 @@ const IconDottedRight = styled.img`
 `;
 
 export default function Product({ product, url }) {
+	const history = useHistory();
 	const productIdPage = atob(product);
 	const { addToast } = useToasts();
 	const {
@@ -236,7 +237,7 @@ export default function Product({ product, url }) {
 						<BackButton
 							src={imgBackArrowCircle}
 							alt='goback'
-							onClick={() => window.open('/', '_self')}
+							onClick={() => history.push('/nconboarding/applyloan')}
 						/>
 						<ProductName active={flow === 'product-details'}>
 							{response.data.name} <span>{response.data.description}</span>
