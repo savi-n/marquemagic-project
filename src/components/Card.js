@@ -8,7 +8,13 @@ const Wrapper = styled.div`
   border-radius: 10px;
   /* background: ${({ theme }) => theme.themeColor1}; */
   overflow: hidden;
-  box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+  /* box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%); */
+	/* #0b5cff */
+	/* rgb(11, 92, 255) */
+	/* rgb(11, 92, 255, 0.15) */
+	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; */
+	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 48px 100px 0px; */
+	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
   margin: 0 calc(12% / 6);
 `;
 

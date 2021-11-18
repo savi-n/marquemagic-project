@@ -55,27 +55,32 @@ const data = [
 	{
 		caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
 		guarantor: true,
-		img: img1
+		img: img1,
 	},
 	{
 		caption: `Congratulations you are eligible for a loan of Rs... and the same is in-princippaly approved. Final Saction will be communicated with in one or two working days`,
 		guarantor: true,
-		img: img2
+		img: img2,
 	},
 	{
 		caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
-		guarantor: false
-	}
+		guarantor: false,
+	},
 ];
 
 ApplicationSubmitted.propTypes = {
 	productDetails: object,
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string
+	id: string,
 };
 
-export default function ApplicationSubmitted({ productDetails, id, map, onFlowChange }) {
+export default function ApplicationSubmitted({
+	productDetails,
+	id,
+	map,
+	onFlowChange,
+}) {
 	useEffect(() => {
 		const wt_lbl = localStorage.getItem('wt_lbl');
 		localStorage.clear();
@@ -83,11 +88,11 @@ export default function ApplicationSubmitted({ productDetails, id, map, onFlowCh
 	}, []);
 
 	const {
-		actions: { activateSubFlow }
+		actions: { activateSubFlow },
 	} = useContext(FlowContext);
 
 	const {
-		state: { loan_ref_id }
+		state: { loan_ref_id },
 	} = useContext(CaseContext);
 
 	const [count, setData] = useState(0);
@@ -108,7 +113,8 @@ export default function ApplicationSubmitted({ productDetails, id, map, onFlowCh
 				{!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
 				<Caption>{d.caption}</Caption>
 				<section>
-					Application Reference Number: <span className='font-bold'> {loan_ref_id}</span>
+					Application Reference Number:{' '}
+					<span className='font-bold'> {loan_ref_id}</span>
 				</section>
 
 				{/* {d.guarantor && map.sub && (
@@ -122,7 +128,10 @@ export default function ApplicationSubmitted({ productDetails, id, map, onFlowCh
         )} */}
 			</Colom1>
 			<Colom2>
-				<Img src={productDetails.applicationSubmittedImage} alt='Loan Caption' />
+				{/* <Img
+					src={productDetails.applicationSubmittedImage}
+					alt='Loan Caption'
+				/> */}
 			</Colom2>
 		</>
 	);
