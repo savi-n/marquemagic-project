@@ -995,7 +995,7 @@ export default function PanVerification({
 					)}
 				</Colom1>
 				<Colom2>
-					<Img src={productDetails.productDetailsImage} alt='Loan Caption' />
+					{/* <Img src={productDetails.productDetailsImage} alt="Loan Caption" /> */}
 				</Colom2>
 				{
 					<CompanySelectModal
