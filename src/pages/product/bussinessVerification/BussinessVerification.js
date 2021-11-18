@@ -9,7 +9,7 @@ import {
 	WHITELABEL_ENCRYPTION_API,
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
-	APP_CLIENT
+	APP_CLIENT,
 } from '../../../_config/app.config';
 import { AppContext } from '../../../reducer/appReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -54,7 +54,11 @@ const H2 = styled.h2`
 	font-weight: 500;
 `;
 
-const businessTypeMaps = [[['private', 'pvt'], 4], [['public', 'pub'], 5], [['llp'], 3]];
+const businessTypeMaps = [
+	[['private', 'pvt'], 4],
+	[['public', 'pub'], 5],
+	[['llp'], 3],
+];
 
 function formatCompanyData(data) {
 	let directors = {};
@@ -62,18 +66,20 @@ function formatCompanyData(data) {
 
 	for (const [i, dir] of data['directors/signatory_details']?.entries() || []) {
 		directors[`directors_${i}`] = {
-			[`ddin_no${i}`]: dir['din/pan']
+			[`ddin_no${i}`]: dir['din/pan'],
 		};
 		directorsForShow.push({
 			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din
+			Din: dir.assosiate_company_details?.director_data.din,
 		});
 	}
 
 	let businesType;
 
 	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t => data.company_master_data.company_name.toLowerCase().includes(t));
+		const typeAllowed = type[0].find(t =>
+			data.company_master_data.company_name.toLowerCase().includes(t)
+		);
 
 		if (typeAllowed) {
 			businesType = type[1];
@@ -81,7 +87,11 @@ function formatCompanyData(data) {
 		}
 	}
 
-	const [date, month, year] = data.company_master_data.date_of_incorporation.split(/\/|-/);
+	const [
+		date,
+		month,
+		year,
+	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
 
 	return {
 		BusinessName: data.company_master_data.company_name,
@@ -96,21 +106,26 @@ function formatCompanyData(data) {
 		RegistrationNumber: data.company_master_data.registration_number,
 		DirectorDetails: directors,
 		directorsForShow,
-		unformatedData: data
+		unformatedData: data,
 	};
 }
 
-export default function BussinessDetails({ productDetails, map, onFlowChange, id }) {
+export default function BussinessDetails({
+	productDetails,
+	map,
+	onFlowChange,
+	id,
+}) {
 	const {
-		state: { whiteLabelId, clientToken }
+		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);
 
 	const {
-		actions: { setCompanyDetails }
+		actions: { setCompanyDetails },
 	} = useContext(BussinesContext);
 
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const { newRequest } = useFetch();
@@ -134,8 +149,8 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 			{
 				method: 'POST',
 				data: {
-					search: companyName
-				}
+					search: companyName,
+				},
 			},
 			{}
 		);
@@ -154,8 +169,8 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 			{
 				method: 'POST',
 				data: {
-					cin_number: cinNumber
-				}
+					cin_number: cinNumber,
+				},
 			},
 			{ authorization: clientToken }
 		);
@@ -172,8 +187,8 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 					name: companyData.data.company_master_data.company_name,
 					mobileNo: '9999999999',
 					addrr1: '',
-					addrr2: ''
-				}
+					addrr2: '',
+				},
 			});
 
 			const userDetailsRes = userDetailsReq.data;
@@ -184,7 +199,7 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
 					{
-						method: 'GET'
+						method: 'GET',
 					},
 					{ Authorization: `Bearer ${userDetailsRes.token}` }
 				);
@@ -197,7 +212,7 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data)
+						...formatCompanyData(companyData.data),
 					});
 				onProceed();
 				return;
@@ -224,7 +239,7 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 			console.error(error);
 			addToast({
 				message: error.message || 'Something Went Wrong. Try Again!',
-				type: 'error'
+				type: 'error',
 			});
 		}
 
@@ -245,7 +260,7 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 							{register({
 								name: 'companyName',
 								placeholder: 'Enter Company Name',
-								value: formState?.values?.companyName
+								value: formState?.values?.companyName,
 							})}
 						</FieldWrapper>
 						<H2>or</H2>
@@ -253,7 +268,7 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 							{register({
 								name: 'cinNumber',
 								placeholder: 'Enter CIN Number',
-								value: formState?.values?.cinNumber
+								value: formState?.values?.cinNumber,
 							})}
 						</FieldWrapper>
 						<Button
@@ -261,15 +276,18 @@ export default function BussinessDetails({ productDetails, map, onFlowChange, id
 							name={loading ? 'Please wait...' : 'SUBMIT'}
 							fill
 							disabled={
-								!(formState.values?.companyName || formState.values?.cinNumber) ||
-								(formState.values?.companyName && formState.values?.cinNumber) ||
+								!(
+									formState.values?.companyName || formState.values?.cinNumber
+								) ||
+								(formState.values?.companyName &&
+									formState.values?.cinNumber) ||
 								loading
 							}
 						/>
 					</form>
 				</Colom1>
 				<Colom2>
-					<Img src={productDetails.productDetailsImage} alt='Loan Caption' />
+					{/* <Img src={productDetails.productDetailsImage} alt='Loan Caption' /> */}
 				</Colom2>
 				{
 					<CompanySelectModal
@@ -288,5 +306,5 @@ BussinessDetails.propTypes = {
 	productDetails: object,
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string
+	id: string,
 };

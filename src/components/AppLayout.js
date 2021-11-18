@@ -22,7 +22,8 @@ const HeaderWrapper = styled.div`
   min-height: 80px;
   max-height: 80px;
   /* background: ${({ theme }) => theme.themeColor1}; */
-  box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+  /* box-shadow: 0px 2px 5px 1px rgb(11 92 255 / 20%); */
+	box-shadow: rgba(11, 92, 255, 0.16) 0px 25px 20px -20px;
   display: flex;
   align-items: center;
   padding: 0 50px;

@@ -14,6 +14,9 @@ import { UserContext } from '../../reducer/userReducer';
 import { useToasts } from '../../components/Toast/ToastProvider';
 import imgSideNav from 'assets/images/bg/Left-Nav_BG.png';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
+import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
+import imgCheckCircle from 'assets/icons/white_tick_icon.png';
+import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -26,7 +29,7 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	width: 25%;
+	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
 `;
@@ -55,9 +58,14 @@ const Head = styled.h4`
 	}
 `;
 
+/* border: ${({ active }) => (active ? '1px solid' : 'none')}; */
 const Menu = styled.h5`
-	border: ${({ active }) => (active ? '1px solid' : 'none')};
-	border-radius: 10px;
+	background: ${({ active }) =>
+		active ? 'linear-gradient(to right, #2a2add , #00df8d)' : 'none'};
+	box-shadow: ${({ active }) =>
+		active ? 'rgba(0, 0, 0, 0.24) 0px 3px 8px' : 'none'};
+	width: 112%;
+	border-radius: 5px;
 	padding: 10px 20px;
 	margin: 5px 0;
 	position: relative;
@@ -67,9 +75,12 @@ const Menu = styled.h5`
 	font-size: 14px;
 `;
 
+// background: ${({ active }) =>
+// 	active ? 'linear-gradient(to right, #2a2add , #00df8d)' : 'transparent'};
 const SubMenu = styled.h5`
 	background: ${({ active }) =>
 		active ? 'rgba(255,255,255,0.2)' : 'transparent'};
+	width: 110%;
 	border-radius: 10px;
 	padding: 10px 20px;
 	margin: 5px 0;
@@ -79,6 +90,16 @@ const SubMenu = styled.h5`
 	align-items: center;
 	justify-content: space-between;
 	font-size: 14px;
+`;
+
+const ImgArrorRight = styled.img`
+	height: 15px;
+	padding-right: 10px;
+`;
+
+const ImgCheckCircle = styled.img`
+	height: 20px;
+	padding-right: 20px;
 `;
 
 const Link = styled.div`
@@ -98,6 +119,14 @@ const ProductName = styled.h5`
 `;
 const BackButton = styled.img`
 	height: 30px;
+`;
+
+const IconDottedRight = styled.img`
+	position: absolute;
+	height: 30px;
+	right: 0;
+	margin-top: 40px;
+	margin-right: 30px;
 `;
 
 export default function Product({ product, url }) {
@@ -220,7 +249,11 @@ export default function Product({ product, url }) {
 									<Menu active={flow === m.id}>
 										<div>{m.name}</div>
 										{completedMenu.includes(m.id) && (
-											<CheckBox bg='white' checked round fg={'blue'} />
+											// <CheckBox bg='white' checked round fg={'blue'} />
+											<ImgCheckCircle src={imgCheckCircle} alt='check' />
+										)}
+										{flow === m.id && (
+											<ImgArrorRight src={imgArrorRight} alt='arrow' />
 										)}
 									</Menu>
 								</Link>
@@ -231,7 +264,8 @@ export default function Product({ product, url }) {
 											<SubMenu active={flow === item.id}>
 												<div>{item.name}</div>
 												{completedMenu.includes(item.id) && (
-													<CheckBox bg='white' checked round fg={'blue'} />
+													// <CheckBox bg='white' checked round fg={'blue'} />
+													<ImgCheckCircle src={imgCheckCircle} alt='check' />
 												)}
 											</SubMenu>
 										</Link>
@@ -241,6 +275,7 @@ export default function Product({ product, url }) {
 					)}
 				</Colom1>
 				<Colom2>
+					<IconDottedRight src={iconDottedRight} alt='dot' />
 					{flowMap && (
 						<Router
 							currentFlow={flow || basePageUrl}
