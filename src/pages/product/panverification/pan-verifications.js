@@ -960,7 +960,7 @@ export default function PanVerification({
 								<Button
 									type='submit'
 									isLoader={loading}
-									name={loading ? 'Please wait...' : 'SUBMIT'}
+									name={loading ? 'Please wait...' : 'Procced'}
 									fill
 									disabled={
 										productType !== 'salaried'
