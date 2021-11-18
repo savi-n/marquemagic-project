@@ -29,9 +29,10 @@ const Dropzone = styled.div`
 	background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
 	border-radius: 10px;
 	overflow: hidden;
-	border: dashed;
+	border: dashed blue;
 	border-width: medium;
-	border-color: '#eef3ff';
+	/* border-color: 'blue'; */
+	background-color: '#eef3ff';
 	border-width: 2px;
 
 	${({ dragging }) =>
@@ -558,12 +559,11 @@ export default function FileUpload({
 				<Label htmlFor={id}>Browse</Label>
 				{section && section === 'document-upload' && (
 					// <Label htmlFor={id}>
-					<UploadCircle htmlFor={id} style={{ marginLeft: 390 }}>
+					<UploadCircle htmlFor={id} style={{ marginLeft: 390, padding: 10 }}>
 						<img
-							htmlFor={id}
 							src={uploadCircleIcon}
 							width={40}
-							// style={{ marginLeft: 390 }}
+							style={{ maxWidth: 'none' }}
 							// onClick={e => {
 							// 	console.log('onClick');
 							// 	// e.target.value = '';
