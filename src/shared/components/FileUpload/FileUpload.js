@@ -559,7 +559,7 @@ export default function FileUpload({
 				<Label htmlFor={id}>Browse</Label>
 				{section && section === 'document-upload' && (
 					// <Label htmlFor={id}>
-					<UploadCircle htmlFor={id} style={{ marginLeft: 390, padding: 10 }}>
+					<UploadCircle htmlFor={id} style={{ marginLeft: 380, padding: 10 }}>
 						<img
 							src={uploadCircleIcon}
 							width={40}
