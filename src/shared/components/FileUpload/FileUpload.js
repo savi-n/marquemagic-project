@@ -29,9 +29,10 @@ const Dropzone = styled.div`
 	background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
 	border-radius: 10px;
 	overflow: hidden;
-	border: dashed;
+	border: dashed blue;
 	border-width: medium;
-	border-color: '#eef3ff';
+	/* border-color: 'blue'; */
+	background-color: '#eef3ff';
 	border-width: 2px;
 
 	${({ dragging }) =>
