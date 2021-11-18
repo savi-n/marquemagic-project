@@ -855,6 +855,7 @@ export default function PanVerification({
 									</p>
 
 									<FileUpload
+										section={'pan-verification'}
 										accept=''
 										upload={{
 											url: DOCS_UPLOAD_URL_LOAN({
