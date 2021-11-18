@@ -31,7 +31,7 @@ const Dropzone = styled.div`
 	overflow: hidden;
 	border: dashed;
 	border-width: medium;
-	border-color: darkgrey;
+	border-color: '#eef3ff';
 	border-width: 2px;
 
 	${({ dragging }) =>

@@ -904,14 +904,15 @@ export default function DocumentUpload({
 						</StyledButton>
 					</div>
 					<img
-						src={openKycdoc ? downArray : downArray}
+						src={downArray}
 						width={20}
 						height={20}
 						style={{
 							objectFit: 'contain',
 							marginLeft: 'auto',
-							// transform: "rotate('180deg')",
-							transform: [{ rotate: openKycdoc ? '90deg' : '360deg' }],
+							// transform: `rotate(180deg)`,
+							transform: openKycdoc ? `rotate(180deg)` : `none`,
+							cursor: 'pointer',
 						}}
 						onClick={() => openCloseCollaps('KYC')}
 					/>
@@ -959,12 +960,14 @@ export default function DocumentUpload({
 						</StyledButton>
 					</div>
 					<img
-						src={openFinancialdoc ? downArray : downArray}
+						src={downArray}
 						width={20}
 						height={20}
 						style={{
 							objectFit: 'contain',
 							marginLeft: 'auto',
+							transform: openFinancialdoc ? `rotate(180deg)` : `none`,
+							cursor: 'pointer',
 						}}
 						onClick={() => openCloseCollaps('Financial')}
 					/>
@@ -1012,12 +1015,14 @@ export default function DocumentUpload({
 						</StyledButton>
 					</div>
 					<img
-						src={openOtherdoc ? downArray : downArray}
+						src={downArray}
 						width={20}
 						height={20}
 						style={{
 							objectFit: 'contain',
 							marginLeft: 'auto',
+							transform: openOtherdoc ? `rotate(180deg)` : `none`,
+							cursor: 'pointer',
 						}}
 						onClick={() => openCloseCollaps('Others')}
 					/>
