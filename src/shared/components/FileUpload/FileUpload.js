@@ -533,7 +533,13 @@ export default function FileUpload({
 				{dragging && <Droping>Drop here :)</Droping>}
 				{/* <FontAwesomeIcon icon={faUpload} size='1x' /> */}
 				{section !== 'document-upload' && (
-					<img src={uploadIcon} width={20} style={{ marginLeft: 20 }} />
+					<UploadCircle htmlFor={id}>
+						<img
+							src={uploadIcon}
+							width={20}
+							style={{ marginLeft: 20, marginRight: '-20px' }}
+						/>
+					</UploadCircle>
 				)}
 				<Caption>
 					{caption || `Drag and drop or`}{' '}
