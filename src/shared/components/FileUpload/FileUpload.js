@@ -559,12 +559,11 @@ export default function FileUpload({
 				<Label htmlFor={id}>Browse</Label>
 				{section && section === 'document-upload' && (
 					// <Label htmlFor={id}>
-					<UploadCircle htmlFor={id} style={{ marginLeft: 390 }}>
+					<UploadCircle htmlFor={id} style={{ marginLeft: 390, padding: 10 }}>
 						<img
-							htmlFor={id}
 							src={uploadCircleIcon}
 							width={40}
-							// style={{ marginLeft: 390 }}
+							style={{ maxWidth: 'none' }}
 							// onClick={e => {
 							// 	console.log('onClick');
 							// 	// e.target.value = '';
