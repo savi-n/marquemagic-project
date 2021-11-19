@@ -838,7 +838,7 @@ export default function PanVerification({
 										}
 									}}
 									isLoader={loading}
-									name={loading ? 'Please wait...' : 'Procced'}
+									name={loading ? 'Please wait...' : 'Proceed'}
 									disabled={!docs.length > 0}
 									fill
 								/>
@@ -960,7 +960,7 @@ export default function PanVerification({
 								<Button
 									type='submit'
 									isLoader={loading}
-									name={loading ? 'Please wait...' : 'Procced'}
+									name={loading ? 'Please wait...' : 'Proceed'}
 									fill
 									disabled={
 										productType !== 'salaried'
@@ -1029,7 +1029,7 @@ export default function PanVerification({
 								</FieldWrapper>
 							</section>
 							<Button
-								name='Procced'
+								name='Proceed'
 								fill
 								onClick={() => {
 									localStorage.setItem('pan', formState?.values?.panNumber);
@@ -1098,7 +1098,7 @@ export default function PanVerification({
 								</section>
 							</section>
 							<Button
-								name='Procced'
+								name='Proceed'
 								fill
 								onClick={() => {
 									selectDocs(false);
