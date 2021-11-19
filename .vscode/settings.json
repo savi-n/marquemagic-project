@@ -1,0 +1,17 @@
+{
+	"editor.tabSize": 2, // tab size
+	"editor.defaultFormatter": "esbenp.prettier-vscode", // Use prettier as default formatter
+	"editor.formatOnSave": true, // format code when you hit save
+	"files.trimTrailingWhitespace": true, // remove trailing white spaces from all lines
+	"files.trimFinalNewlines": true,
+	"prettier.tabWidth": 2,
+	"prettier.useTabs": true,
+	"prettier.jsxSingleQuote": true,
+	"prettier.singleQuote": true,
+	"prettier.jsxBracketSameLine": true,
+	"prettier.proseWrap": "always",
+	"prettier.arrowParens": "avoid",
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	} // Ensures there's only one blank line at the end of the file
+}

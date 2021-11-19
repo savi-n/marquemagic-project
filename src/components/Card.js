@@ -1,19 +1,26 @@
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { shape, string, number } from 'prop-types';
+import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
 
 const Wrapper = styled.div`
-  width: 22%;
+  width: 25%;
   border-radius: 10px;
   /* background: ${({ theme }) => theme.themeColor1}; */
   overflow: hidden;
-  box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+  /* box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%); */
+	/* #0b5cff */
+	/* rgb(11, 92, 255) */
+	/* rgb(11, 92, 255, 0.15) */
+	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; */
+	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 48px 100px 0px; */
+	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
   margin: 0 calc(12% / 6);
 `;
 
 const ImgDiv = styled.div`
 	width: 100%;
-	height: 200px;
+	height: 250px;
 `;
 
 const Img = styled.img`
@@ -22,10 +29,16 @@ const Img = styled.img`
 	object-fit: cover;
 `;
 
-const Div = styled.div`
+const ImgSelectProduct = styled.img`
+	height: 35px;
+	margin: 0 auto;
+`;
+
+const ButtonBox = styled.div`
   /* background: ${({ theme }) => theme.themeColor1}; */
   text-align: center;
   padding: 40px;
+  padding: 20px;
 `;
 
 const Link = styled.a`
@@ -45,7 +58,9 @@ const Description = styled.div`
 
 const ProductName = styled.div`
 	text-align: center;
-	padding-top: 20px;
+	padding-top: 50px;
+	color: #4e4e4e;
+	font-weight: bold;
 `;
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
@@ -56,7 +71,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		e.preventDefault();
 		history.push({
 			pathname: `/applyloan/product/${btoa(id)}`,
-			data: id
+			data: id,
 		});
 	};
 
@@ -64,20 +79,20 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		<Wrapper>
 			<ImgDiv>
 				<Img src={product.url} alt={product.name} />
+				<ImgSelectProduct src={imgSelectProduct} alt='product' />
 			</ImgDiv>
 			<ProductName>{product.name}</ProductName>
-			<Div>
+			<ButtonBox>
 				<Link
 					href={!add && `/applyloan/product/${btoa(product.id)}`}
 					onClick={e => {
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
-					}}
-				>
+					}}>
 					{add ? 'Add Loan' : 'Get Loan'}
 				</Link>
 				<Description>{product.description}</Description>
-			</Div>
+			</ButtonBox>
 		</Wrapper>
 	);
 }
@@ -88,6 +103,6 @@ Card.propTypes = {
 		url: string.isRequired,
 		description: string.isRequired,
 		id: number.isRequired,
-		product_id: number.isRequired
-	})
+		product_id: number.isRequired,
+	}),
 };

@@ -83,15 +83,22 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
 			<>
 				<Colom1>
 					<Head dangerouslySetInnerHTML={{ __html: productDetails.head }} />
-					{productDetails.description && <div>{productDetails.description}</div>}
+					{productDetails.description && (
+						<div>{productDetails.description}</div>
+					)}
 					<div>
-						{productDetails.listHead && <SubHead>{productDetails.listHead}</SubHead>}
+						{productDetails.listHead && (
+							<SubHead>{productDetails.listHead}</SubHead>
+						)}
 						<ul>
 							{productDetails.li.map(l =>
 								Array.isArray(l) ? (
 									<ul key={uuidv4()} style={{ marginLeft: '40px' }}>
 										{l.map(sub => (
-											<SubLi dangerouslySetInnerHTML={{ __html: sub }} key={uuidv4()} />
+											<SubLi
+												dangerouslySetInnerHTML={{ __html: sub }}
+												key={uuidv4()}
+											/>
 										))}
 									</ul>
 								) : (
@@ -107,7 +114,7 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
 					)}
 				</Colom1>
 				<Colom2>
-					<Img src={productDetails.productDetailsImage} alt='Loan Caption' />
+					{/* <Img src={productDetails.productDetailsImage} alt='Loan Caption' /> */}
 				</Colom2>
 			</>
 		)
@@ -117,5 +124,5 @@ export default function ProductDetails({ productDetails, onFlowChange, map }) {
 ProductDetails.propTypes = {
 	productDetails: object,
 	onFlowChange: func,
-	map: oneOfType([string, object])
+	map: oneOfType([string, object]),
 };
