@@ -47,20 +47,25 @@ AddressDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
 	id: string,
-	fieldConfig: object
+	fieldConfig: object,
 };
 
-export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig }) {
+export default function AddressDetailsPage({
+	id,
+	onFlowChange,
+	map,
+	fieldConfig,
+}) {
 	const {
-		actions: { setCompleted, activateSubFlow }
+		actions: { setCompleted, activateSubFlow },
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeAddressData }
+		actions: { setUsertypeAddressData },
 	} = useContext(FormContext);
 
 	const {
-		state: { userBankDetails }
+		state: { userBankDetails },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -72,13 +77,14 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 	const onSave = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 
-		!match && formatedData.push(formatData('present', formData, map.fields[id].data));
+		!match &&
+			formatedData.push(formatData('present', formData, map.fields[id].data));
 
 		setUsertypeAddressData(formatedData);
 		setSaved(true);
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
@@ -117,12 +123,12 @@ export default function AddressDetailsPage({ id, onFlowChange, map, fieldConfig 
 					address4: r()?.address4 || '',
 					city: r()?.city || '',
 					state: r()?.state || '',
-					pinCode: r()?.pin || ''
+					pinCode: r()?.pin || '',
 				}}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				<Button name='Save' onClick={handleSubmit(onSave)} />
+				{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
 		</Div>
 	);

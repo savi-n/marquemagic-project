@@ -953,6 +953,7 @@ export default function PanVerification({
 										setPanUpload(true);
 										setVerificationFailed(null);
 										setBusiness(true);
+										setPanFile([]);
 									}}
 									name='Upload PAN again'
 									fill
