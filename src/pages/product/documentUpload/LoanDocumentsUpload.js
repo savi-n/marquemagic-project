@@ -250,7 +250,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		documents: {
 			KYC: fileStructure(data?.documents || [], 'KYC'),
 			others: fileStructure(data?.documents || [], 'Others'),
-			financials: fileStructure(data?.documents || [], 'financials'),
+			financials: fileStructure(data?.documents || [], 'Financial'),
 		},
 		branchId: companyData?.branchId,
 	};
