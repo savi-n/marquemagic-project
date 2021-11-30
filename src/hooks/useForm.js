@@ -48,50 +48,50 @@ function minValue(value, limit) {
 const VALIDATION_RULES = {
 	required: {
 		func: required,
-		message: 'Required Field'
+		message: 'Required Field',
 	},
 	number: {
 		func: numberOnly,
-		message: 'Numbers only Allowed'
+		message: 'Numbers only Allowed',
 	},
 	email: {
 		func: validatePattern(/^[a-z0-9+_.-]+@[a-z0-9.-]+$/g),
-		message: 'Invalid Email Address'
+		message: 'Invalid Email Address',
 	},
 	pattern: {
 		func: validatePattern(),
-		message: 'Pattern Mismatch'
+		message: 'Pattern Mismatch',
 	},
 	maxLength: {
 		func: limitLength('max'),
-		message: 'Exceeds Character Length'
+		message: 'Exceeds Character Length',
 	},
 	minLength: {
 		func: limitLength('min'),
-		message: 'Minimum Character limit'
+		message: 'Minimum Character limit',
 	},
 	length: {
 		func: limitLength(),
-		message: 'Character Length Mismatch'
+		message: 'Character Length Mismatch',
 	},
 	maxValue: {
 		func: maxValue,
-		message: 'Value Limit Exceedeed'
+		message: 'Value Limit Exceedeed',
 	},
 	minValue: {
 		func: minValue,
-		message: 'Minimum limit needed'
+		message: 'Minimum limit needed',
 	},
 	valueMatchWith: {
 		func: valueMatchWith,
-		message: 'Mismatch'
+		message: 'Mismatch',
 	},
 	subAction: {
 		func: (value, params) => {
 			return params;
 		},
-		message: 'Upload agreement is mandatory'
-	}
+		message: 'Upload agreement is mandatory',
+	},
 };
 
 function validate(rules, value) {
@@ -108,7 +108,7 @@ const MASKS = {
 	NumberOnly: value => value?.replace(/[^\d]+/g, '') || '',
 	CharacterLimit: (value, n) => String(value).substring(0, n) || '',
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
-	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, '')
+	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
 };
 
 function revealMask(masks, value) {
@@ -138,7 +138,7 @@ export default function useForm() {
 	const submitRef = useRef({
 		isSubmitting: false,
 		isSubmited: false,
-		submitCount: 0
+		submitCount: 0,
 	});
 
 	useEffect(() => {
@@ -151,7 +151,7 @@ export default function useForm() {
 			submitRef.current = {
 				isSubmitting: false,
 				isSubmited: false,
-				submitCount: 0
+				submitCount: 0,
 			};
 		};
 	}, []);
@@ -171,7 +171,7 @@ export default function useForm() {
 		const { [name]: __, ...validFields } = validRef.current;
 		validRef.current = {
 			...validFields,
-			...(!error ? { [name]: !error } : {})
+			...(!error ? { [name]: !error } : {}),
 		};
 	};
 
@@ -239,13 +239,16 @@ export default function useForm() {
 		updateFormState(uuidv4());
 	};
 
-	const handleSubmit = (valid = validDefault, invalid = invalidDefault) => async e => {
+	const handleSubmit = (
+		valid = validDefault,
+		invalid = invalidDefault
+	) => async e => {
 		const { submitCount } = submitRef.current;
 
 		submitRef.current = {
 			isSubmitting: true,
 			isSubmited: true,
-			submitCount: submitCount + 1
+			submitCount: submitCount + 1,
 		};
 
 		updateFormState(uuidv4());
@@ -266,12 +269,32 @@ export default function useForm() {
 
 		submitRef.current = {
 			...submitRef.current,
-			isSubmitting: false
+			isSubmitting: false,
 		};
 		if (Object.keys(errorsRef.current).length > 0) {
 			document.getElementsByName(Object.keys(errorsRef.current)[0])[0].focus();
 		}
 
+		updateFormState(uuidv4());
+	};
+
+	const clearError = () => {
+		const { submitCount } = submitRef.current;
+		console.log(
+			'submitRef.current',
+			submitRef.current,
+			touchedRef.current,
+			errorsRef.current
+		);
+		submitRef.current = {
+			isSubmitting: false,
+			isSubmited: false,
+			submitCount: submitCount,
+		};
+		submitRef.current = {
+			...submitRef.current,
+			isSubmitting: false,
+		};
 		updateFormState(uuidv4());
 	};
 
@@ -283,8 +306,9 @@ export default function useForm() {
 			error: errorsRef.current,
 			submit: submitRef.current,
 			valid: validRef.current,
-			values: valuesRef.current
-		}
+			values: valuesRef.current,
+		},
+		clearError,
 	};
 }
 
@@ -337,7 +361,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		placeholder: field.placeholder || '',
 		disabled: field.disabled,
 		className: field.className,
-		style: field.style
+		style: field.style,
 	};
 
 	if (field.disabled && field.pattern) {
@@ -368,7 +392,12 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		case 'radio': {
 			return field.options.map(el => (
 				<section className='flex items-center gap-x-4 w-full py-4'>
-					<input {...{ ...field, ...fieldProps }} type='radio' name={field.name} value={el.value} />
+					<input
+						{...{ ...field, ...fieldProps }}
+						type='radio'
+						name={field.name}
+						value={el.value}
+					/>
 					<section className='flex justify-evenly w-full gap-x-4'>
 						<label className='p-2 border rounded-md w-full flex items-center'>
 							{el.name.split('-')[0]}
@@ -386,7 +415,9 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 							Customer Id:
 							<br />
 							{'*'.repeat(el.name.split('-')[1].length - 4)}
-							{el.name.split('-')[1].substring(el.name.split('-')[1].length - 4)}
+							{el.name
+								.split('-')[1]
+								.substring(el.name.split('-')[1].length - 4)}
 						</label>
 					</section>
 				</section>
@@ -397,7 +428,12 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 			return <Pincode {...{ ...field, ...fieldProps }} />;
 		}
 		case 'banklist': {
-			return <BankList field={{ ...field, ...fieldProps }} onSelectOptionCallback={onChange} />;
+			return (
+				<BankList
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+				/>
+			);
 		}
 
 		case 'date': {
