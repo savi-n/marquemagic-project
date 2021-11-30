@@ -239,9 +239,15 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount:
-				loan?.loanAmount || data['business-loan-details']?.LoanAmount || 0, //loan.loanAmount,
+				loan?.loanAmount ||
+				data['business-loan-details']?.LoanAmount ||
+				data['vehicle-loan-details']?.loanAmount ||
+				0, //loan.loanAmount,
 			applied_tenure:
-				loan?.loanAmount?.tenure || data['business-loan-details']?.tenure || 0, //loan.loanAmount?.tenure
+				loan?.loanAmount?.tenure ||
+				data['business-loan-details']?.tenure ||
+				data['vehicle-loan-details']?.tenure ||
+				0, //loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
 			// annual_op_expense: data?.['business-details'].PAT
