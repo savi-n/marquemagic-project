@@ -555,6 +555,7 @@ export default function FileUpload({
 					}}
 					accept={accept}
 					disabled={disabled}
+					multiple={section === 'document-upload' ? true : false}
 				/>
 				<Label htmlFor={id}>Browse</Label>
 				{section && section === 'document-upload' && (

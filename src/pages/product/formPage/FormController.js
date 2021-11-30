@@ -47,7 +47,7 @@ export default function FormController({
 
 	const { state } = useContext(BussinesContext);
 
-	const { handleSubmit, register, formState } = useForm();
+	const { handleSubmit, register, formState, clearError } = useForm();
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
@@ -66,6 +66,9 @@ export default function FormController({
 		};
 	}, []);
 
+	useEffect(() => {
+		clearError();
+	}, [map.name]);
 	const onSave = data => {
 		setLoanData({ ...data }, id);
 		addToast({
