@@ -180,6 +180,34 @@ let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 
 let busniess = JSON.parse(localStorage.getItem('busniess'));
 
+const getAmountUm = a => {
+	console.log(a, a > 99999 && a <= 9999999, a > 9999999);
+	if (a > 99999 && a <= 9999999) {
+		return 'Lakhs';
+	} else if (a > 9999999) {
+		return 'Crores';
+	} else {
+		return '';
+	}
+
+	// else if (a <= 999999999 && a >= 1000000) {
+	// 	return 'Crores';
+	// }
+};
+
+const getAmount = a => {
+	if (a >= 99999 && a <= 9999999) {
+		return a / 100000;
+	} else if (a > 9999999) {
+		return a / 10000000;
+	} else {
+		return a;
+	}
+	//  else if (a <= 999999999 && a >= 1000000) {
+	// 	return a / 10000000;
+	// }
+};
+
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	const idType =
 		productDetails.loanType.includes('Business') ||
@@ -238,15 +266,21 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			loan_product_id: productId[form.incomeType] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
-			loan_amount:
+			loan_amount: getAmount(
 				loan?.loanAmount ||
-				data['business-loan-details']?.LoanAmount ||
-				data['vehicle-loan-details']?.loanAmount ||
-				0, //loan.loanAmount,
+					data['business-loan-details']?.LoanAmount ||
+					data['vehicle-loan-details']?.loanAmount ||
+					0
+			), //loan.loanAmount,
+			loan_amount_um: getAmountUm(
+				+loan?.loanAmount ||
+					+data['business-loan-details']?.LoanAmount ||
+					+data['vehicle-loan-details']?.loanAmount
+			),
 			applied_tenure:
-				loan?.tenure ||
-				data['business-loan-details']?.tenure ||
-				data['vehicle-loan-details']?.tenure ||
+				+loan?.tenure ||
+				+data['business-loan-details']?.tenure ||
+				+data['vehicle-loan-details']?.tenure ||
 				0, //loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
