@@ -121,11 +121,11 @@ function revealMask(masks, value) {
 }
 
 const invalidDefault = () => {
-	console.log('Invalid Data--> Please check you form');
+	// console.log('Invalid Data--> Please check you form');
 };
 
 const validDefault = formData => {
-	console.log('Form Valid ----------->');
+	// console.log('Form Valid ----------->');
 	console.table(formData);
 };
 
@@ -280,12 +280,6 @@ export default function useForm() {
 
 	const clearError = () => {
 		const { submitCount } = submitRef.current;
-		console.log(
-			'submitRef.current',
-			submitRef.current,
-			touchedRef.current,
-			errorsRef.current
-		);
 		submitRef.current = {
 			isSubmitting: false,
 			isSubmited: false,
