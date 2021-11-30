@@ -238,8 +238,10 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			loan_product_id: productId[form.incomeType] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
-			loan_amount: data['business-loan-details'].LoanAmount || 0, //loan.loanAmount,
-			applied_tenure: data['business-loan-details'].tenure || 0, //loan.loanAmount?.tenure
+			loan_amount:
+				loan?.loanAmount || data['business-loan-details']?.LoanAmount || 0, //loan.loanAmount,
+			applied_tenure:
+				loan?.loanAmount?.tenure || data['business-loan-details']?.tenure || 0, //loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
 			// annual_op_expense: data?.['business-details'].PAT
@@ -889,169 +891,182 @@ export default function DocumentUpload({
 				<H>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
 				</H>
-				<Section>
-					<H1>KYC </H1>
-					<div
-						style={{
-							marginLeft: 10,
-							alignItems: 'center',
-							minWidth: '500px',
-							display: 'flex',
-						}}>
-						Document Submitted :
-						<StyledButton width={'auto'} fill>
-							{kyccount} of {KycDocOptions.length}
-						</StyledButton>
-					</div>
-					<img
-						src={downArray}
-						width={20}
-						height={20}
-						style={{
-							objectFit: 'contain',
-							marginLeft: 'auto',
-							// transform: `rotate(180deg)`,
-							transform: openKycdoc ? `rotate(180deg)` : `none`,
-							cursor: 'pointer',
-						}}
-						onClick={() => openCloseCollaps('KYC')}
-					/>
-				</Section>
-				<Details open={!openKycdoc}>
-					<Hr />
-				</Details>
-				<Details open={openKycdoc}>
-					<UploadWrapper>
-						<FileUpload
-							section={'document-upload'}
-							onDrop={handleFileUpload}
-							onRemoveFile={handleFileRemove}
-							docTypeOptions={KycDocOptions}
-							documentTypeChangeCallback={handleDocumentTypeChange}
-							accept=''
-							upload={{
-								url: DOCS_UPLOAD_URL({
-									userId:
-										companyDetail?.userId ||
-										JSON.parse(userToken)?.userReducer?.userId ||
-										'',
-								}),
-								header: {
-									Authorization: `Bearer ${companyDetail?.token ||
-										JSON.parse(userToken).userReducer?.userToken ||
-										''}`,
-								},
-							}}
-						/>
-					</UploadWrapper>
-				</Details>
-				<Section>
-					<H1>Financial </H1>
-					<div
-						style={{
-							marginLeft: 10,
-							alignItems: 'center',
-							minWidth: '500px',
-							display: 'flex',
-						}}>
-						Document Submitted :
-						<StyledButton width={'auto'} fill>
-							{financialCount} of {FinancialDocOptions.length}
-						</StyledButton>
-					</div>
-					<img
-						src={downArray}
-						width={20}
-						height={20}
-						style={{
-							objectFit: 'contain',
-							marginLeft: 'auto',
-							transform: openFinancialdoc ? `rotate(180deg)` : `none`,
-							cursor: 'pointer',
-						}}
-						onClick={() => openCloseCollaps('Financial')}
-					/>
-				</Section>
-				<Details open={!openFinancialdoc}>
-					<Hr />
-				</Details>
-				<Details open={openFinancialdoc}>
-					<UploadWrapper>
-						<FileUpload
-							section={'document-upload'}
-							onDrop={handleFileUpload}
-							onRemoveFile={handleFileRemove}
-							docTypeOptions={FinancialDocOptions}
-							documentTypeChangeCallback={handleDocumentTypeChange}
-							accept=''
-							upload={{
-								url: DOCS_UPLOAD_URL({
-									userId:
-										companyDetail?.userId ||
-										JSON.parse(userToken)?.userReducer?.userId ||
-										'',
-								}),
-								header: {
-									Authorization: `Bearer ${companyDetail?.token ||
-										JSON.parse(userToken).userReducer?.userToken ||
-										''}`,
-								},
-							}}
-						/>
-					</UploadWrapper>
-				</Details>
-				<Section>
-					<H1>Others </H1>
-					<div
-						style={{
-							marginLeft: 10,
-							alignItems: 'center',
-							minWidth: '500px',
-							display: 'flex',
-						}}>
-						Document Submitted :
-						<StyledButton width={'auto'} fill>
-							{otherCount} of {OtherDocOptions.length}
-						</StyledButton>
-					</div>
-					<img
-						src={downArray}
-						width={20}
-						height={20}
-						style={{
-							objectFit: 'contain',
-							marginLeft: 'auto',
-							transform: openOtherdoc ? `rotate(180deg)` : `none`,
-							cursor: 'pointer',
-						}}
-						onClick={() => openCloseCollaps('Others')}
-					/>
-				</Section>
-				<Details open={openOtherdoc}>
-					<UploadWrapper>
-						<FileUpload
-							section={'document-upload'}
-							onDrop={handleFileUpload}
-							onRemoveFile={handleFileRemove}
-							docTypeOptions={OtherDocOptions}
-							documentTypeChangeCallback={handleDocumentTypeChange}
-							accept=''
-							upload={{
-								url: DOCS_UPLOAD_URL({
-									userId:
-										companyDetail?.userId ||
-										JSON.parse(userToken)?.userReducer?.userId ||
-										'',
-								}),
-								header: {
-									Authorization: `Bearer ${companyDetail?.token ||
-										JSON.parse(userToken).userReducer?.userToken ||
-										''}`,
-								},
-							}}
-						/>
-					</UploadWrapper>
-				</Details>
+				{KycDocOptions.length > 0 && (
+					<>
+						{' '}
+						<Section>
+							<H1>KYC </H1>
+							<div
+								style={{
+									marginLeft: 10,
+									alignItems: 'center',
+									minWidth: '500px',
+									display: 'flex',
+								}}>
+								Document Submitted :
+								<StyledButton width={'auto'} fill>
+									{kyccount} of {KycDocOptions.length}
+								</StyledButton>
+							</div>
+							<img
+								src={downArray}
+								width={20}
+								height={20}
+								style={{
+									objectFit: 'contain',
+									marginLeft: 'auto',
+									// transform: `rotate(180deg)`,
+									transform: openKycdoc ? `rotate(180deg)` : `none`,
+									cursor: 'pointer',
+								}}
+								onClick={() => openCloseCollaps('KYC')}
+							/>
+						</Section>
+						<Details open={!openKycdoc}>
+							<Hr />
+						</Details>
+						<Details open={openKycdoc}>
+							<UploadWrapper>
+								<FileUpload
+									section={'document-upload'}
+									onDrop={handleFileUpload}
+									onRemoveFile={handleFileRemove}
+									docTypeOptions={KycDocOptions}
+									documentTypeChangeCallback={handleDocumentTypeChange}
+									accept=''
+									upload={{
+										url: DOCS_UPLOAD_URL({
+											userId:
+												companyDetail?.userId ||
+												JSON.parse(userToken)?.userReducer?.userId ||
+												'',
+										}),
+										header: {
+											Authorization: `Bearer ${companyDetail?.token ||
+												JSON.parse(userToken).userReducer?.userToken ||
+												''}`,
+										},
+									}}
+								/>
+							</UploadWrapper>
+						</Details>
+					</>
+				)}
+				{FinancialDocOptions.length > 0 && (
+					<>
+						<Section>
+							<H1>Financial </H1>
+							<div
+								style={{
+									marginLeft: 10,
+									alignItems: 'center',
+									minWidth: '500px',
+									display: 'flex',
+								}}>
+								Document Submitted :
+								<StyledButton width={'auto'} fill>
+									{financialCount} of {FinancialDocOptions.length}
+								</StyledButton>
+							</div>
+							<img
+								src={downArray}
+								width={20}
+								height={20}
+								style={{
+									objectFit: 'contain',
+									marginLeft: 'auto',
+									transform: openFinancialdoc ? `rotate(180deg)` : `none`,
+									cursor: 'pointer',
+								}}
+								onClick={() => openCloseCollaps('Financial')}
+							/>
+						</Section>
+						<Details open={!openFinancialdoc}>
+							<Hr />
+						</Details>
+						<Details open={openFinancialdoc}>
+							<UploadWrapper>
+								<FileUpload
+									section={'document-upload'}
+									onDrop={handleFileUpload}
+									onRemoveFile={handleFileRemove}
+									docTypeOptions={FinancialDocOptions}
+									documentTypeChangeCallback={handleDocumentTypeChange}
+									accept=''
+									upload={{
+										url: DOCS_UPLOAD_URL({
+											userId:
+												companyDetail?.userId ||
+												JSON.parse(userToken)?.userReducer?.userId ||
+												'',
+										}),
+										header: {
+											Authorization: `Bearer ${companyDetail?.token ||
+												JSON.parse(userToken).userReducer?.userToken ||
+												''}`,
+										},
+									}}
+								/>
+							</UploadWrapper>
+						</Details>
+					</>
+				)}
+				{OtherDocOptions.length > 0 && (
+					<>
+						<Section>
+							<H1>Others </H1>
+							<div
+								style={{
+									marginLeft: 10,
+									alignItems: 'center',
+									minWidth: '500px',
+									display: 'flex',
+								}}>
+								Document Submitted :
+								<StyledButton width={'auto'} fill>
+									{otherCount} of {OtherDocOptions.length}
+								</StyledButton>
+							</div>
+							<img
+								src={downArray}
+								width={20}
+								height={20}
+								style={{
+									objectFit: 'contain',
+									marginLeft: 'auto',
+									transform: openOtherdoc ? `rotate(180deg)` : `none`,
+									cursor: 'pointer',
+								}}
+								onClick={() => openCloseCollaps('Others')}
+							/>
+						</Section>
+						<Details open={openOtherdoc}>
+							<UploadWrapper>
+								<FileUpload
+									section={'document-upload'}
+									onDrop={handleFileUpload}
+									onRemoveFile={handleFileRemove}
+									docTypeOptions={OtherDocOptions}
+									documentTypeChangeCallback={handleDocumentTypeChange}
+									accept=''
+									upload={{
+										url: DOCS_UPLOAD_URL({
+											userId:
+												companyDetail?.userId ||
+												JSON.parse(userToken)?.userReducer?.userId ||
+												'',
+										}),
+										header: {
+											Authorization: `Bearer ${companyDetail?.token ||
+												JSON.parse(userToken).userReducer?.userToken ||
+												''}`,
+										},
+									}}
+								/>
+							</UploadWrapper>
+						</Details>
+					</>
+				)}
 				<div style={{ padding: 10 }} />
 				{/* <UploadWrapper>
 					<FileUpload
