@@ -238,8 +238,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			loan_product_id: productId[form.incomeType] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
-			loan_amount: loan.loanAmount,
-			applied_tenure: loan.loanAmount?.tenure,
+			loan_amount: data['business-loan-details'].LoanAmount || 0, //loan.loanAmount,
+			applied_tenure: data['business-loan-details'].tenure || 0, //loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
 			// annual_op_expense: data?.['business-details'].PAT
