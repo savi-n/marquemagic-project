@@ -210,6 +210,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// corporateid: companyData.CIN
 		};
 	};
+	console.log('loan', loan);
+	console.log('data', data);
 
 	const formatedData = {
 		Business_details: businessDetails() || null,
@@ -244,7 +246,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				data['vehicle-loan-details']?.loanAmount ||
 				0, //loan.loanAmount,
 			applied_tenure:
-				loan?.loanAmount?.tenure ||
+				loan?.tenure ||
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
 				0, //loan.loanAmount?.tenure
