@@ -210,8 +210,6 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// corporateid: companyData.CIN
 		};
 	};
-	console.log('loan', loan);
-	console.log('data', data);
 
 	const formatedData = {
 		Business_details: businessDetails() || null,
