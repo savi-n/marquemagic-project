@@ -278,9 +278,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 					+data['vehicle-loan-details']?.loanAmount
 			),
 			applied_tenure:
-				+loan?.tenure ||
-				+data['business-loan-details']?.tenure ||
-				+data['vehicle-loan-details']?.tenure ||
+				loan?.tenure ||
+				data['business-loan-details']?.tenure ||
+				data['vehicle-loan-details']?.tenure ||
 				0, //loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
