@@ -233,7 +233,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			contact: '',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
-			// gstin: data['business-details'].GSTVerification,
+			gstin: data['business-details']?.GSTVerification || '',
 			// businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
 		};
@@ -564,7 +564,7 @@ export default function DocumentUpload({
 			method: 'POST',
 			data: {
 				business_type: form.incomeType === 'salaried' ? 7 : 1,
-				loan_product: productId[idType],
+				loan_product: productId[form.incomeType] || productId[idType],
 			},
 		},
 		headers: {
