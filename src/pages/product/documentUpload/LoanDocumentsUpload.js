@@ -197,6 +197,8 @@ const getAmount = a => {
 };
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
+	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+		.applicantData;
 	const idType =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -217,7 +219,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				companyData?.BusinessName,
 			//form?.incomeType === 'salaried' ? 7 : 1
 			business_type:
-				form?.incomeType === 'salaried'
+				applicantData?.incomeType === 'salaried'
 					? 7
 					: data['business-details']?.BusinessType
 					? data['business-details']?.BusinessType
@@ -238,8 +240,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			JSON.parse(localStorage.getItem('companyData'));
 	}
 	const addressArrayMulti =
-		form?.address &&
-		form?.address.map(ele => {
+		applicantData?.address &&
+		applicantData?.address.map(ele => {
 			return {
 				line1: ele.address1,
 				line2: ele.address2,
@@ -581,6 +583,8 @@ export default function DocumentUpload({
 
 		setCibilCheckModal(false);
 	};
+	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+		.applicantData;
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
@@ -588,7 +592,7 @@ export default function DocumentUpload({
 			method: 'POST',
 			data: {
 				business_type:
-					form?.incomeType === 'salaried'
+					applicantData?.incomeType === 'salaried'
 						? 7
 						: state['business-details']?.BusinessType
 						? state['business-details']?.BusinessType
@@ -723,7 +727,6 @@ export default function DocumentUpload({
 	// 	form
 	// );
 	// console.log('databusniess', busniess);
-	// console.log('dataform', form);
 
 	// step: 1 if applicant submit request createCase
 	const createCaseReq = async () => {
