@@ -177,35 +177,23 @@ let userToken = localStorage.getItem(url);
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-
+// console.log('reducerformoutside', form);
 let busniess = JSON.parse(localStorage.getItem('busniess'));
 
 const getAmountUm = a => {
-	console.log(a, a > 99999 && a <= 9999999, a > 9999999);
-	if (a > 99999 && a <= 9999999) {
+	if (a > 99999) {
 		return 'Lakhs';
-	} else if (a > 9999999) {
-		return 'Crores';
 	} else {
 		return '';
 	}
-
-	// else if (a <= 999999999 && a >= 1000000) {
-	// 	return 'Crores';
-	// }
 };
 
 const getAmount = a => {
-	if (a >= 99999 && a <= 9999999) {
+	if (a >= 99999) {
 		return a / 100000;
-	} else if (a > 9999999) {
-		return a / 10000000;
 	} else {
 		return a;
 	}
-	//  else if (a <= 999999999 && a >= 1000000) {
-	// 	return a / 10000000;
-	// }
 };
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
@@ -227,7 +215,13 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				form?.firstName ||
 				localStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
-			business_type: form?.incomeType === 'salaried' ? 7 : 1,
+			//form?.incomeType === 'salaried' ? 7 : 1
+			business_type:
+				form?.incomeType === 'salaried'
+					? 7
+					: data['business-details']?.BusinessType
+					? data['business-details']?.BusinessType
+					: 1,
 			business_email: form?.email || companyData?.Email,
 			// business_industry_type: 20,
 			contact: '',
@@ -238,24 +232,49 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// corporateid: companyData.CIN
 		};
 	};
+	if (!companyData) {
+		companyData =
+			localStorage.getItem('companyData') &&
+			JSON.parse(localStorage.getItem('companyData'));
+	}
+	const addressArrayMulti =
+		form?.address &&
+		form?.address.map(ele => {
+			return {
+				line1: ele.address1,
+				line2: ele.address2,
+				locality: ele?.address3 || ele?.city,
+				city: ele.city,
+				state: ele.state,
+				pincode: ele.pinCode,
+				addressType: ele.addressType,
+				aid: ele.aid,
+			};
+		});
 
+	let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
+	addressArrayUni =
+		addressArrayUni.length === 1
+			? addressArrayUni.map(ele => {
+					return { ...ele, addressType: 'present', aid: 1 };
+			  })
+			: addressArrayUni;
 	const formatedData = {
 		Business_details: businessDetails() || null,
-		businessaddress:
-			busniess && busniess.Address
-				? {
-						city: busniess && busniess.Address.city,
-						line1:
-							busniess &&
-							`${busniess.Address.flno} ${busniess.Address.lg} ${
-								busniess.Address.bnm
-							} ${busniess.Address.bno} ${busniess.Address.dst} `,
-						locality: busniess && busniess.Address.loc,
-						pincode: busniess && busniess.Address.pncd,
-						state: busniess && busniess.Address.st,
-				  }
-				: {},
-
+		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
+		// busniess && busniess.Address
+		// 	? {
+		// 			city: busniess && busniess.Address.city,
+		// 			line1:
+		// 				busniess &&
+		// 				`${busniess.Address.flno} ${busniess.Address.lg} ${
+		// 					busniess.Address.bnm
+		// 				} ${busniess.Address.bno} ${busniess.Address.dst} `,
+		// 			locality: busniess && busniess.Address.loc,
+		// 			pincode: busniess && busniess.Address.pncd,
+		// 			state: busniess && busniess.Address.st,
+		// 	  }
+		// 	: {}
 		director_details: [],
 		loan_details: {
 			// loan_type_id: 1,
@@ -263,7 +282,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// loan_product_id: "10",
 			// loan_request_type: "1",
 			// origin: "New_UI",
-			loan_product_id: productId[form.incomeType] || productId[idType],
+			loan_product_id: productId[(form?.incomeType)] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: getAmount(
@@ -281,7 +300,12 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				loan?.tenure ||
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
-				0, //loan.loanAmount?.tenure
+				0,
+			annual_turn_over: data?.['business-details']?.AnnualTurnover || '',
+			annual_op_expense:
+				form?.netMonthlyIncome || data?.['business-details']?.PAT || '',
+			annual_revenue: form?.grossIncome || 0,
+			//loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
 			// annual_op_expense: data?.['business-details'].PAT
@@ -563,8 +587,13 @@ export default function DocumentUpload({
 		options: {
 			method: 'POST',
 			data: {
-				business_type: form.incomeType === 'salaried' ? 7 : 1,
-				loan_product: productId[form.incomeType] || productId[idType],
+				business_type:
+					form?.incomeType === 'salaried'
+						? 7
+						: state['business-details']?.BusinessType
+						? state['business-details']?.BusinessType
+						: 1,
+				loan_product: productId[(form?.incomeType)] || productId[idType],
 			},
 		},
 		headers: {
@@ -682,6 +711,19 @@ export default function DocumentUpload({
 			throw new Error(err.message);
 		}
 	};
+	// console.log('datastate', state);
+	// console.log('dataloan', loan);
+	// console.log('datacompanyDetail', companyDetail);
+	// console.log(
+	// 	'dataproductId',
+	// 	productId,
+	// 	productId[(form?.incomeType)] || productId[idType],
+	// 	productId[(form?.incomeType)],
+	// 	productId[idType],
+	// 	form
+	// );
+	// console.log('databusniess', busniess);
+	// console.log('dataform', form);
 
 	// step: 1 if applicant submit request createCase
 	const createCaseReq = async () => {
