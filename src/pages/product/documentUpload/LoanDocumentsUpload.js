@@ -926,7 +926,7 @@ export default function DocumentUpload({
 		}
 		setCaseCreationProgress(true);
 		let docError = false;
-		state.documents.map(ele => {
+		state?.documents?.map(ele => {
 			if (!ele.typeId) {
 				docError = true;
 				return false;
@@ -934,7 +934,7 @@ export default function DocumentUpload({
 		});
 		if (docError) {
 			addToast({
-				message: 'Please tag all the documents',
+				message: 'Please select the document type',
 				type: 'error',
 			});
 		} else {

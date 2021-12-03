@@ -37,7 +37,7 @@ export default function useFetch({
 					headers
 				);
 				const json = res.data;
-				console.log('usefetch-res-', json);
+				// console.log('usefetch-res-', json);
 				setResponse(json);
 				setLoading(false);
 			} catch (error) {

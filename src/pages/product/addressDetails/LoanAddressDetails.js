@@ -75,7 +75,7 @@ export default function AddressDetailsPage({
 	fieldConfig,
 	productDetails,
 }) {
-	console.log('productId', productDetails);
+	// console.log('productId', productDetails);
 	const isBusiness =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
