@@ -177,7 +177,6 @@ let userToken = localStorage.getItem(url);
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-// console.log('reducerformoutside', form);
 let busniess = JSON.parse(localStorage.getItem('busniess'));
 
 const getAmountUm = a => {
@@ -199,6 +198,8 @@ const getAmount = a => {
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
+	let loanData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+		.loanData;
 	const idType =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -214,7 +215,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		}
 		return {
 			business_name:
-				form?.firstName ||
+				applicantData?.firstName ||
 				localStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
 			//form?.incomeType === 'salaried' ? 7 : 1
@@ -288,13 +289,15 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: getAmount(
-				loan?.loanAmount ||
+				loanData?.loanAmount ||
+					loan?.loanAmount ||
 					data['business-loan-details']?.LoanAmount ||
 					data['vehicle-loan-details']?.loanAmount ||
 					0
 			), //loan.loanAmount,
 			loan_amount_um: getAmountUm(
-				+loan?.loanAmount ||
+				+loanData?.loanAmount ||
+					+loan?.loanAmount ||
 					+data['business-loan-details']?.LoanAmount ||
 					+data['vehicle-loan-details']?.loanAmount
 			),
@@ -305,8 +308,10 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				0,
 			annual_turn_over: data?.['business-details']?.AnnualTurnover || '',
 			annual_op_expense:
-				form?.netMonthlyIncome || data?.['business-details']?.PAT || '',
-			annual_revenue: form?.grossIncome || 0,
+				applicantData?.netMonthlyIncome ||
+				data?.['business-details']?.PAT ||
+				'',
+			annual_revenue: applicantData?.grossIncome || 0,
 			//loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
@@ -715,18 +720,6 @@ export default function DocumentUpload({
 			throw new Error(err.message);
 		}
 	};
-	// console.log('datastate', state);
-	// console.log('dataloan', loan);
-	// console.log('datacompanyDetail', companyDetail);
-	// console.log(
-	// 	'dataproductId',
-	// 	productId,
-	// 	productId[(form?.incomeType)] || productId[idType],
-	// 	productId[(form?.incomeType)],
-	// 	productId[idType],
-	// 	form
-	// );
-	// console.log('databusniess', busniess);
 
 	// step: 1 if applicant submit request createCase
 	const createCaseReq = async () => {
