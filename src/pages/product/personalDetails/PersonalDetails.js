@@ -12,11 +12,7 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { AppContext } from '../../../reducer/appReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import {
-	LOGIN_CREATEUSER,
-	NC_STATUS_CODE,
-	WHITELABEL_ENCRYPTION_API,
-} from '../../../_config/app.config';
+import { LOGIN_CREATEUSER, NC_STATUS_CODE, WHITELABEL_ENCRYPTION_API } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 
 const Div = styled.div`
@@ -41,19 +37,19 @@ function formatUserDetails(data, fields) {
 
 export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const {
-		state: { whiteLabelId },
+		state: { whiteLabelId }
 	} = useContext(AppContext);
 	const {
-		actions: { setCompleted },
+		actions: { setCompleted }
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeApplicantData, setUsertypeBankData },
+		actions: { setUsertypeApplicantData, setUsertypeBankData }
 	} = useContext(FormContext);
 
 	const {
 		state: { userBankDetails, userToken },
-		actions: { setUserDetails, setUserId },
+		actions: { setUserDetails, setUserId }
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -71,8 +67,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					name: data.firstName,
 					mobileNo: data.mobileNo,
 					addrr1: '',
-					addrr2: '',
-				},
+					addrr2: ''
+				}
 			});
 
 			const userDataRes = userDetailsReq.data;
@@ -83,17 +79,14 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
 					{
-						method: 'GET',
+						method: 'GET'
 					},
 					{ Authorization: `Bearer ${userDataRes.token}` }
 				);
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-				localStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
+				localStorage.setItem('encryptWhiteLabel', encryptWhiteLabelRes.encrypted_whitelabel[0]);
 			}
 
 			const userData = {
@@ -102,35 +95,32 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				// userBankDetails: userDetailsReq.cubDetails,
 				bankId: userDataRes.bankId,
 				branchId: userDataRes.branchId,
-				userToken: userDataRes.token,
+				userToken: userDataRes.token
 			};
 			setUserId(userDataRes.userId);
 			setUserDetails(userData);
 			setUsertypeBankData({
 				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
+				branchId: userDataRes.branchId
 			});
 		}
 
 		setUsertypeApplicantData({
 			...data,
 			isApplicant: '1',
-			...formatUserDetails(data, map.fields['salary-details'].data),
+			...formatUserDetails(data, map.fields['salary-details'].data)
 		});
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success',
+			type: 'success'
 		});
 	};
 
 	const onProceed = data => {
-		if (
-			Number(formState?.values?.grossIncome) === 0 ||
-			Number(formState?.values?.netMonthlyIncome) === 0
-		) {
+		if (Number(formState?.values?.grossIncome) === 0 || Number(formState?.values?.netMonthlyIncome) === 0) {
 			return addToast({
 				message: 'Income cannot be 0',
-				type: 'error',
+				type: 'error'
 			});
 		} else {
 			onSave(data);
@@ -151,15 +141,14 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const getAdhar = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat =
-				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
-				localStorage.getItem('aadhar');
+				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum || localStorage.getItem('aadhar');
 
 			if (formStat) {
 				const adharNum = formStat;
 
-				let d = `xxxxxxxx${adharNum[adharNum.length - 4]}${
-					adharNum[adharNum.length - 3]
-				}${adharNum[adharNum.length - 2]}${adharNum[adharNum.length - 1]}`;
+				let d = `xxxxxxxx${adharNum[adharNum.length - 4]}${adharNum[adharNum.length - 3]}${
+					adharNum[adharNum.length - 2]
+				}${adharNum[adharNum.length - 1]}`;
 
 				return `${d}`;
 			}
@@ -171,8 +160,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const getDOB = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
 			var formStat =
-				JSON.parse(localStorage.getItem('formstate')) ||
-				JSON.parse(localStorage.getItem('formstatepan'));
+				JSON.parse(localStorage.getItem('formstate')) || JSON.parse(localStorage.getItem('formstatepan'));
 
 			if (formStat && formStat.values.dob) {
 				let d = formStat.values.dob.split('/');
@@ -201,31 +189,26 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 			return name;
 		}
 	};
+
 	return (
 		<Div>
 			<PersonalDetails
 				register={register}
 				formState={formState}
 				preData={{
-					firstName:
-						r()?.firstName || '' || (getDataFromPan() && getDataFromPan()[0]),
-					lastName:
-						r()?.lastName || '' || (getDataFromPan() && getDataFromPan()[1]),
-					dob:
-						getDOB() ||
-						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
-						'',
+					firstName: r()?.firstName || '' || (getDataFromPan() && getDataFromPan()[0]),
+					lastName: r()?.lastName || '' || (getDataFromPan() && getDataFromPan()[1]),
+					dob: getDOB() || JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob || '',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
 					panNumber:
 						r()?.pan ||
-						JSON.parse(localStorage.getItem('formstatepan'))?.values
-							?.panNumber ||
+						JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber ||
 						localStorage.getItem('pan') ||
 						'',
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || '',
-					countryResidence: 'india',
+					countryResidence: 'india'
 				}}
 				jsonData={map.fields[id].data}
 			/>
@@ -247,5 +230,5 @@ PersonalDetailsPage.propTypes = {
 	productDetails: object,
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string,
+	id: string
 };

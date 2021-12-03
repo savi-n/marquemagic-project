@@ -8,10 +8,8 @@ import AddressDetails from '../../../shared/components/AddressDetails/AddressDet
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import { APP_CLIENT } from '../../../_config/app.config';
-import { useEffect } from 'react';
 
 const Div = styled.div`
 	flex: 1;
@@ -42,11 +40,7 @@ const formatData = (type, data, fields) => {
 	for (const f of fields) {
 		formatedData[f.name] = data[`${type}_${f.name}`];
 	}
-	return {
-		addressType: type,
-		aid: type === 'present' ? 1 : 2,
-		...formatedData,
-	};
+	return { addressType: type, ...formatedData };
 };
 
 AddressDetailsPage.propTypes = {
@@ -55,33 +49,13 @@ AddressDetailsPage.propTypes = {
 	id: string,
 	fieldConfig: object,
 };
-const getPinCode = add => {
-	const digits = '1234567890';
-	let str = '';
-	for (const char of add) {
-		if (digits.includes(char)) {
-			str += char;
-		}
-	}
-	str = str.trim();
-	str = str.replace(' ', '');
-	if (str.length < 6) return '';
-	return str.substr(str.length - 6);
-};
+
 export default function AddressDetailsPage({
 	id,
 	onFlowChange,
 	map,
 	fieldConfig,
-	productDetails,
 }) {
-	console.log('productId', productDetails);
-	const isBusiness =
-		productDetails.loanType.includes('Business') ||
-		productDetails.loanType.includes('LAP') ||
-		productDetails.loanType.includes('Working')
-			? true
-			: false;
 	const {
 		actions: { setCompleted, activateSubFlow },
 	} = useContext(FlowContext);
@@ -93,10 +67,6 @@ export default function AddressDetailsPage({
 	const {
 		state: { userBankDetails },
 	} = useContext(UserContext);
-
-	const {
-		state: { companyDetail },
-	} = useContext(BussinesContext);
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
@@ -119,12 +89,6 @@ export default function AddressDetailsPage({
 	};
 
 	const onProceed = formData => {
-		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
-
-		!match &&
-			formatedData.push(formatData('present', formData, map.fields[id].data));
-
-		setUsertypeAddressData(formatedData);
 		onSave(formData);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -147,22 +111,19 @@ export default function AddressDetailsPage({
 	return (
 		<Div>
 			<AddressDetails
-				isBusiness={isBusiness}
 				register={register}
 				formState={formState}
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields[id].data}
 				preData={{
-					address1: companyDetail?.Address || r()?.address1 || '',
+					address1: r()?.address1 || '',
 					address2: r()?.address2 || '',
 					address3: r()?.address3 || '',
 					address4: r()?.address4 || '',
 					city: r()?.city || '',
 					state: r()?.state || '',
-					pinCode: companyDetail?.Address
-						? getPinCode(companyDetail?.Address)
-						: r()?.pin || '',
+					pinCode: r()?.pin || '',
 				}}
 			/>
 			<ButtonWrap>

@@ -51,36 +51,27 @@ const formatData = (type, data, fields) => {
 	for (const f of fields) {
 		formatedData[f.name] = data[`${type}_${f.name}`];
 	}
-	return {
-		addressType: type,
-		aid: type === 'present' ? 1 : 2,
-		...formatedData,
-	};
+	return { addressType: type, ...formatedData };
 };
 
 AddressDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string,
+	id: string
 };
 
-export default function AddressDetailsPage({
-	id,
-	onFlowChange,
-	map,
-	productId,
-}) {
+export default function AddressDetailsPage({ id, onFlowChange, map, productId }) {
 	const {
-		actions: { setCompleted, activateSubFlow },
+		actions: { setCompleted, activateSubFlow }
 	} = useContext(FlowContext);
 
 	const {
 		state,
-		actions: { setUsertypeAddressData },
+		actions: { setUsertypeAddressData }
 	} = useContext(FormContext);
 
 	const {
-		state: { userBankDetails },
+		state: { userBankDetails }
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -98,8 +89,7 @@ export default function AddressDetailsPage({
 	const saveData = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 
-		!match &&
-			formatedData.push(formatData('present', formData, map.fields[id].data));
+		!match && formatedData.push(formatData('present', formData, map.fields[id].data));
 
 		setUsertypeAddressData(formatedData);
 		setSaved(true);
@@ -109,7 +99,7 @@ export default function AddressDetailsPage({
 		saveData(formData);
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success',
+			type: 'success'
 		});
 	};
 
@@ -182,16 +172,11 @@ export default function AddressDetailsPage({
 					address4: r()?.address4 || '',
 					city: r()?.city || '',
 					state: r()?.state || '',
-					pinCode: r()?.pin || '',
+					pinCode: r()?.pin || ''
 				}}
 			/>
 			<ButtonWrap>
-				<Button
-					fill
-					name='Proceed'
-					onClick={handleSubmit(onProceed(map.main))}
-					disabled={processing}
-				/>
+				<Button fill name='Proceed' onClick={handleSubmit(onProceed(map.main))} disabled={processing} />
 				{/* <Button
           name="Save"
           onClick={handleSubmit(onSave)}
@@ -202,23 +187,13 @@ export default function AddressDetailsPage({
 					{map.sub && (
 						<DivWrap>
 							<Question>Co-Applicants?</Question>
-							<Button
-								width='auto'
-								fill
-								name='Add'
-								onClick={handleSubmit(onProceed(map.sub, true))}
-							/>
+							<Button width='auto' fill name='Add' onClick={handleSubmit(onProceed(map.sub, true))} />
 						</DivWrap>
 					)}
 					{map.hidden && (
 						<DivWrap>
 							<Question>Guarantor?</Question>
-							<Button
-								width='auto'
-								fill
-								name='Add'
-								onClick={handleSubmit(onProceed(map.hidden, true))}
-							/>
+							<Button width='auto' fill name='Add' onClick={handleSubmit(onProceed(map.hidden, true))} />
 						</DivWrap>
 					)}
 				</UserAddButton>
