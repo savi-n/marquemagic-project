@@ -177,10 +177,29 @@ let userToken = localStorage.getItem(url);
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-
 let busniess = JSON.parse(localStorage.getItem('busniess'));
 
+const getAmountUm = a => {
+	if (a > 99999) {
+		return 'Lakhs';
+	} else {
+		return '';
+	}
+};
+
+const getAmount = a => {
+	if (a >= 99999) {
+		return a / 100000;
+	} else {
+		return a;
+	}
+};
+
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
+	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+		.applicantData;
+	let loanData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+		.loanData;
 	const idType =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -196,38 +215,69 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		}
 		return {
 			business_name:
-				form?.firstName ||
+				applicantData?.firstName ||
 				localStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
-			business_type: form?.incomeType === 'salaried' ? 7 : 1,
+			//form?.incomeType === 'salaried' ? 7 : 1
+			business_type:
+				applicantData?.incomeType === 'salaried'
+					? 7
+					: data['business-details']?.BusinessType
+					? data['business-details']?.BusinessType
+					: 1,
 			business_email: form?.email || companyData?.Email,
 			// business_industry_type: 20,
 			contact: '',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
-			// gstin: data['business-details'].GSTVerification,
+			gstin: data['business-details']?.GSTVerification || '',
 			// businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
 		};
 	};
+	if (!companyData) {
+		companyData =
+			localStorage.getItem('companyData') &&
+			JSON.parse(localStorage.getItem('companyData'));
+	}
+	const addressArrayMulti =
+		applicantData?.address &&
+		applicantData?.address.map(ele => {
+			return {
+				line1: ele.address1,
+				line2: ele.address2,
+				locality: ele?.address3 || ele?.city,
+				city: ele.city,
+				state: ele.state,
+				pincode: ele.pinCode,
+				addressType: ele.addressType,
+				aid: ele.aid,
+			};
+		});
 
+	let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
+	addressArrayUni =
+		addressArrayUni.length === 1
+			? addressArrayUni.map(ele => {
+					return { ...ele, addressType: 'present', aid: 1 };
+			  })
+			: addressArrayUni;
 	const formatedData = {
 		Business_details: businessDetails() || null,
-		businessaddress:
-			busniess && busniess.Address
-				? {
-						city: busniess && busniess.Address.city,
-						line1:
-							busniess &&
-							`${busniess.Address.flno} ${busniess.Address.lg} ${
-								busniess.Address.bnm
-							} ${busniess.Address.bno} ${busniess.Address.dst} `,
-						locality: busniess && busniess.Address.loc,
-						pincode: busniess && busniess.Address.pncd,
-						state: busniess && busniess.Address.st,
-				  }
-				: {},
-
+		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
+		// busniess && busniess.Address
+		// 	? {
+		// 			city: busniess && busniess.Address.city,
+		// 			line1:
+		// 				busniess &&
+		// 				`${busniess.Address.flno} ${busniess.Address.lg} ${
+		// 					busniess.Address.bnm
+		// 				} ${busniess.Address.bno} ${busniess.Address.dst} `,
+		// 			locality: busniess && busniess.Address.loc,
+		// 			pincode: busniess && busniess.Address.pncd,
+		// 			state: busniess && busniess.Address.st,
+		// 	  }
+		// 	: {}
 		director_details: [],
 		loan_details: {
 			// loan_type_id: 1,
@@ -235,19 +285,34 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// loan_product_id: "10",
 			// loan_request_type: "1",
 			// origin: "New_UI",
-			loan_product_id: productId[form.incomeType] || productId[idType],
+			loan_product_id: productId[(form?.incomeType)] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
-			loan_amount:
-				loan?.loanAmount ||
-				data['business-loan-details']?.LoanAmount ||
-				data['vehicle-loan-details']?.loanAmount ||
-				0, //loan.loanAmount,
+			loan_amount: getAmount(
+				loanData?.loanAmount ||
+					loan?.loanAmount ||
+					data['business-loan-details']?.LoanAmount ||
+					data['vehicle-loan-details']?.loanAmount ||
+					0
+			), //loan.loanAmount,
+			loan_amount_um: getAmountUm(
+				+loanData?.loanAmount ||
+					+loan?.loanAmount ||
+					+data['business-loan-details']?.LoanAmount ||
+					+data['vehicle-loan-details']?.loanAmount
+			),
 			applied_tenure:
 				loan?.tenure ||
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
-				0, //loan.loanAmount?.tenure
+				0,
+			annual_turn_over: data?.['business-details']?.AnnualTurnover || '',
+			annual_op_expense:
+				applicantData?.netMonthlyIncome ||
+				data?.['business-details']?.PAT ||
+				'',
+			annual_revenue: applicantData?.grossIncome || 0,
+			//loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
 			// annual_op_expense: data?.['business-details'].PAT
@@ -523,14 +588,21 @@ export default function DocumentUpload({
 
 		setCibilCheckModal(false);
 	};
+	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+		.applicantData;
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
 		options: {
 			method: 'POST',
 			data: {
-				business_type: form.incomeType === 'salaried' ? 7 : 1,
-				loan_product: productId[idType],
+				business_type:
+					applicantData?.incomeType === 'salaried'
+						? 7
+						: state['business-details']?.BusinessType
+						? state['business-details']?.BusinessType
+						: 1,
+				loan_product: productId[(form?.incomeType)] || productId[idType],
 			},
 		},
 		headers: {

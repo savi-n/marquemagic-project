@@ -51,7 +51,7 @@ AddressDetails.propTypes = {
 	register: func,
 	formState: object,
 	match: bool,
-	setMatch: func.isRequired
+	setMatch: func.isRequired,
 };
 
 export default function AddressDetails({
@@ -62,13 +62,13 @@ export default function AddressDetails({
 	formState,
 	match,
 	setMatch,
-	disablePermenanet = false
+	disablePermenanet = false,
+	isBusiness,
 }) {
 	const populateValue = field => {
 		// if (!userType && field.disabled) {
 		//   return preData[field.name] || "";
 		// }
-
 		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
 			return formState?.values?.[`permanent_${field.name}`];
 		}
@@ -83,7 +83,7 @@ export default function AddressDetails({
 			</H>
 			<FormWrap>
 				<Colom>
-					<Caption>Permanent Address</Caption>
+					{!isBusiness && <Caption>Permanent Address</Caption>}
 					{jsonData &&
 						jsonData.map(
 							field =>
@@ -98,10 +98,10 @@ export default function AddressDetails({
 												? {
 														valueForFields: field.valueForFields.map(f => [
 															`permanent_${f[0]}`,
-															f[1]
-														])
+															f[1],
+														]),
 												  }
-												: {})
+												: {}),
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[`permanent_${field.name}`]) &&
@@ -114,48 +114,50 @@ export default function AddressDetails({
 								)
 						)}
 				</Colom>
-				<Colom>
-					<Caption>
-						Present Address{' '}
-						<CheckBox
-							checked={match}
-							onChange={() => setMatch(!match)}
-							bg='blue'
-							name='Same as Permanent Address'
-						/>
-					</Caption>
-					{jsonData &&
-						jsonData.map(
-							field =>
-								field.visibility && (
-									<FieldWrap key={`present_${field.name}`}>
-										{register({
-											...field,
-											name: `present_${field.name}`,
-											value: match
-												? formState?.values?.[`permanent_${field.name}`]
-												: formState?.values?.[`present_${field.name}`],
-											noActionTrigger: match,
-											...(field.valueForFields
-												? {
-														valueForFields: field.valueForFields.map(f => [
-															`present_${f[0]}`,
-															f[1]
-														])
-												  }
-												: {})
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[`present_${field.name}`]) &&
-											formState?.error?.[`present_${field.name}`] && (
-												<ErrorMessage>
-													{formState?.error?.[`present_${field.name}`]}
-												</ErrorMessage>
-											)}
-									</FieldWrap>
-								)
-						)}
-				</Colom>
+				{!isBusiness && (
+					<Colom>
+						<Caption>
+							Present Address{' '}
+							<CheckBox
+								checked={match}
+								onChange={() => setMatch(!match)}
+								bg='blue'
+								name='Same as Permanent Address'
+							/>
+						</Caption>
+						{jsonData &&
+							jsonData.map(
+								field =>
+									field.visibility && (
+										<FieldWrap key={`present_${field.name}`}>
+											{register({
+												...field,
+												name: `present_${field.name}`,
+												value: match
+													? formState?.values?.[`permanent_${field.name}`]
+													: formState?.values?.[`present_${field.name}`],
+												noActionTrigger: match,
+												...(field.valueForFields
+													? {
+															valueForFields: field.valueForFields.map(f => [
+																`present_${f[0]}`,
+																f[1],
+															]),
+													  }
+													: {}),
+											})}
+											{(formState?.submit?.isSubmited ||
+												formState?.touched?.[`present_${field.name}`]) &&
+												formState?.error?.[`present_${field.name}`] && (
+													<ErrorMessage>
+														{formState?.error?.[`present_${field.name}`]}
+													</ErrorMessage>
+												)}
+										</FieldWrap>
+									)
+							)}
+					</Colom>
+				)}
 			</FormWrap>
 		</>
 	);
