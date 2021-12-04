@@ -963,6 +963,7 @@ export default function DocumentUpload({
 			setCompleted(id);
 			onFlowChange(!map ? 'application-submitted' : map.main);
 		}
+	}
 	};
 
 	const openCloseCollaps = name => {
