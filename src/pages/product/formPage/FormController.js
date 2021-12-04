@@ -78,11 +78,26 @@ export default function FormController({
 	};
 
 	const onProceed = async data => {
+		// console.log('form-controller-on-proceed-data-', {
+		// 	data,
+		// 	companyDetail,
+		// 	api: LOGIN_CREATEUSER,
+		// 	reqBody: {
+		// 		email: formState?.values?.Email,
+		// 		white_label_id: whiteLabelId,
+		// 		source: APP_CLIENT,
+		// 		name: formState?.values?.BusinessName,
+		// 		mobileNo: formState?.values?.mobileNo,
+		// 		addrr1: '',
+		// 		addrr2: '',
+		// 	},
+		// });
+
 		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
 				data: {
-					email: formState?.values?.email,
+					email: formState?.values?.Email,
 					white_label_id: whiteLabelId,
 					source: APP_CLIENT,
 					name: formState?.values?.BusinessName,
@@ -126,7 +141,16 @@ export default function FormController({
 					'encryptWhiteLabel',
 					encryptWhiteLabelRes.encrypted_whitelabel[0]
 				);
-
+				// console.log('before-setting-company-details-', {
+				// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
+				// 	object: {
+				// 		...companyDetail,
+				// 		token: userDetailsRes.token,
+				// 		userId: userDetailsRes.userId,
+				// 		branchId: userDetailsRes.branchId,
+				// 		encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+				// 	},
+				// });
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
 						...companyDetail,
@@ -134,6 +158,8 @@ export default function FormController({
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+						formEmail: formState?.values?.Email,
+						formMobile: formState?.values?.mobileNo,
 					});
 			}
 		}

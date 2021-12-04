@@ -207,6 +207,16 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			? 'business'
 			: 'salaried';
 
+	console.log('case-creation-data-format-', {
+		data,
+		companyData,
+		productDetails,
+		productId,
+		applicantData,
+		loanData,
+		idType,
+	});
+
 	const businessDetails = () => {
 		if (!companyData) {
 			companyData =
@@ -225,9 +235,11 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 					: data['business-details']?.BusinessType
 					? data['business-details']?.BusinessType
 					: 1,
-			business_email: form?.email || companyData?.Email,
+			business_email:
+				form?.email || companyData.formEmail || companyData?.Email || '',
 			// business_industry_type: 20,
-			contact: '',
+			contact:
+				form?.mobileNo || companyData.formMobile || companyData?.Email || '',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
