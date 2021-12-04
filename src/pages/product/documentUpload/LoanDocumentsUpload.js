@@ -936,6 +936,7 @@ export default function DocumentUpload({
 		if (buttonDisabledStatus()) {
 			return;
 		}
+
 		setCaseCreationProgress(true);
 		let docError = false;
 		state?.documents?.map(ele => {
@@ -950,17 +951,17 @@ export default function DocumentUpload({
 				type: 'error',
 			});
 		} else {
-			if (!userType) {
-				const loanReq = await caseCreationSteps(state);
 
-				if (!loanReq && !loanReq?.loanId) {
-					setCaseCreationProgress(false);
-					return;
-				}
+		if (!userType) {
+			const loanReq = await caseCreationSteps(state);
 
-				setCompleted(id);
-				onFlowChange(!map ? 'application-submitted' : map.main);
+			if (!loanReq && !loanReq?.loanId) {
+				setCaseCreationProgress(false);
+				return;
 			}
+
+			setCompleted(id);
+			onFlowChange(!map ? 'application-submitted' : map.main);
 		}
 	};
 
