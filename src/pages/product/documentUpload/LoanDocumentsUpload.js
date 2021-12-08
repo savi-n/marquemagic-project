@@ -318,12 +318,24 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
 				0,
-			annual_turn_over: data?.['business-details']?.AnnualTurnover || '',
-			annual_op_expense:
-				applicantData?.netMonthlyIncome ||
-				data?.['business-details']?.PAT ||
-				'',
-			annual_revenue: applicantData?.grossIncome || 0,
+			annual_turn_over: getAmount(
+				applicantData?.grossIncome ||
+					data?.['business-details']?.AnnualTurnover ||
+					''
+			),
+			revenue_um: getAmountUm(
+				applicantData?.grossIncome ||
+					data?.['business-details']?.AnnualTurnover ||
+					''
+			),
+
+			annual_op_expense: getAmount(
+				applicantData?.netMonthlyIncome || data?.['business-details']?.PAT || ''
+			),
+			op_expense_um: getAmountUm(
+				applicantData?.netMonthlyIncome || data?.['business-details']?.PAT || ''
+			),
+			// annual_revenue: applicantData?.grossIncome || 0,
 			//loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
@@ -951,19 +963,18 @@ export default function DocumentUpload({
 				type: 'error',
 			});
 		} else {
+			if (!userType) {
+				const loanReq = await caseCreationSteps(state);
 
-		if (!userType) {
-			const loanReq = await caseCreationSteps(state);
+				if (!loanReq && !loanReq?.loanId) {
+					setCaseCreationProgress(false);
+					return;
+				}
 
-			if (!loanReq && !loanReq?.loanId) {
-				setCaseCreationProgress(false);
-				return;
+				setCompleted(id);
+				onFlowChange(!map ? 'application-submitted' : map.main);
 			}
-
-			setCompleted(id);
-			onFlowChange(!map ? 'application-submitted' : map.main);
 		}
-	}
 	};
 
 	const openCloseCollaps = name => {
