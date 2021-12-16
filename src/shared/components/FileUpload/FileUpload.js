@@ -3,7 +3,13 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload, faUnlockAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+	faUpload,
+	faUnlockAlt,
+	faLock,
+	faUserLock,
+} from '@fortawesome/free-solid-svg-icons';
+import { Popover, ArrowContainer } from 'react-tiny-popover';
 
 import useFetch from '../../../hooks/useFetch';
 import generateUID from '../../../utils/uid';
@@ -11,6 +17,15 @@ import { NC_STATUS_CODE } from '../../../_config/app.config';
 import FilePasswordInput from './FilePasswordInput';
 import uploadIcon from '../../../assets/icons/upload_icon.png';
 import uploadCircleIcon from '../../../assets/icons/upload-icon-with-circle.png';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import imgArrowDownCircle from 'assets/icons/drop_down_green-05.svg';
+import downArray from 'assets/icons/down_arrow_grey_icon.png';
+import imgGreyCheck from 'assets/icons/grey_tick_icon.png';
+import imgGreenCheck from 'assets/icons/green_tick_icon.png';
+import imgUpload from 'assets/icons/upload_icon.png';
+import lockGrey from 'assets/icons/Lock_icon_grey-05-05.svg';
+import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
+import _ from 'lodash';
 
 const USER_CANCELED = 'user cancelled';
 
@@ -25,19 +40,21 @@ const Dropzone = styled.div`
 	display: flex;
 	align-items: center;
 	/* justify-content: center; */
-	gap: 10px;
 	background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
+	gap: 15px;
+	border: dashed #0000ff80;
 	border-radius: 10px;
-	overflow: hidden;
-	border: dashed blue;
-	border-width: medium;
-	/* border-color: 'blue'; */
-	background-color: '#eef3ff';
 	border-width: 2px;
+	overflow: hidden;
+	background: #f0f4fe;
+
+	/* border-width: medium; */
+	/* border-color: 'blue'; */
+	/* background-color: '#F0F4FE'; */
 
 	${({ dragging }) =>
 		dragging &&
-		`border: dashed grey 4px;
+		`border: dashed grey 2px;
         background-color: rgba(255,255,255,.8);
         z-index: 9999;`}
 
@@ -54,7 +71,6 @@ const Dropzone = styled.div`
         content:'Uploading...';
       `}
 		inset: 0 0 0 0;
-		border-radius: 10px;
 		position: absolute;
 		background: rgba(0, 0, 0, 0.7);
 		display: flex;
@@ -85,16 +101,34 @@ const AcceptFilesTypes = styled.span`
 
 const UploadButton = styled.input`
 	display: none;
+	width: 100px;
+	text-align: center;
+	border-radius: 10px;
 `;
 
 const Label = styled.label`
 	padding: 10px 15px;
-	color: ${({ theme, bg }) => bg ?? theme.theme1} solid 1px;
+	color: #323232;
 	font-size: 15px;
 	cursor: pointer;
 	background: transparent;
 	border-radius: 5px;
 	border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px;
+	width: 100px;
+	text-align: center;
+	border-radius: 10px;
+`;
+
+const LabelFormat = styled.label`
+	padding: 10px 15px;
+	color: #323232;
+	font-size: 12px;
+	cursor: pointer;
+	background: transparent;
+	border: dashed #0000ff80;
+	border-radius: 10px;
+	border-width: 2px;
+	/* border-spacing: 1cm 2em; */
 `;
 
 const Droping = styled.div`
@@ -112,11 +146,12 @@ const Droping = styled.div`
 `;
 
 const FileListWrap = styled.div`
-	/* display: flex; */
+	display: flex;
 	flex-direction: column;
 	align-items: start;
+	gap: 20px;
 	/* gap: calc(10% / 3); */
-	justify-content: space-between;
+	/* justify-content: space-between; */
 	flex-wrap: wrap;
 	margin: 10px;
 	display: -webkit-box;
@@ -124,17 +159,21 @@ const FileListWrap = styled.div`
 
 const File = styled.div`
 	/* flex-basis: 30%; */
-	width: 50%;
+	width: 32%;
 	position: relative;
 	/* overflow: hidden; */
-	padding: 5px;
+	/* padding: 5px 15px; */
 	background: transparent;
 	border-radius: 5px;
-	height: 50px;
-	font-size: 13px;
+	height: 40px;
+	line-height: 40px;
 	margin: 10px -5px;
 	display: flex;
-	border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px;
+	/* border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px; */
+	/* border: dashed #4cc97f; */
+	border: dashed rgba(76, 201, 127, 0.60);
+	border-radius: 10px;
+	border-width: 2px;
 	align-items: center;
 	justify-content: space-between;
 	transition: 0.2s;
@@ -144,7 +183,8 @@ const File = styled.div`
 		bottom: 0;
 		left: 0;
 		position: absolute;
-		width: ${({ progress }) => `${progress}%`};
+		/* width: ${({ progress }) => `${progress >= 100 ? 0 : progress}%`}; */
+		width: ${({ progress }) => `${progress >= 100 ? 0 : progress}%`};
 		height: 2px;
 		background: ${({ theme, status }) => {
 			if (['error', 'cancelled'].includes(status)) return '#ff0000';
@@ -153,17 +193,26 @@ const File = styled.div`
 	}
 `;
 
+const ImgClose = styled.img`
+	height: 25px;
+	cursor: pointer;
+	margin-left: auto;
+	margin-right: 10px;
+`;
+
 const PasswordWrapper = styled.div`
 	position: relative;
+	margin-left: auto;
+	/* margin-right: 10px; */
 `;
 
 const RoundButton = styled.div`
 	/* padding: 10px; */
-	background: white;
-	border-radius: 50%;
+	/* background: white; */
+	/* border-radius: 50%; */
 	cursor: pointer;
-	width: 30px;
-	height: 30px;
+	/* width: 30px; */
+	/* height: 30px; */
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -174,16 +223,17 @@ const RoundButton = styled.div`
 		`&:hover {
       &::before {
         content: "If the document is password protected, please help us with the Password.";
+				font-size: 13px;
+				line-height: 20px;
         position: absolute;
         color: white;
         padding: 10px;
         bottom: 105%;
-        width: 250px;
+        width: 200px;
         background: black;
         z-index: 999;
         margin-bottom: 10px;
         border-radius: 10px;
-        font-size: 500;
         text-align: center;
         /* clip-path: path("M 0 200 L 0,75 A 5,5 0,0,1 150,75 L 200 200 z"); */
       }
@@ -212,10 +262,12 @@ const SelectDocType = styled.select`
 `;
 
 const FileName = styled.span`
-	width: 50%;
+	/* width: 50%; */
+	font-size: 14px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
+	padding-left: 15px;
 `;
 
 const CancelBtn = styled.span`
@@ -234,6 +286,148 @@ const CancelBtn = styled.span`
 const UploadCircle = styled.label`
 	/* align-self: flex-end; */
 	cursor: pointer;
+	margin-right: 10px;
+`;
+
+const FileType = styled.div`
+	background: #e6ffef;
+	/* height: 100%; */
+	height: inherit;
+	width: 50px;
+	border-radius: 0 10px 10px 0;
+	border: 2px solid #4cc97f;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+`;
+const FileTypeIcon = styled.img`
+	height: 25px;
+`;
+/* margin-left: ${({ isOutside }) => (isOutside < 0 ? isOutside - 50 : 0)}px; */
+// margin-left: ${({ isOutside }) => (isOutside < 0 ? '-300px' : '0')}px;
+const FileTypeBox = styled.ul`
+	/* position: absolute; */
+	width: 400px;
+	display: flex;
+	padding: 0 15px;
+	background: white;
+	border: #f8f8f8;
+	border-radius: 10px;
+	border: 1px solid #4cc97f;
+	max-height: 300px;
+	overflow: auto;
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+		rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+	img {
+		margin-top: 15px;
+		/* transform: rotate(270deg); */
+		transform: rotate(90deg);
+		cursor: pointer;
+	}
+`;
+const FileTypeUL = styled.ul`
+	margin: 0 20px;
+`;
+
+const FileTypeList = styled.li`
+	padding: 10px 0;
+	font-size: 14px;
+	border-bottom: 1px solid lightgrey;
+	:hover {
+		cursor: pointer;
+		color: #4cc97f;
+	}
+`;
+
+const DocumentUploadListWrapper = styled.div`
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 30px 0;
+	gap: 10px;
+`;
+
+const DocumentUploadList = styled.div`
+	display: flex;
+	justify-content: left;
+	flex-direction: column;
+	/* align-self: flex-start; */
+	/* flex: 30%; */
+	width: 32%;
+	margin: 10px 0;
+	/* border: dashed lightblue; */
+	/* border-radius: 10px; */
+	/* border-width: 2px; */
+	align-items: center;
+	/* padding: 10px 20px; */
+	/* background: white; */
+`;
+
+const DocumentUploadListRow1 = styled.div`
+	display: flex;
+	justify-content: left;
+	width: 100%;
+	align-items: center;
+	/* padding: 10px 0; */
+`;
+
+const DocumentUploadCheck = styled.img`
+	height: 28px;
+`;
+
+const DocumentUploadIcon = styled.img`
+	height: 18px;
+	cursor: pointer;
+`;
+
+const DocumentUploadListRow2 = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	text-align: left;
+	padding: 10px 0;
+	flex-wrap: wrap;
+	gap: 10px;
+`;
+
+const DocumentUploadedBadge = styled.div`
+	border: 1px solid green;
+	display: flex;
+	padding: 5px 10px;
+	border-radius: 10px;
+	font-size: 12px;
+`;
+
+const DocumentUploadedBadge2 = styled.div`
+	display: flex;
+	margin: 0;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 12px;
+	background: #ccc;
+	h4 {
+		padding: 0 6px;
+	}
+	div {
+		padding: 0 10px;
+		height: 100%;
+		background: darkgrey;
+		display: flex;
+		align-items: center;
+		text-align: center;
+		font-weight: bold;
+		cursor: pointer;
+		color: white;
+	}
+`;
+
+const DocumentUploadName = styled.div`
+	width: 100%;
+	font-size: 14px;
+	color: ${({ isSelected }) => (isSelected ? 'black' : 'grey')};
+	padding: 0 20px;
+	/* border-bottom: 1px solid #d9d9d9; */
 `;
 
 export default function FileUpload({
@@ -259,8 +453,10 @@ export default function FileUpload({
 	directorId,
 	pan,
 	section = '',
+	sectionType = 'others',
 }) {
 	const ref = useRef(uuidv4());
+	const refPopup = useRef(null);
 
 	const id = uuidv4();
 
@@ -270,6 +466,9 @@ export default function FileUpload({
 	const [passwordForFileId, setPasswordForFileId] = useState(null);
 
 	const [docTypeFileMap, setDocTypeFileMap] = useState({});
+	const [isPopoverOpen, setIsPopoverOpen] = useState(-1);
+	const [viewMore, setViewMore] = useState([]);
+	const [passwordList, setPasswordList] = useState([]);
 
 	const selectedFiles = useRef([]);
 	const uploadingProgressFiles = useRef([]);
@@ -476,16 +675,18 @@ export default function FileUpload({
 		selectedFiles.current = [...selectedFiles.current, ...event.target.files];
 	};
 
-	const onDocTypeChange = (fileId, value) => {
+	const onDocTypeChange = (fileId, value, file) => {
 		const selectedDocType = docTypeOptions.find(
 			d => d?.name?.toString() === value
 		);
-
+		selectedDocType.file = file;
 		documentTypeChangeCallback(fileId, selectedDocType);
-		setDocTypeFileMap({
-			...docTypeFileMap,
+		const newDocTypeFileMap = {
+			..._.cloneDeep(docTypeFileMap),
 			[fileId]: selectedDocType, // value
-		});
+		};
+		// console.log('onDocTypeChange-', newDocTypeFileMap);
+		setDocTypeFileMap(newDocTypeFileMap);
 	};
 
 	useEffect(() => {
@@ -514,8 +715,9 @@ export default function FileUpload({
 		setPasswordForFileId(null);
 	};
 
-	const onDocTypePassword = (fileId, value) => {
+	const onDocTypePassword = (fileId, value, uniqPassId) => {
 		if (value) {
+			passwordList.push(uniqPassId);
 			documentTypeChangeCallback(fileId, { password: value });
 		}
 		onClosePasswordEnterArea();
@@ -528,12 +730,12 @@ export default function FileUpload({
 			<Dropzone
 				ref={ref}
 				dragging={dragging}
-				bg={bg}
+				// bg={bg}
 				disabled={disabled}
 				uploading={uploading}>
 				{dragging && <Droping>Drop here :)</Droping>}
 				{/* <FontAwesomeIcon icon={faUpload} size='1x' /> */}
-				{section !== 'document-upload' && (
+				{/* {section !== 'document-upload' && (
 					<UploadCircle htmlFor={id}>
 						<img
 							src={uploadIcon}
@@ -541,7 +743,7 @@ export default function FileUpload({
 							style={{ marginLeft: 20, marginRight: '-20px' }}
 						/>
 					</UploadCircle>
-				)}
+				)} */}
 				<Caption>
 					{caption || `Drag and drop or`}{' '}
 					{accept && <AcceptFilesTypes>{accept}</AcceptFilesTypes>}
@@ -558,33 +760,54 @@ export default function FileUpload({
 					multiple={section === 'document-upload' ? true : false}
 				/>
 				<Label htmlFor={id}>Browse</Label>
-				{section && section === 'document-upload' && (
-					// <Label htmlFor={id}>
-					<UploadCircle htmlFor={id} style={{ marginLeft: 380, padding: 10 }}>
-						<img
-							src={uploadCircleIcon}
-							width={40}
-							style={{ maxWidth: 'none' }}
-							// onClick={e => {
-							// 	console.log('onClick');
-							// 	// e.target.value = '';
-							// }}
-						/>
-					</UploadCircle>
-				)}
+				<LabelFormat>only jpeg, png, jpg</LabelFormat>
+				{/* {section && section === 'document-upload' && ( */}
+				{/* <Label htmlFor={id}> */}
+				<UploadCircle htmlFor={id} style={{ marginLeft: 'auto', padding: 10 }}>
+					<img
+						src={uploadCircleIcon}
+						width={40}
+						style={{ maxWidth: 'none' }}
+						// onClick={e => {
+						// 	console.log('onClick');
+						// 	// e.target.value = '';
+						// }}
+					/>
+				</UploadCircle>
+				{/* )} */}
 			</Dropzone>
 
 			<FileListWrap>
-				{uploadingFiles.map(file => (
-					<File
-						key={file.id}
-						progress={file.progress}
-						status={file.status}
-						tooltip={file.name}>
-						<FileName>{file.name}</FileName>
-						{file.status === 'completed' && !!docTypeOptions.length && (
-							<>
-								<SelectDocType
+				{uploadingFiles.map(file => {
+					// console.log('uplodaing-file-', file);
+					let isMapped = false;
+					for (const key in docTypeFileMap) {
+						if (file.id === key) {
+							isMapped = true;
+							break;
+						}
+					}
+					if (isMapped) return null;
+					const isFileUploaded = file.progress >= 100 || file.progress <= 0;
+					return (
+						<File
+							key={file.id}
+							progress={file.progress}
+							status={file.status}
+							tooltip={file.name}
+							style={
+								docTypeOptions.length > 0 && isFileUploaded
+									? { borderRight: 0 }
+									: {}
+							}>
+							<FileName>
+								{file.name.length > 20
+									? file.name.slice(0, 20) + '...'
+									: file.name}
+							</FileName>
+							{file.status === 'completed' && !!docTypeOptions.length && (
+								<>
+									{/* <SelectDocType
 									value={
 										branch ? docSelected : docTypeFileMap[file.id]?.name || ''
 									}
@@ -602,36 +825,228 @@ export default function FileUpload({
 											{docType.name}
 										</option>
 									))}
-								</SelectDocType>
-								{FINANCIAL_DOC_TYPES.includes(
-									docTypeFileMap[file.id]?.main?.toLowerCase()
-								) && (
-									<PasswordWrapper>
-										<RoundButton
-											showTooltip={passwordForFileId !== file.id}
-											onClick={() => onPasswordClick(file.id)}>
-											<FontAwesomeIcon icon={faUnlockAlt} size='1x' />
-										</RoundButton>
-										{passwordForFileId === file.id && (
-											<FilePasswordInput
-												fileId={file.id}
-												onClickCallback={onDocTypePassword}
-												onClose={onClosePasswordEnterArea}
-											/>
-										)}
-									</PasswordWrapper>
-								)}
-							</>
-						)}
-						{file.status === 'progress' && (
+								</SelectDocType> */}
+									{/* {FINANCIAL_DOC_TYPES?.includes(
+										docTypeFileMap[file.id]?.main?.toLowerCase()
+									) && (
+										<PasswordWrapper>
+											<RoundButton
+												showTooltip={passwordForFileId !== file.id}
+												onClick={() => onPasswordClick(file.id)}>
+												<ImgClose src={lockGreen} alt='lock' />
+												<FontAwesomeIcon icon={faUserLock} size='1x' />
+											</RoundButton>
+											{passwordForFileId === file.id && (
+												<FilePasswordInput
+													fileId={file.id}
+													onClickCallback={onDocTypePassword}
+													onClose={onClosePasswordEnterArea}
+												/>
+											)}
+										</PasswordWrapper>
+									)} */}
+								</>
+							)}
+
+							{isFileUploaded ? (
+								<ImgClose
+									src={imgClose}
+									onClick={() => onFileRemove(file)}
+									alt='close'
+								/>
+							) : null}
+							{docTypeOptions?.length > 0 && isFileUploaded && (
+								<Popover
+									isOpen={isPopoverOpen === file.id}
+									align='start'
+									positions={['left', 'bottom', 'top', 'right']} // preferred positions by priority
+									padding={-50} // adjust padding here!
+									reposition={true} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
+									onClickOutside={() => setIsPopoverOpen(-1)} // handle click events outside of the popover/target here!
+									ref={refPopup}
+									content={popupProps => {
+										// const {
+										// 	position,
+										// 	nudgedLeft,
+										// 	nudgedTop,
+										// 	childRect,
+										// 	popoverRect,
+										// } = popupProps;
+										// you can also provide a render function that injects some useful stuff!
+										// console.log('popupProps-', { popupProps });
+										// const isOutside = nudgedLeft < -10;
+										return (
+											<FileTypeBox
+											// style={isOutside ? { marginLeft: '-400px' } : {}}
+											>
+												<FileTypeUL>
+													{docTypeOptions.map(docType => (
+														<FileTypeList
+															key={docType.value}
+															value={docType.name}
+															onClick={() => {
+																branch && setDocSelected(docType.name);
+																branch
+																	? changeHandler(docType.name)
+																	: onDocTypeChange(
+																			file.id,
+																			docType.name,
+																			file
+																	  );
+																setIsPopoverOpen(-1);
+															}}>
+															{docType.name}
+														</FileTypeList>
+													))}
+												</FileTypeUL>
+												<FileTypeIcon
+													src={imgArrowDownCircle}
+													alt='arrow'
+													onClick={() => {
+														setIsPopoverOpen(
+															isPopoverOpen === file.id ? -1 : file.id
+														);
+													}}
+												/>
+											</FileTypeBox>
+										);
+									}}>
+									<FileType
+										onClick={() =>
+											setIsPopoverOpen(isPopoverOpen === file.id ? -1 : file.id)
+										}>
+										<FileTypeIcon src={imgArrowDownCircle} alt='arrow' />
+									</FileType>
+								</Popover>
+							)}
+							{/* don't remove this code */}
+							{/* {file.status === 'progress' && (
 							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
 						)}
 						{file.status === 'completed' && (
 							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
-						)}
-					</File>
-				))}
+						)} */}
+						</File>
+					);
+				})}
 			</FileListWrap>
+			<DocumentUploadListWrapper>
+				{docTypeOptions.map((docType, i) => {
+					const mappedFiles = [];
+					// console.log('upload-list-', { docTypeFileMap, docType });
+					for (const key in docTypeFileMap) {
+						if (docType.value === docTypeFileMap[key].value) {
+							mappedFiles.push({
+								..._.cloneDeep(docTypeFileMap[key]),
+								docTypeKey: key,
+							});
+						}
+					}
+					return (
+						<DocumentUploadList key={docType.id}>
+							<DocumentUploadListRow1>
+								<DocumentUploadCheck
+									src={mappedFiles.length ? imgGreenCheck : imgGreyCheck}
+									alt='check'
+								/>
+								<DocumentUploadName isSelected={mappedFiles.length}>
+									{docType.name.length > 30
+										? docType.name.slice(0, 30) + '...'
+										: docType.name}
+								</DocumentUploadName>
+							</DocumentUploadListRow1>
+							<DocumentUploadListRow2>
+								{mappedFiles.map((doc, index) => {
+									const isViewMoreClicked = viewMore.includes(docType.value);
+									const isViewMore = !isViewMoreClicked && index === 2;
+									if (!isViewMoreClicked && index > 2) return null;
+									const uniqPassId = `${doc.file.id}${index}`;
+									return (
+										<File
+											style={{
+												width: '220px',
+												margin: '0 0 0 45px',
+												height: '35px',
+												lineHeight: '35px',
+												background: isViewMore ? '#e6ffef' : '',
+												cursor: 'pointer',
+											}}
+											onClick={e => {
+												e.preventDefault();
+												e.stopPropagation();
+												if (isViewMore)
+													setViewMore([...viewMore, docType.value]);
+											}}>
+											<FileName
+												style={{
+													fontSize: 12,
+													width: '100%',
+												}}>
+												{isViewMore
+													? `View ${mappedFiles.length - 2} more`
+													: doc.file.name.length > 20
+													? doc.file.name.slice(0, 20) + '...'
+													: doc.file.name}
+											</FileName>
+											{FINANCIAL_DOC_TYPES?.includes(sectionType) && (
+												<PasswordWrapper>
+													<RoundButton
+														showTooltip={passwordForFileId !== uniqPassId}
+														onClick={() => onPasswordClick(uniqPassId)}>
+														<ImgClose
+															style={{ height: 20 }}
+															src={
+																passwordList.includes(uniqPassId)
+																	? lockGreen
+																	: lockGrey
+															}
+															alt='lock'
+														/>
+														{/* <FontAwesomeIcon icon={faUserLock} size='1x' /> */}
+													</RoundButton>
+													{passwordForFileId === uniqPassId && (
+														<FilePasswordInput
+															fileId={doc.file.id}
+															uniqPassId={uniqPassId}
+															onClickCallback={onDocTypePassword}
+															onClose={onClosePasswordEnterArea}
+														/>
+													)}
+												</PasswordWrapper>
+											)}
+											<ImgClose
+												style={{ height: '20px' }}
+												src={isViewMore ? imgArrowDownCircle : imgClose}
+												onClick={() => {
+													// console.log('before-remove-', {
+													// 	passwordList,
+													// 	docTypeFileMap,
+													// 	doc,
+													// });
+													const newPasswordList = passwordList.filter(
+														p => p !== uniqPassId
+													);
+													const newDocTypeFileMap = _.cloneDeep(docTypeFileMap);
+													delete newDocTypeFileMap[doc.docTypeKey];
+													// console.log('after-remove-', {
+													// 	newPasswordList,
+													// 	newDocTypeFileMap,
+													// 	doc,
+													// });
+													onFileRemove(doc.file);
+													setDocTypeFileMap(newDocTypeFileMap);
+													setPasswordList(newPasswordList);
+												}}
+												alt='close'
+											/>
+										</File>
+									);
+								})}
+							</DocumentUploadListRow2>
+						</DocumentUploadList>
+					);
+				})}
+			</DocumentUploadListWrapper>
 		</>
 	);
 }
