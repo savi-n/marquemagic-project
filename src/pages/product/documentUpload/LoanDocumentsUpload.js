@@ -83,6 +83,7 @@ const DocsCheckboxWrapper = styled.div`
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
+	margin-bottom: 20px;
 	span {
 		color: ${({ theme }) => theme.main_theme_color};
 	}
@@ -91,6 +92,7 @@ const H = styled.h1`
 const H1 = styled.h1`
 	font-size: 1em;
 	font-weight: 600;
+	margin-right: 20px;
 	span {
 		color: ${({ theme }) => theme.main_theme_color};
 	}
@@ -119,27 +121,37 @@ const Details = styled.div`
 const Section = styled.div`
 	display: flex;
 	align-items: center;
+	cursor: row-resize;
+`;
+
+const CollapseIcon = styled.img`
+	height: 18px;
+	width: 18px;
+	margin-right: 20px;
+	object-fit: contain;
+	margin-left: auto;
+	cursor: pointer;
 `;
 
 const Hr = styled.hr`
 	padding: 0px;
 `;
 const StyledButton = styled.button`
-	height: 15px;
+	/* height: 25px; */
 	margin: 5px;
-	color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
+	color: ${({ theme, fill }) => (fill ? 'white' : '#0068FF')};
 	border: 2px solid
 		${({ theme, fill }) =>
-			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+			fill && (typeof fill === 'string' ? fill : '#0068FF')};
 	border-radius: 40px;
-	padding: 10px 20px;
+	padding: 0 20px;
 	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+		fill && (typeof fill === 'string' ? fill : '#0068FF')};
 	display: flex;
 	align-items: center;
 	min-width: ${({ width }) => (width ? width : '200px')};
 	justify-content: space-between;
-	font-size: 0.9em;
+	font-size: 1rem;
 	font-weight: 500;
 	text-align: center;
 	transition: 0.2s;
@@ -1009,7 +1021,7 @@ export default function DocumentUpload({
 				{KycDocOptions.length > 0 && (
 					<>
 						{' '}
-						<Section>
+						<Section onClick={() => openCloseCollaps('KYC')}>
 							<H1>KYC </H1>
 							<div
 								style={{
@@ -1023,18 +1035,12 @@ export default function DocumentUpload({
 									{kyccount} of {KycDocOptions.length}
 								</StyledButton>
 							</div>
-							<img
+							<CollapseIcon
 								src={downArray}
-								width={20}
-								height={20}
 								style={{
-									objectFit: 'contain',
-									marginLeft: 'auto',
-									// transform: `rotate(180deg)`,
 									transform: openKycdoc ? `rotate(180deg)` : `none`,
-									cursor: 'pointer',
 								}}
-								onClick={() => openCloseCollaps('KYC')}
+								alt='arrow'
 							/>
 						</Section>
 						<Details open={!openKycdoc}>
@@ -1043,6 +1049,7 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper>
 								<FileUpload
+									sectionType='kyc'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
 									onRemoveFile={handleFileRemove}
@@ -1069,7 +1076,7 @@ export default function DocumentUpload({
 				)}
 				{FinancialDocOptions.length > 0 && (
 					<>
-						<Section>
+						<Section onClick={() => openCloseCollaps('Financial')}>
 							<H1>Financial </H1>
 							<div
 								style={{
@@ -1083,17 +1090,12 @@ export default function DocumentUpload({
 									{financialCount} of {FinancialDocOptions.length}
 								</StyledButton>
 							</div>
-							<img
+							<CollapseIcon
 								src={downArray}
-								width={20}
-								height={20}
 								style={{
-									objectFit: 'contain',
-									marginLeft: 'auto',
 									transform: openFinancialdoc ? `rotate(180deg)` : `none`,
-									cursor: 'pointer',
 								}}
-								onClick={() => openCloseCollaps('Financial')}
+								alt='arrow'
 							/>
 						</Section>
 						<Details open={!openFinancialdoc}>
@@ -1102,6 +1104,7 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper>
 								<FileUpload
+									sectionType='financial'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
 									onRemoveFile={handleFileRemove}
@@ -1128,7 +1131,7 @@ export default function DocumentUpload({
 				)}
 				{OtherDocOptions.length > 0 && (
 					<>
-						<Section>
+						<Section onClick={() => openCloseCollaps('Others')}>
 							<H1>Others </H1>
 							<div
 								style={{
@@ -1142,22 +1145,18 @@ export default function DocumentUpload({
 									{otherCount} of {OtherDocOptions.length}
 								</StyledButton>
 							</div>
-							<img
+							<CollapseIcon
 								src={downArray}
-								width={20}
-								height={20}
 								style={{
-									objectFit: 'contain',
-									marginLeft: 'auto',
 									transform: openOtherdoc ? `rotate(180deg)` : `none`,
-									cursor: 'pointer',
 								}}
-								onClick={() => openCloseCollaps('Others')}
+								alt='arrow'
 							/>
 						</Section>
 						<Details open={openOtherdoc}>
 							<UploadWrapper>
 								<FileUpload
+									sectionType='others'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
 									onRemoveFile={handleFileRemove}
@@ -1247,7 +1246,7 @@ export default function DocumentUpload({
 					/>
 				)}
 			</Colom1>
-			<Colom2>
+			{/* <Colom2>
 				<Doc>Documents Required</Doc>
 				<div>
 					{DOCUMENTS_TYPE.map(docType =>
@@ -1270,7 +1269,7 @@ export default function DocumentUpload({
 						) : null
 					)}
 				</div>
-			</Colom2>
+			</Colom2> */}
 		</>
 	);
 }
