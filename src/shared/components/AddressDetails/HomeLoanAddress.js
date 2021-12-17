@@ -47,10 +47,25 @@ HomeLoanAddressDetails.propTypes = {
 	jsonData: oneOfType([array, object]),
 	register: func,
 	formState: object,
-	size: string
+	size: string,
 };
 
-export default function HomeLoanAddressDetails({ jsonData, register, formState, size }) {
+export default function HomeLoanAddressDetails({
+	jsonData,
+	register,
+	formState,
+	size,
+	preData,
+}) {
+	const populateValue = field => {
+		if (formState?.values?.[field.name] !== undefined) {
+			return formState?.values?.[field.name];
+		}
+
+		return (
+			(preData && preData[field.name]) || formState?.values?.[field.name] || ''
+		);
+	};
 	return (
 		<>
 			<H>Address of the Property(with locality)</H>
@@ -64,11 +79,15 @@ export default function HomeLoanAddressDetails({ jsonData, register, formState, 
 										{register({
 											...field,
 											name: field.name,
-											value: formState?.values?.[field.name]
+											// value: formState?.values?.[field.name]
+											value: populateValue(field),
 										})}
-										{(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name] && (
-												<ErrorMessage>{formState?.error?.[field.name]}</ErrorMessage>
+												<ErrorMessage>
+													{formState?.error?.[field.name]}
+												</ErrorMessage>
 											)}
 									</FieldWrap>
 								)

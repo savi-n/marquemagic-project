@@ -75,7 +75,11 @@ export default function AddressDetailsPage({
 	fieldConfig,
 	productDetails,
 }) {
-	// console.log('productId', productDetails);
+	const url = window.location.hostname;
+
+	let userTokensss = localStorage.getItem(url);
+
+	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -134,6 +138,13 @@ export default function AddressDetailsPage({
 	//     activateSubFlow(id);
 	//     onFlowChange(map.sub);
 	//   };
+	useEffect(() => {
+		!isBusiness &&
+			form &&
+			form.address &&
+			form.address.length === 1 &&
+			setMatch(true);
+	}, []);
 
 	const r = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
@@ -143,6 +154,7 @@ export default function AddressDetailsPage({
 			return userBankDetails;
 		}
 	};
+	const Address = form && form.address && form.address[0];
 
 	return (
 		<Div>
@@ -153,16 +165,24 @@ export default function AddressDetailsPage({
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields[id].data}
+				preDataFilled={form.address}
 				preData={{
-					address1: companyDetail?.Address || r()?.address1 || '',
-					address2: r()?.address2 || '',
-					address3: r()?.address3 || '',
-					address4: r()?.address4 || '',
-					city: r()?.city || '',
-					state: r()?.state || '',
-					pinCode: companyDetail?.Address
-						? getPinCode(companyDetail?.Address)
-						: r()?.pin || '',
+					address1:
+						(Address && Address.address1) ||
+						companyDetail?.Address ||
+						r()?.address1 ||
+						'',
+					address2: (Address && Address.address2) || r()?.address2 || '',
+					address3: (Address && Address.address3) || r()?.address3 || '',
+					address4: (Address && Address.address4) || r()?.address4 || '',
+					city: (Address && Address.city) || r()?.city || '',
+					state: (Address && Address.state) || r()?.state || '',
+					pinCode:
+						Address && Address.pinCode
+							? Address.pinCode
+							: companyDetail?.Address
+							? getPinCode(companyDetail?.Address)
+							: r()?.pin || '',
 				}}
 			/>
 			<ButtonWrap>

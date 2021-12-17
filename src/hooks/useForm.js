@@ -375,6 +375,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 					searchKeyAsValue={field.searchKeyAsValue}
 					disabled={field.disabled}
 					rules={field.rules}
+					field={{ ...field, ...fieldProps }}
 				/>
 			);
 		}
