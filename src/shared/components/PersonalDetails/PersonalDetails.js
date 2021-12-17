@@ -51,9 +51,10 @@ export default function PersonalDetails({
 		if (formState?.values?.[field.name] !== undefined) {
 			return formState?.values?.[field.name];
 		}
-		return companyDetail
-			? companyDetail?.[field.name]
-			: preData?.[field.name] || field.value || '';
+		return preData?.[field.name] || field.value || '';
+		// companyDetail
+		// 	? companyDetail?.[field.name]
+		// 	:
 	};
 	useEffect(() => {
 		jsonData.map(field => {
@@ -61,7 +62,18 @@ export default function PersonalDetails({
 				field.placeholder = 'Date of Birth';
 			}
 		});
+
 		if (id === 'business-details') {
+			let isMobilePresent,
+				isEmailPresent = false;
+			jsonData.map(ele => {
+				if (ele.name === 'mobileNo') {
+					isMobilePresent = true;
+				}
+				if (ele.name === 'Email') {
+					isEmailPresent = true;
+				}
+			});
 			const mo = {
 				name: 'mobileNo',
 				options: [],
@@ -79,11 +91,10 @@ export default function PersonalDetails({
 				type: 'text',
 				visibility: true,
 			};
-			jsonData.push(mo);
-			jsonData.push(email);
+			!isMobilePresent && jsonData.push(mo);
+			!isEmailPresent && jsonData.push(email);
 		}
 	}, []);
-
 	return (
 		<>
 			<H>
@@ -126,6 +137,11 @@ export default function PersonalDetails({
 												field?.preDataDisable && { disabled: true }),
 											...(userType ? { disabled: false } : {}),
 											max: field.type === 'date' && '9999-12-31',
+											placeholder:
+												field.type === 'banklist'
+													? preData?.[`${field.name}`]?.name ||
+													  field.placeholder
+													: field.placeholder,
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
