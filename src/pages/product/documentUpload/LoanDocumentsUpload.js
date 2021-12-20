@@ -626,7 +626,9 @@ export default function DocumentUpload({
 	};
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
-
+	const companyData =
+		localStorage.getItem('companyData') &&
+		JSON.parse(localStorage.getItem('companyData'));
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
 		options: {
@@ -635,8 +637,10 @@ export default function DocumentUpload({
 				business_type:
 					applicantData?.incomeType === 'salaried'
 						? 7
-						: state['business-details']?.BusinessType
-						? state['business-details']?.BusinessType
+						: state['business-details']?.BusinessType ||
+						  companyData?.BusinessType
+						? state['business-details']?.BusinessType ||
+						  companyData?.BusinessType
 						: 1,
 				loan_product: productId[(form?.incomeType)] || productId[idType],
 			},
