@@ -177,6 +177,7 @@ export default function Product({ product, url }) {
 			clearFlowDetails();
 			clearFormData();
 		}
+		completedMenu?.length > 0 && setIndex(completedMenu.length);
 	}, []);
 
 	// useEffect(() => {
