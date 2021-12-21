@@ -122,6 +122,40 @@ export default function PersonalDetails({
 			!isEmailPresent && jsonData.push(email);
 		}
 	}, []);
+
+	useEffect(() => {
+		if (pageName === 'Business Details') {
+			let isMobilePresent,
+				isEmailPresent = false;
+			jsonData.map(ele => {
+				if (ele.name === 'mobileNo') {
+					isMobilePresent = true;
+				}
+				if (ele.name === 'Email') {
+					isEmailPresent = true;
+				}
+			});
+			const mo = {
+				name: 'mobileNo',
+				options: [],
+				rules: { required: true, length: 10 },
+				placeholder: 'Mobile Number',
+				mask: { NumberOnly: true, CharacterLimit: 10 },
+				type: 'text',
+				visibility: true,
+			};
+			const email = {
+				name: 'Email',
+				options: [],
+				rules: { required: true, email: true },
+				placeholder: 'Email',
+				type: 'text',
+				visibility: true,
+			};
+			!isMobilePresent && jsonData.push(mo);
+			!isEmailPresent && jsonData.push(email);
+		}
+	}, [pageName]);
 	return (
 		<>
 			<H>
