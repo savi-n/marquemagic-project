@@ -157,6 +157,16 @@ const FileListWrap = styled.div`
 	display: -webkit-box;
 `;
 
+const WarningMessage = styled.div`
+	background: #e6ffef;
+	height: inherit;
+	border-radius: 10px;
+	border: 2px solid #4cc97f;
+	display: flex;
+	margin: 20px 5px 5px 5px;
+	width: fit-content;
+	padding: 0px 5px 0px 5px;
+`;
 const File = styled.div`
 	/* flex-basis: 30%; */
 	width: 32%;
@@ -303,6 +313,13 @@ const FileType = styled.div`
 `;
 const FileTypeIcon = styled.img`
 	height: 25px;
+`;
+
+const FileTypeSmallIcon = styled.img`
+	height: 20px;
+	align-self: center;
+	padding-left: 2px;
+	padding-right: 2px;
 `;
 /* margin-left: ${({ isOutside }) => (isOutside < 0 ? isOutside - 50 : 0)}px; */
 // margin-left: ${({ isOutside }) => (isOutside < 0 ? '-300px' : '0')}px;
@@ -776,7 +793,16 @@ export default function FileUpload({
 				</UploadCircle>
 				{/* )} */}
 			</Dropzone>
-
+			{docTypeOptions?.length > 0 && uploadingFiles.length > 0 && (
+				<WarningMessage>
+					{' '}
+					Click on <FileTypeSmallIcon
+						src={imgArrowDownCircle}
+						alt='arrow'
+					/>{' '}
+					and tag your uploaded documents to their respective document tags
+				</WarningMessage>
+			)}
 			<FileListWrap>
 				{uploadingFiles.map(file => {
 					// console.log('uplodaing-file-', file);
