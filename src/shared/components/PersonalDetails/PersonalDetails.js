@@ -1,6 +1,10 @@
-import { useEffect } from 'react';
+// Active Help us with your PAGE
+import { useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { array, func, object, oneOfType, string } from 'prop-types';
+import useFetch from 'hooks/useFetch';
+import { NC_STATUS_CODE, SEARCH_BANK_BRANCH_LIST } from '_config/app.config';
+import { UserContext } from 'reducer/userReducer';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -43,6 +47,10 @@ export default function PersonalDetails({
 	formState,
 	companyDetail,
 }) {
+	const {
+		state: { bankId, userToken },
+	} = useContext(UserContext);
+	const { newRequest } = useFetch();
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -55,6 +63,25 @@ export default function PersonalDetails({
 		// companyDetail
 		// 	? companyDetail?.[field.name]
 		// 	:
+	};
+	const getHomeBranchOption = async () => {
+		const opitionalDataReq = await newRequest(
+			SEARCH_BANK_BRANCH_LIST({ bankId }),
+			{},
+			{
+				Authorization: `Bearer ${userToken}`,
+			}
+		);
+
+		const opitionalDataRes = opitionalDataReq.data;
+		if (opitionalDataRes.statusCode === NC_STATUS_CODE.NC200) {
+			return opitionalDataRes.branchList
+				.map(branch => ({
+					name: branch.branch,
+					value: String(branch.id),
+				}))
+				.sort((a, b) => a.name.localeCompare(b.name));
+		}
 	};
 	useEffect(() => {
 		jsonData.map(field => {
@@ -176,6 +203,14 @@ export default function PersonalDetails({
 													? preData?.[`${field.name}`]?.name ||
 													  field.placeholder
 													: field.placeholder,
+											...(field.type === 'search'
+												? {
+														searchable: true,
+														...(field.fetchOnInit && {
+															fetchOptionsFunc: getHomeBranchOption,
+														}),
+												  }
+												: {}),
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
