@@ -95,13 +95,14 @@ export default function FilePasswordInput({
 	onClickCallback = () => {},
 	onClose = () => {},
 	uniqPassId = 0,
+	docType = {},
 }) {
 	const inputRef = useRef();
 
 	const onClick = e => {
 		e.preventDefault();
 		e.stopPropagation();
-		onClickCallback(fileId, inputRef.current.value, uniqPassId);
+		onClickCallback(fileId, inputRef.current.value, uniqPassId, docType);
 	};
 
 	return (

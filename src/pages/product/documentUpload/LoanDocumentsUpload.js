@@ -219,15 +219,15 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			? 'business'
 			: 'salaried';
 
-	console.log('case-creation-data-format-', {
-		data,
-		companyData,
-		productDetails,
-		productId,
-		applicantData,
-		loanData,
-		idType,
-	});
+	// console.log('case-creation-data-format-', {
+	// 	data,
+	// 	companyData,
+	// 	productDetails,
+	// 	productId,
+	// 	applicantData,
+	// 	loanData,
+	// 	idType,
+	// });
 
 	const businessDetails = () => {
 		if (!companyData) {
@@ -720,6 +720,7 @@ export default function DocumentUpload({
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
+		// console.log('handleDocumentTypeChange-', { fileId, type });
 		setLoanDocumentType(fileId, type);
 	};
 
@@ -963,6 +964,7 @@ export default function DocumentUpload({
 
 		setCaseCreationProgress(true);
 		let docError = false;
+		// console.log('state-documents-', state?.documents);
 		state?.documents?.map(ele => {
 			if (!ele.typeId) {
 				docError = true;
