@@ -165,7 +165,8 @@ const WarningMessage = styled.div`
 	display: flex;
 	margin: 20px 5px 5px 5px;
 	width: fit-content;
-	padding: 0px 5px 0px 5px;
+	padding: 5px 10px 5px 10px;
+	font-size: 14px;
 `;
 const File = styled.div`
 	/* flex-basis: 30%; */
@@ -819,16 +820,26 @@ export default function FileUpload({
 					</UploadCircle>
 				</Dropzone>
 			)}
-			{docTypeOptions?.length > 0 && uploadingFiles.length > 0 && (
-				<WarningMessage>
-					{' '}
-					Click on <FileTypeSmallIcon
-						src={imgArrowDownCircle}
-						alt='arrow'
-					/>{' '}
-					and tag your uploaded documents to their respective document tags
-				</WarningMessage>
-			)}
+
+			{uploadingFiles.map((file, index) => {
+				let isMapped = false;
+				for (const key in docTypeFileMap) {
+					if (file.id === key) {
+						isMapped = true;
+						break;
+					}
+				}
+				if (isMapped) return null;
+				if (index === 0)
+					return (
+						<WarningMessage>
+							{' '}
+							Click on{' '}
+							<FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' /> and tag
+							your uploaded documents to their respective document tags
+						</WarningMessage>
+					);
+			})}
 			{pan && disabled && (
 				<p style={{ color: 'grey' }}>
 					Please remove current uploaded file to reupload
