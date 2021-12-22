@@ -157,6 +157,17 @@ const FileListWrap = styled.div`
 	display: -webkit-box;
 `;
 
+const WarningMessage = styled.div`
+	background: #e6ffef;
+	height: inherit;
+	border-radius: 10px;
+	border: 2px solid #4cc97f;
+	display: flex;
+	margin: 20px 5px 5px 5px;
+	width: fit-content;
+	padding: 5px 10px 5px 10px;
+	font-size: 14px;
+`;
 const File = styled.div`
 	/* flex-basis: 30%; */
 	width: 32%;
@@ -303,6 +314,13 @@ const FileType = styled.div`
 `;
 const FileTypeIcon = styled.img`
 	height: 25px;
+`;
+
+const FileTypeSmallIcon = styled.img`
+	height: 20px;
+	align-self: center;
+	padding-left: 2px;
+	padding-right: 2px;
 `;
 /* margin-left: ${({ isOutside }) => (isOutside < 0 ? isOutside - 50 : 0)}px; */
 // margin-left: ${({ isOutside }) => (isOutside < 0 ? '-300px' : '0')}px;
@@ -803,6 +821,25 @@ export default function FileUpload({
 				</Dropzone>
 			)}
 
+			{uploadingFiles.map((file, index) => {
+				let isMapped = false;
+				for (const key in docTypeFileMap) {
+					if (file.id === key) {
+						isMapped = true;
+						break;
+					}
+				}
+				if (isMapped) return null;
+				if (index === 0)
+					return (
+						<WarningMessage>
+							{' '}
+							Click on{' '}
+							<FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' /> and tag
+							your uploaded documents to their respective document tags
+						</WarningMessage>
+					);
+			})}
 			{pan && disabled && (
 				<p style={{ color: 'grey' }}>
 					Please remove current uploaded file to reupload
