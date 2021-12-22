@@ -265,21 +265,22 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			JSON.parse(localStorage.getItem('companyData'));
 	}
 	const addressArrayMulti =
-		applicantData &&
-		applicantData?.address &&
-		applicantData?.address.length > 0 &&
-		applicantData?.address.map(ele => {
-			return {
-				line1: ele.address1,
-				line2: ele.address2,
-				locality: ele?.address3 || ele?.city,
-				city: ele.city,
-				state: ele.state,
-				pincode: ele.pinCode,
-				addressType: ele.addressType,
-				aid: ele.aid,
-			};
-		});
+		(applicantData &&
+			applicantData?.address &&
+			applicantData?.address.length > 0 &&
+			applicantData?.address.map(ele => {
+				return {
+					line1: ele.address1,
+					line2: ele.address2,
+					locality: ele?.address3 || ele?.city,
+					city: ele.city,
+					state: ele.state,
+					pincode: ele.pinCode,
+					addressType: ele.addressType,
+					aid: ele.aid,
+				};
+			})) ||
+		[];
 
 	let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
 	addressArrayUni =
