@@ -821,25 +821,26 @@ export default function FileUpload({
 				</Dropzone>
 			)}
 
-			{uploadingFiles.map((file, index) => {
-				let isMapped = false;
-				for (const key in docTypeFileMap) {
-					if (file.id === key) {
-						isMapped = true;
-						break;
+			{docTypeOptions?.length > 0 &&
+				uploadingFiles.map((file, index) => {
+					let isMapped = false;
+					for (const key in docTypeFileMap) {
+						if (file.id === key) {
+							isMapped = true;
+							break;
+						}
 					}
-				}
-				if (isMapped) return null;
-				if (index === 0)
-					return (
-						<WarningMessage>
-							{' '}
-							Click on{' '}
-							<FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' /> and tag
-							your uploaded documents to their respective document tags
-						</WarningMessage>
-					);
-			})}
+					if (isMapped) return null;
+					if (index === 0)
+						return (
+							<WarningMessage>
+								{' '}
+								Click on{' '}
+								<FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' /> and
+								tag your uploaded documents to their respective document tags
+							</WarningMessage>
+						);
+				})}
 			{pan && disabled && (
 				<p style={{ color: 'grey' }}>
 					Please remove current uploaded file to reupload
