@@ -251,7 +251,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				form?.email || companyData.formEmail || companyData?.Email || '',
 			// business_industry_type: 20,
 			contact:
-				form?.mobileNo || companyData.formMobile || companyData?.Email || '',
+				form?.mobileNo || companyData.formMobile || companyData?.mobileNo || '',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
@@ -265,19 +265,22 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			JSON.parse(localStorage.getItem('companyData'));
 	}
 	const addressArrayMulti =
-		applicantData?.address &&
-		applicantData?.address.map(ele => {
-			return {
-				line1: ele.address1,
-				line2: ele.address2,
-				locality: ele?.address3 || ele?.city,
-				city: ele.city,
-				state: ele.state,
-				pincode: ele.pinCode,
-				addressType: ele.addressType,
-				aid: ele.aid,
-			};
-		});
+		(applicantData &&
+			applicantData?.address &&
+			applicantData?.address.length > 0 &&
+			applicantData?.address.map(ele => {
+				return {
+					line1: ele.address1,
+					line2: ele.address2,
+					locality: ele?.address3 || ele?.city,
+					city: ele.city,
+					state: ele.state,
+					pincode: ele.pinCode,
+					addressType: ele.addressType,
+					aid: ele.aid,
+				};
+			})) ||
+		[];
 
 	let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
 	addressArrayUni =
