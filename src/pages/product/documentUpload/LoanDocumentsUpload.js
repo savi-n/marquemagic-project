@@ -265,7 +265,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			JSON.parse(localStorage.getItem('companyData'));
 	}
 	const addressArrayMulti =
+		applicantData &&
 		applicantData?.address &&
+		applicantData?.address.length > 0 &&
 		applicantData?.address.map(ele => {
 			return {
 				line1: ele.address1,
