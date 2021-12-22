@@ -149,7 +149,7 @@ export default function Product({ product, url }) {
 		actions: { configure, setCurrentFlow, clearFlowDetails },
 	} = useContext(FlowContext);
 	const {
-		actions: { clearFormData },
+		actions: { clearFormData, setUsertypeAfterRefresh },
 	} = useContext(FormContext);
 
 	const {
@@ -196,6 +196,7 @@ export default function Product({ product, url }) {
 		// setContinueExistingApplication(true);
 		if (!completedMenu.includes('document-upload')) {
 			setShowContinueModal(true);
+			setUsertypeAfterRefresh();
 		} else {
 			onNoClick();
 			addToast({
