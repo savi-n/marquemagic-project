@@ -251,7 +251,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				form?.email || companyData.formEmail || companyData?.Email || '',
 			// business_industry_type: 20,
 			contact:
-				form?.mobileNo || companyData.formMobile || companyData?.Email || '',
+				form?.mobileNo || companyData.formMobile || companyData?.mobileNo || '',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
