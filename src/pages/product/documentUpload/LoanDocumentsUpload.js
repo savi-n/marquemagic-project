@@ -248,10 +248,13 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 					? data['business-details']?.BusinessType
 					: 1,
 			business_email:
-				form?.email || companyData.formEmail || companyData?.Email || '',
+				form?.email || companyData?.formEmail || companyData?.Email || '',
 			// business_industry_type: 20,
 			contact:
-				form?.mobileNo || companyData.formMobile || companyData?.mobileNo || '',
+				form?.mobileNo ||
+				companyData?.formMobile ||
+				companyData?.mobileNo ||
+				'',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
