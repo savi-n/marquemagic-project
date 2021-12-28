@@ -781,6 +781,18 @@ export default function FileUpload({
 
 	const [docSelected, setDocSelected] = useState('');
 
+	let taggedDocumentCount = 0;
+
+	uploadingFiles.map(file => {
+		for (const key in docTypeFileMap) {
+			if (file.id === key) {
+				taggedDocumentCount += 1;
+			}
+		}
+	});
+
+	const displayTagMessage = uploadingFiles.length !== taggedDocumentCount;
+
 	return (
 		<>
 			{!disabled && (
@@ -807,7 +819,7 @@ export default function FileUpload({
 						multiple={section === 'document-upload' ? true : false}
 					/>
 					<Label htmlFor={id}>Browse</Label>
-					<LabelFormat>only jpeg, png, jpg</LabelFormat>
+					{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
 					<UploadCircle
 						htmlFor={id}
 						style={{ marginLeft: 'auto', padding: 10 }}>
@@ -820,33 +832,40 @@ export default function FileUpload({
 					</UploadCircle>
 				</Dropzone>
 			)}
-
-			{docTypeOptions?.length > 0 &&
+			{displayTagMessage && (
+				<WarningMessage>
+					{' '}
+					Click on <FileTypeSmallIcon
+						src={imgArrowDownCircle}
+						alt='arrow'
+					/>{' '}
+					and tag your uploaded documents to their respective document tags
+				</WarningMessage>
+			)}
+			{/* {docTypeOptions?.length > 0 &&
 				uploadingFiles.map((file, index) => {
-					let isMapped = false;
+					let isMapped = 0;
 					for (const key in docTypeFileMap) {
 						if (file.id === key) {
 							isMapped = true;
 							break;
 						}
 					}
-					if (isMapped) return null;
-					if (index === 0)
-						return (
-							<WarningMessage>
-								{' '}
-								Click on{' '}
-								<FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' /> and
-								tag your uploaded documents to their respective document tags
-							</WarningMessage>
-						);
-				})}
+					if (!isMapped) return null;
+					return (
+						<WarningMessage>
+							{' '}
+							Click on{' '}
+							<FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' /> and tag
+							your uploaded documents to their respective document tags
+						</WarningMessage>
+					);
+				})} */}
 			{pan && disabled && (
 				<p style={{ color: 'grey' }}>
 					Please remove current uploaded file to reupload
 				</p>
 			)}
-
 			<FileListWrap>
 				{uploadingFiles.map(file => {
 					// console.log('uplodaing-file-', file);
