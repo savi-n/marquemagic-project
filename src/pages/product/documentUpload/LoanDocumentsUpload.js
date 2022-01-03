@@ -289,6 +289,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 					return { ...ele, addressType: 'present', aid: 1 };
 			  })
 			: addressArrayUni;
+
+	let corporateDetails = localStorage.getItem('corporateDetails');
+	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -366,6 +369,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		},
 		branchId: companyData?.branchId,
 	};
+	if (corporateDetails && corporateDetails.id) {
+		formatedData.parentId = corporateDetails.id;
+	}
 
 	// if (localStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;

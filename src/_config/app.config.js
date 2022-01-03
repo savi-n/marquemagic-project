@@ -1,7 +1,9 @@
 import taggedTemplate from '../utils/taggedTemplate';
 
-const API_END_POINT = process.env.REACT_APP_API_URL || 'http://3.108.54.252:1337';
-const ENDPOINT_BANK = process.env.REACT_APP_BANK_API || 'http://40.80.80.135:1337';
+const API_END_POINT =
+	process.env.REACT_APP_API_URL || 'http://3.108.54.252:1337';
+const ENDPOINT_BANK =
+	process.env.REACT_APP_BANK_API || 'http://40.80.80.135:1337';
 // "https://apiv3.namastecredit.com/apiservices";
 
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN || '';
@@ -61,9 +63,13 @@ const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 
-const APP_CLIENT = window.location.hostname === 'localhost' ? 'clix.loan2pal.com' : window.location.hostname;
+const APP_CLIENT =
+	window.location.hostname === 'localhost'
+		? 'clix.loan2pal.com'
+		: window.location.hostname;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
-const REDIRECT_CREATE = window.location.hostname === 'localhost' ? '/' : '/onboarding/applyloan';
+const REDIRECT_CREATE =
+	window.location.hostname === 'localhost' ? '/' : '/onboarding/applyloan';
 
 const KYC_URL = `http://40.80.80.135:1337/getKycData`;
 
@@ -76,13 +82,13 @@ const NC_STATUS_CODE = {
 	NC305: 'NC305',
 	NC306: 'NC306 ',
 	NC308: 'NC308 ',
-	NC500: 'NC500'
+	NC500: 'NC500',
 };
 
 const USER_ROLES = {
 	User: 'user',
 	'Co-applicant': 'Co-applicant',
-	Guarantor: 'Guarantor'
+	Guarantor: 'Guarantor',
 };
 
 export {
@@ -126,5 +132,5 @@ export {
 	SECRET,
 	DOCS_UPLOAD_URL_LOAN,
 	REDIRECT_CREATE,
-	KYC_URL
+	KYC_URL,
 };
