@@ -782,16 +782,18 @@ export default function FileUpload({
 	const [docSelected, setDocSelected] = useState('');
 
 	let taggedDocumentCount = 0;
+	let displayTagMessage = 0;
 
-	uploadingFiles.map(file => {
-		for (const key in docTypeFileMap) {
-			if (file.id === key) {
-				taggedDocumentCount += 1;
+	if (!pan) {
+		uploadingFiles.map(file => {
+			for (const key in docTypeFileMap) {
+				if (file.id === key) {
+					taggedDocumentCount += 1;
+				}
 			}
-		}
-	});
-
-	const displayTagMessage = uploadingFiles.length !== taggedDocumentCount;
+		});
+		displayTagMessage = uploadingFiles.length !== taggedDocumentCount;
+	}
 
 	return (
 		<>
@@ -832,7 +834,7 @@ export default function FileUpload({
 					</UploadCircle>
 				</Dropzone>
 			)}
-			{displayTagMessage && (
+			{displayTagMessage ? (
 				<WarningMessage>
 					{' '}
 					Click on <FileTypeSmallIcon
@@ -841,7 +843,7 @@ export default function FileUpload({
 					/>{' '}
 					and tag your uploaded documents to their respective document tags
 				</WarningMessage>
-			)}
+			) : null}
 			{/* {docTypeOptions?.length > 0 &&
 				uploadingFiles.map((file, index) => {
 					let isMapped = 0;
