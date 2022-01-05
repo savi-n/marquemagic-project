@@ -32,12 +32,13 @@ export default function Header({
 		try {
 			// const userRes.data.data.cacompname || "" = await axios.get(`${API_END_POINT}/userDetails?userid=10987`);
 			// http://3.108.54.252:1337/usersDetails?userid=10987
+			// console.log('CID-before-replace-', cid);
+			cid = cid.replaceAll(' ', '+');
 			// console.log('CID-before-', cid);
-			const CID = decryptRes(cid);
-			// console.log('CID-after-', CID);
-			// const CID = decryptMsg(cid);
+			const newCID = decryptRes(cid);
+			// console.log('CID-after-', newCID);
 			const userRes = await axios.get(
-				`${API_END_POINT}/usersDetails?userid=${CID}`
+				`${API_END_POINT}/usersDetails?userid=${newCID}`
 			);
 			const corporateDetails = userRes?.data?.data;
 			// console.log('userres-data-', corporateDetails?.cacompname || '');
@@ -55,7 +56,7 @@ export default function Header({
 		// + sign in the query string is URL-decoded to a space. %2B in the query string is URL-decoded to a + sign.
 		const params = queryString.parse(window.location.search);
 		if (params.cid) {
-			getUserDetails(params.cid.replace(' ', '+'));
+			getUserDetails(params.cid);
 		}
 	}, []);
 
