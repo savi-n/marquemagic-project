@@ -230,12 +230,14 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	// });
 
 	const businessDetails = () => {
+		let corporateDetails = localStorage.getItem('corporateDetails');
+		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 		if (!companyData) {
 			companyData =
 				localStorage.getItem('companyData') &&
 				JSON.parse(localStorage.getItem('companyData'));
 		}
-		return {
+		const newBusinessDetails = {
 			business_name:
 				applicantData?.firstName ||
 				localStorage.getItem('BusinessName') ||
@@ -258,6 +260,10 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
 		};
+		if (corporateDetails && corporateDetails.id) {
+			newBusinessDetails.corporateId = corporateDetails.id;
+		}
+		return newBusinessDetails;
 	};
 	if (!companyData) {
 		companyData =
@@ -290,8 +296,6 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			  })
 			: addressArrayUni;
 
-	let corporateDetails = localStorage.getItem('corporateDetails');
-	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -369,9 +373,6 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		},
 		branchId: companyData?.branchId,
 	};
-	if (corporateDetails && corporateDetails.id) {
-		formatedData.parentId = corporateDetails.id;
-	}
 
 	// if (localStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;
