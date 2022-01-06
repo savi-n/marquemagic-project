@@ -1,10 +1,11 @@
 import { createContext, useReducer } from 'react';
+import _ from 'lodash';
 
 const actionTypes = {
 	SET_LOAN_DATA: 'SET_LOAN_DATA',
 	SET_LOAN_DOCUMENT: 'SET_LOAN_DOCUMENT',
 	REMOVE_LOAN_DOCUMENT: 'REMOVE_LOAN_DOCUMENT',
-	SET_DOCUMENT_TYPE: 'SET_DOCUMENT_TYPE'
+	SET_DOCUMENT_TYPE: 'SET_DOCUMENT_TYPE',
 };
 
 const INITIAL_STATE = {};
@@ -14,21 +15,21 @@ const useActions = dispatch => {
 		dispatch({
 			type: actionTypes.SET_LOAN_DATA,
 			formData,
-			page
+			page,
 		});
 	};
 
 	const setLoanDocuments = files => {
 		dispatch({
 			type: actionTypes.SET_LOAN_DOCUMENT,
-			files
+			files,
 		});
 	};
 
 	const removeLoanDocument = fileId => {
 		dispatch({
 			type: actionTypes.REMOVE_LOAN_DOCUMENT,
-			fileId
+			fileId,
 		});
 	};
 
@@ -36,7 +37,7 @@ const useActions = dispatch => {
 		dispatch({
 			type: actionTypes.SET_DOCUMENT_TYPE,
 			fileId,
-			fileType
+			fileType,
 		});
 	};
 
@@ -44,7 +45,7 @@ const useActions = dispatch => {
 		setLoanData,
 		setLoanDocuments,
 		removeLoanDocument,
-		setLoanDocumentType
+		setLoanDocumentType,
 	};
 };
 
@@ -52,15 +53,15 @@ function reducer(state, action) {
 	switch (action.type) {
 		case actionTypes.SET_LOAN_DATA: {
 			return {
-				...state,
-				[action.page]: action.formData
+				..._.cloneDeep(state),
+				[action.page]: action.formData,
 			};
 		}
 
 		case actionTypes.SET_LOAN_DOCUMENT: {
 			return {
-				...state,
-				documents: [...(state.documents || []), ...action.files]
+				..._.cloneDeep(state),
+				documents: [...(state.documents || []), ...action.files],
 			};
 		}
 
@@ -68,30 +69,33 @@ function reducer(state, action) {
 			const userDocs = (state.documents || []).map(doc =>
 				doc.id === action.fileId
 					? {
-							...doc,
-							typeId: action.fileType.value,
-							typeName: action.fileType.name,
-							mainType: action.fileType.main
+							..._.cloneDeep(doc),
+							typeId: action?.fileType?.value,
+							typeName: action?.fileType?.name,
+							mainType: action?.fileType?.main,
+							password: action?.fileType?.password,
 					  }
 					: doc
 			);
-
+			// console.log('action-SET_DOCUMENT_TYPE-', userDocs);
 			return {
-				...state,
-				documents: userDocs
+				..._.cloneDeep(state),
+				documents: userDocs,
 			};
 		}
 
 		case actionTypes.REMOVE_LOAN_DOCUMENT: {
-			const filteredDocs = (state.documents || []).filter(doc => doc.id !== action.fileId);
+			const filteredDocs = (state.documents || []).filter(
+				doc => doc.id !== action.fileId
+			);
 			return {
-				...state,
-				documents: filteredDocs
+				..._.cloneDeep(state),
+				documents: filteredDocs,
 			};
 		}
 
 		default: {
-			return { ...state };
+			return { ..._.cloneDeep(state) };
 		}
 	}
 }
@@ -100,11 +104,15 @@ const LoanFormContext = createContext();
 
 const LoanFormProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(reducer, {
-		...INITIAL_STATE
+		...INITIAL_STATE,
 	});
 	const actions = useActions(dispatch);
 
-	return <LoanFormContext.Provider value={{ state, actions }}>{children}</LoanFormContext.Provider>;
+	return (
+		<LoanFormContext.Provider value={{ state, actions }}>
+			{children}
+		</LoanFormContext.Provider>
+	);
 };
 
 export { LoanFormContext, LoanFormProvider };

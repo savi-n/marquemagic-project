@@ -83,6 +83,7 @@ const DocsCheckboxWrapper = styled.div`
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
+	margin-bottom: 20px;
 	span {
 		color: ${({ theme }) => theme.main_theme_color};
 	}
@@ -91,6 +92,7 @@ const H = styled.h1`
 const H1 = styled.h1`
 	font-size: 1em;
 	font-weight: 600;
+	margin-right: 20px;
 	span {
 		color: ${({ theme }) => theme.main_theme_color};
 	}
@@ -119,27 +121,37 @@ const Details = styled.div`
 const Section = styled.div`
 	display: flex;
 	align-items: center;
+	cursor: row-resize;
+`;
+
+const CollapseIcon = styled.img`
+	height: 18px;
+	width: 18px;
+	margin-right: 20px;
+	object-fit: contain;
+	margin-left: auto;
+	cursor: pointer;
 `;
 
 const Hr = styled.hr`
 	padding: 0px;
 `;
 const StyledButton = styled.button`
-	height: 15px;
+	/* height: 25px; */
 	margin: 5px;
-	color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
+	color: ${({ theme, fill }) => (fill ? 'white' : '#0068FF')};
 	border: 2px solid
 		${({ theme, fill }) =>
-			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+			fill && (typeof fill === 'string' ? fill : '#0068FF')};
 	border-radius: 40px;
-	padding: 10px 20px;
+	padding: 0 20px;
 	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+		fill && (typeof fill === 'string' ? fill : '#0068FF')};
 	display: flex;
 	align-items: center;
 	min-width: ${({ width }) => (width ? width : '200px')};
 	justify-content: space-between;
-	font-size: 0.9em;
+	font-size: 1rem;
 	font-weight: 500;
 	text-align: center;
 	transition: 0.2s;
@@ -207,23 +219,25 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			? 'business'
 			: 'salaried';
 
-	console.log('case-creation-data-format-', {
-		data,
-		companyData,
-		productDetails,
-		productId,
-		applicantData,
-		loanData,
-		idType,
-	});
+	// console.log('case-creation-data-format-', {
+	// 	data,
+	// 	companyData,
+	// 	productDetails,
+	// 	productId,
+	// 	applicantData,
+	// 	loanData,
+	// 	idType,
+	// });
 
 	const businessDetails = () => {
+		let corporateDetails = localStorage.getItem('corporateDetails');
+		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 		if (!companyData) {
 			companyData =
 				localStorage.getItem('companyData') &&
 				JSON.parse(localStorage.getItem('companyData'));
 		}
-		return {
+		const newBusinessDetails = {
 			business_name:
 				applicantData?.firstName ||
 				localStorage.getItem('BusinessName') ||
@@ -239,13 +253,17 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				form?.email || companyData.formEmail || companyData?.Email || '',
 			// business_industry_type: 20,
 			contact:
-				form?.mobileNo || companyData.formMobile || companyData?.Email || '',
+				form?.mobileNo || companyData.formMobile || companyData?.mobileNo || '',
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
 			// businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
 		};
+		if (corporateDetails && corporateDetails.id) {
+			newBusinessDetails.corporateId = corporateDetails.id;
+		}
+		return newBusinessDetails;
 	};
 	if (!companyData) {
 		companyData =
@@ -253,19 +271,22 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			JSON.parse(localStorage.getItem('companyData'));
 	}
 	const addressArrayMulti =
-		applicantData?.address &&
-		applicantData?.address.map(ele => {
-			return {
-				line1: ele.address1,
-				line2: ele.address2,
-				locality: ele?.address3 || ele?.city,
-				city: ele.city,
-				state: ele.state,
-				pincode: ele.pinCode,
-				addressType: ele.addressType,
-				aid: ele.aid,
-			};
-		});
+		(applicantData &&
+			applicantData?.address &&
+			applicantData?.address.length > 0 &&
+			applicantData?.address.map(ele => {
+				return {
+					line1: ele.address1,
+					line2: ele.address2,
+					locality: ele?.address3 || ele?.city,
+					city: ele.city,
+					state: ele.state,
+					pincode: ele.pinCode,
+					addressType: ele.addressType,
+					aid: ele.aid,
+				};
+			})) ||
+		[];
 
 	let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
 	addressArrayUni =
@@ -274,6 +295,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 					return { ...ele, addressType: 'present', aid: 1 };
 			  })
 			: addressArrayUni;
+
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -318,12 +340,24 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
 				0,
-			annual_turn_over: data?.['business-details']?.AnnualTurnover || '',
-			annual_op_expense:
-				applicantData?.netMonthlyIncome ||
-				data?.['business-details']?.PAT ||
-				'',
-			annual_revenue: applicantData?.grossIncome || 0,
+			annual_turn_over: getAmount(
+				applicantData?.grossIncome ||
+					data?.['business-details']?.AnnualTurnover ||
+					''
+			),
+			revenue_um: getAmountUm(
+				applicantData?.grossIncome ||
+					data?.['business-details']?.AnnualTurnover ||
+					''
+			),
+
+			annual_op_expense: getAmount(
+				applicantData?.netMonthlyIncome || data?.['business-details']?.PAT || ''
+			),
+			op_expense_um: getAmountUm(
+				applicantData?.netMonthlyIncome || data?.['business-details']?.PAT || ''
+			),
+			// annual_revenue: applicantData?.grossIncome || 0,
 			//loan.loanAmount?.tenure
 			// application_ref: data['business-loan-details'].Applicationid || '',
 			// annual_turn_over: data?.['business-details'].AnnualTurnover,
@@ -602,7 +636,9 @@ export default function DocumentUpload({
 	};
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
-
+	const companyData =
+		localStorage.getItem('companyData') &&
+		JSON.parse(localStorage.getItem('companyData'));
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
 		options: {
@@ -611,8 +647,10 @@ export default function DocumentUpload({
 				business_type:
 					applicantData?.incomeType === 'salaried'
 						? 7
-						: state['business-details']?.BusinessType
-						? state['business-details']?.BusinessType
+						: state['business-details']?.BusinessType ||
+						  companyData?.BusinessType
+						? state['business-details']?.BusinessType ||
+						  companyData?.BusinessType
 						: 1,
 				loan_product: productId[(form?.incomeType)] || productId[idType],
 			},
@@ -696,6 +734,7 @@ export default function DocumentUpload({
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
+		// console.log('handleDocumentTypeChange-', { fileId, type });
 		setLoanDocumentType(fileId, type);
 	};
 
@@ -939,6 +978,7 @@ export default function DocumentUpload({
 
 		setCaseCreationProgress(true);
 		let docError = false;
+		// console.log('state-documents-', state?.documents);
 		state?.documents?.map(ele => {
 			if (!ele.typeId) {
 				docError = true;
@@ -951,19 +991,18 @@ export default function DocumentUpload({
 				type: 'error',
 			});
 		} else {
+			if (!userType) {
+				const loanReq = await caseCreationSteps(state);
 
-		if (!userType) {
-			const loanReq = await caseCreationSteps(state);
+				if (!loanReq && !loanReq?.loanId) {
+					setCaseCreationProgress(false);
+					return;
+				}
 
-			if (!loanReq && !loanReq?.loanId) {
-				setCaseCreationProgress(false);
-				return;
+				setCompleted(id);
+				onFlowChange(!map ? 'application-submitted' : map.main);
 			}
-
-			setCompleted(id);
-			onFlowChange(!map ? 'application-submitted' : map.main);
 		}
-	}
 	};
 
 	const openCloseCollaps = name => {
@@ -998,7 +1037,7 @@ export default function DocumentUpload({
 				{KycDocOptions.length > 0 && (
 					<>
 						{' '}
-						<Section>
+						<Section onClick={() => openCloseCollaps('KYC')}>
 							<H1>KYC </H1>
 							<div
 								style={{
@@ -1012,18 +1051,12 @@ export default function DocumentUpload({
 									{kyccount} of {KycDocOptions.length}
 								</StyledButton>
 							</div>
-							<img
+							<CollapseIcon
 								src={downArray}
-								width={20}
-								height={20}
 								style={{
-									objectFit: 'contain',
-									marginLeft: 'auto',
-									// transform: `rotate(180deg)`,
 									transform: openKycdoc ? `rotate(180deg)` : `none`,
-									cursor: 'pointer',
 								}}
-								onClick={() => openCloseCollaps('KYC')}
+								alt='arrow'
 							/>
 						</Section>
 						<Details open={!openKycdoc}>
@@ -1032,6 +1065,7 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper>
 								<FileUpload
+									sectionType='kyc'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
 									onRemoveFile={handleFileRemove}
@@ -1058,7 +1092,7 @@ export default function DocumentUpload({
 				)}
 				{FinancialDocOptions.length > 0 && (
 					<>
-						<Section>
+						<Section onClick={() => openCloseCollaps('Financial')}>
 							<H1>Financial </H1>
 							<div
 								style={{
@@ -1072,17 +1106,12 @@ export default function DocumentUpload({
 									{financialCount} of {FinancialDocOptions.length}
 								</StyledButton>
 							</div>
-							<img
+							<CollapseIcon
 								src={downArray}
-								width={20}
-								height={20}
 								style={{
-									objectFit: 'contain',
-									marginLeft: 'auto',
 									transform: openFinancialdoc ? `rotate(180deg)` : `none`,
-									cursor: 'pointer',
 								}}
-								onClick={() => openCloseCollaps('Financial')}
+								alt='arrow'
 							/>
 						</Section>
 						<Details open={!openFinancialdoc}>
@@ -1091,6 +1120,7 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper>
 								<FileUpload
+									sectionType='financial'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
 									onRemoveFile={handleFileRemove}
@@ -1117,7 +1147,7 @@ export default function DocumentUpload({
 				)}
 				{OtherDocOptions.length > 0 && (
 					<>
-						<Section>
+						<Section onClick={() => openCloseCollaps('Others')}>
 							<H1>Others </H1>
 							<div
 								style={{
@@ -1131,22 +1161,18 @@ export default function DocumentUpload({
 									{otherCount} of {OtherDocOptions.length}
 								</StyledButton>
 							</div>
-							<img
+							<CollapseIcon
 								src={downArray}
-								width={20}
-								height={20}
 								style={{
-									objectFit: 'contain',
-									marginLeft: 'auto',
 									transform: openOtherdoc ? `rotate(180deg)` : `none`,
-									cursor: 'pointer',
 								}}
-								onClick={() => openCloseCollaps('Others')}
+								alt='arrow'
 							/>
 						</Section>
 						<Details open={openOtherdoc}>
 							<UploadWrapper>
 								<FileUpload
+									sectionType='others'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
 									onRemoveFile={handleFileRemove}
@@ -1236,7 +1262,7 @@ export default function DocumentUpload({
 					/>
 				)}
 			</Colom1>
-			<Colom2>
+			{/* <Colom2>
 				<Doc>Documents Required</Doc>
 				<div>
 					{DOCUMENTS_TYPE.map(docType =>
@@ -1259,7 +1285,7 @@ export default function DocumentUpload({
 						) : null
 					)}
 				</div>
-			</Colom2>
+			</Colom2> */}
 		</>
 	);
 }

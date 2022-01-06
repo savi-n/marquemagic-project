@@ -149,7 +149,7 @@ export default function Product({ product, url }) {
 		actions: { configure, setCurrentFlow, clearFlowDetails },
 	} = useContext(FlowContext);
 	const {
-		actions: { clearFormData },
+		actions: { clearFormData, setUsertypeAfterRefresh },
 	} = useContext(FormContext);
 
 	const {
@@ -177,6 +177,7 @@ export default function Product({ product, url }) {
 			clearFlowDetails();
 			clearFormData();
 		}
+		completedMenu?.length > 0 && setIndex(completedMenu.length);
 	}, []);
 
 	// useEffect(() => {
@@ -189,11 +190,13 @@ export default function Product({ product, url }) {
 	// ] = useState(false);
 
 	const [showContinueModal, setShowContinueModal] = useState(false);
+	const [index, setIndex] = useState(2);
 
 	const onYesClick = () => {
 		// setContinueExistingApplication(true);
 		if (!completedMenu.includes('document-upload')) {
 			setShowContinueModal(true);
+			setUsertypeAfterRefresh();
 		} else {
 			onNoClick();
 			addToast({
@@ -213,7 +216,10 @@ export default function Product({ product, url }) {
 		clearFormData();
 	};
 
-	const onFlowChange = flow => {
+	const onFlowChange = (flow, i) => {
+		if (!i && flow !== 'identity-verification' && flow !== 'pan-verification') {
+			setIndex(index + 1);
+		}
 		setCurrentFlow(flow, atob(product));
 		setShowContinueModal(true);
 	};
@@ -243,12 +249,51 @@ export default function Product({ product, url }) {
 							{response.data.name} <span>{response.data.description}</span>
 						</ProductName>
 					</HeadingBox>
-					{response.data?.product_details?.flow?.map(m =>
+					{response.data?.product_details?.flow?.map((m, idx) =>
 						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
 							<Fragment key={m.id}>
 								<Link onClick={e => {}}>
 									<Menu active={flow === m.id}>
-										<div>{m.name}</div>
+										<div
+											style={{
+												cursor:
+													completedMenu.includes(m.id) &&
+													m.id !== 'pan-verification' &&
+													'pointer',
+											}}
+											onClick={e => {
+												if (index > idx) {
+													if (
+														flow !== 'product-details' &&
+														flow !== 'personal-details' &&
+														flow !== 'application-submitted' &&
+														flow !== 'identity-verification' &&
+														flow !== 'pan-verification' &&
+														!flow.includes('co-applicant')
+													) {
+														flow =
+															e.target.id !== 'identity-verification' &&
+															e.target.id !== 'pan-verification' &&
+															e.target.id !== 'application-submitted'
+																? e.target.id
+																: flow;
+														if (
+															e.target.id !== 'identity-verification' &&
+															e.target.id !== 'pan-verification' &&
+															e.target.id !== 'application-submitted'
+														) {
+															setIndex(idx);
+														}
+														onFlowChange(flow, 'o');
+													} else {
+														onFlowChange(flow, 'o');
+													}
+												}
+											}}
+											id={m.id}
+											k={idx}>
+											{m.name}
+										</div>
 										{completedMenu.includes(m.id) && (
 											// <CheckBox bg='white' checked round fg={'blue'} />
 											<ImgCheckCircle src={imgCheckCircle} alt='check' />
@@ -260,10 +305,53 @@ export default function Product({ product, url }) {
 								</Link>
 								{m.flow &&
 									subFlowMenu.includes(m.id) &&
-									m.flow.map(item => (
+									m.flow.map((item, ind) => (
 										<Link key={item.id} onClick={e => {}}>
 											<SubMenu active={flow === item.id}>
-												<div>{item.name}</div>
+												<div
+													style={{
+														cursor: completedMenu.includes(m.id) && 'pointer',
+													}}
+													onClick={e => {
+														if (index >= ind) {
+															if (
+																flow !== 'application-submitted' &&
+																flow !== 'identity-verification' &&
+																flow !== 'pan-verification' &&
+																flow !== 'co-applicant-details'
+															) {
+																flow =
+																	e.target.id !== 'identity-verification' &&
+																	e.target.id !== 'pan-verification' &&
+																	e.target.id !== 'application-submitted'
+																		? e.target.id
+																		: flow;
+																if (
+																	e.target.id !== 'identity-verification' &&
+																	e.target.id !== 'pan-verification' &&
+																	e.target.id !== 'application-submitted'
+																) {
+																	setIndex(ind);
+																}
+																if (
+																	!// state?.coapplicant?.applicantData
+																	// 	?.incomeType === 'noIncome' &&
+																	(
+																		e.target.id ===
+																		'co-applicant-income-details'
+																	)
+																) {
+																	onFlowChange(flow, 'o');
+																}
+															} else {
+																onFlowChange(flow, 'o');
+															}
+														}
+													}}
+													id={item.id}
+													k={ind}>
+													{item.name}
+												</div>
 												{completedMenu.includes(item.id) && (
 													// <CheckBox bg='white' checked round fg={'blue'} />
 													<ImgCheckCircle src={imgCheckCircle} alt='check' />

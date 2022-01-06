@@ -7,6 +7,8 @@ import PersonalDetails from '../../../shared/components/PersonalDetails/Personal
 import Button from '../../../components/Button';
 import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
 import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
+import { FormContext } from '../../../reducer/formReducer';
+
 import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
@@ -42,10 +44,16 @@ export default function FormController({
 	} = useContext(FlowContext);
 
 	const {
+		state: details,
 		actions: { setLoanData },
 	} = useContext(LoanFormContext);
 
-	const { state } = useContext(BussinesContext);
+	// loanData?.loanAmount ||
+	// loan?.loanAmount ||
+	// data['business-loan-details']?.LoanAmount ||
+	// data['vehicle-loan-details']?.loanAmount ||
+	// 0
+	// const { state } = useContext(BussinesContext);
 
 	const { handleSubmit, register, formState, clearError } = useForm();
 	const {
@@ -57,6 +65,26 @@ export default function FormController({
 		actions: { setCompanyDetails },
 	} = useContext(BussinesContext);
 
+	const {
+		state: businessDataStore,
+		actions: {
+			setUsertypeLoanData,
+			// setUserSubsidiaryDetailsData,
+			// setUsertypeBankData,
+			// setUsertypeAgreementData,
+		},
+	} = useContext(FormContext);
+
+	// const {
+	// 	actions: {
+	// 		setUsertypeLoanData,
+	// 		// setUsertypeEmiData,
+	// 		setUsertypeBankData,
+	// 		setUsertypeAgreementData,
+	// 	},
+	// } = useContext(FormContext);
+
+	const { state } = useContext(LoanFormContext);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 
@@ -92,6 +120,11 @@ export default function FormController({
 		// 		addrr2: '',
 		// 	},
 		// });
+		if (id === 'business-loan-details') {
+			setUsertypeLoanData({
+				...data,
+			});
+		}
 
 		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
@@ -154,12 +187,15 @@ export default function FormController({
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
 						...companyDetail,
+						...formState?.values,
 						token: userDetailsRes.token,
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						formEmail: formState?.values?.Email,
-						formMobile: formState?.values?.mobileNo,
+						// formEmail: formState?.values?.Email,
+						// formMobile: formState?.values?.mobileNo,
+						Email: formState?.values?.Email,
+						mobileNo: formState?.values?.mobileNo,
 					});
 			}
 		}
@@ -191,7 +227,12 @@ export default function FormController({
 
 	let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
-	let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+	let companyData = JSON.parse(localStorage.getItem('companyData'));
+	let form = state[`${id}`] || companyDetail || companyData || appData;
+	if (id === 'business-loan-details') {
+		form = JSON.parse(userToken)?.formReducer?.user?.loanData;
+	}
 
 	return (
 		<>
@@ -199,7 +240,7 @@ export default function FormController({
 				<PersonalDetails
 					register={register}
 					formState={formState}
-					companyDetail={companyDetail}
+					companyDetail={companyDetail || companyData}
 					pageName={map.name}
 					preData={form}
 					jsonData={map?.fields[id]?.data || []}

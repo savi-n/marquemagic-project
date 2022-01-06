@@ -810,7 +810,7 @@ export default function PanVerification({
 						<section className='flex flex-col gap-y-6'>
 							<p className='py-4 text-xl'>
 								Upload your PAN Card{' '}
-								<Span>supported formats - jpeg, png, jpg</Span>
+								{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 							</p>
 							<FileUpload
 								accept=''
@@ -851,7 +851,8 @@ export default function PanVerification({
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
-										your DL <Span>supported formats - jpeg, png, jpg</Span>
+										your DL
+										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 									</p>
 
 									<FileUpload
@@ -874,7 +875,8 @@ export default function PanVerification({
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
-										your Aadhar <Span>supported formats - jpeg, png, jpg</Span>
+										your Aadhar
+										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 									</p>
 
 									<FileUpload
@@ -897,7 +899,7 @@ export default function PanVerification({
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
 										your Voter ID{' '}
-										<Span>supported formats - jpeg, png, jpg</Span>
+										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 									</p>
 
 									<FileUpload
@@ -995,9 +997,9 @@ export default function PanVerification({
 						</form>
 					)}
 				</Colom1>
-				<Colom2>
-					{/* <Img src={productDetails.productDetailsImage} alt="Loan Caption" /> */}
-				</Colom2>
+				{/* <Colom2>
+					<Img src={productDetails.productDetailsImage} alt="Loan Caption" />
+				</Colom2> */}
 				{
 					<CompanySelectModal
 						companyNameSearch={companyNameSearch}

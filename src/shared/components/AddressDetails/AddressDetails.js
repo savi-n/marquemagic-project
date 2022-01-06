@@ -64,17 +64,39 @@ export default function AddressDetails({
 	setMatch,
 	disablePermenanet = false,
 	isBusiness,
+	preDataFilled,
 }) {
+	const presentAddress =
+		(preDataFilled &&
+			preDataFilled.filter(ele => ele.addressType === 'present')) ||
+		[];
+
 	const populateValue = field => {
 		// if (!userType && field.disabled) {
 		//   return preData[field.name] || "";
 		// }
+
 		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
 			return formState?.values?.[`permanent_${field.name}`];
 		}
 
 		return preData[field.name] || field.value || '';
 	};
+
+	const populatePresentValue = (field, match) => {
+		if (formState?.values?.[`present_${field.name}`] !== undefined)
+			return formState?.values?.[`present_${field.name}`];
+
+		return (
+			(presentAddress &&
+				presentAddress.length &&
+				presentAddress[0][field.name]) ||
+			field.value ||
+			''
+		);
+	};
+
+	// form.address;
 
 	return (
 		<>
@@ -135,7 +157,10 @@ export default function AddressDetails({
 												name: `present_${field.name}`,
 												value: match
 													? formState?.values?.[`permanent_${field.name}`]
-													: formState?.values?.[`present_${field.name}`],
+													: populatePresentValue(field, match),
+												// value: match
+												// 	? formState?.values?.[`permanent_${field.name}`]
+												// 	: formState?.values?.[`present_${field.name}`],
 												noActionTrigger: match,
 												...(field.valueForFields
 													? {

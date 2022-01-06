@@ -5,7 +5,11 @@ import { func, object, oneOfType, string, array } from 'prop-types';
 import { UserContext } from '../../../reducer/userReducer';
 import useFetch from '../../../hooks/useFetch';
 import Button from '../../../components/Button';
-import { NC_STATUS_CODE, SEARCH_BANK_BRANCH_LIST, SEARCH_LOAN_ASSET } from '../../../_config/app.config';
+import {
+	NC_STATUS_CODE,
+	SEARCH_BANK_BRANCH_LIST,
+	SEARCH_LOAN_ASSET,
+} from '../../../_config/app.config';
 
 const H = styled.h1`
 	min-height: 1.5em;
@@ -74,7 +78,7 @@ LoanDetails.propTypes = {
 	loanType: string,
 	size: string,
 	buttonAction: func,
-	uploadedDocs: object
+	uploadedDocs: object,
 };
 
 export default function LoanDetails({
@@ -86,10 +90,11 @@ export default function LoanDetails({
 	label,
 	size,
 	buttonAction = () => {},
-	uploadedDocs = {}
+	uploadedDocs = {},
+	preData,
 }) {
 	const {
-		state: { bankId, userToken }
+		state: { bankId, userToken },
 	} = useContext(UserContext);
 
 	const { newRequest } = useFetch();
@@ -99,7 +104,7 @@ export default function LoanDetails({
 			SEARCH_BANK_BRANCH_LIST({ bankId }),
 			{},
 			{
-				Authorization: `Bearer ${userToken}`
+				Authorization: `Bearer ${userToken}`,
 			}
 		);
 
@@ -108,7 +113,7 @@ export default function LoanDetails({
 			return opitionalDataRes.branchList
 				.map(branch => ({
 					name: branch.branch,
-					value: String(branch.id)
+					value: String(branch.id),
 				}))
 				.sort((a, b) => a.name.localeCompare(b.name));
 		}
@@ -119,7 +124,7 @@ export default function LoanDetails({
 			SEARCH_LOAN_ASSET,
 			{ method: 'POST', data: { ...data, type: loanType } },
 			{
-				Authorization: `Bearer ${userToken}`
+				Authorization: `Bearer ${userToken}`,
 			}
 		);
 
@@ -134,6 +139,16 @@ export default function LoanDetails({
 		buttonAction(name);
 	};
 
+	const populateValue = field => {
+		if (formState?.values?.[field.name] !== undefined) {
+			return formState?.values?.[field.name];
+		}
+
+		return (
+			(preData && preData[field.name]) || formState?.values?.[field.name] || ''
+		);
+	};
+
 	const fieldTemplate = field => {
 		return (
 			<Fragment key={field.name}>
@@ -141,22 +156,27 @@ export default function LoanDetails({
 					<Field size={size}>
 						{register({
 							...field,
-							value: formState?.values?.[field.name],
+							// value: formState?.values?.[field.name],
+							value: populateValue(field),
 							rules: {
 								...field.rules,
-								...(field.uploadButton && {})
+								...(field.uploadButton && {}),
 							},
+							placeholder:
+								field.type === 'search'
+									? preData?.branchIdName || field.placeholder
+									: field.placeholder,
 							...(field.type === 'search'
 								? {
 										searchable: true,
 										...(field.fetchOnInit && {
-											fetchOptionsFunc: getBranchOptions
+											fetchOptionsFunc: getBranchOptions,
 										}),
 										...(field.fetchOnSearch && {
-											searchOptionCallback: getBrandsOnSearch
-										})
+											searchOptionCallback: getBrandsOnSearch,
+										}),
 								  }
-								: {})
+								: {}),
 						})}
 
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
@@ -175,11 +195,15 @@ export default function LoanDetails({
 				</FieldWrapper>
 				{(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
 					formState?.error?.[field.name] && (
-						<ErrorMessage size={size}>{formState?.error?.[field.name]}</ErrorMessage>
+						<ErrorMessage size={size}>
+							{formState?.error?.[field.name]}
+						</ErrorMessage>
 					)}
 				{field.forType &&
 					field.forType[(formState?.values?.[field.name])] &&
-					field.forType[(formState?.values?.[field.name])].map(f => makeFields(f))}
+					field.forType[(formState?.values?.[field.name])].map(f =>
+						makeFields(f)
+					)}
 			</Fragment>
 		);
 	};
@@ -192,7 +216,7 @@ export default function LoanDetails({
 				if (formState?.values?.[f.name]) {
 					return {
 						name: f.name,
-						value: formState?.values?.[f.name]
+						value: formState?.values?.[f.name],
 					};
 				}
 				return false;
@@ -204,9 +228,9 @@ export default function LoanDetails({
 						...fields[i],
 						rules: {
 							...fields[i].rules,
-							required: !oneOfHasValue
+							required: !oneOfHasValue,
 						},
-						disabled: oneOfHasValue && fields[i].name !== oneOfHasValue?.name
+						disabled: oneOfHasValue && fields[i].name !== oneOfHasValue?.name,
 					})
 				);
 			}
@@ -225,7 +249,10 @@ export default function LoanDetails({
 				<Colom>
 					{jsonData &&
 						jsonData.map(
-							field => field.visibility && <Fragment key={field.name}>{fieldTemplate(field)}</Fragment>
+							field =>
+								field.visibility && (
+									<Fragment key={field.name}>{fieldTemplate(field)}</Fragment>
+								)
 						)}
 				</Colom>
 			</FormWrap>

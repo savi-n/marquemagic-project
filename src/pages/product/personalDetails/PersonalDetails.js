@@ -133,6 +133,16 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				type: 'error',
 			});
 		} else {
+			const formstatepan = JSON.parse(localStorage.getItem('formstatepan'));
+			localStorage.setItem(
+				'formstatepan',
+				JSON.stringify({ ...formstatepan, ...data })
+			);
+			const formstate = JSON.parse(localStorage.getItem('formstate'));
+			localStorage.setItem(
+				'formstate',
+				JSON.stringify({ ...formstate, ...data })
+			);
 			onSave(data);
 			setCompleted(id);
 			onFlowChange(map.main);
@@ -141,10 +151,16 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	const r = () => {
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'));
-			return formStat?.values;
+			let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+			if (form) return form;
+			else {
+				var formStat = JSON.parse(localStorage.getItem('formstate'));
+				return formStat?.values;
+			}
 		} else {
-			return userBankDetails;
+			let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+			if (form) return form;
+			else return userBankDetails;
 		}
 	};
 
@@ -191,7 +207,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	let userTokensss = localStorage.getItem(url);
 
 	let loan = JSON.parse(userTokensss).formReducer?.user?.loanData;
-
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
@@ -208,9 +223,9 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				formState={formState}
 				preData={{
 					firstName:
-						r()?.firstName || '' || (getDataFromPan() && getDataFromPan()[0]),
+						r()?.firstName || (getDataFromPan() && getDataFromPan()[0]) || '',
 					lastName:
-						r()?.lastName || '' || (getDataFromPan() && getDataFromPan()[1]),
+						r()?.lastName || (getDataFromPan() && getDataFromPan()[1]) || '',
 					dob:
 						getDOB() ||
 						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
@@ -226,6 +241,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || '',
 					countryResidence: 'india',
+					...form,
 				}}
 				jsonData={map.fields[id].data}
 			/>
@@ -234,6 +250,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
+				preData={form}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

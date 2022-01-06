@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
@@ -13,6 +14,11 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { formatLoanData } from '../../../utils/formatData';
 import { useToasts } from '../../../components/Toast/ToastProvider';
+import {
+	NC_STATUS_CODE,
+	SEARCH_BANK_BRANCH_LIST,
+} from '../../../_config/app.config';
+import useFetch from '../../../hooks/useFetch';
 
 const Div = styled.div`
 	flex: 1;
@@ -48,12 +54,12 @@ const FlexColom = styled.div`
 HomeLoanDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string
+	id: string,
 };
 
 export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
@@ -61,20 +67,20 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 			setUsertypeLoanData,
 			// setUsertypeEmiData,
 			setUsertypeBankData,
-			setUsertypeAgreementData
-		}
+			setUsertypeAgreementData,
+		},
 	} = useContext(FormContext);
 
 	const {
-		state: { bankId }
+		state: { bankId, userToken },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
-
 	const [uploadAgreementModal, setUploadAgreementModal] = useState(false);
 	const [uploadAgreementName, setUploadAgreementName] = useState(null);
 	const [uploadAgreementDocs, setUploadAgreementDocs] = useState({});
+	const [homeBranchList, sethomeBranchList] = useState([]);
 
 	const onProceed = data => {
 		onSave(data);
@@ -83,19 +89,39 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onSave = data => {
-		// const emiData = formatEmiData(data, map.fields["emi-details"].data);
+		const {
+			branchId,
+			loanAmount,
+			loanType,
+			tenure,
+			address1,
+			address2,
+			address3,
+			city,
+			pinCode,
+			state,
+			...rest
+		} = data;
+		const homeLoanBranchName =
+			homeBranchList.filter(ele => ele.id == branchId)[0]?.branch || '';
 		const loanData = formatLoanData(data, map.fields[id].data);
-
+		const address = formatLoanData(data, map.fields['address-details'].data);
 		// setUsertypeEmiData(emiData);
 		setUsertypeBankData({
 			bankId: bankId,
-			branchId: data.branchId.value || data.branchId
+			branchId: data.branchId.value || data.branchId,
 		});
-		setUsertypeLoanData({ ...loanData, summary: 'summary' });
+		setUsertypeLoanData({
+			...loanData,
+			...rest,
+			branchIdName: homeLoanBranchName,
+			address: address,
+			summary: 'summary',
+		});
 		setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
@@ -107,14 +133,39 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const onDone = (files, name) => {
 		setUploadAgreementDocs(p => ({
 			...p,
-			[name]: files
+			[name]: files,
 		}));
 		setUploadAgreementModal(false);
 	};
 
+	const getBranchOptions = async () => {
+		try {
+			const opitionalDataReq = await axios.get(
+				SEARCH_BANK_BRANCH_LIST({ bankId }),
+				{
+					headers: { Authorization: `Bearer ${userToken}` },
+				}
+			);
+			if (opitionalDataReq.data.status == 'ok') {
+				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
 	useEffect(() => {
 		localStorage.removeItem('pan');
+		// homebranchdropdown();
+		getBranchOptions();
+		// sethomeBranchList(dropdown);
 	}, []);
+
+	const url = window.location.hostname;
+
+	let userTokensss = localStorage.getItem(url);
+
+	let preData = JSON.parse(userTokensss).formReducer?.user?.loanData;
 
 	return (
 		<Div>
@@ -128,6 +179,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 						buttonAction={onUploadAgreement}
 						uploadedDocs={uploadAgreementDocs}
 						label={map.fields[id].label}
+						preData={preData}
 					/>
 				</FlexColom>
 				<FlexColom base='40%'>
@@ -136,13 +188,18 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 						register={register}
 						formState={formState}
 						size='100%'
+						preData={preData?.address}
 					/>
 				</FlexColom>
 			</FormWrapper>
 
-			{map.fields[id].message && <Caption>{map.fields['loan-details'].message}</Caption>}
+			{map.fields[id].message && (
+				<Caption>{map.fields['loan-details'].message}</Caption>
+			)}
 
-			{map.fields[id]?.loanTable && <HomeLoanDetailsTable tableContent={map.fields[id]?.loanTable} />}
+			{map.fields[id]?.loanTable && (
+				<HomeLoanDetailsTable tableContent={map.fields[id]?.loanTable} />
+			)}
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
