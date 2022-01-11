@@ -5,6 +5,7 @@ import { array, func, object, oneOfType, string } from 'prop-types';
 import useFetch from 'hooks/useFetch';
 import { NC_STATUS_CODE, SEARCH_BANK_BRANCH_LIST } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
+import moment from 'moment';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -187,13 +188,30 @@ export default function PersonalDetails({
 								)
 					  )
 					: id !== 'business-details' &&
-					  jsonData.map(
-							field =>
+					  jsonData.map(field => {
+							// console.log('field-', field);
+							const value = populateValue(field);
+							const customFields = {};
+							if (pageName === 'Bank Details') {
+								const startDateValue = populateValue(
+									jsonData.filter(f => f.name === 'StartDate')[0]
+								);
+								// console.log('startDateValue-', startDateValue);
+								if (field.name === 'EndDate' && startDateValue) {
+									customFields.min = moment(startDateValue).format(
+										'YYYY-MM-DD'
+									);
+								}
+								if (field.name === 'StartDate' || field.name === 'EndDate') {
+									customFields.max = moment().format('YYYY-MM-DD');
+								}
+							}
+							return (
 								field.visibility && (
 									<FieldWrap key={field.name}>
 										{register({
 											...field,
-											value: populateValue(field),
+											value,
 											...(preData?.[field.name] &&
 												field?.preDataDisable && { disabled: true }),
 											...(userType ? { disabled: false } : {}),
@@ -211,6 +229,7 @@ export default function PersonalDetails({
 														}),
 												  }
 												: {}),
+											...customFields,
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
@@ -221,7 +240,8 @@ export default function PersonalDetails({
 											)}
 									</FieldWrap>
 								)
-					  )}
+							);
+					  })}
 			</FormWrap>
 		</>
 	);

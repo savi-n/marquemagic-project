@@ -76,7 +76,7 @@ const VALIDATION_RULES = {
 	},
 	maxValue: {
 		func: maxValue,
-		message: 'Value Limit Exceedeed',
+		message: 'Value exceeds the limit',
 	},
 	minValue: {
 		func: minValue,
