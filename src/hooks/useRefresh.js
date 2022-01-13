@@ -1,28 +1,28 @@
-import { useEffect } from "react";
-import browserHistory from "history/createBrowserHistory";
+import { useEffect } from 'react';
+import browserHistory from 'history/createBrowserHistory';
 
 export default function useRefresh() {
-  useEffect(() => {
-    const backListener = browserHistory.listen((location) => {
-      if (location.action === "POP") {
-        console.log("back  button");
-      }
-    });
-    return () => {
-      backListener();
-    };
-    // window.onbeforeunload = alertUser;
+	useEffect(() => {
+		const backListener = browserHistory.listen(location => {
+			if (location.action === 'POP') {
+				console.log('back  button');
+			}
+		});
+		return () => {
+			backListener();
+		};
+		// window.onbeforeunload = alertUser;
 
-    // return () => {
-    //   window.onbeforeunload = null;
-    // };
-  }, []);
+		// return () => {
+		//   window.onbeforeunload = null;
+		// };
+	}, []);
 
-  const alertUser = (e) => {
-    e.preventDefault();
-    e.returnValue = "";
-    alert("closing");
-  };
+	const alertUser = e => {
+		e.preventDefault();
+		e.returnValue = '';
+		alert('closing');
+	};
 
-  return {};
+	return {};
 }
