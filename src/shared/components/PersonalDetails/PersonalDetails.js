@@ -89,6 +89,7 @@ export default function PersonalDetails({
 			if (field.name === 'dob') {
 				field.placeholder = 'Date of Birth';
 			}
+			return null;
 		});
 
 		if (id === 'business-details') {
@@ -101,6 +102,7 @@ export default function PersonalDetails({
 				if (ele.name === 'Email') {
 					isEmailPresent = true;
 				}
+				return null;
 			});
 			const mo = {
 				name: 'mobileNo',
@@ -135,6 +137,7 @@ export default function PersonalDetails({
 				if (ele.name === 'Email') {
 					isEmailPresent = true;
 				}
+				return null;
 			});
 			const mo = {
 				name: 'mobileNo',
