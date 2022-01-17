@@ -105,7 +105,10 @@ export default function EMIDetails({
 												</ErrorMessage>
 											)}
 									</Field>
-									<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
+									<Currency />
+									{/* {field.inrupees && (
+										<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
+									)} */}
 									<Field>
 										{/* {register({
                       type: "banklist",
