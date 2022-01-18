@@ -223,6 +223,8 @@ export default function PersonalDetails({
 												field.type === 'banklist'
 													? preData?.[`${field.name}`]?.name ||
 													  field.placeholder
+													: field.type === 'search'
+													? preData?.branchIdName || field.placeholder
 													: field.placeholder,
 											...(field.type === 'search'
 												? {
