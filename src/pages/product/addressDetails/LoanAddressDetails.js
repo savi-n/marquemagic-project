@@ -194,9 +194,11 @@ export default function AddressDetailsPage({
 				preDataFilled={form?.address}
 				preData={{
 					address1:
-						(Address && Address.address1) || companyDetail?.Address
+						Address && Address.address1
+							? Address && Address.address1
+							: companyDetail?.Address
 							? getAddress(companyDetail?.Address)
-							: '' || r()?.address1 || '',
+							: r()?.address1 || '',
 					address2: (Address && Address.address2) || r()?.address2 || '',
 					address3: (Address && Address.address3) || r()?.address3 || '',
 					address4: (Address && Address.address4) || r()?.address4 || '',
