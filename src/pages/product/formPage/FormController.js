@@ -157,6 +157,9 @@ export default function FormController({
 			});
 		}
 
+		// or loan type
+		// Loan Against Property Individual Loan
+		// console.log('formcontroller-onProceed-productDetails-', productDetails);
 		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',

@@ -4,12 +4,16 @@ import styled from 'styled-components';
 import Card from '../../components/Card';
 import useFetch from '../../hooks/useFetch';
 import { AppContext } from '../../reducer/appReducer';
-import { PRODUCT_LIST_URL } from '../../_config/app.config';
+import { API_END_POINT, PRODUCT_LIST_URL } from '../../_config/app.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../components/Modal';
 import Button from 'components/Button';
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
+import Loader from 'Branch/components/Loader';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const Wrapper = styled.div`
 	padding: 30px 80px 50px 80px;
@@ -30,6 +34,22 @@ const ProductsBox = styled.div`
 	/* gap: 20px; */
 	/* align-items: center; */
 	/* gap: calc(12% / 3); */
+`;
+
+const StatusBox = styled.div`
+	width: 50%;
+	padding: 30px;
+	border-radius: 10px;
+	margin: 50px auto 50px auto;
+	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
+`;
+
+const SectionLoanStatus = styled.section`
+	@media (max-width: 700px) {
+		margin: 0;
+		padding: 30px;
+		width: 100%;
+	}
 `;
 
 const DivAdd = styled.div`
@@ -87,6 +107,11 @@ const ImgDotElementLeft = styled.img`
 	margin-left: 50px;
 `;
 
+const ProductName = styled.div`
+	color: #4e4e4e;
+	font-weight: bold;
+`;
+
 export default function Products() {
 	const {
 		state: { whiteLabelId },
@@ -97,6 +122,39 @@ export default function Products() {
 	});
 
 	const [addedProduct, setAddedProduct] = useState(null);
+
+	const [searching, setSearching] = useState(false);
+	const [refstatus, setRefstatus] = useState('');
+	const { addToast } = useToasts();
+	const [status, setStatus] = useState(null);
+
+	const getStatusCustomer = async () => {
+		try {
+			setSearching(true);
+			const url = `${API_END_POINT}/getLoanStatus`;
+			const res = await axios.post(url, { loanRefId: refstatus.trim() });
+			if (res?.data?.statusName) {
+				setStatus(res?.data?.statusName || '');
+			} else {
+				addToast({
+					message: 'Invalid Loan ID',
+					type: 'error',
+				});
+			}
+			setSearching(false);
+		} catch (error) {
+			addToast({
+				message:
+					error?.response?.data?.message || 'Server down, Try after sometimes',
+				type: 'error',
+			});
+			setSearching(false);
+			// alert('Server down, Try after sometimes.!');
+			console.log('error-getStatusCustomer-', error);
+			// console.log('error-getStatusCustomer-response-', error.response);
+			// alert(error.response.data.message);
+		}
+	};
 
 	useEffect(() => {
 		const url = window.location.hostname;
@@ -167,6 +225,28 @@ export default function Products() {
 						)}
 				</DivAdd>
 			</Modal>
+			<StatusBox>
+				<ProductName>
+					Here, you can check your application status by entering the loan
+					reference ID.
+				</ProductName>
+				<section className='flex font-medium my-2' style={{ marginRight: 15 }}>
+					<input
+						className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
+						placeholder='Enter Loan Referance ID'
+						onChange={e => setRefstatus(e.target.value)}
+					/>
+					<FontAwesomeIcon
+						className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2 my-2'
+						icon={faSearch}
+						onClick={() => getStatusCustomer()}
+					/>
+				</section>
+				<section className='flex items-center font-semibold'>
+					<span className='px-3 font-semibold'>Application status :</span>{' '}
+					{searching ? <Loader /> : status && status}
+				</section>
+			</StatusBox>
 		</Wrapper>
 	);
 }

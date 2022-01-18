@@ -60,7 +60,7 @@ export default function Pincode(props) {
 	useEffect(() => {
 		if (props.value) {
 			onPinChange({
-				target: { name: props.name, value: props.value }
+				target: { name: props.name, value: props.value },
 			});
 		}
 	}, [props.value]);
@@ -77,9 +77,12 @@ export default function Pincode(props) {
 		if (value.length === props.makeApiCall) {
 			setProcessing(true);
 			try {
-				const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: value }), {});
+				const response = await newRequest(
+					PINCODE_ADRRESS_FETCH({ pinCode: value }),
+					{}
+				);
 				const pincodeData = response.data;
-				console.log(response);
+				// console.log(response);
 
 				if (pincodeData.status === 'nok' || !pincodeData) {
 					setProcessing(false);
@@ -100,7 +103,12 @@ export default function Pincode(props) {
 
 	return (
 		<Div>
-			<InputField type={'text'} {...props} onChange={onPinChange} processing={processing} />
+			<InputField
+				type={'text'}
+				{...props}
+				onChange={onPinChange}
+				processing={processing}
+			/>
 			{processing && <Label />}
 		</Div>
 	);

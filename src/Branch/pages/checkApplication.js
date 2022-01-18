@@ -141,7 +141,7 @@ export default function CheckApplication(props) {
 	};
 
 	const removeHandler = value => {
-		console.log(value);
+		// console.log(value);
 	};
 
 	const [lActive, setLActive] = useState(props.activ);

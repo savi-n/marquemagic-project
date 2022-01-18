@@ -76,7 +76,7 @@ const VALIDATION_RULES = {
 	},
 	maxValue: {
 		func: maxValue,
-		message: 'Value Limit Exceedeed',
+		message: 'Value exceeds the limit',
 	},
 	minValue: {
 		func: minValue,
@@ -322,6 +322,28 @@ const Select = styled.select`
 //   return value;
 // }
 
+const Currency = styled.div`
+	/* position: absolute; */
+	margin-left: 100%;
+	padding-left: 10px;
+	padding-bottom: 15px;
+	margin-top: -35px;
+	width: 50px;
+	font-size: 13px;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	top: 0;
+`;
+
+const InputFieldWrapper = styled.div`
+	/* display: flex; */
+	/* justify-content: space-between; */
+	div:first-of-type {
+		width: 100%;
+	}
+`;
+
 function InputFieldRender({ field, onChange, value, unregister }) {
 	const { type = 'text', rules } = field;
 
@@ -436,11 +458,16 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		}
 		default: {
 			return (
-				<InputField
-					type={type}
-					{...{ ...field, ...fieldProps }}
-					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
-				/>
+				<>
+					<InputField
+						type={type}
+						{...{ ...field, ...fieldProps }}
+						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
+					/>
+					{field?.inrupees && (
+						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
+					)}
+				</>
 			);
 		}
 	}

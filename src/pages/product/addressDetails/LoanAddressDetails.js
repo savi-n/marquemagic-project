@@ -56,6 +56,8 @@ AddressDetailsPage.propTypes = {
 	fieldConfig: object,
 };
 const getPinCode = add => {
+	// console.log('getPinCode-add-', add);
+	if (add && add?.pncd) return add.pncd;
 	const digits = '1234567890';
 	let str = '';
 	for (const char of add) {
@@ -68,6 +70,30 @@ const getPinCode = add => {
 	if (str.length < 6) return '';
 	return str.substr(str.length - 6);
 };
+
+const getAddress = add => {
+	// flno: "MEZZANINE FLOOR - NORTH SIDE"
+	// bno: "NO  5"
+	// bnm: "CRIMSON COURT - 1"
+	// loc: "HAL III STAGE, BANGALORE"
+	// st: "JEEVANBHIMA NAGAR MAIN ROAD"
+	// city: ""
+	// dst: "Bengaluru (Bangalore) Urban"
+	// stcd: "Karnataka"
+	// pncd: "560075"
+	// lg: ""
+	// lt: ""
+	if (add && add?.pncd) {
+		const addressLine1 = [];
+		if (add.flno) addressLine1.push(add.flno);
+		if (add.bno) addressLine1.push(add.bno);
+		if (add.bnm) addressLine1.push(add.bnm);
+		if (add.loc) addressLine1.push(add.loc);
+		if (add.st) addressLine1.push(add.st);
+		return addressLine1.join(', ');
+	} else return add;
+};
+
 export default function AddressDetailsPage({
 	id,
 	onFlowChange,
@@ -168,10 +194,9 @@ export default function AddressDetailsPage({
 				preDataFilled={form?.address}
 				preData={{
 					address1:
-						(Address && Address.address1) ||
-						companyDetail?.Address ||
-						r()?.address1 ||
-						'',
+						(Address && Address.address1) || companyDetail?.Address
+							? getAddress(companyDetail?.Address)
+							: '' || r()?.address1 || '',
 					address2: (Address && Address.address2) || r()?.address2 || '',
 					address3: (Address && Address.address3) || r()?.address3 || '',
 					address4: (Address && Address.address4) || r()?.address4 || '',
@@ -181,7 +206,9 @@ export default function AddressDetailsPage({
 						Address && Address.pinCode
 							? Address.pinCode
 							: companyDetail?.Address
-							? getPinCode(companyDetail?.Address)
+							? companyDetail?.Address
+								? getPinCode(companyDetail?.Address)
+								: ''
 							: r()?.pin || '',
 				}}
 			/>
