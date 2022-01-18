@@ -105,7 +105,9 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		const homeLoanBranchName =
 			homeBranchList.filter(ele => ele.id == branchId)[0]?.branch || '';
 		const loanData = formatLoanData(data, map.fields[id].data);
-		const address = formatLoanData(data, map.fields['address-details'].data);
+		const address = map?.fields['address-details']?.data
+			? formatLoanData(data, map.fields['address-details'].data)
+			: {};
 		// setUsertypeEmiData(emiData);
 		setUsertypeBankData({
 			bankId: bankId,
@@ -182,15 +184,17 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 						preData={preData}
 					/>
 				</FlexColom>
-				<FlexColom base='40%'>
-					<HomeLoanAddressDetails
-						jsonData={map.fields['address-details'].data}
-						register={register}
-						formState={formState}
-						size='100%'
-						preData={preData?.address}
-					/>
-				</FlexColom>
+				{map?.fields['address-details']?.data && (
+					<FlexColom base='40%'>
+						<HomeLoanAddressDetails
+							jsonData={map.fields['address-details'].data}
+							register={register}
+							formState={formState}
+							size='100%'
+							preData={preData?.address}
+						/>
+					</FlexColom>
+				)}
 			</FormWrapper>
 
 			{map.fields[id].message && (

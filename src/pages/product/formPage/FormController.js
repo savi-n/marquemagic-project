@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
-
+import axios from 'axios';
 import useForm from '../../../hooks/useForm';
 import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
 import Button from '../../../components/Button';
@@ -13,11 +13,13 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import { AppContext } from '../../../reducer/appReducer';
+import { UserContext } from '../../../reducer/userReducer';
 import {
 	LOGIN_CREATEUSER,
 	WHITELABEL_ENCRYPTION_API,
 	APP_CLIENT,
 	NC_STATUS_CODE,
+	SEARCH_BANK_BRANCH_LIST,
 } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
 
@@ -75,6 +77,10 @@ export default function FormController({
 		},
 	} = useContext(FormContext);
 
+	const {
+		state: { bankId, userToken: userToken1 },
+	} = useContext(UserContext);
+
 	// const {
 	// 	actions: {
 	// 		setUsertypeLoanData,
@@ -89,10 +95,29 @@ export default function FormController({
 	const { addToast } = useToasts();
 
 	useEffect(() => {
+		if (id === 'vehicle-loan-details') {
+			getBranchOptions();
+		}
 		return () => {
 			console.log('unmount form');
 		};
 	}, []);
+
+	const getBranchOptions = async () => {
+		try {
+			const opitionalDataReq = await axios.get(
+				SEARCH_BANK_BRANCH_LIST({ bankId }),
+				{
+					headers: { Authorization: `Bearer ${userToken1}` },
+				}
+			);
+			if (opitionalDataReq.data.status == 'ok') {
+				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	};
 
 	useEffect(() => {
 		clearError();
@@ -120,12 +145,21 @@ export default function FormController({
 		// 		addrr2: '',
 		// 	},
 		// });
+		let homeLoanBranchName = '';
+		if (id === 'vehicle-loan-details') {
+			homeLoanBranchName =
+				homeBranchList.filter(ele => ele.id == data.branchId)[0]?.branch || '';
+			data = { ...data, branchIdName: homeLoanBranchName };
+		}
 		if (id === 'business-loan-details') {
 			setUsertypeLoanData({
 				...data,
 			});
 		}
 
+		// or loan type
+		// Loan Against Property Individual Loan
+		// console.log('formcontroller-onProceed-productDetails-', productDetails);
 		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
@@ -219,6 +253,8 @@ export default function FormController({
 	// };
 
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
+	const [homeBranchList, sethomeBranchList] = useState([]);
+
 	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
 	const url = window.location.hostname;

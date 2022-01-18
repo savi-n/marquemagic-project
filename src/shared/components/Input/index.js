@@ -12,16 +12,18 @@ export default function Input(props) {
 			padding: '1rem',
 			borderRadius: '1.5rem',
 			border: 'solid 1px silver',
-			width: '22rem'
-		})
+			width: '22rem',
+		}),
 	};
 
 	return (
-		<section className={`flex items-center ${!props.sideHead && 'justify-between'}`}>
+		<section
+			className={`flex items-center ${!props.sideHead && 'justify-between'}`}>
 			{props.type !== 'dropdown' && (
 				<input
 					{...props}
-					className={`w-${width || ''} font-${font || ''} p-${p || '4'} px-6 text-${txtColor ||
+					className={`w-${width || ''} font-${font || ''} p-${p ||
+						'4'} px-6 text-${txtColor ||
 						'black'} border border-gray-400 rounded-3xl focus:outline-none focus:shadow-inner shadow-sm ${classname &&
 						classname}`}
 				/>
@@ -60,14 +62,17 @@ export default function Input(props) {
 				(props.link && (
 					<section className='relative -left-40'>
 						<Link
-							className={`px-5 text-${props.linkColor}-600 hover:text-${props.linkColor}-400`}
-							to={props.link.to}
-						>
+							className={`px-5 text-${props.linkColor}-600 hover:text-${
+								props.linkColor
+							}-400`}
+							to={props.link.to}>
 							{props.link.name}
 						</Link>
 					</section>
 				))) ||
-				(props.sideHead && <p className='px-4 font-semibold'>{props.sideHead}</p>)}
+				(props.sideHead && (
+					<p className='px-4 font-semibold'>{props.sideHead}</p>
+				))}
 			{aes()}
 		</section>
 	);
