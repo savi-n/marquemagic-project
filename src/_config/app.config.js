@@ -62,6 +62,7 @@ const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
+const CIN_UPDATE = `${API_END_POINT}/cin-update`;
 
 const APP_CLIENT =
 	window.location.hostname === 'localhost'
@@ -133,4 +134,5 @@ export {
 	DOCS_UPLOAD_URL_LOAN,
 	REDIRECT_CREATE,
 	KYC_URL,
+	CIN_UPDATE,
 };
