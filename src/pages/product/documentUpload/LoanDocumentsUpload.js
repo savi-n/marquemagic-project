@@ -1277,7 +1277,8 @@ export default function DocumentUpload({
 							background: 'blue',
 						}}
 						disabled={buttonDisabledStatus()}
-						onClick={onSubmit}
+						onClick={!caseCreationProgress && onSubmit}
+						// onClick={onSubmit}
 					/>
 				</SubmitWrapper>
 				{otherBankStatementModal && (
