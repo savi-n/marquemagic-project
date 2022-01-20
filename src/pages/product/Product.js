@@ -154,6 +154,7 @@ export default function Product({ product, url }) {
 
 	const {
 		state: { timestamp },
+		actions: { resetUserDetails },
 	} = useContext(UserContext);
 
 	const { response } = useFetch({
@@ -214,6 +215,7 @@ export default function Product({ product, url }) {
 		localStorage.setItem('wt_lbl', wt_lbl);
 		clearFlowDetails(basePageUrl);
 		clearFormData();
+		resetUserDetails();
 	};
 
 	const onFlowChange = (flow, i) => {
