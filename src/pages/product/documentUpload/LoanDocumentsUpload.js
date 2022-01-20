@@ -19,6 +19,7 @@ import {
 	USER_ROLES,
 	PINCODE_ADRRESS_FETCH,
 	WHITELABEL_ENCRYPTION_API,
+	CIN_UPDATE,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -805,6 +806,27 @@ export default function DocumentUpload({
 			) {
 				setMessage(caseReq.data.data.loan_details.loan_ref_id);
 				setLoanRef(caseReq.data.data.loan_details.loan_ref_id);
+				const compData =
+					localStorage.getItem('companyData') &&
+					JSON.parse(localStorage.getItem('companyData'));
+				if (compData && compData.CIN) {
+					const reqBody = {
+						loan_ref_id: caseReq.data.data.loan_details.loan_ref_id,
+						cin_number: compData.CIN,
+					};
+					await newRequest(
+						CIN_UPDATE,
+						{
+							method: 'POST',
+							data: reqBody,
+						},
+						{
+							authorization: `Bearer ${
+								JSON.parse(userToken).userReducer?.userToken
+							}`,
+						}
+					);
+				}
 				return caseRes.data;
 			}
 
@@ -829,7 +851,7 @@ export default function DocumentUpload({
 					data: subsidiaryDataFormat(caseId, state),
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -863,7 +885,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -896,7 +918,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -929,7 +951,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer.userToken}`,
 				}
 			);
@@ -1255,7 +1277,8 @@ export default function DocumentUpload({
 							background: 'blue',
 						}}
 						disabled={buttonDisabledStatus()}
-						onClick={onSubmit}
+						onClick={!caseCreationProgress && onSubmit}
+						// onClick={onSubmit}
 					/>
 				</SubmitWrapper>
 				{otherBankStatementModal && (
