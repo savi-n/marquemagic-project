@@ -851,7 +851,7 @@ export default function DocumentUpload({
 					data: subsidiaryDataFormat(caseId, state),
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -885,7 +885,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -918,7 +918,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -951,7 +951,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer.userToken}`,
 				}
 			);
