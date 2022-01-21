@@ -41,7 +41,7 @@ export const verifyPan = async (ref_id, number, name, token) => {
 		const url = `${ENDPOINT_BANK}/verifyKycData`;
 		const g = await axios.post(
 			url,
-			{ ref_id, number, name },
+			{ ref_id, number, name, doc_type: 'pan' },
 			{ headers: { Authorization: token } }
 		);
 		const t = await g;
@@ -57,11 +57,21 @@ export const verifyPan = async (ref_id, number, name, token) => {
 export const gstFetch = async (pan_number, state_code, gstin, token) => {
 	const url = `${ENDPOINT_BANK}/GSTData`;
 	if (state_code == null) state_code = '22';
-	const g = await axios.post(
-		url,
-		{ pan_number, state_code, gst: gstin },
-		{ headers: { Authorization: token } }
-	);
-	const t = await g;
-	return t;
+	try {
+		const g = await axios.post(
+			url,
+			{
+				//pan_number, state_code,
+				gst: gstin,
+			},
+			{ headers: { Authorization: token } }
+		);
+		const t = await g;
+		return t;
+	} catch (err) {
+		if (err.response) {
+			return { data: err.response.data };
+		}
+		return { status: 500, message: err.message };
+	}
 };

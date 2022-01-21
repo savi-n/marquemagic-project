@@ -656,11 +656,19 @@ export default function PanVerification({
 					if (panNumber) {
 						await gstFetch(panNumber, stateCode, gstin, clientToken).then(
 							res => {
-								if (res?.data?.data.error_code) {
+								if (res?.data?.status === 'nok') {
+									setVerificationFailed('Invalid GSTIN pattern');
+									setLoading(false);
+									return;
+								} else if (res?.data?.data?.error_code) {
 									setVerificationFailed(res?.data?.data.message);
 									setLoading(false);
 									return;
-								} else gstNumberFetch(res?.data?.data[0]?.data, gstin);
+								} else
+									gstNumberFetch(
+										res?.data?.data[0]?.data || res?.data?.data,
+										gstin
+									);
 							}
 						);
 					}
