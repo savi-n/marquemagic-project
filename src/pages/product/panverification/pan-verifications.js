@@ -628,23 +628,49 @@ export default function PanVerification({
 					let stateCode = null,
 						panFromGstin = null;
 					if (gstin) {
+						if (gstin.length !== 15) {
+							setVerificationFailed('Character Length Mismatch');
+							setLoading(false);
+							return;
+						}
 						stateCode = gstin.slice(0, 2);
 						panFromGstin = gstin.slice(2, 12);
-						// if (panFromGstin !== panNumber) {
-						// 	setVerificationFailed('Invalid GSTIN for the given PAN');
-						// 	setLoading(false);
-						// 	return;
-						// }
+						const restGstin = gstin.slice(12, 15);
+
+						const lastthreeDigitsValidation = /[1-9A-Z]{1}Z[0-9A-Z]{1}/.test(
+							restGstin
+						);
+						const stateCodeValidation = /[0-9]/.test(stateCode);
+						if (!lastthreeDigitsValidation || !stateCodeValidation) {
+							setVerificationFailed('Please specify a valid GSTIN');
+							setLoading(false);
+							return;
+						}
+						if (panFromGstin !== panNumber || !lastthreeDigitsValidation) {
+							setVerificationFailed('Invalid GSTIN for the given PAN');
+							setLoading(false);
+							return;
+						}
 					}
 
 					if (panNumber) {
-						await gstFetch(panNumber, stateCode, clientToken).then(res => {
-							if (res?.data?.data.error_code) {
-								setVerificationFailed(res?.data?.data.message);
-								setLoading(false);
-								return;
-							} else gstNumberFetch(res?.data?.data[0]?.data, gstin);
-						});
+						await gstFetch(panNumber, stateCode, gstin, clientToken).then(
+							res => {
+								if (res?.data?.status === 'nok') {
+									setVerificationFailed('Invalid GSTIN pattern');
+									setLoading(false);
+									return;
+								} else if (res?.data?.data?.error_code) {
+									setVerificationFailed(res?.data?.data.message);
+									setLoading(false);
+									return;
+								} else
+									gstNumberFetch(
+										res?.data?.data[0]?.data || res?.data?.data,
+										gstin
+									);
+							}
+						);
 					}
 				} catch (error) {
 					console.error(error);
