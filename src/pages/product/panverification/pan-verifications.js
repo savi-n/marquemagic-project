@@ -1270,10 +1270,8 @@ PanVerification.propTypes = {
 	id: string,
 };
 
-// TODO if GSTIN not match onchange remove error.. or disable button. resolved
-//
-// 2.if we add file need ti remove the error in dl, aadhar, votar resolved
-// 3. after pan it will come popup in housing loan we can edit there pan why? if we edit alos going to next page? hold
+// TODO
+
+// 1. after pan it will come popup in housing loan we can edit there pan why? if we edit alos going to next page? hold
 // Confirm PAN number and Proceed pan should be disabled.
-// error for box dashed and error for filed in gstin
 //
