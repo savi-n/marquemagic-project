@@ -654,13 +654,15 @@ export default function PanVerification({
 					}
 
 					if (panNumber) {
-						await gstFetch(panNumber, stateCode, clientToken).then(res => {
-							if (res?.data?.data.error_code) {
-								setVerificationFailed(res?.data?.data.message);
-								setLoading(false);
-								return;
-							} else gstNumberFetch(res?.data?.data[0]?.data, gstin);
-						});
+						await gstFetch(panNumber, stateCode, gstin, clientToken).then(
+							res => {
+								if (res?.data?.data.error_code) {
+									setVerificationFailed(res?.data?.data.message);
+									setLoading(false);
+									return;
+								} else gstNumberFetch(res?.data?.data[0]?.data, gstin);
+							}
+						);
 					}
 				} catch (error) {
 					console.error(error);

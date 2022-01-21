@@ -54,12 +54,12 @@ export const verifyPan = async (ref_id, number, name, token) => {
 	}
 };
 
-export const gstFetch = async (pan_number, state_code, token) => {
+export const gstFetch = async (pan_number, state_code, gstin, token) => {
 	const url = `${ENDPOINT_BANK}/GSTData`;
 	if (state_code == null) state_code = '22';
 	const g = await axios.post(
 		url,
-		{ pan_number, state_code },
+		{ pan_number, state_code, gst: gstin },
 		{ headers: { Authorization: token } }
 	);
 	const t = await g;
