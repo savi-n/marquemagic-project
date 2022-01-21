@@ -14,6 +14,9 @@ export const getKYCData = async (formData, token) => {
 		const t = await g;
 		return t;
 	} catch (err) {
+		if (err.response) {
+			return { data: err.response.data };
+		}
 		return { data: { message: err.message, status: 'nok' } };
 	}
 };
@@ -44,6 +47,9 @@ export const verifyPan = async (ref_id, number, name, token) => {
 		const t = await g;
 		return t;
 	} catch (err) {
+		if (err.response) {
+			return { data: err.response.data };
+		}
 		return { status: 500, message: err.message };
 	}
 };

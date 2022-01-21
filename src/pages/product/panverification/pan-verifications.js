@@ -56,6 +56,7 @@ const LabRed = styled.h1`
 	font-size: 1em;
 	font-weight: 500;
 	color: red;
+	margin-top: -25px;
 `;
 
 const H = styled.h1`
@@ -69,6 +70,12 @@ const H = styled.h1`
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 50%;
+`;
+
+const FieldWrapperPanVerify = styled.div`
+	padding: 20px 0;
+	/* width: 50%; */
+	place-self: center;
 `;
 
 const H2 = styled.h2`
@@ -207,12 +214,19 @@ export default function PanVerification({
 
 	const { newRequest } = useFetch();
 	const { register, handleSubmit, formState } = useForm();
-
 	const { addToast } = useToasts();
 
 	const [loading, setLoading] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [companyListModal, setCompanyListModal] = useState(false);
+	const [dlError, setDLError] = useState('');
+	const [aadharError, setAadharError] = useState('');
+
+	const [voterError, setVoterError] = useState('');
+
+	useEffect(() => {
+		verificationFailed && setVerificationFailed('');
+	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
 
 	const onCompanySelect = cinNumber => {
 		setCompanyListModal(false);
@@ -307,7 +321,7 @@ export default function PanVerification({
 	};
 
 	const [selectDoc, selectDocs] = useState(false);
-	const [verificationFailed, setVerificationFailed] = useState(null);
+	const [verificationFailed, setVerificationFailed] = useState('');
 	const [gstNum, setGstNum] = useState(null);
 
 	const gstNumberFetch = async (data, gstNum) => {
@@ -399,6 +413,14 @@ export default function PanVerification({
 	const handleFileUpload = files => {
 		setFile([...files, ...file]);
 		setPanFile([...files, ...file]);
+		setDisableSubmit(false);
+		resetAllErrors();
+	};
+
+	const resetAllErrors = () => {
+		setDLError('');
+		setAadharError('');
+		setVoterError('');
 	};
 
 	useEffect(() => {
@@ -406,8 +428,28 @@ export default function PanVerification({
 	}, []);
 
 	const userid = '10626';
-	const removeHandler = e => {
-		setDocs([]);
+	const removeHandler = (e, doc, name) => {
+		setPanError('');
+		resetAllErrors();
+		if (name) {
+			if (name === 'DL') {
+				var index = doc.findIndex(x => x.id === e);
+				doc.splice(index, 1);
+				setOtherDoc(doc);
+			}
+			if (name === 'aadhar') {
+				var index = doc.findIndex(x => x.id === e);
+				doc.splice(index, 1);
+				setAadhar(doc);
+			}
+			if (name === 'voter') {
+				var index = doc.findIndex(x => x.id === e);
+				doc.splice(index, 1);
+				setVoter(doc);
+			}
+		}
+
+		panUpload && setDocs([]);
 		var index = file.findIndex(x => x.id === e);
 		file.splice(index, 1);
 		setFile(file);
@@ -420,6 +462,7 @@ export default function PanVerification({
 	const [aadhar, setAadhar] = useState([]);
 	const [voter, setVoter] = useState([]);
 	const [selectedDocType, setSelectedDocType] = useState(null);
+	const [panError, setPanError] = useState('');
 
 	const handlePanUpload = files => {
 		setLoading(true);
@@ -430,13 +473,13 @@ export default function PanVerification({
 		getKYCData(formData, clientToken)
 			.then(res => {
 				if (res.data.status === 'nok') {
-					setPanConfirm(true);
+					// setPanConfirm(true);
 					setBusiness(false);
-
-					addToast({
-						message: res.data.message,
-						type: 'error',
-					});
+					setPanError(res.data.message);
+					// addToast({
+					// 	message: res.data.message,
+					// 	type: 'error',
+					// });
 				} else {
 					setPan(res.data.data['Pan_number']);
 					localStorage.setItem('pan', res.data.data['Pan_number']);
@@ -502,7 +545,7 @@ export default function PanVerification({
 		gstNumber,
 	}) => {
 		setLoading(true);
-		setVerificationFailed(null);
+		setVerificationFailed('');
 		setGstNum(gstin);
 
 		if (productType === 'business') {
@@ -563,6 +606,15 @@ export default function PanVerification({
 							formState?.values?.companyName,
 							clientToken
 						);
+						if (y.data.status === 'nok') {
+							setVerificationFailed(
+								typeof y.data.message === 'string'
+									? y.data.message
+									: y.data.message.message
+							);
+							setLoading(false);
+							return;
+						}
 						if (y.status === 500) {
 							setLoading(false);
 							addToast({
@@ -578,16 +630,20 @@ export default function PanVerification({
 					if (gstin) {
 						stateCode = gstin.slice(0, 2);
 						panFromGstin = gstin.slice(2, 12);
-						if (panFromGstin !== panNumber) {
-							setVerificationFailed('Invalid GSTIN for the given PAN');
-							setLoading(false);
-							return;
-						}
+						// if (panFromGstin !== panNumber) {
+						// 	setVerificationFailed('Invalid GSTIN for the given PAN');
+						// 	setLoading(false);
+						// 	return;
+						// }
 					}
 
 					if (panNumber) {
 						await gstFetch(panNumber, stateCode, clientToken).then(res => {
-							gstNumberFetch(res?.data?.data[0]?.data, gstin);
+							if (res?.data?.data.error_code) {
+								setVerificationFailed(res?.data?.data.message);
+								setLoading(false);
+								return;
+							} else gstNumberFetch(res?.data?.data[0]?.data, gstin);
 						});
 					}
 				} catch (error) {
@@ -647,6 +703,7 @@ export default function PanVerification({
 	};
 	const [backUpload, setBackUpload] = useState(false);
 	const [backUploading, setBackUploading] = useState(false);
+	const [disableButton, setDisableSubmit] = useState(false);
 
 	useEffect(() => {
 		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
@@ -656,7 +713,7 @@ export default function PanVerification({
 	const handleUpload = files => {
 		setLoading(true);
 		const fileType = t();
-
+		resetAllErrors();
 		if (file.length > 1) {
 			const formData1 = new FormData();
 			formData1.append('req_type', fileType);
@@ -664,14 +721,24 @@ export default function PanVerification({
 			formData1.append('document', file[1].file);
 			getKYCData(formData1, clientToken).then(re => {
 				if (re.data.status === 'nok') {
-					addToast({
-						message: re.data.message,
-						type: 'error',
-					});
-					setOtherDoc([]);
-					setAadhar([]);
-					setVoter([]);
-					onProceed();
+					// addToast({
+					// 	message: re.data.message,
+					// 	type: 'error',
+					// });
+					if (otherDoc.length > 0) {
+						setDLError(re.data.message);
+					}
+					if (aadhar.length > 0) {
+						setAadharError(re.data.message);
+					}
+					if (voter.length > 0) {
+						setVoterError(re.data.message);
+					}
+					setLoading(false);
+					// setOtherDoc([]);
+					// setAadhar([]);
+					// setVoter([]);
+					// onProceed();
 				} else {
 					const formData2 = new FormData();
 					formData2.append('req_type', fileType);
@@ -740,16 +807,27 @@ export default function PanVerification({
 			formData.append('req_type', fileType);
 			formData.append('process_type', 'extraction');
 			formData.append('document', files);
+
 			getKYCData(formData, clientToken).then(res => {
 				if (res.data.status === 'nok') {
-					addToast({
-						message: res.data.message,
-						type: 'error',
-					});
-					setOtherDoc([]);
-					setAadhar([]);
-					setVoter([]);
-					onProceed();
+					// addToast({
+					// 	message: res.data.message,
+					// 	type: 'error',
+					// });
+					if (otherDoc.length > 0) {
+						setDLError(res.data.message);
+					}
+					if (aadhar.length > 0) {
+						setAadharError(res.data.message);
+					}
+					if (voter.length > 0) {
+						setVoterError(res.data.message);
+					}
+					setLoading(false);
+					// setOtherDoc([]);
+					// setAadhar([]);
+					// setVoter([]);
+					// onProceed();
 				} else {
 					// data ---> extractionData
 					// ref_id: pass the id from the first doc response
@@ -828,7 +906,14 @@ export default function PanVerification({
 								onRemoveFile={e => removeHandler(e)}
 								docs={docs}
 								setDocs={setDocs}
+								errorMessage={panError}
 							/>
+							{panError && (
+								<p style={{ color: 'red', marginTop: '-35px' }}>
+									{panError}
+									{/* <Span>supported formats - jpeg, png, jpg</Span> */}
+								</p>
+							)}
 							<section>
 								<Button
 									onClick={() => {
@@ -868,10 +953,22 @@ export default function PanVerification({
 										}}
 										pan={true}
 										onDrop={handleFileUpload}
-										onRemoveFile={e => removeHandler(e)}
+										onRemoveFile={e => removeHandler(e, otherDoc, 'DL')}
 										docs={otherDoc}
 										setDocs={setOtherDoc}
+										aadharVoterDl={true}
+										errorMessage={dlError}
 									/>
+									{dlError.length > 0 && (
+										<p
+											style={{
+												color: 'red',
+												marginTop: '-45px',
+												marginBottom: '45px',
+											}}>
+											{dlError}
+										</p>
+									)}
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -891,10 +988,22 @@ export default function PanVerification({
 										}}
 										pan={true}
 										onDrop={handleFileUpload}
-										onRemoveFile={e => removeHandler(e)}
+										onRemoveFile={e => removeHandler(e, aadhar, 'aadhar')}
 										docs={aadhar}
 										setDocs={setAadhar}
+										aadharVoterDl={true}
+										errorMessage={aadharError}
 									/>
+									{aadharError.length > 0 && (
+										<p
+											style={{
+												color: 'red',
+												marginTop: '-45px',
+												marginBottom: '45px',
+											}}>
+											{aadharError}
+										</p>
+									)}
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -914,10 +1023,22 @@ export default function PanVerification({
 										}}
 										pan={true}
 										onDrop={handleFileUpload}
-										onRemoveFile={e => removeHandler(e)}
+										onRemoveFile={e => removeHandler(e, voter, 'voter')}
 										docs={voter}
 										setDocs={setVoter}
+										aadharVoterDl={true}
+										errorMessage={voterError}
 									/>
+									{voterError.length > 0 && (
+										<p
+											style={{
+												color: 'red',
+												marginTop: '-45px',
+												marginBottom: '45px',
+											}}>
+											{voterError}
+										</p>
+									)}
 								</>
 							) : (
 								<>
@@ -935,8 +1056,19 @@ export default function PanVerification({
 											placeholder: 'GST Identification Number',
 											mask: { AlphaNumericOnly: true, CharacterLimit: 15 },
 											value: formState?.values?.gstin,
+											style: {
+												borderColor:
+													formState?.values?.gstin &&
+													verificationFailed &&
+													'red',
+											},
 										})}
 									</FieldWrapper>
+									{formState?.values?.gstin && verificationFailed && (
+										<FieldWrapper>
+											<LabRed>{verificationFailed}</LabRed>
+										</FieldWrapper>
+									)}
 									<br />
 									<H2>OR</H2>
 
@@ -945,10 +1077,22 @@ export default function PanVerification({
 											name: 'udhyogAadhar',
 											placeholder: 'Udhyog Aadhar Number',
 											value: formState?.values?.udhyogAadhar,
+											style: {
+												borderColor:
+													formState?.values?.udhyogAadhar &&
+													verificationFailed &&
+													'red',
+											},
 										})}
 									</FieldWrapper>
+									{formState?.values?.udhyogAadhar && verificationFailed && (
+										<FieldWrapper>
+											<LabRed>{verificationFailed}</LabRed>
+										</FieldWrapper>
+									)}
 								</>
 							)}
+
 							<section className='flex items-center gap-x-4'>
 								<Button
 									onClick={() => {
@@ -981,19 +1125,21 @@ export default function PanVerification({
 												  (formState.values?.udhyogAadhar &&
 														formState.values?.panNumber &&
 														formState?.values?.gstin) ||
-												  loading
+												  loading ||
+												  (verificationFailed && verificationFailed.length > 0)
 											: !(
 													aadhar.length > 0 ||
 													otherDoc.length > 0 ||
 													voter.length > 0
-											  )
+											  ) ||
+											  disableButton ||
+											  loading ||
+											  voterError.length > 0 ||
+											  aadharError.length > 0 ||
+											  dlError.length > 0
 									}
 								/>
 							</section>
-
-							<FieldWrapper>
-								<LabRed>{verificationFailed}</LabRed>
-							</FieldWrapper>
 						</form>
 					)}
 				</Colom1>
@@ -1019,18 +1165,16 @@ export default function PanVerification({
 						}}
 						width='30%'>
 						<section className='p-4 flex flex-col gap-y-8'>
-							<span className='font-bold text-lg'>
-								Please confirm your PAN Number
-							</span>
-							<section className='flex gap-x-4 items-center'>
-								<FieldWrapper>
-									{register({
-										name: 'panNumber',
-										placeholder: 'Pan Number',
-										value: formState?.values?.panNumber,
-									})}
-								</FieldWrapper>
-							</section>
+							<span>Confirm PAN number and Proceed</span>
+							{/* <section className='flex gap-x-4 items-center'> */}
+							<FieldWrapperPanVerify>
+								{register({
+									name: 'panNumber',
+									placeholder: 'Pan Number',
+									value: formState?.values?.panNumber,
+								})}
+							</FieldWrapperPanVerify>
+							{/* </section> */}
 							<Button
 								name='Proceed'
 								fill
@@ -1043,6 +1187,7 @@ export default function PanVerification({
 									}
 								}}
 								disabled={!formState?.values?.panNumber}
+								style={{ alignSelf: 'center' }}
 							/>
 						</section>
 					</Modal>
@@ -1067,9 +1212,10 @@ export default function PanVerification({
 									onClick={() => {
 										setBackUploading(true);
 										setBackUpload(false);
-										setAadhar([]);
-										setVoter([]);
-										setOtherDoc([]);
+										setDisableSubmit(true);
+										// setVoter([]);
+										// setOtherDoc([]);
+										// setAadhar([]);
 									}}
 								/>
 								<Button
@@ -1123,3 +1269,11 @@ PanVerification.propTypes = {
 	map: oneOfType([string, object]),
 	id: string,
 };
+
+// TODO if GSTIN not match onchange remove error.. or disable button. resolved
+//
+// 2.if we add file need ti remove the error in dl, aadhar, votar resolved
+// 3. after pan it will come popup in housing loan we can edit there pan why? if we edit alos going to next page? hold
+// Confirm PAN number and Proceed pan should be disabled.
+// error for box dashed and error for filed in gstin
+//
