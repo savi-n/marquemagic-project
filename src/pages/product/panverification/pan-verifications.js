@@ -740,17 +740,16 @@ export default function PanVerification({
 		setLoading(true);
 		const fileType = t();
 		resetAllErrors();
+		console.log('file.length', file.length);
 		if (file.length > 1) {
 			const formData1 = new FormData();
 			formData1.append('req_type', fileType);
 			formData1.append('process_type', 'extraction');
 			formData1.append('document', file[1].file);
+			console.log('formData1', formData1);
+
 			getKYCData(formData1, clientToken).then(re => {
 				if (re.data.status === 'nok') {
-					// addToast({
-					// 	message: re.data.message,
-					// 	type: 'error',
-					// });
 					if (otherDoc.length > 0) {
 						setDLError(re.data.message);
 					}
@@ -761,10 +760,6 @@ export default function PanVerification({
 						setVoterError(re.data.message);
 					}
 					setLoading(false);
-					// setOtherDoc([]);
-					// setAadhar([]);
-					// setVoter([]);
-					// onProceed();
 				} else {
 					const formData2 = new FormData();
 					formData2.append('req_type', fileType);
@@ -772,14 +767,16 @@ export default function PanVerification({
 					formData2.append('document', file[0].file);
 					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
 						if (res.data.status === 'nok') {
-							addToast({
-								message: res.data.message,
-								type: 'error',
-							});
-							setOtherDoc([]);
-							setAadhar([]);
-							setVoter([]);
-							onProceed();
+							if (otherDoc.length > 0) {
+								setDLError(res.data.message);
+							}
+							if (aadhar.length > 0) {
+								setAadharError(res.data.message);
+							}
+							if (voter.length > 0) {
+								setVoterError(res.data.message);
+							}
+							setLoading(false);
 						} else {
 							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
 								/\s/g,
@@ -836,10 +833,6 @@ export default function PanVerification({
 
 			getKYCData(formData, clientToken).then(res => {
 				if (res.data.status === 'nok') {
-					// addToast({
-					// 	message: res.data.message,
-					// 	type: 'error',
-					// });
 					if (otherDoc.length > 0) {
 						setDLError(res.data.message);
 					}
@@ -850,10 +843,6 @@ export default function PanVerification({
 						setVoterError(res.data.message);
 					}
 					setLoading(false);
-					// setOtherDoc([]);
-					// setAadhar([]);
-					// setVoter([]);
-					// onProceed();
 				} else {
 					// data ---> extractionData
 					// ref_id: pass the id from the first doc response

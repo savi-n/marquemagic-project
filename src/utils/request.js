@@ -33,6 +33,9 @@ export const getKYCDataId = async (id, formData, token) => {
 		const t = await g;
 		return t;
 	} catch (err) {
+		if (err.response) {
+			return { data: err.response.data };
+		}
 		return { data: { message: err.message, status: 'nok' } };
 	}
 };
