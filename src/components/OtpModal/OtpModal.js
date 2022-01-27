@@ -5,7 +5,7 @@ import { VERIFY_OTP_URL, NC_STATUS_CODE } from "../../_config/app.config";
 import useFetch from "../../hooks/useFetch";
 import useForm from "../../hooks/useForm";
 import Loading from "../../components/Loading";
-import Button from "../../components/Button";
+import Button from "../Button";
 import Modal from "../../components/Modal";
 import OtpInput from "./OtpInput";
 import OtpTimer from "./OtpTimer";
