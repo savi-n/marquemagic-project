@@ -11,17 +11,16 @@ const StyledButton = styled.button`
 	padding: 10px 20px;
 	background: ${({ theme, fill }) =>
 		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
-	display: flex;
-	align-items: center;
+
+	align-items: flex-start;
 	min-width: ${({ width }) => (width ? width : '200px')};
-	justify-content: space-between;
 	font-size: 0.9em;
 	font-weight: 500;
 	text-align: center;
 	transition: 0.2s;
-	display: flex;
 	justify-content: center;
-
+	position: relative;
+	bottom: 7vh;
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};

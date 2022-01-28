@@ -27,7 +27,7 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   padding: 0 50px;
-  z-index: 1;
+  z-index: 11;
 `;
 const Div = styled.div`
 	flex: 1;

@@ -91,7 +91,7 @@ const Menu = styled.h5`
 	justify-content: space-between;
 	font-size: 14px;
 	@media (max-width: 700px){
-		padding: ${({ hide }) => (hide ? '0px 0px':'5px 0px')};
+		padding: ${({ hide }) => (hide ? '0px 0px':'10px 0px')};
 	}
 `;
 
@@ -139,9 +139,6 @@ const ProductName = styled.h5`
 `;
 const BackButton = styled.img`
 	height: 30px;
-	@media (max-width: 700px ){
-		display: none;
-	}
 `;
 
 const IconDottedRight = styled.img`
