@@ -27,7 +27,7 @@ const SectionWrap = styled.section`
   right: 0;
   background: white;
   box-shadow: rgb(152 175 199) 0px 20px 19px 0px;
-  z-index: 9999;
+
   backdrop-filter: blur(20px); */
 `;
 

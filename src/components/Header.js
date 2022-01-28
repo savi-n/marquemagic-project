@@ -73,6 +73,7 @@ export default function Header({
 						fontWeight: 'bold',
 						fontSize: '24px',
 						color: '#525252',
+
 					}}>
 					{corporateName}
 				</div>

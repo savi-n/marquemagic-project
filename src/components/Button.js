@@ -21,8 +21,7 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	display: flex;
 	justify-content: center;
-	position:relative;
-	bottom: 0rem;
+
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
