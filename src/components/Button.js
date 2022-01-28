@@ -22,7 +22,7 @@ const StyledButton = styled.button`
 	display: flex;
 	justify-content: center;
 	position:relative;
-	bottom: 4rem;
+	bottom: 0rem;
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
