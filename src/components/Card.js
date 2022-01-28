@@ -5,6 +5,7 @@ import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-elem
 
 const Wrapper = styled.div`
   width: 25%;
+
   border-radius: 10px;
   /* background: ${({ theme }) => theme.themeColor1}; */
   overflow: hidden;
@@ -16,6 +17,10 @@ const Wrapper = styled.div`
 	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 48px 100px 0px; */
 	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
   margin: 0 calc(12% / 6);
+	@media (max-width: 700px) {
+margin: 1rem 0;
+width: 100%;
+	}
 `;
 
 const ImgDiv = styled.div`

@@ -34,6 +34,9 @@ const ProductsBox = styled.div`
 	/* gap: 20px; */
 	/* align-items: center; */
 	/* gap: calc(12% / 3); */
+	@media (max-width: 700px){
+		flex-direction: column;
+	}
 `;
 
 const StatusBox = styled.div`
@@ -42,6 +45,9 @@ const StatusBox = styled.div`
 	border-radius: 10px;
 	margin: 50px auto 50px auto;
 	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
+	@media (max-width: 700px){
+		width: auto;
+	}
 `;
 
 const SectionLoanStatus = styled.section`

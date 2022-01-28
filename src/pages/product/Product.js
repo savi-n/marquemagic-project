@@ -17,11 +17,17 @@ import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faChevronLeft,
+	faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
+import Button from '../../components/Button';
 const Wrapper = styled.div`
 	width: 100%;
 	height: 100%;
 	display: flex;
+	position: relative;
 `;
 
 /* background: ${({ theme }) => theme.main_theme_color}; */
@@ -32,7 +38,15 @@ const Colom1 = styled.div`
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
+	position relative;
+	@media (max-width: 700px){
+		width: ${({ hide }) => (hide ? '0px' : '320px')};
+		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
+		position: fixed;
+		z-index:4;
+	}
 `;
+
 
 const Colom2 = styled.div`
 	flex: 1;
@@ -41,6 +55,9 @@ const Colom2 = styled.div`
 	overflow: scroll;
 	&::-webkit-scrollbar {
 		display: none;
+	}
+	@media (max-width: 700px){
+		z-index:2;
 	}
 `;
 
@@ -73,6 +90,9 @@ const Menu = styled.h5`
 	align-items: center;
 	justify-content: space-between;
 	font-size: 14px;
+	@media (max-width: 700px){
+		padding: ${({ hide }) => (hide ? '0px 0px':'10px 0px')};
+	}
 `;
 
 // background: ${({ active }) =>
@@ -136,7 +156,7 @@ export default function Product({ product, url }) {
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
-
+	const [hide, setShowHideSidebar] = useState(true);
 	const {
 		state: {
 			completed: completedMenu,
@@ -151,6 +171,9 @@ export default function Product({ product, url }) {
 	const {
 		actions: { clearFormData, setUsertypeAfterRefresh },
 	} = useContext(FormContext);
+	const hideAndShowMenu = () => {
+		setShowHideSidebar(!hide);
+	};
 
 	const {
 		state: { timestamp },
@@ -162,6 +185,20 @@ export default function Product({ product, url }) {
 		options: { method: 'GET' },
 	});
 
+	const SectionSidebarArrow = styled.section`
+	z-index: 100;
+	display: none;
+	@media (max-width: 700px) {
+		display: block;
+		background: red;
+	}
+`;
+	const ArrowShow = styled.div`
+	width: min-content;
+	margin-top: 80px;
+	margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
+	position: fixed;
+	`;
 	// useEffect(() => {
 	// 	clearFlowDetails(basePageUrl);
 	// 	clearFormData();
@@ -240,8 +277,9 @@ export default function Product({ product, url }) {
 		response &&
 		response.data && (
 			<Wrapper>
-				<Colom1>
+				<Colom1 hide={hide}>
 					<HeadingBox onClick={e => {}}>
+
 						<BackButton
 							src={imgBackArrowCircle}
 							alt='goback'
@@ -365,6 +403,21 @@ export default function Product({ product, url }) {
 						) : null
 					)}
 				</Colom1>
+				<SectionSidebarArrow>
+					<ArrowShow hide={hide}>
+					<Button
+							fill
+							onClick={() => hideAndShowMenu()}
+							width={10}
+							heigth={10}
+							borderRadious={'0 5px 5px 0'}>
+							<FontAwesomeIcon
+								icon={hide ? faChevronRight : faChevronLeft}
+								size='1x'
+							/>
+						</Button>
+					</ArrowShow>
+				</SectionSidebarArrow>
 				<Colom2>
 					<IconDottedRight src={iconDottedRight} alt='dot' />
 					{flowMap && (

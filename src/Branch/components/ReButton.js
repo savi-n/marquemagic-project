@@ -3,28 +3,42 @@ import { string, func, object, oneOfType, bool } from 'prop-types';
 import Loader from '../Branch/components/Loader';
 
 const StyledButton = styled.button`
-	color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
-	border: 2px solid
-		${({ theme, fill }) =>
+  color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
+  border: 2px solid
+    ${({ theme, fill }) =>
 			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
-	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '40px')};
-	padding: 10px 20px;
-	background: ${({ theme, fill }) =>
+  border-radius: ${({ roundCorner, borderRadious }) =>
+		borderRadious ? borderRadious : roundCorner ? '40px' : '5px'};
+  padding: 10px 20px;
+  background: ${({ theme, fill }) =>
 		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+  display: flex;
+  align-items: center;
+  /* width: ${({ width }) => (width ? width : 'auto')}; */
+  ${({ width }) =>
+		width
+			? `
+    width:${width};
+    `
+			: `min-width:200px;`}
 
-	align-items: flex-start;
-	min-width: ${({ width }) => (width ? width : '200px')};
-	font-size: 0.9em;
-	font-weight: 500;
-	text-align: center;
-	transition: 0.2s;
-	justify-content: center;
-	position: relative;
-	bottom: 7vh;
-	&:hover {
-		color: #fff;
-		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
+  /* min-width: ${({ width }) => (width ? width : '200px')}; */
+  justify-content: space-between;
+  font-size: 0.9em;
+  font-weight: 500;
+  text-align: center;
+  transition: 0.2s;
+  display: flex;
+  justify-content: center;
+	@media (max-width: 700px) {
+		min-width: auto;
+		padding: 10px;
 	}
+
+  &:hover {
+    color: #fff;
+    background: ${({ theme }) => theme.main_theme_color};
+  }
 `;
 
 const Div = styled.div`
@@ -69,6 +83,8 @@ export default function Button({
 	roundCorner = false,
 	isLoader,
 	loading,
+	title,
+	borderRadious = false,
 }) {
 	return (
 		<StyledButton
@@ -77,7 +93,9 @@ export default function Button({
 			disabled={disabled}
 			altStyle={style}
 			width={width}
-			roundCorner={roundCorner}>
+			roundCorner={roundCorner}
+			borderRadious={borderRadious}
+			title={title}>
 			{isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
 			{loading && <LoaderCircle />}
 			{!loading && children}
