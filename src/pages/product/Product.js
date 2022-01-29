@@ -27,7 +27,7 @@ const Wrapper = styled.div`
 	width: 100%;
 	height: 100%;
 	display: flex;
-	position: relative;
+
 `;
 
 /* background: ${({ theme }) => theme.main_theme_color}; */
@@ -91,7 +91,8 @@ const Menu = styled.h5`
 	justify-content: space-between;
 	font-size: 14px;
 	@media (max-width: 700px){
-		padding: ${({ hide }) => (hide ? '0px 0px':'10px 0px')};
+		padding: ${({ hide }) => (hide ? '0px 0px':'5px 0px')};
+		display: ${({ hide }) => (hide && 'none')};
 	}
 `;
 
@@ -293,7 +294,7 @@ export default function Product({ product, url }) {
 						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
 							<Fragment key={m.id}>
 								<Link onClick={e => {}}>
-									<Menu active={flow === m.id}>
+									<Menu active={flow === m.id} hide={hide} >
 										<div
 											style={{
 												cursor:

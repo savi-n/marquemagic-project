@@ -17,6 +17,9 @@ import { useToasts } from 'components/Toast/ToastProvider';
 
 const Wrapper = styled.div`
 	padding: 30px 80px 50px 80px;
+	@media (max-width:700px){
+		padding: 2rem;
+	}
 `;
 
 const Head = styled.h3`
