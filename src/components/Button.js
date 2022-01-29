@@ -19,8 +19,8 @@ const StyledButton = styled.button`
 	text-align: center;
 	transition: 0.2s;
 	justify-content: center;
-	position: relative;
-	bottom: 7vh;
+
+
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
