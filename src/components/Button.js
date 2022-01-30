@@ -25,6 +25,10 @@ const StyledButton = styled.button`
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
 	}
+	@media (max-width:700px){
+		width: 50%;
+
+	}
 `;
 
 const Div = styled.div`

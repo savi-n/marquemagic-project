@@ -1094,7 +1094,7 @@ export default function PanVerification({
 								</>
 							)}
 
-							<section className='flex items-center gap-x-4'>
+							<section className='flex flex-wrap items-center gap-x-4 gap-y-4'>
 								<Button
 									onClick={() => {
 										setPanUpload(true);
@@ -1203,10 +1203,10 @@ export default function PanVerification({
 								setBackUpload(false);
 							}}
 							width='30%'>
-							<span className='px-4 font-bold'>
+							<span className='px-10 font-bold justify-center'>
 								Upload back part of the document?
 							</span>
-							<section className='p-4 py-16 flex gap-x-8'>
+							<section className='p-4 py-16 flex justify-center flex-wrap gap-y-8 gap-x-8'>
 								<Button
 									name='Yes'
 									fill

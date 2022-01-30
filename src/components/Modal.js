@@ -26,6 +26,10 @@ const Modalbody = styled.div`
   max-height: 70%;
   overflow: auto;
   box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+  @media (max-width: 700px){
+    min-width: 100%;
+
+  }
 `;
 
 export default function Modal({

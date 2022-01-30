@@ -13,9 +13,12 @@ const Text = styled.div`
 const BtnWrap = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   width: 40%;
   margin: 20px 0;
+@media (max-width:700px){
+  width:60%;
+}
 `;
 
 const ModalBody = styled.div`

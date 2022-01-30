@@ -52,7 +52,10 @@ const Dropzone = styled.div`
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
+@media (max-width: 700px){
 
+	width: 100%;
+}
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
