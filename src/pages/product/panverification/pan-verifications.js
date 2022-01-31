@@ -32,7 +32,7 @@ import Modal from '../../../components/Modal';
 
 const Colom1 = styled.div`
 	flex: 1;
-	padding: 50px;
+	padding: 50px 0px;
 `;
 
 const Colom2 = styled.div`
@@ -70,12 +70,19 @@ const H = styled.h1`
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 50%;
+	@media (max-width:700px){
+		width: 100%;
+	}
+
 `;
 
 const FieldWrapperPanVerify = styled.div`
 	padding: 20px 0;
 	/* width: 50%; */
 	place-self: center;
+	@media (max-width:700px){
+		width: 100%;
+	}
 `;
 
 const H2 = styled.h2`

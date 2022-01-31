@@ -191,7 +191,12 @@ const File = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	transition: 0.2s;
+@media (max-width: 700px){
 
+
+	width:100%;
+
+}
 	&::after {
 		content: '';
 		bottom: 0;

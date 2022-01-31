@@ -18,6 +18,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+
 `;
 
 const ButtonWrap = styled.div`

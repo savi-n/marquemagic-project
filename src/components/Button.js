@@ -4,13 +4,20 @@ import Loader from '../Branch/components/Loader';
 
 const StyledButton = styled.button`
 	color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
+	border: 2px solid #131ab3;
+
+	padding: 10px 15px;
+
+
 	border: 2px solid
-		${({ theme, fill }) =>
-			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
-	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '40px')};
-	padding: 10px 20px;
-	background: ${({ theme, fill }) =>
+	${({ theme, fill }) =>
 		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '40px')};
+
+background: ${({ theme, fill }) =>
+	fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+
+
 
 	align-items: flex-start;
 	min-width: ${({ width }) => (width ? width : '200px')};
@@ -25,7 +32,7 @@ const StyledButton = styled.button`
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
 	}
 	@media (max-width:700px){
-		width: 50%;
+		width: 100%;
 
 	}
 `;
