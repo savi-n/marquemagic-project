@@ -54,7 +54,7 @@ const Dropzone = styled.div`
 	/* background-color: '#F0F4FE'; */
 @media (max-width: 700px){
 
-	width: 100%;
+
 }
 	${({ dragging }) =>
 		dragging &&

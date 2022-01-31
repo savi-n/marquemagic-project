@@ -38,6 +38,8 @@ const Colom1 = styled.div`
 	padding: 50px;
 `;
 
+
+
 const DocTypeHead = styled.div`
 	font-weight: 600;
 	margin: 10px 0;
@@ -114,10 +116,15 @@ const Doc = styled.h2`
 
 const Details = styled.div`
 	max-height: ${props => (props.open ? '100%' : '0')};
-	overflow: hidden;
+
 	padding: ${props => (props.open ? '10px 0' : '0')};
 	transition: all 0.3s ease-out;
-`;
+@media(max-width:700px){
+		max-width:51%;
+		padding:0px;
+
+	}
+	`;
 
 const Section = styled.div`
 	display: flex;
@@ -1139,7 +1146,7 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						<Details open={!openFinancialdoc}>
+						{/* <Details open={!openFinancialdoc}>
 							<Hr />
 						</Details>
 						<Details open={openFinancialdoc}>
@@ -1167,7 +1174,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details>
+						</Details> */}
 					</>
 				)}
 				{OtherDocOptions.length > 0 && (
@@ -1194,7 +1201,7 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						<Details open={openOtherdoc}>
+						{/* <Details open={openOtherdoc}>
 							<UploadWrapper>
 								<FileUpload
 									sectionType='others'
@@ -1219,7 +1226,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details>
+						</Details> */}
 					</>
 				)}
 				<div style={{ padding: 10 }} />

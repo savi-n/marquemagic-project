@@ -18,7 +18,6 @@ const StyledButton = styled.button`
 	font-weight: 500;
 	text-align: center;
 	transition: 0.2s;
-	justify-content: center;
 
 
 	&:hover {

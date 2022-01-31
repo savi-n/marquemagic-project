@@ -36,7 +36,7 @@ export default function ContinueModal({ onYes, onNo }) {
     <Modal show={true} onClose={() => {}} width="30%">
       <ModalBody>
         <Text>Do you Want to continue with the pending application?</Text>
-        <BtnWrap>
+        <BtnWrap className="gap-x-4">
           <Button width="auto" fill name="Yes" onClick={onYes} />
 
           <Button width="auto" name="No" onClick={onNo} />
