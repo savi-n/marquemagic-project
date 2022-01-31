@@ -36,6 +36,10 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
+	@media (max-width:700px){
+		padding: 50px 0px;
+		max-width: 100%;
+	}
 `;
 
 
@@ -54,6 +58,7 @@ const Colom2 = styled.div`
 const UploadWrapper = styled.div`
 	margin: 30px 0;
 	position: relative;
+	max-width: 100%;
 `;
 
 // const ButtonWrapper = styled.div`

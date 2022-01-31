@@ -11,6 +11,7 @@ import { AppContext } from '../../../reducer/appReducer';
 const Colom1 = styled.section`
 	flex: 1;
 	padding: 50px;
+
 `;
 
 const Colom2 = styled.section`

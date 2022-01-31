@@ -47,12 +47,15 @@ const Dropzone = styled.div`
 	border-radius: 10px;
 	border-width: 2px;
 	overflow: hidden;
-	background: #f0f4fe;
+
 
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
 @media (max-width: 700px){
+
+min-width: 19rem;
+overflow: visible;
 
 
 }
@@ -192,8 +195,6 @@ const File = styled.div`
 	justify-content: space-between;
 	transition: 0.2s;
 @media (max-width: 700px){
-
-
 	width:100%;
 
 }
@@ -376,8 +377,10 @@ const DocumentUploadListWrapper = styled.div`
 
 const DocumentUploadList = styled.div`
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: left;
 	flex-direction: column;
+
 	/* align-self: flex-start; */
 	/* flex: 30%; */
 	width: 32%;
@@ -388,6 +391,9 @@ const DocumentUploadList = styled.div`
 	align-items: center;
 	/* padding: 10px 20px; */
 	/* background: white; */
+	@media (max-width:700px){
+		width:100%;
+	}
 `;
 
 const DocumentUploadListRow1 = styled.div`
