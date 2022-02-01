@@ -7,7 +7,7 @@ const StyledButton = styled.button`
 	border: 2px solid
 		${({ theme, fill }) =>
 			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
-	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '40px')};
+	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '5px')};
 	padding: 10px 20px;
 	background: ${({ theme, fill }) =>
 		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
@@ -19,8 +19,10 @@ const StyledButton = styled.button`
 	text-align: center;
 	transition: 0.2s;
 	justify-content: center;
-	position: relative;
-	bottom: 7vh;
+	@media (max-width: 700px) {
+		min-width: auto;
+		padding: 10px;
+	}
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};

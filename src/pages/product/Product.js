@@ -47,7 +47,6 @@ const Colom1 = styled.div`
 	}
 `;
 
-
 const Colom2 = styled.div`
 	flex: 1;
 	background: #fff;
@@ -56,8 +55,8 @@ const Colom2 = styled.div`
 	&::-webkit-scrollbar {
 		display: none;
 	}
-	@media (max-width: 700px){
-		z-index:2;
+	@media (max-width: 700px) {
+		z-index: 2;
 	}
 `;
 
@@ -90,8 +89,8 @@ const Menu = styled.h5`
 	align-items: center;
 	justify-content: space-between;
 	font-size: 14px;
-	@media (max-width: 700px){
-		padding: ${({ hide }) => (hide ? '0px 0px':'10px 0px')};
+	@media (max-width: 700px) {
+		padding: ${({ hide }) => (hide ? '0px 0px' : '10px 0px')};
 	}
 `;
 
@@ -186,18 +185,18 @@ export default function Product({ product, url }) {
 	});
 
 	const SectionSidebarArrow = styled.section`
-	z-index: 100;
-	display: none;
-	@media (max-width: 700px) {
-		display: block;
-		background: red;
-	}
-`;
+		z-index: 100;
+		display: none;
+		@media (max-width: 700px) {
+			display: block;
+			background: red;
+		}
+	`;
 	const ArrowShow = styled.div`
-	width: min-content;
-	margin-top: 80px;
-	margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
-	position: fixed;
+		width: min-content;
+		margin-top: 80px;
+		margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
+		position: fixed;
 	`;
 	// useEffect(() => {
 	// 	clearFlowDetails(basePageUrl);
@@ -279,7 +278,6 @@ export default function Product({ product, url }) {
 			<Wrapper>
 				<Colom1 hide={hide}>
 					<HeadingBox onClick={e => {}}>
-
 						<BackButton
 							src={imgBackArrowCircle}
 							alt='goback'
@@ -405,7 +403,7 @@ export default function Product({ product, url }) {
 				</Colom1>
 				<SectionSidebarArrow>
 					<ArrowShow hide={hide}>
-					<Button
+						<Button
 							fill
 							onClick={() => hideAndShowMenu()}
 							width={10}
