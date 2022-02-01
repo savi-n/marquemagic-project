@@ -161,6 +161,9 @@ const FileListWrap = styled.div`
 	flex-wrap: wrap;
 	margin: 10px;
 	display: -webkit-box;
+	@media(max-width:700px){
+		width: 72vw;
+	}
 `;
 
 const WarningMessage = styled.div`
@@ -173,6 +176,9 @@ const WarningMessage = styled.div`
 	width: fit-content;
 	padding: 5px 10px 5px 10px;
 	font-size: 14px;
+	@media(max-width:700px){
+		width: 72vw;
+	}
 `;
 const File = styled.div`
 	/* flex-basis: 30%; */
@@ -373,6 +379,12 @@ const DocumentUploadListWrapper = styled.div`
 	flex-wrap: wrap;
 	margin: 30px 0;
 	gap: 10px;
+	@media (max-width:700px){
+		padding: 50px 0px;
+		width: 72vw;
+
+	}
+
 `;
 
 const DocumentUploadList = styled.div`
@@ -422,6 +434,7 @@ const DocumentUploadListRow2 = styled.div`
 	flex-wrap: wrap;
 	gap: 10px;
 `;
+
 
 const DocumentUploadedBadge = styled.div`
 	border: 1px solid green;

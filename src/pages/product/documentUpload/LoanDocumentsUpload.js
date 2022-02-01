@@ -36,13 +36,11 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 		max-width: 100%;
 	}
 `;
-
-
 
 const DocTypeHead = styled.div`
 	font-weight: 600;
@@ -124,12 +122,11 @@ const Details = styled.div`
 
 	padding: ${props => (props.open ? '10px 0' : '0')};
 	transition: all 0.3s ease-out;
-@media(max-width:700px){
-		max-width:51%;
-		padding:0px;
-
+	@media (max-width: 700px) {
+		max-width: 51%;
+		padding: 0px;
 	}
-	`;
+`;
 
 const Section = styled.div`
 	display: flex;
@@ -144,11 +141,6 @@ const CollapseIcon = styled.img`
 	object-fit: contain;
 
 	cursor: pointer;
-	@media (max-width:){
-		background: green;
-		margin-left:0px;
-		max-width:10px;
-	}
 `;
 
 const Hr = styled.hr`
