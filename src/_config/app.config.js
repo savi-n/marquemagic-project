@@ -4,6 +4,8 @@ const API_END_POINT =
 	process.env.REACT_APP_API_URL || 'http://3.108.54.252:1337';
 const ENDPOINT_BANK =
 	process.env.REACT_APP_BANK_API || 'http://40.80.80.135:1337';
+const OTP_API_END_POINT =
+	process.env.REACT_APP_OTP_URL || 'http://18.136.14.70';
 // "https://apiv3.namastecredit.com/apiservices";
 
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN || '';
@@ -94,6 +96,7 @@ const USER_ROLES = {
 
 export {
 	API_END_POINT,
+	OTP_API_END_POINT,
 	ENDPOINT_BANK,
 	CLIENT_EMAIL_ID,
 	CLIENT_VERIFY_URL,
