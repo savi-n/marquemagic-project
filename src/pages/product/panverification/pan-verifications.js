@@ -32,7 +32,11 @@ import Modal from '../../../components/Modal';
 
 const Colom1 = styled.div`
 	flex: 1;
-	padding: 50px 0px;
+	padding: 50px;
+	@media(max-width:700px){
+		padding: 50px 0px;
+	}
+
 `;
 
 const Colom2 = styled.div`

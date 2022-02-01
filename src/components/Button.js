@@ -6,7 +6,7 @@ const StyledButton = styled.button`
 	color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
 	border: 2px solid #131ab3;
 
-	padding: 10px 15px;
+	padding: 10px 40px;
 
 
 	border: 2px solid
@@ -33,7 +33,7 @@ background: ${({ theme, fill }) =>
 	}
 	@media (max-width:700px){
 		width: 100%;
-
+		padding: 10px 15px;
 	}
 `;
 

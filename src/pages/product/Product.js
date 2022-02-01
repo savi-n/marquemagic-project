@@ -35,7 +35,7 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height:100%;
+	height:auto;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;

@@ -77,6 +77,9 @@ const Form = styled.form`
 	gap: 10px;
 	align-items: center;
 	justify-content: center;
+	@media (max-width: 700px){
+		padding: 20px 0px;
+	}
 `;
 
 const Captcha = styled.img`

@@ -44,6 +44,11 @@ const RoundButton = styled.button`
 	/* font-weight: 700; */
 	background: ${({ theme }) => theme.buttonColor2};
 	margin-right: 10px;
+	@media (max-width:700px){
+		height:auto;
+		width: 2.25rem;
+
+	}
 `;
 
 const Wrapper = styled.div`

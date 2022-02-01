@@ -53,6 +53,7 @@ const Field = styled.div`
 	width: 40%;
 	@media (max-width: 700px){
 		margin: 5px 0;
+		min-width: 95%;
 	}
 `;
 
