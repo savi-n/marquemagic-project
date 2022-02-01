@@ -142,8 +142,13 @@ const CollapseIcon = styled.img`
 	width: 18px;
 	margin-right: 20px;
 	object-fit: contain;
-	margin-left: auto;
+
 	cursor: pointer;
+	@media (max-width:){
+		background: green;
+		margin-left:0px;
+		max-width:10px;
+	}
 `;
 
 const Hr = styled.hr`
@@ -1080,7 +1085,6 @@ export default function DocumentUpload({
 								style={{
 									marginLeft: 10,
 									alignItems: 'center',
-									minWidth: '500px',
 									display: 'flex',
 								}}>
 								Document Submitted :
@@ -1135,7 +1139,7 @@ export default function DocumentUpload({
 								style={{
 									marginLeft: 10,
 									alignItems: 'center',
-									minWidth: '500px',
+									/* minWidth: '500px', */
 									display: 'flex',
 								}}>
 								Document Submitted :
@@ -1190,7 +1194,7 @@ export default function DocumentUpload({
 								style={{
 									marginLeft: 10,
 									alignItems: 'center',
-									minWidth: '500px',
+									/* minWidth: '500px', */
 									display: 'flex',
 								}}>
 								Document Submitted :
