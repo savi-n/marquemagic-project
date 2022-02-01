@@ -13,9 +13,12 @@ const Text = styled.div`
 const BtnWrap = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   width: 40%;
   margin: 20px 0;
+@media (max-width:700px){
+  width:60%;
+}
 `;
 
 const ModalBody = styled.div`
@@ -33,7 +36,7 @@ export default function ContinueModal({ onYes, onNo }) {
     <Modal show={true} onClose={() => {}} width="30%">
       <ModalBody>
         <Text>Do you Want to continue with the pending application?</Text>
-        <BtnWrap>
+        <BtnWrap className="gap-x-4">
           <Button width="auto" fill name="Yes" onClick={onYes} />
 
           <Button width="auto" name="No" onClick={onNo} />

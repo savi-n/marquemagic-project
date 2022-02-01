@@ -33,6 +33,10 @@ import Modal from '../../../components/Modal';
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
+	@media(max-width:700px){
+		padding: 50px 0px;
+	}
+
 `;
 
 const Colom2 = styled.div`
@@ -70,12 +74,19 @@ const H = styled.h1`
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 50%;
+	@media (max-width:700px){
+		width: 100%;
+	}
+
 `;
 
 const FieldWrapperPanVerify = styled.div`
 	padding: 20px 0;
 	/* width: 50%; */
 	place-self: center;
+	@media (max-width:700px){
+		width: 100%;
+	}
 `;
 
 const H2 = styled.h2`
@@ -740,26 +751,15 @@ export default function PanVerification({
 		setLoading(true);
 		const fileType = t();
 		resetAllErrors();
-		console.log('file.length', file.length);
 		if (file.length > 1) {
 			const formData1 = new FormData();
 			formData1.append('req_type', fileType);
 			formData1.append('process_type', 'extraction');
 			formData1.append('document', file[1].file);
-			console.log('formData1', formData1);
 
 			getKYCData(formData1, clientToken).then(re => {
 				if (re.data.status === 'nok') {
-					if (otherDoc.length > 0) {
-						setDLError(re.data.message);
-					}
-					if (aadhar.length > 0) {
-						setAadharError(re.data.message);
-					}
-					if (voter.length > 0) {
-						setVoterError(re.data.message);
-					}
-					setLoading(false);
+					setDLAadharVoterError(re.data.message);
 				} else {
 					const formData2 = new FormData();
 					formData2.append('req_type', fileType);
@@ -767,16 +767,7 @@ export default function PanVerification({
 					formData2.append('document', file[0].file);
 					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
 						if (res.data.status === 'nok') {
-							if (otherDoc.length > 0) {
-								setDLError(res.data.message);
-							}
-							if (aadhar.length > 0) {
-								setAadharError(res.data.message);
-							}
-							if (voter.length > 0) {
-								setVoterError(res.data.message);
-							}
-							setLoading(false);
+							setDLAadharVoterError(re.data.message);
 						} else {
 							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
 								/\s/g,
@@ -816,9 +807,7 @@ export default function PanVerification({
 							}
 
 							localStorage.setItem('formstate', JSON.stringify(formState));
-							setOtherDoc([]);
-							setAadhar([]);
-							setVoter([]);
+							emptyDoc();
 							onProceed();
 						}
 						setLoading(false);
@@ -833,16 +822,7 @@ export default function PanVerification({
 
 			getKYCData(formData, clientToken).then(res => {
 				if (res.data.status === 'nok') {
-					if (otherDoc.length > 0) {
-						setDLError(res.data.message);
-					}
-					if (aadhar.length > 0) {
-						setAadharError(res.data.message);
-					}
-					if (voter.length > 0) {
-						setVoterError(res.data.message);
-					}
-					setLoading(false);
+					setDLAadharVoterError(res.data.message);
 				} else {
 					// data ---> extractionData
 					// ref_id: pass the id from the first doc response
@@ -885,14 +865,31 @@ export default function PanVerification({
 					}
 
 					localStorage.setItem('formstate', JSON.stringify(formState));
-					setOtherDoc([]);
-					setAadhar([]);
-					setVoter([]);
+					emptyDoc();
 					onProceed();
 				}
 				setLoading(false);
 			});
 		}
+	};
+
+	const emptyDoc = () => {
+		setOtherDoc([]);
+		setAadhar([]);
+		setVoter([]);
+	};
+
+	const setDLAadharVoterError = message => {
+		if (otherDoc.length > 0) {
+			setDLError(message);
+		}
+		if (aadhar.length > 0) {
+			setAadharError(message);
+		}
+		if (voter.length > 0) {
+			setVoterError(message);
+		}
+		setLoading(false);
 	};
 
 	return (
@@ -1108,7 +1105,7 @@ export default function PanVerification({
 								</>
 							)}
 
-							<section className='flex items-center gap-x-4'>
+							<section className='flex flex-wrap items-center gap-x-4 gap-y-4'>
 								<Button
 									onClick={() => {
 										setPanUpload(true);
@@ -1217,10 +1214,10 @@ export default function PanVerification({
 								setBackUpload(false);
 							}}
 							width='30%'>
-							<span className='px-4 font-bold'>
+							<span className='px-10 font-bold justify-center'>
 								Upload back part of the document?
 							</span>
-							<section className='p-4 py-16 flex gap-x-8'>
+							<section className='p-4 py-16 flex justify-center flex-wrap gap-y-8 gap-x-8'>
 								<Button
 									name='Yes'
 									fill
@@ -1228,9 +1225,6 @@ export default function PanVerification({
 										setBackUploading(true);
 										setBackUpload(false);
 										setDisableSubmit(true);
-										// setVoter([]);
-										// setOtherDoc([]);
-										// setAadhar([]);
 									}}
 								/>
 								<Button

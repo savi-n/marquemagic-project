@@ -42,7 +42,7 @@ const Label = styled.label`
       padding:0 2px;
   `
       : `
-      top: 3%;  
+      top: 3%;
       left: 1%;
       height: 90%;
       width: 98%;
