@@ -27,7 +27,6 @@ const Wrapper = styled.div`
 	width: 100%;
 	height: auto;
 	display: flex;
-
 `;
 
 /* background: ${({ theme }) => theme.main_theme_color}; */
@@ -35,21 +34,19 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height:auto;
+	height: auto;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
-	position relative;
-	@media (max-width: 700px){
+	position: relative;
+	@media (max-width: 700px) {
 		width: ${({ hide }) => (hide ? '0px' : '320px')};
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
-		height:100%;
-		z-index:4;
-
+		height: 100%;
+		z-index: 4;
 	}
 `;
-
 
 const Colom2 = styled.div`
 	flex: 1;
@@ -59,8 +56,8 @@ const Colom2 = styled.div`
 	&::-webkit-scrollbar {
 		display: none;
 	}
-	@media (max-width: 700px){
-		z-index:2;
+	@media (max-width: 700px) {
+		z-index: 2;
 		padding: 0 50px;
 	}
 `;
@@ -95,10 +92,9 @@ const Menu = styled.h5`
 	justify-content: space-between;
 	font-size: 14px;
 
-	@media (max-width: 700px){
-		padding: ${({ hide }) => (hide ? '0px 0px':'5px 0px')};
-		display: ${({ hide }) => (hide && 'none')};
-
+	@media (max-width: 700px) {
+		padding: ${({ hide }) => (hide ? '0px 0px' : '5px 0px')};
+		display: ${({ hide }) => hide && 'none'};
 	}
 `;
 
@@ -144,13 +140,9 @@ const ProductName = styled.h5`
 	padding-left: 10px;
 	line-height: 30px;
 
-
-	@media (max-width: 700px){
-
-		display: ${({ hide }) => (hide && 'none')};
-
+	@media (max-width: 700px) {
+		display: ${({ hide }) => hide && 'none'};
 	}
-
 `;
 const BackButton = styled.img`
 	height: 30px;
@@ -201,17 +193,17 @@ export default function Product({ product, url }) {
 	});
 
 	const SectionSidebarArrow = styled.section`
-	z-index: 100;
-	display: none;
-	@media (max-width: 700px) {
-		display: block;
-	}
-`;
+		z-index: 100;
+		display: none;
+		@media (max-width: 700px) {
+			display: block;
+		}
+	`;
 	const ArrowShow = styled.div`
-	width: min-content;
+		width: min-content;
 
-	margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
-	position: fixed;
+		margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
+		position: fixed;
 	`;
 	// useEffect(() => {
 	// 	clearFlowDetails(basePageUrl);
@@ -293,7 +285,6 @@ export default function Product({ product, url }) {
 			<Wrapper>
 				<Colom1 hide={hide}>
 					<HeadingBox onClick={e => {}}>
-
 						<BackButton
 							src={imgBackArrowCircle}
 							alt='goback'
@@ -307,7 +298,7 @@ export default function Product({ product, url }) {
 						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
 							<Fragment key={m.id}>
 								<Link onClick={e => {}}>
-									<Menu active={flow === m.id} hide={hide} >
+									<Menu active={flow === m.id} hide={hide}>
 										<div
 											style={{
 												cursor:
@@ -419,7 +410,7 @@ export default function Product({ product, url }) {
 				</Colom1>
 				<SectionSidebarArrow>
 					<ArrowShow hide={hide}>
-					<Button
+						<Button
 							fill
 							onClick={() => hideAndShowMenu()}
 							width={10}
