@@ -48,17 +48,13 @@ const Dropzone = styled.div`
 	border-width: 2px;
 	overflow: hidden;
 
-
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
-@media (max-width: 700px){
-
-min-width: 19rem;
-overflow: visible;
-
-
-}
+	@media (max-width: 700px) {
+		min-width: 19rem;
+		overflow: visible;
+	}
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
@@ -161,7 +157,7 @@ const FileListWrap = styled.div`
 	flex-wrap: wrap;
 	margin: 10px;
 	display: -webkit-box;
-	@media(max-width:700px){
+	@media (max-width: 700px) {
 		width: 72vw;
 	}
 `;
@@ -176,7 +172,7 @@ const WarningMessage = styled.div`
 	width: fit-content;
 	padding: 5px 10px 5px 10px;
 	font-size: 14px;
-	@media(max-width:700px){
+	@media (max-width: 700px) {
 		width: 72vw;
 	}
 `;
@@ -379,12 +375,12 @@ const DocumentUploadListWrapper = styled.div`
 	flex-wrap: wrap;
 	margin: 30px 0;
 	gap: 10px;
-	@media (max-width:700px){
-		padding: 50px 0px;
+	@media (max-width: 700px) {
+		padding: 0px;
+		gap: 0px;
+		margin: 0px;
 		width: 72vw;
-
 	}
-
 `;
 
 const DocumentUploadList = styled.div`
@@ -403,8 +399,8 @@ const DocumentUploadList = styled.div`
 	align-items: center;
 	/* padding: 10px 20px; */
 	/* background: white; */
-	@media (max-width:700px){
-		width:100%;
+	@media (max-width: 700px) {
+		width: 100%;
 	}
 `;
 
@@ -434,7 +430,6 @@ const DocumentUploadListRow2 = styled.div`
 	flex-wrap: wrap;
 	gap: 10px;
 `;
-
 
 const DocumentUploadedBadge = styled.div`
 	border: 1px solid green;
