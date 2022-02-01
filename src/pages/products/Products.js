@@ -24,6 +24,9 @@ import Loading from 'components/Loading';
 
 const Wrapper = styled.div`
 	padding: 30px 80px 50px 80px;
+	@media (max-width:700px){
+		padding: 2rem;
+	}
 `;
 
 const Head = styled.h3`
@@ -41,6 +44,9 @@ const ProductsBox = styled.div`
 	/* gap: 20px; */
 	/* align-items: center; */
 	/* gap: calc(12% / 3); */
+	@media (max-width: 700px){
+		flex-direction: column;
+	}
 `;
 
 const StatusBox = styled.div`
@@ -53,6 +59,9 @@ const StatusInputBox = styled.div`
 	border-radius: 10px;
 	padding: 30px;
 	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
+	@media (max-width: 700px){
+		width: auto;
+	}
 `;
 
 const SectionLoanStatus = styled.section`
@@ -108,6 +117,12 @@ const ImgDotElementRight = styled.img`
 	height: 40px;
 	width: 100px;
 	margin-right: 50px;
+	@media (max-width:700px){
+z-index:-1;
+height:20px;
+width: 50px;
+
+	}
 `;
 const ImgDotElementLeft = styled.img`
 	position: fixed;
@@ -116,6 +131,12 @@ const ImgDotElementLeft = styled.img`
 	height: 40px;
 	width: 100px;
 	margin-left: 50px;
+	@media (max-width:700px){
+		z-index:-1;
+		height:20px;
+		width: 50px;
+
+			}
 `;
 
 const ProductName = styled.div`

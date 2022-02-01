@@ -47,12 +47,18 @@ const Dropzone = styled.div`
 	border-radius: 10px;
 	border-width: 2px;
 	overflow: hidden;
-	background: #f0f4fe;
+
 
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
+@media (max-width: 700px){
 
+min-width: 19rem;
+overflow: visible;
+
+
+}
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
@@ -182,13 +188,16 @@ const File = styled.div`
 	display: flex;
 	/* border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px; */
 	/* border: dashed #4cc97f; */
-	border: dashed rgba(76, 201, 127, 0.60);
+	border:  dashed ${({ error }) => (error ? 'red' : `rgba(76, 201, 127, 0.6)`)};
 	border-radius: 10px;
 	border-width: 2px;
 	align-items: center;
 	justify-content: space-between;
 	transition: 0.2s;
+@media (max-width: 700px){
+	width:100%;
 
+}
 	&::after {
 		content: '';
 		bottom: 0;
@@ -368,8 +377,10 @@ const DocumentUploadListWrapper = styled.div`
 
 const DocumentUploadList = styled.div`
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: left;
 	flex-direction: column;
+
 	/* align-self: flex-start; */
 	/* flex: 30%; */
 	width: 32%;
@@ -380,6 +391,9 @@ const DocumentUploadList = styled.div`
 	align-items: center;
 	/* padding: 10px 20px; */
 	/* background: white; */
+	@media (max-width:700px){
+		width:100%;
+	}
 `;
 
 const DocumentUploadListRow1 = styled.div`
@@ -472,6 +486,8 @@ export default function FileUpload({
 	pan,
 	section = '',
 	sectionType = 'others',
+	aadharVoterDl = false,
+	errorMessage = '',
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -513,7 +529,7 @@ export default function FileUpload({
 	};
 
 	const onFileRemove = (file, docType = false) => {
-		setDocs && setDocs([]);
+		!aadharVoterDl && setDocs && setDocs([]);
 		const uploadFiles = uploadingProgressFiles.current.filter(
 			uFile => uFile.id !== file.id
 		);
@@ -633,7 +649,9 @@ export default function FileUpload({
 		).then(files => {
 			setUploading(false);
 			if (pan) {
-				setDocs([filesToUpload[0]]);
+				aadharVoterDl
+					? setDocs([...docs, filesToUpload[0]])
+					: setDocs([filesToUpload[0]]);
 				return [filesToUpload[0]];
 			}
 			uploadingProgressFiles.current = uploadingProgressFiles.current.map(
@@ -882,6 +900,7 @@ export default function FileUpload({
 					const isFileUploaded = file.progress >= 100 || file.progress <= 0;
 					return (
 						<File
+							error={errorMessage}
 							key={file.id}
 							progress={file.progress}
 							status={file.status}

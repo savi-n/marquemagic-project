@@ -19,10 +19,15 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width:700px){
+		padding: 50px 0px;
+	}
+
 `;
 
 const ButtonWrap = styled.div`
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 20px;
 `;

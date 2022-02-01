@@ -36,7 +36,13 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
+	@media (max-width:700px){
+		padding: 50px 0px;
+		max-width: 100%;
+	}
 `;
+
+
 
 const DocTypeHead = styled.div`
 	font-weight: 600;
@@ -52,6 +58,7 @@ const Colom2 = styled.div`
 const UploadWrapper = styled.div`
 	margin: 30px 0;
 	position: relative;
+	max-width: 100%;
 `;
 
 // const ButtonWrapper = styled.div`
@@ -114,10 +121,15 @@ const Doc = styled.h2`
 
 const Details = styled.div`
 	max-height: ${props => (props.open ? '100%' : '0')};
-	overflow: hidden;
+
 	padding: ${props => (props.open ? '10px 0' : '0')};
 	transition: all 0.3s ease-out;
-`;
+@media(max-width:700px){
+		max-width:51%;
+		padding:0px;
+
+	}
+	`;
 
 const Section = styled.div`
 	display: flex;
@@ -851,7 +863,7 @@ export default function DocumentUpload({
 					data: subsidiaryDataFormat(caseId, state),
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -885,7 +897,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -918,7 +930,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer?.userToken}`,
 				}
 			);
@@ -951,7 +963,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${companyDetail.token ||
+					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken).userReducer.userToken}`,
 				}
 			);
@@ -1139,7 +1151,7 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						<Details open={!openFinancialdoc}>
+						{/* <Details open={!openFinancialdoc}>
 							<Hr />
 						</Details>
 						<Details open={openFinancialdoc}>
@@ -1167,7 +1179,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details>
+						</Details> */}
 					</>
 				)}
 				{OtherDocOptions.length > 0 && (
@@ -1194,7 +1206,7 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						<Details open={openOtherdoc}>
+						{/* <Details open={openOtherdoc}>
 							<UploadWrapper>
 								<FileUpload
 									sectionType='others'
@@ -1219,7 +1231,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details>
+						</Details> */}
 					</>
 				)}
 				<div style={{ padding: 10 }} />
@@ -1277,7 +1289,8 @@ export default function DocumentUpload({
 							background: 'blue',
 						}}
 						disabled={buttonDisabledStatus()}
-						onClick={onSubmit}
+						onClick={!caseCreationProgress && onSubmit}
+						// onClick={onSubmit}
 					/>
 				</SubmitWrapper>
 				{otherBankStatementModal && (

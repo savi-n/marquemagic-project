@@ -17,11 +17,17 @@ import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faChevronLeft,
+	faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
+import Button from '../../components/Button';
 const Wrapper = styled.div`
 	width: 100%;
-	height: 100%;
+	height: auto;
 	display: flex;
+
 `;
 
 /* background: ${({ theme }) => theme.main_theme_color}; */
@@ -29,10 +35,21 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
+	height:100%;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
+	position relative;
+	@media (max-width: 700px){
+		width: ${({ hide }) => (hide ? '0px' : '320px')};
+		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
+		position: fixed;
+		height:100%;
+		z-index:4;
+
+	}
 `;
+
 
 const Colom2 = styled.div`
 	flex: 1;
@@ -41,6 +58,10 @@ const Colom2 = styled.div`
 	overflow: scroll;
 	&::-webkit-scrollbar {
 		display: none;
+	}
+	@media (max-width: 700px){
+		z-index:2;
+		padding: 0 50px;
 	}
 `;
 
@@ -73,6 +94,12 @@ const Menu = styled.h5`
 	align-items: center;
 	justify-content: space-between;
 	font-size: 14px;
+
+	@media (max-width: 700px){
+		padding: ${({ hide }) => (hide ? '0px 0px':'5px 0px')};
+		display: ${({ hide }) => (hide && 'none')};
+
+	}
 `;
 
 // background: ${({ active }) =>
@@ -116,6 +143,14 @@ const ProductName = styled.h5`
 	font-weight: bold;
 	padding-left: 10px;
 	line-height: 30px;
+
+
+	@media (max-width: 700px){
+
+		display: ${({ hide }) => (hide && 'none')};
+
+	}
+
 `;
 const BackButton = styled.img`
 	height: 30px;
@@ -136,7 +171,7 @@ export default function Product({ product, url }) {
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
-
+	const [hide, setShowHideSidebar] = useState(true);
 	const {
 		state: {
 			completed: completedMenu,
@@ -151,9 +186,13 @@ export default function Product({ product, url }) {
 	const {
 		actions: { clearFormData, setUsertypeAfterRefresh },
 	} = useContext(FormContext);
+	const hideAndShowMenu = () => {
+		setShowHideSidebar(!hide);
+	};
 
 	const {
 		state: { timestamp },
+		actions: { resetUserDetails },
 	} = useContext(UserContext);
 
 	const { response } = useFetch({
@@ -161,6 +200,19 @@ export default function Product({ product, url }) {
 		options: { method: 'GET' },
 	});
 
+	const SectionSidebarArrow = styled.section`
+	z-index: 100;
+	display: none;
+	@media (max-width: 700px) {
+		display: block;
+	}
+`;
+	const ArrowShow = styled.div`
+	width: min-content;
+
+	margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
+	position: fixed;
+	`;
 	// useEffect(() => {
 	// 	clearFlowDetails(basePageUrl);
 	// 	clearFormData();
@@ -214,6 +266,7 @@ export default function Product({ product, url }) {
 		localStorage.setItem('wt_lbl', wt_lbl);
 		clearFlowDetails(basePageUrl);
 		clearFormData();
+		resetUserDetails();
 	};
 
 	const onFlowChange = (flow, i) => {
@@ -238,14 +291,15 @@ export default function Product({ product, url }) {
 		response &&
 		response.data && (
 			<Wrapper>
-				<Colom1>
+				<Colom1 hide={hide}>
 					<HeadingBox onClick={e => {}}>
+
 						<BackButton
 							src={imgBackArrowCircle}
 							alt='goback'
 							onClick={() => history.push('/nconboarding/applyloan')}
 						/>
-						<ProductName active={flow === 'product-details'}>
+						<ProductName hide={hide} active={flow === 'product-details'}>
 							{response.data.name} <span>{response.data.description}</span>
 						</ProductName>
 					</HeadingBox>
@@ -253,7 +307,7 @@ export default function Product({ product, url }) {
 						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
 							<Fragment key={m.id}>
 								<Link onClick={e => {}}>
-									<Menu active={flow === m.id}>
+									<Menu active={flow === m.id} hide={hide} >
 										<div
 											style={{
 												cursor:
@@ -363,6 +417,21 @@ export default function Product({ product, url }) {
 						) : null
 					)}
 				</Colom1>
+				<SectionSidebarArrow>
+					<ArrowShow hide={hide}>
+					<Button
+							fill
+							onClick={() => hideAndShowMenu()}
+							width={10}
+							heigth={10}
+							borderRadious={'0 5px 5px 0'}>
+							<FontAwesomeIcon
+								icon={hide ? faChevronRight : faChevronLeft}
+								size='1x'
+							/>
+						</Button>
+					</ArrowShow>
+				</SectionSidebarArrow>
 				<Colom2>
 					<IconDottedRight src={iconDottedRight} alt='dot' />
 					{flowMap && (

@@ -15,7 +15,16 @@ const Colom1 = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	z-index:1100;
 	flex-direction: column;
+@media (max-width:700px){
+	position: absolute;
+  top: 50%;
+  left: 50%;
+	width:100%;
+	text-align: center;
+  transform: translate(-50%, -50%);
+}
 `;
 
 const Colom2 = styled.div`
