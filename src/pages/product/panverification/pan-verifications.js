@@ -32,7 +32,7 @@ import Modal from '../../../components/Modal';
 
 const Colom1 = styled.div`
 	flex: 1;
-	padding: 50px;
+	padding: 50px 0px;
 `;
 
 const Colom2 = styled.div`
@@ -70,12 +70,19 @@ const H = styled.h1`
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 50%;
+	@media (max-width:700px){
+		width: 100%;
+	}
+
 `;
 
 const FieldWrapperPanVerify = styled.div`
 	padding: 20px 0;
 	/* width: 50%; */
 	place-self: center;
+	@media (max-width:700px){
+		width: 100%;
+	}
 `;
 
 const H2 = styled.h2`
@@ -1094,7 +1101,7 @@ export default function PanVerification({
 								</>
 							)}
 
-							<section className='flex items-center gap-x-4'>
+							<section className='flex flex-wrap items-center gap-x-4 gap-y-4'>
 								<Button
 									onClick={() => {
 										setPanUpload(true);
@@ -1203,10 +1210,10 @@ export default function PanVerification({
 								setBackUpload(false);
 							}}
 							width='30%'>
-							<span className='px-4 font-bold'>
+							<span className='px-10 font-bold justify-center'>
 								Upload back part of the document?
 							</span>
-							<section className='p-4 py-16 flex gap-x-8'>
+							<section className='p-4 py-16 flex justify-center flex-wrap gap-y-8 gap-x-8'>
 								<Button
 									name='Yes'
 									fill

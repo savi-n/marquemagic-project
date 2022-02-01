@@ -106,6 +106,12 @@ const ImgDotElementRight = styled.img`
 	height: 40px;
 	width: 100px;
 	margin-right: 50px;
+	@media (max-width:700px){
+z-index:-1;
+height:20px;
+width: 50px;
+
+	}
 `;
 const ImgDotElementLeft = styled.img`
 	position: fixed;
@@ -114,6 +120,12 @@ const ImgDotElementLeft = styled.img`
 	height: 40px;
 	width: 100px;
 	margin-left: 50px;
+	@media (max-width:700px){
+		z-index:-1;
+		height:20px;
+		width: 50px;
+
+			}
 `;
 
 const ProductName = styled.div`
