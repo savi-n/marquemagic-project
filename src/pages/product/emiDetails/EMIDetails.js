@@ -19,10 +19,9 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
-
 `;
 
 const ButtonWrap = styled.div`
@@ -44,10 +43,9 @@ const RoundButton = styled.button`
 	/* font-weight: 700; */
 	background: ${({ theme }) => theme.buttonColor2};
 	margin-right: 10px;
-	@media (max-width:700px){
-		height:auto;
+	@media (max-width: 700px) {
+		height: auto;
 		width: 2.25rem;
-
 	}
 `;
 
@@ -195,23 +193,50 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	let existing_personal_loan = '';
 	let existing_personal_loan_bank_name = '';
 	let existing_personal_loan_bank_id = '';
-	state?.user?.emi?.map(r => {
-		if (r.type === 'existing_auto_loan') {
-			existing_auto_loan = r?.amount;
-			existing_auto_loan_bank_name = r?.bank;
-			existing_auto_loan_bank_id = r?.id;
+	if (state?.user?.emi) {
+		state?.user?.emi?.map(r => {
+			if (r.type === 'existing_auto_loan') {
+				existing_auto_loan = r?.amount;
+				existing_auto_loan_bank_name = r?.bank;
+				existing_auto_loan_bank_id = r?.id;
+			}
+			if (r.type === 'existing_lap_loan') {
+				existing_lap_loan = r?.amount;
+				existing_lap_loan_bank_name = r?.bank;
+				existing_lap_loan_bank_id = r?.id;
+			}
+			if (r.type === 'existing_personal_loan') {
+				existing_personal_loan = r?.amount;
+				existing_personal_loan_bank_name = r?.bank;
+				existing_personal_loan_bank_id = r?.id;
+			}
+		});
+	} else {
+		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		if (editLoanData) {
+			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
+			if (emaiDetails.length > 0) {
+				console.log(emaiDetails);
+				emaiDetails.map((ele, i) => {
+					if (i === 0) {
+						existing_auto_loan = ele?.emiAmount;
+						existing_auto_loan_bank_name = ele?.bank;
+						existing_auto_loan_bank_id = ele?.id;
+					}
+					if (i === 1) {
+						existing_lap_loan = ele?.emiAmount;
+						existing_lap_loan_bank_name = ele?.bank;
+						existing_lap_loan_bank_id = ele?.id;
+					}
+					if (i === 1) {
+						existing_personal_loan = ele?.emiAmount;
+						existing_personal_loan_bank_name = ele?.bank;
+						existing_personal_loan_bank_id = ele?.id;
+					}
+				});
+			}
 		}
-		if (r.type === 'existing_lap_loan') {
-			existing_lap_loan = r?.amount;
-			existing_lap_loan_bank_name = r?.bank;
-			existing_lap_loan_bank_id = r?.id;
-		}
-		if (r.type === 'existing_personal_loan') {
-			existing_personal_loan = r?.amount;
-			existing_personal_loan_bank_name = r?.bank;
-			existing_personal_loan_bank_id = r?.id;
-		}
-	});
+	}
 
 	const preData = {
 		existing_auto_loan,

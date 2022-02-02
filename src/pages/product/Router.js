@@ -51,6 +51,15 @@ const FormDefaultPage = lazy(() => import('./formPage/FormController'));
 
 const LapLoanDetails = lazy(() => import('./loanDetails/LapLoanDetails.js'));
 
+const valueConversion = {
+	Thousand: 1000,
+	Thousands: 1000,
+	Lakhs: 100000,
+	Crores: 10000000,
+	Millions: 1000000,
+	One: 1,
+};
+
 const availableRoutes = {
 	'pan-verification': { Component: PanVerification },
 	'product-details': { Component: ProductDetails },
@@ -119,10 +128,44 @@ export default function Router({
 	if (!currentFlow) {
 		return <Loading />;
 	}
+	const amountConverter = (value, k) => {
+		return value * valueConversion[k || 'One'];
+	};
+	const formatCompanyData = (companyData, allData) => {
+		return {
+			BusinessName: companyData?.businessname,
+			businesstype: companyData?.BusinessType,
+			BusinessVintage: companyData?.businessstartdate,
+			panNumber: companyData?.businesspancardnumber,
+			GSTVerification: companyData?.gstin,
+			PAT:
+				allData?.annual_op_expense &&
+				amountConverter(
+					allData?.annual_op_expense,
+					allData?.op_expense_um
+				).toString(),
+			AnnualTurnover:
+				allData?.annual_revenue &&
+				amountConverter(
+					allData?.annual_revenue,
+					allData?.revenue_um
+				).toString(),
+			Email: companyData?.business_email,
+			mobileNo: companyData?.contactno,
+		};
+	};
 
 	const component = availableRoutes[currentFlow] || {
 		Component: FormDefaultPage,
 	};
+	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	editLoanData?.business_id &&
+		localStorage.setItem(
+			'companyData',
+			JSON.stringify(
+				formatCompanyData(editLoanData.business_id, editLoanData) || {}
+			)
+		);
 
 	return (
 		<Suspense fallback={<Loading />}>
