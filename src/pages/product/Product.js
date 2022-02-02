@@ -25,8 +25,9 @@ import {
 import Button from '../../components/Button';
 const Wrapper = styled.div`
 	width: 100%;
-	height: auto;
+	height: 100%;
 	display: flex;
+	position: relative;
 `;
 
 /* background: ${({ theme }) => theme.main_theme_color}; */
@@ -34,17 +35,15 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height: auto;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
-	position: relative;
-	@media (max-width: 700px) {
+	position relative;
+	@media (max-width: 700px){
 		width: ${({ hide }) => (hide ? '0px' : '320px')};
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
-		height: 100%;
-		z-index: 4;
+		z-index:4;
 	}
 `;
 
@@ -58,7 +57,6 @@ const Colom2 = styled.div`
 	}
 	@media (max-width: 700px) {
 		z-index: 2;
-		padding: 0 50px;
 	}
 `;
 
@@ -91,10 +89,8 @@ const Menu = styled.h5`
 	align-items: center;
 	justify-content: space-between;
 	font-size: 14px;
-
 	@media (max-width: 700px) {
-		padding: ${({ hide }) => (hide ? '0px 0px' : '5px 0px')};
-		display: ${({ hide }) => hide && 'none'};
+		padding: ${({ hide }) => (hide ? '0px 0px' : '10px 0px')};
 	}
 `;
 
@@ -139,10 +135,6 @@ const ProductName = styled.h5`
 	font-weight: bold;
 	padding-left: 10px;
 	line-height: 30px;
-
-	@media (max-width: 700px) {
-		display: ${({ hide }) => hide && 'none'};
-	}
 `;
 const BackButton = styled.img`
 	height: 30px;
@@ -197,11 +189,12 @@ export default function Product({ product, url }) {
 		display: none;
 		@media (max-width: 700px) {
 			display: block;
+			background: red;
 		}
 	`;
 	const ArrowShow = styled.div`
 		width: min-content;
-
+		margin-top: 80px;
 		margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
 		position: fixed;
 	`;
@@ -290,7 +283,7 @@ export default function Product({ product, url }) {
 							alt='goback'
 							onClick={() => history.push('/nconboarding/applyloan')}
 						/>
-						<ProductName hide={hide} active={flow === 'product-details'}>
+						<ProductName active={flow === 'product-details'}>
 							{response.data.name} <span>{response.data.description}</span>
 						</ProductName>
 					</HeadingBox>
@@ -298,7 +291,7 @@ export default function Product({ product, url }) {
 						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
 							<Fragment key={m.id}>
 								<Link onClick={e => {}}>
-									<Menu active={flow === m.id} hide={hide}>
+									<Menu active={flow === m.id}>
 										<div
 											style={{
 												cursor:
