@@ -273,6 +273,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			gstin: data['business-details']?.GSTVerification || '',
 			// businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
+			maritalStatus: form?.maritalStatus,
+			residenceStatus: form?.residenceStatus,
 		};
 		if (corporateDetails && corporateDetails.id) {
 			newBusinessDetails.corporateId = corporateDetails.id;
@@ -310,6 +312,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			  })
 			: addressArrayUni;
 
+	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -333,6 +336,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// loan_product_id: "10",
 			// loan_request_type: "1",
 			// origin: "New_UI",
+			...restLoanData,
 			loan_product_id: productId[(form?.incomeType)] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
@@ -879,7 +883,20 @@ export default function DocumentUpload({
 			throw new Error(er.message);
 		}
 	};
-
+	console.log(
+		'bankDetailsDataFormat(caseId, state)',
+		state,
+		bankDetailsDataFormat('', state),
+		caseCreationDataFormat(
+			{
+				...state,
+				productId,
+			},
+			companyDetail,
+			productDetails,
+			productId
+		)
+	);
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);
