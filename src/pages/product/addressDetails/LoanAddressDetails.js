@@ -178,7 +178,7 @@ export default function AddressDetailsPage({
 		} else {
 			let lengthAddress =
 				editLoanData && formatAddressData(editLoanData.business_address);
-			if (lengthAddress.length === 1) {
+			if (lengthAddress?.length === 1) {
 				setMatch(true);
 			}
 		}
