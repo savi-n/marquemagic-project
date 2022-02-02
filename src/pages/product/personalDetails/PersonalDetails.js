@@ -23,7 +23,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -152,16 +152,43 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		}
 	};
 
+	const formatPersonalDetails = personalDetails => {
+		return {
+			firstName: personalDetails?.businessname,
+			incomeType: personalDetails?.businesstype,
+			lastName: personalDetails?.last_name,
+			panNumber: personalDetails?.businesspancardnumber,
+			dob: personalDetails?.businessstartdate,
+			aadhaar: personalDetails?.relation,
+			mobileNo: +personalDetails?.contactno,
+			residenceStatus: personalDetails?.relation,
+			email: personalDetails?.business_email,
+			countryResidence: personalDetails?.relation,
+			maritalStatus: personalDetails?.relation,
+		};
+	};
+
 	const r = () => {
+		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		const appData = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+			let form =
+				(appData && Object.keys(appData).length > 0 && appData) ||
+				formatPersonalDetails(editLoanData?.business_id) ||
+				{};
 			if (form) return form;
 			else {
 				var formStat = JSON.parse(localStorage.getItem('formstate'));
 				return formStat?.values;
 			}
 		} else {
-			let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+			let form =
+				(Object.keys(JSON.parse(userTokensss)?.formReducer?.user?.applicantData)
+					.length > 0 &&
+					JSON.parse(userTokensss)?.formReducer?.user?.applicantData) ||
+				formatPersonalDetails(editLoanData.business_id) ||
+				{};
+
 			if (form) return form;
 			else return userBankDetails;
 		}
@@ -193,7 +220,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				JSON.parse(localStorage.getItem('formstate')) ||
 				JSON.parse(localStorage.getItem('formstatepan'));
 
-			if (formStat && formStat.values.dob) {
+			if (formStat && formStat?.values?.dob) {
 				let d = formStat.values.dob.split('/');
 
 				d = `${d[2]}-${d[1]}-${d[0]}`;
