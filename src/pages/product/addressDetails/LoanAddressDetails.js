@@ -173,6 +173,15 @@ export default function AddressDetailsPage({
 			form.address &&
 			form.address.length === 1 &&
 			setMatch(true);
+		if (form && form.address && form.address[0]) {
+			// if formdata have address that allready saved details
+		} else {
+			let lengthAddress =
+				editLoanData && formatAddressData(editLoanData.business_address);
+			if (lengthAddress.length === 1) {
+				setMatch(true);
+			}
+		}
 	}, []);
 
 	const r = () => {
@@ -213,7 +222,10 @@ export default function AddressDetailsPage({
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields[id].data}
-				preDataFilled={form?.address}
+				preDataFilled={
+					form?.address ||
+					(editLoanData && formatAddressData(editLoanData.business_address))
+				}
 				preData={{
 					address1:
 						Address && Address.address1

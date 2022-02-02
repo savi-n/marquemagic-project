@@ -89,7 +89,10 @@ const formatLoanEmiData = (formData, fields) => {
 	return fields
 		.map(f => ({
 			emiAmount: formData[f.name],
-			bank_name: formData[`${f.name}_bank_name`],
+			bank_name:
+				formData[`${f.name}_bank_id`]?.name ||
+				formData[`${f.name}_bank_id`] ||
+				'',
 		}))
 		.filter(f => f.emiAmount);
 };
@@ -161,7 +164,15 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			[...map.fields[id].data, ...additionalField],
 			response
 		);
+		console.log('emiData', emiData);
 		setUsertypeEmiData(emiData);
+		console.log(
+			'formatLoanEmiData(data, map.fields[id].data), id',
+			formatLoanEmiData(data, map.fields[id].data),
+			data,
+			map.fields[id].data
+		);
+
 		setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
 
 		addToast({
@@ -213,7 +224,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		});
 	} else {
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
-		if (editLoanData) {
+		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
 			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
 			if (emaiDetails.length > 0) {
 				console.log(emaiDetails);
