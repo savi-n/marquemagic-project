@@ -283,50 +283,52 @@ export default function FormController({
 	};
 	const formatLoanData = loanData => {
 		return {
-			tenure: loanData.applied_tenure.toString(),
-			LoanAmount: amountConverter(
-				loanData.loan_amount,
-				loanData.loan_amount_um
-			).toString(),
+			tenure: loanData?.applied_tenure.toString(),
+			LoanAmount:
+				loanData?.loan_amount &&
+				amountConverter(
+					loanData?.loan_amount,
+					loanData?.loan_amount_um
+				).toString(),
 		};
 	};
 
 	const formatSubsidiaryData = subsidiaryData => {
 		return {
-			SubsidiaryName: subsidiaryData.business_name,
-			BankName: subsidiaryData.SubsidiaryName,
-			AccountNumber: subsidiaryData.account_number,
-			Relation: subsidiaryData.relation,
+			SubsidiaryName: subsidiaryData?.business_name,
+			BankName: subsidiaryData?.SubsidiaryName,
+			AccountNumber: subsidiaryData?.account_number,
+			Relation: subsidiaryData?.relation,
 		};
 	};
 
 	const formatShareholderData = shareholderData => {
 		return {
-			ShareholderName: shareholderData.name,
-			ShareholderPercentage: shareholderData.percentage.toString(),
-			Relation: shareholderData.relationship,
+			ShareholderName: shareholderData?.name,
+			ShareholderPercentage: shareholderData?.percentage.toString(),
+			Relation: shareholderData?.relationship,
 		};
 	};
 
 	const formaBankDetailsData = bankDetailsData => {
 		return {
-			BankName: bankDetailsData.bank_id,
-			AccountNumber: bankDetailsData.account_number,
-			AccountType: bankDetailsData.account_type,
+			BankName: bankDetailsData?.bank_id,
+			AccountNumber: bankDetailsData?.account_number,
+			AccountType: bankDetailsData?.account_type,
 			Relation: bankDetailsData?.relationship || '',
-			AccountHolderName: bankDetailsData.account_holder_name,
-			StartDate: bankDetailsData.outstanding_start_date,
-			EndDate: bankDetailsData.outstanding_end_date,
+			AccountHolderName: bankDetailsData?.account_holder_name,
+			StartDate: bankDetailsData?.outstanding_start_date,
+			EndDate: bankDetailsData?.outstanding_end_date,
 		};
 	};
 
 	const formReferenceDetailsData = referenceDetailsData => {
 		const obj = {};
 		referenceDetailsData.map((ele, i) => {
-			obj[`Name${i}`] = ele.ref_name;
-			obj[`ReferenceEmail${i}`] = ele.ref_email;
-			obj[`ContactNumber${i}`] = ele.ref_contact;
-			obj[`Pincode${i}`] = ele.ref_pincode;
+			obj[`Name${i}`] = ele?.ref_name;
+			obj[`ReferenceEmail${i}`] = ele?.ref_email;
+			obj[`ContactNumber${i}`] = ele?.ref_contact;
+			obj[`Pincode${i}`] = ele?.ref_pincode;
 		});
 		return obj;
 	};
