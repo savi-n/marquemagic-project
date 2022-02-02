@@ -34,18 +34,17 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height:auto;
+	height: auto;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
-	position relative;
-	@media (max-width: 700px){
+	position: relative;
+	@media (max-width: 700px) {
 		width: ${({ hide }) => (hide ? '0px' : '320px')};
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
-		height:100%;
-		z-index:4;
-
+		height: 100%;
+		z-index: 4;
 	}
 `;
 

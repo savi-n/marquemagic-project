@@ -18,6 +18,9 @@ const Company = styled.div`
   padding: 10px;
   cursor: pointer;
   border-radius: 10px;
+  @media (max-width: 700px){
+    width:80%;
+  }
 `;
 
 const FieldWrapper = styled.div`
