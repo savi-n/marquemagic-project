@@ -51,10 +51,6 @@ const Dropzone = styled.div`
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
-	@media (max-width: 700px) {
-		min-width: 19rem;
-		overflow: visible;
-	}
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
@@ -84,6 +80,10 @@ const Dropzone = styled.div`
 		color: white;
 		z-index: 999;
 		pointer-events: none;
+	}
+	@media (max-width: 700px) {
+		min-width: 19rem;
+		overflow: visible;
 	}
 `;
 
