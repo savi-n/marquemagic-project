@@ -224,6 +224,11 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		});
 	} else {
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		console.log(
+			'editLoanData?.emi_details[0]?.emi_details.length > 0',
+			editLoanData?.emi_details[0]?.emi_details,
+			editLoanData?.emi_details[0]?.emi_details.length > 0
+		);
 		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
 			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
 			if (emaiDetails.length > 0) {
@@ -231,18 +236,18 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 				emaiDetails.map((ele, i) => {
 					if (i === 0) {
 						existing_auto_loan = ele?.emiAmount;
-						existing_auto_loan_bank_name = ele?.bank;
-						existing_auto_loan_bank_id = ele?.id;
+						existing_auto_loan_bank_name = ele?.bank_name;
+						existing_auto_loan_bank_id = ele?.bank_name;
 					}
 					if (i === 1) {
 						existing_lap_loan = ele?.emiAmount;
-						existing_lap_loan_bank_name = ele?.bank;
-						existing_lap_loan_bank_id = ele?.id;
+						existing_lap_loan_bank_name = ele?.bank_name;
+						existing_lap_loan_bank_id = ele?.bank_name;
 					}
 					if (i === 1) {
 						existing_personal_loan = ele?.emiAmount;
-						existing_personal_loan_bank_name = ele?.bank;
-						existing_personal_loan_bank_id = ele?.id;
+						existing_personal_loan_bank_name = ele?.bank_name;
+						existing_personal_loan_bank_id = ele?.bank_name;
 					}
 				});
 			}

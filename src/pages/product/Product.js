@@ -224,8 +224,10 @@ export default function Product({ product, url }) {
 		completedMenu?.length > 0 && setIndex(completedMenu.length);
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
 		if (editLoanData) {
+			console.log(flowMap?.[flow]?.main);
 			onFlowChange(flowMap?.[flow]?.main);
 			setCompleted('pan-verification');
+			setIndex(index + 1);
 		}
 	}, []);
 
