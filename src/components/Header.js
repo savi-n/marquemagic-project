@@ -18,6 +18,10 @@ const Logo = styled.img`
 	height: calc(100% - 40px);
 	object-fit: scale-down;
 	object-position: left;
+	@media (max-width: 700px) {
+		padding: 0px 50px;
+		width: 100%;
+	}
 `;
 
 export default function Header({
@@ -73,7 +77,6 @@ export default function Header({
 						fontWeight: 'bold',
 						fontSize: '24px',
 						color: '#525252',
-
 					}}>
 					{corporateName}
 				</div>
