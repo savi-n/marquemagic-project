@@ -33,10 +33,10 @@ import Modal from '../../../components/Modal';
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
-	@media(max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
+		max-width: 100%;
 	}
-
 `;
 
 const Colom2 = styled.div`
@@ -74,17 +74,16 @@ const H = styled.h1`
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 50%;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		width: 100%;
 	}
-
 `;
 
 const FieldWrapperPanVerify = styled.div`
 	padding: 20px 0;
 	/* width: 50%; */
 	place-self: center;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		width: 100%;
 	}
 `;
@@ -975,7 +974,7 @@ export default function PanVerification({
 										<p
 											style={{
 												color: 'red',
-												marginTop: '-45px',
+												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
 											{dlError}
@@ -1010,7 +1009,7 @@ export default function PanVerification({
 										<p
 											style={{
 												color: 'red',
-												marginTop: '-45px',
+												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
 											{aadharError}
@@ -1045,7 +1044,7 @@ export default function PanVerification({
 										<p
 											style={{
 												color: 'red',
-												marginTop: '-45px',
+												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
 											{voterError}

@@ -36,13 +36,11 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 		max-width: 100%;
 	}
 `;
-
-
 
 const DocTypeHead = styled.div`
 	font-weight: 600;
@@ -59,6 +57,18 @@ const UploadWrapper = styled.div`
 	margin: 30px 0;
 	position: relative;
 	max-width: 100%;
+	max-height: ${props => (props.open ? '100%' : '0%')};
+	display: ${props => (props.open ? 'block' : 'none')};
+`;
+
+const Details = styled.div`
+	max-height: ${props => (props.open ? '100%' : '0%')};
+	padding: ${props => (props.open ? '10px 0' : '0')};
+	transition: all 0.3s ease-out;
+	@media (max-width: 700px) {
+		max-width: 51%;
+		padding: 0px;
+	}
 `;
 
 // const ButtonWrapper = styled.div`
@@ -119,18 +129,6 @@ const Doc = styled.h2`
 	font-weight: 500;
 `;
 
-const Details = styled.div`
-	max-height: ${props => (props.open ? '100%' : '0')};
-
-	padding: ${props => (props.open ? '10px 0' : '0')};
-	transition: all 0.3s ease-out;
-@media(max-width:700px){
-		max-width:51%;
-		padding:0px;
-
-	}
-	`;
-
 const Section = styled.div`
 	display: flex;
 	align-items: center;
@@ -144,11 +142,6 @@ const CollapseIcon = styled.img`
 	object-fit: contain;
 
 	cursor: pointer;
-	@media (max-width:){
-		background: green;
-		margin-left:0px;
-		max-width:10px;
-	}
 `;
 
 const Hr = styled.hr`
@@ -1096,6 +1089,7 @@ export default function DocumentUpload({
 								src={downArray}
 								style={{
 									transform: openKycdoc ? `rotate(180deg)` : `none`,
+									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
@@ -1104,7 +1098,7 @@ export default function DocumentUpload({
 							<Hr />
 						</Details>
 						<Details open={openKycdoc}>
-							<UploadWrapper>
+							<UploadWrapper open={openKycdoc}>
 								<FileUpload
 									sectionType='kyc'
 									section={'document-upload'}
@@ -1151,15 +1145,16 @@ export default function DocumentUpload({
 								src={downArray}
 								style={{
 									transform: openFinancialdoc ? `rotate(180deg)` : `none`,
+									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</Section>
-						{/* <Details open={!openFinancialdoc}>
+						<Details open={!openFinancialdoc}>
 							<Hr />
 						</Details>
 						<Details open={openFinancialdoc}>
-							<UploadWrapper>
+							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
 									sectionType='financial'
 									section={'document-upload'}
@@ -1183,7 +1178,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details> */}
+						</Details>
 					</>
 				)}
 				{OtherDocOptions.length > 0 && (
@@ -1206,12 +1201,13 @@ export default function DocumentUpload({
 								src={downArray}
 								style={{
 									transform: openOtherdoc ? `rotate(180deg)` : `none`,
+									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</Section>
-						{/* <Details open={openOtherdoc}>
-							<UploadWrapper>
+						<Details open={openOtherdoc}>
+							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
 									sectionType='others'
 									section={'document-upload'}
@@ -1235,7 +1231,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details> */}
+						</Details>
 					</>
 				)}
 				<div style={{ padding: 10 }} />
