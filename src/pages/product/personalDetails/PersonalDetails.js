@@ -316,7 +316,9 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
-				preData={form || editLoanDataSalary}
+				preData={
+					(form && Object.keys(form).length > 0 && form) || editLoanDataSalary
+				}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

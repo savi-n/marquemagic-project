@@ -224,7 +224,7 @@ export default function Product({ product, url }) {
 			steps.map(ele => {
 				setCompleted(ele);
 			});
-			setIndex(index + 1);
+			setIndex(index);
 		}
 	}, [flowMap]);
 

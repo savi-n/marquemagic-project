@@ -204,7 +204,7 @@ let userToken = localStorage.getItem(url);
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 let busniess = JSON.parse(localStorage.getItem('busniess'));
-const editLoan = localStorage.getItem('editLoan')
+let editLoan = localStorage.getItem('editLoan')
 	? JSON.parse(localStorage.getItem('editLoan'))
 	: {};
 
@@ -225,6 +225,9 @@ const getAmount = a => {
 };
 
 function caseCreationDataFormat(data, companyData, productDetails, productId) {
+	editLoan = localStorage.getItem('editLoan')
+		? JSON.parse(localStorage.getItem('editLoan'))
+		: {};
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
 	let loanData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
@@ -736,7 +739,7 @@ export default function DocumentUpload({
 			setOtherDocOptions(otherDocDropdown);
 			setDocumentTypeOptions(optionArray);
 
-			console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
+			// console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
 			if (
 				editLoan &&
 				editLoan?.loan_document &&
@@ -880,6 +883,7 @@ export default function DocumentUpload({
 				productDetails,
 				productId
 			);
+			// console.log('createCaseReq-', { reqBody, editLoan });
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
@@ -1077,6 +1081,9 @@ export default function DocumentUpload({
 
 	const caseCreationSteps = async data => {
 		try {
+			editLoan = localStorage.getItem('editLoan')
+				? JSON.parse(localStorage.getItem('editLoan'))
+				: {};
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();
 			const caseId =

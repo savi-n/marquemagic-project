@@ -324,6 +324,7 @@ const FileType = styled.div`
 	align-items: center;
 	cursor: pointer;
 `;
+
 const FileTypeIcon = styled.img`
 	height: 25px;
 `;
