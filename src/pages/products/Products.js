@@ -577,7 +577,7 @@ export default function Products() {
 											Application Number: <strong>{d?.loan_ref_id}</strong>
 										</AppNumber>
 										<AppStatus>
-											Status: <strong>{d?.currentLoanStatu?.name}</strong>
+											Status: <strong>{d?.currentLoanStatus?.name}</strong>
 										</AppStatus>
 									</AppStatusLine1>
 									<AppStatusLine2>
@@ -585,7 +585,7 @@ export default function Products() {
 										{primaryStatusList.map((p, i) => {
 											return (
 												<AppStatusDots
-													active={p?.id === d?.currentLoanStatu?.id}
+													active={i + 1 <= d?.currentLoanStatus?.sort_by_id}
 												/>
 											);
 										})}
