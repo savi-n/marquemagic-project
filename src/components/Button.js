@@ -22,6 +22,9 @@ const StyledButton = styled.button`
 	@media (max-width: 700px) {
 		min-width: auto;
 		padding: 10px;
+		background: #1414ad;
+		border-radius: 0px;
+		border: 2px solid #1414ad;
 	}
 	&:hover {
 		color: #fff;
