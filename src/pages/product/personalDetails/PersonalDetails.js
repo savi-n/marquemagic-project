@@ -273,10 +273,10 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					countryResidence: 'india',
 					...form,
 				}}
-				jsonData={map.fields[id].data}
+				jsonData={map?.fields[id]?.data}
 			/>
 			<SalaryDetails
-				jsonData={map.fields['salary-details'].data}
+				jsonData={map?.fields['salary-details'].data}
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
