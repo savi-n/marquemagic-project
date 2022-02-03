@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 const Input = styled.input`
 	height: 50px;
+<<<<<<< HEAD
 	padding: 10px;
 	width: 100%;
 	border: 1px solid rgba(0, 0, 0, 0.1);
@@ -9,6 +10,12 @@ const Input = styled.input`
 	@media (max-width: 700px) {
 		padding: 5px;
 	}
+=======
+	padding: 2px;
+	width: 100%;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+>>>>>>> origin/redux-onboarding
 `;
 
 const Div = styled.div`

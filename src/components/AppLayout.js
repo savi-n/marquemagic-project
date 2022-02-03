@@ -28,10 +28,16 @@ const HeaderWrapper = styled.div`
   align-items: center;
   padding: 0 50px;
   z-index: 101;
+<<<<<<< HEAD
 	position: sticky;
 	top: 0px;
 	background:#fff;
 
+=======
+  position:	sticky;
+	top: 0px;
+	background: #fff;
+>>>>>>> origin/redux-onboarding
 `;
 const Div = styled.div`
 	flex: 1;
