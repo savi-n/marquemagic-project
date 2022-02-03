@@ -47,7 +47,9 @@ const Dropzone = styled.div`
 	border-radius: 10px;
 	border-width: 2px;
 	overflow: hidden;
-
+	@media (max-width: 700px) {
+		gap: 0px;
+	}
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
@@ -82,7 +84,7 @@ const Dropzone = styled.div`
 		pointer-events: none;
 	}
 	@media (max-width: 700px) {
-		min-width: 19rem;
+		min-width: auto;
 		overflow: visible;
 	}
 `;
