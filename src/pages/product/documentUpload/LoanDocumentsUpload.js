@@ -423,6 +423,14 @@ function subsidiaryDataFormat(caseId, data) {
 }
 
 function bankDetailsDataFormat(caseId, data) {
+	if (data['vehicle-loan-details']) {
+		const formatedData = {
+			emiDetails: data['emi-details'],
+			case_id: caseId,
+			bank_name: data[`vehicle-loan-details`].branchId,
+		};
+		return formatedData;
+	}
 	if (
 		!data['bank-details']?.AccountNumber &&
 		!data['bank-details']?.BankName &&
