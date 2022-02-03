@@ -21,7 +21,7 @@ const StyledButton = styled.button`
 	justify-content: center;
 	@media (max-width: 700px) {
 		padding: 10px;
-		background: #1414ad;
+		// background: #1414ad;
 		border-radius: 0px;
 		border: 2px solid #1414ad;
 	}
