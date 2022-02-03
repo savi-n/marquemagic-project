@@ -18,7 +18,7 @@ const H = styled.h1`
 const FieldWrap = styled.div`
 	width: 45%;
 	margin: 10px 0;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		width: 100%;
 	}
 `;

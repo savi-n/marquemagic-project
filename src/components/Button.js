@@ -10,7 +10,7 @@ const StyledButton = styled.button`
 	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '5px')};
 	padding: 10px 20px;
 	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+		fill && (typeof fill === 'string' ? '' : '#1414ad')};
 
 	align-items: flex-start;
 	min-width: ${({ width }) => (width ? width : '200px')};
@@ -21,7 +21,7 @@ const StyledButton = styled.button`
 	justify-content: center;
 	@media (max-width: 700px) {
 		padding: 10px;
-		// background: #1414ad;
+
 		border-radius: 0px;
 		border: 2px solid #1414ad;
 	}
