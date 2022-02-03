@@ -275,6 +275,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// corporateid: companyData.CIN
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
+			business_name_last: applicantData?.lasName || companyData?.lastName || '',
+			aadhaar:
+				form?.aadhaar || applicantData?.aadhaar || companyData?.aadhaar || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
 			newBusinessDetails.corporateId = corporateDetails.id;
@@ -427,7 +430,7 @@ function bankDetailsDataFormat(caseId, data) {
 		const formatedData = {
 			emiDetails: data['emi-details'],
 			case_id: caseId,
-			bank_name: data[`vehicle-loan-details`].branchId,
+			// bank_name: data[`vehicle-loan-details`].branchId,
 		};
 		return formatedData;
 	}
