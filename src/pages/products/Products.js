@@ -52,6 +52,7 @@ const ProductsBox = styled.div`
 const StatusBox = styled.div`
 	width: 50%;
 	margin: 50px auto;
+	box-shadow: rgb(11 92 255 / 20%) 0px 7px 29px 0px;
 	@media (max-width: 700px) {
 		width: 80%;
 		margin: 50px auto 50px auto;
@@ -528,11 +529,11 @@ export default function Products() {
 				</ModalOTPFooter>
 			</Modal>
 			<StatusBox>
-				<ProductName>
-					Here, you can check your application status by entering the Loan
-					Reference ID, Phone No or PAN No
-				</ProductName>
 				<StatusInputBox>
+					<ProductName>
+						Here, you can check your application status by entering the Loan
+						Reference ID, Phone No or PAN No
+					</ProductName>
 					<section
 						className='flex font-medium my-2'
 						style={{ marginRight: 15 }}>
