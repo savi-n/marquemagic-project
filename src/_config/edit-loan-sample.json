@@ -1,0 +1,64 @@
+{
+	"Business_details": {
+		"business_name": "OPENDOORS FINTECH PRIVATE LIMITED",
+		"business_type": 4,
+		"business_email": "varunbhai.miyani.corp.busnes@namastecredit.com",
+		"contact": "1000001000",
+		"businesspancardnumber": "AACCO0644D",
+		"gstin": "232323232323",
+		"businessid": 1234572666
+	},
+	"businessaddress": [
+		{
+			"line1": "C 135, FIRST FLOOR KIRTI NAGAR NEW DELHI West Delhi DL 110015 IN",
+			"line2": "add lin4",
+			"locality": "add lind5",
+			"city": "West Delhi",
+			"state": "DELHI",
+			"pincode": "110015",
+			"addressType": "present",
+			"aid": 1
+		}
+	],
+	"director_details": [],
+	"loan_details": {
+		"LoanAmount": "111111",
+		"loan_product_id": 10,
+		"white_label_id": "0878a9fb5b93ab5bd7b9b5dc0eb8612f",
+		"loan_amount": 1.11111,
+		"loan_amount_um": "Lakhs",
+		"applied_tenure": "11",
+		"annual_turn_over": 1,
+		"revenue_um": "Lakhs",
+		"annual_op_expense": 1,
+		"op_expense_um": "Lakhs",
+		"loanId": 25504
+	},
+	"documents": {
+		"KYC": [
+			{
+				"fd": "1e0afe07-f31b-42a6-9ddf-a7226e820603.pdf",
+				"size": 38798,
+				"filename": "password-123456.pdf",
+				"value": 2
+			}
+		],
+		"others": [
+			{
+				"fd": "6c5b27a9-a0e5-4ebc-bcdb-24a58c6ad6ab.pdf",
+				"size": 38798,
+				"filename": "password-123456.pdf",
+				"value": 20
+			}
+		],
+		"financials": [
+			{
+				"fd": "fdf2189f-9484-4531-9ba4-a27a5e650055.pdf",
+				"size": 38798,
+				"filename": "password-123456.pdf",
+				"value": 32
+			}
+		]
+	},
+	"branchId": 179423
+}
