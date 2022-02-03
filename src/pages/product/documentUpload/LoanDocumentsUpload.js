@@ -898,20 +898,7 @@ export default function DocumentUpload({
 			throw new Error(er.message);
 		}
 	};
-	console.log(
-		'bankDetailsDataFormat(caseId, state)',
-		state,
-		bankDetailsDataFormat('', state),
-		caseCreationDataFormat(
-			{
-				...state,
-				productId,
-			},
-			companyDetail,
-			productDetails,
-			productId
-		)
-	);
+
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);

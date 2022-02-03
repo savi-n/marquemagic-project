@@ -361,7 +361,6 @@ export default function FormController({
 					.length > 0 &&
 					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
 				(editLoanData && formatLoanData(editLoanData));
-			console.log('form', form);
 		}
 		if (id === 'vehicle-loan-details') {
 			form =
@@ -389,10 +388,6 @@ export default function FormController({
 				formReferenceDetailsData(editLoanData.reference_details);
 		}
 	}
-
-	console.log('form', form, state[`${id}`]);
-	console.log('edit editLoanData', editLoanData);
-	console.log('map?.fields[id]?.data', id, map?.fields[id]?.data);
 
 	return (
 		<>
