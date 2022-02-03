@@ -218,9 +218,12 @@ export default function Product({ product, url }) {
 
 	useEffect(() => {
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
-		if (editLoanData) {
+		if (editLoanData && flowMap) {
+			const steps = Object.keys(flowMap);
 			onFlowChange(flowMap?.[flow]?.main);
-			setCompleted('pan-verification');
+			steps.map(ele => {
+				setCompleted(ele);
+			});
 			setIndex(index + 1);
 		}
 	}, [flowMap]);
