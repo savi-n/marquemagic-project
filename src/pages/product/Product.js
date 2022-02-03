@@ -40,7 +40,7 @@ const Colom1 = styled.div`
 	padding: 50px 20px;
 	position: relative;
 	@media (max-width: 700px) {
-		width: ${({ hide }) => (hide ? '0px' : '320px')};
+		width: ${({ hide }) => (hide ? '0px' : '220px')};
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
 		height: 100%;
@@ -202,7 +202,7 @@ export default function Product({ product, url }) {
 	const ArrowShow = styled.div`
 		width: min-content;
 
-		margin-left: ${({ hide }) => (hide ? '0px' : '320px')};
+		margin-left: ${({ hide }) => (hide ? '0px' : '220px')};
 		position: fixed;
 	`;
 	// useEffect(() => {
