@@ -164,15 +164,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			[...map.fields[id].data, ...additionalField],
 			response
 		);
-		console.log('emiData', emiData);
 		setUsertypeEmiData(emiData);
-		console.log(
-			'formatLoanEmiData(data, map.fields[id].data), id',
-			formatLoanEmiData(data, map.fields[id].data),
-			data,
-			map.fields[id].data
-		);
-
 		setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
 
 		addToast({
@@ -224,15 +216,9 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		});
 	} else {
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
-		console.log(
-			'editLoanData?.emi_details[0]?.emi_details.length > 0',
-			editLoanData?.emi_details[0]?.emi_details,
-			editLoanData?.emi_details[0]?.emi_details.length > 0
-		);
 		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
 			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
 			if (emaiDetails.length > 0) {
-				console.log(emaiDetails);
 				emaiDetails.map((ele, i) => {
 					if (i === 0) {
 						existing_auto_loan = ele?.emiAmount;

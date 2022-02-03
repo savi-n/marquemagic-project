@@ -170,6 +170,10 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	display: flex;
 	justify-content: center;
+	@media (max-width: 700px) {
+		width: 7rem;
+		padding: 0 10px;
+	}
 `;
 
 const textForCheckbox = {
@@ -277,6 +281,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// corporateid: companyData.CIN
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
+			business_name_last: applicantData?.lasName || companyData?.lastName || '',
+			aadhaar:
+				form?.aadhaar || applicantData?.aadhaar || companyData?.aadhaar || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
 			newBusinessDetails.corporateId = corporateDetails.id;
@@ -442,6 +449,14 @@ function subsidiaryDataFormat(caseId, data) {
 }
 
 function bankDetailsDataFormat(caseId, data) {
+	if (data['vehicle-loan-details']) {
+		const formatedData = {
+			emiDetails: data['emi-details'],
+			case_id: caseId,
+			// bank_name: data[`vehicle-loan-details`].branchId,
+		};
+		return formatedData;
+	}
 	if (
 		!data['bank-details']?.AccountNumber &&
 		!data['bank-details']?.BankName &&

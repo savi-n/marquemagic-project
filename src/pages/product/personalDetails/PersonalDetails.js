@@ -42,6 +42,15 @@ function formatUserDetails(data, fields) {
 	return formatedData;
 }
 
+const valueConversion = {
+	Thousand: 1000,
+	Thousands: 1000,
+	Lakhs: 100000,
+	Crores: 10000000,
+	Millions: 1000000,
+	One: 1,
+};
+
 export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const {
 		state: { whiteLabelId },
@@ -62,6 +71,11 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
+
+	const amountConverter = (value, k) => {
+		if (k) return value * valueConversion[k || 'One'];
+		return value;
+	};
 
 	const onSave = async data => {
 		if (!userToken) {
@@ -157,11 +171,13 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 			firstName: personalDetails?.businessname,
 			incomeType: personalDetails?.businesstype,
 			lastName: personalDetails?.last_name,
-			panNumber: personalDetails?.businesspancardnumber,
-			dob: personalDetails?.businessstartdate,
+			pan: personalDetails?.businesspancardnumber,
+			dob: personalDetails?.businessstartdate
+				? personalDetails?.businessstartdate.split(' ')[0]
+				: '',
 			aadhaar: personalDetails?.relation,
-			mobileNo: +personalDetails?.contactno,
-			residenceStatus: personalDetails?.relation,
+			mobileNum: personalDetails?.contactno,
+			residentTypess: personalDetails?.relation,
 			email: personalDetails?.business_email,
 			countryResidence: personalDetails?.relation,
 			maritalStatus: personalDetails?.relation,
@@ -246,6 +262,25 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 			return name;
 		}
 	};
+	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	let editLoanDataSalary = {};
+	if (editLoanData && (!form || (form && Object.keys(form).length === 0))) {
+		editLoanDataSalary = {
+			grossIncome:
+				editLoanData.annual_turn_over &&
+				amountConverter(
+					editLoanData.annual_turn_over,
+					editLoanData.revenue_um
+				).toString(),
+
+			netMonthlyIncome:
+				editLoanData.annual_op_expense &&
+				amountConverter(
+					editLoanData.annual_op_expense,
+					editLoanData.op_expense_um
+				).toString(),
+		};
+	}
 	return (
 		<Div>
 			<PersonalDetails
@@ -259,6 +294,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					dob:
 						getDOB() ||
 						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
+						r()?.dob ||
 						'',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
@@ -269,18 +305,18 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 						localStorage.getItem('pan') ||
 						'',
 					residenceStatus: r()?.residentTypess || '',
-					aadhaar: getAdhar() || '',
-					countryResidence: 'india',
+					aadhaar: getAdhar() || r()?.aadhar || '',
+					countryResidence: r()?.countryResidence || 'india',
 					...form,
 				}}
-				jsonData={map.fields[id].data}
+				jsonData={map?.fields[id]?.data}
 			/>
 			<SalaryDetails
-				jsonData={map.fields['salary-details'].data}
+				jsonData={map?.fields['salary-details'].data}
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
-				preData={form}
+				preData={form || editLoanDataSalary}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

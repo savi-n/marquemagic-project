@@ -82,7 +82,7 @@ const Menu = styled.h5`
 		active ? 'linear-gradient(to right, #2a2add , #00df8d)' : 'none'};
 	box-shadow: ${({ active }) =>
 		active ? 'rgba(0, 0, 0, 0.24) 0px 3px 8px' : 'none'};
-	width: 112%;
+	width: 100%;
 	border-radius: 5px;
 	padding: 10px 20px;
 	margin: 5px 0;
@@ -217,18 +217,23 @@ export default function Product({ product, url }) {
 	}, [response]);
 
 	useEffect(() => {
+		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		if (editLoanData && flowMap) {
+			const steps = Object.keys(flowMap);
+			onFlowChange(flowMap?.[flow]?.main);
+			steps.map(ele => {
+				setCompleted(ele);
+			});
+			setIndex(index + 1);
+		}
+	}, [flowMap]);
+
+	useEffect(() => {
 		if (productId !== productIdPage || timestamp < Date.now()) {
 			clearFlowDetails();
 			clearFormData();
 		}
 		completedMenu?.length > 0 && setIndex(completedMenu.length);
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
-		if (editLoanData) {
-			console.log(flowMap?.[flow]?.main);
-			onFlowChange(flowMap?.[flow]?.main);
-			setCompleted('pan-verification');
-			setIndex(index + 1);
-		}
 	}, []);
 
 	// useEffect(() => {

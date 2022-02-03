@@ -10,7 +10,7 @@ const StyledButton = styled.button`
 	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '5px')};
 	padding: 10px 20px;
 	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+		fill && (typeof fill === 'string' ? '' : '#1414ad')};
 
 	align-items: flex-start;
 	min-width: ${({ width }) => (width ? width : '200px')};
@@ -20,9 +20,12 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	justify-content: center;
 	@media (max-width: 700px) {
-		min-width: auto;
 		padding: 10px;
+
+		border-radius: 0px;
+		border: 2px solid #1414ad;
 	}
+
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
@@ -32,6 +35,7 @@ const StyledButton = styled.button`
 const Div = styled.div`
 	text-align: center;
 	flex: 1;
+	position: relative;
 `;
 
 const LoaderCircle = styled.label`
