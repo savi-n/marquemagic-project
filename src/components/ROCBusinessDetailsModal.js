@@ -7,6 +7,9 @@ import { BussinesContext } from '../reducer/bussinessReducer';
 
 const Div = styled.div`
 	padding: 20px;
+	@media (max-width: 700px) {
+		padding: 0px;
+	}
 `;
 
 const Row = styled.div`
@@ -41,7 +44,7 @@ const Colm2 = styled.div`
 
 export default function ROCBusinessDetailsModal({ onClose }) {
 	const {
-		state: { companyDetail }
+		state: { companyDetail },
 	} = useContext(BussinesContext);
 	const isDemo = localStorage.getItem('product') === 'demo';
 	return (
@@ -82,7 +85,8 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					<Colm1>Pancard Number</Colm1>
 					<Colm2>
 						{companyDetail?.PancardNumber ||
-							JSON.parse(localStorage.getItem('formstatepan'))?.values?.panNumber ||
+							JSON.parse(localStorage.getItem('formstatepan'))?.values
+								?.panNumber ||
 							JSON.parse(localStorage.getItem('formstate'))}
 					</Colm2>
 				</Row>

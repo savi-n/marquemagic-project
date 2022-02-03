@@ -17,7 +17,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -28,17 +28,22 @@ const ButtonWrap = styled.div`
 	gap: 20px;
 `;
 
-export default function BussinessDetailsPage({ id, map, onFlowChange, fieldConfig }) {
+export default function BussinessDetailsPage({
+	id,
+	map,
+	onFlowChange,
+	fieldConfig,
+}) {
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeApplicantData }
+		actions: { setUsertypeApplicantData },
 	} = useContext(FormContext);
 
 	const {
-		state: { userBankDetails }
+		state: { userBankDetails },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -48,7 +53,7 @@ export default function BussinessDetailsPage({ id, map, onFlowChange, fieldConfi
 		setUsertypeApplicantData({ ...data, isApplicant: '1' });
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
@@ -77,7 +82,7 @@ export default function BussinessDetailsPage({ id, map, onFlowChange, fieldConfi
 					dob: userBankDetails.dob,
 					email: userBankDetails.email,
 					mobileNo: userBankDetails.mobileNum,
-					panNumber: userBankDetails.pan
+					panNumber: userBankDetails.pan,
 				}}
 				jsonData={fieldConfig.bussiness_details.data}
 			/>
@@ -94,5 +99,5 @@ BussinessDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
 	id: string,
-	fieldConfig: object
+	fieldConfig: object,
 };
