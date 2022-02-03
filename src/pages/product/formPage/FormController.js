@@ -279,7 +279,8 @@ export default function FormController({
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	let companyData = JSON.parse(localStorage.getItem('companyData'));
 	const amountConverter = (value, k) => {
-		return value * valueConversion[k || 'One'];
+		if (k) return value * valueConversion[k || 'One'];
+		return value;
 	};
 	const formatLoanData = loanData => {
 		return {
@@ -290,6 +291,18 @@ export default function FormController({
 					loanData?.loan_amount,
 					loanData?.loan_amount_um
 				).toString(),
+		};
+	};
+	const formatVehicalLoanData = loanData => {
+		return {
+			tenure: loanData?.applied_tenure.toString(),
+			loanAmount:
+				loanData?.loan_amount &&
+				amountConverter(
+					loanData?.loan_amount,
+					loanData?.loan_amount_um
+				).toString(),
+			// branchId: loanData?.branchId
 		};
 	};
 
@@ -348,6 +361,14 @@ export default function FormController({
 					.length > 0 &&
 					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
 				(editLoanData && formatLoanData(editLoanData));
+			console.log('form', form);
+		}
+		if (id === 'vehicle-loan-details') {
+			form =
+				(Object.keys(JSON.parse(userToken)?.formReducer?.user?.loanData)
+					.length > 0 &&
+					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
+				(editLoanData && formatVehicalLoanData(editLoanData));
 		}
 		if (id === 'subsidiary-details' && editLoanData) {
 			form =
