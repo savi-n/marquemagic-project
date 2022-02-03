@@ -20,12 +20,12 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	justify-content: center;
 	@media (max-width: 700px) {
-		min-width: auto;
 		padding: 10px;
-		background: #1414ad;
+		// background: #1414ad;
 		border-radius: 0px;
 		border: 2px solid #1414ad;
 	}
+
 	&:hover {
 		color: #fff;
 		background: ${({ theme, fill }) => fill ?? theme.main_theme_color};
@@ -35,6 +35,7 @@ const StyledButton = styled.button`
 const Div = styled.div`
 	text-align: center;
 	flex: 1;
+	position: relative;
 `;
 
 const LoaderCircle = styled.label`
