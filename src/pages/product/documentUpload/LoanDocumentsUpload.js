@@ -167,6 +167,10 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	display: flex;
 	justify-content: center;
+	@media (max-width: 700px) {
+		width: 7rem;
+		padding: 0 10px;
+	}
 `;
 
 const textForCheckbox = {
