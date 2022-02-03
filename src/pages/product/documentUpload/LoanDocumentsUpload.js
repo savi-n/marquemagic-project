@@ -57,6 +57,18 @@ const UploadWrapper = styled.div`
 	margin: 30px 0;
 	position: relative;
 	max-width: 100%;
+	max-height: ${props => (props.open ? '100%' : '0%')};
+	display: ${props => (props.open ? 'block' : 'none')};
+`;
+
+const Details = styled.div`
+	max-height: ${props => (props.open ? '100%' : '0%')};
+	padding: ${props => (props.open ? '10px 0' : '0')};
+	transition: all 0.3s ease-out;
+	@media (max-width: 700px) {
+		max-width: 51%;
+		padding: 0px;
+	}
 `;
 
 // const ButtonWrapper = styled.div`
@@ -115,17 +127,6 @@ const CheckboxWrapper = styled.div`
 const Doc = styled.h2`
 	font-size: 1.2em;
 	font-weight: 500;
-`;
-
-const Details = styled.div`
-	max-height: ${props => (props.open ? '100%' : '0')};
-
-	padding: ${props => (props.open ? '10px 0' : '0')};
-	transition: all 0.3s ease-out;
-	@media (max-width: 700px) {
-		max-width: 51%;
-		padding: 0px;
-	}
 `;
 
 const Section = styled.div`
@@ -276,6 +277,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			gstin: data['business-details']?.GSTVerification || '',
 			// businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
+			maritalStatus: form?.maritalStatus,
+			residenceStatus: form?.residenceStatus,
 		};
 		if (corporateDetails && corporateDetails.id) {
 			newBusinessDetails.corporateId = corporateDetails.id;
@@ -313,6 +316,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			  })
 			: addressArrayUni;
 
+	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -336,6 +340,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// loan_product_id: "10",
 			// loan_request_type: "1",
 			// origin: "New_UI",
+			...restLoanData,
 			loan_product_id: productId[(form?.incomeType)] || productId[idType],
 			white_label_id: localStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
@@ -882,7 +887,20 @@ export default function DocumentUpload({
 			throw new Error(er.message);
 		}
 	};
-
+	console.log(
+		'bankDetailsDataFormat(caseId, state)',
+		state,
+		bankDetailsDataFormat('', state),
+		caseCreationDataFormat(
+			{
+				...state,
+				productId,
+			},
+			companyDetail,
+			productDetails,
+			productId
+		)
+	);
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);
@@ -1092,6 +1110,7 @@ export default function DocumentUpload({
 								src={downArray}
 								style={{
 									transform: openKycdoc ? `rotate(180deg)` : `none`,
+									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
@@ -1100,7 +1119,7 @@ export default function DocumentUpload({
 							<Hr />
 						</Details>
 						<Details open={openKycdoc}>
-							<UploadWrapper>
+							<UploadWrapper open={openKycdoc}>
 								<FileUpload
 									sectionType='kyc'
 									section={'document-upload'}
@@ -1147,15 +1166,16 @@ export default function DocumentUpload({
 								src={downArray}
 								style={{
 									transform: openFinancialdoc ? `rotate(180deg)` : `none`,
+									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</Section>
-						{/* <Details open={!openFinancialdoc}>
+						<Details open={!openFinancialdoc}>
 							<Hr />
 						</Details>
 						<Details open={openFinancialdoc}>
-							<UploadWrapper>
+							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
 									sectionType='financial'
 									section={'document-upload'}
@@ -1179,7 +1199,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details> */}
+						</Details>
 					</>
 				)}
 				{OtherDocOptions.length > 0 && (
@@ -1202,12 +1222,13 @@ export default function DocumentUpload({
 								src={downArray}
 								style={{
 									transform: openOtherdoc ? `rotate(180deg)` : `none`,
+									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</Section>
-						{/* <Details open={openOtherdoc}>
-							<UploadWrapper>
+						<Details open={openOtherdoc}>
+							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
 									sectionType='others'
 									section={'document-upload'}
@@ -1231,7 +1252,7 @@ export default function DocumentUpload({
 									}}
 								/>
 							</UploadWrapper>
-						</Details> */}
+						</Details>
 					</>
 				)}
 				<div style={{ padding: 10 }} />

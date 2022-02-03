@@ -358,14 +358,17 @@ export default function Products() {
 						modalOTPData.loan_ref_id
 					}`
 				);
-				const productID = loanDetailsRes?.data?.data?.loan_product_id;
+				const productID = loanDetailsRes?.data?.data?.product_details?.id;
 				localStorage.setItem(
 					'editLoan',
 					JSON.stringify(loanDetailsRes?.data?.data || {})
 				);
 				// console.log('loanDetailsRes-', loanDetailsRes?.data);
 				setVerifyingOTP(false);
-				history.push(`/applyloan/product/${btoa(productID)}`);
+				history.push({
+					pathname: `/applyloan/product/${btoa(productID)}`,
+					data: productID,
+				});
 			} else {
 				setErrOTP('Invalid OTP');
 			}
