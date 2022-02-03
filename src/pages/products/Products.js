@@ -50,8 +50,12 @@ const ProductsBox = styled.div`
 `;
 
 const StatusBox = styled.div`
-	width: 80%;
-	margin: 50px auto 50px auto;
+	width: 50%;
+	margin: 50px auto;
+	@media (max-width: 700px) {
+		width: 80%;
+		margin: 50px auto 50px auto;
+	}
 `;
 
 const StatusInputBox = styled.div`
