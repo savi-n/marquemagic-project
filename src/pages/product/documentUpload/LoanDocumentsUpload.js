@@ -1,3 +1,4 @@
+// active page
 import { useState, useContext, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
 
@@ -20,6 +21,7 @@ import {
 	PINCODE_ADRRESS_FETCH,
 	WHITELABEL_ENCRYPTION_API,
 	CIN_UPDATE,
+	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -194,13 +196,13 @@ function fileStructure(documents, type) {
 }
 
 const url = window.location.hostname;
-
 let userToken = localStorage.getItem(url);
-
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
-
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 let busniess = JSON.parse(localStorage.getItem('busniess'));
+const editLoan = localStorage.getItem('editLoan')
+	? JSON.parse(localStorage.getItem('editLoan'))
+	: {};
 
 const getAmountUm = a => {
 	if (a > 99999) {
@@ -278,6 +280,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		};
 		if (corporateDetails && corporateDetails.id) {
 			newBusinessDetails.corporateId = corporateDetails.id;
+		}
+		if (editLoan && editLoan?.business_id && editLoan?.business_id?.id) {
+			newBusinessDetails.businessid = editLoan?.business_id?.id;
 		}
 		return newBusinessDetails;
 	};
@@ -391,6 +396,20 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		},
 		branchId: companyData?.branchId,
 	};
+	if (editLoan && editLoan?.id) {
+		formatedData.loan_details.loanId = editLoan?.id;
+		formatedData.Collaterals = {
+			property_type: editLoan?.loan_asset_type,
+			assets_value: editLoan?.assets_value,
+			assets_value_um: editLoan?.assets_value_um,
+		};
+		formatedData.financials = {
+			annual_op_expense: editLoan?.annual_op_expense,
+			op_expense_um: editLoan?.op_expense_um,
+			gross_revenue: editLoan?.annual_revenue,
+			gross_revenue_um: editLoan?.revenue_um,
+		};
+	}
 
 	// if (localStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;
@@ -533,65 +552,6 @@ export default function DocumentUpload({
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType },
 	} = useContext(LoanFormContext);
 
-	const getWhiteLabel = async () => {
-		const encryptWhiteLabelReq = await newRequest(
-			WHITELABEL_ENCRYPTION_API,
-			{
-				method: 'GET',
-			},
-			{
-				Authorization: `Bearer ${JSON.parse(userToken) &&
-					JSON.parse(userToken).userReducer &&
-					JSON.parse(userToken).userReducer?.userToken}`,
-			}
-		);
-
-		const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-		localStorage.setItem(
-			'encryptWhiteLabel',
-			encryptWhiteLabelRes.encrypted_whitelabel[0]
-		);
-	};
-	useEffect(() => {
-		getWhiteLabel();
-	}, []);
-
-	const [cibilCheckbox, setCibilCheckbox] = useState(false);
-	const [message, setMessage] = useState('');
-	const [declareCheck, setDeclareCheck] = useState(false);
-
-	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
-	const [cibilCheckModal, setCibilCheckModal] = useState(false);
-
-	useEffect(() => {
-		if (busniess && busniess.Address) {
-			const getAddressDetails = async () => {
-				const response = await newRequest(
-					PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }),
-					{}
-				);
-				const data = response.data;
-
-				busniess = {
-					...busniess,
-					Address: {
-						...busniess.Address,
-						st: data?.state?.[0],
-						city: data?.district?.[0],
-					},
-				};
-			};
-		}
-	});
-
-	const idType =
-		productDetails.loanType.includes('Business') ||
-		productDetails.loanType.includes('LAP') ||
-		productDetails.loanType.includes('Working')
-			? 'business'
-			: 'salaried';
-
 	const {
 		state: { companyDetail },
 	} = useContext(BussinesContext);
@@ -614,6 +574,20 @@ export default function DocumentUpload({
 		},
 	} = useContext(FormContext);
 
+	const [cibilCheckbox, setCibilCheckbox] = useState(false);
+	const [message, setMessage] = useState('');
+	const [declareCheck, setDeclareCheck] = useState(false);
+
+	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
+	const [cibilCheckModal, setCibilCheckModal] = useState(false);
+
+	const idType =
+		productDetails.loanType.includes('Business') ||
+		productDetails.loanType.includes('LAP') ||
+		productDetails.loanType.includes('Working')
+			? 'business'
+			: 'salaried';
+
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 
@@ -629,29 +603,11 @@ export default function DocumentUpload({
 	const [KycDocOptions, setKycDocOptions] = useState([]);
 	const [FinancialDocOptions, setFinancialDocOptions] = useState([]);
 	const [OtherDocOptions, setOtherDocOptions] = useState([]);
+	const [prefilledKycDocs, setPrefilledKycDocs] = useState([]);
+	const [prefilledFinancialDocs, setPrefilledFinancialDocs] = useState([]);
+	const [prefilledOtherDocs, setPrefilledOtherDocs] = useState([]);
 	// const [documentChecklist, setDocumentChecklist] = useState([]);
 
-	const onCibilModalClose = (success, data) => {
-		if (!success) {
-			setCibilCheckbox(false);
-		}
-
-		if (success) {
-			setUsertypeCibilData(
-				{
-					cibilScore: data.cibilScore,
-					requestId: data.requestId,
-				},
-				USER_ROLES[userType || 'User']
-			);
-		}
-		addToast({
-			message: data.message,
-			type: success ? 'success' : 'error',
-		});
-
-		setCibilCheckModal(false);
-	};
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
 	const companyData =
@@ -680,28 +636,54 @@ export default function DocumentUpload({
 		},
 	});
 
+	const getWhiteLabel = async () => {
+		const encryptWhiteLabelReq = await newRequest(
+			WHITELABEL_ENCRYPTION_API,
+			{
+				method: 'GET',
+			},
+			{
+				Authorization: `Bearer ${JSON.parse(userToken) &&
+					JSON.parse(userToken).userReducer &&
+					JSON.parse(userToken).userReducer?.userToken}`,
+			}
+		);
+
+		const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+		localStorage.setItem(
+			'encryptWhiteLabel',
+			encryptWhiteLabelRes.encrypted_whitelabel[0]
+		);
+	};
+
+	useEffect(() => {
+		getWhiteLabel();
+	}, []);
+
 	useEffect(() => {
 		if (response) {
-			const getAddressDetails = async () => {
-				const response = await newRequest(
-					PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }),
-					{}
-				);
-				const data = response.data;
+			// disabled looks unsed code
+			// const getAddressDetails = async () => {
+			// 	const response = await newRequest(
+			// 		PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }),
+			// 		{}
+			// 	);
+			// 	const data = response.data;
 
-				busniess = {
-					...busniess,
-					Address: {
-						...busniess.Address,
-						st: data?.state?.[0],
-						city: data?.district?.[0],
-					},
-				};
-			};
+			// 	busniess = {
+			// 		...busniess,
+			// 		Address: {
+			// 			...busniess.Address,
+			// 			st: data?.state?.[0],
+			// 			city: data?.district?.[0],
+			// 		},
+			// 	};
+			// };
 
-			if (busniess && busniess.Address) {
-				getAddressDetails();
-			}
+			// if (busniess && busniess.Address) {
+			// 	getAddressDetails();
+			// }
 
 			let optionArray = [];
 			DOCUMENTS_TYPE.forEach(docType => {
@@ -717,30 +699,137 @@ export default function DocumentUpload({
 			const kycDocDropdown = [];
 			const financialDocDropdown = [];
 			const otherDocDropdown = [];
+			const kycDocIds = [];
+			const finDocIds = [];
+			const othDocIds = [];
 			optionArray.map(ele => {
 				if (ele.main === 'KYC') {
 					kycDocDropdown.push(ele);
+					kycDocIds.push(ele.value);
 				}
 				if (ele.main === 'Financial') {
 					financialDocDropdown.push(ele);
+					finDocIds.push(ele.value);
 				}
 				if (ele.main === 'Others') {
 					otherDocDropdown.push(ele);
+					othDocIds.push(ele.value);
 				}
 			});
 			setKycDocOptions(kycDocDropdown);
 			setFinancialDocOptions(financialDocDropdown);
 			setOtherDocOptions(otherDocDropdown);
-
 			setDocumentTypeOptions(optionArray);
+
+			console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
+			if (
+				editLoan &&
+				editLoan?.loan_document &&
+				editLoan?.loan_document?.length > 0
+			) {
+				const newKyc = [];
+				const newFin = [];
+				const newOtr = [];
+				editLoan.loan_document.map(doc => {
+					const newDoc = {
+						...doc,
+						name: doc.original_doc_name,
+						progress: '100',
+						status: 'completed',
+						file: null,
+					};
+					if (kycDocIds.includes(newDoc.doctype)) newKyc.push(newDoc);
+					else if (finDocIds.includes(newDoc.doctype)) newFin.push(newDoc);
+					else newOtr.push(newDoc);
+					return null;
+				});
+				setPrefilledKycDocs(newKyc);
+				setPrefilledFinancialDocs(newFin);
+				setPrefilledOtherDocs(newOtr);
+			}
 		}
 	}, [response]);
+
+	// disabled looks un-used code
+
+	// const onCibilModalClose = (success, data) => {
+	// 	if (!success) {
+	// 		setCibilCheckbox(false);
+	// 	}
+
+	// 	if (success) {
+	// 		setUsertypeCibilData(
+	// 			{
+	// 				cibilScore: data.cibilScore,
+	// 				requestId: data.requestId,
+	// 			},
+	// 			USER_ROLES[userType || 'User']
+	// 		);
+	// 	}
+	// 	addToast({
+	// 		message: data.message,
+	// 		type: success ? 'success' : 'error',
+	// 	});
+
+	// 	setCibilCheckModal(false);
+	// };
+
+	// useEffect(() => {
+	// 	if (busniess && busniess.Address) {
+	// 		const getAddressDetails = async () => {
+	// 			const response = await newRequest(
+	// 				PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }),
+	// 				{}
+	// 			);
+	// 			const data = response.data;
+
+	// 			busniess = {
+	// 				...busniess,
+	// 				Address: {
+	// 					...busniess.Address,
+	// 					st: data?.state?.[0],
+	// 					city: data?.district?.[0],
+	// 				},
+	// 			};
+	// 		};
+	// 	}
+	// }, []);
 
 	// const handleDocumentChecklist = (doc) => {
 	//   return (value) => {
 	//     if (value) setDocumentChecklist([...documentChecklist, doc]);
 	//     else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
 	//   };
+	// };
+
+	// step 2: upload docs reference
+	// const updateDocumentList = async (loanId, user) => {
+	// 	try {
+	// 		const uploadDocsReq = await newRequest(
+	// 			BORROWER_UPLOAD_URL,
+	// 			{
+	// 				method: 'POST',
+	// 				data: {
+	// 					upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
+	// 						...d,
+	// 						loan_id: loanId,
+	// 					})),
+	// 				},
+	// 			},
+	// 			{
+	// 				//   Authorization: `Bearer ${userToken}`,
+	// 			}
+	// 		);
+
+	// 		const uploadDocsRes = uploadDocsReq.data;
+	// 		if (uploadDocsRes.status === NC_STATUS_CODE.OK) {
+	// 			return uploadDocsRes;
+	// 		}
+	// 		throw new Error(uploadDocsRes.message);
+	// 	} catch (err) {
+	// 		console.log('STEP: 2 => UPLOAD DOCUMENT REFERENCE ERROR', err.message);
+	// 		throw new Error(err.message);
+	// 	}
 	// };
 
 	const handleFileUpload = async files => {
@@ -760,52 +849,29 @@ export default function DocumentUpload({
 		return !(cibilCheckbox && declareCheck);
 	};
 
-	// step 2: upload docs reference
-	const updateDocumentList = async (loanId, user) => {
-		try {
-			const uploadDocsReq = await newRequest(
-				BORROWER_UPLOAD_URL,
-				{
-					method: 'POST',
-					data: {
-						upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
-							...d,
-							loan_id: loanId,
-						})),
-					},
-				},
-				{
-					//   Authorization: `Bearer ${userToken}`,
-				}
-			);
-
-			const uploadDocsRes = uploadDocsReq.data;
-			if (uploadDocsRes.status === NC_STATUS_CODE.OK) {
-				return uploadDocsRes;
-			}
-			throw new Error(uploadDocsRes.message);
-		} catch (err) {
-			console.log('STEP: 2 => UPLOAD DOCUMENT REFERENCE ERROR', err.message);
-			throw new Error(err.message);
-		}
-	};
-
 	// step: 1 if applicant submit request createCase
 	const createCaseReq = async () => {
 		try {
+			// in case of edit
+			// Business_details - businessid
+			// loan_details - loanId
+			// director_details - id
+			const reqBody = caseCreationDataFormat(
+				{
+					...state,
+					productId,
+				},
+				companyDetail,
+				productDetails,
+				productId
+			);
 			const caseReq = await newRequest(
-				BUSSINESS_LOAN_CASE_CREATION,
+				editLoan && editLoan?.loan_ref_id
+					? BUSSINESS_LOAN_CASE_CREATION_EDIT
+					: BUSSINESS_LOAN_CASE_CREATION,
 				{
 					method: 'POST',
-					data: caseCreationDataFormat(
-						{
-							...state,
-							productId,
-						},
-						companyDetail,
-						productDetails,
-						productId
-					),
+					data: reqBody,
 				},
 				{
 					authorization: `Bearer ${
@@ -818,14 +884,16 @@ export default function DocumentUpload({
 				caseRes.statusCode === NC_STATUS_CODE.NC200 ||
 				caseRes.status === NC_STATUS_CODE.OK
 			) {
-				setMessage(caseReq.data.data.loan_details.loan_ref_id);
-				setLoanRef(caseReq.data.data.loan_details.loan_ref_id);
+				const resLoanRefId =
+					editLoan?.loan_ref_id || caseReq.data.data.loan_details.loan_ref_id;
+				setMessage(resLoanRefId);
+				setLoanRef(resLoanRefId);
 				const compData =
 					localStorage.getItem('companyData') &&
 					JSON.parse(localStorage.getItem('companyData'));
 				if (compData && compData.CIN) {
 					const reqBody = {
-						loan_ref_id: caseReq.data.data.loan_details.loan_ref_id,
+						loan_ref_id: resLoanRefId,
 						cin_number: compData.CIN,
 					};
 					await newRequest(
@@ -841,7 +909,15 @@ export default function DocumentUpload({
 						}
 					);
 				}
-				return caseRes.data;
+				let newCaseRes = caseRes.data;
+				if (editLoan && editLoan?.loan_ref_id) {
+					newCaseRes = {
+						...caseRes.data,
+						...editLoan,
+						loanId: editLoan?.id,
+					};
+				}
+				return newCaseRes;
 			}
 
 			throw new Error(caseRes.message);
@@ -883,20 +959,7 @@ export default function DocumentUpload({
 			throw new Error(er.message);
 		}
 	};
-	console.log(
-		'bankDetailsDataFormat(caseId, state)',
-		state,
-		bankDetailsDataFormat('', state),
-		caseCreationDataFormat(
-			{
-				...state,
-				productId,
-			},
-			companyDetail,
-			productDetails,
-			productId
-		)
-	);
+
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);
@@ -1001,9 +1064,11 @@ export default function DocumentUpload({
 		try {
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();
-			const caseId = caseCreateRes.loan_details.loan_ref_id;
-			const loanId = caseCreateRes.loan_details.id;
-			const businessId = caseCreateRes.loan_details.business_id;
+			const caseId =
+				editLoan?.loan_ref_id || caseCreateRes.loan_details.loan_ref_id;
+			const loanId = editLoan?.id || caseCreateRes.loan_details.id;
+			const businessId =
+				editLoan?.business_id?.id || caseCreateRes.loan_details.business_id;
 
 			await addSubsidiaryReq(caseId);
 			await addBankDetailsReq(caseId);
@@ -1051,6 +1116,14 @@ export default function DocumentUpload({
 					return;
 				}
 
+				if (editLoan && editLoan?.loan_ref_id) {
+					setTimeout(() => {
+						addToast({
+							message: 'Your application has been updated',
+							type: 'success',
+						});
+					}, 1000);
+				}
 				setCompleted(id);
 				onFlowChange(!map ? 'application-submitted' : map.main);
 			}
@@ -1080,6 +1153,22 @@ export default function DocumentUpload({
 		if (docs.mainType === 'Financial') financialCount++;
 		if (docs.mainType === 'Others') otherCount++;
 	});
+
+	// console.log(
+	// 	'bankDetailsDataFormat(caseId, state)',
+	// 	state,
+	// 	bankDetailsDataFormat('', state),
+	// 	caseCreationDataFormat(
+	// 		{
+	// 			...state,
+	// 			productId,
+	// 		},
+	// 		companyDetail,
+	// 		productDetails,
+	// 		productId
+	// 	)
+	// );
+
 	return (
 		<>
 			<Colom1>
@@ -1117,6 +1206,7 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
+									prefilledDocs={prefilledKycDocs}
 									sectionType='kyc'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1173,6 +1263,7 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
+									prefilledDocs={prefilledFinancialDocs}
 									sectionType='financial'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1226,6 +1317,7 @@ export default function DocumentUpload({
 						<Details open={openOtherdoc}>
 							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
+									prefilledDocs={prefilledOtherDocs}
 									sectionType='others'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1305,6 +1397,7 @@ export default function DocumentUpload({
 							width: '200px',
 							background: 'blue',
 						}}
+						isLoader={caseCreationProgress}
 						disabled={buttonDisabledStatus()}
 						onClick={!caseCreationProgress && onSubmit}
 						// onClick={onSubmit}

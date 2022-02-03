@@ -27,6 +27,7 @@ import imgUpload from 'assets/icons/upload_icon.png';
 import lockGrey from 'assets/icons/Lock_icon_grey-05-05.svg';
 import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
 import _ from 'lodash';
+import { asyncForEach, sleep } from 'utils/helper';
 
 const USER_CANCELED = 'user cancelled';
 
@@ -496,6 +497,7 @@ export default function FileUpload({
 	sectionType = 'others',
 	aadharVoterDl = false,
 	errorMessage = '',
+	prefilledDocs = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -504,6 +506,7 @@ export default function FileUpload({
 
 	const id = uuidv4();
 
+	const [loading, setLoading] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [uploadingFiles, setUploadingFiles] = useState([]);
@@ -518,6 +521,7 @@ export default function FileUpload({
 	const selectedFiles = useRef([]);
 	const uploadingProgressFiles = useRef([]);
 	const { newRequest } = useFetch();
+	const [docSelected, setDocSelected] = useState('');
 
 	let refCounter = 0;
 
@@ -749,12 +753,15 @@ export default function FileUpload({
 	// const onDocTypeChange = (fileId, value, file) => {
 	const onDocTypeChange = (file, docType) => {
 		const selectedDocType = docTypeOptions.find(d => d.value === docType.value);
-		// console.log('selected-doctype-', selectedDocType);
+		// console.log('onDocTypeChange-selected-doctype-', {
+		// 	file,
+		// 	docType,
+		// 	selectedDocType,
+		// });
 		const newMappedFile = _.cloneDeep(mappedFiles);
 		const newObj = newMappedFile[docType.value] || [];
 		newObj.push(file);
 		newMappedFile[docType.value] = newObj;
-		// console.log('newMappedFile-', newMappedFile);
 		setMappedFiles(newMappedFile);
 		const newDocTypeFileMap = {
 			..._.cloneDeep(docTypeFileMap),
@@ -762,24 +769,8 @@ export default function FileUpload({
 		};
 		documentTypeChangeCallback(file.id, selectedDocType);
 		setDocTypeFileMap(newDocTypeFileMap);
+		// console.log('onDocTypeChange-eod-', { newMappedFile, newDocTypeFileMap });
 	};
-
-	useEffect(() => {
-		let div = ref?.current;
-		div?.addEventListener('dragenter', handleDragIn);
-		div?.addEventListener('dragleave', handleDragOut);
-		div?.addEventListener('dragover', handleDrag);
-		div?.addEventListener('drop', handleDrop);
-		div?.addEventListener('dragend', handleDrag);
-
-		return () => {
-			div?.removeEventListener('dragenter', handleDragIn);
-			div?.removeEventListener('dragleave', handleDragOut);
-			div?.removeEventListener('dragover', handleDrag);
-			div?.removeEventListener('drop', handleDrop);
-			div?.removeEventListener('dragend', handleDrag);
-		};
-	}, [disabled]);
 
 	const onPasswordClick = fileId => {
 		setPasswordForFileId(fileId);
@@ -805,8 +796,6 @@ export default function FileUpload({
 		onClosePasswordEnterArea();
 	};
 
-	const [docSelected, setDocSelected] = useState('');
-
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
@@ -821,7 +810,65 @@ export default function FileUpload({
 		displayTagMessage = uploadingFiles.length !== taggedDocumentCount;
 	}
 
-	return (
+	const initializeComponent = async () => {
+		try {
+			setLoading(true);
+			if (prefilledDocs && prefilledDocs?.length > 0) {
+				// setUploadingFiles(_.cloneDeep(prefilledDocs));
+				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
+				const newMappedFile = _.cloneDeep(mappedFiles);
+				const newDocTypeFileMap = {
+					..._.cloneDeep(docTypeFileMap),
+				};
+				prefilledDocs.map(doc => {
+					const tempFile = _.cloneDeep(doc);
+					const tempDocType = { value: doc.doctype };
+					const selectedDocType = docTypeOptions.find(
+						d => d.value === tempDocType.value
+					);
+					const newObj = newMappedFile[tempDocType.value] || [];
+					newObj.push(tempFile);
+					newMappedFile[tempDocType.value] = newObj;
+					newDocTypeFileMap[tempDocType.id] = selectedDocType;
+					documentTypeChangeCallback(tempFile.id, selectedDocType);
+					return null;
+				});
+				setDocTypeFileMap(newDocTypeFileMap);
+				setMappedFiles(newMappedFile);
+			}
+			setLoading(false);
+		} catch (err) {
+			setLoading(false);
+			console.log('error-initializnig-fileupload-', err);
+		}
+	};
+
+	useEffect(() => {
+		initializeComponent();
+	}, []);
+
+	useEffect(() => {
+		let div = ref?.current;
+		div?.addEventListener('dragenter', handleDragIn);
+		div?.addEventListener('dragleave', handleDragOut);
+		div?.addEventListener('dragover', handleDrag);
+		div?.addEventListener('drop', handleDrop);
+		div?.addEventListener('dragend', handleDrag);
+
+		return () => {
+			div?.removeEventListener('dragenter', handleDragIn);
+			div?.removeEventListener('dragleave', handleDragOut);
+			div?.removeEventListener('dragover', handleDrag);
+			div?.removeEventListener('drop', handleDrop);
+			div?.removeEventListener('dragend', handleDrag);
+		};
+	}, [disabled]);
+
+	return loading ? (
+		<>
+			<h1>Loading...</h1>
+		</>
+	) : (
 		<>
 			{!disabled && (
 				<Dropzone
@@ -895,7 +942,7 @@ export default function FileUpload({
 				</p>
 			)}
 			<FileListWrap>
-				{uploadingFiles.map(file => {
+				{uploadingFiles.map((file, upidx) => {
 					// console.log('uplodaing-file-', file);
 					let isMapped = false;
 					for (const key in docTypeFileMap) {
@@ -909,7 +956,7 @@ export default function FileUpload({
 					return (
 						<File
 							error={errorMessage}
-							key={file.id}
+							key={`${file.id}-${upidx}`}
 							progress={file.progress}
 							status={file.status}
 							tooltip={file.name}
@@ -923,9 +970,10 @@ export default function FileUpload({
 									? file.name.slice(0, 20) + '...'
 									: file.name}
 							</FileName>
-							{file.status === 'completed' && !!docTypeOptions.length && (
+							{/* previous version - tagging and password code */}
+							{/* {file.status === 'completed' && !!docTypeOptions.length && (
 								<>
-									{/* <SelectDocType
+									<SelectDocType
 									value={
 										branch ? docSelected : docTypeFileMap[file.id]?.name || ''
 									}
@@ -943,8 +991,8 @@ export default function FileUpload({
 											{docType.name}
 										</option>
 									))}
-								</SelectDocType> */}
-									{/* {FINANCIAL_DOC_TYPES?.includes(
+								</SelectDocType>
+									{FINANCIAL_DOC_TYPES?.includes(
 										docTypeFileMap[file.id]?.main?.toLowerCase()
 									) && (
 										<PasswordWrapper>
@@ -962,9 +1010,9 @@ export default function FileUpload({
 												/>
 											)}
 										</PasswordWrapper>
-									)} */}
+									)}
 								</>
-							)}
+							)} */}
 
 							{isFileUploaded ? (
 								<ImgClose
@@ -998,9 +1046,9 @@ export default function FileUpload({
 											// style={isOutside ? { marginLeft: '-400px' } : {}}
 											>
 												<FileTypeUL>
-													{docTypeOptions.map(docType => (
+													{docTypeOptions.map((docType, docoptidx) => (
 														<FileTypeList
-															key={docType.value}
+															key={`${docType.value}-${docoptidx}`}
 															value={docType.name}
 															onClick={() => {
 																branch && setDocSelected(docType.name);
@@ -1050,7 +1098,7 @@ export default function FileUpload({
 				})}
 			</FileListWrap>
 			<DocumentUploadListWrapper>
-				{docTypeOptions.map((docType, i) => {
+				{docTypeOptions.map((docType, doctypeidx) => {
 					const mappedDocFiles = mappedFiles[docType.value] || [];
 					// const mappedFiles = [];
 					// console.log('upload-list-', {
@@ -1069,7 +1117,7 @@ export default function FileUpload({
 					// 	}
 					// }
 					return (
-						<DocumentUploadList key={docType.id}>
+						<DocumentUploadList key={`${docType.id}-${doctypeidx}`}>
 							<DocumentUploadListRow1>
 								<DocumentUploadCheck
 									src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
