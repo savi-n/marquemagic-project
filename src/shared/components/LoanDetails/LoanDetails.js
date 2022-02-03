@@ -23,8 +23,8 @@ const H = styled.h1`
 const Field = styled.div`
 	width: ${({ size }) => (size ? size : '45%')};
 	margin: 10px 0;
-	@media (max-width: 700px){
-		min-width: 95%;
+	@media (max-width: 700px) {
+		min-width: 86%;
 	}
 `;
 

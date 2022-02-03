@@ -13,17 +13,19 @@ const StyledButton = styled.button`
 		fill && (typeof fill === 'string' ? '' : '#1414ad')};
 
 	align-items: flex-start;
-	min-width: ${({ width }) => (width ? width : '200px')};
+	/* min-width: ${({ width }) => (width ? width : '200px')}; */
+	width: 200px;
 	font-size: 0.9em;
 	font-weight: 500;
 	text-align: center;
 	transition: 0.2s;
 	justify-content: center;
-	@media (max-width: 700px) {
+	border-radius: 40px;
+	 @media (max-width: 700px) {
 		padding: 10px;
-
 		border-radius: 0px;
 		border: 2px solid #1414ad;
+		width: auto;
 	}
 
 	&:hover {

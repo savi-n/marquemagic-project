@@ -34,7 +34,7 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height: auto;
+	height: 100vh;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
@@ -82,7 +82,7 @@ const Menu = styled.h5`
 		active ? 'linear-gradient(to right, #2a2add , #00df8d)' : 'none'};
 	box-shadow: ${({ active }) =>
 		active ? 'rgba(0, 0, 0, 0.24) 0px 3px 8px' : 'none'};
-	width: 100%;
+	width: 112%;
 	border-radius: 5px;
 	padding: 10px 20px;
 	margin: 5px 0;
@@ -93,8 +93,9 @@ const Menu = styled.h5`
 	font-size: 14px;
 
 	@media (max-width: 700px) {
-		padding: ${({ hide }) => (hide ? '0px 0px' : '5px 0px')};
+		padding: ${({ hide }) => (hide ? '0px 0px' : '5px 10px')};
 		display: ${({ hide }) => hide && 'none'};
+		width: 111%;
 	}
 `;
 

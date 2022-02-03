@@ -20,6 +20,9 @@ const FormWrap = styled.div`
 	gap: 10%;
 	margin: 20px 0;
 	width: 60%;
+	@media (max-width: 700px) {
+		width: 100%;
+	}
 `;
 
 const Colom = styled.div`
