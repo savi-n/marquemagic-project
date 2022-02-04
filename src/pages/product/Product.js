@@ -25,7 +25,7 @@ import {
 import Button from '../../components/Button';
 const Wrapper = styled.div`
 	width: 100%;
-	height: auto;
+	min-height: 100%;
 	display: flex;
 `;
 
@@ -34,7 +34,7 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height: 100vh;
+	min-height: 100% !important;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
@@ -44,7 +44,7 @@ const Colom1 = styled.div`
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
 		height: 100%;
-		z-index: 4;
+		z-index: 14;
 	}
 `;
 
@@ -57,7 +57,7 @@ const Colom2 = styled.div`
 		display: none;
 	}
 	@media (max-width: 700px) {
-		z-index: 2;
+		/* z-index: 2; */
 		padding: 0 50px;
 	}
 `;
@@ -133,6 +133,20 @@ const HeadingBox = styled.div`
 	cursor: pointer;
 	display: flex;
 	margin-bottom: 20px;
+`;
+const ScrollBox = styled.div`
+	::-webkit-scrollbar {
+		width: 0px;
+	}
+	::-webkit-scrollbar-track-piece {
+		background-color: transparent;
+		-webkit-border-radius: 6px;
+	}
+	@media (max-width: 700px) {
+		height: 70vh;
+		overflow-y: scroll;
+		overflow-x: hidden;
+	}
 `;
 const ProductName = styled.h5`
 	border: ${({ active }) => (active ? '1px solid' : 'none')};
@@ -297,129 +311,131 @@ export default function Product({ product, url }) {
 		response.data && (
 			<Wrapper>
 				<Colom1 hide={hide}>
-					<HeadingBox onClick={e => {}}>
-						<BackButton
-							src={imgBackArrowCircle}
-							alt='goback'
-							onClick={() => history.push('/nconboarding/applyloan')}
-						/>
-						<ProductName hide={hide} active={flow === 'product-details'}>
-							{response.data.name} <span>{response.data.description}</span>
-						</ProductName>
-					</HeadingBox>
-					{response.data?.product_details?.flow?.map((m, idx) =>
-						(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
-							<Fragment key={m.id}>
-								<Link onClick={e => {}}>
-									<Menu active={flow === m.id} hide={hide}>
-										<div
-											style={{
-												cursor:
-													completedMenu.includes(m.id) &&
-													m.id !== 'pan-verification' &&
-													'pointer',
-											}}
-											onClick={e => {
-												if (index > idx) {
-													if (
-														flow !== 'product-details' &&
-														flow !== 'personal-details' &&
-														flow !== 'application-submitted' &&
-														flow !== 'identity-verification' &&
-														flow !== 'pan-verification' &&
-														!flow.includes('co-applicant')
-													) {
-														flow =
-															e.target.id !== 'identity-verification' &&
-															e.target.id !== 'pan-verification' &&
-															e.target.id !== 'application-submitted'
-																? e.target.id
-																: flow;
+					<ScrollBox>
+						<HeadingBox onClick={e => {}}>
+							<BackButton
+								src={imgBackArrowCircle}
+								alt='goback'
+								onClick={() => history.push('/nconboarding/applyloan')}
+							/>
+							<ProductName hide={hide} active={flow === 'product-details'}>
+								{response.data.name} <span>{response.data.description}</span>
+							</ProductName>
+						</HeadingBox>
+						{response.data?.product_details?.flow?.map((m, idx) =>
+							(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
+								<Fragment key={m.id}>
+									<Link onClick={e => {}}>
+										<Menu active={flow === m.id} hide={hide}>
+											<div
+												style={{
+													cursor:
+														completedMenu.includes(m.id) &&
+														m.id !== 'pan-verification' &&
+														'pointer',
+												}}
+												onClick={e => {
+													if (index > idx) {
 														if (
-															e.target.id !== 'identity-verification' &&
-															e.target.id !== 'pan-verification' &&
-															e.target.id !== 'application-submitted'
+															flow !== 'product-details' &&
+															flow !== 'personal-details' &&
+															flow !== 'application-submitted' &&
+															flow !== 'identity-verification' &&
+															flow !== 'pan-verification' &&
+															!flow.includes('co-applicant')
 														) {
-															setIndex(idx);
-														}
-														onFlowChange(flow, 'o');
-													} else {
-														onFlowChange(flow, 'o');
-													}
-												}
-											}}
-											id={m.id}
-											k={idx}>
-											{m.name}
-										</div>
-										{completedMenu.includes(m.id) && (
-											// <CheckBox bg='white' checked round fg={'blue'} />
-											<ImgCheckCircle src={imgCheckCircle} alt='check' />
-										)}
-										{flow === m.id && (
-											<ImgArrorRight src={imgArrorRight} alt='arrow' />
-										)}
-									</Menu>
-								</Link>
-								{m.flow &&
-									subFlowMenu.includes(m.id) &&
-									m.flow.map((item, ind) => (
-										<Link key={item.id} onClick={e => {}}>
-											<SubMenu active={flow === item.id}>
-												<div
-													style={{
-														cursor: completedMenu.includes(m.id) && 'pointer',
-													}}
-													onClick={e => {
-														if (index >= ind) {
+															flow =
+																e.target.id !== 'identity-verification' &&
+																e.target.id !== 'pan-verification' &&
+																e.target.id !== 'application-submitted'
+																	? e.target.id
+																	: flow;
 															if (
-																flow !== 'application-submitted' &&
-																flow !== 'identity-verification' &&
-																flow !== 'pan-verification' &&
-																flow !== 'co-applicant-details'
+																e.target.id !== 'identity-verification' &&
+																e.target.id !== 'pan-verification' &&
+																e.target.id !== 'application-submitted'
 															) {
-																flow =
-																	e.target.id !== 'identity-verification' &&
-																	e.target.id !== 'pan-verification' &&
-																	e.target.id !== 'application-submitted'
-																		? e.target.id
-																		: flow;
+																setIndex(idx);
+															}
+															onFlowChange(flow, 'o');
+														} else {
+															onFlowChange(flow, 'o');
+														}
+													}
+												}}
+												id={m.id}
+												k={idx}>
+												{m.name}
+											</div>
+											{completedMenu.includes(m.id) && (
+												// <CheckBox bg='white' checked round fg={'blue'} />
+												<ImgCheckCircle src={imgCheckCircle} alt='check' />
+											)}
+											{flow === m.id && (
+												<ImgArrorRight src={imgArrorRight} alt='arrow' />
+											)}
+										</Menu>
+									</Link>
+									{m.flow &&
+										subFlowMenu.includes(m.id) &&
+										m.flow.map((item, ind) => (
+											<Link key={item.id} onClick={e => {}}>
+												<SubMenu active={flow === item.id}>
+													<div
+														style={{
+															cursor: completedMenu.includes(m.id) && 'pointer',
+														}}
+														onClick={e => {
+															if (index >= ind) {
 																if (
-																	e.target.id !== 'identity-verification' &&
-																	e.target.id !== 'pan-verification' &&
-																	e.target.id !== 'application-submitted'
+																	flow !== 'application-submitted' &&
+																	flow !== 'identity-verification' &&
+																	flow !== 'pan-verification' &&
+																	flow !== 'co-applicant-details'
 																) {
-																	setIndex(ind);
-																}
-																if (
-																	!// state?.coapplicant?.applicantData
-																	// 	?.incomeType === 'noIncome' &&
-																	(
-																		e.target.id ===
-																		'co-applicant-income-details'
-																	)
-																) {
+																	flow =
+																		e.target.id !== 'identity-verification' &&
+																		e.target.id !== 'pan-verification' &&
+																		e.target.id !== 'application-submitted'
+																			? e.target.id
+																			: flow;
+																	if (
+																		e.target.id !== 'identity-verification' &&
+																		e.target.id !== 'pan-verification' &&
+																		e.target.id !== 'application-submitted'
+																	) {
+																		setIndex(ind);
+																	}
+																	if (
+																		!// state?.coapplicant?.applicantData
+																		// 	?.incomeType === 'noIncome' &&
+																		(
+																			e.target.id ===
+																			'co-applicant-income-details'
+																		)
+																	) {
+																		onFlowChange(flow, 'o');
+																	}
+																} else {
 																	onFlowChange(flow, 'o');
 																}
-															} else {
-																onFlowChange(flow, 'o');
 															}
-														}
-													}}
-													id={item.id}
-													k={ind}>
-													{item.name}
-												</div>
-												{completedMenu.includes(item.id) && (
-													// <CheckBox bg='white' checked round fg={'blue'} />
-													<ImgCheckCircle src={imgCheckCircle} alt='check' />
-												)}
-											</SubMenu>
-										</Link>
-									))}
-							</Fragment>
-						) : null
-					)}
+														}}
+														id={item.id}
+														k={ind}>
+														{item.name}
+													</div>
+													{completedMenu.includes(item.id) && (
+														// <CheckBox bg='white' checked round fg={'blue'} />
+														<ImgCheckCircle src={imgCheckCircle} alt='check' />
+													)}
+												</SubMenu>
+											</Link>
+										))}
+								</Fragment>
+							) : null
+						)}
+					</ScrollBox>
 				</Colom1>
 				<SectionSidebarArrow>
 					<ArrowShow hide={hide}>
