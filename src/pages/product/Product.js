@@ -34,7 +34,7 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height: 100vh;
+	min-height: 100%;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
@@ -44,7 +44,7 @@ const Colom1 = styled.div`
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
 		height: 100%;
-		z-index: 4;
+		z-index: 14;
 	}
 `;
 
@@ -57,7 +57,7 @@ const Colom2 = styled.div`
 		display: none;
 	}
 	@media (max-width: 700px) {
-		z-index: 2;
+		/* z-index: 2; */
 		padding: 0 50px;
 	}
 `;

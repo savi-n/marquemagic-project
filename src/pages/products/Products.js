@@ -113,6 +113,11 @@ const AddProductBox = styled.div`
 			font-size: 16px;
 		}
 	}
+	@media (max-width: 700px) {
+		button {
+			padding: 10px;
+		}
+	}
 `;
 
 const ImgDotElementRight = styled.img`

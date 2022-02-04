@@ -15,6 +15,9 @@ const LoaderAnimation = styled.div`
 	margin-left: 48%;
 	-webkit-animation: spin 2s linear infinite; /* Safari */
 	animation: ${BounceAnimation} 2s linear infinite;
+	@media (max-width: 700px) {
+		margin: auto;
+	}
 `;
 
 export default function Loader() {
