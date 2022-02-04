@@ -25,7 +25,7 @@ import {
 import Button from '../../components/Button';
 const Wrapper = styled.div`
 	width: 100%;
-	height: auto;
+	height: 100%;
 	display: flex;
 `;
 
@@ -34,7 +34,7 @@ const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;
-	height: 100vh;
+	height: 100%;
 	width: 22%;
 	color: #fff;
 	padding: 50px 20px;
