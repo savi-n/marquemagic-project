@@ -40,7 +40,7 @@ const Colom1 = styled.div`
 	padding: 50px 20px;
 	position: relative;
 	@media (max-width: 700px) {
-		width: ${({ hide }) => (hide ? '0px' : '220px')};
+		width: ${({ hide }) => (hide ? '0px' : '300px')};
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
 		height: 100%;
@@ -91,11 +91,10 @@ const Menu = styled.h5`
 	align-items: center;
 	justify-content: space-between;
 	font-size: 14px;
-
 	@media (max-width: 700px) {
 		padding: ${({ hide }) => (hide ? '0px 0px' : '5px 10px')};
 		display: ${({ hide }) => hide && 'none'};
-		width: 111%;
+		width: 100%;
 	}
 `;
 
@@ -216,8 +215,7 @@ export default function Product({ product, url }) {
 	`;
 	const ArrowShow = styled.div`
 		width: min-content;
-
-		margin-left: ${({ hide }) => (hide ? '0px' : '220px')};
+		margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
 		position: fixed;
 	`;
 	// useEffect(() => {
