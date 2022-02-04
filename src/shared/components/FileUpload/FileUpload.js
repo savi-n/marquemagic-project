@@ -49,7 +49,7 @@ const Dropzone = styled.div`
 	border-width: 2px;
 	overflow: hidden;
 	@media (max-width: 700px) {
-		gap: 0px;
+		width: 100%;
 	}
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
@@ -85,7 +85,7 @@ const Dropzone = styled.div`
 		pointer-events: none;
 	}
 	@media (max-width: 700px) {
-		min-width: auto;
+		min-width: 72vw;
 		overflow: visible;
 	}
 `;
@@ -357,6 +357,9 @@ const FileTypeBox = styled.ul`
 		/* transform: rotate(270deg); */
 		transform: rotate(90deg);
 		cursor: pointer;
+	}
+	@media (max-width: 700px) {
+		max-width: 270px;
 	}
 `;
 const FileTypeUL = styled.ul`
@@ -1030,7 +1033,7 @@ export default function FileUpload({
 									align='start'
 									positions={['left', 'bottom', 'top', 'right']} // preferred positions by priority
 									padding={-50} // adjust padding here!
-									reposition={true} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
+									reposition={false} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
 									onClickOutside={() => setIsPopoverOpen(-1)} // handle click events outside of the popover/target here!
 									ref={refPopup}
 									content={popupProps => {
