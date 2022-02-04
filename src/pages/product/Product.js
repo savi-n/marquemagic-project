@@ -25,7 +25,7 @@ import {
 import Button from '../../components/Button';
 const Wrapper = styled.div`
 	width: 100%;
-	height: auto;
+	height: 100%;
 	display: flex;
 `;
 

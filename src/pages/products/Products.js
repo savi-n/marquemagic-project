@@ -77,10 +77,14 @@ const SectionLoanStatus = styled.section`
 `;
 
 const DivAdd = styled.div`
+	gap: 40px 0;
 	padding: 20px 0 20px 0;
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
+	@media (max-width: 700px) {
+		gap: 0;
+	}
 	/* gap: 50px; */
 	/* align-items: center; */
 	/* gap: calc(12% / 3); */
@@ -485,18 +489,21 @@ export default function Products() {
 						</section>
 						<DivAdd>
 							{products &&
-								products.data.map(
-									(product, idx) =>
-										idx > 2 && (
-											<Card
-												add={true}
-												setAddedProduct={setAddedProduct}
-												product={product}
-												key={`product__${product.id}`}
-												setAddProduct={setAddProduct}
-											/>
-										)
-								)}
+								products.data.map((product, idx) => {
+									return (
+										<>
+											{idx > 2 && (
+												<Card
+													add={true}
+													setAddedProduct={setAddedProduct}
+													product={product}
+													key={`product__${product.id}`}
+													setAddProduct={setAddProduct}
+												/>
+											)}
+										</>
+									);
+								})}
 						</DivAdd>
 					</>
 				)}
