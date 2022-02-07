@@ -353,7 +353,7 @@ export default function Products() {
 		try {
 			setVerifyingOTP(true);
 			setErrOTP('');
-			console.log('verifyOTP-modalOTPData-', modalOTPData);
+			// console.log('verifyOTP-modalOTPData-', modalOTPData);
 			const verifyOtpRes = await axios.post(
 				`${OTP_API_END_POINT}/user/verifyotp`,
 				{
