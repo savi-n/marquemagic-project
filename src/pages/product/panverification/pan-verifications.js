@@ -983,7 +983,7 @@ export default function PanVerification({
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
-										your Aadhar
+										your Aadhaar
 										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 									</p>
 
