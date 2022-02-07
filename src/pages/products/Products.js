@@ -50,9 +50,8 @@ const ProductsBox = styled.div`
 `;
 
 const StatusBox = styled.div`
-	width: 50%;
-	margin: 50px auto;
-	box-shadow: rgb(11 92 255 / 20%) 0px 7px 29px 0px;
+	width: 80%;
+	margin: 50px auto 50px auto;
 	@media (max-width: 700px) {
 		width: 80%;
 		margin: 50px auto 50px auto;
@@ -78,10 +77,14 @@ const SectionLoanStatus = styled.section`
 `;
 
 const DivAdd = styled.div`
+	gap: 40px 0;
 	padding: 20px 0 20px 0;
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
+	@media (max-width: 700px) {
+		gap: 0;
+	}
 	/* gap: 50px; */
 	/* align-items: center; */
 	/* gap: calc(12% / 3); */
@@ -112,6 +115,11 @@ const AddProductBox = styled.div`
 		}
 		span {
 			font-size: 16px;
+		}
+	}
+	@media (max-width: 700px) {
+		button {
+			padding: 10px;
 		}
 	}
 `;
@@ -481,18 +489,21 @@ export default function Products() {
 						</section>
 						<DivAdd>
 							{products &&
-								products.data.map(
-									(product, idx) =>
-										idx > 2 && (
-											<Card
-												add={true}
-												setAddedProduct={setAddedProduct}
-												product={product}
-												key={`product__${product.id}`}
-												setAddProduct={setAddProduct}
-											/>
-										)
-								)}
+								products.data.map((product, idx) => {
+									return (
+										<>
+											{idx > 2 && (
+												<Card
+													add={true}
+													setAddedProduct={setAddedProduct}
+													product={product}
+													key={`product__${product.id}`}
+													setAddProduct={setAddProduct}
+												/>
+											)}
+										</>
+									);
+								})}
 						</DivAdd>
 					</>
 				)}
@@ -529,11 +540,11 @@ export default function Products() {
 				</ModalOTPFooter>
 			</Modal>
 			<StatusBox>
+				<ProductName>
+					Here, you can check your application status by entering the Loan
+					Reference ID, Phone No or PAN No
+				</ProductName>
 				<StatusInputBox>
-					<ProductName>
-						Here, you can check your application status by entering the Loan
-						Reference ID, Phone No or PAN No
-					</ProductName>
 					<section
 						className='flex font-medium my-2'
 						style={{ marginRight: 15 }}>
