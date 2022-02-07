@@ -353,7 +353,7 @@ export default function Products() {
 		try {
 			setVerifyingOTP(true);
 			setErrOTP('');
-			// console.log('verifyOTP-modalOTPData-', modalOTPData);
+			console.log('verifyOTP-modalOTPData-', modalOTPData);
 			const verifyOtpRes = await axios.post(
 				`${OTP_API_END_POINT}/user/verifyotp`,
 				{
@@ -510,10 +510,13 @@ export default function Products() {
 			</Modal>
 			<Modal show={modalOTP} width='50%' onClose={() => setModalOTP(false)}>
 				<ModalOTPHeader className='text-center w-full py-6'>
-					Please enter OTP sent to your Phone Number +91 9825252552
+					Please enter OTP sent to your Phone Number +91 xxxxxxxx
+					{modalOTPData?.business_id?.contactno.toString().slice(8, 10)}
 				</ModalOTPHeader>
 				<ModalOTPBody>
 					<input
+						type='password'
+						maxLength='4'
 						placeholder='Enter OTP'
 						onChange={e => setOTP(e.target.value)}
 					/>
