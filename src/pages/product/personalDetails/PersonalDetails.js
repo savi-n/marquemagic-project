@@ -1,3 +1,4 @@
+// active personal details
 import { useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -169,7 +170,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const formatPersonalDetails = personalDetails => {
 		return {
 			firstName: personalDetails?.businessname,
-			incomeType: personalDetails?.businesstype,
+			incomeType: personalDetails?.businesstype === 1 ? 'business' : 'salaried',
+			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
 			dob: personalDetails?.businessstartdate
@@ -252,8 +254,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	let userTokensss = localStorage.getItem(url);
 
-	let loan = JSON.parse(userTokensss).formReducer?.user?.loanData;
-	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
+	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
 		const t = JSON.parse(localStorage.getItem('formstatepan'));
@@ -307,6 +309,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || r()?.aadhar || '',
 					countryResidence: r()?.countryResidence || 'india',
+					incomeType: 'business',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}
