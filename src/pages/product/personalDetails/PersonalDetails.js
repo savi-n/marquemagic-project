@@ -170,7 +170,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const formatPersonalDetails = personalDetails => {
 		return {
 			firstName: personalDetails?.businessname,
-			incomeType: personalDetails?.businesstype === 7 ? 'business' : 'salaried',
+			incomeType: personalDetails?.businesstype === 1 ? 'business' : 'salaried',
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
