@@ -309,7 +309,6 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || r()?.aadhar || '',
 					countryResidence: r()?.countryResidence || 'india',
-					incomeType: 'business',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}
