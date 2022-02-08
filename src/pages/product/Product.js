@@ -237,6 +237,11 @@ export default function Product({ product, url }) {
 			steps.map(ele => {
 				setCompleted(ele);
 			});
+			// console.log('Product-useeffect-flowmap-', {
+			// 	index,
+			// 	editLoanData,
+			// 	flowMap,
+			// });
 			setIndex(index);
 		}
 	}, [flowMap]);

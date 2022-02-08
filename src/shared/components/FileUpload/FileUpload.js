@@ -474,9 +474,25 @@ const DocumentUploadName = styled.div`
 	font-size: 14px;
 	color: ${({ isSelected }) => (isSelected ? 'black' : 'grey')};
 	padding: 0 20px;
-	/* border-bottom: 1px solid #d9d9d9; */
+	/* width: 300px; */
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	@media (max-width: 700px) {
+		overflow: visible;
+		white-space: normal;
+		text-overflow: unset;
+	}
 `;
-
+const DocumentUploadNameToolTip = styled.div`
+	position: absolute;
+	font-size: 12px;
+	margin-top: -50px;
+	margin-left: 30px;
+	background: black;
+	color: white;
+	padding: 5px;
+`;
 export default function FileUpload({
 	onDrop,
 	accept = '',
@@ -528,6 +544,7 @@ export default function FileUpload({
 	const uploadingProgressFiles = useRef([]);
 	const { newRequest } = useFetch();
 	const [docSelected, setDocSelected] = useState('');
+	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 
 	let refCounter = 0;
 
@@ -1129,10 +1146,21 @@ export default function FileUpload({
 									src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 									alt='check'
 								/>
-								<DocumentUploadName isSelected={mappedDocFiles.length}>
-									{docType.name.length > 30
+								{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+									<DocumentUploadNameToolTip>
+										{docType.name}
+									</DocumentUploadNameToolTip>
+								)}
+								<DocumentUploadName
+									onMouseOver={() =>
+										setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+									}
+									onMouseOut={() => setDocTypeNameToolTip(-1)}
+									isSelected={mappedDocFiles.length}>
+									{docType.name}
+									{/* {docType.name.length > 30
 										? docType.name.slice(0, 30) + '...'
-										: docType.name}
+										: docType.name} */}
 								</DocumentUploadName>
 							</DocumentUploadListRow1>
 							<DocumentUploadListRow2>

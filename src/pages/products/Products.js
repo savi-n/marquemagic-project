@@ -64,7 +64,13 @@ const StatusInputBox = styled.div`
 	padding: 30px;
 	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
 	@media (max-width: 700px) {
+		/* width: auto; */
 		width: auto;
+		/* overflow-x: scroll;
+		overflow-y: hidden;
+		float: left;
+		height: 300px;
+		position: relative; */
 	}
 `;
 
@@ -178,12 +184,24 @@ const AppEditIcon = styled.img`
 	height: 40px;
 	/* margin-top: 20px; */
 	cursor: pointer;
+	@media (max-width: 700px) {
+		margin-top: 80px;
+	}
 `;
 const AppNumber = styled.div`
 	padding-left: 65px;
+	@media (max-width: 700px) {
+		padding-left: 50px;
+		width: 55%;
+	}
 `;
 const AppStatus = styled.div`
 	padding-left: 65px;
+	@media (max-width: 700px) {
+		padding-left: 85px;
+		width: 55%;
+		margin-top: 35px;
+	}
 `;
 
 const AppStatusLine1 = styled.div`
@@ -192,6 +210,10 @@ const AppStatusLine1 = styled.div`
 	display: flex;
 	text-align: center;
 	align-items: center;
+	@media (max-width: 700px) {
+		overflow-x: scroll;
+		overflow-y: hidden;
+	}
 `;
 
 const AppStatusLine2 = styled.div`
@@ -205,6 +227,9 @@ const AppStatusLine2 = styled.div`
 	justify-content: space-between;
 	text-align: center;
 	align-items: center;
+	@media (max-width: 700px) {
+		padding: 0 0px;
+	}
 `;
 
 const AppStatusDotLine = styled.div`
@@ -397,6 +422,7 @@ export default function Products() {
 		try {
 			setLoadingOTP(true);
 			setErrOTP('');
+			setOTP('');
 			const otpRes = await axios.post(`${OTP_API_END_POINT}/user/sendotp`, {
 				mobile: loan?.business_id?.contactno || '',
 			});
@@ -510,11 +536,15 @@ export default function Products() {
 			</Modal>
 			<Modal show={modalOTP} width='50%' onClose={() => setModalOTP(false)}>
 				<ModalOTPHeader className='text-center w-full py-6'>
-					Please enter OTP sent to your Phone Number +91 9825252552
+					Please enter OTP sent to your Phone Number +91 xxxxxxxx
+					{modalOTPData?.business_id?.contactno.toString().slice(8, 10)}
 				</ModalOTPHeader>
 				<ModalOTPBody>
 					<input
+						type='password'
+						maxLength='4'
 						placeholder='Enter OTP'
+						autoComplete='off'
 						onChange={e => setOTP(e.target.value)}
 					/>
 					<div>

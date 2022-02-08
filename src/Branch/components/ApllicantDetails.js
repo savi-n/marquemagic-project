@@ -2,6 +2,7 @@ import Button from '../shared/components/Button';
 
 const valueConversion = {
 	Thousand: 1000,
+	Thousands: 1000,
 	Lakhs: 100000,
 	Crores: 10000000,
 	Millions: 1000000,
