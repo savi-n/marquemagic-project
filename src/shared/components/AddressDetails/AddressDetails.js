@@ -1,3 +1,5 @@
+// active
+// Guarantor Address Details
 import styled from 'styled-components';
 import { array, bool, func, object, oneOfType, string } from 'prop-types';
 
@@ -14,8 +16,6 @@ const H = styled.h1`
 const FieldWrap = styled.div`
 	width: 100%;
 	margin: 10px 0;
-
-
 `;
 
 const FormWrap = styled.div`
@@ -31,7 +31,7 @@ const Colom = styled.div`
 	flex-basis: 45%;
 	align-items: center;
 	flex-wrap: wrap;
-	@media (max-width: 700px){
+	@media (max-width: 700px) {
 		flex-basis: 100%;
 	}
 `;
