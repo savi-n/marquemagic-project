@@ -1094,6 +1094,7 @@ export default function PanVerification({
 													verificationFailed &&
 													'red',
 											},
+											mask: { CharacterLimit: 12 },
 										})}
 									</FieldWrapper>
 									{formState?.values?.udhyogAadhar && verificationFailed && (
