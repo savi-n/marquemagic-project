@@ -12,7 +12,7 @@ const H = styled.h1`
 const FieldWrap = styled.div`
 	width: ${({ size }) => (size ? size : '45%')};
 	margin: 10px 0;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		width: 85%;
 	}
 `;
@@ -23,7 +23,6 @@ const FormWrap = styled.div`
 	flex-direction: column;
 	gap: 10%;
 	margin: 20px 0;
-
 `;
 
 const ErrorMessage = styled.div`

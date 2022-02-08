@@ -422,6 +422,7 @@ export default function Products() {
 		try {
 			setLoadingOTP(true);
 			setErrOTP('');
+			setOTP('');
 			const otpRes = await axios.post(`${OTP_API_END_POINT}/user/sendotp`, {
 				mobile: loan?.business_id?.contactno || '',
 			});
@@ -543,6 +544,7 @@ export default function Products() {
 						type='password'
 						maxLength='4'
 						placeholder='Enter OTP'
+						autoComplete='off'
 						onChange={e => setOTP(e.target.value)}
 					/>
 					<div>

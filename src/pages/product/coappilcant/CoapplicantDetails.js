@@ -36,7 +36,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media(max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -133,9 +133,12 @@ export default function CoapplicantDetails({
 		};
 		setUsertypeApplicantData(
 			{ ...formatApplicantData, isEligibility: isEligibility },
-			USER_ROLES[userType]
+			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
 		);
-		setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
+		setUsertypeAddressData(
+			formatedAddress,
+			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
+		);
 	};
 
 	const onSave = formData => {
@@ -163,15 +166,35 @@ export default function CoapplicantDetails({
 	}, [proceed]);
 
 	const onProceed = async data => {
+		console.log('CoapplicantDetails-', data);
 		saveData(data);
-
-		if (userType === 'Guarantor') {
-			setProceed(true);
-		} else {
-			setCompleted(id);
-			onFlowChange(map.main);
-		}
+		setCompleted(id);
+		onFlowChange(map.main);
+		// if (userType === 'Guarantor') {
+		// 	setProceed(true);
+		// } else {
+		// 	setCompleted(id);
+		// 	onFlowChange(map.main);
+		// }
 	};
+
+	const {
+		aadhaar,
+		countryResidence,
+		dob,
+		email,
+		firstName,
+		incomeType,
+		lastName,
+		mobileNo,
+		panNumber,
+		residenceStatus,
+	} =
+		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
+			?.applicantData || {};
+	const { address1, address2, address3, address4, city, pinCode } =
+		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
+			?.applicantData?.address[0] || {};
 
 	return (
 		<Div>
@@ -180,6 +203,18 @@ export default function CoapplicantDetails({
 				register={register}
 				formState={formState}
 				jsonData={map.fields['personal-details'].data}
+				preData={{
+					aadhaar: aadhaar || '',
+					countryResidence: countryResidence || '',
+					dob: dob || '',
+					email: email || '',
+					firstName: firstName || '',
+					incomeType: incomeType || '',
+					lastName: lastName || '',
+					mobileNo: mobileNo || '',
+					panNumber: panNumber || '',
+					residenceStatus: residenceStatus || '',
+				}}
 			/>
 			<AddressDetails
 				userType={userType}
@@ -188,6 +223,14 @@ export default function CoapplicantDetails({
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields['address-details'].data}
+				preData={{
+					address1: address1 || '',
+					address2: address2 || '',
+					address3: address3 || '',
+					address4: address4 || '',
+					city: city || '',
+					pinCode: pinCode || '',
+				}}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

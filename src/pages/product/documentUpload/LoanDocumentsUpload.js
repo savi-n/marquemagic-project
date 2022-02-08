@@ -228,10 +228,10 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	editLoan = localStorage.getItem('editLoan')
 		? JSON.parse(localStorage.getItem('editLoan'))
 		: {};
-	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
-		.applicantData;
-	let loanData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
-		.loanData;
+	let formReducer = JSON.parse(localStorage.getItem(url))?.formReducer;
+	let guarantorData = formReducer?.Guarantor;
+	let applicantData = formReducer?.user?.applicantData;
+	let loanData = formReducer?.user?.loanData;
 	const idType =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -287,6 +287,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
 			aadhaar:
 				form?.aadhaar || applicantData?.aadhaar || companyData?.aadhaar || '',
+			equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
 			newBusinessDetails.corporateId = corporateDetails.id;
@@ -344,7 +345,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 		// 			state: busniess && busniess.Address.st,
 		// 	  }
 		// 	: {}
-		director_details: [],
+		director_details: {},
 		loan_details: {
 			// loan_type_id: 1,
 			// case_priority: null,
@@ -420,7 +421,25 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			gross_revenue_um: editLoan?.revenue_um,
 		};
 	}
-
+	if (guarantorData?.applicantData) {
+		formatedData.director_details.director_0 = {
+			dfirstname0: guarantorData?.applicantData?.firstName || '',
+			dlastname0: guarantorData?.applicantData?.lastName || '',
+			dpancard0: guarantorData?.applicantData?.panNumber || '',
+			ddob0: guarantorData?.applicantData?.dob || '', // '12-06-1994'
+			crime_check0: null,
+			dcontact0: null,
+			address10: guarantorData?.applicantData?.address[0]?.address1 || '',
+			address20: guarantorData?.applicantData?.address[0]?.address2 || '',
+			address30: guarantorData?.applicantData?.address[0]?.address3 || '', // api key missing
+			city0: guarantorData?.applicantData?.address[0]?.city || '',
+			state0: guarantorData?.applicantData?.address[0]?.state || '',
+			pincode0: guarantorData?.applicantData?.address[0]?.pinCode || '',
+			ddin_no: null,
+			type_name0: 'Guarantor',
+			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
+		};
+	}
 	// if (localStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;
 	// }
@@ -453,6 +472,9 @@ function subsidiaryDataFormat(caseId, data) {
 
 function bankDetailsDataFormat(caseId, data) {
 	if (data['vehicle-loan-details']) {
+		if (!data['emi-details']) {
+			return false;
+		}
 		const formatedData = {
 			emiDetails: data['emi-details'],
 			case_id: caseId,
