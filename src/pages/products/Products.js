@@ -227,6 +227,9 @@ const AppStatusLine2 = styled.div`
 	justify-content: space-between;
 	text-align: center;
 	align-items: center;
+	@media (max-width: 700px) {
+		padding: 0 0px;
+	}
 `;
 
 const AppStatusDotLine = styled.div`
