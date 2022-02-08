@@ -53,7 +53,7 @@ const StatusBox = styled.div`
 	width: 80%;
 	margin: 50px auto 50px auto;
 	@media (max-width: 700px) {
-		width: 80%;
+		width: 100%;
 		margin: 50px auto 50px auto;
 	}
 `;
@@ -66,6 +66,10 @@ const StatusInputBox = styled.div`
 	@media (max-width: 700px) {
 		/* width: auto; */
 		width: auto;
+		padding: 20px;
+		input {
+			font-size: 14px;
+		}
 		/* overflow-x: scroll;
 		overflow-y: hidden;
 		float: left;
@@ -176,6 +180,9 @@ const AppStatusList = styled.li`
 	strong {
 		color: #525252;
 	}
+	@media (max-width: 700px) {
+		line-height: 30px;
+	}
 `;
 
 const AppEditIcon = styled.img`
@@ -185,22 +192,8 @@ const AppEditIcon = styled.img`
 	/* margin-top: 20px; */
 	cursor: pointer;
 	@media (max-width: 700px) {
-		margin-top: 80px;
-	}
-`;
-const AppNumber = styled.div`
-	padding-left: 65px;
-	@media (max-width: 700px) {
-		padding-left: 50px;
-		width: 55%;
-	}
-`;
-const AppStatus = styled.div`
-	padding-left: 65px;
-	@media (max-width: 700px) {
-		padding-left: 85px;
-		width: 55%;
-		margin-top: 35px;
+		margin-top: 15px;
+		height: 30px;
 	}
 `;
 
@@ -211,8 +204,26 @@ const AppStatusLine1 = styled.div`
 	text-align: center;
 	align-items: center;
 	@media (max-width: 700px) {
-		overflow-x: scroll;
-		overflow-y: hidden;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+`;
+
+const AppNumber = styled.div`
+	padding-left: 65px;
+	@media (max-width: 700px) {
+		padding-left: 40px;
+		white-space: nowrap;
+		font-size: 14px;
+	}
+`;
+const AppStatus = styled.div`
+	padding-left: 65px;
+	@media (max-width: 700px) {
+		padding-left: 40px;
+		/* margin-top: 35px; */
+		white-space: nowrap;
+		font-size: 14px;
 	}
 `;
 
@@ -242,6 +253,10 @@ const AppStatusDotLine = styled.div`
 	position: absolute;
 	/* width: 500px; */
 	/* position: absolute; */
+	@media (max-width: 700px) {
+		margin-left: 0;
+		width: 100%;
+	}
 `;
 
 const AppStatusDots = styled.div`
@@ -252,6 +267,9 @@ const AppStatusDots = styled.div`
 	/* background: green; */
 	background: ${({ active }) => (active ? '#00D884' : 'lightgrey')};
 	border-radius: 50%;
+	@media (max-width: 700px) {
+		margin: 0;
+	}
 `;
 
 const ModalOTPHeader = styled.h2`
