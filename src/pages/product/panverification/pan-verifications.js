@@ -771,7 +771,7 @@ export default function PanVerification({
 					formData2.append('document', file[0].file);
 					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
 						if (res.data.status === 'nok') {
-							setDLAadharVoterError(re.data.message);
+							setDLAadharVoterError(res.data.message);
 						} else {
 							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
 								/\s/g,
