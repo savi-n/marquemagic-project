@@ -199,8 +199,12 @@ function fileStructure(documents, type) {
 		}));
 }
 
-const url = window.location.hostname;
+let url = window.location.hostname;
 let userToken = localStorage.getItem(url);
+// console.log('loan-doc-upload-userToken-', {
+// 	userToken,
+// 	userTokenParsed: JSON.parse(userToken),
+// });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 let busniess = JSON.parse(localStorage.getItem('busniess'));
@@ -228,6 +232,8 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	editLoan = localStorage.getItem('editLoan')
 		? JSON.parse(localStorage.getItem('editLoan'))
 		: {};
+	url = window.location.hostname;
+	userToken = localStorage.getItem(url);
 	let formReducer = JSON.parse(localStorage.getItem(url))?.formReducer;
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
@@ -247,6 +253,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	// 	applicantData,
 	// 	loanData,
 	// 	idType,
+	// 	guarantorData,
 	// });
 
 	const businessDetails = () => {
@@ -258,6 +265,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 				JSON.parse(localStorage.getItem('companyData'));
 		}
 		const newBusinessDetails = {
+			first_name: applicantData?.firstName || '',
+			last_name: applicantData?.lastName || '',
+			dob: applicantData?.dob || '',
 			business_name:
 				applicantData?.firstName ||
 				localStorage.getItem('BusinessName') ||
@@ -423,22 +433,28 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 	}
 	if (guarantorData?.applicantData) {
 		formatedData.director_details.director_0 = {
-			dfirstname0: guarantorData?.applicantData?.firstName || '',
-			dlastname0: guarantorData?.applicantData?.lastName || '',
-			dpancard0: guarantorData?.applicantData?.panNumber || '',
-			ddob0: guarantorData?.applicantData?.dob || '', // '12-06-1994'
-			crime_check0: null,
-			dcontact0: null,
-			address10: guarantorData?.applicantData?.address[0]?.address1 || '',
-			address20: guarantorData?.applicantData?.address[0]?.address2 || '',
-			address30: guarantorData?.applicantData?.address[0]?.address3 || '', // api key missing
-			city0: guarantorData?.applicantData?.address[0]?.city || '',
-			state0: guarantorData?.applicantData?.address[0]?.state || '',
-			pincode0: guarantorData?.applicantData?.address[0]?.pinCode || '',
+			dfirstname: guarantorData?.applicantData?.firstName || '',
+			dlastname: guarantorData?.applicantData?.lastName || '',
+			dpancard: guarantorData?.applicantData?.panNumber || '',
+			ddob: guarantorData?.applicantData?.dob || '', // '12-06-1994'
+			daadhaar: guarantorData?.applicantData?.aadhaar || '',
+			demail: guarantorData?.applicantData?.email || '',
+			dcontact: guarantorData?.applicantData?.mobileNo || '',
+			crime_check: null,
+			address1: guarantorData?.applicantData?.address[0]?.address1 || '',
+			address2: guarantorData?.applicantData?.address[0]?.address2 || '',
+			address3: guarantorData?.applicantData?.address[0]?.address3 || '', // api key missing
+			city: guarantorData?.applicantData?.address[0]?.city || '',
+			state: guarantorData?.applicantData?.address[0]?.state || '',
+			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
 			ddin_no: null,
-			type_name0: 'Guarantor',
+			type_name: 'Guarantor',
 			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
 		};
+	}
+	if (editLoan && editLoan?.id) {
+		formatedData.director_details.director_0.id =
+			editLoan?.director_details[0]?.id || null;
 	}
 	// if (localStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;
@@ -653,6 +669,8 @@ export default function DocumentUpload({
 	const companyData =
 		localStorage.getItem('companyData') &&
 		JSON.parse(localStorage.getItem('companyData'));
+	const API_TOKEN = localStorage.getItem('userToken');
+
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
 		options: {
@@ -670,9 +688,10 @@ export default function DocumentUpload({
 			},
 		},
 		headers: {
-			Authorization: `Bearer ${JSON.parse(userToken) &&
-				JSON.parse(userToken).userReducer &&
-				JSON.parse(userToken).userReducer?.userToken}`,
+			Authorization: `Bearer ${API_TOKEN}`,
+			// Authorization: `Bearer ${JSON.parse(userToken) &&
+			// 	JSON.parse(userToken).userReducer &&
+			// 	JSON.parse(userToken).userReducer?.userToken}`,
 		},
 	});
 
@@ -683,9 +702,10 @@ export default function DocumentUpload({
 				method: 'GET',
 			},
 			{
-				Authorization: `Bearer ${JSON.parse(userToken) &&
-					JSON.parse(userToken).userReducer &&
-					JSON.parse(userToken).userReducer?.userToken}`,
+				Authorization: `Bearer ${API_TOKEN}`,
+				// Authorization: `Bearer ${JSON.parse(userToken) &&
+				// 	JSON.parse(userToken).userReducer &&
+				// 	JSON.parse(userToken).userReducer?.userToken}`,
 			}
 		);
 
@@ -1325,7 +1345,7 @@ export default function DocumentUpload({
 										}),
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
-												JSON.parse(userToken).userReducer?.userToken ||
+												JSON.parse(userToken)?.userReducer?.userToken ||
 												''}`,
 										},
 									}}

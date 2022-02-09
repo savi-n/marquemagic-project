@@ -79,56 +79,56 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onSave = async data => {
-		if (!userToken) {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: {
-					email: data.email,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: data.firstName,
-					mobileNo: data.mobileNo,
-					addrr1: '',
-					addrr2: '',
+		// if (!userToken) {
+		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+			method: 'POST',
+			data: {
+				email: data.email,
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: data.firstName,
+				mobileNo: data.mobileNo,
+				addrr1: '',
+				addrr2: '',
+			},
+		});
+
+		const userDataRes = userDetailsReq.data;
+
+		if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
+			localStorage.setItem('userToken', userDataRes.token);
+
+			const encryptWhiteLabelReq = await newRequest(
+				WHITELABEL_ENCRYPTION_API,
+				{
+					method: 'GET',
 				},
-			});
+				{ Authorization: `Bearer ${userDataRes.token}` }
+			);
 
-			const userDataRes = userDetailsReq.data;
+			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-				localStorage.setItem('userToken', userDataRes.token);
-
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
-					},
-					{ Authorization: `Bearer ${userDataRes.token}` }
-				);
-
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				localStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
-			}
-
-			const userData = {
-				// userAccountToken: userDetailsReq.accToken,
-				// userDetails: userDetailsReq.userDetails,
-				// userBankDetails: userDetailsReq.cubDetails,
-				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
-				userToken: userDataRes.token,
-			};
-			setUserId(userDataRes.userId);
-			setUserDetails(userData);
-			setUsertypeBankData({
-				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
-			});
+			localStorage.setItem(
+				'encryptWhiteLabel',
+				encryptWhiteLabelRes.encrypted_whitelabel[0]
+			);
 		}
+
+		const userData = {
+			// userAccountToken: userDetailsReq.accToken,
+			// userDetails: userDetailsReq.userDetails,
+			// userBankDetails: userDetailsReq.cubDetails,
+			bankId: userDataRes.bankId,
+			branchId: userDataRes.branchId,
+			userToken: userDataRes.token,
+		};
+		setUserId(userDataRes.userId);
+		setUserDetails(userData);
+		setUsertypeBankData({
+			bankId: userDataRes.bankId,
+			branchId: userDataRes.branchId,
+		});
+		// }
 
 		setUsertypeApplicantData({
 			...data,
@@ -204,7 +204,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				(Object.keys(JSON.parse(userTokensss)?.formReducer?.user?.applicantData)
 					.length > 0 &&
 					JSON.parse(userTokensss)?.formReducer?.user?.applicantData) ||
-				formatPersonalDetails(editLoanData.business_id) ||
+				formatPersonalDetails(editLoanData?.business_id) ||
 				{};
 
 			if (form) return form;
@@ -309,6 +309,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || r()?.aadhar || '',
 					countryResidence: r()?.countryResidence || 'india',
+					incomeType: r()?.incomeType || '',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}
