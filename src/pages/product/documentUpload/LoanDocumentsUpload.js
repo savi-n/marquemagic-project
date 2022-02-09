@@ -1171,6 +1171,7 @@ export default function DocumentUpload({
 				message: 'Please select the document type',
 				type: 'error',
 			});
+			setCaseCreationProgress(false);
 		} else {
 			if (!userType) {
 				const loanReq = await caseCreationSteps(state);

@@ -484,7 +484,7 @@ export default function PanVerification({
 			.then(res => {
 				if (res.data.status === 'nok') {
 					// setPanConfirm(true);
-					setBusiness(false);
+					// setBusiness(false);
 					setPanError(res.data.message);
 					// addToast({
 					// 	message: res.data.message,
@@ -610,6 +610,11 @@ export default function PanVerification({
 					if (panNumber && !gstin) {
 					}
 					if (udhyogAadhar) {
+						if (udhyogAadhar.length !== 12) {
+							setVerificationFailed('Character Length Mismatch');
+							setLoading(false);
+							return;
+						}
 						const y = await verifyPan(
 							formState.values.responseId,
 							formState.values?.udhyogAadhar,
@@ -766,7 +771,7 @@ export default function PanVerification({
 					formData2.append('document', file[0].file);
 					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
 						if (res.data.status === 'nok') {
-							setDLAadharVoterError(re.data.message);
+							setDLAadharVoterError(res.data.message);
 						} else {
 							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
 								/\s/g,
@@ -1094,6 +1099,7 @@ export default function PanVerification({
 													verificationFailed &&
 													'red',
 											},
+											mask: { CharacterLimit: 12 },
 										})}
 									</FieldWrapper>
 									{formState?.values?.udhyogAadhar && verificationFailed && (
