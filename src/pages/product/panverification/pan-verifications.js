@@ -614,30 +614,34 @@ export default function PanVerification({
 							setVerificationFailed('Character Length Mismatch');
 							setLoading(false);
 							return;
-						}
-						const y = await verifyPan(
-							formState.values.responseId,
-							formState.values?.udhyogAadhar,
-							formState?.values?.companyName,
-							clientToken
-						);
-						if (y.data.status === 'nok') {
-							setVerificationFailed(
-								typeof y.data.message === 'string'
-									? y.data.message
-									: y.data.message.message
-							);
-							setLoading(false);
+						} else {
+							onProceed();
 							return;
 						}
-						if (y.status === 500) {
-							setLoading(false);
-							addToast({
-								type: 'error',
-								message: y.message,
-							});
-							return;
-						}
+						// api not ready. after api ready will enable this code and add url
+						// const y = await verifyPan(
+						// 	formState.values.responseId,
+						// 	formState.values?.udhyogAadhar,
+						// 	formState?.values?.companyName,
+						// 	clientToken
+						// );
+						// if (y.data.status === 'nok') {
+						// 	setVerificationFailed(
+						// 		typeof y.data.message === 'string'
+						// 			? y.data.message
+						// 			: y.data.message.message
+						// 	);
+						// 	setLoading(false);
+						// 	return;
+						// }
+						// if (y.status === 500) {
+						// 	setLoading(false);
+						// 	addToast({
+						// 		type: 'error',
+						// 		message: y.message,
+						// 	});
+						// 	return;
+						// }
 					}
 
 					let stateCode = null,
