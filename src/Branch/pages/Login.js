@@ -59,8 +59,8 @@ export default function Login() {
 			const loggingIn = await newRequest(BRANCH_LOGIN_API, {
 				method: 'POST',
 				data: {
-					email
-				}
+					email,
+				},
 			});
 
 			const loggedIn = loggingIn.data;
@@ -78,7 +78,7 @@ export default function Login() {
 			console.log(err);
 			addToast({
 				message: err.message || 'Something Went Wrong. Try Again Later!',
-				type: 'error'
+				type: 'error',
 			});
 		}
 		setLoggingIn(false);
@@ -92,17 +92,21 @@ export default function Login() {
 						name: 'email',
 						placeholder: 'Enter Email Address',
 						rules: { email: true },
-						value: formState?.values?.email
+						value: formState?.values?.email,
 					})}
 					{(formState?.submit?.isSubmited || formState?.touched?.['email']) &&
-						formState?.error?.['email'] && <ErrorMessage>{formState?.error?.['email']}</ErrorMessage>}
+						formState?.error?.['email'] && (
+							<ErrorMessage>{formState?.error?.['email']}</ErrorMessage>
+						)}
 				</FieldWrapper>
 
 				<Button
 					type='submit'
 					name='LOGIN'
 					fill
-					disabled={!formState.values?.email || !!formState.error?.email || loggingIn}
+					disabled={
+						!formState.values?.email || !!formState.error?.email || loggingIn
+					}
 				/>
 			</Wrapper>
 		</WrapperContent>

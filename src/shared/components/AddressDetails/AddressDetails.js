@@ -1,3 +1,5 @@
+// active
+// Guarantor Address Details
 import styled from 'styled-components';
 import { array, bool, func, object, oneOfType, string } from 'prop-types';
 
@@ -29,6 +31,9 @@ const Colom = styled.div`
 	flex-basis: 45%;
 	align-items: center;
 	flex-wrap: wrap;
+	@media (max-width: 700px) {
+		flex-basis: 100%;
+	}
 `;
 
 const Caption = styled.h3`

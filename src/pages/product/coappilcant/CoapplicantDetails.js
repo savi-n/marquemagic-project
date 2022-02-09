@@ -36,6 +36,9 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width: 700px) {
+		padding: 50px 0px;
+	}
 `;
 
 const EligibiltiyWrapper = styled.div`
@@ -130,9 +133,12 @@ export default function CoapplicantDetails({
 		};
 		setUsertypeApplicantData(
 			{ ...formatApplicantData, isEligibility: isEligibility },
-			USER_ROLES[userType]
+			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
 		);
-		setUsertypeAddressData(formatedAddress, USER_ROLES[userType]);
+		setUsertypeAddressData(
+			formatedAddress,
+			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
+		);
 	};
 
 	const onSave = formData => {
@@ -160,15 +166,70 @@ export default function CoapplicantDetails({
 	}, [proceed]);
 
 	const onProceed = async data => {
+		// console.log('CoapplicantDetails-', data);
 		saveData(data);
-
-		if (userType === 'Guarantor') {
-			setProceed(true);
-		} else {
-			setCompleted(id);
-			onFlowChange(map.main);
-		}
+		setCompleted(id);
+		onFlowChange(map.main);
+		// if (userType === 'Guarantor') {
+		// 	setProceed(true);
+		// } else {
+		// 	setCompleted(id);
+		// 	onFlowChange(map.main);
+		// }
 	};
+
+	// console.log('coapplicantdetails-guaranter-state', state);
+	let {
+		aadhaar,
+		countryResidence,
+		dob,
+		email,
+		firstName,
+		incomeType,
+		lastName,
+		mobileNo,
+		panNumber,
+		residenceStatus,
+	} =
+		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
+			?.applicantData || {};
+	let {
+		address1,
+		address2,
+		address3,
+		address4,
+		city,
+		state: addState,
+		pinCode,
+	} =
+		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
+			?.applicantData?.address[0] || {};
+
+	const editLoan = JSON.parse(localStorage.getItem('editLoan'));
+	if (editLoan && editLoan?.id) {
+		const director = editLoan?.director_details.filter(
+			d => d.type_name === 'Guarantor'
+		);
+		// console.log('filtered-director-', director);
+		firstName = director[0]?.dfirstname;
+		lastName = director[0]?.dlastname;
+		incomeType = director[0]?.income_type;
+		aadhaar = director[0]?.daadhaar;
+		countryResidence = director[0]?.country_residence;
+		dob = director[0]?.ddob;
+		email = director[0]?.demail;
+		mobileNo = director[0]?.dcontact;
+		panNumber = director[0]?.dpancard;
+		residenceStatus = director[0]?.residence_status;
+
+		address1 = director[0]?.address1;
+		address2 = director[0]?.address2;
+		address3 = director[0]?.address3;
+		address4 = director[0]?.address4;
+		city = director[0]?.city;
+		addState = director[0]?.state;
+		pinCode = director[0]?.pincode;
+	}
 
 	return (
 		<Div>
@@ -177,6 +238,18 @@ export default function CoapplicantDetails({
 				register={register}
 				formState={formState}
 				jsonData={map.fields['personal-details'].data}
+				preData={{
+					aadhaar: aadhaar || '',
+					countryResidence: countryResidence || '',
+					dob: dob || '',
+					email: email || '',
+					firstName: firstName || '',
+					incomeType: incomeType || '',
+					lastName: lastName || '',
+					mobileNo: mobileNo || '',
+					panNumber: panNumber || '',
+					residenceStatus: residenceStatus || '',
+				}}
 			/>
 			<AddressDetails
 				userType={userType}
@@ -185,6 +258,15 @@ export default function CoapplicantDetails({
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields['address-details'].data}
+				preData={{
+					address1: address1 || '',
+					address2: address2 || '',
+					address3: address3 || '',
+					address4: address4 || '',
+					city: city || '',
+					pinCode: pinCode || '',
+					state: addState || '',
+				}}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

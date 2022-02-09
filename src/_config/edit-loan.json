@@ -1,0 +1,87 @@
+{
+	"Business_details": {
+		"first_name": "",
+		"last_name": "",
+		"business_type": 3,
+		"business_industry_type": 5,
+		"business_name": "s3copy",
+		"business_started": "2019-02-28T18:30:00.000Z",
+		"gstin": "",
+		"business_email": "savifsw@gmail.com",
+		"contact": "7894561239",
+		"bd_upload": "",
+		"businessid": "123457415",
+		"businesspancardnumber": ""
+	},
+	"businessaddress": {
+		"address_0": {
+			"city": "Liverpool",
+			"locality": "#2345, New",
+			"pincode": "L1 8JQQW",
+			"state": "England",
+			"line1": "sfsfdf",
+			"line2": "",
+			"aid": 1
+		}
+	},
+	"loan_details": {
+		"application_ref": null,
+		"loan_amount_um": "Crores",
+		"loan_amount": 20,
+		"loan_type_id": 1,
+		"loan_usage_type_id": 1,
+		"loanId": 20111,
+		"loan_product_id": "7",
+		"loan_request_type": "1",
+		"white_label_id": 1
+	},
+	"financials": {
+		"op_expense_um": null,
+		"annual_op_expense": 4,
+		"revenue_um": null,
+		"annual_revenue": 4,
+		"fs_upload": ""
+	},
+	"Collaterals": {
+		"property_type": 8,
+		"unsecured_type": null,
+		"assets_value_um": null,
+		"assets_value": 4,
+		"cl_upload": ""
+	},
+	"director_details": {
+		"director_0": {
+			"dfirstname": "dip",
+			"dlastname": "d",
+			"demail": "gsfghvxcghsd@sdfsdf.com",
+			"dcontact": "2323232322",
+			"id": 6622
+		}
+	},
+	"documents": {
+		"KYC": [
+			{
+				"value": "",
+				"fd": "",
+				"filename": "",
+				"size": ""
+			}
+		],
+		"others": [
+			{
+				"value": "",
+				"fd": "",
+				"filename": "",
+				"size": ""
+			}
+		],
+		"financials": [
+			{
+				"value": "",
+				"fd": "",
+				"filename": "",
+				"size": ""
+			}
+		]
+	}
+}

@@ -1,4 +1,5 @@
 // Active Help us with your PAGE
+// Guarantor Personal Details
 import { useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { array, func, object, oneOfType, string } from 'prop-types';
@@ -18,6 +19,9 @@ const H = styled.h1`
 const FieldWrap = styled.div`
 	width: 45%;
 	margin: 10px 0;
+	@media (max-width: 700px) {
+		width: 100%;
+	}
 `;
 
 const FormWrap = styled.div`
@@ -168,8 +172,18 @@ export default function PersonalDetails({
 			</H>
 			<FormWrap>
 				{jsonData && id === 'business-details'
-					? jsonData.map(
-							field =>
+					? jsonData.map(field => {
+							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+							const customFields = {};
+							if (
+								editLoanData &&
+								editLoanData?.loan_ref_id &&
+								field.name === 'BusinessType'
+							) {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							return (
 								field.visibility && (
 									<FieldWrap key={field.name}>
 										{register({
@@ -179,6 +193,7 @@ export default function PersonalDetails({
 												field?.preDataDisable && { disabled: true }),
 											...(userType ? { disabled: false } : {}),
 											max: field.type === 'date' && '9999-12-31',
+											...customFields,
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
@@ -189,10 +204,12 @@ export default function PersonalDetails({
 											)}
 									</FieldWrap>
 								)
-					  )
+							);
+					  })
 					: id !== 'business-details' &&
 					  jsonData.map(field => {
 							// console.log('field-', field);
+							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
 							const value = populateValue(field);
 							const customFields = {};
 							if (pageName === 'Bank Details') {
@@ -208,6 +225,14 @@ export default function PersonalDetails({
 								if (field.name === 'StartDate' || field.name === 'EndDate') {
 									customFields.max = moment().format('YYYY-MM-DD');
 								}
+							}
+							if (
+								editLoanData &&
+								editLoanData?.loan_ref_id &&
+								field.name === 'incomeType'
+							) {
+								customFields.readonly = true;
+								customFields.disabled = true;
 							}
 							return (
 								field.visibility && (

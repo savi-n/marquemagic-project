@@ -4,6 +4,8 @@ const API_END_POINT =
 	process.env.REACT_APP_API_URL || 'http://3.108.54.252:1337';
 const ENDPOINT_BANK =
 	process.env.REACT_APP_BANK_API || 'http://40.80.80.135:1337';
+const OTP_API_END_POINT =
+	process.env.REACT_APP_OTP_URL || 'http://18.136.14.70';
 // "https://apiv3.namastecredit.com/apiservices";
 
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN || '';
@@ -46,6 +48,7 @@ const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pi
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
 
 const BUSSINESS_LOAN_CASE_CREATION = `${API_END_POINT}/casecreation_uiux`;
+const BUSSINESS_LOAN_CASE_CREATION_EDIT = `${API_END_POINT}/loan/edit/`;
 
 const LOGIN_CREATEUSER = `${API_END_POINT}/login/createUser`;
 
@@ -94,6 +97,7 @@ const USER_ROLES = {
 
 export {
 	API_END_POINT,
+	OTP_API_END_POINT,
 	ENDPOINT_BANK,
 	CLIENT_EMAIL_ID,
 	CLIENT_VERIFY_URL,
@@ -120,6 +124,7 @@ export {
 	APP_DOMAIN,
 	ROC_DATA_FETCH,
 	BUSSINESS_LOAN_CASE_CREATION,
+	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	WHITELABEL_ENCRYPTION_API,
 	LOGIN_CREATEUSER,
 	SEARCH_COMPANY_NAME,

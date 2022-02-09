@@ -27,6 +27,7 @@ import imgUpload from 'assets/icons/upload_icon.png';
 import lockGrey from 'assets/icons/Lock_icon_grey-05-05.svg';
 import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
 import _ from 'lodash';
+import { asyncForEach, sleep } from 'utils/helper';
 
 const USER_CANCELED = 'user cancelled';
 
@@ -47,12 +48,12 @@ const Dropzone = styled.div`
 	border-radius: 10px;
 	border-width: 2px;
 	overflow: hidden;
-	background: #f0f4fe;
-
+	@media (max-width: 700px) {
+		width: 100%;
+	}
 	/* border-width: medium; */
 	/* border-color: 'blue'; */
 	/* background-color: '#F0F4FE'; */
-
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
@@ -82,6 +83,10 @@ const Dropzone = styled.div`
 		color: white;
 		z-index: 999;
 		pointer-events: none;
+	}
+	@media (max-width: 700px) {
+		min-width: 72vw;
+		overflow: visible;
 	}
 `;
 
@@ -155,6 +160,9 @@ const FileListWrap = styled.div`
 	flex-wrap: wrap;
 	margin: 10px;
 	display: -webkit-box;
+	@media (max-width: 700px) {
+		width: 72vw;
+	}
 `;
 
 const WarningMessage = styled.div`
@@ -167,6 +175,9 @@ const WarningMessage = styled.div`
 	width: fit-content;
 	padding: 5px 10px 5px 10px;
 	font-size: 14px;
+	@media (max-width: 700px) {
+		width: 72vw;
+	}
 `;
 const File = styled.div`
 	/* flex-basis: 30%; */
@@ -182,13 +193,16 @@ const File = styled.div`
 	display: flex;
 	/* border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px; */
 	/* border: dashed #4cc97f; */
-	border: dashed rgba(76, 201, 127, 0.60);
+	border:  dashed ${({ error }) => (error ? 'red' : `rgba(76, 201, 127, 0.6)`)};
 	border-radius: 10px;
 	border-width: 2px;
 	align-items: center;
 	justify-content: space-between;
 	transition: 0.2s;
+@media (max-width: 700px){
+	width:100%;
 
+}
 	&::after {
 		content: '';
 		bottom: 0;
@@ -312,6 +326,7 @@ const FileType = styled.div`
 	align-items: center;
 	cursor: pointer;
 `;
+
 const FileTypeIcon = styled.img`
 	height: 25px;
 `;
@@ -343,6 +358,9 @@ const FileTypeBox = styled.ul`
 		transform: rotate(90deg);
 		cursor: pointer;
 	}
+	@media (max-width: 700px) {
+		max-width: 270px;
+	}
 `;
 const FileTypeUL = styled.ul`
 	margin: 0 20px;
@@ -364,12 +382,20 @@ const DocumentUploadListWrapper = styled.div`
 	flex-wrap: wrap;
 	margin: 30px 0;
 	gap: 10px;
+	@media (max-width: 700px) {
+		padding: 0px;
+		gap: 0px;
+		margin: 0px;
+		width: 72vw;
+	}
 `;
 
 const DocumentUploadList = styled.div`
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: left;
 	flex-direction: column;
+
 	/* align-self: flex-start; */
 	/* flex: 30%; */
 	width: 32%;
@@ -380,6 +406,9 @@ const DocumentUploadList = styled.div`
 	align-items: center;
 	/* padding: 10px 20px; */
 	/* background: white; */
+	@media (max-width: 700px) {
+		width: 100%;
+	}
 `;
 
 const DocumentUploadListRow1 = styled.div`
@@ -445,9 +474,25 @@ const DocumentUploadName = styled.div`
 	font-size: 14px;
 	color: ${({ isSelected }) => (isSelected ? 'black' : 'grey')};
 	padding: 0 20px;
-	/* border-bottom: 1px solid #d9d9d9; */
+	/* width: 300px; */
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	@media (max-width: 700px) {
+		overflow: visible;
+		white-space: normal;
+		text-overflow: unset;
+	}
 `;
-
+const DocumentUploadNameToolTip = styled.div`
+	position: absolute;
+	font-size: 12px;
+	margin-top: -50px;
+	margin-left: 30px;
+	background: black;
+	color: white;
+	padding: 5px;
+`;
 export default function FileUpload({
 	onDrop,
 	accept = '',
@@ -472,6 +517,9 @@ export default function FileUpload({
 	pan,
 	section = '',
 	sectionType = 'others',
+	aadharVoterDl = false,
+	errorMessage = '',
+	prefilledDocs = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -480,6 +528,7 @@ export default function FileUpload({
 
 	const id = uuidv4();
 
+	const [loading, setLoading] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [uploadingFiles, setUploadingFiles] = useState([]);
@@ -494,6 +543,8 @@ export default function FileUpload({
 	const selectedFiles = useRef([]);
 	const uploadingProgressFiles = useRef([]);
 	const { newRequest } = useFetch();
+	const [docSelected, setDocSelected] = useState('');
+	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 
 	let refCounter = 0;
 
@@ -513,7 +564,7 @@ export default function FileUpload({
 	};
 
 	const onFileRemove = (file, docType = false) => {
-		setDocs && setDocs([]);
+		!aadharVoterDl && setDocs && setDocs([]);
 		const uploadFiles = uploadingProgressFiles.current.filter(
 			uFile => uFile.id !== file.id
 		);
@@ -633,7 +684,9 @@ export default function FileUpload({
 		).then(files => {
 			setUploading(false);
 			if (pan) {
-				setDocs([filesToUpload[0]]);
+				aadharVoterDl
+					? setDocs([...docs, filesToUpload[0]])
+					: setDocs([filesToUpload[0]]);
 				return [filesToUpload[0]];
 			}
 			uploadingProgressFiles.current = uploadingProgressFiles.current.map(
@@ -723,12 +776,15 @@ export default function FileUpload({
 	// const onDocTypeChange = (fileId, value, file) => {
 	const onDocTypeChange = (file, docType) => {
 		const selectedDocType = docTypeOptions.find(d => d.value === docType.value);
-		// console.log('selected-doctype-', selectedDocType);
+		// console.log('onDocTypeChange-selected-doctype-', {
+		// 	file,
+		// 	docType,
+		// 	selectedDocType,
+		// });
 		const newMappedFile = _.cloneDeep(mappedFiles);
 		const newObj = newMappedFile[docType.value] || [];
 		newObj.push(file);
 		newMappedFile[docType.value] = newObj;
-		// console.log('newMappedFile-', newMappedFile);
 		setMappedFiles(newMappedFile);
 		const newDocTypeFileMap = {
 			..._.cloneDeep(docTypeFileMap),
@@ -736,24 +792,8 @@ export default function FileUpload({
 		};
 		documentTypeChangeCallback(file.id, selectedDocType);
 		setDocTypeFileMap(newDocTypeFileMap);
+		// console.log('onDocTypeChange-eod-', { newMappedFile, newDocTypeFileMap });
 	};
-
-	useEffect(() => {
-		let div = ref?.current;
-		div?.addEventListener('dragenter', handleDragIn);
-		div?.addEventListener('dragleave', handleDragOut);
-		div?.addEventListener('dragover', handleDrag);
-		div?.addEventListener('drop', handleDrop);
-		div?.addEventListener('dragend', handleDrag);
-
-		return () => {
-			div?.removeEventListener('dragenter', handleDragIn);
-			div?.removeEventListener('dragleave', handleDragOut);
-			div?.removeEventListener('dragover', handleDrag);
-			div?.removeEventListener('drop', handleDrop);
-			div?.removeEventListener('dragend', handleDrag);
-		};
-	}, [disabled]);
 
 	const onPasswordClick = fileId => {
 		setPasswordForFileId(fileId);
@@ -779,8 +819,6 @@ export default function FileUpload({
 		onClosePasswordEnterArea();
 	};
 
-	const [docSelected, setDocSelected] = useState('');
-
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
@@ -795,7 +833,65 @@ export default function FileUpload({
 		displayTagMessage = uploadingFiles.length !== taggedDocumentCount;
 	}
 
-	return (
+	const initializeComponent = async () => {
+		try {
+			setLoading(true);
+			if (prefilledDocs && prefilledDocs?.length > 0) {
+				// setUploadingFiles(_.cloneDeep(prefilledDocs));
+				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
+				const newMappedFile = _.cloneDeep(mappedFiles);
+				const newDocTypeFileMap = {
+					..._.cloneDeep(docTypeFileMap),
+				};
+				prefilledDocs.map(doc => {
+					const tempFile = _.cloneDeep(doc);
+					const tempDocType = { value: doc.doctype };
+					const selectedDocType = docTypeOptions.find(
+						d => d.value === tempDocType.value
+					);
+					const newObj = newMappedFile[tempDocType.value] || [];
+					newObj.push(tempFile);
+					newMappedFile[tempDocType.value] = newObj;
+					newDocTypeFileMap[tempDocType.id] = selectedDocType;
+					documentTypeChangeCallback(tempFile.id, selectedDocType);
+					return null;
+				});
+				setDocTypeFileMap(newDocTypeFileMap);
+				setMappedFiles(newMappedFile);
+			}
+			setLoading(false);
+		} catch (err) {
+			setLoading(false);
+			console.log('error-initializnig-fileupload-', err);
+		}
+	};
+
+	useEffect(() => {
+		initializeComponent();
+	}, []);
+
+	useEffect(() => {
+		let div = ref?.current;
+		div?.addEventListener('dragenter', handleDragIn);
+		div?.addEventListener('dragleave', handleDragOut);
+		div?.addEventListener('dragover', handleDrag);
+		div?.addEventListener('drop', handleDrop);
+		div?.addEventListener('dragend', handleDrag);
+
+		return () => {
+			div?.removeEventListener('dragenter', handleDragIn);
+			div?.removeEventListener('dragleave', handleDragOut);
+			div?.removeEventListener('dragover', handleDrag);
+			div?.removeEventListener('drop', handleDrop);
+			div?.removeEventListener('dragend', handleDrag);
+		};
+	}, [disabled]);
+
+	return loading ? (
+		<>
+			<h1>Loading...</h1>
+		</>
+	) : (
 		<>
 			{!disabled && (
 				<Dropzone
@@ -869,7 +965,7 @@ export default function FileUpload({
 				</p>
 			)}
 			<FileListWrap>
-				{uploadingFiles.map(file => {
+				{uploadingFiles.map((file, upidx) => {
 					// console.log('uplodaing-file-', file);
 					let isMapped = false;
 					for (const key in docTypeFileMap) {
@@ -882,7 +978,8 @@ export default function FileUpload({
 					const isFileUploaded = file.progress >= 100 || file.progress <= 0;
 					return (
 						<File
-							key={file.id}
+							error={errorMessage}
+							key={`${file.id}-${upidx}`}
 							progress={file.progress}
 							status={file.status}
 							tooltip={file.name}
@@ -896,9 +993,10 @@ export default function FileUpload({
 									? file.name.slice(0, 20) + '...'
 									: file.name}
 							</FileName>
-							{file.status === 'completed' && !!docTypeOptions.length && (
+							{/* previous version - tagging and password code */}
+							{/* {file.status === 'completed' && !!docTypeOptions.length && (
 								<>
-									{/* <SelectDocType
+									<SelectDocType
 									value={
 										branch ? docSelected : docTypeFileMap[file.id]?.name || ''
 									}
@@ -916,8 +1014,8 @@ export default function FileUpload({
 											{docType.name}
 										</option>
 									))}
-								</SelectDocType> */}
-									{/* {FINANCIAL_DOC_TYPES?.includes(
+								</SelectDocType>
+									{FINANCIAL_DOC_TYPES?.includes(
 										docTypeFileMap[file.id]?.main?.toLowerCase()
 									) && (
 										<PasswordWrapper>
@@ -935,9 +1033,9 @@ export default function FileUpload({
 												/>
 											)}
 										</PasswordWrapper>
-									)} */}
+									)}
 								</>
-							)}
+							)} */}
 
 							{isFileUploaded ? (
 								<ImgClose
@@ -952,7 +1050,7 @@ export default function FileUpload({
 									align='start'
 									positions={['left', 'bottom', 'top', 'right']} // preferred positions by priority
 									padding={-50} // adjust padding here!
-									reposition={true} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
+									reposition={false} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
 									onClickOutside={() => setIsPopoverOpen(-1)} // handle click events outside of the popover/target here!
 									ref={refPopup}
 									content={popupProps => {
@@ -971,9 +1069,9 @@ export default function FileUpload({
 											// style={isOutside ? { marginLeft: '-400px' } : {}}
 											>
 												<FileTypeUL>
-													{docTypeOptions.map(docType => (
+													{docTypeOptions.map((docType, docoptidx) => (
 														<FileTypeList
-															key={docType.value}
+															key={`${docType.value}-${docoptidx}`}
 															value={docType.name}
 															onClick={() => {
 																branch && setDocSelected(docType.name);
@@ -1023,7 +1121,7 @@ export default function FileUpload({
 				})}
 			</FileListWrap>
 			<DocumentUploadListWrapper>
-				{docTypeOptions.map((docType, i) => {
+				{docTypeOptions.map((docType, doctypeidx) => {
 					const mappedDocFiles = mappedFiles[docType.value] || [];
 					// const mappedFiles = [];
 					// console.log('upload-list-', {
@@ -1042,16 +1140,27 @@ export default function FileUpload({
 					// 	}
 					// }
 					return (
-						<DocumentUploadList key={docType.id}>
+						<DocumentUploadList key={`${docType.id}-${doctypeidx}`}>
 							<DocumentUploadListRow1>
 								<DocumentUploadCheck
 									src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 									alt='check'
 								/>
-								<DocumentUploadName isSelected={mappedDocFiles.length}>
-									{docType.name.length > 30
+								{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+									<DocumentUploadNameToolTip>
+										{docType.name}
+									</DocumentUploadNameToolTip>
+								)}
+								<DocumentUploadName
+									onMouseOver={() =>
+										setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+									}
+									onMouseOut={() => setDocTypeNameToolTip(-1)}
+									isSelected={mappedDocFiles.length}>
+									{docType.name}
+									{/* {docType.name.length > 30
 										? docType.name.slice(0, 30) + '...'
-										: docType.name}
+										: docType.name} */}
 								</DocumentUploadName>
 							</DocumentUploadListRow1>
 							<DocumentUploadListRow2>

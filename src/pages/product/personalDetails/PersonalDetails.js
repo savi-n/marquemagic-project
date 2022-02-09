@@ -1,3 +1,4 @@
+// active personal details
 import { useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -23,6 +24,9 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width: 700px) {
+		padding: 50px 0px;
+	}
 `;
 
 const ButtonWrap = styled.div`
@@ -38,6 +42,15 @@ function formatUserDetails(data, fields) {
 	});
 	return formatedData;
 }
+
+const valueConversion = {
+	Thousand: 1000,
+	Thousands: 1000,
+	Lakhs: 100000,
+	Crores: 10000000,
+	Millions: 1000000,
+	One: 1,
+};
 
 export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const {
@@ -60,57 +73,62 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
 
+	const amountConverter = (value, k) => {
+		if (k) return value * valueConversion[k || 'One'];
+		return value;
+	};
+
 	const onSave = async data => {
-		if (!userToken) {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: {
-					email: data.email,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: data.firstName,
-					mobileNo: data.mobileNo,
-					addrr1: '',
-					addrr2: '',
+		// if (!userToken) {
+		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+			method: 'POST',
+			data: {
+				email: data.email,
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: data.firstName,
+				mobileNo: data.mobileNo,
+				addrr1: '',
+				addrr2: '',
+			},
+		});
+
+		const userDataRes = userDetailsReq.data;
+
+		if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
+			localStorage.setItem('userToken', userDataRes.token);
+
+			const encryptWhiteLabelReq = await newRequest(
+				WHITELABEL_ENCRYPTION_API,
+				{
+					method: 'GET',
 				},
-			});
+				{ Authorization: `Bearer ${userDataRes.token}` }
+			);
 
-			const userDataRes = userDetailsReq.data;
+			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-				localStorage.setItem('userToken', userDataRes.token);
-
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
-					},
-					{ Authorization: `Bearer ${userDataRes.token}` }
-				);
-
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				localStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
-			}
-
-			const userData = {
-				// userAccountToken: userDetailsReq.accToken,
-				// userDetails: userDetailsReq.userDetails,
-				// userBankDetails: userDetailsReq.cubDetails,
-				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
-				userToken: userDataRes.token,
-			};
-			setUserId(userDataRes.userId);
-			setUserDetails(userData);
-			setUsertypeBankData({
-				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
-			});
+			localStorage.setItem(
+				'encryptWhiteLabel',
+				encryptWhiteLabelRes.encrypted_whitelabel[0]
+			);
 		}
+
+		const userData = {
+			// userAccountToken: userDetailsReq.accToken,
+			// userDetails: userDetailsReq.userDetails,
+			// userBankDetails: userDetailsReq.cubDetails,
+			bankId: userDataRes.bankId,
+			branchId: userDataRes.branchId,
+			userToken: userDataRes.token,
+		};
+		setUserId(userDataRes.userId);
+		setUserDetails(userData);
+		setUsertypeBankData({
+			bankId: userDataRes.bankId,
+			branchId: userDataRes.branchId,
+		});
+		// }
 
 		setUsertypeApplicantData({
 			...data,
@@ -149,16 +167,46 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		}
 	};
 
+	const formatPersonalDetails = personalDetails => {
+		return {
+			firstName: personalDetails?.businessname,
+			incomeType: personalDetails?.businesstype === 1 ? 'business' : 'salaried',
+			BusinessType: personalDetails?.businesstype || '',
+			lastName: personalDetails?.last_name,
+			pan: personalDetails?.businesspancardnumber,
+			dob: personalDetails?.businessstartdate
+				? personalDetails?.businessstartdate.split(' ')[0]
+				: '',
+			aadhaar: personalDetails?.relation,
+			mobileNum: personalDetails?.contactno,
+			residentTypess: personalDetails?.relation,
+			email: personalDetails?.business_email,
+			countryResidence: personalDetails?.relation,
+			maritalStatus: personalDetails?.relation,
+		};
+	};
+
 	const r = () => {
+		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		const appData = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
-			let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+			let form =
+				(appData && Object.keys(appData).length > 0 && appData) ||
+				formatPersonalDetails(editLoanData?.business_id) ||
+				{};
 			if (form) return form;
 			else {
 				var formStat = JSON.parse(localStorage.getItem('formstate'));
 				return formStat?.values;
 			}
 		} else {
-			let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+			let form =
+				(Object.keys(JSON.parse(userTokensss)?.formReducer?.user?.applicantData)
+					.length > 0 &&
+					JSON.parse(userTokensss)?.formReducer?.user?.applicantData) ||
+				formatPersonalDetails(editLoanData?.business_id) ||
+				{};
+
 			if (form) return form;
 			else return userBankDetails;
 		}
@@ -190,7 +238,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				JSON.parse(localStorage.getItem('formstate')) ||
 				JSON.parse(localStorage.getItem('formstatepan'));
 
-			if (formStat && formStat.values.dob) {
+			if (formStat && formStat?.values?.dob) {
 				let d = formStat.values.dob.split('/');
 
 				d = `${d[2]}-${d[1]}-${d[0]}`;
@@ -206,8 +254,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	let userTokensss = localStorage.getItem(url);
 
-	let loan = JSON.parse(userTokensss).formReducer?.user?.loanData;
-	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
+	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
 		const t = JSON.parse(localStorage.getItem('formstatepan'));
@@ -216,6 +264,25 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 			return name;
 		}
 	};
+	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	let editLoanDataSalary = {};
+	if (editLoanData && (!form || (form && Object.keys(form).length === 0))) {
+		editLoanDataSalary = {
+			grossIncome:
+				editLoanData.annual_turn_over &&
+				amountConverter(
+					editLoanData.annual_turn_over,
+					editLoanData.revenue_um
+				).toString(),
+
+			netMonthlyIncome:
+				editLoanData.annual_op_expense &&
+				amountConverter(
+					editLoanData.annual_op_expense,
+					editLoanData.op_expense_um
+				).toString(),
+		};
+	}
 	return (
 		<Div>
 			<PersonalDetails
@@ -229,6 +296,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					dob:
 						getDOB() ||
 						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
+						r()?.dob ||
 						'',
 					email: r()?.email || '',
 					mobileNo: r()?.mobileNum || '',
@@ -239,18 +307,21 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 						localStorage.getItem('pan') ||
 						'',
 					residenceStatus: r()?.residentTypess || '',
-					aadhaar: getAdhar() || '',
-					countryResidence: 'india',
+					aadhaar: getAdhar() || r()?.aadhar || '',
+					countryResidence: r()?.countryResidence || 'india',
+					incomeType: r()?.incomeType || '',
 					...form,
 				}}
-				jsonData={map.fields[id].data}
+				jsonData={map?.fields[id]?.data}
 			/>
 			<SalaryDetails
-				jsonData={map.fields['salary-details'].data}
+				jsonData={map?.fields['salary-details'].data}
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
-				preData={form}
+				preData={
+					(form && Object.keys(form).length > 0 && form) || editLoanDataSalary
+				}
 			/>
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />

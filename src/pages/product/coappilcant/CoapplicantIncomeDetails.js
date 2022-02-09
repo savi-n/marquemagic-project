@@ -21,6 +21,9 @@ const Div = styled.div`
   flex: 1;
   padding: 50px;
   background: #ffffff;
+  @media(max-width:700px){
+		padding: 50px 0px;
+	}
 `;
 
 const formatEmiData = (formData, fields) => {

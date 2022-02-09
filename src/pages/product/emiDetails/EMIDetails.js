@@ -19,10 +19,14 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width: 700px) {
+		padding: 50px 0px;
+	}
 `;
 
 const ButtonWrap = styled.div`
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 20px;
 `;
@@ -39,6 +43,10 @@ const RoundButton = styled.button`
 	/* font-weight: 700; */
 	background: ${({ theme }) => theme.buttonColor2};
 	margin-right: 10px;
+	@media (max-width: 700px) {
+		height: auto;
+		width: 2.25rem;
+	}
 `;
 
 const Wrapper = styled.div`
@@ -81,7 +89,10 @@ const formatLoanEmiData = (formData, fields) => {
 	return fields
 		.map(f => ({
 			emiAmount: formData[f.name],
-			bank_name: formData[`${f.name}_bank_name`],
+			bank_name:
+				formData[`${f.name}_bank_id`]?.name ||
+				formData[`${f.name}_bank_id`] ||
+				'',
 		}))
 		.filter(f => f.emiAmount);
 };
@@ -185,23 +196,49 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	let existing_personal_loan = '';
 	let existing_personal_loan_bank_name = '';
 	let existing_personal_loan_bank_id = '';
-	state?.user?.emi?.map(r => {
-		if (r.type === 'existing_auto_loan') {
-			existing_auto_loan = r?.amount;
-			existing_auto_loan_bank_name = r?.bank;
-			existing_auto_loan_bank_id = r?.id;
+	if (state?.user?.emi) {
+		state?.user?.emi?.map(r => {
+			if (r.type === 'existing_auto_loan') {
+				existing_auto_loan = r?.amount;
+				existing_auto_loan_bank_name = r?.bank;
+				existing_auto_loan_bank_id = r?.id;
+			}
+			if (r.type === 'existing_lap_loan') {
+				existing_lap_loan = r?.amount;
+				existing_lap_loan_bank_name = r?.bank;
+				existing_lap_loan_bank_id = r?.id;
+			}
+			if (r.type === 'existing_personal_loan') {
+				existing_personal_loan = r?.amount;
+				existing_personal_loan_bank_name = r?.bank;
+				existing_personal_loan_bank_id = r?.id;
+			}
+		});
+	} else {
+		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
+			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
+			if (emaiDetails.length > 0) {
+				emaiDetails.map((ele, i) => {
+					if (i === 0) {
+						existing_auto_loan = ele?.emiAmount;
+						existing_auto_loan_bank_name = ele?.bank_name;
+						existing_auto_loan_bank_id = ele?.bank_name;
+					}
+					if (i === 1) {
+						existing_lap_loan = ele?.emiAmount;
+						existing_lap_loan_bank_name = ele?.bank_name;
+						existing_lap_loan_bank_id = ele?.bank_name;
+					}
+					if (i === 1) {
+						existing_personal_loan = ele?.emiAmount;
+						existing_personal_loan_bank_name = ele?.bank_name;
+						existing_personal_loan_bank_id = ele?.bank_name;
+					}
+				});
+			}
 		}
-		if (r.type === 'existing_lap_loan') {
-			existing_lap_loan = r?.amount;
-			existing_lap_loan_bank_name = r?.bank;
-			existing_lap_loan_bank_id = r?.id;
-		}
-		if (r.type === 'existing_personal_loan') {
-			existing_personal_loan = r?.amount;
-			existing_personal_loan_bank_name = r?.bank;
-			existing_personal_loan_bank_id = r?.id;
-		}
-	});
+	}
 
 	const preData = {
 		existing_auto_loan,

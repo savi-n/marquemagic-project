@@ -17,6 +17,9 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width: 700px) {
+		padding: 50px 0;
+	}
 `;
 
 const ButtonWrap = styled.div`
@@ -170,6 +173,15 @@ export default function AddressDetailsPage({
 			form.address &&
 			form.address.length === 1 &&
 			setMatch(true);
+		if (form && form.address && form.address[0]) {
+			// if formdata have address that allready saved details
+		} else {
+			let lengthAddress =
+				editLoanData && formatAddressData(editLoanData.business_address);
+			if (lengthAddress?.length === 1) {
+				setMatch(true);
+			}
+		}
 	}, []);
 
 	const r = () => {
@@ -180,7 +192,26 @@ export default function AddressDetailsPage({
 			return userBankDetails;
 		}
 	};
-	const Address = form && form.address && form.address[0];
+	const formatAddressData = address => {
+		const BAddress = address.map((ele, i) => {
+			return {
+				address1: ele.line1,
+				address2: ele.line2,
+				address3: ele.locality,
+				aid: ele.aid,
+				city: ele.city,
+				state: ele.state,
+				pinCode: ele.pincode,
+				addressType: i === 0 ? 'permanent' : 'present',
+			};
+		});
+		return BAddress;
+	};
+	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+
+	const Address =
+		(form && form.address && form.address[0]) ||
+		(editLoanData && formatAddressData(editLoanData.business_address)[0]);
 
 	return (
 		<Div>
@@ -191,7 +222,10 @@ export default function AddressDetailsPage({
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields[id].data}
-				preDataFilled={form?.address}
+				preDataFilled={
+					form?.address ||
+					(editLoanData && formatAddressData(editLoanData.business_address))
+				}
 				preData={{
 					address1:
 						Address && Address.address1

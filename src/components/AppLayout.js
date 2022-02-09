@@ -23,11 +23,15 @@ const HeaderWrapper = styled.div`
   max-height: 80px;
   /* background: ${({ theme }) => theme.themeColor1}; */
   /* box-shadow: 0px 2px 5px 1px rgb(11 92 255 / 20%); */
-	box-shadow: rgba(11, 92, 255, 0.16) 0px 25px 20px -20px;
+	box-shadow: rgba(11, 92, 255, 0.16) 0px 2px 5px 1px;
   display: flex;
   align-items: center;
   padding: 0 50px;
-  z-index: 1;
+  z-index: 101;
+	position: sticky;
+	top: 0px;
+	background:#fff;
+
 `;
 const Div = styled.div`
 	flex: 1;

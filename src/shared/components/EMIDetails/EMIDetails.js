@@ -14,14 +14,23 @@ const FieldWrap = styled.div`
 	margin: 10px 0;
 	display: flex;
 	/* gap: 10%; */
+	@media(max-width: 700px){
+	display: block;
+
+
+	}
 `;
 
 const FormWrap = styled.div`
 	display: flex;
+
 	align-items: center;
 	flex-wrap: wrap;
+	width: 100%;
+
 	gap: 10%;
 	margin: 20px 0;
+
 `;
 
 const ErrorMessage = styled.div`
@@ -42,6 +51,10 @@ const Currency = styled.div`
 
 const Field = styled.div`
 	width: 40%;
+	@media (max-width: 700px){
+		margin: 5px 0;
+		min-width: 95%;
+	}
 `;
 
 EMIDetails.propTypes = {

@@ -7,20 +7,26 @@ const StyledButton = styled.button`
 	border: 2px solid
 		${({ theme, fill }) =>
 			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
-	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '40px')};
+	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '5px')};
 	padding: 10px 20px;
 	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
-	display: flex;
-	align-items: center;
-	min-width: ${({ width }) => (width ? width : '200px')};
-	justify-content: space-between;
+		fill && (typeof fill === 'string' ? '' : '#1414ad')};
+
+	align-items: flex-start;
+	/* min-width: ${({ width }) => (width ? width : '200px')}; */
+	width: 200px;
 	font-size: 0.9em;
 	font-weight: 500;
 	text-align: center;
 	transition: 0.2s;
-	display: flex;
 	justify-content: center;
+	border-radius: 40px;
+	 @media (max-width: 700px) {
+		padding: 10px;
+		border-radius: 0px;
+		border: 2px solid #1414ad;
+		width: auto;
+	}
 
 	&:hover {
 		color: #fff;
@@ -31,6 +37,7 @@ const StyledButton = styled.button`
 const Div = styled.div`
 	text-align: center;
 	flex: 1;
+	position: relative;
 `;
 
 const LoaderCircle = styled.label`

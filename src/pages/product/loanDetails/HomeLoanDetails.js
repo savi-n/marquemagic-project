@@ -24,6 +24,9 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width: 700px) {
+		padding: 50px 0px;
+	}
 `;
 
 const ButtonWrap = styled.div`
@@ -55,6 +58,15 @@ HomeLoanDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
 	id: string,
+};
+
+const valueConversion = {
+	Thousand: 1000,
+	Thousands: 1000,
+	Lakhs: 100000,
+	Crores: 10000000,
+	Millions: 1000000,
+	One: 1,
 };
 
 export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
@@ -162,12 +174,41 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		getBranchOptions();
 		// sethomeBranchList(dropdown);
 	}, []);
+	const amountConverter = (value, k) => {
+		return value * valueConversion[k || 'One'];
+	};
+	const formatEditLoanData = loanData => {
+		return {
+			loanAmount: amountConverter(
+				loanData?.loan_amount,
+				loanData?.loan_amount_um
+			).toString(),
+			tenure: loanData?.applied_tenure.toString(),
+			address: {
+				address1: loanData?.address1,
+				address2: loanData?.address2,
+				address3: loanData?.address3,
+				pinCode: loanData?.pinCode,
+				city: loanData?.city,
+				state: loanData?.state,
+			},
+			// branchId:
+			// loanType:
+		};
+	};
 
 	const url = window.location.hostname;
 
 	let userTokensss = localStorage.getItem(url);
-
-	let preData = JSON.parse(userTokensss).formReducer?.user?.loanData;
+	let preData = {};
+	if (
+		Object.keys(JSON.parse(userTokensss).formReducer?.user?.loanData).length > 0
+	) {
+		preData = JSON.parse(userTokensss).formReducer?.user?.loanData;
+	} else {
+		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		preData = formatEditLoanData(editLoanData);
+	}
 
 	return (
 		<Div>

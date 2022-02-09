@@ -27,13 +27,26 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
+	@media (max-width: 700px) {
+		padding: 50px 0px;
+	}
 `;
 
 const ButtonWrap = styled.div`
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 20px;
 `;
+
+const valueConversion = {
+	Thousand: 1000,
+	Thousands: 1000,
+	Lakhs: 100000,
+	Crores: 10000000,
+	Millions: 1000000,
+	One: 1,
+};
 
 export default function FormController({
 	id,
@@ -265,9 +278,115 @@ export default function FormController({
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	let companyData = JSON.parse(localStorage.getItem('companyData'));
+	const amountConverter = (value, k) => {
+		if (k) return value * valueConversion[k || 'One'];
+		return value;
+	};
+	const formatLoanData = loanData => {
+		return {
+			tenure: loanData?.applied_tenure.toString(),
+			LoanAmount:
+				loanData?.loan_amount &&
+				amountConverter(
+					loanData?.loan_amount,
+					loanData?.loan_amount_um
+				).toString(),
+		};
+	};
+	const formatVehicalLoanData = loanData => {
+		return {
+			tenure: loanData?.applied_tenure.toString(),
+			loanAmount:
+				loanData?.loan_amount &&
+				amountConverter(
+					loanData?.loan_amount,
+					loanData?.loan_amount_um
+				).toString(),
+			// branchId: loanData?.branchId
+		};
+	};
+
+	const formatSubsidiaryData = subsidiaryData => {
+		return {
+			SubsidiaryName: subsidiaryData?.business_name,
+			BankName: subsidiaryData?.SubsidiaryName,
+			AccountNumber: subsidiaryData?.account_number,
+			Relation: subsidiaryData?.relation,
+		};
+	};
+
+	const formatShareholderData = shareholderData => {
+		return {
+			ShareholderName: shareholderData?.name,
+			ShareholderPercentage: shareholderData?.percentage.toString(),
+			Relation: shareholderData?.relationship,
+		};
+	};
+
+	const formaBankDetailsData = bankDetailsData => {
+		return {
+			BankName: bankDetailsData?.bank_id,
+			AccountNumber: bankDetailsData?.account_number,
+			AccountType: bankDetailsData?.account_type,
+			Relation: bankDetailsData?.relationship || '',
+			AccountHolderName: bankDetailsData?.account_holder_name,
+			StartDate: bankDetailsData?.outstanding_start_date,
+			EndDate: bankDetailsData?.outstanding_end_date,
+		};
+	};
+
+	const formReferenceDetailsData = referenceDetailsData => {
+		const obj = {};
+		referenceDetailsData.map((ele, i) => {
+			obj[`Name${i}`] = ele?.ref_name;
+			obj[`ReferenceEmail${i}`] = ele?.ref_email;
+			obj[`ContactNumber${i}`] = ele?.ref_contact;
+			obj[`Pincode${i}`] = ele?.ref_pincode;
+		});
+		return obj;
+	};
+
 	let form = state[`${id}`] || companyDetail || companyData || appData;
-	if (id === 'business-loan-details') {
-		form = JSON.parse(userToken)?.formReducer?.user?.loanData;
+	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	if (state[`${id}`]) {
+		if (id === 'business-loan-details') {
+			form =
+				Object.keys(JSON.parse(userToken)?.formReducer?.user?.loanData).length >
+					0 && JSON.parse(userToken)?.formReducer?.user?.loanData;
+		}
+	} else {
+		if (id === 'business-loan-details') {
+			form =
+				(Object.keys(JSON.parse(userToken)?.formReducer?.user?.loanData)
+					.length > 0 &&
+					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
+				(editLoanData && formatLoanData(editLoanData));
+		}
+		if (id === 'vehicle-loan-details') {
+			form =
+				(Object.keys(JSON.parse(userToken)?.formReducer?.user?.loanData)
+					.length > 0 &&
+					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
+				(editLoanData && formatVehicalLoanData(editLoanData));
+		}
+		if (id === 'subsidiary-details' && editLoanData) {
+			form =
+				editLoanData &&
+				formatSubsidiaryData(editLoanData.subsidiary_details[0]);
+		}
+		if (id === 'shareholder-details' && editLoanData?.shareholder_details) {
+			form =
+				editLoanData &&
+				formatShareholderData(editLoanData.shareholder_details[0]);
+		}
+		if (id === 'bank-details' && editLoanData?.bank_details) {
+			form = editLoanData && formaBankDetailsData(editLoanData.bank_details[0]);
+		}
+		if (id === 'reference-details' && editLoanData?.reference_details) {
+			form =
+				editLoanData &&
+				formReferenceDetailsData(editLoanData.reference_details);
+		}
 	}
 
 	return (

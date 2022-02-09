@@ -23,6 +23,9 @@ const H = styled.h1`
 const Field = styled.div`
 	width: ${({ size }) => (size ? size : '45%')};
 	margin: 10px 0;
+	@media (max-width: 700px) {
+		min-width: 86%;
+	}
 `;
 
 const FieldWrapper = styled.div`
@@ -180,7 +183,7 @@ export default function LoanDetails({
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
-					<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
+					{/* <Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency> */}
 
 					{field.uploadButton && (
 						<Button
