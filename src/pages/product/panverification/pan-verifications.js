@@ -484,7 +484,7 @@ export default function PanVerification({
 			.then(res => {
 				if (res.data.status === 'nok') {
 					// setPanConfirm(true);
-					setBusiness(false);
+					// setBusiness(false);
 					setPanError(res.data.message);
 					// addToast({
 					// 	message: res.data.message,
