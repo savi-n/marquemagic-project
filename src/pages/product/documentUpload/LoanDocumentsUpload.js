@@ -670,6 +670,8 @@ export default function DocumentUpload({
 		localStorage.getItem('companyData') &&
 		JSON.parse(localStorage.getItem('companyData'));
 	const API_TOKEN = localStorage.getItem('userToken');
+	let corporateDetails = localStorage.getItem('corporateDetails');
+	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
@@ -1438,7 +1440,11 @@ export default function DocumentUpload({
 				/>
 				<CheckboxWrapper>
 					<CheckBox
-						name={textForCheckbox.grantCibilAcces}
+						name={
+							corporateDetails && corporateDetails.id
+								? textForCheckbox.grantCibilAcces.replace('CIBIL', 'Bureau')
+								: textForCheckbox.grantCibilAcces
+						}
 						checked={cibilCheckbox}
 						disabled={cibilCheckbox}
 						onChange={() => {
