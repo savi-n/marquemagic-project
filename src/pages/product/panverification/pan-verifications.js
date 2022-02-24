@@ -17,6 +17,7 @@ import {
 import { AppContext } from '../../../reducer/appReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
 import { useToasts } from '../../../components/Toast/ToastProvider';
@@ -222,6 +223,11 @@ export default function PanVerification({
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
+	const {
+		state,
+		actions: { setLoanDocuments, removeAllDocuments },
+	} = useContext(LoanFormContext);
+
 	const { newRequest } = useFetch();
 	const { register, handleSubmit, formState } = useForm();
 	const { addToast } = useToasts();
@@ -421,6 +427,10 @@ export default function PanVerification({
 	const [isBusiness, setBusiness] = useState(true);
 
 	const handleFileUpload = files => {
+		console.log(files);
+		// console.table(files);
+		console.log('pan', state);
+		// setLoanDocuments(files); // just added
 		setFile([...files, ...file]);
 		setPanFile([...files, ...file]);
 		setDisableSubmit(false);
@@ -435,6 +445,7 @@ export default function PanVerification({
 
 	useEffect(() => {
 		localStorage.removeItem('product');
+		removeAllDocuments();
 	}, []);
 
 	const userid = '10626';
@@ -466,6 +477,8 @@ export default function PanVerification({
 		setPanFile([]);
 	};
 
+	const product_id = localStorage.getItem('productId');
+
 	const [openConfirm, setPanConfirm] = useState(false);
 	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
 	const [otherDoc, setOtherDoc] = useState([]);
@@ -477,9 +490,11 @@ export default function PanVerification({
 	const handlePanUpload = files => {
 		setLoading(true);
 		const formData = new FormData();
+		formData.append('product_id', product_id);
 		formData.append('req_type', 'pan');
 		formData.append('process_type', 'extraction');
 		formData.append('document', files);
+
 		getKYCData(formData, clientToken)
 			.then(res => {
 				if (res.data.status === 'nok') {
@@ -491,6 +506,28 @@ export default function PanVerification({
 					// 	type: 'error',
 					// });
 				} else {
+					//****** setting file in docs for this loan -- loanContext
+					console.log(id, 'id');
+
+					res.data.doc_type_id = '30';
+					const file1 = {
+						document_key: res.data.s3.fd,
+						id: Math.random()
+							.toString(36)
+							.replace(/[^a-z]+/g, '')
+							.substr(0, 6),
+						mainType: 'KYC',
+						size: res.data.s3.size,
+						typeId: res.data.doc_type_id,
+						typeName: 'Applicant and Co-Applicant(s) PANCARD(s)',
+						upload_doc_name: res.data.s3.filename,
+						src: 'start',
+					};
+
+					console.log(file1);
+					setLoanDocuments([file1]);
+					//////////////////////////////
+					// this ends here
 					setPan(res.data.data['Pan_number']);
 					localStorage.setItem('pan', res.data.data['Pan_number']);
 					formState.values.panNumber = res.data.data['Pan_number'];
@@ -761,6 +798,7 @@ export default function PanVerification({
 		resetAllErrors();
 		if (file.length > 1) {
 			const formData1 = new FormData();
+			formData1.append('product_id', product_id);
 			formData1.append('req_type', fileType);
 			formData1.append('process_type', 'extraction');
 			formData1.append('document', file[1].file);
@@ -769,7 +807,31 @@ export default function PanVerification({
 				if (re.data.status === 'nok') {
 					setDLAadharVoterError(re.data.message);
 				} else {
+					//****** setting file in docs for this loan -- loanContext
+
+					re.data.doc_type_id = '31';
+					const myfile = {
+						document_key: re.data.s3.fd,
+						id: Math.random()
+							.toString(36)
+							.replace(/[^a-z]+/g, '')
+							.substr(0, 6),
+						mainType: 'KYC',
+						size: re.data.s3.size,
+						typeId: re.data.doc_type_id,
+						typeName:
+							'Applicant and Co-Applicant(s) Address Proof(s) (Aadhaar Card, Voter ID, Utility Bills, Rental Agreement)',
+						upload_doc_name: re.data.s3.filename,
+						src: 'start',
+					};
+
+					console.log(myfile);
+					setLoanDocuments([myfile]);
+					//////////////////////////////
+					// this ends here
+					// console.log('file', file);
 					const formData2 = new FormData();
+					formData1.append('product_id', product_id);
 					formData2.append('req_type', fileType);
 					formData2.append('process_type', 'extraction');
 					formData2.append('document', file[0].file);
@@ -777,6 +839,29 @@ export default function PanVerification({
 						if (res.data.status === 'nok') {
 							setDLAadharVoterError(res.data.message);
 						} else {
+							//****** setting file in docs for this loan -- loanContext
+
+							re.data.doc_type_id = '31';
+							const myfile2 = {
+								document_key: re.data.s3.fd,
+								id: Math.random()
+									.toString(36)
+									.replace(/[^a-z]+/g, '')
+									.substr(0, 6),
+								mainType: 'KYC',
+								size: re.data.s3.size,
+								typeId: re.data.doc_type_id,
+								typeName:
+									'Applicant and Co-Applicant(s) Address Proof(s) (Aadhaar Card, Voter ID, Utility Bills, Rental Agreement)',
+								upload_doc_name: re.data.s3.filename,
+								src: 'start',
+							};
+
+							console.log(myfile2);
+							setLoanDocuments([myfile2]);
+							//////////////////////////////
+							// this ends here
+
 							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
 								/\s/g,
 								''
@@ -824,6 +909,7 @@ export default function PanVerification({
 			});
 		} else {
 			const formData = new FormData();
+			formData.append('product_id', product_id);
 			formData.append('req_type', fileType);
 			formData.append('process_type', 'extraction');
 			formData.append('document', files);
@@ -835,6 +921,29 @@ export default function PanVerification({
 					// data ---> extractionData
 					// ref_id: pass the id from the first doc response
 					// combine data
+					//****** setting file in docs for this loan -- loanContext
+
+					res.data.doc_type_id = '31';
+					const file2 = {
+						document_key: res.data.s3.fd,
+						id: Math.random()
+							.toString(36)
+							.replace(/[^a-z]+/g, '')
+							.substr(0, 6),
+						mainType: 'KYC',
+						size: res.data.s3.size,
+						typeId: res.data.doc_type_id,
+						typeName:
+							'Applicant and Co-Applicant(s) Address Proof(s) (Aadhaar Card, Voter ID, Utility Bills, Rental Agreement)',
+						upload_doc_name: res.data.s3.filename,
+						src: 'start',
+					};
+
+					console.log(file2);
+					setLoanDocuments([file2]);
+					//////////////////////////////
+					// this ends here
+
 					const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
 						/\s/g,
 						''

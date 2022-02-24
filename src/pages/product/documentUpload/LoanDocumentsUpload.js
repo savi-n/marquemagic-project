@@ -339,6 +339,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			: addressArrayUni;
 
 	const { loanAmount, tenure, ...restLoanData } = loanData;
+
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -663,6 +664,7 @@ export default function DocumentUpload({
 	const [prefilledFinancialDocs, setPrefilledFinancialDocs] = useState([]);
 	const [prefilledOtherDocs, setPrefilledOtherDocs] = useState([]);
 	// const [documentChecklist, setDocumentChecklist] = useState([]);
+	const [startingKYCDoc, setStartingKYCDoc] = useState([]);
 
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
@@ -720,6 +722,24 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
+		// console.log('state useEffect', state);
+		let kycStartingDocs = state.documents;
+		let kycDocsNew = [];
+		if (kycStartingDocs.length > 0) {
+			kycStartingDocs.map(doc => {
+				let newDoc = {
+					...doc,
+					name: doc.upload_doc_name,
+					progress: '100',
+					status: 'completed',
+					file: null,
+				};
+				if (newDoc.mainType == 'KYC') kycDocsNew.push(newDoc);
+			});
+		}
+		// console.log('kycstart', kycStartingDocs);
+		// console.log('KYCDocNew', kycDocsNew);
+		setStartingKYCDoc(kycDocsNew);
 		getWhiteLabel();
 	}, []);
 
@@ -805,6 +825,8 @@ export default function DocumentUpload({
 					else newOtr.push(newDoc);
 					return null;
 				});
+				// console.log('newKYC 1', newKyc);
+
 				setPrefilledKycDocs(newKyc);
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
@@ -895,6 +917,8 @@ export default function DocumentUpload({
 	// };
 
 	const handleFileUpload = async files => {
+		// console.log('loan upload--state--', state);
+		// console.log('files are ', files);
 		setLoanDocuments(files);
 	};
 
@@ -927,7 +951,8 @@ export default function DocumentUpload({
 				productDetails,
 				productId
 			);
-			// console.log('createCaseReq-', { reqBody, editLoan });
+			// console.log('state-', { ...state });
+
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
@@ -1273,6 +1298,7 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
+									startingKYCDoc={startingKYCDoc}
 									prefilledDocs={prefilledKycDocs}
 									sectionType='kyc'
 									section={'document-upload'}

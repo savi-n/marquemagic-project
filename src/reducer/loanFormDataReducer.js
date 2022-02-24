@@ -6,6 +6,7 @@ const actionTypes = {
 	SET_LOAN_DOCUMENT: 'SET_LOAN_DOCUMENT',
 	REMOVE_LOAN_DOCUMENT: 'REMOVE_LOAN_DOCUMENT',
 	SET_DOCUMENT_TYPE: 'SET_DOCUMENT_TYPE',
+	REMOVE_ALL_DOCUMENTS: 'REMOVE_ALL_DOCUMENTS',
 };
 
 const INITIAL_STATE = {};
@@ -41,11 +42,18 @@ const useActions = dispatch => {
 		});
 	};
 
+	const removeAllDocuments = () => {
+		dispatch({
+			type: actionTypes.REMOVE_ALL_DOCUMENTS,
+		});
+	};
+
 	return {
 		setLoanData,
 		setLoanDocuments,
 		removeLoanDocument,
 		setLoanDocumentType,
+		removeAllDocuments,
 	};
 };
 
@@ -91,6 +99,13 @@ function reducer(state, action) {
 			return {
 				..._.cloneDeep(state),
 				documents: filteredDocs,
+			};
+		}
+
+		case actionTypes.REMOVE_ALL_DOCUMENTS: {
+			return {
+				..._.cloneDeep(state),
+				documents: [],
 			};
 		}
 

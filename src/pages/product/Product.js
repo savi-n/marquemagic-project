@@ -226,6 +226,7 @@ export default function Product({ product, url }) {
 	useEffect(() => {
 		if (response) {
 			configure(response.data?.product_details?.flow);
+			localStorage.setItem('productId', atob(product));
 		}
 	}, [response]);
 

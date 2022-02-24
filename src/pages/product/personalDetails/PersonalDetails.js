@@ -11,6 +11,7 @@ import Button from '../../../components/Button';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { AppContext } from '../../../reducer/appReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import {
@@ -69,6 +70,8 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		actions: { setUserDetails, setUserId },
 	} = useContext(UserContext);
 
+	const { state } = useContext(LoanFormContext);
+
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
@@ -80,6 +83,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 
 	const onSave = async data => {
 		// if (!userToken) {
+		console.log('pers-satte', state);
 		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 			method: 'POST',
 			data: {
