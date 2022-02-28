@@ -22,6 +22,7 @@ import {
 	WHITELABEL_ENCRYPTION_API,
 	CIN_UPDATE,
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
+	UPLOAD_CACHE_DOCS,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -339,6 +340,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			: addressArrayUni;
 
 	const { loanAmount, tenure, ...restLoanData } = loanData;
+
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -619,6 +621,9 @@ export default function DocumentUpload({
 	const {
 		actions: { setLoanRef },
 	} = useContext(CaseContext);
+	const {
+		state: { clientToken },
+	} = useContext(AppContext);
 
 	const {
 		actions: {
@@ -663,6 +668,7 @@ export default function DocumentUpload({
 	const [prefilledFinancialDocs, setPrefilledFinancialDocs] = useState([]);
 	const [prefilledOtherDocs, setPrefilledOtherDocs] = useState([]);
 	// const [documentChecklist, setDocumentChecklist] = useState([]);
+	const [startingKYCDoc, setStartingKYCDoc] = useState([]);
 
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
@@ -720,6 +726,24 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
+		console.log('state useEffect', state);
+		let kycStartingDocs = state.documents;
+		let kycDocsNew = [];
+		if (kycStartingDocs.length > 0) {
+			kycStartingDocs.map(doc => {
+				let newDoc = {
+					...doc,
+					name: doc.upload_doc_name,
+					progress: '100',
+					status: 'completed',
+					file: null,
+				};
+				if (newDoc.mainType == 'KYC') kycDocsNew.push(newDoc);
+			});
+		}
+		// console.log('kycstart', kycStartingDocs);
+		// console.log('KYCDocNew', kycDocsNew);
+		setStartingKYCDoc(kycDocsNew);
 		getWhiteLabel();
 	}, []);
 
@@ -805,6 +829,8 @@ export default function DocumentUpload({
 					else newOtr.push(newDoc);
 					return null;
 				});
+				// console.log('newKYC 1', newKyc);
+
 				setPrefilledKycDocs(newKyc);
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
@@ -895,6 +921,8 @@ export default function DocumentUpload({
 	// };
 
 	const handleFileUpload = async files => {
+		// console.log('loan upload--state--', state);
+		// console.log('files are ', files);
 		setLoanDocuments(files);
 	};
 
@@ -927,7 +955,8 @@ export default function DocumentUpload({
 				productDetails,
 				productId
 			);
-			// console.log('createCaseReq-', { reqBody, editLoan });
+			// console.log('state-', { ...state });
+
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
@@ -954,6 +983,7 @@ export default function DocumentUpload({
 				const compData =
 					localStorage.getItem('companyData') &&
 					JSON.parse(localStorage.getItem('companyData'));
+
 				if (compData && compData.CIN) {
 					const reqBody = {
 						loan_ref_id: resLoanRefId,
@@ -972,6 +1002,36 @@ export default function DocumentUpload({
 						}
 					);
 				}
+
+				//**** uploadCacheDocuments
+				// console.log('final state', state);
+				let uploadCacheDocsArr = [];
+				state.documents.filter(doc => {
+					if (doc.requestId) {
+						let ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
+						uploadCacheDocsArr.push(ele);
+					}
+				});
+				let uploadCacheDocBody = {
+					loan_id: caseRes.data.loan_details.id,
+					request_ids_obj: uploadCacheDocsArr,
+					user_id: +caseRes.data.loan_details.createdUserId,
+				};
+				const token = localStorage.getItem('userTokenCache');
+				console.log('push', uploadCacheDocsArr);
+				await newRequest(
+					UPLOAD_CACHE_DOCS,
+					{
+						method: 'POST',
+						data: uploadCacheDocBody,
+					},
+					{
+						authorization: clientToken,
+					}
+				);
+
+				// ends here
+
 				let newCaseRes = caseRes.data;
 				if (editLoan && editLoan?.loan_ref_id) {
 					newCaseRes = {
@@ -1273,6 +1333,7 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
+									startingKYCDoc={startingKYCDoc}
 									prefilledDocs={prefilledKycDocs}
 									sectionType='kyc'
 									section={'document-upload'}

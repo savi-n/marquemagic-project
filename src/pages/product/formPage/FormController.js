@@ -1,3 +1,5 @@
+// active
+
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -20,6 +22,7 @@ import {
 	APP_CLIENT,
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
+	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
 
@@ -53,13 +56,14 @@ export default function FormController({
 	map,
 	onFlowChange,
 	productDetails,
+	productId,
 }) {
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
-		state: details,
+		state,
 		actions: { setLoanData },
 	} = useContext(LoanFormContext);
 
@@ -103,11 +107,12 @@ export default function FormController({
 	// 	},
 	// } = useContext(FormContext);
 
-	const { state } = useContext(LoanFormContext);
+	// const { state } = useContext(LoanFormContext);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 
 	useEffect(() => {
+		// console.log('idprod', productId);
 		if (id === 'vehicle-loan-details') {
 			getBranchOptions();
 		}
@@ -174,6 +179,7 @@ export default function FormController({
 		// Loan Against Property Individual Loan
 		// console.log('formcontroller-onProceed-productDetails-', productDetails);
 		if (id === 'business-details') {
+			// console.log('is here');
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
 				data: {
@@ -187,6 +193,7 @@ export default function FormController({
 				},
 			});
 
+			// console.log('form-state values = ', formState);
 			const userDetailsRes = userDetailsReq.data;
 
 			const url = window.location.hostname;
@@ -245,6 +252,82 @@ export default function FormController({
 						mobileNo: formState?.values?.mobileNo,
 					});
 			}
+			//***** here
+
+			let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer
+				?.user.applicantData;
+			const companyData =
+				localStorage.getItem('companyData') &&
+				JSON.parse(localStorage.getItem('companyData'));
+			const API_TOKEN = localStorage.getItem('userToken');
+			const idType =
+				productDetails.loanType.includes('Business') ||
+				productDetails.loanType.includes('LAP') ||
+				productDetails.loanType.includes('Working')
+					? 'business'
+					: 'salaried';
+			// console.log('applicantData', applicantData);
+
+			const docTypesList = await newRequest(
+				DOCTYPES_FETCH,
+				{
+					method: 'POST',
+					data: {
+						business_type:
+							data.incomeType === 'salaried'
+								? 7
+								: companyData?.BusinessType
+								? companyData?.BusinessType
+								: 1,
+						loan_product: productId[(data?.incomeType)] || productId[idType],
+					},
+				},
+				{ Authorization: `Bearer ${userDetailsRes.token}` }
+			);
+
+			// console.log('docTypesList', docTypesList);
+			const kycDocsFromApi = docTypesList?.data?.kyc_doc.map(doc => {
+				return doc.doc_type_id;
+			});
+
+			// console.log('form-contr', state.documents);
+			// console.log('state', state);
+			let panDocType = null;
+			if (state.panDocDetails.length > 0) {
+				state.panDocDetails.filter(doc => {
+					if (!panDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
+						panDocType = doc;
+						return doc;
+					}
+				});
+			} else {
+				docTypesList?.data?.kyc_doc.filter(doc => {
+					if (!panDocType && doc.name.includes('Entity Pancard')) {
+						panDocType = doc;
+						return doc;
+					} else if (
+						!panDocType &&
+						doc.name.includes('Director(s) Pancard(s)')
+					) {
+						panDocType = doc;
+						return doc;
+					} else if (!panDocType && doc.name.includes('Company Registration')) {
+						panDocType = doc;
+						return doc;
+					} else {
+						panDocType = doc;
+					}
+				});
+			}
+			state.documents.map(doc => {
+				if (doc.type == 'pan' && panDocType) {
+					doc.typeId = panDocType.doc_type_id;
+					doc.typeName = panDocType.name;
+				}
+			});
+			// console.log(panDocType);
+
+			// ends here
 		}
 
 		onSave(data);
