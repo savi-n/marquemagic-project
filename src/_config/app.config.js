@@ -67,6 +67,8 @@ const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 const CIN_UPDATE = `${API_END_POINT}/cin-update`;
 
+const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
+
 const APP_CLIENT =
 	window.location.hostname === 'localhost'
 		? 'clix.loan2pal.com'
@@ -140,4 +142,5 @@ export {
 	REDIRECT_CREATE,
 	KYC_URL,
 	CIN_UPDATE,
+	UPLOAD_CACHE_DOCS,
 };

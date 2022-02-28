@@ -22,6 +22,7 @@ import {
 	WHITELABEL_ENCRYPTION_API,
 	CIN_UPDATE,
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
+	UPLOAD_CACHE_DOCS,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -620,6 +621,9 @@ export default function DocumentUpload({
 	const {
 		actions: { setLoanRef },
 	} = useContext(CaseContext);
+	const {
+		state: { clientToken },
+	} = useContext(AppContext);
 
 	const {
 		actions: {
@@ -722,7 +726,7 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		// console.log('state useEffect', state);
+		console.log('state useEffect', state);
 		let kycStartingDocs = state.documents;
 		let kycDocsNew = [];
 		if (kycStartingDocs.length > 0) {
@@ -979,6 +983,7 @@ export default function DocumentUpload({
 				const compData =
 					localStorage.getItem('companyData') &&
 					JSON.parse(localStorage.getItem('companyData'));
+
 				if (compData && compData.CIN) {
 					const reqBody = {
 						loan_ref_id: resLoanRefId,
@@ -997,6 +1002,36 @@ export default function DocumentUpload({
 						}
 					);
 				}
+
+				//**** uploadCacheDocuments
+				// console.log('final state', state);
+				let uploadCacheDocsArr = [];
+				state.documents.filter(doc => {
+					if (doc.requestId) {
+						let ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
+						uploadCacheDocsArr.push(ele);
+					}
+				});
+				let uploadCacheDocBody = {
+					loan_id: caseRes.data.loan_details.id,
+					request_ids_obj: uploadCacheDocsArr,
+					user_id: +caseRes.data.loan_details.createdUserId,
+				};
+				const token = localStorage.getItem('userTokenCache');
+				console.log('push', uploadCacheDocsArr);
+				await newRequest(
+					UPLOAD_CACHE_DOCS,
+					{
+						method: 'POST',
+						data: uploadCacheDocBody,
+					},
+					{
+						authorization: clientToken,
+					}
+				);
+
+				// ends here
+
 				let newCaseRes = caseRes.data;
 				if (editLoan && editLoan?.loan_ref_id) {
 					newCaseRes = {

@@ -225,7 +225,12 @@ export default function PanVerification({
 
 	const {
 		state,
-		actions: { setLoanDocuments, removeAllDocuments },
+		actions: {
+			setLoanDocuments,
+			removeAllDocuments,
+			setPanDocDetails,
+			setOtherDocDetails,
+		},
 	} = useContext(LoanFormContext);
 
 	const { newRequest } = useFetch();
@@ -508,8 +513,8 @@ export default function PanVerification({
 				} else {
 					//****** setting file in docs for this loan -- loanContext
 					console.log(id, 'id');
-
-					res.data.doc_type_id = '30';
+					setPanDocDetails(res.data.doc_details);
+					// res.data.doc_type_id = '30';
 					const file1 = {
 						document_key: res.data.s3.fd,
 						id: Math.random()
@@ -518,8 +523,8 @@ export default function PanVerification({
 							.substr(0, 6),
 						mainType: 'KYC',
 						size: res.data.s3.size,
-						typeId: res.data.doc_type_id,
-						typeName: 'Applicant and Co-Applicant(s) PANCARD(s)',
+						type: 'pan',
+						requestId: res.data.request_id,
 						upload_doc_name: res.data.s3.filename,
 						src: 'start',
 					};
@@ -786,6 +791,8 @@ export default function PanVerification({
 	const [backUpload, setBackUpload] = useState(false);
 	const [backUploading, setBackUploading] = useState(false);
 	const [disableButton, setDisableSubmit] = useState(false);
+	const [kycDocDetailsPan, setKycDocDetailsPan] = useState([]);
+	const [kycDocDetailsOther, setKycDocDetailsOther] = useState([]);
 
 	useEffect(() => {
 		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
@@ -809,7 +816,8 @@ export default function PanVerification({
 				} else {
 					//****** setting file in docs for this loan -- loanContext
 
-					re.data.doc_type_id = '31';
+					// re.data.doc_type_id = '31';
+					setOtherDocDetails(re.data.doc_details);
 					const myfile = {
 						document_key: re.data.s3.fd,
 						id: Math.random()
@@ -818,9 +826,8 @@ export default function PanVerification({
 							.substr(0, 6),
 						mainType: 'KYC',
 						size: re.data.s3.size,
-						typeId: re.data.doc_type_id,
-						typeName:
-							'Applicant and Co-Applicant(s) Address Proof(s) (Aadhaar Card, Voter ID, Utility Bills, Rental Agreement)',
+						type: 'other',
+						requestId: re.data.request_id,
 						upload_doc_name: re.data.s3.filename,
 						src: 'start',
 					};
@@ -841,7 +848,7 @@ export default function PanVerification({
 						} else {
 							//****** setting file in docs for this loan -- loanContext
 
-							re.data.doc_type_id = '31';
+							// re.data.doc_type_id = '31';
 							const myfile2 = {
 								document_key: re.data.s3.fd,
 								id: Math.random()
@@ -850,14 +857,13 @@ export default function PanVerification({
 									.substr(0, 6),
 								mainType: 'KYC',
 								size: re.data.s3.size,
-								typeId: re.data.doc_type_id,
-								typeName:
-									'Applicant and Co-Applicant(s) Address Proof(s) (Aadhaar Card, Voter ID, Utility Bills, Rental Agreement)',
+								type: 'other',
+								requestId: res.data.request_id,
 								upload_doc_name: re.data.s3.filename,
 								src: 'start',
 							};
 
-							console.log(myfile2);
+							// console.log(myfile2);
 							setLoanDocuments([myfile2]);
 							//////////////////////////////
 							// this ends here
@@ -922,8 +928,8 @@ export default function PanVerification({
 					// ref_id: pass the id from the first doc response
 					// combine data
 					//****** setting file in docs for this loan -- loanContext
-
-					res.data.doc_type_id = '31';
+					setOtherDocDetails(res.data.doc_details);
+					// res.data.doc_type_id = '31';
 					const file2 = {
 						document_key: res.data.s3.fd,
 						id: Math.random()
@@ -932,14 +938,13 @@ export default function PanVerification({
 							.substr(0, 6),
 						mainType: 'KYC',
 						size: res.data.s3.size,
-						typeId: res.data.doc_type_id,
-						typeName:
-							'Applicant and Co-Applicant(s) Address Proof(s) (Aadhaar Card, Voter ID, Utility Bills, Rental Agreement)',
+						type: 'other',
+						requestId: res.data.request_id,
 						upload_doc_name: res.data.s3.filename,
 						src: 'start',
 					};
 
-					console.log(file2);
+					// console.log(file2);
 					setLoanDocuments([file2]);
 					//////////////////////////////
 					// this ends here

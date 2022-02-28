@@ -7,6 +7,8 @@ const actionTypes = {
 	REMOVE_LOAN_DOCUMENT: 'REMOVE_LOAN_DOCUMENT',
 	SET_DOCUMENT_TYPE: 'SET_DOCUMENT_TYPE',
 	REMOVE_ALL_DOCUMENTS: 'REMOVE_ALL_DOCUMENTS',
+	SET_KYC_EXTRACT_DOCDETAILS_PAN: 'SET_KYC_EXTRACT_DOCDETAILS_PAN',
+	SET_KYC_EXTRACT_DOCDETAILS_OTHER: 'SET_KYC_EXTRACT_DOCDETAILS_OTHER:',
 };
 
 const INITIAL_STATE = {};
@@ -48,12 +50,28 @@ const useActions = dispatch => {
 		});
 	};
 
+	const setPanDocDetails = docDetails => {
+		dispatch({
+			type: actionTypes.SET_KYC_EXTRACT_DOCDETAILS_PAN,
+			docDetails,
+		});
+	};
+
+	const setOtherDocDetails = docDetails => {
+		dispatch({
+			type: actionTypes.SET_KYC_EXTRACT_DOCDETAILS_OTHER,
+			docDetails,
+		});
+	};
+
 	return {
 		setLoanData,
 		setLoanDocuments,
 		removeLoanDocument,
 		setLoanDocumentType,
 		removeAllDocuments,
+		setPanDocDetails,
+		setOtherDocDetails,
 	};
 };
 
@@ -106,6 +124,20 @@ function reducer(state, action) {
 			return {
 				..._.cloneDeep(state),
 				documents: [],
+			};
+		}
+
+		case actionTypes.SET_KYC_EXTRACT_DOCDETAILS_PAN: {
+			return {
+				..._.cloneDeep(state),
+				panDocDetails: [...action.docDetails],
+			};
+		}
+
+		case actionTypes.SET_KYC_EXTRACT_DOCDETAILS_OTHER: {
+			return {
+				..._.cloneDeep(state),
+				otherDocDetails: [...action.docDetails],
 			};
 		}
 
