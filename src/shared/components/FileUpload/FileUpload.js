@@ -494,6 +494,7 @@ const DocumentUploadNameToolTip = styled.div`
 	padding: 5px;
 `;
 export default function FileUpload({
+	agreementDocShowMsg = true,
 	onDrop,
 	accept = '',
 	caption,
@@ -941,7 +942,7 @@ export default function FileUpload({
 					</UploadCircle>
 				</Dropzone>
 			)}
-			{displayTagMessage ? (
+			{agreementDocShowMsg && displayTagMessage ? (
 				<WarningMessage>
 					{' '}
 					Click on <FileTypeSmallIcon
