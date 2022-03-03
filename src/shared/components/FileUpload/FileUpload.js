@@ -1176,7 +1176,7 @@ export default function FileUpload({
 							</DocumentUploadListRow1>
 							<DocumentUploadListRow2>
 								{mappedDocFiles.map((doc, index) => {
-									console.log(mappedDocFiles, 'mappedDosc');
+									// console.log(mappedDocFiles, 'mappedDosc');
 									const isViewMoreClicked = viewMore.includes(docType.value);
 									const isViewMore = !isViewMoreClicked && index === 2;
 									if (!isViewMoreClicked && index > 2) return null;

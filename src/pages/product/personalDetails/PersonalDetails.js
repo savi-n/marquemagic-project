@@ -146,7 +146,6 @@ export default function PersonalDetailsPage({
 			// console.log('applicantData', applicantData);
 			// console.log(productId[(applicantData?.incomeType)], '---');
 			// console.log(applicantData.incomeType, 'income');
-
 			const docTypesList = await newRequest(
 				DOCTYPES_FETCH,
 				{
@@ -155,6 +154,8 @@ export default function PersonalDetailsPage({
 						business_type:
 							data.incomeType === 'salaried'
 								? 7
+								: data.incomeType === 'selfemployed'
+								? 18
 								: companyData?.BusinessType
 								? companyData?.BusinessType
 								: 1,
@@ -305,7 +306,12 @@ export default function PersonalDetailsPage({
 	const formatPersonalDetails = personalDetails => {
 		return {
 			firstName: personalDetails?.businessname,
-			incomeType: personalDetails?.businesstype === 1 ? 'business' : 'salaried',
+			incomeType:
+				personalDetails?.businesstype === 1
+					? 'business'
+					: personalDetails?.businesstype === 18
+					? 'selfemployed'
+					: 'salaried',
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
