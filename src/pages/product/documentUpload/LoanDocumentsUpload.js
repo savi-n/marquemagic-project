@@ -283,6 +283,8 @@ function caseCreationDataFormat(
 			business_type:
 				applicantData?.incomeType === 'salaried'
 					? 7
+					: applicantData?.incomeType === 'selfemployed'
+					? 18
 					: data['business-details']?.BusinessType
 					? data['business-details']?.BusinessType
 					: 1,
@@ -693,6 +695,8 @@ export default function DocumentUpload({
 				business_type:
 					applicantData?.incomeType === 'salaried'
 						? 7
+						: applicantData?.incomeType === 'selfemployed'
+						? 18
 						: state['business-details']?.BusinessType ||
 						  companyData?.BusinessType
 						? state['business-details']?.BusinessType ||
@@ -1222,7 +1226,7 @@ export default function DocumentUpload({
 
 		setCaseCreationProgress(true);
 		let docError = false;
-		// console.log('state-documents-', state?.documents);
+		console.log('state-d	ocuments-', state?.documents);
 		state?.documents?.map(ele => {
 			if (!ele.typeId) {
 				docError = true;
