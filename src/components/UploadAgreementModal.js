@@ -16,13 +16,16 @@ const Div = styled.div`
 
 export default function UploadAgreementModal({ onClose, onDone, name }) {
 	const {
-		state: { userId, userToken }
+		state: { userId, userToken },
 	} = useContext(UserContext);
 
 	const [agreementFiles, setAgreementFiles] = useState([]);
 
 	const handleFileUpload = async files => {
-		setAgreementFiles(preFiles => [...preFiles, ...files.map(file => ({ ...file, doc_type_id: '12' }))]);
+		setAgreementFiles(preFiles => [
+			...preFiles,
+			...files.map(file => ({ ...file, doc_type_id: '12' })),
+		]);
 	};
 
 	const onDoneClick = () => {
@@ -34,16 +37,23 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
 			{/* <div>{name}</div> */}
 			<Div> Upload Agreement Document</Div>
 			<FileUpload
+				agreementDocShowMsg={false}
 				onDrop={handleFileUpload}
 				accept=''
 				upload={{
 					url: DOCS_UPLOAD_URL({ userId }),
 					header: {
-						Authorization: `Bearer ${userToken}`
-					}
+						Authorization: `Bearer ${userToken}`,
+					},
 				}}
 			/>
-			<Button fill name='Done' width='150px' onClick={onDoneClick} disabled={!agreementFiles.length} />
+			<Button
+				fill
+				name='Done'
+				width='150px'
+				onClick={onDoneClick}
+				disabled={!agreementFiles.length}
+			/>
 		</Modal>
 	);
 }

@@ -432,10 +432,6 @@ export default function PanVerification({
 	const [isBusiness, setBusiness] = useState(true);
 
 	const handleFileUpload = files => {
-		console.log(files);
-		// console.table(files);
-		console.log('pan', state);
-		// setLoanDocuments(files); // just added
 		setFile([...files, ...file]);
 		setPanFile([...files, ...file]);
 		setDisableSubmit(false);
@@ -512,9 +508,7 @@ export default function PanVerification({
 					// });
 				} else {
 					//****** setting file in docs for this loan -- loanContext
-					console.log(id, 'id');
 					setPanDocDetails(res.data.doc_details);
-					// res.data.doc_type_id = '30';
 					const file1 = {
 						document_key: res.data.s3.fd,
 						id: Math.random()
@@ -529,9 +523,7 @@ export default function PanVerification({
 						src: 'start',
 					};
 
-					console.log(file1);
 					setLoanDocuments([file1]);
-					//////////////////////////////
 					// this ends here
 					setPan(res.data.data['Pan_number']);
 					localStorage.setItem('pan', res.data.data['Pan_number']);
@@ -815,8 +807,6 @@ export default function PanVerification({
 					setDLAadharVoterError(re.data.message);
 				} else {
 					//****** setting file in docs for this loan -- loanContext
-
-					// re.data.doc_type_id = '31';
 					setOtherDocDetails(re.data.doc_details);
 					const myfile = {
 						document_key: re.data.s3.fd,
@@ -832,11 +822,9 @@ export default function PanVerification({
 						src: 'start',
 					};
 
-					console.log(myfile);
 					setLoanDocuments([myfile]);
-					//////////////////////////////
 					// this ends here
-					// console.log('file', file);
+
 					const formData2 = new FormData();
 					formData1.append('product_id', product_id);
 					formData2.append('req_type', fileType);
@@ -863,9 +851,7 @@ export default function PanVerification({
 								src: 'start',
 							};
 
-							// console.log(myfile2);
 							setLoanDocuments([myfile2]);
-							//////////////////////////////
 							// this ends here
 
 							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
@@ -944,9 +930,7 @@ export default function PanVerification({
 						src: 'start',
 					};
 
-					// console.log(file2);
 					setLoanDocuments([file2]);
-					//////////////////////////////
 					// this ends here
 
 					const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
