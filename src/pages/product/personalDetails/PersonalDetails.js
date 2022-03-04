@@ -176,12 +176,10 @@ export default function PersonalDetailsPage({
 				});
 			} else {
 				docTypesList?.data?.kyc_doc.filter(doc => {
-					if (doc.name.includes('KYC Documents')) {
+					if (doc.name.includes('Applicant and Co-Applicant(s) PANCARD(s)')) {
 						panDocType = doc;
 						return doc;
-					} else if (
-						doc.name.includes('Applicant and Co-Applicant(s) PANCARD(s)')
-					) {
+					} else if (doc.name.includes('KYC Documents')) {
 						panDocType = doc;
 						return doc;
 					} else if (doc.name.includes('Proprietor Pan Card')) {
@@ -202,10 +200,7 @@ export default function PersonalDetailsPage({
 				});
 			} else {
 				docTypesList?.data?.kyc_doc.filter(doc => {
-					if (doc.name.toLowerCase().includes('adhar')) {
-						otherDocType = doc;
-						return doc;
-					} else if (doc.name.toLowerCase().includes('aadhaar')) {
+					if (doc.name.includes('KYC Documents')) {
 						otherDocType = doc;
 						return doc;
 					} else if (

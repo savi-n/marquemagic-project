@@ -941,7 +941,7 @@ export default function FileUpload({
 					</UploadCircle>
 				</Dropzone>
 			)}
-			{agreementDocShowMsg && displayTagMessage ? (
+			{displayTagMessage ? (
 				<WarningMessage>
 					{' '}
 					Click on <FileTypeSmallIcon
