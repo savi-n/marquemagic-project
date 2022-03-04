@@ -112,7 +112,6 @@ export default function FormController({
 	const { addToast } = useToasts();
 
 	useEffect(() => {
-		// console.log('idprod', productId);
 		if (id === 'vehicle-loan-details') {
 			getBranchOptions();
 		}
@@ -179,7 +178,6 @@ export default function FormController({
 		// Loan Against Property Individual Loan
 		// console.log('formcontroller-onProceed-productDetails-', productDetails);
 		if (id === 'business-details') {
-			// console.log('is here');
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
 				data: {
@@ -193,7 +191,6 @@ export default function FormController({
 				},
 			});
 
-			// console.log('form-state values = ', formState);
 			const userDetailsRes = userDetailsReq.data;
 
 			const url = window.location.hostname;
@@ -266,7 +263,6 @@ export default function FormController({
 				productDetails.loanType.includes('Working')
 					? 'business'
 					: 'salaried';
-			// console.log('applicantData', applicantData);
 
 			const docTypesList = await newRequest(
 				DOCTYPES_FETCH,
@@ -285,13 +281,10 @@ export default function FormController({
 				{ Authorization: `Bearer ${userDetailsRes.token}` }
 			);
 
-			// console.log('docTypesList', docTypesList);
 			const kycDocsFromApi = docTypesList?.data?.kyc_doc.map(doc => {
 				return doc.doc_type_id;
 			});
 
-			// console.log('form-contr', state.documents);
-			// console.log('state', state);
 			let panDocType = null;
 			if (state.panDocDetails.length > 0) {
 				state.panDocDetails.filter(doc => {
@@ -325,7 +318,6 @@ export default function FormController({
 					doc.typeName = panDocType.name;
 				}
 			});
-			// console.log(panDocType);
 
 			// ends here
 		}

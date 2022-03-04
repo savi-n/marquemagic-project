@@ -95,7 +95,6 @@ export default function PersonalDetailsPage({
 
 	const onSave = async data => {
 		// if (!userToken) {
-		console.log('pers-satte', state);
 		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 			method: 'POST',
 			data: {
@@ -143,9 +142,6 @@ export default function PersonalDetailsPage({
 				productDetails.loanType.includes('Working')
 					? 'business'
 					: 'salaried';
-			// console.log('applicantData', applicantData);
-			// console.log(productId[(applicantData?.incomeType)], '---');
-			// console.log(applicantData.incomeType, 'income');
 
 			const docTypesList = await newRequest(
 				DOCTYPES_FETCH,
@@ -164,14 +160,9 @@ export default function PersonalDetailsPage({
 				{ Authorization: `Bearer ${userDataRes.token}` }
 			);
 
-			// console.log('docTypesList', docTypesList);
 			const kycDocsFromApi = docTypesList?.data?.kyc_doc.map(doc => {
 				return doc.doc_type_id;
 			});
-
-			// console.log(kycDocsFromApi);
-			// console.log(state.panDocDetails);
-			// console.log(state.otherDocDetails);
 
 			let panDocType = null,
 				otherDocType = null;
@@ -202,8 +193,6 @@ export default function PersonalDetailsPage({
 				});
 			}
 
-			// console.log(panDocType);
-
 			if (state.otherDocDetails.length > 0) {
 				state.otherDocDetails.filter(doc => {
 					if (!otherDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
@@ -211,7 +200,6 @@ export default function PersonalDetailsPage({
 						return doc;
 					}
 				});
-				// console.log(otherDocType);
 			} else {
 				docTypesList?.data?.kyc_doc.filter(doc => {
 					if (doc.name.toLowerCase().includes('adhar')) {
@@ -269,11 +257,6 @@ export default function PersonalDetailsPage({
 		});
 	};
 
-	// useEffect(() => {
-	// 	console.log('--Perstate', state);
-	// 	console.log('productId', productId);
-	// 	console.log('product details', productDetails);
-	// }, []);
 	const onProceed = async data => {
 		if (
 			Number(formState?.values?.grossIncome) === 0 ||
@@ -295,7 +278,6 @@ export default function PersonalDetailsPage({
 				JSON.stringify({ ...formstate, ...data })
 			);
 			onSave(data);
-			// console.log('data---', data);
 
 			setCompleted(id);
 			onFlowChange(map.main);

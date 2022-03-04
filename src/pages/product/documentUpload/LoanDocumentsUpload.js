@@ -229,7 +229,13 @@ const getAmount = a => {
 	}
 };
 
-function caseCreationDataFormat(data, companyData, productDetails, productId) {
+function caseCreationDataFormat(
+	data,
+	uploaddedDoc,
+	companyData,
+	productDetails,
+	productId
+) {
 	editLoan = localStorage.getItem('editLoan')
 		? JSON.parse(localStorage.getItem('editLoan'))
 		: {};
@@ -413,9 +419,9 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			// origin: "New_UI",
 		},
 		documents: {
-			KYC: fileStructure(data?.documents || [], 'KYC'),
-			others: fileStructure(data?.documents || [], 'Others'),
-			financials: fileStructure(data?.documents || [], 'Financial'),
+			KYC: fileStructure(uploaddedDoc || [], 'KYC'),
+			others: fileStructure(uploaddedDoc || [], 'Others'),
+			financials: fileStructure(uploaddedDoc || [], 'Financial'),
 		},
 		branchId: companyData?.branchId,
 	};
@@ -726,7 +732,6 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		console.log('state useEffect', state);
 		let kycStartingDocs = state.documents;
 		let kycDocsNew = [];
 		if (kycStartingDocs.length > 0) {
@@ -741,8 +746,6 @@ export default function DocumentUpload({
 				if (newDoc.mainType == 'KYC') kycDocsNew.push(newDoc);
 			});
 		}
-		// console.log('kycstart', kycStartingDocs);
-		// console.log('KYCDocNew', kycDocsNew);
 		setStartingKYCDoc(kycDocsNew);
 		getWhiteLabel();
 	}, []);
@@ -829,7 +832,6 @@ export default function DocumentUpload({
 					else newOtr.push(newDoc);
 					return null;
 				});
-				// console.log('newKYC 1', newKyc);
 
 				setPrefilledKycDocs(newKyc);
 				setPrefilledFinancialDocs(newFin);
@@ -921,8 +923,6 @@ export default function DocumentUpload({
 	// };
 
 	const handleFileUpload = async files => {
-		// console.log('loan upload--state--', state);
-		// console.log('files are ', files);
 		setLoanDocuments(files);
 	};
 
@@ -931,7 +931,6 @@ export default function DocumentUpload({
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
-		// console.log('handleDocumentTypeChange-', { fileId, type });
 		setLoanDocumentType(fileId, type);
 	};
 
@@ -946,16 +945,19 @@ export default function DocumentUpload({
 			// Business_details - businessid
 			// loan_details - loanId
 			// director_details - id
+			let uploaddedDoc = state.documents.filter(doc => {
+				if (!doc.requestId) return doc;
+			});
 			const reqBody = caseCreationDataFormat(
 				{
 					...state,
 					productId,
 				},
+				uploaddedDoc,
 				companyDetail,
 				productDetails,
 				productId
 			);
-			// console.log('state-', { ...state });
 
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
@@ -1018,7 +1020,6 @@ export default function DocumentUpload({
 					user_id: +caseRes.data.loan_details.createdUserId,
 				};
 				const token = localStorage.getItem('userTokenCache');
-				console.log('push', uploadCacheDocsArr);
 				await newRequest(
 					UPLOAD_CACHE_DOCS,
 					{

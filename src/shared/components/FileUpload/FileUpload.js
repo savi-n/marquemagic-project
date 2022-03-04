@@ -877,7 +877,6 @@ export default function FileUpload({
 				newObj.push(doc);
 				newMappedFileKYC[+doc.typeId] = newObj;
 			});
-			console.log('new mapped is what -', newMappedFileKYC);
 			setMappedFiles(newMappedFileKYC);
 		}
 	}, []);
@@ -1177,7 +1176,6 @@ export default function FileUpload({
 							</DocumentUploadListRow1>
 							<DocumentUploadListRow2>
 								{mappedDocFiles.map((doc, index) => {
-									console.log(mappedDocFiles, 'mappedDosc');
 									const isViewMoreClicked = viewMore.includes(docType.value);
 									const isViewMore = !isViewMoreClicked && index === 2;
 									if (!isViewMoreClicked && index > 2) return null;
