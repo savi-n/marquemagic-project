@@ -188,7 +188,11 @@ export default function AddressDetailsPage({
 	}, []);
 
 	const r = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
 			return formStat?.values;
 		} else {

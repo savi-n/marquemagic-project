@@ -145,7 +145,11 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		// preData?.[`${field.name}_bank_name`]
 		onSave(data);
 		setCompleted(id);
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			if (map.main === 'cub-document-upload') {
 				map.main = 'document-upload';
 			}
