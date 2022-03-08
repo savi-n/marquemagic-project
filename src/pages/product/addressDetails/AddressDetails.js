@@ -18,7 +18,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -120,7 +120,11 @@ export default function AddressDetailsPage({
 
 	useEffect(() => {
 		async function request() {
-			if (!APP_CLIENT.includes('clix') || !APP_CLIENT.includes('nctestnew')) {
+			if (
+				!APP_CLIENT.includes('clix') ||
+				!APP_CLIENT.includes('nctestnew') ||
+				!APP_CLIENT.includes('yesbank')
+			) {
 				const res = await caseCreationUser();
 			}
 			setCompleted(id);
@@ -161,7 +165,11 @@ export default function AddressDetailsPage({
 	// };
 
 	const r = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
 			return formStat.values;
 		} else {
