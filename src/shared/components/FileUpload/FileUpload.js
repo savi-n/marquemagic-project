@@ -885,24 +885,24 @@ export default function FileUpload({
 			});
 			setMappedFiles(newMappedFileKYC);
 		}
-		// if (startingFinDoc && startingFinDoc.length > 0) {
-		// 	const newMappedFileFin = _.cloneDeep(mappedFiles);
-		// 	startingFinDoc.map(doc => {
-		// 		let newObj = newMappedFileFin[+doc.typeId] || [];
-		// 		newObj.push(doc);
-		// 		newMappedFileFin[+doc.typeId] = newObj;
-		// 	});
-		// 	setMappedFiles(newMappedFileFin);
-		// }
-		// if (startingOtherDoc && startingOtherDoc.length > 0) {
-		// 	const newMappedFileOther = _.cloneDeep(mappedFiles);
-		// 	startingOtherDoc.map(doc => {
-		// 		let newObj = newMappedFileOther[+doc.typeId] || [];
-		// 		newObj.push(doc);
-		// 		newMappedFileOther[+doc.typeId] = newObj;
-		// 	});
-		// 	setMappedFiles(newMappedFileOther);
-		// }
+		if (startingFinDoc && startingFinDoc.length > 0) {
+			const newMappedFileFin = _.cloneDeep(mappedFiles);
+			startingFinDoc.map(doc => {
+				let newObj = newMappedFileFin[+doc.typeId] || [];
+				newObj.push(doc);
+				newMappedFileFin[+doc.typeId] = newObj;
+			});
+			setMappedFiles(newMappedFileFin);
+		}
+		if (startingOtherDoc && startingOtherDoc.length > 0) {
+			const newMappedFileOther = _.cloneDeep(mappedFiles);
+			startingOtherDoc.map(doc => {
+				let newObj = newMappedFileOther[+doc.typeId] || [];
+				newObj.push(doc);
+				newMappedFileOther[+doc.typeId] = newObj;
+			});
+			setMappedFiles(newMappedFileOther);
+		}
 	}, []);
 
 	useEffect(() => {
