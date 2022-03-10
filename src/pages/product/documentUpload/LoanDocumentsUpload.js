@@ -1235,7 +1235,6 @@ export default function DocumentUpload({
 
 		setCaseCreationProgress(true);
 		let docError = false;
-		console.log('state-d	ocuments-', state?.documents);
 		state?.documents?.map(ele => {
 			if (!ele.typeId) {
 				docError = true;
@@ -1457,7 +1456,6 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						{console.log('prefilled docs - ', prefilledOtherDocs)}
 						<Details open={openOtherdoc}>
 							<UploadWrapper open={openOtherdoc}>
 								<FileUpload

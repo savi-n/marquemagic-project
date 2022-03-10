@@ -872,10 +872,6 @@ export default function FileUpload({
 
 	useEffect(() => {
 		initializeComponent();
-		console.log('fileupload fin useffect ', startingFinDoc);
-		console.log('fileupload kyc useffect ', startingKYCDoc);
-		console.log('fileupload other useffect ', startingOtherDoc);
-		console.log('mappedFiles', mappedFiles);
 		if (startingKYCDoc && startingKYCDoc.length > 0) {
 			const newMappedFileKYC = _.cloneDeep(mappedFiles);
 			startingKYCDoc.map(doc => {
