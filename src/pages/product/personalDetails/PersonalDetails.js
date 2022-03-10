@@ -307,7 +307,11 @@ export default function PersonalDetailsPage({
 	const r = () => {
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
 		const appData = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			let form =
 				(appData && Object.keys(appData).length > 0 && appData) ||
 				formatPersonalDetails(editLoanData?.business_id) ||
@@ -331,7 +335,11 @@ export default function PersonalDetailsPage({
 	};
 
 	const getAdhar = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
 				localStorage.getItem('aadhar');
@@ -351,7 +359,11 @@ export default function PersonalDetailsPage({
 	};
 
 	const getDOB = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate')) ||
 				JSON.parse(localStorage.getItem('formstatepan'));
