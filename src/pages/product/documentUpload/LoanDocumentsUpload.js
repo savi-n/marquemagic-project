@@ -677,6 +677,8 @@ export default function DocumentUpload({
 	const [prefilledOtherDocs, setPrefilledOtherDocs] = useState([]);
 	// const [documentChecklist, setDocumentChecklist] = useState([]);
 	const [startingKYCDoc, setStartingKYCDoc] = useState([]);
+	const [startingFinDoc, setStartingFinDoc] = useState([]);
+	const [startingOtherDoc, setStartingOtherDoc] = useState([]);
 
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
@@ -736,10 +738,13 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		let kycStartingDocs = state.documents;
+		console.log('useEffect - ', state.documents);
+		let startingDocs = state.documents;
 		let kycDocsNew = [];
-		if (kycStartingDocs.length > 0) {
-			kycStartingDocs.map(doc => {
+		let finDocsNew = [];
+		let otherDocsNew = [];
+		if (startingDocs.length > 0) {
+			startingDocs.map(doc => {
 				let newDoc = {
 					...doc,
 					name: doc.upload_doc_name,
@@ -748,9 +753,13 @@ export default function DocumentUpload({
 					file: null,
 				};
 				if (newDoc.mainType == 'KYC') kycDocsNew.push(newDoc);
+				else if (newDoc.mainType == 'Financial') finDocsNew.push(newDoc);
+				else if (newDoc.mainType == 'Others') otherDocsNew.push(newDoc);
 			});
 		}
 		setStartingKYCDoc(kycDocsNew);
+		setStartingFinDoc(finDocsNew);
+		setStartingOtherDoc(otherDocsNew);
 		getWhiteLabel();
 	}, []);
 
@@ -1226,7 +1235,6 @@ export default function DocumentUpload({
 
 		setCaseCreationProgress(true);
 		let docError = false;
-		console.log('state-d	ocuments-', state?.documents);
 		state?.documents?.map(ele => {
 			if (!ele.typeId) {
 				docError = true;
@@ -1396,6 +1404,7 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
+									startingFinDoc={startingFinDoc}
 									prefilledDocs={prefilledFinancialDocs}
 									sectionType='financial'
 									section={'document-upload'}
@@ -1450,6 +1459,7 @@ export default function DocumentUpload({
 						<Details open={openOtherdoc}>
 							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
+									startingOtherDoc={startingOtherDoc}
 									prefilledDocs={prefilledOtherDocs}
 									sectionType='others'
 									section={'document-upload'}

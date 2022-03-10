@@ -522,6 +522,8 @@ export default function FileUpload({
 	errorMessage = '',
 	prefilledDocs = [],
 	startingKYCDoc = [],
+	startingFinDoc = [],
+	startingOtherDoc = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -878,6 +880,24 @@ export default function FileUpload({
 				newMappedFileKYC[+doc.typeId] = newObj;
 			});
 			setMappedFiles(newMappedFileKYC);
+		}
+		if (startingFinDoc && startingFinDoc.length > 0) {
+			const newMappedFileFin = _.cloneDeep(mappedFiles);
+			startingFinDoc.map(doc => {
+				let newObj = newMappedFileFin[+doc.typeId] || [];
+				newObj.push(doc);
+				newMappedFileFin[+doc.typeId] = newObj;
+			});
+			setMappedFiles(newMappedFileFin);
+		}
+		if (startingOtherDoc && startingOtherDoc.length > 0) {
+			const newMappedFileOther = _.cloneDeep(mappedFiles);
+			startingOtherDoc.map(doc => {
+				let newObj = newMappedFileOther[+doc.typeId] || [];
+				newObj.push(doc);
+				newMappedFileOther[+doc.typeId] = newObj;
+			});
+			setMappedFiles(newMappedFileOther);
 		}
 	}, []);
 
