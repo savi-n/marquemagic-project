@@ -1,5 +1,5 @@
 // active personal details
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
@@ -11,12 +11,15 @@ import Button from '../../../components/Button';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
+import { BussinesContext } from '../../../reducer/bussinessReducer';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { AppContext } from '../../../reducer/appReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import {
 	LOGIN_CREATEUSER,
 	NC_STATUS_CODE,
 	WHITELABEL_ENCRYPTION_API,
+	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 
@@ -52,7 +55,15 @@ const valueConversion = {
 	One: 1,
 };
 
-export default function PersonalDetailsPage({ id, map, onFlowChange }) {
+export default function PersonalDetailsPage({
+	id,
+	productDetails,
+	map,
+	onFlowChange,
+	productId,
+}) {
+	const { state } = useContext(LoanFormContext);
+
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
@@ -69,6 +80,10 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		actions: { setUserDetails, setUserId },
 	} = useContext(UserContext);
 
+	const {
+		state: { companyDetail },
+	} = useContext(BussinesContext);
+
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
@@ -79,56 +94,153 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onSave = async data => {
-		if (!userToken) {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: {
-					email: data.email,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: data.firstName,
-					mobileNo: data.mobileNo,
-					addrr1: '',
-					addrr2: '',
+		// if (!userToken) {
+		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+			method: 'POST',
+			data: {
+				email: data.email,
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: data.firstName,
+				mobileNo: data.mobileNo,
+				addrr1: '',
+				addrr2: '',
+			},
+		});
+
+		const userDataRes = userDetailsReq.data;
+
+		if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
+			localStorage.setItem('userToken', userDataRes.token);
+
+			const encryptWhiteLabelReq = await newRequest(
+				WHITELABEL_ENCRYPTION_API,
+				{
+					method: 'GET',
 				},
+				{ Authorization: `Bearer ${userDataRes.token}` }
+			);
+
+			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+			localStorage.setItem(
+				'encryptWhiteLabel',
+				encryptWhiteLabelRes.encrypted_whitelabel[0]
+			);
+
+			//***** here
+
+			let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer
+				?.user.applicantData;
+			const companyData =
+				localStorage.getItem('companyData') &&
+				JSON.parse(localStorage.getItem('companyData'));
+			const API_TOKEN = localStorage.getItem('userToken');
+			const idType =
+				productDetails.loanType.includes('Business') ||
+				productDetails.loanType.includes('LAP') ||
+				productDetails.loanType.includes('Working')
+					? 'business'
+					: 'salaried';
+			const docTypesList = await newRequest(
+				DOCTYPES_FETCH,
+				{
+					method: 'POST',
+					data: {
+						business_type:
+							data.incomeType === 'salaried'
+								? 7
+								: data.incomeType === 'selfemployed'
+								? 18
+								: companyData?.BusinessType
+								? companyData?.BusinessType
+								: 1,
+						loan_product: productId[(data?.incomeType)] || productId[idType],
+					},
+				},
+				{ Authorization: `Bearer ${userDataRes.token}` }
+			);
+
+			const kycDocsFromApi = docTypesList?.data?.kyc_doc.map(doc => {
+				return doc.doc_type_id;
 			});
 
-			const userDataRes = userDetailsReq.data;
+			let panDocType = null,
+				otherDocType = null;
 
-			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-				localStorage.setItem('userToken', userDataRes.token);
-
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
-					},
-					{ Authorization: `Bearer ${userDataRes.token}` }
-				);
-
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				localStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
+			if (state.panDocDetails.length > 0) {
+				state.panDocDetails.filter(doc => {
+					if (!panDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
+						panDocType = doc;
+						return doc;
+					}
+				});
+			} else {
+				docTypesList?.data?.kyc_doc.filter(doc => {
+					if (doc.name.includes('Applicant and Co-Applicant(s) PANCARD(s)')) {
+						panDocType = doc;
+						return doc;
+					} else if (doc.name.includes('KYC Documents')) {
+						panDocType = doc;
+						return doc;
+					} else if (doc.name.includes('Proprietor Pan Card')) {
+						panDocType = doc;
+						return doc;
+					} else {
+						panDocType = doc;
+					}
+				});
 			}
 
-			const userData = {
-				// userAccountToken: userDetailsReq.accToken,
-				// userDetails: userDetailsReq.userDetails,
-				// userBankDetails: userDetailsReq.cubDetails,
-				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
-				userToken: userDataRes.token,
-			};
-			setUserId(userDataRes.userId);
-			setUserDetails(userData);
-			setUsertypeBankData({
-				bankId: userDataRes.bankId,
-				branchId: userDataRes.branchId,
+			if (state.otherDocDetails.length > 0) {
+				state.otherDocDetails.filter(doc => {
+					if (!otherDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
+						otherDocType = doc;
+						return doc;
+					}
+				});
+			} else {
+				docTypesList?.data?.kyc_doc.filter(doc => {
+					if (doc.name.includes('KYC Documents')) {
+						otherDocType = doc;
+						return doc;
+					} else if (
+						doc.name.includes('Applicant and Co-Applicant(s) Address Proof')
+					) {
+						otherDocType = doc;
+						return doc;
+					} else {
+						otherDocType = doc;
+					}
+				});
+			}
+			state.documents.map(doc => {
+				if (doc.type == 'pan' && panDocType) {
+					doc.typeId = panDocType.doc_type_id;
+					doc.typeName = panDocType.name;
+				} else if (doc.type == 'other' && otherDocType) {
+					doc.typeId = otherDocType.doc_type_id;
+					doc.typeName = otherDocType.name;
+				}
 			});
+			// ends here
 		}
+
+		const userData = {
+			// userAccountToken: userDetailsReq.accToken,
+			// userDetails: userDetailsReq.userDetails,
+			// userBankDetails: userDetailsReq.cubDetails,
+			bankId: userDataRes.bankId,
+			branchId: userDataRes.branchId,
+			userToken: userDataRes.token,
+		};
+		setUserId(userDataRes.userId);
+		setUserDetails(userData);
+		setUsertypeBankData({
+			bankId: userDataRes.bankId,
+			branchId: userDataRes.branchId,
+		});
+		// }
 
 		setUsertypeApplicantData({
 			...data,
@@ -141,7 +253,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 		});
 	};
 
-	const onProceed = data => {
+	const onProceed = async data => {
 		if (
 			Number(formState?.values?.grossIncome) === 0 ||
 			Number(formState?.values?.netMonthlyIncome) === 0
@@ -162,6 +274,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				JSON.stringify({ ...formstate, ...data })
 			);
 			onSave(data);
+
 			setCompleted(id);
 			onFlowChange(map.main);
 		}
@@ -170,7 +283,12 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const formatPersonalDetails = personalDetails => {
 		return {
 			firstName: personalDetails?.businessname,
-			incomeType: personalDetails?.businesstype === 1 ? 'business' : 'salaried',
+			incomeType:
+				personalDetails?.businesstype === 1
+					? 'business'
+					: personalDetails?.businesstype === 18
+					? 'selfemployed'
+					: 'salaried',
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
@@ -189,7 +307,11 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	const r = () => {
 		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
 		const appData = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			let form =
 				(appData && Object.keys(appData).length > 0 && appData) ||
 				formatPersonalDetails(editLoanData?.business_id) ||
@@ -204,7 +326,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 				(Object.keys(JSON.parse(userTokensss)?.formReducer?.user?.applicantData)
 					.length > 0 &&
 					JSON.parse(userTokensss)?.formReducer?.user?.applicantData) ||
-				formatPersonalDetails(editLoanData.business_id) ||
+				formatPersonalDetails(editLoanData?.business_id) ||
 				{};
 
 			if (form) return form;
@@ -213,7 +335,11 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const getAdhar = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
 				localStorage.getItem('aadhar');
@@ -233,7 +359,11 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const getDOB = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate')) ||
 				JSON.parse(localStorage.getItem('formstatepan'));
@@ -309,6 +439,7 @@ export default function PersonalDetailsPage({ id, map, onFlowChange }) {
 					residenceStatus: r()?.residentTypess || '',
 					aadhaar: getAdhar() || r()?.aadhar || '',
 					countryResidence: r()?.countryResidence || 'india',
+					incomeType: r()?.incomeType || '',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}

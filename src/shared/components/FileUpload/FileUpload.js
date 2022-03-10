@@ -494,6 +494,7 @@ const DocumentUploadNameToolTip = styled.div`
 	padding: 5px;
 `;
 export default function FileUpload({
+	agreementDocShowMsg = true,
 	onDrop,
 	accept = '',
 	caption,
@@ -520,6 +521,7 @@ export default function FileUpload({
 	aadharVoterDl = false,
 	errorMessage = '',
 	prefilledDocs = [],
+	startingKYCDoc = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -730,14 +732,14 @@ export default function FileUpload({
 		setDragging(false);
 		if (pan && disabled) {
 			addToast({
-				message: `Only one document is allwed for pan card.!`,
+				message: `Only one document is allowed for pan card.!`,
 				type: 'error',
 			});
 			return false;
 		}
 		if (pan && event.dataTransfer.files.length > 1) {
 			addToast({
-				message: `Only one document is allwed for pan card.!`,
+				message: `Only one document is allowed to upload at one time!`,
 				type: 'error',
 			});
 			return false;
@@ -868,6 +870,15 @@ export default function FileUpload({
 
 	useEffect(() => {
 		initializeComponent();
+		if (startingKYCDoc && startingKYCDoc.length > 0) {
+			const newMappedFileKYC = _.cloneDeep(mappedFiles);
+			startingKYCDoc.map(doc => {
+				let newObj = newMappedFileKYC[+doc.typeId] || [];
+				newObj.push(doc);
+				newMappedFileKYC[+doc.typeId] = newObj;
+			});
+			setMappedFiles(newMappedFileKYC);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -1223,31 +1234,35 @@ export default function FileUpload({
 													)}
 												</PasswordWrapper>
 											)}
-											<ImgClose
-												style={{ height: '20px' }}
-												src={isViewMore ? imgArrowDownCircle : imgClose}
-												onClick={() => {
-													// console.log('before-remove-', {
-													// 	passwordList,
-													// 	docTypeFileMap,
-													// 	doc,
-													// });
-													const newPasswordList = passwordList.filter(
-														p => p !== uniqPassId
-													);
-													const newDocTypeFileMap = _.cloneDeep(docTypeFileMap);
-													delete newDocTypeFileMap[doc.docTypeKey];
-													// console.log('after-remove-', {
-													// 	newPasswordList,
-													// 	newDocTypeFileMap,
-													// 	doc,
-													// });
-													onFileRemove(doc, docType);
-													setDocTypeFileMap(newDocTypeFileMap);
-													setPasswordList(newPasswordList);
-												}}
-												alt='close'
-											/>
+											{doc?.src == 'start' ? null : (
+												<ImgClose
+													style={{ height: '20px' }}
+													src={isViewMore ? imgArrowDownCircle : imgClose}
+													onClick={() => {
+														// console.log('before-remove-', {
+														// 	passwordList,
+														// 	docTypeFileMap,
+														// 	doc,
+														// });
+														const newPasswordList = passwordList.filter(
+															p => p !== uniqPassId
+														);
+														const newDocTypeFileMap = _.cloneDeep(
+															docTypeFileMap
+														);
+														delete newDocTypeFileMap[doc.docTypeKey];
+														// console.log('after-remove-', {
+														// 	newPasswordList,
+														// 	newDocTypeFileMap,
+														// 	doc,
+														// });
+														onFileRemove(doc, docType);
+														setDocTypeFileMap(newDocTypeFileMap);
+														setPasswordList(newPasswordList);
+													}}
+													alt='close'
+												/>
+											)}
 										</File>
 									);
 								})}

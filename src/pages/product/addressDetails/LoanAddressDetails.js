@@ -10,8 +10,9 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import { APP_CLIENT } from '../../../_config/app.config';
+import { APP_CLIENT, DOCTYPES_FETCH } from '../../../_config/app.config';
 import { useEffect } from 'react';
+import useFetch from '../../../hooks/useFetch';
 
 const Div = styled.div`
 	flex: 1;
@@ -103,7 +104,9 @@ export default function AddressDetailsPage({
 	map,
 	fieldConfig,
 	productDetails,
+	productId,
 }) {
+	const { newRequest } = useFetch();
 	const url = window.location.hostname;
 
 	let userTokensss = localStorage.getItem(url);
@@ -167,7 +170,7 @@ export default function AddressDetailsPage({
 	//     activateSubFlow(id);
 	//     onFlowChange(map.sub);
 	//   };
-	useEffect(() => {
+	useEffect(async () => {
 		!isBusiness &&
 			form &&
 			form.address &&
@@ -185,7 +188,11 @@ export default function AddressDetailsPage({
 	}, []);
 
 	const r = () => {
-		if (APP_CLIENT.includes('clix') || APP_CLIENT.includes('nctestnew')) {
+		if (
+			APP_CLIENT.includes('clix') ||
+			APP_CLIENT.includes('nctestnew') ||
+			APP_CLIENT.includes('yesbank')
+		) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
 			return formStat?.values;
 		} else {

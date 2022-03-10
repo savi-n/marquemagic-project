@@ -166,7 +166,7 @@ export default function CoapplicantDetails({
 	}, [proceed]);
 
 	const onProceed = async data => {
-		console.log('CoapplicantDetails-', data);
+		// console.log('CoapplicantDetails-', data);
 		saveData(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -178,7 +178,8 @@ export default function CoapplicantDetails({
 		// }
 	};
 
-	const {
+	// console.log('coapplicantdetails-guaranter-state', state);
+	let {
 		aadhaar,
 		countryResidence,
 		dob,
@@ -192,9 +193,43 @@ export default function CoapplicantDetails({
 	} =
 		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 			?.applicantData || {};
-	const { address1, address2, address3, address4, city, pinCode } =
+	let {
+		address1,
+		address2,
+		address3,
+		address4,
+		city,
+		state: addState,
+		pinCode,
+	} =
 		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 			?.applicantData?.address[0] || {};
+
+	const editLoan = JSON.parse(localStorage.getItem('editLoan'));
+	if (editLoan && editLoan?.id) {
+		const director = editLoan?.director_details.filter(
+			d => d.type_name === 'Guarantor'
+		);
+		// console.log('filtered-director-', director);
+		firstName = director[0]?.dfirstname;
+		lastName = director[0]?.dlastname;
+		incomeType = director[0]?.income_type;
+		aadhaar = director[0]?.daadhaar;
+		countryResidence = director[0]?.country_residence;
+		dob = director[0]?.ddob;
+		email = director[0]?.demail;
+		mobileNo = director[0]?.dcontact;
+		panNumber = director[0]?.dpancard;
+		residenceStatus = director[0]?.residence_status;
+
+		address1 = director[0]?.address1;
+		address2 = director[0]?.address2;
+		address3 = director[0]?.address3;
+		address4 = director[0]?.address4;
+		city = director[0]?.city;
+		addState = director[0]?.state;
+		pinCode = director[0]?.pincode;
+	}
 
 	return (
 		<Div>
@@ -230,6 +265,7 @@ export default function CoapplicantDetails({
 					address4: address4 || '',
 					city: city || '',
 					pinCode: pinCode || '',
+					state: addState || '',
 				}}
 			/>
 			<ButtonWrap>
