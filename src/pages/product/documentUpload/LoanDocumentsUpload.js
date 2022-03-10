@@ -280,7 +280,7 @@ function caseCreationDataFormat(data, companyData, productDetails, productId) {
 			businesspancardnumber: form?.panNumber || companyData?.panNumber,
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
-			// businessstartdate: data['business-details'].BusinessVintage,
+			businessstartdate: data['business-details'].BusinessVintage,
 			// corporateid: companyData.CIN
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
