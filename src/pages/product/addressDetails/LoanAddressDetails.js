@@ -191,7 +191,8 @@ export default function AddressDetailsPage({
 		if (
 			APP_CLIENT.includes('clix') ||
 			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
+			APP_CLIENT.includes('yesbank') ||
+			APP_CLIENT.includes('federalbank')
 		) {
 			var formStat = JSON.parse(localStorage.getItem('formstate'));
 			return formStat?.values;

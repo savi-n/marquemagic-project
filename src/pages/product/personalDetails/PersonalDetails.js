@@ -310,7 +310,8 @@ export default function PersonalDetailsPage({
 		if (
 			APP_CLIENT.includes('clix') ||
 			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
+			APP_CLIENT.includes('yesbank') ||
+			APP_CLIENT.includes('federalbank')
 		) {
 			let form =
 				(appData && Object.keys(appData).length > 0 && appData) ||
@@ -338,7 +339,8 @@ export default function PersonalDetailsPage({
 		if (
 			APP_CLIENT.includes('clix') ||
 			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
+			APP_CLIENT.includes('yesbank') ||
+			APP_CLIENT.includes('federalbank')
 		) {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
@@ -362,7 +364,8 @@ export default function PersonalDetailsPage({
 		if (
 			APP_CLIENT.includes('clix') ||
 			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
+			APP_CLIENT.includes('yesbank') ||
+			APP_CLIENT.includes('federalbank')
 		) {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate')) ||

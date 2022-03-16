@@ -148,7 +148,8 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		if (
 			APP_CLIENT.includes('clix') ||
 			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
+			APP_CLIENT.includes('yesbank') ||
+			APP_CLIENT.includes('federalbank')
 		) {
 			if (map.main === 'cub-document-upload') {
 				map.main = 'document-upload';
