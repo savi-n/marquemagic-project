@@ -524,6 +524,7 @@ export default function FileUpload({
 	startingKYCDoc = [],
 	startingFinDoc = [],
 	startingOtherDoc = [],
+	startingUnTaggedDocs = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -553,26 +554,30 @@ export default function FileUpload({
 	let refCounter = 0;
 
 	const onCancel = (file, status) => {
-		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
+		const newUploadingFiles = _.cloneDeep(uploadingFiles);
+		uploadingProgressFiles.current.map(uFile => {
 			if (uFile.id === file.id) {
 				return {
 					...uFile,
 					status,
 				};
 			}
-
-			return uFile;
+			newUploadingFiles.push(uFile);
+			return null;
 		});
-		uploadingProgressFiles.current = uploadFiles;
-		setUploadingFiles(uploadFiles);
+		uploadingProgressFiles.current = newUploadingFiles;
+		setUploadingFiles(newUploadingFiles);
 	};
 
 	const onFileRemove = (file, docType = false) => {
 		!aadharVoterDl && setDocs && setDocs([]);
-		const uploadFiles = uploadingProgressFiles.current.filter(
-			uFile => uFile.id !== file.id
-		);
-		uploadingProgressFiles.current = uploadFiles;
+		// in case of remove file we don't need previous uploaded files
+		const newUploadingFiles = [];
+		uploadingProgressFiles.current.map(uFile => {
+			if (uFile.id !== file.id) newUploadingFiles.push(uFile);
+			return null;
+		});
+		uploadingProgressFiles.current = newUploadingFiles;
 		if (docType) {
 			const newMappedFile = _.cloneDeep(mappedFiles);
 			const newObj = [];
@@ -583,33 +588,34 @@ export default function FileUpload({
 			setMappedFiles(newMappedFile);
 		}
 		onRemoveFile(file.id);
-		setUploadingFiles(uploadFiles);
+		setUploadingFiles(newUploadingFiles);
 	};
 
 	const onProgress = (event, file) => {
 		if (!uploadingProgressFiles.current.length) {
 			return;
 		}
-
-		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
+		const newUploadingFiles = _.cloneDeep(uploadingFiles);
+		uploadingProgressFiles.current.map(uFile => {
+			uFile.sectionType = sectionType;
 			if (uFile.id === file.id) {
 				const percentageCompleted = (
 					(event.loaded / event.total) *
 					100
 				).toFixed();
-
-				return {
+				newUploadingFiles.push({
 					...uFile,
 					progress: percentageCompleted,
-				};
+				});
+				return null;
 				// status:
 				//     Number(percentageCompleted) === 100 ? "completed" : "progress",
 			}
-
-			return uFile;
+			newUploadingFiles.push(uFile);
+			return null;
 		});
-		uploadingProgressFiles.current = uploadFiles;
-		setUploadingFiles(_.cloneDeep(uploadFiles));
+		uploadingProgressFiles.current = newUploadingFiles;
+		setUploadingFiles(_.cloneDeep(newUploadingFiles));
 	};
 
 	const handleUpload = async files => {
@@ -626,10 +632,11 @@ export default function FileUpload({
 				progress: 0,
 				status: 'progress',
 				cancelToken: source,
+				sectionType,
 			});
 		}
-
 		uploadingProgressFiles.current = [
+			..._.cloneDeep(uploadingFiles),
 			..._.cloneDeep(uploadingProgressFiles.current),
 			...filesToUpload,
 		];
@@ -661,6 +668,7 @@ export default function FileUpload({
 									upload_doc_name: resFile.filename,
 									document_key: resFile.fd,
 									size: resFile.size,
+									sectionType,
 								};
 
 								if (docsPush) {
@@ -693,14 +701,17 @@ export default function FileUpload({
 					: setDocs([filesToUpload[0]]);
 				return [filesToUpload[0]];
 			}
-			uploadingProgressFiles.current = uploadingProgressFiles.current.map(
-				files => ({
+
+			const newUploadingFiles = _.cloneDeep(uploadingFiles);
+			uploadingProgressFiles.current.map(files => {
+				newUploadingFiles.push({
 					...files,
 					status: 'completed',
-				})
-			);
-
-			setUploadingFiles(_.cloneDeep(uploadingProgressFiles.current));
+				});
+				return null;
+			});
+			uploadingProgressFiles.current = newUploadingFiles;
+			setUploadingFiles(newUploadingFiles);
 			return files.filter(file => file.status !== 'error');
 		});
 	};
@@ -841,7 +852,6 @@ export default function FileUpload({
 		try {
 			setLoading(true);
 			if (prefilledDocs && prefilledDocs?.length > 0) {
-				// setUploadingFiles(_.cloneDeep(prefilledDocs));
 				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
 				const newMappedFile = _.cloneDeep(mappedFiles);
 				const newDocTypeFileMap = {
@@ -863,42 +873,52 @@ export default function FileUpload({
 				setDocTypeFileMap(newDocTypeFileMap);
 				setMappedFiles(newMappedFile);
 			}
+			// console.log('starting-docs-', {
+			// 	startingKYCDoc,
+			// 	startingFinDoc,
+			// 	startingOtherDoc,
+			// 	startingUnTaggedDocs,
+			// });
+			if (startingKYCDoc && startingKYCDoc.length > 0) {
+				const newMappedFileKYC = _.cloneDeep(mappedFiles);
+				startingKYCDoc.map(doc => {
+					let newObj = newMappedFileKYC[+doc.typeId] || [];
+					newObj.push(doc);
+					newMappedFileKYC[+doc.typeId] = newObj;
+				});
+				setMappedFiles(newMappedFileKYC);
+			}
+			if (startingFinDoc && startingFinDoc.length > 0) {
+				const newMappedFileFin = _.cloneDeep(mappedFiles);
+				startingFinDoc.map(doc => {
+					let newObj = newMappedFileFin[+doc.typeId] || [];
+					newObj.push(doc);
+					newMappedFileFin[+doc.typeId] = newObj;
+				});
+				setMappedFiles(newMappedFileFin);
+			}
+			if (startingOtherDoc && startingOtherDoc.length > 0) {
+				const newMappedFileOther = _.cloneDeep(mappedFiles);
+				startingOtherDoc.map(doc => {
+					let newObj = newMappedFileOther[+doc.typeId] || [];
+					newObj.push(doc);
+					newMappedFileOther[+doc.typeId] = newObj;
+				});
+				setMappedFiles(newMappedFileOther);
+			}
+			if (startingUnTaggedDocs && startingUnTaggedDocs.length > 0) {
+				uploadingProgressFiles.current = startingUnTaggedDocs;
+				setUploadingFiles(startingUnTaggedDocs);
+			}
 			setLoading(false);
 		} catch (err) {
-			setLoading(false);
 			console.log('error-initializnig-fileupload-', err);
+			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
 		initializeComponent();
-		if (startingKYCDoc && startingKYCDoc.length > 0) {
-			const newMappedFileKYC = _.cloneDeep(mappedFiles);
-			startingKYCDoc.map(doc => {
-				let newObj = newMappedFileKYC[+doc.typeId] || [];
-				newObj.push(doc);
-				newMappedFileKYC[+doc.typeId] = newObj;
-			});
-			setMappedFiles(newMappedFileKYC);
-		}
-		if (startingFinDoc && startingFinDoc.length > 0) {
-			const newMappedFileFin = _.cloneDeep(mappedFiles);
-			startingFinDoc.map(doc => {
-				let newObj = newMappedFileFin[+doc.typeId] || [];
-				newObj.push(doc);
-				newMappedFileFin[+doc.typeId] = newObj;
-			});
-			setMappedFiles(newMappedFileFin);
-		}
-		if (startingOtherDoc && startingOtherDoc.length > 0) {
-			const newMappedFileOther = _.cloneDeep(mappedFiles);
-			startingOtherDoc.map(doc => {
-				let newObj = newMappedFileOther[+doc.typeId] || [];
-				newObj.push(doc);
-				newMappedFileOther[+doc.typeId] = newObj;
-			});
-			setMappedFiles(newMappedFileOther);
-		}
 	}, []);
 
 	useEffect(() => {
