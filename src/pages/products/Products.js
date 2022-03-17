@@ -386,8 +386,7 @@ export default function Products() {
 			setLoanList([]);
 			setSearching(false);
 			// alert('Server down, Try after sometimes.!');
-			console.log('error-getStatusCustomer-', error);
-			// console.log('error-getStatusCustomer-response-', error.response);
+			console.log('error-PersonalDetails-getStatusCustomer-', error);
 			// alert(error.response.data.message);
 		}
 	};

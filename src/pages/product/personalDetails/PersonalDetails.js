@@ -304,15 +304,11 @@ export default function PersonalDetailsPage({
 		};
 	};
 
-	const r = () => {
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
-		const appData = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank') ||
-			APP_CLIENT.includes('federalbank')
-		) {
+	const prefilledValues = () => {
+		try {
+			const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+			const appData = JSON.parse(userTokensss)?.formReducer?.user
+				?.applicantData;
 			let form =
 				(appData && Object.keys(appData).length > 0 && appData) ||
 				formatPersonalDetails(editLoanData?.business_id) ||
@@ -322,26 +318,14 @@ export default function PersonalDetailsPage({
 				var formStat = JSON.parse(localStorage.getItem('formstate'));
 				return formStat?.values;
 			}
-		} else {
-			let form =
-				(Object.keys(JSON.parse(userTokensss)?.formReducer?.user?.applicantData)
-					.length > 0 &&
-					JSON.parse(userTokensss)?.formReducer?.user?.applicantData) ||
-				formatPersonalDetails(editLoanData?.business_id) ||
-				{};
-
-			if (form) return form;
-			else return userBankDetails;
+		} catch (error) {
+			console.log('error-PersonalDetails-prefilledValues-', error);
+			return {};
 		}
 	};
 
 	const getAdhar = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank') ||
-			APP_CLIENT.includes('federalbank')
-		) {
+		try {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
 				localStorage.getItem('aadhar');
@@ -355,18 +339,14 @@ export default function PersonalDetailsPage({
 
 				return `${d}`;
 			}
-		} else {
-			return userBankDetails?.aadharNum;
+		} catch (error) {
+			console.log('error-PersonalDetails-getAdhar-', error);
+			return '';
 		}
 	};
 
 	const getDOB = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank') ||
-			APP_CLIENT.includes('federalbank')
-		) {
+		try {
 			var formStat =
 				JSON.parse(localStorage.getItem('formstate')) ||
 				JSON.parse(localStorage.getItem('formstatepan'));
@@ -378,8 +358,9 @@ export default function PersonalDetailsPage({
 
 				return d;
 			}
-		} else {
-			return userBankDetails?.dob;
+		} catch (error) {
+			console.log('error-PersonalDetails-getDOB', error);
+			return '';
 		}
 	};
 
@@ -423,26 +404,30 @@ export default function PersonalDetailsPage({
 				formState={formState}
 				preData={{
 					firstName:
-						r()?.firstName || (getDataFromPan() && getDataFromPan()[0]) || '',
+						prefilledValues()?.firstName ||
+						(getDataFromPan() && getDataFromPan()[0]) ||
+						'',
 					lastName:
-						r()?.lastName || (getDataFromPan() && getDataFromPan()[1]) || '',
+						prefilledValues()?.lastName ||
+						(getDataFromPan() && getDataFromPan()[1]) ||
+						'',
 					dob:
 						getDOB() ||
 						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
-						r()?.dob ||
+						prefilledValues()?.dob ||
 						'',
-					email: r()?.email || '',
-					mobileNo: r()?.mobileNum || '',
+					email: prefilledValues()?.email || '',
+					mobileNo: prefilledValues()?.mobileNum || '',
 					panNumber:
-						r()?.pan ||
+						prefilledValues()?.pan ||
 						JSON.parse(localStorage.getItem('formstatepan'))?.values
 							?.panNumber ||
 						localStorage.getItem('pan') ||
 						'',
-					residenceStatus: r()?.residentTypess || '',
-					aadhaar: getAdhar() || r()?.aadhar || '',
-					countryResidence: r()?.countryResidence || 'india',
-					incomeType: r()?.incomeType || '',
+					residenceStatus: prefilledValues()?.residentTypess || '',
+					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
+					countryResidence: prefilledValues()?.countryResidence || 'india',
+					incomeType: prefilledValues()?.incomeType || '',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}

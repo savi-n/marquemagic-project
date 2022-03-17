@@ -52,7 +52,7 @@ export default function Header({
 				JSON.stringify(corporateDetails)
 			);
 		} catch (error) {
-			console.log('error-getUserDetails-', error);
+			console.log('error-Header-getUserDetails-', error);
 		}
 	};
 
