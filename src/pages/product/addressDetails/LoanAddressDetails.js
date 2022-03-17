@@ -127,10 +127,6 @@ export default function AddressDetailsPage({
 	} = useContext(FormContext);
 
 	const {
-		state: { userBankDetails },
-	} = useContext(UserContext);
-
-	const {
 		state: { companyDetail },
 	} = useContext(BussinesContext);
 
@@ -187,19 +183,16 @@ export default function AddressDetailsPage({
 		}
 	}, []);
 
-	const r = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank') ||
-			APP_CLIENT.includes('federalbank')
-		) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'));
+	const prefilledValues = () => {
+		try {
+			const formStat = JSON.parse(localStorage.getItem('formstate'));
 			return formStat?.values;
-		} else {
-			return userBankDetails;
+		} catch (error) {
+			console.log('error-LoanAddressDetails-prefilledValues-', error);
+			return {};
 		}
 	};
+
 	const formatAddressData = address => {
 		const BAddress = address.map((ele, i) => {
 			return {
@@ -240,12 +233,15 @@ export default function AddressDetailsPage({
 							? Address && Address.address1
 							: companyDetail?.Address
 							? getAddress(companyDetail?.Address)
-							: r()?.address1 || '',
-					address2: (Address && Address.address2) || r()?.address2 || '',
-					address3: (Address && Address.address3) || r()?.address3 || '',
-					address4: (Address && Address.address4) || r()?.address4 || '',
-					city: (Address && Address.city) || r()?.city || '',
-					state: (Address && Address.state) || r()?.state || '',
+							: prefilledValues()?.address1 || '',
+					address2:
+						(Address && Address.address2) || prefilledValues()?.address2 || '',
+					address3:
+						(Address && Address.address3) || prefilledValues()?.address3 || '',
+					address4:
+						(Address && Address.address4) || prefilledValues()?.address4 || '',
+					city: (Address && Address.city) || prefilledValues()?.city || '',
+					state: (Address && Address.state) || prefilledValues()?.state || '',
 					pinCode:
 						Address && Address.pinCode
 							? Address.pinCode
@@ -253,7 +249,7 @@ export default function AddressDetailsPage({
 							? companyDetail?.Address
 								? getPinCode(companyDetail?.Address)
 								: ''
-							: r()?.pin || '',
+							: prefilledValues()?.pin || '',
 				}}
 			/>
 			<ButtonWrap>

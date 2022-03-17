@@ -911,8 +911,8 @@ export default function FileUpload({
 				setUploadingFiles(startingUnTaggedDocs);
 			}
 			setLoading(false);
-		} catch (err) {
-			console.log('error-initializnig-fileupload-', err);
+		} catch (error) {
+			console.log('error-FileUpload-initializeComponent-', error);
 			setLoading(false);
 		}
 	};
