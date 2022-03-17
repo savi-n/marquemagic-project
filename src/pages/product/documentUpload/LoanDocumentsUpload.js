@@ -35,6 +35,7 @@ import BankStatementModal from '../../../components/BankStatementModal';
 import { CaseContext } from '../../../reducer/caseReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
+import Loading from '../../../components/Loading';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -175,6 +176,13 @@ const StyledButton = styled.button`
 		width: 7rem;
 		padding: 0 10px;
 	}
+`;
+
+const LoaderWrapper = styled.div`
+	height: 200px;
+	display: flex;
+	justify-content: center;
+	text-align: center;
 `;
 
 const textForCheckbox = {
@@ -679,6 +687,13 @@ export default function DocumentUpload({
 	const [startingKYCDoc, setStartingKYCDoc] = useState([]);
 	const [startingFinDoc, setStartingFinDoc] = useState([]);
 	const [startingOtherDoc, setStartingOtherDoc] = useState([]);
+	const [startingUnTaggedDocs, setStartingUnTaggedDocs] = useState([]);
+	const [startingUnTaggedKYCDocs, setStartingUnTaggedKYCDocs] = useState([]);
+	const [startingUnTaggedFinDocs, setStartingUnTaggedFinDocs] = useState([]);
+	const [startingUnTaggedOtherDocs, setStartingUnTaggedOtherDocs] = useState(
+		[]
+	);
+	const [loading, setLoading] = useState(false);
 
 	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
 		.applicantData;
@@ -738,11 +753,14 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		console.log('useEffect - ', state.documents);
-		let startingDocs = state.documents;
-		let kycDocsNew = [];
-		let finDocsNew = [];
-		let otherDocsNew = [];
+		// console.log('loan-doc-upload-useEffect - ', state.documents);
+		const startingDocs = state.documents;
+		const newKycDocs = [];
+		const newFinDocs = [];
+		const newOtherDocs = [];
+		const newKycUnTagDocs = [];
+		const newFinUnTagDocs = [];
+		const newOtherUnTagDocs = [];
 		if (startingDocs.length > 0) {
 			startingDocs.map(doc => {
 				let newDoc = {
@@ -752,18 +770,29 @@ export default function DocumentUpload({
 					status: 'completed',
 					file: null,
 				};
-				if (newDoc.mainType == 'KYC') kycDocsNew.push(newDoc);
-				else if (newDoc.mainType == 'Financial') finDocsNew.push(newDoc);
-				else if (newDoc.mainType == 'Others') otherDocsNew.push(newDoc);
+				if (newDoc.mainType == 'KYC') newKycDocs.push(newDoc);
+				else if (newDoc.mainType == 'Financial') newFinDocs.push(newDoc);
+				else if (newDoc.mainType == 'Others') newOtherDocs.push(newDoc);
+				else {
+					if (newDoc.sectionType === 'kyc') newKycUnTagDocs.push(newDoc);
+					else if (newDoc.sectionType === 'financial')
+						newFinUnTagDocs.push(newDoc);
+					else if (newDoc.sectionType === 'others')
+						newOtherUnTagDocs.push(newDoc);
+				}
 			});
 		}
-		setStartingKYCDoc(kycDocsNew);
-		setStartingFinDoc(finDocsNew);
-		setStartingOtherDoc(otherDocsNew);
+		setStartingKYCDoc(newKycDocs);
+		setStartingFinDoc(newFinDocs);
+		setStartingOtherDoc(newOtherDocs);
+		setStartingUnTaggedKYCDocs(newKycUnTagDocs);
+		setStartingUnTaggedFinDocs(newFinUnTagDocs);
+		setStartingUnTaggedOtherDocs(newOtherUnTagDocs);
 		getWhiteLabel();
 	}, []);
 
 	useEffect(() => {
+		setLoading(true);
 		if (response) {
 			// disabled looks unsed code
 			// const getAddressDetails = async () => {
@@ -850,6 +879,7 @@ export default function DocumentUpload({
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
 			}
+			setLoading(false);
 		}
 	}, [response]);
 
@@ -982,7 +1012,7 @@ export default function DocumentUpload({
 				},
 				{
 					authorization: `Bearer ${
-						JSON.parse(userToken).userReducer?.userToken
+						JSON.parse(userToken)?.userReducer?.userToken
 					}`,
 				}
 			);
@@ -1012,7 +1042,7 @@ export default function DocumentUpload({
 						},
 						{
 							authorization: `Bearer ${
-								JSON.parse(userToken).userReducer?.userToken
+								JSON.parse(userToken)?.userReducer?.userToken
 							}`,
 						}
 					);
@@ -1079,7 +1109,7 @@ export default function DocumentUpload({
 				},
 				{
 					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer?.userToken}`,
+						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1113,7 +1143,7 @@ export default function DocumentUpload({
 				},
 				{
 					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer?.userToken}`,
+						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1146,7 +1176,7 @@ export default function DocumentUpload({
 				},
 				{
 					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer?.userToken}`,
+						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1179,7 +1209,7 @@ export default function DocumentUpload({
 				},
 				{
 					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer.userToken}`,
+						JSON.parse(userToken)?.userReducer.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1315,6 +1345,11 @@ export default function DocumentUpload({
 				<H>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
 				</H>
+				{loading && (
+					<LoaderWrapper>
+						<Loading />
+					</LoaderWrapper>
+				)}
 				{KycDocOptions.length > 0 && (
 					<>
 						{' '}
@@ -1346,6 +1381,7 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
+									startingUnTaggedDocs={startingUnTaggedKYCDocs}
 									startingKYCDoc={startingKYCDoc}
 									prefilledDocs={prefilledKycDocs}
 									sectionType='kyc'
@@ -1364,7 +1400,7 @@ export default function DocumentUpload({
 										}),
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
-												JSON.parse(userToken).userReducer?.userToken ||
+												JSON.parse(userToken)?.userReducer?.userToken ||
 												''}`,
 										},
 									}}
@@ -1404,6 +1440,7 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
+									startingUnTaggedDocs={startingUnTaggedFinDocs}
 									startingFinDoc={startingFinDoc}
 									prefilledDocs={prefilledFinancialDocs}
 									sectionType='financial'
@@ -1459,6 +1496,7 @@ export default function DocumentUpload({
 						<Details open={openOtherdoc}>
 							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
+									startingUnTaggedDocs={startingUnTaggedOtherDocs}
 									startingOtherDoc={startingOtherDoc}
 									prefilledDocs={prefilledOtherDocs}
 									sectionType='others'
@@ -1477,7 +1515,7 @@ export default function DocumentUpload({
 										}),
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
-												JSON.parse(userToken).userReducer?.userToken ||
+												JSON.parse(userToken)?.userReducer?.userToken ||
 												''}`,
 										},
 									}}
