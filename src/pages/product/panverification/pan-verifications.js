@@ -1018,6 +1018,7 @@ export default function PanVerification({
 										Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
 									},
 								}}
+								sectionType='pan'
 								pan={true}
 								disabled={panFile.length > 0 ? true : false}
 								onDrop={handleFileUpload}
@@ -1070,6 +1071,7 @@ export default function PanVerification({
 											},
 										}}
 										pan={true}
+										sectionType='pan'
 										onDrop={handleFileUpload}
 										onRemoveFile={e => removeHandler(e, otherDoc, 'DL')}
 										docs={otherDoc}
@@ -1105,6 +1107,7 @@ export default function PanVerification({
 											},
 										}}
 										pan={true}
+										sectionType='pan'
 										onDrop={handleFileUpload}
 										onRemoveFile={e => removeHandler(e, aadhar, 'aadhar')}
 										docs={aadhar}
@@ -1140,6 +1143,7 @@ export default function PanVerification({
 											},
 										}}
 										pan={true}
+										sectionType='pan'
 										onDrop={handleFileUpload}
 										onRemoveFile={e => removeHandler(e, voter, 'voter')}
 										docs={voter}
