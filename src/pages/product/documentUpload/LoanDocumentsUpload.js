@@ -284,7 +284,7 @@ function caseCreationDataFormat(
 	const businessDetails = () => {
 		let corporateDetails = localStorage.getItem('corporateDetails');
 		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
-		if (companyData) {
+		if (!companyData) {
 			companyData =
 				localStorage.getItem('companyData') &&
 				JSON.parse(localStorage.getItem('companyData'));
@@ -332,6 +332,11 @@ function caseCreationDataFormat(
 		}
 		return newBusinessDetails;
 	};
+	if (!companyData) {
+		companyData =
+			localStorage.getItem('companyData') &&
+			JSON.parse(localStorage.getItem('companyData'));
+	}
 
 	const addressArrayMulti =
 		(applicantData &&
