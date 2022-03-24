@@ -721,7 +721,7 @@ export default function FileUpload({
 				});
 				return null;
 			});
-			console.log('file-upload-promise-resolved-', newUploadCompletedFiles);
+			// console.log('file-upload-promise-resolved-', newUploadCompletedFiles);
 			selectedFiles.current = newUploadCompletedFiles;
 			setUploadingFiles(newUploadCompletedFiles);
 			return files.filter(file => file.status !== 'error');
@@ -1324,6 +1324,7 @@ export default function FileUpload({
 														// 	docTypeFileMap,
 														// 	doc,
 														// });
+														if (isViewMore) return;
 														const newPasswordList = passwordList.filter(
 															p => p !== uniqPassId
 														);
