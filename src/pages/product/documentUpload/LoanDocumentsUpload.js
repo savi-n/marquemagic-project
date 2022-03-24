@@ -244,15 +244,24 @@ function caseCreationDataFormat(
 	productDetails,
 	productId
 ) {
+	loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
+	form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	editLoan = localStorage.getItem('editLoan')
 		? JSON.parse(localStorage.getItem('editLoan'))
 		: {};
+	const collateralData = data['collateral-details'];
+	//console.log(
+	//'LoanDoccumentUpload-caseCreationDataFormat-collatralData ',
+	//	collatralData
+	//);
+
 	url = window.location.hostname;
 	userToken = localStorage.getItem(url);
 	let formReducer = JSON.parse(localStorage.getItem(url))?.formReducer;
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
+
 	const idType =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -260,25 +269,28 @@ function caseCreationDataFormat(
 			? 'business'
 			: 'salaried';
 
-	// console.log('case-creation-data-format-', {
-	// 	data,
-	// 	companyData,
-	// 	productDetails,
-	// 	productId,
-	// 	applicantData,
-	// 	loanData,
-	// 	idType,
-	// 	guarantorData,
-	// });
+	/*	console.log('case-creation-data-format-', {
+		data,
+		companyData,
+		productDetails,
+		productId,
+		applicantData,
+		loanData,
+		idType,
+		guarantorData,
+		obj,
+	});*/
 
 	const businessDetails = () => {
 		let corporateDetails = localStorage.getItem('corporateDetails');
 		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
-		if (!companyData) {
+		if (companyData) {
 			companyData =
 				localStorage.getItem('companyData') &&
 				JSON.parse(localStorage.getItem('companyData'));
 		}
+
+		//console.log('corportae Details', corporateDetails);
 		const newBusinessDetails = {
 			first_name: applicantData?.firstName || '',
 			last_name: applicantData?.lastName || '',
@@ -296,15 +308,12 @@ function caseCreationDataFormat(
 					: data['business-details']?.BusinessType
 					? data['business-details']?.BusinessType
 					: 1,
-			business_email:
-				form?.email || companyData?.formEmail || companyData?.Email || '',
+			business_email: applicantData?.email || companyData?.email || '',
 			// business_industry_type: 20,
-			contact:
-				form?.mobileNo ||
-				companyData?.formMobile ||
-				companyData?.mobileNo ||
-				'',
-			businesspancardnumber: form?.panNumber || companyData?.panNumber,
+			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
+
+			businesspancardnumber:
+				applicantData?.panNumber || companyData?.panNumber || '',
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
 			businessstartdate: data['business-details']?.BusinessVintage || '',
@@ -312,8 +321,7 @@ function caseCreationDataFormat(
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
-			aadhaar:
-				form?.aadhaar || applicantData?.aadhaar || companyData?.aadhaar || '',
+			aadhaar: applicantData?.aadhaar || companyData?.aadhaar || '',
 			equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
@@ -324,11 +332,7 @@ function caseCreationDataFormat(
 		}
 		return newBusinessDetails;
 	};
-	if (!companyData) {
-		companyData =
-			localStorage.getItem('companyData') &&
-			JSON.parse(localStorage.getItem('companyData'));
-	}
+
 	const addressArrayMulti =
 		(applicantData &&
 			applicantData?.address &&
@@ -375,6 +379,7 @@ function caseCreationDataFormat(
 		// 	: {}
 		director_details: {},
 		loan_details: {
+			collateral: [collateralData],
 			// loan_type_id: 1,
 			// case_priority: null,
 			// loan_product_id: "10",
