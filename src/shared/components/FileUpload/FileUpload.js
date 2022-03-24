@@ -1128,14 +1128,14 @@ export default function FileUpload({
 								</>
 							)} */}
 
-							{isFileUploaded ? (
+							{isFileUploaded && !uploading ? (
 								<ImgClose
 									src={imgClose}
 									onClick={() => onFileRemove(file)}
 									alt='close'
 								/>
 							) : null}
-							{docTypeOptions?.length > 0 && isFileUploaded && (
+							{docTypeOptions?.length > 0 && isFileUploaded && !uploading && (
 								<Popover
 									isOpen={isPopoverOpen === file.id}
 									align='start'
