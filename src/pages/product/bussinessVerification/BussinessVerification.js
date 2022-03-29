@@ -172,7 +172,7 @@ export default function BussinessDetails({
 					cin_number: cinNumber,
 				},
 			},
-			{ authorization: clientToken }
+			{ Authorization: clientToken }
 		);
 
 		const companyData = cinNumberResponse.data;

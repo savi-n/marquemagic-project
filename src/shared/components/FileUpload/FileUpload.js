@@ -524,9 +524,7 @@ export default function FileUpload({
 	aadharVoterDl = false,
 	errorMessage = '',
 	prefilledDocs = [],
-	startingKYCDoc = [],
-	startingFinDoc = [],
-	startingOtherDoc = [],
+	startingTaggedDocs = [],
 	startingUnTaggedDocs = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
@@ -890,7 +888,8 @@ export default function FileUpload({
 	const initializeComponent = async () => {
 		try {
 			setLoading(true);
-			if (prefilledDocs && prefilledDocs?.length > 0) {
+			// in case of edit_loan
+			if (prefilledDocs && prefilledDocs.length > 0) {
 				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
 				const newMappedFile = _.cloneDeep(mappedFiles);
 				const newDocTypeFileMap = {
@@ -912,41 +911,25 @@ export default function FileUpload({
 				setDocTypeFileMap(newDocTypeFileMap);
 				setMappedFiles(newMappedFile);
 			}
-			if (startingKYCDoc && startingKYCDoc.length > 0) {
-				const newMappedFileKYC = _.cloneDeep(mappedFiles);
-				startingKYCDoc.map(doc => {
-					let newObj = newMappedFileKYC[+doc.typeId] || [];
+			// doc upload section navigation history
+			// + pan adhar dl voter
+			if (startingTaggedDocs && startingTaggedDocs.length > 0) {
+				const newMappedFiles = _.cloneDeep(mappedFiles);
+				startingTaggedDocs.map(doc => {
+					const newObj = newMappedFiles[+doc.typeId] || [];
 					newObj.push(doc);
-					newMappedFileKYC[+doc.typeId] = newObj;
+					newMappedFiles[+doc.typeId] = newObj;
 				});
-				setMappedFiles(newMappedFileKYC);
+				setMappedFiles(newMappedFiles);
 			}
-			if (startingFinDoc && startingFinDoc.length > 0) {
-				const newMappedFileFin = _.cloneDeep(mappedFiles);
-				startingFinDoc.map(doc => {
-					let newObj = newMappedFileFin[+doc.typeId] || [];
-					newObj.push(doc);
-					newMappedFileFin[+doc.typeId] = newObj;
-				});
-				setMappedFiles(newMappedFileFin);
-			}
-			if (startingOtherDoc && startingOtherDoc.length > 0) {
-				const newMappedFileOther = _.cloneDeep(mappedFiles);
-				startingOtherDoc.map(doc => {
-					let newObj = newMappedFileOther[+doc.typeId] || [];
-					newObj.push(doc);
-					newMappedFileOther[+doc.typeId] = newObj;
-				});
-				setMappedFiles(newMappedFileOther);
-			}
+			// doc upload section navigation history
 			if (startingUnTaggedDocs && startingUnTaggedDocs.length > 0) {
 				selectedFiles.current = startingUnTaggedDocs;
 				setUploadingFiles(startingUnTaggedDocs);
 			}
 			// console.log('starting-docs-', {
-			// 	startingKYCDoc,
-			// 	startingFinDoc,
-			// 	startingOtherDoc,
+			// 	prefilledDocs,
+			// 	startingTaggedDocs,
 			// 	startingUnTaggedDocs,
 			// });
 			setLoading(false);

@@ -641,6 +641,7 @@ export default function DocumentUpload({
 	} = useContext(BussinesContext);
 
 	const {
+		state: { flowMap },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
@@ -697,7 +698,6 @@ export default function DocumentUpload({
 	const [startingKYCDoc, setStartingKYCDoc] = useState([]);
 	const [startingFinDoc, setStartingFinDoc] = useState([]);
 	const [startingOtherDoc, setStartingOtherDoc] = useState([]);
-	const [startingUnTaggedDocs, setStartingUnTaggedDocs] = useState([]);
 	const [startingUnTaggedKYCDocs, setStartingUnTaggedKYCDocs] = useState([]);
 	const [startingUnTaggedFinDocs, setStartingUnTaggedFinDocs] = useState([]);
 	const [startingUnTaggedOtherDocs, setStartingUnTaggedOtherDocs] = useState(
@@ -714,21 +714,21 @@ export default function DocumentUpload({
 	let corporateDetails = localStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 
+	const business_income_type_id =
+		applicantData?.incomeType === 'salaried'
+			? 7
+			: applicantData?.incomeType === 'selfemployed'
+			? 18
+			: state['business-details']?.BusinessType || companyData?.BusinessType
+			? state['business-details']?.BusinessType || companyData?.BusinessType
+			: 1;
+
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
 		options: {
 			method: 'POST',
 			data: {
-				business_type:
-					applicantData?.incomeType === 'salaried'
-						? 7
-						: applicantData?.incomeType === 'selfemployed'
-						? 18
-						: state['business-details']?.BusinessType ||
-						  companyData?.BusinessType
-						? state['business-details']?.BusinessType ||
-						  companyData?.BusinessType
-						: 1,
+				business_type: business_income_type_id,
 				loan_product: productId[(form?.incomeType)] || productId[idType],
 			},
 		},
@@ -763,8 +763,24 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		// console.log('loan-doc-upload-useEffect - ', state.documents);
 		const startingDocs = state.documents;
+		// console.log('loan-doc-upload-useEffect-', {
+		// 	startingDocs,
+		// 	flowMap,
+		// 	business_income_type_id,
+		// });
+		const flowDocTypeMappingList = {};
+
+		const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
+		for (const key in JSON_PAN_SECTION) {
+			JSON_PAN_SECTION[key]?.data?.map(d => {
+				if (d.req_type && d.doc_type[`${business_income_type_id}`]) {
+					flowDocTypeMappingList[`${d.req_type}`] =
+						d.doc_type[`${business_income_type_id}`];
+				}
+				return null;
+			});
+		}
 		const newKycDocs = [];
 		const newFinDocs = [];
 		const newOtherDocs = [];
@@ -772,14 +788,18 @@ export default function DocumentUpload({
 		const newFinUnTagDocs = [];
 		const newOtherUnTagDocs = [];
 		if (startingDocs.length > 0) {
-			startingDocs.map(doc => {
-				let newDoc = {
+			/* map typeId here for req_type: pan/aadhar/voter/DL property doc */
+			startingDocs.map((doc, docIndex) => {
+				const newDoc = {
 					...doc,
 					name: doc.upload_doc_name,
 					progress: '100',
 					status: 'completed',
 					file: null,
+					typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
 				};
+				if (newDoc.typeId) startingDocs[docIndex].typeId = newDoc.typeId;
+				// console.log('startingDoc-', { doc, newDoc });
 				if (newDoc.mainType == 'KYC') newKycDocs.push(newDoc);
 				else if (newDoc.mainType == 'Financial') newFinDocs.push(newDoc);
 				else if (newDoc.mainType == 'Others') newOtherDocs.push(newDoc);
@@ -792,6 +812,15 @@ export default function DocumentUpload({
 				}
 			});
 		}
+		// console.log('loan-doc-upload-useEffect-', {
+		// 	flowDocTypeMappingList,
+		// 	newKycDocs,
+		// 	newFinDocs,
+		// 	newOtherDocs,
+		// 	newKycUnTagDocs,
+		// 	newFinUnTagDocs,
+		// 	newOtherUnTagDocs,
+		// });
 		setStartingKYCDoc(newKycDocs);
 		setStartingFinDoc(newFinDocs);
 		setStartingOtherDoc(newOtherDocs);
@@ -1021,7 +1050,7 @@ export default function DocumentUpload({
 					data: reqBody,
 				},
 				{
-					authorization: `Bearer ${
+					Authorization: `Bearer ${
 						JSON.parse(userToken)?.userReducer?.userToken
 					}`,
 				}
@@ -1051,7 +1080,7 @@ export default function DocumentUpload({
 							data: reqBody,
 						},
 						{
-							authorization: `Bearer ${
+							Authorization: `Bearer ${
 								JSON.parse(userToken)?.userReducer?.userToken
 							}`,
 						}
@@ -1059,20 +1088,22 @@ export default function DocumentUpload({
 				}
 
 				//**** uploadCacheDocuments
-				// console.log('final state', state);
-				let uploadCacheDocsArr = [];
-				state.documents.filter(doc => {
+				// console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
+				const uploadCacheDocsArr = [];
+				state.documents.map(doc => {
+					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
+					if (!doc.typeId) return null;
 					if (doc.requestId) {
-						let ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
+						const ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
 						uploadCacheDocsArr.push(ele);
 					}
+					return null;
 				});
-				let uploadCacheDocBody = {
+				const uploadCacheDocBody = {
 					loan_id: caseRes.data.loan_details.id,
 					request_ids_obj: uploadCacheDocsArr,
 					user_id: +caseRes.data.loan_details.createdUserId,
 				};
-				const token = localStorage.getItem('userTokenCache');
 				await newRequest(
 					UPLOAD_CACHE_DOCS,
 					{
@@ -1080,7 +1111,7 @@ export default function DocumentUpload({
 						data: uploadCacheDocBody,
 					},
 					{
-						authorization: clientToken,
+						Authorization: clientToken,
 					}
 				);
 
@@ -1118,7 +1149,7 @@ export default function DocumentUpload({
 					data: subsidiaryDataFormat(caseId, state),
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
@@ -1152,7 +1183,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
@@ -1185,7 +1216,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
@@ -1218,7 +1249,7 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
 						JSON.parse(userToken)?.userReducer.userToken}`,
 				}
 			);
@@ -1276,6 +1307,8 @@ export default function DocumentUpload({
 		setCaseCreationProgress(true);
 		let docError = false;
 		state?.documents?.map(ele => {
+			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
+			if (ele.req_type) return null;
 			if (!ele.typeId) {
 				docError = true;
 				return false;
@@ -1326,7 +1359,7 @@ export default function DocumentUpload({
 	let financialCount = 0;
 	let otherCount = 0;
 
-	const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
+	// const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
 
 	state?.documents?.map(docs => {
 		if (docs.mainType === 'KYC') kyccount++;
@@ -1391,9 +1424,9 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
-									startingUnTaggedDocs={startingUnTaggedKYCDocs}
-									startingKYCDoc={startingKYCDoc}
 									prefilledDocs={prefilledKycDocs}
+									startingTaggedDocs={startingKYCDoc}
+									startingUnTaggedDocs={startingUnTaggedKYCDocs}
 									sectionType='kyc'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1450,9 +1483,9 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
-									startingUnTaggedDocs={startingUnTaggedFinDocs}
-									startingFinDoc={startingFinDoc}
 									prefilledDocs={prefilledFinancialDocs}
+									startingTaggedDocs={startingFinDoc}
+									startingUnTaggedDocs={startingUnTaggedFinDocs}
 									sectionType='financial'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1506,9 +1539,9 @@ export default function DocumentUpload({
 						<Details open={openOtherdoc}>
 							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
-									startingUnTaggedDocs={startingUnTaggedOtherDocs}
-									startingOtherDoc={startingOtherDoc}
 									prefilledDocs={prefilledOtherDocs}
+									startingTaggedDocs={startingOtherDoc}
+									startingUnTaggedDocs={startingUnTaggedOtherDocs}
 									sectionType='others'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
