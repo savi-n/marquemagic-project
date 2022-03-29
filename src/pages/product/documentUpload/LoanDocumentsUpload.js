@@ -789,7 +789,7 @@ export default function DocumentUpload({
 		const newOtherUnTagDocs = [];
 		if (startingDocs.length > 0) {
 			/* map typeId here for req_type: pan/aadhar/voter/DL property doc */
-			startingDocs.map(doc => {
+			startingDocs.map((doc, docIndex) => {
 				const newDoc = {
 					...doc,
 					name: doc.upload_doc_name,
@@ -798,6 +798,7 @@ export default function DocumentUpload({
 					file: null,
 					typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
 				};
+				if (newDoc.typeId) startingDocs[docIndex].typeId = newDoc.typeId;
 				// console.log('startingDoc-', { doc, newDoc });
 				if (newDoc.mainType == 'KYC') newKycDocs.push(newDoc);
 				else if (newDoc.mainType == 'Financial') newFinDocs.push(newDoc);
@@ -1087,22 +1088,22 @@ export default function DocumentUpload({
 				}
 
 				//**** uploadCacheDocuments
-				// console.log('final state', state);
-				let uploadCacheDocsArr = [];
-				state.documents.filter(doc => {
+				// console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
+				const uploadCacheDocsArr = [];
+				state.documents.map(doc => {
 					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 					if (!doc.typeId) return null;
 					if (doc.requestId) {
-						let ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
+						const ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
 						uploadCacheDocsArr.push(ele);
 					}
+					return null;
 				});
-				let uploadCacheDocBody = {
+				const uploadCacheDocBody = {
 					loan_id: caseRes.data.loan_details.id,
 					request_ids_obj: uploadCacheDocsArr,
 					user_id: +caseRes.data.loan_details.createdUserId,
 				};
-				const token = localStorage.getItem('userTokenCache');
 				await newRequest(
 					UPLOAD_CACHE_DOCS,
 					{
