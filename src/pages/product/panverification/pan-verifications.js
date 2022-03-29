@@ -1,8 +1,18 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';
 
+import useForm from '../../../hooks/useForm';
+import useFetch from '../../../hooks/useFetch';
+import { AppContext } from '../../../reducer/appReducer';
+import { BussinesContext } from '../../../reducer/bussinessReducer';
+import { FlowContext } from '../../../reducer/flowReducer';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
+import { useToasts } from '../../../components/Toast/ToastProvider';
+import CompanySelectModal from '../../../components/CompanySelectModal';
+import FileUpload from '../../../shared/components/FileUpload/FileUpload';
 import Button from '../../../components/Button';
+import Modal from '../../../components/Modal';
 import {
 	ROC_DATA_FETCH,
 	LOGIN_CREATEUSER,
@@ -11,25 +21,14 @@ import {
 	NC_STATUS_CODE,
 	APP_CLIENT,
 	DOCS_UPLOAD_URL_LOAN,
-	PINCODE_ADRRESS_FETCH,
-	WHITE_LABEL_URL,
+	// PINCODE_ADRRESS_FETCH,
 } from '../../../_config/app.config';
-import { AppContext } from '../../../reducer/appReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import useForm from '../../../hooks/useForm';
-import useFetch from '../../../hooks/useFetch';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import CompanySelectModal from '../../../components/CompanySelectModal';
-import FileUpload from '../../../shared/components/FileUpload/FileUpload';
 import {
 	getKYCData,
 	verifyPan,
 	gstFetch,
 	getKYCDataId,
 } from '../../../utils/request';
-import Modal from '../../../components/Modal';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -245,6 +244,33 @@ export default function PanVerification({
 
 	const [voterError, setVoterError] = useState('');
 
+	const [selectDoc, selectDocs] = useState(false);
+	const [verificationFailed, setVerificationFailed] = useState('');
+	const [gstNum, setGstNum] = useState(null);
+
+	const [panUpload, setPanUpload] = useState(true);
+	const [file, setFile] = useState([]);
+	const fileRef = useRef([]);
+	const [panFile, setPanFile] = useState([]);
+	const [docs, setDocs] = useState([]);
+	const [panResponse, setPanResponse] = useState(null);
+	const [isBusiness, setBusiness] = useState(true);
+
+	const product_id = localStorage.getItem('productId');
+
+	const [openConfirm, setPanConfirm] = useState(false);
+	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
+	const [otherDoc, setOtherDoc] = useState([]);
+	const [aadhar, setAadhar] = useState([]);
+	const [voter, setVoter] = useState([]);
+	const [panError, setPanError] = useState('');
+
+	const [backUpload, setBackUpload] = useState(false);
+	const [backUploading, setBackUploading] = useState(false);
+	const [disableButton, setDisableSubmit] = useState(false);
+
+	// const userid = '10626';
+
 	useEffect(() => {
 		verificationFailed && setVerificationFailed('');
 	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
@@ -254,6 +280,7 @@ export default function PanVerification({
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
+
 	const [panNum, setPan] = useState('');
 
 	const companyNameSearch = async companyName => {
@@ -341,10 +368,6 @@ export default function PanVerification({
 		}
 	};
 
-	const [selectDoc, selectDocs] = useState(false);
-	const [verificationFailed, setVerificationFailed] = useState('');
-	const [gstNum, setGstNum] = useState(null);
-
 	const gstNumberFetch = async (data, gstNum) => {
 		const companyData = data;
 		if (data?.error_code) {
@@ -384,34 +407,35 @@ export default function PanVerification({
 			JSON.stringify(form.formReducer.user.applicantData)
 		);
 
-		let busniess = form.formReducer.user.applicantData;
+		// dead code
+		// let busniess = form.formReducer.user.applicantData;
 
-		if (busniess && busniess.Address) {
-			const getAddressDetails = async () => {
-				const companyNameSearchReq = await newRequest(
-					PINCODE_ADRRESS_FETCH,
-					{
-						method: 'GET',
-						params: {
-							pinCode: busniess.Address?.pncd || '',
-						},
-					},
-					{}
-				);
+		// if (busniess && busniess.Address) {
+		// 	const getAddressDetails = async () => {
+		// 		const companyNameSearchReq = await newRequest(
+		// 			PINCODE_ADRRESS_FETCH,
+		// 			{
+		// 				method: 'GET',
+		// 				params: {
+		// 					pinCode: busniess.Address?.pncd || '',
+		// 				},
+		// 			},
+		// 			{}
+		// 		);
 
-				// const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
-				const data = companyNameSearchReq.data;
+		// 		// const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }), {});
+		// 		const data = companyNameSearchReq.data;
 
-				busniess = {
-					...busniess,
-					Address: {
-						...busniess.Address,
-						st: data?.state?.[0],
-						city: data?.district?.[0],
-					},
-				};
-			};
-		}
+		// 		busniess = {
+		// 			...busniess,
+		// 			Address: {
+		// 				...busniess.Address,
+		// 				st: data?.state?.[0],
+		// 				city: data?.district?.[0],
+		// 			},
+		// 		};
+		// 	};
+		// }
 
 		onProceed();
 		return;
@@ -422,18 +446,14 @@ export default function PanVerification({
 		onFlowChange(map.main);
 	};
 
-	const [panUpload, setPanUpload] = useState(true);
-	const [file, setFile] = useState([]);
-	const [panFile, setPanFile] = useState([]);
-	const [docs, setDocs] = useState([]);
-	const [dataSelector, setDataSelector] = useState(false);
-	const [selectedData, setData] = useState(null);
-	const [responsee, setResponse] = useState(null);
-	const [isBusiness, setBusiness] = useState(true);
-
 	const handleFileUpload = files => {
-		setFile([...files, ...file]);
-		setPanFile([...files, ...file]);
+		const newFiles = [];
+		fileRef.current.map(f => newFiles.push({ ...f }));
+		files.map(f => newFiles.push({ ...f }));
+		// console.log('pan-verification-handleFileUpload-', { newFiles });
+		setFile(newFiles);
+		fileRef.current = newFiles;
+		setPanFile(newFiles);
 		setDisableSubmit(false);
 		resetAllErrors();
 	};
@@ -449,7 +469,6 @@ export default function PanVerification({
 		removeAllDocuments();
 	}, []);
 
-	const userid = '10626';
 	const removeHandler = (e, doc, name) => {
 		setPanError('');
 		resetAllErrors();
@@ -475,18 +494,9 @@ export default function PanVerification({
 		var index = file.findIndex(x => x.id === e);
 		file.splice(index, 1);
 		setFile(file);
+		fileRef.current = file;
 		setPanFile([]);
 	};
-
-	const product_id = localStorage.getItem('productId');
-
-	const [openConfirm, setPanConfirm] = useState(false);
-	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
-	const [otherDoc, setOtherDoc] = useState([]);
-	const [aadhar, setAadhar] = useState([]);
-	const [voter, setVoter] = useState([]);
-	const [selectedDocType, setSelectedDocType] = useState(null);
-	const [panError, setPanError] = useState('');
 
 	const handlePanUpload = files => {
 		setLoading(true);
@@ -518,6 +528,7 @@ export default function PanVerification({
 						mainType: 'KYC',
 						size: res.data.s3.size,
 						type: 'pan',
+						req_type: 'pan', // requires for mapping with JSON
 						requestId: res.data.request_id,
 						upload_doc_name: res.data.s3.filename,
 						src: 'start',
@@ -563,10 +574,11 @@ export default function PanVerification({
 						}
 						setPanConfirm(true);
 					}
-					setResponse(res.data);
+					setPanResponse(res.data);
 				}
 				setLoading(false);
 				setFile([]);
+				fileRef.current = [];
 			})
 			.catch(err => {
 				console.log(err);
@@ -761,15 +773,7 @@ export default function PanVerification({
 		}
 	};
 
-	function formatUserDetails(data, fields) {
-		let formatedData = {};
-		fields.forEach(f => {
-			formatedData[f.name] = data[f.name] || '0';
-		});
-		return formatedData;
-	}
-
-	const t = () => {
+	const getFileType = () => {
 		if (otherDoc.length > 0) {
 			return 'DL';
 		}
@@ -780,11 +784,6 @@ export default function PanVerification({
 			return 'voter';
 		}
 	};
-	const [backUpload, setBackUpload] = useState(false);
-	const [backUploading, setBackUploading] = useState(false);
-	const [disableButton, setDisableSubmit] = useState(false);
-	const [kycDocDetailsPan, setKycDocDetailsPan] = useState([]);
-	const [kycDocDetailsOther, setKycDocDetailsOther] = useState([]);
 
 	useEffect(() => {
 		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
@@ -793,9 +792,10 @@ export default function PanVerification({
 
 	const handleUpload = files => {
 		setLoading(true);
-		const fileType = t();
+		const fileType = getFileType();
 		resetAllErrors();
 		if (file.length > 1) {
+			// console.log('extract 2 image front and back');
 			const formData1 = new FormData();
 			formData1.append('product_id', product_id);
 			formData1.append('req_type', fileType);
@@ -817,6 +817,7 @@ export default function PanVerification({
 						mainType: 'KYC',
 						size: re.data.s3.size,
 						type: 'other',
+						req_type: fileType, // requires for mapping with JSON
 						requestId: re.data.request_id,
 						upload_doc_name: re.data.s3.filename,
 						src: 'start',
@@ -838,16 +839,17 @@ export default function PanVerification({
 
 							// re.data.doc_type_id = '31';
 							const myfile2 = {
-								document_key: re.data.s3.fd,
+								document_key: res.data.s3.fd,
 								id: Math.random()
 									.toString(36)
 									.replace(/[^a-z]+/g, '')
 									.substr(0, 6),
 								mainType: 'KYC',
-								size: re.data.s3.size,
+								size: res.data.s3.size,
 								type: 'other',
+								req_type: fileType,
 								requestId: res.data.request_id,
-								upload_doc_name: re.data.s3.filename,
+								upload_doc_name: res.data.s3.filename,
 								src: 'start',
 							};
 
@@ -900,6 +902,7 @@ export default function PanVerification({
 				}
 			});
 		} else {
+			// console.log('extract 1 image only front');
 			const formData = new FormData();
 			formData.append('product_id', product_id);
 			formData.append('req_type', fileType);
@@ -925,6 +928,7 @@ export default function PanVerification({
 						mainType: 'KYC',
 						size: res.data.s3.size,
 						type: 'other',
+						req_type: fileType,
 						requestId: res.data.request_id,
 						upload_doc_name: res.data.s3.filename,
 						src: 'start',
@@ -1010,14 +1014,15 @@ export default function PanVerification({
 							</p>
 							<FileUpload
 								accept=''
-								upload={{
-									url: DOCS_UPLOAD_URL_LOAN({
-										userid,
-									}),
-									header: {
-										Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-									},
-								}}
+								upload={true}
+								// upload={{
+								// 	url: DOCS_UPLOAD_URL_LOAN({
+								// 		userid,
+								// 	}),
+								// 	header: {
+								// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
+								// 	},
+								// }}
 								sectionType='pan'
 								pan={true}
 								disabled={panFile.length > 0 ? true : false}
@@ -1062,14 +1067,15 @@ export default function PanVerification({
 									<FileUpload
 										section={'pan-verification'}
 										accept=''
-										upload={{
-											url: DOCS_UPLOAD_URL_LOAN({
-												userid,
-											}),
-											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-											},
-										}}
+										upload={true}
+										// upload={{
+										// 	url: DOCS_UPLOAD_URL_LOAN({
+										// 		userid,
+										// 	}),
+										// 	header: {
+										// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
+										// 	},
+										// }}
 										pan={true}
 										sectionType='pan'
 										onDrop={handleFileUpload}
@@ -1098,14 +1104,15 @@ export default function PanVerification({
 
 									<FileUpload
 										accept=''
-										upload={{
-											url: DOCS_UPLOAD_URL_LOAN({
-												userid,
-											}),
-											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-											},
-										}}
+										upload={true}
+										// upload={{
+										// 	url: DOCS_UPLOAD_URL_LOAN({
+										// 		userid,
+										// 	}),
+										// 	header: {
+										// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
+										// 	},
+										// }}
 										pan={true}
 										sectionType='pan'
 										onDrop={handleFileUpload}
@@ -1134,14 +1141,15 @@ export default function PanVerification({
 
 									<FileUpload
 										accept=''
-										upload={{
-											url: DOCS_UPLOAD_URL_LOAN({
-												userid,
-											}),
-											header: {
-												Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-											},
-										}}
+										upload={true}
+										// upload={{
+										// 	url: DOCS_UPLOAD_URL_LOAN({
+										// 		userid,
+										// 	}),
+										// 	header: {
+										// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
+										// 	},
+										// }}
 										pan={true}
 										sectionType='pan'
 										onDrop={handleFileUpload}

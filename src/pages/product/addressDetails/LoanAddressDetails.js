@@ -7,10 +7,8 @@ import Button from '../../../components/Button';
 import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import { APP_CLIENT, DOCTYPES_FETCH } from '../../../_config/app.config';
 import { useEffect } from 'react';
 import useFetch from '../../../hooks/useFetch';
 

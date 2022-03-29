@@ -81,7 +81,7 @@ const AppLayout = () => {
 							},
 						},
 						{
-							authorization: clientId.token,
+							Authorization: clientId.token,
 						}
 					);
 

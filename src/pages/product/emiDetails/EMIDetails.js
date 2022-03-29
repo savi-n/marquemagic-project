@@ -128,7 +128,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const { addToast } = useToasts();
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
-		headers: { authorization: `Bearer ${userToken || companyDetail?.token}` },
+		headers: { Authorization: `Bearer ${userToken || companyDetail?.token}` },
 	});
 	const onProceed = data => {
 		if (
