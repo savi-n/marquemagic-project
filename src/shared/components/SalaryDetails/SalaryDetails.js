@@ -34,6 +34,7 @@ const ErrorMessage = styled.div`
 
 export default function SalaryDetails({
 	jsonData,
+	jsonLable,
 	register,
 	userType,
 	formState,
@@ -53,7 +54,8 @@ export default function SalaryDetails({
 	return (
 		<>
 			<H>
-				{userType || 'Help us with'} <span>Salary Details</span>
+				{userType || 'Help us with'}{' '}
+				<span>{jsonLable || 'Income Details'}</span>
 			</H>
 			<FormWrap>
 				{jsonData &&
