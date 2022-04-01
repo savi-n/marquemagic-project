@@ -1,11 +1,14 @@
 // Active Help us with your PAGE
 // Guarantor Personal Details
+// Help us with your Business Details
+// Help us with your Personal Details
 import { useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { array, func, object, oneOfType, string } from 'prop-types';
 import useFetch from 'hooks/useFetch';
 import { NC_STATUS_CODE, SEARCH_BANK_BRANCH_LIST } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
+import { FlowContext } from 'reducer/flowReducer';
 import moment from 'moment';
 
 const H = styled.h1`
@@ -55,7 +58,11 @@ export default function PersonalDetails({
 	const {
 		state: { bankId, userToken },
 	} = useContext(UserContext);
+	const {
+		state: { completed: completedSections },
+	} = useContext(FlowContext);
 	const { newRequest } = useFetch();
+
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -164,6 +171,7 @@ export default function PersonalDetails({
 			!isEmailPresent && jsonData.push(email);
 		}
 	}, [pageName]);
+
 	return (
 		<>
 			<H>
@@ -175,13 +183,14 @@ export default function PersonalDetails({
 					? jsonData.map(field => {
 							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
 							const customFields = {};
-							if (
-								editLoanData &&
-								editLoanData?.loan_ref_id &&
-								field.name === 'BusinessType'
-							) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+							if (field.name === 'BusinessType') {
+								if (
+									completedSections.includes('business-details') ||
+									(editLoanData && editLoanData?.loan_ref_id)
+								) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
 							}
 							return (
 								field.visibility && (
@@ -226,13 +235,15 @@ export default function PersonalDetails({
 									customFields.max = moment().format('YYYY-MM-DD');
 								}
 							}
-							if (
-								editLoanData &&
-								editLoanData?.loan_ref_id &&
-								field.name === 'incomeType'
-							) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+
+							if (field.name === 'incomeType') {
+								if (
+									completedSections.includes('personal-details') ||
+									(editLoanData && editLoanData?.loan_ref_id)
+								) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
 							}
 							return (
 								field.visibility && (

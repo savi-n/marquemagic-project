@@ -1,5 +1,5 @@
 // active
-
+// dynamic section
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -25,6 +25,7 @@ import {
 	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
+import ConfirmModal from 'components/modals/ConfirmModal';
 
 const Div = styled.div`
 	flex: 1;
@@ -59,6 +60,7 @@ export default function FormController({
 	productId,
 }) {
 	const {
+		state: { completed: completedSections },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
@@ -110,6 +112,7 @@ export default function FormController({
 	// const { state } = useContext(LoanFormContext);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
+	const [modalConfirm, setModalConfirm] = useState(false);
 
 	useEffect(() => {
 		if (id === 'vehicle-loan-details') {
@@ -139,6 +142,7 @@ export default function FormController({
 	useEffect(() => {
 		clearError();
 	}, [map.name]);
+
 	const onSave = data => {
 		setLoanData({ ...data }, id);
 		addToast({
@@ -148,6 +152,7 @@ export default function FormController({
 	};
 
 	const onProceed = async data => {
+		setModalConfirm(false);
 		// console.log('form-controller-on-proceed-data-', {
 		// 	data,
 		// 	companyDetail,
@@ -393,8 +398,31 @@ export default function FormController({
 		}
 	}
 
+	const ButtonProceed = (
+		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+	);
+
+	const ButtonConfirm = (
+		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
+	);
+
+	let displayProceedButton = ButtonProceed;
+
+	if (
+		id === 'business-details' &&
+		!completedSections.includes('business-details') &&
+		Object.keys(formState.error).length === 0
+	)
+		displayProceedButton = ButtonConfirm;
+
 	return (
 		<>
+			<ConfirmModal
+				type='Business'
+				show={modalConfirm}
+				onClose={setModalConfirm}
+				ButtonProceed={ButtonProceed}
+			/>
 			<Div>
 				<PersonalDetails
 					register={register}
@@ -413,7 +441,7 @@ export default function FormController({
 							onClick={() => setViewBusinessDetail(true)}
 						/>
 					)}
-					<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+					{displayProceedButton}
 					{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
 					{!skipButton && <Button name='Skip' onClick={onSkip} />}
 				</ButtonWrap>
