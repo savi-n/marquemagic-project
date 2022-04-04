@@ -316,7 +316,8 @@ export default function PersonalDetailsPage({
 	let displayProceedButton = ButtonProceed;
 
 	if (
-		!completedSections.includes('business-details') &&
+		id === 'personal-details' &&
+		!completedSections.includes('personal-details') &&
 		Object.keys(formState.error).length === 0
 	)
 		displayProceedButton = ButtonConfirm;
@@ -330,6 +331,7 @@ export default function PersonalDetailsPage({
 				ButtonProceed={ButtonProceed}
 			/>
 			<PersonalDetails
+				id={id}
 				register={register}
 				formState={formState}
 				preData={{
