@@ -236,7 +236,7 @@ export default function PersonalDetails({
 								}
 							}
 
-							if (field.name === 'incomeType') {
+							if (id === 'personal-details' && field.name === 'incomeType') {
 								if (
 									completedSections.includes('personal-details') ||
 									(editLoanData && editLoanData?.loan_ref_id)
