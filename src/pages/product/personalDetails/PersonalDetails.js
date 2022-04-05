@@ -1,5 +1,6 @@
-// active personal details
-import { useContext, useEffect } from 'react';
+// active personal details right section
+// active business details right section
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
@@ -22,6 +23,7 @@ import {
 	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
+import ConfirmModal from 'components/modals/ConfirmModal';
 
 const Div = styled.div`
 	flex: 1;
@@ -68,6 +70,7 @@ export default function PersonalDetailsPage({
 		state: { whiteLabelId },
 	} = useContext(AppContext);
 	const {
+		state: { completed: completedSections },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
@@ -87,6 +90,7 @@ export default function PersonalDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
+	const [modalConfirm, setModalConfirm] = useState(false);
 
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
@@ -300,9 +304,34 @@ export default function PersonalDetailsPage({
 				).toString(),
 		};
 	}
+
+	const ButtonProceed = (
+		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+	);
+
+	const ButtonConfirm = (
+		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
+	);
+
+	let displayProceedButton = ButtonProceed;
+
+	if (
+		id === 'personal-details' &&
+		!completedSections.includes('personal-details') &&
+		Object.keys(formState.error).length === 0
+	)
+		displayProceedButton = ButtonConfirm;
+
 	return (
 		<Div>
+			<ConfirmModal
+				type='Income'
+				show={modalConfirm}
+				onClose={setModalConfirm}
+				ButtonProceed={ButtonProceed}
+			/>
 			<PersonalDetails
+				id={id}
 				register={register}
 				formState={formState}
 				preData={{
@@ -356,7 +385,7 @@ export default function PersonalDetailsPage({
 				// }}
 			/>
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+				{displayProceedButton}
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
 		</Div>

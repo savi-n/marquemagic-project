@@ -5,7 +5,7 @@ import Modal from '../Modal';
 
 const Text = styled.div`
 	text-align: center;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	font-size: 18px;
 	font-weight: 500;
 `;
@@ -36,6 +36,10 @@ export default function ContinueModal({ onYes, onNo }) {
 		<Modal show={true} onClose={() => {}} width='30%'>
 			<ModalBody>
 				<Text>Do you Want to continue with the pending application?</Text>
+				<small>
+					Note: Any document uploaded needs to be re-uploaded for the loan
+					application
+				</small>
 				<BtnWrap className='gap-x-4'>
 					<Button width='auto' fill name='Yes' onClick={onYes} />
 
