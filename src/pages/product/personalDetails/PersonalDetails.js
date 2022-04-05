@@ -186,14 +186,14 @@ export default function PersonalDetailsPage({
 	const formatPersonalDetails = personalDetails => {
 		const newPersonalDetails = {
 			firstName: personalDetails?.businessname,
-			incomeType:
-				personalDetails?.businesstype === 1
-					? 'business'
-					: personalDetails?.businesstype === 18
-					? 'selfemployed'
-					: personalDetails?.businesstype === 7
-					? 'salaried'
-					: undefined,
+			incomeType: personalDetails?.businesstype,
+			// personalDetails?.businesstype === 1
+			// 	? 'business'
+			// 	: personalDetails?.businesstype === 18
+			// 	? 'selfemployed'
+			// 	: personalDetails?.businesstype === 7
+			// 	? 'salaried'
+			// 	: undefined,
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,

@@ -299,15 +299,15 @@ function caseCreationDataFormat(
 				applicantData?.firstName ||
 				localStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
-			//form?.incomeType === 'salaried' ? 7 : 1
 			business_type:
-				applicantData?.incomeType === 'salaried'
-					? 7
-					: applicantData?.incomeType === 'selfemployed'
-					? 18
-					: data['business-details']?.BusinessType
-					? data['business-details']?.BusinessType
-					: 1,
+				applicantData?.incomeType || data['business-details']?.BusinessType,
+			// applicantData?.incomeType === 'salaried'
+			// 	? 7
+			// 	: applicantData?.incomeType === 'selfemployed'
+			// 	? 18
+			// 	: data['business-details']?.BusinessType
+			// 	? data['business-details']?.BusinessType
+			// 	: 1,
 			business_email: applicantData?.email || companyData?.email || '',
 			// business_industry_type: 20,
 			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
@@ -413,12 +413,14 @@ function caseCreationDataFormat(
 				data['vehicle-loan-details']?.tenure ||
 				0,
 			annual_turn_over: getAmount(
-				applicantData?.grossIncome ||
+				applicantData?.annualIncome ||
+					applicantData?.grossIncome ||
 					data?.['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.grossIncome ||
+				applicantData?.annualIncome ||
+					applicantData?.grossIncome ||
 					data?.['business-details']?.AnnualTurnover ||
 					''
 			),
@@ -715,13 +717,16 @@ export default function DocumentUpload({
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 
 	const business_income_type_id =
-		applicantData?.incomeType === 'salaried'
-			? 7
-			: applicantData?.incomeType === 'selfemployed'
-			? 18
-			: state['business-details']?.BusinessType || companyData?.BusinessType
-			? state['business-details']?.BusinessType || companyData?.BusinessType
-			: 1;
+		applicantData?.incomeType ||
+		state['business-details']?.BusinessType ||
+		companyData?.BusinessType;
+	// applicantData?.incomeType === 'salaried'
+	// 	? 7
+	// 	: applicantData?.incomeType === 'selfemployed'
+	// 	? 18
+	// 	: state['business-details']?.BusinessType || companyData?.BusinessType
+	// 	? state['business-details']?.BusinessType || companyData?.BusinessType
+	// 	: 1;
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
