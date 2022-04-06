@@ -188,14 +188,16 @@ export default function PersonalDetailsPage({
 	};
 
 	const formatPersonalDetails = personalDetails => {
-		return {
+		const newPersonalDetails = {
 			firstName: personalDetails?.businessname,
-			incomeType:
-				personalDetails?.businesstype === 1
-					? 'business'
-					: personalDetails?.businesstype === 18
-					? 'selfemployed'
-					: 'salaried',
+			incomeType: personalDetails?.businesstype,
+			// personalDetails?.businesstype === 1
+			// 	? 'business'
+			// 	: personalDetails?.businesstype === 18
+			// 	? 'selfemployed'
+			// 	: personalDetails?.businesstype === 7
+			// 	? 'salaried'
+			// 	: undefined,
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
@@ -209,6 +211,7 @@ export default function PersonalDetailsPage({
 			countryResidence: personalDetails?.relation,
 			maritalStatus: personalDetails?.relation,
 		};
+		return newPersonalDetails;
 	};
 
 	const prefilledValues = () => {
@@ -226,7 +229,6 @@ export default function PersonalDetailsPage({
 				return formStat?.values;
 			}
 		} catch (error) {
-			console.log('error-PersonalDetails-prefilledValues-', error);
 			return {};
 		}
 	};
@@ -247,7 +249,6 @@ export default function PersonalDetailsPage({
 				return `${d}`;
 			}
 		} catch (error) {
-			console.log('error-PersonalDetails-getAdhar-', error);
 			return '';
 		}
 	};
@@ -266,7 +267,6 @@ export default function PersonalDetailsPage({
 				return d;
 			}
 		} catch (error) {
-			console.log('error-PersonalDetails-getDOB', error);
 			return '';
 		}
 	};
@@ -366,12 +366,23 @@ export default function PersonalDetailsPage({
 			/>
 			<SalaryDetails
 				jsonData={map?.fields['salary-details'].data}
+				jsonLable={map?.fields['salary-details'].label}
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
+				// incomeType={'business'}
 				preData={
 					(form && Object.keys(form).length > 0 && form) || editLoanDataSalary
 				}
+
+				// preData={{
+				// 	incomeType: prefilledValues()?.incomeType?.value || '',
+				// 	incomeType:
+				// 		prefilledValues()?.incomeType ||
+				// 		JSON.parse(localStorage.getItem('personal-details'))?.incomeType
+				// 			?.value ||
+				// 		'',
+				// }}
 			/>
 			<ButtonWrap>
 				{displayProceedButton}
