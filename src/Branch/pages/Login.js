@@ -41,8 +41,8 @@ const ErrorMessage = styled.div`
 
 export default function Login() {
 	useEffect(() => {
-		localStorage.removeItem('token');
-		localStorage.removeItem('lActive');
+		sessionStorage.removeItem('token');
+		sessionStorage.removeItem('lActive');
 	}, []);
 	const { register, handleSubmit, formState } = useForm();
 	const { newRequest } = useFetch();
@@ -67,7 +67,7 @@ export default function Login() {
 
 			//   if (loggedIn.statusCode === NC_STATUS_CODE.NC200) {
 			if (loggedIn.token) {
-				localStorage.setItem('token', loggedIn.token);
+				sessionStorage.setItem('token', loggedIn.token);
 				actions.setBranchUserToken(loggedIn.token);
 				history.push(`/branch/dashboard`);
 				return;

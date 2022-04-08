@@ -181,7 +181,9 @@ export default function PersonalDetails({
 			<FormWrap>
 				{jsonData && id === 'business-details'
 					? jsonData.map(field => {
-							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+							const editLoanData = JSON.parse(
+								sessionStorage.getItem('editLoan')
+							);
 							const customFields = {};
 							if (field.name === 'BusinessType') {
 								if (
@@ -218,7 +220,9 @@ export default function PersonalDetails({
 					: id !== 'business-details' &&
 					  jsonData.map(field => {
 							// console.log('field-', field);
-							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+							const editLoanData = JSON.parse(
+								sessionStorage.getItem('editLoan')
+							);
 							const value = populateValue(field);
 							const customFields = {};
 							if (pageName === 'Bank Details') {

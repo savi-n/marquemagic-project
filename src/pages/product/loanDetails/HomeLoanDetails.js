@@ -169,7 +169,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	useEffect(() => {
-		localStorage.removeItem('pan');
+		sessionStorage.removeItem('pan');
 		// homebranchdropdown();
 		getBranchOptions();
 		// sethomeBranchList(dropdown);
@@ -199,14 +199,14 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
 	const url = window.location.hostname;
 
-	let userTokensss = localStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(url);
 	let preData = {};
 	if (
 		Object.keys(JSON.parse(userTokensss).formReducer?.user?.loanData).length > 0
 	) {
 		preData = JSON.parse(userTokensss).formReducer?.user?.loanData;
 	} else {
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		preData = formatEditLoanData(editLoanData);
 	}
 

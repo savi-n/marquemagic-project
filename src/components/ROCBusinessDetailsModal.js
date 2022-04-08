@@ -46,7 +46,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 	const {
 		state: { companyDetail },
 	} = useContext(BussinesContext);
-	const isDemo = localStorage.getItem('product') === 'demo';
+	const isDemo = sessionStorage.getItem('product') === 'demo';
 	return (
 		<Modal show={true} onClose={onClose} width='50%'>
 			<Div>
@@ -85,9 +85,9 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					<Colm1>Pancard Number</Colm1>
 					<Colm2>
 						{companyDetail?.PancardNumber ||
-							JSON.parse(localStorage.getItem('formstatepan'))?.values
+							JSON.parse(sessionStorage.getItem('formstatepan'))?.values
 								?.panNumber ||
-							JSON.parse(localStorage.getItem('formstate'))}
+							JSON.parse(sessionStorage.getItem('formstate'))}
 					</Colm2>
 				</Row>
 

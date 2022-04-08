@@ -158,9 +158,9 @@ export default function Router({
 	const component = availableRoutes[currentFlow] || {
 		Component: FormDefaultPage,
 	};
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	editLoanData?.business_id &&
-		localStorage.setItem(
+		sessionStorage.setItem(
 			'companyData',
 			JSON.stringify(
 				formatCompanyData(editLoanData.business_id, editLoanData) || {}

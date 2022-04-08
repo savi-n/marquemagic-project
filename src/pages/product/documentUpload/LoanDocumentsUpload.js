@@ -209,16 +209,16 @@ function fileStructure(documents, type) {
 }
 
 let url = window.location.hostname;
-let userToken = localStorage.getItem(url);
+let userToken = sessionStorage.getItem(url);
 // console.log('loan-doc-upload-userToken-', {
 // 	userToken,
 // 	userTokenParsed: JSON.parse(userToken),
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-let busniess = JSON.parse(localStorage.getItem('busniess'));
-let editLoan = localStorage.getItem('editLoan')
-	? JSON.parse(localStorage.getItem('editLoan'))
+let busniess = JSON.parse(sessionStorage.getItem('busniess'));
+let editLoan = sessionStorage.getItem('editLoan')
+	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
 
 const getAmountUm = a => {
@@ -246,8 +246,8 @@ function caseCreationDataFormat(
 ) {
 	loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 	form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-	editLoan = localStorage.getItem('editLoan')
-		? JSON.parse(localStorage.getItem('editLoan'))
+	editLoan = sessionStorage.getItem('editLoan')
+		? JSON.parse(sessionStorage.getItem('editLoan'))
 		: {};
 	const collateralData = data['collateral-details'];
 	//console.log(
@@ -256,8 +256,8 @@ function caseCreationDataFormat(
 	//);
 
 	url = window.location.hostname;
-	userToken = localStorage.getItem(url);
-	let formReducer = JSON.parse(localStorage.getItem(url))?.formReducer;
+	userToken = sessionStorage.getItem(url);
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
@@ -282,12 +282,12 @@ function caseCreationDataFormat(
 	});*/
 
 	const businessDetails = () => {
-		let corporateDetails = localStorage.getItem('corporateDetails');
+		let corporateDetails = sessionStorage.getItem('corporateDetails');
 		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 		if (!companyData) {
 			companyData =
-				localStorage.getItem('companyData') &&
-				JSON.parse(localStorage.getItem('companyData'));
+				sessionStorage.getItem('companyData') &&
+				JSON.parse(sessionStorage.getItem('companyData'));
 		}
 
 		//console.log('corportae Details', corporateDetails);
@@ -297,7 +297,7 @@ function caseCreationDataFormat(
 			dob: applicantData?.dob || '',
 			business_name:
 				applicantData?.firstName ||
-				localStorage.getItem('BusinessName') ||
+				sessionStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
 			business_type:
 				applicantData?.incomeType || data['business-details']?.BusinessType,
@@ -334,8 +334,8 @@ function caseCreationDataFormat(
 	};
 	if (!companyData) {
 		companyData =
-			localStorage.getItem('companyData') &&
-			JSON.parse(localStorage.getItem('companyData'));
+			sessionStorage.getItem('companyData') &&
+			JSON.parse(sessionStorage.getItem('companyData'));
 	}
 
 	const addressArrayMulti =
@@ -392,7 +392,7 @@ function caseCreationDataFormat(
 			// origin: "New_UI",
 			...restLoanData,
 			loan_product_id: productId[(form?.incomeType)] || productId[idType],
-			white_label_id: localStorage.getItem('encryptWhiteLabel'),
+			white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
@@ -486,7 +486,7 @@ function caseCreationDataFormat(
 		formatedData.director_details.director_0.id =
 			editLoan?.director_details[0]?.id || null;
 	}
-	// if (localStorage.getItem('product') != 'demo') {
+	// if (sessionStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;
 	// }
 
@@ -707,13 +707,13 @@ export default function DocumentUpload({
 	);
 	const [loading, setLoading] = useState(false);
 
-	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+	let applicantData = JSON.parse(sessionStorage.getItem(url))?.formReducer?.user
 		.applicantData;
 	const companyData =
-		localStorage.getItem('companyData') &&
-		JSON.parse(localStorage.getItem('companyData'));
-	const API_TOKEN = localStorage.getItem('userToken');
-	let corporateDetails = localStorage.getItem('corporateDetails');
+		sessionStorage.getItem('companyData') &&
+		JSON.parse(sessionStorage.getItem('companyData'));
+	const API_TOKEN = sessionStorage.getItem('userToken');
+	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 
 	const business_income_type_id =
@@ -761,7 +761,7 @@ export default function DocumentUpload({
 
 		const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-		localStorage.setItem(
+		sessionStorage.setItem(
 			'encryptWhiteLabel',
 			encryptWhiteLabelRes.encrypted_whitelabel[0]
 		);
@@ -1045,7 +1045,14 @@ export default function DocumentUpload({
 				productDetails,
 				productId
 			);
-
+			if (sessionStorage.getItem('userDetails')) {
+				try {
+					reqBody.user_id =
+						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+				} catch (err) {
+					return err;
+				}
+			}
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
@@ -1070,8 +1077,8 @@ export default function DocumentUpload({
 				setMessage(resLoanRefId);
 				setLoanRef(resLoanRefId);
 				const compData =
-					localStorage.getItem('companyData') &&
-					JSON.parse(localStorage.getItem('companyData'));
+					sessionStorage.getItem('companyData') &&
+					JSON.parse(sessionStorage.getItem('companyData'));
 
 				if (compData && compData.CIN) {
 					const reqBody = {
@@ -1275,8 +1282,8 @@ export default function DocumentUpload({
 
 	const caseCreationSteps = async data => {
 		try {
-			editLoan = localStorage.getItem('editLoan')
-				? JSON.parse(localStorage.getItem('editLoan'))
+			editLoan = sessionStorage.getItem('editLoan')
+				? JSON.parse(sessionStorage.getItem('editLoan'))
 				: {};
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();

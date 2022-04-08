@@ -205,7 +205,7 @@ export default function CoapplicantDetails({
 		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 			?.applicantData?.address[0] || {};
 
-	const editLoan = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
 	if (editLoan && editLoan?.id) {
 		const director = editLoan?.director_details.filter(
 			d => d.type_name === 'Guarantor'
