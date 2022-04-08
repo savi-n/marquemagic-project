@@ -65,7 +65,7 @@ export default function BussinessDetailsPage({
 
 	const url = window.location.hostname;
 
-	let userToken = localStorage.getItem(url);
+	let userToken = sessionStorage.getItem(url);
 
 	let loan = JSON.parse(userToken).formReducer.user.loanData;
 

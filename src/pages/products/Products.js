@@ -343,7 +343,7 @@ export default function Products() {
 		try {
 			setSearching(true);
 			setLoanList([]);
-			const white_label_id = localStorage.getItem('wt_lbl');
+			const white_label_id = sessionStorage.getItem('wt_lbl');
 			const url = `${API_END_POINT}/getLoanDetails?id=${refstatus.trim()}&white_label_id=${white_label_id}`;
 			// const res = await axios.post(url, { loanRefId: refstatus.trim() });
 			const res = await axios.get(url);
@@ -414,7 +414,7 @@ export default function Products() {
 					}`
 				);
 				const productID = loanDetailsRes?.data?.data?.product_details?.id;
-				localStorage.setItem(
+				sessionStorage.setItem(
 					'editLoan',
 					JSON.stringify(loanDetailsRes?.data?.data || {})
 				);
@@ -470,15 +470,17 @@ export default function Products() {
 
 	useEffect(() => {
 		const url = window.location.hostname;
-		localStorage.removeItem('formstate');
-		localStorage.removeItem('formstatepan');
-		localStorage.removeItem('aadhar');
-		localStorage.removeItem('encryptWhiteLabel');
-		localStorage.removeItem('userToken');
-		localStorage.removeItem(url);
-		const wt_lbl = localStorage.getItem('wt_lbl');
-		localStorage.clear();
-		localStorage.setItem('wt_lbl', wt_lbl);
+		sessionStorage.removeItem('formstate');
+		sessionStorage.removeItem('formstatepan');
+		sessionStorage.removeItem('aadhar');
+		sessionStorage.removeItem('encryptWhiteLabel');
+		sessionStorage.removeItem('userToken');
+		sessionStorage.removeItem(url);
+		const wt_lbl = sessionStorage.getItem('wt_lbl');
+		const userDetails = sessionStorage.getItem('userDetails');
+		sessionStorage.clear();
+		sessionStorage.setItem('wt_lbl', wt_lbl);
+		userDetails && sessionStorage.setItem('userDetails', userDetails);
 	}, []);
 
 	useEffect(() => {}, [addedProduct]);

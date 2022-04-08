@@ -179,28 +179,38 @@ export default function FormController({
 			});
 		}
 
+		const reqBody = {
+			email: formState?.values?.Email,
+			white_label_id: whiteLabelId,
+			source: APP_CLIENT,
+			name: formState?.values?.BusinessName,
+			mobileNo: formState?.values?.mobileNo,
+			addrr1: '',
+			addrr2: '',
+		};
+		if (sessionStorage.getItem('userDetails')) {
+			try {
+				reqBody.user_id =
+					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			} catch (err) {
+				return err;
+			}
+		}
+
 		// or loan type
 		// Loan Against Property Individual Loan
 		// console.log('formcontroller-onProceed-productDetails-', productDetails);
 		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
-				data: {
-					email: formState?.values?.Email,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: formState?.values?.BusinessName,
-					mobileNo: formState?.values?.mobileNo,
-					addrr1: '',
-					addrr2: '',
-				},
+				data: reqBody,
 			});
 
 			const userDetailsRes = userDetailsReq.data;
 
 			const url = window.location.hostname;
 
-			let userToken = localStorage.getItem(url);
+			let userToken = sessionStorage.getItem(url);
 
 			userToken = JSON.parse(userToken);
 
@@ -212,8 +222,8 @@ export default function FormController({
 				},
 			};
 
-			localStorage.setItem('userToken', userDetailsRes.token);
-			localStorage.setItem(url, JSON.stringify(userToken));
+			sessionStorage.setItem('userToken', userDetailsRes.token);
+			sessionStorage.setItem(url, JSON.stringify(userToken));
 
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
@@ -226,7 +236,7 @@ export default function FormController({
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-				localStorage.setItem(
+				sessionStorage.setItem(
 					'encryptWhiteLabel',
 					encryptWhiteLabelRes.encrypted_whitelabel[0]
 				);
@@ -281,12 +291,12 @@ export default function FormController({
 
 	const url = window.location.hostname;
 
-	let userToken = localStorage.getItem(url);
+	let userToken = sessionStorage.getItem(url);
 
 	let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-	let companyData = JSON.parse(localStorage.getItem('companyData'));
+	let companyData = JSON.parse(sessionStorage.getItem('companyData'));
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
 		return value;
@@ -356,7 +366,7 @@ export default function FormController({
 	};
 
 	let form = state[`${id}`] || companyDetail || companyData || appData;
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	if (state[`${id}`]) {
 		if (id === 'business-loan-details') {
 			form =

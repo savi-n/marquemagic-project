@@ -106,7 +106,7 @@ export default function CollateralsDetails({
 				method: 'POST',
 			},
 			{
-				Authorization: `Bearer ${localStorage.getItem('token')}`,
+				Authorization: `Bearer ${sessionStorage.getItem('token')}`,
 			}
 		);
 		return fetchCollateral;

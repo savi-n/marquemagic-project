@@ -213,7 +213,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			}
 		});
 	} else {
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
 			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
 			if (emaiDetails.length > 0) {

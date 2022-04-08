@@ -107,7 +107,7 @@ export default function AddressDetailsPage({
 	const { newRequest } = useFetch();
 	const url = window.location.hostname;
 
-	let userTokensss = localStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(url);
 
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness =
@@ -183,7 +183,7 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			const formStat = JSON.parse(localStorage.getItem('formstate'));
+			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
 			return formStat?.values;
 		} catch (error) {
 			console.log('error-LoanAddressDetails-prefilledValues-', error);
@@ -206,7 +206,7 @@ export default function AddressDetailsPage({
 		});
 		return BAddress;
 	};
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 
 	const Address =
 		(form && form.address && form.address[0]) ||

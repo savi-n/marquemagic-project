@@ -18,7 +18,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -72,7 +72,7 @@ const formatEmiData = (formData, fields) => {
 		.map(f => ({
 			type: f.name,
 			amount: formData[f.name],
-			bank: formData[`${f.name}_bank_name`]?.name
+			bank: formData[`${f.name}_bank_name`]?.name,
 		}))
 		.filter(f => f.bank);
 };
@@ -80,20 +80,25 @@ const formatEmiData = (formData, fields) => {
 HomeLoanDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
-	id: string
+	id: string,
 };
 
 export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData, setUsertypeAgreementData }
+		actions: {
+			setUsertypeLoanData,
+			setUsertypeEmiData,
+			setUsertypeBankData,
+			setUsertypeAgreementData,
+		},
 	} = useContext(FormContext);
 
 	const {
-		state: { bankId }
+		state: { bankId },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -110,13 +115,16 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onSave = data => {
-		const emiData = formatEmiData(data, [...(map.fields['emi-details']?.data || []), ...additionalField]);
+		const emiData = formatEmiData(data, [
+			...(map.fields['emi-details']?.data || []),
+			...additionalField,
+		]);
 
 		const loanData = formatLoanData(data, map.fields[id].data);
 
 		const url = window.location.hostname;
 
-		let userToken = localStorage.getItem(url);
+		let userToken = sessionStorage.getItem(url);
 
 		let form = JSON.parse(userToken);
 
@@ -128,30 +136,30 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 					...form.formReducer.user,
 					loanData: {
 						...form.formReducer.user.loanData,
-						...formatLoanData(data, map.fields[id].data)
-					}
-				}
-			}
+						...formatLoanData(data, map.fields[id].data),
+					},
+				},
+			},
 		};
 
-		localStorage.setItem(url, JSON.stringify(form));
+		sessionStorage.setItem(url, JSON.stringify(form));
 
 		setUsertypeEmiData(emiData);
 		setUsertypeBankData({
 			bankId: bankId,
-			branchId: data.branchId.value || data.branchId
+			branchId: data.branchId.value || data.branchId,
 		});
 		setUsertypeLoanData({
 			...loanData,
 			summary: data.purposeoftheLoan || 'summary',
-			assetsValue: data.valueoftheProperty || 0
+			assetsValue: data.valueoftheProperty || 0,
 		});
 
 		// setUsertypeAgreementData(uploadAgreementDocs[uploadAgreementName]);
 
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
@@ -163,7 +171,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const onDone = (files, name) => {
 		setUploadAgreementDocs(p => ({
 			...p,
-			[name]: files
+			[name]: files,
 		}));
 		setUploadAgreementModal(false);
 	};
@@ -174,13 +182,13 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		const newField = {
 			...map.fields[id].data[0],
 			name: `addDed_${additionalField.length + 1}`,
-			placeholder: 'Additional Deductions/repayment'
+			placeholder: 'Additional Deductions/repayment',
 		};
 		setAdditionalField([...additionalField, newField]);
 	};
 
 	useEffect(() => {
-		localStorage.removeItem('pan');
+		sessionStorage.removeItem('pan');
 	}, []);
 
 	return (
@@ -207,19 +215,24 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				</FlexColom>
 			</FormWrapper>
 
-			{map.fields[id]?.message && <Caption>{map.fields['loan-details'].message}</Caption>}
+			{map.fields[id]?.message && (
+				<Caption>{map.fields['loan-details'].message}</Caption>
+			)}
 
 			{map.fields['emi-details']?.data && (
 				<>
 					<EMIDetails
 						register={register}
 						formState={formState}
-						jsonData={[...(map.fields['emi-details']?.data || []), ...additionalField]}
+						jsonData={[
+							...(map.fields['emi-details']?.data || []),
+							...additionalField,
+						]}
 						label={map.fields['emi-details']?.label}
 					/>
 					<Wrapper>
-						<RoundButton onClick={onAdd}>+</RoundButton> click to add additional deductions/repayment
-						obligations
+						<RoundButton onClick={onAdd}>+</RoundButton> click to add additional
+						deductions/repayment obligations
 					</Wrapper>
 				</>
 			)}

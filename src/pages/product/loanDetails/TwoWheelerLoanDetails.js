@@ -16,7 +16,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -50,7 +50,7 @@ const formatEmiData = (formData, fields) => {
 		.map(f => ({
 			type: f.name,
 			amount: formData[f.name],
-			bank: formData[`${f.name}_bank_name`]?.name
+			bank: formData[`${f.name}_bank_name`]?.name,
 		}))
 		.filter(f => f.bank);
 };
@@ -59,7 +59,7 @@ const additionalLoanData = formData => {
 	const formatData = {
 		modelName: formData.vehicle.value,
 		roadTax: formData.rtoMisscellaneosCharges,
-		insurance: formData.insurance
+		insurance: formData.insurance,
 	};
 
 	return formatData;
@@ -69,20 +69,25 @@ TwoWheelerLoanDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
 	id: string,
-	productDetails: object
+	productDetails: object,
 };
 
-export default function TwoWheelerLoanDetailsPage({ id, onFlowChange, map, productDetails }) {
+export default function TwoWheelerLoanDetailsPage({
+	id,
+	onFlowChange,
+	map,
+	productDetails,
+}) {
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData }
+		actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
 	} = useContext(FormContext);
 
 	const {
-		state: { bankId }
+		state: { bankId },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -101,22 +106,22 @@ export default function TwoWheelerLoanDetailsPage({ id, onFlowChange, map, produ
 		setUsertypeEmiData(emiData);
 		setUsertypeBankData({
 			bankId: bankId,
-			branchId: data.branchId?.value || data.branchId
+			branchId: data.branchId?.value || data.branchId,
 		});
 		setUsertypeLoanData({
 			...loanData,
 			summary: 'summary',
 			automobileType: productDetails.loanType,
-			...additionalLoanData(data, map.fields['loan-details-additional'].data)
+			...additionalLoanData(data, map.fields['loan-details-additional'].data),
 		});
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
 	useEffect(() => {
-		localStorage.removeItem('pan');
+		sessionStorage.removeItem('pan');
 	}, []);
 
 	return (
@@ -142,7 +147,9 @@ export default function TwoWheelerLoanDetailsPage({ id, onFlowChange, map, produ
 					/>
 				</FlexColom>
 			</FormWrapper>
-			{map.fields['loan-details'].message && <Caption>{map.fields['loan-details'].message}</Caption>}
+			{map.fields['loan-details'].message && (
+				<Caption>{map.fields['loan-details'].message}</Caption>
+			)}
 			<EMIDetails
 				register={register}
 				formState={formState}

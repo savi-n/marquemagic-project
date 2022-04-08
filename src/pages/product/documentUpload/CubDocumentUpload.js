@@ -6,7 +6,12 @@ import { UserContext } from '../../../reducer/userReducer';
 import Button from '../../../components/Button';
 import CheckBox from '../../../shared/components/Checkbox/CheckBox';
 import FileUpload from '../../../shared/components/FileUpload/FileUpload';
-import { DOCS_UPLOAD_URL, USER_ROLES, DOCTYPES_FETCH, PINCODE_ADRRESS_FETCH } from '../../../_config/app.config';
+import {
+	DOCS_UPLOAD_URL,
+	USER_ROLES,
+	DOCTYPES_FETCH,
+	PINCODE_ADRRESS_FETCH,
+} from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import BankStatementModal from '../../../components/BankStatementModal';
 import GetCUBStatementModal from '../../../components/GetCUBStatementModal';
@@ -98,7 +103,8 @@ const Doc = styled.h2`
 
 const textForCheckbox = {
 	grantCibilAcces: 'I here by give consent to pull my CIBIL records',
-	declaration: 'I here do declare that what is stated above is true to the best of my knowledge and  belief'
+	declaration:
+		'I here do declare that what is stated above is true to the best of my knowledge and  belief',
 };
 
 DocumentUpload.propTypes = {
@@ -107,20 +113,27 @@ DocumentUpload.propTypes = {
 	map: oneOfType([string, object]),
 	id: string,
 	userType: oneOf(['Co-Applicant', 'Gurantor', '', undefined]),
-	productId: object.isRequired
+	productId: object.isRequired,
 };
 
-export default function DocumentUpload({ productDetails, userType, id, onFlowChange, map, productId }) {
+export default function DocumentUpload({
+	productDetails,
+	userType,
+	id,
+	onFlowChange,
+	map,
+	productId,
+}) {
 	// const {
 	//   state: { whiteLabelId, clientToken },
 	// } = useContext(AppContext);
 
 	const {
-		state: { userId, userToken, userBankDetails }
+		state: { userId, userToken, userBankDetails },
 	} = useContext(UserContext);
 
 	const {
-		actions: { setCompleted, activateSubFlow }
+		actions: { setCompleted, activateSubFlow },
 	} = useContext(FlowContext);
 
 	const {
@@ -130,13 +143,15 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			removeUserTypeDocument,
 			setUserTypeDocumentType,
 			setUsertypeCibilData,
-			setUsertypeStatementData
-		}
+			setUsertypeStatementData,
+		},
 	} = useContext(FormContext);
 
 	const { processing, caseCreationUserType } = useCaseCreation(
 		'Co-applicant',
-		productId[(state[USER_ROLES[userType || 'User']]?.applicantData?.incomeType)] || '',
+		productId[
+			(state[USER_ROLES[userType || 'User']]?.applicantData?.incomeType)
+		] || '',
 		'Co-applicant'
 	);
 
@@ -150,13 +165,20 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		options: {
 			method: 'POST',
 			data: {
-				business_type: state[USER_ROLES[userType || 'User']]?.applicantData?.incomeType === 'salaried' ? 7 : 1,
-				loan_product: productId[(state[USER_ROLES[userType || 'User']]?.applicantData?.incomeType)]
-			}
+				business_type:
+					state[USER_ROLES[userType || 'User']]?.applicantData?.incomeType ===
+					'salaried'
+						? 7
+						: 1,
+				loan_product:
+					productId[
+						(state[USER_ROLES[userType || 'User']]?.applicantData?.incomeType)
+					],
+			},
 		},
 		headers: {
-			Authorization: `Bearer ${localStorage.getItem('userToken')}`
-		}
+			Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
+		},
 	});
 
 	useEffect(() => {
@@ -168,8 +190,8 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					...response?.[docType[1]]?.map(dT => ({
 						value: dT.doc_type_id,
 						name: dT.name,
-						main: docType[0]
-					}))
+						main: docType[0],
+					})),
 				];
 			});
 			setDocumentTypeOptions(optionArray);
@@ -186,9 +208,14 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
 
 	const [toggleCUBStatementModal, setToggleCUBStatementModal] = useState(false);
-	const [bankCUBStatementFetchDone, setBankCUBStatementFetchDone] = useState(false);
+	const [bankCUBStatementFetchDone, setBankCUBStatementFetchDone] = useState(
+		false
+	);
 
-	const [otherCUBStatementUserTypeDetails, setOtherCUBStatementUserTypeDetails] = useState(null);
+	const [
+		otherCUBStatementUserTypeDetails,
+		setOtherCUBStatementUserTypeDetails,
+	] = useState(null);
 
 	const [cibilCheckModal, setCibilCheckModal] = useState(false);
 
@@ -247,7 +274,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 
 	const onSubmitCopplicant = flow => {
 		return () => {
-			setUsertypeStatementData(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
+			setUsertypeStatementData(
+				otherCUBStatementUserTypeDetails,
+				USER_ROLES[userType]
+			);
 			setProceed({ flow });
 		};
 	};
@@ -257,7 +287,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			return;
 		}
 
-		setUsertypeStatementData(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
+		setUsertypeStatementData(
+			otherCUBStatementUserTypeDetails,
+			USER_ROLES[userType]
+		);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};
@@ -274,11 +307,14 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		}
 
 		// setOtherUserDetails(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
-		setUsertypeStatementData(otherCUBStatementUserTypeDetails, USER_ROLES[userType || 'User']);
+		setUsertypeStatementData(
+			otherCUBStatementUserTypeDetails,
+			USER_ROLES[userType || 'User']
+		);
 		setSaved(true);
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 
 		// setCompleted(id);
@@ -295,14 +331,14 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			setUsertypeCibilData(
 				{
 					cibilScore: data.cibilScore,
-					requestId: data.requestId
+					requestId: data.requestId,
 				},
 				USER_ROLES[userType || 'User']
 			);
 		}
 		addToast({
 			message: data.message,
-			type: success ? 'success' : 'error'
+			type: success ? 'success' : 'error',
 		});
 
 		setCibilCheckModal(false);
@@ -315,7 +351,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 		state[USER_ROLES[userType || 'User']].uploadedDocs &&
 		state[USER_ROLES[userType || 'User']].uploadedDoc
 	) {
-		documentChecklist = Object.keys(state[USER_ROLES[userType || 'User']]?.uploadedDocs).map(docs => docs.typeName);
+		documentChecklist = Object.keys(
+			state[USER_ROLES[userType || 'User']]?.uploadedDocs
+		).map(docs => docs.typeName);
 	}
 
 	const subFlowActivate = async () => {
@@ -335,7 +373,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 	}, [userType]);
 
 	const getAddressDetails = async () => {
-		const response = await newRequest(PINCODE_ADRRESS_FETCH({ pinCode: userBankDetails?.pin || '' }), {});
+		const response = await newRequest(
+			PINCODE_ADRRESS_FETCH({ pinCode: userBankDetails?.pin || '' }),
+			{}
+		);
 		const data = response.data;
 
 		setUserAddress({
@@ -345,7 +386,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			address4: userBankDetails?.address4 || '',
 			city: data?.district?.[0] || '',
 			state: data?.state?.[0] || '',
-			pinCode: userBankDetails?.pin || ''
+			pinCode: userBankDetails?.pin || '',
 		});
 	};
 
@@ -365,8 +406,8 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						upload={{
 							url: DOCS_UPLOAD_URL({ userId: userId || '' }),
 							header: {
-								Authorization: `Bearer ${userToken ?? ''}`
-							}
+								Authorization: `Bearer ${userToken ?? ''}`,
+							},
 						}}
 					/>
 				</UploadWrapper>
@@ -381,9 +422,14 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 					)}
 
 					{map.actions['other-bank-statement']?.show && (
-						<Button name='Get Other Bank Statements' onClick={onOtherStatementModalToggle} />
+						<Button
+							name='Get Other Bank Statements'
+							onClick={onOtherStatementModalToggle}
+						/>
 					)}
-					{map.actions['itr-fetch']?.show && <Button name='Get ITR documents' disabled />}
+					{map.actions['itr-fetch']?.show && (
+						<Button name='Get ITR documents' disabled />
+					)}
 				</ButtonWrapper>
 				<CheckboxWrapper>
 					{map.actions['cibil-fetch']?.show && (
@@ -415,7 +461,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 								fill
 								style={{
 									width: '200px',
-									background: 'blue'
+									background: 'blue',
 								}}
 								disabled={buttonDisabledStatus()}
 								onClick={onSubmit}
@@ -437,7 +483,7 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 								fill
 								style={{
 									width: '200px',
-									background: 'blue'
+									background: 'blue',
 								}}
 								disabled={buttonDisabledStatus()}
 								onClick={onSubmitCopplicant(map.sub)}
@@ -513,7 +559,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 			</Colom2>
 
 			{otherBankStatementModal && (
-				<BankStatementModal showModal={otherBankStatementModal} onClose={onOtherStatementModalToggle} />
+				<BankStatementModal
+					showModal={otherBankStatementModal}
+					onClose={onOtherStatementModalToggle}
+				/>
 			)}
 			{toggleCUBStatementModal && (
 				<GetCUBStatementModal
@@ -530,10 +579,10 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 						...{
 							...state[USER_ROLES[userType || 'User']]?.applicantData,
 							...(!userType && {
-								address: [userAddress]
-							})
+								address: [userAddress],
+							}),
 						},
-						...state[USER_ROLES[userType || 'User']]?.loanData
+						...state[USER_ROLES[userType || 'User']]?.loanData,
 					}}
 					onClose={onCibilModalClose}
 				/>
@@ -549,9 +598,9 @@ export default function DocumentUpload({ productDetails, userType, id, onFlowCha
 }
 
 DocumentUpload.defaultProps = {
-	userType: null
+	userType: null,
 };
 
 DocumentUpload.propTypes = {
-	userType: oneOf(['', 'Guarantor', 'Co-applicant'])
+	userType: oneOf(['', 'Guarantor', 'Co-applicant']),
 };

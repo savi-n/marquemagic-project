@@ -4,10 +4,10 @@ import { string } from 'prop-types';
 import queryString from 'query-string';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import Button from './Button';
+import Button from 'components/Button';
 import { API_END_POINT } from '_config/app.config';
 import axios from 'axios';
-import { decryptMsg, decryptRes } from 'utils/encrypt';
+import { decryptRes } from 'utils/encrypt';
 
 const Div = styled.div`
 	margin-left: auto;
@@ -31,26 +31,37 @@ export default function Header({
 	logoLink,
 }) {
 	const [corporateName, setCorporateName] = useState('');
-
-	const getUserDetails = async cid => {
+	const redirectDashboard = () => {
+		let path = '/newui/main/dashboard';
+		window.open(path);
+		// console.log('history', history);
+		// history.push(path);
+	};
+	const getUserDetails = async params => {
 		try {
 			// const userRes.data.data.cacompname || "" = await axios.get(`${API_END_POINT}/userDetails?userid=10987`);
 			// http://3.108.54.252:1337/usersDetails?userid=10987
 			// console.log('CID-before-replace-', cid);
-			cid = cid.replaceAll(' ', '+');
-			// console.log('CID-before-', cid);
-			const newCID = decryptRes(cid);
-			// console.log('CID-after-', newCID);
+			let UID = params.cid || params.uid;
+			UID = UID.replaceAll(' ', '+');
+			// console.log('UID-before-', UID);
+			const newUID = decryptRes(UID);
+			// const newUID = decryptUID(UID.toString());
+			// console.log('UID-after-', newUID);
 			const userRes = await axios.get(
-				`${API_END_POINT}/usersDetails?userid=${newCID}`
+				`${API_END_POINT}/usersDetails?userid=${newUID}`
+				// console.log('header-userRes', userRes);
 			);
-			const corporateDetails = userRes?.data?.data;
-			// console.log('userres-data-', corporateDetails?.cacompname || '');
-			setCorporateName(corporateDetails?.cacompname || '');
-			localStorage.setItem(
-				'corporateDetails',
-				JSON.stringify(corporateDetails)
-			);
+			const userDetails = userRes?.data?.data;
+			// console.log('userres-data-', userDetails?.cacompname || '');
+			const stringifyUserDetails = JSON.stringify(userDetails);
+			if (params.cid) {
+				setCorporateName(userDetails?.cacompname || '');
+				sessionStorage.setItem('corporateDetails', stringifyUserDetails);
+			} else if (params.uid) {
+				console.log('uid-passed-', { params, stringifyUserDetails });
+				sessionStorage.setItem('userDetails', stringifyUserDetails);
+			}
 		} catch (error) {
 			console.log('error-Header-getUserDetails-', error);
 		}
@@ -59,8 +70,8 @@ export default function Header({
 	useEffect(() => {
 		// + sign in the query string is URL-decoded to a space. %2B in the query string is URL-decoded to a + sign.
 		const params = queryString.parse(window.location.search);
-		if (params.cid) {
-			getUserDetails(params.cid);
+		if (params.cid || params.uid) {
+			getUserDetails(params);
 		}
 	}, []);
 
@@ -81,6 +92,12 @@ export default function Header({
 					{corporateName}
 				</div>
 			)}
+
+			<div className='px-5' style={{ marginLeft: '60em' }}>
+				<Button onClick={redirectDashboard}>
+					<span>BACK TO DASHBOARD</span>
+				</Button>
+			</div>
 			{openAccount && (
 				<div className='ml-auto'>
 					<Button onClick={() => window.open(openAccountLink, '_blank')}>

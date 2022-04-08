@@ -99,7 +99,7 @@ const AppLayout = () => {
 			setLoading(false);
 		}
 		if (response) {
-			localStorage.setItem('wt_lbl', response?.permission?.id);
+			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			setWhitelabelId(response?.permission?.id);
 			setLogo(response?.permission?.logo);
 			fetchData();
