@@ -266,7 +266,6 @@ export default function FormController({
 					});
 			}
 		}
-
 		onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -445,7 +444,7 @@ export default function FormController({
 					id={id}
 				/>
 
-				{id === 'land-additional-details' && (
+				{/* {id === 'land-additional-details' && (
 					<InputField
 						placeholder='Total Value (In  ₹ )'
 						value='0'
@@ -453,7 +452,7 @@ export default function FormController({
 						jsonData={map?.fields[id]?.data || []}
 						id={id}
 					/>
-				)}
+				)} */}
 
 				<ButtonWrap>
 					{id === 'business-details' && (
