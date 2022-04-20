@@ -20,7 +20,8 @@ const H = styled.h1`
 `;
 
 const FieldWrap = styled.div`
-	width: 45%;
+	width: ${({ isSmallSize }) => (isSmallSize ? '25%' : '45%')};
+	/* width: 25%; */
 	margin: 10px 0;
 	@media (max-width: 700px) {
 		width: 100%;
@@ -172,12 +173,15 @@ export default function PersonalDetails({
 		}
 	}, [pageName]);
 
+	const threeFields = [];
+
 	return (
 		<>
 			<H>
 				{userType || 'Help us with your'}{' '}
 				<span>{pageName || 'Personal Details'}</span>
 			</H>
+			{/* {console.log('personalDetails-KCC-log', pageName)} */}
 			<FormWrap>
 				{jsonData && id === 'business-details'
 					? jsonData.map(field => {
@@ -251,7 +255,12 @@ export default function PersonalDetails({
 							}
 							return (
 								field.visibility && (
-									<FieldWrap key={field.name}>
+									<FieldWrap
+										key={field.name}
+										isSmallSize={
+											field.name.includes('crop') ||
+											field.name.includes('cultivated')
+										}>
 										{register({
 											...field,
 											value,
