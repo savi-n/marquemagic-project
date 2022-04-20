@@ -249,7 +249,13 @@ function caseCreationDataFormat(
 	editLoan = sessionStorage.getItem('editLoan')
 		? JSON.parse(sessionStorage.getItem('editLoan'))
 		: {};
-	const collateralData = data['collateral-details'];
+	const collateralData = [];
+	if (data['collateral-details'])
+		collateralData.push(data['collateral-details']);
+	if (data['land-additional-details'])
+		collateralData.push(data['land-additional-details']);
+	if (data['fishery-additional-details'])
+		collateralData.push(data['fishery-additional-details']);
 	//console.log(
 	//'LoanDoccumentUpload-caseCreationDataFormat-collatralData ',
 	//	collatralData
@@ -269,17 +275,16 @@ function caseCreationDataFormat(
 			? 'business'
 			: 'salaried';
 
-	/*	console.log('case-creation-data-format-', {
-		data,
-		companyData,
-		productDetails,
-		productId,
-		applicantData,
-		loanData,
-		idType,
-		guarantorData,
-		obj,
-	});*/
+	// console.log('case-creation-data-format-', {
+	// 	data,
+	// 	companyData,
+	// 	productDetails,
+	// 	productId,
+	// 	applicantData,
+	// 	loanData,
+	// 	idType,
+	// 	guarantorData,
+	// });
 
 	const businessDetails = () => {
 		let corporateDetails = sessionStorage.getItem('corporateDetails');
@@ -384,7 +389,7 @@ function caseCreationDataFormat(
 		// 	: {}
 		director_details: {},
 		loan_details: {
-			collateral: [collateralData],
+			collateral: collateralData,
 			// loan_type_id: 1,
 			// case_priority: null,
 			// loan_product_id: "10",
@@ -625,6 +630,7 @@ function refereneceDataFormat(loanId, data) {
 
 	return formatedData;
 }
+
 export default function DocumentUpload({
 	productDetails,
 	userType,
@@ -653,16 +659,6 @@ export default function DocumentUpload({
 	const {
 		state: { clientToken },
 	} = useContext(AppContext);
-
-	const {
-		actions: {
-			setUsertypeDocuments,
-			removeUserTypeDocument,
-			setUserTypeDocumentType,
-			setUsertypeCibilData,
-			setUsertypeStatementData,
-		},
-	} = useContext(FormContext);
 
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [message, setMessage] = useState('');
@@ -720,13 +716,10 @@ export default function DocumentUpload({
 		applicantData?.incomeType ||
 		state['business-details']?.BusinessType ||
 		companyData?.BusinessType;
-	// applicantData?.incomeType === 'salaried'
-	// 	? 7
-	// 	: applicantData?.incomeType === 'selfemployed'
-	// 	? 18
-	// 	: state['business-details']?.BusinessType || companyData?.BusinessType
-	// 	? state['business-details']?.BusinessType || companyData?.BusinessType
-	// 	: 1;
+
+	// console.log('LoanDocumentsUpload-allstates-', {
+	// 	state,
+	// });
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
@@ -1378,21 +1371,6 @@ export default function DocumentUpload({
 		if (docs.mainType === 'Financial') financialCount++;
 		if (docs.mainType === 'Others') otherCount++;
 	});
-
-	// console.log(
-	// 	'bankDetailsDataFormat(caseId, state)',
-	// 	state,
-	// 	bankDetailsDataFormat('', state),
-	// 	caseCreationDataFormat(
-	// 		{
-	// 			...state,
-	// 			productId,
-	// 		},
-	// 		companyDetail,
-	// 		productDetails,
-	// 		productId
-	// 	)
-	// );
 
 	return (
 		<>
