@@ -443,7 +443,7 @@ export default function FormController({
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
 				/>
-
+				{/* {console.log(id)} */}
 				{/* {id === 'land-additional-details' && (
 					<InputField
 						placeholder='Total Value (In  ₹ )'
