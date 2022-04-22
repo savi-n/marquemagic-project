@@ -55,7 +55,7 @@ const VALIDATION_RULES = {
 		message: 'Numbers only Allowed',
 	},
 	email: {
-		func: validatePattern(/^[a-z0-9+_.-]+@[a-z0-9.-]+$/g),
+		func: validatePattern(/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/g),
 		message: 'Invalid Email Address',
 	},
 	pattern: {
