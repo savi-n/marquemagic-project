@@ -1258,13 +1258,14 @@ export default function PanVerification({
 												  ) ||
 												  (formState.values?.companyName &&
 														formState.values?.panNumber)
-												: !(
-														formState.values?.udhyogAadhar ||
+												: (!(
+														formState.values?.udhyogAadhar &&
 														formState.values?.panNumber
-												  ) ||
-												  (formState.values?.udhyogAadhar &&
-														formState.values?.panNumber &&
-														formState?.values?.gstin) ||
+												  ) &&
+														!(
+															formState.values?.panNumber &&
+															formState?.values?.gstin
+														)) ||
 												  loading ||
 												  (verificationFailed && verificationFailed.length > 0)
 											: !(
