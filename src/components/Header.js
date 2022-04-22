@@ -31,6 +31,8 @@ export default function Header({
 	logoLink,
 }) {
 	const [corporateName, setCorporateName] = useState('');
+	const [backToDashboard, setBackToDashboard] = useState(false);
+
 	const redirectDashboard = () => {
 		let path = '/newui/main/dashboard';
 		window.open(path);
@@ -59,11 +61,12 @@ export default function Header({
 				setCorporateName(userDetails?.cacompname || '');
 				sessionStorage.setItem('corporateDetails', stringifyUserDetails);
 			} else if (params.uid) {
-				console.log('uid-passed-', { params, stringifyUserDetails });
+				// console.log('uid-passed-', { params, stringifyUserDetails });
 				sessionStorage.setItem('userDetails', stringifyUserDetails);
+				setBackToDashboard(true);
 			}
 		} catch (error) {
-			console.log('error-Header-getUserDetails-', error);
+			// console.log('error-Header-getUserDetails-', error);
 		}
 	};
 
@@ -92,12 +95,14 @@ export default function Header({
 					{corporateName}
 				</div>
 			)}
+			{backToDashboard && (
+				<div className='px-5' style={{ marginLeft: '51em' }}>
+					<Button onClick={redirectDashboard}>
+						<span>BACK TO DASHBOARD</span>
+					</Button>
+				</div>
+			)}
 
-			<div className='px-5' style={{ marginLeft: '60em' }}>
-				<Button onClick={redirectDashboard}>
-					<span>BACK TO DASHBOARD</span>
-				</Button>
-			</div>
 			{openAccount && (
 				<div className='ml-auto'>
 					<Button onClick={() => window.open(openAccountLink, '_blank')}>

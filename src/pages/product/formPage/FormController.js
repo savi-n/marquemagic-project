@@ -10,6 +10,7 @@ import Button from '../../../components/Button';
 import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
 import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { FormContext } from '../../../reducer/formReducer';
+import InputField from 'components/inputs/InputField';
 
 import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -265,7 +266,6 @@ export default function FormController({
 					});
 			}
 		}
-
 		onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -443,6 +443,17 @@ export default function FormController({
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
 				/>
+				{/* {console.log(id)} */}
+				{/* {id === 'land-additional-details' && (
+					<InputField
+						placeholder='Total Value (In  ₹ )'
+						value='0'
+						style={{ width: '25%', marginBottom: '3%' }}
+						jsonData={map?.fields[id]?.data || []}
+						id={id}
+					/>
+				)} */}
+
 				<ButtonWrap>
 					{id === 'business-details' && (
 						<Button
