@@ -229,6 +229,7 @@ export default function PanVerification({
 			removeAllDocuments,
 			setPanDocDetails,
 			setOtherDocDetails,
+			removeLoanDocument,
 		},
 	} = useContext(LoanFormContext);
 
@@ -268,6 +269,7 @@ export default function PanVerification({
 	const [backUpload, setBackUpload] = useState(false);
 	const [backUploading, setBackUploading] = useState(false);
 	const [disableButton, setDisableSubmit] = useState(false);
+	const [panFileId, setPanFileId] = useState(null);
 
 	// const userid = '10626';
 
@@ -542,9 +544,10 @@ export default function PanVerification({
 						upload_doc_name: res.data.s3.filename,
 						src: 'start',
 					};
-
+					setPanFileId(file1.id);
 					setLoanDocuments([file1]);
 					// this ends here
+
 					setPan(res.data.data['Pan_number']);
 					sessionStorage.setItem('pan', res.data.data['Pan_number']);
 					formState.values.panNumber = res.data.data['Pan_number'];
@@ -1302,6 +1305,7 @@ export default function PanVerification({
 					<Modal
 						show={openConfirm}
 						onClose={() => {
+							if (panFileId) removeLoanDocument(panFileId);
 							setPanConfirm(false);
 						}}
 						width='30%'>
