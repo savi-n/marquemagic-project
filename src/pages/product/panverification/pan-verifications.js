@@ -432,6 +432,7 @@ export default function PanVerification({
 	const [isBusiness, setBusiness] = useState(true);
 
 	const handleFileUpload = files => {
+		console.log('trueeee', files);
 		setFile([...files, ...file]);
 		setPanFile([...files, ...file]);
 		setDisableSubmit(false);
@@ -451,6 +452,9 @@ export default function PanVerification({
 
 	const userid = '10626';
 	const removeHandler = (e, doc, name) => {
+		// console.log('state', state.documents);
+		// console.log('remveddd', e, typeof e);
+		setBackUploading(false);
 		setPanError('');
 		resetAllErrors();
 		if (name) {
@@ -789,9 +793,10 @@ export default function PanVerification({
 	useEffect(() => {
 		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
 			setBackUpload(true);
-	}, [otherDoc, aadhar, voter]);
+	}, [otherDoc, aadhar, voter, backUploading]);
 
 	const handleUpload = files => {
+		// console.log('here');
 		setLoading(true);
 		const fileType = t();
 		resetAllErrors();
@@ -1087,6 +1092,9 @@ export default function PanVerification({
 											{dlError}
 										</p>
 									)}
+									<h1 className='place-content-center text-xl text-black'>
+										OR
+									</h1>
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -1122,6 +1130,9 @@ export default function PanVerification({
 											{aadharError}
 										</p>
 									)}
+									<h1 className='place-content-center text-xl text-black'>
+										OR
+									</h1>
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -1131,6 +1142,7 @@ export default function PanVerification({
 
 									<FileUpload
 										accept=''
+										// disabled={true}
 										upload={{
 											url: DOCS_UPLOAD_URL_LOAN({
 												userid,
