@@ -205,11 +205,7 @@ export default function PanVerification({
 	id,
 }) {
 	const productType =
-		productDetails.loanType.includes('Business') ||
-		productDetails.loanType.includes('LAP') ||
-		productDetails.loanType.includes('Working')
-			? 'business'
-			: 'salaried';
+		productDetails.loanType.loan_request_type === 1 ? 'business' : 'salaried';
 	const {
 		state: { whiteLabelId, clientToken, bankToken },
 	} = useContext(AppContext);
