@@ -1296,7 +1296,10 @@ export default function PanVerification({
 						show={companyListModal}
 						companyName={formState?.values?.companyName}
 						companyList={companyList}
-						onClose={() => setCompanyListModal(false)}
+						onClose={() => {
+							if (panFileId) removeLoanDocument(panFileId);
+							setCompanyListModal(false);
+						}}
 						onCompanySelect={onCompanySelect}
 						formState={formState}
 					/>
