@@ -256,7 +256,7 @@ export default function PanVerification({
 	const [panResponse, setPanResponse] = useState(null);
 	const [isBusiness, setBusiness] = useState(true);
 
-	const product_id = localStorage.getItem('productId');
+	const product_id = sessionStorage.getItem('productId');
 
 	const [openConfirm, setPanConfirm] = useState(false);
 	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
@@ -319,24 +319,33 @@ export default function PanVerification({
 		);
 
 		const companyData = cinNumberResponse.data;
+		const reqBody = {
+			email: companyData.data.company_master_data.email_id,
+			white_label_id: whiteLabelId,
+			source: APP_CLIENT,
+			name: companyData.data.company_master_data.company_name,
+			mobileNo: '9999999999',
+			addrr1: '',
+			addrr2: '',
+		};
+		if (sessionStorage.getItem('userDetails')) {
+			try {
+				reqBody.user_id =
+					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			} catch (err) {
+				return err;
+			}
+		}
 
 		if (companyData.status === NC_STATUS_CODE.OK) {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
-				data: {
-					email: companyData.data.company_master_data.email_id,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: companyData.data.company_master_data.company_name,
-					mobileNo: '9999999999',
-					addrr1: '',
-					addrr2: '',
-				},
+				data: reqBody,
 			});
 
 			const userDetailsRes = userDetailsReq.data;
 
-			localStorage.setItem('branchId', userDetailsRes.branchId);
+			sessionStorage.setItem('branchId', userDetailsRes.branchId);
 
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
@@ -349,7 +358,7 @@ export default function PanVerification({
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-				localStorage.setItem(
+				sessionStorage.setItem(
 					'encryptWhiteLabel',
 					encryptWhiteLabelRes.encrypted_whitelabel[0]
 				);
@@ -379,7 +388,7 @@ export default function PanVerification({
 
 		const url = window.location.hostname;
 
-		let userToken = localStorage.getItem(url);
+		let userToken = sessionStorage.getItem(url);
 
 		let form = JSON.parse(userToken);
 
@@ -397,12 +406,12 @@ export default function PanVerification({
 			},
 		};
 
-		localStorage.setItem(url, JSON.stringify(form));
-		localStorage.setItem(
+		sessionStorage.setItem(url, JSON.stringify(form));
+		sessionStorage.setItem(
 			'BusinessName',
 			form.formReducer.user.applicantData.BusinessName
 		);
-		localStorage.setItem(
+		sessionStorage.setItem(
 			'busniess',
 			JSON.stringify(form.formReducer.user.applicantData)
 		);
@@ -465,7 +474,7 @@ export default function PanVerification({
 	};
 
 	useEffect(() => {
-		localStorage.removeItem('product');
+		sessionStorage.removeItem('product');
 		removeAllDocuments();
 	}, []);
 
@@ -537,13 +546,13 @@ export default function PanVerification({
 					setLoanDocuments([file1]);
 					// this ends here
 					setPan(res.data.data['Pan_number']);
-					localStorage.setItem('pan', res.data.data['Pan_number']);
+					sessionStorage.setItem('pan', res.data.data['Pan_number']);
 					formState.values.panNumber = res.data.data['Pan_number'];
 					formState.values.responseId = res?.data?.data?.id;
 					formState.values.companyName = res.data.data['Name'];
 					formState.values.dob = res.data.data['DOB'];
-					localStorage.getItem('DOB', res.data.data['DOB']);
-					localStorage.setItem('formstatepan', JSON.stringify(formState));
+					sessionStorage.getItem('DOB', res.data.data['DOB']);
+					sessionStorage.setItem('formstatepan', JSON.stringify(formState));
 					if (productType === 'business') {
 						if (
 							!(
@@ -637,7 +646,7 @@ export default function PanVerification({
 
 				// setLoading(false);
 			} else {
-				localStorage.setItem('product', 'demo');
+				sessionStorage.setItem('product', 'demo');
 				if (!panNumber) {
 					setLoading(false);
 					return;
@@ -867,7 +876,7 @@ export default function PanVerification({
 								res.data?.data?.name?.split(' ') ||
 								res.data?.data?.Name?.split(' ');
 							formState.values.aadhaar = t;
-							localStorage.setItem('aadhar', t);
+							sessionStorage.setItem('aadhar', t);
 							formState.values.dob = res?.data?.data?.DOB;
 							let firstName = [...name];
 							firstName.pop();
@@ -893,7 +902,7 @@ export default function PanVerification({
 								formState.values.pin = pinCode || pin;
 							}
 
-							localStorage.setItem('formstate', JSON.stringify(formState));
+							sessionStorage.setItem('formstate', JSON.stringify(formState));
 							emptyDoc();
 							onProceed();
 						}
@@ -948,7 +957,7 @@ export default function PanVerification({
 						res.data?.data?.name?.split(' ') ||
 						res.data?.data?.Name?.split(' ');
 					formState.values.aadhaar = t;
-					localStorage.setItem('aadhar', t);
+					sessionStorage.setItem('aadhar', t);
 					formState.values.dob = res?.data?.data?.DOB;
 					let fName = [...name];
 					fName.pop();
@@ -974,7 +983,7 @@ export default function PanVerification({
 						formState.values.pin = pinCode || pin;
 					}
 
-					localStorage.setItem('formstate', JSON.stringify(formState));
+					sessionStorage.setItem('formstate', JSON.stringify(formState));
 					emptyDoc();
 					onProceed();
 				}
@@ -1249,13 +1258,14 @@ export default function PanVerification({
 												  ) ||
 												  (formState.values?.companyName &&
 														formState.values?.panNumber)
-												: !(
-														formState.values?.udhyogAadhar ||
+												: (!(
+														formState.values?.udhyogAadhar &&
 														formState.values?.panNumber
-												  ) ||
-												  (formState.values?.udhyogAadhar &&
-														formState.values?.panNumber &&
-														formState?.values?.gstin) ||
+												  ) &&
+														!(
+															formState.values?.panNumber &&
+															formState?.values?.gstin
+														)) ||
 												  loading ||
 												  (verificationFailed && verificationFailed.length > 0)
 											: !(
@@ -1310,7 +1320,7 @@ export default function PanVerification({
 								name='Proceed'
 								fill
 								onClick={() => {
-									localStorage.setItem('pan', formState?.values?.panNumber);
+									sessionStorage.setItem('pan', formState?.values?.panNumber);
 									setPanConfirm(false);
 									setPanUpload(false);
 									if (productType === 'salaried') {

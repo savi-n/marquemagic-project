@@ -98,24 +98,33 @@ export default function PersonalDetailsPage({
 	};
 
 	const onSave = async data => {
+		const reqBody = {
+			email: data.email,
+			white_label_id: whiteLabelId,
+			source: APP_CLIENT,
+			name: data.firstName,
+			mobileNo: data.mobileNo,
+			addrr1: '',
+			addrr2: '',
+		};
+		if (sessionStorage.getItem('userDetails')) {
+			try {
+				reqBody.user_id =
+					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			} catch (err) {
+				return err;
+			}
+		}
 		// if (!userToken) {
 		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 			method: 'POST',
-			data: {
-				email: data.email,
-				white_label_id: whiteLabelId,
-				source: APP_CLIENT,
-				name: data.firstName,
-				mobileNo: data.mobileNo,
-				addrr1: '',
-				addrr2: '',
-			},
+			data: reqBody,
 		});
 
 		const userDataRes = userDetailsReq.data;
 
 		if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-			localStorage.setItem('userToken', userDataRes.token);
+			sessionStorage.setItem('userToken', userDataRes.token);
 
 			const encryptWhiteLabelReq = await newRequest(
 				WHITELABEL_ENCRYPTION_API,
@@ -127,7 +136,7 @@ export default function PersonalDetailsPage({
 
 			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-			localStorage.setItem(
+			sessionStorage.setItem(
 				'encryptWhiteLabel',
 				encryptWhiteLabelRes.encrypted_whitelabel[0]
 			);
@@ -170,13 +179,13 @@ export default function PersonalDetailsPage({
 				type: 'error',
 			});
 		} else {
-			const formstatepan = JSON.parse(localStorage.getItem('formstatepan'));
-			localStorage.setItem(
+			const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
+			sessionStorage.setItem(
 				'formstatepan',
 				JSON.stringify({ ...formstatepan, ...data })
 			);
-			const formstate = JSON.parse(localStorage.getItem('formstate'));
-			localStorage.setItem(
+			const formstate = JSON.parse(sessionStorage.getItem('formstate'));
+			sessionStorage.setItem(
 				'formstate',
 				JSON.stringify({ ...formstate, ...data })
 			);
@@ -188,14 +197,16 @@ export default function PersonalDetailsPage({
 	};
 
 	const formatPersonalDetails = personalDetails => {
-		return {
+		const newPersonalDetails = {
 			firstName: personalDetails?.businessname,
-			incomeType:
-				personalDetails?.businesstype === 1
-					? 'business'
-					: personalDetails?.businesstype === 18
-					? 'selfemployed'
-					: 'salaried',
+			incomeType: personalDetails?.businesstype,
+			// personalDetails?.businesstype === 1
+			// 	? 'business'
+			// 	: personalDetails?.businesstype === 18
+			// 	? 'selfemployed'
+			// 	: personalDetails?.businesstype === 7
+			// 	? 'salaried'
+			// 	: undefined,
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
@@ -209,11 +220,12 @@ export default function PersonalDetailsPage({
 			countryResidence: personalDetails?.relation,
 			maritalStatus: personalDetails?.relation,
 		};
+		return newPersonalDetails;
 	};
 
 	const prefilledValues = () => {
 		try {
-			const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+			const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 			const appData = JSON.parse(userTokensss)?.formReducer?.user
 				?.applicantData;
 			let form =
@@ -222,11 +234,10 @@ export default function PersonalDetailsPage({
 				{};
 			if (form) return form;
 			else {
-				var formStat = JSON.parse(localStorage.getItem('formstate'));
+				var formStat = JSON.parse(sessionStorage.getItem('formstate'));
 				return formStat?.values;
 			}
 		} catch (error) {
-			console.log('error-PersonalDetails-prefilledValues-', error);
 			return {};
 		}
 	};
@@ -234,8 +245,8 @@ export default function PersonalDetailsPage({
 	const getAdhar = () => {
 		try {
 			var formStat =
-				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
-				localStorage.getItem('aadhar');
+				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadharNum ||
+				sessionStorage.getItem('aadhar');
 
 			if (formStat) {
 				const adharNum = formStat;
@@ -247,7 +258,6 @@ export default function PersonalDetailsPage({
 				return `${d}`;
 			}
 		} catch (error) {
-			console.log('error-PersonalDetails-getAdhar-', error);
 			return '';
 		}
 	};
@@ -255,8 +265,8 @@ export default function PersonalDetailsPage({
 	const getDOB = () => {
 		try {
 			var formStat =
-				JSON.parse(localStorage.getItem('formstate')) ||
-				JSON.parse(localStorage.getItem('formstatepan'));
+				JSON.parse(sessionStorage.getItem('formstate')) ||
+				JSON.parse(sessionStorage.getItem('formstatepan'));
 
 			if (formStat && formStat?.values?.dob) {
 				let d = formStat.values.dob.split('/');
@@ -266,26 +276,25 @@ export default function PersonalDetailsPage({
 				return d;
 			}
 		} catch (error) {
-			console.log('error-PersonalDetails-getDOB', error);
 			return '';
 		}
 	};
 
 	const url = window.location.hostname;
 
-	let userTokensss = localStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(url);
 
 	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
 	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
-		const t = JSON.parse(localStorage.getItem('formstatepan'));
+		const t = JSON.parse(sessionStorage.getItem('formstatepan'));
 		const name = t?.values?.companyName?.split(' ');
 		if (name) {
 			return name;
 		}
 	};
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	let editLoanDataSalary = {};
 	if (editLoanData && (!form || (form && Object.keys(form).length === 0))) {
 		editLoanDataSalary = {
@@ -345,16 +354,16 @@ export default function PersonalDetailsPage({
 						'',
 					dob:
 						getDOB() ||
-						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
+						JSON.parse(sessionStorage.getItem('formstatepan'))?.values?.dob ||
 						prefilledValues()?.dob ||
 						'',
 					email: prefilledValues()?.email || '',
 					mobileNo: prefilledValues()?.mobileNum || '',
 					panNumber:
 						prefilledValues()?.pan ||
-						JSON.parse(localStorage.getItem('formstatepan'))?.values
+						JSON.parse(sessionStorage.getItem('formstatepan'))?.values
 							?.panNumber ||
-						localStorage.getItem('pan') ||
+						sessionStorage.getItem('pan') ||
 						'',
 					residenceStatus: prefilledValues()?.residentTypess || '',
 					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
@@ -366,12 +375,23 @@ export default function PersonalDetailsPage({
 			/>
 			<SalaryDetails
 				jsonData={map?.fields['salary-details'].data}
+				jsonLable={map?.fields['salary-details'].label}
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
+				// incomeType={'business'}
 				preData={
 					(form && Object.keys(form).length > 0 && form) || editLoanDataSalary
 				}
+
+				// preData={{
+				// 	incomeType: prefilledValues()?.incomeType?.value || '',
+				// 	incomeType:
+				// 		prefilledValues()?.incomeType ||
+				// 		JSON.parse(sessionStorage.getItem('personal-details'))?.incomeType
+				// 			?.value ||
+				// 		'',
+				// }}
 			/>
 			<ButtonWrap>
 				{displayProceedButton}

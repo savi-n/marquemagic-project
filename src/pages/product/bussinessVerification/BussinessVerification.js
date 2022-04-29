@@ -176,25 +176,34 @@ export default function BussinessDetails({
 		);
 
 		const companyData = cinNumberResponse.data;
+		const reqBody = {
+			email: companyData.data.company_master_data.email_id,
+			white_label_id: whiteLabelId,
+			source: APP_CLIENT,
+			name: companyData.data.company_master_data.company_name,
+			mobileNo: '9999999999',
+			addrr1: '',
+			addrr2: '',
+		};
+		if (sessionStorage.getItem('userDetails')) {
+			try {
+				reqBody.user_id =
+					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			} catch (err) {
+				return err;
+			}
+		}
 
 		if (companyData.status === NC_STATUS_CODE.OK) {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
-				data: {
-					email: companyData.data.company_master_data.email_id,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: companyData.data.company_master_data.company_name,
-					mobileNo: '9999999999',
-					addrr1: '',
-					addrr2: '',
-				},
+				data: reqBody,
 			});
 
 			const userDetailsRes = userDetailsReq.data;
 
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
-				localStorage.setItem('userToken', userDetailsRes.token);
+				sessionStorage.setItem('userToken', userDetailsRes.token);
 
 				const encryptWhiteLabelReq = await newRequest(
 					WHITELABEL_ENCRYPTION_API,
@@ -209,7 +218,6 @@ export default function BussinessDetails({
 				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
 					setCompanyDetails({
 						token: userDetailsRes.token,
-						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
 						...formatCompanyData(companyData.data),

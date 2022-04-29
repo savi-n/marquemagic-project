@@ -226,12 +226,12 @@ export default function Product({ product, url }) {
 	useEffect(() => {
 		if (response) {
 			configure(response.data?.product_details?.flow);
-			localStorage.setItem('productId', atob(product));
+			sessionStorage.setItem('productId', atob(product));
 		}
 	}, [response]);
 
 	useEffect(() => {
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		if (editLoanData && flowMap) {
 			const steps = Object.keys(flowMap);
 			onFlowChange(flowMap?.[flow]?.main);
@@ -284,9 +284,9 @@ export default function Product({ product, url }) {
 	const onNoClick = () => {
 		// setContinueExistingApplication(false);
 		setShowContinueModal(true);
-		const wt_lbl = localStorage.getItem('wt_lbl');
-		localStorage.clear();
-		localStorage.setItem('wt_lbl', wt_lbl);
+		const wt_lbl = sessionStorage.getItem('wt_lbl');
+		sessionStorage.clear();
+		sessionStorage.setItem('wt_lbl', wt_lbl);
 		clearFlowDetails(basePageUrl);
 		clearFormData();
 		resetUserDetails();

@@ -15,16 +15,16 @@ const Colom1 = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index:1100;
+	z-index: 1100;
 	flex-direction: column;
-@media (max-width:700px){
-	position: absolute;
-  top: 50%;
-  left: 50%;
-	width:100%;
-	text-align: center;
-  transform: translate(-50%, -50%);
-}
+	@media (max-width: 700px) {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 100%;
+		text-align: center;
+		transform: translate(-50%, -50%);
+	}
 `;
 
 const Colom2 = styled.div`
@@ -91,9 +91,9 @@ export default function ApplicationSubmitted({
 	onFlowChange,
 }) {
 	useEffect(() => {
-		const wt_lbl = localStorage.getItem('wt_lbl');
-		localStorage.clear();
-		localStorage.setItem('wt_lbl', wt_lbl);
+		const wt_lbl = sessionStorage.getItem('wt_lbl');
+		sessionStorage.clear();
+		sessionStorage.setItem('wt_lbl', wt_lbl);
 	}, []);
 
 	const {

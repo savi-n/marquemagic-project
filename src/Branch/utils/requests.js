@@ -6,9 +6,11 @@ import {
 	BORROWER_UPLOAD_URL,
 } from '../../_config/app.config';
 
-const userToken = localStorage.getItem('token');
+const userToken = sessionStorage.getItem('token');
 
-export const dashboardData = async (token = localStorage.getItem('token')) => {
+export const dashboardData = async (
+	token = sessionStorage.getItem('token')
+) => {
 	const g = await axios.get(`${API_END_POINT}/branch/dashboard`, {
 		headers: { Authorization: `Bearer ${token}` },
 	});
@@ -16,7 +18,7 @@ export const dashboardData = async (token = localStorage.getItem('token')) => {
 	return t.data.data;
 };
 
-export const getNCStatus = (token = localStorage.getItem('token')) => {
+export const getNCStatus = (token = sessionStorage.getItem('token')) => {
 	axios
 		.get(`${API_END_POINT}/case_nc_status`, {
 			headers: { Authorization: `Bearer ${token}` },
@@ -28,7 +30,7 @@ export const getNCStatus = (token = localStorage.getItem('token')) => {
 
 export const getLoan = async (
 	product_id,
-	white_label_id = localStorage.getItem('wt_lbl'),
+	white_label_id = sessionStorage.getItem('wt_lbl'),
 	token = userToken
 ) => {
 	const g = await axios.get(`${API_END_POINT}/productDetails`, {
@@ -41,7 +43,10 @@ export const getLoan = async (
 		: t.data;
 };
 
-export const getCase = async (order, token = localStorage.getItem('token')) => {
+export const getCase = async (
+	order,
+	token = sessionStorage.getItem('token')
+) => {
 	const g = await axios.post(
 		`${API_END_POINT}/branch/viewLoan`,
 		{ ncStatus: `${order}` },
@@ -54,7 +59,7 @@ export const getCase = async (order, token = localStorage.getItem('token')) => {
 	return g.data.loanList;
 };
 
-export const getUsersList = async (token = localStorage.getItem('token')) => {
+export const getUsersList = async (token = sessionStorage.getItem('token')) => {
 	const g = await axios.get(`${API_END_POINT}/branch/getUserList`, {
 		headers: { Authorization: `Bearer ${token}` },
 		params: { userType: 'Branch' },
@@ -65,7 +70,7 @@ export const getUsersList = async (token = localStorage.getItem('token')) => {
 
 export const getCommentList = async (
 	loanId,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.get(`${API_END_POINT}/branch/commentList`, {
 		headers: { Authorization: `Bearer ${token}` },
@@ -80,7 +85,7 @@ export const reassignLoan = async (
 	reAssignTo,
 	comments,
 	recommendation,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/branch/reAssignLoans`,
@@ -97,7 +102,7 @@ export const reassignLoan = async (
 export const reassignLoanQuery = async (
 	loanId,
 	query,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/branch/reAssignLoans`,
@@ -113,7 +118,7 @@ export const reassignLoanQuery = async (
 
 export const getLoanDetails = async (
 	loanId,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/cub/getLoanDeatils`,
@@ -127,18 +132,18 @@ export const getLoanDetails = async (
 };
 
 export const getWhiteLabelPermission = async (
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.get(`${API_END_POINT}/whiteLabelPermission`, {
 		headers: { Authorization: `Bearer ${token}` },
 	});
 	const t = await g;
-	localStorage.setItem('wt_lbl', t.data.data.white_label);
-	localStorage.setItem('permission', JSON.stringify(t.data.data.permission));
+	sessionStorage.setItem('wt_lbl', t.data.data.white_label);
+	sessionStorage.setItem('permission', JSON.stringify(t.data.data.permission));
 	return g;
 };
 
-export const getLoanDocs = async (token = localStorage.getItem('token')) => {
+export const getLoanDocs = async (token = sessionStorage.getItem('token')) => {
 	const g = await axios.get(`${API_END_POINT}/Loanrequest`, {
 		headers: { Authorization: `Bearer ${token}` },
 	});
@@ -147,7 +152,7 @@ export const getLoanDocs = async (token = localStorage.getItem('token')) => {
 
 export const loanDocMapping = async (
 	loanId,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/applicantMapping/view`,
@@ -161,7 +166,7 @@ export const viewDocument = async (
 	loan_id,
 	userid,
 	filename,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/viewDocument`,
@@ -188,7 +193,7 @@ export const viewDocument = async (
 
 export const needAction = async (
 	ncStatusManageName,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/branch/loanListAlert`,
@@ -201,7 +206,7 @@ export const needAction = async (
 
 export const getApprovalStatus = async (
 	loanId,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/branch/getApproverList`,
@@ -215,7 +220,7 @@ export const assignUserToLoan = async (
 	loanId,
 	assignUserId,
 	comment,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/branch/assignUserToLoan`,
@@ -228,7 +233,7 @@ export const assignUserToLoan = async (
 export const searchData = async (
 	caseData,
 	ncStatus,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	if (caseData !== '') {
 		const g = await axios.post(
@@ -244,7 +249,7 @@ export const searchData = async (
 export const docTypes = async (
 	loan_product,
 	business_type,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/loan/documentTypes`,
@@ -259,7 +264,7 @@ export const docTypes = async (
 
 export const borrowerDocUpload = async (
 	upload_document,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	try {
 		const g = await axios.post(
@@ -278,7 +283,7 @@ export const borrowerDocUpload = async (
 
 export const uploadDoc = async (
 	userid,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	const g = await axios.post(
 		`${API_END_POINT}/loanDocumentUpload`,
@@ -291,8 +296,8 @@ export const uploadDoc = async (
 
 export const getGroupedDocs = async (
 	case_id,
-	white_label_id = localStorage.getItem('wt_lbl'),
-	token = localStorage.getItem('token')
+	white_label_id = sessionStorage.getItem('wt_lbl'),
+	token = sessionStorage.getItem('token')
 ) => {
 	const gq = await axios.get(`${API_END_POINT}/case-whitelabelEncrypt`, {
 		headers: { Authorization: `Bearer ${token}` },
@@ -318,7 +323,7 @@ export const verification = async (businessId, token) => {
 
 export const filterList = async (
 	filterBy,
-	token = localStorage.getItem('token')
+	token = sessionStorage.getItem('token')
 ) => {
 	if (filterBy !== '') {
 		const g = await axios.post(

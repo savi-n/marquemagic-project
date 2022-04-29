@@ -1,23 +1,23 @@
 const name = window.location.hostname;
 
 export function setStore(data, dataFrom) {
-  const storeData = {
-    ...(JSON.parse(localStorage.getItem(name)) || {}),
-    [dataFrom]: data,
-  };
-  localStorage.setItem(name, JSON.stringify(storeData));
+	const storeData = {
+		...(JSON.parse(sessionStorage.getItem(name)) || {}),
+		[dataFrom]: data,
+	};
+	sessionStorage.setItem(name, JSON.stringify(storeData));
 }
 
 export function getStore() {
-  return {
-    ...(JSON.parse(localStorage.getItem(name)) || {}),
-  };
+	return {
+		...(JSON.parse(sessionStorage.getItem(name)) || {}),
+	};
 }
 
 export function localStoreUserId(data) {
-  localStorage.setItem("cub_user_id_dev", JSON.stringify(data));
+	sessionStorage.setItem('cub_user_id_dev', JSON.stringify(data));
 }
 
 export function removeStore() {
-  localStorage.removeItem(name);
+	sessionStorage.removeItem(name);
 }

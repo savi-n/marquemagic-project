@@ -155,7 +155,7 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			const formStat = JSON.parse(localStorage.getItem('formstate'));
+			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
 			return formStat.values;
 		} catch (error) {
 			console.log('error-AddressDetails-prefilledValues-', error);

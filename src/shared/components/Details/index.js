@@ -10,7 +10,7 @@ export default function DetailsComponent(props) {
 	const [defaultVal, setDefault] = useState(true);
 	const { data } = props;
 	const {
-		state: { userDetails }
+		state: { userDetails },
 	} = useContext(UserContext);
 
 	var dval;
@@ -18,7 +18,7 @@ export default function DetailsComponent(props) {
 	const getDefaultValues = el => {
 		var val;
 		if (!props.subType) {
-			const d = JSON.parse(localStorage.getItem('applicantData'));
+			const d = JSON.parse(sessionStorage.getItem('applicantData'));
 			if (data?.label !== 'Loan Details') {
 				if (el.label !== ('Permanent Address' || 'Present Address')) {
 					const n = d?.applicantData;
@@ -41,7 +41,7 @@ export default function DetailsComponent(props) {
 		}
 
 		if (props.subType) {
-			const d = JSON.parse(localStorage.getItem('coApplicantData'));
+			const d = JSON.parse(sessionStorage.getItem('coApplicantData'));
 			if (data?.label !== 'Loan Details') {
 				if (el.label !== ('Permanent Address' || 'Present Address')) {
 					const n = d?.applicantData;
@@ -81,7 +81,11 @@ export default function DetailsComponent(props) {
 	};
 
 	return (
-		<Divider split={props.split} head={props.head} headLink={props.headLink} change={setDefault}>
+		<Divider
+			split={props.split}
+			head={props.head}
+			headLink={props.headLink}
+			change={setDefault}>
 			{data &&
 				data.data &&
 				data.data.map(
@@ -97,7 +101,9 @@ export default function DetailsComponent(props) {
 								t={el.mandatory === false ? 0 : 1}
 								sideHead={props.sideHead}
 								onChange={e =>
-									props.subType ? handleSubType(e, el, props) : handleChange(e, el, props)
+									props.subType
+										? handleSubType(e, el, props)
+										: handleChange(e, el, props)
 								}
 								defaultValue={getDefaultValues(el)}
 								isSearchable={el.searchable}
