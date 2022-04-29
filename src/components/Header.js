@@ -33,12 +33,11 @@ export default function Header({
 	const [corporateName, setCorporateName] = useState('');
 	const [backToDashboard, setBackToDashboard] = useState(false);
 
-	const redirectDashboard = () => {
-		let path = '/newui/main/dashboard';
-		window.open(path);
-		// console.log('history', history);
-		// history.push(path);
+	const redirectDashboard = e => {
+		e.preventDefault();
+		window.open(`${window.origin}/newui/main/dashboard`, '_self');
 	};
+
 	const getUserDetails = async params => {
 		try {
 			// const userRes.data.data.cacompname || "" = await axios.get(`${API_END_POINT}/userDetails?userid=10987`);
@@ -80,7 +79,9 @@ export default function Header({
 
 	return (
 		<>
-			<a href={logoLink ? logoLink : '/'} {...logoLink && { target: '_blank' }}>
+			<a
+				href={logoLink ? logoLink : '/'}
+				{...(logoLink && { target: '_blank' })}>
 				<Logo src={logo} alt='logo' />
 			</a>
 			{corporateName && (
