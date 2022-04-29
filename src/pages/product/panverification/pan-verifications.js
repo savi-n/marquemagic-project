@@ -432,7 +432,6 @@ export default function PanVerification({
 	const [isBusiness, setBusiness] = useState(true);
 
 	const handleFileUpload = files => {
-		console.log('trueeee', files);
 		setFile([...files, ...file]);
 		setPanFile([...files, ...file]);
 		setDisableSubmit(false);
@@ -1092,7 +1091,9 @@ export default function PanVerification({
 											{dlError}
 										</p>
 									)}
-									<h1 className='place-content-center text-xl text-black'>
+									<h1
+										className='text-xl text-black'
+										style={{ marginLeft: '50%' }}>
 										OR
 									</h1>
 									<p className='py-4 text-xl text-black'>
@@ -1130,7 +1131,9 @@ export default function PanVerification({
 											{aadharError}
 										</p>
 									)}
-									<h1 className='place-content-center text-xl text-black'>
+									<h1
+										className='text-xl text-black'
+										style={{ marginLeft: '50%' }}>
 										OR
 									</h1>
 									<p className='py-4 text-xl text-black'>
