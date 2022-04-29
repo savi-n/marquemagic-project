@@ -1,11 +1,15 @@
 // Active Help us with your PAGE
 // Guarantor Personal Details
+// Help us with your Business Details
+// Help us with your Personal Details
 import { useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { array, func, object, oneOfType, string } from 'prop-types';
 import useFetch from 'hooks/useFetch';
 import { NC_STATUS_CODE, SEARCH_BANK_BRANCH_LIST } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import InputField from 'components/inputs/InputField';
 import moment from 'moment';
 
 const H = styled.h1`
@@ -17,7 +21,8 @@ const H = styled.h1`
 `;
 
 const FieldWrap = styled.div`
-	width: 45%;
+	width: ${({ isSmallSize }) => (isSmallSize ? '25%' : '45%')};
+	/* width: 25%; */
 	margin: 10px 0;
 	@media (max-width: 700px) {
 		width: 100%;
@@ -42,6 +47,22 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
+const PricePerAcer = styled.div`
+	font-size: 14px;
+	color: grey;
+	text-align: center;
+`;
+
+const TotalValueWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: end;
+	margin-bottom: 10px;
+	label {
+		padding-right: 30px;
+	}
+`;
+
 export default function PersonalDetails({
 	preData = {},
 	id,
@@ -55,7 +76,11 @@ export default function PersonalDetails({
 	const {
 		state: { bankId, userToken },
 	} = useContext(UserContext);
+	const {
+		state: { completed: completedSections },
+	} = useContext(FlowContext);
 	const { newRequest } = useFetch();
+
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -164,24 +189,33 @@ export default function PersonalDetails({
 			!isEmailPresent && jsonData.push(email);
 		}
 	}, [pageName]);
+
+	const arrPricePerAcer = [0, 0, 0];
+	const arrTotalValueCultivated = [0, 0, 0];
+	const numberVar = ['1', '2', '3'];
+
 	return (
 		<>
 			<H>
 				{userType || 'Help us with your'}{' '}
 				<span>{pageName || 'Personal Details'}</span>
 			</H>
+			{/* {console.log('personalDetails-KCC-log', pageName)} */}
 			<FormWrap>
 				{jsonData && id === 'business-details'
 					? jsonData.map(field => {
-							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+							const editLoanData = JSON.parse(
+								sessionStorage.getItem('editLoan')
+							);
 							const customFields = {};
-							if (
-								editLoanData &&
-								editLoanData?.loan_ref_id &&
-								field.name === 'BusinessType'
-							) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+							if (field.name === 'BusinessType') {
+								if (
+									completedSections.includes('business-details') ||
+									(editLoanData && editLoanData?.loan_ref_id)
+								) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
 							}
 							return (
 								field.visibility && (
@@ -209,7 +243,9 @@ export default function PersonalDetails({
 					: id !== 'business-details' &&
 					  jsonData.map(field => {
 							// console.log('field-', field);
-							const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+							const editLoanData = JSON.parse(
+								sessionStorage.getItem('editLoan')
+							);
 							const value = populateValue(field);
 							const customFields = {};
 							if (pageName === 'Bank Details') {
@@ -226,53 +262,114 @@ export default function PersonalDetails({
 									customFields.max = moment().format('YYYY-MM-DD');
 								}
 							}
+
+							if (id === 'personal-details' && field.name === 'incomeType') {
+								if (
+									completedSections.includes('personal-details') ||
+									(editLoanData && editLoanData?.loan_ref_id)
+								) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+							}
+							let pricePerAcer = 0;
 							if (
-								editLoanData &&
-								editLoanData?.loan_ref_id &&
-								field.name === 'incomeType'
+								field?.options?.[0]?.peracre &&
+								formState?.values?.[field.name]
 							) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								const fieldNameNumber = field.name.slice(-1);
+								pricePerAcer = field.options.filter(
+									o => o.value === formState.values[field.name]
+								)[0].peracre;
+								if (numberVar.includes(fieldNameNumber))
+									arrPricePerAcer[fieldNameNumber] = pricePerAcer;
+							}
+							let totalValueCultivated = 0;
+							if (
+								field?.name.includes('cultivated') &&
+								formState?.values?.sq_feet
+							) {
+								const fieldNameNumber = field.name.slice(-1);
+								totalValueCultivated = Math.round(
+									(formState?.values?.sq_feet *
+										arrPricePerAcer[fieldNameNumber] *
+										formState.values?.[field.name]) /
+										100,
+									2
+								);
+								if (numberVar.includes(fieldNameNumber))
+									arrTotalValueCultivated[
+										fieldNameNumber
+									] = totalValueCultivated;
 							}
 							return (
 								field.visibility && (
-									<FieldWrap key={field.name}>
-										{register({
-											...field,
-											value,
-											...(preData?.[field.name] &&
-												field?.preDataDisable && { disabled: true }),
-											...(userType ? { disabled: false } : {}),
-											max: field.type === 'date' && '9999-12-31',
-											placeholder:
-												field.type === 'banklist'
-													? preData?.[`${field.name}`]?.name ||
-													  field.placeholder
-													: field.type === 'search'
-													? preData?.branchIdName || field.placeholder
-													: field.placeholder,
-											...(field.type === 'search'
-												? {
-														searchable: true,
-														...(field.fetchOnInit && {
-															fetchOptionsFunc: getHomeBranchOption,
-														}),
-												  }
-												: {}),
-											...customFields,
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name] && (
-												<ErrorMessage>
-													{formState?.error?.[field.name]}
-												</ErrorMessage>
+									<>
+										<FieldWrap
+											key={field.name}
+											isSmallSize={
+												field.name.includes('crop') ||
+												field.name.includes('cultivated')
+											}>
+											{register({
+												...field,
+												value,
+												...(preData?.[field.name] &&
+													field?.preDataDisable && { disabled: true }),
+												...(userType ? { disabled: false } : {}),
+												max: field.type === 'date' && '9999-12-31',
+												placeholder:
+													field.type === 'banklist'
+														? preData?.[`${field.name}`]?.name ||
+														  field.placeholder
+														: field.type === 'search'
+														? preData?.branchIdName || field.placeholder
+														: field.placeholder,
+												...(field.type === 'search'
+													? {
+															searchable: true,
+															...(field.fetchOnInit && {
+																fetchOptionsFunc: getHomeBranchOption,
+															}),
+													  }
+													: {}),
+												...customFields,
+											})}
+											{(formState?.submit?.isSubmited ||
+												formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name] && (
+													<ErrorMessage>
+														{formState?.error?.[field.name]}
+													</ErrorMessage>
+												)}
+											{pricePerAcer > 0 && (
+												<PricePerAcer>
+													Rs. {pricePerAcer}
+													/acre
+												</PricePerAcer>
 											)}
-									</FieldWrap>
+											{totalValueCultivated > 0 && (
+												<PricePerAcer>Rs. {totalValueCultivated}</PricePerAcer>
+											)}
+										</FieldWrap>
+									</>
 								)
 							);
 					  })}
 			</FormWrap>
+			{id === 'land-additional-details' && (
+				<TotalValueWrapper>
+					<label>Total Value: Rs.</label>
+					<InputField
+						readonly
+						disabled
+						placeholder='Value'
+						value={arrTotalValueCultivated.reduce((a, b) => a + b, 0)}
+						style={{ width: '100%' }}
+						id={id}
+					/>
+				</TotalValueWrapper>
+			)}
 		</>
 	);
 }

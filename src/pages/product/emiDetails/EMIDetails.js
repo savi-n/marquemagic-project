@@ -128,7 +128,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const { addToast } = useToasts();
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
-		headers: { authorization: `Bearer ${userToken || companyDetail?.token}` },
+		headers: { Authorization: `Bearer ${userToken || companyDetail?.token}` },
 	});
 	const onProceed = data => {
 		if (
@@ -145,14 +145,8 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		// preData?.[`${field.name}_bank_name`]
 		onSave(data);
 		setCompleted(id);
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
-		) {
-			if (map.main === 'cub-document-upload') {
-				map.main = 'document-upload';
-			}
+		if (map.main === 'cub-document-upload') {
+			map.main = 'document-upload';
 		}
 		onFlowChange(map.main);
 	};
@@ -219,7 +213,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			}
 		});
 	} else {
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
 			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
 			if (emaiDetails.length > 0) {

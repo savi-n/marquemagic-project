@@ -3,7 +3,11 @@ import styled from 'styled-components';
 
 import Modal from './Modal';
 import Button from './Button';
-import { BANK_LIST_API, BANK_TOKEN_API, NC_STATUS_CODE } from '../_config/app.config';
+import {
+	BANK_LIST_API,
+	BANK_TOKEN_API,
+	NC_STATUS_CODE,
+} from '../_config/app.config';
 import BANK_FLOW from '../_config/bankflow.config';
 import { AppContext } from '../reducer/appReducer';
 import useFetch from '../hooks/useFetch';
@@ -77,7 +81,7 @@ const Form = styled.form`
 	gap: 10px;
 	align-items: center;
 	justify-content: center;
-	@media (max-width: 700px){
+	@media (max-width: 700px) {
 		padding: 20px 0px;
 	}
 `;
@@ -92,12 +96,12 @@ const Captcha = styled.img`
 
 export default function BankStatementModal({ showModal, onClose }) {
 	const {
-		state: { bankToken, clientToken }
+		state: { bankToken, clientToken },
 	} = useContext(AppContext);
 
 	const { response: bankList, loading, newRequest } = useFetch({
 		url: BANK_LIST_API,
-		headers: { authorization: `${bankToken}` }
+		headers: { Authorization: `${bankToken}` },
 	});
 
 	const { addToast } = useToasts();
@@ -109,12 +113,12 @@ export default function BankStatementModal({ showModal, onClose }) {
 			data: {
 				type: 'EQFAX',
 				linkRequired: false,
-				isEncryption: false
-			}
+				isEncryption: false,
+			},
 		},
 		headers: {
-			authorization: clientToken
-		}
+			Authorization: clientToken,
+		},
 	});
 
 	const [processing, setProcessing] = useState(false);
@@ -130,9 +134,9 @@ export default function BankStatementModal({ showModal, onClose }) {
 			{
 				method,
 				data,
-				timeout: 180000
+				timeout: 180000,
 			},
-			{ authorization: bankToken }
+			{ Authorization: bankToken }
 		);
 	};
 
@@ -145,16 +149,22 @@ export default function BankStatementModal({ showModal, onClose }) {
 	};
 
 	const handleNext = async () => {
-		if (!captchaUrl && BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep]?.captchaGet) {
+		if (
+			!captchaUrl &&
+			BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep]?.captchaGet
+		) {
 			setProcessing(true);
-			const getCaptchaRes = await getCaptcha(BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep]?.captchaGet);
+			const getCaptchaRes = await getCaptcha(
+				BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep]?.captchaGet
+			);
 
 			if (getCaptchaRes?.status) {
 				setCaptchaUrl(getCaptchaRes?.imagePath);
 			} else {
 				addToast({
-					message: getCaptchaRes.message || 'Something Went Wrong. Try Again Later!',
-					type: 'error'
+					message:
+						getCaptchaRes.message || 'Something Went Wrong. Try Again Later!',
+					type: 'error',
 				});
 			}
 			setProcessing(false);
@@ -162,7 +172,9 @@ export default function BankStatementModal({ showModal, onClose }) {
 			if (!getCaptchaRes?.status) return;
 		}
 
-		BANK_FLOW[bankChoosen.name.toLowerCase()]?.length ? setFlowStep(flowStep + 1) : flowCompleted();
+		BANK_FLOW[bankChoosen.name.toLowerCase()]?.length
+			? setFlowStep(flowStep + 1)
+			: flowCompleted();
 	};
 
 	const getCaptcha = async url => {
@@ -178,12 +190,12 @@ export default function BankStatementModal({ showModal, onClose }) {
 		if (data?.imagePath && data?.statusCode === NC_STATUS_CODE.NC200) {
 			return {
 				status: true,
-				imagePath: data?.imagePath
+				imagePath: data?.imagePath,
 			};
 		}
 		return {
 			status: false,
-			message: data?.message
+			message: data?.message,
 		};
 	};
 
@@ -191,8 +203,9 @@ export default function BankStatementModal({ showModal, onClose }) {
 		switch (statusCode) {
 			case 'error': {
 				addToast({
-					message: response?.message || 'Something Went Wrong. Try Again Later!',
-					type: 'error'
+					message:
+						response?.message || 'Something Went Wrong. Try Again Later!',
+					type: 'error',
 				});
 				return;
 			}
@@ -228,8 +241,9 @@ export default function BankStatementModal({ showModal, onClose }) {
 
 			case 'updateCaptcha': {
 				addToast({
-					message: response?.message || 'Something Went Wrong. Try Again Later!',
-					type: 'error'
+					message:
+						response?.message || 'Something Went Wrong. Try Again Later!',
+					type: 'error',
 				});
 				const getCaptchaRes = await getCaptcha(
 					BANK_FLOW[bankChoosen.name.toLowerCase()][flowStep - 1]?.captchaGet
@@ -242,8 +256,9 @@ export default function BankStatementModal({ showModal, onClose }) {
 
 			case 'invalidOtp': {
 				addToast({
-					message: response?.message || 'Invalid OTP. Try Again with valid OTP!',
-					type: 'error'
+					message:
+						response?.message || 'Invalid OTP. Try Again with valid OTP!',
+					type: 'error',
 				});
 				return;
 			}
@@ -272,10 +287,14 @@ export default function BankStatementModal({ showModal, onClose }) {
 	const handleSubmitForm = async formData => {
 		setProcessing(true);
 
-		const status = BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.status || {};
+		const status =
+			BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.status || {};
 
 		try {
-			const post = await postData(BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.api, formData);
+			const post = await postData(
+				BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.api,
+				formData
+			);
 
 			const response = post.data;
 
@@ -283,8 +302,9 @@ export default function BankStatementModal({ showModal, onClose }) {
 
 			if (statusCode === '00') {
 				addToast({
-					message: response?.message || 'Something Went Wrong. Try Again Later!',
-					type: 'error'
+					message:
+						response?.message || 'Something Went Wrong. Try Again Later!',
+					type: 'error',
 				});
 				return;
 			}
@@ -362,7 +382,11 @@ export default function BankStatementModal({ showModal, onClose }) {
 				</div>
 			);
 		}
-		return <div key={flow.name}>{register({ ...flow, value: formState?.values[flow.name] })}</div>;
+		return (
+			<div key={flow.name}>
+				{register({ ...flow, value: formState?.values[flow.name] })}
+			</div>
+		);
 	};
 
 	return (
@@ -379,7 +403,11 @@ export default function BankStatementModal({ showModal, onClose }) {
 									<Bank key={bank.id} onClick={() => onBankSelect(bank)}>
 										<BankLogo src={bank.logo} alt={bank.name} loading='lazy' />
 										<BankName>{bank.name}</BankName>
-										<input type='radio' readOnly checked={bankChoosen.name === bank.name} />
+										<input
+											type='radio'
+											readOnly
+											checked={bankChoosen.name === bank.name}
+										/>
 									</Bank>
 								))}
 							</BankWrapper>
@@ -388,7 +416,7 @@ export default function BankStatementModal({ showModal, onClose }) {
 								fill
 								style={{
 									width: '200px',
-									background: 'blue'
+									background: 'blue',
 								}}
 								disabled={!bankChoosen.name || processing}
 								onClick={handleNext}
@@ -398,11 +426,15 @@ export default function BankStatementModal({ showModal, onClose }) {
 
 					{flowStep > 0 && (
 						<BankDetails>
-							<BankLogo src={bankChoosen.logo} alt={bankChoosen.name} loading='lazy' />
+							<BankLogo
+								src={bankChoosen.logo}
+								alt={bankChoosen.name}
+								loading='lazy'
+							/>
 							<Form onSubmit={handleSubmit(handleSubmitForm)}>
-								{BANK_FLOW[bankChoosen.name.toLowerCase()]?.[flowStep - 1]?.fields.map(flow =>
-									buildTemplate(flow)
-								)}
+								{BANK_FLOW[bankChoosen.name.toLowerCase()]?.[
+									flowStep - 1
+								]?.fields.map(flow => buildTemplate(flow))}
 								<Button
 									type='submit'
 									name={processing ? 'Please Wait... ' : 'Next'}
@@ -410,7 +442,7 @@ export default function BankStatementModal({ showModal, onClose }) {
 									disabled={!!Object.keys(formState.error).length || processing}
 									style={{
 										width: '200px',
-										background: 'blue'
+										background: 'blue',
 									}}
 								/>
 							</Form>

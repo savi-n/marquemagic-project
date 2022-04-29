@@ -320,7 +320,7 @@ export default function CheckApplication(props) {
 	const { caseUpdateInit } = useCaseUpdate();
 	const clickSub = async () => {
 		if (!disabled) {
-			await caseUpdateInit(formValues, localStorage.getItem('token') || '');
+			await caseUpdateInit(formValues, sessionStorage.getItem('token') || '');
 			setMessage(true);
 			setDisabled(true);
 			setTimeout(() => {
@@ -489,7 +489,7 @@ export default function CheckApplication(props) {
 									{e === sec.sec_3 && (
 										<DocumentUploadSection
 											item={props?.item}
-											userToken={localStorage.getItem('token')}
+											userToken={sessionStorage.getItem('token')}
 											loanData={data}
 											option={option}
 											handleFileUpload={handleFileUpload}

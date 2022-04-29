@@ -84,7 +84,7 @@ export default function GetCUBStatementModal({
 			},
 		},
 		headers: {
-			authorization: clientToken,
+			Authorization: clientToken,
 		},
 	});
 
@@ -120,7 +120,7 @@ export default function GetCUBStatementModal({
 			const req = await newRequest(
 				CUB_ACCOUNT_MINI_STATEMENT,
 				{ method: 'POST', data: { accToken: token } },
-				{ authorization: bankTokenRef.current.bankToken }
+				{ Authorization: bankTokenRef.current.bankToken }
 			);
 
 			const res = req.data;

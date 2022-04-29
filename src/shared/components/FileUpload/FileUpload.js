@@ -493,6 +493,9 @@ const DocumentUploadNameToolTip = styled.div`
 	color: white;
 	padding: 5px;
 `;
+
+const ONDRAG = 'ONDRAG';
+const ONCHANGE = 'ONCHANGE';
 export default function FileUpload({
 	agreementDocShowMsg = true,
 	onDrop,
@@ -521,9 +524,8 @@ export default function FileUpload({
 	aadharVoterDl = false,
 	errorMessage = '',
 	prefilledDocs = [],
-	startingKYCDoc = [],
-	startingFinDoc = [],
-	startingOtherDoc = [],
+	startingTaggedDocs = [],
+	startingUnTaggedDocs = [],
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -553,26 +555,29 @@ export default function FileUpload({
 	let refCounter = 0;
 
 	const onCancel = (file, status) => {
-		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
+		const newUploadingFiles = [];
+		selectedFiles.current.map(uFile => {
 			if (uFile.id === file.id) {
 				return {
 					...uFile,
 					status,
 				};
 			}
-
-			return uFile;
+			newUploadingFiles.push(uFile);
+			return null;
 		});
-		uploadingProgressFiles.current = uploadFiles;
-		setUploadingFiles(uploadFiles);
+		selectedFiles.current = newUploadingFiles;
+		setUploadingFiles(newUploadingFiles);
 	};
 
 	const onFileRemove = (file, docType = false) => {
 		!aadharVoterDl && setDocs && setDocs([]);
-		const uploadFiles = uploadingProgressFiles.current.filter(
-			uFile => uFile.id !== file.id
-		);
-		uploadingProgressFiles.current = uploadFiles;
+		// in case of remove file we don't need previous uploaded files
+		const newUploadingFiles = [];
+		selectedFiles.current.map(uFile => {
+			if (uFile.id !== file.id) newUploadingFiles.push(uFile);
+			return null;
+		});
 		if (docType) {
 			const newMappedFile = _.cloneDeep(mappedFiles);
 			const newObj = [];
@@ -583,37 +588,41 @@ export default function FileUpload({
 			setMappedFiles(newMappedFile);
 		}
 		onRemoveFile(file.id);
-		setUploadingFiles(uploadFiles);
+		selectedFiles.current = newUploadingFiles;
+		setUploadingFiles(newUploadingFiles);
 	};
 
-	const onProgress = (event, file) => {
-		if (!uploadingProgressFiles.current.length) {
+	const onProgress = (event, file, newUploadingFiles) => {
+		if (!newUploadingFiles.length) {
 			return;
 		}
-
-		const uploadFiles = uploadingProgressFiles.current.map(uFile => {
+		// const newUploadingFiles = _.cloneDeep(uploadingFiles);
+		const newOnProgressFiles = [];
+		newUploadingFiles.map(uFile => {
+			uFile.sectionType = sectionType;
 			if (uFile.id === file.id) {
 				const percentageCompleted = (
 					(event.loaded / event.total) *
 					100
 				).toFixed();
-
-				return {
+				newOnProgressFiles.push({
 					...uFile,
 					progress: percentageCompleted,
-				};
+				});
+				return null;
 				// status:
 				//     Number(percentageCompleted) === 100 ? "completed" : "progress",
 			}
-
-			return uFile;
+			newOnProgressFiles.push(uFile);
+			return null;
 		});
-		uploadingProgressFiles.current = uploadFiles;
-		setUploadingFiles(_.cloneDeep(uploadFiles));
+		// console.log('newOnProgressFiles-', newOnProgressFiles);
+		setUploadingFiles(newOnProgressFiles);
+		selectedFiles.current = newOnProgressFiles;
 	};
 
 	const handleUpload = async files => {
-		let filesToUpload = [];
+		const filesToUpload = [];
 		for (let i = 0; i < files.length; i++) {
 			const source = axios.CancelToken.source();
 
@@ -626,16 +635,21 @@ export default function FileUpload({
 				progress: 0,
 				status: 'progress',
 				cancelToken: source,
+				sectionType,
 			});
 		}
-
-		uploadingProgressFiles.current = [
-			..._.cloneDeep(uploadingProgressFiles.current),
-			...filesToUpload,
-		];
-
+		const newUploadingFiles = _.cloneDeep(selectedFiles.current);
+		// const newUploadingFiles = [];
+		filesToUpload.map(f => newUploadingFiles.push(f));
+		// uploadingProgressFiles.current = [
+		// 	..._.cloneDeep(uploadingFiles),
+		// 	..._.cloneDeep(uploadingProgressFiles.current),
+		// 	...filesToUpload,
+		// ];
 		setUploading(true);
-		setUploadingFiles(_.cloneDeep(uploadingProgressFiles.current));
+		// console.log('file-upload-before-promise-', newUploadingFiles);
+		selectedFiles.current = newUploadingFiles;
+		setUploadingFiles(newUploadingFiles);
 
 		return await Promise.all(
 			filesToUpload.map(file => {
@@ -648,7 +662,8 @@ export default function FileUpload({
 						{
 							method: 'POST',
 							data: formData,
-							onUploadProgress: event => onProgress(event, file),
+							onUploadProgress: event =>
+								onProgress(event, file, newUploadingFiles),
 							cancelToken: file.cancelToken.token,
 						},
 						upload.header ?? {}
@@ -661,6 +676,7 @@ export default function FileUpload({
 									upload_doc_name: resFile.filename,
 									document_key: resFile.fd,
 									size: resFile.size,
+									sectionType,
 								};
 
 								if (docsPush) {
@@ -693,14 +709,19 @@ export default function FileUpload({
 					: setDocs([filesToUpload[0]]);
 				return [filesToUpload[0]];
 			}
-			uploadingProgressFiles.current = uploadingProgressFiles.current.map(
-				files => ({
+
+			const newUploadCompletedFiles = [];
+			// const newUploadingFiles = _.cloneDeep(uploadingFiles);
+			newUploadingFiles.map(files => {
+				newUploadCompletedFiles.push({
 					...files,
 					status: 'completed',
-				})
-			);
-
-			setUploadingFiles(_.cloneDeep(uploadingProgressFiles.current));
+				});
+				return null;
+			});
+			// console.log('file-upload-promise-resolved-', newUploadCompletedFiles);
+			selectedFiles.current = newUploadCompletedFiles;
+			setUploadingFiles(newUploadCompletedFiles);
 			return files.filter(file => file.status !== 'error');
 		});
 	};
@@ -758,10 +779,23 @@ export default function FileUpload({
 				files = await handleUpload(files);
 			}
 			onDrop(files);
+			if (!pan) {
+				files = [...selectedFiles.current, ...files].filter(f =>
+					f.name ? true : false
+				);
+				selectedFiles.current = files;
+				setUploadingFiles(files);
+			}
 
-			files = [...selectedFiles.current, ...files];
-			selectedFiles.current = files;
-
+			// console.log('FileUpload-handleDrop-', {
+			// 	pan,
+			// 	disabled,
+			// 	accept,
+			// 	upload,
+			// 	files,
+			// 	uploadingFiles,
+			// 	selectedFiles: selectedFiles.current,
+			// });
 			event.dataTransfer.clearData();
 			refCounter = 0;
 		}
@@ -773,8 +807,22 @@ export default function FileUpload({
 			files = await handleUpload(files);
 		}
 		onDrop(files);
-
-		selectedFiles.current = [...selectedFiles.current, ...event.target.files];
+		if (!pan) {
+			files = [...selectedFiles.current, ...files].filter(f =>
+				f.name ? true : false
+			);
+			selectedFiles.current = files;
+			setUploadingFiles(files);
+		}
+		// console.log('FileUpload-onChange-', {
+		// 	pan,
+		// 	disabled,
+		// 	accept,
+		// 	upload,
+		// 	files,
+		// 	uploadingFiles,
+		// 	selectedFiles: selectedFiles.current,
+		// });
 	};
 
 	// const onDocTypeChange = (fileId, value, file) => {
@@ -827,21 +875,21 @@ export default function FileUpload({
 	let displayTagMessage = 0;
 
 	if (!pan) {
-		uploadingFiles.map(file => {
+		selectedFiles.current.map(file => {
 			for (const key in docTypeFileMap) {
 				if (file.id === key) {
 					taggedDocumentCount += 1;
 				}
 			}
 		});
-		displayTagMessage = uploadingFiles.length !== taggedDocumentCount;
+		displayTagMessage = selectedFiles.current.length !== taggedDocumentCount;
 	}
 
 	const initializeComponent = async () => {
 		try {
 			setLoading(true);
-			if (prefilledDocs && prefilledDocs?.length > 0) {
-				// setUploadingFiles(_.cloneDeep(prefilledDocs));
+			// in case of edit_loan
+			if (prefilledDocs && prefilledDocs.length > 0) {
 				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
 				const newMappedFile = _.cloneDeep(mappedFiles);
 				const newDocTypeFileMap = {
@@ -863,42 +911,36 @@ export default function FileUpload({
 				setDocTypeFileMap(newDocTypeFileMap);
 				setMappedFiles(newMappedFile);
 			}
+			// doc upload section navigation history
+			// + pan adhar dl voter
+			if (startingTaggedDocs && startingTaggedDocs.length > 0) {
+				const newMappedFiles = _.cloneDeep(mappedFiles);
+				startingTaggedDocs.map(doc => {
+					const newObj = newMappedFiles[+doc.typeId] || [];
+					newObj.push(doc);
+					newMappedFiles[+doc.typeId] = newObj;
+				});
+				setMappedFiles(newMappedFiles);
+			}
+			// doc upload section navigation history
+			if (startingUnTaggedDocs && startingUnTaggedDocs.length > 0) {
+				selectedFiles.current = startingUnTaggedDocs;
+				setUploadingFiles(startingUnTaggedDocs);
+			}
+			// console.log('starting-docs-', {
+			// 	prefilledDocs,
+			// 	startingTaggedDocs,
+			// 	startingUnTaggedDocs,
+			// });
 			setLoading(false);
-		} catch (err) {
+		} catch (error) {
+			console.log('error-FileUpload-initializeComponent-', error);
 			setLoading(false);
-			console.log('error-initializnig-fileupload-', err);
 		}
 	};
 
 	useEffect(() => {
 		initializeComponent();
-		if (startingKYCDoc && startingKYCDoc.length > 0) {
-			const newMappedFileKYC = _.cloneDeep(mappedFiles);
-			startingKYCDoc.map(doc => {
-				let newObj = newMappedFileKYC[+doc.typeId] || [];
-				newObj.push(doc);
-				newMappedFileKYC[+doc.typeId] = newObj;
-			});
-			setMappedFiles(newMappedFileKYC);
-		}
-		if (startingFinDoc && startingFinDoc.length > 0) {
-			const newMappedFileFin = _.cloneDeep(mappedFiles);
-			startingFinDoc.map(doc => {
-				let newObj = newMappedFileFin[+doc.typeId] || [];
-				newObj.push(doc);
-				newMappedFileFin[+doc.typeId] = newObj;
-			});
-			setMappedFiles(newMappedFileFin);
-		}
-		if (startingOtherDoc && startingOtherDoc.length > 0) {
-			const newMappedFileOther = _.cloneDeep(mappedFiles);
-			startingOtherDoc.map(doc => {
-				let newObj = newMappedFileOther[+doc.typeId] || [];
-				newObj.push(doc);
-				newMappedFileOther[+doc.typeId] = newObj;
-			});
-			setMappedFiles(newMappedFileOther);
-		}
 	}, []);
 
 	useEffect(() => {
@@ -997,7 +1039,7 @@ export default function FileUpload({
 			)}
 			<FileListWrap>
 				{uploadingFiles.map((file, upidx) => {
-					// console.log('uplodaing-file-', file);
+					// console.log('uplodaing-file-FileListWrap-file', file);
 					let isMapped = false;
 					for (const key in docTypeFileMap) {
 						if (file.id === key) {
@@ -1007,6 +1049,7 @@ export default function FileUpload({
 					}
 					if (isMapped) return null;
 					const isFileUploaded = file.progress >= 100 || file.progress <= 0;
+					file.name = file.name || file.upload_doc_name || '';
 					return (
 						<File
 							error={errorMessage}
@@ -1068,14 +1111,14 @@ export default function FileUpload({
 								</>
 							)} */}
 
-							{isFileUploaded ? (
+							{isFileUploaded && !uploading ? (
 								<ImgClose
 									src={imgClose}
 									onClick={() => onFileRemove(file)}
 									alt='close'
 								/>
 							) : null}
-							{docTypeOptions?.length > 0 && isFileUploaded && (
+							{docTypeOptions?.length > 0 && isFileUploaded && !uploading && (
 								<Popover
 									isOpen={isPopoverOpen === file.id}
 									align='start'
@@ -1264,6 +1307,7 @@ export default function FileUpload({
 														// 	docTypeFileMap,
 														// 	doc,
 														// });
+														if (isViewMore) return;
 														const newPasswordList = passwordList.filter(
 															p => p !== uniqPassId
 														);

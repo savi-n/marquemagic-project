@@ -1,5 +1,6 @@
-// active personal details
-import { useContext, useEffect } from 'react';
+// active personal details right section
+// active business details right section
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
@@ -22,6 +23,7 @@ import {
 	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
+import ConfirmModal from 'components/modals/ConfirmModal';
 
 const Div = styled.div`
 	flex: 1;
@@ -68,6 +70,7 @@ export default function PersonalDetailsPage({
 		state: { whiteLabelId },
 	} = useContext(AppContext);
 	const {
+		state: { completed: completedSections },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
@@ -87,6 +90,7 @@ export default function PersonalDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
+	const [modalConfirm, setModalConfirm] = useState(false);
 
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
@@ -94,24 +98,33 @@ export default function PersonalDetailsPage({
 	};
 
 	const onSave = async data => {
+		const reqBody = {
+			email: data.email,
+			white_label_id: whiteLabelId,
+			source: APP_CLIENT,
+			name: data.firstName,
+			mobileNo: data.mobileNo,
+			addrr1: '',
+			addrr2: '',
+		};
+		if (sessionStorage.getItem('userDetails')) {
+			try {
+				reqBody.user_id =
+					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			} catch (err) {
+				return err;
+			}
+		}
 		// if (!userToken) {
 		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 			method: 'POST',
-			data: {
-				email: data.email,
-				white_label_id: whiteLabelId,
-				source: APP_CLIENT,
-				name: data.firstName,
-				mobileNo: data.mobileNo,
-				addrr1: '',
-				addrr2: '',
-			},
+			data: reqBody,
 		});
 
 		const userDataRes = userDetailsReq.data;
 
 		if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-			localStorage.setItem('userToken', userDataRes.token);
+			sessionStorage.setItem('userToken', userDataRes.token);
 
 			const encryptWhiteLabelReq = await newRequest(
 				WHITELABEL_ENCRYPTION_API,
@@ -123,107 +136,10 @@ export default function PersonalDetailsPage({
 
 			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-			localStorage.setItem(
+			sessionStorage.setItem(
 				'encryptWhiteLabel',
 				encryptWhiteLabelRes.encrypted_whitelabel[0]
 			);
-
-			//***** here
-
-			let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer
-				?.user.applicantData;
-			const companyData =
-				localStorage.getItem('companyData') &&
-				JSON.parse(localStorage.getItem('companyData'));
-			const API_TOKEN = localStorage.getItem('userToken');
-			const idType =
-				productDetails.loanType.includes('Business') ||
-				productDetails.loanType.includes('LAP') ||
-				productDetails.loanType.includes('Working')
-					? 'business'
-					: 'salaried';
-			const docTypesList = await newRequest(
-				DOCTYPES_FETCH,
-				{
-					method: 'POST',
-					data: {
-						business_type:
-							data.incomeType === 'salaried'
-								? 7
-								: data.incomeType === 'selfemployed'
-								? 18
-								: companyData?.BusinessType
-								? companyData?.BusinessType
-								: 1,
-						loan_product: productId[(data?.incomeType)] || productId[idType],
-					},
-				},
-				{ Authorization: `Bearer ${userDataRes.token}` }
-			);
-
-			const kycDocsFromApi = docTypesList?.data?.kyc_doc.map(doc => {
-				return doc.doc_type_id;
-			});
-
-			let panDocType = null,
-				otherDocType = null;
-
-			if (state.panDocDetails.length > 0) {
-				state.panDocDetails.filter(doc => {
-					if (!panDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
-						panDocType = doc;
-						return doc;
-					}
-				});
-			} else {
-				docTypesList?.data?.kyc_doc.filter(doc => {
-					if (doc.name.includes('Applicant and Co-Applicant(s) PANCARD(s)')) {
-						panDocType = doc;
-						return doc;
-					} else if (doc.name.includes('KYC Documents')) {
-						panDocType = doc;
-						return doc;
-					} else if (doc.name.includes('Proprietor Pan Card')) {
-						panDocType = doc;
-						return doc;
-					} else {
-						panDocType = doc;
-					}
-				});
-			}
-
-			if (state.otherDocDetails.length > 0) {
-				state.otherDocDetails.filter(doc => {
-					if (!otherDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
-						otherDocType = doc;
-						return doc;
-					}
-				});
-			} else {
-				docTypesList?.data?.kyc_doc.filter(doc => {
-					if (doc.name.includes('KYC Documents')) {
-						otherDocType = doc;
-						return doc;
-					} else if (
-						doc.name.includes('Applicant and Co-Applicant(s) Address Proof')
-					) {
-						otherDocType = doc;
-						return doc;
-					} else {
-						otherDocType = doc;
-					}
-				});
-			}
-			state.documents.map(doc => {
-				if (doc.type == 'pan' && panDocType) {
-					doc.typeId = panDocType.doc_type_id;
-					doc.typeName = panDocType.name;
-				} else if (doc.type == 'other' && otherDocType) {
-					doc.typeId = otherDocType.doc_type_id;
-					doc.typeName = otherDocType.name;
-				}
-			});
-			// ends here
 		}
 
 		const userData = {
@@ -263,13 +179,13 @@ export default function PersonalDetailsPage({
 				type: 'error',
 			});
 		} else {
-			const formstatepan = JSON.parse(localStorage.getItem('formstatepan'));
-			localStorage.setItem(
+			const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
+			sessionStorage.setItem(
 				'formstatepan',
 				JSON.stringify({ ...formstatepan, ...data })
 			);
-			const formstate = JSON.parse(localStorage.getItem('formstate'));
-			localStorage.setItem(
+			const formstate = JSON.parse(sessionStorage.getItem('formstate'));
+			sessionStorage.setItem(
 				'formstate',
 				JSON.stringify({ ...formstate, ...data })
 			);
@@ -281,14 +197,16 @@ export default function PersonalDetailsPage({
 	};
 
 	const formatPersonalDetails = personalDetails => {
-		return {
+		const newPersonalDetails = {
 			firstName: personalDetails?.businessname,
-			incomeType:
-				personalDetails?.businesstype === 1
-					? 'business'
-					: personalDetails?.businesstype === 18
-					? 'selfemployed'
-					: 'salaried',
+			incomeType: personalDetails?.businesstype,
+			// personalDetails?.businesstype === 1
+			// 	? 'business'
+			// 	: personalDetails?.businesstype === 18
+			// 	? 'selfemployed'
+			// 	: personalDetails?.businesstype === 7
+			// 	? 'salaried'
+			// 	: undefined,
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
@@ -302,47 +220,33 @@ export default function PersonalDetailsPage({
 			countryResidence: personalDetails?.relation,
 			maritalStatus: personalDetails?.relation,
 		};
+		return newPersonalDetails;
 	};
 
-	const r = () => {
-		const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
-		const appData = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
-		) {
+	const prefilledValues = () => {
+		try {
+			const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+			const appData = JSON.parse(userTokensss)?.formReducer?.user
+				?.applicantData;
 			let form =
 				(appData && Object.keys(appData).length > 0 && appData) ||
 				formatPersonalDetails(editLoanData?.business_id) ||
 				{};
 			if (form) return form;
 			else {
-				var formStat = JSON.parse(localStorage.getItem('formstate'));
+				var formStat = JSON.parse(sessionStorage.getItem('formstate'));
 				return formStat?.values;
 			}
-		} else {
-			let form =
-				(Object.keys(JSON.parse(userTokensss)?.formReducer?.user?.applicantData)
-					.length > 0 &&
-					JSON.parse(userTokensss)?.formReducer?.user?.applicantData) ||
-				formatPersonalDetails(editLoanData?.business_id) ||
-				{};
-
-			if (form) return form;
-			else return userBankDetails;
+		} catch (error) {
+			return {};
 		}
 	};
 
 	const getAdhar = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
-		) {
+		try {
 			var formStat =
-				JSON.parse(localStorage.getItem('formstate'))?.values?.aadharNum ||
-				localStorage.getItem('aadhar');
+				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadharNum ||
+				sessionStorage.getItem('aadhar');
 
 			if (formStat) {
 				const adharNum = formStat;
@@ -353,20 +257,16 @@ export default function PersonalDetailsPage({
 
 				return `${d}`;
 			}
-		} else {
-			return userBankDetails?.aadharNum;
+		} catch (error) {
+			return '';
 		}
 	};
 
 	const getDOB = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
-		) {
+		try {
 			var formStat =
-				JSON.parse(localStorage.getItem('formstate')) ||
-				JSON.parse(localStorage.getItem('formstatepan'));
+				JSON.parse(sessionStorage.getItem('formstate')) ||
+				JSON.parse(sessionStorage.getItem('formstatepan'));
 
 			if (formStat && formStat?.values?.dob) {
 				let d = formStat.values.dob.split('/');
@@ -375,26 +275,26 @@ export default function PersonalDetailsPage({
 
 				return d;
 			}
-		} else {
-			return userBankDetails?.dob;
+		} catch (error) {
+			return '';
 		}
 	};
 
 	const url = window.location.hostname;
 
-	let userTokensss = localStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(url);
 
 	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
 	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 
 	const getDataFromPan = () => {
-		const t = JSON.parse(localStorage.getItem('formstatepan'));
+		const t = JSON.parse(sessionStorage.getItem('formstatepan'));
 		const name = t?.values?.companyName?.split(' ');
 		if (name) {
 			return name;
 		}
 	};
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	let editLoanDataSalary = {};
 	if (editLoanData && (!form || (form && Object.keys(form).length === 0))) {
 		editLoanDataSalary = {
@@ -413,48 +313,88 @@ export default function PersonalDetailsPage({
 				).toString(),
 		};
 	}
+
+	const ButtonProceed = (
+		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+	);
+
+	const ButtonConfirm = (
+		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
+	);
+
+	let displayProceedButton = ButtonProceed;
+
+	if (
+		id === 'personal-details' &&
+		!completedSections.includes('personal-details') &&
+		Object.keys(formState.error).length === 0
+	)
+		displayProceedButton = ButtonConfirm;
+
 	return (
 		<Div>
+			<ConfirmModal
+				type='Income'
+				show={modalConfirm}
+				onClose={setModalConfirm}
+				ButtonProceed={ButtonProceed}
+			/>
 			<PersonalDetails
+				id={id}
 				register={register}
 				formState={formState}
 				preData={{
 					firstName:
-						r()?.firstName || (getDataFromPan() && getDataFromPan()[0]) || '',
+						prefilledValues()?.firstName ||
+						(getDataFromPan() && getDataFromPan()[0]) ||
+						'',
 					lastName:
-						r()?.lastName || (getDataFromPan() && getDataFromPan()[1]) || '',
+						prefilledValues()?.lastName ||
+						(getDataFromPan() && getDataFromPan()[1]) ||
+						'',
 					dob:
 						getDOB() ||
-						JSON.parse(localStorage.getItem('formstatepan'))?.values?.dob ||
-						r()?.dob ||
+						JSON.parse(sessionStorage.getItem('formstatepan'))?.values?.dob ||
+						prefilledValues()?.dob ||
 						'',
-					email: r()?.email || '',
-					mobileNo: r()?.mobileNum || '',
+					email: prefilledValues()?.email || '',
+					mobileNo: prefilledValues()?.mobileNum || '',
 					panNumber:
-						r()?.pan ||
-						JSON.parse(localStorage.getItem('formstatepan'))?.values
+						prefilledValues()?.pan ||
+						JSON.parse(sessionStorage.getItem('formstatepan'))?.values
 							?.panNumber ||
-						localStorage.getItem('pan') ||
+						sessionStorage.getItem('pan') ||
 						'',
-					residenceStatus: r()?.residentTypess || '',
-					aadhaar: getAdhar() || r()?.aadhar || '',
-					countryResidence: r()?.countryResidence || 'india',
-					incomeType: r()?.incomeType || '',
+					residenceStatus: prefilledValues()?.residentTypess || '',
+					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
+					countryResidence: prefilledValues()?.countryResidence || 'india',
+					incomeType: prefilledValues()?.incomeType || '',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}
 			/>
 			<SalaryDetails
 				jsonData={map?.fields['salary-details'].data}
+				jsonLable={map?.fields['salary-details'].label}
 				register={register}
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
+				// incomeType={'business'}
 				preData={
 					(form && Object.keys(form).length > 0 && form) || editLoanDataSalary
 				}
+
+				// preData={{
+				// 	incomeType: prefilledValues()?.incomeType?.value || '',
+				// 	incomeType:
+				// 		prefilledValues()?.incomeType ||
+				// 		JSON.parse(sessionStorage.getItem('personal-details'))?.incomeType
+				// 			?.value ||
+				// 		'',
+				// }}
 			/>
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+				{displayProceedButton}
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
 		</Div>

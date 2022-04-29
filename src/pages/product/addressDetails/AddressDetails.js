@@ -82,10 +82,6 @@ export default function AddressDetailsPage({
 		actions: { setUsertypeAddressData },
 	} = useContext(FormContext);
 
-	const {
-		state: { userBankDetails },
-	} = useContext(UserContext);
-
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 
@@ -120,13 +116,6 @@ export default function AddressDetailsPage({
 
 	useEffect(() => {
 		async function request() {
-			if (
-				!APP_CLIENT.includes('clix') ||
-				!APP_CLIENT.includes('nctestnew') ||
-				!APP_CLIENT.includes('yesbank')
-			) {
-				const res = await caseCreationUser();
-			}
 			setCompleted(id);
 			onFlowChange(proceed?.flow);
 			if (proceed?.subType) {
@@ -164,16 +153,13 @@ export default function AddressDetailsPage({
 	//   }
 	// };
 
-	const r = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
-		) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'));
+	const prefilledValues = () => {
+		try {
+			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
 			return formStat.values;
-		} else {
-			return userBankDetails;
+		} catch (error) {
+			console.log('error-AddressDetails-prefilledValues-', error);
+			return {};
 		}
 	};
 
@@ -187,13 +173,13 @@ export default function AddressDetailsPage({
 				jsonData={map.fields[id].data}
 				disablePermenanet={true}
 				preData={{
-					address1: r()?.address1 || '',
-					address2: r()?.address2 || '',
-					address3: r()?.address3 || '',
-					address4: r()?.address4 || '',
-					city: r()?.city || '',
-					state: r()?.state || '',
-					pinCode: r()?.pin || '',
+					address1: prefilledValues()?.address1 || '',
+					address2: prefilledValues()?.address2 || '',
+					address3: prefilledValues()?.address3 || '',
+					address4: prefilledValues()?.address4 || '',
+					city: prefilledValues()?.city || '',
+					state: prefilledValues()?.state || '',
+					pinCode: prefilledValues()?.pin || '',
 				}}
 			/>
 			<ButtonWrap>

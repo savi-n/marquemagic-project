@@ -12,23 +12,23 @@ import {
 	UPLOAD_CUB_STATEMENT,
 	CREATE_CASE_OTHER_USER,
 	NC_STATUS_CODE,
-	USER_ROLES
+	USER_ROLES,
 } from '../_config/app.config';
 
 export default function useCaseCreation(userType, productId, role) {
 	const {
-		state: { userId, userToken }
+		state: { userId, userToken },
 	} = useContext(UserContext);
 
 	const { state } = useContext(FormContext);
 
 	const {
-		state: { whiteLabelId, clientToken }
+		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);
 
 	const {
 		state: { caseDetails },
-		actions: { setCase }
+		actions: { setCase },
 	} = useContext(CaseContext);
 
 	const { newRequest } = useFetch();
@@ -43,14 +43,17 @@ export default function useCaseCreation(userType, productId, role) {
 				url,
 				{
 					method: 'POST',
-					data
+					data,
 				},
 				{
-					Authorization: `Bearer ${userToken}`
+					Authorization: `Bearer ${userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
-			if (caseRes.statusCode === NC_STATUS_CODE.NC200 || caseRes.status === NC_STATUS_CODE.OK) {
+			if (
+				caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+				caseRes.status === NC_STATUS_CODE.OK
+			) {
 				return caseRes;
 			}
 
@@ -77,13 +80,13 @@ export default function useCaseCreation(userType, productId, role) {
 							...d,
 							loan_id: loanId,
 							...(d.typeId && { doc_type_id: d.typeId }),
-							directorId
+							directorId,
 						})),
-						directorId
-					}
+						directorId,
+					},
 				},
 				{
-					Authorization: `Bearer ${userToken}`
+					Authorization: `Bearer ${userToken}`,
 				}
 			);
 
@@ -99,7 +102,12 @@ export default function useCaseCreation(userType, productId, role) {
 	};
 
 	// step: 3 upload cub statements to sails
-	const updateRefernceToSails = async (loanId, directorId, token, requestId) => {
+	const updateRefernceToSails = async (
+		loanId,
+		directorId,
+		token,
+		requestId
+	) => {
 		if (!requestId.length) {
 			return true;
 		}
@@ -113,11 +121,11 @@ export default function useCaseCreation(userType, productId, role) {
 						request_id: requestId,
 						directorId: directorId,
 						loan_id: loanId,
-						doc_type_id: 6
-					}
+						doc_type_id: 6,
+					},
 				},
 				{
-					Authorization: `${clientToken}`
+					Authorization: `${clientToken}`,
 				}
 			);
 
@@ -129,7 +137,10 @@ export default function useCaseCreation(userType, productId, role) {
 
 			throw new Error(statementUploadRes.message);
 		} catch (err) {
-			console.log('STEP: 3 => CUB STATEMENT UPLOAD TO SAILS ERRROR', err.message);
+			console.log(
+				'STEP: 3 => CUB STATEMENT UPLOAD TO SAILS ERRROR',
+				err.message
+			);
 			throw new Error(err.message);
 		}
 	};
@@ -179,11 +190,20 @@ export default function useCaseCreation(userType, productId, role) {
 			const caseCreateRes = await createCaseReq(data, CREATE_CASE);
 
 			// step 2: upload documents reference [loanId from createcase]
-			await updateDocumentList(caseCreateRes.loanId, caseCreateRes.directorId, USER_ROLES.User);
+			await updateDocumentList(
+				caseCreateRes.loanId,
+				caseCreateRes.directorId,
+				USER_ROLES.User
+			);
 
 			// step 3: upload cub statement to sailspld
 			if (referenceData.length) {
-				await updateRefernceToSails(caseCreateRes.loanId, caseCreateRes.directorId, userToken, referenceData);
+				await updateRefernceToSails(
+					caseCreateRes.loanId,
+					caseCreateRes.directorId,
+					userToken,
+					referenceData
+				);
 			}
 
 			return caseCreateRes;
@@ -191,7 +211,7 @@ export default function useCaseCreation(userType, productId, role) {
 			console.log('APPLICANT CASE CREATE STEP ERROR-----> ', er.message);
 			addToast({
 				message: er.message,
-				type: 'error'
+				type: 'error',
 			});
 		}
 	};
@@ -209,20 +229,29 @@ export default function useCaseCreation(userType, productId, role) {
 							? {
 									emiDetails: state[USER_ROLES[role]]?.emi?.map(em => ({
 										emiAmount: em.amount,
-										bank_name: em.bank
-									}))
+										bank_name: em.bank,
+									})),
 							  }
-							: {})
+							: {}),
 					},
 					...state[USER_ROLES[role]].loanData,
-					cibilScore: state[USER_ROLES[role]]?.cibilData?.cibilScore || ''
+					cibilScore: state[USER_ROLES[role]]?.cibilData?.cibilScore || '',
 				},
 				CREATE_CASE_OTHER_USER
 			);
 
-			await updateDocumentList(loan.loanId, caseReq.directorId, USER_ROLES[role]);
+			await updateDocumentList(
+				loan.loanId,
+				caseReq.directorId,
+				USER_ROLES[role]
+			);
 			if (requestId.length) {
-				await updateRefernceToSails(loan.loanId, caseReq.directorId, userToken, requestId);
+				await updateRefernceToSails(
+					loan.loanId,
+					caseReq.directorId,
+					userToken,
+					requestId
+				);
 			}
 			setProcessing(false);
 
@@ -231,7 +260,7 @@ export default function useCaseCreation(userType, productId, role) {
 			console.log('COAPPLICANT CASE CREATION STEPS ERRRO ==> ', err.message);
 			addToast({
 				message: err.message,
-				type: 'error'
+				type: 'error',
 			});
 			setProcessing(false);
 
@@ -244,23 +273,23 @@ export default function useCaseCreation(userType, productId, role) {
 			setProcessing(true);
 			const loanReq = await caseCreationSteps(
 				{
-					white_label_id: whiteLabelId || localStorage.getItem('wt_lbl'),
+					white_label_id: whiteLabelId || sessionStorage.getItem('wt_lbl'),
 					product_id: productId,
-					branchId: localStorage.getItem('branchId'),
+					branchId: sessionStorage.getItem('branchId'),
 					applicantData: {
 						...state.user.applicantData,
 						...(state.user?.emi
 							? {
 									emiDetails: state.user?.emi?.map(em => ({
 										emiAmount: em.amount,
-										bank_name: em.bank
-									}))
+										bank_name: em.bank,
+									})),
 							  }
-							: {})
+							: {}),
 					},
 					loanData: { assetsValue: 0, ...state.user.loanData, productId },
 					...state.user.bankData,
-					cibilScore: state[USER_ROLES[role]]?.cibilData?.cibilScore || ''
+					cibilScore: state[USER_ROLES[role]]?.cibilData?.cibilScore || '',
 				},
 				[
 					...(state[USER_ROLES[role]]?.cubStatement?.requestId
@@ -268,7 +297,7 @@ export default function useCaseCreation(userType, productId, role) {
 						: []),
 					...(state[USER_ROLES[role]]?.cibilData?.requestId
 						? [state[USER_ROLES[role]]?.cibilData?.requestId]
-						: [])
+						: []),
 				]
 			);
 
@@ -289,10 +318,18 @@ export default function useCaseCreation(userType, productId, role) {
 
 	async function caseCreationUserType() {
 		try {
-			const coAppilcantCaseReq = await caseCreationReqOtherUser(caseDetails, role, [
-				...(state[role]?.cibilData?.requestId ? [state[role]?.cibilData?.requestId] : []),
-				...(state[role].cubStatement?.requestId ? [state[role].cubStatement?.requestId] : [])
-			]);
+			const coAppilcantCaseReq = await caseCreationReqOtherUser(
+				caseDetails,
+				role,
+				[
+					...(state[role]?.cibilData?.requestId
+						? [state[role]?.cibilData?.requestId]
+						: []),
+					...(state[role].cubStatement?.requestId
+						? [state[role].cubStatement?.requestId]
+						: []),
+				]
+			);
 			if (!coAppilcantCaseReq) {
 				return false;
 			}
@@ -307,6 +344,6 @@ export default function useCaseCreation(userType, productId, role) {
 	return {
 		processing,
 		caseCreationUser: caseCreationUser,
-		caseCreationUserType: caseCreationUserType
+		caseCreationUserType: caseCreationUserType,
 	};
 }

@@ -1,11 +1,11 @@
 import { createContext, useReducer } from 'react';
 
 const actionTypes = {
-	SET_COMPANY_DETAILS: 'SET_BUSSINESS_DETAILS'
+	SET_COMPANY_DETAILS: 'SET_BUSSINESS_DETAILS',
 };
 
 const INITIAL_STATE = {
-	companyDetail: null
+	companyDetail: null,
 };
 
 const useActions = dispatch => {
@@ -14,17 +14,20 @@ const useActions = dispatch => {
 	};
 
 	return {
-		setCompanyDetails
+		setCompanyDetails,
 	};
 };
 
 function reducer(state, action) {
 	switch (action.type) {
 		case actionTypes.SET_COMPANY_DETAILS: {
-			localStorage.setItem('companyData', JSON.stringify(action.companyDetail));
+			sessionStorage.setItem(
+				'companyData',
+				JSON.stringify(action.companyDetail)
+			);
 			return {
 				...state,
-				companyDetail: action.companyDetail
+				companyDetail: action.companyDetail,
 			};
 		}
 
@@ -38,11 +41,15 @@ const BussinesContext = createContext();
 
 const BussinesProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(reducer, {
-		...INITIAL_STATE
+		...INITIAL_STATE,
 	});
 	const actions = useActions(dispatch);
 
-	return <BussinesContext.Provider value={{ state, actions }}>{children}</BussinesContext.Provider>;
+	return (
+		<BussinesContext.Provider value={{ state, actions }}>
+			{children}
+		</BussinesContext.Provider>
+	);
 };
 
 export { BussinesContext, BussinesProvider };

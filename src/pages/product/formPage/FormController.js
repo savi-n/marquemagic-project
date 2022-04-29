@@ -1,5 +1,5 @@
 // active
-
+// dynamic section
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -10,6 +10,7 @@ import Button from '../../../components/Button';
 import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
 import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { FormContext } from '../../../reducer/formReducer';
+import InputField from 'components/inputs/InputField';
 
 import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -25,6 +26,7 @@ import {
 	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
+import ConfirmModal from 'components/modals/ConfirmModal';
 
 const Div = styled.div`
 	flex: 1;
@@ -59,6 +61,7 @@ export default function FormController({
 	productId,
 }) {
 	const {
+		state: { completed: completedSections },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
@@ -110,6 +113,7 @@ export default function FormController({
 	// const { state } = useContext(LoanFormContext);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
+	const [modalConfirm, setModalConfirm] = useState(false);
 
 	useEffect(() => {
 		if (id === 'vehicle-loan-details') {
@@ -139,6 +143,7 @@ export default function FormController({
 	useEffect(() => {
 		clearError();
 	}, [map.name]);
+
 	const onSave = data => {
 		setLoanData({ ...data }, id);
 		addToast({
@@ -148,6 +153,7 @@ export default function FormController({
 	};
 
 	const onProceed = async data => {
+		setModalConfirm(false);
 		// console.log('form-controller-on-proceed-data-', {
 		// 	data,
 		// 	companyDetail,
@@ -174,28 +180,38 @@ export default function FormController({
 			});
 		}
 
+		const reqBody = {
+			email: formState?.values?.Email,
+			white_label_id: whiteLabelId,
+			source: APP_CLIENT,
+			name: formState?.values?.BusinessName,
+			mobileNo: formState?.values?.mobileNo,
+			addrr1: '',
+			addrr2: '',
+		};
+		if (sessionStorage.getItem('userDetails')) {
+			try {
+				reqBody.user_id =
+					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			} catch (err) {
+				return err;
+			}
+		}
+
 		// or loan type
 		// Loan Against Property Individual Loan
 		// console.log('formcontroller-onProceed-productDetails-', productDetails);
 		if (id === 'business-details') {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
-				data: {
-					email: formState?.values?.Email,
-					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
-					name: formState?.values?.BusinessName,
-					mobileNo: formState?.values?.mobileNo,
-					addrr1: '',
-					addrr2: '',
-				},
+				data: reqBody,
 			});
 
 			const userDetailsRes = userDetailsReq.data;
 
 			const url = window.location.hostname;
 
-			let userToken = localStorage.getItem(url);
+			let userToken = sessionStorage.getItem(url);
 
 			userToken = JSON.parse(userToken);
 
@@ -207,8 +223,8 @@ export default function FormController({
 				},
 			};
 
-			localStorage.setItem('userToken', userDetailsRes.token);
-			localStorage.setItem(url, JSON.stringify(userToken));
+			sessionStorage.setItem('userToken', userDetailsRes.token);
+			sessionStorage.setItem(url, JSON.stringify(userToken));
 
 			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 				const encryptWhiteLabelReq = await newRequest(
@@ -221,7 +237,7 @@ export default function FormController({
 
 				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-				localStorage.setItem(
+				sessionStorage.setItem(
 					'encryptWhiteLabel',
 					encryptWhiteLabelRes.encrypted_whitelabel[0]
 				);
@@ -249,79 +265,7 @@ export default function FormController({
 						mobileNo: formState?.values?.mobileNo,
 					});
 			}
-			//***** here
-
-			let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer
-				?.user.applicantData;
-			const companyData =
-				localStorage.getItem('companyData') &&
-				JSON.parse(localStorage.getItem('companyData'));
-			const API_TOKEN = localStorage.getItem('userToken');
-			const idType =
-				productDetails.loanType.includes('Business') ||
-				productDetails.loanType.includes('LAP') ||
-				productDetails.loanType.includes('Working')
-					? 'business'
-					: 'salaried';
-
-			const docTypesList = await newRequest(
-				DOCTYPES_FETCH,
-				{
-					method: 'POST',
-					data: {
-						business_type:
-							data.incomeType === 'salaried'
-								? 7
-								: companyData?.BusinessType
-								? companyData?.BusinessType
-								: 1,
-						loan_product: productId[(data?.incomeType)] || productId[idType],
-					},
-				},
-				{ Authorization: `Bearer ${userDetailsRes.token}` }
-			);
-
-			const kycDocsFromApi = docTypesList?.data?.kyc_doc.map(doc => {
-				return doc.doc_type_id;
-			});
-
-			let panDocType = null;
-			if (state.panDocDetails.length > 0) {
-				state.panDocDetails.filter(doc => {
-					if (!panDocType && kycDocsFromApi.includes(doc.doc_type_id)) {
-						panDocType = doc;
-						return doc;
-					}
-				});
-			} else {
-				docTypesList?.data?.kyc_doc.filter(doc => {
-					if (!panDocType && doc.name.includes('Entity Pancard')) {
-						panDocType = doc;
-						return doc;
-					} else if (
-						!panDocType &&
-						doc.name.includes('Director(s) Pancard(s)')
-					) {
-						panDocType = doc;
-						return doc;
-					} else if (!panDocType && doc.name.includes('Company Registration')) {
-						panDocType = doc;
-						return doc;
-					} else {
-						panDocType = doc;
-					}
-				});
-			}
-			state.documents.map(doc => {
-				if (doc.type == 'pan' && panDocType) {
-					doc.typeId = panDocType.doc_type_id;
-					doc.typeName = panDocType.name;
-				}
-			});
-
-			// ends here
 		}
-
 		onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -347,12 +291,12 @@ export default function FormController({
 
 	const url = window.location.hostname;
 
-	let userToken = localStorage.getItem(url);
+	let userToken = sessionStorage.getItem(url);
 
 	let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-	let companyData = JSON.parse(localStorage.getItem('companyData'));
+	let companyData = JSON.parse(sessionStorage.getItem('companyData'));
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
 		return value;
@@ -422,7 +366,7 @@ export default function FormController({
 	};
 
 	let form = state[`${id}`] || companyDetail || companyData || appData;
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	if (state[`${id}`]) {
 		if (id === 'business-loan-details') {
 			form =
@@ -464,8 +408,31 @@ export default function FormController({
 		}
 	}
 
+	const ButtonProceed = (
+		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+	);
+
+	const ButtonConfirm = (
+		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
+	);
+
+	let displayProceedButton = ButtonProceed;
+
+	if (
+		id === 'business-details' &&
+		!completedSections.includes('business-details') &&
+		Object.keys(formState.error).length === 0
+	)
+		displayProceedButton = ButtonConfirm;
+
 	return (
 		<>
+			<ConfirmModal
+				type='Business'
+				show={modalConfirm}
+				onClose={setModalConfirm}
+				ButtonProceed={ButtonProceed}
+			/>
 			<Div>
 				<PersonalDetails
 					register={register}
@@ -476,6 +443,17 @@ export default function FormController({
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
 				/>
+				{/* {console.log(id)} */}
+				{/* {id === 'land-additional-details' && (
+					<InputField
+						placeholder='Total Value (In  ₹ )'
+						value='0'
+						style={{ width: '25%', marginBottom: '3%' }}
+						jsonData={map?.fields[id]?.data || []}
+						id={id}
+					/>
+				)} */}
+
 				<ButtonWrap>
 					{id === 'business-details' && (
 						<Button
@@ -484,7 +462,7 @@ export default function FormController({
 							onClick={() => setViewBusinessDetail(true)}
 						/>
 					)}
-					<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+					{displayProceedButton}
 					{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
 					{!skipButton && <Button name='Skip' onClick={onSkip} />}
 				</ButtonWrap>

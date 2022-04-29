@@ -35,6 +35,7 @@ import BankStatementModal from '../../../components/BankStatementModal';
 import { CaseContext } from '../../../reducer/caseReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
+import Loading from '../../../components/Loading';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -177,6 +178,13 @@ const StyledButton = styled.button`
 	}
 `;
 
+const LoaderWrapper = styled.div`
+	height: 200px;
+	display: flex;
+	justify-content: center;
+	text-align: center;
+`;
+
 const textForCheckbox = {
 	grantCibilAcces: 'I here by give consent to pull my CIBIL records',
 	declaration:
@@ -201,16 +209,16 @@ function fileStructure(documents, type) {
 }
 
 let url = window.location.hostname;
-let userToken = localStorage.getItem(url);
+let userToken = sessionStorage.getItem(url);
 // console.log('loan-doc-upload-userToken-', {
 // 	userToken,
 // 	userTokenParsed: JSON.parse(userToken),
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-let busniess = JSON.parse(localStorage.getItem('busniess'));
-let editLoan = localStorage.getItem('editLoan')
-	? JSON.parse(localStorage.getItem('editLoan'))
+let busniess = JSON.parse(sessionStorage.getItem('busniess'));
+let editLoan = sessionStorage.getItem('editLoan')
+	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
 
 const getAmountUm = a => {
@@ -236,15 +244,30 @@ function caseCreationDataFormat(
 	productDetails,
 	productId
 ) {
-	editLoan = localStorage.getItem('editLoan')
-		? JSON.parse(localStorage.getItem('editLoan'))
+	loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
+	form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+	editLoan = sessionStorage.getItem('editLoan')
+		? JSON.parse(sessionStorage.getItem('editLoan'))
 		: {};
+	const collateralData = [];
+	if (data['collateral-details'])
+		collateralData.push(data['collateral-details']);
+	if (data['land-additional-details'])
+		collateralData.push(data['land-additional-details']);
+	if (data['fishery-additional-details'])
+		collateralData.push(data['fishery-additional-details']);
+	//console.log(
+	//'LoanDoccumentUpload-caseCreationDataFormat-collatralData ',
+	//	collatralData
+	//);
+
 	url = window.location.hostname;
-	userToken = localStorage.getItem(url);
-	let formReducer = JSON.parse(localStorage.getItem(url))?.formReducer;
+	userToken = sessionStorage.getItem(url);
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
+
 	const idType =
 		productDetails.loanType.includes('Business') ||
 		productDetails.loanType.includes('LAP') ||
@@ -264,39 +287,38 @@ function caseCreationDataFormat(
 	// });
 
 	const businessDetails = () => {
-		let corporateDetails = localStorage.getItem('corporateDetails');
+		let corporateDetails = sessionStorage.getItem('corporateDetails');
 		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 		if (!companyData) {
 			companyData =
-				localStorage.getItem('companyData') &&
-				JSON.parse(localStorage.getItem('companyData'));
+				sessionStorage.getItem('companyData') &&
+				JSON.parse(sessionStorage.getItem('companyData'));
 		}
+
+		//console.log('corportae Details', corporateDetails);
 		const newBusinessDetails = {
 			first_name: applicantData?.firstName || '',
 			last_name: applicantData?.lastName || '',
 			dob: applicantData?.dob || '',
 			business_name:
 				applicantData?.firstName ||
-				localStorage.getItem('BusinessName') ||
+				sessionStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
-			//form?.incomeType === 'salaried' ? 7 : 1
 			business_type:
-				applicantData?.incomeType === 'salaried'
-					? 7
-					: applicantData?.incomeType === 'selfemployed'
-					? 18
-					: data['business-details']?.BusinessType
-					? data['business-details']?.BusinessType
-					: 1,
-			business_email:
-				form?.email || companyData?.formEmail || companyData?.Email || '',
+				applicantData?.incomeType || data['business-details']?.BusinessType,
+			// applicantData?.incomeType === 'salaried'
+			// 	? 7
+			// 	: applicantData?.incomeType === 'selfemployed'
+			// 	? 18
+			// 	: data['business-details']?.BusinessType
+			// 	? data['business-details']?.BusinessType
+			// 	: 1,
+			business_email: applicantData?.email || companyData?.email || '',
 			// business_industry_type: 20,
-			contact:
-				form?.mobileNo ||
-				companyData?.formMobile ||
-				companyData?.mobileNo ||
-				'',
-			businesspancardnumber: form?.panNumber || companyData?.panNumber,
+			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
+
+			businesspancardnumber:
+				applicantData?.panNumber || companyData?.panNumber || '',
 			// // crime_check: "Yes",
 			gstin: data['business-details']?.GSTVerification || '',
 			businessstartdate: data['business-details']?.BusinessVintage || '',
@@ -304,8 +326,7 @@ function caseCreationDataFormat(
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
-			aadhaar:
-				form?.aadhaar || applicantData?.aadhaar || companyData?.aadhaar || '',
+			aadhaar: applicantData?.aadhaar || companyData?.aadhaar || '',
 			equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
@@ -318,9 +339,10 @@ function caseCreationDataFormat(
 	};
 	if (!companyData) {
 		companyData =
-			localStorage.getItem('companyData') &&
-			JSON.parse(localStorage.getItem('companyData'));
+			sessionStorage.getItem('companyData') &&
+			JSON.parse(sessionStorage.getItem('companyData'));
 	}
+
 	const addressArrayMulti =
 		(applicantData &&
 			applicantData?.address &&
@@ -367,6 +389,7 @@ function caseCreationDataFormat(
 		// 	: {}
 		director_details: {},
 		loan_details: {
+			collateral: collateralData,
 			// loan_type_id: 1,
 			// case_priority: null,
 			// loan_product_id: "10",
@@ -374,7 +397,7 @@ function caseCreationDataFormat(
 			// origin: "New_UI",
 			...restLoanData,
 			loan_product_id: productId[(form?.incomeType)] || productId[idType],
-			white_label_id: localStorage.getItem('encryptWhiteLabel'),
+			white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
@@ -395,12 +418,14 @@ function caseCreationDataFormat(
 				data['vehicle-loan-details']?.tenure ||
 				0,
 			annual_turn_over: getAmount(
-				applicantData?.grossIncome ||
+				applicantData?.annualIncome ||
+					applicantData?.grossIncome ||
 					data?.['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.grossIncome ||
+				applicantData?.annualIncome ||
+					applicantData?.grossIncome ||
 					data?.['business-details']?.AnnualTurnover ||
 					''
 			),
@@ -466,7 +491,7 @@ function caseCreationDataFormat(
 		formatedData.director_details.director_0.id =
 			editLoan?.director_details[0]?.id || null;
 	}
-	// if (localStorage.getItem('product') != 'demo') {
+	// if (sessionStorage.getItem('product') != 'demo') {
 	// 	formatedData['branchId'] = companyData.branchId;
 	// }
 
@@ -605,6 +630,7 @@ function refereneceDataFormat(loanId, data) {
 
 	return formatedData;
 }
+
 export default function DocumentUpload({
 	productDetails,
 	userType,
@@ -623,6 +649,7 @@ export default function DocumentUpload({
 	} = useContext(BussinesContext);
 
 	const {
+		state: { flowMap },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
@@ -632,16 +659,6 @@ export default function DocumentUpload({
 	const {
 		state: { clientToken },
 	} = useContext(AppContext);
-
-	const {
-		actions: {
-			setUsertypeDocuments,
-			removeUserTypeDocument,
-			setUserTypeDocumentType,
-			setUsertypeCibilData,
-			setUsertypeStatementData,
-		},
-	} = useContext(FormContext);
 
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [message, setMessage] = useState('');
@@ -679,31 +696,37 @@ export default function DocumentUpload({
 	const [startingKYCDoc, setStartingKYCDoc] = useState([]);
 	const [startingFinDoc, setStartingFinDoc] = useState([]);
 	const [startingOtherDoc, setStartingOtherDoc] = useState([]);
+	const [startingUnTaggedKYCDocs, setStartingUnTaggedKYCDocs] = useState([]);
+	const [startingUnTaggedFinDocs, setStartingUnTaggedFinDocs] = useState([]);
+	const [startingUnTaggedOtherDocs, setStartingUnTaggedOtherDocs] = useState(
+		[]
+	);
+	const [loading, setLoading] = useState(false);
 
-	let applicantData = JSON.parse(localStorage.getItem(url))?.formReducer?.user
+	let applicantData = JSON.parse(sessionStorage.getItem(url))?.formReducer?.user
 		.applicantData;
 	const companyData =
-		localStorage.getItem('companyData') &&
-		JSON.parse(localStorage.getItem('companyData'));
-	const API_TOKEN = localStorage.getItem('userToken');
-	let corporateDetails = localStorage.getItem('corporateDetails');
+		sessionStorage.getItem('companyData') &&
+		JSON.parse(sessionStorage.getItem('companyData'));
+	const API_TOKEN = sessionStorage.getItem('userToken');
+	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
+
+	const business_income_type_id =
+		applicantData?.incomeType ||
+		state['business-details']?.BusinessType ||
+		companyData?.BusinessType;
+
+	// console.log('LoanDocumentsUpload-allstates-', {
+	// 	state,
+	// });
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
 		options: {
 			method: 'POST',
 			data: {
-				business_type:
-					applicantData?.incomeType === 'salaried'
-						? 7
-						: applicantData?.incomeType === 'selfemployed'
-						? 18
-						: state['business-details']?.BusinessType ||
-						  companyData?.BusinessType
-						? state['business-details']?.BusinessType ||
-						  companyData?.BusinessType
-						: 1,
+				business_type: business_income_type_id,
 				loan_product: productId[(form?.incomeType)] || productId[idType],
 			},
 		},
@@ -731,39 +754,82 @@ export default function DocumentUpload({
 
 		const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-		localStorage.setItem(
+		sessionStorage.setItem(
 			'encryptWhiteLabel',
 			encryptWhiteLabelRes.encrypted_whitelabel[0]
 		);
 	};
 
 	useEffect(() => {
-		console.log('useEffect - ', state.documents);
-		let startingDocs = state.documents;
-		let kycDocsNew = [];
-		let finDocsNew = [];
-		let otherDocsNew = [];
+		const startingDocs = state.documents;
+		// console.log('loan-doc-upload-useEffect-', {
+		// 	startingDocs,
+		// 	flowMap,
+		// 	business_income_type_id,
+		// });
+		const flowDocTypeMappingList = {};
+
+		const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
+		for (const key in JSON_PAN_SECTION) {
+			JSON_PAN_SECTION[key]?.data?.map(d => {
+				if (d.req_type && d.doc_type[`${business_income_type_id}`]) {
+					flowDocTypeMappingList[`${d.req_type}`] =
+						d.doc_type[`${business_income_type_id}`];
+				}
+				return null;
+			});
+		}
+		const newKycDocs = [];
+		const newFinDocs = [];
+		const newOtherDocs = [];
+		const newKycUnTagDocs = [];
+		const newFinUnTagDocs = [];
+		const newOtherUnTagDocs = [];
 		if (startingDocs.length > 0) {
-			startingDocs.map(doc => {
-				let newDoc = {
+			/* map typeId here for req_type: pan/aadhar/voter/DL property doc */
+			startingDocs.map((doc, docIndex) => {
+				const newDoc = {
 					...doc,
 					name: doc.upload_doc_name,
 					progress: '100',
 					status: 'completed',
 					file: null,
+					typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
 				};
-				if (newDoc.mainType == 'KYC') kycDocsNew.push(newDoc);
-				else if (newDoc.mainType == 'Financial') finDocsNew.push(newDoc);
-				else if (newDoc.mainType == 'Others') otherDocsNew.push(newDoc);
+				if (newDoc.typeId) startingDocs[docIndex].typeId = newDoc.typeId;
+				// console.log('startingDoc-', { doc, newDoc });
+				if (newDoc.mainType == 'KYC') newKycDocs.push(newDoc);
+				else if (newDoc.mainType == 'Financial') newFinDocs.push(newDoc);
+				else if (newDoc.mainType == 'Others') newOtherDocs.push(newDoc);
+				else {
+					if (newDoc.sectionType === 'kyc') newKycUnTagDocs.push(newDoc);
+					else if (newDoc.sectionType === 'financial')
+						newFinUnTagDocs.push(newDoc);
+					else if (newDoc.sectionType === 'others')
+						newOtherUnTagDocs.push(newDoc);
+				}
 			});
 		}
-		setStartingKYCDoc(kycDocsNew);
-		setStartingFinDoc(finDocsNew);
-		setStartingOtherDoc(otherDocsNew);
+		// console.log('loan-doc-upload-useEffect-', {
+		// 	flowDocTypeMappingList,
+		// 	newKycDocs,
+		// 	newFinDocs,
+		// 	newOtherDocs,
+		// 	newKycUnTagDocs,
+		// 	newFinUnTagDocs,
+		// 	newOtherUnTagDocs,
+		// });
+		setStartingKYCDoc(newKycDocs);
+		setStartingFinDoc(newFinDocs);
+		setStartingOtherDoc(newOtherDocs);
+		setStartingUnTaggedKYCDocs(newKycUnTagDocs);
+		setStartingUnTaggedFinDocs(newFinUnTagDocs);
+		setStartingUnTaggedOtherDocs(newOtherUnTagDocs);
 		getWhiteLabel();
 	}, []);
 
 	useEffect(() => {
+		setLoading(true);
 		if (response) {
 			// disabled looks unsed code
 			// const getAddressDetails = async () => {
@@ -850,6 +916,7 @@ export default function DocumentUpload({
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
 			}
+			setLoading(false);
 		}
 	}, [response]);
 
@@ -971,7 +1038,14 @@ export default function DocumentUpload({
 				productDetails,
 				productId
 			);
-
+			if (sessionStorage.getItem('userDetails')) {
+				try {
+					reqBody.user_id =
+						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+				} catch (err) {
+					return err;
+				}
+			}
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
@@ -981,8 +1055,8 @@ export default function DocumentUpload({
 					data: reqBody,
 				},
 				{
-					authorization: `Bearer ${
-						JSON.parse(userToken).userReducer?.userToken
+					Authorization: `Bearer ${
+						JSON.parse(userToken)?.userReducer?.userToken
 					}`,
 				}
 			);
@@ -996,8 +1070,8 @@ export default function DocumentUpload({
 				setMessage(resLoanRefId);
 				setLoanRef(resLoanRefId);
 				const compData =
-					localStorage.getItem('companyData') &&
-					JSON.parse(localStorage.getItem('companyData'));
+					sessionStorage.getItem('companyData') &&
+					JSON.parse(sessionStorage.getItem('companyData'));
 
 				if (compData && compData.CIN) {
 					const reqBody = {
@@ -1011,28 +1085,30 @@ export default function DocumentUpload({
 							data: reqBody,
 						},
 						{
-							authorization: `Bearer ${
-								JSON.parse(userToken).userReducer?.userToken
+							Authorization: `Bearer ${
+								JSON.parse(userToken)?.userReducer?.userToken
 							}`,
 						}
 					);
 				}
 
 				//**** uploadCacheDocuments
-				// console.log('final state', state);
-				let uploadCacheDocsArr = [];
-				state.documents.filter(doc => {
+				// console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
+				const uploadCacheDocsArr = [];
+				state.documents.map(doc => {
+					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
+					if (!doc.typeId) return null;
 					if (doc.requestId) {
-						let ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
+						const ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
 						uploadCacheDocsArr.push(ele);
 					}
+					return null;
 				});
-				let uploadCacheDocBody = {
+				const uploadCacheDocBody = {
 					loan_id: caseRes.data.loan_details.id,
 					request_ids_obj: uploadCacheDocsArr,
 					user_id: +caseRes.data.loan_details.createdUserId,
 				};
-				const token = localStorage.getItem('userTokenCache');
 				await newRequest(
 					UPLOAD_CACHE_DOCS,
 					{
@@ -1040,7 +1116,7 @@ export default function DocumentUpload({
 						data: uploadCacheDocBody,
 					},
 					{
-						authorization: clientToken,
+						Authorization: clientToken,
 					}
 				);
 
@@ -1078,8 +1154,8 @@ export default function DocumentUpload({
 					data: subsidiaryDataFormat(caseId, state),
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer?.userToken}`,
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1112,8 +1188,8 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer?.userToken}`,
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1145,8 +1221,8 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer?.userToken}`,
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+						JSON.parse(userToken)?.userReducer?.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1178,8 +1254,8 @@ export default function DocumentUpload({
 					data: formData,
 				},
 				{
-					authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken).userReducer.userToken}`,
+					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+						JSON.parse(userToken)?.userReducer.userToken}`,
 				}
 			);
 			const caseRes = caseReq.data;
@@ -1199,8 +1275,8 @@ export default function DocumentUpload({
 
 	const caseCreationSteps = async data => {
 		try {
-			editLoan = localStorage.getItem('editLoan')
-				? JSON.parse(localStorage.getItem('editLoan'))
+			editLoan = sessionStorage.getItem('editLoan')
+				? JSON.parse(sessionStorage.getItem('editLoan'))
 				: {};
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();
@@ -1236,6 +1312,8 @@ export default function DocumentUpload({
 		setCaseCreationProgress(true);
 		let docError = false;
 		state?.documents?.map(ele => {
+			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
+			if (ele.req_type) return null;
 			if (!ele.typeId) {
 				docError = true;
 				return false;
@@ -1286,7 +1364,7 @@ export default function DocumentUpload({
 	let financialCount = 0;
 	let otherCount = 0;
 
-	const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
+	// const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
 
 	state?.documents?.map(docs => {
 		if (docs.mainType === 'KYC') kyccount++;
@@ -1294,27 +1372,17 @@ export default function DocumentUpload({
 		if (docs.mainType === 'Others') otherCount++;
 	});
 
-	// console.log(
-	// 	'bankDetailsDataFormat(caseId, state)',
-	// 	state,
-	// 	bankDetailsDataFormat('', state),
-	// 	caseCreationDataFormat(
-	// 		{
-	// 			...state,
-	// 			productId,
-	// 		},
-	// 		companyDetail,
-	// 		productDetails,
-	// 		productId
-	// 	)
-	// );
-
 	return (
 		<>
 			<Colom1>
 				<H>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
 				</H>
+				{loading && (
+					<LoaderWrapper>
+						<Loading />
+					</LoaderWrapper>
+				)}
 				{KycDocOptions.length > 0 && (
 					<>
 						{' '}
@@ -1346,8 +1414,9 @@ export default function DocumentUpload({
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
-									startingKYCDoc={startingKYCDoc}
 									prefilledDocs={prefilledKycDocs}
+									startingTaggedDocs={startingKYCDoc}
+									startingUnTaggedDocs={startingUnTaggedKYCDocs}
 									sectionType='kyc'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1364,7 +1433,7 @@ export default function DocumentUpload({
 										}),
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
-												JSON.parse(userToken).userReducer?.userToken ||
+												JSON.parse(userToken)?.userReducer?.userToken ||
 												''}`,
 										},
 									}}
@@ -1404,8 +1473,9 @@ export default function DocumentUpload({
 						<Details open={openFinancialdoc}>
 							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
-									startingFinDoc={startingFinDoc}
 									prefilledDocs={prefilledFinancialDocs}
+									startingTaggedDocs={startingFinDoc}
+									startingUnTaggedDocs={startingUnTaggedFinDocs}
 									sectionType='financial'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1459,8 +1529,9 @@ export default function DocumentUpload({
 						<Details open={openOtherdoc}>
 							<UploadWrapper open={openOtherdoc}>
 								<FileUpload
-									startingOtherDoc={startingOtherDoc}
 									prefilledDocs={prefilledOtherDocs}
+									startingTaggedDocs={startingOtherDoc}
+									startingUnTaggedDocs={startingUnTaggedOtherDocs}
 									sectionType='others'
 									section={'document-upload'}
 									onDrop={handleFileUpload}
@@ -1477,7 +1548,7 @@ export default function DocumentUpload({
 										}),
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
-												JSON.parse(userToken).userReducer?.userToken ||
+												JSON.parse(userToken)?.userReducer?.userToken ||
 												''}`,
 										},
 									}}

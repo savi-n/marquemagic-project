@@ -16,7 +16,7 @@ const Div = styled.div`
 	flex: 1;
 	padding: 50px;
 	background: #ffffff;
-	@media (max-width:700px){
+	@media (max-width: 700px) {
 		padding: 50px 0px;
 	}
 `;
@@ -51,7 +51,7 @@ const additionalLoanData = formData => {
 		exShowroomPrice: formData.exShowroomPrice,
 		accessories: formData.Accessories,
 		insurance: formData.insurance,
-		roadTax: formData.roadTaxRegistration
+		roadTax: formData.roadTaxRegistration,
 	};
 
 	return formatData;
@@ -62,7 +62,7 @@ const formatEmiData = (formData, fields) => {
 		.map(f => ({
 			type: f.name,
 			amount: formData[f.name],
-			bank: formData[`${f.name}_bank_name`]?.name
+			bank: formData[`${f.name}_bank_name`]?.name,
 		}))
 		.filter(f => f.bank);
 };
@@ -71,20 +71,25 @@ FourWheelerLoanDetailsPage.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
 	id: string,
-	productDetails: object
+	productDetails: object,
 };
 
-export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange, productDetails }) {
+export default function FourWheelerLoanDetailsPage({
+	id,
+	map,
+	onFlowChange,
+	productDetails,
+}) {
 	const {
-		actions: { setCompleted }
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData }
+		actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
 	} = useContext(FormContext);
 
 	const {
-		state: { bankId }
+		state: { bankId },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -103,23 +108,23 @@ export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange, prod
 		setUsertypeEmiData(emiData);
 		setUsertypeBankData({
 			bankId: bankId,
-			branchId: data.branchId?.value || data.branchId
+			branchId: data.branchId?.value || data.branchId,
 		});
 		setUsertypeLoanData({
 			...loanData,
 			summary: 'summary',
 			automobileType: productDetails.loanType,
 			...(map.fields['loan-details-additional']?.data &&
-				additionalLoanData(data, map.fields['loan-details-additional']?.data))
+				additionalLoanData(data, map.fields['loan-details-additional']?.data)),
 		});
 		addToast({
 			message: 'Saved Succesfully',
-			type: 'success'
+			type: 'success',
 		});
 	};
 
 	useEffect(() => {
-		localStorage.removeItem('pan');
+		sessionStorage.removeItem('pan');
 	}, []);
 
 	return (
@@ -145,7 +150,9 @@ export default function FourWheelerLoanDetailsPage({ id, map, onFlowChange, prod
 					/>
 				</FlexColom>
 			</FormWrapper>
-			{map.fields['loan-details'].message && <Caption>{map.fields['loan-details'].message}</Caption>}
+			{map.fields['loan-details'].message && (
+				<Caption>{map.fields['loan-details'].message}</Caption>
+			)}
 			<EMIDetails
 				register={register}
 				formState={formState}

@@ -7,10 +7,8 @@ import Button from '../../../components/Button';
 import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import { APP_CLIENT, DOCTYPES_FETCH } from '../../../_config/app.config';
 import { useEffect } from 'react';
 import useFetch from '../../../hooks/useFetch';
 
@@ -109,7 +107,7 @@ export default function AddressDetailsPage({
 	const { newRequest } = useFetch();
 	const url = window.location.hostname;
 
-	let userTokensss = localStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(url);
 
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness =
@@ -125,10 +123,6 @@ export default function AddressDetailsPage({
 	const {
 		actions: { setUsertypeAddressData },
 	} = useContext(FormContext);
-
-	const {
-		state: { userBankDetails },
-	} = useContext(UserContext);
 
 	const {
 		state: { companyDetail },
@@ -187,18 +181,16 @@ export default function AddressDetailsPage({
 		}
 	}, []);
 
-	const r = () => {
-		if (
-			APP_CLIENT.includes('clix') ||
-			APP_CLIENT.includes('nctestnew') ||
-			APP_CLIENT.includes('yesbank')
-		) {
-			var formStat = JSON.parse(localStorage.getItem('formstate'));
+	const prefilledValues = () => {
+		try {
+			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
 			return formStat?.values;
-		} else {
-			return userBankDetails;
+		} catch (error) {
+			console.log('error-LoanAddressDetails-prefilledValues-', error);
+			return {};
 		}
 	};
+
 	const formatAddressData = address => {
 		const BAddress = address.map((ele, i) => {
 			return {
@@ -214,7 +206,7 @@ export default function AddressDetailsPage({
 		});
 		return BAddress;
 	};
-	const editLoanData = JSON.parse(localStorage.getItem('editLoan'));
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 
 	const Address =
 		(form && form.address && form.address[0]) ||
@@ -239,12 +231,15 @@ export default function AddressDetailsPage({
 							? Address && Address.address1
 							: companyDetail?.Address
 							? getAddress(companyDetail?.Address)
-							: r()?.address1 || '',
-					address2: (Address && Address.address2) || r()?.address2 || '',
-					address3: (Address && Address.address3) || r()?.address3 || '',
-					address4: (Address && Address.address4) || r()?.address4 || '',
-					city: (Address && Address.city) || r()?.city || '',
-					state: (Address && Address.state) || r()?.state || '',
+							: prefilledValues()?.address1 || '',
+					address2:
+						(Address && Address.address2) || prefilledValues()?.address2 || '',
+					address3:
+						(Address && Address.address3) || prefilledValues()?.address3 || '',
+					address4:
+						(Address && Address.address4) || prefilledValues()?.address4 || '',
+					city: (Address && Address.city) || prefilledValues()?.city || '',
+					state: (Address && Address.state) || prefilledValues()?.state || '',
 					pinCode:
 						Address && Address.pinCode
 							? Address.pinCode
@@ -252,7 +247,7 @@ export default function AddressDetailsPage({
 							? companyDetail?.Address
 								? getPinCode(companyDetail?.Address)
 								: ''
-							: r()?.pin || '',
+							: prefilledValues()?.pin || '',
 				}}
 			/>
 			<ButtonWrap>
