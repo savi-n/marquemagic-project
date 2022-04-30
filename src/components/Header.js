@@ -75,13 +75,14 @@ export default function Header({
 		if (params.cid || params.uid) {
 			getUserDetails(params);
 		}
+		if (sessionStorage.getItem('userDetails')) {
+			setBackToDashboard(true);
+		}
 	}, []);
 
 	return (
 		<>
-			<a
-				href={logoLink ? logoLink : '/'}
-				{...(logoLink && { target: '_blank' })}>
+			<a href={logoLink ? logoLink : '/'} {...logoLink && { target: '_blank' }}>
 				<Logo src={logo} alt='logo' />
 			</a>
 			{corporateName && (
