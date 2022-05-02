@@ -281,13 +281,8 @@ function caseCreationDataFormat(
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
-
 	const idType =
-		productDetails.loanType.includes('Business') ||
-		productDetails.loanType.includes('LAP') ||
-		productDetails.loanType.includes('Working')
-			? 'business'
-			: 'salaried';
+		productDetails.loanType.loan_request_type === 1 ? 'business' : 'salaried';
 
 	// console.log('case-creation-data-format-', {
 	// 	data,
@@ -384,7 +379,8 @@ function caseCreationDataFormat(
 			: addressArrayUni;
 
 	const { loanAmount, tenure, ...restLoanData } = loanData;
-
+	const business_income_type_id =
+		applicantData?.incomeType || companyData?.BusinessType;
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -410,7 +406,10 @@ function caseCreationDataFormat(
 			// loan_request_type: "1",
 			// origin: "New_UI",
 			...restLoanData,
-			loan_product_id: productId[(form?.incomeType)] || productId[idType],
+			loan_product_id:
+				productId[business_income_type_id] ||
+				productId[(form?.incomeType)] ||
+				productId[idType],
 			white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
 			branchId: loan.branchId,
 			loan_amount: getAmount(
@@ -680,13 +679,8 @@ export default function DocumentUpload({
 
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
 	const [cibilCheckModal, setCibilCheckModal] = useState(false);
-
 	const idType =
-		productDetails.loanType.includes('Business') ||
-		productDetails.loanType.includes('LAP') ||
-		productDetails.loanType.includes('Working')
-			? 'business'
-			: 'salaried';
+		productDetails.loanType.loan_request_type === 1 ? 'business' : 'salaried';
 
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
@@ -731,9 +725,16 @@ export default function DocumentUpload({
 		state['business-details']?.BusinessType ||
 		companyData?.BusinessType;
 
-	// console.log('LoanDocumentsUpload-allstates-', {
-	// 	state,
-	// });
+	console.log('LoanDocumentsUpload-allstates-', {
+		state,
+		business_income_type_id,
+		productId,
+		form,
+		loan_product:
+			productId[business_income_type_id] ||
+			productId[(form?.incomeType)] ||
+			productId[idType],
+	});
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
@@ -741,7 +742,10 @@ export default function DocumentUpload({
 			method: 'POST',
 			data: {
 				business_type: business_income_type_id,
-				loan_product: productId[(form?.incomeType)] || productId[idType],
+				loan_product:
+					productId[business_income_type_id] ||
+					productId[(form?.incomeType)] ||
+					productId[idType],
 			},
 		},
 		headers: {
