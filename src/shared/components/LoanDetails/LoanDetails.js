@@ -183,13 +183,14 @@ export default function LoanDetails({
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
-					{/* <Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency> */}
+					{<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>}
 
 					{field.uploadButton && (
 						<Button
 							name={field.uploadButton}
 							roundCorner={true}
 							width='150px'
+							style={{ marginLeft: '300px' }}
 							onClick={() => onUploadAgreementAction(field.name)}
 							disabled={field.disabled}
 						/>
