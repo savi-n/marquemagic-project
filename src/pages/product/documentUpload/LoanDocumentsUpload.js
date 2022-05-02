@@ -221,22 +221,36 @@ let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
 
+// const getAmountUm = a => {
+// 	if (a > 99999) {
+// 		return 'Lakhs';
+// 	} else {
+// 		return '';
+// 	}
+// };
 const getAmountUm = a => {
-	if (a > 99999) {
+	if (a >= 99999 && a <= 9999999) {
 		return 'Lakhs';
-	} else {
-		return '';
+	} else if (a <= 999999999 && a >= 1000000) {
+		return 'Crores';
 	}
 };
+
+// const getAmount = a => {
+// 	if (a >= 99999) {
+// 		return a / 100000;
+// 	} else {
+// 		return a;
+// 	}
+// };
 
 const getAmount = a => {
-	if (a >= 99999) {
+	if (a >= 99999 && a <= 9999999) {
 		return a / 100000;
-	} else {
-		return a;
+	} else if (a <= 999999999 && a >= 1000000) {
+		return a / 10000000;
 	}
 };
-
 function caseCreationDataFormat(
 	data,
 	uploaddedDoc,
