@@ -83,6 +83,7 @@ const FieldWrapperPanVerify = styled.div`
 	padding: 20px 0;
 	/* width: 50%; */
 	place-self: center;
+	margin-right: 10em;
 	@media (max-width: 700px) {
 		width: 100%;
 	}
