@@ -264,16 +264,25 @@ export default function PersonalDetailsPage({
 
 	const getDOB = () => {
 		try {
-			var formStat =
-				JSON.parse(sessionStorage.getItem('formstate')) ||
-				JSON.parse(sessionStorage.getItem('formstatepan'));
-
-			if (formStat && formStat?.values?.dob) {
-				let d = formStat.values.dob.split('/');
-
-				d = `${d[2]}-${d[1]}-${d[0]}`;
-
+			// first check DOB extracted from Aadhar, if its only a year or giving invalid data
+			// check Pan extraction data for a valid DOB
+			var formStat = JSON.parse(sessionStorage.getItem('formstate'))?.values
+				?.dob;
+			if (formStat.length < 10) {
+				formStat = JSON.parse(sessionStorage.getItem('formstatepan'))?.values
+					?.dob;
+			}
+			if (formStat && formStat) {
+				let d = formStat.split('/');
+				if (d.length > 2) {
+					d = `${d[2]}-${d[1]}-${d[0]}`;
+				} else {
+					// for old format of aadhar where only date appears
+					d = '';
+				}
 				return d;
+			} else {
+				return '';
 			}
 		} catch (error) {
 			return '';
@@ -352,11 +361,7 @@ export default function PersonalDetailsPage({
 						prefilledValues()?.lastName ||
 						(getDataFromPan() && getDataFromPan()[1]) ||
 						'',
-					dob:
-						getDOB() ||
-						JSON.parse(sessionStorage.getItem('formstatepan'))?.values?.dob ||
-						prefilledValues()?.dob ||
-						'',
+					dob: getDOB() || prefilledValues()?.dob || '',
 					email: prefilledValues()?.email || '',
 					mobileNo: prefilledValues()?.mobileNum || '',
 					panNumber:
