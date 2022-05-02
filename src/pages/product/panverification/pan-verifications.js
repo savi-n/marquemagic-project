@@ -1234,7 +1234,7 @@ export default function PanVerification({
 							)}
 
 							<section className='flex flex-wrap items-center gap-x-4 gap-y-4'>
-								<Button
+								{/* <Button
 									onClick={() => {
 										setPanUpload(true);
 										setVerificationFailed(null);
@@ -1243,7 +1243,7 @@ export default function PanVerification({
 									}}
 									name='Upload PAN again'
 									fill
-								/>
+								/> */}
 								<Button
 									type='submit'
 									isLoader={loading}
