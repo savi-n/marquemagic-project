@@ -478,6 +478,9 @@ export default function PanVerification({
 	}, []);
 
 	const removeHandler = (e, doc, name) => {
+		// console.log('state', state.documents);
+		// console.log('remveddd', e, typeof e);
+		setBackUploading(false);
 		setPanError('');
 		resetAllErrors();
 		if (name) {
@@ -797,9 +800,10 @@ export default function PanVerification({
 	useEffect(() => {
 		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
 			setBackUpload(true);
-	}, [otherDoc, aadhar, voter]);
+	}, [otherDoc, aadhar, voter, backUploading]);
 
 	const handleUpload = files => {
+		// console.log('here');
 		setLoading(true);
 		const fileType = getFileType();
 		resetAllErrors();
@@ -1104,6 +1108,11 @@ export default function PanVerification({
 											{dlError}
 										</p>
 									)}
+									<h1
+										className='text-xl text-black'
+										style={{ marginLeft: '50%' }}>
+										OR
+									</h1>
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -1141,6 +1150,11 @@ export default function PanVerification({
 											{aadharError}
 										</p>
 									)}
+									<h1
+										className='text-xl text-black'
+										style={{ marginLeft: '50%' }}>
+										OR
+									</h1>
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
