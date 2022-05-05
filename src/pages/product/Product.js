@@ -225,6 +225,10 @@ export default function Product({ product, url }) {
 
 	useEffect(() => {
 		if (response) {
+			if (response?.data?.loan_request_type) {
+				response.data.product_details.loan_request_type =
+					response?.data?.loan_request_type;
+			}
 			configure(response.data?.product_details?.flow);
 			sessionStorage.setItem('productId', atob(product));
 		}
