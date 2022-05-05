@@ -546,29 +546,40 @@ function caseCreationDataFormat(
 }
 
 function subsidiaryDataFormat(caseId, data) {
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	if (
 		!(
 			data['subsidiary-details']?.SubsidiaryName &&
 			data['subsidiary-details']?.BankName
+		) &&
+		!(
+			formReducer?.user['subsidiary-details']?.SubsidiaryName &&
+			formReducer?.user['subsidiary-details']?.BankName
 		)
 	) {
 		return false;
 	}
+	let bank =
+		data['subsidiary-details']?.BankName ||
+		formReducer?.user['subsidiary-details']?.BankName;
 	const formatedData = {
 		case_id: caseId,
-		account_number: data['subsidiary-details']?.AccountNumber,
-		subsidiary_name: data['subsidiary-details']?.SubsidiaryName,
-		bank_name:
-			typeof data['subsidiary-details']?.BankName === 'object'
-				? Number(data['subsidiary-details']?.BankName?.value)
-				: data['subsidiary-details']?.BankName,
-		relative: data['subsidiary-details']?.Relation,
+		account_number:
+			data['subsidiary-details']?.AccountNumber ||
+			formReducer?.user['subsidiary-details']?.AccountNumber,
+		subsidiary_name:
+			data['subsidiary-details']?.SubsidiaryName ||
+			formReducer?.user['subsidiary-details']?.SubsidiaryName,
+		bank_name: typeof bank === 'object' ? Number(bank?.value) : bank,
+		relative:
+			data['subsidiary-details']?.RelationSubsidiary ||
+			formReducer?.user['subsidiary-details']?.RelationSubsidiary,
 	};
-
 	return formatedData;
 }
 
 function bankDetailsDataFormat(caseId, data) {
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	if (data['vehicle-loan-details']) {
 		if (!data['emi-details']) {
 			return false;
@@ -583,24 +594,37 @@ function bankDetailsDataFormat(caseId, data) {
 	if (
 		!data['bank-details']?.AccountNumber &&
 		!data['bank-details']?.BankName &&
-		!data['bank-details']?.AccountHolderName
+		!data['bank-details']?.AccountHolderName &&
+		!formReducer?.user['bank-details']?.AccountNumber &&
+		!formReducer?.user['bank-details']?.BankName &&
+		!formReducer?.user['bank-details']?.AccountHolderName
 	) {
 		return false;
 	}
 
+	let bank =
+		data['bank-details']?.BankName ||
+		formReducer?.user['bank-details']?.BankName;
 	const formatedData = {
 		case_id: caseId,
-		emiDetails: data['emi-details'],
-		account_number: data['bank-details']?.AccountNumber,
+		emiDetails: data['emi-details'] || formReducer?.user['emi-details'],
+		account_number:
+			data['bank-details']?.AccountNumber ||
+			formReducer?.user['bank-details']?.AccountNumber,
 		// subsidiary_name: data['bank-details'].,
-		bank_name:
-			typeof data['bank-details']?.BankName === 'object'
-				? Number(data['bank-details']?.BankName?.value)
-				: data['bank-details']?.BankName,
-		account_holder_name: data['bank-details']?.AccountHolderName,
-		account_type: data['bank-details']?.AccountType,
-		start_date: data['bank-details']?.StartDate,
-		end_date: data['bank-details']?.EndDate,
+		bank_name: typeof bank === 'object' ? Number(bank?.value) : bank?.BankName,
+		account_holder_name:
+			data['bank-details']?.AccountHolderName ||
+			formReducer?.user['bank-details']?.AccountHolderName,
+		account_type:
+			data['bank-details']?.AccountType ||
+			formReducer?.user['bank-details']?.AccountType,
+		start_date:
+			data['bank-details']?.StartDate ||
+			formReducer?.user['bank-details']?.StartDate,
+		end_date:
+			data['bank-details']?.EndDate ||
+			formReducer?.user['bank-details']?.EndDate,
 		// limit_type: data['bank-details'],
 		// sanction_limit: data['bank-details'],
 		// drawing_limit: data['bank-details'],
@@ -611,60 +635,100 @@ function bankDetailsDataFormat(caseId, data) {
 }
 
 function shareHolderDataFormat(businessId, data) {
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	if (
 		!(
 			data['shareholder-details']?.ShareholderPercentage &&
 			data['shareholder-details']?.ShareholderName
+		) &&
+		!(
+			formReducer?.user['shareholder-details']?.ShareholderPercentage &&
+			formReducer?.user['shareholder-details']?.ShareholderName
 		)
 	) {
 		return false;
 	}
 	const formatedData = {
 		// case_id: caseId,
-		percentage: data['shareholder-details']?.ShareholderPercentage,
+		percentage:
+			data['shareholder-details']?.ShareholderPercentage ||
+			formReducer?.user['shareholder-details']?.ShareholderPercentage,
 		businessID: businessId,
-		name: data['shareholder-details']?.ShareholderName,
-		relationship: data['shareholder-details']?.Relation,
-		address: data['shareholder-details']?.CompanyAddress,
-		pincode: data['shareholder-details']?.Pincode,
+		name:
+			data['shareholder-details']?.ShareholderName ||
+			formReducer?.user['shareholder-details']?.ShareholderName,
+		relationship:
+			data['shareholder-details']?.RelationShareholder ||
+			formReducer?.user['shareholder-details']?.RelationShareholder,
+		address:
+			data['shareholder-details']?.CompanyAddress ||
+			formReducer?.user['shareholder-details']?.CompanyAddress,
+		pincode:
+			data['shareholder-details']?.Pincode ||
+			formReducer?.user['shareholder-details']?.Pincode,
 	};
 
 	return { shareholderData: [formatedData] };
 }
 
 function refereneceDataFormat(loanId, data) {
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	const loanReferenceData = [];
 	if (
-		data['reference-details']?.Name0 &&
-		data['reference-details']?.ReferenceEmail0 &&
-		data['reference-details']?.ContactNumber0 &&
-		data['reference-details']?.Pincode0
+		(data['reference-details']?.Name0 &&
+			data['reference-details']?.ReferenceEmail0 &&
+			data['reference-details']?.ContactNumber0 &&
+			data['reference-details']?.Pincode0) ||
+		(formReducer?.user['reference-details']?.Name0 &&
+			formReducer?.user['reference-details']?.ReferenceEmail0 &&
+			formReducer?.user['reference-details']?.ContactNumber0 &&
+			formReducer?.user['reference-details']?.Pincode0)
 	) {
 		loanReferenceData.push({
-			ref_name: data['reference-details']?.Name0,
-			ref_email: data['reference-details']?.ReferenceEmail0,
-			ref_contact: data['reference-details'].ContactNumber0,
+			ref_name:
+				data['reference-details']?.Name0 ||
+				formReducer?.user['reference-details']?.Name0,
+			ref_email:
+				data['reference-details']?.ReferenceEmail0 ||
+				formReducer?.user['reference-details']?.ReferenceEmail0,
+			ref_contact:
+				data['reference-details']?.ContactNumber0 ||
+				formReducer?.user['reference-details']?.ContactNumber0,
 			ref_state: 'null',
 			ref_city: 'null',
-			ref_pincode: data['reference-details']?.Pincode0,
+			ref_pincode:
+				data['reference-details']?.Pincode0 ||
+				formReducer?.user['reference-details']?.Pincode0,
 			ref_locality: 'null',
 			reference_truecaller_info: '',
 		});
 	}
 
 	if (
-		data['reference-details']?.Name1 &&
-		data['reference-details']?.ReferenceEmail1 &&
-		data['reference-details']?.ContactNumber1 &&
-		data['reference-details']?.Pincode1
+		(data['reference-details']?.Name1 &&
+			data['reference-details']?.ReferenceEmail1 &&
+			data['reference-details']?.ContactNumber1 &&
+			data['reference-details']?.Pincode1) ||
+		(formReducer?.user['reference-details']?.Name1 &&
+			formReducer?.user['reference-details']?.ReferenceEmail1 &&
+			formReducer?.user['reference-details']?.ContactNumber1 &&
+			formReducer?.user['reference-details']?.Pincode1)
 	) {
 		loanReferenceData.push({
-			ref_name: data['reference-details']?.Name1,
-			ref_email: data['reference-details']?.ReferenceEmail1,
-			ref_contact: data['reference-details'].ContactNumber1,
+			ref_name:
+				data['reference-details']?.Name1 ||
+				formReducer?.user['reference-details']?.Name1,
+			ref_email:
+				data['reference-details']?.ReferenceEmail1 ||
+				formReducer?.user['reference-details']?.ReferenceEmail1,
+			ref_contact:
+				data['reference-details']?.ContactNumber1 ||
+				formReducer?.user['reference-details']?.ContactNumber1,
 			ref_state: 'null',
 			ref_city: 'null',
-			ref_pincode: data['reference-details']?.Pincode1,
+			ref_pincode:
+				data['reference-details']?.Pincode1 ||
+				formReducer?.user['reference-details']?.Pincode1,
 			ref_locality: 'null',
 			reference_truecaller_info: '',
 		});
