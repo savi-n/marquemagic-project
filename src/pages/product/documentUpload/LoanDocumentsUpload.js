@@ -282,7 +282,7 @@ function caseCreationDataFormat(
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
 	const idType =
-		productDetails.loanType.loan_request_type === 1 ? 'business' : 'salaried';
+		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 
 	// console.log('case-creation-data-format-', {
 	// 	data,
@@ -680,7 +680,7 @@ export default function DocumentUpload({
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
 	const [cibilCheckModal, setCibilCheckModal] = useState(false);
 	const idType =
-		productDetails.loanType.loan_request_type === 1 ? 'business' : 'salaried';
+		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();

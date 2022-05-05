@@ -110,8 +110,7 @@ export default function AddressDetailsPage({
 	let userTokensss = sessionStorage.getItem(url);
 
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
-	const isBusiness =
-		productDetails.loanType.loan_request_type === 1 ? true : false;
+	const isBusiness = productDetails.loan_request_type === 1 ? true : false;
 	const {
 		actions: { setCompleted, activateSubFlow },
 	} = useContext(FlowContext);
