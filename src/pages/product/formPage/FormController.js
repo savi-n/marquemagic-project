@@ -94,6 +94,7 @@ export default function FormController({
 			// setUserSubsidiaryDetailsData,
 			// setUsertypeBankData,
 			// setUsertypeAgreementData,
+			setFlowData,
 		},
 	} = useContext(FormContext);
 
@@ -145,6 +146,8 @@ export default function FormController({
 	}, [map.name]);
 
 	const onSave = data => {
+		// console.log('state', state, id, data);
+		setFlowData(data, id);
 		setLoanData({ ...data }, id);
 		addToast({
 			message: 'Saved Succesfully',

@@ -258,14 +258,28 @@ function caseCreationDataFormat(
 	productDetails,
 	productId
 ) {
+	// console.log('state --', data);
+	// console.log('companydetails --', companyData);
+	// console.log('proddetails --', productDetails);
+	// console.log('prodid --', productId);
 	loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 	form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+
+	url = window.location.hostname;
+	userToken = sessionStorage.getItem(url);
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let guarantorData = formReducer?.Guarantor;
+	let applicantData = formReducer?.user?.applicantData;
+	let loanData = formReducer?.user?.loanData;
+
 	editLoan = sessionStorage.getItem('editLoan')
 		? JSON.parse(sessionStorage.getItem('editLoan'))
 		: {};
 	const collateralData = [];
-	if (data['collateral-details'])
-		collateralData.push(data['collateral-details']);
+	if (data['collateral-details'] || formReducer?.user['collateral-details'])
+		collateralData.push(
+			data['collateral-details'] || formReducer?.user['collateral-details']
+		);
 	if (data['land-additional-details'])
 		collateralData.push(data['land-additional-details']);
 	if (data['fishery-additional-details'])
@@ -275,12 +289,6 @@ function caseCreationDataFormat(
 	//	collatralData
 	//);
 
-	url = window.location.hostname;
-	userToken = sessionStorage.getItem(url);
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-	let guarantorData = formReducer?.Guarantor;
-	let applicantData = formReducer?.user?.applicantData;
-	let loanData = formReducer?.user?.loanData;
 	const idType =
 		productDetails.loanType.loan_request_type === 1 ? 'business' : 'salaried';
 
@@ -314,7 +322,9 @@ function caseCreationDataFormat(
 				sessionStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
 			business_type:
-				applicantData?.incomeType || data['business-details']?.BusinessType,
+				applicantData?.incomeType ||
+				data['business-details']?.BusinessType ||
+				formReducer?.user['business-details']?.BusinessType,
 			// applicantData?.incomeType === 'salaried'
 			// 	? 7
 			// 	: applicantData?.incomeType === 'selfemployed'
@@ -322,15 +332,26 @@ function caseCreationDataFormat(
 			// 	: data['business-details']?.BusinessType
 			// 	? data['business-details']?.BusinessType
 			// 	: 1,
-			business_email: applicantData?.email || companyData?.email || '',
+			business_email:
+				applicantData?.email ||
+				companyData?.email ||
+				companyData?.Email ||
+				formReducer?.user['business-details']?.Email ||
+				'',
 			// business_industry_type: 20,
 			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
 
 			businesspancardnumber:
 				applicantData?.panNumber || companyData?.panNumber || '',
 			// // crime_check: "Yes",
-			gstin: data['business-details']?.GSTVerification || '',
-			businessstartdate: data['business-details']?.BusinessVintage || '',
+			gstin:
+				data['business-details']?.GSTVerification ||
+				formReducer?.user['business-details']?.GSTVerification ||
+				'',
+			businessstartdate:
+				data['business-details']?.BusinessVintage ||
+				formReducer?.user['business-details']?.BusinessVintage ||
+				'',
 			// corporateid: companyData.CIN
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
@@ -381,6 +402,7 @@ function caseCreationDataFormat(
 	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const business_income_type_id =
 		applicantData?.incomeType || companyData?.BusinessType;
+
 	const formatedData = {
 		Business_details: businessDetails() || null,
 		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
@@ -398,6 +420,7 @@ function caseCreationDataFormat(
 		// 	  }
 		// 	: {}
 		director_details: {},
+
 		loan_details: {
 			collateral: collateralData,
 			// loan_type_id: 1,
@@ -417,37 +440,48 @@ function caseCreationDataFormat(
 					loan?.loanAmount ||
 					data['business-loan-details']?.LoanAmount ||
 					data['vehicle-loan-details']?.loanAmount ||
+					formReducer?.user['business-loan-details']?.LoanAmount ||
 					0
 			), //loan.loanAmount,
 			loan_amount_um: getAmountUm(
 				+loanData?.loanAmount ||
 					+loan?.loanAmount ||
 					+data['business-loan-details']?.LoanAmount ||
-					+data['vehicle-loan-details']?.loanAmount
+					+data['vehicle-loan-details']?.loanAmount ||
+					+formReducer?.user['business-loan-details']?.LoanAmount
 			),
 			applied_tenure:
 				loan?.tenure ||
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
+				formReducer?.user['business-loan-details']?.tenure ||
 				0,
 			annual_turn_over: getAmount(
 				applicantData?.annualIncome ||
 					applicantData?.grossIncome ||
 					data?.['business-details']?.AnnualTurnover ||
+					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
 				applicantData?.annualIncome ||
 					applicantData?.grossIncome ||
 					data?.['business-details']?.AnnualTurnover ||
+					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 
 			annual_op_expense: getAmount(
-				applicantData?.netMonthlyIncome || data?.['business-details']?.PAT || ''
+				applicantData?.netMonthlyIncome ||
+					data?.['business-details']?.PAT ||
+					formReducer?.user['business-details']?.PAT ||
+					''
 			),
 			op_expense_um: getAmountUm(
-				applicantData?.netMonthlyIncome || data?.['business-details']?.PAT || ''
+				applicantData?.netMonthlyIncome ||
+					data?.['business-details']?.PAT ||
+					formReducer?.user['business-details']?.PAT ||
+					''
 			),
 			// annual_revenue: applicantData?.grossIncome || 0,
 			//loan.loanAmount?.tenure
@@ -725,16 +759,16 @@ export default function DocumentUpload({
 		state['business-details']?.BusinessType ||
 		companyData?.BusinessType;
 
-	console.log('LoanDocumentsUpload-allstates-', {
-		state,
-		business_income_type_id,
-		productId,
-		form,
-		loan_product:
-			productId[business_income_type_id] ||
-			productId[(form?.incomeType)] ||
-			productId[idType],
-	});
+	// console.log('LoanDocumentsUpload-allstates-', {
+	// 	state,
+	// 	business_income_type_id,
+	// 	productId,
+	// 	form,
+	// 	loan_product:
+	// 		productId[business_income_type_id] ||
+	// 		productId[(form?.incomeType)] ||
+	// 		productId[idType],
+	// });
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
@@ -1056,6 +1090,7 @@ export default function DocumentUpload({
 				productDetails,
 				productId
 			);
+
 			if (sessionStorage.getItem('userDetails')) {
 				try {
 					reqBody.user_id =
@@ -1064,6 +1099,8 @@ export default function DocumentUpload({
 					return err;
 				}
 			}
+			// console.log('req body ', reqBody);
+			// return;
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
