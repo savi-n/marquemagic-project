@@ -367,8 +367,13 @@ export default function FormController({
 		});
 		return obj;
 	};
-
-	let form = state[`${id}`] || companyDetail || companyData || appData;
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let form =
+		state[`${id}`] ||
+		formReducer?.user[`${id}`] ||
+		companyDetail ||
+		companyData ||
+		appData;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	if (state[`${id}`]) {
 		if (id === 'business-loan-details') {

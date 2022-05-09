@@ -580,12 +580,15 @@ function subsidiaryDataFormat(caseId, data) {
 
 function bankDetailsDataFormat(caseId, data) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-	if (data['vehicle-loan-details']) {
-		if (!data['emi-details']) {
+	if (
+		data['vehicle-loan-details'] ||
+		formReducer?.user['vehicle-loan-details']
+	) {
+		if (!data['emi-details'] && !formReducer?.user['emi-details']) {
 			return false;
 		}
 		const formatedData = {
-			emiDetails: data['emi-details'],
+			emiDetails: data['emi-details'] || formReducer?.user['emi-details'],
 			case_id: caseId,
 			// bank_name: data[`vehicle-loan-details`].branchId,
 		};
