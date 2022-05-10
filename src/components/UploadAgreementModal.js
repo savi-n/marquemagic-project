@@ -24,7 +24,13 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
 	const handleFileUpload = async files => {
 		setAgreementFiles(preFiles => [
 			...preFiles,
-			...files.map(file => ({ ...file, doc_type_id: '12' })),
+			...files.map(file => ({
+				...file,
+				// doc_type_id: '12',
+				mainType: 'Others',
+				req_type: 'property',
+				src: 'start',
+			})),
 		]);
 	};
 
@@ -32,13 +38,23 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
 		onDone(agreementFiles, name);
 	};
 
+	const removeHandler = (e, docs) => {
+		// console.log('e', e);
+		// console.log('doc', docs);
+		var index = docs.findIndex(x => x.id === e);
+		docs.splice(index, 1);
+		setAgreementFiles(docs);
+		// console.log('---', agreementFiles);
+	};
+
 	return (
 		<Modal show={true} onClose={onClose} width='50%'>
 			{/* <div>{name}</div> */}
 			<Div> Upload Agreement Document</Div>
 			<FileUpload
-				agreementDocShowMsg={false}
+				aggreementUploadModal={false}
 				onDrop={handleFileUpload}
+				onRemoveFile={e => removeHandler(e, agreementFiles)}
 				accept=''
 				upload={{
 					url: DOCS_UPLOAD_URL({ userId }),
