@@ -77,6 +77,7 @@ export default function Button({
 	roundCorner = false,
 	isLoader,
 	loading,
+	customStyle = {},
 }) {
 	return (
 		<StyledButton
@@ -85,7 +86,8 @@ export default function Button({
 			disabled={disabled}
 			altStyle={style}
 			width={width}
-			roundCorner={roundCorner}>
+			roundCorner={roundCorner}
+			style={customStyle}>
 			{isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
 			{loading && <LoaderCircle />}
 			{!loading && children}

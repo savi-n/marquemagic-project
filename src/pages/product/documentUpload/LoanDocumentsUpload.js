@@ -365,6 +365,14 @@ function caseCreationDataFormat(
 		if (editLoan && editLoan?.business_id && editLoan?.business_id?.id) {
 			newBusinessDetails.businessid = editLoan?.business_id?.id;
 		}
+		if (sessionStorage.getItem('aadhaar_otp_res')) {
+			try {
+				newBusinessDetails.aadhaar_otp_res =
+					JSON.parse(sessionStorage.getItem('aadhaar_otp_res'))?.data || null;
+			} catch (err) {
+				return err;
+			}
+		}
 		return newBusinessDetails;
 	};
 	if (!companyData) {

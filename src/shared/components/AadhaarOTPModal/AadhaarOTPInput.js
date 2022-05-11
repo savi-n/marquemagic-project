@@ -10,22 +10,25 @@ const SPACEBAR = 32;
 const OTPWrapper = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	/* gap: 10px; */
 	width: 100%;
 	justify-content: center;
+	@media (max-width: 700px) {
+		gap: 0px;
+	}
 `;
 
 const SytledInput = styled.input`
-	width: 40px;
-	height: 40px;
+	width: 48px;
+	height: 48px;
 	outline: none;
 	border: 1px solid;
 	margin: 10px;
 	padding: 10px;
 	cursor: pointer;
 	border-radius: 5px;
-	background-color: #d8d8d8;
-	border-color: #f3f6f9;
+	/* background-color: #d8d8d8; */
+	border-color: #c1c7cd;
 	color: #3f4254;
 	text-align: center;
 	transition: color 0.15s ease, background-color 0.15s ease,
@@ -34,6 +37,9 @@ const SytledInput = styled.input`
 	&:focus {
 		background-color: #ebedf3;
 		border-color: #ebedf3;
+	}
+	@media (max-width: 700px) {
+		margin: 5px;
 	}
 `;
 
@@ -91,6 +97,7 @@ export default function OtpInput({
 	handleChange = otp => console.log(otp),
 	isInputSecure = false,
 	numberOnly = false,
+	setInputAadhaarOTP,
 }) {
 	const [activeInput, setActiveInput] = useState(0);
 
@@ -103,11 +110,14 @@ export default function OtpInput({
 			return;
 		}
 
-		const otp = [...otpArray];
-		otp[index] = value;
+		const otpArr = [...otpArray];
+		otpArr[index] = value;
 
-		setOtpArray(otp);
-		handleChange(otp.join(''));
+		setOtpArray(otpArr);
+		const otpString = otpArr.join('');
+		handleChange(otpString);
+		// sessionStorage.setItem('inputAadhaarOTP', otpString);
+		setInputAadhaarOTP(otpString);
 		if (value) focusNext(index);
 	};
 
