@@ -10,6 +10,7 @@ const Input = styled.input`
 
 const Div = styled.div`
 	position: relative;
+	width: 100%;
 `;
 
 const Label = styled.label`
@@ -29,7 +30,7 @@ const Label = styled.label`
 		height: auto;
 		padding: 0 2px;
 		line-height: 1;
-		width: inherit;
+		width: fit-content;
 	}
 	${({ value }) =>
 		value

@@ -171,6 +171,15 @@ export default function PersonalDetailsPage({
 
 	const onProceed = async data => {
 		if (
+			formState.values.aadhaar !== '' &&
+			!sessionStorage.getItem('aadhaar_otp_res')
+		) {
+			return addToast({
+				message: 'Please Verify Aadhaar No to Proceed !',
+				type: 'error',
+			});
+		}
+		if (
 			Number(formState?.values?.grossIncome) === 0 ||
 			Number(formState?.values?.netMonthlyIncome) === 0
 		) {
@@ -245,9 +254,9 @@ export default function PersonalDetailsPage({
 	const getAdhar = () => {
 		try {
 			var formStat =
-				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadharNum ||
+				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadhaar ||
 				sessionStorage.getItem('aadhar');
-
+			// console.log('getAdhar-formState-', formState);
 			if (formStat) {
 				const adharNum = formStat;
 
@@ -257,6 +266,20 @@ export default function PersonalDetailsPage({
 
 				return `${d}`;
 			}
+		} catch (error) {
+			return '';
+		}
+	};
+
+	const getAdharUnMasked = () => {
+		try {
+			return (
+				JSON.parse(sessionStorage.getItem('formstate'))?.values
+					?.aadhaarUnMasked ||
+				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadharNum ||
+				sessionStorage.getItem('aadhar') ||
+				''
+			);
 		} catch (error) {
 			return '';
 		}
@@ -372,6 +395,7 @@ export default function PersonalDetailsPage({
 						'',
 					residenceStatus: prefilledValues()?.residentTypess || '',
 					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
+					aadhaarUnMasked: getAdharUnMasked(),
 					countryResidence: prefilledValues()?.countryResidence || 'india',
 					incomeType: prefilledValues()?.incomeType || '',
 					...form,
