@@ -894,6 +894,7 @@ export default function DocumentUpload({
 		// 	flowMap,
 		// 	business_income_type_id,
 		// });
+
 		const flowDocTypeMappingList = {};
 
 		const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
@@ -906,6 +907,18 @@ export default function DocumentUpload({
 				return null;
 			});
 		}
+
+		const JSON_HOMELOAN_SECTION = flowMap?.['home-loan-details']?.fields || [];
+		for (const key in JSON_HOMELOAN_SECTION) {
+			JSON_HOMELOAN_SECTION[key]?.data?.map(d => {
+				if (d.doc_type && d.doc_type[`${business_income_type_id}`]) {
+					flowDocTypeMappingList[`property`] =
+						d.doc_type[`${business_income_type_id}`];
+				}
+				return null;
+			});
+		}
+
 		const newKycDocs = [];
 		const newFinDocs = [];
 		const newOtherDocs = [];
