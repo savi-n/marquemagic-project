@@ -29,7 +29,7 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
 				// doc_type_id: '12',
 				mainType: 'Others',
 				req_type: 'property',
-				src: 'start',
+				isDocRemoveAllowed: true,
 			})),
 		]);
 	};

@@ -1297,7 +1297,7 @@ export default function FileUpload({
 													)}
 												</PasswordWrapper>
 											)}
-											{doc?.src == 'start' ? null : (
+											{!doc?.isDocRemoveAllowed ? null : (
 												<ImgClose
 													style={{ height: '20px' }}
 													src={isViewMore ? imgArrowDownCircle : imgClose}
