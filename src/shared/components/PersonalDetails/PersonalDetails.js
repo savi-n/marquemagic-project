@@ -35,9 +35,6 @@ const FieldWrap = styled.div`
 	display: ${({ isSubFields }) => (isSubFields ? 'flex' : 'block')};
 	gap: ${({ isSubFields }) => (isSubFields ? '10px' : '0')};
 	margin: 15px 0;
-	label {
-		width: fit-content;
-	}
 	@media (max-width: 700px) {
 		width: 100%;
 	}
@@ -420,18 +417,6 @@ export default function PersonalDetails({
 									isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
 								customFields.readonly =
 									isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
-								field.rules = {
-									required: true,
-								};
-								field.subFields = [
-									{
-										name: 'verifywithotp',
-										placeholder: 'Veirfy with OTP',
-										type: 'button',
-										rules: {},
-										isbuttonfilled: false,
-									},
-								];
 							}
 							return (
 								field.visibility && (
@@ -472,10 +457,10 @@ export default function PersonalDetails({
 													if (subF.type === 'button') {
 														return (
 															<Button
-																name='Verify with OTP'
+																name={subF.placeholder}
 																disabled={isVerifyWithOtpDisabled}
 																type='submit'
-																customStyle={{ width: '200px' }}
+																customStyle={{ whiteSpace: 'nowrap' }}
 																onClick={() => {
 																	onOTPClick();
 																}}
@@ -486,21 +471,6 @@ export default function PersonalDetails({
 													// during that time we'll handle these scenarion
 													// now only button is handled
 												})}
-											{/* {field.name.includes('aadhaar') && (
-												<FieldWrap
-													key={field.name}
-													isSmallSize={field.name.includes('aadhaar')}
-													style={{ width: '50%' }}>
-													<Button
-														name='Verify with OTP'
-														disabled={isVerifyWithOtpDisabled}
-														type='submit'
-														onClick={() => {
-															onOTPClick();
-														}}
-													/>
-												</FieldWrap>
-											)} */}
 											{(formState?.submit?.isSubmited ||
 												formState?.touched?.[field.name]) &&
 												formState?.error?.[field.name] &&
