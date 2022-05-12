@@ -25,6 +25,8 @@ const actionTypes = {
 	SET_REFRESH_FORM: 'SET_REFRESH_FORM',
 
 	CLEAR_FORM: 'CLEAR_FORM',
+
+	SET_FLOW_DATA: 'SET_FLOW_DATA',
 };
 
 const INIT_ROLE_DATA_TYPES = {
@@ -139,6 +141,15 @@ const useActions = dispatch => {
 		});
 	};
 
+	const setFlowData = (flowData, flowId, userType = 'user') => {
+		dispatch({
+			type: actionTypes.SET_FLOW_DATA,
+			flowData,
+			flowId,
+			userType,
+		});
+	};
+
 	return {
 		setUsertypeApplicantData,
 		setUsertypeAddressData,
@@ -154,6 +165,7 @@ const useActions = dispatch => {
 		setUserTypeDocumentType,
 		clearFormData,
 		setUsertypeAfterRefresh,
+		setFlowData,
 	};
 };
 
@@ -361,6 +373,17 @@ function reducer(state, action) {
 				[action.userType]: {
 					...state[action.userType],
 					uploadedDocs,
+				},
+			};
+			break;
+		}
+
+		case actionTypes.SET_FLOW_DATA: {
+			updatedState = {
+				...state,
+				[action.userType]: {
+					...state[action.userType],
+					[action.flowId]: action.flowData,
 				},
 			};
 			break;
