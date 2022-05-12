@@ -412,7 +412,10 @@ export default function PersonalDetails({
 										fieldNameNumber
 									] = totalValueCultivated;
 							}
-							if (field?.name.includes('aadhaar')) {
+							if (
+								field?.name.includes('aadhaar') &&
+								(id === 'personal-details' || id === 'business-details')
+							) {
 								customFields.disabled =
 									isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
 								customFields.readonly =
