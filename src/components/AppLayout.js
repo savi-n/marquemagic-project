@@ -43,7 +43,7 @@ const Div = styled.div`
 `;
 
 const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
-const BranchUserContent = lazy(() => import('./BranchUserContent'));
+// const BranchUserContent = lazy(() => import('./BranchUserContent'));
 
 const AppLayout = () => {
 	const { response, newRequest } = useFetch({
@@ -131,11 +131,11 @@ const AppLayout = () => {
 					<BrowserRouter basename='/nconboarding'>
 						<Suspense fallback={<Loading />}>
 							<Switch>
-								<Route
+								{/* <Route
 									path='/branch'
 									manager={true}
 									component={BranchUserContent}
-								/>
+								/> */}
 								<Route path='/applyloan' component={ApplyLoanContent} />
 								<Route render={() => <Redirect to='/applyloan' />} />
 							</Switch>
