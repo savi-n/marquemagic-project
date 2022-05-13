@@ -227,7 +227,8 @@ export default function PersonalDetails({
 	const [generateOtpResponse, setGenerateOtpResponse] = useState('');
 	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
 	// const aadhaar = '';
-	let aadhaar = formState?.values?.aadhaar || '';
+	let aadhaar =
+		formState?.values?.aadhaar || sessionStorage.getItem('aadhar') || '';
 	if (aadhaar.includes('x') || aadhaar.includes('X')) {
 		aadhaar = preData.aadhaarUnMasked;
 	}
@@ -260,6 +261,7 @@ export default function PersonalDetails({
 		}
 		try {
 			setIsAadhaarOtpModalOpen(true);
+			sessionStorage.setItem('aadhar', aadhaar);
 			const aadharOtpReq = await newRequest(AADHAAR_GENERATE_OTP, {
 				method: 'POST',
 				data: {
