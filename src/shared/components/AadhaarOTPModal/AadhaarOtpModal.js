@@ -83,6 +83,11 @@ const AadhaarOTPModal = props => {
 
 	const verifyOtp = async () => {
 		if (!inputAadhaarOTP) {
+			setErrorMsg('Please enter a valid OTP.');
+			return;
+		}
+		if (inputAadhaarOTP.length < 6) {
+			setErrorMsg('Please enter 6 digit OTP Number');
 			return;
 		}
 		try {
@@ -116,18 +121,25 @@ const AadhaarOTPModal = props => {
 				setIsAadhaarOtpModalOpen(false);
 				addToast({
 					message:
-						'Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+						' Aadhaar cannot be validated due to technical failure. Please try again after sometime',
 					type: 'error',
 				});
 			}
 			setVerifyingOtp(false);
 		} catch (error) {
 			console.log(error);
+			if (
+				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
+				'Invalid OTP'
+			) {
+				error.response.data.message = 'Please enter a valid OTP.';
+			}
 			setErrorMsg(
 				error?.response?.data?.message ||
 					error?.response?.data?.data?.msg ||
 					'Aadhaar cannot be validated due to technical failure. Please try again after sometime'
 			);
+
 			setVerifyingOtp(false);
 		}
 	};
@@ -167,7 +179,7 @@ const AadhaarOTPModal = props => {
 			console.log(error);
 			setErrorMsg(
 				error?.response?.data?.message ||
-					'Aadhaar cannot be validated due to technical failure. Please try again after sometime'
+					' Aadhaar cannot be validated due to technical failure. Please try again after sometime'
 			);
 		}
 	};
@@ -246,7 +258,7 @@ const AadhaarOTPModal = props => {
 				<Button
 					name='Verify'
 					onClick={verifyOtp}
-					disabled={verifyingOtp}
+					disabled={verifyingOtp || inputAadhaarOTP.length < 6}
 					loading={verifyingOtp}
 				/>
 				{/* {ButtonProceed} */}

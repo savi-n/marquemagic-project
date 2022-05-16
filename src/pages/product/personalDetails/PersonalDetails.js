@@ -171,13 +171,19 @@ export default function PersonalDetailsPage({
 
 	const onProceed = async data => {
 		if (
-			formState.values.aadhaar !== '' &&
-			!sessionStorage.getItem('aadhaar_otp_res')
+			!getAdhar()
+				?.toLowerCase()
+				.includes('x')
 		) {
-			return addToast({
-				message: 'Please Verify Aadhaar No to Proceed !',
-				type: 'error',
-			});
+			if (
+				formState.values.aadhaar !== '' &&
+				!sessionStorage.getItem('aadhaar_otp_res')
+			) {
+				return addToast({
+					message: 'Please verify your Aadhaar with OTP',
+					type: 'error',
+				});
+			}
 		}
 		if (
 			Number(formState?.values?.grossIncome) === 0 ||
