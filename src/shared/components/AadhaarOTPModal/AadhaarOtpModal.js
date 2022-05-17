@@ -99,6 +99,7 @@ const AadhaarOTPModal = props => {
 					otp: inputAadhaarOTP,
 					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
 					fwdp: aadhaarGenOtpResponse.data.fwdp,
+					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
