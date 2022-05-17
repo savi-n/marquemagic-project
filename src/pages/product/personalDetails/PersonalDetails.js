@@ -170,11 +170,7 @@ export default function PersonalDetailsPage({
 	};
 
 	const onProceed = async data => {
-		if (
-			!getAdhar()
-				?.toLowerCase()
-				.includes('x')
-		) {
+		if (state?.documents?.filter(d => d.req_type === 'aadhar')?.length === 0) {
 			if (
 				formState.values.aadhaar !== '' &&
 				!sessionStorage.getItem('aadhaar_otp_res')

@@ -229,6 +229,7 @@ export default function PersonalDetails({
 	// const aadhaar = '';
 	let aadhaar =
 		formState?.values?.aadhaar || sessionStorage.getItem('aadhar') || '';
+	// let aadhaar = formState?.values?.aadhaar || '';
 	if (aadhaar.includes('x') || aadhaar.includes('X')) {
 		aadhaar = preData.aadhaarUnMasked;
 	}
