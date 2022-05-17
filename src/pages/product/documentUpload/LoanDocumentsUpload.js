@@ -880,13 +880,12 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		const startingDocs = state.documents;
+		const startingDocs = state.documents || [];
 		// console.log('loan-doc-upload-useEffect-', {
 		// 	startingDocs,
 		// 	flowMap,
 		// 	business_income_type_id,
 		// });
-
 		const flowDocTypeMappingList = {};
 
 		const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
@@ -1239,21 +1238,24 @@ export default function DocumentUpload({
 					}
 					return null;
 				});
-				const uploadCacheDocBody = {
-					loan_id: caseRes.data.loan_details.id,
-					request_ids_obj: uploadCacheDocsArr,
-					user_id: +caseRes.data.loan_details.createdUserId,
-				};
-				await newRequest(
-					UPLOAD_CACHE_DOCS,
-					{
-						method: 'POST',
-						data: uploadCacheDocBody,
-					},
-					{
-						Authorization: clientToken,
-					}
-				);
+
+				if (uploadCacheDocsArr.length) {
+					const uploadCacheDocBody = {
+						loan_id: caseRes.data.loan_details.id,
+						request_ids_obj: uploadCacheDocsArr,
+						user_id: +caseRes.data.loan_details.createdUserId,
+					};
+					await newRequest(
+						UPLOAD_CACHE_DOCS,
+						{
+							method: 'POST',
+							data: uploadCacheDocBody,
+						},
+						{
+							Authorization: clientToken,
+						}
+					);
+				}
 
 				// ends here
 
@@ -1420,8 +1422,8 @@ export default function DocumentUpload({
 			const loanId = editLoan?.id || caseCreateRes.loan_details.id;
 			const businessId =
 				editLoan?.business_id?.id || caseCreateRes.loan_details.business_id;
-
 			await addSubsidiaryReq(caseId);
+
 			await addBankDetailsReq(caseId);
 			await addShareHolderDetailsReq(businessId);
 			await addReferenceDetailsReq(loanId);

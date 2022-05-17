@@ -5,13 +5,13 @@ import userType from '../../_hoc/userType';
 import Loading from '../../components/Loading';
 
 const ProductDetails = lazy(() => import('./productDetails/ProductDetails'));
-const IdentityVerification = lazy(() =>
-	import('./identityVerification/IdentityVerification')
-);
+// const IdentityVerification = lazy(() =>
+// 	import('./identityVerification/IdentityVerification')
+// );
 
-const BusinessVerification = lazy(() =>
-	import('./bussinessVerification/BussinessVerification')
-);
+// const BusinessVerification = lazy(() =>
+// 	import('./bussinessVerification/BussinessVerification')
+// );
 
 const PanVerification = lazy(() =>
 	import('./panverification/pan-verifications')
@@ -20,9 +20,9 @@ const PanVerification = lazy(() =>
 const DocumentUpload = lazy(() =>
 	import('./documentUpload/LoanDocumentsUpload')
 );
-const CubDocumentUpload = lazy(() =>
-	import('./documentUpload/CubDocumentUpload')
-);
+// const CubDocumentUpload = lazy(() =>
+// 	import('./documentUpload/CubDocumentUpload')
+// );
 const PersonalDetails = lazy(() => import('./personalDetails/PersonalDetails'));
 const AddressDetails = lazy(() => import('./addressDetails/AddressDetails'));
 const LoanAddressDetails = lazy(() =>
@@ -32,24 +32,24 @@ const LoanAddressDetails = lazy(() =>
 const ApplicationSubmitted = lazy(() =>
 	import('./applicationSubmitted/ApplicationSubmitted')
 );
-const TwoWheelerLoanDetails = lazy(() =>
-	import('./loanDetails/TwoWheelerLoanDetails')
-);
-const FourWheelerLoanDetails = lazy(() =>
-	import('./loanDetails/FourWheelerLoanDetails')
-);
+// const TwoWheelerLoanDetails = lazy(() =>
+// 	import('./loanDetails/TwoWheelerLoanDetails')
+// );
+// const FourWheelerLoanDetails = lazy(() =>
+// 	import('./loanDetails/FourWheelerLoanDetails')
+// );
 const HomeLoanDetails = lazy(() => import('./loanDetails/HomeLoanDetails'));
 const CoApplicantDetails = lazy(() =>
 	import('./coappilcant/CoapplicantDetails')
 );
-const CoApplicantIncomeDetails = lazy(() =>
-	import('./coappilcant/CoapplicantIncomeDetails')
-);
+// const CoApplicantIncomeDetails = lazy(() =>
+// 	import('./coappilcant/CoapplicantIncomeDetails')
+// );
 const EmiDetails = lazy(() => import('./emiDetails/EMIDetails'));
 
 const FormDefaultPage = lazy(() => import('./formPage/FormController'));
 
-const LapLoanDetails = lazy(() => import('./loanDetails/LapLoanDetails.js'));
+// const LapLoanDetails = lazy(() => import('./loanDetails/LapLoanDetails.js'));
 
 const valueConversion = {
 	Thousand: 1000,
@@ -63,53 +63,53 @@ const valueConversion = {
 const availableRoutes = {
 	'pan-verification': { Component: PanVerification },
 	'product-details': { Component: ProductDetails },
-	'identity-verification': { Component: IdentityVerification },
-	'business-verification': { Component: BusinessVerification },
+	// 'identity-verification': { Component: IdentityVerification },
+	// 'business-verification': { Component: BusinessVerification },
 	'personal-details': { protected: true, Component: PersonalDetails },
 	'address-details': { protected: true, Component: LoanAddressDetails },
 	'loan-address-details': { protected: true, Component: LoanAddressDetails },
-	'two-wheeler-loan-details': {
-		protected: true,
-		Component: TwoWheelerLoanDetails,
-	},
-	'four-wheeler-loan-details': {
-		protected: true,
-		Component: FourWheelerLoanDetails,
-	},
-	'loan-details': {
-		protected: true,
-		Component: FourWheelerLoanDetails,
-	},
+	// 'two-wheeler-loan-details': {
+	// 	protected: true,
+	// 	Component: TwoWheelerLoanDetails,
+	// },
+	// 'four-wheeler-loan-details': {
+	// 	protected: true,
+	// 	Component: FourWheelerLoanDetails,
+	// },
+	// 'loan-details': {
+	// 	protected: true,
+	// 	Component: FourWheelerLoanDetails,
+	// },
 	'home-loan-details': { protected: true, Component: HomeLoanDetails },
-	'lap-loan-details': { protected: true, Component: LapLoanDetails },
-	'co-applicant-details': {
-		protected: true,
-		Component: userType('Co-applicant', CoApplicantDetails),
-	},
-	'co-applicant-income-details': {
-		protected: true,
-		Component: userType('Co-applicant', CoApplicantIncomeDetails),
-	},
-	'co-applicant-document-upload': {
-		protected: true,
-		Component: userType('Co-applicant', CubDocumentUpload),
-	},
+	// 'lap-loan-details': { protected: true, Component: LapLoanDetails },
+	// 'co-applicant-details': {
+	// 	protected: true,
+	// 	Component: userType('Co-applicant', CoApplicantDetails),
+	// },
+	// 'co-applicant-income-details': {
+	// 	protected: true,
+	// 	Component: userType('Co-applicant', CoApplicantIncomeDetails),
+	// },
+	// 'co-applicant-document-upload': {
+	// 	protected: true,
+	// 	Component: userType('Co-applicant', CubDocumentUpload),
+	// },
 	'emi-details': { protected: true, Component: EmiDetails },
 	'document-upload': { protected: true, Component: DocumentUpload },
-	'cub-document-upload': { protected: true, Component: CubDocumentUpload },
+	// 'cub-document-upload': { protected: true, Component: CubDocumentUpload },
 	'application-submitted': { protected: true, Component: ApplicationSubmitted },
 	'guarantor-details': {
 		protected: true,
 		Component: userType('Guarantor', CoApplicantDetails),
 	},
-	'guarantor-income-details': {
-		protected: true,
-		Component: userType('Guarantor', CoApplicantIncomeDetails),
-	},
-	'guarantor-document-upload': {
-		protected: true,
-		Component: userType('Guarantor', CubDocumentUpload),
-	},
+	// 'guarantor-income-details': {
+	// 	protected: true,
+	// 	Component: userType('Guarantor', CoApplicantIncomeDetails),
+	// },
+	// 'guarantor-document-upload': {
+	// 	protected: true,
+	// 	Component: userType('Guarantor', CubDocumentUpload),
+	// },
 };
 
 // const fieldConfig = {
