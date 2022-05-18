@@ -2,7 +2,9 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import GuageMeter from '../../../components/GuageMeter';
+import Button from '../../../components/Button';
+// import GuageMeter from '../../../components/GuageMeter';
+import { FlowContext } from '../../../reducer/flowReducer';
 import img1 from '../../../assets/images/v3.png';
 import img2 from '../../../assets/images/v4.png';
 import { CaseContext } from '../../../reducer/caseReducer';
@@ -101,10 +103,14 @@ export default function ApplicationSubmitted({
 	// } = useContext(UserContext);
 
 	const d = data[count];
+	// since d is always set to 0.. other data elements are nt gonna be
+	// used hence deleted <GuageMeter>
 	return (
 		<>
 			<Colom1>
-				{!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
+				{/* {console.log('---', d)} */}
+				{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
+				<CaptionImg bg={d.img} />
 				<Caption>{d.caption}</Caption>
 				<section>
 					Application Reference Number:{' '}

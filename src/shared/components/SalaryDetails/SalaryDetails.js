@@ -62,7 +62,7 @@ export default function SalaryDetails({
 					jsonData.map(
 						field =>
 							field.visibility &&
-							(incomeType === field.forType || !incomeType || !field.forType ? (
+							(incomeType == field.forType || !incomeType || !field.forType ? (
 								<FieldWrap key={field.name} size={size}>
 									{register({
 										...field,

@@ -512,7 +512,7 @@ export default function PanVerification({
 						req_type: 'pan', // requires for mapping with JSON
 						requestId: res.data.request_id,
 						upload_doc_name: res.data.s3.filename,
-						src: 'start',
+						isDocRemoveAllowed: true,
 					};
 					setPanFileId(file1.id);
 					setLoanDocuments([file1]);
@@ -803,7 +803,7 @@ export default function PanVerification({
 						req_type: fileType, // requires for mapping with JSON
 						requestId: re.data.request_id,
 						upload_doc_name: re.data.s3.filename,
-						src: 'start',
+						isDocRemoveAllowed: true,
 					};
 
 					setLoanDocuments([myfile]);
@@ -833,7 +833,7 @@ export default function PanVerification({
 								req_type: fileType,
 								requestId: res.data.request_id,
 								upload_doc_name: res.data.s3.filename,
-								src: 'start',
+								isDocRemoveAllowed: true,
 							};
 
 							setLoanDocuments([myfile2]);
@@ -916,7 +916,7 @@ export default function PanVerification({
 						req_type: fileType,
 						requestId: res.data.request_id,
 						upload_doc_name: res.data.s3.filename,
-						src: 'start',
+						isDocRemoveAllowed: true,
 					};
 
 					setLoanDocuments([file2]);

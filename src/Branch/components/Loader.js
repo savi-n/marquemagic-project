@@ -1,3 +1,6 @@
+// This component is used in 'src/components/Button' and
+// also in 'src/pages/products/Products'
+
 import styled, { keyframes } from 'styled-components';
 
 const BounceAnimation = keyframes`
