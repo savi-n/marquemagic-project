@@ -17,7 +17,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
 		state: { clientToken },
 	} = useContext(AppContext);
 
-	const { response, loading, newRequest } = useFetch({
+	const { response, newRequest } = useFetch({
 		url: BANK_TOKEN_API,
 		options: {
 			method: 'POST',
@@ -58,6 +58,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
 			getBankToken();
 		}
 		return () => {};
+		// eslint-disable-next-line
 	}, [response]);
 
 	function onCloseMessage() {

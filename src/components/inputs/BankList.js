@@ -1,19 +1,18 @@
 import { useState, useEffect, useContext } from 'react';
-import styled from 'styled-components';
 
 import useFetch from '../../hooks/useFetch';
 import SearchSelect from '../SearchSelect';
-import { BANK_LIST_FETCH, NC_STATUS_CODE } from '../../_config/app.config';
+import { BANK_LIST_FETCH } from '../../_config/app.config';
 import { UserContext } from '../../reducer/userReducer';
 import { BussinesContext } from '../../reducer/bussinessReducer';
 
-const Input = styled.input`
-	height: 50px;
-	padding: 10px;
-	width: 100%;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 6px;
-`;
+// const Input = styled.input`
+// 	height: 50px;
+// 	padding: 10px;
+// 	width: 100%;
+// 	border: 1px solid rgba(0, 0, 0, 0.1);
+// 	border-radius: 6px;
+// `;
 
 export default function BankList({ field, onSelectOptionCallback }) {
 	const {

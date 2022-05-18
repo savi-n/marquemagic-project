@@ -153,6 +153,7 @@ export default function PersonalDetails({
 			!isMobilePresent && jsonData.push(mo);
 			!isEmailPresent && jsonData.push(email);
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -188,6 +189,7 @@ export default function PersonalDetails({
 			!isMobilePresent && jsonData.push(mo);
 			!isEmailPresent && jsonData.push(email);
 		}
+		// eslint-disable-next-line
 	}, [pageName]);
 
 	const arrPricePerAcer = [0, 0, 0];

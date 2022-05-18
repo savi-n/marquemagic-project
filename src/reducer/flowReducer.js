@@ -1,4 +1,3 @@
-import { set } from 'lodash';
 import { createContext, useReducer } from 'react';
 
 import { setStore, getStore } from '../utils/localStore';
@@ -127,7 +126,7 @@ function reducer(state, action) {
 		case actionTypes.SET_COMPLETED: {
 			updatedState = {
 				...state,
-				completed: [...state.completed, action.flow],
+
 				completed: [...state.completed, action.flow].filter((c, index) => {
 					return [...state.completed, action.flow].indexOf(c) === index;
 				}),

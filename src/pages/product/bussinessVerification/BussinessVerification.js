@@ -28,21 +28,6 @@ const Colom2 = styled.div`
 	width: 30%;
 `;
 
-const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-`;
-
-const H = styled.h1`
-	font-size: 1.5em;
-	font-weight: 500;
-	span {
-		color: ${({ theme }) => theme.main_theme_color};
-	}
-`;
-
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 50%;

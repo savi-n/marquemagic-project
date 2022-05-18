@@ -126,7 +126,7 @@ export default function BankStatementModal({ showModal, onClose }) {
 	const [bankChoosen, setBankChoosen] = useState({});
 	const [flowStep, setFlowStep] = useState(0);
 	const [captchaUrl, setCaptchaUrl] = useState(null);
-	const [accountsList, setAccountsList] = useState([]);
+	//const [accountsList, setAccountsList] = useState([]);
 
 	const postData = async (api, data, method = 'POST') => {
 		return newRequest(
@@ -210,7 +210,7 @@ export default function BankStatementModal({ showModal, onClose }) {
 				return;
 			}
 			case 'accounts': {
-				setAccountsList(response.accounts);
+				//	setAccountsList(response.accounts);
 				BANK_FLOW[bankChoosen.name.toLowerCase()]?.length > flowStep
 					? setFlowStep(flowStep + 1)
 					: flowCompleted();

@@ -4,7 +4,7 @@ import {
 	getLoanDetails,
 	getLoan,
 	docTypes,
-	uploadDoc,
+	//uploadDoc,
 	reassignLoan,
 	// getGroupedDocs,
 	viewDocument,
@@ -35,7 +35,6 @@ export default function CheckApplication(props) {
 
 	const [fields, setFields] = useState(null);
 	const [comment, setComment] = useState(null);
-	const [coApplicant, setCoApplicant] = useState(false);
 	const getCoApplicantData = data =>
 		data.directors.map(e => !e.isApplicant && e);
 	const getDocDetails = data => data.loan_document;
@@ -45,7 +44,7 @@ export default function CheckApplication(props) {
 		checkTab(props.activeTab) && data.eligiblityData;
 	const [docType, setDocTypes] = useState(null);
 	const [option, setOption] = useState([]);
-	const [docsUploaded, setDocsUPloaded] = useState([]);
+	//const [docsUploaded, setDocsUPloaded] = useState([]);
 	const [data, setData] = useState(null);
 	const [savedCollateral, setSavedCollateral] = useState(null);
 	const [initialCollateral, setInitialCollateral] = useState(null);
@@ -54,9 +53,9 @@ export default function CheckApplication(props) {
 
 	//changes
 	const [loading, setLoading] = useState(false);
-	const [loanDetailsState, setLoanDetailsState] = useState(null);
+	//const [loanDetailsState, setLoanDetailsState] = useState(null);
 	const {
-		state: { bankToken, clientToken },
+		state: { clientToken },
 	} = useContext(AppContext);
 
 	const id = props.id;
@@ -67,7 +66,7 @@ export default function CheckApplication(props) {
 		setLoading(true);
 		getLoanDetails(id).then(loanDetails => {
 			if (loanDetails) {
-				setLoanDetailsState(loanDetails);
+				//setLoanDetailsState(loanDetails);
 				setData(loanDetails);
 			}
 			setLoading(false);
@@ -84,7 +83,9 @@ export default function CheckApplication(props) {
 					Object.keys(res).map(k => {
 						res[k].map(p => {
 							arr.push(p);
+							return null;
 						});
+						return null;
 					});
 					setOption(
 						arr.map(fileoption => ({
@@ -130,6 +131,7 @@ export default function CheckApplication(props) {
 		});
 		if (data) {
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	const [checkedDocs, setCheckedDocs] = useState([]);
@@ -290,12 +292,12 @@ export default function CheckApplication(props) {
 				: data && getEligibileData(data) && 'Eligibility Details',
 	};
 	const coApp = [];
-	const coApplicantIds = data?.directors.map(
-		director =>
-			(director.type_name === 'Co-Applicant' ||
-				director.type_name === 'Guarantor') &&
-			coApp.push(director.id)
-	);
+	// const coApplicantIds = data?.directors.map(
+	// 	director =>
+	// 		(director.type_name === 'Co-Applicant' ||
+	// 			director.type_name === 'Guarantor') &&
+	// 		coApp.push(director.id)
+	// );
 
 	const cooap = data => {
 		return data?.directors.filter(
@@ -305,13 +307,13 @@ export default function CheckApplication(props) {
 	};
 
 	const App = [];
-	const ApplicantIds = data?.directors.map(
-		director => director.type_name === 'Applicant' && App.push(director.id)
-	);
+	// const ApplicantIds = data?.directors.map(
+	// 	director => director.type_name === 'Applicant' && App.push(director.id)
+	// );
 
-	const ap = data => {
-		return data?.directors.filter(e => e.type_name === 'Applicant' && e.id);
-	};
+	// const ap = data => {
+	// 	return data?.directors.filter(e => e.type_name === 'Applicant' && e.id);
+	// };
 
 	// console.log(cooap(data));
 
@@ -329,9 +331,9 @@ export default function CheckApplication(props) {
 		}
 	};
 
-	const uploader = userid => {
-		uploadDoc(userid).then(res => {});
-	};
+	// const uploader = userid => {
+	// 	uploadDoc(userid).then(res => {});
+	// };
 
 	const [errorMsg, setError] = useState(false);
 
@@ -499,7 +501,7 @@ export default function CheckApplication(props) {
 											removeHandler={removeHandler}
 											docs={docs}
 											setDocs={setDocs}
-											docsUploaded={docsUploaded}
+											//docsUploaded={docsUploaded}
 											App={App}
 											viewDocument={viewDocument}
 											docType={docType}

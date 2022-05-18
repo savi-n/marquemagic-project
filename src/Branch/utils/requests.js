@@ -285,13 +285,12 @@ export const uploadDoc = async (
 	userid,
 	token = sessionStorage.getItem('token')
 ) => {
-	const g = await axios.post(
-		`${API_END_POINT}/loanDocumentUpload`,
-		{ userid },
-		{ headers: { Authorization: `Bearer ${token}` } }
-	);
-
-	const t = await g;
+	// const g = await axios.post(
+	// 	`${API_END_POINT}/loanDocumentUpload`,
+	// 	{ userid },
+	// 	{ headers: { Authorization: `Bearer ${token}` } }
+	// );
+	//const t = await g;
 };
 
 export const getGroupedDocs = async (

@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { bool, number, oneOf } from 'prop-types';
+import { bool } from 'prop-types';
 import styled from 'styled-components';
 
 const Backdrop = styled.div`

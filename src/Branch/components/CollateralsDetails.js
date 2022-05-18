@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import {
 	BRANCH_COLLATERAL_DETAILS,
 	BRANCH_COLLATERAL_SELCTED,
-	BRANCH_COLLATERAL_UPDATE,
+	//BRANCH_COLLATERAL_UPDATE,
 } from '../../_config/branch.config';
 import styled from 'styled-components';
 import Collateral from './Collateral';
 import useFetch from '../../hooks/useFetch';
 import useForm from '../../hooks/useForm';
-import Button from '../shared/components/Button';
 import ButtonS from '../../components/Button';
 import Loading from '../../components/Loading';
 
@@ -24,23 +23,6 @@ const WrapContent = styled.div`
 const FieldWrapper = styled.div`
 	padding: 20px 0;
 	width: 100%;
-`;
-
-const Wrap = styled.form`
-	width: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-`;
-
-const AlignButtons = styled.div`
-	display: flex;
-	flex-direction: column;
-`;
-
-const SetButton = styled.button`
-	margin: 1rem;
 `;
 
 const Wrapper = styled.form`
@@ -76,13 +58,12 @@ export default function CollateralsDetails({
 	const [seletedCollateral, setSelectedCollateral] = useState(
 		savedCollateral ? savedCollateral : null
 	);
-	const [noOfCollaterals, setNoOfCollaterals] = useState(null);
-	const [updatedCollateral, setUpdatedCollateral] = useState(null);
-	const [saveUpdate, setSaveUpdate] = useState('save');
+	//const [noOfCollaterals, setNoOfCollaterals] = useState(null);
+	//const [updatedCollateral, setUpdatedCollateral] = useState(null);
 	const [loading, setLoading] = useState(false);
 
 	const onCollateralUpdate = updateCollateral => {
-		setUpdatedCollateral(updateCollateral);
+		//setUpdatedCollateral(updateCollateral);
 		// setSelectedCollateral(updatedCollateral);
 		if (updateCollateral != null) {
 			onUpdateCollateral(updateCollateral);
@@ -97,7 +78,8 @@ export default function CollateralsDetails({
 			setPageState(pageStates.available);
 		}
 		setLoading(false);
-	});
+		// eslint-disable-next-line
+	}, []);
 
 	const fetchCollateralDetails = async url => {
 		const fetchCollateral = await newRequest(
@@ -120,7 +102,7 @@ export default function CollateralsDetails({
 		const colateralDataRes = colateralDataReq?.data;
 
 		setColateralDetails(colateralDataRes?.data?.initial_collateral);
-		setNoOfCollaterals(colateralDataRes?.data?.initial_collateral.length);
+		//setNoOfCollaterals(colateralDataRes?.data?.initial_collateral.length);
 		setPageState(pageStates.available);
 		setFetching(false);
 	};
@@ -146,17 +128,15 @@ export default function CollateralsDetails({
 
 	const onUpdateCollateral = async collateralType => {
 		setFetching(true);
-		const colateralUpdateDataReq = await fetchCollateralDetails(
-			BRANCH_COLLATERAL_UPDATE({
-				loanId: loanId,
-				collateral: collateralType,
-			})
-		);
-		const colateralUpdateDataRes = colateralUpdateDataReq?.data;
+		// const colateralUpdateDataReq = await fetchCollateralDetails(
+		// 	BRANCH_COLLATERAL_UPDATE({
+		// 		loanId: loanId,
+		// 		collateral: collateralType,
+		// 	})
+		// );
 		setFetching(false);
 	};
 
-	let no = 1;
 	return !loading ? (
 		<>
 			{pageState === pageStates.fetch && (

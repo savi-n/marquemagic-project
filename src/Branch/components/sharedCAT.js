@@ -1,24 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
-import useFetch from '../../hooks/useFetch';
-import { UserContext } from '../../reducer/userReducer';
-import FileUpload from '../../shared/components/FileUpload/FileUpload';
+import { useState, useEffect } from 'react';
+
 import Button from '../shared/components/Button';
-import {
-	DOCS_UPLOAD_URL,
-	DOCS_UPLOAD_URL_LOAN,
-} from '../../_config/app.config';
+
 import {
 	getUsersList,
 	reassignLoan,
 	reassignLoanQuery,
-	loanDocMapping,
-	getApprovalStatus,
 	assignUserToLoan,
-	getLoanDocs,
 	getCommentList,
 	docTypes,
-	borrowerDocUpload,
-	getCase,
 } from '../utils/requests';
 
 import DownloadSection from './DownloadSection';
@@ -37,8 +27,6 @@ export default function SharedCAT({
 	setAssignedBy,
 	setAssignedTo,
 }) {
-	const { newRequest } = useFetch();
-	const uploadedFiles = useRef([]);
 	const [users, setUsers] = useState(null);
 	const [commen, setComments] = useState('');
 	const [query, setQuery] = useState('');
@@ -56,6 +44,7 @@ export default function SharedCAT({
 				setCompl(res?.data?.message);
 			}
 		});
+		// eslint-disable-next-line
 	}, []);
 	const selector = useSelector(state => state.branchFlow);
 	const [assigned, setAssigned] = useState(false);
@@ -69,80 +58,84 @@ export default function SharedCAT({
 				)[0]?.name
 		);
 		setAssigned(false);
+		// eslint-disable-next-line
 	}, [assigned]);
 
 	useEffect(() => {
 		getCommentList(item.id).then(res => {
 			setqueryList(res);
 		});
+		// eslint-disable-next-line
 	}, [querySaved]);
 
 	const userToken = sessionStorage.getItem('token');
 
-	const handleFileUpload = async files => {
-		Promise.all(
-			files.map(file => {
-				const formData = new FormData();
-				formData.append('document', file);
+	// const handleFileUpload = async files => {
+	// 	Promise.all(
+	// 		files.map(file => {
+	// 			const formData = new FormData();
+	// 			formData.append('document', file);
 
-				return newRequest(
-					DOCS_UPLOAD_URL({ userId }),
-					{
-						method: 'POST',
-						data: formData,
-					},
-					{
-						Authorization: `Bearer ${userToken}`,
-					}
-				)
-					.then(res => {
-						if (res.data.status === 'ok') {
-							const file = res.data.files[0];
-							const uploadfile = {
-								loan_id: productId,
-								doc_type_id: '1',
-								upload_doc_name: file.filename,
-								document_key: file.fd,
-								size: file.size,
-							};
-							uploadedFiles.current = [...uploadedFiles.current, uploadfile];
-						}
-						return res.data.files[0];
-					})
-					.catch(err => err);
-			})
-		).then(files => console.log(files));
-	};
+	// 			return newRequest(
+	// 				DOCS_UPLOAD_URL({ userId }),
+	// 				{
+	// 					method: 'POST',
+	// 					data: formData,
+	// 				},
+	// 				{
+	// 					Authorization: `Bearer ${userToken}`,
+	// 				}
+	// 			)
+	// 				.then(res => {
+	// 					if (res.data.status === 'ok') {
+	// 						const file = res.data.files[0];
+	// 						const uploadfile = {
+	// 							loan_id: productId,
+	// 							doc_type_id: '1',
+	// 							upload_doc_name: file.filename,
+	// 							document_key: file.fd,
+	// 							size: file.size,
+	// 						};
+	// 						uploadedFiles.current = [...uploadedFiles.current, uploadfile];
+	// 					}
+	// 					return res.data.files[0];
+	// 				})
+	// 				.catch(err => err);
+	// 		})
+	// 	).then(files => console.log(files));
+	// };
 
-	const [docType, setDocTypes] = useState(null);
+	//const [docType, setDocTypes] = useState(null);
 	const [option, setOption] = useState([]);
 
 	useEffect(() => {
 		const arr = [];
 		docTypes(item.loan_product_id, item?.Business_Type).then(res => {
-			setDocTypes(res);
+			//setDocTypes(res);
 			if (res) {
 				Object.keys(res).map(k => {
 					res[k].map(p => {
 						arr.push(p);
+						return null;
 					});
+					return null;
 				});
 				setOption(arr);
 			}
 		});
+		// eslint-disable-next-line
 	}, []);
 
-	const [checkedDocs, setCheckedDocs] = useState([]);
-	const [docs, setDocs] = useState([]);
+	const [docs] = useState([]);
 
-	const changeHandler = value => {
-		const out = option.find(d => d?.name === value);
-		setCheckedDocs([...checkedDocs, out?.name]);
-	};
+	// const changeHandler = value => {
+	// 	const out = option.find(d => d?.name === value);
+	// 	setCheckedDocs([...checkedDocs, out?.name]);
+	// };
 
-	const removeHandler = value => {
-		// console.log(value);
-	};
+	// const removeHandler = value => {
+	// // 	// console.log(value);
+	// // };
 
 	const upload = () => (
 		<CardFileUpload
@@ -286,7 +279,7 @@ export default function SharedCAT({
 				? queryList.data.commentList.length
 				: 0
 			: 0;
-		if (leng == 0) {
+		if (leng === 0) {
 			return null;
 		}
 		leng = leng - 1;
@@ -311,7 +304,7 @@ export default function SharedCAT({
 				? queryList.data.commentList.length
 				: 0
 			: 0;
-		if (leng == 0) {
+		if (leng === 0) {
 			return null;
 		}
 		leng = leng - 1;

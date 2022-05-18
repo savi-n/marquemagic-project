@@ -8,17 +8,17 @@ import CheckBox from '../../../shared/components/Checkbox/CheckBox';
 import FileUpload from '../../../shared/components/FileUpload/FileUpload';
 import {
 	DOCS_UPLOAD_URL,
-	BORROWER_UPLOAD_URL,
+	//BORROWER_UPLOAD_URL,
 	BUSSINESS_LOAN_CASE_CREATION,
-	UPDATE_LOAN_ASSETS,
+	//UPDATE_LOAN_ASSETS,
 	NC_STATUS_CODE,
 	ADD_SUBSIDIARY_DETAILS,
 	ADD_BANK_DETAILS,
 	ADD_SHAREHOLDER_DETAILS,
 	ADD_REFENCE_DETAILS,
 	DOCTYPES_FETCH,
-	USER_ROLES,
-	PINCODE_ADRRESS_FETCH,
+	// USER_ROLES,
+	// PINCODE_ADRRESS_FETCH,
 	WHITELABEL_ENCRYPTION_API,
 	CIN_UPDATE,
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
@@ -30,10 +30,8 @@ import { useToasts } from '../../../components/Toast/ToastProvider';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { AppContext } from '../../../reducer/appReducer';
-import { FormContext } from '../../../reducer/formReducer';
 import BankStatementModal from '../../../components/BankStatementModal';
 import { CaseContext } from '../../../reducer/caseReducer';
-import { UserContext } from '../../../reducer/userReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
 
@@ -44,17 +42,6 @@ const Colom1 = styled.div`
 		padding: 50px 0px;
 		max-width: 100%;
 	}
-`;
-
-const DocTypeHead = styled.div`
-	font-weight: 600;
-	margin: 10px 0;
-`;
-
-const Colom2 = styled.div`
-	width: 30%;
-	background: rgba(0, 0, 0, 0.1);
-	padding: 50px 30px;
 `;
 
 const UploadWrapper = styled.div`
@@ -98,10 +85,6 @@ const SubmitWrapper = styled.div`
 	gap: 10px;
 `;
 
-const DocsCheckboxWrapper = styled.div`
-	margin: 20px 0;
-`;
-
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
@@ -126,11 +109,6 @@ const CheckboxWrapper = styled.div`
 	flex-direction: column;
 	margin: 20px 0;
 	gap: 10px;
-`;
-
-const Doc = styled.h2`
-	font-size: 1.2em;
-	font-weight: 500;
 `;
 
 const Section = styled.div`
@@ -216,7 +194,6 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-let busniess = JSON.parse(sessionStorage.getItem('busniess'));
 let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
@@ -528,7 +505,7 @@ function subsidiaryDataFormat(caseId, data) {
 			typeof data['subsidiary-details']?.BankName === 'object'
 				? Number(data['subsidiary-details']?.BankName?.value)
 				: data['subsidiary-details']?.BankName,
-		relative: data['subsidiary-details']?.Relation,
+		relative: data['subsidiary-details']?.RelationSubsidiary,
 	};
 
 	return formatedData;
@@ -590,7 +567,7 @@ function shareHolderDataFormat(businessId, data) {
 		percentage: data['shareholder-details']?.ShareholderPercentage,
 		businessID: businessId,
 		name: data['shareholder-details']?.ShareholderName,
-		relationship: data['shareholder-details']?.Relation,
+		relationship: data['shareholder-details']?.RelationShareholder,
 		address: data['shareholder-details']?.CompanyAddress,
 		pincode: data['shareholder-details']?.Pincode,
 	};
@@ -674,11 +651,11 @@ export default function DocumentUpload({
 	} = useContext(AppContext);
 
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
-	const [message, setMessage] = useState('');
+	//const [message, setMessage] = useState('');
 	const [declareCheck, setDeclareCheck] = useState(false);
 
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
-	const [cibilCheckModal, setCibilCheckModal] = useState(false);
+	//const [cibilCheckModal, setCibilCheckModal] = useState(false);
 	const idType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 
@@ -686,7 +663,7 @@ export default function DocumentUpload({
 	const { addToast } = useToasts();
 
 	const [caseCreationProgress, setCaseCreationProgress] = useState(false);
-	const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
+	//const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
 	const onOtherStatementModalToggle = () => {
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
@@ -725,16 +702,16 @@ export default function DocumentUpload({
 		state['business-details']?.BusinessType ||
 		companyData?.BusinessType;
 
-	console.log('LoanDocumentsUpload-allstates-', {
-		state,
-		business_income_type_id,
-		productId,
-		form,
-		loan_product:
-			productId[business_income_type_id] ||
-			productId[(form?.incomeType)] ||
-			productId[idType],
-	});
+	// console.log('LoanDocumentsUpload-allstates-', {
+	// 	state,
+	// 	business_income_type_id,
+	// 	productId,
+	// 	form,
+	// 	loan_product:
+	// 		productId[business_income_type_id] ||
+	// 		productId[(form?.incomeType)] ||
+	// 		productId[idType],
+	// });
 
 	const { response } = useFetch({
 		url: DOCTYPES_FETCH,
@@ -816,9 +793,9 @@ export default function DocumentUpload({
 				};
 				if (newDoc.typeId) startingDocs[docIndex].typeId = newDoc.typeId;
 				// console.log('startingDoc-', { doc, newDoc });
-				if (newDoc.mainType == 'KYC') newKycDocs.push(newDoc);
-				else if (newDoc.mainType == 'Financial') newFinDocs.push(newDoc);
-				else if (newDoc.mainType == 'Others') newOtherDocs.push(newDoc);
+				if (newDoc.mainType === 'KYC') newKycDocs.push(newDoc);
+				else if (newDoc.mainType === 'Financial') newFinDocs.push(newDoc);
+				else if (newDoc.mainType === 'Others') newOtherDocs.push(newDoc);
 				else {
 					if (newDoc.sectionType === 'kyc') newKycUnTagDocs.push(newDoc);
 					else if (newDoc.sectionType === 'financial')
@@ -826,6 +803,7 @@ export default function DocumentUpload({
 					else if (newDoc.sectionType === 'others')
 						newOtherUnTagDocs.push(newDoc);
 				}
+				return null;
 			});
 		}
 		// console.log('loan-doc-upload-useEffect-', {
@@ -844,6 +822,7 @@ export default function DocumentUpload({
 		setStartingUnTaggedFinDocs(newFinUnTagDocs);
 		setStartingUnTaggedOtherDocs(newOtherUnTagDocs);
 		getWhiteLabel();
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -901,11 +880,12 @@ export default function DocumentUpload({
 					otherDocDropdown.push(ele);
 					othDocIds.push(ele.value);
 				}
+				return null;
 			});
 			setKycDocOptions(kycDocDropdown);
 			setFinancialDocOptions(financialDocDropdown);
 			setOtherDocOptions(otherDocDropdown);
-			setDocumentTypeOptions(optionArray);
+			//setDocumentTypeOptions(optionArray);
 
 			// console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
 			if (
@@ -1045,6 +1025,7 @@ export default function DocumentUpload({
 			// director_details - id
 			let uploaddedDoc = state.documents.filter(doc => {
 				if (!doc.requestId) return doc;
+				return null;
 			});
 			const reqBody = caseCreationDataFormat(
 				{
@@ -1085,7 +1066,7 @@ export default function DocumentUpload({
 			) {
 				const resLoanRefId =
 					editLoan?.loan_ref_id || caseReq.data.data.loan_details.loan_ref_id;
-				setMessage(resLoanRefId);
+				//setMessage(resLoanRefId);
 				setLoanRef(resLoanRefId);
 				const compData =
 					sessionStorage.getItem('companyData') &&
@@ -1111,7 +1092,7 @@ export default function DocumentUpload({
 				}
 
 				//**** uploadCacheDocuments
-				// console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
+				//console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
 				const uploadCacheDocsArr = [];
 				state.documents.map(doc => {
 					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
@@ -1161,6 +1142,7 @@ export default function DocumentUpload({
 	// step: 2 if subsidary details submit request
 	const addSubsidiaryReq = async caseId => {
 		const postData = subsidiaryDataFormat(caseId, state);
+		//console.log('subsidary 23 ', state);
 		if (!postData) {
 			return true;
 		}
@@ -1177,6 +1159,7 @@ export default function DocumentUpload({
 				}
 			);
 			const caseRes = caseReq.data;
+
 			if (
 				caseRes.statusCode === NC_STATUS_CODE.NC200 ||
 				caseRes.status === NC_STATUS_CODE.OK
@@ -1336,6 +1319,7 @@ export default function DocumentUpload({
 				docError = true;
 				return false;
 			}
+			return null;
 		});
 		if (docError) {
 			addToast({
@@ -1388,6 +1372,7 @@ export default function DocumentUpload({
 		if (docs.mainType === 'KYC') kyccount++;
 		if (docs.mainType === 'Financial') financialCount++;
 		if (docs.mainType === 'Others') otherCount++;
+		return null;
 	});
 
 	return (
@@ -1614,7 +1599,7 @@ export default function DocumentUpload({
 						disabled={cibilCheckbox}
 						onChange={() => {
 							setCibilCheckbox(!cibilCheckbox);
-							setCibilCheckModal(true);
+							//setCibilCheckModal(true);
 						}}
 						bg='blue'
 					/>

@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components';
-import { string, func, object, oneOfType, bool } from 'prop-types';
 
 const BounceAnimation = keyframes`
   0% { -webkit-transform: rotate(0deg); }

@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';
-
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
 import { AppContext } from '../../../reducer/appReducer';
@@ -20,7 +19,7 @@ import {
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
 	APP_CLIENT,
-	DOCS_UPLOAD_URL_LOAN,
+	//DOCS_UPLOAD_URL_LOAN,
 	// PINCODE_ADRRESS_FETCH,
 } from '../../../_config/app.config';
 import {
@@ -39,36 +38,11 @@ const Colom1 = styled.div`
 	}
 `;
 
-const Colom2 = styled.div`
-	width: 30%;
-`;
-
-const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-`;
-
-const Lab = styled.h1`
-	font-size: 1em;
-	font-weight: 500;
-	color: grey;
-`;
-
 const LabRed = styled.h1`
 	font-size: 1em;
 	font-weight: 500;
 	color: red;
 	margin-top: -25px;
-`;
-
-const H = styled.h1`
-	font-size: 1.5em;
-	font-weight: 500;
-	span {
-		color: ${({ theme }) => theme.main_theme_color};
-	}
 `;
 
 const FieldWrapper = styled.div`
@@ -93,11 +67,6 @@ const H2 = styled.h2`
 	width: 50%;
 	text-align: center;
 	font-weight: 500;
-`;
-
-const Span = styled.span`
-	color: ${({ theme, bg }) => theme.main_theme_color};
-	font-size: 13px;
 `;
 
 const businessTypeMaps = [
@@ -208,7 +177,7 @@ export default function PanVerification({
 	const productType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 	const {
-		state: { whiteLabelId, clientToken, bankToken },
+		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);
 
 	const {
@@ -220,7 +189,6 @@ export default function PanVerification({
 	} = useContext(FlowContext);
 
 	const {
-		state,
 		actions: {
 			setLoanDocuments,
 			removeAllDocuments,
@@ -244,14 +212,14 @@ export default function PanVerification({
 
 	const [selectDoc, selectDocs] = useState(false);
 	const [verificationFailed, setVerificationFailed] = useState('');
-	const [gstNum, setGstNum] = useState(null);
+	//const [gstNum, setGstNum] = useState(null);
 
 	const [panUpload, setPanUpload] = useState(true);
 	const [file, setFile] = useState([]);
 	const fileRef = useRef([]);
 	const [panFile, setPanFile] = useState([]);
 	const [docs, setDocs] = useState([]);
-	const [panResponse, setPanResponse] = useState(null);
+	//const [panResponse, setPanResponse] = useState(null);
 	const [isBusiness, setBusiness] = useState(true);
 
 	const product_id = sessionStorage.getItem('productId');
@@ -272,6 +240,7 @@ export default function PanVerification({
 
 	useEffect(() => {
 		verificationFailed && setVerificationFailed('');
+		// eslint-disable-next-line
 	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
 
 	const onCompanySelect = cinNumber => {
@@ -475,6 +444,7 @@ export default function PanVerification({
 	useEffect(() => {
 		sessionStorage.removeItem('product');
 		removeAllDocuments();
+		// eslint-disable-next-line
 	}, []);
 
 	const removeHandler = (e, doc, name) => {
@@ -490,20 +460,20 @@ export default function PanVerification({
 				setOtherDoc(doc);
 			}
 			if (name === 'aadhar') {
-				var index = doc.findIndex(x => x.id === e);
-				doc.splice(index, 1);
+				var index1 = doc.findIndex(x => x.id === e);
+				doc.splice(index1, 1);
 				setAadhar(doc);
 			}
 			if (name === 'voter') {
-				var index = doc.findIndex(x => x.id === e);
-				doc.splice(index, 1);
+				var index2 = doc.findIndex(x => x.id === e);
+				doc.splice(index2, 1);
 				setVoter(doc);
 			}
 		}
 
 		panUpload && setDocs([]);
-		var index = file.findIndex(x => x.id === e);
-		file.splice(index, 1);
+		var index3 = file.findIndex(x => x.id === e);
+		file.splice(index3, 1);
 		setFile(file);
 		fileRef.current = file;
 		setPanFile([]);
@@ -586,7 +556,7 @@ export default function PanVerification({
 						}
 						setPanConfirm(true);
 					}
-					setPanResponse(res.data);
+					//setPanResponse(res.data);
 				}
 				setLoading(false);
 				setFile([]);
@@ -614,7 +584,7 @@ export default function PanVerification({
 	}) => {
 		setLoading(true);
 		setVerificationFailed('');
-		setGstNum(gstin);
+		//setGstNum(gstin);
 
 		if (productType === 'business') {
 			if (isBusiness) {
@@ -897,10 +867,11 @@ export default function PanVerification({
 
 							if (address) {
 								let locationArr = address && address?.split(' ');
-								let y = locationArr?.map(e => Number(e) !== NaN && e);
+								let y = locationArr?.map(e => isNaN(!Number(e)) && e);
 								let pin;
 								y.map(e => {
 									if (e?.length === 6) pin = e;
+									return null;
 								});
 
 								formState.values.pin = pinCode || pin;
@@ -978,10 +949,11 @@ export default function PanVerification({
 
 					if (address) {
 						let locationArr = address && address?.split(' ');
-						let y = locationArr?.map(e => Number(e) !== NaN && e);
+						let y = locationArr?.map(e => isNaN(!Number(e)) && e);
 						let pin;
 						y.map(e => {
 							if (e?.length === 6) pin = e;
+							return null;
 						});
 
 						formState.values.pin = pinCode || pin;

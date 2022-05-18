@@ -11,7 +11,7 @@ export default function Collateral({
 	disabled,
 	setViewLoan,
 }) {
-	const [data, setData] = useState(null);
+	//const [data, setData] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [fields, setFields] = useState(null);
 	const [formValues, setFormValues] = useState({});
@@ -24,9 +24,9 @@ export default function Collateral({
 		// console.log(collateral);
 		setLoading(true);
 		getLoanDetails(loanId).then(loanDetails => {
-			if (loanDetails) {
-				setData(loanDetails);
-			}
+			// if (loanDetails) {
+			// 	setData(loanDetails);
+			// }
 			if (loanDetails) {
 				getLoan().then(resp => {
 					resp.data?.map(
@@ -45,6 +45,7 @@ export default function Collateral({
 				});
 			}
 		});
+		// eslint-disable-next-line
 	}, []);
 
 	const gateway = data => {
@@ -52,6 +53,7 @@ export default function Collateral({
 			if (key !== 'accountDetails' && key === data?.db_name) {
 				data.default_value = collateral[key];
 			}
+			return null;
 		});
 		if (data.type === 'select') {
 			return (
@@ -99,7 +101,7 @@ export default function Collateral({
 				{fields &&
 					fields?.map(
 						el =>
-							el.id == 'security-details' && (
+							el.id === 'security-details' && (
 								<section className='flex flex-col gap-y-4'>
 									{Object.keys(el.fields).map(
 										item =>
@@ -122,7 +124,7 @@ export default function Collateral({
 				{fields &&
 					fields?.map(
 						el =>
-							el.id == 'security-details' && (
+							el.id === 'security-details' && (
 								<section className='flex flex-col gap-y-4'>
 									{Object.keys(el.fields).map(
 										item =>
@@ -146,7 +148,7 @@ export default function Collateral({
 				{fields &&
 					fields?.map(
 						el =>
-							el.id == 'security-details' && (
+							el.id === 'security-details' && (
 								<section className='flex flex-col gap-y-4'>
 									{Object.keys(el.fields).map(
 										item =>
@@ -169,7 +171,7 @@ export default function Collateral({
 				{fields &&
 					fields?.map(
 						el =>
-							el.id == 'security-details' && (
+							el.id === 'security-details' && (
 								<section className='flex flex-col gap-y-4'>
 									{Object.keys(el.fields).map(
 										item =>

@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 import Tabs from '../shared/components/Tabs';
 import Button from '../shared/components/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +5,6 @@ import { faChevronRight, faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { REDIRECT_CREATE } from '../../_config/app.config';
 
 export default function Header({ click, active }) {
-	const history = useHistory();
 	return (
 		<main className='w-full fixed z-50'>
 			<header

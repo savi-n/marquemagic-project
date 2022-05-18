@@ -89,12 +89,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	} = useContext(FlowContext);
 
 	const {
-		actions: {
-			setUsertypeLoanData,
-			setUsertypeEmiData,
-			setUsertypeBankData,
-			setUsertypeAgreementData,
-		},
+		actions: { setUsertypeLoanData, setUsertypeEmiData, setUsertypeBankData },
 	} = useContext(FormContext);
 
 	const {

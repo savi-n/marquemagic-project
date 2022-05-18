@@ -15,7 +15,7 @@ export default function Tabs(props) {
 		check,
 		handleDisable,
 		disabled,
-		setNoRecord
+		//setNoRecord
 	} = props;
 
 	const mapp = {
@@ -24,7 +24,7 @@ export default function Tabs(props) {
 		'Branch Review': 'Branch Review',
 		'In-Progress@AO': 'In-Progress At AO',
 		Sanctioned: 'Sanctioned',
-		Rejected: 'Rejected'
+		Rejected: 'Rejected',
 	};
 
 	const e = async (k, w) => {
@@ -52,25 +52,24 @@ export default function Tabs(props) {
 					justifyContent: 'flex-end',
 					cursor: 'pointer',
 					paddingRight: `${!check ? '0' : '0.5rem'}`,
-					width: `${align !== 'horizontal' && '20rem'}`
+					width: `${align !== 'horizontal' && '20rem'}`,
 				}}
-				className={`${align !== 'horizontal' ? 'py-4' : 'p-6'}`}
-			>
+				className={`${align !== 'horizontal' ? 'py-4' : 'p-6'}`}>
 				<span
 					style={{
 						borderBottom: `${active ? `solid 2px ${text}` : ''}`,
 						color: `${align === 'horizontal' ? text : 'white'}`,
 						width: '100%',
 						display: 'flex',
-						alignItems: 'center'
+						alignItems: 'center',
 					}}
 					className={`${
 						align !== 'horizontal' && !check
 							? 'p-4 px-8 h-full rounded-l-full justify-between'
 							: !check && 'p-2'
-					} ${active && align !== 'horizontal' && 'bg-indigo-500'} ${check && 'rounded-l-lg px-4'}`}
-					onClick={w => e(k, w)}
-				>
+					} ${active && align !== 'horizontal' && 'bg-indigo-500'} ${check &&
+						'rounded-l-lg px-4'}`}
+					onClick={w => e(k, w)}>
 					{k}
 					{/* {length !== undefined && length !== null && (
 						<span className='bg-indigo-400 px-3 py-1 rounded-full'>{length}</span>
@@ -82,11 +81,13 @@ export default function Tabs(props) {
 							padding: '1.5rem',
 							color: 'white',
 							display: 'flex',
-							alignItems: 'center'
+							alignItems: 'center',
 						}}
-						className={`${active && 'bg-indigo-500 rounded-r-lg'}`}
-					>
-						<FontAwesomeIcon icon={disabled ? faEdit : faCheck} onClick={() => handleDisable(!disabled)} />
+						className={`${active && 'bg-indigo-500 rounded-r-lg'}`}>
+						<FontAwesomeIcon
+							icon={disabled ? faEdit : faCheck}
+							onClick={() => handleDisable(!disabled)}
+						/>
 					</span>
 				)}
 			</section>

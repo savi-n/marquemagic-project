@@ -133,7 +133,7 @@ export default function DocumentUpload({
 	} = useContext(UserContext);
 
 	const {
-		actions: { setCompleted, activateSubFlow },
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
@@ -270,6 +270,7 @@ export default function DocumentUpload({
 		if (proceed) {
 			request();
 		}
+		// eslint-disable-next-line
 	}, [proceed]);
 
 	const onSubmitCopplicant = flow => {
@@ -299,28 +300,28 @@ export default function DocumentUpload({
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
 
-	const [saved, setSaved] = useState(false);
+	//const [saved, setSaved] = useState(false);
 
-	const onSave = () => {
-		if (buttonDisabledStatus()) {
-			return;
-		}
+	// const onSave = () => {
+	// 	if (buttonDisabledStatus()) {
+	// 		return;
+	// 	}
 
-		// setOtherUserDetails(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
-		setUsertypeStatementData(
-			otherCUBStatementUserTypeDetails,
-			USER_ROLES[userType || 'User']
-		);
-		setSaved(true);
-		addToast({
-			message: 'Saved Succesfully',
-			type: 'success',
-		});
+	// 	// setOtherUserDetails(otherCUBStatementUserTypeDetails, USER_ROLES[userType]);
+	// 	setUsertypeStatementData(
+	// 		otherCUBStatementUserTypeDetails,
+	// 		USER_ROLES[userType || 'User']
+	// 	);
+	// 	setSaved(true);
+	// 	addToast({
+	// 		message: 'Saved Succesfully',
+	// 		type: 'success',
+	// 	});
 
-		// setCompleted(id);
-		// setCompleted(map.mainPageId);
-		// onFlowChange(map.main);
-	};
+	// 	// setCompleted(id);
+	// 	// setCompleted(map.mainPageId);
+	// 	// onFlowChange(map.main);
+	// };
 
 	const onCibilModalClose = (success, data) => {
 		if (!success) {
@@ -356,13 +357,13 @@ export default function DocumentUpload({
 		).map(docs => docs.typeName);
 	}
 
-	const subFlowActivate = async () => {
-		const res = await caseCreationUserType();
-		if (res) {
-			activateSubFlow(id);
-			onFlowChange(map.hidden);
-		}
-	};
+	// const subFlowActivate = async () => {
+	// 	const res = await caseCreationUserType();
+	// 	if (res) {
+	// 		activateSubFlow(id);
+	// 		onFlowChange(map.hidden);
+	// 	}
+	// };
 
 	const [userAddress, setUserAddress] = useState();
 
@@ -370,6 +371,7 @@ export default function DocumentUpload({
 		if (!userType) {
 			getAddressDetails();
 		}
+		// eslint-disable-next-line
 	}, [userType]);
 
 	const getAddressDetails = async () => {

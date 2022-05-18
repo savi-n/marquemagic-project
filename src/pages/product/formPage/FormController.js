@@ -10,7 +10,6 @@ import Button from '../../../components/Button';
 import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
 import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { FormContext } from '../../../reducer/formReducer';
-import InputField from 'components/inputs/InputField';
 
 import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
@@ -23,7 +22,6 @@ import {
 	APP_CLIENT,
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
-	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
 import ConfirmModal from 'components/modals/ConfirmModal';
@@ -88,7 +86,6 @@ export default function FormController({
 	} = useContext(BussinesContext);
 
 	const {
-		state: businessDataStore,
 		actions: {
 			setUsertypeLoanData,
 			// setUserSubsidiaryDetailsData,
@@ -122,6 +119,7 @@ export default function FormController({
 		return () => {
 			console.log('unmount form');
 		};
+		// eslint-disable-next-line
 	}, []);
 
 	const getBranchOptions = async () => {
@@ -132,7 +130,7 @@ export default function FormController({
 					headers: { Authorization: `Bearer ${userToken1}` },
 				}
 			);
-			if (opitionalDataReq.data.status == 'ok') {
+			if (opitionalDataReq.data.status === 'ok') {
 				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
 			}
 		} catch (err) {
@@ -142,6 +140,7 @@ export default function FormController({
 
 	useEffect(() => {
 		clearError();
+		// eslint-disable-next-line
 	}, [map.name]);
 
 	const onSave = data => {
@@ -171,7 +170,7 @@ export default function FormController({
 		let homeLoanBranchName = '';
 		if (id === 'vehicle-loan-details') {
 			homeLoanBranchName =
-				homeBranchList.filter(ele => ele.id == data.branchId)[0]?.branch || '';
+				homeBranchList.filter(ele => ele.id === data.branchId)[0]?.branch || '';
 			data = { ...data, branchIdName: homeLoanBranchName };
 		}
 		if (id === 'business-loan-details') {
@@ -293,7 +292,7 @@ export default function FormController({
 
 	let userToken = sessionStorage.getItem(url);
 
-	let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
+	//let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	let companyData = JSON.parse(sessionStorage.getItem('companyData'));
@@ -361,6 +360,7 @@ export default function FormController({
 			obj[`ReferenceEmail${i}`] = ele?.ref_email;
 			obj[`ContactNumber${i}`] = ele?.ref_contact;
 			obj[`Pincode${i}`] = ele?.ref_pincode;
+			return null;
 		});
 		return obj;
 	};

@@ -24,7 +24,7 @@ const CubDocumentUpload = lazy(() =>
 	import('./documentUpload/CubDocumentUpload')
 );
 const PersonalDetails = lazy(() => import('./personalDetails/PersonalDetails'));
-const AddressDetails = lazy(() => import('./addressDetails/AddressDetails'));
+//const AddressDetails = lazy(() => import('./addressDetails/AddressDetails'));
 const LoanAddressDetails = lazy(() =>
 	import('./addressDetails/LoanAddressDetails')
 );

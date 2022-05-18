@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 
 import { VERIFY_OTP_URL, NC_STATUS_CODE } from '../../_config/app.config';
@@ -80,7 +80,7 @@ export default function OtpModal(props) {
 		onProceed,
 		toggle,
 		show,
-		userId: { mobileNo, customerId, userId, otp: otpT, bankId },
+		userId: { mobileNo, customerId, userId, bankId },
 		setUserDetails,
 		errorMessage,
 	} = props;
@@ -94,7 +94,7 @@ export default function OtpModal(props) {
 
 	const [message, setMessage] = useState(null);
 	const [otp, setOtp] = useState('');
-	const [error, setError] = useState(false);
+	const [error] = useState(false);
 
 	const submitOtp = async (formData = {}) => {
 		const bodyData = {

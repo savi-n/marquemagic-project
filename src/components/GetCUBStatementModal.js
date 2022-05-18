@@ -8,7 +8,7 @@ import {
 	CUB_ACCOUNT_MINI_STATEMENT,
 	NC_STATUS_CODE,
 	GENERATE_OTP_URL,
-	USER_ROLES,
+	//USER_ROLES,
 	BANK_TOKEN_API,
 } from '../_config/app.config';
 import { AppContext } from '../reducer/appReducer';
@@ -19,14 +19,6 @@ import { useToasts } from '../components/Toast/ToastProvider';
 import Modal from './Modal';
 import Button from './Button';
 import OtpModal from '../components/OtpModal/OtpModal';
-
-const H = styled.h1`
-	font-size: 1.5em;
-	font-weight: 500;
-	span {
-		color: blue;
-	}
-`;
 
 const FieldWrapper = styled.div`
 	padding: 20px 0;
@@ -113,6 +105,7 @@ export default function GetCUBStatementModal({
 
 		if (response) getBankToken();
 		return () => {};
+		// eslint-disable-next-line
 	}, [response]);
 
 	async function fetchData(token) {

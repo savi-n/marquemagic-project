@@ -41,11 +41,13 @@ export default function Dashboard(props) {
 		getUsersList().then(res => {
 			setUsersList(res);
 		});
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
 		sessionStorage.setItem('lActive', current);
 		dispatch(branchAction.setResetLoanAction());
+		// eslint-disable-next-line
 	}, [current]);
 
 	const isIdentifier = () => {
@@ -167,7 +169,7 @@ export default function Dashboard(props) {
 		},
 	];
 
-	const [data, setData] = useState(options);
+	const [data] = useState(options);
 	const d = [
 		{
 			label: 'Pending Applications',

@@ -109,6 +109,7 @@ export default function DocumentUploadSection({
 
 	useEffect(() => {
 		FetchDocumentLists();
+		// eslint-disable-next-line
 	}, []);
 
 	const onDoctypeChange = (document, value) => {
