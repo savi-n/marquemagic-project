@@ -29,6 +29,7 @@ import {
 	gstFetch,
 	getKYCDataId,
 } from '../../../utils/request';
+import RedError from 'assets/icons/Red_error_icon.png';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -1049,6 +1050,16 @@ export default function PanVerification({
 							/>
 							{panError && (
 								<p style={{ color: 'red', marginTop: '-35px' }}>
+									{' '}
+									<img
+										src={RedError}
+										alt='error'
+										style={{
+											width: '26px',
+											display: 'inline-block',
+											marginRight: '9px',
+										}}
+									/>
 									{panError}
 									{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 								</p>
@@ -1107,6 +1118,16 @@ export default function PanVerification({
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
+											{' '}
+											<img
+												src={RedError}
+												alt='error'
+												style={{
+													width: '26px',
+													display: 'inline-block',
+													marginRight: '9px',
+												}}
+											/>
 											{dlError}
 										</p>
 									)}
@@ -1149,6 +1170,16 @@ export default function PanVerification({
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
+											{' '}
+											<img
+												src={RedError}
+												alt='error'
+												style={{
+													width: '26px',
+													display: 'inline-block',
+													marginRight: '9px',
+												}}
+											/>
 											{aadharError}
 										</p>
 									)}
@@ -1191,6 +1222,16 @@ export default function PanVerification({
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
+											{' '}
+											<img
+												src={RedError}
+												alt='error'
+												style={{
+													width: '26px',
+													display: 'inline-block',
+													marginRight: '9px',
+												}}
+											/>
 											{voterError}
 										</p>
 									)}

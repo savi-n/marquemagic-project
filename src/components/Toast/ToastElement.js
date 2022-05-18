@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import RedError from 'assets/icons/Red_error_icon.png';
 import SuccessSymbol from 'assets/icons/success_icon.png';
+import warningSymbol from 'assets/icons/amber_warning_icon.png';
 
 const TOAST_TYPE_SYMBOLS = {
 	success: ['&check;', '#01914a'],
@@ -22,6 +23,7 @@ const ToastElement = styled.div`
 	align-items: center;
 	transition: 0.2s;
 	margin-right: 3rem;
+	position: fixed;
 `;
 
 const ToastIcon = styled.span`
@@ -66,15 +68,30 @@ export default function Toast({ message, type }) {
 						}}
 					/>
 				) : (
-					<img
-						src={SuccessSymbol}
-						alt='success'
-						style={{
-							width: '26px',
-							display: 'inline-block',
-							marginRight: '9px',
-						}}
-					/>
+					type !== 'error' &&
+					(type === 'success' ? (
+						<img
+							src={SuccessSymbol}
+							alt='success'
+							style={{
+								width: '26px',
+								display: 'inline-block',
+								marginRight: '9px',
+							}}
+						/>
+					) : (
+						type === 'warning' && (
+							<img
+								src={warningSymbol}
+								alt='warning'
+								style={{
+									width: '26px',
+									display: 'inline-block',
+									marginRight: '9px',
+								}}
+							/>
+						)
+					))
 				)}
 			</>
 			<ToastMessage>{message}</ToastMessage>
