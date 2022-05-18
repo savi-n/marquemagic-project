@@ -20,6 +20,7 @@ import InputField from 'components/inputs/InputField';
 import moment from 'moment';
 import Button from '../../../components/Button';
 import AadhaarOTPModal from '../AadhaarOTPModal/AadhaarOtpModal';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -94,6 +95,7 @@ export default function PersonalDetails({
 	formState,
 	companyDetail,
 }) {
+	const { state } = useContext(LoanFormContext);
 	const {
 		state: { bankId, userToken },
 	} = useContext(UserContext);
@@ -419,10 +421,18 @@ export default function PersonalDetails({
 								field?.name.includes('aadhaar') &&
 								(id === 'personal-details' || id === 'business-details')
 							) {
-								customFields.disabled =
-									isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
-								customFields.readonly =
-									isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
+								if (
+									state?.documents?.filter(d => d.req_type === 'aadhar')
+										?.length >= 1
+								) {
+									customFields.disabled =
+										isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
+									customFields.readonly =
+										isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
+								} else {
+									customFields.disabled = isVerifyWithOtpDisabled;
+									customFields.readonly = isVerifyWithOtpDisabled;
+								}
 							}
 							return (
 								field.visibility && (
