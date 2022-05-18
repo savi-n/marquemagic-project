@@ -413,7 +413,6 @@ const DocumentUploadNameToolTip = styled.div`
 `;
 
 export default function FileUpload({
-	agreementDocShowMsg = true,
 	onDrop,
 	accept = '',
 	caption,
@@ -442,6 +441,7 @@ export default function FileUpload({
 	prefilledDocs = [],
 	startingTaggedDocs = [],
 	startingUnTaggedDocs = [],
+	aggreementUploadModal = true,
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -923,7 +923,7 @@ export default function FileUpload({
 					</UploadCircle>
 				</Dropzone>
 			)}
-			{displayTagMessage ? (
+			{displayTagMessage && aggreementUploadModal ? (
 				<WarningMessage>
 					{' '}
 					Click on <FileTypeSmallIcon

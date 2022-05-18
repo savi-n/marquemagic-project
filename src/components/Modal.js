@@ -40,12 +40,14 @@ export default function Modal({
 	onClose = () => {
 		console.log('close');
 	},
+	customStyle,
 }) {
 	const root = document.body;
 	if (!show) return null;
 	return createPortal(
 		<Backdrop backdrop={backdrop} onClick={onClose}>
 			<Modalbody
+				style={customStyle ? customStyle : {}}
 				width={width}
 				onClick={e => {
 					e.stopPropagation();

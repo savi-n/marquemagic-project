@@ -91,6 +91,7 @@ export default function FormController({
 			// setUserSubsidiaryDetailsData,
 			// setUsertypeBankData,
 			// setUsertypeAgreementData,
+			setFlowData,
 		},
 	} = useContext(FormContext);
 
@@ -144,6 +145,8 @@ export default function FormController({
 	}, [map.name]);
 
 	const onSave = data => {
+		// console.log('state', state, id, data);
+		setFlowData(data, id);
 		setLoanData({ ...data }, id);
 		addToast({
 			message: 'Saved Succesfully',
@@ -364,8 +367,13 @@ export default function FormController({
 		});
 		return obj;
 	};
-
-	let form = state[`${id}`] || companyDetail || companyData || appData;
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let form =
+		state[`${id}`] ||
+		formReducer?.user[`${id}`] ||
+		companyDetail ||
+		companyData ||
+		appData;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	if (state[`${id}`]) {
 		if (id === 'business-loan-details') {

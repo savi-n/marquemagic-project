@@ -843,6 +843,7 @@ export default function PanVerification({
 								/\s/g,
 								''
 							).split('');
+							formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
 							const t = aadharNum
 								? '00000000' + aadharNum?.splice(8, 4).join('')
 								: '';
@@ -925,6 +926,7 @@ export default function PanVerification({
 						/\s/g,
 						''
 					).split('');
+					formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
 					const t = aadharNum
 						? '00000000' + aadharNum?.splice(8, 4).join('')
 						: '';
@@ -1397,9 +1399,3 @@ PanVerification.propTypes = {
 	map: oneOfType([string, object]),
 	id: string,
 };
-
-// TODO
-
-// 1. after pan it will come popup in housing loan we can edit there pan why? if we edit alos going to next page? hold
-// Confirm PAN number and Proceed pan should be disabled.
-//
