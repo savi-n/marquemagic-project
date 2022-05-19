@@ -1030,7 +1030,7 @@ export default function DocumentUpload({
 					else newOtr.push(newDoc);
 					return null;
 				});
-				console.log('newKyc', newKyc);
+				// console.log('newKyc', newKyc);
 				setPrefilledKycDocs(newKyc);
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
@@ -1502,6 +1502,22 @@ export default function DocumentUpload({
 		return null;
 	});
 
+	if (
+		editLoan &&
+		editLoan?.loan_document &&
+		editLoan?.loan_document?.length > 0
+	) {
+		if (prefilledKycDocs.length) {
+			kyccount = kyccount + prefilledKycDocs.length;
+		}
+		if (prefilledFinancialDocs.length) {
+			financialCount = financialCount + prefilledFinancialDocs.length;
+		}
+		if (prefilledOtherDocs.length) {
+			otherCount = otherCount + prefilledOtherDocs.length;
+		}
+	}
+
 	return (
 		<>
 			<Colom1>
@@ -1543,7 +1559,6 @@ export default function DocumentUpload({
 						</Details>
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
-								{console.log('prefilledKycDocs', prefilledKycDocs)}
 								<FileUpload
 									prefilledDocs={prefilledKycDocs}
 									startingTaggedDocs={startingKYCDoc}

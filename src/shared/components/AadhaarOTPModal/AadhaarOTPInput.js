@@ -95,7 +95,9 @@ function OtpField({
 
 export default function OtpInput({
 	numInputs = 4,
-	handleChange = otp => console.log(otp),
+	handleChange = otp => {
+		// console.log(otp)
+	},
 	isInputSecure = false,
 	numberOnly = false,
 	setInputAadhaarOTP,
