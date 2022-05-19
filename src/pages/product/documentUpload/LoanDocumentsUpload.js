@@ -1030,7 +1030,7 @@ export default function DocumentUpload({
 					else newOtr.push(newDoc);
 					return null;
 				});
-
+				console.log('newKyc', newKyc);
 				setPrefilledKycDocs(newKyc);
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
@@ -1543,6 +1543,7 @@ export default function DocumentUpload({
 						</Details>
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
+								{console.log('prefilledKycDocs', prefilledKycDocs)}
 								<FileUpload
 									prefilledDocs={prefilledKycDocs}
 									startingTaggedDocs={startingKYCDoc}

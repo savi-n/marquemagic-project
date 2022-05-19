@@ -2,9 +2,9 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import Button from '../../../components/Button';
+// import Button from '../../../components/Button';
 // import GuageMeter from '../../../components/GuageMeter';
-import { FlowContext } from '../../../reducer/flowReducer';
+// import { FlowContext } from '../../../reducer/flowReducer';
 import img1 from '../../../assets/images/v3.png';
 import img2 from '../../../assets/images/v4.png';
 import { CaseContext } from '../../../reducer/caseReducer';

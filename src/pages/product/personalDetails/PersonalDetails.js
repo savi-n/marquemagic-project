@@ -3,17 +3,18 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
-import useForm from '../../../hooks/useForm';
-import useFetch from '../../../hooks/useFetch';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
-import Button from '../../../components/Button';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { AppContext } from '../../../reducer/appReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
+import useForm from 'hooks/useForm';
+import useFetch from 'hooks/useFetch';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import SalaryDetails from 'shared/components/SalaryDetails/SalaryDetails';
+import Button from 'components/Button';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
+import { AppContext } from 'reducer/appReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	LOGIN_CREATEUSER,
 	NC_STATUS_CODE,
@@ -80,6 +81,7 @@ export default function PersonalDetailsPage({
 	// const {
 	// 	state: { companyDetail },
 	// } = useContext(BussinesContext);
+	const { state } = useContext(LoanFormContext);
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();

@@ -5,7 +5,7 @@ import Modal from './Modal';
 import Button from './Button';
 import {
 	BANK_LIST_API,
-	BANK_TOKEN_API,
+	// BANK_TOKEN_API,
 	NC_STATUS_CODE,
 } from '../_config/app.config';
 import BANK_FLOW from '../_config/bankflow.config';
@@ -96,7 +96,8 @@ const Captcha = styled.img`
 
 export default function BankStatementModal({ showModal, onClose }) {
 	const {
-		state: { bankToken, clientToken },
+		// state: { bankToken, clientToken },
+		state: { bankToken },
 	} = useContext(AppContext);
 
 	const { response: bankList, loading, newRequest } = useFetch({
@@ -106,20 +107,20 @@ export default function BankStatementModal({ showModal, onClose }) {
 
 	const { addToast } = useToasts();
 
-	const { response: token } = useFetch({
-		url: BANK_TOKEN_API,
-		options: {
-			method: 'POST',
-			data: {
-				type: 'EQFAX',
-				linkRequired: false,
-				isEncryption: false,
-			},
-		},
-		headers: {
-			Authorization: clientToken,
-		},
-	});
+	// const { response } = useFetch({
+	// 	url: BANK_TOKEN_API,
+	// 	options: {
+	// 		method: 'POST',
+	// 		data: {
+	// 			type: 'EQFAX',
+	// 			linkRequired: false,
+	// 			isEncryption: false,
+	// 		},
+	// 	},
+	// 	headers: {
+	// 		Authorization: clientToken,
+	// 	},
+	// });
 
 	const [processing, setProcessing] = useState(false);
 

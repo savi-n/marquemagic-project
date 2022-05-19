@@ -73,7 +73,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	} = useContext(FlowContext);
 
 	const {
-		state: { documents },
+		// state: { documents },
 		actions: { setLoanDocuments },
 	} = useContext(LoanFormContext);
 

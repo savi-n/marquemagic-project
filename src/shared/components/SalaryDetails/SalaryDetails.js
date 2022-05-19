@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
-
+/* eslint eqeqeq: 0 */
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;

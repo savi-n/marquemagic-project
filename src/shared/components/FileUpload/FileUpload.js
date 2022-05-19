@@ -806,6 +806,7 @@ export default function FileUpload({
 		try {
 			setLoading(true);
 			// in case of edit_loan
+			console.log('prefilledDocs', prefilledDocs);
 			if (prefilledDocs && prefilledDocs.length > 0) {
 				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
 				const newMappedFile = _.cloneDeep(mappedFiles);
@@ -1217,7 +1218,7 @@ export default function FileUpload({
 													)}
 												</PasswordWrapper>
 											)}
-											{!doc?.isDocRemoveAllowed ? null : (
+											{doc?.isDocRemoveAllowed ? null : (
 												<ImgClose
 													style={{ height: '20px' }}
 													src={isViewMore ? imgArrowDownCircle : imgClose}

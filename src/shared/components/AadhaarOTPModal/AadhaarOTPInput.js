@@ -61,6 +61,7 @@ function OtpField({
 		}
 
 		return () => {};
+		// eslint-disable-next-line
 	}, [activeInput]);
 
 	const isInputValueValid = value => {
