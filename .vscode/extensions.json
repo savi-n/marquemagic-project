@@ -6,6 +6,7 @@
 		"pkief.material-icon-theme",
 		"dsznajder.es7-react-js-snippets",
 		"mikestead.dotenv",
-		"styled-components.vscode-styled-components"
+		"styled-components.vscode-styled-components",
+		"Gruntfuggly.todo-tree"
 	]
 }
