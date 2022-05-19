@@ -474,7 +474,8 @@ export default function PanVerification({
 
 	useEffect(() => {
 		sessionStorage.removeItem('product');
-		removeAllDocuments();
+		// console.log('pan-verifications-useEFfect-removealldocuments-');
+		// removeAllDocuments();
 	}, []);
 
 	const removeHandler = (e, doc, name) => {
@@ -529,7 +530,7 @@ export default function PanVerification({
 					// });
 				} else {
 					//****** setting file in docs for this loan -- loanContext
-					setPanDocDetails(res.data.doc_details);
+					// setPanDocDetails(res.data.doc_details);
 					const file1 = {
 						document_key: res.data.s3.fd,
 						id: Math.random()
@@ -820,7 +821,7 @@ export default function PanVerification({
 					setDLAadharVoterError(re.data.message);
 				} else {
 					//****** setting file in docs for this loan -- loanContext
-					setOtherDocDetails(re.data.doc_details);
+					// setOtherDocDetails(re.data.doc_details);
 					const myfile = {
 						document_key: re.data.s3.fd,
 						id: Math.random()
@@ -931,7 +932,7 @@ export default function PanVerification({
 					// ref_id: pass the id from the first doc response
 					// combine data
 					//****** setting file in docs for this loan -- loanContext
-					setOtherDocDetails(res.data.doc_details);
+					// setOtherDocDetails(res.data.doc_details);
 					// res.data.doc_type_id = '31';
 					const file2 = {
 						document_key: res.data.s3.fd,

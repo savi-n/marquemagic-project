@@ -7,6 +7,7 @@ import useFetch from '../../hooks/useFetch';
 import { AppContext } from '../../reducer/appReducer';
 import { FlowContext } from '../../reducer/flowReducer';
 import { FormContext } from '../../reducer/formReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import CheckBox from '../../shared/components/Checkbox/CheckBox';
 import ContinueModal from '../../components/modals/ContinueModal';
 import Router from './Router';
@@ -201,6 +202,10 @@ export default function Product({ product, url }) {
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
 
+	const {
+		actions: { removeAllDocuments },
+	} = useContext(LoanFormContext);
+
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
@@ -294,6 +299,7 @@ export default function Product({ product, url }) {
 		clearFlowDetails(basePageUrl);
 		clearFormData();
 		resetUserDetails();
+		removeAllDocuments();
 	};
 
 	const onFlowChange = (flow, i) => {
