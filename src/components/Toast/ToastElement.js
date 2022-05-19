@@ -46,6 +46,11 @@ const ToastMessage = styled.span`
 	font-size: 12px;
 	font-weight: 500;
 `;
+const TypeStyle = styled.span`
+	width: 26px;
+	display: inline-block;
+	margin-right: 10px;
+`;
 
 export default function Toast({ message, type }) {
 	return (
@@ -56,44 +61,12 @@ export default function Toast({ message, type }) {
 					__html: TOAST_TYPE_SYMBOLS[type || 'default'][0],
 				}}
 			/> */}
-			<>
-				{type === 'error' ? (
-					<img
-						src={RedError}
-						alt='error'
-						style={{
-							width: '26px',
-							display: 'inline-block',
-							marginRight: '9px',
-						}}
-					/>
-				) : (
-					type !== 'error' &&
-					(type === 'success' ? (
-						<img
-							src={SuccessSymbol}
-							alt='success'
-							style={{
-								width: '26px',
-								display: 'inline-block',
-								marginRight: '9px',
-							}}
-						/>
-					) : (
-						type === 'warning' && (
-							<img
-								src={warningSymbol}
-								alt='warning'
-								style={{
-									width: '26px',
-									display: 'inline-block',
-									marginRight: '9px',
-								}}
-							/>
-						)
-					))
-				)}
-			</>
+
+			<TypeStyle>
+				{type === 'error' && <img src={RedError} alt='error' />}
+				{type === 'success' && <img src={SuccessSymbol} alt='success' />}
+				{type === 'warning' && <img src={warningSymbol} alt='warning' />}
+			</TypeStyle>
 			<ToastMessage>{message}</ToastMessage>
 		</ToastElement>
 	);

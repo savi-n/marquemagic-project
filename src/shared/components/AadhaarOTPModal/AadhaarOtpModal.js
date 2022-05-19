@@ -56,6 +56,11 @@ const ModalResentOtp = styled.div`
 	font-size: 11px;
 `;
 
+const ImgStyle = styled.img`
+	width: 26px;
+	display: inline-block;
+	margin-right: 10px;
+`;
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
@@ -256,15 +261,7 @@ const AadhaarOTPModal = props => {
 				{errorMsg && (
 					<ModalErrorMessage>
 						{' '}
-						<img
-							src={RedError}
-							alt='error'
-							style={{
-								width: '26px',
-								display: 'inline-block',
-								marginRight: '9px',
-							}}
-						/>
+						<ImgStyle src={RedError} alt='error' />
 						{errorMsg}
 					</ModalErrorMessage>
 				)}

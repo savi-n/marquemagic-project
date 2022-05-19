@@ -100,6 +100,11 @@ const Span = styled.span`
 	color: ${({ theme, bg }) => theme.main_theme_color};
 	font-size: 13px;
 `;
+const ImgStyle = styled.img`
+	width: 26px;
+	display: inline-block;
+	margin-right: 10px;
+`;
 
 const businessTypeMaps = [
 	[['private', 'pvt'], 4],
@@ -1051,15 +1056,7 @@ export default function PanVerification({
 							{panError && (
 								<p style={{ color: 'red', marginTop: '-35px' }}>
 									{' '}
-									<img
-										src={RedError}
-										alt='error'
-										style={{
-											width: '26px',
-											display: 'inline-block',
-											marginRight: '9px',
-										}}
-									/>
+									<ImgStyle src={RedError} alt='error' />
 									{panError}
 									{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 								</p>
@@ -1119,15 +1116,7 @@ export default function PanVerification({
 												marginBottom: '45px',
 											}}>
 											{' '}
-											<img
-												src={RedError}
-												alt='error'
-												style={{
-													width: '26px',
-													display: 'inline-block',
-													marginRight: '9px',
-												}}
-											/>
+											<ImgStyle src={RedError} alt='error' />
 											{dlError}
 										</p>
 									)}
@@ -1171,15 +1160,7 @@ export default function PanVerification({
 												marginBottom: '45px',
 											}}>
 											{' '}
-											<img
-												src={RedError}
-												alt='error'
-												style={{
-													width: '26px',
-													display: 'inline-block',
-													marginRight: '9px',
-												}}
-											/>
+											<ImgStyle src={RedError} alt='error' />
 											{aadharError}
 										</p>
 									)}
@@ -1223,15 +1204,7 @@ export default function PanVerification({
 												marginBottom: '45px',
 											}}>
 											{' '}
-											<img
-												src={RedError}
-												alt='error'
-												style={{
-													width: '26px',
-													display: 'inline-block',
-													marginRight: '9px',
-												}}
-											/>
+											<ImgStyle src={RedError} alt='error' />
 											{voterError}
 										</p>
 									)}
