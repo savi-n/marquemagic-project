@@ -36,10 +36,10 @@ export default function ContinueModal({ onYes, onNo }) {
 		<Modal show={true} onClose={() => {}} width='30%'>
 			<ModalBody>
 				<Text>Do you Want to continue with the pending application?</Text>
-				<small>
+				{/* <small>
 					Note: Any document uploaded needs to be re-uploaded for the loan
 					application
-				</small>
+				</small> */}
 				<BtnWrap className='gap-x-4'>
 					<Button width='auto' fill name='Yes' onClick={onYes} />
 
