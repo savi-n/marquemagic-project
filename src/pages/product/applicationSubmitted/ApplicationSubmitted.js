@@ -2,9 +2,9 @@ import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import Button from '../../../components/Button';
-import GuageMeter from '../../../components/GuageMeter';
-import { FlowContext } from '../../../reducer/flowReducer';
+// import Button from '../../../components/Button';
+// import GuageMeter from '../../../components/GuageMeter';
+// import { FlowContext } from '../../../reducer/flowReducer';
 import img1 from '../../../assets/images/v3.png';
 import img2 from '../../../assets/images/v4.png';
 import { CaseContext } from '../../../reducer/caseReducer';
@@ -31,24 +31,11 @@ const Colom2 = styled.div`
 	width: 30%;
 `;
 
-const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-`;
-
 const Caption = styled.h2`
 	text-align: center;
 	font-size: 1em;
 	font-weight: 500;
 	margin: 20px 0;
-`;
-
-const BtnWrap = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 20px;
 `;
 
 const CaptionImg = styled.div`
@@ -96,30 +83,34 @@ export default function ApplicationSubmitted({
 		sessionStorage.setItem('wt_lbl', wt_lbl);
 	}, []);
 
-	const {
-		actions: { activateSubFlow },
-	} = useContext(FlowContext);
+	// const {
+	// 	actions: { activateSubFlow },
+	// } = useContext(FlowContext);
 
 	const {
 		state: { loan_ref_id },
 	} = useContext(CaseContext);
 
-	const [count, setData] = useState(0);
+	const [count] = useState(0);
 
-	const subFlowActivate = () => {
-		activateSubFlow(id);
-		onFlowChange(map.sub);
-	};
+	// const subFlowActivate = () => {
+	// 	activateSubFlow(id);
+	// 	onFlowChange(map.sub);
+	// };
 
 	// const {
 	//   state: { userToken },
 	// } = useContext(UserContext);
 
 	const d = data[count];
+	// since d is always set to 0.. other data elements are nt gonna be
+	// used hence deleted <GuageMeter>
 	return (
 		<>
 			<Colom1>
-				{!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />}
+				{/* {console.log('---', d)} */}
+				{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
+				<CaptionImg bg={d.img} />
 				<Caption>{d.caption}</Caption>
 				<section>
 					Application Reference Number:{' '}

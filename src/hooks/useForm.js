@@ -306,13 +306,13 @@ export default function useForm() {
 	};
 }
 
-const Select = styled.select`
-	height: 50px;
-	padding: 10px;
-	width: 100%;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 6px;
-`;
+// const Select = styled.select`
+// 	height: 50px;
+// 	padding: 10px;
+// 	width: 100%;
+// 	border: 1px solid rgba(0, 0, 0, 0.1);
+// 	border-radius: 6px;
+// `;
 
 // function patternSynthesize(value, pattern, name) {
 //   console.log(value, pattern, name);
@@ -336,25 +336,27 @@ const Currency = styled.div`
 	top: 0;
 `;
 
-const InputFieldWrapper = styled.div`
-	/* display: flex; */
-	/* justify-content: space-between; */
-	div:first-of-type {
-		width: 100%;
-	}
-`;
+// const InputFieldWrapper = styled.div`
+// 	/* display: flex; */
+// 	/* justify-content: space-between; */
+// 	div:first-of-type {
+// 		width: 100%;
+// 	}
+// `;
 
 function InputFieldRender({ field, onChange, value, unregister }) {
-	const { type = 'text', rules } = field;
+	const { type = 'text' } = field;
 
 	useEffect(() => {
 		return () => {
 			unregister(field.name);
 		};
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
 		onChange({ name: field.name, value: value || '' });
+		// eslint-disable-next-line
 	}, [value]);
 
 	const fieldProps = {

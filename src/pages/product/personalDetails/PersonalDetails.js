@@ -1,26 +1,24 @@
 // active personal details right section
 // active business details right section
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
-import useForm from '../../../hooks/useForm';
-import useFetch from '../../../hooks/useFetch';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
-import Button from '../../../components/Button';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { AppContext } from '../../../reducer/appReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
+import useForm from 'hooks/useForm';
+import useFetch from 'hooks/useFetch';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import SalaryDetails from 'shared/components/SalaryDetails/SalaryDetails';
+import Button from 'components/Button';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
+import { AppContext } from 'reducer/appReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	LOGIN_CREATEUSER,
 	NC_STATUS_CODE,
 	WHITELABEL_ENCRYPTION_API,
-	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 import ConfirmModal from 'components/modals/ConfirmModal';
@@ -64,8 +62,6 @@ export default function PersonalDetailsPage({
 	onFlowChange,
 	productId,
 }) {
-	const { state } = useContext(LoanFormContext);
-
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
@@ -79,13 +75,13 @@ export default function PersonalDetailsPage({
 	} = useContext(FormContext);
 
 	const {
-		state: { userBankDetails, userToken },
 		actions: { setUserDetails, setUserId },
 	} = useContext(UserContext);
 
-	const {
-		state: { companyDetail },
-	} = useContext(BussinesContext);
+	// const {
+	// 	state: { companyDetail },
+	// } = useContext(BussinesContext);
+	const { state } = useContext(LoanFormContext);
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
