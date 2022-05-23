@@ -165,7 +165,12 @@ export default function PersonalDetailsPage({
 		});
 	};
 
-	const onProceed = async data => {
+	const validateForm = () => {
+		// console.log('PersonalDetails-onProceed-document-', {
+		// 	state,
+		// 	formState,
+		// 	aadhaar_otp_res: sessionStorage.getItem('aadhaar_otp_res'),
+		// });
 		if (state?.documents?.filter(d => d.req_type === 'aadhar')?.length === 0) {
 			if (
 				formState.values.aadhaar !== '' &&
@@ -185,22 +190,25 @@ export default function PersonalDetailsPage({
 				message: 'Income cannot be 0',
 				type: 'error',
 			});
-		} else {
-			const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
-			sessionStorage.setItem(
-				'formstatepan',
-				JSON.stringify({ ...formstatepan, ...data })
-			);
-			const formstate = JSON.parse(sessionStorage.getItem('formstate'));
-			sessionStorage.setItem(
-				'formstate',
-				JSON.stringify({ ...formstate, ...data })
-			);
-			onSave(data);
-
-			setCompleted(id);
-			onFlowChange(map.main);
 		}
+		setModalConfirm(true);
+	};
+
+	const onProceed = async data => {
+		const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
+		sessionStorage.setItem(
+			'formstatepan',
+			JSON.stringify({ ...formstatepan, ...data })
+		);
+		const formstate = JSON.parse(sessionStorage.getItem('formstate'));
+		sessionStorage.setItem(
+			'formstate',
+			JSON.stringify({ ...formstate, ...data })
+		);
+		onSave(data);
+
+		setCompleted(id);
+		onFlowChange(map.main);
 	};
 
 	const formatPersonalDetails = personalDetails => {
@@ -348,9 +356,7 @@ export default function PersonalDetailsPage({
 		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
 	);
 
-	const ButtonConfirm = (
-		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
-	);
+	const ButtonConfirm = <Button fill name='Proceed' onClick={validateForm} />;
 
 	let displayProceedButton = ButtonProceed;
 

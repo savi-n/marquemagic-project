@@ -7,6 +7,8 @@ import { FlowContext } from '../reducer/flowReducer';
 import { FormContext } from '../reducer/formReducer';
 import { useContext } from 'react';
 import { UserContext } from '../reducer/userReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+
 const Wrapper = styled.div`
 
   width: 25%;
@@ -85,6 +87,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
 
+	const {
+		actions: { removeAllDocuments },
+	} = useContext(LoanFormContext);
+
 	const history = useHistory();
 
 	// const { url } = useRouteMatch();
@@ -112,6 +118,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						clearFlowDetails(basePageUrl);
 						clearFormData();
 						resetUserDetails();
+						removeAllDocuments();
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
 					}}>

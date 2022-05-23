@@ -1,5 +1,11 @@
 import { createContext, useReducer } from 'react';
-import _ from 'lodash';
+import _, { kebabCase } from 'lodash';
+
+import { setStore, getStore } from '../utils/localStore';
+
+const DOCUMENT_REDUCER = 'documentReducer';
+
+const storeData = getStore()[DOCUMENT_REDUCER] || {};
 
 const actionTypes = {
 	SET_LOAN_DATA: 'SET_LOAN_DATA',
@@ -76,19 +82,22 @@ const useActions = dispatch => {
 };
 
 function reducer(state, action) {
+	let updatedState = state;
 	switch (action.type) {
 		case actionTypes.SET_LOAN_DATA: {
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				[action.page]: action.formData,
 			};
+			break;
 		}
 
 		case actionTypes.SET_LOAN_DOCUMENT: {
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				documents: [...(state.documents || []), ...action.files],
 			};
+			break;
 		}
 
 		case actionTypes.SET_DOCUMENT_TYPE: {
@@ -104,47 +113,57 @@ function reducer(state, action) {
 					: doc
 			);
 			// console.log('action-SET_DOCUMENT_TYPE-', userDocs);
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				documents: userDocs,
 			};
+			break;
 		}
 
 		case actionTypes.REMOVE_LOAN_DOCUMENT: {
 			const filteredDocs = (state.documents || []).filter(
 				doc => doc.id !== action.fileId
 			);
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				documents: filteredDocs,
 			};
+			break;
 		}
 
 		case actionTypes.REMOVE_ALL_DOCUMENTS: {
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				documents: [],
 			};
+			break;
 		}
 
 		case actionTypes.SET_KYC_EXTRACT_DOCDETAILS_PAN: {
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				panDocDetails: [...action.docDetails],
 			};
+			break;
 		}
 
 		case actionTypes.SET_KYC_EXTRACT_DOCDETAILS_OTHER: {
-			return {
+			updatedState = {
 				..._.cloneDeep(state),
 				otherDocDetails: [...action.docDetails],
 			};
+			break;
 		}
 
 		default: {
-			return { ..._.cloneDeep(state) };
+			updatedState = { ..._.cloneDeep(state) };
+			break;
 		}
 	}
+
+	setStore(updatedState, DOCUMENT_REDUCER);
+
+	return updatedState;
 }
 
 const LoanFormContext = createContext();
@@ -152,6 +171,7 @@ const LoanFormContext = createContext();
 const LoanFormProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(reducer, {
 		...INITIAL_STATE,
+		...storeData,
 	});
 	const actions = useActions(dispatch);
 
