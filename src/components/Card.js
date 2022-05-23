@@ -2,8 +2,15 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { shape, string, number } from 'prop-types';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
+import { resetAllApplicationState } from '../utils/localStore';
+import { FlowContext } from '../reducer/flowReducer';
+import { FormContext } from '../reducer/formReducer';
+import { useContext } from 'react';
+import { UserContext } from '../reducer/userReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
 const Wrapper = styled.div`
+
   width: 25%;
 
   border-radius: 10px;
@@ -69,7 +76,31 @@ const ProductName = styled.div`
 `;
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
+	const {
+		state: {
+			completed: completedMenu,
+			activeSubFlow: subFlowMenu,
+			flowMap,
+			basePageUrl,
+			currentFlow,
+			productId,
+		},
+		actions: { configure, setCurrentFlow, clearFlowDetails, setCompleted },
+	} = useContext(FlowContext);
+	const {
+		actions: { clearFormData, setUsertypeAfterRefresh },
+	} = useContext(FormContext);
+	const {
+		state: { timestamp },
+		actions: { resetUserDetails },
+	} = useContext(UserContext);
+
+	const {
+		actions: { removeAllDocuments },
+	} = useContext(LoanFormContext);
+
 	const history = useHistory();
+
 	// const { url } = useRouteMatch();
 
 	const handleClick = (e, id) => {
@@ -91,6 +122,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				<Link
 					href={!add && `/applyloan/product/${btoa(product.id)}`}
 					onClick={e => {
+						resetAllApplicationState();
+						clearFlowDetails(basePageUrl);
+						clearFormData();
+						resetUserDetails();
+						removeAllDocuments();
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
 					}}>

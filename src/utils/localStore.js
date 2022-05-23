@@ -21,3 +21,18 @@ export function localStoreUserId(data) {
 export function removeStore() {
 	sessionStorage.removeItem(name);
 }
+
+export function resetAllApplicationState() {
+	const url = window.location.hostname;
+	sessionStorage.removeItem('formstate');
+	sessionStorage.removeItem('formstatepan');
+	sessionStorage.removeItem('aadhar');
+	sessionStorage.removeItem('encryptWhiteLabel');
+	sessionStorage.removeItem('userToken');
+	sessionStorage.removeItem(url);
+	const wt_lbl = sessionStorage.getItem('wt_lbl');
+	const userDetails = sessionStorage.getItem('userDetails');
+	sessionStorage.clear();
+	sessionStorage.setItem('wt_lbl', wt_lbl);
+	userDetails && sessionStorage.setItem('userDetails', userDetails);
+}

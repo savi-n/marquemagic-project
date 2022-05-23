@@ -114,7 +114,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 
 	const {
 		state,
-		actions: { setUsertypeEmiData },
+		actions: { setUsertypeEmiData, setFlowData },
 	} = useContext(FormContext);
 
 	const {
@@ -163,6 +163,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			response
 		);
 		setUsertypeEmiData(emiData);
+		setFlowData(emiData, id);
 		setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
 
 		addToast({

@@ -83,6 +83,7 @@ const FieldWrapperPanVerify = styled.div`
 	padding: 20px 0;
 	/* width: 50%; */
 	place-self: center;
+	margin-right: 10em;
 	@media (max-width: 700px) {
 		width: 100%;
 	}
@@ -205,11 +206,7 @@ export default function PanVerification({
 	id,
 }) {
 	const productType =
-		productDetails.loanType.includes('Business') ||
-		productDetails.loanType.includes('LAP') ||
-		productDetails.loanType.includes('Working')
-			? 'business'
-			: 'salaried';
+		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 	const {
 		state: { whiteLabelId, clientToken, bankToken },
 	} = useContext(AppContext);
@@ -229,6 +226,7 @@ export default function PanVerification({
 			removeAllDocuments,
 			setPanDocDetails,
 			setOtherDocDetails,
+			removeLoanDocument,
 		},
 	} = useContext(LoanFormContext);
 
@@ -268,6 +266,7 @@ export default function PanVerification({
 	const [backUpload, setBackUpload] = useState(false);
 	const [backUploading, setBackUploading] = useState(false);
 	const [disableButton, setDisableSubmit] = useState(false);
+	const [panFileId, setPanFileId] = useState(null);
 
 	// const userid = '10626';
 
@@ -475,10 +474,14 @@ export default function PanVerification({
 
 	useEffect(() => {
 		sessionStorage.removeItem('product');
-		removeAllDocuments();
+		// console.log('pan-verifications-useEFfect-removealldocuments-');
+		// removeAllDocuments();
 	}, []);
 
 	const removeHandler = (e, doc, name) => {
+		// console.log('state', state.documents);
+		// console.log('remveddd', e, typeof e);
+		setBackUploading(false);
 		setPanError('');
 		resetAllErrors();
 		if (name) {
@@ -527,7 +530,7 @@ export default function PanVerification({
 					// });
 				} else {
 					//****** setting file in docs for this loan -- loanContext
-					setPanDocDetails(res.data.doc_details);
+					// setPanDocDetails(res.data.doc_details);
 					const file1 = {
 						document_key: res.data.s3.fd,
 						id: Math.random()
@@ -542,9 +545,10 @@ export default function PanVerification({
 						upload_doc_name: res.data.s3.filename,
 						src: 'start',
 					};
-
+					setPanFileId(file1.id);
 					setLoanDocuments([file1]);
 					// this ends here
+
 					setPan(res.data.data['Pan_number']);
 					sessionStorage.setItem('pan', res.data.data['Pan_number']);
 					formState.values.panNumber = res.data.data['Pan_number'];
@@ -797,9 +801,10 @@ export default function PanVerification({
 	useEffect(() => {
 		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
 			setBackUpload(true);
-	}, [otherDoc, aadhar, voter]);
+	}, [otherDoc, aadhar, voter, backUploading]);
 
 	const handleUpload = files => {
+		// console.log('here');
 		setLoading(true);
 		const fileType = getFileType();
 		resetAllErrors();
@@ -816,7 +821,7 @@ export default function PanVerification({
 					setDLAadharVoterError(re.data.message);
 				} else {
 					//****** setting file in docs for this loan -- loanContext
-					setOtherDocDetails(re.data.doc_details);
+					// setOtherDocDetails(re.data.doc_details);
 					const myfile = {
 						document_key: re.data.s3.fd,
 						id: Math.random()
@@ -869,6 +874,7 @@ export default function PanVerification({
 								/\s/g,
 								''
 							).split('');
+							formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
 							const t = aadharNum
 								? '00000000' + aadharNum?.splice(8, 4).join('')
 								: '';
@@ -926,7 +932,7 @@ export default function PanVerification({
 					// ref_id: pass the id from the first doc response
 					// combine data
 					//****** setting file in docs for this loan -- loanContext
-					setOtherDocDetails(res.data.doc_details);
+					// setOtherDocDetails(res.data.doc_details);
 					// res.data.doc_type_id = '31';
 					const file2 = {
 						document_key: res.data.s3.fd,
@@ -950,6 +956,7 @@ export default function PanVerification({
 						/\s/g,
 						''
 					).split('');
+					formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
 					const t = aadharNum
 						? '00000000' + aadharNum?.splice(8, 4).join('')
 						: '';
@@ -1104,6 +1111,11 @@ export default function PanVerification({
 											{dlError}
 										</p>
 									)}
+									<h1
+										className='text-xl text-black'
+										style={{ marginLeft: '50%' }}>
+										OR
+									</h1>
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -1141,6 +1153,11 @@ export default function PanVerification({
 											{aadharError}
 										</p>
 									)}
+									<h1
+										className='text-xl text-black'
+										style={{ marginLeft: '50%' }}>
+										OR
+									</h1>
 									<p className='py-4 text-xl text-black'>
 										Upload{' '}
 										{(backUploading && 'back picture of') || 'front picture of'}{' '}
@@ -1234,7 +1251,7 @@ export default function PanVerification({
 							)}
 
 							<section className='flex flex-wrap items-center gap-x-4 gap-y-4'>
-								<Button
+								{/*  <Button
 									onClick={() => {
 										setPanUpload(true);
 										setVerificationFailed(null);
@@ -1243,7 +1260,7 @@ export default function PanVerification({
 									}}
 									name='Upload PAN again'
 									fill
-								/>
+								/> */}
 								<Button
 									type='submit'
 									isLoader={loading}
@@ -1293,7 +1310,10 @@ export default function PanVerification({
 						show={companyListModal}
 						companyName={formState?.values?.companyName}
 						companyList={companyList}
-						onClose={() => setCompanyListModal(false)}
+						onClose={() => {
+							if (panFileId) removeLoanDocument(panFileId);
+							setCompanyListModal(false);
+						}}
 						onCompanySelect={onCompanySelect}
 						formState={formState}
 					/>
@@ -1302,6 +1322,7 @@ export default function PanVerification({
 					<Modal
 						show={openConfirm}
 						onClose={() => {
+							if (panFileId) removeLoanDocument(panFileId);
 							setPanConfirm(false);
 						}}
 						width='30%'>
@@ -1407,9 +1428,3 @@ PanVerification.propTypes = {
 	map: oneOfType([string, object]),
 	id: string,
 };
-
-// TODO
-
-// 1. after pan it will come popup in housing loan we can edit there pan why? if we edit alos going to next page? hold
-// Confirm PAN number and Proceed pan should be disabled.
-//

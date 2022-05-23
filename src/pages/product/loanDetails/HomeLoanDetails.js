@@ -10,6 +10,7 @@ import HomeLoanDetailsTable from '../../../shared/components/LoanDetails/HomeLoa
 import UploadAgreementModal from '../../../components/UploadAgreementModal';
 import LoanDetails from '../../../shared/components/LoanDetails/LoanDetails';
 import { FormContext } from '../../../reducer/formReducer';
+import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { formatLoanData } from '../../../utils/formatData';
@@ -75,6 +76,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	} = useContext(FlowContext);
 
 	const {
+		state: { documents },
+		actions: { setLoanDocuments },
+	} = useContext(LoanFormContext);
+
+	const {
 		actions: {
 			setUsertypeLoanData,
 			// setUsertypeEmiData,
@@ -114,6 +120,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 			state,
 			...rest
 		} = data;
+
 		const homeLoanBranchName =
 			homeBranchList.filter(ele => ele.id == branchId)[0]?.branch || '';
 		const loanData = formatLoanData(data, map.fields[id].data);
@@ -145,11 +152,15 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	};
 
 	const onDone = (files, name) => {
+		// console.log('agreement docs', files, name);
+		// console.log('--', documents);
+		setLoanDocuments(files);
 		setUploadAgreementDocs(p => ({
 			...p,
 			[name]: files,
 		}));
 		setUploadAgreementModal(false);
+		// console.log('-->', documents);
 	};
 
 	const getBranchOptions = async () => {

@@ -169,7 +169,23 @@ export default function PersonalDetailsPage({
 		});
 	};
 
-	const onProceed = async data => {
+	const validateForm = () => {
+		// console.log('PersonalDetails-onProceed-document-', {
+		// 	state,
+		// 	formState,
+		// 	aadhaar_otp_res: sessionStorage.getItem('aadhaar_otp_res'),
+		// });
+		if (state?.documents?.filter(d => d.req_type === 'aadhar')?.length === 0) {
+			if (
+				formState.values.aadhaar !== '' &&
+				!sessionStorage.getItem('aadhaar_otp_res')
+			) {
+				return addToast({
+					message: 'Please verify your Aadhaar with OTP',
+					type: 'error',
+				});
+			}
+		}
 		if (
 			Number(formState?.values?.grossIncome) === 0 ||
 			Number(formState?.values?.netMonthlyIncome) === 0
@@ -178,22 +194,25 @@ export default function PersonalDetailsPage({
 				message: 'Income cannot be 0',
 				type: 'error',
 			});
-		} else {
-			const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
-			sessionStorage.setItem(
-				'formstatepan',
-				JSON.stringify({ ...formstatepan, ...data })
-			);
-			const formstate = JSON.parse(sessionStorage.getItem('formstate'));
-			sessionStorage.setItem(
-				'formstate',
-				JSON.stringify({ ...formstate, ...data })
-			);
-			onSave(data);
-
-			setCompleted(id);
-			onFlowChange(map.main);
 		}
+		setModalConfirm(true);
+	};
+
+	const onProceed = async data => {
+		const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
+		sessionStorage.setItem(
+			'formstatepan',
+			JSON.stringify({ ...formstatepan, ...data })
+		);
+		const formstate = JSON.parse(sessionStorage.getItem('formstate'));
+		sessionStorage.setItem(
+			'formstate',
+			JSON.stringify({ ...formstate, ...data })
+		);
+		onSave(data);
+
+		setCompleted(id);
+		onFlowChange(map.main);
 	};
 
 	const formatPersonalDetails = personalDetails => {
@@ -245,9 +264,9 @@ export default function PersonalDetailsPage({
 	const getAdhar = () => {
 		try {
 			var formStat =
-				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadharNum ||
+				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadhaar ||
 				sessionStorage.getItem('aadhar');
-
+			// console.log('getAdhar-formState-', formState);
 			if (formStat) {
 				const adharNum = formStat;
 
@@ -262,18 +281,41 @@ export default function PersonalDetailsPage({
 		}
 	};
 
+	const getAdharUnMasked = () => {
+		try {
+			return (
+				JSON.parse(sessionStorage.getItem('formstate'))?.values
+					?.aadhaarUnMasked ||
+				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadharNum ||
+				sessionStorage.getItem('aadhar') ||
+				''
+			);
+		} catch (error) {
+			return '';
+		}
+	};
+
 	const getDOB = () => {
 		try {
-			var formStat =
-				JSON.parse(sessionStorage.getItem('formstate')) ||
-				JSON.parse(sessionStorage.getItem('formstatepan'));
-
-			if (formStat && formStat?.values?.dob) {
-				let d = formStat.values.dob.split('/');
-
-				d = `${d[2]}-${d[1]}-${d[0]}`;
-
+			// first check DOB extracted from Aadhar, if its only a year or giving invalid data
+			// check Pan extraction data for a valid DOB
+			var formStat = JSON.parse(sessionStorage.getItem('formstate'))?.values
+				?.dob;
+			if (formStat.length < 10) {
+				formStat = JSON.parse(sessionStorage.getItem('formstatepan'))?.values
+					?.dob;
+			}
+			if (formStat && formStat) {
+				let d = formStat.split('/');
+				if (d.length > 2) {
+					d = `${d[2]}-${d[1]}-${d[0]}`;
+				} else {
+					// for old format of aadhar where only date appears
+					d = '';
+				}
 				return d;
+			} else {
+				return '';
 			}
 		} catch (error) {
 			return '';
@@ -318,9 +360,7 @@ export default function PersonalDetailsPage({
 		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
 	);
 
-	const ButtonConfirm = (
-		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
-	);
+	const ButtonConfirm = <Button fill name='Proceed' onClick={validateForm} />;
 
 	let displayProceedButton = ButtonProceed;
 
@@ -352,11 +392,7 @@ export default function PersonalDetailsPage({
 						prefilledValues()?.lastName ||
 						(getDataFromPan() && getDataFromPan()[1]) ||
 						'',
-					dob:
-						getDOB() ||
-						JSON.parse(sessionStorage.getItem('formstatepan'))?.values?.dob ||
-						prefilledValues()?.dob ||
-						'',
+					dob: getDOB() || prefilledValues()?.dob || '',
 					email: prefilledValues()?.email || '',
 					mobileNo: prefilledValues()?.mobileNum || '',
 					panNumber:
@@ -367,6 +403,7 @@ export default function PersonalDetailsPage({
 						'',
 					residenceStatus: prefilledValues()?.residentTypess || '',
 					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
+					aadhaarUnMasked: getAdharUnMasked(),
 					countryResidence: prefilledValues()?.countryResidence || 'india',
 					incomeType: prefilledValues()?.incomeType || '',
 					...form,
