@@ -17,7 +17,7 @@ import {
 
 export default function useCaseCreation(userType, productId, role) {
 	const {
-		state: { userId, userToken },
+		state: { userToken },
 	} = useContext(UserContext);
 
 	const { state } = useContext(FormContext);

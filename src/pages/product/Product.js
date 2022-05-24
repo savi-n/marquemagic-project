@@ -8,7 +8,6 @@ import { AppContext } from '../../reducer/appReducer';
 import { FlowContext } from '../../reducer/flowReducer';
 import { FormContext } from '../../reducer/formReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
-import CheckBox from '../../shared/components/Checkbox/CheckBox';
 import ContinueModal from '../../components/modals/ContinueModal';
 import Router from './Router';
 import { UserContext } from '../../reducer/userReducer';
@@ -60,20 +59,6 @@ const Colom2 = styled.div`
 	@media (max-width: 700px) {
 		/* z-index: 2; */
 		padding: 0 50px;
-	}
-`;
-
-const Head = styled.h4`
-	border: ${({ active }) => (active ? '1px solid' : 'none')};
-	border-radius: 10px;
-	padding: 10px 20px;
-	margin: 5px 0;
-	font-size: 20px;
-	font-weight: 500;
-
-	span {
-		font-size: 14px;
-		font-weight: 400;
 	}
 `;
 
@@ -237,6 +222,7 @@ export default function Product({ product, url }) {
 			configure(response.data?.product_details?.flow);
 			sessionStorage.setItem('productId', atob(product));
 		}
+		// eslint-disable-next-line
 	}, [response]);
 
 	useEffect(() => {
@@ -246,6 +232,7 @@ export default function Product({ product, url }) {
 			onFlowChange(flowMap?.[flow]?.main);
 			steps.map(ele => {
 				setCompleted(ele);
+				return null;
 			});
 			// console.log('Product-useeffect-flowmap-', {
 			// 	index,
@@ -254,6 +241,7 @@ export default function Product({ product, url }) {
 			// });
 			setIndex(index);
 		}
+		// eslint-disable-next-line
 	}, [flowMap]);
 
 	useEffect(() => {
@@ -262,6 +250,7 @@ export default function Product({ product, url }) {
 			clearFormData();
 		}
 		completedMenu?.length > 0 && setIndex(completedMenu.length);
+		// eslint-disable-next-line
 	}, []);
 
 	// useEffect(() => {

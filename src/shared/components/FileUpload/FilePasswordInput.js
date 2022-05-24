@@ -67,22 +67,6 @@ const Button = styled.button`
 	background: white;
 `;
 
-const CancelBtn = styled.span`
-	background: #f16a6a;
-	border-radius: 50%;
-	width: 20px;
-	height: 20px;
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 11px;
-	font-weight: 700;
-	cursor: pointer;
-	/* align-self: center; */
-	margin-left: 10px;
-`;
-
 const ImgClose = styled.img`
 	height: 25px;
 	cursor: pointer;

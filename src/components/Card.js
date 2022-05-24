@@ -77,21 +77,13 @@ const ProductName = styled.div`
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const {
-		state: {
-			completed: completedMenu,
-			activeSubFlow: subFlowMenu,
-			flowMap,
-			basePageUrl,
-			currentFlow,
-			productId,
-		},
-		actions: { configure, setCurrentFlow, clearFlowDetails, setCompleted },
+		state: { basePageUrl },
+		actions: { clearFlowDetails },
 	} = useContext(FlowContext);
 	const {
-		actions: { clearFormData, setUsertypeAfterRefresh },
+		actions: { clearFormData },
 	} = useContext(FormContext);
 	const {
-		state: { timestamp },
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
 

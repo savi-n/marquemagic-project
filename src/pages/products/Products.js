@@ -16,7 +16,6 @@ import Modal from '../../components/Modal';
 import Button from 'components/Button';
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
 import imgEditIcon from 'assets/icons/edit-icon.png';
-import Loader from 'Branch/components/Loader';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -78,14 +77,6 @@ const StatusInputBox = styled.div`
 	}
 `;
 
-const SectionLoanStatus = styled.section`
-	@media (max-width: 700px) {
-		margin: 0;
-		padding: 30px;
-		width: 100%;
-	}
-`;
-
 const DivAdd = styled.div`
 	gap: 40px 0;
 	padding: 20px 0 20px 0;
@@ -100,20 +91,6 @@ const DivAdd = styled.div`
 	/* gap: calc(12% / 3); */
 `;
 
-const Add = styled.div`
-	color: ${({ theme }) => theme.main_theme_color};
-	border-radius: 50px;
-	padding: 20px;
-	width: calc(100% / 5);
-	font-size: 30px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	gap: 10px;
-	cursor: pointer;
-	font-weight: 100;
-`;
 const AddProductBox = styled.div`
 	display: flex;
 	justify-content: center;
@@ -323,13 +300,10 @@ export default function Products() {
 	});
 	const history = useHistory();
 	const [addedProduct, setAddedProduct] = useState(null);
-
 	const [searching, setSearching] = useState(false);
 	const [refstatus, setRefstatus] = useState('');
 	const { addToast } = useToasts();
-	const [status, setStatus] = useState(null);
 	const [loanList, setLoanList] = useState([]);
-	const [statusList, setStatusList] = useState([]);
 	const [primaryStatusList, setPrimaryStatusList] = useState([]);
 	const [modalOTP, setModalOTP] = useState(false);
 	const [modalOTPData, setModalOTPData] = useState({});

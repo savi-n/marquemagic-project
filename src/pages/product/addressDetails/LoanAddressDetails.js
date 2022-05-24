@@ -10,7 +10,6 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import { useEffect } from 'react';
-import useFetch from '../../../hooks/useFetch';
 
 const Div = styled.div`
 	flex: 1;
@@ -25,18 +24,6 @@ const ButtonWrap = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 20px;
-`;
-
-const DivWrap = styled.div`
-	margin-left: auto;
-	display: flex;
-	align-items: center;
-	gap: 20px;
-`;
-
-const Question = styled.div`
-	font-weight: 500;
-	color: blue;
 `;
 
 const formatData = (type, data, fields) => {
@@ -104,7 +91,7 @@ export default function AddressDetailsPage({
 	productDetails,
 	productId,
 }) {
-	const { newRequest } = useFetch();
+	// const { newRequest } = useFetch();
 	const url = window.location.hostname;
 
 	let userTokensss = sessionStorage.getItem(url);
@@ -112,7 +99,7 @@ export default function AddressDetailsPage({
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness = productDetails.loan_request_type === 1 ? true : false;
 	const {
-		actions: { setCompleted, activateSubFlow },
+		actions: { setCompleted },
 	} = useContext(FlowContext);
 
 	const {
@@ -126,7 +113,7 @@ export default function AddressDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 
-	const [saved, setSaved] = useState(false);
+	//const [saved, setSaved] = useState(false);
 	const [match, setMatch] = useState(false);
 
 	const onSave = formData => {
@@ -136,7 +123,7 @@ export default function AddressDetailsPage({
 			formatedData.push(formatData('present', formData, map.fields[id].data));
 
 		setUsertypeAddressData(formatedData);
-		setSaved(true);
+		//setSaved(true);
 		addToast({
 			message: 'Saved Succesfully',
 			type: 'success',
@@ -159,21 +146,25 @@ export default function AddressDetailsPage({
 	//     activateSubFlow(id);
 	//     onFlowChange(map.sub);
 	//   };
-	useEffect(async () => {
-		!isBusiness &&
-			form &&
-			form.address &&
-			form.address.length === 1 &&
-			setMatch(true);
-		if (form && form.address && form.address[0]) {
-			// if formdata have address that allready saved details
-		} else {
-			let lengthAddress =
-				editLoanData && formatAddressData(editLoanData.business_address);
-			if (lengthAddress?.length === 1) {
+	useEffect(() => {
+		const getData = async () => {
+			!isBusiness &&
+				form &&
+				form.address &&
+				form.address.length === 1 &&
 				setMatch(true);
+			if (form && form.address && form.address[0]) {
+				// if formdata have address that allready saved details
+			} else {
+				let lengthAddress =
+					editLoanData && formatAddressData(editLoanData.business_address);
+				if (lengthAddress?.length === 1) {
+					setMatch(true);
+				}
 			}
-		}
+		};
+		getData();
+		// eslint-disable-next-line
 	}, []);
 
 	const prefilledValues = () => {

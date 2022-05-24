@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-
 import Modal from './Modal';
-import useForm from '../hooks/useForm';
 import Button from './Button';
 
 const Wrapper = styled.div`
@@ -23,9 +21,9 @@ const Company = styled.div`
 	}
 `;
 
-const FieldWrapper = styled.div`
-	width: 80%;
-`;
+// const FieldWrapper = styled.div`
+// 	width: 80%;
+// `;
 
 export default function CompanySelectModal({
 	companyList,
@@ -36,9 +34,9 @@ export default function CompanySelectModal({
 	companyName,
 	formState,
 }) {
-	const [loading, setLoaidng] = useState(false);
+	const [loading] = useState(false);
 
-	const { register } = useForm();
+	//const { register } = useForm();
 	const [company, setCompany] = useState(formState?.values?.companyName);
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>

@@ -32,13 +32,6 @@ const Colom = styled.div`
 	flex-wrap: wrap;
 `;
 
-const Caption = styled.h3`
-	width: 100%;
-	font-weight: 500;
-	display: flex;
-	justify-content: space-between;
-`;
-
 const ErrorMessage = styled.div`
 	color: red;
 	text-align: center;

@@ -205,6 +205,7 @@ export default function PersonalDetails({
 		if (sessionStorage.getItem('aadhaar_otp_res')) {
 			setIsVerifyWithOtpDisabled(true);
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -240,6 +241,7 @@ export default function PersonalDetails({
 			!isMobilePresent && jsonData.push(mo);
 			!isEmailPresent && jsonData.push(email);
 		}
+		// eslint-disable-next-line
 	}, [pageName]);
 
 	const onSubFieldButtonClick = async () => {
