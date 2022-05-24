@@ -6,7 +6,7 @@
 		"pkief.material-icon-theme",
 		"dsznajder.es7-react-js-snippets",
 		"mikestead.dotenv",
-		"coenraads.bracket-pair-colorizer-2",
-		"jpoissonnier.vscode-styled-components"
+		"styled-components.vscode-styled-components",
+		"Gruntfuggly.todo-tree"
 	]
 }

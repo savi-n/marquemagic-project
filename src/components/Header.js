@@ -9,9 +9,9 @@ import { API_END_POINT } from '_config/app.config';
 import axios from 'axios';
 import { decryptRes } from 'utils/encrypt';
 
-const Div = styled.div`
-	margin-left: auto;
-`;
+// const Div = styled.div`
+// 	margin-left: auto;
+// `;
 
 const Logo = styled.img`
 	width: 200px;

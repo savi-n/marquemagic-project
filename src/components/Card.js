@@ -7,6 +7,8 @@ import { FlowContext } from '../reducer/flowReducer';
 import { FormContext } from '../reducer/formReducer';
 import { useContext } from 'react';
 import { UserContext } from '../reducer/userReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+
 const Wrapper = styled.div`
 
   width: 25%;
@@ -75,23 +77,19 @@ const ProductName = styled.div`
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const {
-		state: {
-			completed: completedMenu,
-			activeSubFlow: subFlowMenu,
-			flowMap,
-			basePageUrl,
-			currentFlow,
-			productId,
-		},
-		actions: { configure, setCurrentFlow, clearFlowDetails, setCompleted },
+		state: { basePageUrl },
+		actions: { clearFlowDetails },
 	} = useContext(FlowContext);
 	const {
-		actions: { clearFormData, setUsertypeAfterRefresh },
+		actions: { clearFormData },
 	} = useContext(FormContext);
 	const {
-		state: { timestamp },
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
+
+	const {
+		actions: { removeAllDocuments },
+	} = useContext(LoanFormContext);
 
 	const history = useHistory();
 
@@ -120,6 +118,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						clearFlowDetails(basePageUrl);
 						clearFormData();
 						resetUserDetails();
+						removeAllDocuments();
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
 					}}>

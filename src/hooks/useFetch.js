@@ -50,6 +50,7 @@ export default function useFetch({
 		return () => {
 			source.cancel('axios request cancelled');
 		};
+		// eslint-disable-next-line
 	}, []);
 	return { response, error, loading, newRequest };
 }

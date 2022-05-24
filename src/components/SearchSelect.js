@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import useClickOutside from '../hooks/useOutsideClick';
 import debounceFunction from '../utils/debounce';
-import { style } from 'dom-helpers';
+// import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -147,6 +147,7 @@ export default function SearchSelect({
 			onOptionSelect(null, { name: field.placeholder, value: field.value });
 			// })();
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -168,6 +169,7 @@ export default function SearchSelect({
 		) {
 			fetchOption();
 		}
+		// eslint-disable-next-line
 	}, [fetchOptionsFunc]);
 
 	const onOptionSelect = (e, option) => {

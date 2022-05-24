@@ -1,6 +1,7 @@
-// globalStyles.js
-import { createGlobalStyle } from "styled-components";
-import font1 from "../../assets/fonts/OpenSans-Regular.ttf";
+// globalStyles.js - Global styling used in AppLayout.jsonData
+
+import { createGlobalStyle } from 'styled-components';
+import font1 from '../../assets/fonts/OpenSans-Regular.ttf';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {

@@ -109,6 +109,22 @@ export default function PersonalDetails({
 
 	const { addToast } = useToasts();
 
+	const arrPricePerAcer = [0, 0, 0];
+	const arrTotalValueCultivated = [0, 0, 0];
+	const numberVar = ['1', '2', '3'];
+
+	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
+	const [generateOtpResponse, setGenerateOtpResponse] = useState('');
+	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
+	// const aadhaar = '';
+	let aadhaar =
+		formState?.values?.aadhaar || sessionStorage.getItem('aadhar') || '';
+	// let aadhaar = formState?.values?.aadhaar || '';
+
+	if (aadhaar.includes('x') || aadhaar.includes('X')) {
+		aadhaar = preData.aadhaarUnMasked;
+	}
+
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -122,6 +138,7 @@ export default function PersonalDetails({
 		// 	? companyDetail?.[field.name]
 		// 	:
 	};
+
 	const getHomeBranchOption = async () => {
 		const opitionalDataReq = await newRequest(
 			SEARCH_BANK_BRANCH_LIST({ bankId }),
@@ -141,10 +158,13 @@ export default function PersonalDetails({
 				.sort((a, b) => a.name.localeCompare(b.name));
 		}
 	};
+
 	useEffect(() => {
 		jsonData.map(field => {
 			if (field.name === 'dob') {
 				field.placeholder = 'Date of Birth';
+			}
+			if (field.name === 'aadhar') {
 			}
 			return null;
 		});
@@ -182,8 +202,10 @@ export default function PersonalDetails({
 			!isEmailPresent && jsonData.push(email);
 		}
 
-		if (sessionStorage.getItem('aadhaar_otp_res'))
+		if (sessionStorage.getItem('aadhaar_otp_res')) {
 			setIsVerifyWithOtpDisabled(true);
+		}
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -219,23 +241,10 @@ export default function PersonalDetails({
 			!isMobilePresent && jsonData.push(mo);
 			!isEmailPresent && jsonData.push(email);
 		}
+		// eslint-disable-next-line
 	}, [pageName]);
 
-	const arrPricePerAcer = [0, 0, 0];
-	const arrTotalValueCultivated = [0, 0, 0];
-	const numberVar = ['1', '2', '3'];
-
-	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
-	const [generateOtpResponse, setGenerateOtpResponse] = useState('');
-	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
-	// const aadhaar = '';
-	let aadhaar =
-		formState?.values?.aadhaar || sessionStorage.getItem('aadhar') || '';
-	// let aadhaar = formState?.values?.aadhaar || '';
-	if (aadhaar.includes('x') || aadhaar.includes('X')) {
-		aadhaar = preData.aadhaarUnMasked;
-	}
-	const onOTPClick = async () => {
+	const onSubFieldButtonClick = async () => {
 		if (!aadhaar) {
 			return addToast({
 				message: 'Please enter aadhaar number',
@@ -293,7 +302,9 @@ export default function PersonalDetails({
 			});
 		}
 	};
+
 	// console.log('PersonalDetails-PreData-', preData);
+
 	return (
 		<>
 			{isAadhaarOtpModalOpen && (
@@ -477,9 +488,7 @@ export default function PersonalDetails({
 																disabled={isVerifyWithOtpDisabled}
 																type='submit'
 																customStyle={{ whiteSpace: 'nowrap' }}
-																onClick={() => {
-																	onOTPClick();
-																}}
+																onClick={onSubFieldButtonClick}
 															/>
 														);
 													} else return null;

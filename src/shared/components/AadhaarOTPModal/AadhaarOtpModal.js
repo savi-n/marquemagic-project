@@ -72,8 +72,8 @@ const AadhaarOTPModal = props => {
 		setIsAadhaarOtpModalOpen,
 		aadhaarGenOtpResponse,
 		setIsVerifyWithOtpDisabled,
-		toggle,
-		ButtonProceed,
+		// toggle,
+		// ButtonProceed,
 		// type = 'income',
 	} = props;
 	const { addToast } = useToasts();
