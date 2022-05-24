@@ -55,6 +55,7 @@ const TypeStyle = styled.span`
 export default function Toast({ message, type }) {
 	return (
 		<ToastElement>
+			{/* code commented and implemented new logic with icon */}
 			{/* <ToastIcon
 				type={type}
 				dangerouslySetInnerHTML={{
