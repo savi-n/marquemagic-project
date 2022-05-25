@@ -170,6 +170,28 @@ export default function AddressDetailsPage({
 	const prefilledValues = () => {
 		try {
 			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
+			const aadhaarOtpRes = JSON.parse(
+				sessionStorage.getItem('aadhaar_otp_res')
+			);
+			if (aadhaarOtpRes) {
+				const newAddress1 = [];
+				if (aadhaarOtpRes?.data?.address?.house)
+					newAddress1.push(aadhaarOtpRes?.data?.address?.house || '');
+				if (aadhaarOtpRes?.data?.address?.street)
+					newAddress1.push(aadhaarOtpRes?.data?.address?.street || '');
+				if (aadhaarOtpRes?.data?.address?.loc)
+					newAddress1.push(aadhaarOtpRes?.data?.address?.loc || '');
+				if (aadhaarOtpRes?.data?.address?.vtc)
+					newAddress1.push(aadhaarOtpRes?.data?.address?.vtc || '');
+				if (aadhaarOtpRes?.data?.address?.subdist)
+					newAddress1.push(aadhaarOtpRes?.data?.address?.subdist || '');
+				formStat.values.address1 = newAddress1.join(', ');
+				formStat.values.address2 = aadhaarOtpRes?.data?.address?.landmark || '';
+				formStat.values.address3 = aadhaarOtpRes?.data?.address?.po || '';
+				formStat.values.pin = aadhaarOtpRes?.data?.address?.pc || '';
+				formStat.values.city = aadhaarOtpRes?.data?.address?.dist || '';
+				formStat.values.state = aadhaarOtpRes?.data?.address?.state || '';
+			}
 			return formStat?.values;
 		} catch (error) {
 			console.log('error-LoanAddressDetails-prefilledValues-', error);
