@@ -178,6 +178,7 @@ export default function PersonalDetailsPage({
 			) {
 				return addToast({
 					message: 'Please verify your Aadhaar with OTP',
+
 					type: 'error',
 				});
 			}

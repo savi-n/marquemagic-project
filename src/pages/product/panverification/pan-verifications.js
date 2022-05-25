@@ -30,6 +30,7 @@ import {
 	gstFetch,
 	getKYCDataId,
 } from '../../../utils/request';
+import RedError from 'assets/icons/Red_error_icon.png';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -69,6 +70,11 @@ const H2 = styled.h2`
 	width: 50%;
 	text-align: center;
 	font-weight: 500;
+`;
+const ImgStyle = styled.img`
+	width: 26px;
+	display: inline-block;
+	margin-right: 10px;
 `;
 
 const NotificationImg = styled.img`
