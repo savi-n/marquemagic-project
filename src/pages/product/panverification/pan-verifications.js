@@ -28,6 +28,7 @@ import {
 	gstFetch,
 	getKYCDataId,
 } from '../../../utils/request';
+import RedError from 'assets/icons/Red_error_icon.png';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -67,6 +68,11 @@ const H2 = styled.h2`
 	width: 50%;
 	text-align: center;
 	font-weight: 500;
+`;
+const ImgStyle = styled.img`
+	width: 26px;
+	display: inline-block;
+	margin-right: 10px;
 `;
 
 const businessTypeMaps = [
@@ -1022,6 +1028,8 @@ export default function PanVerification({
 							/>
 							{panError && (
 								<p style={{ color: 'red', marginTop: '-35px' }}>
+									{' '}
+									<ImgStyle src={RedError} alt='error' />
 									{panError}
 									{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 								</p>
@@ -1080,6 +1088,8 @@ export default function PanVerification({
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
+											{' '}
+											<ImgStyle src={RedError} alt='error' />
 											{dlError}
 										</p>
 									)}
@@ -1122,6 +1132,8 @@ export default function PanVerification({
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
+											{' '}
+											<ImgStyle src={RedError} alt='error' />
 											{aadharError}
 										</p>
 									)}
@@ -1164,6 +1176,8 @@ export default function PanVerification({
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
+											{' '}
+											<ImgStyle src={RedError} alt='error' />
 											{voterError}
 										</p>
 									)}

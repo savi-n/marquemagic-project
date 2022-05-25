@@ -9,6 +9,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import { AADHAAR_VERIFY_OTP, AADHAAR_RESEND_OTP } from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
+import RedError from 'assets/icons/Red_error_icon.png';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -55,6 +56,11 @@ const ModalResentOtp = styled.div`
 	font-size: 11px;
 `;
 
+const ImgStyle = styled.img`
+	width: 26px;
+	display: inline-block;
+	margin-right: 10px;
+`;
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
@@ -251,8 +257,14 @@ const AadhaarOTPModal = props => {
 						{' '}
 						RESEND OTP {resendOtpTimer > 0 ? `IN ${resendOtpTimer}` : null}
 					</strong>
-				</ModalResentOtp>
-				{errorMsg && <ModalErrorMessage>{errorMsg}</ModalErrorMessage>}
+				</ModalResentOtp>{' '}
+				{errorMsg && (
+					<ModalErrorMessage>
+						{' '}
+						<ImgStyle src={RedError} alt='error' />
+						{errorMsg}
+					</ModalErrorMessage>
+				)}
 			</ModalBody>
 
 			<ModalFooter>
