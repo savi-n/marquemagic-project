@@ -12,6 +12,8 @@ import CompanySelectModal from '../../../components/CompanySelectModal';
 import FileUpload from '../../../shared/components/FileUpload/FileUpload';
 import Button from '../../../components/Button';
 import Modal from '../../../components/Modal';
+import WarnIcon from 'assets/icons/amber_warning_icon.png';
+import ErrorIcon from 'assets/icons/Red_error_icon.png';
 import {
 	ROC_DATA_FETCH,
 	LOGIN_CREATEUSER,
@@ -73,6 +75,12 @@ const ImgStyle = styled.img`
 	width: 26px;
 	display: inline-block;
 	margin-right: 10px;
+`;
+
+const NotificationImg = styled.img`
+	margin-right: 8px;
+	width: 33px;
+	display: inline-block;
 `;
 
 const businessTypeMaps = [
@@ -241,6 +249,8 @@ export default function PanVerification({
 	const [backUploading, setBackUploading] = useState(false);
 	const [disableButton, setDisableSubmit] = useState(false);
 	const [panFileId, setPanFileId] = useState(null);
+	const [isError, setIsError] = useState(false);
+	const [isWarning, setIsWarning] = useState(false);
 
 	// const userid = '10626';
 
@@ -439,26 +449,27 @@ export default function PanVerification({
 		setPanFile(newFiles);
 		setDisableSubmit(false);
 		resetAllErrors();
+		setIsError(false);
 	};
 
 	const resetAllErrors = () => {
+		setPanError('');
 		setDLError('');
 		setAadharError('');
 		setVoterError('');
+		setIsError(false);
+		setIsWarning(false);
 	};
 
 	useEffect(() => {
 		sessionStorage.removeItem('product');
-		// console.log('pan-verifications-useEFfect-removealldocuments-');
+
 		// removeAllDocuments();
 		// eslint-disable-next-line
 	}, []);
 
 	const removeHandler = (e, doc, name) => {
-		// console.log('state', state.documents);
-		// console.log('remveddd', e, typeof e);
 		setBackUploading(false);
-		setPanError('');
 		resetAllErrors();
 		if (name) {
 			if (name === 'DL') {
@@ -484,102 +495,6 @@ export default function PanVerification({
 		setFile(file);
 		fileRef.current = file;
 		setPanFile([]);
-	};
-
-	const handlePanUpload = files => {
-		setLoading(true);
-		const formData = new FormData();
-		formData.append('product_id', product_id);
-		formData.append('req_type', 'pan');
-		formData.append('process_type', 'extraction');
-		formData.append('document', files);
-
-		getKYCData(formData, clientToken)
-			.then(res => {
-				if (res.data.status === 'nok') {
-					// setPanConfirm(true);
-					// setBusiness(false);
-					setPanError(res.data.message);
-					// addToast({
-					// 	message: res.data.message,
-					// 	type: 'error',
-					// });
-				} else {
-					//****** setting file in docs for this loan -- loanContext
-					// setPanDocDetails(res.data.doc_details);
-					const file1 = {
-						document_key: res.data.s3.fd,
-						id: Math.random()
-							.toString(36)
-							.replace(/[^a-z]+/g, '')
-							.substr(0, 6),
-						mainType: 'KYC',
-						size: res.data.s3.size,
-						type: 'pan',
-						req_type: 'pan', // requires for mapping with JSON
-						requestId: res.data.request_id,
-						upload_doc_name: res.data.s3.filename,
-						isDocRemoveAllowed: true,
-					};
-					setPanFileId(file1.id);
-					setLoanDocuments([file1]);
-					// this ends here
-
-					setPan(res.data.data['Pan_number']);
-					sessionStorage.setItem('pan', res.data.data['Pan_number']);
-					formState.values.panNumber = res.data.data['Pan_number'];
-					formState.values.responseId = res?.data?.data?.id;
-					formState.values.companyName = res.data.data['Name'];
-					formState.values.dob = res.data.data['DOB'];
-					sessionStorage.getItem('DOB', res.data.data['DOB']);
-					sessionStorage.setItem('formstatepan', JSON.stringify(formState));
-					if (productType === 'business') {
-						if (
-							!(
-								res.data.data['Name']
-									.toLowerCase()
-									.includes('private limited') ||
-								res.data.data['Name']
-									.toLowerCase()
-									.includes('public limited') ||
-								res.data.data['Name'].toLowerCase().includes('limited') ||
-								res.data.data['Name'].toLowerCase().includes('pvt ltd') ||
-								res.data.data['Name'].toLowerCase().includes('private')
-							)
-						) {
-							setBusiness(false);
-							setPanUpload(false);
-						} else {
-							onSubmit(formState);
-						}
-					}
-					if (productType === 'salaried') {
-						const name =
-							res.data?.data?.name?.split(' ') ||
-							res.data?.data?.Name?.split(' ');
-						if (name) {
-							formState.values.firstName = name[0];
-							formState.values.lastName = name[1];
-						}
-						setPanConfirm(true);
-					}
-					//setPanResponse(res.data);
-				}
-				setLoading(false);
-				setFile([]);
-				fileRef.current = [];
-			})
-			.catch(err => {
-				console.log(err);
-				setPanConfirm(true);
-				setBusiness(false);
-
-				addToast({
-					message: err.message,
-					type: 'error',
-				});
-				setLoading(false);
-			});
 	};
 
 	const onSubmit = async ({
@@ -779,201 +694,388 @@ export default function PanVerification({
 			setBackUpload(true);
 	}, [otherDoc, aadhar, voter, backUploading]);
 
-	const handleUpload = files => {
-		// console.log('here');
-		setLoading(true);
-		const fileType = getFileType();
-		resetAllErrors();
-		if (file.length > 1) {
-			// console.log('extract 2 image front and back');
-			const formData1 = new FormData();
-			formData1.append('product_id', product_id);
-			formData1.append('req_type', fileType);
-			formData1.append('process_type', 'extraction');
-			formData1.append('document', file[1].file);
-
-			getKYCData(formData1, clientToken).then(re => {
-				if (re.data.status === 'nok') {
-					setDLAadharVoterError(re.data.message);
-				} else {
-					//****** setting file in docs for this loan -- loanContext
-					// setOtherDocDetails(re.data.doc_details);
-					const myfile = {
-						document_key: re.data.s3.fd,
-						id: Math.random()
-							.toString(36)
-							.replace(/[^a-z]+/g, '')
-							.substr(0, 6),
-						mainType: 'KYC',
-						size: re.data.s3.size,
-						type: 'other',
-						req_type: fileType, // requires for mapping with JSON
-						requestId: re.data.request_id,
-						upload_doc_name: re.data.s3.filename,
-						isDocRemoveAllowed: true,
-					};
-
-					setLoanDocuments([myfile]);
-					// this ends here
-
-					const formData2 = new FormData();
-					formData1.append('product_id', product_id);
-					formData2.append('req_type', fileType);
-					formData2.append('process_type', 'extraction');
-					formData2.append('document', file[0].file);
-					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
-						if (res.data.status === 'nok') {
-							setDLAadharVoterError(res.data.message);
-						} else {
-							//****** setting file in docs for this loan -- loanContext
-
-							// re.data.doc_type_id = '31';
-							const myfile2 = {
-								document_key: res.data.s3.fd,
-								id: Math.random()
-									.toString(36)
-									.replace(/[^a-z]+/g, '')
-									.substr(0, 6),
-								mainType: 'KYC',
-								size: res.data.s3.size,
-								type: 'other',
-								req_type: fileType,
-								requestId: res.data.request_id,
-								upload_doc_name: res.data.s3.filename,
-								isDocRemoveAllowed: true,
-							};
-
-							setLoanDocuments([myfile2]);
-							// this ends here
-
-							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
-								/\s/g,
-								''
-							).split('');
-							formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
-							const t = aadharNum
-								? '00000000' + aadharNum?.splice(8, 4).join('')
-								: '';
-							const name =
-								res.data?.data?.name?.split(' ') ||
-								res.data?.data?.Name?.split(' ');
-							formState.values.aadhaar = t;
-							sessionStorage.setItem('aadhar', t);
-							formState.values.dob = res?.data?.data?.DOB;
-							let firstName = [...name];
-							firstName.pop();
-							formState.values.firstName = firstName.join(' ');
-							formState.values.lastName = name[name.length - 1];
-							formState.values.dob =
-								res?.data?.data?.DOB || res?.data?.data?.dob;
-							formState.values.dl_no = res.data?.data?.dl_no;
-							formState.values.address1 =
-								res.data?.data?.address || res?.data?.data?.Address;
-							let address = formState.values.address1;
-
-							var pinCode = res?.data?.data?.pincode;
-
-							if (address) {
-								let locationArr = address && address?.split(' ');
-								let y = locationArr?.map(e => isNaN(!Number(e)) && e);
-								let pin;
-								y.map(e => {
-									if (e?.length === 6) pin = e;
-									return null;
-								});
-
-								formState.values.pin = pinCode || pin;
-							}
-
-							sessionStorage.setItem('formstate', JSON.stringify(formState));
-							emptyDoc();
-							onProceed();
-						}
-						setLoading(false);
-					});
-				}
-			});
-		} else {
-			// console.log('extract 1 image only front');
+	// Pancard upload handle function
+	const handlePanUpload = async files => {
+		try {
+			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', product_id);
-			formData.append('req_type', fileType);
+			formData.append('req_type', 'pan');
 			formData.append('process_type', 'extraction');
 			formData.append('document', files);
 
-			getKYCData(formData, clientToken).then(res => {
-				if (res.data.status === 'nok') {
-					setDLAadharVoterError(res.data.message);
-				} else {
-					// data ---> extractionData
-					// ref_id: pass the id from the first doc response
-					// combine data
-					//****** setting file in docs for this loan -- loanContext
-					// setOtherDocDetails(res.data.doc_details);
-					// res.data.doc_type_id = '31';
-					const file2 = {
-						document_key: res.data.s3.fd,
-						id: Math.random()
-							.toString(36)
-							.replace(/[^a-z]+/g, '')
-							.substr(0, 6),
-						mainType: 'KYC',
-						size: res.data.s3.size,
-						type: 'other',
-						req_type: fileType,
-						requestId: res.data.request_id,
-						upload_doc_name: res.data.s3.filename,
-						isDocRemoveAllowed: true,
-					};
-
-					setLoanDocuments([file2]);
-					// this ends here
-
-					const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
-						/\s/g,
-						''
-					).split('');
-					formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
-					const t = aadharNum
-						? '00000000' + aadharNum?.splice(8, 4).join('')
-						: '';
-					const name =
-						res.data?.data?.name?.split(' ') ||
-						res.data?.data?.Name?.split(' ');
-					formState.values.aadhaar = t;
-					sessionStorage.setItem('aadhar', t);
-					formState.values.dob = res?.data?.data?.DOB;
-					let fName = [...name];
-					fName.pop();
-					formState.values.firstName = fName.join(' ');
-					formState.values.lastName = name[name.length - 1];
-
-					formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
-					formState.values.dl_no = res.data?.data?.dl_no;
-					formState.values.address1 =
-						res.data?.data?.address || res?.data?.data?.Address;
-					let address = formState.values.address1;
-
-					var pinCode = res?.data?.data?.pincode;
-
-					if (address) {
-						let locationArr = address && address?.split(' ');
-						let y = locationArr?.map(e => isNaN(!Number(e)) && e);
-						let pin;
-						y.map(e => {
-							if (e?.length === 6) pin = e;
-							return null;
-						});
-
-						formState.values.pin = pinCode || pin;
-					}
-
-					sessionStorage.setItem('formstate', JSON.stringify(formState));
-					emptyDoc();
-					onProceed();
-				}
+			const panExtractionRes = await getKYCData(formData, clientToken);
+			const panExtractionStatus = panExtractionRes?.data?.status || '';
+			const panExtractionMsg = panExtractionRes?.data?.message || '';
+			const panForensicRes = panExtractionRes?.forensicData || {};
+			const panForensicFlag = panForensicRes?.flag || '';
+			const panForensicFlagMsg = panForensicRes?.flag_message || '';
+			if (panExtractionStatus === 'nok') {
+				// setPanConfirm(true);
+				// setBusiness(false);
+				setIsError(true);
+				setPanError(panExtractionMsg);
 				setLoading(false);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (panForensicFlag === 'error') {
+				setIsError(true);
+				setPanError(panForensicFlagMsg);
+				setLoading(false);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (panForensicFlag === 'warning') {
+				setIsWarning(true);
+				setPanError(panForensicFlagMsg);
+				// CONTINUE EXECUTION
+			}
+			const file1 = {
+				document_key: panExtractionRes?.data.s3.fd,
+				id: Math.random()
+					.toString(36)
+					.replace(/[^a-z]+/g, '')
+					.substr(0, 6),
+				mainType: 'KYC',
+				size: panExtractionRes?.data.s3.size,
+				type: 'pan',
+				req_type: 'pan', // requires for mapping with JSON
+				requestId: panExtractionRes?.data.request_id,
+				upload_doc_name: panExtractionRes?.data.s3.filename,
+				src: 'start',
+			};
+			setPanFileId(file1.id);
+			setLoanDocuments([file1]);
+			// this ends here
+
+			setPan(panExtractionRes?.data.data['Pan_number']);
+			sessionStorage.setItem('pan', panExtractionRes?.data.data['Pan_number']);
+			formState.values.panNumber = panExtractionRes?.data.data['Pan_number'];
+			formState.values.responseId = panExtractionRes?.data?.data?.id;
+			formState.values.companyName = panExtractionRes?.data.data['Name'];
+			formState.values.dob = panExtractionRes?.data.data['DOB'];
+			sessionStorage.getItem('DOB', panExtractionRes?.data.data['DOB']);
+			sessionStorage.setItem('formstatepan', JSON.stringify(formState));
+			if (productType === 'business') {
+				if (
+					!(
+						panExtractionRes?.data.data['Name']
+							.toLowerCase()
+							.includes('private limited') ||
+						panExtractionRes?.data.data['Name']
+							.toLowerCase()
+							.includes('public limited') ||
+						panExtractionRes?.data.data['Name']
+							.toLowerCase()
+							.includes('limited') ||
+						panExtractionRes?.data.data['Name']
+							.toLowerCase()
+							.includes('pvt ltd') ||
+						panExtractionRes?.data.data['Name']
+							.toLowerCase()
+							.includes('private')
+					)
+				) {
+					setBusiness(false);
+					if (panForensicFlag !== 'warning') setPanUpload(false);
+				} else {
+					onSubmit(formState);
+				}
+			}
+			if (productType === 'salaried') {
+				const name =
+					panExtractionRes?.data?.data?.name?.split(' ') ||
+					panExtractionRes?.data?.data?.Name?.split(' ');
+				if (name) {
+					formState.values.firstName = name[0];
+					formState.values.lastName = name[1];
+				}
+				if (panForensicFlag !== 'warning') setPanConfirm(true);
+			}
+			setLoading(false);
+			setFile([]);
+			fileRef.current = [];
+		} catch (error) {
+			console.error('error-pan-verification-handlePanUpload-', error);
+			setPanConfirm(true);
+			setBusiness(false);
+			addToast({
+				message: error.message,
+				type: 'error',
 			});
+			setLoading(false);
+		}
+	};
+
+	// Address proof upload handle function
+	// DL Aadhaar VoterID
+	const handleUpload = async files => {
+		try {
+			setLoading(true);
+			const fileType = getFileType();
+			resetAllErrors();
+
+			if (file.length > 2) {
+				addToast({
+					message: 'Max 2 doucment is allowed',
+					type: 'error',
+				});
+				setLoading(false);
+				return;
+			}
+
+			if (file.length > 1) {
+				// Front and Back Image
+				const frontFormData = new FormData();
+				frontFormData.append('product_id', product_id);
+				frontFormData.append('req_type', fileType);
+				frontFormData.append('process_type', 'extraction');
+				frontFormData.append('document', file[1].file);
+
+				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
+				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
+				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
+				const frontForensicRes = frontExtractionRes?.forensicData || {};
+				const frontForensicFlag = frontForensicRes?.flag || '';
+				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
+
+				if (frontExtractionStatus === 'nok') {
+					setIsError(true);
+					setDLAadharVoterError(frontExtractionMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'error') {
+					setIsError(true);
+					setDLAadharVoterError(frontForensicFlagMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'warning') {
+					setIsWarning(true);
+					setDLAadharVoterError(frontForensicFlagMsg);
+					// CONTINUE EXECUTION
+				}
+
+				const frontFile = {
+					document_key: frontExtractionRes?.data?.s3?.fd,
+					id: Math.random()
+						.toString(36)
+						.replace(/[^a-z]+/g, '')
+						.substr(0, 6),
+					mainType: 'KYC',
+					size: frontExtractionRes?.data?.s3?.size,
+					type: 'other',
+					req_type: fileType, // requires for mapping with JSON
+					requestId: frontExtractionRes?.data?.request_id,
+					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
+					src: 'start',
+				};
+
+				setLoanDocuments([frontFile]);
+				// this ends here
+
+				const backFormData = new FormData();
+				backFormData.append('product_id', product_id);
+				backFormData.append('req_type', fileType);
+				backFormData.append('process_type', 'extraction');
+				backFormData.append('document', file[0].file);
+
+				const backExtractionRes = await getKYCDataId(
+					frontExtractionRes?.data?.data?.id,
+					backFormData,
+					clientToken
+				);
+				const backExtractionStatus = backExtractionRes?.data?.status || '';
+				const backExtractionMsg = backExtractionRes?.data?.message || '';
+				const backForensicRes = backExtractionRes?.forensicData || {};
+				const backForensicFlag = backForensicRes?.flag || '';
+				const backForensicFlagMsg = backForensicRes?.flag_message || '';
+
+				if (backExtractionStatus === 'nok') {
+					setIsError(true);
+					setDLAadharVoterError(backExtractionMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'error') {
+					setIsError(true);
+					setDLAadharVoterError(backForensicFlagMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'warning') {
+					setIsWarning(true);
+					setDLAadharVoterError(backForensicFlagMsg);
+					// CONTINUE EXECUTION
+				}
+
+				const backFile = {
+					document_key: backExtractionRes?.data.s3.fd,
+					id: Math.random()
+						.toString(36)
+						.replace(/[^a-z]+/g, '')
+						.substr(0, 6),
+					mainType: 'KYC',
+					size: backExtractionRes?.data.s3.size,
+					type: 'other',
+					req_type: fileType,
+					requestId: backExtractionRes?.data.request_id,
+					upload_doc_name: backExtractionRes?.data.s3.filename,
+					src: 'start',
+				};
+
+				setLoanDocuments([backFile]);
+				// this ends here
+
+				const aadharNum = backExtractionRes?.data?.data?.Aadhar_number?.replaceAll(
+					/\s/g,
+					''
+				).split('');
+				formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
+				const t = aadharNum
+					? '00000000' + aadharNum?.splice(8, 4).join('')
+					: '';
+				const name =
+					backExtractionRes?.data?.data?.name?.split(' ') ||
+					backExtractionRes?.data?.data?.Name?.split(' ');
+				formState.values.aadhaar = t;
+				sessionStorage.setItem('aadhar', t);
+				formState.values.dob = backExtractionRes?.data?.data?.DOB;
+				let firstName = [...name];
+				firstName.pop();
+				formState.values.firstName = firstName.join(' ');
+				formState.values.lastName = name[name.length - 1];
+				formState.values.dob =
+					backExtractionRes?.data?.data?.DOB ||
+					backExtractionRes?.data?.data?.dob;
+				formState.values.dl_no = backExtractionRes?.data?.data?.dl_no;
+				formState.values.address1 =
+					backExtractionRes?.data?.data?.address ||
+					backExtractionRes?.data?.data?.Address;
+				let address = formState.values.address1;
+
+				var pinCode = backExtractionRes?.data?.data?.pincode;
+
+				if (address) {
+					let locationArr = address && address?.split(' ');
+					let y = locationArr?.map(e => Number(e) !== NaN && e);
+					let pin;
+					y.map(e => {
+						if (e?.length === 6) pin = e;
+					});
+
+					formState.values.pin = pinCode || pin;
+				}
+
+				sessionStorage.setItem('formstate', JSON.stringify(formState));
+				emptyDoc();
+				if (backForensicRes !== 'warning') onProceed();
+				setLoading(false);
+			} else {
+				// Front Only
+				const frontOnlyFormData = new FormData();
+				frontOnlyFormData.append('product_id', product_id);
+				frontOnlyFormData.append('req_type', fileType);
+				frontOnlyFormData.append('process_type', 'extraction');
+				frontOnlyFormData.append('document', files);
+
+				const frontOnlyExtractionRes = await getKYCData(
+					frontOnlyFormData,
+					clientToken
+				);
+				const frontOnlyExtractionStatus =
+					frontOnlyExtractionRes?.data?.status || '';
+				const frontOnlyExtractionMsg =
+					frontOnlyExtractionRes?.data?.message || '';
+				const frontOnlyForensicRes = frontOnlyExtractionRes?.forensicData || {};
+				const frontOnlyForensicFlag = frontOnlyForensicRes?.flag || '';
+				const frontOnlyForensicFlagMsg =
+					frontOnlyForensicRes?.flag_message || '';
+
+				if (frontOnlyExtractionStatus === 'nok') {
+					setIsError(true);
+					setDLAadharVoterError(frontOnlyExtractionMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontOnlyForensicFlag === 'error') {
+					setIsError(true);
+					setDLAadharVoterError(frontOnlyForensicFlagMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontOnlyForensicFlag === 'warning') {
+					setIsWarning(true);
+					setDLAadharVoterError(frontOnlyForensicFlagMsg);
+					// CONTINUE EXECUTION
+				}
+
+				const file2 = {
+					document_key: frontOnlyExtractionRes?.data?.s3?.fd,
+					id: Math.random()
+						.toString(36)
+						.replace(/[^a-z]+/g, '')
+						.substr(0, 6),
+					mainType: 'KYC',
+					size: frontOnlyExtractionRes?.data?.s3?.size,
+					type: 'other',
+					req_type: fileType,
+					requestId: frontOnlyExtractionRes?.data?.request_id,
+					upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
+					src: 'start',
+				};
+
+				setLoanDocuments([file2]);
+				// this ends here
+
+				const aadharNum = frontOnlyExtractionRes?.data?.data?.Aadhar_number?.replaceAll(
+					/\s/g,
+					''
+				).split('');
+				formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
+				const t = aadharNum
+					? '00000000' + aadharNum?.splice(8, 4).join('')
+					: '';
+				const name =
+					frontOnlyExtractionRes?.data?.data?.name?.split(' ') ||
+					frontOnlyExtractionRes?.data?.data?.Name?.split(' ');
+				formState.values.aadhaar = t;
+				sessionStorage.setItem('aadhar', t);
+				formState.values.dob = frontOnlyExtractionRes?.data?.data?.DOB;
+				let fName = [...name];
+				fName.pop();
+				formState.values.firstName = fName.join(' ');
+				formState.values.lastName = name[name.length - 1];
+
+				formState.values.dob =
+					frontOnlyExtractionRes?.data?.data?.DOB ||
+					frontOnlyExtractionRes?.data?.data?.dob;
+				formState.values.dl_no = frontOnlyExtractionRes?.data?.data?.dl_no;
+				formState.values.address1 =
+					frontOnlyExtractionRes.data?.data?.address ||
+					frontOnlyExtractionRes?.data?.data?.Address;
+				let address = formState.values.address1;
+
+				var pinCode = frontOnlyExtractionRes?.data?.data?.pincode;
+
+				if (address) {
+					let locationArr = address && address?.split(' ');
+					let y = locationArr?.map(e => Number(e) !== NaN && e);
+					let pin;
+					y.map(e => {
+						if (e?.length === 6) pin = e;
+					});
+
+					formState.values.pin = pinCode || pin;
+				}
+
+				sessionStorage.setItem('formstate', JSON.stringify(formState));
+				emptyDoc();
+				if (frontOnlyForensicFlag !== 'warning') onProceed();
+				setLoading(false);
+			}
+		} catch (error) {
+			console.error('error-pan-verification-handleUpload-', error);
 		}
 	};
 
@@ -1025,28 +1127,56 @@ export default function PanVerification({
 								docs={docs}
 								setDocs={setDocs}
 								errorMessage={panError}
+								//TODO : warning / error flag
+								errorType={panError && (isWarning ? 'warning' : 'error')}
 							/>
+
 							{panError && (
-								<p style={{ color: 'red', marginTop: '-35px' }}>
-									{' '}
-									<ImgStyle src={RedError} alt='error' />
+								<p
+									style={{
+										color: isWarning ? '#f7941d' : '#de524c',
+										marginTop: '-100px',
+									}}>
+									<NotificationImg
+										src={isWarning ? WarnIcon : ErrorIcon}
+										alt='error'
+									/>
 									{panError}
 									{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 								</p>
 							)}
-							<section>
-								<Button
-									onClick={() => {
-										if (docs.length > 0) {
-											handlePanUpload(docs[0].file);
-											setDocs([]);
-										}
-									}}
-									isLoader={loading}
-									name={loading ? 'Please wait...' : 'Proceed'}
-									disabled={!docs.length > 0}
-									fill
-								/>
+							<section style={{ marginTop: panError ? 100 : 20 }}>
+								{isWarning ? (
+									<Button
+										onClick={() => {
+											setIsError(false);
+											setIsWarning(false);
+											if (productType === 'business') {
+												setPanUpload(false);
+												setUploadOtherDocs(true);
+											}
+											if (productType === 'salaried') {
+												setPanConfirm(true);
+											}
+										}}
+										name={'Proceed'}
+										fill
+									/>
+								) : (
+									<Button
+										onClick={() => {
+											if (docs.length > 0) {
+												handlePanUpload(docs[0].file);
+												// setDocs([]);
+											}
+										}}
+										isLoader={loading}
+										name={loading ? 'Please wait...' : 'Proceed'}
+										// disabled={!docs.length > 0}
+										disabled={!docs.length > 0 || isError || loading}
+										fill
+									/>
+								)}
 							</section>
 						</section>
 					) : (
@@ -1080,16 +1210,19 @@ export default function PanVerification({
 										setDocs={setOtherDoc}
 										aadharVoterDl={true}
 										errorMessage={dlError}
+										errorType={dlError && (isWarning ? 'warning' : 'error')}
 									/>
 									{dlError.length > 0 && (
 										<p
 											style={{
-												color: 'red',
+												color: isWarning ? '#f7941d' : '#de524c',
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
-											{' '}
-											<ImgStyle src={RedError} alt='error' />
+											<NotificationImg
+												src={isWarning ? WarnIcon : ErrorIcon}
+												alt='error'
+											/>
 											{dlError}
 										</p>
 									)}
@@ -1124,16 +1257,19 @@ export default function PanVerification({
 										setDocs={setAadhar}
 										aadharVoterDl={true}
 										errorMessage={aadharError}
+										errorType={aadharError && (isWarning ? 'warning' : 'error')}
 									/>
 									{aadharError.length > 0 && (
 										<p
 											style={{
-												color: 'red',
+												color: isWarning ? '#f7941d' : '#de524c',
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
-											{' '}
-											<ImgStyle src={RedError} alt='error' />
+											<NotificationImg
+												src={isWarning ? WarnIcon : ErrorIcon}
+												alt='error'
+											/>
 											{aadharError}
 										</p>
 									)}
@@ -1168,16 +1304,19 @@ export default function PanVerification({
 										setDocs={setVoter}
 										aadharVoterDl={true}
 										errorMessage={voterError}
+										errorType={voterError && (isWarning ? 'warning' : 'error')}
 									/>
 									{voterError.length > 0 && (
 										<p
 											style={{
-												color: 'red',
+												color: isWarning ? '#f7941d' : '#de524c',
 												marginTop: '-25px',
 												marginBottom: '45px',
 											}}>
-											{' '}
-											<ImgStyle src={RedError} alt='error' />
+											<NotificationImg
+												src={isWarning ? WarnIcon : ErrorIcon}
+												alt='error'
+											/>
 											{voterError}
 										</p>
 									)}
@@ -1247,42 +1386,53 @@ export default function PanVerification({
 									name='Upload PAN again'
 									fill
 								/> */}
-								<Button
-									type='submit'
-									isLoader={loading}
-									name={loading ? 'Please wait...' : 'Proceed'}
-									fill
-									disabled={
-										productType !== 'salaried'
-											? isBusiness
-												? !(
-														formState.values?.companyName ||
-														formState.values?.panNumber
+								{isWarning ? (
+									<Button
+										onClick={() => {
+											onProceed();
+										}}
+										name={'Proceed'}
+										fill
+									/>
+								) : (
+									<Button
+										type='submit'
+										isLoader={loading}
+										name={loading ? 'Please wait...' : 'Proceed'}
+										fill
+										disabled={
+											productType !== 'salaried'
+												? isBusiness
+													? !(
+															formState.values?.companyName ||
+															formState.values?.panNumber
+													  ) ||
+													  (formState.values?.companyName &&
+															formState.values?.panNumber)
+													: (!(
+															formState.values?.udhyogAadhar &&
+															formState.values?.panNumber
+													  ) &&
+															!(
+																formState.values?.panNumber &&
+																formState?.values?.gstin
+															)) ||
+													  loading ||
+													  (verificationFailed &&
+															verificationFailed.length > 0)
+												: !(
+														aadhar.length > 0 ||
+														otherDoc.length > 0 ||
+														voter.length > 0
 												  ) ||
-												  (formState.values?.companyName &&
-														formState.values?.panNumber)
-												: (!(
-														formState.values?.udhyogAadhar &&
-														formState.values?.panNumber
-												  ) &&
-														!(
-															formState.values?.panNumber &&
-															formState?.values?.gstin
-														)) ||
+												  disableButton ||
 												  loading ||
-												  (verificationFailed && verificationFailed.length > 0)
-											: !(
-													aadhar.length > 0 ||
-													otherDoc.length > 0 ||
-													voter.length > 0
-											  ) ||
-											  disableButton ||
-											  loading ||
-											  voterError.length > 0 ||
-											  aadharError.length > 0 ||
-											  dlError.length > 0
-									}
-								/>
+												  voterError.length > 0 ||
+												  aadharError.length > 0 ||
+												  dlError.length > 0
+										}
+									/>
+								)}
 							</section>
 						</form>
 					)}
@@ -1330,6 +1480,7 @@ export default function PanVerification({
 									sessionStorage.setItem('pan', formState?.values?.panNumber);
 									setPanConfirm(false);
 									setPanUpload(false);
+									// setPanUpload(true);
 									if (productType === 'salaried') {
 										setUploadOtherDocs(true);
 									}

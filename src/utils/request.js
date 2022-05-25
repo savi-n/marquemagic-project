@@ -12,6 +12,13 @@ export const getKYCData = async (formData, token) => {
 		};
 		const g = await axios.post(url, formData, config);
 		const t = await g;
+		// USE THIS FOR TESTING WHEN FORENSIC API IS NOT READY
+		// if (t) {
+		// 	t.forensicData = {};
+		// 	t.forensicData.flag = 'error';
+		// 	t.forensicData.flag_message =
+		// 		'Uploaded document is tampered. Please Upload an authentic document or proceed with uploaded document';
+		// }
 		return t;
 	} catch (err) {
 		if (err.response) {
