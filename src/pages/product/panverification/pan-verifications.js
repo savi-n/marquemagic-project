@@ -747,30 +747,38 @@ export default function PanVerification({
 			setLoanDocuments([file1]);
 			// this ends here
 
-			setPan(panExtractionRes?.data.data['Pan_number']);
-			sessionStorage.setItem('pan', panExtractionRes?.data.data['Pan_number']);
-			formState.values.panNumber = panExtractionRes?.data.data['Pan_number'];
-			formState.values.responseId = panExtractionRes?.data?.data?.id;
-			formState.values.companyName = panExtractionRes?.data.data['Name'];
-			formState.values.dob = panExtractionRes?.data.data['DOB'];
-			sessionStorage.getItem('DOB', panExtractionRes?.data.data['DOB']);
+			setPan(panExtractionRes?.data.extractionData['Pan_number']);
+			sessionStorage.setItem(
+				'pan',
+				panExtractionRes?.data.extractionData['Pan_number']
+			);
+			formState.values.panNumber =
+				panExtractionRes?.data.extractionData['Pan_number'];
+			formState.values.responseId = panExtractionRes?.data?.extractionData?.id;
+			formState.values.companyName =
+				panExtractionRes?.data.extractionData['Name'];
+			formState.values.dob = panExtractionRes?.data.extractionData['DOB'];
+			sessionStorage.getItem(
+				'DOB',
+				panExtractionRes?.data.extractionData['DOB']
+			);
 			sessionStorage.setItem('formstatepan', JSON.stringify(formState));
 			if (productType === 'business') {
 				if (
 					!(
-						panExtractionRes?.data.data['Name']
+						panExtractionRes?.data.extractionData['Name']
 							.toLowerCase()
 							.includes('private limited') ||
-						panExtractionRes?.data.data['Name']
+						panExtractionRes?.data.extractionData['Name']
 							.toLowerCase()
 							.includes('public limited') ||
-						panExtractionRes?.data.data['Name']
+						panExtractionRes?.data.extractionData['Name']
 							.toLowerCase()
 							.includes('limited') ||
-						panExtractionRes?.data.data['Name']
+						panExtractionRes?.data.extractionData['Name']
 							.toLowerCase()
 							.includes('pvt ltd') ||
-						panExtractionRes?.data.data['Name']
+						panExtractionRes?.data.extractionData['Name']
 							.toLowerCase()
 							.includes('private')
 					)
@@ -783,8 +791,8 @@ export default function PanVerification({
 			}
 			if (productType === 'salaried') {
 				const name =
-					panExtractionRes?.data?.data?.name?.split(' ') ||
-					panExtractionRes?.data?.data?.Name?.split(' ');
+					panExtractionRes?.data?.extractionData?.name?.split(' ') ||
+					panExtractionRes?.data?.extractionData?.Name?.split(' ');
 				if (name) {
 					formState.values.firstName = name[0];
 					formState.values.lastName = name[1];
@@ -881,7 +889,7 @@ export default function PanVerification({
 				backFormData.append('document', file[0].file);
 
 				const backExtractionRes = await getKYCDataId(
-					frontExtractionRes?.data?.data?.id,
+					frontExtractionRes?.data?.extractionData?.id,
 					backFormData,
 					clientToken
 				);
@@ -927,7 +935,7 @@ export default function PanVerification({
 				setLoanDocuments([backFile]);
 				// this ends here
 
-				const aadharNum = backExtractionRes?.data?.data?.Aadhar_number?.replaceAll(
+				const aadharNum = backExtractionRes?.data?.extractionData?.Aadhar_number?.replaceAll(
 					/\s/g,
 					''
 				).split('');
@@ -936,25 +944,25 @@ export default function PanVerification({
 					? '00000000' + aadharNum?.splice(8, 4).join('')
 					: '';
 				const name =
-					backExtractionRes?.data?.data?.name?.split(' ') ||
-					backExtractionRes?.data?.data?.Name?.split(' ');
+					backExtractionRes?.data?.extractionData?.name?.split(' ') ||
+					backExtractionRes?.data?.extractionData?.Name?.split(' ');
 				formState.values.aadhaar = t;
 				sessionStorage.setItem('aadhar', t);
-				formState.values.dob = backExtractionRes?.data?.data?.DOB;
+				formState.values.dob = backExtractionRes?.data?.extractionData?.DOB;
 				let firstName = [...name];
 				firstName.pop();
 				formState.values.firstName = firstName.join(' ');
 				formState.values.lastName = name[name.length - 1];
 				formState.values.dob =
-					backExtractionRes?.data?.data?.DOB ||
-					backExtractionRes?.data?.data?.dob;
-				formState.values.dl_no = backExtractionRes?.data?.data?.dl_no;
+					backExtractionRes?.data?.extractionData?.DOB ||
+					backExtractionRes?.data?.extractionData?.dob;
+				formState.values.dl_no = backExtractionRes?.data?.extractionData?.dl_no;
 				formState.values.address1 =
-					backExtractionRes?.data?.data?.address ||
-					backExtractionRes?.data?.data?.Address;
+					backExtractionRes?.data?.extractionData?.address ||
+					backExtractionRes?.data?.extractionData?.Address;
 				let address = formState.values.address1;
 
-				var pinCode = backExtractionRes?.data?.data?.pincode;
+				var pinCode = backExtractionRes?.data?.extractionData?.pincode;
 
 				if (address) {
 					let locationArr = address && address?.split(' ');
@@ -1028,7 +1036,7 @@ export default function PanVerification({
 				setLoanDocuments([file2]);
 				// this ends here
 
-				const aadharNum = frontOnlyExtractionRes?.data?.data?.Aadhar_number?.replaceAll(
+				const aadharNum = frontOnlyExtractionRes?.data?.extractionData?.Aadhar_number?.replaceAll(
 					/\s/g,
 					''
 				).split('');
@@ -1037,26 +1045,28 @@ export default function PanVerification({
 					? '00000000' + aadharNum?.splice(8, 4).join('')
 					: '';
 				const name =
-					frontOnlyExtractionRes?.data?.data?.name?.split(' ') ||
-					frontOnlyExtractionRes?.data?.data?.Name?.split(' ');
+					frontOnlyExtractionRes?.data?.extractionData?.name?.split(' ') ||
+					frontOnlyExtractionRes?.data?.extractionData?.Name?.split(' ');
 				formState.values.aadhaar = t;
 				sessionStorage.setItem('aadhar', t);
-				formState.values.dob = frontOnlyExtractionRes?.data?.data?.DOB;
+				formState.values.dob =
+					frontOnlyExtractionRes?.data?.extractionData?.DOB;
 				let fName = [...name];
 				fName.pop();
 				formState.values.firstName = fName.join(' ');
 				formState.values.lastName = name[name.length - 1];
 
 				formState.values.dob =
-					frontOnlyExtractionRes?.data?.data?.DOB ||
-					frontOnlyExtractionRes?.data?.data?.dob;
-				formState.values.dl_no = frontOnlyExtractionRes?.data?.data?.dl_no;
+					frontOnlyExtractionRes?.data?.extractionData?.DOB ||
+					frontOnlyExtractionRes?.data?.extractionData?.dob;
+				formState.values.dl_no =
+					frontOnlyExtractionRes?.data?.extractionData?.dl_no;
 				formState.values.address1 =
-					frontOnlyExtractionRes.data?.data?.address ||
-					frontOnlyExtractionRes?.data?.data?.Address;
+					frontOnlyExtractionRes.data?.extractionData?.address ||
+					frontOnlyExtractionRes?.data?.extractionData?.Address;
 				let address = formState.values.address1;
 
-				var pinCode = frontOnlyExtractionRes?.data?.data?.pincode;
+				var pinCode = frontOnlyExtractionRes?.data?.extractionData?.pincode;
 
 				if (address) {
 					let locationArr = address && address?.split(' ');
@@ -1127,7 +1137,6 @@ export default function PanVerification({
 								docs={docs}
 								setDocs={setDocs}
 								errorMessage={panError}
-								//TODO : warning / error flag
 								errorType={panError && (isWarning ? 'warning' : 'error')}
 							/>
 
