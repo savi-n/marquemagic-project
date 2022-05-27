@@ -707,9 +707,10 @@ export default function PanVerification({
 			const panExtractionRes = await getKYCData(formData, clientToken);
 			const panExtractionStatus = panExtractionRes?.data?.status || '';
 			const panExtractionMsg = panExtractionRes?.data?.message || '';
-			const panForensicRes = panExtractionRes?.forensicData || {};
-			const panForensicFlag = panForensicRes?.flag || '';
+			const panForensicRes = panExtractionRes?.data?.forensicData || {};
+			const panForensicFlag = panForensicRes?.flag?.toLowerCase() || '';
 			const panForensicFlagMsg = panForensicRes?.flag_message || '';
+			console.log('forensicData-pan-verification', panForensicRes);
 			if (panExtractionStatus === 'nok') {
 				// setPanConfirm(true);
 				// setBusiness(false);
@@ -842,8 +843,8 @@ export default function PanVerification({
 				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
 				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
 				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
-				const frontForensicRes = frontExtractionRes?.forensicData || {};
-				const frontForensicFlag = frontForensicRes?.flag || '';
+				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
+				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
 				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
 
 				if (frontExtractionStatus === 'nok') {
@@ -895,8 +896,8 @@ export default function PanVerification({
 				);
 				const backExtractionStatus = backExtractionRes?.data?.status || '';
 				const backExtractionMsg = backExtractionRes?.data?.message || '';
-				const backForensicRes = backExtractionRes?.forensicData || {};
-				const backForensicFlag = backForensicRes?.flag || '';
+				const backForensicRes = backExtractionRes?.data?.forensicData || {};
+				const backForensicFlag = backForensicRes?.flag?.toLowerCase() || '';
 				const backForensicFlagMsg = backForensicRes?.flag_message || '';
 
 				if (backExtractionStatus === 'nok') {
@@ -995,8 +996,10 @@ export default function PanVerification({
 					frontOnlyExtractionRes?.data?.status || '';
 				const frontOnlyExtractionMsg =
 					frontOnlyExtractionRes?.data?.message || '';
-				const frontOnlyForensicRes = frontOnlyExtractionRes?.forensicData || {};
-				const frontOnlyForensicFlag = frontOnlyForensicRes?.flag || '';
+				const frontOnlyForensicRes =
+					frontOnlyExtractionRes?.data?.forensicData || {};
+				const frontOnlyForensicFlag =
+					frontOnlyForensicRes?.flag?.toLowerCase() || '';
 				const frontOnlyForensicFlagMsg =
 					frontOnlyForensicRes?.flag_message || '';
 
