@@ -708,7 +708,7 @@ export default function PanVerification({
 			const panExtractionStatus = panExtractionRes?.data?.status || '';
 			const panExtractionMsg = panExtractionRes?.data?.message || '';
 			const panForensicRes = panExtractionRes?.data?.forensicData || {};
-			const panForensicFlag = panForensicRes?.flag || '';
+			const panForensicFlag = panForensicRes?.flag?.toLowerCase() || '';
 			const panForensicFlagMsg = panForensicRes?.flag_message || '';
 			console.log('forensicData-pan-verification', panForensicRes);
 			if (panExtractionStatus === 'nok') {
@@ -719,13 +719,13 @@ export default function PanVerification({
 				setLoading(false);
 				return; // STOP FURTHER EXECUTION
 			}
-			if (panForensicFlag.toLowerCase() === 'error') {
+			if (panForensicFlag === 'error') {
 				setIsError(true);
 				setPanError(panForensicFlagMsg);
 				setLoading(false);
 				return; // STOP FURTHER EXECUTION
 			}
-			if (panForensicFlag.toLowerCase() === 'warning') {
+			if (panForensicFlag === 'warning') {
 				setIsWarning(true);
 				setPanError(panForensicFlagMsg);
 				// CONTINUE EXECUTION
@@ -785,7 +785,7 @@ export default function PanVerification({
 					)
 				) {
 					setBusiness(false);
-					if (panForensicFlag.toLowerCase() !== 'warning') setPanUpload(false);
+					if (panForensicFlag !== 'warning') setPanUpload(false);
 				} else {
 					onSubmit(formState);
 				}
@@ -798,7 +798,7 @@ export default function PanVerification({
 					formState.values.firstName = name[0];
 					formState.values.lastName = name[1];
 				}
-				if (panForensicFlag.toLowerCase() !== 'warning') setPanConfirm(true);
+				if (panForensicFlag !== 'warning') setPanConfirm(true);
 			}
 			setLoading(false);
 			setFile([]);
@@ -844,7 +844,7 @@ export default function PanVerification({
 				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
 				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
 				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
-				const frontForensicFlag = frontForensicRes?.flag || '';
+				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
 				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
 
 				if (frontExtractionStatus === 'nok') {
@@ -853,13 +853,13 @@ export default function PanVerification({
 					setLoading(false);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontForensicFlag.toLowerCase() === 'error') {
+				if (frontForensicFlag === 'error') {
 					setIsError(true);
 					setDLAadharVoterError(frontForensicFlagMsg);
 					setLoading(false);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontForensicFlag.toLowerCase() === 'warning') {
+				if (frontForensicFlag === 'warning') {
 					setIsWarning(true);
 					setDLAadharVoterError(frontForensicFlagMsg);
 					// CONTINUE EXECUTION
@@ -897,7 +897,7 @@ export default function PanVerification({
 				const backExtractionStatus = backExtractionRes?.data?.status || '';
 				const backExtractionMsg = backExtractionRes?.data?.message || '';
 				const backForensicRes = backExtractionRes?.data?.forensicData || {};
-				const backForensicFlag = backForensicRes?.flag || '';
+				const backForensicFlag = backForensicRes?.flag?.toLowerCase() || '';
 				const backForensicFlagMsg = backForensicRes?.flag_message || '';
 
 				if (backExtractionStatus === 'nok') {
@@ -906,13 +906,13 @@ export default function PanVerification({
 					setLoading(false);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (backForensicFlag.toLowerCase() === 'error') {
+				if (backForensicFlag === 'error') {
 					setIsError(true);
 					setDLAadharVoterError(backForensicFlagMsg);
 					setLoading(false);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (backForensicFlag.toLowerCase() === 'warning') {
+				if (backForensicFlag === 'warning') {
 					setIsWarning(true);
 					setDLAadharVoterError(backForensicFlagMsg);
 					// CONTINUE EXECUTION
@@ -998,7 +998,8 @@ export default function PanVerification({
 					frontOnlyExtractionRes?.data?.message || '';
 				const frontOnlyForensicRes =
 					frontOnlyExtractionRes?.data?.forensicData || {};
-				const frontOnlyForensicFlag = frontOnlyForensicRes?.flag || '';
+				const frontOnlyForensicFlag =
+					frontOnlyForensicRes?.flag?.toLowerCase() || '';
 				const frontOnlyForensicFlagMsg =
 					frontOnlyForensicRes?.flag_message || '';
 
@@ -1008,13 +1009,13 @@ export default function PanVerification({
 					setLoading(false);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontOnlyForensicFlag.toLowerCase() === 'error') {
+				if (frontOnlyForensicFlag === 'error') {
 					setIsError(true);
 					setDLAadharVoterError(frontOnlyForensicFlagMsg);
 					setLoading(false);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontOnlyForensicFlag.toLowerCase() === 'warning') {
+				if (frontOnlyForensicFlag === 'warning') {
 					setIsWarning(true);
 					setDLAadharVoterError(frontOnlyForensicFlagMsg);
 					// CONTINUE EXECUTION
@@ -1083,7 +1084,7 @@ export default function PanVerification({
 
 				sessionStorage.setItem('formstate', JSON.stringify(formState));
 				emptyDoc();
-				if (frontOnlyForensicFlag.toLowerCase() !== 'warning') onProceed();
+				if (frontOnlyForensicFlag !== 'warning') onProceed();
 				setLoading(false);
 			}
 		} catch (error) {
