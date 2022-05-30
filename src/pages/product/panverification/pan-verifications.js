@@ -710,7 +710,14 @@ export default function PanVerification({
 			const panForensicRes = panExtractionRes?.data?.forensicData || {};
 			const panForensicFlag = panForensicRes?.flag?.toLowerCase() || '';
 			const panForensicFlagMsg = panForensicRes?.flag_message || '';
-			console.log('forensicData-pan-verification', panForensicRes);
+			// console.log('forensicData-pan-verification', {
+			// 	panExtractionRes,
+			// 	panExtractionStatus,
+			// 	panExtractionMsg,
+			// 	panForensicRes,
+			// 	panForensicFlag,
+			// 	panForensicFlagMsg,
+			// });
 			if (panExtractionStatus === 'nok') {
 				// setPanConfirm(true);
 				// setBusiness(false);
@@ -787,7 +794,7 @@ export default function PanVerification({
 					setBusiness(false);
 					if (panForensicFlag !== 'warning') setPanUpload(false);
 				} else {
-					onSubmit(formState);
+					if (panForensicFlag !== 'warning') onSubmit(formState);
 				}
 			}
 			if (productType === 'salaried') {
@@ -1161,11 +1168,15 @@ export default function PanVerification({
 								{isWarning ? (
 									<Button
 										onClick={() => {
-											setIsError(false);
-											setIsWarning(false);
+											// resetAllErrors();
+											if (productType === 'business' && isBusiness) {
+												onSubmit(formState);
+												return;
+											}
 											if (productType === 'business') {
 												setPanUpload(false);
-												setUploadOtherDocs(true);
+												setUploadOtherDocs(false);
+												return;
 											}
 											if (productType === 'salaried') {
 												setPanConfirm(true);
@@ -1398,7 +1409,7 @@ export default function PanVerification({
 									name='Upload PAN again'
 									fill
 								/> */}
-								{isWarning ? (
+								{uploadOtherDocs && isWarning ? (
 									<Button
 										onClick={() => {
 											onProceed();
