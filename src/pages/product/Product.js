@@ -283,8 +283,10 @@ export default function Product({ product, url }) {
 		// setContinueExistingApplication(false);
 		setShowContinueModal(true);
 		const wt_lbl = sessionStorage.getItem('wt_lbl');
+		const product_id = sessionStorage.getItem('productId');
 		sessionStorage.clear();
 		sessionStorage.setItem('wt_lbl', wt_lbl);
+		sessionStorage.setItem('productId', product_id);
 		clearFlowDetails(basePageUrl);
 		clearFormData();
 		resetUserDetails();
