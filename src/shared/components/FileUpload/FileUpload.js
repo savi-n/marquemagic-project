@@ -173,7 +173,13 @@ const File = styled.div`
 	display: flex;
 	/* border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px; */
 	/* border: dashed #4cc97f; */
-	border:  dashed ${({ error }) => (error ? 'red' : `rgba(76, 201, 127, 0.6)`)};
+	border: dashed
+		${({ errorType }) => {
+			if (errorType === 'warning') return '#f7941d';
+			if (errorType === 'error') return '#de524c';
+			return `rgba(76, 201, 127, 0.6)`;
+		}};
+
 	border-radius: 10px;
 	border-width: 2px;
 	align-items: center;
@@ -441,6 +447,7 @@ export default function FileUpload({
 	sectionType = 'others',
 	aadharVoterDl = false,
 	errorMessage = '',
+	errorType = '',
 	prefilledDocs = [],
 	startingTaggedDocs = [],
 	startingUnTaggedDocs = [],
@@ -977,6 +984,7 @@ export default function FileUpload({
 					return (
 						<File
 							error={errorMessage}
+							errorType={errorType}
 							key={`${file.id}-${upidx}`}
 							progress={file.progress}
 							status={file.status}

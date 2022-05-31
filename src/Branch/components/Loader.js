@@ -15,7 +15,7 @@ const LoaderAnimation = styled.div`
 	border-top: 2px solid #3498db;
 	width: 20px;
 	height: 20px;
-	margin-left: 48%;
+	margin-left: 44%;
 	-webkit-animation: spin 2s linear infinite; /* Safari */
 	animation: ${BounceAnimation} 2s linear infinite;
 	@media (max-width: 700px) {
