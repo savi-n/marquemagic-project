@@ -1,3 +1,7 @@
+/* In Document upload section - there is a button - GET OTHER BANK STATEMENTS
+On click of this a modal pops up which provides option to select bank.
+This modal is defined here with all its flow */
+
 import { useState, useContext } from 'react';
 import styled from 'styled-components';
 

@@ -1,3 +1,7 @@
+/* Certain Input fields in the form are kept disabled as
+the data is extracted from extraction API and shouldnt be altered.
+For such fields, this disabledInput is created */
+
 import styled from 'styled-components';
 
 const Input = styled.div`

@@ -1,4 +1,4 @@
-// used in file upload
+/* This file contains helper functions and the functions are used in file upload */
 export const sleep = ms => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 };

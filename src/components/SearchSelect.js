@@ -1,3 +1,6 @@
+/* This searchSelect is a type of input box where on entering some data
+you will see a list that matches the entered data. */
+
 import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';

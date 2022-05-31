@@ -1,5 +1,7 @@
-import { useEffect, useContext, useRef } from 'react';
+/* In Document Upload section, a button is available to fetch cibil score.
+On click of that a modal is popped up which is defined in this file */
 
+import { useEffect, useContext, useRef } from 'react';
 import Loading from '../components/Loading';
 import {
 	FETCH_CIBIL_SCORE,

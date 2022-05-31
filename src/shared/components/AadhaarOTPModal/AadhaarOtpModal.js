@@ -1,3 +1,6 @@
+/* This section contains modal/popup onClick of Verify Aadhaar button.
+  This section also contains resend otp option */
+
 import { useEffect, useState, useContext } from 'react';
 import React from 'react';
 import styled from 'styled-components';

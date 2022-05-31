@@ -1,3 +1,7 @@
+/* If the user refreshes the page, he/she will see a popup/modal
+that asks if user wants to continue the application creation
+from where he had left or start from the beginning*/
+
 import styled from 'styled-components';
 
 import Button from '../Button';

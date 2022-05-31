@@ -1,3 +1,5 @@
+/* This util file is used to make api calls */
+
 import axios from 'axios';
 import { ENDPOINT_BANK } from '../_config/app.config';
 

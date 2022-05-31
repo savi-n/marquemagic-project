@@ -1,3 +1,6 @@
+/* Input field which is used to search if valid pincode is entered and
+based on this search city and state is identified */
+
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 

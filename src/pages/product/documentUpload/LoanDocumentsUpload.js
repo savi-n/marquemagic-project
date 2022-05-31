@@ -1,4 +1,5 @@
 // active page
+/* This file contains document upload section i.e visibility of documents, tags etc*/
 import { useState, useContext, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
 

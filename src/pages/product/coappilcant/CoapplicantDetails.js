@@ -1,3 +1,5 @@
+/* Co-applicant details section */
+
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOf, oneOfType, string } from 'prop-types';

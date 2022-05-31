@@ -1,5 +1,5 @@
-// active personal details right section
-// active business details right section
+/* active personal details right section
+active business details right section */
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';

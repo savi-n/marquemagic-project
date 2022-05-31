@@ -1,3 +1,6 @@
+/* FIle upload details section. This section handles drag, drop
+of file, upload and deletion */
+
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';

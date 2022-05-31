@@ -1,5 +1,7 @@
-import { useContext, useState } from 'react';
+/* In this component a list of APIs are called and defined which are used to create case
+(Post Document upload section) */
 
+import { useContext, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import { useToasts } from '../components/Toast/ToastProvider';
 import { UserContext } from '../reducer/userReducer';

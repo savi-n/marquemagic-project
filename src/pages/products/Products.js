@@ -1,3 +1,7 @@
+/* This section contains all the things that you see on landing page of nc-onboarding.
+	This section displays loan cards and application tracking process flow.
+*/
+
 import { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import styled from 'styled-components';

@@ -1,3 +1,5 @@
+/* Home Loan Address details section */
+
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
 

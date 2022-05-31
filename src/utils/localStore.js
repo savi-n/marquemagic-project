@@ -1,3 +1,5 @@
+/* This util file is used to store data/formdata in local/session storage */
+
 const name = window.location.hostname;
 
 export function setStore(data, dataFrom) {

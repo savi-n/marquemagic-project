@@ -1,3 +1,5 @@
+/* A generic modal is created here which is used to create other Modals like AadharModal */
+
 import { createPortal } from 'react-dom';
 import { bool } from 'prop-types';
 import styled from 'styled-components';

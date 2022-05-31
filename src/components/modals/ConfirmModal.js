@@ -1,3 +1,6 @@
+/* Confirm popup/modal is used when we select the Business type or Income type.
+ This tells user that type cannot be changed later  in the application*/
+
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';

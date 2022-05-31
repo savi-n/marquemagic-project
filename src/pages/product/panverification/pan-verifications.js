@@ -1,3 +1,6 @@
+/* Pan verification page - This section has both pan upload and
+address-proof upload section defined here*/
+
 import { useState, useContext, useEffect, useRef } from 'react';
 import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';

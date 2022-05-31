@@ -1,5 +1,6 @@
-// This component is used in 'src/components/Button' and
-// also in 'src/pages/products/Products'
+/* This component is used to display the NC logo as Loader
+ while the child component takes time to load.
+ This prevents from a blank screen been shown to the user */
 
 import styled, { keyframes } from 'styled-components';
 

@@ -1,3 +1,5 @@
+/* Header section for the application */
+
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { string } from 'prop-types';

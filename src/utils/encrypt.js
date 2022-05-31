@@ -1,3 +1,4 @@
+/* This util file contains function related to encryption and decription */
 import CryptoJS from 'crypto-js';
 
 import { SECRET } from '_config/app.config';

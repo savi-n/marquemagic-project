@@ -1,3 +1,6 @@
+/* Once the application is submitted, user receives application ref Id on screen .
+This screen/page is defined here */
+
 import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';

@@ -1,5 +1,4 @@
-// active
-// dynamic section
+/* dynamic section for multiple pages */
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
