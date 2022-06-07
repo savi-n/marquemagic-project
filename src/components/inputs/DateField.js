@@ -1,3 +1,5 @@
+/* Input field for Date type */
+
 import styled from 'styled-components';
 
 const Input = styled.input`

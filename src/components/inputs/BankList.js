@@ -1,3 +1,5 @@
+/* Populate search of bank with list of banks */
+
 import { useState, useEffect, useContext } from 'react';
 
 import useFetch from '../../hooks/useFetch';

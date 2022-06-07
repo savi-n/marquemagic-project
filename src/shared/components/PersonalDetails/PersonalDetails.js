@@ -1,7 +1,7 @@
-// Active Help us with your PAGE
-// Guarantor Personal Details
-// Help us with your Business Details
-// Help us with your Personal Details
+/* Active Help us with your PAGE
+Guarantor Personal Details
+Help us with your Business Details
+Help us with your Personal Details */
 import { useEffect, useContext } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';

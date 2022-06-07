@@ -1,3 +1,5 @@
+/* Constants used (config details) throughtout the project are defined in this section */
+
 import taggedTemplate from '../utils/taggedTemplate';
 
 const API_END_POINT =

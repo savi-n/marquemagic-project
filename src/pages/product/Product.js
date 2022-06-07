@@ -1,3 +1,5 @@
+/* This file defines the side menu that is seen in loan application creation journey */
+
 import { useContext, useEffect, Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';

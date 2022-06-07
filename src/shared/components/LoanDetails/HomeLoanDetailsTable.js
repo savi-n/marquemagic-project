@@ -1,35 +1,37 @@
-import styled from "styled-components";
+/* Home Loan details section */
+
+import styled from 'styled-components';
 
 const TableWrapper = styled.div`
-  width: 100%;
-  padding: 10px;
-  box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
-  border-radius: 5px;
-  margin-bottom: 20px;
+	width: 100%;
+	padding: 10px;
+	box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
+	border-radius: 5px;
+	margin-bottom: 20px;
 `;
 
 const Row = styled.div`
-  display: flex;
-  border-radius: 10px;
-  overflow: hidden;
+	display: flex;
+	border-radius: 10px;
+	overflow: hidden;
 `;
 
 const Colom = styled.div`
-  padding: 15px 40px;
-  flex-basis: calc(60% / 3);
-  border-right: 1px solid #ececec;
-  font-size: 15px;
-  &:first-child {
-    flex-basis: 40%;
-  }
-  &:last-child {
-    border-right: none;
-  }
+	padding: 15px 40px;
+	flex-basis: calc(60% / 3);
+	border-right: 1px solid #ececec;
+	font-size: 15px;
+	&:first-child {
+		flex-basis: 40%;
+	}
+	&:last-child {
+		border-right: none;
+	}
 `;
 
 const Head = styled(Colom)`
-  background: #f7f7f7;
-  font-weight: 700;
+	background: #f7f7f7;
+	font-weight: 700;
 `;
 
 // const tableContent = {
@@ -47,19 +49,19 @@ const Head = styled(Colom)`
 // };
 
 export default function HomeLoanDetailsTable({ tableContent }) {
-  return (
-    <TableWrapper>
-      <Row>
-        {tableContent?.heads?.map((head) => <Head key={head}>{head}</Head>)}
-      </Row>
+	return (
+		<TableWrapper>
+			<Row>
+				{tableContent?.heads?.map(head => <Head key={head}>{head}</Head>)}
+			</Row>
 
-      {tableContent?.content?.map((row, i) => (
-        <Row key={i}>
-          {row.map((colom) => (
-            <Colom key={colom}>{colom}</Colom>
-          ))}
-        </Row>
-      ))}
-    </TableWrapper>
-  );
+			{tableContent?.content?.map((row, i) => (
+				<Row key={i}>
+					{row.map(colom => (
+						<Colom key={colom}>{colom}</Colom>
+					))}
+				</Row>
+			))}
+		</TableWrapper>
+	);
 }

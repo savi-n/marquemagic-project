@@ -1,3 +1,5 @@
+/* App layout like color, theme and logo and routes are defined in this section  */
+
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';

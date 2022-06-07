@@ -1,3 +1,9 @@
+/* productDetails?white_label_id=NUMBER&product_id=NUMBER api gives the flow
+ details for creating application of that loan type.
+
+ This file defines route to be taken or component to mount for each section.
+ */
+
 import { lazy } from 'react';
 import { Redirect, useRouteMatch } from 'react-router-dom';
 

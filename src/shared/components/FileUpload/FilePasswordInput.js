@@ -1,3 +1,6 @@
+/* Most Financial documents have password protection.
+For such files FilePasswordInput provides input box to enter password.  */
+
 import { useRef } from 'react';
 import styled from 'styled-components';
 import imgClose from 'assets/icons/close_icon_blue-06.svg';

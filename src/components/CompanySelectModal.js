@@ -1,3 +1,6 @@
+/* A file contains modal that displays information of the company/companies against the uploaded PAN.
+  User can select the company and proceed to next page*/
+
 import { useState } from 'react';
 import styled from 'styled-components';
 import Modal from './Modal';

@@ -1,3 +1,6 @@
+/* In Housing Loan, we have option of uploading agreement.
+For the same purpose we have another component to handle upload of agreement documents*/
+
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 

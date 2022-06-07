@@ -1,3 +1,6 @@
+/* Landing page of nc-onboarding journey contains different loan cards.
+This card is designed and defined here */
+
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { shape, string, number } from 'prop-types';

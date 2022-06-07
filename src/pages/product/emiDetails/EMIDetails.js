@@ -1,3 +1,5 @@
+/* EMI details page */
+
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';

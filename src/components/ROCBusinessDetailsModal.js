@@ -1,3 +1,8 @@
+/* ROC buisness details Modal - In Business details page there is a button - View buisness details
+	On click a modal pops up which shows information like Pan Number, CIN, Registration number etc.
+	This section is defined here
+*/
+
 import { useContext } from 'react';
 import styled from 'styled-components';
 

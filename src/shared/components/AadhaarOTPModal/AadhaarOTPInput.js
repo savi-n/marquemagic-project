@@ -1,3 +1,5 @@
+/* This section contains input boxes for entering aadhaar otp */
+
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
