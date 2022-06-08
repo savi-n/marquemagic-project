@@ -29,9 +29,9 @@ export const getKYCData = async (formData, token) => {
 		return { data: { message: err.message, status: 'nok' } };
 	}
 };
-export const getKYCDataId = async (id, formData, token) => {
+export const getKYCDataId = async (formData, token) => {
 	try {
-		const url = `${ENDPOINT_BANK}/getKycDataUiUx?ref_id=${id}`;
+		const url = `${ENDPOINT_BANK}/getKycDataUiUx`;
 		const config = {
 			headers: {
 				'Content-type': 'multipart/form-data',

@@ -446,7 +446,10 @@ export default function FormController({
 					formState={formState}
 					companyDetail={companyDetail || companyData}
 					pageName={map.name}
-					preData={form}
+					preData={{
+						...form,
+						panNumber: sessionStorage.getItem('pan') || form?.panNumber || '',
+					}}
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
 				/>

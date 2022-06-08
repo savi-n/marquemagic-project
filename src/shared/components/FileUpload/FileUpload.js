@@ -1175,6 +1175,10 @@ export default function FileUpload({
 									const isViewMore = !isViewMoreClicked && index === 2;
 									if (!isViewMoreClicked && index > 2) return null;
 									const uniqPassId = `${doc.id}${index}`;
+									let isDocRemoveAllowed = true;
+									if ('isDocRemoveAllowed' in doc) {
+										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
+									}
 									return (
 										<File
 											style={{
@@ -1229,7 +1233,7 @@ export default function FileUpload({
 													)}
 												</PasswordWrapper>
 											)}
-											{doc?.isDocRemoveAllowed ? null : (
+											{isDocRemoveAllowed && (
 												<ImgClose
 													style={{ height: '20px' }}
 													src={isViewMore ? imgArrowDownCircle : imgClose}

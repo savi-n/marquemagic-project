@@ -289,6 +289,9 @@ function caseCreationDataFormat(
 				sessionStorage.getItem('companyData') &&
 				JSON.parse(sessionStorage.getItem('companyData'));
 		}
+		const formstate = sessionStorage.getItem('formstate')
+			? JSON.parse(sessionStorage.getItem('formstate'))
+			: {};
 
 		//console.log('corportae Details', corporateDetails);
 		const newBusinessDetails = {
@@ -334,7 +337,11 @@ function caseCreationDataFormat(
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
-			aadhaar: applicantData?.aadhaar || companyData?.aadhaar || '',
+			aadhaar:
+				formstate?.values?.aadhaarUnMasked ||
+				applicantData?.aadhaar ||
+				companyData?.aadhaar ||
+				'',
 			equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
@@ -351,6 +358,16 @@ function caseCreationDataFormat(
 				return err;
 			}
 		}
+		const reqTypes = ['DL', 'voter', 'passport'];
+		const selectedDoc = data.documents.filter(d =>
+			reqTypes.includes(d.req_type)
+		);
+		selectedDoc.map(doc => {
+			if (doc.dl_no) newBusinessDetails.dl = doc.dl_no;
+			if (doc.vid) newBusinessDetails.voter = doc.vid;
+			if (doc.passport_no) newBusinessDetails.passport = doc.passport_no;
+			return null;
+		});
 		return newBusinessDetails;
 	};
 	if (!companyData) {

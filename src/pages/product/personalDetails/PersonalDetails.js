@@ -392,11 +392,18 @@ export default function PersonalDetailsPage({
 					dob: getDOB() || prefilledValues()?.dob || '',
 					email: prefilledValues()?.email || '',
 					mobileNo: prefilledValues()?.mobileNum || '',
+					// TODO Remove below code if new logic is working fine
+					// panNumber:
+					// 	prefilledValues()?.pan ||
+					// 	JSON.parse(sessionStorage.getItem('formstatepan'))?.values
+					// 		?.panNumber ||
+					// 	sessionStorage.getItem('pan') ||
+					// 	'',
 					panNumber:
+						sessionStorage.getItem('pan') ||
 						prefilledValues()?.pan ||
 						JSON.parse(sessionStorage.getItem('formstatepan'))?.values
 							?.panNumber ||
-						sessionStorage.getItem('pan') ||
 						'',
 					residenceStatus: prefilledValues()?.residentTypess || '',
 					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
