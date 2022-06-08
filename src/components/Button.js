@@ -80,9 +80,11 @@ export default function Button({
 	isLoader,
 	loading,
 	customStyle = {},
+	type,
 }) {
 	return (
 		<StyledButton
+			type={type || 'submit'}
 			onClick={onClick}
 			fill={fill}
 			disabled={disabled}

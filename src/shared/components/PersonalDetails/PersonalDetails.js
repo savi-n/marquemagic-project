@@ -335,6 +335,10 @@ export default function PersonalDetails({
 									customFields.disabled = true;
 								}
 							}
+							if (field.name === 'panNumber') {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
 							return (
 								field.visibility && (
 									<>
@@ -444,6 +448,10 @@ export default function PersonalDetails({
 									customFields.disabled = isVerifyWithOtpDisabled;
 									customFields.readonly = isVerifyWithOtpDisabled;
 								}
+							}
+							if (field.name === 'panNumber') {
+								customFields.readonly = true;
+								customFields.disabled = true;
 							}
 							return (
 								field.visibility && (
