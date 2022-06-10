@@ -32,8 +32,11 @@ import {
 	verifyPan,
 	gstFetch,
 	getKYCDataId,
+	verifyKycDataUiUx,
 } from '../../../utils/request';
 import _ from 'lodash';
+
+import * as CONST from './const';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -82,8 +85,19 @@ const Cardstyle = styled.div`
 	border-radius: 7px;
 	text-align: center;
 	padding-top: 6px;
+	input,
+	label {
+		cursor: pointer;
+	}
 `;
-
+const Spacesytle = styled.div`
+	padding-top: 16px;
+	padding-bottom: 26px;
+`;
+const Buttonstyle = styled.div`
+	padding-top: 176px;
+	padding-bottom: 26px;
+`;
 const NotificationImg = styled.img`
 	margin-right: 8px;
 	width: 33px;
@@ -189,73 +203,6 @@ function formatCompanyDataGST(data, panNum, gstNum) {
 	};
 }
 
-const getDocumentTypeList = value => {
-	if (value === 'aadhar') {
-		return [
-			{ typeId: 1, value: 1, doc_type_id: 1, id: 1, name: 'Aadhar Front Part' },
-			{ typeId: 2, value: 2, doc_type_id: 2, id: 2, name: 'Aadhar Back Part' },
-			{
-				typeId: 3,
-				value: 3,
-				doc_type_id: 3,
-				id: 3,
-				name: 'Aadhar  Front Back Part',
-			},
-		];
-	}
-	if (value === 'voter') {
-		return [
-			{ typeId: 4, value: 4, doc_type_id: 4, id: 4, name: 'Voter  Front Part' },
-			{ typeId: 5, value: 5, doc_type_id: 5, id: 5, name: 'Voter Back Part' },
-			{
-				typeId: 6,
-				value: 6,
-				doc_type_id: 6,
-				id: 6,
-				name: 'Voter  Front Back Part',
-			},
-		];
-	}
-	if (value === 'DL') {
-		return [
-			{ typeId: 7, value: 7, doc_type_id: 7, id: 7, name: 'DL Front Part' },
-			{ typeId: 8, value: 8, doc_type_id: 8, id: 8, name: 'DL Back Part' },
-			{
-				typeId: 9,
-				value: 9,
-				doc_type_id: 9,
-				id: 9,
-				name: 'DL Front Back Part',
-			},
-		];
-	}
-	if (value === 'passport') {
-		return [
-			{
-				typeId: 10,
-				value: 10,
-				doc_type_id: 10,
-				id: 10,
-				name: 'Passport Front Part',
-			},
-			{
-				typeId: 11,
-				value: 11,
-				doc_type_id: 11,
-				id: 11,
-				name: 'Passport  Back Part',
-			},
-			{
-				typeId: 12,
-				value: 12,
-				doc_type_id: 12,
-				id: 12,
-				name: 'Passport Front Back Part',
-			},
-		];
-	}
-};
-
 export default function PanVerification({
 	productDetails,
 	map,
@@ -264,6 +211,8 @@ export default function PanVerification({
 }) {
 	const productType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
+	const isVerifyKycData =
+		productDetails?.product_details?.kyc_verification || false;
 	const {
 		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);
@@ -277,11 +226,13 @@ export default function PanVerification({
 	} = useContext(FlowContext);
 
 	const {
+		state: { documents: loanDocuments },
 		actions: {
 			setLoanDocuments,
-			removeAllDocuments,
-			setPanDocDetails,
-			setOtherDocDetails,
+			// removeAllDocuments,
+			// setPanDocDetails,
+			// setOtherDocDetails,
+			setLoanDocumentType,
 			removeLoanDocument,
 		},
 	} = useContext(LoanFormContext);
@@ -325,9 +276,11 @@ export default function PanVerification({
 	const [panFileId, setPanFileId] = useState(null);
 	const [isError, setIsError] = useState(false);
 	const [isWarning, setIsWarning] = useState(false);
-	const [selectedAddressProof, setSelectedAddressProof] = useState(false);
+	const [selectedAddressProof, setSelectedAddressProof] = useState('');
 	const [isAddharSkipChecked, setIsAddharSkipChecked] = useState(false);
 	const [addressProofDocs, setAddressProofDocs] = useState([]);
+	const [extractionDataRes, setExtractionDataRes] = useState({});
+	const [panNum, setPan] = useState('');
 	// const userid = '10626';
 
 	useEffect(() => {
@@ -340,8 +293,6 @@ export default function PanVerification({
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
-
-	const [panNum, setPan] = useState('');
 
 	const companyNameSearch = async companyName => {
 		setLoading(true);
@@ -515,19 +466,6 @@ export default function PanVerification({
 		onFlowChange(map.main);
 	};
 
-	const handleFileUpload = files => {
-		const newFiles = [];
-		fileRef.current.map(f => newFiles.push({ ...f }));
-		files.map(f => newFiles.push({ ...f }));
-		// console.log('pan-verification-handleFileUpload-', { newFiles });
-		setFile(newFiles);
-		fileRef.current = newFiles;
-		setPanFile(newFiles);
-		setDisableSubmit(false);
-		resetAllErrors();
-		setIsError(false);
-	};
-
 	const resetAllErrors = () => {
 		setPanError('');
 		setDLError('');
@@ -544,42 +482,41 @@ export default function PanVerification({
 		// eslint-disable-next-line
 	}, []);
 
-	const removeHandler = docId => {
-		setBackUploading(false);
+	const handleFileUpload = files => {
+		const newFiles = [];
+		fileRef.current.map(f => newFiles.push({ ...f }));
+		files.map(f => newFiles.push({ ...f }));
+		// console.log('pan-verification-handleFileUpload-', { newFiles });
+		fileRef.current = newFiles;
+		// setFile(newFiles);
+		if (panUpload) setPanFile(newFiles);
+		if (selectedAddressProof) setAddressProofDocs(newFiles);
+		setDisableSubmit(false);
 		resetAllErrors();
+		setIsError(false);
+	};
 
-		if (panUpload) {
-			panUpload && setDocs([]);
-			var index3 = file.findIndex(x => x.id === docId);
-			file.splice(index3, 1);
-			setFile(file);
-			fileRef.current = file;
-			setPanFile([]);
-			return;
-		}
+	const handlePanFileRemove = docId => {
+		console.log('handlePanFileRemove docId-', docId);
+		removeLoanDocument(docId);
+		resetAllErrors();
+		panUpload && setDocs([]);
+		var index3 = file.findIndex(x => x.id === docId);
+		file.splice(index3, 1);
+		setFile(file);
+		fileRef.current = file;
+		setPanFile([]);
+	};
 
-		const newAddressProofDocs = _.cloneDeep(addressProofDocs);
-		const selectedDocIndex = newAddressProofDocs.findIndex(x => x.id === docId);
-		newAddressProofDocs.splice(selectedDocIndex, 1);
+	const handleAddressFileRemove = docId => {
+		console.log('handleAddressFileRemove docId-', docId);
+		removeLoanDocument(docId);
+		resetAllErrors();
+		const newAddressProofDocs = _.cloneDeep(
+			addressProofDocs.filter(x => x.id !== docId)
+		);
+		fileRef.current = newAddressProofDocs;
 		setAddressProofDocs(newAddressProofDocs);
-		// setAddressProofDocs(doc)
-		// if (name) {
-		// 	if (name === 'DL') {
-		// 		var index = doc.findIndex(x => x.id === e);
-		// 		doc.splice(index, 1);
-		// 		setOtherDoc(doc);
-		// 	}
-		// 	if (name === 'aadhar') {
-		// 		var index1 = doc.findIndex(x => x.id === e);
-		// 		doc.splice(index1, 1);
-		// 		setAadhar(doc);
-		// 	}
-		// 	if (name === 'voter') {
-		// 		var index2 = doc.findIndex(x => x.id === e);
-		// 		doc.splice(index2, 1);
-		// 		setVoter(doc);
-		// 	}
-		// }
 	};
 
 	const onSubmit = async ({
@@ -749,41 +686,32 @@ export default function PanVerification({
 				});
 			}
 			if (aadhar.length > 0 && aadhar[0]?.file) {
-				handleUpload(aadhar[0]?.file);
+				handleAddressProofUpload(aadhar[0]?.file);
 			}
 			if (voter.length > 0 && voter[0].file) {
-				handleUpload(voter[0]?.file);
+				handleAddressProofUpload(voter[0]?.file);
 			}
 			if (otherDoc.length > 0 && otherDoc[0]?.file) {
-				handleUpload(otherDoc[0]?.file);
+				handleAddressProofUpload(otherDoc[0]?.file);
 			}
 
 			// setLoading(false);
 		}
 	};
 
-	const getFileType = () => {
-		if (otherDoc.length > 0) {
-			return 'DL';
-		}
-		if (aadhar.length > 0) {
-			return 'aadhar';
-		}
-		if (voter.length > 0) {
-			return 'voter';
-		}
-	};
-
-	useEffect(() => {
-		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
-			setBackUpload(true);
-	}, [otherDoc, aadhar, voter, backUploading]);
+	// TODO: remove this not required
+	// useEffect(() => {
+	// 	if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
+	// 		setBackUpload(true);
+	// }, [otherDoc, aadhar, voter, backUploading]);
 
 	const handlePanConfirm = async () => {
 		setLoading(true);
 		// call verifykyc api
+		getVerifyKycData(CONST.EXTRACTION_KEY_PAN);
 
 		// put all require condition for next screen here
+		// don't change 'pan' to different key it'll effect prepopulation logic
 		sessionStorage.setItem('pan', formState?.values?.panNumber);
 
 		if (productType === 'business' && isBusiness) {
@@ -837,6 +765,7 @@ export default function PanVerification({
 			// salaried
 			setPanUpload(false);
 			setUploadOtherDocs(true);
+			resetAllErrors();
 		}
 		setLoading(false);
 		setPanConfirm(false);
@@ -848,7 +777,7 @@ export default function PanVerification({
 			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', product_id);
-			formData.append('req_type', 'pan');
+			formData.append('req_type', CONST.EXTRACTION_KEY_PAN);
 			formData.append('process_type', 'extraction');
 			formData.append('document', files);
 
@@ -894,8 +823,8 @@ export default function PanVerification({
 					.substr(0, 6),
 				mainType: 'KYC',
 				size: panExtractionRes?.data.s3.size,
-				type: 'pan',
-				req_type: 'pan', // requires for mapping with JSON
+				type: CONST.EXTRACTION_KEY_PAN,
+				req_type: CONST.EXTRACTION_KEY_PAN, // requires for mapping with JSON
 				requestId: panExtractionRes?.data.request_id,
 				upload_doc_name: panExtractionRes?.data.s3.filename,
 				isDocRemoveAllowed: false,
@@ -905,6 +834,7 @@ export default function PanVerification({
 			// this ends here
 
 			setPan(panExtractionRes?.data.extractionData['Pan_number']);
+			// don't change this key it'll effect prepopulation logic
 			sessionStorage.setItem(
 				'pan',
 				panExtractionRes?.data.extractionData['Pan_number']
@@ -959,6 +889,7 @@ export default function PanVerification({
 			setLoading(false);
 			setFile([]);
 			setPanConfirm(true);
+			setExtractionDataRes(panExtractionRes?.data || {});
 			fileRef.current = [];
 		} catch (error) {
 			console.error('error-pan-verification-handlePanUpload-', error);
@@ -1011,16 +942,81 @@ export default function PanVerification({
 
 		sessionStorage.setItem('formstate', JSON.stringify(formState));
 	};
+	const getVerifyKycData = async selectedAddressProof => {
+		try {
+			if (
+				isVerifyKycData &&
+				selectedAddressProof !== CONST.EXTRACTION_KEY_AADHAAR
+			) {
+				setLoading(true);
+				const reqBody = {
+					doc_ref_id: extractionDataRes?.doc_ref_id,
+					doc_type: selectedAddressProof,
+				};
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_PAN) {
+					reqBody.number =
+						extractionDataRes?.data?.extractionData?.Pan_number || '';
+					reqBody.name =
+						extractionDataRes?.data?.extractionData?.Name ||
+						extractionDataRes?.data?.extractionData?.name ||
+						'';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_DL) {
+					reqBody.number = extractionDataRes?.data?.extractionData?.dl_no || '';
+					reqBody.dob =
+						extractionDataRes?.data?.extractionData?.dob ||
+						extractionDataRes?.data?.extractionData?.DOB ||
+						'';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_VOTERID) {
+					reqBody.number = extractionDataRes?.data?.extractionData?.vid || '';
+					reqBody.state = extractionDataRes?.data?.extractionData?.state || '';
+					reqBody.name =
+						extractionDataRes?.data?.extractionData?.Name ||
+						extractionDataRes?.data?.extractionData?.name ||
+						'';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_PASSPORT) {
+					// TODO: verify by testing passport extraction data
+					reqBody.number =
+						extractionDataRes?.data?.extractionData?.passport || '';
+					reqBody.dob =
+						extractionDataRes?.data?.extractionData?.dob ||
+						extractionDataRes?.data?.extractionData?.DOB ||
+						'';
+					reqBody.name =
+						extractionDataRes?.data?.extractionData?.Name ||
+						extractionDataRes?.data?.extractionData?.name ||
+						'';
+				}
 
+				const verifyKycDataUiUxRes = await verifyKycDataUiUx(
+					reqBody,
+					clientToken
+				);
+				console.log(
+					'pan-verification-verifyKycDataUiUxRes-',
+					verifyKycDataUiUxRes
+				);
+				setLoading(false);
+			}
+		} catch (error) {
+			console.error(error);
+			addToast({
+				message: error.message || 'Something Went Wrong. Try Again!',
+				type: 'error',
+			});
+		}
+	};
 	// Address proof upload handle function
-	// DL Aadhaar VoterID
-	const handleUpload = async files => {
+	// DL Aadhaar VoterID passport
+	//TO DO  need to call in proceed button of otherdocuments
+	const handleAddressProofUpload = async files => {
 		try {
 			setLoading(true);
-			const fileType = getFileType();
 			resetAllErrors();
-
-			if (file.length > 2) {
+			const selectedAddressProofFiles = addressProofDocs.filter(f => f);
+			if (addressProofDocs.length > 2) {
 				addToast({
 					message: 'Max 2 doucment is allowed',
 					type: 'error',
@@ -1029,11 +1025,11 @@ export default function PanVerification({
 				return;
 			}
 
-			if (file.length > 1) {
+			if (addressProofDocs.length > 1) {
 				// Front and Back Image
 				const frontFormData = new FormData();
 				frontFormData.append('product_id', product_id);
-				frontFormData.append('req_type', fileType);
+				frontFormData.append('req_type', selectedAddressProof);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', file[1].file);
 
@@ -1072,7 +1068,7 @@ export default function PanVerification({
 					mainType: 'KYC',
 					size: frontExtractionRes?.data?.s3?.size,
 					type: 'other',
-					req_type: fileType, // requires for mapping with JSON
+					req_type: selectedAddressProof, // requires for mapping with JSON
 					requestId: frontExtractionRes?.data?.request_id,
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					isDocRemoveAllowed: false,
@@ -1083,7 +1079,7 @@ export default function PanVerification({
 
 				const backFormData = new FormData();
 				backFormData.append('product_id', product_id);
-				backFormData.append('req_type', fileType);
+				backFormData.append('req_type', selectedAddressProof);
 				backFormData.append(
 					'ref_id',
 					frontExtractionRes?.data?.extractionData?.id
@@ -1127,7 +1123,7 @@ export default function PanVerification({
 					mainType: 'KYC',
 					size: backExtractionRes?.data.s3.size,
 					type: 'other',
-					req_type: fileType,
+					req_type: selectedAddressProof,
 					requestId: backExtractionRes?.data.request_id,
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					isDocRemoveAllowed: false,
@@ -1135,7 +1131,7 @@ export default function PanVerification({
 
 				setLoanDocuments([backFile]);
 				// this ends here
-
+				setExtractionDataRes(backExtractionRes?.data || {});
 				prepopulateAadhaarAndAddressState(
 					backExtractionRes?.data?.extractionData || {}
 				);
@@ -1188,7 +1184,7 @@ export default function PanVerification({
 				// Front Only
 				const frontOnlyFormData = new FormData();
 				frontOnlyFormData.append('product_id', product_id);
-				frontOnlyFormData.append('req_type', fileType);
+				frontOnlyFormData.append('req_type', selectedAddressProof);
 				frontOnlyFormData.append('process_type', 'extraction');
 				frontOnlyFormData.append('document', files);
 
@@ -1235,7 +1231,7 @@ export default function PanVerification({
 					mainType: 'KYC',
 					size: frontOnlyExtractionRes?.data?.s3?.size,
 					type: 'other',
-					req_type: fileType,
+					req_type: selectedAddressProof,
 					requestId: frontOnlyExtractionRes?.data?.request_id,
 					upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 					isDocRemoveAllowed: false,
@@ -1243,6 +1239,7 @@ export default function PanVerification({
 
 				setLoanDocuments([file2]);
 				// this ends here
+				setExtractionDataRes(frontOnlyExtractionRes?.data || {});
 				prepopulateAadhaarAndAddressState(
 					frontOnlyExtractionRes?.data?.extractionData || {}
 				);
@@ -1297,7 +1294,7 @@ export default function PanVerification({
 				setLoading(false);
 			}
 		} catch (error) {
-			console.error('error-pan-verification-handleUpload-', error);
+			console.error('error-pan-verification-handleAddressProofUpload-', error);
 		}
 	};
 
@@ -1320,6 +1317,29 @@ export default function PanVerification({
 		setLoading(false);
 	};
 
+	const handleFileUploadDisable = e => {
+		if (!selectedAddressProof) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+	};
+
+	const handleDocumentTypeChange = async (fileId, type) => {
+		setLoanDocumentType(fileId, type);
+		const newAddressProofDocs = [];
+		addressProofDocs.map(f => {
+			const newFile = _.cloneDeep(f);
+			if (f.id === fileId) {
+				newFile.isTagged = type;
+			}
+			newAddressProofDocs.push(newFile);
+			return null;
+		});
+		setAddressProofDocs(newAddressProofDocs);
+		file.current = newAddressProofDocs;
+	};
+
+	console.log('pan-verifications-states-', { loanDocuments, addressProofDocs });
 	return (
 		productDetails && (
 			<>
@@ -1330,6 +1350,7 @@ export default function PanVerification({
 								Upload your PAN Card{' '}
 								{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 							</p>
+							{/* PAN UPLOAD SECTION */}
 							<FileUpload
 								accept=''
 								upload={true}
@@ -1337,7 +1358,7 @@ export default function PanVerification({
 								pan={true}
 								disabled={panFile.length > 0 ? true : false}
 								onDrop={handleFileUpload}
-								onRemoveFile={e => removeHandler(e)}
+								onRemoveFile={handlePanFileRemove}
 								docs={docs}
 								setDocs={setDocs}
 								errorMessage={panError}
@@ -1379,7 +1400,7 @@ export default function PanVerification({
 											// 	setPanConfirm(true);
 											// }
 										}}
-										name={'Proceed'}
+										name={'Proceedbbb'}
 										fill
 									/>
 								) : (
@@ -1391,7 +1412,7 @@ export default function PanVerification({
 											}
 										}}
 										isLoader={loading}
-										name={loading ? 'Please wait...' : 'Proceed'}
+										name={loading ? 'Please wait...' : 'Proceedkkk'}
 										// disabled={!docs.length > 0}
 										disabled={!docs.length > 0 || isError || loading}
 										fill
@@ -1413,90 +1434,143 @@ export default function PanVerification({
 										{' '}
 										Select and Upload any one of the doccument metions below
 									</h1>
-									<section className='flex gap-x-4 items-center'>
-										<section style={{ padding: '7px' }}>
-											<Cardstyle>
-												<input
-													type='radio'
-													value='aadhar'
-													style={{
-														height: '16px',
-														width: '16px',
-														marginRight: '18px',
-													}}
-													onChange={() => setSelectedAddressProof('aadhar')}
-													checked={selectedAddressProof === 'aadhar'}
-												/>
-												<label style={{ marginLeft: '10px' }}>Aadhar</label>
-											</Cardstyle>
+									<Spacesytle>
+										{' '}
+										<section className='flex gap-x-4 items-center'>
+											<section style={{ padding: '7px' }}>
+												<Cardstyle>
+													<input
+														id={CONST.EXTRACTION_KEY_AADHAAR}
+														type='radio'
+														value={CONST.EXTRACTION_KEY_AADHAAR}
+														style={{
+															height: '16px',
+															width: '16px',
+															marginRight: '18px',
+														}}
+														onChange={() =>
+															setSelectedAddressProof(
+																CONST.EXTRACTION_KEY_AADHAAR
+															)
+														}
+														checked={
+															selectedAddressProof ===
+															CONST.EXTRACTION_KEY_AADHAAR
+														}
+													/>
+													<label
+														htmlFor={CONST.EXTRACTION_KEY_AADHAAR}
+														style={{ marginLeft: '10px' }}>
+														Aadhaar
+													</label>
+												</Cardstyle>
+											</section>
+											<section style={{ padding: '7px' }}>
+												<Cardstyle>
+													<input
+														id={CONST.EXTRACTION_KEY_VOTERID}
+														type='radio'
+														value={CONST.EXTRACTION_KEY_VOTERID}
+														style={{
+															height: '16px',
+															width: '16px',
+															marginRight: '18px',
+														}}
+														onChange={() =>
+															setSelectedAddressProof(
+																CONST.EXTRACTION_KEY_VOTERID
+															)
+														}
+														checked={
+															selectedAddressProof ===
+															CONST.EXTRACTION_KEY_VOTERID
+														}
+													/>
+													<label htmlFor={CONST.EXTRACTION_KEY_VOTERID}>
+														Voter ID
+													</label>
+												</Cardstyle>
+											</section>
+											<section style={{ padding: '7px' }}>
+												<Cardstyle>
+													<input
+														id={CONST.EXTRACTION_KEY_DL}
+														type='radio'
+														value={CONST.EXTRACTION_KEY_DL}
+														style={{
+															height: '16px',
+															width: '16px',
+															marginRight: '10px',
+														}}
+														onChange={() =>
+															setSelectedAddressProof(CONST.EXTRACTION_KEY_DL)
+														}
+														checked={
+															selectedAddressProof === CONST.EXTRACTION_KEY_DL
+														}
+													/>
+													<label
+														htmlFor={CONST.EXTRACTION_KEY_DL}
+														style={{ marginLeft: '7px' }}>
+														DL
+													</label>
+												</Cardstyle>
+											</section>
+											<section>
+												<Cardstyle style={{ padding: '7px' }}>
+													<input
+														id={CONST.EXTRACTION_KEY_PASSPORT}
+														type='radio'
+														value={CONST.EXTRACTION_KEY_PASSPORT}
+														style={{
+															height: '16px',
+															width: '16px',
+															marginRight: '18px',
+														}}
+														onChange={() =>
+															setSelectedAddressProof(
+																CONST.EXTRACTION_KEY_PASSPORT
+															)
+														}
+														checked={
+															selectedAddressProof ===
+															CONST.EXTRACTION_KEY_PASSPORT
+														}
+													/>
+													<label
+														htmlFor={CONST.EXTRACTION_KEY_PASSPORT}
+														style={{ marginLeft: '10px' }}>
+														Passport
+													</label>
+												</Cardstyle>
+											</section>
 										</section>
-										<section style={{ padding: '7px' }}>
-											<Cardstyle>
-												<input
-													type='radio'
-													value='voter'
-													style={{
-														height: '16px',
-														width: '16px',
-														marginRight: '18px',
-													}}
-													onChange={() => setSelectedAddressProof('voter')}
-													checked={selectedAddressProof === 'voter'}
-												/>
-												<label>VoterID</label>
-											</Cardstyle>
-										</section>
-										<section style={{ padding: '7px' }}>
-											<Cardstyle>
-												<input
-													type='radio'
-													value='DL'
-													style={{
-														height: '16px',
-														width: '16px',
-														marginRight: '10px',
-													}}
-													onChange={() => setSelectedAddressProof('DL')}
-													checked={selectedAddressProof === 'DL'}
-												/>
-												<label style={{ marginLeft: '7px' }}>DL</label>
-											</Cardstyle>
-										</section>
-										<section>
-											<Cardstyle style={{ padding: '7px' }}>
-												<input
-													type='radio'
-													value='passport'
-													style={{
-														height: '16px',
-														width: '16px',
-														marginRight: '18px',
-													}}
-													onChange={() => setSelectedAddressProof('passport')}
-													checked={selectedAddressProof === 'passport'}
-												/>
-												<label style={{ marginLeft: '10px' }}>PassPort</label>
-											</Cardstyle>
-										</section>
-									</section>
-									<FileUpload
-										section={'pan-verification'}
-										accept=''
-										upload={true}
-										pan={true}
-										docTypeOptions={getDocumentTypeList(selectedAddressProof)}
-										sectionType='pan'
-										onDrop={handleFileUpload}
-										onRemoveFile={docId => removeHandler(docId)}
-										docs={addressProofDocs}
-										setDocs={setAddressProofDocs}
-										aadharVoterDl={true}
-										errorMessage={dlError || aadharError || voterError || ''}
-										errorType={
-											(dlError || aadharError || voterError || '') &&
-											(isWarning ? 'warning' : 'error')
-										}
-									/>
+									</Spacesytle>
+									<div onClick={handleFileUploadDisable}>
+										{/* ADDRESS PROOF UPLOAD SECTION */}
+										<FileUpload
+											section={'pan-verification'}
+											accept=''
+											upload={true}
+											pan={true}
+											docTypeOptions={CONST.getDocumentTypeList(
+												selectedAddressProof
+											)}
+											sectionType={selectedAddressProof}
+											onDrop={handleFileUpload}
+											onRemoveFile={handleAddressFileRemove}
+											docs={addressProofDocs}
+											setDocs={setAddressProofDocs}
+											documentTypeChangeCallback={handleDocumentTypeChange}
+											aadharVoterDl={true}
+											errorMessage={dlError || aadharError || voterError || ''}
+											errorType={
+												(dlError || aadharError || voterError || '') &&
+												(isWarning ? 'warning' : 'error')
+											}
+										/>
+									</div>
+
 									{(dlError || aadharError || voterError) && (
 										<p
 											style={{
@@ -1588,7 +1662,7 @@ export default function PanVerification({
 										</p>
 									)} */}
 									<section>
-										{selectedAddressProof === 'aadhar' && (
+										{selectedAddressProof === CONST.EXTRACTION_KEY_AADHAAR && (
 											<>
 												{' '}
 												<input
@@ -1676,50 +1750,66 @@ export default function PanVerification({
 									fill
 								/> */}
 								{uploadOtherDocs && isWarning ? (
-									<Button
-										onClick={() => {
-											onProceed();
-										}}
-										disabled={!selectedAddressProof}
-										name={'Proceed'}
-										fill
-									/>
+									<>
+										<Buttonstyle>
+											{' '}
+											<Button
+												onClick={() => {
+													onProceed();
+													// handleAddressProofUpload();
+													// getVerifyKycData(selectedAddressProof);
+												}}
+												disabled={!selectedAddressProof}
+												name={'Proceedgegg'}
+												fill
+											/>
+										</Buttonstyle>
+									</>
 								) : (
 									<Button
 										isLoader={loading}
-										name={loading ? 'Please wait...' : 'Proceed'}
+										name={loading ? 'Please wait...' : 'Proceedsss'}
 										fill
 										disabled={
-											productType !== 'salaried'
-												? isBusiness
-													? !(
-															formState.values?.companyName ||
-															formState.values?.panNumber
-													  ) ||
-													  (formState.values?.companyName &&
-															formState.values?.panNumber)
-													: (!(
-															formState.values?.udhyogAadhar &&
-															formState.values?.panNumber
-													  ) &&
-															!(
-																formState.values?.panNumber &&
-																formState?.values?.gstin
-															)) ||
-													  loading ||
-													  (verificationFailed &&
-															verificationFailed.length > 0)
-												: !(
-														aadhar.length > 0 ||
-														otherDoc.length > 0 ||
-														voter.length > 0
-												  ) ||
-												  disableButton ||
-												  loading ||
-												  voterError.length > 0 ||
-												  aadharError.length > 0 ||
-												  dlError.length > 0
+											!selectedAddressProof ||
+											addressProofDocs?.filter(
+												f =>
+													f?.sectionType === selectedAddressProof && f?.isTagged
+											).length <= 0
 										}
+										// disabled={
+										// 	!selectedAddressProof
+										// 		? true
+										// 		: productType !== 'salaried'
+										// 		? isBusiness
+										// 			? !(
+										// 					formState.values?.companyName ||
+										// 					formState.values?.panNumber
+										// 			  ) ||
+										// 			  (formState.values?.companyName &&
+										// 					formState.values?.panNumber)
+										// 			: (!(
+										// 					formState.values?.udhyogAadhar &&
+										// 					formState.values?.panNumber
+										// 			  ) &&
+										// 					!(
+										// 						formState.values?.panNumber &&
+										// 						formState?.values?.gstin
+										// 					)) ||
+										// 			  loading ||
+										// 			  (verificationFailed &&
+										// 					verificationFailed.length > 0)
+										// 		: !(
+										// 				aadhar.length > 0 ||
+										// 				otherDoc.length > 0 ||
+										// 				voter.length > 0
+										// 		  ) ||
+										// 		  disableButton ||
+										// 		  loading ||
+										// 		  voterError.length > 0 ||
+										// 		  aadharError.length > 0 ||
+										// 		  dlError.length > 0
+										// }
 									/>
 								)}
 							</section>
@@ -1825,7 +1915,7 @@ export default function PanVerification({
 									<input type='radio' name='doctype' value='DL' />
 								</section>
 								<section>
-									<label>Aadhar</label>
+									<label>Aadhaar</label>
 									<input type='radio' name='doctype' value='aadhar' />
 								</section>
 								<section>

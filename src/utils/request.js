@@ -65,7 +65,21 @@ export const verifyPan = async (ref_id, number, name, token) => {
 		return { status: 500, message: err.message };
 	}
 };
-
+export const verifyKycDataUiUx = async (reqBody, token) => {
+	try {
+		const url = `${ENDPOINT_BANK}/verifyKycDataUiUx`;
+		const g = await axios.post(url, reqBody, {
+			headers: { Authorization: token },
+		});
+		const t = await g;
+		return t;
+	} catch (err) {
+		if (err.response) {
+			return { data: err.response.data };
+		}
+		return { status: 500, message: err.message };
+	}
+};
 export const gstFetch = async (pan_number, state_code, gstin, token) => {
 	const url = `${ENDPOINT_BANK}/GSTData`;
 	if (state_code == null) state_code = '22';

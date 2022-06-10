@@ -19,6 +19,7 @@ import imgGreenCheck from 'assets/icons/green_tick_icon.png';
 import lockGrey from 'assets/icons/Lock_icon_grey-05-05.svg';
 import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
 import _ from 'lodash';
+import { ADDRESS_PROOF_KEYS } from 'pages/product/panverification/const';
 
 const USER_CANCELED = 'user cancelled';
 
@@ -50,7 +51,6 @@ const Dropzone = styled.div`
 		`border: dashed grey 2px;
         background-color: rgba(255,255,255,.8);
         z-index: 9999;`}
-
 	${({ uploading }) =>
 		uploading &&
 		`
@@ -332,6 +332,7 @@ const FileTypeUL = styled.ul`
 const FileTypeList = styled.li`
 	padding: 10px 0;
 	font-size: 14px;
+	min-width: 280px;
 	border-bottom: 1px solid lightgrey;
 	:hover {
 		cursor: pointer;
@@ -1075,25 +1076,43 @@ export default function FileUpload({
 											// style={isOutside ? { marginLeft: '-400px' } : {}}
 											>
 												<FileTypeUL>
-													{docTypeOptions.map((docType, docoptidx) => (
-														<FileTypeList
-															key={`${docType.value}-${docoptidx}`}
-															value={docType.name}
-															onClick={() => {
-																//	branch && setDocSelected(docType.name);
-																branch
-																	? changeHandler(docType.name)
-																	: onDocTypeChange(file, docType);
-																// onDocTypeChange(
-																// 	file.id,
-																// 	docType.name,
-																// 	file
-																// );
-																setIsPopoverOpen(-1);
-															}}>
-															{docType.name}
-														</FileTypeList>
-													))}
+													{docTypeOptions.map((docType, docoptidx) => {
+														const taggedDocuments =
+															docs.filter(f => f.id === file.id) || [];
+														console.log('poup-', {
+															mappedFiles,
+															docs,
+															taggedDocuments,
+															docType,
+															file,
+														});
+														if (ADDRESS_PROOF_KEYS.includes(sectionType)) {
+															if (
+																docType.id in mappedFiles &&
+																mappedFiles[docType.id].length > 0
+															)
+																return null;
+														}
+														return (
+															<FileTypeList
+																key={`${docType.value}-${docoptidx}`}
+																value={docType.name}
+																onClick={() => {
+																	//	branch && setDocSelected(docType.name);
+																	branch
+																		? changeHandler(docType.name)
+																		: onDocTypeChange(file, docType);
+																	// onDocTypeChange(
+																	// 	file.id,
+																	// 	docType.name,
+																	// 	file
+																	// );
+																	setIsPopoverOpen(-1);
+																}}>
+																{docType.name}
+															</FileTypeList>
+														);
+													})}
 												</FileTypeUL>
 												<FileTypeIcon
 													src={imgArrowDownCircle}
