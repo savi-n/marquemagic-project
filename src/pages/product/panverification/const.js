@@ -4,6 +4,10 @@ export const EXTRACTION_KEY_AADHAAR = 'aadhar';
 export const EXTRACTION_KEY_VOTERID = 'voter';
 export const EXTRACTION_KEY_PASSPORT = 'passport';
 
+export const SCREEN_PAN = 'SCREEN_PAN';
+export const SCREEN_ADDRESS_PROOF = 'SCREEN_ADDRESS_PROOF';
+export const SCREEN_GST_UDHYOG = 'SCREEN_GST_UDHYOG';
+
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
 	EXTRACTION_KEY_DL,
@@ -11,64 +15,14 @@ export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_PASSPORT,
 ];
 
+export const addressProofRadioButtonList = [
+	{ key: EXTRACTION_KEY_AADHAAR, name: 'Aadhaar' },
+	{ key: EXTRACTION_KEY_VOTERID, name: 'Voter ID' },
+	{ key: EXTRACTION_KEY_DL, name: 'DL' },
+	{ key: EXTRACTION_KEY_PASSPORT, name: 'Passport' },
+];
+
 export const SECTION_TYPE_ADDRESSPROOF = 'addressproof';
-
-// export const isAlreadyTagged = data => {
-//   const { file}
-//   const isFront = selectedDocs.filter(f =>
-//     f?.isTagged?.name.includes('Front Part')
-//   ).length;
-//   const isBack = selectedDocs.filter(f =>
-//     f?.isTagged?.name.includes('Back Part')
-//   ).length;
-//   const isFrontBack = selectedDocs.filter(f =>
-//     f?.isTagged?.name.includes('Front Back Part')
-//   ).length;
-
-// const selectedDocs = addressProofDocs.filter(
-// 	f => f.sectionType === selectedAddressProof
-// );
-// if (selectedAddressProof === EXTRACTION_KEY_AADHAAR) {
-// 	const isFront = selectedDocs.filter(f =>
-// 		f?.isTagged?.name.includes('Front Part')
-// 	).length;
-// 	const isBack = selectedDocs.filter(f =>
-// 		f?.isTagged?.name.includes('Back Part')
-// 	).length;
-// 	const isFrontBack = selectedDocs.filter(f =>
-// 		f?.isTagged?.name.includes('Front Back Part')
-// 	).length;
-// 	const newDocTypeList = [];
-// 	!isFront &&
-// 		newDocTypeList.push({
-// 			typeId: 501,
-// 			value: 501,
-// 			doc_type_id: 501,
-// 			id: 501,
-// 			name: 'Aadhaar Front Part',
-// 		});
-
-// 	!isBack &&
-// 		newDocTypeList.push({
-// 			typeId: 502,
-// 			value: 502,
-// 			doc_type_id: 502,
-// 			id: 502,
-// 			name: 'Aadhaar Back Part',
-// 		});
-// 	!isFrontBack &&
-// 		newDocTypeList.push({
-// 			typeId: 503,
-// 			value: 503,
-// 			doc_type_id: 503,
-// 			id: 503,
-// 			name: 'Aadhaar Front Back Part',
-// 		});
-// 	return newDocTypeList;
-// }
-
-//   return false;
-// }
 
 export const getDocumentTypeList = selectedAddressProof => {
 	if (selectedAddressProof === EXTRACTION_KEY_AADHAAR) {
@@ -92,7 +46,7 @@ export const getDocumentTypeList = selectedAddressProof => {
 				value: 503,
 				doc_type_id: 503,
 				id: 503,
-				name: 'Aadhaar  Front Back Part',
+				name: 'Aadhaar Front Back Part',
 			},
 		];
 	}
@@ -117,7 +71,7 @@ export const getDocumentTypeList = selectedAddressProof => {
 				value: 506,
 				doc_type_id: 506,
 				id: 506,
-				name: 'Voter  Front Back Part',
+				name: 'Voter Front Back Part',
 			},
 		];
 	}
@@ -172,3 +126,49 @@ export const getDocumentTypeList = selectedAddressProof => {
 		];
 	}
 };
+
+export const isBusinessPan = companyName => {
+	return (
+		companyName?.toLowerCase()?.includes('private limited') ||
+		companyName?.toLowerCase()?.includes('public limited') ||
+		companyName?.toLowerCase()?.includes('limited') ||
+		companyName?.toLowerCase()?.includes('pvt ltd') ||
+		companyName?.toLowerCase()?.includes('private')
+	);
+};
+
+// onSubmit={handleSubmit(onSubmit)}
+// TODO: Cleanup
+// disabled={
+// 	!selectedAddressProof
+// 		? true
+// 		: productType !== 'salaried'
+// 		? isBusiness
+// 			? !(
+// 					formState.values?.companyName ||
+// 					formState.values?.panNumber
+// 			  ) ||
+// 			  (formState.values?.companyName &&
+// 					formState.values?.panNumber)
+// 			: (!(
+// 					formState.values?.udhyogAadhar &&
+// 					formState.values?.panNumber
+// 			  ) &&
+// 					!(
+// 						formState.values?.panNumber &&
+// 						formState?.values?.gstin
+// 					)) ||
+// 			  loading ||
+// 			  (verificationFailed &&
+// 					verificationFailed.length > 0)
+// 		: !(
+// 				aadhar.length > 0 ||
+// 				otherDoc.length > 0 ||
+// 				voter.length > 0
+// 		  ) ||
+// 		  disableButton ||
+// 		  loading ||
+// 		  voterError.length > 0 ||
+// 		  aadharError.length > 0 ||
+// 		  dlError.length > 0
+// }

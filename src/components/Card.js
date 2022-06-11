@@ -91,7 +91,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	} = useContext(UserContext);
 
 	const {
-		actions: { removeAllDocuments },
+		actions: { removeAllLoanDocuments },
 	} = useContext(LoanFormContext);
 
 	const history = useHistory();
@@ -121,7 +121,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						clearFlowDetails(basePageUrl);
 						clearFormData();
 						resetUserDetails();
-						removeAllDocuments();
+						removeAllLoanDocuments();
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
 					}}>

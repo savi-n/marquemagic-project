@@ -190,7 +190,7 @@ export default function Product({ product, url }) {
 	} = useContext(UserContext);
 
 	const {
-		actions: { removeAllDocuments },
+		actions: { removeAllLoanDocuments },
 	} = useContext(LoanFormContext);
 
 	const { response } = useFetch({
@@ -292,7 +292,7 @@ export default function Product({ product, url }) {
 		clearFlowDetails(basePageUrl);
 		clearFormData();
 		resetUserDetails();
-		removeAllDocuments();
+		removeAllLoanDocuments();
 	};
 
 	const onFlowChange = (flow, i) => {

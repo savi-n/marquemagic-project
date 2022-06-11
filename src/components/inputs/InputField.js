@@ -8,6 +8,7 @@ const Input = styled.input`
 	width: 100%;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
+	${({ disabled }) => disabled && `cursor: not-allowed;`}
 `;
 
 const Div = styled.div`
@@ -57,6 +58,7 @@ const Label = styled.label`
 		disabled &&
 		`
     background: #fafafa;
+		cursor: not-allowed;
   `}
 `;
 

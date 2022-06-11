@@ -63,6 +63,7 @@ const Label = styled.label`
 		disabled &&
 		`
     background: #fafafa;
+		cursor: not-allowed;
   `}
 `;
 
