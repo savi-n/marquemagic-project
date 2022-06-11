@@ -242,17 +242,17 @@ export default function PersonalDetailsPage({
 	const prefilledValues = () => {
 		try {
 			const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-			const appData = JSON.parse(userTokensss)?.formReducer?.user
-				?.applicantData;
-			let form =
-				(appData && Object.keys(appData).length > 0 && appData) ||
-				formatPersonalDetails(editLoanData?.business_id) ||
-				{};
-			if (form) return form;
-			else {
-				var formStat = JSON.parse(sessionStorage.getItem('formstate'));
-				return formStat?.values;
+			if (editLoanData) {
+				const appData = JSON.parse(userTokensss)?.formReducer?.user
+					?.applicantData;
+				let form =
+					(appData && Object.keys(appData).length > 0 && appData) ||
+					formatPersonalDetails(editLoanData?.business_id) ||
+					{};
+				if (form) return form;
 			}
+			var formStat = JSON.parse(sessionStorage.getItem('formstate'));
+			return formStat?.values;
 		} catch (error) {
 			return {};
 		}

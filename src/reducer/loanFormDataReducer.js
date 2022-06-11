@@ -50,7 +50,7 @@ const useActions = dispatch => {
 		});
 	};
 
-	const removeAllDocuments = () => {
+	const removeAllLoanDocuments = () => {
 		dispatch({
 			type: actionTypes.REMOVE_ALL_DOCUMENTS,
 		});
@@ -75,7 +75,7 @@ const useActions = dispatch => {
 		setLoanDocuments,
 		removeLoanDocument,
 		setLoanDocumentType,
-		removeAllDocuments,
+		removeAllLoanDocuments,
 		setPanDocDetails,
 		setOtherDocDetails,
 	};

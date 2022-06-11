@@ -32,7 +32,6 @@ const Dropzone = styled.div`
 	position: relative;
 	display: flex;
 	align-items: center;
-	/* justify-content: center; */
 	background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
 	gap: 15px;
 	border: dashed #0000ff80;
@@ -42,15 +41,19 @@ const Dropzone = styled.div`
 	@media (max-width: 700px) {
 		width: 100%;
 	}
-	/* border-width: medium; */
-	/* border-color: 'blue'; */
-	/* background-color: '#F0F4FE'; */
+
+	${({ isInActive }) =>
+		isInActive &&
+		`border: dashed grey 2px;
+        background-color: #EEEEEE;
+				cursor: not-allowed;
+        z-index: 9999;`}
+
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
         background-color: rgba(255,255,255,.8);
         z-index: 9999;`}
-
 	${({ uploading }) =>
 		uploading &&
 		`
@@ -135,8 +138,6 @@ const FileListWrap = styled.div`
 	flex-direction: column;
 	align-items: start;
 	gap: 20px;
-	/* gap: calc(10% / 3); */
-	/* justify-content: space-between; */
 	flex-wrap: wrap;
 	margin: 10px;
 	display: -webkit-box;
@@ -160,19 +161,14 @@ const WarningMessage = styled.div`
 	}
 `;
 const File = styled.div`
-	/* flex-basis: 30%; */
 	width: 32%;
 	position: relative;
-	/* overflow: hidden; */
-	/* padding: 5px 15px; */
 	background: transparent;
 	border-radius: 5px;
 	height: 40px;
 	line-height: 40px;
 	margin: 10px -5px;
 	display: flex;
-	/* border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px; */
-	/* border: dashed #4cc97f; */
 	border: dashed
 		${({ errorType }) => {
 			if (errorType === 'warning') return '#f7941d';
@@ -185,16 +181,14 @@ const File = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	transition: 0.2s;
-@media (max-width: 700px){
-	width:100%;
-
-}
+	@media (max-width: 700px) {
+		width: 100%;
+	}
 	&::after {
 		content: '';
 		bottom: 0;
 		left: 0;
 		position: absolute;
-		/* width: ${({ progress }) => `${progress >= 100 ? 0 : progress}%`}; */
 		width: ${({ progress }) => `${progress >= 100 ? 0 : progress}%`};
 		height: 2px;
 		background: ${({ theme, status }) => {
@@ -208,7 +202,7 @@ const ImgClose = styled.img`
 	height: 25px;
 	cursor: pointer;
 	margin-left: auto;
-	margin-right: 10px;
+	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
 `;
 
 const PasswordWrapper = styled.div`
@@ -218,12 +212,7 @@ const PasswordWrapper = styled.div`
 `;
 
 const RoundButton = styled.div`
-	/* padding: 10px; */
-	/* background: white; */
-	/* border-radius: 50%; */
 	cursor: pointer;
-	/* width: 30px; */
-	/* height: 30px; */
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -263,7 +252,6 @@ const RoundButton = styled.div`
 `;
 
 const FileName = styled.span`
-	/* width: 50%; */
 	font-size: 14px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -272,14 +260,15 @@ const FileName = styled.span`
 `;
 
 const UploadCircle = styled.label`
-	/* align-self: flex-end; */
 	cursor: pointer;
 	margin-right: 10px;
 `;
 
 const FileType = styled.div`
+	position: absolute;
+	right: 0;
+	margin-right: -2px;
 	background: #e6ffef;
-	/* height: 100%; */
 	height: inherit;
 	width: 50px;
 	border-radius: 0 10px 10px 0;
@@ -300,10 +289,8 @@ const FileTypeSmallIcon = styled.img`
 	padding-left: 2px;
 	padding-right: 2px;
 `;
-/* margin-left: ${({ isOutside }) => (isOutside < 0 ? isOutside - 50 : 0)}px; */
-// margin-left: ${({ isOutside }) => (isOutside < 0 ? '-300px' : '0')}px;
+
 const FileTypeBox = styled.ul`
-	/* position: absolute; */
 	width: 400px;
 	display: flex;
 	padding: 0 15px;
@@ -316,8 +303,10 @@ const FileTypeBox = styled.ul`
 	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
 		rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 	img {
+		position: absolute;
+		right: 0;
+		margin-right: 20px;
 		margin-top: 15px;
-		/* transform: rotate(270deg); */
 		transform: rotate(90deg);
 		cursor: pointer;
 	}
@@ -325,13 +314,19 @@ const FileTypeBox = styled.ul`
 		max-width: 270px;
 	}
 `;
+
 const FileTypeUL = styled.ul`
 	margin: 0 20px;
+	padding: 10px 0px;
+	li:last-of-type {
+		border-bottom: none;
+	}
 `;
 
 const FileTypeList = styled.li`
 	padding: 10px 0;
 	font-size: 14px;
+	min-width: 280px;
 	border-bottom: 1px solid lightgrey;
 	:hover {
 		cursor: pointer;
@@ -358,17 +353,9 @@ const DocumentUploadList = styled.div`
 	flex-wrap: wrap;
 	justify-content: left;
 	flex-direction: column;
-
-	/* align-self: flex-start; */
-	/* flex: 30%; */
 	width: 32%;
 	margin: 10px 0;
-	/* border: dashed lightblue; */
-	/* border-radius: 10px; */
-	/* border-width: 2px; */
 	align-items: center;
-	/* padding: 10px 20px; */
-	/* background: white; */
 	@media (max-width: 700px) {
 		width: 100%;
 	}
@@ -379,7 +366,6 @@ const DocumentUploadListRow1 = styled.div`
 	justify-content: left;
 	width: 100%;
 	align-items: center;
-	/* padding: 10px 0; */
 `;
 
 const DocumentUploadCheck = styled.img`
@@ -401,7 +387,6 @@ const DocumentUploadName = styled.div`
 	font-size: 14px;
 	color: ${({ isSelected }) => (isSelected ? 'black' : 'grey')};
 	padding: 0 20px;
-	/* width: 300px; */
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -435,8 +420,6 @@ export default function FileUpload({
 	documentTypeChangeCallback = (id, value) => {
 		console.log('DOCUMENT TYPE CHANGED ' + id);
 	},
-	changeHandler,
-	branch,
 	docs,
 	setDocs,
 	docsPush,
@@ -452,6 +435,7 @@ export default function FileUpload({
 	startingTaggedDocs = [],
 	startingUnTaggedDocs = [],
 	aggreementUploadModal = true,
+	isInActive = false,
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -899,6 +883,7 @@ export default function FileUpload({
 		<>
 			{!disabled && (
 				<Dropzone
+					isInActive={isInActive}
 					ref={ref}
 					dragging={dragging}
 					// bg={bg}
@@ -922,16 +907,18 @@ export default function FileUpload({
 					/>
 					<Label htmlFor={id}>Browse</Label>
 					{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
-					<UploadCircle
-						htmlFor={id}
-						style={{ marginLeft: 'auto', padding: 10 }}>
-						<img
-							src={uploadCircleIcon}
-							width={40}
-							style={{ maxWidth: 'none' }}
-							alt='upload'
-						/>
-					</UploadCircle>
+					{!isInActive && (
+						<UploadCircle
+							htmlFor={id}
+							style={{ marginLeft: 'auto', padding: 10 }}>
+							<img
+								src={uploadCircleIcon}
+								width={40}
+								style={{ maxWidth: 'none' }}
+								alt='upload'
+							/>
+						</UploadCircle>
+					)}
 				</Dropzone>
 			)}
 			{displayTagMessage && aggreementUploadModal ? (
@@ -989,62 +976,20 @@ export default function FileUpload({
 							progress={file.progress}
 							status={file.status}
 							tooltip={file.name}
-							style={
-								docTypeOptions.length > 0 && isFileUploaded
-									? { borderRight: 0 }
-									: {}
-							}>
+							// style={
+							// 	docTypeOptions.length > 0 && isFileUploaded
+							// 		? { borderRight: 0 }
+							// 		: {}
+							// }
+						>
 							<FileName>
 								{file.name.length > 20
 									? file.name.slice(0, 20) + '...'
 									: file.name}
 							</FileName>
-							{/* previous version - tagging and password code */}
-							{/* {file.status === 'completed' && !!docTypeOptions.length && (
-								<>
-									<SelectDocType
-									value={
-										branch ? docSelected : docTypeFileMap[file.id]?.name || ''
-									}
-									onChange={e => {
-										branch && setDocSelected(e.target.value);
-										branch
-											? changeHandler(e.target.value)
-											: onDocTypeChange(file.id, e.target.value);
-									}}>
-									<option value='' disabled>
-										Select Document Type
-									</option>
-									{docTypeOptions.map(docType => (
-										<option key={docType.value} value={docType.name}>
-											{docType.name}
-										</option>
-									))}
-								</SelectDocType>
-									{FINANCIAL_DOC_TYPES?.includes(
-										docTypeFileMap[file.id]?.main?.toLowerCase()
-									) && (
-										<PasswordWrapper>
-											<RoundButton
-												showTooltip={passwordForFileId !== file.id}
-												onClick={() => onPasswordClick(file.id)}>
-												<ImgClose src={lockGreen} alt='lock' />
-												<FontAwesomeIcon icon={faUserLock} size='1x' />
-											</RoundButton>
-											{passwordForFileId === file.id && (
-												<FilePasswordInput
-													fileId={file.id}
-													onClickCallback={onDocTypePassword}
-													onClose={onClosePasswordEnterArea}
-												/>
-											)}
-										</PasswordWrapper>
-									)}
-								</>
-							)} */}
-
 							{isFileUploaded && !uploading ? (
 								<ImgClose
+									isPreTag
 									src={imgClose}
 									onClick={() => onFileRemove(file)}
 									alt='close'
@@ -1070,30 +1015,67 @@ export default function FileUpload({
 										// you can also provide a render function that injects some useful stuff!
 										// console.log('popupProps-', { popupProps });
 										// const isOutside = nudgedLeft < -10;
+										let isFrontTagged = false;
+										let isBackTagged = false;
+										let isFrontBackTagged = false;
+										if (section === 'addressproof') {
+											const fontDocTypeId = `${docTypeOptions[0]?.id}`;
+											const backDocTypeId = `${docTypeOptions[1]?.id}`;
+											const frontBackDocTypeId = `${docTypeOptions[2]?.id}`;
+											isFrontTagged =
+												fontDocTypeId in mappedFiles &&
+												mappedFiles[fontDocTypeId]?.length > 0;
+											isBackTagged =
+												backDocTypeId in mappedFiles &&
+												mappedFiles[backDocTypeId]?.length > 0;
+											isFrontBackTagged =
+												frontBackDocTypeId in mappedFiles &&
+												mappedFiles[frontBackDocTypeId]?.length > 0;
+										}
 										return (
 											<FileTypeBox
 											// style={isOutside ? { marginLeft: '-400px' } : {}}
 											>
 												<FileTypeUL>
-													{docTypeOptions.map((docType, docoptidx) => (
-														<FileTypeList
-															key={`${docType.value}-${docoptidx}`}
-															value={docType.name}
-															onClick={() => {
-																//	branch && setDocSelected(docType.name);
-																branch
-																	? changeHandler(docType.name)
-																	: onDocTypeChange(file, docType);
-																// onDocTypeChange(
-																// 	file.id,
-																// 	docType.name,
-																// 	file
-																// );
-																setIsPopoverOpen(-1);
-															}}>
-															{docType.name}
-														</FileTypeList>
-													))}
+													{docTypeOptions.map((docType, docoptidx) => {
+														// console.log('poup-', {
+														// 	docTypeOptions,
+														// 	mappedFiles,
+														// 	docs,
+														// 	docType,
+														// 	file,
+														// 	isFrontTagged,
+														// 	isBackTagged,
+														// 	isFrontBackTagged,
+														// });
+														if (section === 'addressproof') {
+															if (isFrontTagged && docoptidx === 0) return null;
+															if (isBackTagged && docoptidx === 1) return null;
+															if (isFrontBackTagged && docoptidx === 2)
+																return null;
+															if (
+																(isFrontTagged || isBackTagged) &&
+																docoptidx === 2
+															)
+																return null;
+															if (
+																isFrontBackTagged &&
+																(docoptidx === 0 || docoptidx === 1)
+															)
+																return null;
+														}
+														return (
+															<FileTypeList
+																key={`${docType.value}-${docoptidx}`}
+																value={docType.name}
+																onClick={() => {
+																	onDocTypeChange(file, docType);
+																	setIsPopoverOpen(-1);
+																}}>
+																{docType.name}
+															</FileTypeList>
+														);
+													})}
 												</FileTypeUL>
 												<FileTypeIcon
 													src={imgArrowDownCircle}

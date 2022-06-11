@@ -51,7 +51,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 	const {
 		state: { companyDetail },
 	} = useContext(BussinesContext);
-	const isDemo = sessionStorage.getItem('product') === 'demo';
+	const isUdhyog = sessionStorage.getItem('product') === 'udhyog';
 	return (
 		<Modal show={true} onClose={onClose} width='50%'>
 			<Div>
@@ -66,8 +66,8 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 				</Row>
 				<Row>
 					<Colm1>Address</Colm1>
-					{!isDemo && <Colm2>{companyDetail?.Address}</Colm2>}
-					{isDemo && (
+					{!isUdhyog && <Colm2>{companyDetail?.Address}</Colm2>}
+					{isUdhyog && (
 						<Colm2 className='flex flex-col items-start'>
 							<span>
 								{companyDetail?.Address?.bno +
