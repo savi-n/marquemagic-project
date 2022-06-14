@@ -224,7 +224,7 @@ export default function PanVerification({
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 	const isBusinessProductType = productType === 'business';
 	const isSalariedProductType = !isBusinessProductType; // 'salaried'
-	const isVerifyKycData = productDetails?.kyc_verification || true; // TODO: make it to false before pushing
+	const isVerifyKycData = productDetails?.kyc_verification; // TODO: make it to false before pushing
 	const {
 		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);
@@ -319,6 +319,56 @@ export default function PanVerification({
 	const proceedToNextSection = () => {
 		setCompleted(id);
 		onFlowChange(map.main);
+	};
+
+	const getVerifiedKycData = async (selectedAddressProof, extractionData) => {
+		try {
+			// console.log('getVerifiedKycData-', {
+			// 	selectedAddressProof,
+			// 	isVerifyKycData,
+			// 	extractionData,
+			// });
+			if (
+				isVerifyKycData &&
+				selectedAddressProof !== CONST.EXTRACTION_KEY_AADHAAR
+			) {
+				const reqBody = {
+					doc_ref_id:
+						selectedAddressProof === CONST.EXTRACTION_KEY_PAN
+							? extractionData?.doc_ref_id
+							: extractionData?.doc_ref_id,
+					doc_type: selectedAddressProof,
+				};
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_PAN) {
+					reqBody.number = extractionData.panNumber || '';
+					reqBody.name = extractionData.companyName || '';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_DL) {
+					reqBody.number = extractionData?.dl_no || '';
+					reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_VOTERID) {
+					reqBody.number = extractionData?.vid || '';
+					reqBody.state = extractionData?.state || '';
+					reqBody.name = extractionData?.Name || extractionData?.name || '';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_PASSPORT) {
+					// TODO: verify by testing passport extraction data
+					reqBody.number = extractionData?.passport_no || '';
+					reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
+					reqBody.name = extractionData?.Name || extractionData?.name || '';
+				}
+				const verifiedRes = await verifyKycDataUiUx(reqBody, clientToken);
+				return verifiedRes;
+			} else return {};
+		} catch (error) {
+			console.error('error-verifyKycDataUiUx-', error);
+			addToast({
+				message: error.message || 'Something Went Wrong. Try Again!',
+				type: 'error',
+			});
+			return {};
+		}
 	};
 
 	const companyNameSearch = async companyName => {
@@ -604,7 +654,7 @@ export default function PanVerification({
 	// }, [otherDoc, aadhar, voter, backUploading]);
 
 	const handleFileRemovePan = docId => {
-		console.log('handleFileRemovePan docId-', docId);
+		//console.log('handleFileRemovePan docId-', docId);
 		removeLoanDocument(docId);
 		resetAllErrors();
 		setPanDoc([]);
@@ -628,11 +678,14 @@ export default function PanVerification({
 			// validate pan with digit + alphabets
 			setLoading(true);
 			// call verifykyc api
-			const verifiedRes = await getVerifiedKycData(CONST.EXTRACTION_KEY_PAN);
-			console.log(
-				'pan-verification-handlePanConfirm-verifiedRes-',
-				verifiedRes
+			const verifiedRes = await getVerifiedKycData(
+				CONST.EXTRACTION_KEY_PAN,
+				panExtractionData
 			);
+			// console.log(
+			// 	'pan-verification-handlePanConfirm-verifiedRes-',
+			// 	verifiedRes
+			// );
 
 			// const businessDetails = {
 			// 	...extractionDataRes,
@@ -717,7 +770,7 @@ export default function PanVerification({
 	// Pancard extraction function
 	const handleExtractionPan = async () => {
 		try {
-			console.log('handleExtractionPan-', panDoc);
+			//	console.log('handleExtractionPan-', panDoc);
 			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', product_id);
@@ -731,14 +784,14 @@ export default function PanVerification({
 			const panForensicRes = panExtractionRes?.data?.forensicData || {};
 			const panForensicFlag = panForensicRes?.flag?.toLowerCase() || '';
 			const panForensicFlagMsg = panForensicRes?.flag_message || '';
-			console.log('handleExtractionPan-', {
-				panExtractionRes,
-				panExtractionStatus,
-				panExtractionMsg,
-				panForensicRes,
-				panForensicFlag,
-				panForensicFlagMsg,
-			});
+			// console.log('handleExtractionPan-', {
+			// 	panExtractionRes,
+			// 	panExtractionStatus,
+			// 	panExtractionMsg,
+			// 	panForensicRes,
+			// 	panForensicFlag,
+			// 	panForensicFlagMsg,
+			// });
 			if (panExtractionStatus === 'nok') {
 				// setIsPanConfirmModalOpen(true);
 				// setBusinessPan(false);
@@ -769,7 +822,7 @@ export default function PanVerification({
 				size: panExtractionRes?.data.s3.size,
 				type: CONST.EXTRACTION_KEY_PAN,
 				req_type: CONST.EXTRACTION_KEY_PAN, // requires for mapping with JSON
-				requestId: panExtractionRes?.data.request_id,
+				requestId: panExtractionRes?.data?.request_id,
 				upload_doc_name: panExtractionRes?.data.s3.filename,
 				isDocRemoveAllowed: false,
 			};
@@ -778,6 +831,9 @@ export default function PanVerification({
 			const newPanExtractionData = _.cloneDeep(
 				panExtractionRes?.data?.extractionData || {}
 			);
+			newPanExtractionData.doc_ref_id =
+				panExtractionRes?.data?.doc_ref_id || '';
+			newPanExtractionData.requestId = panExtractionRes?.data?.request_id || '';
 			newPanExtractionData.panNumber = newPanExtractionData?.Pan_number || '';
 			newPanExtractionData.responseId = newPanExtractionData?.id || '';
 			newPanExtractionData.dob = newPanExtractionData?.DOB || '';
@@ -785,9 +841,7 @@ export default function PanVerification({
 				CONST.isBusinessPan(
 					newPanExtractionData?.Name || newPanExtractionData?.name
 				) || false;
-			if (isBusinessProductType) {
-				newPanExtractionData.companyName = newPanExtractionData?.Name || '';
-			}
+			newPanExtractionData.companyName = newPanExtractionData?.Name || '';
 			if (isSalariedProductType) {
 				const name =
 					newPanExtractionData?.name?.split(' ') ||
@@ -866,61 +920,6 @@ export default function PanVerification({
 		sessionStorage.setItem('formstate', JSON.stringify(formState));
 	};
 
-	const getVerifiedKycData = async selectedAddressProof => {
-		try {
-			if (
-				isVerifyKycData &&
-				selectedAddressProof !== CONST.EXTRACTION_KEY_AADHAAR
-			) {
-				const reqBody = {
-					doc_ref_id: extractionDataRes?.doc_ref_id,
-					doc_type: selectedAddressProof,
-				};
-				if (selectedAddressProof === CONST.EXTRACTION_KEY_PAN) {
-					reqBody.number = panExtractionData.panNumber || '';
-					reqBody.name = panExtractionData.companyName || '';
-				}
-				if (selectedAddressProof === CONST.EXTRACTION_KEY_DL) {
-					reqBody.number = extractionDataRes?.data?.extractionData?.dl_no || '';
-					reqBody.dob =
-						extractionDataRes?.data?.extractionData?.dob ||
-						extractionDataRes?.data?.extractionData?.DOB ||
-						'';
-				}
-				if (selectedAddressProof === CONST.EXTRACTION_KEY_VOTERID) {
-					reqBody.number = extractionDataRes?.data?.extractionData?.vid || '';
-					reqBody.state = extractionDataRes?.data?.extractionData?.state || '';
-					reqBody.name =
-						extractionDataRes?.data?.extractionData?.Name ||
-						extractionDataRes?.data?.extractionData?.name ||
-						'';
-				}
-				if (selectedAddressProof === CONST.EXTRACTION_KEY_PASSPORT) {
-					// TODO: verify by testing passport extraction data
-					reqBody.number =
-						extractionDataRes?.data?.extractionData?.passport || '';
-					reqBody.dob =
-						extractionDataRes?.data?.extractionData?.dob ||
-						extractionDataRes?.data?.extractionData?.DOB ||
-						'';
-					reqBody.name =
-						extractionDataRes?.data?.extractionData?.Name ||
-						extractionDataRes?.data?.extractionData?.name ||
-						'';
-				}
-				const verifiedRes = await verifyKycDataUiUx(reqBody, clientToken);
-				return verifiedRes;
-			} else return {};
-		} catch (error) {
-			console.error('error-verifyKycDataUiUx-', error);
-			addToast({
-				message: error.message || 'Something Went Wrong. Try Again!',
-				type: 'error',
-			});
-			return {};
-		}
-	};
-
 	const handleFileUploadAddressProof = files => {
 		// const newFiles = _.cloneDeep(fileRef.current);
 		// fileRef.current.map(f => newFiles.push({ ...f }));
@@ -939,7 +938,7 @@ export default function PanVerification({
 	};
 
 	const handleFileRemoveAddressProof = docId => {
-		console.log('handleFileRemoveAddressProof docId-', docId);
+		//console.log('handleFileRemoveAddressProof docId-', docId);
 		removeLoanDocument(docId);
 		resetAllErrors();
 		// const newAddressProofDocs = _.cloneDeep(
@@ -972,10 +971,10 @@ export default function PanVerification({
 				setLoading(false);
 				return;
 			}
-			console.log(
-				'handleExtractionAddressProof-selectedAddressProofFiles-',
-				selectedAddressProofFiles
-			);
+			// console.log(
+			// 	'handleExtractionAddressProof-selectedAddressProofFiles-',
+			// 	selectedAddressProofFiles
+			// );
 
 			// Front + Back Extract
 			if (selectedAddressProofFiles.length > 1) {
@@ -1084,10 +1083,13 @@ export default function PanVerification({
 				setLoanDocuments([backFile]);
 				// this ends here
 				setExtractionDataRes(backExtractionRes?.data || {});
-				prepopulateAadhaarAndAddressState(
-					backExtractionRes?.data?.extractionData || {}
-				);
-				getVerifiedKycData(selectedAddressProof);
+				const newAddressProofExtractionData = {
+					...backExtractionRes?.data?.extractionData,
+					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+					requestId: backExtractionRes?.data.request_id,
+				};
+				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
+				getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
 				if (backForensicRes !== 'warning') proceedToNextSection();
 				setLoading(false);
 				return;
@@ -1151,10 +1153,13 @@ export default function PanVerification({
 			setLoanDocuments([file2]);
 			// this ends here
 			setExtractionDataRes(frontOnlyExtractionRes?.data || {});
-			prepopulateAadhaarAndAddressState(
-				frontOnlyExtractionRes?.data?.extractionData || {}
-			);
-			getVerifiedKycData(selectedAddressProof);
+			const newAddressProofExtractionData = {
+				...(frontOnlyExtractionRes?.data?.extractionData || {}),
+				doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
+				requestId: frontOnlyExtractionRes?.data?.request_id,
+			};
+			prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
+			getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
 			if (frontOnlyForensicFlag !== 'warning') proceedToNextSection();
 			setLoading(false);
 		} catch (error) {
@@ -1361,14 +1366,14 @@ export default function PanVerification({
 									// 	setIsPanConfirmModalOpen(true);
 									// }
 								}}
-								name={'Proceed pan warning'}
+								name={'Proceed'}
 								fill
 							/>
 						) : (
 							<Button
 								onClick={handleExtractionPan}
 								isLoader={loading}
-								name={loading ? 'Please wait...' : 'Proceed pan screen'}
+								name={loading ? 'Please wait...' : 'Proceed'}
 								// disabled={!docs.length > 0}
 								disabled={!panDoc.length > 0 || isError || loading}
 								fill
@@ -1469,13 +1474,13 @@ export default function PanVerification({
 									proceedToNextSection();
 								}}
 								disabled={!selectedAddressProof}
-								name={'Proceedgegg'}
+								name={'Proceed'}
 								fill
 							/>
 						) : (
 							<Button
 								isLoader={loading}
-								name={loading ? 'Please wait...' : 'Proceedsss'}
+								name={loading ? 'Please wait...' : 'Proceed'}
 								fill
 								disabled={isProceedDisabledAddressProof}
 								onClick={() => {
@@ -1537,7 +1542,7 @@ export default function PanVerification({
 					<ButtonWrapper>
 						<Button
 							isLoader={loading}
-							name={loading ? 'Please wait...' : 'Proceed udhyog'}
+							name={loading ? 'Please wait...' : 'Proceed'}
 							fill
 							disabled={isProceedDIsabledGstUdhyog}
 						/>

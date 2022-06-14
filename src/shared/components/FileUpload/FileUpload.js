@@ -989,7 +989,7 @@ export default function FileUpload({
 							</FileName>
 							{isFileUploaded && !uploading ? (
 								<ImgClose
-									isPreTag
+									isPreTag={sectionType !== 'pan'}
 									src={imgClose}
 									onClick={() => onFileRemove(file)}
 									alt='close'
