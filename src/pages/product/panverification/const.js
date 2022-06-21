@@ -46,7 +46,7 @@ export const getDocumentTypeList = selectedAddressProof => {
 				value: 503,
 				doc_type_id: 503,
 				id: 503,
-				name: 'Aadhaar Front Back Part',
+				name: 'Aadhaar Front and Back',
 			},
 		];
 	}
@@ -71,7 +71,7 @@ export const getDocumentTypeList = selectedAddressProof => {
 				value: 506,
 				doc_type_id: 506,
 				id: 506,
-				name: 'Voter Front Back Part',
+				name: 'Voter Front and Back ',
 			},
 		];
 	}
@@ -96,7 +96,7 @@ export const getDocumentTypeList = selectedAddressProof => {
 				value: 509,
 				doc_type_id: 509,
 				id: 509,
-				name: 'DL Front Back Part',
+				name: 'DL Front and Back',
 			},
 		];
 	}
@@ -121,7 +121,7 @@ export const getDocumentTypeList = selectedAddressProof => {
 				value: 512,
 				doc_type_id: 512,
 				id: 512,
-				name: 'Passport Front Back Part',
+				name: 'Passport Front and Back',
 			},
 		];
 	}

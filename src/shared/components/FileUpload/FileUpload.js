@@ -785,7 +785,7 @@ export default function FileUpload({
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
-	if (!pan) {
+	if (sectionType !== 'pan') {
 		selectedFiles.current.map(file => {
 			for (const key in docTypeFileMap) {
 				if (file.id === key) {
@@ -935,11 +935,10 @@ export default function FileUpload({
 			{displayTagMessage && aggreementUploadModal ? (
 				<WarningMessage>
 					{' '}
-					Click on <FileTypeSmallIcon
-						src={imgArrowDownCircle}
-						alt='arrow'
-					/>{' '}
-					and tag your uploaded documents to their respective document tags
+					Click on <FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' />
+					{aadharVoterDl
+						? 'and select the front and back part of the upload document and tag your'
+						: 'uploaded documents to their respective document tags'}
 				</WarningMessage>
 			) : null}
 			{/* {docTypeOptions?.length > 0 &&
@@ -1145,11 +1144,13 @@ export default function FileUpload({
 									src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 									alt='check'
 								/>
-								{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
-									<DocumentUploadNameToolTip>
-										{docType.name}
-									</DocumentUploadNameToolTip>
-								)}
+								{aadharVoterDl
+									? null
+									: docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+											<DocumentUploadNameToolTip>
+												{docType.name}
+											</DocumentUploadNameToolTip>
+									  )}
 								<DocumentUploadName
 									onMouseOver={() =>
 										setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)

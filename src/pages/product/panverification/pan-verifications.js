@@ -35,7 +35,7 @@ import {
 	getKYCDataId,
 	verifyKycDataUiUx,
 } from '../../../utils/request';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 import * as CONST from './const';
 import * as UI from './ui';
@@ -49,7 +49,6 @@ const Wrapper = styled.div`
 		max-width: 100%;
 	}
 `;
-
 const LabRed = styled.h1`
 	font-size: 1em;
 	font-weight: 500;
@@ -721,9 +720,15 @@ export default function PanVerification({
 				// 		clientToken
 				// 	);
 				// }
+
 				const newCompanyList = await companyNameSearch(
 					panExtractionData.companyName
 				);
+				// console.log('company information from pancardfile', newCompanyList);
+				// console.log(
+				// 	'information related to pancardextraction',
+				// 	panExtractionData
+				// );
 				setCompanyList(newCompanyList);
 				setIsPanConfirmModalOpen(false);
 				setIsCompanyListModalOpen(true);
@@ -1102,7 +1107,7 @@ export default function PanVerification({
 				};
 				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
 				getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
-				if (backForensicRes !== 'warning') proceedToNextSection();
+				if (backForensicFlag !== 'warning') proceedToNextSection();
 				setLoading(false);
 				return;
 			}
@@ -1231,6 +1236,7 @@ export default function PanVerification({
 		isProceedDisabledAddressProof = true;
 		isInActiveAddressProofUpload = true;
 	}
+
 	if (selectedAddressProof) {
 		const isFrontTagged =
 			addressProofDocs.filter(
@@ -1258,6 +1264,10 @@ export default function PanVerification({
 		if (isFrontBackTagged && !isFrontTagged && !isBackTagged) {
 			isInActiveAddressProofUpload = true;
 			isProceedDisabledAddressProof = false;
+		}
+		if (isError) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = true;
 		}
 		if (addressProofDocs.filter(f => !f?.isTagged?.id).length > 0) {
 			isInActiveAddressProofUpload = true;
@@ -1303,8 +1313,9 @@ export default function PanVerification({
 				show={isCompanyListModalOpen}
 				companyName={formState?.values?.companyName}
 				companyList={companyList}
+				panNumber={panExtractionData?.panNumber}
 				onClose={() => {
-					if (panFileId) removeLoanDocument(panFileId);
+					panFileId && removeLoanDocument(panFileId);
 					setIsCompanyListModalOpen(false);
 				}}
 				onCompanySelect={onCompanySelect}
@@ -1456,7 +1467,7 @@ export default function PanVerification({
 			{screen === CONST.SCREEN_ADDRESS_PROOF && (
 				<section>
 					<h1 className='text-xl text-black'>
-						Select and Upload any one of the doccument metions below
+						Select and Upload any one of the documents mentions below
 					</h1>
 					<RadioButtonWrapper>
 						{CONST.addressProofRadioButtonList.map(btn => {
