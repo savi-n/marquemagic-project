@@ -449,7 +449,7 @@ export default function PersonalDetails({
 									customFields.readonly = isVerifyWithOtpDisabled;
 								}
 							}
-							if (field.name === 'panNumber') {
+							if (id === 'personal-details' && field.name === 'panNumber') {
 								customFields.readonly = true;
 								customFields.disabled = true;
 							}
