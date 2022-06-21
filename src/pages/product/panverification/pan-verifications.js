@@ -35,7 +35,7 @@ import {
 	getKYCDataId,
 	verifyKycDataUiUx,
 } from '../../../utils/request';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 import * as CONST from './const';
 import * as UI from './ui';
@@ -49,7 +49,6 @@ const Wrapper = styled.div`
 		max-width: 100%;
 	}
 `;
-
 const LabRed = styled.h1`
 	font-size: 1em;
 	font-weight: 500;
@@ -244,6 +243,7 @@ export default function PanVerification({
 			removeAllLoanDocuments,
 			setLoanDocumentType,
 			removeLoanDocument,
+			removeAllAddressProofLoanDocuments,
 		},
 	} = useContext(LoanFormContext);
 
@@ -266,9 +266,10 @@ export default function PanVerification({
 	//const [gstNum, setGstNum] = useState(null);
 
 	const [screen, setScreen] = useState(CONST.SCREEN_PAN);
+	// const [screen, setScreen] = useState(CONST.SCREEN_ADDRESS_PROOF);
 	// const [panUpload, setPanUpload] = useState(true);
 	// const [file, setFile] = useState([]);
-	const fileRef = useRef([]);
+	// const fileRef = useRef([]);
 	// const [panFile, setPanFile] = useState([]);
 	const [panDoc, setPanDoc] = useState([]);
 	//const [panResponse, setPanResponse] = useState(null);
@@ -277,6 +278,13 @@ export default function PanVerification({
 	const product_id = sessionStorage.getItem('productId');
 
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
+	const [isDocTypeChangeModalOpen, setIsDocTypeChangeModalOpen] = useState(
+		false
+	);
+	// this state is to reset all <FileUpload /> document catch
+	// to perform this action setRemoveAllFileUploads(!removeAllFileUploads)
+	const [removeAllFileUploads, setRemoveAllFileUploads] = useState('');
+
 	// const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
 	// const [otherDoc, setOtherDoc] = useState([]);
 	// const [aadhar, setAadhar] = useState([]);
@@ -297,6 +305,7 @@ export default function PanVerification({
 	const [addressProofExtractionData, setAddressProofExtractionData] = useState(
 		{}
 	);
+	const [searchingCompanyName, setSearchingCompanyName] = useState(false);
 	// const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	// const [panNum, setPan] = useState('');
 	// const userid = '10626';
@@ -373,6 +382,7 @@ export default function PanVerification({
 
 	const companyNameSearch = async companyName => {
 		try {
+			setSearchingCompanyName(true);
 			const companyNameSearchReq = await newRequest(
 				SEARCH_COMPANY_NAME,
 				{
@@ -386,7 +396,9 @@ export default function PanVerification({
 
 			const companyNameSearchRes = companyNameSearchReq.data;
 
+			setSearchingCompanyName(false);
 			if (companyNameSearchRes.status === NC_STATUS_CODE.OK) {
+				setCompanyList(companyNameSearchRes.data);
 				return companyNameSearchRes.data;
 			}
 			return [];
@@ -396,6 +408,7 @@ export default function PanVerification({
 				message: error.message || 'Company search failed, try again',
 				type: 'error',
 			});
+			setSearchingCompanyName(false);
 			return [];
 		}
 	};
@@ -655,7 +668,8 @@ export default function PanVerification({
 
 	const handleFileRemovePan = docId => {
 		//console.log('handleFileRemovePan docId-', docId);
-		removeLoanDocument(docId);
+		removeAllLoanDocuments();
+		setRemoveAllFileUploads(!removeAllFileUploads);
 		resetAllErrors();
 		setPanDoc([]);
 		// var index3 = file.findIndex(x => x.id === docId);
@@ -711,10 +725,16 @@ export default function PanVerification({
 				// 		clientToken
 				// 	);
 				// }
-				const newCompanyList = await companyNameSearch(
-					panExtractionData.companyName
+
+				await companyNameSearch(
+					verifiedRes?.data?.message?.upstreamName ||
+						panExtractionData.companyName
 				);
-				setCompanyList(newCompanyList);
+				// console.log('company information from pancardfile', newCompanyList);
+				// console.log(
+				// 	'information related to pancardextraction',
+				// 	panExtractionData
+				// );
 				setIsPanConfirmModalOpen(false);
 				setIsCompanyListModalOpen(true);
 				setLoading(false);
@@ -877,7 +897,7 @@ export default function PanVerification({
 
 	const prepopulateAadhaarAndAddressState = extractionData => {
 		const newAddressProofExtractionData = _.cloneDeep(extractionData);
-		console.log('prepopulateAadhaarAndAddressState-', extractionData);
+		// console.log('prepopulateAadhaarAndAddressState-', extractionData);
 		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
 			/\s/g,
 			''
@@ -939,7 +959,7 @@ export default function PanVerification({
 
 	const handleFileRemoveAddressProof = docId => {
 		//console.log('handleFileRemoveAddressProof docId-', docId);
-		removeLoanDocument(docId);
+		removeAllAddressProofLoanDocuments();
 		resetAllErrors();
 		// const newAddressProofDocs = _.cloneDeep(
 		// 	// eslint-disable-next-line
@@ -1012,10 +1032,11 @@ export default function PanVerification({
 				const frontFile = {
 					...(frontExtractionRes?.data?.extractionData || {}),
 					document_key: frontExtractionRes?.data?.s3?.fd,
-					id: Math.random()
-						.toString(36)
-						.replace(/[^a-z]+/g, '')
-						.substr(0, 6),
+					id: selectedAddressProofFiles[0].id,
+					// id: Math.random()
+					// 	.toString(36)
+					// 	.replace(/[^a-z]+/g, '')
+					// 	.substr(0, 6),
 					mainType: 'KYC',
 					size: frontExtractionRes?.data?.s3?.size,
 					type: 'other',
@@ -1067,10 +1088,11 @@ export default function PanVerification({
 				const backFile = {
 					...(backExtractionRes?.data?.extractionData || {}),
 					document_key: backExtractionRes?.data.s3.fd,
-					id: Math.random()
-						.toString(36)
-						.replace(/[^a-z]+/g, '')
-						.substr(0, 6),
+					id: selectedAddressProofFiles[1].id,
+					// id: Math.random()
+					// 	.toString(36)
+					// 	.replace(/[^a-z]+/g, '')
+					// 	.substr(0, 6),
 					mainType: 'KYC',
 					size: backExtractionRes?.data.s3.size,
 					type: 'other',
@@ -1090,7 +1112,7 @@ export default function PanVerification({
 				};
 				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
 				getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
-				if (backForensicRes !== 'warning') proceedToNextSection();
+				if (backForensicFlag !== 'warning') proceedToNextSection();
 				setLoading(false);
 				return;
 			}
@@ -1134,13 +1156,14 @@ export default function PanVerification({
 				// CONTINUE EXECUTION
 			}
 
-			const file2 = {
+			const frontOnlyFile = {
 				...(frontOnlyExtractionRes?.data?.extractionData || {}),
 				document_key: frontOnlyExtractionRes?.data?.s3?.fd,
-				id: Math.random()
-					.toString(36)
-					.replace(/[^a-z]+/g, '')
-					.substr(0, 6),
+				id: selectedAddressProofFiles[0].id,
+				// id: Math.random()
+				// 	.toString(36)
+				// 	.replace(/[^a-z]+/g, '')
+				// 	.substr(0, 6),
 				mainType: 'KYC',
 				size: frontOnlyExtractionRes?.data?.s3?.size,
 				type: 'other',
@@ -1150,7 +1173,7 @@ export default function PanVerification({
 				isDocRemoveAllowed: false,
 			};
 
-			setLoanDocuments([file2]);
+			setLoanDocuments([frontOnlyFile]);
 			// this ends here
 			setExtractionDataRes(frontOnlyExtractionRes?.data || {});
 			const newAddressProofExtractionData = {
@@ -1197,18 +1220,28 @@ export default function PanVerification({
 		setAddressProofDocs(newAddressProofDocs);
 	};
 
+	const onSelectedAddressProofChange = (e, btn) => {
+		if (selectedAddressProof && addressProofDocs.length > 0) {
+			setIsDocTypeChangeModalOpen(btn.key);
+		} else {
+			setIsAddharSkipChecked(false);
+			setSelectedAddressProof(btn.key);
+		}
+	};
+
 	let isFrontTagged = false;
 	let isBackTagged = false;
 	let isFrontBackTagged = false;
-	let isInActiveAddressProof = false;
+	let isInActiveAddressProofUpload = false;
 	let isProceedDisabledAddressProof = true;
 	let isSkipOptionDisabled = false;
 	let isProceedDIsabledGstUdhyog = false;
 
 	if (!selectedAddressProof) {
 		isProceedDisabledAddressProof = true;
-		isInActiveAddressProof = true;
+		isInActiveAddressProofUpload = true;
 	}
+
 	if (selectedAddressProof) {
 		const isFrontTagged =
 			addressProofDocs.filter(
@@ -1223,18 +1256,33 @@ export default function PanVerification({
 				f => f?.isTagged?.id === selectedDocTypeList[2].id
 			).length > 0;
 		if (addressProofDocs.length > 0) isSkipOptionDisabled = true;
-		if (isFrontTagged && !isBackTagged && !isFrontBackTagged)
+		if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
 			isProceedDisabledAddressProof = false;
+		}
+		if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
+			isProceedDisabledAddressProof = false;
+		}
 		if (isFrontTagged && isBackTagged && !isFrontBackTagged) {
-			isInActiveAddressProof = true;
+			isInActiveAddressProofUpload = true;
 			isProceedDisabledAddressProof = false;
 		}
 		if (isFrontBackTagged && !isFrontTagged && !isBackTagged) {
-			isInActiveAddressProof = true;
+			isInActiveAddressProofUpload = true;
 			isProceedDisabledAddressProof = false;
 		}
+		if (isError) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = true;
+		}
+		if (addressProofDocs.filter(f => !f?.isTagged?.id).length > 0) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = true;
+		}
 	}
-	if (isAddharSkipChecked) isProceedDisabledAddressProof = false;
+	if (isAddharSkipChecked) {
+		isInActiveAddressProofUpload = true;
+		isProceedDisabledAddressProof = false;
+	}
 
 	if (screen === CONST.SCREEN_GST_UDHYOG) {
 		if (gstError) isProceedDIsabledGstUdhyog = true;
@@ -1256,7 +1304,7 @@ export default function PanVerification({
 	// 	fileRef: fileRef.current,
 	// 	loanDocuments,
 	// 	addressProofDocs,
-	// 	isInActiveAddressProof,
+	// 	isInActiveAddressProofUpload,
 	// 	isProceedDisabledAddressProof,
 	// 	formState,
 	// 	extractionDataRes,
@@ -1267,11 +1315,13 @@ export default function PanVerification({
 		<Wrapper>
 			<CompanySelectModal
 				companyNameSearch={companyNameSearch}
+				searchingCompanyName={searchingCompanyName}
 				show={isCompanyListModalOpen}
 				companyName={formState?.values?.companyName}
 				companyList={companyList}
+				panExtractionData={panExtractionData}
 				onClose={() => {
-					if (panFileId) removeLoanDocument(panFileId);
+					panFileId && removeLoanDocument(panFileId);
 					setIsCompanyListModalOpen(false);
 				}}
 				onCompanySelect={onCompanySelect}
@@ -1309,6 +1359,44 @@ export default function PanVerification({
 						style={{ alignSelf: 'center' }}
 					/>
 				</section>
+			</Modal>
+			<Modal
+				show={isDocTypeChangeModalOpen}
+				onClose={() => {
+					setIsDocTypeChangeModalOpen(false);
+				}}
+				width='50%'
+				customStyle={{ minHeight: 200 }}>
+				<UI.DocTypeChangeModalBody>
+					<UI.DocTypeChangeModalHeader>
+						<p className='py-2'>
+							<strong>Are you sure want to change documen type?</strong>
+						</p>
+						<p>
+							By changing it, all the existing tagged and untagged document will
+							be lost.
+						</p>
+					</UI.DocTypeChangeModalHeader>
+					<UI.DocTypeChangeModalFooter>
+						<Button
+							name='Confirm'
+							fill
+							onClick={() => {
+								setAddressProofDocs([]);
+								removeAllAddressProofLoanDocuments();
+								setIsDocTypeChangeModalOpen(false);
+								setRemoveAllFileUploads(!removeAllFileUploads);
+								resetAllErrors();
+								setIsAddharSkipChecked(false);
+								setSelectedAddressProof(isDocTypeChangeModalOpen);
+							}}
+						/>
+						<Button
+							name='Cancel'
+							onClick={() => setIsDocTypeChangeModalOpen(false)}
+						/>
+					</UI.DocTypeChangeModalFooter>
+				</UI.DocTypeChangeModalBody>
 			</Modal>
 			{screen === CONST.SCREEN_PAN && (
 				<section className='flex flex-col gap-y-6'>
@@ -1385,7 +1473,7 @@ export default function PanVerification({
 			{screen === CONST.SCREEN_ADDRESS_PROOF && (
 				<section>
 					<h1 className='text-xl text-black'>
-						Select and Upload any one of the doccument metions below
+						Select and Upload any one of the documents mentions below
 					</h1>
 					<RadioButtonWrapper>
 						{CONST.addressProofRadioButtonList.map(btn => {
@@ -1395,7 +1483,7 @@ export default function PanVerification({
 										id={btn.key}
 										type='radio'
 										value={btn.key}
-										onChange={() => setSelectedAddressProof(btn.key)}
+										onChange={e => onSelectedAddressProofChange(e, btn)}
 										checked={selectedAddressProof === btn.key}
 									/>
 									<label htmlFor={btn.key} style={{ marginLeft: '10px' }}>
@@ -1407,14 +1495,14 @@ export default function PanVerification({
 					</RadioButtonWrapper>
 					<div
 						onClick={e => {
-							if (isInActiveAddressProof) {
+							if (isInActiveAddressProofUpload) {
 								e.preventDefault();
 								e.stopPropagation();
 							}
 						}}>
 						{/* ADDRESS PROOF UPLOAD SECTION */}
 						<FileUpload
-							isInActive={isInActiveAddressProof}
+							isInActive={isInActiveAddressProofUpload}
 							section={'addressproof'}
 							accept=''
 							upload={true}
@@ -1429,6 +1517,7 @@ export default function PanVerification({
 							aadharVoterDl={true}
 							errorMessage={addressProofError}
 							errorType={addressProofError && (isWarning ? 'warning' : 'error')}
+							removeAllFileUploads={removeAllFileUploads}
 						/>
 					</div>
 					{addressProofError && (

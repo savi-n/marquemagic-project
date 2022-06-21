@@ -5,18 +5,34 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import Modal from './Modal';
 import Button from './Button';
-
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
 const Wrapper = styled.div`
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 `;
+const ImgClose = styled.img`
+	height: 25px;
+	cursor: pointer;
+	margin-left: auto;
+	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
+`;
+const PanConfirm = styled.div`
+	margin-top: 100px;
+	margin-bottom: 10px;
+	text-align: center;
+	font-size: 1.4em;
+	font-weight: 500;
+`;
 
 const Company = styled.div`
 	margin: 10px;
-	width: 44%;
-	border: 1px solid black;
-	padding: 10px;
+	width: 84%;
+	height: 100px;
+	text-align: center;
+
+	box-shadow: rgb(11 92 255 / 16%) 5px 2px 5px 1px;
+	padding: 28px;
 	cursor: pointer;
 	border-radius: 10px;
 	@media (max-width: 700px) {
@@ -36,13 +52,18 @@ export default function CompanySelectModal({
 	companyNameSearch,
 	companyName,
 	formState,
+	panExtractionData = {},
+	searchingCompanyName = false,
 }) {
-	const [loading] = useState(false);
-
 	//const { register } = useForm();
-	const [company, setCompany] = useState(formState?.values?.companyName);
+	const [company, setCompany] = useState(panExtractionData?.companyName);
+	//console.log('company information', companyList);
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>
+			<ImgClose onClick={onClose} src={imgClose} alt='close' />
+			<PanConfirm>
+				Confirm the Entity for {panExtractionData?.panNumber}{' '}
+			</PanConfirm>
 			<Wrapper>
 				{companyList.length ? (
 					companyList.map(company => (
@@ -56,22 +77,28 @@ export default function CompanySelectModal({
 						</Company>
 					))
 				) : (
-					<section className='w-full flex flex-col items-center'>
+					<section
+						className='w-full flex flex-col items-center'
+						style={{ width: '84%' }}>
 						<section className='py-10'>
 							No data found for the given company
 						</section>
 						<input
 							className='p-2 border w-full rounded-lg'
 							placeholder='Company Name'
-							defaultValue={formState?.values?.companyName}
+							defaultValue={panExtractionData?.companyName}
 							onChange={e => setCompany(e.target.value)}
 						/>
 						<section className='flex flex-col py-8 items-center w-full'>
 							<Button
 								onClick={() => companyNameSearch(company)}
-								isLoader={loading}
-								name={loading ? 'Please wait...' : 'Search'}
-								disabled={!company || !formState?.values?.companyName}
+								isLoader={searchingCompanyName}
+								name={searchingCompanyName ? 'Please wait...' : 'Search'}
+								disabled={
+									searchingCompanyName ||
+									!company ||
+									!panExtractionData?.companyName
+								}
 								fill
 							/>
 						</section>
