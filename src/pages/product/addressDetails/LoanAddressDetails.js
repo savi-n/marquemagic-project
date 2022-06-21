@@ -171,10 +171,22 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
-			const aadhaarOtpRes = JSON.parse(
-				sessionStorage.getItem('aadhaar_otp_res')
-			);
+			let formStat = {};
+			try {
+				formStat = JSON.parse(sessionStorage.getItem('formstate'));
+			} catch (e) {
+				formStat = { values: {} };
+			}
+			// initialize values if not exist
+			if (!formStat?.values) {
+				formStat.values = {};
+			}
+			let aadhaarOtpRes = null;
+			try {
+				aadhaarOtpRes = JSON.parse(sessionStorage.getItem('aadhaar_otp_res'));
+			} catch (e) {
+				aadhaarOtpRes = null;
+			}
 			if (aadhaarOtpRes) {
 				const newAddress1 = [];
 				if (aadhaarOtpRes?.data?.address?.house)
@@ -221,6 +233,11 @@ export default function AddressDetailsPage({
 	const Address =
 		(form && form.address && form.address[0]) ||
 		(editLoanData && formatAddressData(editLoanData.business_address)[0]);
+
+	// console.log('LoanAddressDetails-states-', {
+	// 	Address,
+	// 	preprefilledValues: prefilledValues(),
+	// });
 
 	return (
 		<Div>
