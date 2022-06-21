@@ -52,17 +52,18 @@ export default function CompanySelectModal({
 	companyNameSearch,
 	companyName,
 	formState,
-	panNumber,
+	panExtractionData = {},
+	searchingCompanyName = false,
 }) {
-	const [loading] = useState(false);
-
 	//const { register } = useForm();
-	const [company, setCompany] = useState(formState?.values?.companyName);
+	const [company, setCompany] = useState(panExtractionData?.companyName);
 	//console.log('company information', companyList);
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>
 			<ImgClose onClick={onClose} src={imgClose} alt='close' />
-			<PanConfirm>Confirm the Entity for {panNumber} </PanConfirm>
+			<PanConfirm>
+				Confirm the Entity for {panExtractionData?.panNumber}{' '}
+			</PanConfirm>
 			<Wrapper>
 				{companyList.length ? (
 					companyList.map(company => (
@@ -76,22 +77,28 @@ export default function CompanySelectModal({
 						</Company>
 					))
 				) : (
-					<section className='w-full flex flex-col items-center'>
+					<section
+						className='w-full flex flex-col items-center'
+						style={{ width: '84%' }}>
 						<section className='py-10'>
 							No data found for the given company
 						</section>
 						<input
 							className='p-2 border w-full rounded-lg'
 							placeholder='Company Name'
-							defaultValue={formState?.values?.companyName}
+							defaultValue={panExtractionData?.companyName}
 							onChange={e => setCompany(e.target.value)}
 						/>
 						<section className='flex flex-col py-8 items-center w-full'>
 							<Button
 								onClick={() => companyNameSearch(company)}
-								isLoader={loading}
-								name={loading ? 'Please wait...' : 'Search'}
-								disabled={!company || !formState?.values?.companyName}
+								isLoader={searchingCompanyName}
+								name={searchingCompanyName ? 'Please wait...' : 'Search'}
+								disabled={
+									searchingCompanyName ||
+									!company ||
+									!panExtractionData?.companyName
+								}
 								fill
 							/>
 						</section>
