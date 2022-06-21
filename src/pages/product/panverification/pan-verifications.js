@@ -664,7 +664,8 @@ export default function PanVerification({
 
 	const handleFileRemovePan = docId => {
 		//console.log('handleFileRemovePan docId-', docId);
-		removeAllFileUploads();
+		removeAllLoanDocuments();
+		setRemoveAllFileUploads(!removeAllFileUploads);
 		resetAllErrors();
 		setPanDoc([]);
 		// var index3 = file.findIndex(x => x.id === docId);
