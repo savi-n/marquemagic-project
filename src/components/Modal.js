@@ -11,7 +11,7 @@ const Backdrop = styled.div`
 	background: rgba(0, 0, 0, 0.5);
 	top: 0;
 	left: 0;
-	z-index: 999;
+	z-index: 9999;
 	display: flex;
 	align-items: center;
 	justify-content: center;

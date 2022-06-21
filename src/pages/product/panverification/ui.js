@@ -24,3 +24,18 @@ export const DisabledCheckbox = styled.div`
 	max-width: 15px;
 	background-color: lightgrey;
 `;
+
+export const DocTypeChangeModalBody = styled.div`
+	text-align: center;
+	padding: 20px;
+`;
+
+export const DocTypeChangeModalHeader = styled.div`
+	/* text-align: left; */
+`;
+export const DocTypeChangeModalFooter = styled.div`
+	margin-top: 30px;
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+`;
