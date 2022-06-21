@@ -722,7 +722,8 @@ export default function PanVerification({
 				// }
 
 				const newCompanyList = await companyNameSearch(
-					panExtractionData.companyName
+					verifiedRes?.data?.message?.upstreamName ||
+						panExtractionData.companyName
 				);
 				// console.log('company information from pancardfile', newCompanyList);
 				// console.log(
