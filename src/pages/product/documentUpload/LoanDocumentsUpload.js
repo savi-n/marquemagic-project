@@ -251,7 +251,14 @@ function caseCreationDataFormat(
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
-
+	let authentication_otp_res = null;
+	try {
+		authentication_otp_res = JSON.parse(
+			sessionStorage.getItem('authentication_otp_res')
+		);
+	} catch (e) {
+		authentication_otp_res = null;
+	}
 	editLoan = sessionStorage.getItem('editLoan')
 		? JSON.parse(sessionStorage.getItem('editLoan'))
 		: {};
@@ -543,9 +550,9 @@ function caseCreationDataFormat(
 		formatedData.director_details.director_0.id =
 			editLoan?.director_details[0]?.id || null;
 	}
-	// if (sessionStorage.getItem('product') != 'demo') {
-	// 	formatedData['branchId'] = companyData.branchId;
-	// }
+	if (authentication_otp_res) {
+		formatedData.auth_details = authentication_otp_res;
+	}
 
 	return formatedData;
 }

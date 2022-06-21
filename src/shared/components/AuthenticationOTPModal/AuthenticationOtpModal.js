@@ -139,7 +139,7 @@ const AuthenticationOTPModal = props => {
 				});
 				sessionStorage.setItem(
 					'authentication_otp_res',
-					JSON.stringify(authenticationVerifyResponse)
+					JSON.stringify(authenticationVerifyResponse.data)
 				);
 				setIsVerifyWithOtpDisabled(true);
 				onSubmitCompleteApplication();
