@@ -15,6 +15,7 @@ const actionTypes = {
 	REMOVE_ALL_DOCUMENTS: 'REMOVE_ALL_DOCUMENTS',
 	SET_KYC_EXTRACT_DOCDETAILS_PAN: 'SET_KYC_EXTRACT_DOCDETAILS_PAN',
 	SET_KYC_EXTRACT_DOCDETAILS_OTHER: 'SET_KYC_EXTRACT_DOCDETAILS_OTHER:',
+	REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS: 'REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS',
 };
 
 const INITIAL_STATE = {};
@@ -56,6 +57,12 @@ const useActions = dispatch => {
 		});
 	};
 
+	const removeAllAddressProofLoanDocuments = () => {
+		dispatch({
+			type: actionTypes.REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS,
+		});
+	};
+
 	const setPanDocDetails = docDetails => {
 		dispatch({
 			type: actionTypes.SET_KYC_EXTRACT_DOCDETAILS_PAN,
@@ -76,6 +83,7 @@ const useActions = dispatch => {
 		removeLoanDocument,
 		setLoanDocumentType,
 		removeAllLoanDocuments,
+		removeAllAddressProofLoanDocuments,
 		setPanDocDetails,
 		setOtherDocDetails,
 	};
@@ -121,6 +129,9 @@ function reducer(state, action) {
 		}
 
 		case actionTypes.REMOVE_LOAN_DOCUMENT: {
+			console.log('loanFormDataReducer-REMOVE_LOAN_DOCUMENT-before-', {
+				stateDocs: state.documents,
+			});
 			const filteredDocs = (state.documents || []).filter(
 				doc => doc.id !== action.fileId
 			);
@@ -128,6 +139,10 @@ function reducer(state, action) {
 				..._.cloneDeep(state),
 				documents: filteredDocs,
 			};
+			console.log('loanFormDataReducer-REMOVE_LOAN_DOCUMENT-after-', {
+				filteredDocs,
+				updatedState,
+			});
 			break;
 		}
 
@@ -135,6 +150,15 @@ function reducer(state, action) {
 			updatedState = {
 				..._.cloneDeep(state),
 				documents: [],
+			};
+			break;
+		}
+
+		case actionTypes.REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS: {
+			const newDocuments = _.cloneDeep(state?.documents || []);
+			updatedState = {
+				..._.cloneDeep(state),
+				documents: newDocuments.filter(d => d.req_type === 'pan'),
 			};
 			break;
 		}

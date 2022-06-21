@@ -436,6 +436,7 @@ export default function FileUpload({
 	startingUnTaggedDocs = [],
 	aggreementUploadModal = true,
 	isInActive = false,
+	removeAllFileUploads = '',
 }) {
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -600,7 +601,7 @@ export default function FileUpload({
 							return { ...file, status: 'error' };
 						})
 						.catch(err => {
-							console.log(err);
+							console.error(err);
 							if (err.message === USER_CANCELED) {
 								onCancel(file, 'cancelled');
 							} else {
@@ -858,6 +859,15 @@ export default function FileUpload({
 	}, []);
 
 	useEffect(() => {
+		// console.log('useEffect-removeAllFileUploads-', removeAllFileUploads);
+		if (removeAllFileUploads === '') return;
+		selectedFiles.current = [];
+		setUploadingFiles([]);
+		setDocTypeFileMap({});
+		setMappedFiles({});
+	}, [removeAllFileUploads]);
+
+	useEffect(() => {
 		let div = ref?.current;
 		div?.addEventListener('dragenter', handleDragIn);
 		div?.addEventListener('dragleave', handleDragOut);
@@ -907,18 +917,19 @@ export default function FileUpload({
 					/>
 					<Label htmlFor={id}>Browse</Label>
 					{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
-					{!isInActive && (
-						<UploadCircle
-							htmlFor={id}
-							style={{ marginLeft: 'auto', padding: 10 }}>
-							<img
-								src={uploadCircleIcon}
-								width={40}
-								style={{ maxWidth: 'none' }}
-								alt='upload'
-							/>
-						</UploadCircle>
-					)}
+					<UploadCircle
+						htmlFor={id}
+						style={{ marginLeft: 'auto', padding: 10 }}>
+						<img
+							src={uploadCircleIcon}
+							width={40}
+							style={{
+								maxWidth: 'none',
+								filter: isInActive ? 'grayscale(200%)' : 'none',
+							}}
+							alt='upload'
+						/>
+					</UploadCircle>
 				</Dropzone>
 			)}
 			{displayTagMessage && aggreementUploadModal ? (
@@ -1233,6 +1244,7 @@ export default function FileUpload({
 															docTypeFileMap
 														);
 														delete newDocTypeFileMap[doc.docTypeKey];
+														delete newDocTypeFileMap[doc.id];
 														// console.log('after-remove-', {
 														// 	newPasswordList,
 														// 	newDocTypeFileMap,
