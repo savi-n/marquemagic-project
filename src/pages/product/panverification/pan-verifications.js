@@ -267,9 +267,10 @@ export default function PanVerification({
 	//const [gstNum, setGstNum] = useState(null);
 
 	const [screen, setScreen] = useState(CONST.SCREEN_PAN);
+	// const [screen, setScreen] = useState(CONST.SCREEN_ADDRESS_PROOF);
 	// const [panUpload, setPanUpload] = useState(true);
 	// const [file, setFile] = useState([]);
-	const fileRef = useRef([]);
+	// const fileRef = useRef([]);
 	// const [panFile, setPanFile] = useState([]);
 	const [panDoc, setPanDoc] = useState([]);
 	//const [panResponse, setPanResponse] = useState(null);
