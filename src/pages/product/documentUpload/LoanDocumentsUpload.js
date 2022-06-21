@@ -1,8 +1,8 @@
 // active page
 /* This file contains document upload section i.e visibility of documents, tags etc*/
-import { useState, useContext, useEffect, Fragment } from 'react';
+import { useContext, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-
+import { useState } from 'react';
 import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import Button from '../../../components/Button';
 import CheckBox from '../../../shared/components/Checkbox/CheckBox';
@@ -24,6 +24,7 @@ import {
 	CIN_UPDATE,
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
+	AUTHENTICATION_GENERATE_OTP,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -35,6 +36,8 @@ import BankStatementModal from '../../../components/BankStatementModal';
 import { CaseContext } from '../../../reducer/caseReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
+import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
+import { concat } from 'lodash';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -156,7 +159,6 @@ const StyledButton = styled.button`
 		padding: 0 10px;
 	}
 `;
-
 const LoaderWrapper = styled.div`
 	height: 200px;
 	display: flex;
@@ -786,6 +788,12 @@ export default function DocumentUpload({
 	const idType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 
+	const [
+		isAuthenticationOtpModalOpen,
+		setIsAuthenticationOtpModalOpen,
+	] = useState(false);
+	// const [contactNo, setContactNo] = useState();
+	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 
@@ -1450,12 +1458,7 @@ export default function DocumentUpload({
 		}
 	};
 
-	const onSubmit = async () => {
-		if (buttonDisabledStatus()) {
-			return;
-		}
-
-		setCaseCreationProgress(true);
+	const isFormValid = () => {
 		let docError = false;
 		state?.documents?.map(ele => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
@@ -1471,28 +1474,57 @@ export default function DocumentUpload({
 				message: 'Please select the document type',
 				type: 'error',
 			});
-			setCaseCreationProgress(false);
-		} else {
-			if (!userType) {
-				const loanReq = await caseCreationSteps(state);
-
-				if (!loanReq && !loanReq?.loanId) {
-					setCaseCreationProgress(false);
-					return;
-				}
-
-				if (editLoan && editLoan?.loan_ref_id) {
-					setTimeout(() => {
-						addToast({
-							message: 'Your application has been updated',
-							type: 'success',
-						});
-					}, 1000);
-				}
-				setCompleted(id);
-				onFlowChange(!map ? 'application-submitted' : map.main);
-			}
+			return false;
 		}
+		return true;
+	};
+
+	const onSubmitOtpAuthentication = async () => {
+		try {
+			if (buttonDisabledStatus()) return;
+			if (!isFormValid()) return;
+			setIsAuthenticationOtpModalOpen(true);
+			const sendOTPReq = await newRequest(AUTHENTICATION_GENERATE_OTP, {
+				method: 'POST',
+				data: {
+					mobile: applicantData?.mobileNo || companyData?.mobileNo,
+				},
+				headers: {
+					Authorization: `Bearer ${API_TOKEN}`,
+				},
+			});
+			const authenticationGenOTPResponse = sendOTPReq.data;
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const onSubmitCompleteApplication = async () => {
+		setCaseCreationProgress(true);
+		if (buttonDisabledStatus()) return;
+		if (!isFormValid()) return;
+		// return;
+		// setLoading(false);
+		if (!userType) {
+			const loanReq = await caseCreationSteps(state);
+
+			if (!loanReq && !loanReq?.loanId) {
+				setCaseCreationProgress(false);
+				return;
+			}
+
+			if (editLoan && editLoan?.loan_ref_id) {
+				setTimeout(() => {
+					addToast({
+						message: 'Your application has been updated',
+						type: 'success',
+					});
+				}, 1000);
+			}
+			setCompleted(id);
+			onFlowChange(!map ? 'application-submitted' : map.main);
+		}
+		setCaseCreationProgress(false);
 	};
 
 	const openCloseCollaps = name => {
@@ -1538,6 +1570,16 @@ export default function DocumentUpload({
 
 	return (
 		<>
+			{isAuthenticationOtpModalOpen && (
+				<AuthenticationOtpModal
+					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
+					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
+					setContactNo={applicantData?.mobileNo || companyData?.mobileNo}
+					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
+					onSubmitCompleteApplication={onSubmitCompleteApplication}
+				/>
+			)}
+
 			<Colom1>
 				<H>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
@@ -1772,18 +1814,31 @@ export default function DocumentUpload({
 					/>
 				</CheckboxWrapper>
 				<SubmitWrapper>
-					<Button
-						name='Submit'
-						fill
-						style={{
-							width: '200px',
-							background: 'blue',
-						}}
-						isLoader={caseCreationProgress}
-						disabled={buttonDisabledStatus()}
-						onClick={!caseCreationProgress && onSubmit}
-						// onClick={onSubmit}
-					/>
+					{productDetails.otp_authentication ? (
+						<Button
+							name='Submit'
+							fill
+							style={{
+								width: '200px',
+								background: 'blue',
+							}}
+							isLoader={caseCreationProgress}
+							disabled={buttonDisabledStatus()}
+							onClick={!caseCreationProgress && onSubmitOtpAuthentication}
+						/>
+					) : (
+						<Button
+							name='Submit'
+							fill
+							style={{
+								width: '200px',
+								background: 'blue',
+							}}
+							isLoader={caseCreationProgress}
+							disabled={buttonDisabledStatus()}
+							onClick={!caseCreationProgress && onSubmitCompleteApplication}
+						/>
+					)}
 				</SubmitWrapper>
 				{otherBankStatementModal && (
 					<BankStatementModal

@@ -73,6 +73,8 @@ const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
 const AADHAAR_GENERATE_OTP = `${ENDPOINT_BANK}/aadhaar/generateOTP`;
 const AADHAAR_VERIFY_OTP = `${ENDPOINT_BANK}/aadhaar/verifyOTP`;
 const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
+const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
+const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
 
 const APP_CLIENT =
 	window.location.hostname === 'localhost'
@@ -151,4 +153,6 @@ export {
 	AADHAAR_GENERATE_OTP,
 	AADHAAR_VERIFY_OTP,
 	AADHAAR_RESEND_OTP,
+	AUTHENTICATION_GENERATE_OTP,
+	AUTHENTICATION_VERIFY_OTP,
 };
