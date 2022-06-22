@@ -305,6 +305,7 @@ export default function PanVerification({
 	const [addressProofExtractionData, setAddressProofExtractionData] = useState(
 		{}
 	);
+	const [searchingCompanyName, setSearchingCompanyName] = useState(false);
 	// const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	// const [panNum, setPan] = useState('');
 	// const userid = '10626';
@@ -381,6 +382,7 @@ export default function PanVerification({
 
 	const companyNameSearch = async companyName => {
 		try {
+			setSearchingCompanyName(true);
 			const companyNameSearchReq = await newRequest(
 				SEARCH_COMPANY_NAME,
 				{
@@ -394,7 +396,9 @@ export default function PanVerification({
 
 			const companyNameSearchRes = companyNameSearchReq.data;
 
+			setSearchingCompanyName(false);
 			if (companyNameSearchRes.status === NC_STATUS_CODE.OK) {
+				setCompanyList(companyNameSearchRes.data);
 				return companyNameSearchRes.data;
 			}
 			return [];
@@ -404,6 +408,7 @@ export default function PanVerification({
 				message: error.message || 'Company search failed, try again',
 				type: 'error',
 			});
+			setSearchingCompanyName(false);
 			return [];
 		}
 	};
@@ -663,7 +668,8 @@ export default function PanVerification({
 
 	const handleFileRemovePan = docId => {
 		//console.log('handleFileRemovePan docId-', docId);
-		removeAllFileUploads();
+		removeAllLoanDocuments();
+		setRemoveAllFileUploads(!removeAllFileUploads);
 		resetAllErrors();
 		setPanDoc([]);
 		// var index3 = file.findIndex(x => x.id === docId);
@@ -720,15 +726,15 @@ export default function PanVerification({
 				// 	);
 				// }
 
-				const newCompanyList = await companyNameSearch(
-					panExtractionData.companyName
+				await companyNameSearch(
+					verifiedRes?.data?.message?.upstreamName ||
+						panExtractionData.companyName
 				);
 				// console.log('company information from pancardfile', newCompanyList);
 				// console.log(
 				// 	'information related to pancardextraction',
 				// 	panExtractionData
 				// );
-				setCompanyList(newCompanyList);
 				setIsPanConfirmModalOpen(false);
 				setIsCompanyListModalOpen(true);
 				setLoading(false);
@@ -1309,10 +1315,11 @@ export default function PanVerification({
 		<Wrapper>
 			<CompanySelectModal
 				companyNameSearch={companyNameSearch}
+				searchingCompanyName={searchingCompanyName}
 				show={isCompanyListModalOpen}
 				companyName={formState?.values?.companyName}
 				companyList={companyList}
-				panNumber={panExtractionData?.panNumber}
+				panExtractionData={panExtractionData}
 				onClose={() => {
 					panFileId && removeLoanDocument(panFileId);
 					setIsCompanyListModalOpen(false);
