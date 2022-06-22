@@ -937,7 +937,7 @@ export default function FileUpload({
 					{' '}
 					Click on <FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' />
 					{aadharVoterDl
-						? 'and select the front and back part of the upload document and tag your'
+						? 'and select the front and back part of the uploaded document'
 						: 'uploaded documents to their respective document tags'}
 				</WarningMessage>
 			) : null}
