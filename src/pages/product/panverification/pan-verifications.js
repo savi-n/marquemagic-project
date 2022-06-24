@@ -1333,7 +1333,6 @@ export default function PanVerification({
 				companyList={companyList}
 				panExtractionData={panExtractionData}
 				onClose={() => {
-					panFileId && removeLoanDocument(panFileId);
 					setIsCompanyListModalOpen(false);
 				}}
 				onCompanySelect={onCompanySelect}
@@ -1342,7 +1341,6 @@ export default function PanVerification({
 			<Modal
 				show={isPanConfirmModalOpen}
 				onClose={() => {
-					if (panFileId) removeLoanDocument(panFileId);
 					setIsPanConfirmModalOpen(false);
 				}}
 				width='30%'>
