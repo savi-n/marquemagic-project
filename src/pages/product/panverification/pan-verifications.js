@@ -20,6 +20,7 @@ import Button from '../../../components/Button';
 import Modal from '../../../components/Modal';
 import WarnIcon from 'assets/icons/amber_warning_icon.png';
 import ErrorIcon from 'assets/icons/Red_error_icon.png';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import {
 	ROC_DATA_FETCH,
 	LOGIN_CREATEUSER,
@@ -63,15 +64,26 @@ const FieldWrapper = styled.div`
 		width: 100%;
 	}
 `;
-
+const ImgClose = styled.img`
+	height: 25px;
+	cursor: pointer;
+	margin-left: auto;
+	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
+`;
 const FieldWrapperPanVerify = styled.div`
-	padding: 20px 0;
+	padding: 30px 10px;
 	/* width: 50%; */
 	place-self: center;
-	margin-right: 10em;
+
 	@media (max-width: 700px) {
 		width: 100%;
 	}
+`;
+const ConfirmPanWrapper = styled.div`
+	padding: 40px 0;
+	margin-right: auto;
+	margin-left: auto;
+	text-align: center;
 `;
 
 const H2 = styled.h2`
@@ -1335,29 +1347,41 @@ export default function PanVerification({
 				}}
 				width='30%'>
 				<section className='p-4 flex flex-col gap-y-8'>
-					<span>Confirm PAN number and Proceed</span>
-					<FieldWrapperPanVerify>
-						{/* setConfirmPanNumber */}
-						<InputField
-							name='panNumber'
-							placeholder='Pan Number'
-							value={panExtractionData?.panNumber || ''}
-							onChange={onChangePanNumber}
-						/>
-						{/* {register({
+					<ImgClose
+						onClick={() => {
+							if (panFileId) removeLoanDocument(panFileId);
+							setIsPanConfirmModalOpen(false);
+						}}
+						src={imgClose}
+						alt='close'
+					/>
+					<ConfirmPanWrapper>
+						<h1 style={{ fontSize: '24px', fontWeight: '600Px' }}>
+							Confirm PAN Number and Proceed
+						</h1>
+						<FieldWrapperPanVerify>
+							{/* setConfirmPanNumber */}
+							<InputField
+								name='panNumber'
+								value={panExtractionData?.panNumber || ''}
+								onChange={onChangePanNumber}
+								style={{ textAlign: 'center' }}
+							/>
+							{/* {register({
 							name: 'panNumber',
 							placeholder: 'Pan Number',
 							value: formState?.values?.panNumber,
 						})} */}
-					</FieldWrapperPanVerify>
-					<Button
-						name='Proceed'
-						fill
-						loading={loading}
-						onClick={onProceedPanConfirm}
-						disabled={!panExtractionData.panNumber || loading}
-						style={{ alignSelf: 'center' }}
-					/>
+						</FieldWrapperPanVerify>
+						<Button
+							name='Proceed'
+							fill
+							loading={loading}
+							onClick={onProceedPanConfirm}
+							disabled={!panExtractionData.panNumber || loading}
+							style={{ alignText: 'center' }}
+						/>
+					</ConfirmPanWrapper>
 				</section>
 			</Modal>
 			<Modal
@@ -1370,7 +1394,7 @@ export default function PanVerification({
 				<UI.DocTypeChangeModalBody>
 					<UI.DocTypeChangeModalHeader>
 						<p className='py-2'>
-							<strong>Are you sure want to change documen type?</strong>
+							<strong>Are you sure want to change document type?</strong>
 						</p>
 						<p>
 							By changing it, all the existing tagged and untagged document will
