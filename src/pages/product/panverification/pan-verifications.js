@@ -1370,7 +1370,7 @@ export default function PanVerification({
 				<UI.DocTypeChangeModalBody>
 					<UI.DocTypeChangeModalHeader>
 						<p className='py-2'>
-							<strong>Are you sure want to change documen type?</strong>
+							<strong>Are you sure want to change document type?</strong>
 						</p>
 						<p>
 							By changing it, all the existing tagged and untagged document will
