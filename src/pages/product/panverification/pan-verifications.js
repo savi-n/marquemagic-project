@@ -1347,7 +1347,6 @@ export default function PanVerification({
 				<section className='p-4 flex flex-col gap-y-8'>
 					<ImgClose
 						onClick={() => {
-							if (panFileId) removeLoanDocument(panFileId);
 							setIsPanConfirmModalOpen(false);
 						}}
 						src={imgClose}
