@@ -21,8 +21,8 @@ const PanConfirm = styled.div`
 	margin-top: 100px;
 	margin-bottom: 10px;
 	text-align: center;
-	font-size: 1.4em;
-	font-weight: 500;
+	font-size: 24px;
+	font-weight: 600px;
 `;
 
 const Company = styled.div`
@@ -30,7 +30,6 @@ const Company = styled.div`
 	width: 84%;
 	height: 100px;
 	text-align: center;
-
 	box-shadow: rgb(11 92 255 / 16%) 5px 2px 5px 1px;
 	padding: 28px;
 	cursor: pointer;
