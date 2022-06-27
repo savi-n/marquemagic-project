@@ -607,6 +607,7 @@ export default function PanVerification({
 	};
 	const onProceedGstUdhyog = async data => {
 		const { panNumber, gstin, udhyogAadhar } = data;
+		console.log('panNumberfromproceed', panNumber);
 		try {
 			setLoading(true);
 			resetAllErrors();
@@ -708,6 +709,7 @@ export default function PanVerification({
 				CONST.EXTRACTION_KEY_PAN,
 				panExtractionData
 			);
+
 			// console.log(
 			// 	'pan-verification-handlePanConfirm-verifiedRes-',
 			// 	verifiedRes
@@ -721,6 +723,35 @@ export default function PanVerification({
 			// don't change 'pan' to different key it'll effect prepopulation logic
 			sessionStorage.setItem('pan', panExtractionData?.panNumber);
 
+			console.log('panExtraction', panExtractionData?.panNumber);
+			if (
+				panExtractionData?.panNumber &&
+				panExtractionData?.panNumber.length !== 10
+			) {
+				addToast({
+					message: 'PanNumber should be 10 digits',
+					type: 'error',
+				});
+				setLoading(false);
+				return;
+			}
+			if (panExtractionData?.panNumber) {
+				const lastFourDigitsValidation = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(
+					panExtractionData?.panNumber
+				);
+
+				if (
+					!lastFourDigitsValidation ||
+					panExtractionData?.panNumber.trim().length <= 0
+				) {
+					addToast({
+						message: 'Please specify a valid Pan Number',
+						type: 'error',
+					});
+					setLoading(false);
+					return;
+				}
+			}
 			// business product + business pan card
 			if (isBusinessProductType && panExtractionData.isBusinessPan) {
 				// TODO: simplify below logic
@@ -1353,7 +1384,7 @@ export default function PanVerification({
 						alt='close'
 					/>
 					<ConfirmPanWrapper>
-						<h1 style={{ fontSize: '24px', fontWeight: '600Px' }}>
+						<h1 style={{ fontSize: '22px', fontWeight: '600Px' }}>
 							Confirm PAN Number and Proceed
 						</h1>
 						<FieldWrapperPanVerify>
