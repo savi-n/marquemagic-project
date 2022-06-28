@@ -607,7 +607,7 @@ export default function PanVerification({
 	};
 	const onProceedGstUdhyog = async data => {
 		const { panNumber, gstin, udhyogAadhar } = data;
-		console.log('panNumberfromproceed', panNumber);
+		//console.log('panNumberfromproceed', panNumber);
 		try {
 			setLoading(true);
 			resetAllErrors();
