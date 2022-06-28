@@ -452,6 +452,7 @@ export default function FormController({
 					}}
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
+					productDetails={productDetails}
 				/>
 
 				{/* {id === 'land-additional-details' && (

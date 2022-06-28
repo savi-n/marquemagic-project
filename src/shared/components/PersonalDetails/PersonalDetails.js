@@ -340,6 +340,13 @@ export default function PersonalDetails({
 								customFields.readonly = true;
 								customFields.disabled = true;
 							}
+							if (
+								field.name === 'mobileNo' &&
+								productDetails?.otp_authentication
+							) {
+								customFields.placeholder =
+									'Enter a Valid Mobile Number to Receive OTP';
+							}
 							return (
 								field.visibility && (
 									<>
