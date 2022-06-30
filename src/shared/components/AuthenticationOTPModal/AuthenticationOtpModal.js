@@ -158,7 +158,8 @@ const AuthenticationOTPModal = props => {
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
 			) {
-				error.response.data.message = 'Please enter a valid OTP.';
+				error.response.data.message =
+					'The entered OTP seems to be incorrect. Please enter the correct OTP.';
 			}
 			setErrorMsg(
 				error?.response?.data?.message ||
