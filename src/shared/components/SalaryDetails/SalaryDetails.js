@@ -1,6 +1,9 @@
+/* Salary Details component which is a part of Personal Details page */
+
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
-
+/* eslint eqeqeq: 0 */
+/* The above line is to suppress warning that pop up in terminal due to eslint configs */
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
@@ -62,7 +65,7 @@ export default function SalaryDetails({
 					jsonData.map(
 						field =>
 							field.visibility &&
-							(incomeType === field.forType || !incomeType || !field.forType ? (
+							(incomeType == field.forType || !incomeType || !field.forType ? (
 								<FieldWrap key={field.name} size={size}>
 									{register({
 										...field,

@@ -1,3 +1,5 @@
+/* EMI details page */
+
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -12,7 +14,7 @@ import { UserContext } from '../../../reducer/userReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import { APP_CLIENT, BANK_LIST_FETCH } from '../../../_config/app.config';
+import { BANK_LIST_FETCH } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
 
 const Div = styled.div`
@@ -81,6 +83,7 @@ const formatEmiData = (formData, fields, r) => {
 					: formData[`${f.name}_bank_id`].name,
 		};
 		m.push(emi);
+		return null;
 	});
 	return m;
 };
@@ -121,7 +124,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		actions: { setLoanData },
 	} = useContext(LoanFormContext);
 	const {
-		state: { bankId, userToken },
+		state: { userToken },
 	} = useContext(UserContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -212,6 +215,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 				existing_personal_loan_bank_name = r?.bank;
 				existing_personal_loan_bank_id = r?.id;
 			}
+			return null;
 		});
 	} else {
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
@@ -234,6 +238,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 						existing_personal_loan_bank_name = ele?.bank_name;
 						existing_personal_loan_bank_id = ele?.bank_name;
 					}
+					return null;
 				});
 			}
 		}

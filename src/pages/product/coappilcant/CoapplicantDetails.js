@@ -1,7 +1,8 @@
+/* Co-applicant details section */
+
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOf, oneOfType, string } from 'prop-types';
-
 import useForm from '../../../hooks/useForm';
 import Button from '../../../components/Button';
 import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
@@ -9,7 +10,6 @@ import PersonalDetails from '../../../shared/components/PersonalDetails/Personal
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { USER_ROLES } from '../../../_config/app.config';
-import { useToasts } from '../../../components/Toast/ToastProvider';
 import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
@@ -18,18 +18,6 @@ const ButtonWrap = styled.div`
 	display: flex;
 	align-items: flex-end;
 	gap: 20px;
-`;
-
-const DivWrap = styled.div`
-	margin-left: auto;
-	display: flex;
-	align-items: center;
-	gap: 20px;
-`;
-
-const Question = styled.div`
-	font-weight: 500;
-	color: blue;
 `;
 
 const Div = styled.div`
@@ -98,7 +86,6 @@ export default function CoapplicantDetails({
 	} = useContext(FormContext);
 
 	const { handleSubmit, register, formState } = useForm();
-	const { addToast } = useToasts();
 
 	const [match, setMatch] = useState(false);
 	const { processing, caseCreationUserType } = useCaseCreation(
@@ -141,13 +128,13 @@ export default function CoapplicantDetails({
 		);
 	};
 
-	const onSave = formData => {
-		saveData(formData);
-		addToast({
-			message: 'Saved Succesfully',
-			type: 'success',
-		});
-	};
+	// const onSave = formData => {
+	// 	saveData(formData);
+	// 	addToast({
+	// 		message: 'Saved Succesfully',
+	// 		type: 'success',
+	// 	});
+	// };
 
 	const [proceed, setProceed] = useState(false);
 	useEffect(() => {
@@ -163,6 +150,7 @@ export default function CoapplicantDetails({
 		if (proceed) {
 			request();
 		}
+		// eslint-disable-next-line
 	}, [proceed]);
 
 	const onProceed = async data => {

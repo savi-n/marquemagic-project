@@ -1,3 +1,5 @@
+/* App layout like color, theme and logo and routes are defined in this section  */
+
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
@@ -13,7 +15,7 @@ import {
 	CLIENT_EMAIL_ID,
 	BANK_TOKEN_API,
 	NC_STATUS_CODE,
-	APP_DOMAIN,
+	//APP_DOMAIN,
 	APP_CLIENT,
 } from '../_config/app.config.js';
 import { AppContext } from '../reducer/appReducer';
@@ -43,7 +45,7 @@ const Div = styled.div`
 `;
 
 const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
-const BranchUserContent = lazy(() => import('./BranchUserContent'));
+// const BranchUserContent = lazy(() => import('./BranchUserContent'));
 
 const AppLayout = () => {
 	const { response, newRequest } = useFetch({
@@ -105,6 +107,7 @@ const AppLayout = () => {
 			fetchData();
 			document.title = response.permission.color_theme_react.page_name || 'App';
 		}
+		// eslint-disable-next-line
 	}, [response]);
 
 	return loading ? (
@@ -131,11 +134,11 @@ const AppLayout = () => {
 					<BrowserRouter basename='/nconboarding'>
 						<Suspense fallback={<Loading />}>
 							<Switch>
-								<Route
+								{/* <Route
 									path='/branch'
 									manager={true}
 									component={BranchUserContent}
-								/>
+								/> */}
 								<Route path='/applyloan' component={ApplyLoanContent} />
 								<Route render={() => <Redirect to='/applyloan' />} />
 							</Switch>

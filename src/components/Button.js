@@ -1,3 +1,5 @@
+/* Here styled button is defined so that button layout is same throughout the application */
+
 import styled from 'styled-components';
 import { string, func, object, oneOfType, bool } from 'prop-types';
 import Loader from '../Branch/components/Loader';
@@ -78,9 +80,11 @@ export default function Button({
 	isLoader,
 	loading,
 	customStyle = {},
+	type,
 }) {
 	return (
 		<StyledButton
+			type={type || 'submit'}
 			onClick={onClick}
 			fill={fill}
 			disabled={disabled}

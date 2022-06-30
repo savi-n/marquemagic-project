@@ -1,25 +1,27 @@
+/* This file contains util function to formatLoanData which is used in HomeLoanDetails component */
+
 const formaterHOF = (formData, fields, callback) => {
-  let data = {};
+	let data = {};
 
-  for (let { name, type } of fields) {
-    data = { ...data, ...callback(name, formData, type) };
-  }
+	for (let { name, type } of fields) {
+		data = { ...data, ...callback(name, formData, type) };
+	}
 
-  return data;
+	return data;
 };
 
 export const formatEmiData = (formData, fields) => {
-  return formaterHOF(formData, fields, (name, formData) => ({
-    [name]: formData[name],
-    // [`${name}_bank`]: formData[`${name}_bank`],
-  }));
+	return formaterHOF(formData, fields, (name, formData) => ({
+		[name]: formData[name],
+		// [`${name}_bank`]: formData[`${name}_bank`],
+	}));
 };
 
 export const formatLoanData = (formData, fields) => {
-  return formaterHOF(formData, fields, (name, formData, type) => ({
-    [name]:
-      type === "search"
-        ? formData[name].value || formData[name]
-        : formData[name],
-  }));
+	return formaterHOF(formData, fields, (name, formData, type) => ({
+		[name]:
+			type === 'search'
+				? formData[name].value || formData[name]
+				: formData[name],
+	}));
 };

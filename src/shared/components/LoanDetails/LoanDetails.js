@@ -1,3 +1,5 @@
+/* Loan details section */
+
 import { Fragment, useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';

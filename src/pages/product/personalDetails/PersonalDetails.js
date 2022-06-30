@@ -1,26 +1,24 @@
-// active personal details right section
-// active business details right section
-import { useContext, useState, useEffect } from 'react';
+/* active personal details right section
+active business details right section */
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
-import useForm from '../../../hooks/useForm';
-import useFetch from '../../../hooks/useFetch';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
-import Button from '../../../components/Button';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { AppContext } from '../../../reducer/appReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
+import useForm from 'hooks/useForm';
+import useFetch from 'hooks/useFetch';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import SalaryDetails from 'shared/components/SalaryDetails/SalaryDetails';
+import Button from 'components/Button';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
+import { AppContext } from 'reducer/appReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	LOGIN_CREATEUSER,
 	NC_STATUS_CODE,
 	WHITELABEL_ENCRYPTION_API,
-	DOCTYPES_FETCH,
 } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 import ConfirmModal from 'components/modals/ConfirmModal';
@@ -64,8 +62,6 @@ export default function PersonalDetailsPage({
 	onFlowChange,
 	productId,
 }) {
-	const { state } = useContext(LoanFormContext);
-
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
@@ -79,13 +75,13 @@ export default function PersonalDetailsPage({
 	} = useContext(FormContext);
 
 	const {
-		state: { userBankDetails, userToken },
 		actions: { setUserDetails, setUserId },
 	} = useContext(UserContext);
 
-	const {
-		state: { companyDetail },
-	} = useContext(BussinesContext);
+	// const {
+	// 	state: { companyDetail },
+	// } = useContext(BussinesContext);
+	const { state } = useContext(LoanFormContext);
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
@@ -182,6 +178,7 @@ export default function PersonalDetailsPage({
 			) {
 				return addToast({
 					message: 'Please verify your Aadhaar with OTP',
+
 					type: 'error',
 				});
 			}
@@ -245,17 +242,17 @@ export default function PersonalDetailsPage({
 	const prefilledValues = () => {
 		try {
 			const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-			const appData = JSON.parse(userTokensss)?.formReducer?.user
-				?.applicantData;
-			let form =
-				(appData && Object.keys(appData).length > 0 && appData) ||
-				formatPersonalDetails(editLoanData?.business_id) ||
-				{};
-			if (form) return form;
-			else {
-				var formStat = JSON.parse(sessionStorage.getItem('formstate'));
-				return formStat?.values;
+			if (editLoanData) {
+				const appData = JSON.parse(userTokensss)?.formReducer?.user
+					?.applicantData;
+				let form =
+					(appData && Object.keys(appData).length > 0 && appData) ||
+					formatPersonalDetails(editLoanData?.business_id) ||
+					{};
+				if (form) return form;
 			}
+			var formStat = JSON.parse(sessionStorage.getItem('formstate'));
+			return formStat?.values;
 		} catch (error) {
 			return {};
 		}
@@ -395,11 +392,18 @@ export default function PersonalDetailsPage({
 					dob: getDOB() || prefilledValues()?.dob || '',
 					email: prefilledValues()?.email || '',
 					mobileNo: prefilledValues()?.mobileNum || '',
+					// TODO Remove below code if new logic is working fine
+					// panNumber:
+					// 	prefilledValues()?.pan ||
+					// 	JSON.parse(sessionStorage.getItem('formstatepan'))?.values
+					// 		?.panNumber ||
+					// 	sessionStorage.getItem('pan') ||
+					// 	'',
 					panNumber:
+						sessionStorage.getItem('pan') ||
 						prefilledValues()?.pan ||
 						JSON.parse(sessionStorage.getItem('formstatepan'))?.values
 							?.panNumber ||
-						sessionStorage.getItem('pan') ||
 						'',
 					residenceStatus: prefilledValues()?.residentTypess || '',
 					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
@@ -409,6 +413,7 @@ export default function PersonalDetailsPage({
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}
+				productDetails={productDetails}
 			/>
 			<SalaryDetails
 				jsonData={map?.fields['salary-details'].data}

@@ -1,5 +1,7 @@
-import { useEffect, useContext, useRef } from 'react';
+/* In Document Upload section, a button is available to fetch cibil score.
+On click of that a modal is popped up which is defined in this file */
 
+import { useEffect, useContext, useRef } from 'react';
 import Loading from '../components/Loading';
 import {
 	FETCH_CIBIL_SCORE,
@@ -17,7 +19,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
 		state: { clientToken },
 	} = useContext(AppContext);
 
-	const { response, loading, newRequest } = useFetch({
+	const { response, newRequest } = useFetch({
 		url: BANK_TOKEN_API,
 		options: {
 			method: 'POST',
@@ -58,6 +60,7 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
 			getBankToken();
 		}
 		return () => {};
+		// eslint-disable-next-line
 	}, [response]);
 
 	function onCloseMessage() {

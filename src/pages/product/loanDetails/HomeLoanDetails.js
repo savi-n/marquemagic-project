@@ -1,3 +1,4 @@
+/* Loan details page of Housing Loan */
 import { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
@@ -15,11 +16,7 @@ import { FlowContext } from '../../../reducer/flowReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { formatLoanData } from '../../../utils/formatData';
 import { useToasts } from '../../../components/Toast/ToastProvider';
-import {
-	NC_STATUS_CODE,
-	SEARCH_BANK_BRANCH_LIST,
-} from '../../../_config/app.config';
-import useFetch from '../../../hooks/useFetch';
+import { SEARCH_BANK_BRANCH_LIST } from '../../../_config/app.config';
 
 const Div = styled.div`
 	flex: 1;
@@ -76,7 +73,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	} = useContext(FlowContext);
 
 	const {
-		state: { documents },
+		// state: { documents },
 		actions: { setLoanDocuments },
 	} = useContext(LoanFormContext);
 
@@ -122,7 +119,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		} = data;
 
 		const homeLoanBranchName =
-			homeBranchList.filter(ele => ele.id == branchId)[0]?.branch || '';
+			homeBranchList.filter(ele => ele.id === branchId)[0]?.branch || '';
 		const loanData = formatLoanData(data, map.fields[id].data);
 		const address = map?.fields['address-details']?.data
 			? formatLoanData(data, map.fields['address-details'].data)
@@ -171,7 +168,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 					headers: { Authorization: `Bearer ${userToken}` },
 				}
 			);
-			if (opitionalDataReq.data.status == 'ok') {
+			if (opitionalDataReq.data.status === 'ok') {
 				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
 			}
 		} catch (err) {
@@ -184,6 +181,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		// homebranchdropdown();
 		getBranchOptions();
 		// sethomeBranchList(dropdown);
+		// eslint-disable-next-line
 	}, []);
 	const amountConverter = (value, k) => {
 		return value * valueConversion[k || 'One'];

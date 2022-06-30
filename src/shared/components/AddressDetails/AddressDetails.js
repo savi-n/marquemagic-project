@@ -1,5 +1,5 @@
-// active
-// Guarantor Address Details
+/* active
+Applicant Address and Guarantor Address Details section*/
 import styled from 'styled-components';
 import { array, bool, func, object, oneOfType, string } from 'prop-types';
 

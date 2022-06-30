@@ -1,57 +1,71 @@
+/* productDetails?white_label_id=NUMBER&product_id=NUMBER api gives the flow
+ details for creating application of that loan type.
+
+ This file defines route to be taken or component to mount for each section.
+ */
+
 import { lazy } from 'react';
 import { Redirect, useRouteMatch } from 'react-router-dom';
 
 import userType from '../../_hoc/userType';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
-const IdentityVerification = lazy(() => import('./identityVerification/IdentityVerification'));
+// const IdentityVerification = lazy(() =>
+// 	import('./identityVerification/IdentityVerification')
+// );
 const DocumentUpload = lazy(() => import('./documentUpload/DocumentUpload'));
 const PersonalDetails = lazy(() => import('./personalDetails/PersonalDetails'));
 const AddressDetails = lazy(() => import('./addressDetails/AddressDetails'));
-const PanVerification = lazy(() => import('./panverification/pan-verifications'));
-const ApplicationSubmitted = lazy(() => import('./applicationSubmitted/ApplicationSubmitted'));
-const VehicleLoanDetails = lazy(() => import('./loanDetails/VehicleLoanDetails'));
+const PanVerification = lazy(() =>
+	import('./panverification/pan-verifications')
+);
+const ApplicationSubmitted = lazy(() =>
+	import('./applicationSubmitted/ApplicationSubmitted')
+);
+const VehicleLoanDetails = lazy(() =>
+	import('./loanDetails/VehicleLoanDetails')
+);
 const HomeLoanDetails = lazy(() => import('./loanDetails/HomeLoanDetails'));
-const CoApplicantDetails = lazy(() => import('./coappilcant/CoapplicantDetails'));
-const CoApplicantIncomeDetails = lazy(() => import('./coappilcant/CoapplicantIncomeDetails'));
+// const CoApplicantDetails = lazy(() => import('./coappilcant/CoapplicantDetails'));
+// const CoApplicantIncomeDetails = lazy(() => import('./coappilcant/CoapplicantIncomeDetails'));
 const EmiDetails = lazy(() => import('./emiDetails/EMIDetails'));
 
 const availableRoutes = {
 	'pan-verification': { Component: PanVerification },
-	'identity-verification': { Component: IdentityVerification },
+	// 'identity-verification': { Component: IdentityVerification },
 	'personal-details': { protected: true, Component: PersonalDetails },
 	'address-details': { protected: true, Component: AddressDetails },
 	// "loan-details": { protected: true, Component: HomeLoanDetails },
 	'loan-details': { protected: true, Component: VehicleLoanDetails },
 	'home-loan-details': { protected: true, Component: HomeLoanDetails },
-	'co-applicant-details': {
-		protected: true,
-		Component: userType('Co-applicant', CoApplicantDetails)
-	},
-	'co-applicant-income-details': {
-		protected: true,
-		Component: userType('Co-applicant', CoApplicantIncomeDetails)
-	},
+	// 'co-applicant-details': {
+	// 	protected: true,
+	// 	Component: userType('Co-applicant', CoApplicantDetails)
+	// },
+	// 'co-applicant-income-details': {
+	// 	protected: true,
+	// 	Component: userType('Co-applicant', CoApplicantIncomeDetails)
+	// },
 	'co-applicant-document-upload': {
 		protected: true,
-		Component: userType('Co-applicant', DocumentUpload)
+		Component: userType('Co-applicant', DocumentUpload),
 	},
 	'emi-details': { protected: true, Component: EmiDetails },
 	// "document-upload": { protected: true, Component: VehicleLoanDetails },
 	'document-upload': { protected: true, Component: DocumentUpload },
 	'application-submitted': { protected: true, Component: ApplicationSubmitted },
-	'guarantor-details': {
-		protected: true,
-		Component: userType('Guarantor', CoApplicantDetails)
-	},
-	'guarantor-income-details': {
-		protected: true,
-		Component: userType('Guarantor', CoApplicantIncomeDetails)
-	},
+	// 'guarantor-details': {
+	// 	protected: true,
+	// 	Component: userType('Guarantor', CoApplicantDetails)
+	// },
+	// 'guarantor-income-details': {
+	// 	protected: true,
+	// 	Component: userType('Guarantor', CoApplicantIncomeDetails)
+	// },
 	'guarantor-document-upload': {
 		protected: true,
-		Component: userType('Guarantor', DocumentUpload)
-	}
+		Component: userType('Guarantor', DocumentUpload),
+	},
 };
 
 export default function FlowRoutes({ config, productDetails = {} }) {
@@ -92,7 +106,12 @@ export default function FlowRoutes({ config, productDetails = {} }) {
 				protectedRoute={Page.protected || false}
 				pageName={config.name}
 				Component={props => (
-					<Page.Component productDetails={productDetails} pageName={config.name} id={config.id} {...props} />
+					<Page.Component
+						productDetails={productDetails}
+						pageName={config.name}
+						id={config.id}
+						{...props}
+					/>
 				)}
 			/>
 			{subFlow}

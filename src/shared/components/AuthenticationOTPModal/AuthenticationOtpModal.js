@@ -1,4 +1,4 @@
-/* This section contains modal/popup onClick of Verify Aadhaar button.
+/* This section contains modal/popup onClick of Verify Authentication button.
   This section also contains resend otp option */
 
 import { useEffect, useState, useContext } from 'react';
@@ -6,10 +6,13 @@ import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
 import Button from 'components/Button';
-import AadhaarOTPInput from './AadhaarOTPInput';
+import AuthenticationOTPInput from './AuthenticationOtpInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { AADHAAR_VERIFY_OTP, AADHAAR_RESEND_OTP } from '_config/app.config';
+import {
+	AUTHENTICATION_VERIFY_OTP,
+	AUTHENTICATION_GENERATE_OTP,
+} from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
@@ -22,26 +25,29 @@ const ModalHeader = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	margin: auto;
-	background-color: #eeeef7;
+	/* background-color: #eeeef7; */
 	font-weight: 600;
 	color: #525252;
 `;
 
 const ModalBody = styled.div`
-	padding: 30px 0;
+	padding: 52px 0;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
 	margin: auto;
-	font-size: 13px;
+	font-size: 20px;
+	width: 57%;
+	margin-top: 15px;
+	text-align: center;
 `;
 
 const ModalFooter = styled.div`
 	display: flex;
 	justify-content: center;
 	gap: 50px;
-	margin-bottom: 20px;
+	margin-bottom: 78px;
 `;
 
 const ModalWrapper = styled.div`
@@ -56,7 +62,7 @@ const ModalErrorMessage = styled.div`
 const ModalResentOtp = styled.div`
 	text-align: center;
 	padding-bottom: 9px;
-	font-size: 11px;
+	font-size: 14px;
 `;
 
 const ImgStyle = styled.img`
@@ -69,19 +75,20 @@ const ImgStyle = styled.img`
 // As per digitap we can only make one request per 60 second;
 const DEFAULT_TIME_RESEND_OTP = 60;
 
-const AadhaarOTPModal = props => {
+const AuthenticationOTPModal = props => {
 	const {
-		isAadhaarOtpModalOpen,
-		setIsAadhaarOtpModalOpen,
-		aadhaarGenOtpResponse,
+		isAuthenticationOtpModalOpen,
+		setIsAuthenticationOtpModalOpen,
+		setContactNo,
 		setIsVerifyWithOtpDisabled,
+		onSubmitCompleteApplication,
 		// toggle,
 		// ButtonProceed,
 		// type = 'income',
 	} = props;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
-	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
+	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
 	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
@@ -90,48 +97,57 @@ const AadhaarOTPModal = props => {
 		state: { clientToken },
 	} = useContext(AppContext);
 
+	const API_TOKEN = sessionStorage.getItem('userToken');
+
+	const maskedContactNo = `XXXXX${setContactNo[setContactNo.length - 5]}${
+		setContactNo[setContactNo.length - 4]
+	}${setContactNo[setContactNo.length - 3]}${
+		setContactNo[setContactNo.length - 2]
+	}${setContactNo[setContactNo.length - 1]}`;
+
 	const verifyOtp = async () => {
-		if (!inputAadhaarOTP) {
+		if (!inputAuthenticationOTP) {
 			setErrorMsg('Please enter a valid OTP.');
 			return;
 		}
-		if (inputAadhaarOTP.length < 6) {
+		if (inputAuthenticationOTP.length < 6) {
 			setErrorMsg('Please enter 6 digit OTP Number');
 			return;
 		}
 		try {
 			setVerifyingOtp(true);
-			const aadharVerifyReq = await newRequest(AADHAAR_VERIFY_OTP, {
-				method: 'POST',
-				data: {
-					transactionId: aadhaarGenOtpResponse.data.transactionId,
-					otp: inputAadhaarOTP,
-					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
-					fwdp: aadhaarGenOtpResponse.data.fwdp,
-					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-				},
-				headers: {
-					Authorization: `${clientToken}`,
-				},
-			});
-			const aadhaarVerifyResponse = aadharVerifyReq.data;
+			const authenticationVerifyReq = await newRequest(
+				AUTHENTICATION_VERIFY_OTP,
+				{
+					method: 'POST',
+					data: {
+						mobile: setContactNo,
+						otp: Number(inputAuthenticationOTP),
+					},
+					headers: {
+						Authorization: `Bearer ${API_TOKEN}`,
+					},
+				}
+			);
+			const authenticationVerifyResponse = authenticationVerifyReq.data;
 
-			if (aadhaarVerifyResponse.status === 'ok') {
-				setIsAadhaarOtpModalOpen(false);
+			if (authenticationVerifyResponse.status === 'ok') {
+				setIsAuthenticationOtpModalOpen(false);
 				addToast({
-					message: 'Aadhaar Successfully Verified',
+					message: 'Authentication Successfully Verified',
 					type: 'success',
 				});
 				sessionStorage.setItem(
-					'aadhaar_otp_res',
-					JSON.stringify(aadhaarVerifyResponse)
+					'authentication_otp_res',
+					JSON.stringify(authenticationVerifyResponse.data)
 				);
 				setIsVerifyWithOtpDisabled(true);
+				onSubmitCompleteApplication();
 			} else {
-				setIsAadhaarOtpModalOpen(false);
+				setIsAuthenticationOtpModalOpen(false);
 				addToast({
 					message:
-						' Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+						' Authentication cannot be validated due to technical failure. Please try again after sometime',
 					type: 'error',
 				});
 			}
@@ -142,12 +158,13 @@ const AadhaarOTPModal = props => {
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
 			) {
-				error.response.data.message = 'Please enter a valid OTP.';
+				error.response.data.message =
+					'The entered OTP seems to be incorrect. Please enter the correct OTP.';
 			}
 			setErrorMsg(
 				error?.response?.data?.message ||
 					error?.response?.data?.data?.msg ||
-					'Aadhaar cannot be validated due to technical failure. Please try again after sometime'
+					'Authentication cannot be validated due to technical failure. Please try again after sometime'
 			);
 
 			setVerifyingOtp(false);
@@ -155,31 +172,27 @@ const AadhaarOTPModal = props => {
 	};
 
 	const resendOtp = async () => {
-		// console.log('resendOtp-', aadhaarGenOtpResponse);
-		if (
-			!aadhaarGenOtpResponse?.aadhaarNo ||
-			!aadhaarGenOtpResponse?.data?.transactionId ||
-			!aadhaarGenOtpResponse?.data?.fwdp
-		) {
+		if (!setContactNo) {
 			return;
 		}
 		try {
 			setIsResentOtp(true);
 			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
 			const reqBody = {
-				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-				transactionId: aadhaarGenOtpResponse.data.transactionId,
-				fwdp: aadhaarGenOtpResponse.data.fwdp,
+				mobile: setContactNo,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
-			const aadharResendOtpRes = await newRequest(AADHAAR_RESEND_OTP, {
-				method: 'POST',
-				data: reqBody,
-				headers: {
-					Authorization: `${clientToken}`,
-				},
-			});
-			if (aadharResendOtpRes.data.status === 'ok') {
+			const authenticationResendOtpRes = await newRequest(
+				AUTHENTICATION_GENERATE_OTP,
+				{
+					method: 'POST',
+					data: reqBody,
+					headers: {
+						Authorization: `Bearer ${API_TOKEN}`,
+					},
+				}
+			);
+			if (authenticationResendOtpRes.data.status === 'ok') {
 				addToast({
 					message: 'OTP generated again',
 					type: 'success',
@@ -189,13 +202,13 @@ const AadhaarOTPModal = props => {
 			console.log(error);
 			setErrorMsg(
 				error?.response?.data?.message ||
-					' Aadhaar cannot be validated due to technical failure. Please try again after sometime'
+					' Authentication cannot be validated due to technical failure. Please try again after sometime'
 			);
 		}
 	};
 
 	useEffect(() => {
-		setInputAadhaarOTP('');
+		setInputAuthenticationOTP('');
 		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
@@ -209,19 +222,19 @@ const AadhaarOTPModal = props => {
 	}, [resendOtpTimer]);
 
 	const handleModalClose = () => {
-		setInputAadhaarOTP('');
-		setIsAadhaarOtpModalOpen(false);
+		setInputAuthenticationOTP('');
+		setIsAuthenticationOtpModalOpen(false);
 	};
 
 	return (
 		<Modal
-			show={isAadhaarOtpModalOpen}
+			show={isAuthenticationOtpModalOpen}
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
 			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
 			<ModalHeader>
-				Aadhaar Verification
+				{/* Authentication Verification */}
 				<img
 					src={imgClose}
 					style={{
@@ -237,14 +250,17 @@ const AadhaarOTPModal = props => {
 			</ModalHeader>
 			<ModalBody>
 				<p>
-					An OTP has been {isResentOtp ? 'resent' : 'sent'} to your number
-					please verify it below
+					{/* To{isResentOtp ? 'resent' : 'sent'} to your number
+					please verify it below */}
+					To authenticate your application please enter the OTP sent to
+					{/* XXXXX99999{maskedContactNo} */}
+					{' ' + maskedContactNo}
 				</p>
 				<ModalWrapper>
-					<AadhaarOTPInput
+					<AuthenticationOTPInput
 						numInputs={6}
 						numberOnly
-						setInputAadhaarOTP={setInputAadhaarOTP}
+						setInputAuthenticationOTP={setInputAuthenticationOTP}
 					/>
 				</ModalWrapper>
 				<ModalResentOtp>
@@ -274,7 +290,7 @@ const AadhaarOTPModal = props => {
 				<Button
 					name='Verify'
 					onClick={verifyOtp}
-					disabled={verifyingOtp || inputAadhaarOTP.length < 6}
+					disabled={verifyingOtp || inputAuthenticationOTP.length < 6}
 					loading={verifyingOtp}
 				/>
 				{/* {ButtonProceed} */}
@@ -283,4 +299,4 @@ const AadhaarOTPModal = props => {
 	);
 };
 
-export default AadhaarOTPModal;
+export default AuthenticationOTPModal;

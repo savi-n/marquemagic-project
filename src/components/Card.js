@@ -1,3 +1,6 @@
+/* Landing page of nc-onboarding journey contains different loan cards.
+This card is designed and defined here */
+
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { shape, string, number } from 'prop-types';
@@ -77,26 +80,18 @@ const ProductName = styled.div`
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const {
-		state: {
-			completed: completedMenu,
-			activeSubFlow: subFlowMenu,
-			flowMap,
-			basePageUrl,
-			currentFlow,
-			productId,
-		},
-		actions: { configure, setCurrentFlow, clearFlowDetails, setCompleted },
+		state: { basePageUrl },
+		actions: { clearFlowDetails },
 	} = useContext(FlowContext);
 	const {
-		actions: { clearFormData, setUsertypeAfterRefresh },
+		actions: { clearFormData },
 	} = useContext(FormContext);
 	const {
-		state: { timestamp },
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
 
 	const {
-		actions: { removeAllDocuments },
+		actions: { removeAllLoanDocuments },
 	} = useContext(LoanFormContext);
 
 	const history = useHistory();
@@ -126,7 +121,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						clearFlowDetails(basePageUrl);
 						clearFormData();
 						resetUserDetails();
-						removeAllDocuments();
+						removeAllLoanDocuments();
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
 					}}>

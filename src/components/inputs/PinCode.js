@@ -1,3 +1,6 @@
+/* Input field which is used to search if valid pincode is entered and
+based on this search city and state is identified */
+
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -5,14 +8,14 @@ import useFetch from '../../hooks/useFetch';
 import { PINCODE_ADRRESS_FETCH } from '../../_config/app.config';
 import InputField from './InputField';
 
-const Input = styled.input`
-	height: 50px;
-	padding: 10px;
-	width: 100%;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 6px;
-	position: relative;
-`;
+// const Input = styled.input`
+// 	height: 50px;
+// 	padding: 10px;
+// 	width: 100%;
+// 	border: 1px solid rgba(0, 0, 0, 0.1);
+// 	border-radius: 6px;
+// 	position: relative;
+// `;
 
 const Div = styled.div`
 	position: relative;
@@ -63,6 +66,7 @@ export default function Pincode(props) {
 				target: { name: props.name, value: props.value },
 			});
 		}
+		// eslint-disable-next-line
 	}, [props.value]);
 
 	const onPinChange = async event => {

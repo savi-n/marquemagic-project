@@ -1,12 +1,7 @@
-import { useEffect, useContext } from 'react';
 import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-
 import Button from '../../../components/Button';
-import useFetch from '../../../hooks/useFetch';
-import { APP_CLIENT, WHITE_LABEL_URL } from '../../../_config/app.config';
-import { AppContext } from '../../../reducer/appReducer';
 
 const Colom1 = styled.section`
 	flex: 1;
@@ -15,13 +10,6 @@ const Colom1 = styled.section`
 
 const Colom2 = styled.section`
 	width: 30%;
-`;
-
-const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
 `;
 
 const Div = styled.div`

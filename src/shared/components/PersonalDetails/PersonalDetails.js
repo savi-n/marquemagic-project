@@ -1,7 +1,7 @@
-// Active Help us with your PAGE
-// Guarantor Personal Details
-// Help us with your Business Details
-// Help us with your Personal Details
+/* Active Help us with your PAGE
+Guarantor Personal Details
+Help us with your Business Details
+Help us with your Personal Details */
 import { useEffect, useContext } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
@@ -94,6 +94,7 @@ export default function PersonalDetails({
 	register,
 	formState,
 	companyDetail,
+	productDetails = {},
 }) {
 	const { state } = useContext(LoanFormContext);
 	const {
@@ -205,6 +206,7 @@ export default function PersonalDetails({
 		if (sessionStorage.getItem('aadhaar_otp_res')) {
 			setIsVerifyWithOtpDisabled(true);
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -240,6 +242,7 @@ export default function PersonalDetails({
 			!isMobilePresent && jsonData.push(mo);
 			!isEmailPresent && jsonData.push(email);
 		}
+		// eslint-disable-next-line
 	}, [pageName]);
 
 	const onSubFieldButtonClick = async () => {
@@ -301,7 +304,7 @@ export default function PersonalDetails({
 		}
 	};
 
-	// console.log('PersonalDetails-PreData-', preData);
+	// console.log('PersonalDetails-states-', { preData, productDetails });
 
 	return (
 		<>
@@ -332,6 +335,17 @@ export default function PersonalDetails({
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
+							}
+							if (field.name === 'panNumber') {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							if (
+								field.name === 'mobileNo' &&
+								productDetails?.otp_authentication
+							) {
+								customFields.placeholder =
+									'Enter a Valid Mobile Number to Receive OTP';
 							}
 							return (
 								field.visibility && (
@@ -442,6 +456,18 @@ export default function PersonalDetails({
 									customFields.disabled = isVerifyWithOtpDisabled;
 									customFields.readonly = isVerifyWithOtpDisabled;
 								}
+							}
+							if (id === 'personal-details' && field.name === 'panNumber') {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							if (
+								id === 'personal-details' &&
+								field.name === 'mobileNo' &&
+								productDetails?.otp_authentication
+							) {
+								customFields.placeholder =
+									'Enter a Valid Mobile Number to Receive OTP';
 							}
 							return (
 								field.visibility && (

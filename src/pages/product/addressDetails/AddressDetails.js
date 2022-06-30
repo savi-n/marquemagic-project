@@ -1,3 +1,5 @@
+/* Address details section */
+
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -7,12 +9,11 @@ import Button from '../../../components/Button';
 import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
+
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
-import { APP_CLIENT } from '../../../_config/app.config';
 
 const Div = styled.div`
 	flex: 1;
@@ -85,7 +86,7 @@ export default function AddressDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 
-	const { processing, caseCreationUser } = useCaseCreation(
+	const { processing } = useCaseCreation(
 		'User',
 		productId[state.user.applicantData.incomeType],
 		'User'

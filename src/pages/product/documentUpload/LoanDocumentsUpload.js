@@ -1,28 +1,30 @@
 // active page
-import { useState, useContext, useEffect, Fragment } from 'react';
+/* This file contains document upload section i.e visibility of documents, tags etc*/
+import { useContext, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-
+import { useState } from 'react';
 import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import Button from '../../../components/Button';
 import CheckBox from '../../../shared/components/Checkbox/CheckBox';
 import FileUpload from '../../../shared/components/FileUpload/FileUpload';
 import {
 	DOCS_UPLOAD_URL,
-	BORROWER_UPLOAD_URL,
+	//BORROWER_UPLOAD_URL,
 	BUSSINESS_LOAN_CASE_CREATION,
-	UPDATE_LOAN_ASSETS,
+	//UPDATE_LOAN_ASSETS,
 	NC_STATUS_CODE,
 	ADD_SUBSIDIARY_DETAILS,
 	ADD_BANK_DETAILS,
 	ADD_SHAREHOLDER_DETAILS,
 	ADD_REFENCE_DETAILS,
 	DOCTYPES_FETCH,
-	USER_ROLES,
-	PINCODE_ADRRESS_FETCH,
+	// USER_ROLES,
+	// PINCODE_ADRRESS_FETCH,
 	WHITELABEL_ENCRYPTION_API,
 	CIN_UPDATE,
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
+	AUTHENTICATION_GENERATE_OTP,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -30,12 +32,12 @@ import { useToasts } from '../../../components/Toast/ToastProvider';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { AppContext } from '../../../reducer/appReducer';
-import { FormContext } from '../../../reducer/formReducer';
 import BankStatementModal from '../../../components/BankStatementModal';
 import { CaseContext } from '../../../reducer/caseReducer';
-import { UserContext } from '../../../reducer/userReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
+import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
+import { concat } from 'lodash';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -44,17 +46,6 @@ const Colom1 = styled.div`
 		padding: 50px 0px;
 		max-width: 100%;
 	}
-`;
-
-const DocTypeHead = styled.div`
-	font-weight: 600;
-	margin: 10px 0;
-`;
-
-const Colom2 = styled.div`
-	width: 30%;
-	background: rgba(0, 0, 0, 0.1);
-	padding: 50px 30px;
 `;
 
 const UploadWrapper = styled.div`
@@ -98,10 +89,6 @@ const SubmitWrapper = styled.div`
 	gap: 10px;
 `;
 
-const DocsCheckboxWrapper = styled.div`
-	margin: 20px 0;
-`;
-
 const H = styled.h1`
 	font-size: 1.5em;
 	font-weight: 500;
@@ -126,11 +113,6 @@ const CheckboxWrapper = styled.div`
 	flex-direction: column;
 	margin: 20px 0;
 	gap: 10px;
-`;
-
-const Doc = styled.h2`
-	font-size: 1.2em;
-	font-weight: 500;
 `;
 
 const Section = styled.div`
@@ -177,7 +159,6 @@ const StyledButton = styled.button`
 		padding: 0 10px;
 	}
 `;
-
 const LoaderWrapper = styled.div`
 	height: 200px;
 	display: flex;
@@ -216,7 +197,6 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-let busniess = JSON.parse(sessionStorage.getItem('busniess'));
 let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
@@ -271,7 +251,14 @@ function caseCreationDataFormat(
 	let guarantorData = formReducer?.Guarantor;
 	let applicantData = formReducer?.user?.applicantData;
 	let loanData = formReducer?.user?.loanData;
-
+	let authentication_otp_res = null;
+	try {
+		authentication_otp_res = JSON.parse(
+			sessionStorage.getItem('authentication_otp_res')
+		);
+	} catch (e) {
+		authentication_otp_res = null;
+	}
 	editLoan = sessionStorage.getItem('editLoan')
 		? JSON.parse(sessionStorage.getItem('editLoan'))
 		: {};
@@ -311,6 +298,9 @@ function caseCreationDataFormat(
 				sessionStorage.getItem('companyData') &&
 				JSON.parse(sessionStorage.getItem('companyData'));
 		}
+		const formstate = sessionStorage.getItem('formstate')
+			? JSON.parse(sessionStorage.getItem('formstate'))
+			: {};
 
 		//console.log('corportae Details', corporateDetails);
 		const newBusinessDetails = {
@@ -356,7 +346,11 @@ function caseCreationDataFormat(
 			maritalStatus: form?.maritalStatus,
 			residenceStatus: form?.residenceStatus,
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
-			aadhaar: applicantData?.aadhaar || companyData?.aadhaar || '',
+			aadhaar:
+				formstate?.values?.aadhaarUnMasked ||
+				applicantData?.aadhaar ||
+				companyData?.aadhaar ||
+				'',
 			equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
 		};
 		if (corporateDetails && corporateDetails.id) {
@@ -373,6 +367,16 @@ function caseCreationDataFormat(
 				return err;
 			}
 		}
+		const reqTypes = ['DL', 'voter', 'passport'];
+		const selectedDoc = data.documents.filter(d =>
+			reqTypes.includes(d.req_type)
+		);
+		selectedDoc.map(doc => {
+			if (doc.dl_no) newBusinessDetails.dl = doc.dl_no;
+			if (doc.vid) newBusinessDetails.voter = doc.vid;
+			if (doc.passport_no) newBusinessDetails.passport = doc.passport_no;
+			return null;
+		});
 		return newBusinessDetails;
 	};
 	if (!companyData) {
@@ -546,9 +550,9 @@ function caseCreationDataFormat(
 		formatedData.director_details.director_0.id =
 			editLoan?.director_details[0]?.id || null;
 	}
-	// if (sessionStorage.getItem('product') != 'demo') {
-	// 	formatedData['branchId'] = companyData.branchId;
-	// }
+	if (authentication_otp_res) {
+		formatedData.auth_details = authentication_otp_res;
+	}
 
 	return formatedData;
 }
@@ -783,19 +787,25 @@ export default function DocumentUpload({
 	} = useContext(AppContext);
 
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
-	const [message, setMessage] = useState('');
+	//const [message, setMessage] = useState('');
 	const [declareCheck, setDeclareCheck] = useState(false);
 
 	const [otherBankStatementModal, setOtherBankStatementModal] = useState(false);
-	const [cibilCheckModal, setCibilCheckModal] = useState(false);
+	//const [cibilCheckModal, setCibilCheckModal] = useState(false);
 	const idType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 
+	const [
+		isAuthenticationOtpModalOpen,
+		setIsAuthenticationOtpModalOpen,
+	] = useState(false);
+	// const [contactNo, setContactNo] = useState();
+	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 
 	const [caseCreationProgress, setCaseCreationProgress] = useState(false);
-	const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
+	//const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
 	const onOtherStatementModalToggle = () => {
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
@@ -888,13 +898,12 @@ export default function DocumentUpload({
 	};
 
 	useEffect(() => {
-		const startingDocs = state.documents;
+		const startingDocs = state.documents || [];
 		// console.log('loan-doc-upload-useEffect-', {
 		// 	startingDocs,
 		// 	flowMap,
 		// 	business_income_type_id,
 		// });
-
 		const flowDocTypeMappingList = {};
 
 		const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
@@ -938,9 +947,9 @@ export default function DocumentUpload({
 				};
 				if (newDoc.typeId) startingDocs[docIndex].typeId = newDoc.typeId;
 				// console.log('startingDoc-', { doc, newDoc });
-				if (newDoc.mainType == 'KYC') newKycDocs.push(newDoc);
-				else if (newDoc.mainType == 'Financial') newFinDocs.push(newDoc);
-				else if (newDoc.mainType == 'Others') newOtherDocs.push(newDoc);
+				if (newDoc.mainType === 'KYC') newKycDocs.push(newDoc);
+				else if (newDoc.mainType === 'Financial') newFinDocs.push(newDoc);
+				else if (newDoc.mainType === 'Others') newOtherDocs.push(newDoc);
 				else {
 					if (newDoc.sectionType === 'kyc') newKycUnTagDocs.push(newDoc);
 					else if (newDoc.sectionType === 'financial')
@@ -948,6 +957,7 @@ export default function DocumentUpload({
 					else if (newDoc.sectionType === 'others')
 						newOtherUnTagDocs.push(newDoc);
 				}
+				return null;
 			});
 		}
 		// console.log('loan-doc-upload-useEffect-', {
@@ -966,6 +976,7 @@ export default function DocumentUpload({
 		setStartingUnTaggedFinDocs(newFinUnTagDocs);
 		setStartingUnTaggedOtherDocs(newOtherUnTagDocs);
 		getWhiteLabel();
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -1023,11 +1034,12 @@ export default function DocumentUpload({
 					otherDocDropdown.push(ele);
 					othDocIds.push(ele.value);
 				}
+				return null;
 			});
 			setKycDocOptions(kycDocDropdown);
 			setFinancialDocOptions(financialDocDropdown);
 			setOtherDocOptions(otherDocDropdown);
-			setDocumentTypeOptions(optionArray);
+			//setDocumentTypeOptions(optionArray);
 
 			// console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
 			if (
@@ -1051,7 +1063,7 @@ export default function DocumentUpload({
 					else newOtr.push(newDoc);
 					return null;
 				});
-
+				// console.log('newKyc', newKyc);
 				setPrefilledKycDocs(newKyc);
 				setPrefilledFinancialDocs(newFin);
 				setPrefilledOtherDocs(newOtr);
@@ -1167,6 +1179,7 @@ export default function DocumentUpload({
 			// director_details - id
 			let uploaddedDoc = state.documents.filter(doc => {
 				if (!doc.requestId) return doc;
+				return null;
 			});
 			const reqBody = caseCreationDataFormat(
 				{
@@ -1210,7 +1223,7 @@ export default function DocumentUpload({
 			) {
 				const resLoanRefId =
 					editLoan?.loan_ref_id || caseReq.data.data.loan_details.loan_ref_id;
-				setMessage(resLoanRefId);
+				//setMessage(resLoanRefId);
 				setLoanRef(resLoanRefId);
 				const compData =
 					sessionStorage.getItem('companyData') &&
@@ -1236,7 +1249,7 @@ export default function DocumentUpload({
 				}
 
 				//**** uploadCacheDocuments
-				// console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
+				//console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
 				const uploadCacheDocsArr = [];
 				state.documents.map(doc => {
 					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
@@ -1247,21 +1260,24 @@ export default function DocumentUpload({
 					}
 					return null;
 				});
-				const uploadCacheDocBody = {
-					loan_id: caseRes.data.loan_details.id,
-					request_ids_obj: uploadCacheDocsArr,
-					user_id: +caseRes.data.loan_details.createdUserId,
-				};
-				await newRequest(
-					UPLOAD_CACHE_DOCS,
-					{
-						method: 'POST',
-						data: uploadCacheDocBody,
-					},
-					{
-						Authorization: clientToken,
-					}
-				);
+
+				if (uploadCacheDocsArr.length) {
+					const uploadCacheDocBody = {
+						loan_id: caseRes.data.loan_details.id,
+						request_ids_obj: uploadCacheDocsArr,
+						user_id: +caseRes.data.loan_details.createdUserId,
+					};
+					await newRequest(
+						UPLOAD_CACHE_DOCS,
+						{
+							method: 'POST',
+							data: uploadCacheDocBody,
+						},
+						{
+							Authorization: clientToken,
+						}
+					);
+				}
 
 				// ends here
 
@@ -1286,6 +1302,7 @@ export default function DocumentUpload({
 	// step: 2 if subsidary details submit request
 	const addSubsidiaryReq = async caseId => {
 		const postData = subsidiaryDataFormat(caseId, state);
+		//console.log('subsidary 23 ', state);
 		if (!postData) {
 			return true;
 		}
@@ -1302,6 +1319,7 @@ export default function DocumentUpload({
 				}
 			);
 			const caseRes = caseReq.data;
+
 			if (
 				caseRes.statusCode === NC_STATUS_CODE.NC200 ||
 				caseRes.status === NC_STATUS_CODE.OK
@@ -1428,8 +1446,8 @@ export default function DocumentUpload({
 			const loanId = editLoan?.id || caseCreateRes.loan_details.id;
 			const businessId =
 				editLoan?.business_id?.id || caseCreateRes.loan_details.business_id;
-
 			await addSubsidiaryReq(caseId);
+
 			await addBankDetailsReq(caseId);
 			await addShareHolderDetailsReq(businessId);
 			await addReferenceDetailsReq(loanId);
@@ -1447,12 +1465,7 @@ export default function DocumentUpload({
 		}
 	};
 
-	const onSubmit = async () => {
-		if (buttonDisabledStatus()) {
-			return;
-		}
-
-		setCaseCreationProgress(true);
+	const isFormValid = () => {
 		let docError = false;
 		state?.documents?.map(ele => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
@@ -1461,34 +1474,64 @@ export default function DocumentUpload({
 				docError = true;
 				return false;
 			}
+			return null;
 		});
 		if (docError) {
 			addToast({
 				message: 'Please select the document type',
 				type: 'error',
 			});
-			setCaseCreationProgress(false);
-		} else {
-			if (!userType) {
-				const loanReq = await caseCreationSteps(state);
-
-				if (!loanReq && !loanReq?.loanId) {
-					setCaseCreationProgress(false);
-					return;
-				}
-
-				if (editLoan && editLoan?.loan_ref_id) {
-					setTimeout(() => {
-						addToast({
-							message: 'Your application has been updated',
-							type: 'success',
-						});
-					}, 1000);
-				}
-				setCompleted(id);
-				onFlowChange(!map ? 'application-submitted' : map.main);
-			}
+			return false;
 		}
+		return true;
+	};
+
+	const onSubmitOtpAuthentication = async () => {
+		try {
+			if (buttonDisabledStatus()) return;
+			if (!isFormValid()) return;
+			setIsAuthenticationOtpModalOpen(true);
+			const sendOTPReq = await newRequest(AUTHENTICATION_GENERATE_OTP, {
+				method: 'POST',
+				data: {
+					mobile: applicantData?.mobileNo || companyData?.mobileNo,
+				},
+				headers: {
+					Authorization: `Bearer ${API_TOKEN}`,
+				},
+			});
+			const authenticationGenOTPResponse = sendOTPReq.data;
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const onSubmitCompleteApplication = async () => {
+		setCaseCreationProgress(true);
+		if (buttonDisabledStatus()) return;
+		if (!isFormValid()) return;
+		// return;
+		// setLoading(false);
+		if (!userType) {
+			const loanReq = await caseCreationSteps(state);
+
+			if (!loanReq && !loanReq?.loanId) {
+				setCaseCreationProgress(false);
+				return;
+			}
+
+			if (editLoan && editLoan?.loan_ref_id) {
+				setTimeout(() => {
+					addToast({
+						message: 'Your application has been updated',
+						type: 'success',
+					});
+				}, 1000);
+			}
+			setCompleted(id);
+			onFlowChange(!map ? 'application-submitted' : map.main);
+		}
+		setCaseCreationProgress(false);
 	};
 
 	const openCloseCollaps = name => {
@@ -1513,10 +1556,37 @@ export default function DocumentUpload({
 		if (docs.mainType === 'KYC') kyccount++;
 		if (docs.mainType === 'Financial') financialCount++;
 		if (docs.mainType === 'Others') otherCount++;
+		return null;
 	});
+
+	if (
+		editLoan &&
+		editLoan?.loan_document &&
+		editLoan?.loan_document?.length > 0
+	) {
+		if (prefilledKycDocs.length) {
+			kyccount = kyccount + prefilledKycDocs.length;
+		}
+		if (prefilledFinancialDocs.length) {
+			financialCount = financialCount + prefilledFinancialDocs.length;
+		}
+		if (prefilledOtherDocs.length) {
+			otherCount = otherCount + prefilledOtherDocs.length;
+		}
+	}
 
 	return (
 		<>
+			{isAuthenticationOtpModalOpen && (
+				<AuthenticationOtpModal
+					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
+					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
+					setContactNo={applicantData?.mobileNo || companyData?.mobileNo}
+					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
+					onSubmitCompleteApplication={onSubmitCompleteApplication}
+				/>
+			)}
+
 			<Colom1>
 				<H>
 					{userType ?? 'Help Us with'} <span>Document Upload</span>
@@ -1739,7 +1809,7 @@ export default function DocumentUpload({
 						disabled={cibilCheckbox}
 						onChange={() => {
 							setCibilCheckbox(!cibilCheckbox);
-							setCibilCheckModal(true);
+							//setCibilCheckModal(true);
 						}}
 						bg='blue'
 					/>
@@ -1751,18 +1821,31 @@ export default function DocumentUpload({
 					/>
 				</CheckboxWrapper>
 				<SubmitWrapper>
-					<Button
-						name='Submit'
-						fill
-						style={{
-							width: '200px',
-							background: 'blue',
-						}}
-						isLoader={caseCreationProgress}
-						disabled={buttonDisabledStatus()}
-						onClick={!caseCreationProgress && onSubmit}
-						// onClick={onSubmit}
-					/>
+					{productDetails.otp_authentication ? (
+						<Button
+							name='Submit'
+							fill
+							style={{
+								width: '200px',
+								background: 'blue',
+							}}
+							isLoader={caseCreationProgress}
+							disabled={buttonDisabledStatus()}
+							onClick={!caseCreationProgress && onSubmitOtpAuthentication}
+						/>
+					) : (
+						<Button
+							name='Submit'
+							fill
+							style={{
+								width: '200px',
+								background: 'blue',
+							}}
+							isLoader={caseCreationProgress}
+							disabled={buttonDisabledStatus()}
+							onClick={!caseCreationProgress && onSubmitCompleteApplication}
+						/>
+					)}
 				</SubmitWrapper>
 				{otherBankStatementModal && (
 					<BankStatementModal

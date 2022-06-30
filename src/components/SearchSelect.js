@@ -1,10 +1,13 @@
+/* This searchSelect is a type of input box where on entering some data
+you will see a list that matches the entered data. */
+
 import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import useClickOutside from '../hooks/useOutsideClick';
 import debounceFunction from '../utils/debounce';
-import { style } from 'dom-helpers';
+// import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
 	width: 100%;
@@ -147,6 +150,7 @@ export default function SearchSelect({
 			onOptionSelect(null, { name: field.placeholder, value: field.value });
 			// })();
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -168,6 +172,7 @@ export default function SearchSelect({
 		) {
 			fetchOption();
 		}
+		// eslint-disable-next-line
 	}, [fetchOptionsFunc]);
 
 	const onOptionSelect = (e, option) => {

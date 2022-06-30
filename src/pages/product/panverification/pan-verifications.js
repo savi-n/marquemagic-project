@@ -1,7 +1,12 @@
-import { useState, useContext, useEffect, useRef } from 'react';
-import { func, object, oneOfType, string } from 'prop-types';
-import styled from 'styled-components';
+/* Pan verification page
+- This section has 2 screens
+- 1 pan upload screen
+- 2 gst udhyog screen
+- 3 address proof upload screen (aadhaar-voter-dl-passport)
+*/
 
+import { useState, useContext, useEffect, useRef } from 'react';
+import styled from 'styled-components';
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
 import { AppContext } from '../../../reducer/appReducer';
@@ -13,6 +18,9 @@ import CompanySelectModal from '../../../components/CompanySelectModal';
 import FileUpload from '../../../shared/components/FileUpload/FileUpload';
 import Button from '../../../components/Button';
 import Modal from '../../../components/Modal';
+import WarnIcon from 'assets/icons/amber_warning_icon.png';
+import ErrorIcon from 'assets/icons/Red_error_icon.png';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import {
 	ROC_DATA_FETCH,
 	LOGIN_CREATEUSER,
@@ -20,17 +28,21 @@ import {
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
 	APP_CLIENT,
-	DOCS_UPLOAD_URL_LOAN,
-	// PINCODE_ADRRESS_FETCH,
 } from '../../../_config/app.config';
 import {
 	getKYCData,
 	verifyPan,
 	gstFetch,
 	getKYCDataId,
+	verifyKycDataUiUx,
 } from '../../../utils/request';
+import _ from 'lodash';
 
-const Colom1 = styled.div`
+import * as CONST from './const';
+import * as UI from './ui';
+import InputField from 'components/inputs/InputField';
+
+const Wrapper = styled.div`
 	flex: 1;
 	padding: 50px;
 	@media (max-width: 700px) {
@@ -38,37 +50,11 @@ const Colom1 = styled.div`
 		max-width: 100%;
 	}
 `;
-
-const Colom2 = styled.div`
-	width: 30%;
-`;
-
-const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-`;
-
-const Lab = styled.h1`
-	font-size: 1em;
-	font-weight: 500;
-	color: grey;
-`;
-
 const LabRed = styled.h1`
 	font-size: 1em;
 	font-weight: 500;
 	color: red;
 	margin-top: -25px;
-`;
-
-const H = styled.h1`
-	font-size: 1.5em;
-	font-weight: 500;
-	span {
-		color: ${({ theme }) => theme.main_theme_color};
-	}
 `;
 
 const FieldWrapper = styled.div`
@@ -78,15 +64,26 @@ const FieldWrapper = styled.div`
 		width: 100%;
 	}
 `;
-
+const ImgClose = styled.img`
+	height: 25px;
+	cursor: pointer;
+	margin-left: auto;
+	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
+`;
 const FieldWrapperPanVerify = styled.div`
-	padding: 20px 0;
+	padding: 30px 10px;
 	/* width: 50%; */
 	place-self: center;
-	margin-right: 10em;
+
 	@media (max-width: 700px) {
 		width: 100%;
 	}
+`;
+const ConfirmPanWrapper = styled.div`
+	padding: 40px 0;
+	margin-right: auto;
+	margin-left: auto;
+	text-align: center;
 `;
 
 const H2 = styled.h2`
@@ -95,9 +92,38 @@ const H2 = styled.h2`
 	font-weight: 500;
 `;
 
-const Span = styled.span`
-	color: ${({ theme, bg }) => theme.main_theme_color};
-	font-size: 13px;
+const CardRadioButton = styled.div`
+	/* box-shadow: 0 4px 9px 0 #bdd2ef; */
+	box-shadow: rgb(11 92 255 / 16%) 0px 2px 5px 1px;
+	width: 180px;
+	height: 45px;
+	line-height: 45px;
+	margin-right: 20px;
+	padding-left: 20px;
+	border-radius: 6px;
+	text-align: left;
+	input {
+		cursor: pointer;
+	}
+	label {
+		padding-left: 15px;
+		cursor: pointer;
+	}
+`;
+
+const RadioButtonWrapper = styled.div`
+	padding: 30px 0;
+	display: flex;
+`;
+
+const ButtonWrapper = styled.div`
+	margin-top: 20px;
+`;
+
+const NotificationImg = styled.img`
+	margin-right: 8px;
+	width: 33px;
+	display: inline-block;
 `;
 
 const businessTypeMaps = [
@@ -207,8 +233,11 @@ export default function PanVerification({
 }) {
 	const productType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
+	const isBusinessProductType = productType === 'business';
+	const isSalariedProductType = !isBusinessProductType; // 'salaried'
+	const isVerifyKycData = productDetails?.kyc_verification; // TODO: make it to false before pushing
 	const {
-		state: { whiteLabelId, clientToken, bankToken },
+		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);
 
 	const {
@@ -220,13 +249,13 @@ export default function PanVerification({
 	} = useContext(FlowContext);
 
 	const {
-		state,
+		state: { documents: loanDocuments },
 		actions: {
 			setLoanDocuments,
-			removeAllDocuments,
-			setPanDocDetails,
-			setOtherDocDetails,
+			removeAllLoanDocuments,
+			setLoanDocumentType,
 			removeLoanDocument,
+			removeAllAddressProofLoanDocuments,
 		},
 	} = useContext(LoanFormContext);
 
@@ -236,72 +265,163 @@ export default function PanVerification({
 
 	const [loading, setLoading] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
-	const [companyListModal, setCompanyListModal] = useState(false);
-	const [dlError, setDLError] = useState('');
-	const [aadharError, setAadharError] = useState('');
+	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
+	// const [dlError, setDLError] = useState('');
+	// const [aadharError, setAadharError] = useState('');
+	// const [voterError, setVoterError] = useState('');
+	const [panError, setPanError] = useState('');
+	const [addressProofError, setAddressProofError] = useState('');
+	const [udhyogError, setUdhyogError] = useState('');
+	const [gstError, setGstError] = useState('');
+	// const [selectDoc, selectDocs] = useState(false);
+	// const [verificationFailed, setVerificationFailed] = useState('');
+	//const [gstNum, setGstNum] = useState(null);
 
-	const [voterError, setVoterError] = useState('');
-
-	const [selectDoc, selectDocs] = useState(false);
-	const [verificationFailed, setVerificationFailed] = useState('');
-	const [gstNum, setGstNum] = useState(null);
-
-	const [panUpload, setPanUpload] = useState(true);
-	const [file, setFile] = useState([]);
-	const fileRef = useRef([]);
-	const [panFile, setPanFile] = useState([]);
-	const [docs, setDocs] = useState([]);
-	const [panResponse, setPanResponse] = useState(null);
-	const [isBusiness, setBusiness] = useState(true);
+	const [screen, setScreen] = useState(CONST.SCREEN_PAN);
+	// const [screen, setScreen] = useState(CONST.SCREEN_ADDRESS_PROOF);
+	// const [panUpload, setPanUpload] = useState(true);
+	// const [file, setFile] = useState([]);
+	// const fileRef = useRef([]);
+	// const [panFile, setPanFile] = useState([]);
+	const [panDoc, setPanDoc] = useState([]);
+	//const [panResponse, setPanResponse] = useState(null);
+	// const [isBusinessPan, setBusinessPan] = useState(true);
 
 	const product_id = sessionStorage.getItem('productId');
 
-	const [openConfirm, setPanConfirm] = useState(false);
-	const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
-	const [otherDoc, setOtherDoc] = useState([]);
-	const [aadhar, setAadhar] = useState([]);
-	const [voter, setVoter] = useState([]);
-	const [panError, setPanError] = useState('');
+	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
+	const [isDocTypeChangeModalOpen, setIsDocTypeChangeModalOpen] = useState(
+		false
+	);
+	// this state is to reset all <FileUpload /> document catch
+	// to perform this action setRemoveAllFileUploads(!removeAllFileUploads)
+	const [removeAllFileUploads, setRemoveAllFileUploads] = useState('');
 
-	const [backUpload, setBackUpload] = useState(false);
-	const [backUploading, setBackUploading] = useState(false);
-	const [disableButton, setDisableSubmit] = useState(false);
+	// const [uploadOtherDocs, setUploadOtherDocs] = useState(false);
+	// const [otherDoc, setOtherDoc] = useState([]);
+	// const [aadhar, setAadhar] = useState([]);
+	// const [voter, setVoter] = useState([]);
+
+	// const [backUpload, setBackUpload] = useState(false);
+	// const [backUploading, setBackUploading] = useState(false);
+	// const [disableButton, setDisableSubmit] = useState(false);
 	const [panFileId, setPanFileId] = useState(null);
-
+	const [isError, setIsError] = useState(false);
+	const [isWarning, setIsWarning] = useState(false);
+	const [selectedAddressProof, setSelectedAddressProof] = useState('');
+	const [selectedDocTypeList, setSelectedDocTypeList] = useState([]);
+	const [isAddharSkipChecked, setIsAddharSkipChecked] = useState(false);
+	const [addressProofDocs, setAddressProofDocs] = useState([]);
+	const [extractionDataRes, setExtractionDataRes] = useState({});
+	const [panExtractionData, setPanExtractionData] = useState({});
+	const [addressProofExtractionData, setAddressProofExtractionData] = useState(
+		{}
+	);
+	const [searchingCompanyName, setSearchingCompanyName] = useState(false);
+	// const [confirmPanNumber, setConfirmPanNumber] = useState('');
+	// const [panNum, setPan] = useState('');
 	// const userid = '10626';
 
-	useEffect(() => {
-		verificationFailed && setVerificationFailed('');
-	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
+	const resetAllErrors = () => {
+		setPanError('');
+		setAddressProofError('');
+		setGstError('');
+		setUdhyogError('');
+		setIsError(false);
+		setIsWarning(false);
+	};
 
 	const onCompanySelect = cinNumber => {
-		setCompanyListModal(false);
+		setIsCompanyListModalOpen(false);
 		setLoading(true);
 		cinNumberFetch(cinNumber);
 	};
 
-	const [panNum, setPan] = useState('');
+	const proceedToNextSection = () => {
+		setCompleted(id);
+		onFlowChange(map.main);
+	};
+
+	const getVerifiedKycData = async (selectedAddressProof, extractionData) => {
+		try {
+			// console.log('getVerifiedKycData-', {
+			// 	selectedAddressProof,
+			// 	isVerifyKycData,
+			// 	extractionData,
+			// });
+			if (
+				isVerifyKycData &&
+				selectedAddressProof !== CONST.EXTRACTION_KEY_AADHAAR
+			) {
+				const reqBody = {
+					doc_ref_id:
+						selectedAddressProof === CONST.EXTRACTION_KEY_PAN
+							? extractionData?.doc_ref_id
+							: extractionData?.doc_ref_id,
+					doc_type: selectedAddressProof,
+				};
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_PAN) {
+					reqBody.number = extractionData.panNumber || '';
+					reqBody.name = extractionData.companyName || '';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_DL) {
+					reqBody.number = extractionData?.dl_no || '';
+					reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_VOTERID) {
+					reqBody.number = extractionData?.vid || '';
+					reqBody.state = extractionData?.state || '';
+					reqBody.name = extractionData?.Name || extractionData?.name || '';
+				}
+				if (selectedAddressProof === CONST.EXTRACTION_KEY_PASSPORT) {
+					// TODO: verify by testing passport extraction data
+					reqBody.number = extractionData?.passport_no || '';
+					reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
+					reqBody.name = extractionData?.Name || extractionData?.name || '';
+				}
+				const verifiedRes = await verifyKycDataUiUx(reqBody, clientToken);
+				return verifiedRes;
+			} else return {};
+		} catch (error) {
+			console.error('error-verifyKycDataUiUx-', error);
+			addToast({
+				message: error.message || 'Something Went Wrong. Try Again!',
+				type: 'error',
+			});
+			return {};
+		}
+	};
 
 	const companyNameSearch = async companyName => {
-		setLoading(true);
-		setCompanyListModal(false);
-		const companyNameSearchReq = await newRequest(
-			SEARCH_COMPANY_NAME,
-			{
-				method: 'POST',
-				data: {
-					search: companyName.trim(),
+		try {
+			setSearchingCompanyName(true);
+			const companyNameSearchReq = await newRequest(
+				SEARCH_COMPANY_NAME,
+				{
+					method: 'POST',
+					data: {
+						search: companyName.trim(),
+					},
 				},
-			},
-			{}
-		);
+				{}
+			);
 
-		const companyNameSearchRes = companyNameSearchReq.data;
+			const companyNameSearchRes = companyNameSearchReq.data;
 
-		if (companyNameSearchRes.status === NC_STATUS_CODE.OK) {
-			setCompanyListModal(true);
-			setLoading(false);
-			setCompanyList(companyNameSearchRes.data);
+			setSearchingCompanyName(false);
+			if (companyNameSearchRes.status === NC_STATUS_CODE.OK) {
+				setCompanyList(companyNameSearchRes.data);
+				return companyNameSearchRes.data;
+			}
+			return [];
+		} catch (error) {
+			console.error('error-companyNameSearch-', error);
+			addToast({
+				message: error.message || 'Company search failed, try again',
+				type: 'error',
+			});
+			setSearchingCompanyName(false);
+			return [];
 		}
 	};
 
@@ -368,9 +488,9 @@ export default function PanVerification({
 						userId: userDetailsRes.userId,
 						branchId: userDetailsRes.branchId,
 						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data, panNum),
+						...formatCompanyData(companyData.data, extractionDataRes.panNumber),
 					});
-				onProceed();
+				proceedToNextSection();
 				return;
 			}
 		}
@@ -382,7 +502,7 @@ export default function PanVerification({
 			return;
 		}
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData, panNum, gstNum),
+			...formatCompanyDataGST(companyData, extractionDataRes.panNumber, gstNum),
 		});
 
 		const url = window.location.hostname;
@@ -399,7 +519,11 @@ export default function PanVerification({
 					...form.formReducer.user,
 					applicantData: {
 						...form.formReducer.user.applicantData,
-						...formatCompanyDataGST(companyData, panNum, gstNum),
+						...formatCompanyDataGST(
+							companyData,
+							extractionDataRes.panNumber,
+							gstNum
+						),
 					},
 				},
 			},
@@ -445,986 +569,1096 @@ export default function PanVerification({
 		// 	};
 		// }
 
-		onProceed();
+		proceedToNextSection();
 		return;
 	};
 
-	const onProceed = () => {
-		setCompleted(id);
-		onFlowChange(map.main);
-	};
-
-	const handleFileUpload = files => {
-		const newFiles = [];
-		fileRef.current.map(f => newFiles.push({ ...f }));
-		files.map(f => newFiles.push({ ...f }));
-		// console.log('pan-verification-handleFileUpload-', { newFiles });
-		setFile(newFiles);
-		fileRef.current = newFiles;
-		setPanFile(newFiles);
-		setDisableSubmit(false);
-		resetAllErrors();
-	};
-
-	const resetAllErrors = () => {
-		setDLError('');
-		setAadharError('');
-		setVoterError('');
-	};
+	useEffect(() => {
+		setSelectedDocTypeList(CONST.getDocumentTypeList(selectedAddressProof));
+	}, [selectedAddressProof]);
 
 	useEffect(() => {
 		sessionStorage.removeItem('product');
-		// console.log('pan-verifications-useEFfect-removealldocuments-');
-		// removeAllDocuments();
+		// removeAllLoanDocuments();
+		// eslint-disable-next-line
 	}, []);
 
-	const removeHandler = (e, doc, name) => {
-		// console.log('state', state.documents);
-		// console.log('remveddd', e, typeof e);
-		setBackUploading(false);
-		setPanError('');
-		resetAllErrors();
-		if (name) {
-			if (name === 'DL') {
-				var index = doc.findIndex(x => x.id === e);
-				doc.splice(index, 1);
-				setOtherDoc(doc);
-			}
-			if (name === 'aadhar') {
-				var index = doc.findIndex(x => x.id === e);
-				doc.splice(index, 1);
-				setAadhar(doc);
-			}
-			if (name === 'voter') {
-				var index = doc.findIndex(x => x.id === e);
-				doc.splice(index, 1);
-				setVoter(doc);
-			}
-		}
-
-		panUpload && setDocs([]);
-		var index = file.findIndex(x => x.id === e);
-		file.splice(index, 1);
-		setFile(file);
-		fileRef.current = file;
-		setPanFile([]);
-	};
-
-	const handlePanUpload = files => {
-		setLoading(true);
-		const formData = new FormData();
-		formData.append('product_id', product_id);
-		formData.append('req_type', 'pan');
-		formData.append('process_type', 'extraction');
-		formData.append('document', files);
-
-		getKYCData(formData, clientToken)
-			.then(res => {
-				if (res.data.status === 'nok') {
-					// setPanConfirm(true);
-					// setBusiness(false);
-					setPanError(res.data.message);
-					// addToast({
-					// 	message: res.data.message,
-					// 	type: 'error',
-					// });
-				} else {
-					//****** setting file in docs for this loan -- loanContext
-					// setPanDocDetails(res.data.doc_details);
-					const file1 = {
-						document_key: res.data.s3.fd,
-						id: Math.random()
-							.toString(36)
-							.replace(/[^a-z]+/g, '')
-							.substr(0, 6),
-						mainType: 'KYC',
-						size: res.data.s3.size,
-						type: 'pan',
-						req_type: 'pan', // requires for mapping with JSON
-						requestId: res.data.request_id,
-						upload_doc_name: res.data.s3.filename,
-						src: 'start',
-					};
-					setPanFileId(file1.id);
-					setLoanDocuments([file1]);
-					// this ends here
-
-					setPan(res.data.data['Pan_number']);
-					sessionStorage.setItem('pan', res.data.data['Pan_number']);
-					formState.values.panNumber = res.data.data['Pan_number'];
-					formState.values.responseId = res?.data?.data?.id;
-					formState.values.companyName = res.data.data['Name'];
-					formState.values.dob = res.data.data['DOB'];
-					sessionStorage.getItem('DOB', res.data.data['DOB']);
-					sessionStorage.setItem('formstatepan', JSON.stringify(formState));
-					if (productType === 'business') {
-						if (
-							!(
-								res.data.data['Name']
-									.toLowerCase()
-									.includes('private limited') ||
-								res.data.data['Name']
-									.toLowerCase()
-									.includes('public limited') ||
-								res.data.data['Name'].toLowerCase().includes('limited') ||
-								res.data.data['Name'].toLowerCase().includes('pvt ltd') ||
-								res.data.data['Name'].toLowerCase().includes('private')
-							)
-						) {
-							setBusiness(false);
-							setPanUpload(false);
-						} else {
-							onSubmit(formState);
-						}
-					}
-					if (productType === 'salaried') {
-						const name =
-							res.data?.data?.name?.split(' ') ||
-							res.data?.data?.Name?.split(' ');
-						if (name) {
-							formState.values.firstName = name[0];
-							formState.values.lastName = name[1];
-						}
-						setPanConfirm(true);
-					}
-					setPanResponse(res.data);
-				}
-				setLoading(false);
-				setFile([]);
-				fileRef.current = [];
-			})
-			.catch(err => {
-				console.log(err);
-				setPanConfirm(true);
-				setBusiness(false);
-
-				addToast({
-					message: err.message,
-					type: 'error',
-				});
-				setLoading(false);
-			});
-	};
-
-	const onSubmit = async ({
-		panNumber,
-		companyName,
-		udhyogAadhar,
-		gstin,
-		gstNumber,
-	}) => {
-		setLoading(true);
-		setVerificationFailed('');
-		setGstNum(gstin);
-
-		if (productType === 'business') {
-			if (isBusiness) {
-				if (!formState?.values?.companyName && !formState?.values?.panNumber) {
-					return;
-				}
-
-				try {
-					if (
-						formState?.values?.panNumber &&
-						formState?.values?.companyName &&
-						formState.values.responseId
-					) {
-						await verifyPan(
-							formState.values.responseId,
-							formState?.values?.panNumber,
-							formState?.values?.companyName,
-							clientToken
-						);
-					}
-
-					if (formState?.values?.companyName) {
-						await companyNameSearch(formState?.values?.companyName);
-					}
-				} catch (error) {
-					console.error(error);
-					addToast({
-						message: error.message || 'Something Went Wrong. Try Again!',
-						type: 'error',
-					});
-				}
-
-				// setLoading(false);
-			} else {
-				sessionStorage.setItem('product', 'demo');
-				if (!panNumber) {
-					setLoading(false);
-					return;
-				}
-
-				if (!udhyogAadhar && (!gstin || gstin === '')) {
-					setLoading(false);
-					return;
-				}
-
-				try {
-					if (!panNumber) {
-						setLoading(false);
-						return;
-					}
-					if (panNumber && !gstin) {
-					}
-					if (udhyogAadhar) {
-						if (udhyogAadhar.length !== 12) {
-							setVerificationFailed('Character Length Mismatch');
-							setLoading(false);
-							return;
-						} else {
-							onProceed();
-							return;
-						}
-						// api not ready. after api ready will enable this code and add url
-						// const y = await verifyPan(
-						// 	formState.values.responseId,
-						// 	formState.values?.udhyogAadhar,
-						// 	formState?.values?.companyName,
-						// 	clientToken
-						// );
-						// if (y.data.status === 'nok') {
-						// 	setVerificationFailed(
-						// 		typeof y.data.message === 'string'
-						// 			? y.data.message
-						// 			: y.data.message.message
-						// 	);
-						// 	setLoading(false);
-						// 	return;
-						// }
-						// if (y.status === 500) {
-						// 	setLoading(false);
-						// 	addToast({
-						// 		type: 'error',
-						// 		message: y.message,
-						// 	});
-						// 	return;
-						// }
-					}
-
-					let stateCode = null,
-						panFromGstin = null;
-					if (gstin) {
-						if (gstin.length !== 15) {
-							setVerificationFailed('Character Length Mismatch');
-							setLoading(false);
-							return;
-						}
-						stateCode = gstin.slice(0, 2);
-						panFromGstin = gstin.slice(2, 12);
-						const restGstin = gstin.slice(12, 15);
-
-						const lastthreeDigitsValidation = /[1-9A-Z]{1}Z[0-9A-Z]{1}/.test(
-							restGstin
-						);
-						const stateCodeValidation = /[0-9]/.test(stateCode);
-						if (!lastthreeDigitsValidation || !stateCodeValidation) {
-							setVerificationFailed('Please specify a valid GSTIN');
-							setLoading(false);
-							return;
-						}
-						if (panFromGstin !== panNumber || !lastthreeDigitsValidation) {
-							setVerificationFailed('Invalid GSTIN for the given PAN');
-							setLoading(false);
-							return;
-						}
-					}
-
-					if (panNumber) {
-						await gstFetch(panNumber, stateCode, gstin, clientToken).then(
-							res => {
-								if (res?.data?.status === 'nok') {
-									setVerificationFailed('Invalid GSTIN pattern');
-									setLoading(false);
-									return;
-								} else if (res?.data?.data?.error_code) {
-									setVerificationFailed(res?.data?.data.message);
-									setLoading(false);
-									return;
-								} else
-									gstNumberFetch(
-										res?.data?.data[0]?.data || res?.data?.data,
-										gstin
-									);
-							}
-						);
-					}
-				} catch (error) {
-					console.error(error);
-					addToast({
-						message: error.message || 'Something Went Wrong. Try Again!',
-						type: 'error',
-					});
-				}
-			}
-
-			// setLoading(false);
-		} else {
-			if (
-				(aadhar.length > 0 && otherDoc.length > 0) ||
-				(aadhar.length > 0 && voter.length > 0) ||
-				(voter.length > 0 && otherDoc.length > 0)
-			) {
-				setLoading(false);
-				return addToast({
-					message: `please upload only one type of document`,
-					type: 'error',
-				});
-			}
-			if (aadhar.length > 0 && aadhar[0]?.file) {
-				handleUpload(aadhar[0]?.file);
-			}
-			if (voter.length > 0 && voter[0].file) {
-				handleUpload(voter[0]?.file);
-			}
-			if (otherDoc.length > 0 && otherDoc[0]?.file) {
-				handleUpload(otherDoc[0]?.file);
-			}
-
-			// setLoading(false);
-		}
-	};
-
-	const getFileType = () => {
-		if (otherDoc.length > 0) {
-			return 'DL';
-		}
-		if (aadhar.length > 0) {
-			return 'aadhar';
-		}
-		if (voter.length > 0) {
-			return 'voter';
-		}
-	};
-
 	useEffect(() => {
-		if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
-			setBackUpload(true);
-	}, [otherDoc, aadhar, voter, backUploading]);
-
-	const handleUpload = files => {
-		// console.log('here');
-		setLoading(true);
-		const fileType = getFileType();
 		resetAllErrors();
-		if (file.length > 1) {
-			// console.log('extract 2 image front and back');
-			const formData1 = new FormData();
-			formData1.append('product_id', product_id);
-			formData1.append('req_type', fileType);
-			formData1.append('process_type', 'extraction');
-			formData1.append('document', file[1].file);
+		// eslint-disable-next-line
+	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
 
-			getKYCData(formData1, clientToken).then(re => {
-				if (re.data.status === 'nok') {
-					setDLAadharVoterError(re.data.message);
-				} else {
-					//****** setting file in docs for this loan -- loanContext
-					// setOtherDocDetails(re.data.doc_details);
-					const myfile = {
-						document_key: re.data.s3.fd,
-						id: Math.random()
-							.toString(36)
-							.replace(/[^a-z]+/g, '')
-							.substr(0, 6),
-						mainType: 'KYC',
-						size: re.data.s3.size,
-						type: 'other',
-						req_type: fileType, // requires for mapping with JSON
-						requestId: re.data.request_id,
-						upload_doc_name: re.data.s3.filename,
-						src: 'start',
-					};
+	if (!productDetails) return null;
 
-					setLoanDocuments([myfile]);
-					// this ends here
+	const handleFileUploadPan = files => {
+		setPanDoc(files);
+		// setDisableSubmit(false);
+		resetAllErrors();
+		setIsError(false);
+		removeAllLoanDocuments();
+		// TODO: cleanup
+		// const newFiles = [];
+		// fileRef.current.map(f => newFiles.push({ ...f }));
+		// files.map(f => newFiles.push({ ...f }));
+		// console.log('pan-verification-handleFileUpload-', { newFiles });
+		// fileRef.current = newFiles;
+		// setFile(newFiles);
+		// setPanFile(newFiles);
+	};
+	const onProceedGstUdhyog = async data => {
+		const { panNumber, gstin, udhyogAadhar } = data;
+		try {
+			setLoading(true);
+			resetAllErrors();
+			let isError = false;
+			//setGstNum(gstin);
+			sessionStorage.setItem('product', 'udhyog');
+			if (!udhyogAadhar && !gstin) {
+				setLoading(false);
+				isError = true;
+			}
+			if (udhyogAadhar && udhyogAadhar.length !== 12) {
+				setUdhyogError('Udhyog aadhaar should be 12 digit');
+				setLoading(false);
+				isError = true;
+			}
+			if (gstin && gstin.length !== 15) {
+				setGstError('GSTIN should be 15 digit');
+				setLoading(false);
+				isError = true;
+			}
+			if (udhyogAadhar && udhyogAadhar.length === 12) proceedToNextSection();
+			if (isError) return;
+			let stateCode = null;
+			let panFromGstin = null;
+			if (gstin) {
+				stateCode = gstin.slice(0, 2);
+				panFromGstin = gstin.slice(2, 12);
+				const restGstin = gstin.slice(12, 15);
 
-					const formData2 = new FormData();
-					formData1.append('product_id', product_id);
-					formData2.append('req_type', fileType);
-					formData2.append('process_type', 'extraction');
-					formData2.append('document', file[0].file);
-					getKYCDataId(re?.data?.data?.id, formData2, clientToken).then(res => {
-						if (res.data.status === 'nok') {
-							setDLAadharVoterError(res.data.message);
-						} else {
-							//****** setting file in docs for this loan -- loanContext
-
-							// re.data.doc_type_id = '31';
-							const myfile2 = {
-								document_key: res.data.s3.fd,
-								id: Math.random()
-									.toString(36)
-									.replace(/[^a-z]+/g, '')
-									.substr(0, 6),
-								mainType: 'KYC',
-								size: res.data.s3.size,
-								type: 'other',
-								req_type: fileType,
-								requestId: res.data.request_id,
-								upload_doc_name: res.data.s3.filename,
-								src: 'start',
-							};
-
-							setLoanDocuments([myfile2]);
-							// this ends here
-
-							const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
-								/\s/g,
-								''
-							).split('');
-							formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
-							const t = aadharNum
-								? '00000000' + aadharNum?.splice(8, 4).join('')
-								: '';
-							const name =
-								res.data?.data?.name?.split(' ') ||
-								res.data?.data?.Name?.split(' ');
-							formState.values.aadhaar = t;
-							sessionStorage.setItem('aadhar', t);
-							formState.values.dob = res?.data?.data?.DOB;
-							let firstName = [...name];
-							firstName.pop();
-							formState.values.firstName = firstName.join(' ');
-							formState.values.lastName = name[name.length - 1];
-							formState.values.dob =
-								res?.data?.data?.DOB || res?.data?.data?.dob;
-							formState.values.dl_no = res.data?.data?.dl_no;
-							formState.values.address1 =
-								res.data?.data?.address || res?.data?.data?.Address;
-							let address = formState.values.address1;
-
-							var pinCode = res?.data?.data?.pincode;
-
-							if (address) {
-								let locationArr = address && address?.split(' ');
-								let y = locationArr?.map(e => Number(e) !== NaN && e);
-								let pin;
-								y.map(e => {
-									if (e?.length === 6) pin = e;
-								});
-
-								formState.values.pin = pinCode || pin;
-							}
-
-							sessionStorage.setItem('formstate', JSON.stringify(formState));
-							emptyDoc();
-							onProceed();
-						}
-						setLoading(false);
-					});
+				const lastthreeDigitsValidation = /[1-9A-Z]{1}Z[0-9A-Z]{1}/.test(
+					restGstin
+				);
+				const stateCodeValidation = /[0-9]/.test(stateCode);
+				if (!lastthreeDigitsValidation || !stateCodeValidation) {
+					setGstError('Please specify a valid GSTIN');
+					setLoading(false);
+					return;
 				}
+				if (panFromGstin !== panNumber || !lastthreeDigitsValidation) {
+					setGstError('Invalid GSTIN for the given PAN');
+					setLoading(false);
+					return;
+				}
+			}
+
+			await gstFetch(panNumber, stateCode, gstin, clientToken).then(res => {
+				if (res?.data?.status === 'nok') {
+					setGstError('Invalid GSTIN pattern');
+					setLoading(false);
+					return;
+				} else if (res?.data?.data?.error_code) {
+					setGstError(res?.data?.data.message);
+					setLoading(false);
+					return;
+				} else
+					gstNumberFetch(res?.data?.data[0]?.data || res?.data?.data, gstin);
 			});
-		} else {
-			// console.log('extract 1 image only front');
+		} catch (error) {
+			console.error('error-onProceedGstUdhyog-', error);
+			addToast({
+				message: error.message || 'Something Went Wrong. Try Again!',
+				type: 'error',
+			});
+		}
+	};
+	// TODO: remove this not required
+	// useEffect(() => {
+	// 	if (aadhar.length > 0 || voter.length > 0 || otherDoc.length > 0)
+	// 		setBackUpload(true);
+	// }, [otherDoc, aadhar, voter, backUploading]);
+
+	const handleFileRemovePan = docId => {
+		//console.log('handleFileRemovePan docId-', docId);
+		removeAllLoanDocuments();
+		setRemoveAllFileUploads(!removeAllFileUploads);
+		resetAllErrors();
+		setPanDoc([]);
+		// var index3 = file.findIndex(x => x.id === docId);
+		// file.splice(index3, 1);
+		// setFile(file);
+		// fileRef.current = file;
+		// setPanFile([]);
+	};
+
+	const onChangePanNumber = e => {
+		const newPanExtractionData = _.cloneDeep(panExtractionData);
+		newPanExtractionData.panNumber = e.target.value;
+		setPanExtractionData(newPanExtractionData);
+	};
+
+	const onProceedPanConfirm = async () => {
+		try {
+			// Validate pan field
+			// validate pan length
+			// validate pan with digit + alphabets
+			setLoading(true);
+			// call verifykyc api
+			const verifiedRes = await getVerifiedKycData(
+				CONST.EXTRACTION_KEY_PAN,
+				panExtractionData
+			);
+			// console.log(
+			// 	'pan-verification-handlePanConfirm-verifiedRes-',
+			// 	verifiedRes
+			// );
+
+			// const businessDetails = {
+			// 	...extractionDataRes,
+			// };
+
+			// put all require condition for next screen here
+			// don't change 'pan' to different key it'll effect prepopulation logic
+			sessionStorage.setItem('pan', panExtractionData?.panNumber);
+
+			// business product + business pan card
+			if (isBusinessProductType && panExtractionData.isBusinessPan) {
+				// TODO: simplify below logic
+				// if (
+				// 	panExtractionData.panNumber &&
+				// 	panExtractionData.companyName &&
+				// 	panExtractionData.responseId
+				// ) {
+				// 	// TODO: confirm why do we need 2 verify api
+				// 	await verifyPan(
+				// 		panExtractionData.responseId,
+				// 		panExtractionData.panNumber,
+				// 		panExtractionData.companyName,
+				// 		clientToken
+				// 	);
+				// }
+
+				await companyNameSearch(
+					verifiedRes?.data?.message?.upstreamName ||
+						panExtractionData.companyName
+				);
+				// console.log('company information from pancardfile', newCompanyList);
+				// console.log(
+				// 	'information related to pancardextraction',
+				// 	panExtractionData
+				// );
+				setIsPanConfirmModalOpen(false);
+				setIsCompanyListModalOpen(true);
+				setLoading(false);
+				return;
+			}
+			// business product + personal pan card
+			if (isBusinessProductType) {
+				// TODO: confirm and remove verifyPan
+				// if (
+				// 	extractionDataRes.panNumber &&
+				// 	formState?.values?.companyName &&
+				// 	formState.values.responseId
+				// ) {
+				// 	await verifyPan(
+				// 		formState.values.responseId,
+				// 		extractionDataRes.panNumber,
+				// 		formState?.values?.companyName,
+				// 		clientToken
+				// 	);
+				// }
+				setIsPanConfirmModalOpen(false);
+				setLoading(false);
+				setScreen(CONST.SCREEN_GST_UDHYOG);
+				return;
+			}
+			// salaried product + personal pan card
+			if (isSalariedProductType) {
+				// TODO: confirm and remove verify pan
+				// if (
+				// 	extractionDataRes.panNumber &&
+				// 	formState?.values?.companyName &&
+				// 	formState.values.responseId
+				// ) {
+				// 	await verifyPan(
+				// 		formState.values.responseId,
+				// 		extractionDataRes.panNumber,
+				// 		formState?.values?.companyName,
+				// 		clientToken
+				// 	);
+				// }
+				resetAllErrors();
+				setIsPanConfirmModalOpen(false);
+				setLoading(false);
+				setScreen(CONST.SCREEN_ADDRESS_PROOF);
+			}
+			setLoading(false);
+			setIsPanConfirmModalOpen(false);
+		} catch (error) {
+			console.error('error-handlePanConfirm-', error);
+		}
+	};
+
+	// Pancard extraction function
+	const handleExtractionPan = async () => {
+		try {
+			//	console.log('handleExtractionPan-', panDoc);
+			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', product_id);
-			formData.append('req_type', fileType);
+			formData.append('req_type', CONST.EXTRACTION_KEY_PAN);
 			formData.append('process_type', 'extraction');
-			formData.append('document', files);
+			formData.append('document', panDoc[0].file);
 
-			getKYCData(formData, clientToken).then(res => {
-				if (res.data.status === 'nok') {
-					setDLAadharVoterError(res.data.message);
-				} else {
-					// data ---> extractionData
-					// ref_id: pass the id from the first doc response
-					// combine data
-					//****** setting file in docs for this loan -- loanContext
-					// setOtherDocDetails(res.data.doc_details);
-					// res.data.doc_type_id = '31';
-					const file2 = {
-						document_key: res.data.s3.fd,
-						id: Math.random()
-							.toString(36)
-							.replace(/[^a-z]+/g, '')
-							.substr(0, 6),
-						mainType: 'KYC',
-						size: res.data.s3.size,
-						type: 'other',
-						req_type: fileType,
-						requestId: res.data.request_id,
-						upload_doc_name: res.data.s3.filename,
-						src: 'start',
-					};
-
-					setLoanDocuments([file2]);
-					// this ends here
-
-					const aadharNum = res?.data?.data?.Aadhar_number?.replaceAll(
-						/\s/g,
-						''
-					).split('');
-					formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
-					const t = aadharNum
-						? '00000000' + aadharNum?.splice(8, 4).join('')
-						: '';
-					const name =
-						res.data?.data?.name?.split(' ') ||
-						res.data?.data?.Name?.split(' ');
-					formState.values.aadhaar = t;
-					sessionStorage.setItem('aadhar', t);
-					formState.values.dob = res?.data?.data?.DOB;
-					let fName = [...name];
-					fName.pop();
-					formState.values.firstName = fName.join(' ');
-					formState.values.lastName = name[name.length - 1];
-
-					formState.values.dob = res?.data?.data?.DOB || res?.data?.data?.dob;
-					formState.values.dl_no = res.data?.data?.dl_no;
-					formState.values.address1 =
-						res.data?.data?.address || res?.data?.data?.Address;
-					let address = formState.values.address1;
-
-					var pinCode = res?.data?.data?.pincode;
-
-					if (address) {
-						let locationArr = address && address?.split(' ');
-						let y = locationArr?.map(e => Number(e) !== NaN && e);
-						let pin;
-						y.map(e => {
-							if (e?.length === 6) pin = e;
-						});
-
-						formState.values.pin = pinCode || pin;
-					}
-
-					sessionStorage.setItem('formstate', JSON.stringify(formState));
-					emptyDoc();
-					onProceed();
-				}
+			const panExtractionRes = await getKYCData(formData, clientToken);
+			const panExtractionStatus = panExtractionRes?.data?.status || '';
+			const panExtractionMsg = panExtractionRes?.data?.message || '';
+			const panForensicRes = panExtractionRes?.data?.forensicData || {};
+			const panForensicFlag = panForensicRes?.flag?.toLowerCase() || '';
+			const panForensicFlagMsg = panForensicRes?.flag_message || '';
+			// console.log('handleExtractionPan-', {
+			// 	panExtractionRes,
+			// 	panExtractionStatus,
+			// 	panExtractionMsg,
+			// 	panForensicRes,
+			// 	panForensicFlag,
+			// 	panForensicFlagMsg,
+			// });
+			if (panExtractionStatus === 'nok') {
+				// setIsPanConfirmModalOpen(true);
+				// setBusinessPan(false);
+				setIsError(true);
+				setPanError(panExtractionMsg);
 				setLoading(false);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (panForensicFlag === 'error') {
+				setIsError(true);
+				setPanError(panForensicFlagMsg);
+				setLoading(false);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (panForensicFlag === 'warning') {
+				setIsWarning(true);
+				setPanError(panForensicFlagMsg);
+				// CONTINUE EXECUTION
+			}
+			const file1 = {
+				...(panExtractionRes?.data?.extractionData || {}),
+				document_key: panExtractionRes?.data.s3.fd,
+				id: Math.random()
+					.toString(36)
+					.replace(/[^a-z]+/g, '')
+					.substr(0, 6),
+				mainType: 'KYC',
+				size: panExtractionRes?.data.s3.size,
+				type: CONST.EXTRACTION_KEY_PAN,
+				req_type: CONST.EXTRACTION_KEY_PAN, // requires for mapping with JSON
+				requestId: panExtractionRes?.data?.request_id,
+				upload_doc_name: panExtractionRes?.data.s3.filename,
+				isDocRemoveAllowed: false,
+			};
+			setPanFileId(file1.id);
+			setLoanDocuments([file1]);
+			const newPanExtractionData = _.cloneDeep(
+				panExtractionRes?.data?.extractionData || {}
+			);
+			newPanExtractionData.doc_ref_id =
+				panExtractionRes?.data?.doc_ref_id || '';
+			newPanExtractionData.requestId = panExtractionRes?.data?.request_id || '';
+			newPanExtractionData.panNumber = newPanExtractionData?.Pan_number || '';
+			newPanExtractionData.responseId = newPanExtractionData?.id || '';
+			newPanExtractionData.dob = newPanExtractionData?.DOB || '';
+			newPanExtractionData.isBusinessPan =
+				CONST.isBusinessPan(
+					newPanExtractionData?.Name || newPanExtractionData?.name
+				) || false;
+			newPanExtractionData.companyName = newPanExtractionData?.Name || '';
+			if (isSalariedProductType) {
+				const name =
+					newPanExtractionData?.name?.split(' ') ||
+					newPanExtractionData?.Name?.split(' ');
+				if (name) {
+					newPanExtractionData.firstName = name[0];
+					newPanExtractionData.lastName = name[1];
+				}
+			}
+			const newFormState = _.cloneDeep(formState);
+			newFormState.values = newPanExtractionData;
+			// TODO: remove this in future
+			sessionStorage.setItem('formstatepan', JSON.stringify(newFormState));
+			sessionStorage.setItem(
+				'panExtractionData',
+				JSON.stringify(newPanExtractionData)
+			);
+			setExtractionDataRes(panExtractionRes?.data || {});
+			setPanExtractionData(newPanExtractionData);
+			// fileRef.current = [];
+			setLoading(false);
+			if (panForensicFlag !== 'warning') setIsPanConfirmModalOpen(true);
+		} catch (error) {
+			console.error('error-pan-verification-handleExtractionPan-', error);
+			setLoading(false);
+			setIsPanConfirmModalOpen(true);
+			addToast({
+				message: error.message,
+				type: 'error',
 			});
 		}
 	};
 
-	const emptyDoc = () => {
-		setOtherDoc([]);
-		setAadhar([]);
-		setVoter([]);
+	const prepopulateAadhaarAndAddressState = extractionData => {
+		const newAddressProofExtractionData = _.cloneDeep(extractionData);
+		// console.log('prepopulateAadhaarAndAddressState-', extractionData);
+		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
+			/\s/g,
+			''
+		).split('');
+		formState.values.aadhaarUnMasked = aadharNum?.join('') || '';
+		const t = aadharNum ? '00000000' + aadharNum?.splice(8, 4).join('') : '';
+		const name =
+			extractionData?.name?.split(' ') || extractionData?.Name?.split(' ');
+		formState.values.aadhaar = t;
+		sessionStorage.setItem('aadhar', t);
+		formState.values.dob = extractionData?.DOB;
+		let fName = [...name];
+		fName.pop();
+		formState.values.firstName = fName.join(' ');
+		formState.values.lastName = name[name.length - 1];
+
+		formState.values.dob = extractionData?.DOB || extractionData?.dob;
+		formState.values.dl_no = extractionData?.dl_no;
+		formState.values.address1 =
+			extractionData?.address || extractionData?.Address;
+		let address = formState.values.address1;
+
+		var pinCode = extractionData?.pincode;
+
+		if (address) {
+			let locationArr = address && address?.split(' ');
+			let y = locationArr?.map(e => Number(e) !== NaN && e);
+			let pin;
+			y.map(e => {
+				if (e?.length === 6) pin = e;
+			});
+
+			formState.values.pin = pinCode || pin;
+		}
+
+		setAddressProofExtractionData({
+			...newAddressProofExtractionData,
+			...formState.values,
+		});
+		sessionStorage.setItem('formstate', JSON.stringify(formState));
 	};
 
-	const setDLAadharVoterError = message => {
-		if (otherDoc.length > 0) {
-			setDLError(message);
-		}
-		if (aadhar.length > 0) {
-			setAadharError(message);
-		}
-		if (voter.length > 0) {
-			setVoterError(message);
-		}
-		setLoading(false);
+	const handleFileUploadAddressProof = files => {
+		// const newFiles = _.cloneDeep(fileRef.current);
+		// fileRef.current.map(f => newFiles.push({ ...f }));
+		// files.map(f => newFiles.push({ ...f }));
+		// console.log('pan-verification-handleFileUpload-', { newFiles });
+		// fileRef.current = newFiles;
+		// setFile(newFiles);
+		// if (screen === CONST.SCREEN_PAN) setPanFile(newFiles);
+		const newFiles = _.cloneDeep(addressProofDocs);
+		files.map(f => newFiles.push(_.cloneDeep(f)));
+		if (selectedAddressProof) setAddressProofDocs(newFiles);
+		// setDisableSubmit(false);
+		setIsAddharSkipChecked(false);
+		resetAllErrors();
+		setIsError(false);
 	};
+
+	const handleFileRemoveAddressProof = docId => {
+		//console.log('handleFileRemoveAddressProof docId-', docId);
+		removeAllAddressProofLoanDocuments();
+		resetAllErrors();
+		// const newAddressProofDocs = _.cloneDeep(
+		// 	// eslint-disable-next-line
+		// 	fileRef.current.filter(f => f.id != docId)
+		// );
+		// fileRef.current = newAddressProofDocs;
+		const newAddressProofDocs = _.cloneDeep(
+			addressProofDocs.filter(f => f.id !== docId)
+		);
+		setAddressProofDocs(newAddressProofDocs);
+	};
+
+	// Address proof upload handle function
+	// DL Aadhaar VoterID passport
+	//TO DO  need to call in proceed button of otherdocuments
+	const handleExtractionAddressProof = async () => {
+		try {
+			setLoading(true);
+			resetAllErrors();
+			// TODO Filter selected address proof docs before extracting
+			const selectedAddressProofFiles = addressProofDocs.filter(
+				f => f?.sectionType === selectedAddressProof
+			);
+			if (selectedAddressProofFiles.length > 2) {
+				addToast({
+					message: 'Max 2 doucment is allowed',
+					type: 'error',
+				});
+				setLoading(false);
+				return;
+			}
+			// console.log(
+			// 	'handleExtractionAddressProof-selectedAddressProofFiles-',
+			// 	selectedAddressProofFiles
+			// );
+
+			// Front + Back Extract
+			if (selectedAddressProofFiles.length > 1) {
+				const frontFormData = new FormData();
+				frontFormData.append('product_id', product_id);
+				frontFormData.append('req_type', selectedAddressProof);
+				frontFormData.append('process_type', 'extraction');
+				frontFormData.append('document', selectedAddressProofFiles[0].file);
+
+				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
+				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
+				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
+				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
+				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
+				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
+
+				if (frontExtractionStatus === 'nok') {
+					setIsError(true);
+					setAddressProofError(frontExtractionMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'error') {
+					setIsError(true);
+					setAddressProofError(frontForensicFlagMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'warning') {
+					setIsWarning(true);
+					setAddressProofError(frontForensicFlagMsg);
+					// CONTINUE EXECUTION
+				}
+
+				const frontFile = {
+					...(frontExtractionRes?.data?.extractionData || {}),
+					document_key: frontExtractionRes?.data?.s3?.fd,
+					id: selectedAddressProofFiles[0].id,
+					// id: Math.random()
+					// 	.toString(36)
+					// 	.replace(/[^a-z]+/g, '')
+					// 	.substr(0, 6),
+					mainType: 'KYC',
+					size: frontExtractionRes?.data?.s3?.size,
+					type: 'other',
+					req_type: selectedAddressProof, // requires for mapping with JSON
+					requestId: frontExtractionRes?.data?.request_id,
+					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
+					isDocRemoveAllowed: false,
+				};
+
+				setLoanDocuments([frontFile]);
+				// this ends here
+
+				const backFormData = new FormData();
+				backFormData.append('product_id', product_id);
+				backFormData.append('req_type', selectedAddressProof);
+				backFormData.append(
+					'ref_id',
+					frontExtractionRes?.data?.extractionData?.id
+				);
+				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
+				backFormData.append('process_type', 'extraction');
+				backFormData.append('document', selectedAddressProofFiles[1].file);
+
+				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
+				const backExtractionStatus = backExtractionRes?.data?.status || '';
+				const backExtractionMsg = backExtractionRes?.data?.message || '';
+				const backForensicRes = backExtractionRes?.data?.forensicData || {};
+				const backForensicFlag = backForensicRes?.flag?.toLowerCase() || '';
+				const backForensicFlagMsg = backForensicRes?.flag_message || '';
+
+				if (backExtractionStatus === 'nok') {
+					setIsError(true);
+					setAddressProofError(backExtractionMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'error') {
+					setIsError(true);
+					setAddressProofError(backForensicFlagMsg);
+					setLoading(false);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'warning') {
+					setIsWarning(true);
+					setAddressProofError(backForensicFlagMsg);
+					// CONTINUE EXECUTION
+				}
+
+				const backFile = {
+					...(backExtractionRes?.data?.extractionData || {}),
+					document_key: backExtractionRes?.data.s3.fd,
+					id: selectedAddressProofFiles[1].id,
+					// id: Math.random()
+					// 	.toString(36)
+					// 	.replace(/[^a-z]+/g, '')
+					// 	.substr(0, 6),
+					mainType: 'KYC',
+					size: backExtractionRes?.data.s3.size,
+					type: 'other',
+					req_type: selectedAddressProof,
+					requestId: backExtractionRes?.data.request_id,
+					upload_doc_name: backExtractionRes?.data.s3.filename,
+					isDocRemoveAllowed: false,
+				};
+
+				setLoanDocuments([backFile]);
+				// this ends here
+				setExtractionDataRes(backExtractionRes?.data || {});
+				const newAddressProofExtractionData = {
+					...backExtractionRes?.data?.extractionData,
+					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+					requestId: backExtractionRes?.data.request_id,
+				};
+				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
+				getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
+				if (backForensicFlag !== 'warning') proceedToNextSection();
+				setLoading(false);
+				return;
+			}
+
+			// Front Only Extract
+			const frontOnlyFormData = new FormData();
+			frontOnlyFormData.append('product_id', product_id);
+			frontOnlyFormData.append('req_type', selectedAddressProof);
+			frontOnlyFormData.append('process_type', 'extraction');
+			frontOnlyFormData.append('document', selectedAddressProofFiles[0].file);
+
+			const frontOnlyExtractionRes = await getKYCData(
+				frontOnlyFormData,
+				clientToken
+			);
+			const frontOnlyExtractionStatus =
+				frontOnlyExtractionRes?.data?.status || '';
+			const frontOnlyExtractionMsg =
+				frontOnlyExtractionRes?.data?.message || '';
+			const frontOnlyForensicRes =
+				frontOnlyExtractionRes?.data?.forensicData || {};
+			const frontOnlyForensicFlag =
+				frontOnlyForensicRes?.flag?.toLowerCase() || '';
+			const frontOnlyForensicFlagMsg = frontOnlyForensicRes?.flag_message || '';
+
+			if (frontOnlyExtractionStatus === 'nok') {
+				setIsError(true);
+				setAddressProofError(frontOnlyExtractionMsg);
+				setLoading(false);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (frontOnlyForensicFlag === 'error') {
+				setIsError(true);
+				setAddressProofError(frontOnlyForensicFlagMsg);
+				setLoading(false);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (frontOnlyForensicFlag === 'warning') {
+				setIsWarning(true);
+				setAddressProofError(frontOnlyForensicFlagMsg);
+				// CONTINUE EXECUTION
+			}
+
+			const frontOnlyFile = {
+				...(frontOnlyExtractionRes?.data?.extractionData || {}),
+				document_key: frontOnlyExtractionRes?.data?.s3?.fd,
+				id: selectedAddressProofFiles[0].id,
+				// id: Math.random()
+				// 	.toString(36)
+				// 	.replace(/[^a-z]+/g, '')
+				// 	.substr(0, 6),
+				mainType: 'KYC',
+				size: frontOnlyExtractionRes?.data?.s3?.size,
+				type: 'other',
+				req_type: selectedAddressProof,
+				requestId: frontOnlyExtractionRes?.data?.request_id,
+				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
+				isDocRemoveAllowed: false,
+			};
+
+			setLoanDocuments([frontOnlyFile]);
+			// this ends here
+			setExtractionDataRes(frontOnlyExtractionRes?.data || {});
+			const newAddressProofExtractionData = {
+				...(frontOnlyExtractionRes?.data?.extractionData || {}),
+				doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
+				requestId: frontOnlyExtractionRes?.data?.request_id,
+			};
+			prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
+			getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
+			if (frontOnlyForensicFlag !== 'warning') proceedToNextSection();
+			setLoading(false);
+		} catch (error) {
+			console.error(
+				'error-pan-verification-handleExtractionAddressProof-',
+				error
+			);
+		}
+	};
+
+	// const emptyDoc = () => {
+	// 	setOtherDoc([]);
+	// 	setAadhar([]);
+	// 	setVoter([]);
+	// };
+
+	// const setAddressProofError = message => {
+	// 	setAddressProofError(message);
+	// 	setLoading(false);
+	// };
+
+	const handleDocumentTypeChangeAddressProof = async (fileId, type) => {
+		setLoanDocumentType(fileId, type);
+		// const newAddressProofDocs = fileRef.current || [];
+		const newAddressProofDocs = [];
+		addressProofDocs.map(f => {
+			const newFile = _.cloneDeep(f);
+			if (f.id === fileId) {
+				newFile.isTagged = type;
+			}
+			newAddressProofDocs.push(newFile);
+			return null;
+		});
+		// fileRef.current = newAddressProofDocs;
+		setAddressProofDocs(newAddressProofDocs);
+	};
+
+	const onSelectedAddressProofChange = (e, btn) => {
+		if (selectedAddressProof && addressProofDocs.length > 0) {
+			setIsDocTypeChangeModalOpen(btn.key);
+		} else {
+			setIsAddharSkipChecked(false);
+			setSelectedAddressProof(btn.key);
+		}
+	};
+
+	let isFrontTagged = false;
+	let isBackTagged = false;
+	let isFrontBackTagged = false;
+	let isInActiveAddressProofUpload = false;
+	let isProceedDisabledAddressProof = true;
+	let isSkipOptionDisabled = false;
+	let isProceedDIsabledGstUdhyog = false;
+
+	if (!selectedAddressProof) {
+		isProceedDisabledAddressProof = true;
+		isInActiveAddressProofUpload = true;
+	}
+
+	if (selectedAddressProof) {
+		const isFrontTagged =
+			addressProofDocs.filter(
+				f => f?.isTagged?.id === selectedDocTypeList[0].id
+			).length > 0;
+		const isBackTagged =
+			addressProofDocs.filter(
+				f => f?.isTagged?.id === selectedDocTypeList[1].id
+			).length > 0;
+		const isFrontBackTagged =
+			addressProofDocs.filter(
+				f => f?.isTagged?.id === selectedDocTypeList[2].id
+			).length > 0;
+		if (addressProofDocs.length > 0) isSkipOptionDisabled = true;
+		if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
+			isProceedDisabledAddressProof = false;
+		}
+		if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
+			isProceedDisabledAddressProof = false;
+		}
+		if (isFrontTagged && isBackTagged && !isFrontBackTagged) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = false;
+		}
+		if (isFrontBackTagged && !isFrontTagged && !isBackTagged) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = false;
+		}
+		if (isError) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = true;
+		}
+		if (addressProofDocs.filter(f => !f?.isTagged?.id).length > 0) {
+			isInActiveAddressProofUpload = true;
+			isProceedDisabledAddressProof = true;
+		}
+	}
+	if (isAddharSkipChecked) {
+		isInActiveAddressProofUpload = true;
+		isProceedDisabledAddressProof = false;
+	}
+
+	if (screen === CONST.SCREEN_GST_UDHYOG) {
+		if (gstError) isProceedDIsabledGstUdhyog = true;
+		if (udhyogError) isProceedDIsabledGstUdhyog = true;
+		if (!formState?.values?.gstin && !formState?.values?.udhyogAadhar)
+			isProceedDIsabledGstUdhyog = true;
+	}
+
+	if (loading) {
+		isProceedDIsabledGstUdhyog = true;
+		isProceedDisabledAddressProof = true;
+	}
+
+	// console.log('pan-verifications-states-', {
+	// 	productDetails,
+	// 	isFrontTagged,
+	// 	isBackTagged,
+	// 	isFrontBackTagged,
+	// 	fileRef: fileRef.current,
+	// 	loanDocuments,
+	// 	addressProofDocs,
+	// 	isInActiveAddressProofUpload,
+	// 	isProceedDisabledAddressProof,
+	// 	formState,
+	// 	extractionDataRes,
+	// 	panExtractionData,
+	// });
 
 	return (
-		productDetails && (
-			<>
-				<Colom1>
-					{panUpload ? (
-						<section className='flex flex-col gap-y-6'>
-							<p className='py-4 text-xl'>
-								Upload your PAN Card{' '}
-								{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-							</p>
-							<FileUpload
-								accept=''
-								upload={true}
-								// upload={{
-								// 	url: DOCS_UPLOAD_URL_LOAN({
-								// 		userid,
-								// 	}),
-								// 	header: {
-								// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-								// 	},
-								// }}
-								sectionType='pan'
-								pan={true}
-								disabled={panFile.length > 0 ? true : false}
-								onDrop={handleFileUpload}
-								onRemoveFile={e => removeHandler(e)}
-								docs={docs}
-								setDocs={setDocs}
-								errorMessage={panError}
-							/>
-							{panError && (
-								<p style={{ color: 'red', marginTop: '-35px' }}>
-									{panError}
-									{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-								</p>
-							)}
-							<section>
-								<Button
-									onClick={() => {
-										if (docs.length > 0) {
-											handlePanUpload(docs[0].file);
-											setDocs([]);
-										}
-									}}
-									isLoader={loading}
-									name={loading ? 'Please wait...' : 'Proceed'}
-									disabled={!docs.length > 0}
-									fill
-								/>
-							</section>
-						</section>
-					) : (
-						<form onSubmit={handleSubmit(onSubmit)}>
-							{uploadOtherDocs ? (
-								<>
-									<p className='py-4 text-xl text-black'>
-										Upload{' '}
-										{(backUploading && 'back picture of') || 'front picture of'}{' '}
-										your DL
-										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-									</p>
-
-									<FileUpload
-										section={'pan-verification'}
-										accept=''
-										upload={true}
-										// upload={{
-										// 	url: DOCS_UPLOAD_URL_LOAN({
-										// 		userid,
-										// 	}),
-										// 	header: {
-										// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-										// 	},
-										// }}
-										pan={true}
-										sectionType='pan'
-										onDrop={handleFileUpload}
-										onRemoveFile={e => removeHandler(e, otherDoc, 'DL')}
-										docs={otherDoc}
-										setDocs={setOtherDoc}
-										aadharVoterDl={true}
-										errorMessage={dlError}
-									/>
-									{dlError.length > 0 && (
-										<p
-											style={{
-												color: 'red',
-												marginTop: '-25px',
-												marginBottom: '45px',
-											}}>
-											{dlError}
-										</p>
-									)}
-									<h1
-										className='text-xl text-black'
-										style={{ marginLeft: '50%' }}>
-										OR
-									</h1>
-									<p className='py-4 text-xl text-black'>
-										Upload{' '}
-										{(backUploading && 'back picture of') || 'front picture of'}{' '}
-										your Aadhaar
-										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-									</p>
-
-									<FileUpload
-										accept=''
-										upload={true}
-										// upload={{
-										// 	url: DOCS_UPLOAD_URL_LOAN({
-										// 		userid,
-										// 	}),
-										// 	header: {
-										// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-										// 	},
-										// }}
-										pan={true}
-										sectionType='pan'
-										onDrop={handleFileUpload}
-										onRemoveFile={e => removeHandler(e, aadhar, 'aadhar')}
-										docs={aadhar}
-										setDocs={setAadhar}
-										aadharVoterDl={true}
-										errorMessage={aadharError}
-									/>
-									{aadharError.length > 0 && (
-										<p
-											style={{
-												color: 'red',
-												marginTop: '-25px',
-												marginBottom: '45px',
-											}}>
-											{aadharError}
-										</p>
-									)}
-									<h1
-										className='text-xl text-black'
-										style={{ marginLeft: '50%' }}>
-										OR
-									</h1>
-									<p className='py-4 text-xl text-black'>
-										Upload{' '}
-										{(backUploading && 'back picture of') || 'front picture of'}{' '}
-										your Voter ID{' '}
-										{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-									</p>
-
-									<FileUpload
-										accept=''
-										upload={true}
-										// upload={{
-										// 	url: DOCS_UPLOAD_URL_LOAN({
-										// 		userid,
-										// 	}),
-										// 	header: {
-										// 		Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTUsImNsaWVudF9uYW1lIjoiY2xpeCIsImNsaWVudF9sb2dvIjoiIiwiY2xpZW50X2lkIjoxNjI3NDc3OTkyMzk5NDgzNiwic2VjcmV0X2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpqYkdsbGJuUmZibUZ0WlNJNkltTnNhWGdpTENKamJHbGxiblJmYVdRaU9qRTJNamMwTnpjNU9USXpPVGswT0RNMkxDSnBZWFFpT2pFMk1qYzBOemM1T1RJc0ltVjRjQ0k2TVRZeU56VTJORE01TW4wLlhma1lIZEFHNEI1cVhGQkNTXzJlbV9vbk1yNkw4aEczY2dmUjJENktJOTAiLCJpc19hY3RpdmUiOiJhY3RpdmUiLCJjcmVhdGVkX2F0IjoiMjAyMS0wNy0yOFQxODo0MzoxMi4wMDBaIiwidXBkYXRlZF9hdCI6IjIwMjEtMDctMjhUMTM6MTM6MTIuMDAwWiIsInBhc3N3b3JkIjoiY2xpeEAxMjMiLCJlbWFpbCI6ImNsaXhAbmMuY29tIiwid2hpdGVfbGFiZWxfaWQiOjksImlhdCI6MTYyNzUzMzU0NCwiZXhwIjoxNjI3NjE5OTQ0fQ.T0Pc973NTyHbFko1fDFwi_baVwGxjUSEdNZhUuVfaSs`,
-										// 	},
-										// }}
-										pan={true}
-										sectionType='pan'
-										onDrop={handleFileUpload}
-										onRemoveFile={e => removeHandler(e, voter, 'voter')}
-										docs={voter}
-										setDocs={setVoter}
-										aadharVoterDl={true}
-										errorMessage={voterError}
-									/>
-									{voterError.length > 0 && (
-										<p
-											style={{
-												color: 'red',
-												marginTop: '-25px',
-												marginBottom: '45px',
-											}}>
-											{voterError}
-										</p>
-									)}
-								</>
-							) : (
-								<>
-									<FieldWrapper>
-										{register({
-											name: 'panNumber',
-											placeholder: 'Pan Number',
-											value: formState?.values?.panNumber,
-										})}
-									</FieldWrapper>
-
-									<FieldWrapper>
-										{register({
-											name: 'gstin',
-											placeholder: 'GST Identification Number',
-											mask: { AlphaNumericOnly: true, CharacterLimit: 15 },
-											value: formState?.values?.gstin,
-											style: {
-												borderColor:
-													formState?.values?.gstin &&
-													verificationFailed &&
-													'red',
-											},
-										})}
-									</FieldWrapper>
-									{formState?.values?.gstin && verificationFailed && (
-										<FieldWrapper>
-											<LabRed>{verificationFailed}</LabRed>
-										</FieldWrapper>
-									)}
-									<br />
-									<H2>OR</H2>
-
-									<FieldWrapper>
-										{register({
-											name: 'udhyogAadhar',
-											placeholder: 'Udhyog Aadhar Number',
-											value: formState?.values?.udhyogAadhar,
-											style: {
-												borderColor:
-													formState?.values?.udhyogAadhar &&
-													verificationFailed &&
-													'red',
-											},
-											mask: { CharacterLimit: 12 },
-										})}
-									</FieldWrapper>
-									{formState?.values?.udhyogAadhar && verificationFailed && (
-										<FieldWrapper>
-											<LabRed>{verificationFailed}</LabRed>
-										</FieldWrapper>
-									)}
-								</>
-							)}
-
-							<section className='flex flex-wrap items-center gap-x-4 gap-y-4'>
-								{/*  <Button
-									onClick={() => {
-										setPanUpload(true);
-										setVerificationFailed(null);
-										setBusiness(true);
-										setPanFile([]);
-									}}
-									name='Upload PAN again'
-									fill
-								/> */}
-								<Button
-									type='submit'
-									isLoader={loading}
-									name={loading ? 'Please wait...' : 'Proceed'}
-									fill
-									disabled={
-										productType !== 'salaried'
-											? isBusiness
-												? !(
-														formState.values?.companyName ||
-														formState.values?.panNumber
-												  ) ||
-												  (formState.values?.companyName &&
-														formState.values?.panNumber)
-												: (!(
-														formState.values?.udhyogAadhar &&
-														formState.values?.panNumber
-												  ) &&
-														!(
-															formState.values?.panNumber &&
-															formState?.values?.gstin
-														)) ||
-												  loading ||
-												  (verificationFailed && verificationFailed.length > 0)
-											: !(
-													aadhar.length > 0 ||
-													otherDoc.length > 0 ||
-													voter.length > 0
-											  ) ||
-											  disableButton ||
-											  loading ||
-											  voterError.length > 0 ||
-											  aadharError.length > 0 ||
-											  dlError.length > 0
-									}
-								/>
-							</section>
-						</form>
-					)}
-				</Colom1>
-				{/* <Colom2>
-					<Img src={productDetails.productDetailsImage} alt="Loan Caption" />
-				</Colom2> */}
-				{
-					<CompanySelectModal
-						companyNameSearch={companyNameSearch}
-						show={companyListModal}
-						companyName={formState?.values?.companyName}
-						companyList={companyList}
-						onClose={() => {
-							if (panFileId) removeLoanDocument(panFileId);
-							setCompanyListModal(false);
+		<Wrapper>
+			<CompanySelectModal
+				companyNameSearch={companyNameSearch}
+				searchingCompanyName={searchingCompanyName}
+				show={isCompanyListModalOpen}
+				companyName={formState?.values?.companyName}
+				companyList={companyList}
+				panExtractionData={panExtractionData}
+				onClose={() => {
+					setIsCompanyListModalOpen(false);
+				}}
+				onCompanySelect={onCompanySelect}
+				formState={formState}
+			/>
+			<Modal
+				show={isPanConfirmModalOpen}
+				onClose={() => {
+					setIsPanConfirmModalOpen(false);
+				}}
+				width='30%'>
+				<section className='p-4 flex flex-col gap-y-8'>
+					<ImgClose
+						onClick={() => {
+							setIsPanConfirmModalOpen(false);
 						}}
-						onCompanySelect={onCompanySelect}
-						formState={formState}
+						src={imgClose}
+						alt='close'
 					/>
-				}
-				{openConfirm && (
-					<Modal
-						show={openConfirm}
-						onClose={() => {
-							if (panFileId) removeLoanDocument(panFileId);
-							setPanConfirm(false);
-						}}
-						width='30%'>
-						<section className='p-4 flex flex-col gap-y-8'>
-							<span>Confirm PAN number and Proceed</span>
-							{/* <section className='flex gap-x-4 items-center'> */}
-							<FieldWrapperPanVerify>
-								{register({
-									name: 'panNumber',
-									placeholder: 'Pan Number',
-									value: formState?.values?.panNumber,
-								})}
-							</FieldWrapperPanVerify>
-							{/* </section> */}
-							<Button
-								name='Proceed'
-								fill
-								onClick={() => {
-									sessionStorage.setItem('pan', formState?.values?.panNumber);
-									setPanConfirm(false);
-									setPanUpload(false);
-									if (productType === 'salaried') {
-										setUploadOtherDocs(true);
-									}
-								}}
-								disabled={!formState?.values?.panNumber}
-								style={{ alignSelf: 'center' }}
+					<ConfirmPanWrapper>
+						<h1 style={{ fontSize: '24px', fontWeight: '600Px' }}>
+							Confirm PAN Number and Proceed
+						</h1>
+						<FieldWrapperPanVerify>
+							{/* setConfirmPanNumber */}
+							<InputField
+								name='panNumber'
+								value={panExtractionData?.panNumber || ''}
+								onChange={onChangePanNumber}
+								style={{ textAlign: 'center' }}
 							/>
-						</section>
-					</Modal>
-				)}
-				{backUpload &&
-					!panUpload &&
-					(aadhar.length > 0 || otherDoc.length > 0 || voter.length > 0) &&
-					!backUploading && (
-						<Modal
-							show={backUpload}
-							onClose={() => {
-								setBackUpload(false);
+							{/* {register({
+							name: 'panNumber',
+							placeholder: 'Pan Number',
+							value: formState?.values?.panNumber,
+						})} */}
+						</FieldWrapperPanVerify>
+						<Button
+							name='Proceed'
+							fill
+							loading={loading}
+							onClick={onProceedPanConfirm}
+							disabled={!panExtractionData.panNumber || loading}
+							style={{ alignText: 'center' }}
+						/>
+					</ConfirmPanWrapper>
+				</section>
+			</Modal>
+			<Modal
+				show={isDocTypeChangeModalOpen}
+				onClose={() => {
+					setIsDocTypeChangeModalOpen(false);
+				}}
+				width='50%'
+				customStyle={{ minHeight: 200 }}>
+				<UI.DocTypeChangeModalBody>
+					<UI.DocTypeChangeModalHeader>
+						<p className='py-2'>
+							<strong>Are you sure want to change document type?</strong>
+						</p>
+						<p>
+							By changing it, all the existing tagged and untagged document will
+							be lost.
+						</p>
+					</UI.DocTypeChangeModalHeader>
+					<UI.DocTypeChangeModalFooter>
+						<Button
+							name='Confirm'
+							fill
+							onClick={() => {
+								setAddressProofDocs([]);
+								removeAllAddressProofLoanDocuments();
+								setIsDocTypeChangeModalOpen(false);
+								setRemoveAllFileUploads(!removeAllFileUploads);
+								resetAllErrors();
+								setIsAddharSkipChecked(false);
+								setSelectedAddressProof(isDocTypeChangeModalOpen);
 							}}
-							width='30%'>
-							<span className='px-10 font-bold justify-center'>
-								Upload back part of the document?
-							</span>
-							<section className='p-4 py-16 flex justify-center flex-wrap gap-y-8 gap-x-8'>
-								<Button
-									name='Yes'
-									fill
-									onClick={() => {
-										setBackUploading(true);
-										setBackUpload(false);
-										setDisableSubmit(true);
-									}}
-								/>
-								<Button
-									name='No'
-									fill
-									onClick={() => {
-										setBackUpload(false);
-									}}
-								/>
-							</section>
-						</Modal>
-					)}
-				{selectDoc && (
-					<Modal>
-						<section className='p-4 flex flex-col gap-y-8'>
-							<span className='font-bold text-lg'>Please select doc type</span>
-							<section className='flex gap-x-4 items-center'>
-								<section>
-									<label>DL</label>
-									<input type='radio' name='doctype' value='DL' />
-								</section>
-								<section>
-									<label>Aadhar</label>
-									<input type='radio' name='doctype' value='aadhar' />
-								</section>
-								<section>
-									<label>VoterID</label>
-									<input type='radio' name='doctype' value='voter' />
-								</section>
-							</section>
-							<Button
-								name='Proceed'
-								fill
-								onClick={() => {
-									selectDocs(false);
-								}}
-								isLoader={false}
-								disabled={!formState?.values?.panNumber}
+						/>
+						<Button
+							name='Cancel'
+							onClick={() => setIsDocTypeChangeModalOpen(false)}
+						/>
+					</UI.DocTypeChangeModalFooter>
+				</UI.DocTypeChangeModalBody>
+			</Modal>
+			{screen === CONST.SCREEN_PAN && (
+				<section className='flex flex-col gap-y-6'>
+					<p className='py-4 text-xl'>
+						Upload your PAN Card{' '}
+						{/* <Span>supported formats - jpeg, png, jpg</Span> */}
+					</p>
+					{/* PAN UPLOAD SECTION */}
+					<FileUpload
+						accept=''
+						upload={true}
+						sectionType='pan'
+						pan={true}
+						disabled={panDoc.length > 0 ? true : false}
+						onDrop={handleFileUploadPan}
+						onRemoveFile={handleFileRemovePan}
+						docs={panDoc}
+						setDocs={setPanDoc}
+						errorMessage={panError}
+						errorType={panError && (isWarning ? 'warning' : 'error')}
+					/>
+
+					{panError && (
+						<p
+							style={{
+								color: isWarning ? '#f7941d' : '#de524c',
+								marginTop: '-100px',
+							}}>
+							<NotificationImg
+								src={isWarning ? WarnIcon : ErrorIcon}
+								alt='error'
 							/>
-						</section>
-					</Modal>
-				)}
-			</>
-		)
+							{panError}
+							{/* <Span>supported formats - jpeg, png, jpg</Span> */}
+						</p>
+					)}
+					<section style={{ marginTop: panError ? 100 : 20 }}>
+						{isWarning ? (
+							<Button
+								onClick={() => {
+									setLoading(false);
+									setIsPanConfirmModalOpen(true);
+									// resetAllErrors();
+									// TODO: Keep this commented till new solution is finalized
+									// if (isBusinessProductType && isBusiness) {
+									// 	onSubmit(formState);
+									// 	return;
+									// }
+									// if (isBusinessProductType) {
+									// 	setPanUpload(false);
+									// 	setUploadOtherDocs(false);
+									// 	return;
+									// }
+									// if (isSalariedProductType) {
+									// 	setIsPanConfirmModalOpen(true);
+									// }
+								}}
+								name={'Proceed'}
+								fill
+							/>
+						) : (
+							<Button
+								onClick={handleExtractionPan}
+								isLoader={loading}
+								name={loading ? 'Please wait...' : 'Proceed'}
+								// disabled={!docs.length > 0}
+								disabled={!panDoc.length > 0 || isError || loading}
+								fill
+							/>
+						)}
+					</section>
+				</section>
+			)}
+			{screen === CONST.SCREEN_ADDRESS_PROOF && (
+				<section>
+					<h1 className='text-xl text-black'>
+						Select and Upload any one of the documents mentions below
+					</h1>
+					<RadioButtonWrapper>
+						{CONST.addressProofRadioButtonList.map(btn => {
+							return (
+								<CardRadioButton key={btn.key}>
+									<input
+										id={btn.key}
+										type='radio'
+										value={btn.key}
+										onChange={e => onSelectedAddressProofChange(e, btn)}
+										checked={selectedAddressProof === btn.key}
+									/>
+									<label htmlFor={btn.key} style={{ marginLeft: '10px' }}>
+										{btn.name}
+									</label>
+								</CardRadioButton>
+							);
+						})}
+					</RadioButtonWrapper>
+					<div
+						onClick={e => {
+							if (isInActiveAddressProofUpload) {
+								e.preventDefault();
+								e.stopPropagation();
+							}
+						}}>
+						{/* ADDRESS PROOF UPLOAD SECTION */}
+						<FileUpload
+							isInActive={isInActiveAddressProofUpload}
+							section={'addressproof'}
+							accept=''
+							upload={true}
+							pan={true}
+							docTypeOptions={selectedDocTypeList}
+							sectionType={selectedAddressProof}
+							onDrop={handleFileUploadAddressProof}
+							onRemoveFile={handleFileRemoveAddressProof}
+							docs={addressProofDocs}
+							setDocs={setAddressProofDocs}
+							documentTypeChangeCallback={handleDocumentTypeChangeAddressProof}
+							aadharVoterDl={true}
+							errorMessage={addressProofError}
+							errorType={addressProofError && (isWarning ? 'warning' : 'error')}
+							removeAllFileUploads={removeAllFileUploads}
+						/>
+					</div>
+					{addressProofError && (
+						<p
+							style={{
+								color: isWarning ? '#f7941d' : '#de524c',
+								marginTop: '-25px',
+								marginBottom: '45px',
+							}}>
+							<NotificationImg
+								src={isWarning ? WarnIcon : ErrorIcon}
+								alt='error'
+							/>
+							{addressProofError}
+						</p>
+					)}
+					<UI.SkipAadhaarWrapper isInActive={isSkipOptionDisabled}>
+						{selectedAddressProof === CONST.EXTRACTION_KEY_AADHAAR && (
+							<>
+								{isSkipOptionDisabled ? (
+									<UI.DisabledCheckbox />
+								) : (
+									<input
+										id='skip-aadhaar'
+										type='checkbox'
+										checked={isAddharSkipChecked}
+										onChange={() =>
+											setIsAddharSkipChecked(!isAddharSkipChecked)
+										}
+									/>
+								)}
+								<label htmlFor='skip-aadhaar'>
+									I would like to skip aadhaar document upload and verify it
+									later using OTP
+								</label>
+							</>
+						)}
+					</UI.SkipAadhaarWrapper>
+					<ButtonWrapper>
+						{isWarning ? (
+							<Button
+								onClick={() => {
+									proceedToNextSection();
+								}}
+								disabled={!selectedAddressProof}
+								name={'Proceed'}
+								fill
+							/>
+						) : (
+							<Button
+								isLoader={loading}
+								name={loading ? 'Please wait...' : 'Proceed'}
+								fill
+								disabled={isProceedDisabledAddressProof}
+								onClick={() => {
+									if (isAddharSkipChecked && !isSkipOptionDisabled)
+										return proceedToNextSection();
+									handleExtractionAddressProof();
+								}}
+							/>
+						)}
+					</ButtonWrapper>
+				</section>
+			)}
+			{screen === CONST.SCREEN_GST_UDHYOG && (
+				<form onSubmit={handleSubmit(onProceedGstUdhyog)}>
+					<FieldWrapper>
+						{register({
+							name: 'panNumber',
+							placeholder: 'Pan Number',
+							value:
+								formState?.values?.panNumber || sessionStorage.getItem('pan'),
+							disabled: true,
+							readonly: true,
+						})}
+					</FieldWrapper>
+					<FieldWrapper>
+						{register({
+							name: 'gstin',
+							placeholder: 'GST Identification Number',
+							mask: { AlphaNumericOnly: true, CharacterLimit: 15 },
+							value: formState?.values?.gstin,
+							style: {
+								borderColor: formState?.values?.gstin && gstError && 'red',
+							},
+						})}
+					</FieldWrapper>
+					{formState?.values?.gstin && gstError && (
+						<FieldWrapper>
+							<LabRed>{gstError}</LabRed>
+						</FieldWrapper>
+					)}
+					<H2>OR</H2>
+					<FieldWrapper>
+						{register({
+							name: 'udhyogAadhar',
+							placeholder: 'Udhyog Aadhar Number',
+							value: formState?.values?.udhyogAadhar,
+							style: {
+								borderColor:
+									formState?.values?.udhyogAadhar && udhyogError && 'red',
+							},
+							mask: { CharacterLimit: 12 },
+						})}
+					</FieldWrapper>
+					{formState?.values?.udhyogAadhar && udhyogError && (
+						<FieldWrapper>
+							<LabRed>{udhyogError}</LabRed>
+						</FieldWrapper>
+					)}
+					<ButtonWrapper>
+						<Button
+							isLoader={loading}
+							name={loading ? 'Please wait...' : 'Proceed'}
+							fill
+							disabled={isProceedDIsabledGstUdhyog}
+						/>
+					</ButtonWrapper>
+				</form>
+			)}
+		</Wrapper>
 	);
 }
-
-PanVerification.propTypes = {
-	productDetails: object,
-	onFlowChange: func.isRequired,
-	map: oneOfType([string, object]),
-	id: string,
-};

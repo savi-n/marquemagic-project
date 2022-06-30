@@ -1,3 +1,5 @@
+/* Home Loan Address details section */
+
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
 
@@ -30,13 +32,6 @@ const Colom = styled.div`
 	flex-basis: ${({ size }) => (size ? size : '45%')};
 	align-items: center;
 	flex-wrap: wrap;
-`;
-
-const Caption = styled.h3`
-	width: 100%;
-	font-weight: 500;
-	display: flex;
-	justify-content: space-between;
 `;
 
 const ErrorMessage = styled.div`
