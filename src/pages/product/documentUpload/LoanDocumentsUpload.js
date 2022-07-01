@@ -197,6 +197,8 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+//console.log('form from loanDetails', form);
+//console.log('form from loanDetails', loan);
 let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
@@ -322,13 +324,13 @@ function caseCreationDataFormat(
 			// 	: data['business-details']?.BusinessType
 			// 	? data['business-details']?.BusinessType
 			// 	: 1,
+
 			business_email:
 				applicantData?.email ||
 				companyData?.email ||
 				companyData?.Email ||
 				formReducer?.user['business-details']?.Email ||
-				'',
-			// business_industry_type: 20,
+				'', // business_industry_type: 20,
 			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
 
 			businesspancardnumber:
@@ -441,12 +443,18 @@ function caseCreationDataFormat(
 			// loan_request_type: "1",
 			// origin: "New_UI",
 			...restLoanData,
+			branchId:
+				loan?.branchId ||
+				data['business-loan-details']?.branchId ||
+				data['vehicle-loan-details']?.branchId ||
+				formReducer?.user['business-loan-details']?.branchId ||
+				0,
 			loan_product_id:
 				productId[business_income_type_id] ||
 				productId[(form?.incomeType)] ||
 				productId[idType],
 			white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
-			branchId: loan.branchId,
+			//branchId: loan?.branchId,
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
 					loan?.loanAmount ||
@@ -541,6 +549,10 @@ function caseCreationDataFormat(
 			city: guarantorData?.applicantData?.address[0]?.city || '',
 			state: guarantorData?.applicantData?.address[0]?.state || '',
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
+			residenceStatus: form?.residenceStatus || '',
+			maritalStatus: form?.maritalStatus || '',
+			countryResidence: form?.countryResidence || '',
+			incomeType: form?.incomeType || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
 			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
