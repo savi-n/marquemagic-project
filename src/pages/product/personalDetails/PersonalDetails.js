@@ -413,6 +413,7 @@ export default function PersonalDetailsPage({
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}
+				productDetails={productDetails}
 			/>
 			<SalaryDetails
 				jsonData={map?.fields['salary-details'].data}

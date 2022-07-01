@@ -94,6 +94,7 @@ export default function PersonalDetails({
 	register,
 	formState,
 	companyDetail,
+	productDetails = {},
 }) {
 	const { state } = useContext(LoanFormContext);
 	const {
@@ -303,7 +304,7 @@ export default function PersonalDetails({
 		}
 	};
 
-	// console.log('PersonalDetails-PreData-', preData);
+	// console.log('PersonalDetails-states-', { preData, productDetails });
 
 	return (
 		<>
@@ -338,6 +339,13 @@ export default function PersonalDetails({
 							if (field.name === 'panNumber') {
 								customFields.readonly = true;
 								customFields.disabled = true;
+							}
+							if (
+								field.name === 'mobileNo' &&
+								productDetails?.otp_authentication
+							) {
+								customFields.placeholder =
+									'Enter a Valid Mobile Number to Receive OTP';
 							}
 							return (
 								field.visibility && (
@@ -452,6 +460,14 @@ export default function PersonalDetails({
 							if (id === 'personal-details' && field.name === 'panNumber') {
 								customFields.readonly = true;
 								customFields.disabled = true;
+							}
+							if (
+								id === 'personal-details' &&
+								field.name === 'mobileNo' &&
+								productDetails?.otp_authentication
+							) {
+								customFields.placeholder =
+									'Enter a Valid Mobile Number to Receive OTP';
 							}
 							return (
 								field.visibility && (
