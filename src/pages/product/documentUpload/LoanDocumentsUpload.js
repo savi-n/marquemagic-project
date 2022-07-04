@@ -209,6 +209,9 @@ let editLoan = sessionStorage.getItem('editLoan')
 // 	}
 // };
 const getAmountUm = a => {
+	if (a < 100000) {
+		return 'Lakhs';
+	}
 	if (a >= 99999 && a <= 9999999) {
 		return 'Lakhs';
 	} else if (a <= 999999999 && a >= 1000000) {
@@ -225,6 +228,9 @@ const getAmountUm = a => {
 // };
 
 const getAmount = a => {
+	if (a < 100000) {
+		return a / 100000;
+	}
 	if (a >= 99999 && a <= 9999999) {
 		return a / 100000;
 	} else if (a <= 999999999 && a >= 1000000) {
