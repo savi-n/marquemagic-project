@@ -121,8 +121,10 @@ export default function AddressDetailsPage({
 	const onSave = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 
-		!match &&
-			formatedData.push(formatData('present', formData, map.fields[id].data));
+		// !match &&
+		// 	formatedData.push(formatData('present', formData, map.fields[id].data));
+
+		formatedData.push(formatData('present', formData, map.fields[id].data));
 
 		setUsertypeAddressData(formatedData);
 		//setSaved(true);
