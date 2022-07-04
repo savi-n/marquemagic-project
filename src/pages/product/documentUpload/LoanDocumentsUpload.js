@@ -556,7 +556,7 @@ function caseCreationDataFormat(
 				guarantorData?.applicantData?.maritalStatusGuarantor || '',
 			country_residence:
 				guarantorData?.applicantData?.countryResidenceGuarantor || '',
-			incomeType: guarantorData?.applicantData?.incomeType || '',
+			income_type: guarantorData?.applicantData?.incomeType || '',
 			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
 		};
 	}
