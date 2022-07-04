@@ -549,10 +549,13 @@ function caseCreationDataFormat(
 			city: guarantorData?.applicantData?.address[0]?.city || '',
 			state: guarantorData?.applicantData?.address[0]?.state || '',
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
-			residenceStatus: form?.residenceStatus || '',
-			maritalStatus: form?.maritalStatus || '',
-			countryResidence: form?.countryResidence || '',
-			incomeType: form?.incomeType || '',
+			residenceStatusGuarantor:
+				guarantorData?.applicantData?.residenceStatusGuarantor || '',
+			maritalStatusGuarantor:
+				guarantorData?.applicantData?.maritalStatusGuarantor || '',
+			countryResidenceGuarantor:
+				guarantorData?.applicantData?.countryResidenceGuarantor || '',
+			incomeType: guarantorData?.applicantData?.incomeType || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
 			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
