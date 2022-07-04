@@ -349,8 +349,9 @@ function caseCreationDataFormat(
 				formReducer?.user['business-details']?.BusinessVintage ||
 				'',
 			// corporateid: companyData.CIN
-			maritalStatus: form?.maritalStatus,
-			residenceStatus: form?.residenceStatus,
+			marital_status: form?.maritalStatus,
+			residence_status: form?.residenceStatus,
+			country_residence: form?.countryResidence,
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
 			aadhaar:
 				formstate?.values?.aadhaarUnMasked ||
@@ -549,6 +550,13 @@ function caseCreationDataFormat(
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
+			residence_status:
+				guarantorData?.applicantData?.residenceStatusGuarantor || '',
+			marital_status:
+				guarantorData?.applicantData?.maritalStatusGuarantor || '',
+			country_residence:
+				guarantorData?.applicantData?.countryResidenceGuarantor || '',
+			incomeType: guarantorData?.applicantData?.incomeType || '',
 			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
 		};
 	}
