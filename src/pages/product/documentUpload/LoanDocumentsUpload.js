@@ -446,7 +446,7 @@ function caseCreationDataFormat(
 			// case_priority: null,
 			// loan_product_id: "10",
 			// loan_request_type: "1",
-			// origin: "New_UI",
+			origin: 'nconboarding',
 			...restLoanData,
 			loan_product_id:
 				productId[business_income_type_id] ||
