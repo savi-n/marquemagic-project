@@ -209,6 +209,9 @@ let editLoan = sessionStorage.getItem('editLoan')
 // 	}
 // };
 const getAmountUm = a => {
+	if (a < 100000) {
+		return 'Lakhs';
+	}
 	if (a >= 99999 && a <= 9999999) {
 		return 'Lakhs';
 	} else if (a <= 999999999 && a >= 1000000) {
@@ -225,6 +228,9 @@ const getAmountUm = a => {
 // };
 
 const getAmount = a => {
+	if (a < 100000) {
+		return a / 100000;
+	}
 	if (a >= 99999 && a <= 9999999) {
 		return a / 100000;
 	} else if (a <= 999999999 && a >= 1000000) {
@@ -343,8 +349,9 @@ function caseCreationDataFormat(
 				formReducer?.user['business-details']?.BusinessVintage ||
 				'',
 			// corporateid: companyData.CIN
-			maritalStatus: form?.maritalStatus,
-			residenceStatus: form?.residenceStatus,
+			marital_status: form?.maritalStatus,
+			residence_status: form?.residenceStatus,
+			country_residence: form?.countryResidence,
 			business_name_last: applicantData?.lasName || companyData?.lastName || '',
 			aadhaar:
 				formstate?.values?.aadhaarUnMasked ||
@@ -439,7 +446,7 @@ function caseCreationDataFormat(
 			// case_priority: null,
 			// loan_product_id: "10",
 			// loan_request_type: "1",
-			// origin: "New_UI",
+			origin: 'nconboarding',
 			...restLoanData,
 			loan_product_id:
 				productId[business_income_type_id] ||
@@ -543,6 +550,13 @@ function caseCreationDataFormat(
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
+			residence_status:
+				guarantorData?.applicantData?.residenceStatusGuarantor || '',
+			marital_status:
+				guarantorData?.applicantData?.maritalStatusGuarantor || '',
+			country_residence:
+				guarantorData?.applicantData?.countryResidenceGuarantor || '',
+			income_type: guarantorData?.applicantData?.incomeType || '',
 			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
 		};
 	}
