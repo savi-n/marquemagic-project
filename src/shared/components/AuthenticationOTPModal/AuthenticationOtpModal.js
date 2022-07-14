@@ -197,6 +197,11 @@ const AuthenticationOTPModal = props => {
 					message: 'OTP generated again',
 					type: 'success',
 				});
+			} else {
+				addToast({
+					message: authenticationResendOtpRes.data.message,
+					type: 'error',
+				});
 			}
 		} catch (error) {
 			console.log(error);
