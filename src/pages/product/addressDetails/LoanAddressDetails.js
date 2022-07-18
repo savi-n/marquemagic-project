@@ -104,6 +104,7 @@ export default function AddressDetailsPage({
 	//userToken = sessionStorage.getItem(url);
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	let applicantData = formReducer?.user?.applicantData;
+
 	let userTokensss = sessionStorage.getItem(url);
 
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
@@ -171,27 +172,30 @@ export default function AddressDetailsPage({
 				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
 				gstin: '',
 				businessStartDate: '4/8/90',
-				businesstype:
-					applicantData?.incomeType ||
-					data['business-details']?.BusinessType ||
-					formReducer?.user['business-details']?.BusinessType,
-				Line1: formData?.permanent_address1,
-				Line2: formData?.permanent_address2,
-				locality: formData?.permanent_address3 || formData?.permanent_city,
+				businesstype: applicantData?.incomeType || companyData?.BusinessType,
+				Line1: formData?.permanent_address1 || applicantData?.address?.address1,
+				Line2: formData?.permanent_address2 || applicantData?.address?.address2,
+				locality:
+					formData?.permanent_address3 ||
+					formData?.permanent_city ||
+					applicantData?.address?.city,
 				city: formData?.permanent_city,
 				state: formData?.permanent_state,
 				pincode: formData?.permanent_pinCode,
 				business_id: sessionStorage.getItem('business_id') || '',
 				baid: sessionStorage.getItem('baid') || '',
 				aid: 2,
+				origin: 'nconboarding',
 			};
 			const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
 				method: 'POST',
 				data: reqBody,
 				headers: {
-					Authorization: `Bearer ${userToken}`,
+					Authorization: `Bearer ${userToken ||
+						sessionStorage.getItem('userToken')}`,
 				},
 			});
+
 			const businessProfileres = businessProfilereq.data;
 			console.log('businees_id', businessProfileres);
 			sessionStorage.setItem(

@@ -439,10 +439,10 @@ export default function PanVerification({
 
 		const companyData = cinNumberResponse.data;
 		const reqBody = {
-			email: companyData.data.company_master_data.email_id,
+			email: companyData?.data?.company_master_data?.email_id || '',
 			white_label_id: whiteLabelId,
 			source: APP_CLIENT,
-			name: companyData.data.company_master_data.company_name,
+			name: companyData?.data?.company_master_data?.company_name || '',
 			mobileNo: '9999999999',
 			addrr1: '',
 			addrr2: '',
