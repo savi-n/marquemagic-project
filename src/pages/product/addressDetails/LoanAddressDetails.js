@@ -3,7 +3,9 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
-
+import useFetch from '../../../hooks/useFetch';
+import { BUSSINESS_PROFILE_UPDATE } from '../../../_config/app.config';
+import { UserContext } from '../../../reducer/userReducer';
 import useForm from '../../../hooks/useForm';
 import Button from '../../../components/Button';
 import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
@@ -92,10 +94,16 @@ export default function AddressDetailsPage({
 	fieldConfig,
 	productDetails,
 	productId,
+	companyData,
+	data,
 }) {
 	// const { newRequest } = useFetch();
 	const url = window.location.hostname;
 
+	//url = window.location.hostname;
+	//userToken = sessionStorage.getItem(url);
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let applicantData = formReducer?.user?.applicantData;
 	let userTokensss = sessionStorage.getItem(url);
 
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
@@ -103,7 +111,10 @@ export default function AddressDetailsPage({
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
-
+	const { newRequest } = useFetch();
+	const {
+		state: { userToken },
+	} = useContext(UserContext);
 	const {
 		actions: { setUsertypeAddressData },
 	} = useContext(FormContext);
@@ -133,8 +144,75 @@ export default function AddressDetailsPage({
 			type: 'success',
 		});
 	};
+	const businessProfileUpdate = async formData => {
+		try {
+			if (!companyData) {
+				companyData =
+					sessionStorage.getItem('companyData') &&
+					JSON.parse(sessionStorage.getItem('companyData'));
+			}
+			const reqBody = {
+				first_name: applicantData?.firstName || '',
+				last_name: applicantData?.lastName || '',
+				businessName:
+					applicantData?.firstName ||
+					sessionStorage.getItem('BusinessName') ||
+					companyData?.BusinessName,
+				businessPancardNumber:
+					applicantData?.panNumber || companyData?.panNumber || '',
+				// // crime_check: "Yes",,
+				businessPancardFdkey: '',
+				businessEmail:
+					applicantData?.email ||
+					companyData?.email ||
+					companyData?.Email ||
+					formReducer?.user['business-details']?.Email ||
+					'',
+				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
+				gstin: '',
+				businessStartDate: '4/8/90',
+				businesstype:
+					applicantData?.incomeType ||
+					data['business-details']?.BusinessType ||
+					formReducer?.user['business-details']?.BusinessType,
+				Line1: formData?.permanent_address1,
+				Line2: formData?.permanent_address2,
+				locality: formData?.permanent_address3 || formData?.permanent_city,
+				city: formData?.permanent_city,
+				state: formData?.permanent_state,
+				pincode: formData?.permanent_pinCode,
+				business_id: sessionStorage.getItem('business_id') || '',
+				baid: sessionStorage.getItem('baid') || '',
+				aid: 2,
+			};
+			const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
+				method: 'POST',
+				data: reqBody,
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			});
+			const businessProfileres = businessProfilereq.data;
+			console.log('businees_id', businessProfileres);
+			sessionStorage.setItem(
+				'business_id',
+				JSON.stringify(businessProfileres.data[0].id)
+			);
+			sessionStorage.setItem(
+				'baid',
+				JSON.stringify(businessProfileres.data[0].business_address[0].id)
+			);
+		} catch (error) {
+			addToast({
+				message: error.message || 'Business Profile is failed',
+				type: 'error',
+			});
+		}
+	};
 
 	const onProceed = formData => {
+		let formdata1 = formData;
+		//console.log('fomdata', formdata1);
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 
 		!match &&
@@ -142,6 +220,7 @@ export default function AddressDetailsPage({
 
 		setUsertypeAddressData(formatedData);
 		onSave(formData);
+		businessProfileUpdate(formData);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};

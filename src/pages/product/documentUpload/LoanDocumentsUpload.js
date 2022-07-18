@@ -317,6 +317,7 @@ function caseCreationDataFormat(
 				applicantData?.firstName ||
 				sessionStorage.getItem('BusinessName') ||
 				companyData?.BusinessName,
+			business_id: sessionStorage.getItem('business_id') || '',
 			business_type:
 				applicantData?.incomeType ||
 				data['business-details']?.BusinessType ||
@@ -1508,6 +1509,7 @@ export default function DocumentUpload({
 			const sendOTPReq = await newRequest(AUTHENTICATION_GENERATE_OTP, {
 				method: 'POST',
 				data: {
+					business_id: sessionStorage.getItem('business_id') || '',
 					mobile: applicantData?.mobileNo || companyData?.mobileNo,
 				},
 				headers: {
