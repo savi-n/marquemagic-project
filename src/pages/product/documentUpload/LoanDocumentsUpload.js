@@ -1509,6 +1509,7 @@ export default function DocumentUpload({
 				method: 'POST',
 				data: {
 					mobile: applicantData?.mobileNo || companyData?.mobileNo,
+					business_id: sessionStorage.getItem('business_id') || '',
 				},
 				headers: {
 					Authorization: `Bearer ${API_TOKEN}`,
