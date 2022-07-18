@@ -31,6 +31,7 @@ export function resetAllApplicationState() {
 	sessionStorage.removeItem('aadhar');
 	sessionStorage.removeItem('encryptWhiteLabel');
 	sessionStorage.removeItem('userToken');
+	sessionStorage.removeItem('documentReducer');
 	sessionStorage.removeItem(url);
 	const wt_lbl = sessionStorage.getItem('wt_lbl');
 	const userDetails = sessionStorage.getItem('userDetails');

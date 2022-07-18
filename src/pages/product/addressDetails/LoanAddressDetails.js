@@ -215,7 +215,6 @@ export default function AddressDetailsPage({
 	};
 
 	const onProceed = formData => {
-		let formdata1 = formData;
 		//console.log('fomdata', formdata1);
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 

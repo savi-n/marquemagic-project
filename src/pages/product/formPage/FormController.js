@@ -146,7 +146,7 @@ export default function FormController({
 	const onSave = data => {
 		// console.log('state', state, id, data);
 		setFlowData(data, id);
-		setLoanData({ ...data }, id);
+		// setLoanData({ ...data }, id);
 		addToast({
 			message: 'Saved Succesfully',
 			type: 'success',
