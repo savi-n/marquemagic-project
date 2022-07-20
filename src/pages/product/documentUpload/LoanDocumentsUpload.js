@@ -1359,36 +1359,38 @@ export default function DocumentUpload({
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);
-		// console.log('addBankDetailsReq-', { formData, caseId, state });
+		//console.log('addBankDetailsReq-', { formData, caseId, state });
 		// throw Error('bank details');
+
 		if (!formData) {
 			return true;
 		}
-
-		try {
-			const caseReq = await newRequest(
-				ADD_BANK_DETAILS,
-				{
-					method: 'POST',
-					data: formData,
-				},
-				{
-					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken)?.userReducer?.userToken}`,
+		if (formData.emiDetails[0].amount || formData.emiDetails[0].bank) {
+			try {
+				const caseReq = await newRequest(
+					ADD_BANK_DETAILS,
+					{
+						method: 'POST',
+						data: formData,
+					},
+					{
+						Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+							JSON.parse(userToken)?.userReducer?.userToken}`,
+					}
+				);
+				const caseRes = caseReq.data;
+				if (
+					caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+					caseRes.status === NC_STATUS_CODE.OK
+				) {
+					return caseRes.data;
 				}
-			);
-			const caseRes = caseReq.data;
-			if (
-				caseRes.statusCode === NC_STATUS_CODE.NC200 ||
-				caseRes.status === NC_STATUS_CODE.OK
-			) {
-				return caseRes.data;
-			}
 
-			throw new Error(caseRes.message);
-		} catch (er) {
-			console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
-			throw new Error(er.message);
+				throw new Error(caseRes.message);
+			} catch (er) {
+				console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
+				throw new Error(er.message);
+			}
 		}
 	};
 
