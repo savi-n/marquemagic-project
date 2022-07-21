@@ -104,6 +104,7 @@ const AuthenticationOTPModal = props => {
 	}${setContactNo[setContactNo.length - 3]}${
 		setContactNo[setContactNo.length - 2]
 	}${setContactNo[setContactNo.length - 1]}`;
+	const product_id = sessionStorage.getItem('productId');
 
 	const verifyOtp = async () => {
 		if (!inputAuthenticationOTP) {
@@ -124,6 +125,7 @@ const AuthenticationOTPModal = props => {
 						mobile: setContactNo,
 						business_id: sessionStorage.getItem('business_id') || '',
 						otp: Number(inputAuthenticationOTP),
+						product_id,
 					},
 					headers: {
 						Authorization: `Bearer ${API_TOKEN}`,
@@ -182,6 +184,7 @@ const AuthenticationOTPModal = props => {
 			const reqBody = {
 				mobile: setContactNo,
 				business_id: sessionStorage.getItem('business_id') || '',
+				product_id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const authenticationResendOtpRes = await newRequest(
