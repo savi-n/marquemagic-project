@@ -9,7 +9,11 @@ import Button from 'components/Button';
 import AadhaarOTPInput from './AadhaarOTPInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { AADHAAR_VERIFY_OTP, AADHAAR_RESEND_OTP } from '_config/app.config';
+import {
+	AADHAAR_VERIFY_OTP,
+	AADHAAR_RESEND_OTP,
+	RESEND_OTP_TIMER,
+} from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
@@ -67,7 +71,7 @@ const ImgStyle = styled.img`
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
-const DEFAULT_TIME_RESEND_OTP = 60;
+// const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AadhaarOTPModal = props => {
 	const {
@@ -83,7 +87,7 @@ const AadhaarOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
+	const [resendOtpTimer, setResendOtpTimer] = useState(RESEND_OTP_TIMER);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
@@ -165,7 +169,7 @@ const AadhaarOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+			setResendOtpTimer(RESEND_OTP_TIMER);
 			const reqBody = {
 				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				transactionId: aadhaarGenOtpResponse.data.transactionId,
@@ -196,7 +200,7 @@ const AadhaarOTPModal = props => {
 
 	useEffect(() => {
 		setInputAadhaarOTP('');
-		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+		setResendOtpTimer(RESEND_OTP_TIMER);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
