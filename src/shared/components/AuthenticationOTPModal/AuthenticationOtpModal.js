@@ -122,6 +122,7 @@ const AuthenticationOTPModal = props => {
 					method: 'POST',
 					data: {
 						mobile: setContactNo,
+						business_id: sessionStorage.getItem('business_id') || '',
 						otp: Number(inputAuthenticationOTP),
 					},
 					headers: {
@@ -180,6 +181,7 @@ const AuthenticationOTPModal = props => {
 			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
 			const reqBody = {
 				mobile: setContactNo,
+				business_id: sessionStorage.getItem('business_id') || '',
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const authenticationResendOtpRes = await newRequest(

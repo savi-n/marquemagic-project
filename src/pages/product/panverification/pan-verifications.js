@@ -439,10 +439,10 @@ export default function PanVerification({
 
 		const companyData = cinNumberResponse.data;
 		const reqBody = {
-			email: companyData.data.company_master_data.email_id,
+			email: companyData?.data?.company_master_data?.email_id || '',
 			white_label_id: whiteLabelId,
 			source: APP_CLIENT,
-			name: companyData.data.company_master_data.company_name,
+			name: companyData?.data?.company_master_data?.company_name || '',
 			mobileNo: '9999999999',
 			addrr1: '',
 			addrr2: '',
@@ -843,6 +843,10 @@ export default function PanVerification({
 				setPanError(panForensicFlagMsg);
 				// CONTINUE EXECUTION
 			}
+			if (panForensicFlag !== 'warning') {
+				setIsWarning(true);
+				setIsPanConfirmModalOpen(true);
+			}
 			const file1 = {
 				...(panExtractionRes?.data?.extractionData || {}),
 				document_key: panExtractionRes?.data.s3.fd,
@@ -895,7 +899,6 @@ export default function PanVerification({
 			setPanExtractionData(newPanExtractionData);
 			// fileRef.current = [];
 			setLoading(false);
-			if (panForensicFlag !== 'warning') setIsPanConfirmModalOpen(true);
 		} catch (error) {
 			console.error('error-pan-verification-handleExtractionPan-', error);
 			setLoading(false);

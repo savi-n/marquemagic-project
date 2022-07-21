@@ -606,54 +606,62 @@ function subsidiaryDataFormat(caseId, data) {
 
 function bankDetailsDataFormat(caseId, data) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-	if (
-		data['vehicle-loan-details'] ||
-		formReducer?.user['vehicle-loan-details']
-	) {
-		if (!data['emi-details'] && !formReducer?.user['emi-details']) {
-			return false;
-		}
-		const formatedData = {
-			emiDetails: data['emi-details'] || formReducer?.user['emi-details'],
-			case_id: caseId,
-			// bank_name: data[`vehicle-loan-details`].branchId,
-		};
-		return formatedData;
-	}
-	if (
-		!data['bank-details']?.AccountNumber &&
-		!data['bank-details']?.BankName &&
-		!data['bank-details']?.AccountHolderName &&
-		!formReducer?.user['bank-details']?.AccountNumber &&
-		!formReducer?.user['bank-details']?.BankName &&
-		!formReducer?.user['bank-details']?.AccountHolderName
-	) {
-		return false;
-	}
+
+	// if (
+	// 	data['vehicle-loan-details'] ||
+	// 	formReducer?.user['vehicle-loan-details']
+	// ) {
+	// 	if (!data['emi-details'] && !formReducer?.user['emi-details']) {
+	// 		return false;
+	// 	}
+	// 	const formatedData = {
+	// 		emiDetails: data['emi-details'] || formReducer?.user['emi-details'],
+	// 		case_id: caseId,
+	// 		// bank_name: data[`vehicle-loan-details`].branchId,
+	// 	};
+	// 	return formatedData;
+	// }
+	// if (
+	// 	!data['bank-details']?.AccountNumber &&
+	// 	!data['bank-details']?.BankName &&
+	// 	!data['bank-details']?.AccountHolderName &&
+	// 	!formReducer?.user['bank-details']?.AccountNumber &&
+	// 	!formReducer?.user['bank-details']?.BankName &&
+	// 	!formReducer?.user['bank-details']?.AccountHolderName
+	// ) {
+	// 	return false;
+	// }
 
 	let bank =
 		data['bank-details']?.BankName ||
-		formReducer?.user['bank-details']?.BankName;
+		formReducer?.user['bank-details']?.BankName ||
+		'';
 	const formatedData = {
 		case_id: caseId,
-		emiDetails: data['emi-details'] || formReducer?.user['emi-details'],
+		emiDetails: data['emi-details'] || formReducer?.user['emi-details'] || '',
 		account_number:
 			data['bank-details']?.AccountNumber ||
-			formReducer?.user['bank-details']?.AccountNumber,
+			formReducer?.user['bank-details']?.AccountNumber ||
+			'',
 		// subsidiary_name: data['bank-details'].,
-		bank_name: typeof bank === 'object' ? Number(bank?.value) : bank?.BankName,
+		bank_name:
+			typeof bank === 'object' ? Number(bank?.value) : bank?.BankName || '',
 		account_holder_name:
 			data['bank-details']?.AccountHolderName ||
-			formReducer?.user['bank-details']?.AccountHolderName,
+			formReducer?.user['bank-details']?.AccountHolderName ||
+			'',
 		account_type:
 			data['bank-details']?.AccountType ||
-			formReducer?.user['bank-details']?.AccountType,
+			formReducer?.user['bank-details']?.AccountType ||
+			'',
 		start_date:
 			data['bank-details']?.StartDate ||
-			formReducer?.user['bank-details']?.StartDate,
+			formReducer?.user['bank-details']?.StartDate ||
+			'',
 		end_date:
 			data['bank-details']?.EndDate ||
-			formReducer?.user['bank-details']?.EndDate,
+			formReducer?.user['bank-details']?.EndDate ||
+			'',
 		// limit_type: data['bank-details'],
 		// sanction_limit: data['bank-details'],
 		// drawing_limit: data['bank-details'],
@@ -1351,34 +1359,38 @@ export default function DocumentUpload({
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);
+		//console.log('addBankDetailsReq-', { formData, caseId, state });
+		// throw Error('bank details');
+
 		if (!formData) {
 			return true;
 		}
-
-		try {
-			const caseReq = await newRequest(
-				ADD_BANK_DETAILS,
-				{
-					method: 'POST',
-					data: formData,
-				},
-				{
-					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
-						JSON.parse(userToken)?.userReducer?.userToken}`,
+		if (formData.emiDetails[0].amount || formData.emiDetails[0].bank) {
+			try {
+				const caseReq = await newRequest(
+					ADD_BANK_DETAILS,
+					{
+						method: 'POST',
+						data: formData,
+					},
+					{
+						Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
+							JSON.parse(userToken)?.userReducer?.userToken}`,
+					}
+				);
+				const caseRes = caseReq.data;
+				if (
+					caseRes.statusCode === NC_STATUS_CODE.NC200 ||
+					caseRes.status === NC_STATUS_CODE.OK
+				) {
+					return caseRes.data;
 				}
-			);
-			const caseRes = caseReq.data;
-			if (
-				caseRes.statusCode === NC_STATUS_CODE.NC200 ||
-				caseRes.status === NC_STATUS_CODE.OK
-			) {
-				return caseRes.data;
-			}
 
-			throw new Error(caseRes.message);
-		} catch (er) {
-			console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
-			throw new Error(er.message);
+				throw new Error(caseRes.message);
+			} catch (er) {
+				console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
+				throw new Error(er.message);
+			}
 		}
 	};
 
@@ -1509,6 +1521,7 @@ export default function DocumentUpload({
 				method: 'POST',
 				data: {
 					mobile: applicantData?.mobileNo || companyData?.mobileNo,
+					business_id: sessionStorage.getItem('business_id') || '',
 				},
 				headers: {
 					Authorization: `Bearer ${API_TOKEN}`,
