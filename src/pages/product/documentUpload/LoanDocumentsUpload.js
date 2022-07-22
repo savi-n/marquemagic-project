@@ -1511,6 +1511,7 @@ export default function DocumentUpload({
 		}
 		return true;
 	};
+	const product_id = sessionStorage.getItem('productId');
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
@@ -1522,6 +1523,7 @@ export default function DocumentUpload({
 				data: {
 					mobile: applicantData?.mobileNo || companyData?.mobileNo,
 					business_id: sessionStorage.getItem('business_id') || '',
+					product_id,
 				},
 				headers: {
 					Authorization: `Bearer ${API_TOKEN}`,
