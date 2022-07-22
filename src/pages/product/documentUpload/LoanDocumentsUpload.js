@@ -1365,7 +1365,7 @@ export default function DocumentUpload({
 		if (!formData) {
 			return true;
 		}
-		if (formData.emiDetails[0].amount || formData.emiDetails[0].bank) {
+		if (formData?.emiDetails?.[0]?.amount || formData?.emiDetails[0]?.bank) {
 			try {
 				const caseReq = await newRequest(
 					ADD_BANK_DETAILS,
@@ -1518,7 +1518,7 @@ export default function DocumentUpload({
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
 			setIsAuthenticationOtpModalOpen(true);
-			const sendOTPReq = await newRequest(AUTHENTICATION_GENERATE_OTP, {
+			await newRequest(AUTHENTICATION_GENERATE_OTP, {
 				method: 'POST',
 				data: {
 					mobile: applicantData?.mobileNo || companyData?.mobileNo,
@@ -1529,9 +1529,13 @@ export default function DocumentUpload({
 					Authorization: `Bearer ${API_TOKEN}`,
 				},
 			});
-			const authenticationGenOTPResponse = sendOTPReq.data;
 		} catch (error) {
 			console.log(error);
+			addToast({
+				message:
+					error?.response?.data?.message || 'Server down, try after sometimes',
+				type: 'error',
+			});
 		}
 	};
 
