@@ -94,6 +94,7 @@ const AadhaarOTPModal = props => {
 		state: { clientToken },
 	} = useContext(AppContext);
 
+	const product_id = sessionStorage.getItem('productId');
 	const verifyOtp = async () => {
 		if (!inputAadhaarOTP) {
 			setErrorMsg('Please enter a valid OTP.');
@@ -113,6 +114,7 @@ const AadhaarOTPModal = props => {
 					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
 					fwdp: aadhaarGenOtpResponse.data.fwdp,
 					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
+					product_id,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
@@ -174,6 +176,7 @@ const AadhaarOTPModal = props => {
 				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				transactionId: aadhaarGenOtpResponse.data.transactionId,
 				fwdp: aadhaarGenOtpResponse.data.fwdp,
+				product_id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const aadharResendOtpRes = await newRequest(AADHAAR_RESEND_OTP, {
