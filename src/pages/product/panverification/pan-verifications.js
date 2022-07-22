@@ -331,10 +331,10 @@ export default function PanVerification({
 		setIsWarning(false);
 	};
 
-	const onCompanySelect = cinNumber => {
+	const onCompanySelect = async cinNumber => {
 		setIsCompanyListModalOpen(false);
 		setLoading(true);
-		cinNumberFetch(cinNumber);
+		await cinNumberFetch(cinNumber);
 	};
 
 	const proceedToNextSection = () => {
@@ -1123,7 +1123,10 @@ export default function PanVerification({
 					requestId: backExtractionRes?.data.request_id,
 				};
 				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
-				getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
+				await getVerifiedKycData(
+					selectedAddressProof,
+					newAddressProofExtractionData
+				);
 				if (backForensicFlag !== 'warning') proceedToNextSection();
 				setLoading(false);
 				return;
@@ -1194,7 +1197,10 @@ export default function PanVerification({
 				requestId: frontOnlyExtractionRes?.data?.request_id,
 			};
 			prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
-			getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
+			await getVerifiedKycData(
+				selectedAddressProof,
+				newAddressProofExtractionData
+			);
 			if (frontOnlyForensicFlag !== 'warning') proceedToNextSection();
 			setLoading(false);
 		} catch (error) {
