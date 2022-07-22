@@ -852,6 +852,10 @@ export default function PanVerification({
 				setPanError(panForensicFlagMsg);
 				// CONTINUE EXECUTION
 			}
+			if (panForensicFlag !== 'warning') {
+				setIsWarning(true);
+				setIsPanConfirmModalOpen(true);
+			}
 			const file1 = {
 				...(panExtractionRes?.data?.extractionData || {}),
 				document_key: panExtractionRes?.data.s3.fd,
@@ -904,7 +908,6 @@ export default function PanVerification({
 			setPanExtractionData(newPanExtractionData);
 			// fileRef.current = [];
 			setLoading(false);
-			if (panForensicFlag !== 'warning') setIsPanConfirmModalOpen(true);
 		} catch (error) {
 			console.error('error-pan-verification-handleExtractionPan-', error);
 			setLoading(false);
