@@ -165,8 +165,10 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			[...map.fields[id].data, ...additionalField],
 			response
 		);
+		// console.log('onSave-', emiData);
 		setUsertypeEmiData(emiData);
-		setFlowData(emiData, id);
+		setFlowData(formatLoanEmiData(data, map.fields[id].data), id);
+		// setFlowData(emiData, id);
 		// setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
 
 		addToast({

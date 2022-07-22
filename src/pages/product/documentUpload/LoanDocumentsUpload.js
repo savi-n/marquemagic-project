@@ -1365,7 +1365,10 @@ export default function DocumentUpload({
 		if (!formData) {
 			return true;
 		}
-		if (formData?.emiDetails?.[0]?.amount || formData?.emiDetails[0]?.bank) {
+		if (
+			formData?.emiDetails?.[0]?.emiAmount ||
+			formData?.emiDetails?.[0]?.bank_name
+		) {
 			try {
 				const caseReq = await newRequest(
 					ADD_BANK_DETAILS,
