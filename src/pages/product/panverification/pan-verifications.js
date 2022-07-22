@@ -426,73 +426,82 @@ export default function PanVerification({
 	};
 
 	const cinNumberFetch = async cinNumber => {
-		const cinNumberResponse = await newRequest(
-			ROC_DATA_FETCH,
-			{
-				method: 'POST',
-				data: {
-					cin_number: cinNumber,
-				},
-			},
-			{ authorization: clientToken }
-		);
-
-		const companyData = cinNumberResponse.data;
-		const reqBody = {
-			email: companyData?.data?.company_master_data?.email_id || '',
-			white_label_id: whiteLabelId,
-			source: APP_CLIENT,
-			name: companyData?.data?.company_master_data?.company_name || '',
-			mobileNo: '9999999999',
-			addrr1: '',
-			addrr2: '',
-		};
-		if (sessionStorage.getItem('userDetails')) {
-			try {
-				reqBody.user_id =
-					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
-			} catch (err) {
-				return err;
-			}
-		}
-
-		if (companyData.status === NC_STATUS_CODE.OK) {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: reqBody,
-			});
-
-			const userDetailsRes = userDetailsReq.data;
-
-			sessionStorage.setItem('branchId', userDetailsRes.branchId);
-
-			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
+		try {
+			setLoading(true);
+			const cinNumberResponse = await newRequest(
+				ROC_DATA_FETCH,
+				{
+					method: 'POST',
+					data: {
+						cin_number: cinNumber,
 					},
-					{ Authorization: `Bearer ${userDetailsRes.token}` }
-				);
+				},
+				{ authorization: clientToken }
+			);
 
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				sessionStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
-
-				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-					setCompanyDetails({
-						token: userDetailsRes.token,
-						userId: userDetailsRes.userId,
-						branchId: userDetailsRes.branchId,
-						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data, extractionDataRes.panNumber),
-					});
-				proceedToNextSection();
-				return;
+			const companyData = cinNumberResponse.data;
+			const reqBody = {
+				email: companyData?.data?.company_master_data?.email_id || '',
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: companyData?.data?.company_master_data?.company_name || '',
+				mobileNo: '9999999999',
+				addrr1: '',
+				addrr2: '',
+			};
+			if (sessionStorage.getItem('userDetails')) {
+				try {
+					reqBody.user_id =
+						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+				} catch (err) {
+					return err;
+				}
 			}
+
+			if (companyData.status === NC_STATUS_CODE.OK) {
+				const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+					method: 'POST',
+					data: reqBody,
+				});
+
+				const userDetailsRes = userDetailsReq.data;
+
+				sessionStorage.setItem('branchId', userDetailsRes.branchId);
+
+				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+					const encryptWhiteLabelReq = await newRequest(
+						WHITELABEL_ENCRYPTION_API,
+						{
+							method: 'GET',
+						},
+						{ Authorization: `Bearer ${userDetailsRes.token}` }
+					);
+
+					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+					sessionStorage.setItem(
+						'encryptWhiteLabel',
+						encryptWhiteLabelRes.encrypted_whitelabel[0]
+					);
+
+					if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+						setCompanyDetails({
+							token: userDetailsRes.token,
+							userId: userDetailsRes.userId,
+							branchId: userDetailsRes.branchId,
+							encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+							...formatCompanyData(
+								companyData.data,
+								extractionDataRes.panNumber
+							),
+						});
+					proceedToNextSection();
+					return;
+				}
+			}
+		} catch (error) {
+			setLoading(false);
+			console.error('error-cinnumberfetch-', error);
 		}
 	};
 
@@ -1466,25 +1475,13 @@ export default function PanVerification({
 					<section style={{ marginTop: panError ? 100 : 20 }}>
 						{isWarning ? (
 							<Button
+								isLoader={loading}
+								disabled={loading}
 								onClick={() => {
 									setLoading(false);
 									setIsPanConfirmModalOpen(true);
-									// resetAllErrors();
-									// TODO: Keep this commented till new solution is finalized
-									// if (isBusinessProductType && isBusiness) {
-									// 	onSubmit(formState);
-									// 	return;
-									// }
-									// if (isBusinessProductType) {
-									// 	setPanUpload(false);
-									// 	setUploadOtherDocs(false);
-									// 	return;
-									// }
-									// if (isSalariedProductType) {
-									// 	setIsPanConfirmModalOpen(true);
-									// }
 								}}
-								name={'Proceed'}
+								name={loading ? 'Please wait...' : 'Proceed'}
 								fill
 							/>
 						) : (
@@ -1492,7 +1489,6 @@ export default function PanVerification({
 								onClick={handleExtractionPan}
 								isLoader={loading}
 								name={loading ? 'Please wait...' : 'Proceed'}
-								// disabled={!docs.length > 0}
 								disabled={!panDoc.length > 0 || isError || loading}
 								fill
 							/>
