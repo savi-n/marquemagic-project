@@ -12,6 +12,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	AUTHENTICATION_VERIFY_OTP,
 	AUTHENTICATION_GENERATE_OTP,
+	RESEND_OTP_TIMER,
 } from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
@@ -73,7 +74,7 @@ const ImgStyle = styled.img`
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
-const DEFAULT_TIME_RESEND_OTP = 60;
+// const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AuthenticationOTPModal = props => {
 	const {
@@ -90,7 +91,7 @@ const AuthenticationOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
+	const [resendOtpTimer, setResendOtpTimer] = useState(RESEND_OTP_TIMER);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
@@ -180,7 +181,7 @@ const AuthenticationOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+			setResendOtpTimer(RESEND_OTP_TIMER);
 			const reqBody = {
 				mobile: setContactNo,
 				business_id: sessionStorage.getItem('business_id') || '',
@@ -219,7 +220,7 @@ const AuthenticationOTPModal = props => {
 
 	useEffect(() => {
 		setInputAuthenticationOTP('');
-		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+		setResendOtpTimer(RESEND_OTP_TIMER);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
