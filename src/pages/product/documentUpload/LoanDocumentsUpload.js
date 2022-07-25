@@ -453,12 +453,16 @@ function caseCreationDataFormat(
 				productId[(form?.incomeType)] ||
 				productId[idType],
 			white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
-			branchId: loan.branchId,
+			branchId:
+				loan?.branchId ||
+				formReducer?.user?.['vehicle-loan-details']?.branchId ||
+				loanData?.branchId,
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
 					loan?.loanAmount ||
 					data['business-loan-details']?.LoanAmount ||
 					data['vehicle-loan-details']?.loanAmount ||
+					formReducer?.user?.['vehicle-loan-details']?.loanAmount ||
 					formReducer?.user['business-loan-details']?.LoanAmount ||
 					0
 			), //loan.loanAmount,
@@ -467,12 +471,14 @@ function caseCreationDataFormat(
 					+loan?.loanAmount ||
 					+data['business-loan-details']?.LoanAmount ||
 					+data['vehicle-loan-details']?.loanAmount ||
+					+formReducer?.user?.['vehicle-loan-details']?.loanAmount ||
 					+formReducer?.user['business-loan-details']?.LoanAmount
 			),
 			applied_tenure:
 				loan?.tenure ||
 				data['business-loan-details']?.tenure ||
 				data['vehicle-loan-details']?.tenure ||
+				formReducer?.user?.['vehicle-loan-details']?.tenure ||
 				formReducer?.user['business-loan-details']?.tenure ||
 				0,
 			annual_turn_over: getAmount(
