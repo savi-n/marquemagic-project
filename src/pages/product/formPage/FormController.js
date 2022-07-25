@@ -144,7 +144,7 @@ export default function FormController({
 	}, [map.name]);
 
 	const onSave = data => {
-		// console.log('state', state, id, data);
+		// console.log('onSave-', { state, id, data });
 		setFlowData(data, id);
 		// setLoanData({ ...data }, id);
 		addToast({
@@ -393,6 +393,7 @@ export default function FormController({
 				(Object.keys(JSON.parse(userToken)?.formReducer?.user?.loanData)
 					.length > 0 &&
 					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
+				JSON.parse(userToken)?.formReducer?.user?.['vehicle-loan-details'] ||
 				(editLoanData && formatVehicalLoanData(editLoanData));
 		}
 		if (id === 'subsidiary-details' && editLoanData) {
