@@ -1365,7 +1365,7 @@ export default function DocumentUpload({
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
 		const formData = bankDetailsDataFormat(caseId, state);
-		//console.log('addBankDetailsReq-', { formData, caseId, state });
+		// console.log('addBankDetailsReq-', { formData, caseId, state });
 		// throw Error('bank details');
 
 		if (!formData) {
@@ -1373,7 +1373,9 @@ export default function DocumentUpload({
 		}
 		if (
 			formData?.emiDetails?.[0]?.emiAmount ||
-			formData?.emiDetails?.[0]?.bank_name
+			formData?.emiDetails?.[0]?.bank_name ||
+			formData?.bank_name ||
+			formData?.account_holder_name
 		) {
 			try {
 				const caseReq = await newRequest(
