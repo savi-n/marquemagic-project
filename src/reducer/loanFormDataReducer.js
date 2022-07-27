@@ -1,5 +1,5 @@
 import { createContext, useReducer } from 'react';
-import _, { kebabCase } from 'lodash';
+import _ from 'lodash';
 
 import { setStore, getStore } from '../utils/localStore';
 
@@ -18,7 +18,9 @@ const actionTypes = {
 	REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS: 'REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS',
 };
 
-const INITIAL_STATE = {};
+const INITIAL_STATE = {
+	documents: [],
+};
 
 const useActions = dispatch => {
 	const setLoanData = (formData, page) => {
@@ -94,7 +96,7 @@ function reducer(state, action) {
 	switch (action.type) {
 		case actionTypes.SET_LOAN_DATA: {
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				[action.page]: action.formData,
 			};
 			break;
@@ -102,7 +104,7 @@ function reducer(state, action) {
 
 		case actionTypes.SET_LOAN_DOCUMENT: {
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				documents: [...(state.documents || []), ...action.files],
 			};
 			break;
@@ -122,33 +124,26 @@ function reducer(state, action) {
 			);
 			// console.log('action-SET_DOCUMENT_TYPE-', userDocs);
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				documents: userDocs,
 			};
 			break;
 		}
 
 		case actionTypes.REMOVE_LOAN_DOCUMENT: {
-			console.log('loanFormDataReducer-REMOVE_LOAN_DOCUMENT-before-', {
-				stateDocs: state.documents,
-			});
 			const filteredDocs = (state.documents || []).filter(
 				doc => doc.id !== action.fileId
 			);
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				documents: filteredDocs,
 			};
-			console.log('loanFormDataReducer-REMOVE_LOAN_DOCUMENT-after-', {
-				filteredDocs,
-				updatedState,
-			});
 			break;
 		}
 
 		case actionTypes.REMOVE_ALL_DOCUMENTS: {
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				documents: [],
 			};
 			break;
@@ -157,7 +152,7 @@ function reducer(state, action) {
 		case actionTypes.REMOVE_ALL_ADDRESS_PROOF_DOCUMENTS: {
 			const newDocuments = _.cloneDeep(state?.documents || []);
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				documents: newDocuments.filter(d => d.req_type === 'pan'),
 			};
 			break;
@@ -165,7 +160,7 @@ function reducer(state, action) {
 
 		case actionTypes.SET_KYC_EXTRACT_DOCDETAILS_PAN: {
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				panDocDetails: [...action.docDetails],
 			};
 			break;
@@ -173,7 +168,7 @@ function reducer(state, action) {
 
 		case actionTypes.SET_KYC_EXTRACT_DOCDETAILS_OTHER: {
 			updatedState = {
-				..._.cloneDeep(state),
+				..._.cloneDeep(INITIAL_STATE),
 				otherDocDetails: [...action.docDetails],
 			};
 			break;
