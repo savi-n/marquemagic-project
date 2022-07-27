@@ -226,7 +226,7 @@ const AadhaarOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
+			customStyle={{ padding: 0 }}>
 			<ModalHeader>
 				Aadhaar Verification
 				<img
@@ -243,7 +243,7 @@ const AadhaarOTPModal = props => {
 				/>
 			</ModalHeader>
 			<ModalBody>
-				<p>
+				<p style={{ textAlign: 'center' }}>
 					An OTP has been {isResentOtp ? 'resent' : 'sent'} to your number
 					please verify it below
 				</p>
