@@ -87,7 +87,9 @@ const AadhaarOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(RESEND_OTP_TIMER);
+	const [resendOtpTimer, setResendOtpTimer] = useState(
+		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
@@ -171,7 +173,9 @@ const AadhaarOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(RESEND_OTP_TIMER);
+			setResendOtpTimer(
+				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			);
 			const reqBody = {
 				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				transactionId: aadhaarGenOtpResponse.data.transactionId,
@@ -203,7 +207,9 @@ const AadhaarOTPModal = props => {
 
 	useEffect(() => {
 		setInputAadhaarOTP('');
-		setResendOtpTimer(RESEND_OTP_TIMER);
+		setResendOtpTimer(
+			sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
