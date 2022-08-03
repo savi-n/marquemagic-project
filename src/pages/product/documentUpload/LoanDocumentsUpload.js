@@ -739,9 +739,9 @@ function refereneceDataFormat(loanId, data) {
 			formReducer?.user?.['reference-details']?.Pincode0 ||
 			'',
 		ref_type:
-			data?.['reference-details']?.RefType0 ||
-			formReducer?.user?.['reference-details']?.RefType0 ||
-			0,
+			data?.['reference-details']?.ref_type0 ||
+			formReducer?.user?.['reference-details']?.ref_type0 ||
+			'',
 		ref_locality: 'null',
 		reference_truecaller_info: '',
 	};
@@ -768,6 +768,10 @@ function refereneceDataFormat(loanId, data) {
 		ref_pincode:
 			data?.['reference-details']?.Pincode1 ||
 			formReducer?.user?.['reference-details']?.Pincode1 ||
+			'',
+		ref_type:
+			data?.['reference-details']?.ref_type1 ||
+			formReducer?.user?.['reference-details']?.ref_type1 ||
 			'',
 		ref_locality: 'null',
 		reference_truecaller_info: '',
