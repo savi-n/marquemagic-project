@@ -738,6 +738,10 @@ function refereneceDataFormat(loanId, data) {
 			data?.['reference-details']?.Pincode0 ||
 			formReducer?.user?.['reference-details']?.Pincode0 ||
 			'',
+		ref_type:
+			data?.['reference-details']?.RefType0 ||
+			formReducer?.user?.['reference-details']?.RefType0 ||
+			0,
 		ref_locality: 'null',
 		reference_truecaller_info: '',
 	};
