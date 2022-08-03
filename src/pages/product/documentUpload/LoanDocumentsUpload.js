@@ -637,7 +637,6 @@ function bankDetailsDataFormat(caseId, data) {
 	// ) {
 	// 	return false;
 	// }
-
 	let bank =
 		data['bank-details']?.BankName ||
 		formReducer?.user['bank-details']?.BankName ||
@@ -650,6 +649,10 @@ function bankDetailsDataFormat(caseId, data) {
 			formReducer?.user['bank-details']?.AccountNumber ||
 			'',
 		// subsidiary_name: data['bank-details'].,
+		ifsccode:
+			data['bank-details']?.ifsccode ||
+			formReducer?.user['bank-details']?.ifsccode ||
+			'',
 		bank_name:
 			typeof bank === 'object' ? Number(bank?.value) : bank?.BankName || '',
 		account_holder_name:
@@ -673,7 +676,6 @@ function bankDetailsDataFormat(caseId, data) {
 		// drawing_limit: data['bank-details'],
 		// IFSC: "",
 	};
-
 	return formatedData;
 }
 
