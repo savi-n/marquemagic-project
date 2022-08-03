@@ -746,12 +746,7 @@ function refereneceDataFormat(loanId, data) {
 		reference_truecaller_info: '',
 	};
 
-	if (
-		refData1.ref_name ||
-		refData1.ref_email ||
-		refData1.ref_contact ||
-		refData1.ref_pincode
-	) {
+	if (refData1.ref_name && refData1.ref_contact) {
 		loanReferenceData.push(refData1);
 	}
 
@@ -777,12 +772,8 @@ function refereneceDataFormat(loanId, data) {
 		ref_locality: 'null',
 		reference_truecaller_info: '',
 	};
-	if (
-		refData2.ref_name ||
-		refData2.ref_email ||
-		refData2.ref_contact ||
-		refData2.ref_pincode
-	) {
+
+	if (refData2.ref_name && refData2.ref_contact) {
 		loanReferenceData.push(refData2);
 	}
 
