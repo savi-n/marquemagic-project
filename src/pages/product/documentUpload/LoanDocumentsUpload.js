@@ -482,15 +482,15 @@ function caseCreationDataFormat(
 				formReducer?.user['business-loan-details']?.tenure ||
 				0,
 			annual_turn_over: getAmount(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				applicantData?.grossIncome ||
+					applicantData?.annualIncome ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				applicantData?.grossIncome ||
+					applicantData?.annualIncome ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
