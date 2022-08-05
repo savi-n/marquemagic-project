@@ -223,6 +223,12 @@ export default function Product({ product, url }) {
 			}
 			configure(response.data?.product_details?.flow);
 			sessionStorage.setItem('productId', atob(product));
+			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
+				sessionStorage.setItem(
+					'otp_duration',
+					response?.data?.otp_configuration?.otp_duration_in_seconds
+				);
+			}
 		}
 		// eslint-disable-next-line
 	}, [response]);

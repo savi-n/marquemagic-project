@@ -637,7 +637,6 @@ function bankDetailsDataFormat(caseId, data) {
 	// ) {
 	// 	return false;
 	// }
-
 	let bank =
 		data['bank-details']?.BankName ||
 		formReducer?.user['bank-details']?.BankName ||
@@ -650,6 +649,10 @@ function bankDetailsDataFormat(caseId, data) {
 			formReducer?.user['bank-details']?.AccountNumber ||
 			'',
 		// subsidiary_name: data['bank-details'].,
+		ifsccode:
+			data['bank-details']?.ifsccode ||
+			formReducer?.user['bank-details']?.ifsccode ||
+			'',
 		bank_name:
 			typeof bank === 'object' ? Number(bank?.value) : bank?.BankName || '',
 		account_holder_name:
@@ -673,7 +676,6 @@ function bankDetailsDataFormat(caseId, data) {
 		// drawing_limit: data['bank-details'],
 		// IFSC: "",
 	};
-
 	return formatedData;
 }
 
@@ -717,64 +719,58 @@ function shareHolderDataFormat(businessId, data) {
 function refereneceDataFormat(loanId, data) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	const loanReferenceData = [];
-	if (
-		(data['reference-details']?.Name0 &&
-			data['reference-details']?.ReferenceEmail0 &&
-			data['reference-details']?.ContactNumber0 &&
-			data['reference-details']?.Pincode0) ||
-		(formReducer?.user['reference-details']?.Name0 &&
-			formReducer?.user['reference-details']?.ReferenceEmail0 &&
-			formReducer?.user['reference-details']?.ContactNumber0 &&
-			formReducer?.user['reference-details']?.Pincode0)
-	) {
-		loanReferenceData.push({
-			ref_name:
-				data['reference-details']?.Name0 ||
-				formReducer?.user['reference-details']?.Name0,
-			ref_email:
-				data['reference-details']?.ReferenceEmail0 ||
-				formReducer?.user['reference-details']?.ReferenceEmail0,
-			ref_contact:
-				data['reference-details']?.ContactNumber0 ||
-				formReducer?.user['reference-details']?.ContactNumber0,
-			ref_state: 'null',
-			ref_city: 'null',
-			ref_pincode:
-				data['reference-details']?.Pincode0 ||
-				formReducer?.user['reference-details']?.Pincode0,
-			ref_locality: 'null',
-			reference_truecaller_info: '',
-		});
+	const refData1 = {
+		ref_name:
+			data?.['reference-details']?.Name0 ||
+			formReducer?.user?.['reference-details']?.Name0 ||
+			'',
+		ref_email:
+			data?.['reference-details']?.ReferenceEmail0 ||
+			formReducer?.user?.['reference-details']?.ReferenceEmail0 ||
+			'',
+		ref_contact:
+			data?.['reference-details']?.ContactNumber0 ||
+			formReducer?.user?.['reference-details']?.ContactNumber0 ||
+			'',
+		ref_state: 'null',
+		ref_city: 'null',
+		ref_pincode:
+			data?.['reference-details']?.Pincode0 ||
+			formReducer?.user?.['reference-details']?.Pincode0 ||
+			'',
+		ref_locality: 'null',
+		reference_truecaller_info: '',
+	};
+
+	if (refData1.ref_name && refData1.ref_contact) {
+		loanReferenceData.push(refData1);
 	}
 
-	if (
-		(data['reference-details']?.Name1 &&
-			data['reference-details']?.ReferenceEmail1 &&
-			data['reference-details']?.ContactNumber1 &&
-			data['reference-details']?.Pincode1) ||
-		(formReducer?.user['reference-details']?.Name1 &&
-			formReducer?.user['reference-details']?.ReferenceEmail1 &&
-			formReducer?.user['reference-details']?.ContactNumber1 &&
-			formReducer?.user['reference-details']?.Pincode1)
-	) {
-		loanReferenceData.push({
-			ref_name:
-				data['reference-details']?.Name1 ||
-				formReducer?.user['reference-details']?.Name1,
-			ref_email:
-				data['reference-details']?.ReferenceEmail1 ||
-				formReducer?.user['reference-details']?.ReferenceEmail1,
-			ref_contact:
-				data['reference-details']?.ContactNumber1 ||
-				formReducer?.user['reference-details']?.ContactNumber1,
-			ref_state: 'null',
-			ref_city: 'null',
-			ref_pincode:
-				data['reference-details']?.Pincode1 ||
-				formReducer?.user['reference-details']?.Pincode1,
-			ref_locality: 'null',
-			reference_truecaller_info: '',
-		});
+	const refData2 = {
+		ref_name:
+			data?.['reference-details']?.Name1 ||
+			formReducer?.user?.['reference-details']?.Name1 ||
+			'',
+		ref_email:
+			data?.['reference-details']?.ReferenceEmail1 ||
+			formReducer?.user?.['reference-details']?.ReferenceEmail1 ||
+			'',
+		ref_contact:
+			data?.['reference-details']?.ContactNumber1 ||
+			formReducer?.user?.['reference-details']?.ContactNumber1 ||
+			'',
+		ref_state: 'null',
+		ref_city: 'null',
+		ref_pincode:
+			data?.['reference-details']?.Pincode1 ||
+			formReducer?.user?.['reference-details']?.Pincode1 ||
+			'',
+		ref_locality: 'null',
+		reference_truecaller_info: '',
+	};
+
+	if (refData2.ref_name && refData2.ref_contact) {
+		loanReferenceData.push(refData2);
 	}
 
 	const formatedData = {
@@ -1554,8 +1550,14 @@ export default function DocumentUpload({
 		setCaseCreationProgress(true);
 		if (buttonDisabledStatus()) return;
 		if (!isFormValid()) return;
-		// return;
+
+		// Before Case Creation Testing Area Do not push this code
+		// const refReqBody = refereneceDataFormat('CA01000000', state);
+		// console.log('onSubmitCompleteApplication-', { refReqBody });
 		// setLoading(false);
+		// return;
+		// -- Before Case Creation Testing Area Do not push this code
+
 		if (!userType) {
 			const loanReq = await caseCreationSteps(state);
 

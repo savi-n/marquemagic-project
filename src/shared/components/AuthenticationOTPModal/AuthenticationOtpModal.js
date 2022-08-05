@@ -91,7 +91,9 @@ const AuthenticationOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(RESEND_OTP_TIMER);
+	const [resendOtpTimer, setResendOtpTimer] = useState(
+		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
@@ -181,7 +183,9 @@ const AuthenticationOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(RESEND_OTP_TIMER);
+			setResendOtpTimer(
+				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			);
 			const reqBody = {
 				mobile: setContactNo,
 				business_id: sessionStorage.getItem('business_id') || '',
@@ -220,7 +224,9 @@ const AuthenticationOTPModal = props => {
 
 	useEffect(() => {
 		setInputAuthenticationOTP('');
-		setResendOtpTimer(RESEND_OTP_TIMER);
+		setResendOtpTimer(
+			sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
@@ -243,7 +249,7 @@ const AuthenticationOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
+			customStyle={{ padding: 0 }}>
 			<ModalHeader>
 				{/* Authentication Verification */}
 				<img
