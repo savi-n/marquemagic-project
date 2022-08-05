@@ -421,6 +421,14 @@ function caseCreationDataFormat(
 	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const business_income_type_id =
 		applicantData?.incomeType || companyData?.BusinessType;
+	let annual_incnome = 0;
+	if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
+		annual_incnome = applicantData?.annualIncome;
+	}
+
+	let gross_income = 0;
+	if (applicantData?.grossIncome && applicantData?.grossIncome !== '0')
+		gross_income = applicantData?.grossIncome;
 
 	const formatedData = {
 		Business_details: businessDetails() || null,
@@ -481,16 +489,17 @@ function caseCreationDataFormat(
 				formReducer?.user?.['vehicle-loan-details']?.tenure ||
 				formReducer?.user['business-loan-details']?.tenure ||
 				0,
+
 			annual_turn_over: getAmount(
-				applicantData?.grossIncome ||
-					applicantData?.annualIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.grossIncome ||
-					applicantData?.annualIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
