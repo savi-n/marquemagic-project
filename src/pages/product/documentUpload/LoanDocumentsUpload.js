@@ -40,8 +40,7 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
 import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
 import { concat } from 'lodash';
-// import tncPdf from '../../../assets/pdf/Muthoot_tnc.pdf';
-let tncPdf;
+
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -1676,7 +1675,6 @@ export default function DocumentUpload({
 			setOpenOtherDoc(!openOtherdoc);
 		}
 	};
-	let [tncUrl, setTncUrl] = useState('');
 	let kyccount = 0;
 	let financialCount = 0;
 	let otherCount = 0;
