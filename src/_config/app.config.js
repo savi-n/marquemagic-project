@@ -54,6 +54,8 @@ const BUSSINESS_LOAN_CASE_CREATION_EDIT = `${API_END_POINT}/loan/edit/`;
 
 const LOGIN_CREATEUSER = `${API_END_POINT}/login/createUser`;
 
+const BUSSINESS_PROFILE_UPDATE = `${API_END_POINT}/profile/`;
+
 const WHITELABEL_ENCRYPTION_API = `${API_END_POINT}/case-whitelabelEncrypt`;
 
 const SEARCH_COMPANY_NAME = `${API_END_POINT}/companySearch`;
@@ -103,6 +105,8 @@ const USER_ROLES = {
 	'Co-applicant': 'Co-applicant',
 	Guarantor: 'Guarantor',
 };
+
+const RESEND_OTP_TIMER = 90;
 
 export {
 	API_END_POINT,
@@ -155,4 +159,6 @@ export {
 	AADHAAR_RESEND_OTP,
 	AUTHENTICATION_GENERATE_OTP,
 	AUTHENTICATION_VERIFY_OTP,
+	BUSSINESS_PROFILE_UPDATE,
+	RESEND_OTP_TIMER,
 };

@@ -43,6 +43,10 @@ const SytledInput = styled.input`
 	@media (max-width: 700px) {
 		margin: 5px;
 	}
+	@media (max-width: 375px) {
+		width: 45px;
+		height: 45px;
+	}
 `;
 
 function OtpField({

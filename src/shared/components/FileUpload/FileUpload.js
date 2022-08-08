@@ -938,7 +938,7 @@ export default function FileUpload({
 					Click on <FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' />
 					{aadharVoterDl
 						? 'and select the front and back part of the uploaded document'
-						: 'uploaded documents to their respective document tags'}
+						: 'and tag your uploaded documents to their respective document tags'}
 				</WarningMessage>
 			) : null}
 			{/* {docTypeOptions?.length > 0 &&
@@ -1121,7 +1121,8 @@ export default function FileUpload({
 			<DocumentUploadListWrapper>
 				{docTypeOptions.map((docType, doctypeidx) => {
 					const mappedDocFiles = mappedFiles[docType.value] || [];
-					// const mappedFiles = [];
+
+					// // const mappedFiles = [];
 					// console.log('upload-list-', {
 					// 	docTypeOptions,
 					// 	docTypeFileMap,
@@ -1157,10 +1158,19 @@ export default function FileUpload({
 									}
 									onMouseOut={() => setDocTypeNameToolTip(-1)}
 									isSelected={mappedDocFiles.length}>
+									{docType.isMandatory && (
+										<span
+											style={{
+												color: 'red',
+											}}>
+											*&nbsp;
+										</span>
+									)}
 									{docType.name}
-									{/* {docType.name.length > 30
-										? docType.name.slice(0, 30) + '...'
-										: docType.name} */}
+									{/* {docType.name && docType.isMandatory
+										? docType.name + '*'
+									: docType.name} */}
+									{/* {isDocTypeMandatory(docType.name)} */}
 								</DocumentUploadName>
 							</DocumentUploadListRow1>
 							<DocumentUploadListRow2>
