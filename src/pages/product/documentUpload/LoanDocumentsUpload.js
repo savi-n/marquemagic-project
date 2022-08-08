@@ -1033,12 +1033,15 @@ export default function DocumentUpload({
 				optionArray = [
 					...optionArray,
 					...response?.[docType[1]]?.map(dT => ({
+						...dT,
 						value: dT.doc_type_id,
 						name: dT.name,
 						main: docType[0],
 					})),
 				];
 			});
+
+			//console.log('option Array', optionArray);
 			const kycDocDropdown = [];
 			const financialDocDropdown = [];
 			const otherDocDropdown = [];
@@ -1500,6 +1503,7 @@ export default function DocumentUpload({
 
 	const isFormValid = () => {
 		let docError = false;
+		let manadatoryError = false;
 		state?.documents?.map(ele => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (ele.req_type) return null;
@@ -1509,9 +1513,43 @@ export default function DocumentUpload({
 			}
 			return null;
 		});
+		const allDocOptions = [
+			...KycDocOptions,
+			...FinancialDocOptions,
+			...OtherDocOptions,
+		];
+		const allMandatoryDocumentIds = [];
+		allDocOptions.map(
+			d => d.isMandatory && allMandatoryDocumentIds.push(d.value)
+		);
+		const uploadedDocumetnIds = [];
+		state?.documents?.map(d => uploadedDocumetnIds.push(d.typeId));
+
+		allMandatoryDocumentIds.map(docId => {
+			if (!uploadedDocumetnIds.includes(docId)) {
+				manadatoryError = true;
+				return null;
+			}
+		});
+		// console.log('LoanDocumentsUpload-isFormValid-', {
+		// 	state,
+		// 	allDocOptions,
+		// 	allMandatoryDocumentIds,
+		// 	uploadedDocumetnIds,
+		// 	manadatoryError,
+		// });
+
 		if (docError) {
 			addToast({
 				message: 'Please select the document type',
+				type: 'error',
+			});
+			return false;
+		}
+		if (manadatoryError) {
+			addToast({
+				message:
+					'Please upload all the required documents to submit the application',
 				type: 'error',
 			});
 			return false;
