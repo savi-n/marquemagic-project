@@ -197,6 +197,8 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+//console.log('form from loanDetails', form);
+//console.log('form from loanDetails', loan);
 let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
@@ -328,13 +330,13 @@ function caseCreationDataFormat(
 			// 	: data['business-details']?.BusinessType
 			// 	? data['business-details']?.BusinessType
 			// 	: 1,
+
 			business_email:
 				applicantData?.email ||
 				companyData?.email ||
 				companyData?.Email ||
 				formReducer?.user['business-details']?.Email ||
-				'',
-			// business_industry_type: 20,
+				'', // business_industry_type: 20,
 			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
 
 			businesspancardnumber:
@@ -456,6 +458,7 @@ function caseCreationDataFormat(
 			// loan_request_type: "1",
 			origin: 'nconboarding',
 			...restLoanData,
+
 			loan_product_id:
 				productId[business_income_type_id] ||
 				productId[(form?.incomeType)] ||
@@ -464,7 +467,9 @@ function caseCreationDataFormat(
 			branchId:
 				loan?.branchId ||
 				formReducer?.user?.['vehicle-loan-details']?.branchId ||
-				loanData?.branchId,
+				loanData?.branchId ||
+				data['business-loan-details']?.branchId ||
+				'',
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
 					loan?.loanAmount ||
@@ -563,6 +568,13 @@ function caseCreationDataFormat(
 			city: guarantorData?.applicantData?.address[0]?.city || '',
 			state: guarantorData?.applicantData?.address[0]?.state || '',
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
+			residenceStatusGuarantor:
+				guarantorData?.applicantData?.residenceStatusGuarantor || '',
+			maritalStatusGuarantor:
+				guarantorData?.applicantData?.maritalStatusGuarantor || '',
+			countryResidenceGuarantor:
+				guarantorData?.applicantData?.countryResidenceGuarantor || '',
+			incomeType: guarantorData?.applicantData?.incomeType || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
 			residence_status:
