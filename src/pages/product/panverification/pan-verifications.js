@@ -109,11 +109,17 @@ const CardRadioButton = styled.div`
 		padding-left: 15px;
 		cursor: pointer;
 	}
+	@media (max-width: 700px) {
+		margin-bottom: 15px;
+	}
 `;
 
 const RadioButtonWrapper = styled.div`
 	padding: 30px 0;
 	display: flex;
+	@media (max-width: 700px) {
+		display: inline-block;
+	}
 `;
 
 const ButtonWrapper = styled.div`
@@ -273,6 +279,8 @@ export default function PanVerification({
 	const [addressProofError, setAddressProofError] = useState('');
 	const [udhyogError, setUdhyogError] = useState('');
 	const [gstError, setGstError] = useState('');
+	const [isGstInDisabled, setIsGstInDisabled] = useState(false);
+	const [isudhyogAadhaarDisabled, setIsUdhyogAadhaarDisabled] = useState(false);
 	// const [selectDoc, selectDocs] = useState(false);
 	// const [verificationFailed, setVerificationFailed] = useState('');
 	//const [gstNum, setGstNum] = useState(null);
@@ -594,6 +602,20 @@ export default function PanVerification({
 
 	useEffect(() => {
 		resetAllErrors();
+		if (formState?.values?.gstin && formState?.values?.gstin.length > 0) {
+			setIsUdhyogAadhaarDisabled(true);
+		} else {
+			setIsUdhyogAadhaarDisabled(false);
+		}
+		if (
+			formState?.values?.udhyogAadhar &&
+			formState?.values?.udhyogAadhar > 0
+		) {
+			setIsGstInDisabled(true);
+		} else {
+			setIsGstInDisabled(false);
+		}
+		// if (formState?.values?.udhyogAadhar) setIsGstInDisabled(true);
 		// eslint-disable-next-line
 	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
 
@@ -616,6 +638,7 @@ export default function PanVerification({
 	};
 	const onProceedGstUdhyog = async data => {
 		const { panNumber, gstin, udhyogAadhar } = data;
+		//console.log('panNumberfromproceed', panNumber);
 		try {
 			setLoading(true);
 			resetAllErrors();
@@ -717,6 +740,7 @@ export default function PanVerification({
 				CONST.EXTRACTION_KEY_PAN,
 				panExtractionData
 			);
+
 			// console.log(
 			// 	'pan-verification-handlePanConfirm-verifiedRes-',
 			// 	verifiedRes
@@ -730,6 +754,35 @@ export default function PanVerification({
 			// don't change 'pan' to different key it'll effect prepopulation logic
 			sessionStorage.setItem('pan', panExtractionData?.panNumber);
 
+			// console.log('panExtraction', panExtractionData?.panNumber);
+			if (
+				panExtractionData?.panNumber &&
+				panExtractionData?.panNumber.length !== 10
+			) {
+				addToast({
+					message: 'PanNumber should be 10 digits',
+					type: 'error',
+				});
+				setLoading(false);
+				return;
+			}
+			if (panExtractionData?.panNumber) {
+				const lastFourDigitsValidation = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(
+					panExtractionData?.panNumber
+				);
+
+				if (
+					!lastFourDigitsValidation ||
+					panExtractionData?.panNumber.trim().length <= 0
+				) {
+					addToast({
+						message: 'Please specify a valid Pan Number',
+						type: 'error',
+					});
+					setLoading(false);
+					return;
+				}
+			}
 			// business product + business pan card
 			if (isBusinessProductType && panExtractionData.isBusinessPan) {
 				// TODO: simplify below logic
@@ -1371,7 +1424,7 @@ export default function PanVerification({
 						alt='close'
 					/>
 					<ConfirmPanWrapper>
-						<h1 style={{ fontSize: '24px', fontWeight: '600Px' }}>
+						<h1 style={{ fontSize: '22px', fontWeight: '600Px' }}>
 							Confirm PAN Number and Proceed
 						</h1>
 						<FieldWrapperPanVerify>
@@ -1459,10 +1512,9 @@ export default function PanVerification({
 					/>
 
 					{panError && (
-						<p
+						<UI.ExtractionErrorMessage
 							style={{
 								color: isWarning ? '#f7941d' : '#de524c',
-								marginTop: '-100px',
 							}}>
 							<NotificationImg
 								src={isWarning ? WarnIcon : ErrorIcon}
@@ -1470,7 +1522,7 @@ export default function PanVerification({
 							/>
 							{panError}
 							{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-						</p>
+						</UI.ExtractionErrorMessage>
 					)}
 					<section style={{ marginTop: panError ? 100 : 20 }}>
 						{isWarning ? (
@@ -1629,6 +1681,7 @@ export default function PanVerification({
 							style: {
 								borderColor: formState?.values?.gstin && gstError && 'red',
 							},
+							disabled: isGstInDisabled,
 						})}
 					</FieldWrapper>
 					{formState?.values?.gstin && gstError && (
@@ -1646,7 +1699,8 @@ export default function PanVerification({
 								borderColor:
 									formState?.values?.udhyogAadhar && udhyogError && 'red',
 							},
-							mask: { CharacterLimit: 12 },
+							disabled: isudhyogAadhaarDisabled,
+							mask: { NumberOnly: true, CharacterLimit: 12 },
 						})}
 					</FieldWrapper>
 					{formState?.values?.udhyogAadhar && udhyogError && (

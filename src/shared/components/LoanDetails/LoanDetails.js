@@ -185,7 +185,7 @@ export default function LoanDetails({
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
-					{<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>}
+					{/* {<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>} */}
 
 					{field.uploadButton && (
 						<Button

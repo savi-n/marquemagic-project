@@ -46,14 +46,12 @@ const Dropzone = styled.div`
 		isInActive &&
 		`border: dashed grey 2px;
         background-color: #EEEEEE;
-				cursor: not-allowed;
-        z-index: 9999;`}
+				cursor: not-allowed;`}
 
 	${({ dragging }) =>
 		dragging &&
 		`border: dashed grey 2px;
-        background-color: rgba(255,255,255,.8);
-        z-index: 9999;`}
+        background-color: rgba(255,255,255,.8);`}
 	${({ uploading }) =>
 		uploading &&
 		`
@@ -279,8 +277,13 @@ const FileType = styled.div`
 	cursor: pointer;
 `;
 
-const FileTypeIcon = styled.img`
+const FileTypeIconOutsidePopover = styled.img`
 	height: 25px;
+`;
+
+const FileTypeIconInsidePopover = styled.img`
+	height: 25px;
+	background-color: white;
 `;
 
 const FileTypeSmallIcon = styled.img`
@@ -320,6 +323,9 @@ const FileTypeUL = styled.ul`
 	padding: 10px 0px;
 	li:last-of-type {
 		border-bottom: none;
+	}
+	@media (max-width: 700px) {
+		padding: 40px 0;
 	}
 `;
 
@@ -1087,7 +1093,7 @@ export default function FileUpload({
 														);
 													})}
 												</FileTypeUL>
-												<FileTypeIcon
+												<FileTypeIconInsidePopover
 													src={imgArrowDownCircle}
 													alt='arrow'
 													onClick={() => {
@@ -1103,7 +1109,10 @@ export default function FileUpload({
 										onClick={() =>
 											setIsPopoverOpen(isPopoverOpen === file.id ? -1 : file.id)
 										}>
-										<FileTypeIcon src={imgArrowDownCircle} alt='arrow' />
+										<FileTypeIconOutsidePopover
+											src={imgArrowDownCircle}
+											alt='arrow'
+										/>
 									</FileType>
 								</Popover>
 							)}
@@ -1121,7 +1130,8 @@ export default function FileUpload({
 			<DocumentUploadListWrapper>
 				{docTypeOptions.map((docType, doctypeidx) => {
 					const mappedDocFiles = mappedFiles[docType.value] || [];
-					// const mappedFiles = [];
+
+					// // const mappedFiles = [];
 					// console.log('upload-list-', {
 					// 	docTypeOptions,
 					// 	docTypeFileMap,
@@ -1157,10 +1167,19 @@ export default function FileUpload({
 									}
 									onMouseOut={() => setDocTypeNameToolTip(-1)}
 									isSelected={mappedDocFiles.length}>
+									{docType.isMandatory && (
+										<span
+											style={{
+												color: 'red',
+											}}>
+											*&nbsp;
+										</span>
+									)}
 									{docType.name}
-									{/* {docType.name.length > 30
-										? docType.name.slice(0, 30) + '...'
-										: docType.name} */}
+									{/* {docType.name && docType.isMandatory
+										? docType.name + '*'
+									: docType.name} */}
+									{/* {isDocTypeMandatory(docType.name)} */}
 								</DocumentUploadName>
 							</DocumentUploadListRow1>
 							<DocumentUploadListRow2>

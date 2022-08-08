@@ -55,7 +55,7 @@ const VALIDATION_RULES = {
 		message: 'Numbers only Allowed',
 	},
 	email: {
-		func: validatePattern(/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/g),
+		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
 		message: 'Invalid Email Address',
 	},
 	pattern: {
@@ -266,7 +266,6 @@ export default function useForm() {
 		} else {
 			await invalid(valuesRef.current);
 		}
-
 		submitRef.current = {
 			...submitRef.current,
 			isSubmitting: false,

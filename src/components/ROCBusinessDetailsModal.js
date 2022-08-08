@@ -102,10 +102,6 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 				</Row>
 
 				<Row>
-					<Colm1>Email</Colm1>
-					<Colm2>{companyDetail?.Email}</Colm2>
-				</Row>
-				<Row>
 					<Colm1>Registration Number</Colm1>
 					<Colm2>{companyDetail?.RegistrationNumber}</Colm2>
 				</Row>

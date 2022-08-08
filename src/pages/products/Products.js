@@ -194,8 +194,8 @@ const AppNumber = styled.div`
 	padding-left: 65px;
 	@media (max-width: 700px) {
 		padding-left: 40px;
-		white-space: nowrap;
-		font-size: 14px;
+		font-size: 13px;
+		text-align: left;
 	}
 `;
 const AppStatus = styled.div`
@@ -203,7 +203,6 @@ const AppStatus = styled.div`
 	@media (max-width: 700px) {
 		padding-left: 40px;
 		/* margin-top: 35px; */
-		white-space: nowrap;
 		font-size: 14px;
 	}
 `;
