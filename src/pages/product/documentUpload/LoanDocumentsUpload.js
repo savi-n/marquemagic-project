@@ -25,6 +25,8 @@ import {
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
 	AUTHENTICATION_GENERATE_OTP,
+	WHITE_LABEL_URL,
+	APP_CLIENT,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -38,7 +40,8 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
 import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
 import { concat } from 'lodash';
-
+// import tncPdf from '../../../assets/pdf/Muthoot_tnc.pdf';
+let tncPdf;
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -165,12 +168,6 @@ const LoaderWrapper = styled.div`
 	justify-content: center;
 	text-align: center;
 `;
-
-const textForCheckbox = {
-	grantCibilAcces: 'I here by give consent to pull my CIBIL records',
-	declaration:
-		'I here do declare that what is stated above is true to the best of my knowledge and  belief',
-};
 
 function fileStructure(documents, type) {
 	return documents
@@ -789,6 +786,23 @@ export default function DocumentUpload({
 	map,
 	productId,
 }) {
+	const aTag = (
+		<a
+			href={productDetails?.termsandconditionsurl}
+			target={'_blank'}
+			style={{ color: 'blue' }}>
+			Terms and Conditions
+		</a>
+	);
+	const textForCheckbox = {
+		grantCibilAcces: 'I here by give consent to pull my CIBIL records',
+		declaration: 'I have read the ',
+		aTag: aTag,
+		declaration2: ' and I agree to the same.',
+		defaultDeclaration:
+			'I here do declare that what is stated above is true to the best of my knowledge and  belief',
+	};
+
 	const {
 		state,
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType },
@@ -1001,6 +1015,7 @@ export default function DocumentUpload({
 		setStartingUnTaggedOtherDocs(newOtherUnTagDocs);
 		getWhiteLabel();
 		// eslint-disable-next-line
+		console.log(productDetails.termsandconditionsurl, '^^^^^^^');
 	}, []);
 
 	useEffect(() => {
@@ -1591,7 +1606,7 @@ export default function DocumentUpload({
 			setOpenOtherDoc(!openOtherdoc);
 		}
 	};
-
+	let [tncUrl, setTncUrl] = useState('');
 	let kyccount = 0;
 	let financialCount = 0;
 	let otherCount = 0;
@@ -1847,9 +1862,13 @@ export default function DocumentUpload({
 				<CheckboxWrapper>
 					<CheckBox
 						name={
-							corporateDetails && corporateDetails.id
-								? textForCheckbox.grantCibilAcces.replace('CIBIL', 'Bureau')
-								: textForCheckbox.grantCibilAcces
+							corporateDetails && corporateDetails.id ? (
+								<span>
+									{textForCheckbox.grantCibilAcces.replace('CIBIL', 'Bureau')}
+								</span>
+							) : (
+								<span>{textForCheckbox.grantCibilAcces}</span>
+							)
 						}
 						checked={cibilCheckbox}
 						disabled={cibilCheckbox}
@@ -1860,7 +1879,17 @@ export default function DocumentUpload({
 						bg='blue'
 					/>
 					<CheckBox
-						name={textForCheckbox.declaration}
+						name={
+							productDetails.termsandconditionsurl ? (
+								<>
+									<span>{textForCheckbox.declaration}</span>
+									<span>{aTag}</span>
+									<span>{textForCheckbox.declaration2}</span>
+								</>
+							) : (
+								<span>{textForCheckbox.defaultDeclaration}</span>
+							)
+						}
 						checked={declareCheck}
 						onChange={() => setDeclareCheck(!declareCheck)}
 						bg='blue'
