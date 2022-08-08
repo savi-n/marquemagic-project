@@ -244,7 +244,7 @@ function caseCreationDataFormat(
 	productDetails,
 	productId
 ) {
-	// console.log('state --', data);
+	//console.log('state --', data);
 	// console.log('companydetails --', companyData);
 	// console.log('proddetails --', productDetails);
 	// console.log('prodid --', productId);
@@ -1524,11 +1524,12 @@ export default function DocumentUpload({
 		);
 		const uploadedDocumetnIds = [];
 		state?.documents?.map(d => uploadedDocumetnIds.push(d.typeId));
+
 		if (productDetails.document_mandatory) {
-			//console.log('productdetails', productDetails);
 			allMandatoryDocumentIds.map(docId => {
 				if (!uploadedDocumetnIds.includes(docId)) {
 					manadatoryError = true;
+					setCaseCreationProgress(false);
 					return null;
 				}
 			});
