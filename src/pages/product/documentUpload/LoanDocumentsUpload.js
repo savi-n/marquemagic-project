@@ -421,6 +421,14 @@ function caseCreationDataFormat(
 	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const business_income_type_id =
 		applicantData?.incomeType || companyData?.BusinessType;
+	let annual_incnome = 0;
+	if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
+		annual_incnome = applicantData?.annualIncome;
+	}
+
+	let gross_income = 0;
+	if (applicantData?.grossIncome && applicantData?.grossIncome !== '0')
+		gross_income = applicantData?.grossIncome;
 
 	const formatedData = {
 		Business_details: businessDetails() || null,
@@ -481,16 +489,17 @@ function caseCreationDataFormat(
 				formReducer?.user?.['vehicle-loan-details']?.tenure ||
 				formReducer?.user['business-loan-details']?.tenure ||
 				0,
+
 			annual_turn_over: getAmount(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
@@ -1033,12 +1042,15 @@ export default function DocumentUpload({
 				optionArray = [
 					...optionArray,
 					...response?.[docType[1]]?.map(dT => ({
+						...dT,
 						value: dT.doc_type_id,
 						name: dT.name,
 						main: docType[0],
 					})),
 				];
 			});
+
+			//console.log('option Array', optionArray);
 			const kycDocDropdown = [];
 			const financialDocDropdown = [];
 			const otherDocDropdown = [];
@@ -1500,6 +1512,7 @@ export default function DocumentUpload({
 
 	const isFormValid = () => {
 		let docError = false;
+		let manadatoryError = false;
 		state?.documents?.map(ele => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (ele.req_type) return null;
@@ -1509,9 +1522,43 @@ export default function DocumentUpload({
 			}
 			return null;
 		});
+		const allDocOptions = [
+			...KycDocOptions,
+			...FinancialDocOptions,
+			...OtherDocOptions,
+		];
+		const allMandatoryDocumentIds = [];
+		allDocOptions.map(
+			d => d.isMandatory && allMandatoryDocumentIds.push(d.value)
+		);
+		const uploadedDocumetnIds = [];
+		state?.documents?.map(d => uploadedDocumetnIds.push(d.typeId));
+
+		allMandatoryDocumentIds.map(docId => {
+			if (!uploadedDocumetnIds.includes(docId)) {
+				manadatoryError = true;
+				return null;
+			}
+		});
+		// console.log('LoanDocumentsUpload-isFormValid-', {
+		// 	state,
+		// 	allDocOptions,
+		// 	allMandatoryDocumentIds,
+		// 	uploadedDocumetnIds,
+		// 	manadatoryError,
+		// });
+
 		if (docError) {
 			addToast({
 				message: 'Please select the document type',
+				type: 'error',
+			});
+			return false;
+		}
+		if (manadatoryError) {
+			addToast({
+				message:
+					'Please upload all the required documents to submit the application',
 				type: 'error',
 			});
 			return false;
