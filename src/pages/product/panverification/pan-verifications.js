@@ -1695,7 +1695,7 @@ export default function PanVerification({
 									formState?.values?.udhyogAadhar && udhyogError && 'red',
 							},
 							disabled: isudhyogAadhaarDisabled,
-							mask: { CharacterLimit: 12 },
+							mask: { NumberOnly: true, CharacterLimit: 12 },
 						})}
 					</FieldWrapper>
 					{formState?.values?.udhyogAadhar && udhyogError && (
