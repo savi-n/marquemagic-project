@@ -326,6 +326,7 @@ export default function AddressDetailsPage({
 	return (
 		<Div>
 			<AddressDetails
+				userType={'applicant'}
 				isBusiness={isBusiness}
 				register={register}
 				formState={formState}
