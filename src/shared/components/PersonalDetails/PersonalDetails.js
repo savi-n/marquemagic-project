@@ -412,7 +412,9 @@ export default function PersonalDetails({
 									customFields.disabled = true;
 								}
 							}
-
+							if (id === 'personal-details' && field.name === 'dob') {
+								customFields.max = moment().format('YYYY-MM-DD');
+							}
 							let pricePerAcer = 0;
 							if (
 								field?.options?.[0]?.peracre &&

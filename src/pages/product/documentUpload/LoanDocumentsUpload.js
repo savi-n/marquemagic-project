@@ -197,6 +197,8 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+//console.log('form from loanDetails', form);
+//console.log('form from loanDetails', loan);
 let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
@@ -328,13 +330,13 @@ function caseCreationDataFormat(
 			// 	: data['business-details']?.BusinessType
 			// 	? data['business-details']?.BusinessType
 			// 	: 1,
+
 			business_email:
 				applicantData?.email ||
 				companyData?.email ||
 				companyData?.Email ||
 				formReducer?.user['business-details']?.Email ||
-				'',
-			// business_industry_type: 20,
+				'', // business_industry_type: 20,
 			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
 
 			businesspancardnumber:
@@ -421,6 +423,14 @@ function caseCreationDataFormat(
 	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const business_income_type_id =
 		applicantData?.incomeType || companyData?.BusinessType;
+	let annual_incnome = 0;
+	if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
+		annual_incnome = applicantData?.annualIncome;
+	}
+
+	let gross_income = 0;
+	if (applicantData?.grossIncome && applicantData?.grossIncome !== '0')
+		gross_income = applicantData?.grossIncome;
 
 	const formatedData = {
 		Business_details: businessDetails() || null,
@@ -448,6 +458,7 @@ function caseCreationDataFormat(
 			// loan_request_type: "1",
 			origin: 'nconboarding',
 			...restLoanData,
+
 			loan_product_id:
 				productId[business_income_type_id] ||
 				productId[(form?.incomeType)] ||
@@ -456,7 +467,9 @@ function caseCreationDataFormat(
 			branchId:
 				loan?.branchId ||
 				formReducer?.user?.['vehicle-loan-details']?.branchId ||
-				loanData?.branchId,
+				loanData?.branchId ||
+				data['business-loan-details']?.branchId ||
+				'',
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
 					loan?.loanAmount ||
@@ -481,16 +494,17 @@ function caseCreationDataFormat(
 				formReducer?.user?.['vehicle-loan-details']?.tenure ||
 				formReducer?.user['business-loan-details']?.tenure ||
 				0,
+
 			annual_turn_over: getAmount(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
@@ -554,6 +568,13 @@ function caseCreationDataFormat(
 			city: guarantorData?.applicantData?.address[0]?.city || '',
 			state: guarantorData?.applicantData?.address[0]?.state || '',
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
+			residenceStatusGuarantor:
+				guarantorData?.applicantData?.residenceStatusGuarantor || '',
+			maritalStatusGuarantor:
+				guarantorData?.applicantData?.maritalStatusGuarantor || '',
+			countryResidenceGuarantor:
+				guarantorData?.applicantData?.countryResidenceGuarantor || '',
+			incomeType: guarantorData?.applicantData?.incomeType || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
 			residence_status:
@@ -738,6 +759,10 @@ function refereneceDataFormat(loanId, data) {
 			data?.['reference-details']?.Pincode0 ||
 			formReducer?.user?.['reference-details']?.Pincode0 ||
 			'',
+		ref_type:
+			data?.['reference-details']?.ref_type0 ||
+			formReducer?.user?.['reference-details']?.ref_type0 ||
+			'',
 		ref_locality: 'null',
 		reference_truecaller_info: '',
 	};
@@ -764,6 +789,10 @@ function refereneceDataFormat(loanId, data) {
 		ref_pincode:
 			data?.['reference-details']?.Pincode1 ||
 			formReducer?.user?.['reference-details']?.Pincode1 ||
+			'',
+		ref_type:
+			data?.['reference-details']?.ref_type1 ||
+			formReducer?.user?.['reference-details']?.ref_type1 ||
 			'',
 		ref_locality: 'null',
 		reference_truecaller_info: '',
