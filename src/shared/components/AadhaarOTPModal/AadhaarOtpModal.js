@@ -32,7 +32,7 @@ const ModalHeader = styled.div`
 `;
 
 const ModalBody = styled.div`
-	padding: 30px 0;
+	padding: 30px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -59,8 +59,17 @@ const ModalErrorMessage = styled.div`
 `;
 const ModalResentOtp = styled.div`
 	text-align: center;
-	padding-bottom: 9px;
+	padding-bottom: 10px;
 	font-size: 11px;
+	margin-top: 10px;
+`;
+
+const OtpMobileMessage = styled.p`
+	font-size: 22px;
+	text-align: center;
+	@media (max-width: 700px) {
+		font-size: 18px;
+	}
 `;
 
 const ImgStyle = styled.img`
@@ -249,10 +258,10 @@ const AadhaarOTPModal = props => {
 				/>
 			</ModalHeader>
 			<ModalBody>
-				<p style={{ textAlign: 'center' }}>
+				<OtpMobileMessage>
 					An OTP has been {isResentOtp ? 'resent' : 'sent'} to your number
 					please verify it below
-				</p>
+				</OtpMobileMessage>
 				<ModalWrapper>
 					<AadhaarOTPInput
 						numInputs={6}

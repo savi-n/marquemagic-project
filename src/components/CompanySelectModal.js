@@ -23,6 +23,11 @@ const PanConfirm = styled.div`
 	text-align: center;
 	font-size: 24px;
 	font-weight: 600px;
+	@media (max-width: 700px) {
+		font-size: 22px;
+		font-weight: 500;
+		margin-top: 50px;
+	}
 `;
 
 const Company = styled.div`
@@ -36,6 +41,7 @@ const Company = styled.div`
 	border-radius: 10px;
 	@media (max-width: 700px) {
 		width: 80%;
+		height: auto;
 	}
 `;
 

@@ -109,11 +109,17 @@ const CardRadioButton = styled.div`
 		padding-left: 15px;
 		cursor: pointer;
 	}
+	@media (max-width: 700px) {
+		margin-bottom: 15px;
+	}
 `;
 
 const RadioButtonWrapper = styled.div`
 	padding: 30px 0;
 	display: flex;
+	@media (max-width: 700px) {
+		display: inline-block;
+	}
 `;
 
 const ButtonWrapper = styled.div`
@@ -1459,10 +1465,9 @@ export default function PanVerification({
 					/>
 
 					{panError && (
-						<p
+						<UI.ExtractionErrorMessage
 							style={{
 								color: isWarning ? '#f7941d' : '#de524c',
-								marginTop: '-100px',
 							}}>
 							<NotificationImg
 								src={isWarning ? WarnIcon : ErrorIcon}
@@ -1470,7 +1475,7 @@ export default function PanVerification({
 							/>
 							{panError}
 							{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-						</p>
+						</UI.ExtractionErrorMessage>
 					)}
 					<section style={{ marginTop: panError ? 100 : 20 }}>
 						{isWarning ? (
