@@ -1524,13 +1524,15 @@ export default function DocumentUpload({
 		);
 		const uploadedDocumetnIds = [];
 		state?.documents?.map(d => uploadedDocumetnIds.push(d.typeId));
-
-		allMandatoryDocumentIds.map(docId => {
-			if (!uploadedDocumetnIds.includes(docId)) {
-				manadatoryError = true;
-				return null;
-			}
-		});
+		if (productDetails.document_mandatory) {
+			//console.log('productdetails', productDetails);
+			allMandatoryDocumentIds.map(docId => {
+				if (!uploadedDocumetnIds.includes(docId)) {
+					manadatoryError = true;
+					return null;
+				}
+			});
+		}
 		// console.log('LoanDocumentsUpload-isFormValid-', {
 		// 	state,
 		// 	allDocOptions,
