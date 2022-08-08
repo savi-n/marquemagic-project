@@ -12,6 +12,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	AUTHENTICATION_VERIFY_OTP,
 	AUTHENTICATION_GENERATE_OTP,
+	RESEND_OTP_TIMER,
 } from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
@@ -73,7 +74,7 @@ const ImgStyle = styled.img`
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
-const DEFAULT_TIME_RESEND_OTP = 60;
+// const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AuthenticationOTPModal = props => {
 	const {
@@ -90,7 +91,9 @@ const AuthenticationOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
+	const [resendOtpTimer, setResendOtpTimer] = useState(
+		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
@@ -104,6 +107,7 @@ const AuthenticationOTPModal = props => {
 	}${setContactNo[setContactNo.length - 3]}${
 		setContactNo[setContactNo.length - 2]
 	}${setContactNo[setContactNo.length - 1]}`;
+	const product_id = sessionStorage.getItem('productId');
 
 	const verifyOtp = async () => {
 		if (!inputAuthenticationOTP) {
@@ -122,7 +126,9 @@ const AuthenticationOTPModal = props => {
 					method: 'POST',
 					data: {
 						mobile: setContactNo,
+						business_id: sessionStorage.getItem('business_id') || '',
 						otp: Number(inputAuthenticationOTP),
+						product_id,
 					},
 					headers: {
 						Authorization: `Bearer ${API_TOKEN}`,
@@ -177,9 +183,13 @@ const AuthenticationOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+			setResendOtpTimer(
+				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			);
 			const reqBody = {
 				mobile: setContactNo,
+				business_id: sessionStorage.getItem('business_id') || '',
+				product_id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const authenticationResendOtpRes = await newRequest(
@@ -197,6 +207,11 @@ const AuthenticationOTPModal = props => {
 					message: 'OTP generated again',
 					type: 'success',
 				});
+			} else {
+				addToast({
+					message: authenticationResendOtpRes.data.message,
+					type: 'error',
+				});
 			}
 		} catch (error) {
 			console.log(error);
@@ -209,7 +224,9 @@ const AuthenticationOTPModal = props => {
 
 	useEffect(() => {
 		setInputAuthenticationOTP('');
-		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+		setResendOtpTimer(
+			sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
@@ -232,7 +249,7 @@ const AuthenticationOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
+			customStyle={{ padding: 0 }}>
 			<ModalHeader>
 				{/* Authentication Verification */}
 				<img
