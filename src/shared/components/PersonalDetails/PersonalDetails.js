@@ -114,6 +114,8 @@ export default function PersonalDetails({
 	const arrTotalValueCultivated = [0, 0, 0];
 	const numberVar = ['1', '2', '3'];
 
+	const product_id = sessionStorage.getItem('productId');
+
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [generateOtpResponse, setGenerateOtpResponse] = useState('');
 	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
@@ -279,6 +281,7 @@ export default function PersonalDetails({
 				method: 'POST',
 				data: {
 					aadhaarNo: aadhaar,
+					product_id,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
@@ -409,7 +412,9 @@ export default function PersonalDetails({
 									customFields.disabled = true;
 								}
 							}
-
+							if (id === 'personal-details' && field.name === 'dob') {
+								customFields.max = moment().format('YYYY-MM-DD');
+							}
 							let pricePerAcer = 0;
 							if (
 								field?.options?.[0]?.peracre &&
