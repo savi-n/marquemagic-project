@@ -68,7 +68,7 @@ export default function DateField(props) {
 		<Div>
 			<Input id={props.name} type={props.type} {...props} />
 			<Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
-				{props.placeholder} (dd-mm-yyyy)
+				{props.placeholder}
 				{props.rules?.required && <Asteris>*</Asteris>}
 			</Label>
 		</Div>

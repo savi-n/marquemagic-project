@@ -197,6 +197,8 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+//console.log('form from loanDetails', form);
+//console.log('form from loanDetails', loan);
 let editLoan = sessionStorage.getItem('editLoan')
 	? JSON.parse(sessionStorage.getItem('editLoan'))
 	: {};
@@ -328,13 +330,13 @@ function caseCreationDataFormat(
 			// 	: data['business-details']?.BusinessType
 			// 	? data['business-details']?.BusinessType
 			// 	: 1,
+
 			business_email:
 				applicantData?.email ||
 				companyData?.email ||
 				companyData?.Email ||
 				formReducer?.user['business-details']?.Email ||
-				'',
-			// business_industry_type: 20,
+				'', // business_industry_type: 20,
 			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
 
 			businesspancardnumber:
@@ -421,6 +423,14 @@ function caseCreationDataFormat(
 	const { loanAmount, tenure, ...restLoanData } = loanData;
 	const business_income_type_id =
 		applicantData?.incomeType || companyData?.BusinessType;
+	let annual_incnome = 0;
+	if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
+		annual_incnome = applicantData?.annualIncome;
+	}
+
+	let gross_income = 0;
+	if (applicantData?.grossIncome && applicantData?.grossIncome !== '0')
+		gross_income = applicantData?.grossIncome;
 
 	const formatedData = {
 		Business_details: businessDetails() || null,
@@ -448,6 +458,7 @@ function caseCreationDataFormat(
 			// loan_request_type: "1",
 			origin: 'nconboarding',
 			...restLoanData,
+
 			loan_product_id:
 				productId[business_income_type_id] ||
 				productId[(form?.incomeType)] ||
@@ -456,7 +467,9 @@ function caseCreationDataFormat(
 			branchId:
 				loan?.branchId ||
 				formReducer?.user?.['vehicle-loan-details']?.branchId ||
-				loanData?.branchId,
+				loanData?.branchId ||
+				data['business-loan-details']?.branchId ||
+				'',
 			loan_amount: getAmount(
 				loanData?.loanAmount ||
 					loan?.loanAmount ||
@@ -481,16 +494,17 @@ function caseCreationDataFormat(
 				formReducer?.user?.['vehicle-loan-details']?.tenure ||
 				formReducer?.user['business-loan-details']?.tenure ||
 				0,
+
 			annual_turn_over: getAmount(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
 			),
 			revenue_um: getAmountUm(
-				applicantData?.annualIncome ||
-					applicantData?.grossIncome ||
+				annual_incnome ||
+					gross_income ||
 					data?.['business-details']?.AnnualTurnover ||
 					formReducer?.user['business-details']?.AnnualTurnover ||
 					''
@@ -554,6 +568,13 @@ function caseCreationDataFormat(
 			city: guarantorData?.applicantData?.address[0]?.city || '',
 			state: guarantorData?.applicantData?.address[0]?.state || '',
 			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
+			residenceStatusGuarantor:
+				guarantorData?.applicantData?.residenceStatusGuarantor || '',
+			maritalStatusGuarantor:
+				guarantorData?.applicantData?.maritalStatusGuarantor || '',
+			countryResidenceGuarantor:
+				guarantorData?.applicantData?.countryResidenceGuarantor || '',
+			incomeType: guarantorData?.applicantData?.incomeType || '',
 			ddin_no: null,
 			type_name: 'Guarantor',
 			residence_status:
@@ -637,7 +658,6 @@ function bankDetailsDataFormat(caseId, data) {
 	// ) {
 	// 	return false;
 	// }
-
 	let bank =
 		data['bank-details']?.BankName ||
 		formReducer?.user['bank-details']?.BankName ||
@@ -650,6 +670,10 @@ function bankDetailsDataFormat(caseId, data) {
 			formReducer?.user['bank-details']?.AccountNumber ||
 			'',
 		// subsidiary_name: data['bank-details'].,
+		ifsccode:
+			data['bank-details']?.ifsccode ||
+			formReducer?.user['bank-details']?.ifsccode ||
+			'',
 		bank_name:
 			typeof bank === 'object' ? Number(bank?.value) : bank?.BankName || '',
 		account_holder_name:
@@ -673,7 +697,6 @@ function bankDetailsDataFormat(caseId, data) {
 		// drawing_limit: data['bank-details'],
 		// IFSC: "",
 	};
-
 	return formatedData;
 }
 
@@ -717,64 +740,66 @@ function shareHolderDataFormat(businessId, data) {
 function refereneceDataFormat(loanId, data) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	const loanReferenceData = [];
-	if (
-		(data['reference-details']?.Name0 &&
-			data['reference-details']?.ReferenceEmail0 &&
-			data['reference-details']?.ContactNumber0 &&
-			data['reference-details']?.Pincode0) ||
-		(formReducer?.user['reference-details']?.Name0 &&
-			formReducer?.user['reference-details']?.ReferenceEmail0 &&
-			formReducer?.user['reference-details']?.ContactNumber0 &&
-			formReducer?.user['reference-details']?.Pincode0)
-	) {
-		loanReferenceData.push({
-			ref_name:
-				data['reference-details']?.Name0 ||
-				formReducer?.user['reference-details']?.Name0,
-			ref_email:
-				data['reference-details']?.ReferenceEmail0 ||
-				formReducer?.user['reference-details']?.ReferenceEmail0,
-			ref_contact:
-				data['reference-details']?.ContactNumber0 ||
-				formReducer?.user['reference-details']?.ContactNumber0,
-			ref_state: 'null',
-			ref_city: 'null',
-			ref_pincode:
-				data['reference-details']?.Pincode0 ||
-				formReducer?.user['reference-details']?.Pincode0,
-			ref_locality: 'null',
-			reference_truecaller_info: '',
-		});
+	const refData1 = {
+		ref_name:
+			data?.['reference-details']?.Name0 ||
+			formReducer?.user?.['reference-details']?.Name0 ||
+			'',
+		ref_email:
+			data?.['reference-details']?.ReferenceEmail0 ||
+			formReducer?.user?.['reference-details']?.ReferenceEmail0 ||
+			'',
+		ref_contact:
+			data?.['reference-details']?.ContactNumber0 ||
+			formReducer?.user?.['reference-details']?.ContactNumber0 ||
+			'',
+		ref_state: 'null',
+		ref_city: 'null',
+		ref_pincode:
+			data?.['reference-details']?.Pincode0 ||
+			formReducer?.user?.['reference-details']?.Pincode0 ||
+			'',
+		ref_type:
+			data?.['reference-details']?.ref_type0 ||
+			formReducer?.user?.['reference-details']?.ref_type0 ||
+			'',
+		ref_locality: 'null',
+		reference_truecaller_info: '',
+	};
+
+	if (refData1.ref_name && refData1.ref_contact) {
+		loanReferenceData.push(refData1);
 	}
 
-	if (
-		(data['reference-details']?.Name1 &&
-			data['reference-details']?.ReferenceEmail1 &&
-			data['reference-details']?.ContactNumber1 &&
-			data['reference-details']?.Pincode1) ||
-		(formReducer?.user['reference-details']?.Name1 &&
-			formReducer?.user['reference-details']?.ReferenceEmail1 &&
-			formReducer?.user['reference-details']?.ContactNumber1 &&
-			formReducer?.user['reference-details']?.Pincode1)
-	) {
-		loanReferenceData.push({
-			ref_name:
-				data['reference-details']?.Name1 ||
-				formReducer?.user['reference-details']?.Name1,
-			ref_email:
-				data['reference-details']?.ReferenceEmail1 ||
-				formReducer?.user['reference-details']?.ReferenceEmail1,
-			ref_contact:
-				data['reference-details']?.ContactNumber1 ||
-				formReducer?.user['reference-details']?.ContactNumber1,
-			ref_state: 'null',
-			ref_city: 'null',
-			ref_pincode:
-				data['reference-details']?.Pincode1 ||
-				formReducer?.user['reference-details']?.Pincode1,
-			ref_locality: 'null',
-			reference_truecaller_info: '',
-		});
+	const refData2 = {
+		ref_name:
+			data?.['reference-details']?.Name1 ||
+			formReducer?.user?.['reference-details']?.Name1 ||
+			'',
+		ref_email:
+			data?.['reference-details']?.ReferenceEmail1 ||
+			formReducer?.user?.['reference-details']?.ReferenceEmail1 ||
+			'',
+		ref_contact:
+			data?.['reference-details']?.ContactNumber1 ||
+			formReducer?.user?.['reference-details']?.ContactNumber1 ||
+			'',
+		ref_state: 'null',
+		ref_city: 'null',
+		ref_pincode:
+			data?.['reference-details']?.Pincode1 ||
+			formReducer?.user?.['reference-details']?.Pincode1 ||
+			'',
+		ref_type:
+			data?.['reference-details']?.ref_type1 ||
+			formReducer?.user?.['reference-details']?.ref_type1 ||
+			'',
+		ref_locality: 'null',
+		reference_truecaller_info: '',
+	};
+
+	if (refData2.ref_name && refData2.ref_contact) {
+		loanReferenceData.push(refData2);
 	}
 
 	const formatedData = {
@@ -1037,12 +1062,15 @@ export default function DocumentUpload({
 				optionArray = [
 					...optionArray,
 					...response?.[docType[1]]?.map(dT => ({
+						...dT,
 						value: dT.doc_type_id,
 						name: dT.name,
 						main: docType[0],
 					})),
 				];
 			});
+
+			//console.log('option Array', optionArray);
 			const kycDocDropdown = [];
 			const financialDocDropdown = [];
 			const otherDocDropdown = [];
@@ -1504,6 +1532,7 @@ export default function DocumentUpload({
 
 	const isFormValid = () => {
 		let docError = false;
+		let manadatoryError = false;
 		state?.documents?.map(ele => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (ele.req_type) return null;
@@ -1513,9 +1542,43 @@ export default function DocumentUpload({
 			}
 			return null;
 		});
+		const allDocOptions = [
+			...KycDocOptions,
+			...FinancialDocOptions,
+			...OtherDocOptions,
+		];
+		const allMandatoryDocumentIds = [];
+		allDocOptions.map(
+			d => d.isMandatory && allMandatoryDocumentIds.push(d.value)
+		);
+		const uploadedDocumetnIds = [];
+		state?.documents?.map(d => uploadedDocumetnIds.push(d.typeId));
+
+		allMandatoryDocumentIds.map(docId => {
+			if (!uploadedDocumetnIds.includes(docId)) {
+				manadatoryError = true;
+				return null;
+			}
+		});
+		// console.log('LoanDocumentsUpload-isFormValid-', {
+		// 	state,
+		// 	allDocOptions,
+		// 	allMandatoryDocumentIds,
+		// 	uploadedDocumetnIds,
+		// 	manadatoryError,
+		// });
+
 		if (docError) {
 			addToast({
 				message: 'Please select the document type',
+				type: 'error',
+			});
+			return false;
+		}
+		if (manadatoryError) {
+			addToast({
+				message:
+					'Please upload all the required documents to submit the application',
 				type: 'error',
 			});
 			return false;
@@ -1554,8 +1617,14 @@ export default function DocumentUpload({
 		setCaseCreationProgress(true);
 		if (buttonDisabledStatus()) return;
 		if (!isFormValid()) return;
-		// return;
+
+		// Before Case Creation Testing Area Do not push this code
+		// const refReqBody = refereneceDataFormat('CA01000000', state);
+		// console.log('onSubmitCompleteApplication-', { refReqBody });
 		// setLoading(false);
+		// return;
+		// -- Before Case Creation Testing Area Do not push this code
+
 		if (!userType) {
 			const loanReq = await caseCreationSteps(state);
 
