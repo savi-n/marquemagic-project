@@ -182,7 +182,7 @@ export default function FormController({
 		}
 
 		const reqBody = {
-			email: formState?.values?.Email,
+			email: formState?.values?.Email || '',
 			white_label_id: whiteLabelId,
 			source: APP_CLIENT,
 			name: formState?.values?.BusinessName,
