@@ -95,7 +95,7 @@ export default function PersonalDetailsPage({
 
 	const onSave = async data => {
 		const reqBody = {
-			email: data.email || '',
+			email: data?.email || '',
 			white_label_id: whiteLabelId,
 			source: APP_CLIENT,
 			name: data.firstName,
