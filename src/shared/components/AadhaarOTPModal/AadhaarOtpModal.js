@@ -9,7 +9,11 @@ import Button from 'components/Button';
 import AadhaarOTPInput from './AadhaarOTPInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { AADHAAR_VERIFY_OTP, AADHAAR_RESEND_OTP } from '_config/app.config';
+import {
+	AADHAAR_VERIFY_OTP,
+	AADHAAR_RESEND_OTP,
+	RESEND_OTP_TIMER,
+} from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
@@ -67,7 +71,7 @@ const ImgStyle = styled.img`
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
-const DEFAULT_TIME_RESEND_OTP = 60;
+// const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AadhaarOTPModal = props => {
 	const {
@@ -83,13 +87,16 @@ const AadhaarOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
+	const [resendOtpTimer, setResendOtpTimer] = useState(
+		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
 		state: { clientToken },
 	} = useContext(AppContext);
 
+	const product_id = sessionStorage.getItem('productId');
 	const verifyOtp = async () => {
 		if (!inputAadhaarOTP) {
 			setErrorMsg('Please enter a valid OTP.');
@@ -109,6 +116,7 @@ const AadhaarOTPModal = props => {
 					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
 					fwdp: aadhaarGenOtpResponse.data.fwdp,
 					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
+					product_id,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
@@ -165,11 +173,14 @@ const AadhaarOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+			setResendOtpTimer(
+				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			);
 			const reqBody = {
 				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				transactionId: aadhaarGenOtpResponse.data.transactionId,
 				fwdp: aadhaarGenOtpResponse.data.fwdp,
+				product_id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const aadharResendOtpRes = await newRequest(AADHAAR_RESEND_OTP, {
@@ -196,7 +207,9 @@ const AadhaarOTPModal = props => {
 
 	useEffect(() => {
 		setInputAadhaarOTP('');
-		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+		setResendOtpTimer(
+			sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
@@ -219,7 +232,7 @@ const AadhaarOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
+			customStyle={{ padding: 0 }}>
 			<ModalHeader>
 				Aadhaar Verification
 				<img
@@ -236,7 +249,7 @@ const AadhaarOTPModal = props => {
 				/>
 			</ModalHeader>
 			<ModalBody>
-				<p>
+				<p style={{ textAlign: 'center' }}>
 					An OTP has been {isResentOtp ? 'resent' : 'sent'} to your number
 					please verify it below
 				</p>

@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 	overflow: hidden;
 	pointer-events: none;
 	position: fixed;
-	z-index: 1000;
+	z-index: 99999;
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
