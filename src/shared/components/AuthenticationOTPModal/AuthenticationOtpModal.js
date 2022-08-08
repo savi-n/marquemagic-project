@@ -32,16 +32,13 @@ const ModalHeader = styled.div`
 `;
 
 const ModalBody = styled.div`
-	padding: 52px 0;
+	padding: 30px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
 	margin: auto;
-	font-size: 20px;
-	width: 57%;
-	margin-top: 15px;
-	text-align: center;
+	font-size: 13px;
 `;
 
 const ModalFooter = styled.div`
@@ -62,8 +59,20 @@ const ModalErrorMessage = styled.div`
 `;
 const ModalResentOtp = styled.div`
 	text-align: center;
-	padding-bottom: 9px;
+	padding-bottom: 10px;
 	font-size: 14px;
+	margin-top: 10px;
+	@media (max-width: 700px) {
+		padding-bottom: 0px;
+	}
+`;
+
+const OtpMobileMessage = styled.p`
+	font-size: 22px;
+	text-align: center;
+	@media (max-width: 700px) {
+		font-size: 18px;
+	}
 `;
 
 const ImgStyle = styled.img`
@@ -266,13 +275,13 @@ const AuthenticationOTPModal = props => {
 				/>
 			</ModalHeader>
 			<ModalBody>
-				<p>
+				<OtpMobileMessage>
 					{/* To{isResentOtp ? 'resent' : 'sent'} to your number
 					please verify it below */}
 					To authenticate your application please enter the OTP sent to
 					{/* XXXXX99999{maskedContactNo} */}
 					{' ' + maskedContactNo}
-				</p>
+				</OtpMobileMessage>
 				<ModalWrapper>
 					<AuthenticationOTPInput
 						numInputs={6}

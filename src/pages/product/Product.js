@@ -46,7 +46,7 @@ const Colom1 = styled.div`
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
 		height: 100%;
-		z-index: 14;
+		z-index: 9999;
 	}
 `;
 
@@ -348,6 +348,7 @@ export default function Product({ product, url }) {
 														'pointer',
 												}}
 												onClick={e => {
+													// if (idx > completedMenu.length + 1) return;
 													if (index > idx) {
 														if (
 															flow !== 'product-details' &&

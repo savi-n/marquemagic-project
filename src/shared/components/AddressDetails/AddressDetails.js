@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { array, bool, func, object, oneOfType, string } from 'prop-types';
 
 import CheckBox from '../Checkbox/CheckBox';
+import { useEffect } from 'react';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -101,6 +102,12 @@ export default function AddressDetails({
 		);
 	};
 
+	useEffect(() => {
+		if (sessionStorage.getItem(`match${userType}`) === 'true') setMatch(true);
+		if (sessionStorage.getItem(`match${userType}`) === 'false') setMatch(false);
+		// eslint-disable-next-line
+	}, []);
+
 	// form.address;
 
 	return (
@@ -147,7 +154,13 @@ export default function AddressDetails({
 							Present Address{' '}
 							<CheckBox
 								checked={match}
-								onChange={() => setMatch(!match)}
+								onChange={() => {
+									sessionStorage.setItem(
+										`match${userType}`,
+										!match === true ? 'true' : 'false'
+									);
+									setMatch(!match);
+								}}
 								bg='blue'
 								name='Same as Permanent Address'
 							/>
