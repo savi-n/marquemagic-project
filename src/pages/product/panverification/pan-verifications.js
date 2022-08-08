@@ -723,7 +723,7 @@ export default function PanVerification({
 			// don't change 'pan' to different key it'll effect prepopulation logic
 			sessionStorage.setItem('pan', panExtractionData?.panNumber);
 
-			console.log('panExtraction', panExtractionData?.panNumber);
+			// console.log('panExtraction', panExtractionData?.panNumber);
 			if (
 				panExtractionData?.panNumber &&
 				panExtractionData?.panNumber.length !== 10
