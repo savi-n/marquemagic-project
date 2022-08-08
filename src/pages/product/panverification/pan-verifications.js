@@ -273,6 +273,8 @@ export default function PanVerification({
 	const [addressProofError, setAddressProofError] = useState('');
 	const [udhyogError, setUdhyogError] = useState('');
 	const [gstError, setGstError] = useState('');
+	const [isGstInDisabled, setIsGstInDisabled] = useState(false);
+	const [isudhyogAadhaarDisabled, setIsUdhyogAadhaarDisabled] = useState(false);
 	// const [selectDoc, selectDocs] = useState(false);
 	// const [verificationFailed, setVerificationFailed] = useState('');
 	//const [gstNum, setGstNum] = useState(null);
@@ -594,6 +596,20 @@ export default function PanVerification({
 
 	useEffect(() => {
 		resetAllErrors();
+		if (formState?.values?.gstin && formState?.values?.gstin.length > 0) {
+			setIsUdhyogAadhaarDisabled(true);
+		} else {
+			setIsUdhyogAadhaarDisabled(false);
+		}
+		if (
+			formState?.values?.udhyogAadhar &&
+			formState?.values?.udhyogAadhar > 0
+		) {
+			setIsGstInDisabled(true);
+		} else {
+			setIsGstInDisabled(false);
+		}
+		// if (formState?.values?.udhyogAadhar) setIsGstInDisabled(true);
 		// eslint-disable-next-line
 	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
 
@@ -1660,6 +1676,7 @@ export default function PanVerification({
 							style: {
 								borderColor: formState?.values?.gstin && gstError && 'red',
 							},
+							disabled: isGstInDisabled,
 						})}
 					</FieldWrapper>
 					{formState?.values?.gstin && gstError && (
@@ -1677,6 +1694,7 @@ export default function PanVerification({
 								borderColor:
 									formState?.values?.udhyogAadhar && udhyogError && 'red',
 							},
+							disabled: isudhyogAadhaarDisabled,
 							mask: { CharacterLimit: 12 },
 						})}
 					</FieldWrapper>
