@@ -34,6 +34,9 @@ const FieldWrapper = styled.div`
 	width: 100%;
 	display: flex;
 	align-items: center;
+	@media (max-width: 700px) {
+		display: block;
+	}
 `;
 
 const FormWrap = styled.div`
@@ -72,6 +75,9 @@ const Currency = styled.div`
 const Or = styled.span`
 	text-align: center;
 	width: 60%;
+`;
+const UploadButtonSpace = styled.div`
+	padding-left: 60px;
 `;
 
 LoanDetails.propTypes = {
@@ -186,17 +192,18 @@ export default function LoanDetails({
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
 					{/* {<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>} */}
-
-					{field.uploadButton && (
-						<Button
-							name={field.uploadButton}
-							roundCorner={true}
-							width='150px'
-							style={{ marginLeft: '300px' }}
-							onClick={() => onUploadAgreementAction(field.name)}
-							disabled={field.disabled}
-						/>
-					)}
+					<UploadButtonSpace>
+						{field.uploadButton && (
+							<Button
+								name={field.uploadButton}
+								roundCorner={true}
+								width='150px'
+								style={{ marginLeft: '300px' }}
+								onClick={() => onUploadAgreementAction(field.name)}
+								disabled={field.disabled}
+							/>
+						)}
+					</UploadButtonSpace>
 				</FieldWrapper>
 				{(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
 					formState?.error?.[field.name] && (
