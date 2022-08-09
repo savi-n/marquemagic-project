@@ -83,24 +83,24 @@ export default function CheckBox({
 	);
 }
 
-CheckBox.defaultProps = {
-	name: '',
-	onChange: () => {},
-	style: {},
-	checked: false,
-	round: false,
-	disabled: false,
-	bg: 'transparent',
-	fg: 'white',
-};
+// CheckBox.defaultProps = {
+// 	name: '',
+// 	onChange: () => {},
+// 	style: {},
+// 	checked: false,
+// 	round: false,
+// 	disabled: false,
+// 	bg: 'transparent',
+// 	fg: 'white',
+// };
 
-CheckBox.propTypes = {
-	name: string,
-	checked: bool,
-	onChange: func,
-	round: bool,
-	disabled: bool,
-	bg: string,
-	fg: string,
-	style: object,
-};
+// CheckBox.propTypes = {
+// 	name: string,
+// 	checked: bool,
+// 	onChange: func,
+// 	round: bool,
+// 	disabled: bool,
+// 	bg: string,
+// 	fg: string,
+// 	style: object,
+// };
