@@ -29,6 +29,9 @@ const HomeLoanDetails = lazy(() => import('./loanDetails/HomeLoanDetails'));
 // const CoApplicantDetails = lazy(() => import('./coappilcant/CoapplicantDetails'));
 // const CoApplicantIncomeDetails = lazy(() => import('./coappilcant/CoapplicantIncomeDetails'));
 const EmiDetails = lazy(() => import('./emiDetails/EMIDetails'));
+const CoapplicantSection = lazy(() =>
+	import('./coapplicantSection/CoapplicantSection')
+);
 
 const availableRoutes = {
 	'pan-verification': { Component: PanVerification },
@@ -38,6 +41,7 @@ const availableRoutes = {
 	// "loan-details": { protected: true, Component: HomeLoanDetails },
 	'loan-details': { protected: true, Component: VehicleLoanDetails },
 	'home-loan-details': { protected: true, Component: HomeLoanDetails },
+	'co-applicant-details': { protected: true, Component: CoapplicantSection },
 	// 'co-applicant-details': {
 	// 	protected: true,
 	// 	Component: userType('Co-applicant', CoApplicantDetails)
