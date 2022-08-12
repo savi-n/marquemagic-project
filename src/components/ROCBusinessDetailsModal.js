@@ -38,13 +38,20 @@ const Colm1 = styled.div`
 	flex: 1;
 	font-size: 15px;
 	font-weight: 500;
-	padding-left: 20px;
 `;
 
 const Colm2 = styled.div`
 	flex: 1;
 	font-size: 15px;
 	font-weight: 500;
+	@media (max-width: 700px) {
+		inline-size: min-content;
+		width: 100px;
+		height: auto;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 `;
 
 export default function ROCBusinessDetailsModal({ onClose }) {
