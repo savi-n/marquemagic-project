@@ -30,7 +30,18 @@ const Wrapper = styled.div`
 	min-height: 100%;
 	display: flex;
 `;
-
+const SectionSidebarArrow = styled.section`
+	z-index: 100;
+	display: none;
+	@media (max-width: 700px) {
+		display: block;
+	}
+`;
+const ArrowShow = styled.div`
+	width: min-content;
+	margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
+	position: fixed;
+`;
 /* background: ${({ theme }) => theme.main_theme_color}; */
 const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
@@ -198,18 +209,6 @@ export default function Product({ product, url }) {
 		options: { method: 'GET' },
 	});
 
-	const SectionSidebarArrow = styled.section`
-		z-index: 100;
-		display: none;
-		@media (max-width: 700px) {
-			display: block;
-		}
-	`;
-	const ArrowShow = styled.div`
-		width: min-content;
-		margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
-		position: fixed;
-	`;
 	// useEffect(() => {
 	// 	clearFlowDetails(basePageUrl);
 	// 	clearFormData();

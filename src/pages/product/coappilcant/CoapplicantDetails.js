@@ -14,6 +14,12 @@ import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
 
+import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
+const Section = styled.div`
+	display: flex;
+	align-items: center;
+	cursor: row-resize;
+`;
 const ButtonWrap = styled.div`
 	display: flex;
 	align-items: flex-end;
@@ -52,7 +58,26 @@ const formatAddressData = (type, data, fields) => {
 		...formatedData,
 	};
 };
+const Hr = styled.hr`
+	padding: 0px;
+`;
+const CollapseIcon = styled.img`
+	height: 18px;
+	width: 18px;
+	margin-right: 20px;
+	object-fit: contain;
 
+	cursor: pointer;
+`;
+const Details = styled.div`
+	max-height: ${props => (props.open ? '100%' : '0%')};
+	padding: ${props => (props.open ? '10px 0' : '0')};
+	transition: all 0.3s ease-out;
+	@media (max-width: 700px) {
+		max-width: 51%;
+		padding: 0px;
+	}
+`;
 const formatPersonalData = (data, fields) => {
 	const formatedData = {};
 	for (const f of fields) {
@@ -76,6 +101,12 @@ export default function CoapplicantDetails({
 	map,
 	productId,
 }) {
+	const [openCoApplicant, setOpenCoapplicant] = useState(true);
+	const openCloseCollaps = name => {
+		if (name === 'KYC') {
+			setOpenCoapplicant(!openCoApplicant);
+		}
+	};
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
@@ -221,6 +252,23 @@ export default function CoapplicantDetails({
 
 	return (
 		<Div>
+			<>
+				{' '}
+				<Section onClick={() => openCloseCollaps('KYC')}>
+					<CollapseIcon
+						src={downArray}
+						style={{
+							transform: openCoApplicant ? `rotate(180deg)` : `none`,
+							marginLeft: 'auto',
+						}}
+						alt='arrow'
+					/>
+				</Section>
+				<Details open={!openCoApplicant}>
+					<Hr />
+				</Details>
+				<Details open={openCoApplicant} />
+			</>
 			<PersonalDetails
 				userType={userType}
 				register={register}
@@ -240,12 +288,12 @@ export default function CoapplicantDetails({
 				}}
 			/>
 			<AddressDetails
-				userType={userType}
 				register={register}
 				formState={formState}
 				match={match}
 				setMatch={setMatch}
-				jsonData={map.fields['address-details'].data}
+				jsonData={map.fields[id].data}
+				disablePermenanet={true}
 				preData={{
 					address1: address1 || '',
 					address2: address2 || '',
@@ -256,6 +304,7 @@ export default function CoapplicantDetails({
 					state: addState || '',
 				}}
 			/>
+
 			<ButtonWrap>
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}

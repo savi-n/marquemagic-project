@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { func, object, oneOf, oneOfType, string } from 'prop-types';
 import useForm from '../../../hooks/useForm';
 import Button from '../../../components/Button';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
+import AddressDetails from '../AddressDetails/AddressDetails';
+import PersonalDetails from '../PersonalDetails/PersonalDetails';
+import SalaryDetails from '../SalaryDetails/SalaryDetails';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import { USER_ROLES } from '../../../_config/app.config';
@@ -15,11 +15,6 @@ import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
-// import CoapplicantDetailsSection from '../../../shared/components/CoapplicantSection/CoapplicantSectionComp';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-// const FaTrash = <FontAwesomeIcon icon={faTrash} />;
 const Section = styled.div`
 	display: flex;
 	align-items: center;
@@ -108,10 +103,6 @@ const StyledButton = styled.button`
 	}
 `;
 
-const DeleteIcon = styled.div`
-	cursor: pointer;
-`;
-
 const EligibiltiyWrapper = styled.div`
 	flex-basis: 45%;
 	margin-left: auto;
@@ -160,8 +151,83 @@ export default function CoapplicantDetailsSection({
 	productId,
 	productDetails,
 }) {
+	const CoapplicantDetails = () => {
+		return (
+			<>
+				<Section onClick={() => openCloseCollaps()}>
+					<div
+						style={{
+							marginLeft: 10,
+							alignItems: 'center',
+							display: 'flex',
+						}}>
+						<StyledButton width={'auto'} fill>
+							Coapplicant {numberOfCoapplicants}
+						</StyledButton>
+					</div>
+					<CollapseIcon
+						src={downArray}
+						style={{
+							transform: openCoApplicant ? `rotate(180deg)` : `none`,
+							marginLeft: 'auto',
+						}}
+						alt='arrow'
+					/>
+				</Section>
+				<Details open={!openCoApplicant}>
+					<Hr />
+				</Details>
+				<Details open={openCoApplicant}>
+					<Wrapper open={openCoApplicant}>
+						<PersonalDetails
+							userType={userType}
+							register={register}
+							formState={formState}
+							jsonData={map.fields['personal-details'].data}
+							preData={{
+								aadhaar: aadhaar || '',
+								countryResidence: countryResidence || '',
+								dob: dob || '',
+								email: email || '',
+								firstName: firstName || '',
+								incomeType: incomeType || '',
+								lastName: lastName || '',
+								mobileNo: mobileNo || '',
+								panNumber: panNumber || '',
+								residenceStatus: residenceStatus || '',
+							}}
+						/>
+						<SalaryDetails
+							jsonData={map?.fields['salary-details'].data}
+							jsonLable={map?.fields['salary-details'].label}
+							register={register}
+							formState={formState}
+							incomeType={formState?.values?.incomeType || null}
+						/>
+						<AddressDetails
+							userType={userType}
+							register={register}
+							formState={formState}
+							match={match}
+							setMatch={setMatch}
+							jsonData={map.fields['address-details'].data}
+							preData={{
+								address1: address1 || '',
+								address2: address2 || '',
+								address3: address3 || '',
+								address4: address4 || '',
+								city: city || '',
+								pinCode: pinCode || '',
+								state: addState || '',
+							}}
+						/>
+					</Wrapper>
+				</Details>
+			</>
+		);
+	};
 	const [openCoApplicant, setOpenCoapplicant] = useState(true);
-	const openCloseCollaps = index => {
+	const openCloseCollaps = () => {
 		setOpenCoapplicant(!openCoApplicant);
 	};
 	const {
@@ -172,11 +238,9 @@ export default function CoapplicantDetailsSection({
 		state,
 		actions: { setUsertypeApplicantData, setUsertypeAddressData },
 	} = useContext(FormContext);
-	const [textFieldData, setTextfieldData] = useState({
-		id: 1,
-	});
+
 	const { handleSubmit, register, formState } = useForm();
-	const [showCoapplicant, setShowCoapplicant] = useState([{ id: 1 }]);
+
 	const [match, setMatch] = useState(false);
 	const { processing, caseCreationUserType } = useCaseCreation(
 		userType,
@@ -185,16 +249,9 @@ export default function CoapplicantDetailsSection({
 	);
 
 	const [isEligibility, setEligibility] = useState(false);
-	const [addEachCoapplicant, setAddEachCoapplicant] = useState({});
-
-	const addCoapplicant = (item, index) => {
-		setShowCoapplicant([...showCoapplicant, {}]);
-	};
-	const deleteSection = index => {
-		if (showCoapplicant.length > 1) {
-			showCoapplicant.splice(index, 1);
-			setShowCoapplicant([...showCoapplicant]);
-		}
+	const [numberOfCoapplicants, setNumberOfCoapplicants] = useState(1);
+	const addCoapplicant = () => {
+		CoapplicantDetails();
 	};
 	const saveData = formData => {
 		let formatedAddress = [
@@ -255,6 +312,7 @@ export default function CoapplicantDetailsSection({
 	}, [proceed]);
 
 	const onProceed = async data => {
+		// console.log('CoapplicantDetails-', data);
 		saveData(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -266,6 +324,7 @@ export default function CoapplicantDetailsSection({
 		// }
 	};
 
+	// console.log('coapplicantdetails-guaranter-state', state);
 	let {
 		aadhaar,
 		countryResidence,
@@ -297,6 +356,7 @@ export default function CoapplicantDetailsSection({
 		const director = editLoan?.director_details.filter(
 			d => d.type_name === 'Guarantor'
 		);
+		// console.log('filtered-director-', director);
 		firstName = director[0]?.dfirstname;
 		lastName = director[0]?.dlastname;
 		incomeType = director[0]?.income_type;
@@ -319,91 +379,81 @@ export default function CoapplicantDetailsSection({
 
 	return (
 		<Div>
-			{showCoapplicant?.map((item, index) => {
-				return (
-					<>
-						<Section>
-							<div
-								onClick={() => openCloseCollaps(index)}
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									display: 'flex',
-								}}>
-								<StyledButton width={'auto'} fill>
-									Coapplicant {index + 1}
-								</StyledButton>
-							</div>
-							<CollapseIcon
-								onClick={() => openCloseCollaps(index)}
-								src={downArray}
-								style={{
-									transform: openCoApplicant ? `rotate(180deg)` : `none`,
-									marginLeft: 'auto',
-								}}
-								alt='arrow'
-							/>
-							<DeleteIcon onClick={() => deleteSection(index)}>
-								<FontAwesomeIcon icon={faTrash} />
-							</DeleteIcon>
-						</Section>
-
-						<Details open={!openCoApplicant}>
-							<Hr />
-						</Details>
-						{/* <Coapplicant /> */}
-						<Details open={openCoApplicant}>
-							<Wrapper open={openCoApplicant}>
-								<PersonalDetails
-									userType={userType}
-									register={register}
-									formState={formState}
-									jsonData={map.fields['personal-details'].data}
-									preData={{
-										aadhaar: aadhaar || '',
-										countryResidence: countryResidence || '',
-										dob: dob || '',
-										email: email || '',
-										firstName: firstName || '',
-										incomeType: incomeType || '',
-										lastName: lastName || '',
-										mobileNo: mobileNo || '',
-										panNumber: panNumber || '',
-										residenceStatus: residenceStatus || '',
-									}}
-								/>
-								<SalaryDetails
-									jsonData={map?.fields['salary-details'].data}
-									jsonLable={map?.fields['salary-details'].label}
-									register={register}
-									formState={formState}
-									incomeType={formState?.values?.incomeType || null}
-								/>
-								<AddressDetails
-									userType={userType}
-									register={register}
-									formState={formState}
-									match={match}
-									setMatch={setMatch}
-									jsonData={map.fields['address-details'].data}
-									preData={{
-										address1: address1 || '',
-										address2: address2 || '',
-										address3: address3 || '',
-										address4: address4 || '',
-										city: city || '',
-										pinCode: pinCode || '',
-										state: addState || '',
-									}}
-								/>
-							</Wrapper>
-						</Details>
-					</>
-				);
-			})}
-
+			<>
+				{' '}
+				<Section onClick={() => openCloseCollaps()}>
+					<div
+						style={{
+							marginLeft: 10,
+							alignItems: 'center',
+							display: 'flex',
+						}}>
+						<StyledButton width={'auto'} fill>
+							Coapplicant {numberOfCoapplicants}
+						</StyledButton>
+					</div>
+					<CollapseIcon
+						src={downArray}
+						style={{
+							transform: openCoApplicant ? `rotate(180deg)` : `none`,
+							marginLeft: 'auto',
+						}}
+						alt='arrow'
+					/>
+				</Section>
+				<Details open={!openCoApplicant}>
+					<Hr />
+				</Details>
+				{/* <Coapplicant /> */}
+				<Details open={openCoApplicant}>
+					<Wrapper open={openCoApplicant}>
+						<PersonalDetails
+							userType={userType}
+							register={register}
+							formState={formState}
+							jsonData={map.fields['personal-details'].data}
+							preData={{
+								aadhaar: aadhaar || '',
+								countryResidence: countryResidence || '',
+								dob: dob || '',
+								email: email || '',
+								firstName: firstName || '',
+								incomeType: incomeType || '',
+								lastName: lastName || '',
+								mobileNo: mobileNo || '',
+								panNumber: panNumber || '',
+								residenceStatus: residenceStatus || '',
+							}}
+						/>
+						<SalaryDetails
+							jsonData={map?.fields['salary-details'].data}
+							jsonLable={map?.fields['salary-details'].label}
+							register={register}
+							formState={formState}
+							incomeType={formState?.values?.incomeType || null}
+						/>
+						<AddressDetails
+							userType={userType}
+							register={register}
+							formState={formState}
+							match={match}
+							setMatch={setMatch}
+							jsonData={map.fields['address-details'].data}
+							preData={{
+								address1: address1 || '',
+								address2: address2 || '',
+								address3: address3 || '',
+								address4: address4 || '',
+								city: city || '',
+								pinCode: pinCode || '',
+								state: addState || '',
+							}}
+						/>
+					</Wrapper>
+				</Details>
+			</>
 			<ButtonWrap>
-				<AddCoapplicant onClick={(item, index) => addCoapplicant(item, index)}>
+				<AddCoapplicant onClick={addCoapplicant}>
 					Add Co-applicant
 				</AddCoapplicant>
 
