@@ -18,12 +18,20 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 // import CoapplicantDetailsSection from '../../../shared/components/CoapplicantSection/CoapplicantSectionComp';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import CheckBox from '../../../shared/components/Checkbox/CheckBox';
 
 // const FaTrash = <FontAwesomeIcon icon={faTrash} />;
 const Section = styled.div`
 	display: flex;
 	align-items: center;
 	cursor: row-resize;
+`;
+const CheckboxWrapper = styled.div`
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	margin: 20px 0;
+	gap: 10px;
 `;
 const ButtonWrap = styled.div`
 	display: flex;
@@ -161,9 +169,7 @@ export default function CoapplicantDetailsSection({
 	productDetails,
 }) {
 	const [openCoApplicant, setOpenCoapplicant] = useState(true);
-	const openCloseCollaps = index => {
-		setOpenCoapplicant(!openCoApplicant);
-	};
+
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
@@ -172,29 +178,65 @@ export default function CoapplicantDetailsSection({
 		state,
 		actions: { setUsertypeApplicantData, setUsertypeAddressData },
 	} = useContext(FormContext);
-	const [textFieldData, setTextfieldData] = useState({
-		id: 1,
-	});
+
 	const { handleSubmit, register, formState } = useForm();
-	const [showCoapplicant, setShowCoapplicant] = useState([{ id: 1 }]);
+	const addCoApplicantData = {
+		firstName: '',
+		lastName: '',
+		dob: '',
+		mobile: '',
+		email: '',
+		incomeType: '',
+		panNumber: '',
+		aadhaar: '',
+		residentialStatus: '',
+		country: '',
+		grossTotalIncome: '',
+		netMonthlyIncome: '',
+		address1: '',
+		address2: '',
+		address3: '',
+		district: '',
+		pincode: '',
+		city: '',
+		state: '',
+		showFields: true,
+		presentAddressCheck: false,
+	};
+	const [showCoapplicant, setShowCoapplicant] = useState([addCoApplicantData]);
 	const [match, setMatch] = useState(false);
 	const { processing, caseCreationUserType } = useCaseCreation(
 		userType,
 		productId[(state[userType]?.applicantData?.incomeType)] || '',
 		userType
 	);
-
+	const [presentAddressCheck, setPresentAddressCheck] = useState(false);
 	const [isEligibility, setEligibility] = useState(false);
-	const [addEachCoapplicant, setAddEachCoapplicant] = useState({});
+	const openCloseCollaps = index => {
+		console.log(index, 'index in open close');
+		showCoapplicant[index].showFields = !showCoapplicant[index].showFields;
+		setShowCoapplicant([...showCoapplicant]);
+		console.log(showCoapplicant, 'showfields value in openclose');
+	};
+	const addCoapplicant = () => {
+		console.log(showCoapplicant.length, 'length of the coapplicant');
+		for (let i in showCoapplicant) {
+			showCoapplicant[i].showFields = false;
+		}
+		setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
 
-	const addCoapplicant = (item, index) => {
-		setShowCoapplicant([...showCoapplicant, {}]);
+		// setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
+		console.log(showCoapplicant, 'add coapplicant');
 	};
 	const deleteSection = index => {
 		if (showCoapplicant.length > 1) {
 			showCoapplicant.splice(index, 1);
 			setShowCoapplicant([...showCoapplicant]);
 		}
+	};
+	const selectAddress = () => {
+		console.log('address changed');
+		setPresentAddressCheck(!presentAddressCheck);
 	};
 	const saveData = formData => {
 		let formatedAddress = [
@@ -235,9 +277,15 @@ export default function CoapplicantDetailsSection({
 	// 		type: 'success',
 	// 	});
 	// };
-
+	const [section, setSection] = useState(true);
 	const [proceed, setProceed] = useState(false);
-
+	// useEffect(() => {
+	// 	if (showCoapplicant.length > 1) {
+	// 		setSection(false);
+	// 	} else {
+	// 		setSection(true);
+	// 	}
+	// }, [showCoapplicant]);
 	useEffect(() => {
 		async function request() {
 			const res = await caseCreationUserType();
@@ -321,7 +369,10 @@ export default function CoapplicantDetailsSection({
 		<Div>
 			{showCoapplicant?.map((item, index) => {
 				return (
-					<>
+					<div key={`coapp-${index}`}>
+						{/* style={{
+							display: section ? 'None' : '',
+						}}> */}
 						<Section>
 							<div
 								onClick={() => openCloseCollaps(index)}
@@ -338,7 +389,7 @@ export default function CoapplicantDetailsSection({
 								onClick={() => openCloseCollaps(index)}
 								src={downArray}
 								style={{
-									transform: openCoApplicant ? `rotate(180deg)` : `none`,
+									transform: item.showFields ? `rotate(180deg)` : `none`,
 									marginLeft: 'auto',
 								}}
 								alt='arrow'
@@ -348,12 +399,12 @@ export default function CoapplicantDetailsSection({
 							</DeleteIcon>
 						</Section>
 
-						<Details open={!openCoApplicant}>
+						<Details open={!item.showFields}>
 							<Hr />
 						</Details>
 						{/* <Coapplicant /> */}
-						<Details open={openCoApplicant}>
-							<Wrapper open={openCoApplicant}>
+						<Details open={item.showFields}>
+							<Wrapper open={item.showFields}>
 								<PersonalDetails
 									userType={userType}
 									register={register}
@@ -379,6 +430,15 @@ export default function CoapplicantDetailsSection({
 									formState={formState}
 									incomeType={formState?.values?.incomeType || null}
 								/>
+
+								{/* <CheckBox
+									checked={item.presentAddressCheck}
+									onChange={() => {
+										setPresentAddressCheck(!item.presentAddressCheck);
+									}}
+									name={"Same as Applicant's Present Address"}
+								/> */}
+
 								<AddressDetails
 									userType={userType}
 									register={register}
@@ -398,12 +458,12 @@ export default function CoapplicantDetailsSection({
 								/>
 							</Wrapper>
 						</Details>
-					</>
+					</div>
 				);
 			})}
 
 			<ButtonWrap>
-				<AddCoapplicant onClick={(item, index) => addCoapplicant(item, index)}>
+				<AddCoapplicant onClick={() => addCoapplicant()}>
 					Add Co-applicant
 				</AddCoapplicant>
 
