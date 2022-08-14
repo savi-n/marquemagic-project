@@ -19,6 +19,7 @@ import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CheckBox from '../../../shared/components/Checkbox/CheckBox';
+import _ from 'lodash';
 
 // const FaTrash = <FontAwesomeIcon icon={faTrash} />;
 const Section = styled.div`
@@ -133,6 +134,7 @@ const Text = styled.span`
 `;
 
 const formatAddressData = (type, data, fields) => {
+	console.log(type, data, fields, '-------');
 	const formatedData = {};
 	for (const f of fields) {
 		formatedData[f.name] = data[`${type}_${f.name}`];
@@ -241,7 +243,7 @@ export default function CoapplicantDetailsSection({
 	const saveData = formData => {
 		let formatedAddress = [
 			formatAddressData(
-				'present',
+				'permanent',
 				formData,
 				map.fields['address-details'].data
 			),
@@ -303,6 +305,7 @@ export default function CoapplicantDetailsSection({
 	}, [proceed]);
 
 	const onProceed = async data => {
+		console.log('coapplicantsection-onproceed-', data);
 		saveData(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -368,6 +371,35 @@ export default function CoapplicantDetailsSection({
 	return (
 		<Div>
 			{showCoapplicant?.map((item, index) => {
+				let personalDetailsJson = map.fields['personal-details'].data;
+				let salaryDetailsJson = map?.fields['salary-details'].data;
+				let addressDetailsJson = map.fields['address-details'].data;
+				// if (index > 0) {
+				personalDetailsJson = personalDetailsJson.map(d => {
+					return {
+						..._.cloneDeep(d),
+						name: `${d.name}${index + 1}`,
+						// TODO: remove below line
+						rules: { ...d.rules, required: false },
+					};
+				});
+				salaryDetailsJson = salaryDetailsJson.map(d => {
+					return {
+						..._.cloneDeep(d),
+						name: `${d.name}${index + 1}`,
+						// TODO: remove below line
+						rules: { ...d.rules, required: false },
+					};
+				});
+				addressDetailsJson = addressDetailsJson.map(d => {
+					return {
+						..._.cloneDeep(d),
+						name: `${d.name}${index + 1}`,
+						// TODO: remove below line
+						rules: { ...d.rules, required: false },
+					};
+				});
+				// }
 				return (
 					<div key={`coapp-${index}`}>
 						{/* style={{
@@ -409,7 +441,7 @@ export default function CoapplicantDetailsSection({
 									userType={userType}
 									register={register}
 									formState={formState}
-									jsonData={map.fields['personal-details'].data}
+									jsonData={personalDetailsJson}
 									preData={{
 										aadhaar: aadhaar || '',
 										countryResidence: countryResidence || '',
@@ -424,7 +456,7 @@ export default function CoapplicantDetailsSection({
 									}}
 								/>
 								<SalaryDetails
-									jsonData={map?.fields['salary-details'].data}
+									jsonData={salaryDetailsJson}
 									jsonLable={map?.fields['salary-details'].label}
 									register={register}
 									formState={formState}
@@ -445,7 +477,7 @@ export default function CoapplicantDetailsSection({
 									formState={formState}
 									match={match}
 									setMatch={setMatch}
-									jsonData={map.fields['address-details'].data}
+									jsonData={addressDetailsJson}
 									preData={{
 										address1: address1 || '',
 										address2: address2 || '',
