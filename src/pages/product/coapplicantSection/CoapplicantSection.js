@@ -233,6 +233,10 @@ export default function CoapplicantDetailsSection({
 			showCoapplicant.splice(index, 1);
 			setShowCoapplicant([...showCoapplicant]);
 		}
+		if (showCoapplicant.length === 1) {
+			showCoapplicant[0].showFields = true;
+			setShowCoapplicant([...showCoapplicant]);
+		}
 	};
 
 	const saveData = formData => {
