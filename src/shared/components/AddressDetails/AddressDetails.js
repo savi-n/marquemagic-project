@@ -71,6 +71,7 @@ export default function AddressDetails({
 	disablePermenanet = false,
 	isBusiness,
 	preDataFilled,
+	style,
 }) {
 	const presentAddress =
 		(preDataFilled &&
@@ -112,7 +113,7 @@ export default function AddressDetails({
 
 	return (
 		<>
-			<H>
+			<H style={style}>
 				{userType || 'Help us with your'} <span>Address Details</span>
 			</H>
 			<FormWrap>

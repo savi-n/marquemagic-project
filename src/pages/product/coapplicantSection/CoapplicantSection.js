@@ -17,7 +17,6 @@ import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
-// import CoapplicantDetailsSection from '../../../shared/components/CoapplicantSection/CoapplicantSectionComp';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CheckBox from '../../../shared/components/Checkbox/CheckBox';
@@ -36,6 +35,14 @@ const CheckboxWrapper = styled.div`
 	flex-direction: column;
 	margin: 20px 0;
 	gap: 10px;
+`;
+const H = styled.h1`
+	font-size: 1.5em;
+	margin-bottom: 20px;
+	font-weight: 500;
+	span {
+		color: ${({ theme }) => theme.main_theme_color};
+	}
 `;
 const ButtonWrap = styled.div`
 	display: flex;
@@ -67,6 +74,12 @@ const AddCoapplicant = styled.button`
 const Hr = styled.hr`
 	padding: 0;
 `;
+const Caption = styled.h3`
+	width: 20%;
+	font-weight: 500;
+	display: flex;
+	justify-content: space-between;
+`;
 const CollapseIcon = styled.img`
 	height: 18px;
 	width: 18px;
@@ -88,6 +101,13 @@ const Details = styled.div`
 	@media (max-width: 700px) {
 		max-width: 100%;
 		padding: 0px;
+	}
+`;
+const NewCheckbox = styled.input`
+	margin-right: 10px;
+	width: 15px;
+	@media (max-width: 700px) {
+		margin: 0 10px 0 20px;
 	}
 `;
 const Div = styled.div`
@@ -182,7 +202,7 @@ export default function CoapplicantDetailsSection({
 		state,
 		actions: { setUsertypeApplicantData, setUsertypeAddressData },
 	} = useContext(FormContext);
-
+	const [isPresentAddress, setIsPresentaddress] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 	const addCoApplicantData = {
 		dfirstName: '',
@@ -441,13 +461,13 @@ export default function CoapplicantDetailsSection({
 				let personalDetailsJson = map?.fields['personal-details'].data;
 				let salaryDetailsJson = map?.fields['salary-details'].data;
 				let addressDetailsJson = map?.fields['address-details'].data;
+
 				// if (index > 0) {
 				personalDetailsJson = personalDetailsJson.map(d => {
 					return {
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
 						// TODO: remove below line
-						rules: { ...d.rules },
 					};
 				});
 				salaryDetailsJson = salaryDetailsJson.map(d => {
@@ -455,7 +475,6 @@ export default function CoapplicantDetailsSection({
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
 						// TODO: remove below line
-						rules: { ...d.rules },
 					};
 				});
 				addressDetailsJson = addressDetailsJson.map(d => {
@@ -463,7 +482,6 @@ export default function CoapplicantDetailsSection({
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
 						// TODO: remove below line
-						rules: { ...d.rules },
 					};
 				});
 				// }f
@@ -537,13 +555,28 @@ export default function CoapplicantDetailsSection({
 									}}
 									name={"Same as Applicant's Present Address"}
 								/> */}
-
+								<H>
+									Help us with your <span>Address Details</span>
+								</H>
+								<div style={{ display: 'flex' }}>
+									<Caption>Present Address</Caption>
+									<NewCheckbox
+										type='checkbox'
+										name='sameAsApplicant'
+										onChange={() => setIsPresentaddress(!isPresentAddress)}
+									/>
+									<label id='sameAsApplicant'>
+										Same as applicant's Present Address
+									</label>
+								</div>
 								<AddressDetails
+									style={{ display: 'none' }}
 									userType={userType}
 									register={register}
 									formState={formState}
 									match={match}
 									setMatch={setMatch}
+									isBusiness={true}
 									jsonData={addressDetailsJson}
 									preData={{
 										address1: address1 || '',
@@ -565,29 +598,8 @@ export default function CoapplicantDetailsSection({
 				<AddCoapplicant onClick={() => addCoapplicant()}>
 					Add Co-applicant
 				</AddCoapplicant>
-
 				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
-				{userType === 'Co-applicant' && (
-					<EligibiltiyWrapper>
-						<Text>
-							Do you want to include the co-applicant's salary to be included in
-							the loan eligibility calculations?
-						</Text>
-						<ButtonWrap>
-							<Button
-								{...isEligibility === true && { fill: isEligibility }}
-								name='Yes'
-								onClick={() => setEligibility(true)}
-							/>
-							<Button
-								{...isEligibility === false && { fill: !isEligibility }}
-								name='No'
-								onClick={() => setEligibility(false)}
-							/>
-						</ButtonWrap>
-					</EligibiltiyWrapper>
-				)}
 			</ButtonWrap>
 			{processing && (
 				<Modal show={true} onClose={() => {}} width='50%'>
