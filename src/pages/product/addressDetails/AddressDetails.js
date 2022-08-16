@@ -132,6 +132,7 @@ export default function AddressDetailsPage({
 
 	const onProceed = (flow, subType = false) => {
 		return formData => {
+			console.log(formData, 'address details data');
 			saveData(formData);
 			setProceed({ flow, subType });
 		};

@@ -80,6 +80,9 @@ const Caption = styled.h3`
 	display: flex;
 	justify-content: space-between;
 `;
+const AddressWrapper = styled.div`
+	display: flex;
+`;
 const CollapseIcon = styled.img`
 	height: 18px;
 	width: 18px;
@@ -202,7 +205,6 @@ export default function CoapplicantDetailsSection({
 		state,
 		actions: { setUsertypeApplicantData, setUsertypeAddressData },
 	} = useContext(FormContext);
-	const [isPresentAddress, setIsPresentaddress] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 	const addCoApplicantData = {
 		dfirstName: '',
@@ -226,6 +228,7 @@ export default function CoapplicantDetailsSection({
 		pincode: '',
 		showFields: true,
 		presentAddressCheck: false,
+		isPresentAddress: false,
 	};
 	const [showCoapplicant, setShowCoapplicant] = useState([addCoApplicantData]);
 	const [match, setMatch] = useState(false);
@@ -258,7 +261,16 @@ export default function CoapplicantDetailsSection({
 			setShowCoapplicant([...showCoapplicant]);
 		}
 	};
-
+	const [applicantAddress, setApplicantAddress] = useState([]);
+	const getPresentAddress = index => {
+		showCoapplicant[index].presentAddressCheck = !showCoapplicant[index]
+			.presentAddressCheck;
+		setShowCoapplicant([...showCoapplicant]);
+		if (showCoapplicant[index].presentAddressCheck) {
+			setApplicantAddress(sessionStorage.getItem('address_details'));
+			console.log(sessionStorage.getItem('address_details'), '______');
+		}
+	};
 	const saveData = formData => {
 		let formatedAddress = [
 			formatAddressData(
@@ -326,8 +338,8 @@ export default function CoapplicantDetailsSection({
 		state: { userToken },
 	} = useContext(UserContext);
 	const onProceed = async data => {
-		let reqBody = [];
-
+		let reqBody = { co_applicant_director_partner_data: [] };
+		console.log(reqBody, '--------------');
 		for (let i in showCoapplicant) {
 			let apiData = {
 				dfirstName: '',
@@ -375,11 +387,11 @@ export default function CoapplicantDetailsSection({
 				' ' +
 				data['permanent_address3' + `${indexValue}`];
 			apiData.locality = data['permanent_address4' + `${indexValue}`];
-			apiData.pincode = data['present_pinCode' + `${indexValue}`];
-			apiData.city = data['present_city' + `${indexValue}`];
-			apiData.state = data['present_state' + `${indexValue}`];
+			apiData.pincode = data['permanent_pinCode' + `${indexValue}`];
+			apiData.city = data['permanent_city' + `${indexValue}`];
+			apiData.state = data['permanent_state' + `${indexValue}`];
 
-			reqBody.push(apiData);
+			reqBody.co_applicant_director_partner_data.push(apiData);
 		}
 		try {
 			const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
@@ -548,27 +560,21 @@ export default function CoapplicantDetailsSection({
 									incomeType={formState?.values?.incomeType || null}
 								/>
 
-								{/* <CheckBox
-									checked={item.presentAddressCheck}
-									onChange={() => {
-										setPresentAddressCheck(!item.presentAddressCheck);
-									}}
-									name={"Same as Applicant's Present Address"}
-								/> */}
 								<H>
 									Help us with your <span>Address Details</span>
 								</H>
-								<div style={{ display: 'flex' }}>
+								<AddressWrapper>
 									<Caption>Present Address</Caption>
 									<NewCheckbox
 										type='checkbox'
 										name='sameAsApplicant'
-										onChange={() => setIsPresentaddress(!isPresentAddress)}
+										checked={item.presentAddressCheck}
+										onChange={() => getPresentAddress(index)}
 									/>
 									<label id='sameAsApplicant'>
 										Same as applicant's Present Address
 									</label>
-								</div>
+								</AddressWrapper>
 								<AddressDetails
 									style={{ display: 'none' }}
 									userType={userType}
