@@ -159,7 +159,7 @@ CoapplicantDetailsSection.propTypes = {
 	onFlowChange: func.isRequired,
 	map: oneOfType([string, object]),
 	id: string,
-	userType: oneOf(['Co-Applicant', 'Guarantor']),
+	userType: oneOf(['Co-Applicant']),
 };
 
 export default function CoapplicantDetailsSection({
@@ -183,25 +183,25 @@ export default function CoapplicantDetailsSection({
 
 	const { handleSubmit, register, formState } = useForm();
 	const addCoApplicantData = {
-		firstName: '',
-		lastName: '',
-		dob: '',
-		mobile: '',
-		email: '',
-		incomeType: '',
-		panNumber: '',
-		aadhaar: '',
-		residentialStatus: '',
-		country: '',
-		grossTotalIncome: '',
+		dfirstName: '',
+		dlastName: '',
+		ddob: '',
+		dcontact: '',
+		demail: '',
+		applicant_relationship: '',
+		income_type: '',
+		dpancard: '',
+		daadhaar: '',
+		residence_status: '',
+		country_residence: '',
+		marital_status: '',
+		grossIncome: '',
 		netMonthlyIncome: '',
-		address1: '',
-		address2: '',
-		address3: '',
-		district: '',
-		pincode: '',
+		address: '',
+		locality: '',
 		city: '',
 		state: '',
+		pincode: '',
 		showFields: true,
 		presentAddressCheck: false,
 	};
@@ -221,7 +221,7 @@ export default function CoapplicantDetailsSection({
 		console.log(showCoapplicant, 'showfields value in openclose');
 	};
 	const addCoapplicant = () => {
-		console.log(showCoapplicant.length, 'length of the coapplicant');
+		console.log(showCoapplicant, 'length of the coapplicant');
 		for (let i in showCoapplicant) {
 			showCoapplicant[i].showFields = false;
 		}
@@ -257,7 +257,7 @@ export default function CoapplicantDetailsSection({
 					map.fields['address-details'].data
 				)
 			);
-
+		console.log(map.fields['personal-details'].data, 'onsave function');
 		const formatApplicantData = {
 			...formatPersonalData(formData, map.fields['personal-details'].data),
 			typeName: userType,
@@ -305,12 +305,100 @@ export default function CoapplicantDetailsSection({
 	}, [proceed]);
 
 	const onProceed = async data => {
+		let maxValue = showCoapplicant.length;
+		let finalData = [];
+
 		console.log('coapplicantsection-onproceed-', data);
-		saveData(data);
+		for (let i in showCoapplicant) {
+			console.log(i, 'i value on proceed');
+			let apiData = {
+				dfirstName: '',
+				dlastName: '',
+				ddob: '',
+				dcontact: '',
+				demail: '',
+				applicant_relationship: '',
+				income_type: '',
+				dpancard: '',
+				daadhaar: '',
+				residence_status: '',
+				country_residence: '',
+				marital_status: '',
+				grossIncome: '',
+				netMonthlyIncome: '',
+				address: '',
+				locality: '',
+				city: '',
+				state: '',
+				pincode: '',
+			};
+			// let a = 'firstName' + `${indexValue}`;
+			let indexValue = Number(i) + 1;
+			console.log(indexValue, 'index value in the loop h');
+			//**************
+			apiData.dfirstName = data['firstName' + `${indexValue}`];
+			apiData.dlastName = data['lastName' + `${indexValue}`];
+			apiData.ddob = data['dob' + `${indexValue}`];
+			apiData.dcontact = data['mobileNo' + `${indexValue}`];
+			apiData.demail = data['email' + `${indexValue}`];
+			apiData.applicant_relationship =
+				data['relationship_with_applicant' + `${indexValue}`];
+			apiData.income_type = data['incomeType' + `${indexValue}`];
+			apiData.dpancard = data['panNumber' + `${indexValue}`];
+			apiData.daadhaar = data['aadhaar' + `${indexValue}`];
+			apiData.residence_status = data['residenceStatus' + `${indexValue}`];
+			apiData.marital_status = data['maritalStatus' + `${indexValue}`];
+			apiData.country_residence = data['countryResidence' + `${indexValue}`];
+			apiData.netMonthlyIncome = data['netMonthlyIncome' + `${indexValue}`];
+			apiData.address =
+				data['permanent_address1' + `${indexValue}`] +
+				' ' +
+				data['permanent_address2' + `${indexValue}`] +
+				' ' +
+				data['permanent_address3' + `${indexValue}`];
+			apiData.locality = data['permanent_address4' + `${indexValue}`];
+			apiData.pincode = data['present_pinCode' + `${indexValue}`];
+			apiData.city = data['present_city' + `${indexValue}`];
+			apiData.state = data['present_state' + `${indexValue}`];
+			//**************
+			finalData.push(apiData);
+			// -------------------------------------
+			// showCoapplicant[i].dfirstName = data['firstName' + `${indexValue}`];
+			// showCoapplicant[i].dlastName = data['lastName' + `${indexValue}`];
+			// showCoapplicant[i].ddob = data['dob' + `${indexValue}`];
+			// showCoapplicant[i].dcontact = data['mobileNo' + `${indexValue}`];
+			// showCoapplicant[i].demail = data['email' + `${indexValue}`];
+			// showCoapplicant[i].applicant_relationship =
+			// 	data['relationship_with_applicant' + `${indexValue}`];
+			// showCoapplicant[i].income_type = data['incomeType' + `${indexValue}`];
+			// showCoapplicant[i].dpancard = data['panNumber' + `${indexValue}`];
+			// showCoapplicant[i].daadhaar = data['aadhaar' + `${indexValue}`];
+			// showCoapplicant[i].residence_status =
+			// 	data['residenceStatus' + `${indexValue}`];
+			// showCoapplicant[i].marital_status =
+			// 	data['maritalStatus' + `${indexValue}`];
+			// showCoapplicant[i].country_residence =
+			// 	data['countryResidence' + `${indexValue}`];
+			// showCoapplicant[i].netMonthlyIncome =
+			// 	data['netMonthlyIncome' + `${indexValue}`];
+			// showCoapplicant[i].address =
+			// 	data['permanent_address1' + `${indexValue}`] +
+			// 	data['permanent_address2' + `${indexValue}`] +
+			// 	data['permanent_address3' + `${indexValue}`];
+			// showCoapplicant[i].locality =
+			// 	data['permanent_address4' + `${indexValue}`];
+			// showCoapplicant[i].pincode = data['present_pinCode' + `${indexValue}`];
+			// showCoapplicant[i].city = data['present_city' + `${indexValue}`];
+			// showCoapplicant[i].state = data['present_state' + `${indexValue}`];
+			// -------------------------------------
+		}
+
+		console.log(finalData, 'this is the array');
+		saveData(showCoapplicant);
 		setCompleted(id);
 		onFlowChange(map.main);
 		// if (userType === 'Guarantor') {
-		// 	setProceed(true);
+		// setProceed(true);
 		// } else {
 		// 	setCompleted(id);
 		// 	onFlowChange(map.main);
@@ -371,16 +459,16 @@ export default function CoapplicantDetailsSection({
 	return (
 		<Div>
 			{showCoapplicant?.map((item, index) => {
-				let personalDetailsJson = map.fields['personal-details'].data;
+				let personalDetailsJson = map?.fields['personal-details'].data;
 				let salaryDetailsJson = map?.fields['salary-details'].data;
-				let addressDetailsJson = map.fields['address-details'].data;
+				let addressDetailsJson = map?.fields['address-details'].data;
 				// if (index > 0) {
 				personalDetailsJson = personalDetailsJson.map(d => {
 					return {
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
 						// TODO: remove below line
-						rules: { ...d.rules, required: false },
+						rules: { ...d.rules },
 					};
 				});
 				salaryDetailsJson = salaryDetailsJson.map(d => {
@@ -388,7 +476,7 @@ export default function CoapplicantDetailsSection({
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
 						// TODO: remove below line
-						rules: { ...d.rules, required: false },
+						rules: { ...d.rules },
 					};
 				});
 				addressDetailsJson = addressDetailsJson.map(d => {
@@ -396,10 +484,10 @@ export default function CoapplicantDetailsSection({
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
 						// TODO: remove below line
-						rules: { ...d.rules, required: false },
+						rules: { ...d.rules },
 					};
 				});
-				// }
+				// }f
 				return (
 					<div key={`coapp-${index}`}>
 						{/* style={{
