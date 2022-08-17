@@ -203,8 +203,9 @@ export default function CoapplicantDetailsSection({
 
 	const {
 		state,
-		actions: { setUsertypeApplicantData, setUsertypeAddressData },
+		actions: { setUsertypeApplicantData, setUsertypeAddressData, setFlowData },
 	} = useContext(FormContext);
+
 	const { handleSubmit, register, formState } = useForm();
 	const addCoApplicantData = {
 		dfirstName: '',
@@ -232,6 +233,17 @@ export default function CoapplicantDetailsSection({
 		presentAddressCheck: false,
 		isPresentAddress: false,
 	};
+	const url = window.location.hostname;
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let applicantData = formReducer?.user?.applicantData;
+	const applicantPresentAddress =
+		applicantData?.address?.filter(a => a.addressType === 'present')?.[0] || {};
+
+	let userTokensss = sessionStorage.getItem(url);
+
+	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+	const coApplicantData =
+		JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] || {};
 	const [showCoapplicant, setShowCoapplicant] = useState([addCoApplicantData]);
 	const [match, setMatch] = useState(false);
 	const { processing, caseCreationUserType } = useCaseCreation(
@@ -245,6 +257,7 @@ export default function CoapplicantDetailsSection({
 		if (showCoapplicant.length > 1) {
 			showCoapplicant[index].showFields = !showCoapplicant[index].showFields;
 			setShowCoapplicant([...showCoapplicant]);
+		} else {
 		}
 	};
 	const addCoapplicant = () => {
@@ -265,14 +278,8 @@ export default function CoapplicantDetailsSection({
 	};
 	const [applicantAddress, setApplicantAddress] = useState([]);
 	const getPresentAddress = index => {
-		// let applicantData = formReducer?.user?.applicantData;
-		showCoapplicant[index].presentAddressCheck = !showCoapplicant[index]
-			.presentAddressCheck;
-		setShowCoapplicant([...showCoapplicant]);
-		if (showCoapplicant[index].presentAddressCheck) {
-			setApplicantAddress(sessionStorage.getItem('address_details'));
-			console.log(sessionStorage.getItem('address_details'), '______');
-		}
+		setPresentAddressCheck(!presentAddressCheck);
+		// setShowCoapplicant([...showCoapplicant]);
 	};
 
 	const { addToast } = useToasts();
@@ -293,6 +300,12 @@ export default function CoapplicantDetailsSection({
 	// 	}
 	// }, [showCoapplicant]);
 	useEffect(() => {
+		let a = JSON.parse(sessionStorage.getItem('coapplicant_data')) || [
+			{ showFields: true },
+		];
+		setShowCoapplicant(a);
+	}, []);
+	useEffect(() => {
 		async function request() {
 			const res = await caseCreationUserType();
 			if (res) {
@@ -305,15 +318,22 @@ export default function CoapplicantDetailsSection({
 		if (proceed) {
 			request();
 		}
-		// eslint-disable-next-line
+		// eslint-disable-next-linee
 	}, [proceed]);
+	let numberOfCoapplicants;
+
 	const { newRequest } = useFetch();
 	const {
 		state: { userToken },
 	} = useContext(UserContext);
+
 	const onProceed = async data => {
+		let storeData = JSON.stringify(data);
+
+		let tempObject = storeData.replaceAll('permanent_', '');
+		let changedData = JSON.parse(tempObject);
 		let reqBody = { co_applicant_director_partner_data: [] };
-		console.log(reqBody, '--------------');
+
 		for (let i in showCoapplicant) {
 			let apiData = {
 				dfirstname: '',
@@ -367,6 +387,12 @@ export default function CoapplicantDetailsSection({
 
 			reqBody.co_applicant_director_partner_data.push(apiData);
 		}
+		sessionStorage.setItem(
+			'number_of_coapplicants',
+			reqBody.co_applicant_director_partner_data.length
+		);
+		sessionStorage.setItem('coapplicant_data', JSON.stringify(showCoapplicant));
+		setFlowData(changedData, id);
 		try {
 			const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
 				method: 'POST',
@@ -383,10 +409,9 @@ export default function CoapplicantDetailsSection({
 				type: 'error',
 			});
 		}
-
 		setCompleted(id);
 		onFlowChange(map.main);
-		setProceed(true);
+		// setProceed(true);
 	};
 
 	let {
@@ -439,10 +464,12 @@ export default function CoapplicantDetailsSection({
 		addState = director[0]?.state;
 		pinCode = director[0]?.pincode;
 	}
-
 	return (
 		<Div>
 			{showCoapplicant?.map((item, index) => {
+				// /llogicfor index read data froms essionstarte
+				// prepopulobj = assing value shere
+
 				let personalDetailsJson = map?.fields['personal-details'].data;
 				let salaryDetailsJson = map?.fields['salary-details'].data;
 				let addressDetailsJson = map?.fields['address-details'].data;
@@ -452,7 +479,7 @@ export default function CoapplicantDetailsSection({
 					return {
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
-						// TODO: remove below line
+						// TODO: remove below line,
 					};
 				});
 				salaryDetailsJson = salaryDetailsJson.map(d => {
@@ -466,10 +493,18 @@ export default function CoapplicantDetailsSection({
 					return {
 						..._.cloneDeep(d),
 						name: `${d.name}${index + 1}`,
-						// TODO: remove below line
+						// TODO: remove below line,
 					};
 				});
-				// }f
+				if (presentAddressCheck) {
+					address1 = applicantPresentAddress?.address1;
+					address2 = applicantPresentAddress?.address2;
+					address3 = applicantPresentAddress?.address3;
+					address4 = applicantPresentAddress?.address4;
+					pinCode = applicantPresentAddress?.pinCode;
+					city = applicantPresentAddress?.city;
+					addState = applicantPresentAddress?.state;
+				}
 				return (
 					<div key={`coapp-${index}`}>
 						{/* style={{
@@ -513,16 +548,17 @@ export default function CoapplicantDetailsSection({
 									formState={formState}
 									jsonData={personalDetailsJson}
 									preData={{
-										aadhaar: aadhaar || '',
-										countryResidence: countryResidence || '',
-										dob: dob || '',
-										email: email || '',
-										firstName: firstName || '',
-										incomeType: incomeType || '',
-										lastName: lastName || '',
-										mobileNo: mobileNo || '',
-										panNumber: panNumber || '',
-										residenceStatus: residenceStatus || '',
+										...coApplicantData,
+										// aadhaar: aadhaar || '',
+										// countryResidence: countryResidence || '',
+										// dob: dob || '',
+										// email: email || '',
+										// firstName: firstName || '',
+										// incomeType: incomeType || '',
+										// lastName: lastName || '',
+										// mobileNo: mobileNo || '',
+										// panNumber: panNumber || '',
+										// residenceStatus: residenceStatus || '',
 									}}
 								/>
 								<SalaryDetails
@@ -531,6 +567,7 @@ export default function CoapplicantDetailsSection({
 									register={register}
 									formState={formState}
 									incomeType={formState?.values?.incomeType || null}
+									preData={{ ...coApplicantData }}
 								/>
 
 								<H>
@@ -539,12 +576,16 @@ export default function CoapplicantDetailsSection({
 								<AddressWrapper>
 									<Caption>Present Address</Caption>
 									<NewCheckbox
+										id='sameAsApplicant'
 										type='checkbox'
 										name='sameAsApplicant'
-										checked={item.presentAddressCheck}
-										onChange={() => getPresentAddress(index)}
+										checked={presentAddressCheck}
+										onChange={() => {
+											setPresentAddressCheck(!presentAddressCheck);
+											// getPresentAddress(index);
+										}}
 									/>
-									<label id='sameAsApplicant'>
+									<label htmlFor='sameAsApplicant'>
 										Same as applicant's Present Address
 									</label>
 								</AddressWrapper>
@@ -557,14 +598,16 @@ export default function CoapplicantDetailsSection({
 									setMatch={setMatch}
 									isBusiness={true}
 									jsonData={addressDetailsJson}
+									presentAddressCheck={presentAddressCheck}
 									preData={{
-										address1: address1 || '',
-										address2: address2 || '',
-										address3: address3 || '',
-										address4: address4 || '',
-										city: city || '',
-										pinCode: pinCode || '',
-										state: addState || '',
+										[`address1${index + 1}`]: address1 || '',
+										[`address2${index + 1}`]: address2 || '',
+										[`address3${index + 1}`]: address3 || '',
+										[`address4${index + 1}`]: address4 || '',
+										[`city${index + 1}`]: city || '',
+										[`pinCode${index + 1}`]: pinCode || '',
+										[`state${index + 1}`]: addState || '',
+										...coApplicantData,
 									}}
 								/>
 							</Wrapper>

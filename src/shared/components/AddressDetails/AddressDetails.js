@@ -72,7 +72,18 @@ export default function AddressDetails({
 	isBusiness,
 	preDataFilled,
 	style,
+	keyChange,
+	presentAddressCheck,
 }) {
+	useEffect(() => {
+		console.log(
+			'presentAddressCheck-',
+			presentAddressCheck,
+			preData,
+			preDataFilled
+		);
+	}, [preData]);
+
 	const presentAddress =
 		(preDataFilled &&
 			preDataFilled.filter(ele => ele.addressType === 'present')) ||
@@ -83,7 +94,7 @@ export default function AddressDetails({
 		//   return preData[field.name] || "";
 		// }
 
-		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
+		if (formState?.values?.[`permanent_${field.name}`]) {
 			return formState?.values?.[`permanent_${field.name}`];
 		}
 
@@ -91,7 +102,7 @@ export default function AddressDetails({
 	};
 
 	const populatePresentValue = (field, match) => {
-		if (formState?.values?.[`present_${field.name}`] !== undefined)
+		if (formState?.values?.[`present_${field.name}`])
 			return formState?.values?.[`present_${field.name}`];
 
 		return (

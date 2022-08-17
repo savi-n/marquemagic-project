@@ -186,6 +186,7 @@ export default function CoapplicantDetails({
 
 	const onProceed = async data => {
 		// console.log('CoapplicantDetails-', data);
+
 		saveData(data);
 		setCompleted(id);
 		onFlowChange(map.main);
