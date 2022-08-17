@@ -132,7 +132,6 @@ export default function AddressDetailsPage({
 
 	const onProceed = (flow, subType = false) => {
 		return formData => {
-			console.log(formData, 'address details data');
 			saveData(formData);
 			setProceed({ flow, subType });
 		};
@@ -160,7 +159,7 @@ export default function AddressDetailsPage({
 			const formStat = JSON.parse(sessionStorage.getItem('formstate'));
 			return formStat.values;
 		} catch (error) {
-			console.log('error-AddressDetails-prefilledValues-', error);
+			// console.log('error-AddressDetails-prefilledValues-', error);
 			return {};
 		}
 	};
