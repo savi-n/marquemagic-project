@@ -42,6 +42,9 @@ const HomeLoanDetails = lazy(() => import('./loanDetails/HomeLoanDetails'));
 const CoApplicantDetails = lazy(() =>
 	import('./coappilcant/CoapplicantDetails')
 );
+const CoapplicantSection = lazy(() =>
+	import('./coapplicantSection/CoapplicantSection')
+);
 // const CoApplicantIncomeDetails = lazy(() =>
 // 	import('./coappilcant/CoapplicantIncomeDetails')
 // );
@@ -68,6 +71,7 @@ const availableRoutes = {
 	'personal-details': { protected: true, Component: PersonalDetails },
 	'address-details': { protected: true, Component: LoanAddressDetails },
 	'loan-address-details': { protected: true, Component: LoanAddressDetails },
+	'co-applicant-details': { protected: true, Component: CoapplicantSection },
 	// 'two-wheeler-loan-details': {
 	// 	protected: true,
 	// 	Component: TwoWheelerLoanDetails,
