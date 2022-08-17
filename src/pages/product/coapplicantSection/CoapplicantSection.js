@@ -221,8 +221,10 @@ export default function CoapplicantDetailsSection({
 		marital_status: '',
 		grossIncome: '',
 		netMonthlyIncome: '',
-		address: '',
-		locality: '',
+		address1: '',
+		address2: '',
+		address3: '',
+		address4: '',
 		city: '',
 		state: '',
 		pincode: '',
@@ -263,6 +265,7 @@ export default function CoapplicantDetailsSection({
 	};
 	const [applicantAddress, setApplicantAddress] = useState([]);
 	const getPresentAddress = index => {
+		// let applicantData = formReducer?.user?.applicantData;
 		showCoapplicant[index].presentAddressCheck = !showCoapplicant[index]
 			.presentAddressCheck;
 		setShowCoapplicant([...showCoapplicant]);
@@ -271,36 +274,7 @@ export default function CoapplicantDetailsSection({
 			console.log(sessionStorage.getItem('address_details'), '______');
 		}
 	};
-	const saveData = formData => {
-		let formatedAddress = [
-			formatAddressData(
-				'permanent',
-				formData,
-				map.fields['address-details'].data
-			),
-		];
 
-		!match &&
-			formatedAddress.push(
-				formatAddressData(
-					'present',
-					formData,
-					map.fields['address-details'].data
-				)
-			);
-		const formatApplicantData = {
-			...formatPersonalData(formData, map.fields['personal-details'].data),
-			typeName: userType,
-		};
-		setUsertypeApplicantData(
-			{ ...formatApplicantData, isEligibility: isEligibility },
-			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
-		);
-		setUsertypeAddressData(
-			formatedAddress,
-			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
-		);
-	};
 	const { addToast } = useToasts();
 	// const onSave = formData => {
 	// 	saveData(formData);
@@ -342,8 +316,8 @@ export default function CoapplicantDetailsSection({
 		console.log(reqBody, '--------------');
 		for (let i in showCoapplicant) {
 			let apiData = {
-				dfirstName: '',
-				dlastName: '',
+				dfirstname: '',
+				dlastname: '',
 				ddob: '',
 				dcontact: '',
 				demail: '',
@@ -364,8 +338,8 @@ export default function CoapplicantDetailsSection({
 				business_id: sessionStorage.getItem('business_id') || '',
 			};
 			let indexValue = Number(i) + 1;
-			apiData.dfirstName = data['firstName' + `${indexValue}`];
-			apiData.dlastName = data['lastName' + `${indexValue}`];
+			apiData.dfirstname = data['firstName' + `${indexValue}`];
+			apiData.dlastname = data['lastName' + `${indexValue}`];
 			apiData.ddob = data['dob' + `${indexValue}`];
 			apiData.dcontact = data['mobileNo' + `${indexValue}`];
 			apiData.demail = data['email' + `${indexValue}`];
@@ -410,7 +384,6 @@ export default function CoapplicantDetailsSection({
 			});
 		}
 
-		saveData(reqBody);
 		setCompleted(id);
 		onFlowChange(map.main);
 		setProceed(true);
