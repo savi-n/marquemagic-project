@@ -266,8 +266,20 @@ export default function CoapplicantDetailsSection({
 		}
 		setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
 	};
+	let personalDetailsJsonValue = map?.fields['personal-details'].data;
+	let salaryDetailsJsonValue = map?.fields['salary-details'].data;
+	let addressDetailsJsonValue = map?.fields['address-details'].data;
 	const deleteSection = index => {
-		let data = JSON.parse(JSON.stringify(formState));
+		personalDetailsJsonValue = personalDetailsJsonValue.map(d => {
+			delete formState.values[`${d.name}${index + 1}`];
+		});
+		salaryDetailsJsonValue = salaryDetailsJsonValue.map(d => {
+			delete formState.values[`${d.name}${index + 1}`];
+		});
+		addressDetailsJsonValue = addressDetailsJsonValue.map(d => {
+			delete formState.values[`permanent_${d.name}${index + 1}`];
+		});
+		let data = JSON.parse(JSON.stringify(formState.values));
 		let storeData = JSON.stringify(data);
 		let tempObject = storeData.replaceAll('permanent_', '');
 		let changedData = JSON.parse(tempObject);
