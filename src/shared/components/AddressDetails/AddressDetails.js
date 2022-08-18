@@ -75,15 +75,6 @@ export default function AddressDetails({
 	keyChange,
 	presentAddressCheck,
 }) {
-	useEffect(() => {
-		console.log(
-			'presentAddressCheck-',
-			presentAddressCheck,
-			preData,
-			preDataFilled
-		);
-	}, [preData]);
-
 	const presentAddress =
 		(preDataFilled &&
 			preDataFilled.filter(ele => ele.addressType === 'present')) ||
