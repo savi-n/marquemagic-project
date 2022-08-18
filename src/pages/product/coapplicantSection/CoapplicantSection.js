@@ -267,6 +267,12 @@ export default function CoapplicantDetailsSection({
 		setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
 	};
 	const deleteSection = index => {
+		let data = JSON.parse(JSON.stringify(formState));
+		let storeData = JSON.stringify(data);
+		let tempObject = storeData.replaceAll('permanent_', '');
+		let changedData = JSON.parse(tempObject);
+		setFlowData(changedData, id);
+
 		if (showCoapplicant.length > 1) {
 			showCoapplicant.splice(index, 1);
 			setShowCoapplicant([...showCoapplicant]);
@@ -402,6 +408,10 @@ export default function CoapplicantDetailsSection({
 						sessionStorage.getItem('userToken')}`,
 				},
 			});
+			addToast({
+				message: 'Saved Succesfully',
+				type: 'success',
+			});
 		} catch (er) {
 			console.error(er);
 			addToast({
@@ -531,9 +541,13 @@ export default function CoapplicantDetailsSection({
 								}}
 								alt='arrow'
 							/>
-							<DeleteIcon onClick={() => deleteSection(index)}>
-								<FontAwesomeIcon icon={faTrash} />
-							</DeleteIcon>
+							{showCoapplicant.length === index + 1 ? (
+								<DeleteIcon onClick={() => deleteSection(index)}>
+									<FontAwesomeIcon icon={faTrash} />
+								</DeleteIcon>
+							) : (
+								<DeleteIcon onClick={() => {}}>&nbsp;&nbsp;&nbsp;</DeleteIcon>
+							)}
 						</Section>
 
 						<Details open={!item.showFields}>
