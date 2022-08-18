@@ -397,7 +397,7 @@ export default function CoapplicantDetailsSection({
 			'number_of_coapplicants',
 			reqBody.co_applicant_director_partner_data.length
 		);
-		sessionStorage.setItem('coapplicant_data', JSON.stringify(showCoapplicant));
+		// sessionStorage.setItem('coapplicant_data', JSON.stringify(showCoapplicant));
 		setFlowData(changedData, id);
 		try {
 			const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
@@ -408,6 +408,9 @@ export default function CoapplicantDetailsSection({
 						sessionStorage.getItem('userToken')}`,
 				},
 			});
+			const res = submitCoapplicantsReq.data.data;
+			sessionStorage.setItem('coapplicant_response', JSON.stringify(res));
+			console.log(res, 'response from the api');
 			addToast({
 				message: 'Saved Succesfully',
 				type: 'success',
