@@ -23,7 +23,7 @@ import CheckBox from '../../../shared/components/Checkbox/CheckBox';
 import _, { set } from 'lodash';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import { COAPPLICANT_DETAILS } from '../../../_config/app.config';
-// const FaTrash = <FontAwesomeIcon icon={faTrash} />;
+
 const Section = styled.div`
 	display: flex;
 	align-items: center;
@@ -196,7 +196,7 @@ export default function CoapplicantDetailsSection({
 	productDetails,
 }) {
 	const [openCoApplicant, setOpenCoapplicant] = useState(true);
-
+	const [loading, setLoading] = useState(false);
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
@@ -266,8 +266,20 @@ export default function CoapplicantDetailsSection({
 		}
 		setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
 	};
+	let personalDetailsJsonValue = map?.fields['personal-details'].data;
+	let salaryDetailsJsonValue = map?.fields['salary-details'].data;
+	let addressDetailsJsonValue = map?.fields['address-details'].data;
 	const deleteSection = index => {
-		let data = JSON.parse(JSON.stringify(formState));
+		personalDetailsJsonValue = personalDetailsJsonValue.map(d => {
+			delete formState.values[`${d.name}${index + 1}`];
+		});
+		salaryDetailsJsonValue = salaryDetailsJsonValue.map(d => {
+			delete formState.values[`${d.name}${index + 1}`];
+		});
+		addressDetailsJsonValue = addressDetailsJsonValue.map(d => {
+			delete formState.values[`permanent_${d.name}${index + 1}`];
+		});
+		let data = JSON.parse(JSON.stringify(formState.values));
 		let storeData = JSON.stringify(data);
 		let tempObject = storeData.replaceAll('permanent_', '');
 		let changedData = JSON.parse(tempObject);
@@ -397,7 +409,7 @@ export default function CoapplicantDetailsSection({
 			'number_of_coapplicants',
 			reqBody.co_applicant_director_partner_data.length
 		);
-		// sessionStorage.setItem('coapplicant_data', JSON.stringify(showCoapplicant));
+		sessionStorage.setItem('coapplicant_data', JSON.stringify(showCoapplicant));
 		setFlowData(changedData, id);
 		try {
 			const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
@@ -408,6 +420,7 @@ export default function CoapplicantDetailsSection({
 						sessionStorage.getItem('userToken')}`,
 				},
 			});
+
 			const res = submitCoapplicantsReq.data.data;
 			sessionStorage.setItem('coapplicant_response', JSON.stringify(res));
 
@@ -637,10 +650,16 @@ export default function CoapplicantDetailsSection({
 				<AddCoapplicant onClick={() => addCoapplicant()}>
 					Add Co-applicant
 				</AddCoapplicant>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+				<Button
+					fill
+					name='Proceed'
+					loading={loading}
+					disabled={loading}
+					onClick={handleSubmit(onProceed)}
+				/>
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
-			{processing && (
+			{loading && (
 				<Modal show={true} onClose={() => {}} width='50%'>
 					<Loading />
 				</Modal>
