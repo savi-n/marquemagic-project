@@ -410,7 +410,7 @@ export default function CoapplicantDetailsSection({
 			});
 			const res = submitCoapplicantsReq.data.data;
 			sessionStorage.setItem('coapplicant_response', JSON.stringify(res));
-			console.log(res, 'response from the api');
+
 			addToast({
 				message: 'Saved Succesfully',
 				type: 'success',
