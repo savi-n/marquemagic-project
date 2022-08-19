@@ -524,6 +524,7 @@ export default function CoapplicantDetailsSection({
 						// TODO: remove below line,
 					};
 				});
+
 				if (presentAddressCheck) {
 					address1 = applicantPresentAddress?.address1;
 					address2 = applicantPresentAddress?.address2;
@@ -606,14 +607,18 @@ export default function CoapplicantDetailsSection({
 										// residenceStatus: residenceStatus || '',
 									}}
 								/>
-								<SalaryDetails
-									jsonData={salaryDetailsJson}
-									jsonLable={map?.fields['salary-details'].label}
-									register={register}
-									formState={formState}
-									incomeType={formState?.values?.incomeType || null}
-									preData={{ ...coApplicantData }}
-								/>
+								{formState?.values?.[`incomeType${index + 1}`] != 0 ? (
+									<SalaryDetails
+										jsonData={salaryDetailsJson}
+										jsonLable={map?.fields?.['salary-details'].label}
+										register={register}
+										formState={formState}
+										incomeType={
+											formState?.values?.[`incomeType${index + 1}`] || null
+										}
+										preData={{ ...coApplicantData }}
+									/>
+								) : null}
 
 								<H>
 									Help us with your <span>Address Details</span>
