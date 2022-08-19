@@ -25,6 +25,7 @@ import {
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
 	AUTHENTICATION_GENERATE_OTP,
+	DELETE_DOCUMENT,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -37,6 +38,7 @@ import { CaseContext } from '../../../reducer/caseReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
 import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
+import _ from 'lodash';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -183,7 +185,6 @@ function fileStructure(documents, type) {
 		}));
 }
 
-//console.log('coApplicant', coApplicantResponse);
 let url = window.location.hostname;
 let userToken = sessionStorage.getItem(url);
 // console.log('loan-doc-upload-userToken-', {
@@ -889,8 +890,7 @@ export default function DocumentUpload({
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
 	const [openKycdoc, setOpenKycDoc] = useState(true);
-	const [coApplicants, setCoapplicants] = useState([]);
-	const [openCoKycdoc, setCoOpenKycDoc] = useState(true);
+	const [openCoKycdoc, setCoOpenKycDoc] = useState(false);
 	const [openFinancialdoc, setOpenFinancialDoc] = useState(false);
 	const [openCoFinancialdoc, setCoOpenFinancialDoc] = useState(false);
 	const [openOtherdoc, setOpenOtherDoc] = useState(false);
@@ -913,10 +913,6 @@ export default function DocumentUpload({
 	);
 	const [loading, setLoading] = useState(false);
 
-	const coApplicantResponse = sessionStorage.getItem('coapplicant_response')
-		? JSON.parse(sessionStorage.getItem('coapplicant_response'))
-		: false;
-
 	//console.log('coApplicantId', coApplicantId);
 	let applicantData = JSON.parse(sessionStorage.getItem(url))?.formReducer?.user
 		.applicantData;
@@ -924,17 +920,19 @@ export default function DocumentUpload({
 		sessionStorage.getItem('companyData') &&
 		JSON.parse(sessionStorage.getItem('companyData'));
 	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isEditLoan = !!editLoan?.loan_ref_id;
 	const API_TOKEN = sessionStorage.getItem('userToken');
 	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
-
 	const business_income_type_id =
 		applicantData?.incomeType ||
 		state['business-details']?.BusinessType ||
 		companyData?.BusinessType ||
 		editLoan?.business_id?.businesstype ||
 		'';
-
+	const coApplicants = sessionStorage.getItem('coapplicant_response')
+		? JSON.parse(sessionStorage.getItem('coapplicant_response'))
+		: [];
 	// console.log('LoanDocumentsUpload-allstates-', {
 	// 	state,
 	// 	business_income_type_id,
@@ -999,10 +997,6 @@ export default function DocumentUpload({
 			encryptWhiteLabelRes.encrypted_whitelabel[0]
 		);
 	};
-	useEffect(() => {
-		setCoapplicants(coApplicantResponse);
-		// eslint-disable-next-line
-	}, []);
 
 	useEffect(() => {
 		const startingDocs = state?.documents || [];
@@ -1089,28 +1083,6 @@ export default function DocumentUpload({
 	useEffect(() => {
 		setLoading(true);
 		if (response) {
-			// disabled looks unsed code
-			// const getAddressDetails = async () => {
-			// 	const response = await newRequest(
-			// 		PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }),
-			// 		{}
-			// 	);
-			// 	const data = response.data;
-
-			// 	busniess = {
-			// 		...busniess,
-			// 		Address: {
-			// 			...busniess.Address,
-			// 			st: data?.state?.[0],
-			// 			city: data?.district?.[0],
-			// 		},
-			// 	};
-			// };
-
-			// if (busniess && busniess.Address) {
-			// 	getAddressDetails();
-			// }
-
 			let optionArray = [];
 			DOCUMENTS_TYPE.forEach(docType => {
 				optionArray = [
@@ -1180,6 +1152,7 @@ export default function DocumentUpload({
 				const newFin = [];
 				const newOtr = [];
 				editLoan.loan_document.map(doc => {
+					if (doc.deleted_by) return null;
 					const newDoc = {
 						...doc,
 						name:
@@ -1206,88 +1179,6 @@ export default function DocumentUpload({
 		// eslint-disable-next-line
 	}, [response]);
 
-	// disabled looks un-used code
-
-	// const onCibilModalClose = (success, data) => {
-	// 	if (!success) {
-	// 		setCibilCheckbox(false);
-	// 	}
-
-	// 	if (success) {
-	// 		setUsertypeCibilData(
-	// 			{
-	// 				cibilScore: data.cibilScore,
-	// 				requestId: data.requestId,
-	// 			},
-	// 			USER_ROLES[userType || 'User']
-	// 		);
-	// 	}
-	// 	addToast({
-	// 		message: data.message,
-	// 		type: success ? 'success' : 'error',
-	// 	});
-
-	// 	setCibilCheckModal(false);
-	// };
-
-	// useEffect(() => {
-	// 	if (busniess && busniess.Address) {
-	// 		const getAddressDetails = async () => {
-	// 			const response = await newRequest(
-	// 				PINCODE_ADRRESS_FETCH({ pinCode: busniess.Address?.pncd || '' }),
-	// 				{}
-	// 			);
-	// 			const data = response.data;
-
-	// 			busniess = {
-	// 				...busniess,
-	// 				Address: {
-	// 					...busniess.Address,
-	// 					st: data?.state?.[0],
-	// 					city: data?.district?.[0],
-	// 				},
-	// 			};
-	// 		};
-	// 	}
-	// }, []);
-
-	// const handleDocumentChecklist = (doc) => {
-	//   return (value) => {
-	//     if (value) setDocumentChecklist([...documentChecklist, doc]);
-	//     else setDocumentChecklist(documentChecklist.filter((d) => d !== doc));
-	//   };
-	// };
-
-	// step 2: upload docs reference
-	// const updateDocumentList = async (loanId, user) => {
-	// 	try {
-	// 		const uploadDocsReq = await newRequest(
-	// 			BORROWER_UPLOAD_URL,
-	// 			{
-	// 				method: 'POST',
-	// 				data: {
-	// 					upload_document: state[user]?.uploadedDocs?.map(({ id, ...d }) => ({
-	// 						...d,
-	// 						loan_id: loanId,
-	// 					})),
-	// 				},
-	// 			},
-	// 			{
-	// 				//   Authorization: `Bearer ${userToken}`,
-	// 			}
-	// 		);
-
-	// 		const uploadDocsRes = uploadDocsReq.data;
-	// 		if (uploadDocsRes.status === NC_STATUS_CODE.OK) {
-	// 			return uploadDocsRes;
-	// 		}
-	// 		throw new Error(uploadDocsRes.message);
-	// 	} catch (err) {
-	// 		console.log('STEP: 2 => UPLOAD DOCUMENT REFERENCE ERROR', err.message);
-	// 		throw new Error(err.message);
-	// 	}
-	// };
-
 	const handleFileUpload = async (files, director_id = false) => {
 		const newFiles = [];
 		if (director_id) {
@@ -1296,7 +1187,39 @@ export default function DocumentUpload({
 		setLoanDocuments(director_id ? newFiles : files);
 	};
 
-	const handleFileRemove = async fileId => {
+	const handleFileRemove = async (fileId, file) => {
+		// console.log('handleFileRemove-', { fileId, file });
+		if (isEditLoan && (file?.business_id || file?.loan)) {
+			const reqBody = {
+				loan_doc_id: file?.id || '',
+				business_id: file?.business_id || editLoan?.business_id?.id || '',
+				loan_id: file?.loan || editLoan?.id || '',
+				userid: file?.user_id || '',
+			};
+			const newEditLoan = _.cloneDeep(editLoan);
+			const editDocIndex = newEditLoan.loan_document.findIndex(
+				d => d.id === fileId
+			);
+			if (editDocIndex !== -1)
+				newEditLoan.loan_document[editDocIndex].deleted_by = reqBody.userid;
+			sessionStorage.setItem('editLoan', JSON.stringify(newEditLoan));
+			// console.log('reqBody-', reqBody);
+			// return;
+			newRequest(
+				DELETE_DOCUMENT,
+				{
+					method: 'POST',
+					data: reqBody,
+				},
+				{
+					Authorization: `Bearer ${
+						JSON.parse(userToken)?.userReducer?.userToken
+					}`,
+				}
+			).then(res => {
+				// console.log('handleFileRemove-Server-res', res);
+			});
+		}
 		removeLoanDocument(fileId);
 	};
 
@@ -1812,7 +1735,6 @@ export default function DocumentUpload({
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 				/>
 			)}
-
 			<Colom1>
 				<H>
 					<span>Applicant Document Upload</span>
@@ -2016,20 +1938,18 @@ export default function DocumentUpload({
 						}}
 					/>
 				</UploadWrapper> */}
-				<Hr />
-				<br />
 				{coApplicants.map((coApplicant, index) => {
 					return (
 						<>
-							{index === 0 ? (
-								<H>
-									<span>Co-Applicant Document Upload</span>
-								</H>
-							) : (
-								<H>
-									<span>Co-Applicant Document {index + 1} Upload</span>
-								</H>
-							)}
+							<div style={{ height: 20 }} />
+							<Hr />
+							<div style={{ height: 30 }} />
+							<H>
+								<span>
+									Co-Applicant {coApplicants.length > 0 ? ` ${index + 1} ` : ''}
+									Document Upload
+								</span>
+							</H>
 							{CoKycDocOptions.length > 0 ? (
 								<>
 									<Section onClick={() => openCloseCollapsCoapplicant('KYC')}>
@@ -2211,7 +2131,7 @@ export default function DocumentUpload({
 								background: 'blue',
 							}}
 							isLoader={caseCreationProgress}
-							disabled={buttonDisabledStatus()}
+							disabled={caseCreationProgress || buttonDisabledStatus()}
 							onClick={!caseCreationProgress && onSubmitOtpAuthentication}
 						/>
 					) : (
@@ -2223,7 +2143,7 @@ export default function DocumentUpload({
 								background: 'blue',
 							}}
 							isLoader={caseCreationProgress}
-							disabled={buttonDisabledStatus()}
+							disabled={caseCreationProgress || buttonDisabledStatus()}
 							onClick={!caseCreationProgress && onSubmitCompleteApplication}
 						/>
 					)}
@@ -2235,31 +2155,6 @@ export default function DocumentUpload({
 					/>
 				)}
 			</Colom1>
-
-			{/* <Colom2>
-				<Doc>Documents Required</Doc>
-				<div>
-					{DOCUMENTS_TYPE.map(docType =>
-						response?.[docType[1]]?.length ? (
-							<Fragment key={docType[0]}>
-								<DocTypeHead>{docType[0]}</DocTypeHead>
-								{response?.[docType[1]]?.map(doc => (
-									<DocsCheckboxWrapper key={doc.doc_type_id}>
-										<CheckBox
-											name={doc.name}
-											checked={documentChecklist.includes(doc.name)}
-											// onChange={handleDocumentChecklist(docs)}
-											round
-											disabled
-											bg='green'
-										/>
-									</DocsCheckboxWrapper>
-								))}
-							</Fragment>
-						) : null
-					)}
-				</div>
-			</Colom2> */}
 		</>
 	);
 }

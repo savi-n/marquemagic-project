@@ -370,7 +370,7 @@ export default function BankStatementModal({ showModal, onClose }) {
 			//   : flowCompleted();
 			// }
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 		setProcessing(false);
 	};

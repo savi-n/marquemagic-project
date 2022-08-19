@@ -24,6 +24,7 @@ import {
 } from '../../../_config/app.config';
 import useFetch from '../../../hooks/useFetch';
 import ConfirmModal from 'components/modals/ConfirmModal';
+import moment from 'moment';
 
 const Div = styled.div`
 	flex: 1;
@@ -118,7 +119,7 @@ export default function FormController({
 			getBranchOptions();
 		}
 		return () => {
-			console.log('unmount form');
+			// console.log('unmount form');
 		};
 		// eslint-disable-next-line
 	}, []);
@@ -135,7 +136,7 @@ export default function FormController({
 				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
 			}
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 		}
 	};
 
@@ -461,6 +462,8 @@ export default function FormController({
 	)
 		displayProceedButton = ButtonConfirm;
 
+	// console.log('FormController-allstates-', { form });
+
 	return (
 		<>
 			<ConfirmModal
@@ -478,6 +481,9 @@ export default function FormController({
 					preData={{
 						...form,
 						panNumber: sessionStorage.getItem('pan') || form?.panNumber || '',
+						BusinessVintage: form?.BusinessVintage
+							? moment(form?.BusinessVintage).format('YYYY-MM-DD')
+							: '',
 					}}
 					jsonData={map?.fields[id]?.data || []}
 					id={id}

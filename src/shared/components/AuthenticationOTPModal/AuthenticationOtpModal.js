@@ -168,7 +168,7 @@ const AuthenticationOTPModal = props => {
 			}
 			setVerifyingOtp(false);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			if (
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
@@ -223,7 +223,7 @@ const AuthenticationOTPModal = props => {
 				});
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			setErrorMsg(
 				error?.response?.data?.message ||
 					' Authentication cannot be validated due to technical failure. Please try again after sometime'
