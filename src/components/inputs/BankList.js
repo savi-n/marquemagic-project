@@ -16,7 +16,11 @@ import { BussinesContext } from '../../reducer/bussinessReducer';
 // 	border-radius: 6px;
 // `;
 
-export default function BankList({ field, onSelectOptionCallback }) {
+export default function BankList(props) {
+	const { field, onSelectOptionCallback, value } = props;
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = editLoanData?.isViewLoan;
+	// console.log('BankList-', props);
 	const {
 		state: { userToken },
 	} = useContext(UserContext);
@@ -45,10 +49,13 @@ export default function BankList({ field, onSelectOptionCallback }) {
 
 	return (
 		<SearchSelect
+			field={field}
 			name={field.name}
 			placeholder={field.placeholder || ''}
 			options={options}
 			onSelectOptionCallback={onSelectOptionCallback}
+			defaultValue={value}
+			disabled={isViewLoan}
 		/>
 	);
 }

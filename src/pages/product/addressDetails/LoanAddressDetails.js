@@ -130,6 +130,9 @@ export default function AddressDetailsPage({
 	//const [saved, setSaved] = useState(false);
 	const [match, setMatch] = useState(false);
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isEditLoan = editLoanData?.loan_ref_id;
+
 	const onSave = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 
@@ -145,6 +148,7 @@ export default function AddressDetailsPage({
 			type: 'success',
 		});
 	};
+
 	const businessProfileUpdate = async formData => {
 		try {
 			if (!companyData) {
@@ -187,6 +191,10 @@ export default function AddressDetailsPage({
 				aid: 2,
 				origin: 'nconboarding',
 			};
+			if (isEditLoan) {
+				reqBody.business_id = editLoanData?.business_id?.id;
+				reqBody.baid = editLoanData?.business_address?.[0]?.id;
+			}
 			const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
 				method: 'POST',
 				data: reqBody,
@@ -312,7 +320,6 @@ export default function AddressDetailsPage({
 		});
 		return BAddress;
 	};
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 
 	const Address =
 		(form && form.address && form.address[0]) ||

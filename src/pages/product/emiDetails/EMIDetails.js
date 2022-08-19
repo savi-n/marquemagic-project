@@ -231,14 +231,14 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 						existing_auto_loan_bank_id = ele?.bank_name;
 					}
 					if (i === 1) {
-						existing_lap_loan = ele?.emiAmount;
-						existing_lap_loan_bank_name = ele?.bank_name;
-						existing_lap_loan_bank_id = ele?.bank_name;
-					}
-					if (i === 1) {
 						existing_personal_loan = ele?.emiAmount;
 						existing_personal_loan_bank_name = ele?.bank_name;
 						existing_personal_loan_bank_id = ele?.bank_name;
+					}
+					if (i === 2) {
+						existing_lap_loan = ele?.emiAmount;
+						existing_lap_loan_bank_name = ele?.bank_name;
+						existing_lap_loan_bank_id = ele?.bank_name;
 					}
 					return null;
 				});

@@ -169,7 +169,6 @@ export default function CoapplicantDetails({
 	// console.log('coapplicantdetails-guaranter-state', state);
 	let {
 		aadhaar,
-		countryResidence,
 		dob,
 		email,
 		firstName,
@@ -178,6 +177,8 @@ export default function CoapplicantDetails({
 		mobileNo,
 		panNumber,
 		residenceStatus,
+		maritalStatus = '',
+		countryResidence = '',
 	} =
 		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 			?.applicantData || {};
@@ -203,12 +204,13 @@ export default function CoapplicantDetails({
 		lastName = director[0]?.dlastname;
 		incomeType = director[0]?.income_type;
 		aadhaar = director[0]?.daadhaar;
-		countryResidence = director[0]?.country_residence;
 		dob = director[0]?.ddob;
 		email = director[0]?.demail;
 		mobileNo = director[0]?.dcontact;
 		panNumber = director[0]?.dpancard;
 		residenceStatus = director[0]?.residence_status;
+		maritalStatus = director[0]?.marital_status;
+		countryResidence = director[0]?.country_residence;
 
 		address1 = director[0]?.address1;
 		address2 = director[0]?.address2;
@@ -236,7 +238,9 @@ export default function CoapplicantDetails({
 					lastName: lastName || '',
 					mobileNo: mobileNo || '',
 					panNumber: panNumber || '',
-					residenceStatus: residenceStatus || '',
+					residenceStatusGuarantor: residenceStatus || '',
+					maritalStatusGuarantor: maritalStatus || '',
+					countryResidenceGuarantor: countryResidence || '',
 				}}
 			/>
 			<AddressDetails

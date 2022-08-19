@@ -450,6 +450,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 				<BankList
 					field={{ ...field, ...fieldProps }}
 					onSelectOptionCallback={onChange}
+					value={value}
 				/>
 			);
 		}
