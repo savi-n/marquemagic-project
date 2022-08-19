@@ -5,7 +5,7 @@
 - 3 address proof upload screen (aadhaar-voter-dl-passport)
 */
 
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import useForm from '../../../hooks/useForm';
 import useFetch from '../../../hooks/useFetch';
@@ -31,7 +31,6 @@ import {
 } from '../../../_config/app.config';
 import {
 	getKYCData,
-	verifyPan,
 	gstFetch,
 	getKYCDataId,
 	verifyKycDataUiUx,
@@ -255,12 +254,10 @@ export default function PanVerification({
 	} = useContext(FlowContext);
 
 	const {
-		state: { documents: loanDocuments },
 		actions: {
 			setLoanDocuments,
 			removeAllLoanDocuments,
 			setLoanDocumentType,
-			removeLoanDocument,
 			removeAllAddressProofLoanDocuments,
 		},
 	} = useContext(LoanFormContext);
@@ -313,7 +310,7 @@ export default function PanVerification({
 	// const [backUpload, setBackUpload] = useState(false);
 	// const [backUploading, setBackUploading] = useState(false);
 	// const [disableButton, setDisableSubmit] = useState(false);
-	const [panFileId, setPanFileId] = useState(null);
+	const [, setPanFileId] = useState(null);
 	const [isError, setIsError] = useState(false);
 	const [isWarning, setIsWarning] = useState(false);
 	const [selectedAddressProof, setSelectedAddressProof] = useState('');
@@ -322,9 +319,7 @@ export default function PanVerification({
 	const [addressProofDocs, setAddressProofDocs] = useState([]);
 	const [extractionDataRes, setExtractionDataRes] = useState({});
 	const [panExtractionData, setPanExtractionData] = useState({});
-	const [addressProofExtractionData, setAddressProofExtractionData] = useState(
-		{}
-	);
+	const [, setAddressProofExtractionData] = useState({});
 	const [searchingCompanyName, setSearchingCompanyName] = useState(false);
 	// const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	// const [panNum, setPan] = useState('');
@@ -1001,10 +996,12 @@ export default function PanVerification({
 
 		if (address) {
 			let locationArr = address && address?.split(' ');
+			// eslint-disable-next-line
 			let y = locationArr?.map(e => Number(e) !== NaN && e);
 			let pin;
 			y.map(e => {
 				if (e?.length === 6) pin = e;
+				return null;
 			});
 
 			formState.values.pin = pinCode || pin;
@@ -1312,9 +1309,6 @@ export default function PanVerification({
 		}
 	};
 
-	let isFrontTagged = false;
-	let isBackTagged = false;
-	let isFrontBackTagged = false;
 	let isInActiveAddressProofUpload = false;
 	let isProceedDisabledAddressProof = true;
 	let isSkipOptionDisabled = false;

@@ -9,7 +9,6 @@ import Button from '../../../components/Button';
 import EMIDetails from '../../../shared/components/EMIDetails/EMIDetails';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
 import { UserContext } from '../../../reducer/userReducer';
 import { BussinesContext } from '../../../reducer/bussinessReducer';
 
@@ -120,9 +119,6 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 		actions: { setUsertypeEmiData, setFlowData },
 	} = useContext(FormContext);
 
-	const {
-		actions: { setLoanData },
-	} = useContext(LoanFormContext);
 	const {
 		state: { userToken },
 	} = useContext(UserContext);

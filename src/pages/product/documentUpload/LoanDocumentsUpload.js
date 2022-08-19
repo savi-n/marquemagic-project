@@ -1569,6 +1569,7 @@ export default function DocumentUpload({
 					setCaseCreationProgress(false);
 					return null;
 				}
+				return null;
 			});
 		}
 		// console.log('LoanDocumentsUpload-isFormValid-', {

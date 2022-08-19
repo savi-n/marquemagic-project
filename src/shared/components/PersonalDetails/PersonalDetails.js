@@ -308,7 +308,8 @@ export default function PersonalDetails({
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isEditLoan = editLoanData?.loan_ref_id;
 	const isViewLoan = editLoanData?.isViewLoan;
-	// console.log('PersonalDetails-states-', { preData, productDetails });
+
+	// console.log('PersonalDetails-states-', { preData, productDetails, userType });
 
 	return (
 		<>
@@ -321,7 +322,8 @@ export default function PersonalDetails({
 				/>
 			)}
 			<H>
-				{userType || 'Help us with your'}{' '}
+				{userType ||
+					`Help us with ${id?.includes('co-applicant') ? '' : 'your'}`}{' '}
 				<span>{pageName || 'Personal Details'}</span>
 			</H>
 			<FormWrap>

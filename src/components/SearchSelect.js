@@ -133,7 +133,7 @@ export default function SearchSelect(props) {
 		onSelectOptionCallback,
 		searchOptionCallback,
 		onBlurCallback,
-		searchKeyAsValue,
+		// searchKeyAsValue,
 		rules,
 		disabled,
 		field,
