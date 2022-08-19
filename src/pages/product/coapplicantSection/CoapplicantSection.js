@@ -12,8 +12,6 @@ import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetail
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 import useCaseCreation from '../../../components/CaseCreation';
-import Loading from '../../../components/Loading';
-import Modal from '../../../components/Modal';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -631,11 +629,6 @@ const CoapplicantDetailsSection = props => {
 				/>
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
-			{loading && (
-				<Modal show={true} onClose={() => {}} width='50%'>
-					<Loading />
-				</Modal>
-			)}
 		</Div>
 	);
 };
