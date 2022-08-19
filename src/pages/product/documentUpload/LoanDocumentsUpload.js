@@ -25,8 +25,6 @@ import {
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
 	AUTHENTICATION_GENERATE_OTP,
-	WHITE_LABEL_URL,
-	APP_CLIENT,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -39,7 +37,6 @@ import { CaseContext } from '../../../reducer/caseReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
 import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
-import { concat } from 'lodash';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -92,8 +89,8 @@ const SubmitWrapper = styled.div`
 `;
 
 const H = styled.h1`
-	font-size: 1.5em;
-	font-weight: 500;
+	font-size: 1.3em;
+	font-weight: 600;
 	margin-bottom: 20px;
 	span {
 		color: ${({ theme }) => theme.main_theme_color};
@@ -182,9 +179,11 @@ function fileStructure(documents, type) {
 			// field: "",
 			value: file.doc_type_id || file.typeId, // doctype_id
 			password: file?.password,
+			director_id: file?.director_id,
 		}));
 }
 
+//console.log('coApplicant', coApplicantResponse);
 let url = window.location.hostname;
 let userToken = sessionStorage.getItem(url);
 // console.log('loan-doc-upload-userToken-', {
@@ -193,6 +192,7 @@ let userToken = sessionStorage.getItem(url);
 // });
 let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
+
 //console.log('form from loanDetails', form);
 //console.log('form from loanDetails', loan);
 
@@ -889,11 +889,15 @@ export default function DocumentUpload({
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
 	const [openKycdoc, setOpenKycDoc] = useState(true);
+	const [coApplicants, setCoapplicants] = useState([]);
+	const [openCoKycdoc, setCoOpenKycDoc] = useState(true);
 	const [openFinancialdoc, setOpenFinancialDoc] = useState(false);
+	const [openCoFinancialdoc, setCoOpenFinancialDoc] = useState(false);
 	const [openOtherdoc, setOpenOtherDoc] = useState(false);
-
 	const [KycDocOptions, setKycDocOptions] = useState([]);
+	const [CoKycDocOptions, setCoKycDocOptions] = useState([]);
 	const [FinancialDocOptions, setFinancialDocOptions] = useState([]);
+	const [CoFinancialDocOptions, setCoFinancialDocOptions] = useState([]);
 	const [OtherDocOptions, setOtherDocOptions] = useState([]);
 	const [prefilledKycDocs, setPrefilledKycDocs] = useState([]);
 	const [prefilledFinancialDocs, setPrefilledFinancialDocs] = useState([]);
@@ -909,6 +913,11 @@ export default function DocumentUpload({
 	);
 	const [loading, setLoading] = useState(false);
 
+	const coApplicantResponse = sessionStorage.getItem('coapplicant_response')
+		? JSON.parse(sessionStorage.getItem('coapplicant_response'))
+		: false;
+
+	//console.log('coApplicantId', coApplicantId);
 	let applicantData = JSON.parse(sessionStorage.getItem(url))?.formReducer?.user
 		.applicantData;
 	const companyData =
@@ -990,9 +999,13 @@ export default function DocumentUpload({
 			encryptWhiteLabelRes.encrypted_whitelabel[0]
 		);
 	};
+	useEffect(() => {
+		setCoapplicants(coApplicantResponse);
+		// eslint-disable-next-line
+	}, []);
 
 	useEffect(() => {
-		const startingDocs = state.documents || [];
+		const startingDocs = state?.documents || [];
 		// console.log('loan-doc-upload-useEffect-', {
 		// 	startingDocs,
 		// 	flowMap,
@@ -1114,9 +1127,13 @@ export default function DocumentUpload({
 			//console.log('option Array', optionArray);
 			const kycDocDropdown = [];
 			const financialDocDropdown = [];
+			const CokycDocDropdown = [];
+			const CoFinancialDocDropdown = [];
 			const otherDocDropdown = [];
 			const kycDocIds = [];
 			const finDocIds = [];
+			const CokycDocIds = [];
+			const CoFinDocIds = [];
 			const othDocIds = [];
 			optionArray.map(ele => {
 				if (ele.main === 'KYC') {
@@ -1133,11 +1150,26 @@ export default function DocumentUpload({
 				}
 				return null;
 			});
+			const coApplicantArray = [...optionArray];
+			coApplicantArray.map(ele => {
+				if (ele.main === 'KYC') {
+					CokycDocDropdown.push(ele);
+					CokycDocIds.push(ele.value);
+				}
+				if (ele.main === 'Financial') {
+					CoFinancialDocDropdown.push(ele);
+					CoFinDocIds.push(ele.value);
+				}
+				return null;
+			});
 			setKycDocOptions(kycDocDropdown);
 			setFinancialDocOptions(financialDocDropdown);
 			setOtherDocOptions(otherDocDropdown);
-			//setDocumentTypeOptions(optionArray);
+			setCoKycDocOptions(CokycDocDropdown);
+			setCoFinancialDocOptions(CoFinancialDocDropdown);
 
+			//setDocumentTypeOptions(optionArray);
+			//console.log('coapplicant', coApplicant);
 			// console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
 			if (
 				editLoan &&
@@ -1256,8 +1288,12 @@ export default function DocumentUpload({
 	// 	}
 	// };
 
-	const handleFileUpload = async files => {
-		setLoanDocuments(files);
+	const handleFileUpload = async (files, director_id = false) => {
+		const newFiles = [];
+		if (director_id) {
+			files.map(f => newFiles.push({ ...f, director_id }));
+		}
+		setLoanDocuments(director_id ? newFiles : files);
 	};
 
 	const handleFileRemove = async fileId => {
@@ -1279,7 +1315,7 @@ export default function DocumentUpload({
 			// Business_details - businessid
 			// loan_details - loanId
 			// director_details - id
-			let uploaddedDoc = state.documents.filter(doc => {
+			let uploaddedDoc = state?.documents.filter(doc => {
 				if (!doc.requestId) return doc;
 				return null;
 			});
@@ -1358,7 +1394,7 @@ export default function DocumentUpload({
 				//**** uploadCacheDocuments
 				//console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
 				const uploadCacheDocsArr = [];
-				state.documents.map(doc => {
+				state?.documents.map(doc => {
 					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 					if (!doc.typeId) return null;
 					if (doc.requestId) {
@@ -1710,15 +1746,41 @@ export default function DocumentUpload({
 			setOpenOtherDoc(!openOtherdoc);
 		}
 	};
+	const openCloseCollapsCoapplicant = name => {
+		if (name === 'KYC') {
+			setCoOpenKycDoc(!openCoKycdoc);
+		}
+		if (name === 'Financial') {
+			setCoOpenFinancialDoc(!openCoFinancialdoc);
+		}
+	};
 	let kyccount = 0;
+	let kycCoCount = 0;
 	let financialCount = 0;
+	let fincacialCoCount = 0;
 	let otherCount = 0;
 
 	// const documentChecklist = state?.documents?.map(docs => docs.typeName) || [];
 
 	state?.documents?.map(docs => {
-		if (docs.mainType === 'KYC') kyccount++;
-		if (docs.mainType === 'Financial') financialCount++;
+		if (docs.mainType === 'KYC') {
+			kyccount++;
+		}
+		if (docs.mainType === 'Financial') {
+			financialCount++;
+		}
+
+		if (docs.mainType === 'Others') otherCount++;
+		return null;
+	});
+	state?.documents?.map(docs => {
+		if (docs.director_id && docs.mainType === 'KYC') {
+			kycCoCount++;
+		}
+		if (docs.director_id && docs.mainType === 'Financial') {
+			fincacialCoCount++;
+		}
+
 		if (docs.mainType === 'Others') otherCount++;
 		return null;
 	});
@@ -1753,7 +1815,7 @@ export default function DocumentUpload({
 
 			<Colom1>
 				<H>
-					{userType ?? 'Help Us with'} <span>Document Upload</span>
+					<span>Applicant Document Upload</span>
 				</H>
 				{loading && (
 					<LoaderWrapper>
@@ -1785,9 +1847,7 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						<Details open={!openKycdoc}>
-							<Hr />
-						</Details>
+						<Details open={!openKycdoc} />
 						<Details open={openKycdoc}>
 							<UploadWrapper open={openKycdoc}>
 								<FileUpload
@@ -1844,9 +1904,7 @@ export default function DocumentUpload({
 								alt='arrow'
 							/>
 						</Section>
-						<Details open={!openFinancialdoc}>
-							<Hr />
-						</Details>
+						<Details open={!openFinancialdoc} />
 						<Details open={openFinancialdoc}>
 							<UploadWrapper open={openFinancialdoc}>
 								<FileUpload
@@ -1958,6 +2016,151 @@ export default function DocumentUpload({
 						}}
 					/>
 				</UploadWrapper> */}
+				<Hr />
+				<br />
+				{coApplicants.map((coApplicant, index) => {
+					return (
+						<>
+							{index === 0 ? (
+								<H>
+									<span>Co-Applicant Document Upload</span>
+								</H>
+							) : (
+								<H>
+									<span>Co-Applicant Document {index + 1} Upload</span>
+								</H>
+							)}
+							{CoKycDocOptions.length > 0 ? (
+								<>
+									<Section onClick={() => openCloseCollapsCoapplicant('KYC')}>
+										<H1>KYC </H1>
+										<div
+											style={{
+												marginLeft: 10,
+												alignItems: 'center',
+												display: 'flex',
+											}}>
+											Document Submitted :
+											<StyledButton width={'auto'} fill>
+												{kycCoCount} of {CoKycDocOptions.length}
+											</StyledButton>
+										</div>
+										<CollapseIcon
+											src={downArray}
+											style={{
+												transform: openCoKycdoc ? `rotate(180deg)` : `none`,
+												marginLeft: 'auto',
+											}}
+											alt='arrow'
+										/>
+									</Section>
+									<Details open={!openCoKycdoc} />
+									<Details open={openCoKycdoc}>
+										<UploadWrapper open={openCoKycdoc}>
+											<FileUpload
+												// prefilledDocs={prefilledKycDocs}
+												// startingTaggedDocs={startingKYCDoc}
+												//startingUnTaggedDocs={startingUnTaggedKYCDocs}
+												sectionType='kyc'
+												section={'document-upload'}
+												onDrop={files =>
+													handleFileUpload(files, coApplicant?.id)
+												}
+												onRemoveFile={handleFileRemove}
+												docTypeOptions={CoKycDocOptions}
+												documentTypeChangeCallback={handleDocumentTypeChange}
+												accept=''
+												upload={{
+													url: DOCS_UPLOAD_URL({
+														userId:
+															companyDetail?.userId ||
+															JSON.parse(userToken)?.userReducer?.userId ||
+															'',
+													}),
+													header: {
+														Authorization: `Bearer ${companyDetail?.token ||
+															JSON.parse(userToken)?.userReducer?.userToken ||
+															''}`,
+													},
+												}}
+											/>
+										</UploadWrapper>
+									</Details>
+								</>
+							) : null}
+							{coApplicant.income_type === 'noIncome'
+								? null
+								: CoFinancialDocOptions.length > 0 && (
+										<>
+											<Section
+												onClick={() =>
+													openCloseCollapsCoapplicant('Financial')
+												}>
+												<H1>Financial </H1>
+												<div
+													style={{
+														marginLeft: 10,
+														alignItems: 'center',
+														/* minWidth: '500px', */
+														display: 'flex',
+													}}>
+													Document Submitted :
+													<StyledButton width={'auto'} fill>
+														{fincacialCoCount} of {CoFinancialDocOptions.length}
+													</StyledButton>
+												</div>
+												<CollapseIcon
+													src={downArray}
+													style={{
+														transform: openCoFinancialdoc
+															? `rotate(180deg)`
+															: `none`,
+														marginLeft: 'auto',
+													}}
+													alt='arrow'
+												/>
+											</Section>
+
+											<Details open={openCoFinancialdoc}>
+												<UploadWrapper open={openCoFinancialdoc}>
+													<FileUpload
+														prefilledDocs={prefilledFinancialDocs}
+														startingTaggedDocs={startingFinDoc}
+														startingUnTaggedDocs={startingUnTaggedFinDocs}
+														sectionType='financial'
+														section={'document-upload'}
+														onDrop={files =>
+															handleFileUpload(files, coApplicant?.id)
+														}
+														onRemoveFile={handleFileRemove}
+														docTypeOptions={CoFinancialDocOptions}
+														documentTypeChangeCallback={
+															handleDocumentTypeChange
+														}
+														accept=''
+														upload={{
+															url: DOCS_UPLOAD_URL({
+																userId:
+																	companyDetail?.userId ||
+																	JSON.parse(userToken)?.userReducer?.userId ||
+																	'',
+															}),
+															header: {
+																Authorization: `Bearer ${companyDetail?.token ||
+																	JSON.parse(userToken)?.userReducer
+																		?.userToken ||
+																	''}`,
+															},
+														}}
+													/>
+												</UploadWrapper>
+											</Details>
+										</>
+								  )}
+						</>
+					);
+				})}
+				<br />
 				<Button
 					name='Get Other Bank Statements'
 					onClick={onOtherStatementModalToggle}
@@ -2032,6 +2235,7 @@ export default function DocumentUpload({
 					/>
 				)}
 			</Colom1>
+
 			{/* <Colom2>
 				<Doc>Documents Required</Doc>
 				<div>

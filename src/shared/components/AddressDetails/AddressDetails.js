@@ -71,6 +71,9 @@ export default function AddressDetails({
 	disablePermenanet = false,
 	isBusiness,
 	preDataFilled,
+	style,
+	keyChange,
+	presentAddressCheck,
 }) {
 	const presentAddress =
 		(preDataFilled &&
@@ -84,7 +87,7 @@ export default function AddressDetails({
 		//   return preData[field.name] || "";
 		// }
 
-		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
+		if (formState?.values?.[`permanent_${field.name}`]) {
 			return formState?.values?.[`permanent_${field.name}`];
 		}
 
@@ -92,7 +95,7 @@ export default function AddressDetails({
 	};
 
 	const populatePresentValue = (field, match) => {
-		if (formState?.values?.[`present_${field.name}`] !== undefined)
+		if (formState?.values?.[`present_${field.name}`])
 			return formState?.values?.[`present_${field.name}`];
 
 		return (
@@ -114,7 +117,7 @@ export default function AddressDetails({
 
 	return (
 		<>
-			<H>
+			<H style={style}>
 				{userType || 'Help us with your'} <span>Address Details</span>
 			</H>
 			<FormWrap>

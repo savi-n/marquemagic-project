@@ -18,6 +18,7 @@ const Div = styled.div`
 
 const Label = styled.label`
 	position: absolute;
+	/* display: none; */
 	z-index: 9;
 	display: flex;
 	align-items: center;

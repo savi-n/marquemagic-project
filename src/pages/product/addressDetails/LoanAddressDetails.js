@@ -223,12 +223,11 @@ export default function AddressDetailsPage({
 	};
 
 	const onProceed = formData => {
-		//console.log('fomdata', formdata1);
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
-
 		!match &&
 			formatedData.push(formatData('present', formData, map.fields[id].data));
-
+		sessionStorage.setItem('address_details', JSON.stringify(formatedData));
+		console.log('address_details', JSON.stringify(formatedData));
 		setUsertypeAddressData(formatedData);
 		onSave(formData);
 		businessProfileUpdate(formData);
