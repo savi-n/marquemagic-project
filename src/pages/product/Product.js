@@ -86,23 +86,6 @@ const Menu = styled.h5`
 	}
 `;
 
-// background: ${({ active }) =>
-// 	active ? 'linear-gradient(to right, #2a2add , #00df8d)' : 'transparent'};
-const SubMenu = styled.h5`
-	background: ${({ active }) =>
-		active ? 'rgba(255,255,255,0.2)' : 'transparent'};
-	width: 110%;
-	border-radius: 10px;
-	padding: 10px 20px;
-	margin: 5px 0;
-	margin-left: 20px;
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	font-size: 14px;
-`;
-
 const ImgArrorRight = styled.img`
 	height: 15px;
 	padding-right: 10px;
@@ -187,7 +170,6 @@ export default function Product({ product, url }) {
 	const {
 		state: {
 			completed: completedMenu,
-			activeSubFlow: subFlowMenu,
 			flowMap,
 			basePageUrl,
 			currentFlow,
@@ -215,11 +197,11 @@ export default function Product({ product, url }) {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isEditLoan = !!editLoanData?.loan_ref_id;
-
 	const [showContinueModal, setShowContinueModal] = useState(false);
 	const [index, setIndex] = useState(2);
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
@@ -250,7 +232,7 @@ export default function Product({ product, url }) {
 	}, [response]);
 
 	useEffect(() => {
-		if (response && flowMap && isEditLoan) {
+		if (response && flowMap && editLoanData) {
 			const steps = Object.keys(flowMap);
 			steps.map(ele => {
 				setCompleted(ele);
@@ -329,7 +311,7 @@ export default function Product({ product, url }) {
 				<Colom1 hide={hide}>
 					<ScrollBox>
 						<HeadingBox onClick={e => {}}>
-							{!isEditLoan && (
+							{!editLoanData && (
 								<BackButton
 									src={imgBackArrowCircle}
 									alt='goback'
@@ -340,8 +322,11 @@ export default function Product({ product, url }) {
 								{response.data.name} <span>{response.data.description}</span>
 							</ProductName>
 						</HeadingBox>
-						{response.data?.product_details?.flow?.map((m, idx) =>
-							(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
+						{response.data?.product_details?.flow?.map((m, idx) => {
+							if (isViewLoan && editLoanRestrictedSections.includes(m.id))
+								return null;
+							return (!m.hidden || m.id === flow) &&
+								m.id !== 'product-details' ? (
 								<Fragment key={m.id}>
 									<Link onClick={e => {}}>
 										<Menu active={flow === m.id} hide={hide}>
@@ -353,8 +338,14 @@ export default function Product({ product, url }) {
 														'pointer',
 												}}
 												onClick={e => {
+													if (isViewLoan) {
+														flow = e.target.id;
+														setIndex(idx);
+														onFlowChange(flow, 'o');
+														return;
+													}
 													if (
-														isEditLoan &&
+														editLoanData &&
 														editLoanRestrictedSections.includes(e.target.id)
 													) {
 														return;
@@ -401,65 +392,9 @@ export default function Product({ product, url }) {
 											)}
 										</Menu>
 									</Link>
-									{m.flow &&
-										subFlowMenu.includes(m.id) &&
-										m.flow.map((item, ind) => (
-											<Link key={item.id} onClick={e => {}}>
-												<SubMenu active={flow === item.id}>
-													<div
-														style={{
-															cursor: completedMenu.includes(m.id) && 'pointer',
-														}}
-														onClick={e => {
-															if (index >= ind) {
-																if (
-																	flow !== 'application-submitted' &&
-																	flow !== 'identity-verification' &&
-																	flow !== 'pan-verification' &&
-																	flow !== 'co-applicant-details'
-																) {
-																	flow =
-																		e.target.id !== 'identity-verification' &&
-																		e.target.id !== 'pan-verification' &&
-																		e.target.id !== 'application-submitted'
-																			? e.target.id
-																			: flow;
-																	if (
-																		e.target.id !== 'identity-verification' &&
-																		e.target.id !== 'pan-verification' &&
-																		e.target.id !== 'application-submitted'
-																	) {
-																		setIndex(ind);
-																	}
-																	if (
-																		!// state?.coapplicant?.applicantData
-																		// 	?.incomeType === 'noIncome' &&
-																		(
-																			e.target.id ===
-																			'co-applicant-income-details'
-																		)
-																	) {
-																		onFlowChange(flow, 'o');
-																	}
-																} else {
-																	onFlowChange(flow, 'o');
-																}
-															}
-														}}
-														id={item.id}
-														k={ind}>
-														{item.name}
-													</div>
-													{completedMenu.includes(item.id) && (
-														// <CheckBox bg='white' checked round fg={'blue'} />
-														<ImgCheckCircle src={imgCheckCircle} alt='check' />
-													)}
-												</SubMenu>
-											</Link>
-										))}
 								</Fragment>
-							) : null
-						)}
+							) : null;
+						})}
 					</ScrollBox>
 				</Colom1>
 				<SectionSidebarArrow>

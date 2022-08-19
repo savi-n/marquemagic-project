@@ -131,7 +131,7 @@ export default function AddressDetailsPage({
 	const [match, setMatch] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isEditLoan = editLoanData?.loan_ref_id;
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	const onSave = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
@@ -191,7 +191,7 @@ export default function AddressDetailsPage({
 				aid: 2,
 				origin: 'nconboarding',
 			};
-			if (isEditLoan) {
+			if (editLoanData) {
 				reqBody.business_id = editLoanData?.business_id?.id;
 				reqBody.baid = editLoanData?.business_address?.[0]?.id;
 			}
@@ -227,8 +227,8 @@ export default function AddressDetailsPage({
 			formatedData.push(formatData('present', formData, map.fields[id].data));
 		sessionStorage.setItem('address_details', JSON.stringify(formatedData));
 		setUsertypeAddressData(formatedData);
-		onSave(formData);
-		businessProfileUpdate(formData);
+		!isViewLoan && onSave(formData);
+		!isViewLoan && businessProfileUpdate(formData);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};
@@ -368,8 +368,11 @@ export default function AddressDetailsPage({
 				}}
 			/>
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
 			</ButtonWrap>
 		</Div>
 	);

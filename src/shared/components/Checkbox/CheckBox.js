@@ -5,7 +5,6 @@ import styled from 'styled-components';
 
 const InputCheckBox = styled.input`
 	display: none;
-
 	+ label {
 		font-size: 15px;
 		position: relative;
@@ -25,6 +24,13 @@ const InputCheckBox = styled.input`
 			border-color: ${({ checked, bg }) => (checked ? bg : 'black')};
 			border-radius: ${({ round }) => (round ? '50%' : '4px')};
 			background: ${({ checked, bg }) => (checked ? bg : 'transparent')};
+			${({ disabled }) =>
+				disabled &&
+				`
+				background: lightgrey;
+				cursor: not-allowed;
+				border: none;
+			`}
 		}
 
 		&::after {
@@ -45,6 +51,13 @@ const InputCheckBox = styled.input`
 			align-items: center;
 			background: transparent;
 			transform: rotate(10deg);
+			${({ disabled }) =>
+				disabled &&
+				`
+				background: #fafafa;
+				background-color: #fafafa;
+				cursor: not-allowed;
+			`}
 		}
 	}
 `;
@@ -61,6 +74,7 @@ export default function CheckBox({
 	const id = uuidv4();
 
 	function handleChange(event) {
+		if (disabled) return;
 		const { checked } = event.target;
 		onChange(checked);
 	}

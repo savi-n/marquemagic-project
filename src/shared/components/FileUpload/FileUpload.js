@@ -218,11 +218,15 @@ const RoundButton = styled.div`
 	justify-content: center;
 	position: relative;
 
-	${({ showTooltip }) =>
+	${({ showTooltip, isViewLoan, password }) =>
 		showTooltip &&
 		`&:hover {
       &::before {
-        content: "If the document is password protected, please help us with the Password.";
+        content: "${
+					isViewLoan && password
+						? password
+						: 'If the document is password protected, please help us with the Password.'
+				}";
 				font-size: 13px;
 				line-height: 20px;
         position: absolute;
@@ -477,6 +481,9 @@ export default function FileUpload({
 	let userToken = sessionStorage.getItem(url);
 
 	let refCounter = 0;
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	const onCancel = (file, status) => {
 		const newUploadingFiles = [];
@@ -823,9 +830,8 @@ export default function FileUpload({
 					data: reqBody,
 				},
 				{
-					Authorization: `Bearer ${
-						JSON.parse(userToken)?.userReducer?.userToken
-					}`,
+					Authorization: `Bearer ${JSON.parse(userToken)?.userReducer
+						?.userToken || sessionStorage.getItem('userToken')}`,
 				}
 			);
 			// console.log('openDocument-res-', docRes);
@@ -908,6 +914,7 @@ export default function FileUpload({
 	}, [removeAllFileUploads]);
 
 	useEffect(() => {
+		if (isViewLoan) return;
 		let div = ref?.current;
 		div?.addEventListener('dragenter', handleDragIn);
 		div?.addEventListener('dragleave', handleDragOut);
@@ -946,7 +953,7 @@ export default function FileUpload({
 		</>
 	) : (
 		<>
-			{!disabled && (
+			{!disabled && !isViewLoan && (
 				<Dropzone
 					isInActive={isInActive}
 					ref={ref}
@@ -1185,6 +1192,7 @@ export default function FileUpload({
 					// 	docTypeOptions,
 					// 	docTypeFileMap,
 					// 	docType,
+					// 	mappedDocFiles,
 					// });
 					// for (const key in docTypeFileMap) {
 					// 	if (docType.value === docTypeFileMap[key].value) {
@@ -1278,20 +1286,25 @@ export default function FileUpload({
 											</FileName>
 											{FINANCIAL_DOC_TYPES?.includes(sectionType) && (
 												<PasswordWrapper>
-													<RoundButton
-														showTooltip={passwordForFileId !== uniqPassId}
-														onClick={() => onPasswordClick(uniqPassId)}>
-														<ImgClose
-															style={{ height: 20 }}
-															src={
-																passwordList.includes(uniqPassId)
-																	? lockGreen
-																	: lockGrey
-															}
-															alt='lock'
-														/>
-														{/* <FontAwesomeIcon icon={faUserLock} size='1x' /> */}
-													</RoundButton>
+													{isViewLoan && !doc?.document_password ? null : (
+														<RoundButton
+															showTooltip={passwordForFileId !== uniqPassId}
+															isViewLoan={isViewLoan}
+															password={doc?.document_password}
+															onClick={() => onPasswordClick(uniqPassId)}>
+															<ImgClose
+																style={{ height: 20 }}
+																src={
+																	passwordList.includes(uniqPassId) ||
+																	isViewLoan
+																		? lockGreen
+																		: lockGrey
+																}
+																alt='lock'
+															/>
+															{/* <FontAwesomeIcon icon={faUserLock} size='1x' /> */}
+														</RoundButton>
+													)}
 													{passwordForFileId === uniqPassId && (
 														<FilePasswordInput
 															fileId={doc.id}
@@ -1308,7 +1321,8 @@ export default function FileUpload({
 													<CircularLoading />
 												</div>
 											) : (
-												isDocRemoveAllowed && (
+												isDocRemoveAllowed &&
+												!isViewLoan && (
 													<ImgClose
 														style={{ height: '20px' }}
 														src={isViewMore ? imgArrowDownCircle : imgClose}

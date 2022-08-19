@@ -22,6 +22,7 @@ import {
 } from '../../../_config/app.config';
 import { APP_CLIENT } from '../../../_config/app.config';
 import ConfirmModal from 'components/modals/ConfirmModal';
+import moment from 'moment';
 
 const Div = styled.div`
 	flex: 1;
@@ -90,6 +91,8 @@ export default function PersonalDetailsPage({
 	const [loading, setLoading] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
 	const applicantDataDirectorDetails =
 		editLoanData?.director_details?.filter(d => !!d.isApplicant)?.[0] || {};
 	const editApplicantData = {
@@ -217,8 +220,7 @@ export default function PersonalDetailsPage({
 			'formstate',
 			JSON.stringify({ ...formstate, ...data })
 		);
-		onSave(data);
-
+		!isViewLoan && onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
 		setLoading(false);
@@ -232,9 +234,7 @@ export default function PersonalDetailsPage({
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
-			dob: personalDetails?.businessstartdate
-				? personalDetails?.businessstartdate.split(' ')[0]
-				: '',
+			dob: personalDetails?.ddob ? personalDetails?.ddob.split(' ')[0] : '',
 			aadhaar: personalDetails?.aadhaar,
 			mobileNum: personalDetails?.contactno,
 			email: personalDetails?.business_email,
@@ -363,7 +363,7 @@ export default function PersonalDetailsPage({
 	const ButtonProceed = (
 		<Button
 			fill
-			name='Proceed'
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 			loading={loading}
 			disabled={loading}
 			onClick={handleSubmit(onProceed)}
@@ -375,7 +375,7 @@ export default function PersonalDetailsPage({
 			fill
 			loading={loading}
 			disabled={loading}
-			name='Proceed'
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 			onClick={validateForm}
 		/>
 	);
@@ -388,6 +388,37 @@ export default function PersonalDetailsPage({
 		Object.keys(formState.error).length === 0
 	)
 		displayProceedButton = ButtonConfirm;
+
+	const preDataPersonalDetails = {
+		firstName:
+			prefilledValues()?.firstName ||
+			(getDataFromPan() && getDataFromPan()[0]) ||
+			'',
+		lastName:
+			prefilledValues()?.lastName ||
+			(getDataFromPan() && getDataFromPan()[1]) ||
+			'',
+		dob: getDOB() || prefilledValues()?.dob || '',
+		email: prefilledValues()?.email || '',
+		mobileNo: prefilledValues()?.mobileNum || '',
+		panNumber:
+			sessionStorage.getItem('pan') ||
+			prefilledValues()?.pan ||
+			JSON.parse(sessionStorage.getItem('formstatepan'))?.values?.panNumber ||
+			'',
+		residenceStatus: prefilledValues()?.residentTypess || '',
+		aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
+		aadhaarUnMasked: getAdharUnMasked(),
+		countryResidence: prefilledValues()?.countryResidence || 'india',
+		incomeType: prefilledValues()?.incomeType || '',
+		equifaxscore: prefilledValues()?.equifaxscore || '',
+		maritalStatus: prefilledValues()?.maritalStatus || '',
+		...form,
+	};
+
+	// console.log('PersonalDetailes-Prefill-allstates-', {
+	// 	preDataPersonalDetails,
+	// });
 
 	return (
 		<Div>
@@ -402,31 +433,10 @@ export default function PersonalDetailsPage({
 				register={register}
 				formState={formState}
 				preData={{
-					firstName:
-						prefilledValues()?.firstName ||
-						(getDataFromPan() && getDataFromPan()[0]) ||
-						'',
-					lastName:
-						prefilledValues()?.lastName ||
-						(getDataFromPan() && getDataFromPan()[1]) ||
-						'',
-					dob: getDOB() || prefilledValues()?.dob || '',
-					email: prefilledValues()?.email || '',
-					mobileNo: prefilledValues()?.mobileNum || '',
-					panNumber:
-						sessionStorage.getItem('pan') ||
-						prefilledValues()?.pan ||
-						JSON.parse(sessionStorage.getItem('formstatepan'))?.values
-							?.panNumber ||
-						'',
-					residenceStatus: prefilledValues()?.residentTypess || '',
-					aadhaar: getAdhar() || prefilledValues()?.aadhar || '',
-					aadhaarUnMasked: getAdharUnMasked(),
-					countryResidence: prefilledValues()?.countryResidence || 'india',
-					incomeType: prefilledValues()?.incomeType || '',
-					equifaxscore: prefilledValues()?.equifaxscore || '',
-					maritalStatus: prefilledValues()?.maritalStatus || '',
-					...form,
+					...preDataPersonalDetails,
+					dob: preDataPersonalDetails.dob
+						? moment(preDataPersonalDetails.dob).format('YYYY-MM-DD')
+						: '',
 				}}
 				jsonData={map?.fields[id]?.data}
 				productDetails={productDetails}
@@ -451,10 +461,7 @@ export default function PersonalDetailsPage({
 				// 		'',
 				// }}
 			/>
-			<ButtonWrap>
-				{displayProceedButton}
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
-			</ButtonWrap>
+			<ButtonWrap>{displayProceedButton}</ButtonWrap>
 		</Div>
 	);
 }

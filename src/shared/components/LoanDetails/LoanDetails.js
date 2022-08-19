@@ -110,6 +110,9 @@ export default function LoanDetails({
 
 	const { newRequest } = useFetch();
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
 	const getBranchOptions = async () => {
 		const opitionalDataReq = await newRequest(
 			SEARCH_BANK_BRANCH_LIST({ bankId }),
@@ -161,6 +164,11 @@ export default function LoanDetails({
 	};
 
 	const fieldTemplate = field => {
+		const customFields = {};
+		if (isViewLoan) {
+			customFields.readonly = true;
+			customFields.disabled = true;
+		}
 		return (
 			<Fragment key={field.name}>
 				<FieldWrapper>
@@ -188,6 +196,7 @@ export default function LoanDetails({
 										}),
 								  }
 								: {}),
+							...customFields,
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
@@ -255,7 +264,8 @@ export default function LoanDetails({
 	return (
 		<>
 			<H>
-				{label?.trim() ? 'Help us with ' : ''} <span>{label}</span>
+				{label?.trim() || !isViewLoan ? 'Help us with ' : ''}{' '}
+				<span>{label}</span>
 			</H>
 			<FormWrap>
 				<Colom>

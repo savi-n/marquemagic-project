@@ -19,7 +19,7 @@ import { BussinesContext } from '../../reducer/bussinessReducer';
 export default function BankList(props) {
 	const { field, onSelectOptionCallback, value } = props;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = editLoanData?.isViewLoan;
+	const isViewLoan = !editLoanData?.isEditLoan;
 	// console.log('BankList-', props);
 	const {
 		state: { userToken },
@@ -31,7 +31,11 @@ export default function BankList(props) {
 
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
-		headers: { Authorization: `Bearer ${userToken || companyDetail?.token}` },
+		headers: {
+			Authorization: `Bearer ${userToken ||
+				companyDetail?.token ||
+				sessionStorage.getItem('userToken')} `,
+		},
 	});
 
 	const [options, setOptions] = useState([]);
@@ -47,8 +51,10 @@ export default function BankList(props) {
 		}
 	}, [response]);
 
+	// TODO: provide custom label to bank details and emi details section
 	return (
 		<SearchSelect
+			// customLabel='Bank Name'
 			field={field}
 			name={field.name}
 			placeholder={field.placeholder || ''}

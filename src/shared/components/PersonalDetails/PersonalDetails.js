@@ -128,6 +128,9 @@ export default function PersonalDetails({
 		aadhaar = preData.aadhaarUnMasked;
 	}
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -305,10 +308,6 @@ export default function PersonalDetails({
 		}
 	};
 
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isEditLoan = editLoanData?.loan_ref_id;
-	const isViewLoan = editLoanData?.isViewLoan;
-
 	// console.log('PersonalDetails-states-', { preData, productDetails, userType });
 
 	return (
@@ -322,8 +321,9 @@ export default function PersonalDetails({
 				/>
 			)}
 			<H>
-				{userType ||
-					`Help us with ${id?.includes('co-applicant') ? '' : 'your'}`}{' '}
+				{userType || isViewLoan
+					? ''
+					: `Help us with ${id?.includes('co-applicant') ? '' : 'your'}`}{' '}
 				<span>{pageName || 'Personal Details'}</span>
 			</H>
 			<FormWrap>
@@ -333,7 +333,7 @@ export default function PersonalDetails({
 							if (field.name === 'BusinessType') {
 								if (
 									completedSections.includes('business-details') ||
-									isEditLoan
+									editLoanData
 								) {
 									customFields.readonly = true;
 									customFields.disabled = true;
@@ -349,7 +349,7 @@ export default function PersonalDetails({
 							) {
 								customFields.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
-								if (isEditLoan) {
+								if (editLoanData) {
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
@@ -411,13 +411,13 @@ export default function PersonalDetails({
 							if (id === 'personal-details' && field.name === 'incomeType') {
 								if (
 									completedSections.includes('personal-details') ||
-									isEditLoan
+									editLoanData
 								) {
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
 							}
-							if (id === 'personal-details' && field.name === 'dob') {
+							if (field.name.includes('dob')) {
 								customFields.max = moment().format('YYYY-MM-DD');
 							}
 							let pricePerAcer = 0;
@@ -466,7 +466,7 @@ export default function PersonalDetails({
 									customFields.disabled = isVerifyWithOtpDisabled;
 									customFields.readonly = isVerifyWithOtpDisabled;
 								}
-								if (isEditLoan) {
+								if (editLoanData) {
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
@@ -482,7 +482,7 @@ export default function PersonalDetails({
 							) {
 								customFields.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
-								if (isEditLoan) {
+								if (editLoanData) {
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
@@ -510,10 +510,10 @@ export default function PersonalDetails({
 												max: field.type === 'date' && '9999-12-31',
 												placeholder:
 													field.type === 'banklist'
-														? preData?.[`${field.name}`]?.name ||
+														? preData?.[`${field?.name}`]?.name ||
 														  field.placeholder
 														: field.type === 'search'
-														? preData?.branchIdName || field.placeholder
+														? preData?.branchIdName || field?.placeholder
 														: field.placeholder,
 												...(field.type === 'search'
 													? {
@@ -531,7 +531,7 @@ export default function PersonalDetails({
 														return (
 															<Button
 																name={subF.placeholder}
-																disabled={isVerifyWithOtpDisabled}
+																disabled={isVerifyWithOtpDisabled || isViewLoan}
 																type='submit'
 																customStyle={{ whiteSpace: 'nowrap' }}
 																onClick={onSubFieldButtonClick}

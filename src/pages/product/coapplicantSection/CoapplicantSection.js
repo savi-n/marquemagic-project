@@ -22,7 +22,10 @@ import { COAPPLICANT_DETAILS } from '../../../_config/app.config';
 const Section = styled.div`
 	display: flex;
 	align-items: center;
-	cursor: row-resize;
+	cursor: pointer;
+	border-bottom: 1px solid #ddd;
+	/* border: 1px solid #ddd; */
+	height: 60px;
 `;
 
 const H = styled.h1`
@@ -37,6 +40,7 @@ const ButtonWrap = styled.div`
 	display: flex;
 	align-items: flex-end;
 	gap: 20px;
+	margin-top: 30px;
 `;
 const AddCoapplicant = styled.button`
 	color: white;
@@ -59,9 +63,6 @@ const AddCoapplicant = styled.button`
 	-ms-flex-pack: center;
 	justify-content: center;
 	border-radius: 40px;
-`;
-const Hr = styled.hr`
-	padding: 0;
 `;
 const Caption = styled.h3`
 	width: 20%;
@@ -101,6 +102,13 @@ const NewCheckbox = styled.input`
 	@media (max-width: 700px) {
 		margin: 0 10px 0 20px;
 	}
+	${({ disabled }) =>
+		disabled &&
+		`
+		background: #fafafa;
+		background-color: #fafafa;
+		cursor: not-allowed;
+	`}
 `;
 const Div = styled.div`
 	flex: 1;
@@ -186,13 +194,13 @@ const CoapplicantDetailsSection = props => {
 	const coApplicantData =
 		JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] || {};
 
-	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
-	const editLoanCoApplicants = editLoan?.director_details?.filter(
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+	const editLoanCoApplicants = editLoanData?.director_details?.filter(
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
-
 	let editCoApplicantData = {};
-	if (editLoan && editLoanCoApplicants.length > 0) {
+	if (editLoanData && editLoanCoApplicants.length > 0) {
 		editLoanCoApplicants?.map((coApplicant, index) => {
 			const currentIndex = index + 1;
 			editCoApplicantData = {
@@ -258,10 +266,9 @@ const CoapplicantDetailsSection = props => {
 	} = useContext(UserContext);
 
 	const openCloseCollaps = index => {
-		if (showCoapplicant.length > 1) {
+		if (showCoapplicant.length >= 0) {
 			showCoapplicant[index].showFields = !showCoapplicant[index].showFields;
 			setShowCoapplicant([...showCoapplicant]);
-		} else {
 		}
 	};
 
@@ -313,7 +320,9 @@ const CoapplicantDetailsSection = props => {
 		let a = JSON.parse(sessionStorage.getItem('coapplicant_data')) || [
 			{ showFields: true },
 		];
+		if (editLoanCoApplicants.length > 0) a = editLoanCoApplicants;
 		setShowCoapplicant(a);
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -334,70 +343,55 @@ const CoapplicantDetailsSection = props => {
 
 	const onProceed = async data => {
 		try {
+			if (isViewLoan) {
+				setCompleted(id);
+				onFlowChange(map.main);
+				return;
+			}
 			setLoading(true);
 			let storeData = JSON.stringify(data);
 
 			let tempObject = storeData.replaceAll('permanent_', '');
 			let changedData = JSON.parse(tempObject);
-			let reqBody = { co_applicant_director_partner_data: [] };
 
-			for (let i in showCoapplicant) {
-				let apiData = {
-					dfirstname: '',
-					dlastname: '',
-					ddob: '',
-					dcontact: '',
-					demail: '',
-					applicant_relationship: '',
-					income_type: '',
-					dpancard: '',
-					daadhaar: '',
-					residence_status: '',
-					country_residence: '',
-					marital_status: '',
-					grossIncome: '',
-					netMonthlyIncome: '',
-					address: '',
-					locality: '',
-					city: '',
-					state: '',
-					pincode: '',
-					business_id: sessionStorage.getItem('business_id') || '',
+			const reqBody = {
+				co_applicant_director_partner_data: [],
+			};
+			showCoapplicant.map((coApplicant, index) => {
+				const indexValue = index + 1;
+				const formatedData = {
+					dfirstname: coApplicant[`firstName${indexValue}`],
+					dlastname: coApplicant[`lastName${indexValue}`],
+					ddob: coApplicant[`dob${indexValue}`],
+					dcontact: coApplicant[`mobileNo${indexValue}`],
+					demail: coApplicant[`email${indexValue}`],
+					applicant_relationship:
+						coApplicant[`relationship_with_applicant${indexValue}`],
+					income_type: coApplicant[`incomeType${indexValue}`],
+					dpancard: coApplicant[`panNumber${indexValue}`],
+					daadhaar: coApplicant[`aadhaar${indexValue}`],
+					residence_status: coApplicant[`residenceStatus${indexValue}`],
+					marital_status: coApplicant[`maritalStatus${indexValue}`],
+					country_residence: coApplicant[`countryResidence${indexValue}`],
+					netMonthlyIncome: coApplicant[`netMonthlyIncome${indexValue}`],
+					grossIncome: coApplicant[`grossIncome${indexValue}`],
+					address1: coApplicant[`permanent_address1${indexValue}`],
+					address2: coApplicant[`permanent_address2${indexValue}`],
+					address3: coApplicant[`permanent_address3${indexValue}`],
+					address4: coApplicant[`permanent_address4${indexValue}`],
+					locality: coApplicant[`permanent_address3${indexValue}`],
+					pincode: coApplicant[`permanent_pinCode${indexValue}`],
+					city: coApplicant[`permanent_city${indexValue}`],
+					state: coApplicant[`permanent_state${indexValue}`],
 				};
-				let indexValue = Number(i) + 1;
-				apiData.dfirstname = data[`firstName${indexValue}`];
-				apiData.dlastname = data[`lastName${indexValue}`];
-				apiData.ddob = data[`dob${indexValue}`];
-				apiData.dcontact = data[`mobileNo${indexValue}`];
-				apiData.demail = data[`email${indexValue}`];
-				apiData.applicant_relationship =
-					data[`relationship_with_applicant${indexValue}`];
-				apiData.income_type = data[`incomeType${indexValue}`];
-				apiData.dpancard = data[`panNumber${indexValue}`];
-				apiData.daadhaar = data[`aadhaar${indexValue}`];
-				apiData.residence_status = data[`residenceStatus${indexValue}`];
-				apiData.marital_status = data[`maritalStatus${indexValue}`];
-				apiData.country_residence = data[`countryResidence${indexValue}`];
-				apiData.netMonthlyIncome = data[`netMonthlyIncome${indexValue}`];
-				apiData.grossIncome = data[`grossIncome${indexValue}`];
+				if (isViewLoan) {
+					formatedData.id = editLoanCoApplicants?.[index]?.id;
+				}
+				reqBody.co_applicant_director_partner_data.push(formatedData);
+				return null;
+			});
 
-				apiData.address =
-					data[`permanent_address1${indexValue}`] +
-					' ' +
-					data[`permanent_address2${indexValue}`] +
-					' ' +
-					data[`permanent_address3${indexValue}`];
-				apiData.locality = data[`permanent_address4${indexValue}`];
-				apiData.pincode = data[`permanent_pinCode${indexValue}`];
-				apiData.city = data[`permanent_city${indexValue}`];
-				apiData.state = data[`permanent_state${indexValue}`];
-
-				reqBody.co_applicant_director_partner_data.push(apiData);
-			}
-			sessionStorage.setItem(
-				'number_of_coapplicants',
-				reqBody.co_applicant_director_partner_data.length
-			);
+			// used for prefilling values on reload
 			sessionStorage.setItem(
 				'coapplicant_data',
 				JSON.stringify(showCoapplicant)
@@ -488,9 +482,8 @@ const CoapplicantDetailsSection = props => {
 						{/* style={{
 							display: section ? 'None' : '',
 						}}> */}
-						<Section>
+						<Section onClick={() => openCloseCollaps(index)}>
 							<div
-								onClick={() => openCloseCollaps(index)}
 								style={{
 									alignItems: 'center',
 									display: 'flex',
@@ -516,7 +509,7 @@ const CoapplicantDetailsSection = props => {
 									alt='arrow'
 								/>
 							) : null}
-							{showCoapplicant.length > 1 ? (
+							{showCoapplicant.length > 1 && !isViewLoan ? (
 								<div>
 									{showCoapplicant.length === index + 1 ? (
 										<DeleteIcon onClick={() => deleteSection(index)}>
@@ -531,10 +524,6 @@ const CoapplicantDetailsSection = props => {
 							) : null}
 						</Section>
 
-						<Details open={!item.showFields}>
-							{showCoapplicant.length > 1 ? <Hr /> : null}
-						</Details>
-						{/* <Coapplicant /> */}
 						<Details open={item.showFields}>
 							<Wrapper open={item.showFields}>
 								<PersonalDetails
@@ -572,7 +561,8 @@ const CoapplicantDetailsSection = props => {
 								) : null}
 
 								<H>
-									Help us with your <span>Address Details</span>
+									{isViewLoan ? '' : 'Help us with '}
+									<span>Address Details</span>
 								</H>
 								<AddressWrapper>
 									<Caption>Present Address</Caption>
@@ -581,6 +571,7 @@ const CoapplicantDetailsSection = props => {
 										type='checkbox'
 										name='sameAsApplicant'
 										checked={presentAddressCheck}
+										disabled={isViewLoan}
 										onChange={() => {
 											setPresentAddressCheck(!presentAddressCheck);
 										}}
@@ -617,17 +608,18 @@ const CoapplicantDetailsSection = props => {
 			})}
 
 			<ButtonWrap>
-				<AddCoapplicant onClick={handleSubmit(addCoapplicant, errorOnSubmit)}>
-					Add Co-applicant
-				</AddCoapplicant>
+				{!isViewLoan && (
+					<AddCoapplicant onClick={handleSubmit(addCoapplicant, errorOnSubmit)}>
+						Add Co-applicant
+					</AddCoapplicant>
+				)}
 				<Button
 					fill
-					name='Proceed'
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					loading={loading}
 					disabled={loading}
 					onClick={handleSubmit(onProceed, errorOnSubmit)}
 				/>
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
 		</Div>
 	);
