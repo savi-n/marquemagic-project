@@ -61,6 +61,7 @@ AddressDetails.propTypes = {
 };
 
 export default function AddressDetails({
+	hideHeader,
 	preData = {},
 	userType,
 	jsonData,
@@ -71,7 +72,6 @@ export default function AddressDetails({
 	disablePermenanet = false,
 	isBusiness,
 	preDataFilled,
-	style,
 	keyChange,
 	presentAddressCheck,
 }) {
@@ -117,9 +117,11 @@ export default function AddressDetails({
 
 	return (
 		<>
-			<H style={style}>
-				{userType || 'Help us with your'} <span>Address Details</span>
-			</H>
+			{hideHeader ? null : (
+				<H>
+					{userType || 'Help us with your'} <span>Address Details</span>
+				</H>
+			)}
 			<FormWrap>
 				<Colom>
 					{!isBusiness && <Caption>Permanent Address</Caption>}

@@ -1,7 +1,6 @@
 /* This section is seen in Document upload section where checkbox is placed*/
 
 import { v4 as uuidv4 } from 'uuid';
-import { string, func, object, bool } from 'prop-types';
 import styled from 'styled-components';
 
 const InputCheckBox = styled.input`

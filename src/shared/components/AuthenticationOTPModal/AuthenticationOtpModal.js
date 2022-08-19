@@ -1,7 +1,7 @@
 /* This section contains modal/popup onClick of Verify Authentication button.
   This section also contains resend otp option */
 
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
@@ -15,7 +15,6 @@ import {
 	RESEND_OTP_TIMER,
 } from '_config/app.config';
 import useFetch from 'hooks/useFetch';
-import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
 
 const ModalHeader = styled.div`
@@ -104,10 +103,7 @@ const AuthenticationOTPModal = props => {
 		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
-	const [isResentOtp, setIsResentOtp] = useState(false);
-	const {
-		state: { clientToken },
-	} = useContext(AppContext);
+	const [, setIsResentOtp] = useState(false);
 
 	const API_TOKEN = sessionStorage.getItem('userToken');
 

@@ -55,6 +55,7 @@ const VALIDATION_RULES = {
 		message: 'Numbers only Allowed',
 	},
 	email: {
+		// eslint-disable-next-line
 		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
 		message: 'Invalid Email Address',
 	},

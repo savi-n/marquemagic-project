@@ -63,10 +63,7 @@ export default function FormController({
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
-	const {
-		state,
-		actions: { setLoanData },
-	} = useContext(LoanFormContext);
+	const { state } = useContext(LoanFormContext);
 
 	// loanData?.loanAmount ||
 	// loan?.loanAmount ||
@@ -372,7 +369,7 @@ export default function FormController({
 		};
 	};
 
-	const formReferenceDetailsData = referenceDetailsData => {
+	const formatReferenceDetailsData = referenceDetailsData => {
 		const obj = {};
 		referenceDetailsData.map((ele, i) => {
 			obj[`Name${i}`] = ele?.ref_name;
@@ -383,6 +380,20 @@ export default function FormController({
 		});
 		return obj;
 	};
+
+	const formatCollateralDetails = () => {
+		const collateralData =
+			editLoanData?.loan_assets?.filter(
+				d => d?.loan_type === 'Collateral'
+			)?.[0] || {};
+		return {
+			...(collateralData?.loan_json?.[0] || {}),
+			Collateraltype: collateralData?.loan_json?.[0]?.Collateraltype || '',
+			CurrentMarketValue:
+				collateralData?.loan_json?.[0]?.CurrentMarketValue || '',
+		};
+	};
+
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	let form =
 		state[`${id}`] ||
@@ -429,7 +440,10 @@ export default function FormController({
 		if (id === 'reference-details' && editLoanData?.reference_details) {
 			form =
 				editLoanData &&
-				formReferenceDetailsData(editLoanData.reference_details);
+				formatReferenceDetailsData(editLoanData.reference_details);
+		}
+		if (id === 'collateral-details' && editLoanData) {
+			form = formatCollateralDetails();
 		}
 	}
 
@@ -462,7 +476,7 @@ export default function FormController({
 	)
 		displayProceedButton = ButtonConfirm;
 
-	// console.log('FormController-allstates-', { form });
+	console.log('FormController-allstates-', { form });
 
 	return (
 		<>

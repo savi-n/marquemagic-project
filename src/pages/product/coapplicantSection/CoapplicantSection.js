@@ -3,7 +3,6 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import useFetch from '../../../hooks/useFetch';
-import { func, object, oneOf, oneOfType, string } from 'prop-types';
 import useForm from '../../../hooks/useForm';
 import Button from '../../../components/Button';
 import { UserContext } from '../../../reducer/userReducer';
@@ -12,15 +11,11 @@ import PersonalDetails from '../../../shared/components/PersonalDetails/Personal
 import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
-import { USER_ROLES } from '../../../_config/app.config';
 import useCaseCreation from '../../../components/CaseCreation';
-import Loading from '../../../components/Loading';
-import Modal from '../../../components/Modal';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import CheckBox from '../../../shared/components/Checkbox/CheckBox';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 import { useToasts } from '../../../components/Toast/ToastProvider';
 import { COAPPLICANT_DETAILS } from '../../../_config/app.config';
 
@@ -29,13 +24,7 @@ const Section = styled.div`
 	align-items: center;
 	cursor: row-resize;
 `;
-const CheckboxWrapper = styled.div`
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-	margin: 20px 0;
-	gap: 10px;
-`;
+
 const H = styled.h1`
 	font-size: 1.5em;
 	margin-bottom: 20px;
@@ -146,55 +135,8 @@ const DeleteIcon = styled.div`
 	cursor: pointer;
 `;
 
-const EligibiltiyWrapper = styled.div`
-	flex-basis: 45%;
-	margin-left: auto;
-	display: flex;
-	flex-direction: column;
-`;
-
-const Text = styled.span`
-	margin-bottom: 10px;
-	color: ${({ theme }) => theme.main_theme_color};
-`;
-
-const formatAddressData = (type, data, fields) => {
-	const formatedData = {};
-	for (const f of fields) {
-		formatedData[f.name] = data[`${type}_${f.name}`];
-	}
-	return {
-		addressType: type,
-		aid: type === 'present' ? 1 : 2,
-		...formatedData,
-	};
-};
-
-const formatPersonalData = (data, fields) => {
-	const formatedData = {};
-	for (const f of fields) {
-		formatedData[f.name] = data[f.name];
-	}
-
-	return { ...formatedData, isApplicant: '0' };
-};
-
-CoapplicantDetailsSection.propTypes = {
-	onFlowChange: func.isRequired,
-	map: oneOfType([string, object]),
-	id: string,
-	userType: oneOf(['Co-Applicant']),
-};
-
-export default function CoapplicantDetailsSection({
-	userType,
-	id,
-	onFlowChange,
-	map,
-	productId,
-	productDetails,
-}) {
-	const [openCoApplicant, setOpenCoapplicant] = useState(true);
+const CoapplicantDetailsSection = props => {
+	const { userType, id, onFlowChange, map, productId } = props;
 	const [loading, setLoading] = useState(false);
 	const {
 		actions: { setCompleted },
@@ -202,7 +144,7 @@ export default function CoapplicantDetailsSection({
 
 	const {
 		state,
-		actions: { setUsertypeApplicantData, setUsertypeAddressData, setFlowData },
+		actions: { setFlowData },
 	} = useContext(FormContext);
 
 	const { handleSubmit, register, formState } = useForm();
@@ -237,21 +179,84 @@ export default function CoapplicantDetailsSection({
 	let applicantData = formReducer?.user?.applicantData;
 	const applicantPresentAddress =
 		applicantData?.address?.filter(a => a.addressType === 'present')?.[0] || {};
-
 	let userTokensss = sessionStorage.getItem(url);
-
-	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
+	let personalDetailsJsonValue = map?.fields['personal-details'].data;
+	let salaryDetailsJsonValue = map?.fields['salary-details'].data;
+	let addressDetailsJsonValue = map?.fields['address-details'].data;
 	const coApplicantData =
 		JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] || {};
+
+	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
+	const editLoanCoApplicants = editLoan?.director_details?.filter(
+		d => d?.type_name?.toLowerCase() === 'co-applicant'
+	);
+
+	let editCoApplicantData = {};
+	if (editLoan && editLoanCoApplicants.length > 0) {
+		editLoanCoApplicants?.map((coApplicant, index) => {
+			const currentIndex = index + 1;
+			editCoApplicantData = {
+				...editCoApplicantData,
+				[`firstName${currentIndex}`]: coApplicant?.dfirstname || '',
+				[`lastName${currentIndex}`]: coApplicant?.dlastname || '',
+				[`dob${currentIndex}`]: coApplicant?.ddob || '',
+				[`mobileNo${currentIndex}`]: coApplicant?.dcontact || '',
+				[`email${currentIndex}`]: coApplicant?.demail || '',
+				[`relationship_with_applicant${currentIndex}`]:
+					coApplicant?.applicant_relationship || '',
+				[`incomeType${currentIndex}`]: coApplicant?.income_type || '',
+				[`panNumber${currentIndex}`]: coApplicant?.dpancard || '',
+				[`aadhaar${currentIndex}`]: coApplicant?.daadhaar || '',
+				[`residenceStatus${currentIndex}`]: coApplicant?.residence_status || '',
+				[`maritalStatus${currentIndex}`]: coApplicant?.marital_status || '',
+				[`countryResidence${currentIndex}`]:
+					coApplicant?.country_residence || '',
+				// [`netMonthlyIncome${currentIndex}`]: coApplicant?.net_monthly_income || '',
+				// [`grossIncome${currentIndex}`]: coApplicant?.gross_income || '',
+				[`address1${currentIndex}`]: coApplicant?.address1 || '',
+				[`address2${currentIndex}`]: coApplicant?.address2 || '',
+				[`address3${currentIndex}`]: coApplicant?.locality || '',
+				[`address4${currentIndex}`]: coApplicant?.address4 || '',
+				[`pinCode${currentIndex}`]: coApplicant?.pincode || '',
+				[`city${currentIndex}`]: coApplicant?.city || '',
+				[`state${currentIndex}`]: coApplicant?.state || '',
+			};
+			return null;
+		});
+	}
+
+	let {
+		address1,
+		address2,
+		address3,
+		address4,
+		city,
+		state: addState,
+		pinCode,
+	} =
+		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
+			?.applicantData?.address[0] || {};
+
+	const prePopulateCoApplicant =
+		Object.keys(editCoApplicantData).length > 0
+			? editCoApplicantData
+			: coApplicantData;
+
 	const [showCoapplicant, setShowCoapplicant] = useState([addCoApplicantData]);
 	const [match, setMatch] = useState(false);
-	const { processing, caseCreationUserType } = useCaseCreation(
+	const { caseCreationUserType } = useCaseCreation(
 		userType,
 		productId[(state[userType]?.applicantData?.incomeType)] || '',
 		userType
 	);
 	const [presentAddressCheck, setPresentAddressCheck] = useState(false);
-	const [isEligibility, setEligibility] = useState(false);
+	const { addToast } = useToasts();
+	const [proceed, setProceed] = useState(false);
+	const { newRequest } = useFetch();
+	const {
+		state: { userToken },
+	} = useContext(UserContext);
+
 	const openCloseCollaps = index => {
 		if (showCoapplicant.length > 1) {
 			showCoapplicant[index].showFields = !showCoapplicant[index].showFields;
@@ -259,24 +264,26 @@ export default function CoapplicantDetailsSection({
 		} else {
 		}
 	};
+
 	const addCoapplicant = () => {
 		for (let i in showCoapplicant) {
 			showCoapplicant[i].showFields = false;
 		}
 		setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
 	};
-	let personalDetailsJsonValue = map?.fields['personal-details'].data;
-	let salaryDetailsJsonValue = map?.fields['salary-details'].data;
-	let addressDetailsJsonValue = map?.fields['address-details'].data;
+
 	const deleteSection = index => {
 		personalDetailsJsonValue = personalDetailsJsonValue.map(d => {
 			delete formState.values[`${d.name}${index + 1}`];
+			return null;
 		});
 		salaryDetailsJsonValue = salaryDetailsJsonValue.map(d => {
 			delete formState.values[`${d.name}${index + 1}`];
+			return null;
 		});
 		addressDetailsJsonValue = addressDetailsJsonValue.map(d => {
 			delete formState.values[`permanent_${d.name}${index + 1}`];
+			return null;
 		});
 		let data = JSON.parse(JSON.stringify(formState.values));
 		let storeData = JSON.stringify(data);
@@ -293,6 +300,7 @@ export default function CoapplicantDetailsSection({
 			setShowCoapplicant([...showCoapplicant]);
 		}
 	};
+
 	const errorOnSubmit = () => {
 		addToast({
 			message:
@@ -300,31 +308,14 @@ export default function CoapplicantDetailsSection({
 			type: 'error',
 		});
 	};
-	const [applicantAddress, setApplicantAddress] = useState([]);
 
-	const { addToast } = useToasts();
-	// const onSave = formData => {
-	// 	saveData(formData);
-	// 	addToast({
-	// 		message: 'Saved Succesfully',
-	// 		type: 'success',
-	// 	});
-	// };
-	const [section, setSection] = useState(true);
-	const [proceed, setProceed] = useState(false);
-	// useEffect(() => {
-	// 	if (showCoapplicant.length > 1) {
-	// 		setSection(false);
-	// 	} else {
-	// 		setSection(true);
-	// 	}
-	// }, [showCoapplicant]);
 	useEffect(() => {
 		let a = JSON.parse(sessionStorage.getItem('coapplicant_data')) || [
 			{ showFields: true },
 		];
 		setShowCoapplicant(a);
 	}, []);
+
 	useEffect(() => {
 		async function request() {
 			const res = await caseCreationUserType();
@@ -338,160 +329,118 @@ export default function CoapplicantDetailsSection({
 		if (proceed) {
 			request();
 		}
-		// eslint-disable-next-linee
+		// eslint-disable-next-line
 	}, [proceed]);
-	let numberOfCoapplicants;
-
-	const { newRequest } = useFetch();
-	const {
-		state: { userToken },
-	} = useContext(UserContext);
 
 	const onProceed = async data => {
-		let storeData = JSON.stringify(data);
-
-		let tempObject = storeData.replaceAll('permanent_', '');
-		let changedData = JSON.parse(tempObject);
-		let reqBody = { co_applicant_director_partner_data: [] };
-
-		for (let i in showCoapplicant) {
-			let apiData = {
-				dfirstname: '',
-				dlastname: '',
-				ddob: '',
-				dcontact: '',
-				demail: '',
-				applicant_relationship: '',
-				income_type: '',
-				dpancard: '',
-				daadhaar: '',
-				residence_status: '',
-				country_residence: '',
-				marital_status: '',
-				grossIncome: '',
-				netMonthlyIncome: '',
-				address: '',
-				locality: '',
-				city: '',
-				state: '',
-				pincode: '',
-				business_id: sessionStorage.getItem('business_id') || '',
-			};
-			let indexValue = Number(i) + 1;
-			apiData.dfirstname = data['firstName' + `${indexValue}`];
-			apiData.dlastname = data['lastName' + `${indexValue}`];
-			apiData.ddob = data['dob' + `${indexValue}`];
-			apiData.dcontact = data['mobileNo' + `${indexValue}`];
-			apiData.demail = data['email' + `${indexValue}`];
-			apiData.applicant_relationship =
-				data['relationship_with_applicant' + `${indexValue}`];
-			apiData.income_type = data['incomeType' + `${indexValue}`];
-			apiData.dpancard = data['panNumber' + `${indexValue}`];
-			apiData.daadhaar = data['aadhaar' + `${indexValue}`];
-			apiData.residence_status = data['residenceStatus' + `${indexValue}`];
-			apiData.marital_status = data['maritalStatus' + `${indexValue}`];
-			apiData.country_residence = data['countryResidence' + `${indexValue}`];
-			apiData.netMonthlyIncome = data['netMonthlyIncome' + `${indexValue}`];
-			apiData.grossIncome = data['grossIncome' + `${indexValue}`];
-
-			apiData.address =
-				data['permanent_address1' + `${indexValue}`] +
-				' ' +
-				data['permanent_address2' + `${indexValue}`] +
-				' ' +
-				data['permanent_address3' + `${indexValue}`];
-			apiData.locality = data['permanent_address4' + `${indexValue}`];
-			apiData.pincode = data['permanent_pinCode' + `${indexValue}`];
-			apiData.city = data['permanent_city' + `${indexValue}`];
-			apiData.state = data['permanent_state' + `${indexValue}`];
-
-			reqBody.co_applicant_director_partner_data.push(apiData);
-		}
-		sessionStorage.setItem(
-			'number_of_coapplicants',
-			reqBody.co_applicant_director_partner_data.length
-		);
-		sessionStorage.setItem('coapplicant_data', JSON.stringify(showCoapplicant));
-		setFlowData(changedData, id);
 		try {
-			const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
-				method: 'POST',
-				data: reqBody,
-				headers: {
-					Authorization: `Bearer ${userToken ||
-						sessionStorage.getItem('userToken')}`,
-				},
-			});
+			setLoading(true);
+			let storeData = JSON.stringify(data);
 
-			const res = submitCoapplicantsReq.data.data;
-			sessionStorage.setItem('coapplicant_response', JSON.stringify(res));
+			let tempObject = storeData.replaceAll('permanent_', '');
+			let changedData = JSON.parse(tempObject);
+			let reqBody = { co_applicant_director_partner_data: [] };
 
-			addToast({
-				message: 'Saved Succesfully',
-				type: 'success',
-			});
-		} catch (er) {
-			console.error(er);
-			addToast({
-				message: er.message || 'Business Profile is failed',
-				type: 'error',
-			});
+			for (let i in showCoapplicant) {
+				let apiData = {
+					dfirstname: '',
+					dlastname: '',
+					ddob: '',
+					dcontact: '',
+					demail: '',
+					applicant_relationship: '',
+					income_type: '',
+					dpancard: '',
+					daadhaar: '',
+					residence_status: '',
+					country_residence: '',
+					marital_status: '',
+					grossIncome: '',
+					netMonthlyIncome: '',
+					address: '',
+					locality: '',
+					city: '',
+					state: '',
+					pincode: '',
+					business_id: sessionStorage.getItem('business_id') || '',
+				};
+				let indexValue = Number(i) + 1;
+				apiData.dfirstname = data[`firstName${indexValue}`];
+				apiData.dlastname = data[`lastName${indexValue}`];
+				apiData.ddob = data[`dob${indexValue}`];
+				apiData.dcontact = data[`mobileNo${indexValue}`];
+				apiData.demail = data[`email${indexValue}`];
+				apiData.applicant_relationship =
+					data[`relationship_with_applicant${indexValue}`];
+				apiData.income_type = data[`incomeType${indexValue}`];
+				apiData.dpancard = data[`panNumber${indexValue}`];
+				apiData.daadhaar = data[`aadhaar${indexValue}`];
+				apiData.residence_status = data[`residenceStatus${indexValue}`];
+				apiData.marital_status = data[`maritalStatus${indexValue}`];
+				apiData.country_residence = data[`countryResidence${indexValue}`];
+				apiData.netMonthlyIncome = data[`netMonthlyIncome${indexValue}`];
+				apiData.grossIncome = data[`grossIncome${indexValue}`];
+
+				apiData.address =
+					data[`permanent_address1${indexValue}`] +
+					' ' +
+					data[`permanent_address2${indexValue}`] +
+					' ' +
+					data[`permanent_address3${indexValue}`];
+				apiData.locality = data[`permanent_address4${indexValue}`];
+				apiData.pincode = data[`permanent_pinCode${indexValue}`];
+				apiData.city = data[`permanent_city${indexValue}`];
+				apiData.state = data[`permanent_state${indexValue}`];
+
+				reqBody.co_applicant_director_partner_data.push(apiData);
+			}
+			sessionStorage.setItem(
+				'number_of_coapplicants',
+				reqBody.co_applicant_director_partner_data.length
+			);
+			sessionStorage.setItem(
+				'coapplicant_data',
+				JSON.stringify(showCoapplicant)
+			);
+			setFlowData(changedData, id);
+			try {
+				const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
+					method: 'POST',
+					data: reqBody,
+					headers: {
+						Authorization: `Bearer ${userToken ||
+							sessionStorage.getItem('userToken')}`,
+					},
+				});
+
+				const res = submitCoapplicantsReq.data.data;
+				sessionStorage.setItem('coapplicant_response', JSON.stringify(res));
+
+				addToast({
+					message: 'Saved Succesfully',
+					type: 'success',
+				});
+			} catch (er) {
+				console.error(er);
+				addToast({
+					message: er.message || 'Business Profile is failed',
+					type: 'error',
+				});
+			}
+			setCompleted(id);
+			onFlowChange(map.main);
+			setLoading(false);
+		} catch (error) {
+			console.error('error-coapplicantsection-onproceed-', error);
 		}
-		setCompleted(id);
-		onFlowChange(map.main);
-		// setProceed(true);
 	};
 
-	let {
-		aadhaar,
-		countryResidence,
-		dob,
-		email,
-		firstName,
-		incomeType,
-		lastName,
-		mobileNo,
-		panNumber,
-		residenceStatus,
-	} =
-		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
-			?.applicantData || {};
-	let {
-		address1,
-		address2,
-		address3,
-		address4,
-		city,
-		state: addState,
-		pinCode,
-	} =
-		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
-			?.applicantData?.address[0] || {};
+	// console.log('coapplicantsectino-allstates-', {
+	// 	coApplicantData,
+	// 	editCoApplicantData,
+	// 	prePopulateCoApplicant,
+	// });
 
-	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
-	if (editLoan && editLoan?.id) {
-		const director = editLoan?.director_details.filter(
-			d => d.type_name === 'Guarantor'
-		);
-		firstName = director[0]?.dfirstname;
-		lastName = director[0]?.dlastname;
-		incomeType = director[0]?.income_type;
-		aadhaar = director[0]?.daadhaar;
-		countryResidence = director[0]?.country_residence;
-		dob = director[0]?.ddob;
-		email = director[0]?.demail;
-		mobileNo = director[0]?.dcontact;
-		panNumber = director[0]?.dpancard;
-		residenceStatus = director[0]?.residence_status;
-
-		address1 = director[0]?.address1;
-		address2 = director[0]?.address2;
-		address3 = director[0]?.address3;
-		address4 = director[0]?.address4;
-		city = director[0]?.city;
-		addState = director[0]?.state;
-		pinCode = director[0]?.pincode;
-	}
 	return (
 		<Div>
 			{showCoapplicant?.map((item, index) => {
@@ -589,12 +538,13 @@ export default function CoapplicantDetailsSection({
 						<Details open={item.showFields}>
 							<Wrapper open={item.showFields}>
 								<PersonalDetails
+									id={'co-applicant'}
 									userType={userType}
 									register={register}
 									formState={formState}
 									jsonData={personalDetailsJson}
 									preData={{
-										...coApplicantData,
+										...prePopulateCoApplicant,
 										// aadhaar: aadhaar || '',
 										// countryResidence: countryResidence || '',
 										// dob: dob || '',
@@ -607,6 +557,7 @@ export default function CoapplicantDetailsSection({
 										// residenceStatus: residenceStatus || '',
 									}}
 								/>
+								{/* eslint-disable-next-line */}
 								{formState?.values?.[`incomeType${index + 1}`] != 0 ? (
 									<SalaryDetails
 										jsonData={salaryDetailsJson}
@@ -616,7 +567,7 @@ export default function CoapplicantDetailsSection({
 										incomeType={
 											formState?.values?.[`incomeType${index + 1}`] || null
 										}
-										preData={{ ...coApplicantData }}
+										preData={{ ...prePopulateCoApplicant }}
 									/>
 								) : null}
 
@@ -639,7 +590,7 @@ export default function CoapplicantDetailsSection({
 									</label>
 								</AddressWrapper>
 								<AddressDetails
-									style={{ display: 'none' }}
+									hideHeader
 									userType={userType}
 									register={register}
 									formState={formState}
@@ -656,7 +607,7 @@ export default function CoapplicantDetailsSection({
 										[`city${index + 1}`]: city || '',
 										[`pinCode${index + 1}`]: pinCode || '',
 										[`state${index + 1}`]: addState || '',
-										...coApplicantData,
+										...prePopulateCoApplicant,
 									}}
 								/>
 							</Wrapper>
@@ -678,11 +629,8 @@ export default function CoapplicantDetailsSection({
 				/>
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
-			{loading && (
-				<Modal show={true} onClose={() => {}} width='50%'>
-					<Loading />
-				</Modal>
-			)}
 		</Div>
 	);
-}
+};
+
+export default CoapplicantDetailsSection;
