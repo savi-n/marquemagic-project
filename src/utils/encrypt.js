@@ -22,3 +22,13 @@ export const decryptRes = reqBody => {
 		return err;
 	}
 };
+
+export const decryptViewDocumentUrl = url => {
+	const rawData = CryptoJS.enc.Base64.parse(url);
+	const key = CryptoJS.enc.Latin1.parse(SECRET);
+	const iv = CryptoJS.enc.Latin1.parse(SECRET);
+	const plaintextData = CryptoJS.AES.decrypt({ ciphertext: rawData }, key, {
+		iv: iv,
+	});
+	return plaintextData.toString(CryptoJS.enc.Latin1);
+};

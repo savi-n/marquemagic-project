@@ -79,6 +79,8 @@ const AADHAAR_VERIFY_OTP = `${ENDPOINT_BANK}/aadhaar/verifyOTP`;
 const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
 const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
 const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
+const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
+const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 
 const APP_CLIENT =
 	window.location.hostname === 'localhost'
@@ -164,4 +166,6 @@ export {
 	BUSSINESS_PROFILE_UPDATE,
 	COAPPLICANT_DETAILS,
 	RESEND_OTP_TIMER,
+	DELETE_DOCUMENT,
+	VIEW_DOCUMENT,
 };

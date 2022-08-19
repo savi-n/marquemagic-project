@@ -172,7 +172,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
 			}
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 		}
 	};
 

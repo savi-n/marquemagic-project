@@ -48,7 +48,7 @@ export default function Modal({
 	children,
 	width,
 	onClose = () => {
-		console.log('close');
+		console.info('close');
 	},
 	customStyle,
 }) {
