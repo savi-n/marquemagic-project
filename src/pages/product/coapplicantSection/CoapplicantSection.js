@@ -126,7 +126,6 @@ const StyledButton = styled.button`
 	border: 2px solid
 		${({ theme, fill }) => fill && (typeof fill === 'string' ? fill : 'white')};
 	border-radius: 40px;
-	padding: 0 20px;
 	display: flex;
 	align-items: center;
 	min-width: ${({ width }) => (width ? width : '200px')};
@@ -540,34 +539,47 @@ export default function CoapplicantDetailsSection({
 							<div
 								onClick={() => openCloseCollaps(index)}
 								style={{
-									marginLeft: 10,
 									alignItems: 'center',
 									display: 'flex',
 								}}>
-								<StyledButton width={'auto'} fill>
-									Coapplicant {index + 1}
-								</StyledButton>
+								{showCoapplicant.length > 1 ? (
+									<StyledButton width={'auto'} fill>
+										Co-Applicant {index + 1}
+									</StyledButton>
+								) : (
+									<StyledButton width={'auto'} fill>
+										Co-Applicant
+									</StyledButton>
+								)}
 							</div>
-							<CollapseIcon
-								onClick={() => openCloseCollaps(index)}
-								src={downArray}
-								style={{
-									transform: item.showFields ? `rotate(180deg)` : `none`,
-									marginLeft: 'auto',
-								}}
-								alt='arrow'
-							/>
-							{showCoapplicant.length === index + 1 ? (
-								<DeleteIcon onClick={() => deleteSection(index)}>
-									<FontAwesomeIcon icon={faTrash} />
-								</DeleteIcon>
-							) : (
-								<DeleteIcon onClick={() => {}}>&nbsp;&nbsp;&nbsp;</DeleteIcon>
-							)}
+							{showCoapplicant.length > 1 ? (
+								<CollapseIcon
+									onClick={() => openCloseCollaps(index)}
+									src={downArray}
+									style={{
+										transform: item.showFields ? `rotate(180deg)` : `none`,
+										marginLeft: 'auto',
+									}}
+									alt='arrow'
+								/>
+							) : null}
+							{showCoapplicant.length > 1 ? (
+								<div>
+									{showCoapplicant.length === index + 1 ? (
+										<DeleteIcon onClick={() => deleteSection(index)}>
+											<FontAwesomeIcon icon={faTrash} />
+										</DeleteIcon>
+									) : (
+										<DeleteIcon onClick={() => {}}>
+											&nbsp;&nbsp;&nbsp;
+										</DeleteIcon>
+									)}
+								</div>
+							) : null}
 						</Section>
 
 						<Details open={!item.showFields}>
-							<Hr />
+							{showCoapplicant.length > 1 ? <Hr /> : null}
 						</Details>
 						{/* <Coapplicant /> */}
 						<Details open={item.showFields}>
