@@ -111,7 +111,6 @@ export default function ApplicationSubmitted({
 	return (
 		<>
 			<Colom1>
-				{/* {console.log('---', d)} */}
 				{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
 				<CaptionImg bg={d.img} />
 				<Caption>{d.caption}</Caption>

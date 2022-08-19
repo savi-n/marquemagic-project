@@ -9,7 +9,7 @@ import { Popover } from 'react-tiny-popover';
 import useFetch from '../../../hooks/useFetch';
 import { useToasts } from 'components/Toast/ToastProvider';
 import generateUID from '../../../utils/uid';
-import { NC_STATUS_CODE } from '../../../_config/app.config';
+import { NC_STATUS_CODE, VIEW_DOCUMENT } from '../../../_config/app.config';
 import FilePasswordInput from './FilePasswordInput';
 import uploadCircleIcon from '../../../assets/icons/upload-icon-with-circle.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -19,6 +19,8 @@ import imgGreenCheck from 'assets/icons/green_tick_icon.png';
 import lockGrey from 'assets/icons/Lock_icon_grey-05-05.svg';
 import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
 import _ from 'lodash';
+import { decryptViewDocumentUrl } from 'utils/encrypt';
+import CircularLoading from 'components/Loaders/Circular';
 
 const USER_CANCELED = 'user cancelled';
 
@@ -255,6 +257,9 @@ const FileName = styled.span`
 	white-space: nowrap;
 	overflow: hidden;
 	padding-left: 15px;
+	&:hover {
+		color: ${({ link }) => (link ? '#2a2add' : 'black')};
+	}
 `;
 
 const UploadCircle = styled.label`
@@ -412,6 +417,9 @@ const DocumentUploadNameToolTip = styled.div`
 	padding: 5px;
 `;
 
+let url = window.location.hostname;
+let userToken = sessionStorage.getItem(url);
+
 export default function FileUpload({
 	onDrop,
 	accept = '',
@@ -420,11 +428,11 @@ export default function FileUpload({
 	disabled = false,
 	upload = null,
 	onRemoveFile = id => {
-		console.log('REMOVED FILE ' + id);
+		console.info('REMOVED FILE ' + id);
 	},
 	docTypeOptions = [],
 	documentTypeChangeCallback = (id, value) => {
-		console.log('DOCUMENT TYPE CHANGED ' + id);
+		console.info('DOCUMENT TYPE CHANGED ' + id);
 	},
 	docs,
 	setDocs,
@@ -466,6 +474,7 @@ export default function FileUpload({
 	const { newRequest } = useFetch();
 	//const [docSelected, setDocSelected] = useState('');
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
+	const [openingDocument, setOpeningDocument] = useState(false);
 
 	let refCounter = 0;
 
@@ -503,7 +512,7 @@ export default function FileUpload({
 			newMappedFile[docType.value] = newObj;
 			setMappedFiles(newMappedFile);
 		}
-		onRemoveFile(file.id);
+		onRemoveFile(file.id, file);
 		selectedFiles.current = newUploadingFiles;
 		setUploadingFiles(newUploadingFiles);
 	};
@@ -618,7 +627,11 @@ export default function FileUpload({
 				}
 				return null;
 			})
-		).then(files => {
+		).then(postUploadFiles => {
+			// console.log('postUploadFiles-', {
+			// 	postUploadFiles,
+			// 	newUploadingFiles,
+			// });
 			setUploading(false);
 			if (pan) {
 				aadharVoterDl
@@ -629,17 +642,20 @@ export default function FileUpload({
 
 			const newUploadCompletedFiles = [];
 			// const newUploadingFiles = _.cloneDeep(uploadingFiles);
-			newUploadingFiles.map(files => {
+			newUploadingFiles.map(file => {
 				newUploadCompletedFiles.push({
-					...files,
+					...file,
 					status: 'completed',
+					document_key:
+						postUploadFiles?.filter(f => f.id === file.id)?.[0]?.document_key ||
+						'',
 				});
 				return null;
 			});
 			// console.log('file-upload-promise-resolved-', newUploadCompletedFiles);
 			selectedFiles.current = newUploadCompletedFiles;
 			setUploadingFiles(newUploadCompletedFiles);
-			return files.filter(file => file.status !== 'error');
+			return postUploadFiles.filter(file => file.status !== 'error');
 		});
 	};
 
@@ -788,20 +804,38 @@ export default function FileUpload({
 		onClosePasswordEnterArea();
 	};
 
-	let taggedDocumentCount = 0;
-	let displayTagMessage = 0;
-
-	if (sectionType !== 'pan') {
-		selectedFiles.current.map(file => {
-			for (const key in docTypeFileMap) {
-				if (file.id === key) {
-					taggedDocumentCount += 1;
-				}
+	const openDocument = async file => {
+		try {
+			setOpeningDocument(file.id);
+			const reqBody = {
+				filename: file?.doc_name || file?.document_key || file?.fd || '',
+			};
+			if (file.loan) {
+				reqBody.loan_id = file.loan;
+			} else {
+				reqBody.isProfile = true;
 			}
-			return null;
-		});
-		displayTagMessage = selectedFiles.current.length !== taggedDocumentCount;
-	}
+			// console.log('openDocument-reqBody-', { reqBody, file });
+			const docRes = await newRequest(
+				VIEW_DOCUMENT,
+				{
+					method: 'POST',
+					data: reqBody,
+				},
+				{
+					Authorization: `Bearer ${
+						JSON.parse(userToken)?.userReducer?.userToken
+					}`,
+				}
+			);
+			// console.log('openDocument-res-', docRes);
+			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
+			setOpeningDocument(false);
+		} catch (error) {
+			setOpeningDocument(false);
+			console.error('Unable to open file, try after sometimes');
+		}
+	};
 
 	const initializeComponent = async () => {
 		try {
@@ -854,7 +888,7 @@ export default function FileUpload({
 			// });
 			setLoading(false);
 		} catch (error) {
-			console.log('error-FileUpload-initializeComponent-', error);
+			console.error('error-FileUpload-initializeComponent-', error);
 			setLoading(false);
 		}
 	};
@@ -890,6 +924,21 @@ export default function FileUpload({
 		};
 		// eslint-disable-next-line
 	}, [disabled]);
+
+	let taggedDocumentCount = 0;
+	let displayTagMessage = 0;
+
+	if (sectionType !== 'pan') {
+		selectedFiles.current.map(file => {
+			for (const key in docTypeFileMap) {
+				if (file.id === key) {
+					taggedDocumentCount += 1;
+				}
+			}
+			return null;
+		});
+		displayTagMessage = selectedFiles.current.length !== taggedDocumentCount;
+	}
 
 	return loading ? (
 		<>
@@ -1209,9 +1258,17 @@ export default function FileUpload({
 													setViewMore([...viewMore, docType.value]);
 											}}>
 											<FileName
+												link
 												style={{
 													fontSize: 12,
 													width: '100%',
+												}}
+												onClick={e => {
+													if (!isViewMore) {
+														e.preventDefault();
+														e.stopPropagation();
+														openDocument(doc);
+													}
 												}}>
 												{isViewMore
 													? `View ${mappedDocFiles.length - 2} more`
@@ -1246,36 +1303,42 @@ export default function FileUpload({
 													)}
 												</PasswordWrapper>
 											)}
-											{isDocRemoveAllowed && (
-												<ImgClose
-													style={{ height: '20px' }}
-													src={isViewMore ? imgArrowDownCircle : imgClose}
-													onClick={() => {
-														// console.log('before-remove-', {
-														// 	passwordList,
-														// 	docTypeFileMap,
-														// 	doc,
-														// });
-														if (isViewMore) return;
-														const newPasswordList = passwordList.filter(
-															p => p !== uniqPassId
-														);
-														const newDocTypeFileMap = _.cloneDeep(
-															docTypeFileMap
-														);
-														delete newDocTypeFileMap[doc.docTypeKey];
-														delete newDocTypeFileMap[doc.id];
-														// console.log('after-remove-', {
-														// 	newPasswordList,
-														// 	newDocTypeFileMap,
-														// 	doc,
-														// });
-														onFileRemove(doc, docType);
-														setDocTypeFileMap(newDocTypeFileMap);
-														setPasswordList(newPasswordList);
-													}}
-													alt='close'
-												/>
+											{openingDocument === doc.id ? (
+												<div style={{ marginLeft: 'auto', height: '30px' }}>
+													<CircularLoading />
+												</div>
+											) : (
+												isDocRemoveAllowed && (
+													<ImgClose
+														style={{ height: '20px' }}
+														src={isViewMore ? imgArrowDownCircle : imgClose}
+														onClick={() => {
+															// console.log('before-remove-', {
+															// 	passwordList,
+															// 	docTypeFileMap,
+															// 	doc,
+															// });
+															if (isViewMore) return;
+															const newPasswordList = passwordList.filter(
+																p => p !== uniqPassId
+															);
+															const newDocTypeFileMap = _.cloneDeep(
+																docTypeFileMap
+															);
+															delete newDocTypeFileMap[doc.docTypeKey];
+															delete newDocTypeFileMap[doc.id];
+															// console.log('after-remove-', {
+															// 	newPasswordList,
+															// 	newDocTypeFileMap,
+															// 	doc,
+															// });
+															onFileRemove(doc, docType);
+															setDocTypeFileMap(newDocTypeFileMap);
+															setPasswordList(newPasswordList);
+														}}
+														alt='close'
+													/>
+												)
 											)}
 										</File>
 									);

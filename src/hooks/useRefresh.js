@@ -5,7 +5,7 @@ export default function useRefresh() {
 	useEffect(() => {
 		const backListener = browserHistory.listen(location => {
 			if (location.action === 'POP') {
-				console.log('back  button');
+				console.info('back button');
 			}
 		});
 		return () => {

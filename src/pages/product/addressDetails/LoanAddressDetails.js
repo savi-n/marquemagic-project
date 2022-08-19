@@ -205,7 +205,6 @@ export default function AddressDetailsPage({
 			});
 
 			const businessProfileres = businessProfilereq.data;
-			console.log('businees_id', businessProfileres);
 			sessionStorage.setItem(
 				'business_id',
 				JSON.stringify(businessProfileres.data[0].id)
@@ -227,7 +226,6 @@ export default function AddressDetailsPage({
 		!match &&
 			formatedData.push(formatData('present', formData, map.fields[id].data));
 		sessionStorage.setItem('address_details', JSON.stringify(formatedData));
-		console.log('address_details', JSON.stringify(formatedData));
 		setUsertypeAddressData(formatedData);
 		onSave(formData);
 		businessProfileUpdate(formData);
@@ -262,15 +260,15 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			let formStat = {};
+			let newFormState = {};
 			try {
-				formStat = JSON.parse(sessionStorage.getItem('formstate'));
+				newFormState = JSON.parse(sessionStorage.getItem('formstate')) || {};
 			} catch (e) {
-				formStat = { values: {} };
+				newFormState = { values: {} };
 			}
 			// initialize values if not exist
-			if (!formStat?.values) {
-				formStat.values = {};
+			if (!newFormState?.values) {
+				newFormState.values = {};
 			}
 			let aadhaarOtpRes = null;
 			try {
@@ -290,16 +288,17 @@ export default function AddressDetailsPage({
 					newAddress1.push(aadhaarOtpRes?.data?.address?.vtc || '');
 				if (aadhaarOtpRes?.data?.address?.subdist)
 					newAddress1.push(aadhaarOtpRes?.data?.address?.subdist || '');
-				formStat.values.address1 = newAddress1.join(', ');
-				formStat.values.address2 = aadhaarOtpRes?.data?.address?.landmark || '';
-				formStat.values.address3 = aadhaarOtpRes?.data?.address?.po || '';
-				formStat.values.pin = aadhaarOtpRes?.data?.address?.pc || '';
-				formStat.values.city = aadhaarOtpRes?.data?.address?.dist || '';
-				formStat.values.state = aadhaarOtpRes?.data?.address?.state || '';
+				newFormState.values.address1 = newAddress1.join(', ');
+				newFormState.values.address2 =
+					aadhaarOtpRes?.data?.address?.landmark || '';
+				newFormState.values.address3 = aadhaarOtpRes?.data?.address?.po || '';
+				newFormState.values.pin = aadhaarOtpRes?.data?.address?.pc || '';
+				newFormState.values.city = aadhaarOtpRes?.data?.address?.dist || '';
+				newFormState.values.state = aadhaarOtpRes?.data?.address?.state || '';
 			}
-			return formStat?.values;
+			return newFormState?.values;
 		} catch (error) {
-			console.log('error-LoanAddressDetails-prefilledValues-', error);
+			console.error('error-LoanAddressDetails-prefilledValues-', error);
 			return {};
 		}
 	};
