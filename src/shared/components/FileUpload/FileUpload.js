@@ -999,9 +999,9 @@ export default function FileUpload({
 							// }
 						>
 							<FileName>
-								{file.name.length > 20
-									? file.name.slice(0, 20) + '...'
-									: file.name}
+								{file?.name?.length > 20
+									? file?.name?.slice(0, 20) + '...'
+									: file?.name}
 							</FileName>
 							{isFileUploaded && !uploading ? (
 								<ImgClose
@@ -1215,9 +1215,9 @@ export default function FileUpload({
 												}}>
 												{isViewMore
 													? `View ${mappedDocFiles.length - 2} more`
-													: doc.name.length > 20
-													? doc.name.slice(0, 20) + '...'
-													: doc.name}
+													: doc?.name?.length > 20
+													? doc?.name?.slice(0, 20) + '...'
+													: doc?.name}
 											</FileName>
 											{FINANCIAL_DOC_TYPES?.includes(sectionType) && (
 												<PasswordWrapper>
