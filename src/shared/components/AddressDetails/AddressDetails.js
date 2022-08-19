@@ -79,6 +79,8 @@ export default function AddressDetails({
 		(preDataFilled &&
 			preDataFilled.filter(ele => ele.addressType === 'present')) ||
 		[];
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = editLoanData?.isViewLoan;
 
 	const populateValue = field => {
 		// if (!userType && field.disabled) {
@@ -122,8 +124,13 @@ export default function AddressDetails({
 				<Colom>
 					{!isBusiness && <Caption>Permanent Address</Caption>}
 					{jsonData &&
-						jsonData.map(
-							field =>
+						jsonData.map(field => {
+							const customFields = {};
+							if (isViewLoan) {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							return (
 								field.visibility && (
 									<FieldWrap key={`permanent_${field.name}`}>
 										{register({
@@ -139,6 +146,7 @@ export default function AddressDetails({
 														]),
 												  }
 												: {}),
+											...customFields,
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[`permanent_${field.name}`]) &&
@@ -149,7 +157,8 @@ export default function AddressDetails({
 											)}
 									</FieldWrap>
 								)
-						)}
+							);
+						})}
 				</Colom>
 				{!isBusiness && (
 					<Colom>

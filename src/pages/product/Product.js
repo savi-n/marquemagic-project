@@ -30,18 +30,7 @@ const Wrapper = styled.div`
 	min-height: 100%;
 	display: flex;
 `;
-const SectionSidebarArrow = styled.section`
-	z-index: 100;
-	display: none;
-	@media (max-width: 700px) {
-		display: block;
-	}
-`;
-const ArrowShow = styled.div`
-	width: min-content;
-	margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
-	position: fixed;
-`;
+
 /* background: ${({ theme }) => theme.main_theme_color}; */
 const Colom1 = styled.div`
 	background-image: url(${imgSideNav});
@@ -169,6 +158,24 @@ const IconDottedRight = styled.img`
 	margin-right: 30px;
 `;
 
+const SectionSidebarArrow = styled.section`
+	z-index: 100;
+	display: none;
+	@media (max-width: 700px) {
+		display: block;
+	}
+`;
+const ArrowShow = styled.div`
+	width: min-content;
+	margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
+	position: fixed;
+`;
+
+const editLoanRestrictedSections = [
+	'pan-verification',
+	'identity-verification',
+	'application-submitted',
+];
 export default function Product({ product, url }) {
 	const history = useHistory();
 	const productIdPage = atob(product);
@@ -208,11 +215,21 @@ export default function Product({ product, url }) {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isEditLoan = !!editLoanData?.loan_ref_id;
 
-	// useEffect(() => {
-	// 	clearFlowDetails(basePageUrl);
-	// 	clearFormData();
-	// }, []);
+	const [showContinueModal, setShowContinueModal] = useState(false);
+	const [index, setIndex] = useState(2);
+
+	const currentFlowDetect = () => {
+		if (completedMenu.length && productId === productIdPage) {
+			return showContinueModal ? currentFlow : basePageUrl;
+		}
+
+		return currentFlow || basePageUrl;
+	};
+
+	let flow = currentFlowDetect();
 
 	useEffect(() => {
 		if (response) {
@@ -233,23 +250,21 @@ export default function Product({ product, url }) {
 	}, [response]);
 
 	useEffect(() => {
-		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-		if (editLoanData && flowMap) {
+		if (response && flowMap && isEditLoan) {
 			const steps = Object.keys(flowMap);
-			onFlowChange(flowMap?.[flow]?.main);
 			steps.map(ele => {
 				setCompleted(ele);
 				return null;
 			});
-			// console.log('Product-useeffect-flowmap-', {
-			// 	index,
-			// 	editLoanData,
-			// 	flowMap,
-			// });
-			setIndex(index);
+			onFlowChange(
+				response?.data?.loan_request_type === 1
+					? 'business-details'
+					: 'personal-details'
+			);
+			setIndex(2);
 		}
 		// eslint-disable-next-line
-	}, [flowMap]);
+	}, [response, flowMap]);
 
 	useEffect(() => {
 		if (productId !== productIdPage || timestamp < Date.now()) {
@@ -259,18 +274,6 @@ export default function Product({ product, url }) {
 		completedMenu?.length > 0 && setIndex(completedMenu.length);
 		// eslint-disable-next-line
 	}, []);
-
-	// useEffect(() => {
-	//   if (basePageUrl) setCurrentFlow(basePageUrl);
-	// }, [basePageUrl]);
-
-	// const [
-	//   continueExistingApplication,
-	//   setContinueExistingApplication,
-	// ] = useState(false);
-
-	const [showContinueModal, setShowContinueModal] = useState(false);
-	const [index, setIndex] = useState(2);
 
 	const onYesClick = () => {
 		// setContinueExistingApplication(true);
@@ -308,15 +311,16 @@ export default function Product({ product, url }) {
 		setShowContinueModal(true);
 	};
 
-	const currentFlowDetect = () => {
-		if (completedMenu.length && productId === productIdPage) {
-			return showContinueModal ? currentFlow : basePageUrl;
-		}
-
-		return currentFlow || basePageUrl;
-	};
-
-	let flow = currentFlowDetect();
+	// console.log('Product-allStates-', {
+	// 	completedMenu,
+	// 	index,
+	// 	response,
+	// 	flowMap,
+	// 	currentFlow,
+	// 	basePageUrl,
+	// 	flow,
+	// 	subFlowMenu,
+	// });
 
 	return (
 		response &&
@@ -325,11 +329,13 @@ export default function Product({ product, url }) {
 				<Colom1 hide={hide}>
 					<ScrollBox>
 						<HeadingBox onClick={e => {}}>
-							<BackButton
-								src={imgBackArrowCircle}
-								alt='goback'
-								onClick={() => history.push('/nconboarding/applyloan')}
-							/>
+							{!isEditLoan && (
+								<BackButton
+									src={imgBackArrowCircle}
+									alt='goback'
+									onClick={() => history.push('/nconboarding/applyloan')}
+								/>
+							)}
 							<ProductName hide={hide} active={flow === 'product-details'}>
 								{response.data.name} <span>{response.data.description}</span>
 							</ProductName>
@@ -347,8 +353,14 @@ export default function Product({ product, url }) {
 														'pointer',
 												}}
 												onClick={e => {
-													// if (idx > completedMenu.length + 1) return;
+													if (
+														isEditLoan &&
+														editLoanRestrictedSections.includes(e.target.id)
+													) {
+														return;
+													}
 													if (index > idx) {
+														// if (idx > completedMenu.length + 1) return;
 														if (
 															flow !== 'product-details' &&
 															flow !== 'personal-details' &&

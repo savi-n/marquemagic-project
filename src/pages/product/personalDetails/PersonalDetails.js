@@ -87,6 +87,16 @@ export default function PersonalDetailsPage({
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
 	const [modalConfirm, setModalConfirm] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const applicantDataDirectorDetails =
+		editLoanData?.director_details?.filter(d => !!d.isApplicant)?.[0] || {};
+	const editApplicantData = {
+		...(editLoanData?.business_id || {}),
+		...applicantDataDirectorDetails,
+		aadhaar: applicantDataDirectorDetails?.daadhaar,
+	};
 
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
@@ -196,6 +206,7 @@ export default function PersonalDetailsPage({
 	};
 
 	const onProceed = async data => {
+		setLoading(true);
 		const formstatepan = JSON.parse(sessionStorage.getItem('formstatepan'));
 		sessionStorage.setItem(
 			'formstatepan',
@@ -210,44 +221,39 @@ export default function PersonalDetailsPage({
 
 		setCompleted(id);
 		onFlowChange(map.main);
+		setLoading(false);
 	};
 
 	const formatPersonalDetails = personalDetails => {
+		// console.log('formatPersonalDetails-', personalDetails);
 		const newPersonalDetails = {
 			firstName: personalDetails?.businessname,
 			incomeType: personalDetails?.businesstype,
-			// personalDetails?.businesstype === 1
-			// 	? 'business'
-			// 	: personalDetails?.businesstype === 18
-			// 	? 'selfemployed'
-			// 	: personalDetails?.businesstype === 7
-			// 	? 'salaried'
-			// 	: undefined,
 			BusinessType: personalDetails?.businesstype || '',
 			lastName: personalDetails?.last_name,
 			pan: personalDetails?.businesspancardnumber,
 			dob: personalDetails?.businessstartdate
 				? personalDetails?.businessstartdate.split(' ')[0]
 				: '',
-			aadhaar: personalDetails?.relation,
+			aadhaar: personalDetails?.aadhaar,
 			mobileNum: personalDetails?.contactno,
-			residentTypess: personalDetails?.relation,
 			email: personalDetails?.business_email,
-			countryResidence: personalDetails?.relation,
-			maritalStatus: personalDetails?.relation,
+			residentTypess: personalDetails?.residence_status,
+			countryResidence: personalDetails?.country_residence,
+			maritalStatus: personalDetails?.marital_status,
+			equifaxscore: personalDetails?.dcibil_score?.toString(),
 		};
 		return newPersonalDetails;
 	};
 
 	const prefilledValues = () => {
 		try {
-			const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 			if (editLoanData) {
 				const appData = JSON.parse(userTokensss)?.formReducer?.user
 					?.applicantData;
 				let form =
 					(appData && Object.keys(appData).length > 0 && appData) ||
-					formatPersonalDetails(editLoanData?.business_id) ||
+					formatPersonalDetails(editApplicantData) ||
 					{};
 				if (form) return form;
 			}
@@ -262,7 +268,8 @@ export default function PersonalDetailsPage({
 		try {
 			var formStat =
 				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadhaar ||
-				sessionStorage.getItem('aadhar');
+				sessionStorage.getItem('aadhar') ||
+				editApplicantData?.aadhaar;
 			// console.log('getAdhar-formState-', formState);
 			if (formStat) {
 				const adharNum = formStat;
@@ -333,7 +340,7 @@ export default function PersonalDetailsPage({
 			return name;
 		}
 	};
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+
 	let editLoanDataSalary = {};
 	if (editLoanData && (!form || (form && Object.keys(form).length === 0))) {
 		editLoanDataSalary = {
@@ -354,10 +361,24 @@ export default function PersonalDetailsPage({
 	}
 
 	const ButtonProceed = (
-		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+		<Button
+			fill
+			name='Proceed'
+			loading={loading}
+			disabled={loading}
+			onClick={handleSubmit(onProceed)}
+		/>
 	);
 
-	const ButtonConfirm = <Button fill name='Proceed' onClick={validateForm} />;
+	const ButtonConfirm = (
+		<Button
+			fill
+			loading={loading}
+			disabled={loading}
+			name='Proceed'
+			onClick={validateForm}
+		/>
+	);
 
 	let displayProceedButton = ButtonProceed;
 
@@ -392,13 +413,6 @@ export default function PersonalDetailsPage({
 					dob: getDOB() || prefilledValues()?.dob || '',
 					email: prefilledValues()?.email || '',
 					mobileNo: prefilledValues()?.mobileNum || '',
-					// TODO Remove below code if new logic is working fine
-					// panNumber:
-					// 	prefilledValues()?.pan ||
-					// 	JSON.parse(sessionStorage.getItem('formstatepan'))?.values
-					// 		?.panNumber ||
-					// 	sessionStorage.getItem('pan') ||
-					// 	'',
 					panNumber:
 						sessionStorage.getItem('pan') ||
 						prefilledValues()?.pan ||
@@ -410,6 +424,8 @@ export default function PersonalDetailsPage({
 					aadhaarUnMasked: getAdharUnMasked(),
 					countryResidence: prefilledValues()?.countryResidence || 'india',
 					incomeType: prefilledValues()?.incomeType || '',
+					equifaxscore: prefilledValues()?.equifaxscore || '',
+					maritalStatus: prefilledValues()?.maritalStatus || '',
 					...form,
 				}}
 				jsonData={map?.fields[id]?.data}

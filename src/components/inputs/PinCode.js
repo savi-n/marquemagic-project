@@ -61,6 +61,9 @@ export default function Pincode(props) {
 
 	const [processing, setProcessing] = useState(false);
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = editLoanData?.isViewLoan;
+
 	useEffect(() => {
 		if (props.value) {
 			onPinChange({
@@ -80,6 +83,7 @@ export default function Pincode(props) {
 		}
 
 		if (value.length === props.makeApiCall) {
+			if (isViewLoan) return;
 			setProcessing(true);
 			try {
 				const response = await newRequest(

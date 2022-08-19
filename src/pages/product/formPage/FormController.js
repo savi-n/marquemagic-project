@@ -111,6 +111,7 @@ export default function FormController({
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 	const [modalConfirm, setModalConfirm] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		if (id === 'vehicle-loan-details') {
@@ -154,122 +155,130 @@ export default function FormController({
 	};
 
 	const onProceed = async data => {
-		setModalConfirm(false);
-		// console.log('form-controller-on-proceed-data-', {
-		// 	data,
-		// 	companyDetail,
-		// 	api: LOGIN_CREATEUSER,
-		// 	reqBody: {
-		// 		email: formState?.values?.Email,
-		// 		white_label_id: whiteLabelId,
-		// 		source: APP_CLIENT,
-		// 		name: formState?.values?.BusinessName,
-		// 		mobileNo: formState?.values?.mobileNo,
-		// 		addrr1: '',
-		// 		addrr2: '',
-		// 	},
-		// });
-		let homeLoanBranchName = '';
-		if (id === 'vehicle-loan-details') {
-			homeLoanBranchName =
-				homeBranchList.filter(ele => ele.id === data.branchId)[0]?.branch || '';
-			data = { ...data, branchIdName: homeLoanBranchName };
-		}
-		if (id === 'business-loan-details') {
-			setUsertypeLoanData({
-				...data,
-			});
-		}
-
-		const reqBody = {
-			email: formState?.values?.Email || '',
-			white_label_id: whiteLabelId,
-			source: APP_CLIENT,
-			name: formState?.values?.BusinessName,
-			mobileNo: formState?.values?.mobileNo,
-			addrr1: '',
-			addrr2: '',
-		};
-		if (sessionStorage.getItem('userDetails')) {
-			try {
-				reqBody.user_id =
-					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
-			} catch (err) {
-				return err;
+		try {
+			setModalConfirm(false);
+			setLoading(true);
+			// console.log('form-controller-on-proceed-data-', {
+			// 	data,
+			// 	companyDetail,
+			// 	api: LOGIN_CREATEUSER,
+			// 	reqBody: {
+			// 		email: formState?.values?.Email,
+			// 		white_label_id: whiteLabelId,
+			// 		source: APP_CLIENT,
+			// 		name: formState?.values?.BusinessName,
+			// 		mobileNo: formState?.values?.mobileNo,
+			// 		addrr1: '',
+			// 		addrr2: '',
+			// 	},
+			// });
+			let homeLoanBranchName = '';
+			if (id === 'vehicle-loan-details') {
+				homeLoanBranchName =
+					homeBranchList.filter(ele => ele.id === data.branchId)[0]?.branch ||
+					'';
+				data = { ...data, branchIdName: homeLoanBranchName };
 			}
-		}
+			if (id === 'business-loan-details') {
+				setUsertypeLoanData({
+					...data,
+				});
+			}
 
-		// or loan type
-		// Loan Against Property Individual Loan
-		// console.log('formcontroller-onProceed-productDetails-', productDetails);
-		if (id === 'business-details') {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: reqBody,
-			});
-
-			const userDetailsRes = userDetailsReq.data;
-
-			const url = window.location.hostname;
-
-			let userToken = sessionStorage.getItem(url);
-
-			userToken = JSON.parse(userToken);
-
-			userToken = {
-				...userToken,
-				userReducer: {
-					...userToken.userReducer,
-					userToken: userDetailsRes.token,
-				},
+			const reqBody = {
+				email: formState?.values?.Email || '',
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: formState?.values?.BusinessName,
+				mobileNo: formState?.values?.mobileNo,
+				addrr1: '',
+				addrr2: '',
 			};
-
-			sessionStorage.setItem('userToken', userDetailsRes.token);
-			sessionStorage.setItem(url, JSON.stringify(userToken));
-
-			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
-					},
-					{ Authorization: `Bearer ${userDetailsRes.token}` }
-				);
-
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				sessionStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
-				// console.log('before-setting-company-details-', {
-				// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
-				// 	object: {
-				// 		...companyDetail,
-				// 		token: userDetailsRes.token,
-				// 		userId: userDetailsRes.userId,
-				// 		branchId: userDetailsRes.branchId,
-				// 		encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-				// 	},
-				// });
-				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-					setCompanyDetails({
-						...companyDetail,
-						...formState?.values,
-						token: userDetailsRes.token,
-						userId: userDetailsRes.userId,
-						branchId: userDetailsRes.branchId,
-						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						// formEmail: formState?.values?.Email,
-						// formMobile: formState?.values?.mobileNo,
-						Email: formState?.values?.Email,
-						mobileNo: formState?.values?.mobileNo,
-					});
+			if (sessionStorage.getItem('userDetails')) {
+				try {
+					reqBody.user_id =
+						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+				} catch (err) {
+					return err;
+				}
 			}
+
+			// or loan type
+			// Loan Against Property Individual Loan
+			// console.log('formcontroller-onProceed-productDetails-', productDetails);
+			if (id === 'business-details') {
+				const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+					method: 'POST',
+					data: reqBody,
+				});
+
+				const userDetailsRes = userDetailsReq.data;
+
+				const url = window.location.hostname;
+
+				let userToken = sessionStorage.getItem(url);
+
+				userToken = JSON.parse(userToken);
+
+				userToken = {
+					...userToken,
+					userReducer: {
+						...userToken.userReducer,
+						userToken: userDetailsRes.token,
+					},
+				};
+
+				sessionStorage.setItem('userToken', userDetailsRes.token);
+				sessionStorage.setItem(url, JSON.stringify(userToken));
+
+				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+					const encryptWhiteLabelReq = await newRequest(
+						WHITELABEL_ENCRYPTION_API,
+						{
+							method: 'GET',
+						},
+						{ Authorization: `Bearer ${userDetailsRes.token}` }
+					);
+
+					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+					sessionStorage.setItem(
+						'encryptWhiteLabel',
+						encryptWhiteLabelRes.encrypted_whitelabel[0]
+					);
+					// console.log('before-setting-company-details-', {
+					// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
+					// 	object: {
+					// 		...companyDetail,
+					// 		token: userDetailsRes.token,
+					// 		userId: userDetailsRes.userId,
+					// 		branchId: userDetailsRes.branchId,
+					// 		encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+					// 	},
+					// });
+					if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+						setCompanyDetails({
+							...companyDetail,
+							...formState?.values,
+							token: userDetailsRes.token,
+							userId: userDetailsRes.userId,
+							branchId: userDetailsRes.branchId,
+							encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+							// formEmail: formState?.values?.Email,
+							// formMobile: formState?.values?.mobileNo,
+							Email: formState?.values?.Email,
+							mobileNo: formState?.values?.mobileNo,
+						});
+				}
+			}
+			onSave(data);
+			setCompleted(id);
+			onFlowChange(map.main);
+			setLoading(false);
+		} catch (error) {
+			setLoading(false);
+			console.error('error-formcontroller-onproceed-', error);
 		}
-		onSave(data);
-		setCompleted(id);
-		onFlowChange(map.main);
 	};
 
 	const onSkip = () => {
@@ -329,29 +338,36 @@ export default function FormController({
 	const formatSubsidiaryData = subsidiaryData => {
 		return {
 			SubsidiaryName: subsidiaryData?.business_name,
-			BankName: subsidiaryData?.SubsidiaryName,
+			BankName: subsidiaryData?.SubsidiaryName || subsidiaryData?.bank_name,
 			AccountNumber: subsidiaryData?.account_number,
 			Relation: subsidiaryData?.relation,
+			RelationSubsidiary: subsidiaryData?.relation,
 		};
 	};
 
 	const formatShareholderData = shareholderData => {
+		// console.log('formatShareholderData-', { shareholderData });
 		return {
 			ShareholderName: shareholderData?.name,
 			ShareholderPercentage: shareholderData?.percentage.toString(),
 			Relation: shareholderData?.relationship,
+			RelationShareholder: shareholderData?.relationship,
+			CompanyAddress: shareholderData?.address,
+			Pincode: shareholderData?.pincode,
 		};
 	};
 
 	const formaBankDetailsData = bankDetailsData => {
+		// console.log('formaBankDetailsData-', bankDetailsData);
 		return {
-			BankName: bankDetailsData?.bank_id,
+			BankName: bankDetailsData?.bank_id?.toString(),
 			AccountNumber: bankDetailsData?.account_number,
 			AccountType: bankDetailsData?.account_type,
 			Relation: bankDetailsData?.relationship || '',
 			AccountHolderName: bankDetailsData?.account_holder_name,
 			StartDate: bankDetailsData?.outstanding_start_date,
 			EndDate: bankDetailsData?.outstanding_end_date,
+			ifsccode: bankDetailsData?.IFSC,
 		};
 	};
 
@@ -417,11 +433,23 @@ export default function FormController({
 	}
 
 	const ButtonProceed = (
-		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+		<Button
+			fill
+			name='Proceed'
+			loading={loading}
+			disabled={loading}
+			onClick={handleSubmit(onProceed)}
+		/>
 	);
 
 	const ButtonConfirm = (
-		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
+		<Button
+			fill
+			name='Proceed'
+			loading={loading}
+			disabled={loading}
+			onClick={() => setModalConfirm(true)}
+		/>
 	);
 
 	let displayProceedButton = ButtonProceed;

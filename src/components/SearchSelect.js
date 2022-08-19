@@ -91,6 +91,13 @@ const Label = styled.label`
       right: 5px;
       bottom: 5px;
     `}
+	${({ disabled }) =>
+		disabled &&
+		`
+		color: grey;
+    background: #fafafa;
+		cursor: not-allowed;
+  `}
 `;
 
 const Div = styled.div`
@@ -116,20 +123,23 @@ const PlaceHolder = styled.label`
 	padding: 0 10px;
 `;
 
-export default function SearchSelect({
-	name,
-	options = [],
-	placeholder,
-	searchable,
-	fetchOptionsFunc,
-	onSelectOptionCallback,
-	searchOptionCallback,
-	onBlurCallback,
-	searchKeyAsValue,
-	rules,
-	disabled,
-	field,
-}) {
+export default function SearchSelect(props) {
+	const {
+		name,
+		options = [],
+		placeholder,
+		searchable,
+		fetchOptionsFunc,
+		onSelectOptionCallback,
+		searchOptionCallback,
+		onBlurCallback,
+		searchKeyAsValue,
+		rules,
+		disabled,
+		field,
+		defaultValue = '',
+	} = props;
+	// console.log('SearchSelect-props-', { props, defaultValue, field });
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
 	const [searchKey, setSearchKey] = useState('');
@@ -152,6 +162,19 @@ export default function SearchSelect({
 		}
 		// eslint-disable-next-line
 	}, []);
+
+	useEffect(() => {
+		if (defaultValue && options?.length > 0) {
+			// (function(e) {
+			const defaultSelected = options.filter(
+				o => o.value === defaultValue
+			)?.[0];
+			// console.log('defaultSelected-', defaultSelected);
+			defaultSelected && onOptionSelect(null, defaultSelected);
+			// })();
+		}
+		// eslint-disable-next-line
+	}, [defaultValue, options]);
 
 	useEffect(() => {
 		if (options.length) setSelectOptions(options);
@@ -242,7 +265,7 @@ export default function SearchSelect({
 		<>
 			<Wrapper ref={compRef}>
 				{selectedOption && (
-					<Label focus={optionShow || focus} htmlFor={name}>
+					<Label focus={optionShow || focus} htmlFor={name} disabled={disabled}>
 						{selectedOption.name}
 					</Label>
 				)}
@@ -262,6 +285,7 @@ export default function SearchSelect({
 							onChange={onSearchChange}
 							value={searchKey}
 							autoComplete='off'
+							disabled={disabled}
 						/>
 						{!optionShow && !selectedOption?.name && (
 							<PlaceHolder htmlFor={name} disabled={disabled}>

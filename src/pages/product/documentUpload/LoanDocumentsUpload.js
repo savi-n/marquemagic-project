@@ -25,8 +25,6 @@ import {
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
 	AUTHENTICATION_GENERATE_OTP,
-	WHITE_LABEL_URL,
-	APP_CLIENT,
 } from '../../../_config/app.config';
 import { DOCUMENTS_TYPE } from '../../../_config/key.config';
 import useFetch from '../../../hooks/useFetch';
@@ -39,7 +37,6 @@ import { CaseContext } from '../../../reducer/caseReducer';
 import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
 import Loading from '../../../components/Loading';
 import AuthenticationOtpModal from 'shared/components/AuthenticationOTPModal/AuthenticationOtpModal';
-import { concat } from 'lodash';
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -199,10 +196,6 @@ let form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 //console.log('form from loanDetails', form);
 //console.log('form from loanDetails', loan);
 
-let editLoan = sessionStorage.getItem('editLoan')
-	? JSON.parse(sessionStorage.getItem('editLoan'))
-	: {};
-
 // const getAmountUm = a => {
 // 	if (a > 99999) {
 // 		return 'Lakhs';
@@ -244,365 +237,380 @@ function caseCreationDataFormat(
 	uploaddedDoc,
 	companyData,
 	productDetails,
-	productId
+	productId,
+	editLoan
 ) {
-	//	console.log('formdocuments ', documents);
-	//console.log('state --', data);
-	// console.log('companydetails --', companyData);
-	// console.log('proddetails --', productDetails);
-	// console.log('prodid --', productId);
-	loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
-	form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
-
-	url = window.location.hostname;
-	userToken = sessionStorage.getItem(url);
-
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-
-	let guarantorData = formReducer?.Guarantor;
-	let applicantData = formReducer?.user?.applicantData;
-	let loanData = formReducer?.user?.loanData;
-	let authentication_otp_res = null;
 	try {
-		authentication_otp_res = JSON.parse(
-			sessionStorage.getItem('authentication_otp_res')
-		);
-	} catch (e) {
-		authentication_otp_res = null;
-	}
-	editLoan = sessionStorage.getItem('editLoan')
-		? JSON.parse(sessionStorage.getItem('editLoan'))
-		: {};
-	const collateralData = [];
-	if (data['collateral-details'] || formReducer?.user['collateral-details'])
-		collateralData.push(
-			data['collateral-details'] || formReducer?.user['collateral-details']
-		);
-	if (data['land-additional-details'])
-		collateralData.push(data['land-additional-details']);
-	if (data['fishery-additional-details'])
-		collateralData.push(data['fishery-additional-details']);
-	//console.log(
-	//'LoanDoccumentUpload-caseCreationDataFormat-collatralData ',
-	//	collatralData
-	//);
+		// console.log('-----------temp1-------------');
+		loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
+		form = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 
-	const idType =
-		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
+		url = window.location.hostname;
+		userToken = sessionStorage.getItem(url);
+		let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+		let guarantorData = formReducer?.Guarantor;
+		let applicantData = formReducer?.user?.applicantData;
+		let loanData = formReducer?.user?.loanData;
+		let authentication_otp_res = null;
+		// console.log('-----------temp2-------------');
+		try {
+			authentication_otp_res = JSON.parse(
+				sessionStorage.getItem('authentication_otp_res')
+			);
+		} catch (e) {
+			authentication_otp_res = null;
+		}
+		const collateralData = [];
+		if (data['collateral-details'] || formReducer?.user['collateral-details'])
+			collateralData.push(
+				data['collateral-details'] || formReducer?.user['collateral-details']
+			);
+		if (data['land-additional-details'])
+			collateralData.push(data['land-additional-details']);
+		if (data['fishery-additional-details'])
+			collateralData.push(data['fishery-additional-details']);
+		//console.log(
+		//'LoanDoccumentUpload-caseCreationDataFormat-collatralData ',
+		//	collatralData
+		//);
 
-	// console.log('case-creation-data-format-', {
-	// 	uploaddedDoc,
-	// 	data,
-	// 	companyData,
-	// 	productDetails,
-	// 	productId,
-	// 	applicantData,
-	// 	loanData,
-	// 	idType,
-	// 	guarantorData,
-	// });
+		const idType =
+			productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 
-	const businessDetails = () => {
-		let corporateDetails = sessionStorage.getItem('corporateDetails');
-		if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
+		// console.log('case-creation-data-format-', {
+		// 	data,
+		// 	companyData,
+		// 	productDetails,
+		// 	productId,
+		// 	applicantData,
+		// 	loanData,
+		// 	idType,
+		// 	guarantorData,
+		// });
+		// console.log('-----------temp3-------------');
+
+		const businessDetails = () => {
+			try {
+				let corporateDetails = sessionStorage.getItem('corporateDetails');
+				if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
+				if (!companyData) {
+					companyData =
+						sessionStorage.getItem('companyData') &&
+						JSON.parse(sessionStorage.getItem('companyData'));
+				}
+				const formstate = sessionStorage.getItem('formstate')
+					? JSON.parse(sessionStorage.getItem('formstate'))
+					: {};
+
+				//console.log('corportae Details', corporateDetails);
+				const newBusinessDetails = {
+					first_name: applicantData?.firstName || '',
+					last_name: applicantData?.lastName || '',
+					dob: applicantData?.dob || '',
+					business_name:
+						applicantData?.firstName ||
+						sessionStorage.getItem('BusinessName') ||
+						companyData?.BusinessName,
+					business_type:
+						applicantData?.incomeType ||
+						data['business-details']?.BusinessType ||
+						formReducer?.user['business-details']?.BusinessType,
+					// applicantData?.incomeType === 'salaried'
+					// 	? 7
+					// 	: applicantData?.incomeType === 'selfemployed'
+					// 	? 18
+					// 	: data['business-details']?.BusinessType
+					// 	? data['business-details']?.BusinessType
+					// 	: 1,
+
+					business_email:
+						applicantData?.email ||
+						companyData?.email ||
+						companyData?.Email ||
+						formReducer?.user['business-details']?.Email ||
+						'', // business_industry_type: 20,
+					contact: applicantData?.mobileNo || companyData?.mobileNo || '',
+
+					businesspancardnumber:
+						applicantData?.panNumber || companyData?.panNumber || '',
+					// // crime_check: "Yes",
+					gstin:
+						data['business-details']?.GSTVerification ||
+						formReducer?.user['business-details']?.GSTVerification ||
+						'',
+					businessstartdate:
+						data['business-details']?.BusinessVintage ||
+						formReducer?.user['business-details']?.BusinessVintage ||
+						'',
+					// corporateid: companyData.CIN
+					marital_status: form?.maritalStatus,
+					residence_status: form?.residenceStatus,
+					country_residence: form?.countryResidence,
+					business_name_last:
+						applicantData?.lasName || companyData?.lastName || '',
+					aadhaar:
+						formstate?.values?.aadhaarUnMasked ||
+						applicantData?.aadhaar ||
+						companyData?.aadhaar ||
+						'',
+					equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
+				};
+				if (corporateDetails && corporateDetails.id) {
+					newBusinessDetails.corporateId = corporateDetails.id;
+				}
+				if (editLoan && editLoan?.business_id && editLoan?.business_id?.id) {
+					newBusinessDetails.businessid = editLoan?.business_id?.id;
+				}
+				if (sessionStorage.getItem('aadhaar_otp_res')) {
+					try {
+						newBusinessDetails.aadhaar_otp_res =
+							JSON.parse(sessionStorage.getItem('aadhaar_otp_res'))?.data ||
+							null;
+					} catch (err) {
+						return err;
+					}
+				}
+				const reqTypes = ['DL', 'voter', 'passport'];
+				const selectedDoc = data.documents.filter(d =>
+					reqTypes.includes(d.req_type)
+				);
+				selectedDoc.map(doc => {
+					if (doc.dl_no) newBusinessDetails.dl = doc.dl_no;
+					if (doc.vid) newBusinessDetails.voter = doc.vid;
+					if (doc.passport_no) newBusinessDetails.passport = doc.passport_no;
+					return null;
+				});
+				return newBusinessDetails;
+			} catch (error) {
+				console.error('businessDetails-', error);
+				return {};
+			}
+		};
+		// console.log('-----------temp4-------------');
+
 		if (!companyData) {
 			companyData =
 				sessionStorage.getItem('companyData') &&
 				JSON.parse(sessionStorage.getItem('companyData'));
 		}
-		const formstate = sessionStorage.getItem('formstate')
-			? JSON.parse(sessionStorage.getItem('formstate'))
-			: {};
 
-		//console.log('corportae Details', corporateDetails);
-		const newBusinessDetails = {
-			first_name: applicantData?.firstName || '',
-			last_name: applicantData?.lastName || '',
-			dob: applicantData?.dob || '',
-			business_name:
-				applicantData?.firstName ||
-				sessionStorage.getItem('BusinessName') ||
-				companyData?.BusinessName,
-			business_type:
-				applicantData?.incomeType ||
-				data['business-details']?.BusinessType ||
-				formReducer?.user['business-details']?.BusinessType,
-			// applicantData?.incomeType === 'salaried'
-			// 	? 7
-			// 	: applicantData?.incomeType === 'selfemployed'
-			// 	? 18
-			// 	: data['business-details']?.BusinessType
-			// 	? data['business-details']?.BusinessType
-			// 	: 1,
+		const addressArrayMulti =
+			(applicantData &&
+				applicantData?.address &&
+				applicantData?.address.length > 0 &&
+				applicantData?.address.map(ele => {
+					return {
+						line1: ele.address1,
+						line2: ele.address2,
+						locality: ele?.address3 || ele?.city,
+						city: ele.city,
+						state: ele.state,
+						pincode: ele.pinCode,
+						addressType: ele.addressType,
+						aid: ele.aid,
+					};
+				})) ||
+			[];
+		// console.log('-----------temp5-------------');
+		let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
 
-			business_email:
-				applicantData?.email ||
-				companyData?.email ||
-				companyData?.Email ||
-				formReducer?.user['business-details']?.Email ||
-				'', // business_industry_type: 20,
-			contact: applicantData?.mobileNo || companyData?.mobileNo || '',
-
-			businesspancardnumber:
-				applicantData?.panNumber || companyData?.panNumber || '',
-			// // crime_check: "Yes",
-			gstin:
-				data['business-details']?.GSTVerification ||
-				formReducer?.user['business-details']?.GSTVerification ||
-				'',
-			businessstartdate:
-				data['business-details']?.BusinessVintage ||
-				formReducer?.user['business-details']?.BusinessVintage ||
-				'',
-			// corporateid: companyData.CIN
-			marital_status: form?.maritalStatus,
-			residence_status: form?.residenceStatus,
-			country_residence: form?.countryResidence,
-			business_name_last: applicantData?.lasName || companyData?.lastName || '',
-			aadhaar:
-				formstate?.values?.aadhaarUnMasked ||
-				applicantData?.aadhaar ||
-				companyData?.aadhaar ||
-				'',
-			equifaxscore: form?.equifaxscore || applicantData?.equifaxscore || '',
-		};
-		if (corporateDetails && corporateDetails.id) {
-			newBusinessDetails.corporateId = corporateDetails.id;
+		addressArrayUni =
+			addressArrayUni.length === 1
+				? addressArrayUni.map(ele => {
+						return { ...ele, addressType: 'present', aid: 1 };
+				  })
+				: addressArrayUni;
+		// console.log('-----------temp6-------------');
+		const { loanAmount, tenure, ...restLoanData } = loanData;
+		const business_income_type_id =
+			applicantData?.incomeType || companyData?.BusinessType;
+		let annual_incnome = 0;
+		if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
+			annual_incnome = applicantData?.annualIncome;
 		}
-		if (editLoan && editLoan?.business_id && editLoan?.business_id?.id) {
-			newBusinessDetails.businessid = editLoan?.business_id?.id;
+
+		let gross_income = 0;
+		if (applicantData?.grossIncome && applicantData?.grossIncome !== '0')
+			gross_income = applicantData?.grossIncome;
+		// console.log('-----------temp7-------------');
+		const formatedData = {
+			Business_details: businessDetails() || null,
+			businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
+			// busniess && busniess.Address
+			// 	? {
+			// 			city: busniess && busniess.Address.city,
+			// 			line1:
+			// 				busniess &&
+			// 				`${busniess.Address.flno} ${busniess.Address.lg} ${
+			// 					busniess.Address.bnm
+			// 				} ${busniess.Address.bno} ${busniess.Address.dst} `,
+			// 			locality: busniess && busniess.Address.loc,
+			// 			pincode: busniess && busniess.Address.pncd,
+			// 			state: busniess && busniess.Address.st,
+			// 	  }
+			// 	: {}
+			director_details: {},
+
+			loan_details: {
+				collateral: collateralData,
+				// loan_type_id: 1,
+				// case_priority: null,
+				// loan_product_id: "10",
+				// loan_request_type: "1",
+				origin: 'nconboarding',
+				...restLoanData,
+
+				loan_product_id:
+					productId[business_income_type_id] ||
+					productId[(form?.incomeType)] ||
+					productId[idType],
+				white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
+				branchId:
+					loan?.branchId ||
+					formReducer?.user?.['vehicle-loan-details']?.branchId ||
+					loanData?.branchId ||
+					data['business-loan-details']?.branchId ||
+					'',
+				loan_amount: getAmount(
+					loanData?.loanAmount ||
+						loan?.loanAmount ||
+						data['business-loan-details']?.LoanAmount ||
+						data['vehicle-loan-details']?.loanAmount ||
+						formReducer?.user?.['vehicle-loan-details']?.loanAmount ||
+						formReducer?.user['business-loan-details']?.LoanAmount ||
+						0
+				), //loan.loanAmount,
+				loan_amount_um: getAmountUm(
+					+loanData?.loanAmount ||
+						+loan?.loanAmount ||
+						+data['business-loan-details']?.LoanAmount ||
+						+data['vehicle-loan-details']?.loanAmount ||
+						+formReducer?.user?.['vehicle-loan-details']?.loanAmount ||
+						+formReducer?.user['business-loan-details']?.LoanAmount
+				),
+				applied_tenure:
+					loan?.tenure ||
+					data['business-loan-details']?.tenure ||
+					data['vehicle-loan-details']?.tenure ||
+					formReducer?.user?.['vehicle-loan-details']?.tenure ||
+					formReducer?.user['business-loan-details']?.tenure ||
+					0,
+
+				annual_turn_over: getAmount(
+					annual_incnome ||
+						gross_income ||
+						data?.['business-details']?.AnnualTurnover ||
+						formReducer?.user['business-details']?.AnnualTurnover ||
+						''
+				),
+				revenue_um: getAmountUm(
+					annual_incnome ||
+						gross_income ||
+						data?.['business-details']?.AnnualTurnover ||
+						formReducer?.user['business-details']?.AnnualTurnover ||
+						''
+				),
+
+				annual_op_expense: getAmount(
+					applicantData?.netMonthlyIncome ||
+						data?.['business-details']?.PAT ||
+						formReducer?.user['business-details']?.PAT ||
+						''
+				),
+				op_expense_um: getAmountUm(
+					applicantData?.netMonthlyIncome ||
+						data?.['business-details']?.PAT ||
+						formReducer?.user['business-details']?.PAT ||
+						''
+				),
+				// annual_revenue: applicantData?.grossIncome || 0,
+				//loan.loanAmount?.tenure
+				// application_ref: data['business-loan-details'].Applicationid || '',
+				// annual_turn_over: data?.['business-details'].AnnualTurnover,
+				// annual_op_expense: data?.['business-details'].PAT
+				// loan_type_id: 1,
+				// case_priority: null,
+				// origin: "New_UI",
+			},
+			documents: {
+				KYC: fileStructure(uploaddedDoc || [], 'KYC'),
+				others: fileStructure(uploaddedDoc || [], 'Others'),
+				financials: fileStructure(uploaddedDoc || [], 'Financial'),
+			},
+			branchId: companyData?.branchId,
+		};
+		// console.log('-----------temp8-------------');
+		if (editLoan && editLoan?.id) {
+			formatedData.loan_details.loanId = editLoan?.id;
+			formatedData.Collaterals = {
+				property_type: editLoan?.loan_asset_type,
+				assets_value: editLoan?.assets_value,
+				assets_value_um: editLoan?.assets_value_um,
+			};
+			formatedData.financials = {
+				annual_op_expense: editLoan?.annual_op_expense,
+				op_expense_um: editLoan?.op_expense_um,
+				gross_revenue: editLoan?.annual_revenue,
+				gross_revenue_um: editLoan?.revenue_um,
+			};
 		}
-		if (sessionStorage.getItem('aadhaar_otp_res')) {
-			try {
-				newBusinessDetails.aadhaar_otp_res =
-					JSON.parse(sessionStorage.getItem('aadhaar_otp_res'))?.data || null;
-			} catch (err) {
-				return err;
-			}
+		// console.log('-----------temp9-------------');
+		if (guarantorData?.applicantData) {
+			formatedData.director_details.director_0 = {
+				dfirstname: guarantorData?.applicantData?.firstName || '',
+				dlastname: guarantorData?.applicantData?.lastName || '',
+				dpancard: guarantorData?.applicantData?.panNumber || '',
+				ddob: guarantorData?.applicantData?.dob || '', // '12-06-1994'
+				daadhaar: guarantorData?.applicantData?.aadhaar || '',
+				demail: guarantorData?.applicantData?.email || '',
+				dcontact: guarantorData?.applicantData?.mobileNo || '',
+				crime_check: null,
+				address1: guarantorData?.applicantData?.address[0]?.address1 || '',
+				address2: guarantorData?.applicantData?.address[0]?.address2 || '',
+				address3: guarantorData?.applicantData?.address[0]?.address3 || '', // api key missing
+				city: guarantorData?.applicantData?.address[0]?.city || '',
+				state: guarantorData?.applicantData?.address[0]?.state || '',
+				pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
+				residenceStatusGuarantor:
+					guarantorData?.applicantData?.residenceStatusGuarantor || '',
+				maritalStatusGuarantor:
+					guarantorData?.applicantData?.maritalStatusGuarantor || '',
+				countryResidenceGuarantor:
+					guarantorData?.applicantData?.countryResidenceGuarantor || '',
+				incomeType: guarantorData?.applicantData?.incomeType || '',
+				ddin_no: null,
+				type_name: 'Guarantor',
+				residence_status:
+					guarantorData?.applicantData?.residenceStatusGuarantor || '',
+				marital_status:
+					guarantorData?.applicantData?.maritalStatusGuarantor || '',
+				country_residence:
+					guarantorData?.applicantData?.countryResidenceGuarantor || '',
+				income_type: guarantorData?.applicantData?.incomeType || '',
+				//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
+			};
 		}
-		const reqTypes = ['DL', 'voter', 'passport'];
-		const selectedDoc = data.documents.filter(d =>
-			reqTypes.includes(d.req_type)
-		);
-		selectedDoc.map(doc => {
-			if (doc.dl_no) newBusinessDetails.dl = doc.dl_no;
-			if (doc.vid) newBusinessDetails.voter = doc.vid;
-			if (doc.passport_no) newBusinessDetails.passport = doc.passport_no;
-			return null;
-		});
-		return newBusinessDetails;
-	};
-	if (!companyData) {
-		companyData =
-			sessionStorage.getItem('companyData') &&
-			JSON.parse(sessionStorage.getItem('companyData'));
+		// console.log('-----------temp10-------------');
+		if (editLoan && editLoan?.id && guarantorData?.applicantData) {
+			const editGuarantor =
+				editLoan?.director_details?.filter(
+					d => d.type_name === 'Guarantor'
+				)?.[0] || {};
+			formatedData.director_details.director_0.id = editGuarantor?.id || null;
+		}
+		// console.log('-----------temp11-------------');
+		if (authentication_otp_res) {
+			formatedData.auth_details = authentication_otp_res;
+		}
+		// console.log('-----------temp13-------------');
+		return formatedData;
+	} catch (error) {
+		console.error('caseCreationDataFormat-', error);
+		return {};
 	}
-
-	const addressArrayMulti =
-		(applicantData &&
-			applicantData?.address &&
-			applicantData?.address.length > 0 &&
-			applicantData?.address.map(ele => {
-				return {
-					line1: ele.address1,
-					line2: ele.address2,
-					locality: ele?.address3 || ele?.city,
-					city: ele.city,
-					state: ele.state,
-					pincode: ele.pinCode,
-					addressType: ele.addressType,
-					aid: ele.aid,
-				};
-			})) ||
-		[];
-
-	let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
-	addressArrayUni =
-		addressArrayUni.length === 1
-			? addressArrayUni.map(ele => {
-					return { ...ele, addressType: 'present', aid: 1 };
-			  })
-			: addressArrayUni;
-
-	const { loanAmount, tenure, ...restLoanData } = loanData;
-	const business_income_type_id =
-		applicantData?.incomeType || companyData?.BusinessType;
-	let annual_incnome = 0;
-	if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
-		annual_incnome = applicantData?.annualIncome;
-	}
-
-	let gross_income = 0;
-	if (applicantData?.grossIncome && applicantData?.grossIncome !== '0')
-		gross_income = applicantData?.grossIncome;
-
-	const formatedData = {
-		Business_details: businessDetails() || null,
-		businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
-		// busniess && busniess.Address
-		// 	? {
-		// 			city: busniess && busniess.Address.city,
-		// 			line1:
-		// 				busniess &&
-		// 				`${busniess.Address.flno} ${busniess.Address.lg} ${
-		// 					busniess.Address.bnm
-		// 				} ${busniess.Address.bno} ${busniess.Address.dst} `,
-		// 			locality: busniess && busniess.Address.loc,
-		// 			pincode: busniess && busniess.Address.pncd,
-		// 			state: busniess && busniess.Address.st,
-		// 	  }
-		// 	: {}
-		director_details: {},
-
-		loan_details: {
-			collateral: collateralData,
-			// loan_type_id: 1,
-			// case_priority: null,
-			// loan_product_id: "10",
-			// loan_request_type: "1",
-			origin: 'nconboarding',
-			...restLoanData,
-
-			loan_product_id:
-				productId[business_income_type_id] ||
-				productId[(form?.incomeType)] ||
-				productId[idType],
-			white_label_id: sessionStorage.getItem('encryptWhiteLabel'),
-			branchId:
-				loan?.branchId ||
-				formReducer?.user?.['vehicle-loan-details']?.branchId ||
-				loanData?.branchId ||
-				data['business-loan-details']?.branchId ||
-				'',
-			loan_amount: getAmount(
-				loanData?.loanAmount ||
-					loan?.loanAmount ||
-					data['business-loan-details']?.LoanAmount ||
-					data['vehicle-loan-details']?.loanAmount ||
-					formReducer?.user?.['vehicle-loan-details']?.loanAmount ||
-					formReducer?.user['business-loan-details']?.LoanAmount ||
-					0
-			), //loan.loanAmount,
-			loan_amount_um: getAmountUm(
-				+loanData?.loanAmount ||
-					+loan?.loanAmount ||
-					+data['business-loan-details']?.LoanAmount ||
-					+data['vehicle-loan-details']?.loanAmount ||
-					+formReducer?.user?.['vehicle-loan-details']?.loanAmount ||
-					+formReducer?.user['business-loan-details']?.LoanAmount
-			),
-			applied_tenure:
-				loan?.tenure ||
-				data['business-loan-details']?.tenure ||
-				data['vehicle-loan-details']?.tenure ||
-				formReducer?.user?.['vehicle-loan-details']?.tenure ||
-				formReducer?.user['business-loan-details']?.tenure ||
-				0,
-
-			annual_turn_over: getAmount(
-				annual_incnome ||
-					gross_income ||
-					data?.['business-details']?.AnnualTurnover ||
-					formReducer?.user['business-details']?.AnnualTurnover ||
-					''
-			),
-			revenue_um: getAmountUm(
-				annual_incnome ||
-					gross_income ||
-					data?.['business-details']?.AnnualTurnover ||
-					formReducer?.user['business-details']?.AnnualTurnover ||
-					''
-			),
-
-			annual_op_expense: getAmount(
-				applicantData?.netMonthlyIncome ||
-					data?.['business-details']?.PAT ||
-					formReducer?.user['business-details']?.PAT ||
-					''
-			),
-			op_expense_um: getAmountUm(
-				applicantData?.netMonthlyIncome ||
-					data?.['business-details']?.PAT ||
-					formReducer?.user['business-details']?.PAT ||
-					''
-			),
-			// annual_revenue: applicantData?.grossIncome || 0,
-			//loan.loanAmount?.tenure
-			// application_ref: data['business-loan-details'].Applicationid || '',
-			// annual_turn_over: data?.['business-details'].AnnualTurnover,
-			// annual_op_expense: data?.['business-details'].PAT
-			// loan_type_id: 1,
-			// case_priority: null,
-			// origin: "New_UI",
-		},
-		documents: {
-			KYC: fileStructure(uploaddedDoc || [], 'KYC'),
-			others: fileStructure(uploaddedDoc || [], 'Others'),
-			financials: fileStructure(uploaddedDoc || [], 'Financial'),
-		},
-		branchId: companyData?.branchId,
-	};
-	if (editLoan && editLoan?.id) {
-		formatedData.loan_details.loanId = editLoan?.id;
-		formatedData.Collaterals = {
-			property_type: editLoan?.loan_asset_type,
-			assets_value: editLoan?.assets_value,
-			assets_value_um: editLoan?.assets_value_um,
-		};
-		formatedData.financials = {
-			annual_op_expense: editLoan?.annual_op_expense,
-			op_expense_um: editLoan?.op_expense_um,
-			gross_revenue: editLoan?.annual_revenue,
-			gross_revenue_um: editLoan?.revenue_um,
-		};
-	}
-	if (guarantorData?.applicantData) {
-		formatedData.director_details.director_0 = {
-			dfirstname: guarantorData?.applicantData?.firstName || '',
-			dlastname: guarantorData?.applicantData?.lastName || '',
-			dpancard: guarantorData?.applicantData?.panNumber || '',
-			ddob: guarantorData?.applicantData?.dob || '', // '12-06-1994'
-			daadhaar: guarantorData?.applicantData?.aadhaar || '',
-			demail: guarantorData?.applicantData?.email || '',
-			dcontact: guarantorData?.applicantData?.mobileNo || '',
-			crime_check: null,
-			address1: guarantorData?.applicantData?.address[0]?.address1 || '',
-			address2: guarantorData?.applicantData?.address[0]?.address2 || '',
-			address3: guarantorData?.applicantData?.address[0]?.address3 || '', // api key missing
-			city: guarantorData?.applicantData?.address[0]?.city || '',
-			state: guarantorData?.applicantData?.address[0]?.state || '',
-			pincode: guarantorData?.applicantData?.address[0]?.pinCode || '',
-			residenceStatusGuarantor:
-				guarantorData?.applicantData?.residenceStatusGuarantor || '',
-			maritalStatusGuarantor:
-				guarantorData?.applicantData?.maritalStatusGuarantor || '',
-			countryResidenceGuarantor:
-				guarantorData?.applicantData?.countryResidenceGuarantor || '',
-			incomeType: guarantorData?.applicantData?.incomeType || '',
-			ddin_no: null,
-			type_name: 'Guarantor',
-			residence_status:
-				guarantorData?.applicantData?.residenceStatusGuarantor || '',
-			marital_status:
-				guarantorData?.applicantData?.maritalStatusGuarantor || '',
-			country_residence:
-				guarantorData?.applicantData?.countryResidenceGuarantor || '',
-			income_type: guarantorData?.applicantData?.incomeType || '',
-			//values["Applicant", "Co-applicant", "Director", "Partner", "Guarantor", "Trustee", "Member", "Proprietor"],
-		};
-	}
-	if (editLoan && editLoan?.id) {
-		formatedData.director_details.director_0.id =
-			editLoan?.director_details[0]?.id || null;
-	}
-	if (authentication_otp_res) {
-		formatedData.auth_details = authentication_otp_res;
-	}
-
-	return formatedData;
 }
 
-function subsidiaryDataFormat(caseId, data) {
+function subsidiaryDataFormat(caseId, data, editLoan) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	if (
 		!(
@@ -632,36 +640,16 @@ function subsidiaryDataFormat(caseId, data) {
 			data['subsidiary-details']?.RelationSubsidiary ||
 			formReducer?.user['subsidiary-details']?.RelationSubsidiary,
 	};
+	if (editLoan) {
+		formatedData.id = editLoan?.subsidiary_details?.[0]?.id;
+		formatedData.business_id = editLoan?.business_id?.id;
+		formatedData.loan_id = editLoan?.id;
+	}
 	return formatedData;
 }
 
-function bankDetailsDataFormat(caseId, data) {
+function bankDetailsDataFormat(caseId, data, editLoan) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-
-	// if (
-	// 	data['vehicle-loan-details'] ||
-	// 	formReducer?.user['vehicle-loan-details']
-	// ) {
-	// 	if (!data['emi-details'] && !formReducer?.user['emi-details']) {
-	// 		return false;
-	// 	}
-	// 	const formatedData = {
-	// 		emiDetails: data['emi-details'] || formReducer?.user['emi-details'],
-	// 		case_id: caseId,
-	// 		// bank_name: data[`vehicle-loan-details`].branchId,
-	// 	};
-	// 	return formatedData;
-	// }
-	// if (
-	// 	!data['bank-details']?.AccountNumber &&
-	// 	!data['bank-details']?.BankName &&
-	// 	!data['bank-details']?.AccountHolderName &&
-	// 	!formReducer?.user['bank-details']?.AccountNumber &&
-	// 	!formReducer?.user['bank-details']?.BankName &&
-	// 	!formReducer?.user['bank-details']?.AccountHolderName
-	// ) {
-	// 	return false;
-	// }
 	let bank =
 		data['bank-details']?.BankName ||
 		formReducer?.user['bank-details']?.BankName ||
@@ -696,15 +684,16 @@ function bankDetailsDataFormat(caseId, data) {
 			data['bank-details']?.EndDate ||
 			formReducer?.user['bank-details']?.EndDate ||
 			'',
-		// limit_type: data['bank-details'],
-		// sanction_limit: data['bank-details'],
-		// drawing_limit: data['bank-details'],
-		// IFSC: "",
 	};
+	if (editLoan && editLoan?.loan_ref_id) {
+		formatedData.fin_id = editLoan?.bank_details?.[0]?.id;
+		formatedData.business_id = editLoan?.business_id?.id;
+		formatedData.loan_id = editLoan?.id;
+	}
 	return formatedData;
 }
 
-function shareHolderDataFormat(businessId, data) {
+function shareHolderDataFormat(businessId, data, editLoan) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	if (
 		!(
@@ -738,10 +727,15 @@ function shareHolderDataFormat(businessId, data) {
 			formReducer?.user['shareholder-details']?.Pincode,
 	};
 
+	if (editLoan && editLoan?.loan_ref_id) {
+		formatedData.id = editLoan?.shareholder_details?.[0]?.id;
+		formatedData.business_id = editLoan?.business_id?.id;
+		formatedData.loan_id = editLoan?.id;
+	}
 	return { shareholderData: [formatedData] };
 }
 
-function refereneceDataFormat(loanId, data) {
+function refereneceDataFormat(loanId, data, editLoan) {
 	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
 	const loanReferenceData = [];
 	const refData1 = {
@@ -772,6 +766,9 @@ function refereneceDataFormat(loanId, data) {
 	};
 
 	if (refData1.ref_name && refData1.ref_contact) {
+		if (editLoan && editLoan?.loan_ref_id) {
+			refData1.id = editLoan?.reference_details?.[0]?.id;
+		}
 		loanReferenceData.push(refData1);
 	}
 
@@ -803,14 +800,21 @@ function refereneceDataFormat(loanId, data) {
 	};
 
 	if (refData2.ref_name && refData2.ref_contact) {
+		if (editLoan && editLoan?.loan_ref_id) {
+			refData2.id = editLoan?.reference_details?.[1]?.id;
+		}
 		loanReferenceData.push(refData2);
 	}
-
 	const formatedData = {
 		loanId: loanId,
 		loanReferenceData: loanReferenceData,
 	};
 
+	if (editLoan && editLoan?.loan_ref_id) {
+		formatedData.case_id = editLoan?.loan_ref_id;
+		formatedData.business_id = editLoan?.business_id?.id;
+		formatedData.loan_id = editLoan?.id;
+	}
 	return formatedData;
 }
 
@@ -825,6 +829,7 @@ export default function DocumentUpload({
 	const aTag = (
 		<a
 			href={productDetails?.termsandconditionsurl}
+			rel='noreferrer'
 			target={'_blank'}
 			style={{ color: 'blue' }}>
 			Terms and Conditions
@@ -874,7 +879,7 @@ export default function DocumentUpload({
 		setIsAuthenticationOtpModalOpen,
 	] = useState(false);
 	// const [contactNo, setContactNo] = useState();
-	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
+	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 
@@ -918,6 +923,7 @@ export default function DocumentUpload({
 	const companyData =
 		sessionStorage.getItem('companyData') &&
 		JSON.parse(sessionStorage.getItem('companyData'));
+	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
 	const API_TOKEN = sessionStorage.getItem('userToken');
 	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
@@ -925,7 +931,9 @@ export default function DocumentUpload({
 	const business_income_type_id =
 		applicantData?.incomeType ||
 		state['business-details']?.BusinessType ||
-		companyData?.BusinessType;
+		companyData?.BusinessType ||
+		editLoan?.business_id?.businesstype ||
+		'';
 
 	// console.log('LoanDocumentsUpload-allstates-', {
 	// 	state,
@@ -936,6 +944,18 @@ export default function DocumentUpload({
 	// 		productId[business_income_type_id] ||
 	// 		productId[(form?.incomeType)] ||
 	// 		productId[idType],
+	// 	KycDocOptions,
+	// 	FinancialDocOptions,
+	// 	OtherDocOptions,
+	// 	prefilledKycDocs,
+	// 	prefilledFinancialDocs,
+	// 	prefilledOtherDocs,
+	// 	startingKYCDoc,
+	// 	startingFinDoc,
+	// 	startingOtherDoc,
+	// 	startingUnTaggedKYCDocs,
+	// 	startingUnTaggedFinDocs,
+	// 	startingUnTaggedOtherDocs,
 	// });
 
 	const { response } = useFetch({
@@ -1162,7 +1182,11 @@ export default function DocumentUpload({
 				editLoan.loan_document.map(doc => {
 					const newDoc = {
 						...doc,
-						name: doc.original_doc_name,
+						name:
+							doc.original_doc_name ||
+							doc.uploaded_doc_name ||
+							doc.doc_name ||
+							'',
 						progress: '100',
 						status: 'completed',
 						file: null,
@@ -1179,6 +1203,7 @@ export default function DocumentUpload({
 			}
 			setLoading(false);
 		}
+		// eslint-disable-next-line
 	}, [response]);
 
 	// disabled looks un-used code
@@ -1302,7 +1327,8 @@ export default function DocumentUpload({
 				uploaddedDoc,
 				companyDetail,
 				productDetails,
-				productId
+				productId,
+				editLoan
 			);
 
 			if (sessionStorage.getItem('userDetails')) {
@@ -1314,8 +1340,11 @@ export default function DocumentUpload({
 				}
 			}
 
-			// console.log('req body ', reqBody);
+			// Test area
+			// console.log('LoanDocumentsUpload-Create-Edit-ReqBody', reqBody);
 			// return;
+			// Test area
+
 			const caseReq = await newRequest(
 				editLoan && editLoan?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
@@ -1408,16 +1437,16 @@ export default function DocumentUpload({
 
 			throw new Error(caseRes.message);
 		} catch (er) {
-			console.log('STEP: 1 => CASE CREATION ERROR', er.message);
+			console.error('STEP: 1 => CASE CREATION ERROR', er.message);
 			throw new Error(er.message);
 		}
 	};
 
 	// step: 2 if subsidary details submit request
 	const addSubsidiaryReq = async caseId => {
-		const postData = subsidiaryDataFormat(caseId, state);
+		const reqBody = subsidiaryDataFormat(caseId, state, editLoan);
 		//console.log('subsidary 23 ', state);
-		if (!postData) {
+		if (!reqBody) {
 			return true;
 		}
 		try {
@@ -1425,7 +1454,7 @@ export default function DocumentUpload({
 				ADD_SUBSIDIARY_DETAILS,
 				{
 					method: 'POST',
-					data: subsidiaryDataFormat(caseId, state),
+					data: reqBody,
 				},
 				{
 					Authorization: `Bearer ${(companyDetail && companyDetail.token) ||
@@ -1443,14 +1472,14 @@ export default function DocumentUpload({
 
 			throw new Error(caseRes.message);
 		} catch (er) {
-			console.log('STEP: 2 => CASE CREATION ERRROR', er.message);
+			console.error('STEP: 2 => CASE CREATION ERRROR', er.message);
 			throw new Error(er.message);
 		}
 	};
 
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
-		const formData = bankDetailsDataFormat(caseId, state);
+		const formData = bankDetailsDataFormat(caseId, state, editLoan);
 		// console.log('addBankDetailsReq-', { formData, caseId, state });
 		// throw Error('bank details');
 
@@ -1483,17 +1512,17 @@ export default function DocumentUpload({
 					return caseRes.data;
 				}
 
-				throw new Error(caseRes.message);
+				// throw new Error(caseRes.message);
 			} catch (er) {
-				console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
-				throw new Error(er.message);
+				console.error('error ADD BANK DETAILS ERRROR', er.message);
+				// throw new Error(er.message);
 			}
 		}
 	};
 
 	// step: 4 if subsidary details submit request
 	const addShareHolderDetailsReq = async businessId => {
-		const formData = shareHolderDataFormat(businessId, state);
+		const formData = shareHolderDataFormat(businessId, state, editLoan);
 		if (!formData) {
 			return true;
 		}
@@ -1517,16 +1546,16 @@ export default function DocumentUpload({
 				return caseRes.data;
 			}
 
-			throw new Error(caseRes.message);
+			// throw new Error(caseRes.message);
 		} catch (er) {
-			console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
-			throw new Error(er.message);
+			console.error('STEP:3 => ADD SHAREHOLDER DETAILS ERRROR', er.message);
+			// throw new Error(er.message);
 		}
 	};
 
 	// step: 5 if subsidary details submit request
 	const addReferenceDetailsReq = async loanId => {
-		const formData = refereneceDataFormat(loanId, state);
+		const formData = refereneceDataFormat(loanId, state, editLoan);
 		if (formData.loanReferenceData.length === 0) {
 			return true;
 		}
@@ -1550,18 +1579,15 @@ export default function DocumentUpload({
 				return caseRes.data;
 			}
 
-			throw new Error(caseRes.message);
+			// throw new Error(caseRes.message);
 		} catch (er) {
-			console.log('STEP:3 => ADD BANK DETAILS ERRROR', er.message);
-			throw new Error(er.message);
+			console.error('STEP:3 => ADD REF DETAILS ERRROR', er.message);
+			// throw new Error(er.message);
 		}
 	};
 
 	const caseCreationSteps = async data => {
 		try {
-			editLoan = sessionStorage.getItem('editLoan')
-				? JSON.parse(sessionStorage.getItem('editLoan'))
-				: {};
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();
 			const caseId =
@@ -1569,18 +1595,19 @@ export default function DocumentUpload({
 			const loanId = editLoan?.id || caseCreateRes.loan_details.id;
 			const businessId =
 				editLoan?.business_id?.id || caseCreateRes.loan_details.business_id;
-			await addSubsidiaryReq(caseId);
 
+			await addSubsidiaryReq(caseId);
 			await addBankDetailsReq(caseId);
 			await addShareHolderDetailsReq(businessId);
 			await addReferenceDetailsReq(loanId);
 
+			// return;
 			// step 2: upload documents reference [loanId from createcase]
 			// await updateDocumentList(caseCreateRes.loanId, USER_ROLES.User);
 
 			return caseCreateRes;
 		} catch (er) {
-			console.log('APPLICANT CASE CREATE STEP ERROR-----> ', er.message);
+			console.error('APPLICANT CASE CREATE STEP ERROR-----> ', er.message);
 			addToast({
 				message: er.message,
 				type: 'error',
@@ -1665,7 +1692,7 @@ export default function DocumentUpload({
 				},
 			});
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			addToast({
 				message:
 					error?.response?.data?.message || 'Server down, try after sometimes',

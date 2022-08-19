@@ -70,6 +70,9 @@ export default function EMIDetails({
 	userType,
 	preData = {},
 }) {
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = editLoanData?.isViewLoan;
+
 	const populateValue = field => {
 		if (!userType && field.disabled) {
 			return preData?.[field.name] || '';
@@ -99,8 +102,13 @@ export default function EMIDetails({
 			<H>{label}</H>
 			<FormWrap>
 				{jsonData &&
-					jsonData.map(
-						field =>
+					jsonData.map(field => {
+						const customFields = {};
+						if (isViewLoan) {
+							customFields.readonly = true;
+							customFields.disabled = true;
+						}
+						return (
 							field.visibility && (
 								<FieldWrap key={field.name}>
 									<Field>
@@ -108,6 +116,7 @@ export default function EMIDetails({
 											...field,
 											// value: formState?.values?.[field.name],
 											value: populateValue(field),
+											...customFields,
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
@@ -146,7 +155,8 @@ export default function EMIDetails({
                     )} */}
 								</FieldWrap>
 							)
-					)}
+						);
+					})}
 			</FormWrap>
 		</>
 	);

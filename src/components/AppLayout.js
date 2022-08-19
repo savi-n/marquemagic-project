@@ -3,12 +3,14 @@
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
-import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
+import axios from 'axios';
+import queryString from 'query-string';
 
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
 import Loading from './Loading';
 import useFetch from '../hooks/useFetch';
+
 import {
 	WHITE_LABEL_URL,
 	CLIENT_VERIFY_URL,
@@ -17,8 +19,11 @@ import {
 	NC_STATUS_CODE,
 	//APP_DOMAIN,
 	APP_CLIENT,
+	API_END_POINT,
 } from '../_config/app.config.js';
 import { AppContext } from '../reducer/appReducer';
+import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
+import { decryptRes } from 'utils/encrypt';
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -96,7 +101,53 @@ const AppLayout = () => {
 					}
 				}
 			} catch (error) {
-				console.log('ERROR => ', error);
+				console.error('ERROR-CLIENT_VERIFY_URL-', error);
+				return;
+			}
+			// when user comes for create / editing this loan from ui-ux
+			const params = queryString.parse(window.location.search);
+			try {
+				if (params.loan_ref_id && params.token) {
+					const loanDetailsRes = await axios.get(
+						`${API_END_POINT}/getDetailsWithLoanRefId?loan_ref_id=${
+							params.loan_ref_id
+						}`
+					);
+					const isViewLoan = params.view ? true : false;
+					sessionStorage.setItem(
+						'editLoan',
+						JSON.stringify({ ...loanDetailsRes?.data?.data, isViewLoan } || {})
+					);
+				}
+			} catch (error) {
+				console.error('error-getDetailsWithLoanRefId-', error);
+			}
+			try {
+				if (params.cid || params.uid) {
+					let UID = params.cid || params.uid;
+					UID = UID.replaceAll(' ', '+');
+					// console.log('UID-before-', UID);
+					const newUID = decryptRes(UID);
+					// const newUID = decryptUID(UID.toString());
+					// console.log('UID-after-', newUID);
+					const userRes = await axios.get(
+						`${API_END_POINT}/usersDetails?userid=${newUID}${
+							params.token ? `&token=${params.token}` : ''
+						}`
+						// console.log('header-userRes', userRes);
+					);
+					const userDetails = userRes?.data?.data;
+					// console.log('userres-data-', userDetails?.cacompname || '');
+					const stringifyUserDetails = JSON.stringify(userDetails);
+					if (params.cid) {
+						sessionStorage.setItem('corporateDetails', stringifyUserDetails);
+					} else if (params.uid) {
+						// console.log('uid-passed-', { params, stringifyUserDetails });
+						sessionStorage.setItem('userDetails', stringifyUserDetails);
+					}
+				}
+			} catch (error) {
+				console.error('error-userdetails-', error);
 			}
 			setLoading(false);
 		}

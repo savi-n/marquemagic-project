@@ -296,8 +296,6 @@ export default function PersonalDetails({
 				setIsAadhaarOtpModalOpen(false);
 			}
 		} catch (error) {
-			console.log(error);
-			console.log(error.response);
 			addToast({
 				message:
 					error?.response?.data?.message ||
@@ -307,6 +305,9 @@ export default function PersonalDetails({
 		}
 	};
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isEditLoan = editLoanData?.loan_ref_id;
+	const isViewLoan = editLoanData?.isViewLoan;
 	// console.log('PersonalDetails-states-', { preData, productDetails });
 
 	return (
@@ -326,14 +327,11 @@ export default function PersonalDetails({
 			<FormWrap>
 				{jsonData && id === 'business-details'
 					? jsonData.map(field => {
-							const editLoanData = JSON.parse(
-								sessionStorage.getItem('editLoan')
-							);
 							const customFields = {};
 							if (field.name === 'BusinessType') {
 								if (
 									completedSections.includes('business-details') ||
-									(editLoanData && editLoanData?.loan_ref_id)
+									isEditLoan
 								) {
 									customFields.readonly = true;
 									customFields.disabled = true;
@@ -349,6 +347,14 @@ export default function PersonalDetails({
 							) {
 								customFields.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
+								if (isEditLoan) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+							}
+							if (isViewLoan) {
+								customFields.readonly = true;
+								customFields.disabled = true;
 							}
 							return (
 								field.visibility && (
@@ -383,9 +389,6 @@ export default function PersonalDetails({
 					: id !== 'business-details' &&
 					  jsonData.map(field => {
 							// console.log('field-', field);
-							const editLoanData = JSON.parse(
-								sessionStorage.getItem('editLoan')
-							);
 							const value = populateValue(field);
 							const customFields = {};
 							if (pageName === 'Bank Details') {
@@ -406,7 +409,7 @@ export default function PersonalDetails({
 							if (id === 'personal-details' && field.name === 'incomeType') {
 								if (
 									completedSections.includes('personal-details') ||
-									(editLoanData && editLoanData?.loan_ref_id)
+									isEditLoan
 								) {
 									customFields.readonly = true;
 									customFields.disabled = true;
@@ -461,6 +464,10 @@ export default function PersonalDetails({
 									customFields.disabled = isVerifyWithOtpDisabled;
 									customFields.readonly = isVerifyWithOtpDisabled;
 								}
+								if (isEditLoan) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
 							}
 							if (id === 'personal-details' && field.name === 'panNumber') {
 								customFields.readonly = true;
@@ -473,6 +480,14 @@ export default function PersonalDetails({
 							) {
 								customFields.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
+								if (isEditLoan) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+							}
+							if (isViewLoan) {
+								customFields.readonly = true;
+								customFields.disabled = true;
 							}
 							return (
 								field.visibility && (
