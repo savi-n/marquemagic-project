@@ -293,11 +293,14 @@ export default function CoapplicantDetailsSection({
 			setShowCoapplicant([...showCoapplicant]);
 		}
 	};
-	const [applicantAddress, setApplicantAddress] = useState([]);
-	const getPresentAddress = index => {
-		setPresentAddressCheck(!presentAddressCheck);
-		// setShowCoapplicant([...showCoapplicant]);
+	const errorOnSubmit = () => {
+		addToast({
+			message:
+				'Please check all the manadatory fields in all the Co-Applicant Sections',
+			type: 'error',
+		});
 	};
+	const [applicantAddress, setApplicantAddress] = useState([]);
 
 	const { addToast } = useToasts();
 	// const onSave = formData => {
@@ -624,7 +627,6 @@ export default function CoapplicantDetailsSection({
 										checked={presentAddressCheck}
 										onChange={() => {
 											setPresentAddressCheck(!presentAddressCheck);
-											// getPresentAddress(index);
 										}}
 									/>
 									<label htmlFor='sameAsApplicant'>
@@ -667,7 +669,7 @@ export default function CoapplicantDetailsSection({
 					name='Proceed'
 					loading={loading}
 					disabled={loading}
-					onClick={handleSubmit(onProceed)}
+					onClick={handleSubmit(onProceed, errorOnSubmit)}
 				/>
 				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
 			</ButtonWrap>
