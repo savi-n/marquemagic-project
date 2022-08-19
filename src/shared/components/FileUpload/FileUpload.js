@@ -417,9 +417,6 @@ const DocumentUploadNameToolTip = styled.div`
 	padding: 5px;
 `;
 
-let url = window.location.hostname;
-let userToken = sessionStorage.getItem(url);
-
 export default function FileUpload({
 	onDrop,
 	accept = '',
@@ -475,6 +472,9 @@ export default function FileUpload({
 	//const [docSelected, setDocSelected] = useState('');
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	const [openingDocument, setOpeningDocument] = useState(false);
+
+	let url = window.location.hostname;
+	let userToken = sessionStorage.getItem(url);
 
 	let refCounter = 0;
 
