@@ -884,7 +884,7 @@ export default function DocumentUpload({
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
 	const [openKycdoc, setOpenKycDoc] = useState(true);
-	const [coApplicant, setCoapplicant] = useState([]);
+	const [coApplicants, setCoapplicants] = useState([]);
 	const [openCoKycdoc, setCoOpenKycDoc] = useState(true);
 	const [openFinancialdoc, setOpenFinancialDoc] = useState(false);
 	const [openCoFinancialdoc, setCoOpenFinancialDoc] = useState(false);
@@ -980,7 +980,8 @@ export default function DocumentUpload({
 		);
 	};
 	useEffect(() => {
-		setCoapplicant(coApplicantResponse);
+		setCoapplicants(coApplicantResponse);
+		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
@@ -1990,12 +1991,7 @@ export default function DocumentUpload({
 				</UploadWrapper> */}
 				<Hr />
 				<br />
-				{loading && (
-					<LoaderWrapper>
-						<Loading />
-					</LoaderWrapper>
-				)}
-				{coApplicant.map((item, index) => {
+				{coApplicants.map((coApplicant, index) => {
 					return (
 						<>
 							{index === 0 ? (
@@ -2041,7 +2037,7 @@ export default function DocumentUpload({
 												sectionType='kyc'
 												section={'document-upload'}
 												onDrop={files =>
-													handleFileUpload(files, coApplicantResponse?.[0]?.id)
+													handleFileUpload(files, coApplicant?.id)
 												}
 												onRemoveFile={handleFileRemove}
 												docTypeOptions={CoKycDocOptions}
@@ -2065,86 +2061,75 @@ export default function DocumentUpload({
 									</Details>
 								</>
 							) : null}
-							{KycDocOptions.length > 0 && (
-								<>
-									<CollapseIcon
-										src={downArray}
-										style={{
-											display: 'none',
-											transform: openKycdoc ? 'rotate(180deg)' : 'none',
-											marginLeft: 'auto',
-										}}
-										alt='arrow'
-									/>
-								</>
-							)}
-
-							{coApplicant.income_type === 'noIncome' &&
-								CoFinancialDocOptions.length > 0 && (
-									<>
-										<Section
-											onClick={() => openCloseCollapsCoapplicant('Financial')}>
-											<H1>Financial </H1>
-											<div
-												style={{
-													marginLeft: 10,
-													alignItems: 'center',
-													/* minWidth: '500px', */
-													display: 'flex',
-												}}>
-												Document Submitted :
-												<StyledButton width={'auto'} fill>
-													{fincacialCoCount} of {CoFinancialDocOptions.length}
-												</StyledButton>
-											</div>
-											<CollapseIcon
-												src={downArray}
-												style={{
-													transform: openCoFinancialdoc
-														? `rotate(180deg)`
-														: `none`,
-													marginLeft: 'auto',
-												}}
-												alt='arrow'
-											/>
-										</Section>
-
-										<Details open={openCoFinancialdoc}>
-											<UploadWrapper open={openCoFinancialdoc}>
-												<FileUpload
-													prefilledDocs={prefilledFinancialDocs}
-													startingTaggedDocs={startingFinDoc}
-													startingUnTaggedDocs={startingUnTaggedFinDocs}
-													sectionType='financial'
-													section={'document-upload'}
-													onDrop={files =>
-														handleFileUpload(
-															files,
-															coApplicantResponse?.[0]?.id
-														)
-													}
-													onRemoveFile={handleFileRemove}
-													docTypeOptions={CoFinancialDocOptions}
-													documentTypeChangeCallback={handleDocumentTypeChange}
-													accept=''
-													upload={{
-														url: DOCS_UPLOAD_URL({
-															userId:
-																companyDetail?.userId ||
-																JSON.parse(userToken)?.userReducer?.userId ||
-																'',
-														}),
-														header: {
-															Authorization: `Bearer ${companyDetail?.token ||
-																JSON.parse(userToken)?.userReducer?.userToken ||
-																''}`,
-														},
+							{coApplicant.income_type === 'noIncome'
+								? null
+								: CoFinancialDocOptions.length > 0 && (
+										<>
+											<Section
+												onClick={() =>
+													openCloseCollapsCoapplicant('Financial')
+												}>
+												<H1>Financial </H1>
+												<div
+													style={{
+														marginLeft: 10,
+														alignItems: 'center',
+														/* minWidth: '500px', */
+														display: 'flex',
+													}}>
+													Document Submitted :
+													<StyledButton width={'auto'} fill>
+														{fincacialCoCount} of {CoFinancialDocOptions.length}
+													</StyledButton>
+												</div>
+												<CollapseIcon
+													src={downArray}
+													style={{
+														transform: openCoFinancialdoc
+															? `rotate(180deg)`
+															: `none`,
+														marginLeft: 'auto',
 													}}
+													alt='arrow'
 												/>
-											</UploadWrapper>
-										</Details>
-									</>
-								)}
+											</Section>
+
+											<Details open={openCoFinancialdoc}>
+												<UploadWrapper open={openCoFinancialdoc}>
+													<FileUpload
+														prefilledDocs={prefilledFinancialDocs}
+														startingTaggedDocs={startingFinDoc}
+														startingUnTaggedDocs={startingUnTaggedFinDocs}
+														sectionType='financial'
+														section={'document-upload'}
+														onDrop={files =>
+															handleFileUpload(files, coApplicant?.id)
+														}
+														onRemoveFile={handleFileRemove}
+														docTypeOptions={CoFinancialDocOptions}
+														documentTypeChangeCallback={
+															handleDocumentTypeChange
+														}
+														accept=''
+														upload={{
+															url: DOCS_UPLOAD_URL({
+																userId:
+																	companyDetail?.userId ||
+																	JSON.parse(userToken)?.userReducer?.userId ||
+																	'',
+															}),
+															header: {
+																Authorization: `Bearer ${companyDetail?.token ||
+																	JSON.parse(userToken)?.userReducer
+																		?.userToken ||
+																	''}`,
+															},
+														}}
+													/>
+												</UploadWrapper>
+											</Details>
+										</>
+								  )}
 						</>
 					);
 				})}
