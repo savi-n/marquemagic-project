@@ -417,7 +417,7 @@ export default function PersonalDetails({
 									customFields.disabled = true;
 								}
 							}
-							if (id === 'personal-details' && field.name === 'dob') {
+							if (field.name.includes('dob')) {
 								customFields.max = moment().format('YYYY-MM-DD');
 							}
 							let pricePerAcer = 0;
