@@ -890,7 +890,7 @@ export default function DocumentUpload({
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
 	const [openKycdoc, setOpenKycDoc] = useState(true);
-	const [openCoKycdoc, setCoOpenKycDoc] = useState(true);
+	const [openCoKycdoc, setCoOpenKycDoc] = useState(false);
 	const [openFinancialdoc, setOpenFinancialDoc] = useState(false);
 	const [openCoFinancialdoc, setCoOpenFinancialDoc] = useState(false);
 	const [openOtherdoc, setOpenOtherDoc] = useState(false);
@@ -1938,20 +1938,18 @@ export default function DocumentUpload({
 						}}
 					/>
 				</UploadWrapper> */}
-				<Hr />
-				<br />
 				{coApplicants.map((coApplicant, index) => {
 					return (
 						<>
-							{index === 0 ? (
-								<H>
-									<span>Co-Applicant Document Upload</span>
-								</H>
-							) : (
-								<H>
-									<span>Co-Applicant Document {index + 1} Upload</span>
-								</H>
-							)}
+							<div style={{ height: 20 }} />
+							<Hr />
+							<div style={{ height: 30 }} />
+							<H>
+								<span>
+									Co-Applicant {coApplicants.length > 0 ? ` ${index + 1} ` : ''}
+									Document Upload
+								</span>
+							</H>
 							{CoKycDocOptions.length > 0 ? (
 								<>
 									<Section onClick={() => openCloseCollapsCoapplicant('KYC')}>
@@ -2133,7 +2131,7 @@ export default function DocumentUpload({
 								background: 'blue',
 							}}
 							isLoader={caseCreationProgress}
-							disabled={buttonDisabledStatus()}
+							disabled={caseCreationProgress || buttonDisabledStatus()}
 							onClick={!caseCreationProgress && onSubmitOtpAuthentication}
 						/>
 					) : (
@@ -2145,7 +2143,7 @@ export default function DocumentUpload({
 								background: 'blue',
 							}}
 							isLoader={caseCreationProgress}
-							disabled={buttonDisabledStatus()}
+							disabled={caseCreationProgress || buttonDisabledStatus()}
 							onClick={!caseCreationProgress && onSubmitCompleteApplication}
 						/>
 					)}
