@@ -138,6 +138,7 @@ export default function SearchSelect(props) {
 		disabled,
 		field,
 		defaultValue = '',
+		customLabel = '',
 	} = props;
 	// console.log('SearchSelect-props-', { props, defaultValue, field });
 	const [optionShow, setOptionShow] = useState(false);
@@ -155,23 +156,22 @@ export default function SearchSelect(props) {
 	});
 
 	useEffect(() => {
-		if (field?.value.length > 0) {
-			// (function(e) {
-			onOptionSelect(null, { name: field.placeholder, value: field.value });
-			// })();
+		if (field?.value?.length > 0) {
+			onOptionSelect(null, {
+				name: field.placeholder,
+				value: field.value,
+			});
 		}
 		// eslint-disable-next-line
 	}, []);
 
 	useEffect(() => {
 		if (defaultValue && options?.length > 0) {
-			// (function(e) {
 			const defaultSelected = options.filter(
-				o => o.value === defaultValue
+				o => `${o.value}` === `${defaultValue}`
 			)?.[0];
 			// console.log('defaultSelected-', defaultSelected);
 			defaultSelected && onOptionSelect(null, defaultSelected);
-			// })();
 		}
 		// eslint-disable-next-line
 	}, [defaultValue, options]);
@@ -264,10 +264,17 @@ export default function SearchSelect(props) {
 	return (
 		<>
 			<Wrapper ref={compRef}>
-				{selectedOption && (
-					<Label focus={optionShow || focus} htmlFor={name} disabled={disabled}>
-						{selectedOption.name}
-					</Label>
+				{customLabel ? (
+					<Label focus={true}>{customLabel}</Label>
+				) : (
+					selectedOption && (
+						<Label
+							focus={optionShow || focus}
+							htmlFor={name}
+							disabled={disabled}>
+							{selectedOption.name}
+						</Label>
+					)
 				)}
 				{searchable ? (
 					<Div>

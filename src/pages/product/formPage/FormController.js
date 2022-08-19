@@ -126,7 +126,10 @@ export default function FormController({
 			const opitionalDataReq = await axios.get(
 				SEARCH_BANK_BRANCH_LIST({ bankId }),
 				{
-					headers: { Authorization: `Bearer ${userToken1}` },
+					headers: {
+						Authorization: `Bearer ${userToken1 ||
+							sessionStorage.getItem('userToken')}`,
+					},
 				}
 			);
 			if (opitionalDataReq.data.status === 'ok') {
@@ -204,7 +207,7 @@ export default function FormController({
 			// or loan type
 			// Loan Against Property Individual Loan
 			// console.log('formcontroller-onProceed-productDetails-', productDetails);
-			if (id === 'business-details') {
+			if (!isViewLoan && id === 'business-details') {
 				const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 					method: 'POST',
 					data: reqBody,
@@ -269,7 +272,7 @@ export default function FormController({
 						});
 				}
 			}
-			onSave(data);
+			!isViewLoan && onSave(data);
 			setCompleted(id);
 			onFlowChange(map.main);
 			setLoading(false);
@@ -295,8 +298,6 @@ export default function FormController({
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
 	const [homeBranchList, sethomeBranchList] = useState([]);
 
-	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
-
 	const url = window.location.hostname;
 
 	let userToken = sessionStorage.getItem(url);
@@ -305,6 +306,19 @@ export default function FormController({
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	let companyData = JSON.parse(sessionStorage.getItem('companyData'));
+
+	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let form =
+		state[`${id}`] ||
+		formReducer?.user[`${id}`] ||
+		companyDetail ||
+		companyData ||
+		appData;
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
+	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
+
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
 		return value;
@@ -394,14 +408,6 @@ export default function FormController({
 		};
 	};
 
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-	let form =
-		state[`${id}`] ||
-		formReducer?.user[`${id}`] ||
-		companyDetail ||
-		companyData ||
-		appData;
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	if (state[`${id}`]) {
 		if (id === 'business-loan-details') {
 			form =
@@ -450,7 +456,7 @@ export default function FormController({
 	const ButtonProceed = (
 		<Button
 			fill
-			name='Proceed'
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 			loading={loading}
 			disabled={loading}
 			onClick={handleSubmit(onProceed)}
@@ -460,7 +466,7 @@ export default function FormController({
 	const ButtonConfirm = (
 		<Button
 			fill
-			name='Proceed'
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 			loading={loading}
 			disabled={loading}
 			onClick={() => setModalConfirm(true)}
@@ -476,7 +482,7 @@ export default function FormController({
 	)
 		displayProceedButton = ButtonConfirm;
 
-	console.log('FormController-allstates-', { form });
+	// console.log('FormController-allstates-', { form });
 
 	return (
 		<>
@@ -523,8 +529,9 @@ export default function FormController({
 						/>
 					)}
 					{displayProceedButton}
-					{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
-					{!skipButton && <Button name='Skip' onClick={onSkip} />}
+					{!skipButton && !isViewLoan && (
+						<Button name='Skip' onClick={onSkip} />
+					)}
 				</ButtonWrap>
 			</Div>
 

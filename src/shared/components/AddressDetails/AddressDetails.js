@@ -80,7 +80,7 @@ export default function AddressDetails({
 			preDataFilled.filter(ele => ele.addressType === 'present')) ||
 		[];
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = editLoanData?.isViewLoan;
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
 		// if (!userType && field.disabled) {
@@ -119,7 +119,8 @@ export default function AddressDetails({
 		<>
 			{hideHeader ? null : (
 				<H>
-					{userType || 'Help us with your'} <span>Address Details</span>
+					{userType || isViewLoan ? '' : 'Help us with your '}
+					<span>Address Details</span>
 				</H>
 			)}
 			<FormWrap>
@@ -175,13 +176,19 @@ export default function AddressDetails({
 									);
 									setMatch(!match);
 								}}
+								disabled={isViewLoan}
 								bg='blue'
 								name='Same as Permanent Address'
 							/>
 						</Caption>
 						{jsonData &&
-							jsonData.map(
-								field =>
+							jsonData.map(field => {
+								const customFields = {};
+								if (isViewLoan) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+								return (
 									field.visibility && (
 										<FieldWrap key={`present_${field.name}`}>
 											{register({
@@ -202,6 +209,7 @@ export default function AddressDetails({
 															]),
 													  }
 													: {}),
+												...customFields,
 											})}
 											{(formState?.submit?.isSubmited ||
 												formState?.touched?.[`present_${field.name}`]) &&
@@ -212,7 +220,8 @@ export default function AddressDetails({
 												)}
 										</FieldWrap>
 									)
-							)}
+								);
+							})}
 					</Colom>
 				)}
 			</FormWrap>

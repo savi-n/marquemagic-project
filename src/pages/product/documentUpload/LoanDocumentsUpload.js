@@ -59,7 +59,6 @@ const UploadWrapper = styled.div`
 
 const Details = styled.div`
 	max-height: ${props => (props.open ? '100%' : '0%')};
-	padding: ${props => (props.open ? '10px 0' : '0')};
 	transition: all 0.3s ease-out;
 	@media (max-width: 700px) {
 		max-width: 51%;
@@ -119,7 +118,10 @@ const CheckboxWrapper = styled.div`
 const Section = styled.div`
 	display: flex;
 	align-items: center;
-	cursor: row-resize;
+	cursor: pointer;
+	border-bottom: 1px solid #ddd;
+	/* border: 1px solid #ddd; */
+	height: 60px;
 `;
 
 const CollapseIcon = styled.img`
@@ -131,9 +133,12 @@ const CollapseIcon = styled.img`
 	cursor: pointer;
 `;
 
-const Hr = styled.hr`
-	padding: 0px;
-`;
+// const Hr = styled.hr`
+// 	display: none;
+// 	padding: 0px;
+// 	color: 'green';
+// `;
+
 const StyledButton = styled.button`
 	/* height: 25px; */
 	margin: 5px;
@@ -161,7 +166,8 @@ const StyledButton = styled.button`
 	}
 `;
 const LoaderWrapper = styled.div`
-	height: 200px;
+	width: 100%;
+	max-height: 500px;
 	display: flex;
 	justify-content: center;
 	text-align: center;
@@ -919,8 +925,12 @@ export default function DocumentUpload({
 	const companyData =
 		sessionStorage.getItem('companyData') &&
 		JSON.parse(sessionStorage.getItem('companyData'));
-	const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isEditLoan = !!editLoan?.loan_ref_id;
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+	const editLoanCoApplicants =
+		editLoanData?.director_details?.filter(
+			d => d?.type_name?.toLowerCase() === 'co-applicant'
+		) || [];
 	const API_TOKEN = sessionStorage.getItem('userToken');
 	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
@@ -928,11 +938,13 @@ export default function DocumentUpload({
 		applicantData?.incomeType ||
 		state['business-details']?.BusinessType ||
 		companyData?.BusinessType ||
-		editLoan?.business_id?.businesstype ||
+		editLoanData?.business_id?.businesstype ||
 		'';
+
 	const coApplicants = sessionStorage.getItem('coapplicant_response')
 		? JSON.parse(sessionStorage.getItem('coapplicant_response'))
-		: [];
+		: editLoanCoApplicants;
+
 	// console.log('LoanDocumentsUpload-allstates-', {
 	// 	state,
 	// 	business_income_type_id,
@@ -1142,16 +1154,16 @@ export default function DocumentUpload({
 
 			//setDocumentTypeOptions(optionArray);
 			//console.log('coapplicant', coApplicant);
-			// console.log('loanducmentupload-response-', { kycDocDropdown, editLoan });
+			// console.log('loanducmentupload-response-', { kycDocDropdown, editLoanData });
 			if (
-				editLoan &&
-				editLoan?.loan_document &&
-				editLoan?.loan_document?.length > 0
+				editLoanData &&
+				editLoanData?.loan_document &&
+				editLoanData?.loan_document?.length > 0
 			) {
 				const newKyc = [];
 				const newFin = [];
 				const newOtr = [];
-				editLoan.loan_document.map(doc => {
+				editLoanData.loan_document.map(doc => {
 					if (doc.deleted_by) return null;
 					const newDoc = {
 						...doc,
@@ -1189,14 +1201,14 @@ export default function DocumentUpload({
 
 	const handleFileRemove = async (fileId, file) => {
 		// console.log('handleFileRemove-', { fileId, file });
-		if (isEditLoan && (file?.business_id || file?.loan)) {
+		if (editLoanData && (file?.business_id || file?.loan)) {
 			const reqBody = {
 				loan_doc_id: file?.id || '',
-				business_id: file?.business_id || editLoan?.business_id?.id || '',
-				loan_id: file?.loan || editLoan?.id || '',
+				business_id: file?.business_id || editLoanData?.business_id?.id || '',
+				loan_id: file?.loan || editLoanData?.id || '',
 				userid: file?.user_id || '',
 			};
-			const newEditLoan = _.cloneDeep(editLoan);
+			const newEditLoan = _.cloneDeep(editLoanData);
 			const editDocIndex = newEditLoan.loan_document.findIndex(
 				d => d.id === fileId
 			);
@@ -1251,7 +1263,7 @@ export default function DocumentUpload({
 				companyDetail,
 				productDetails,
 				productId,
-				editLoan
+				editLoanData
 			);
 
 			if (sessionStorage.getItem('userDetails')) {
@@ -1269,7 +1281,7 @@ export default function DocumentUpload({
 			// Test area
 
 			const caseReq = await newRequest(
-				editLoan && editLoan?.loan_ref_id
+				editLoanData && editLoanData?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT
 					: BUSSINESS_LOAN_CASE_CREATION,
 				{
@@ -1288,7 +1300,8 @@ export default function DocumentUpload({
 				caseRes.status === NC_STATUS_CODE.OK
 			) {
 				const resLoanRefId =
-					editLoan?.loan_ref_id || caseReq.data.data.loan_details.loan_ref_id;
+					editLoanData?.loan_ref_id ||
+					caseReq.data.data.loan_details.loan_ref_id;
 				//setMessage(resLoanRefId);
 				setLoanRef(resLoanRefId);
 				const compData =
@@ -1348,11 +1361,11 @@ export default function DocumentUpload({
 				// ends here
 
 				let newCaseRes = caseRes.data;
-				if (editLoan && editLoan?.loan_ref_id) {
+				if (editLoanData && editLoanData?.loan_ref_id) {
 					newCaseRes = {
 						...caseRes.data,
-						...editLoan,
-						loanId: editLoan?.id,
+						...editLoanData,
+						loanId: editLoanData?.id,
 					};
 				}
 				return newCaseRes;
@@ -1367,7 +1380,7 @@ export default function DocumentUpload({
 
 	// step: 2 if subsidary details submit request
 	const addSubsidiaryReq = async caseId => {
-		const reqBody = subsidiaryDataFormat(caseId, state, editLoan);
+		const reqBody = subsidiaryDataFormat(caseId, state, editLoanData);
 		//console.log('subsidary 23 ', state);
 		if (!reqBody) {
 			return true;
@@ -1402,7 +1415,7 @@ export default function DocumentUpload({
 
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
-		const formData = bankDetailsDataFormat(caseId, state, editLoan);
+		const formData = bankDetailsDataFormat(caseId, state, editLoanData);
 		// console.log('addBankDetailsReq-', { formData, caseId, state });
 		// throw Error('bank details');
 
@@ -1445,7 +1458,7 @@ export default function DocumentUpload({
 
 	// step: 4 if subsidary details submit request
 	const addShareHolderDetailsReq = async businessId => {
-		const formData = shareHolderDataFormat(businessId, state, editLoan);
+		const formData = shareHolderDataFormat(businessId, state, editLoanData);
 		if (!formData) {
 			return true;
 		}
@@ -1478,7 +1491,7 @@ export default function DocumentUpload({
 
 	// step: 5 if subsidary details submit request
 	const addReferenceDetailsReq = async loanId => {
-		const formData = refereneceDataFormat(loanId, state, editLoan);
+		const formData = refereneceDataFormat(loanId, state, editLoanData);
 		if (formData.loanReferenceData.length === 0) {
 			return true;
 		}
@@ -1514,10 +1527,10 @@ export default function DocumentUpload({
 			// step 1: create case
 			const caseCreateRes = await createCaseReq();
 			const caseId =
-				editLoan?.loan_ref_id || caseCreateRes.loan_details.loan_ref_id;
-			const loanId = editLoan?.id || caseCreateRes.loan_details.id;
+				editLoanData?.loan_ref_id || caseCreateRes.loan_details.loan_ref_id;
+			const loanId = editLoanData?.id || caseCreateRes.loan_details.id;
 			const businessId =
-				editLoan?.business_id?.id || caseCreateRes.loan_details.business_id;
+				editLoanData?.business_id?.id || caseCreateRes.loan_details.business_id;
 
 			await addSubsidiaryReq(caseId);
 			await addBankDetailsReq(caseId);
@@ -1645,7 +1658,7 @@ export default function DocumentUpload({
 				return;
 			}
 
-			if (editLoan && editLoan?.loan_ref_id) {
+			if (editLoanData && editLoanData?.loan_ref_id) {
 				setTimeout(() => {
 					addToast({
 						message: 'Your application has been updated',
@@ -1710,9 +1723,9 @@ export default function DocumentUpload({
 	});
 
 	if (
-		editLoan &&
-		editLoan?.loan_document &&
-		editLoan?.loan_document?.length > 0
+		editLoanData &&
+		editLoanData?.loan_document &&
+		editLoanData?.loan_document?.length > 0
 	) {
 		if (prefilledKycDocs.length) {
 			kyccount = kyccount + prefilledKycDocs.length;
@@ -1723,6 +1736,14 @@ export default function DocumentUpload({
 		if (prefilledOtherDocs.length) {
 			otherCount = otherCount + prefilledOtherDocs.length;
 		}
+	}
+
+	if (loading) {
+		return (
+			<LoaderWrapper>
+				<Loading />
+			</LoaderWrapper>
+		);
 	}
 
 	return (
@@ -1740,11 +1761,6 @@ export default function DocumentUpload({
 				<H>
 					<span>Applicant Document Upload</span>
 				</H>
-				{loading && (
-					<LoaderWrapper>
-						<Loading />
-					</LoaderWrapper>
-				)}
 				{KycDocOptions.length > 0 && (
 					<>
 						{' '}
@@ -1915,35 +1931,9 @@ export default function DocumentUpload({
 						</Details>
 					</>
 				)}
-				<div style={{ padding: 10 }} />
-				{/* <UploadWrapper>
-					<FileUpload
-						section={'document-upload'}
-						onDrop={handleFileUpload}
-						onRemoveFile={handleFileRemove}
-						docTypeOptions={documentTypeOptions}
-						documentTypeChangeCallback={handleDocumentTypeChange}
-						accept=''
-						upload={{
-							url: DOCS_UPLOAD_URL({
-								userId:
-									companyDetail?.userId ||
-									JSON.parse(userToken)?.userReducer?.userId ||
-									'',
-							}),
-							header: {
-								Authorization: `Bearer ${companyDetail?.token ||
-									JSON.parse(userToken).userReducer?.userToken ||
-									''}`,
-							},
-						}}
-					/>
-				</UploadWrapper> */}
 				{coApplicants.map((coApplicant, index) => {
 					return (
 						<>
-							<div style={{ height: 20 }} />
-							<Hr />
 							<div style={{ height: 30 }} />
 							<H>
 								<span>
@@ -2082,10 +2072,12 @@ export default function DocumentUpload({
 					);
 				})}
 				<br />
-				<Button
-					name='Get Other Bank Statements'
-					onClick={onOtherStatementModalToggle}
-				/>
+				{!isViewLoan && (
+					<Button
+						name='Get Other Bank Statements'
+						onClick={onOtherStatementModalToggle}
+					/>
+				)}
 				<CheckboxWrapper>
 					<CheckBox
 						name={
@@ -2098,7 +2090,7 @@ export default function DocumentUpload({
 							)
 						}
 						checked={cibilCheckbox}
-						disabled={cibilCheckbox}
+						disabled={cibilCheckbox || isViewLoan}
 						onChange={() => {
 							setCibilCheckbox(!cibilCheckbox);
 							//setCibilCheckModal(true);
@@ -2118,12 +2110,13 @@ export default function DocumentUpload({
 							)
 						}
 						checked={declareCheck}
+						disabled={isViewLoan}
 						onChange={() => setDeclareCheck(!declareCheck)}
 						bg='blue'
 					/>
 				</CheckboxWrapper>
 				<SubmitWrapper>
-					{productDetails.otp_authentication ? (
+					{isViewLoan ? null : productDetails.otp_authentication ? (
 						<Button
 							name='Submit'
 							fill

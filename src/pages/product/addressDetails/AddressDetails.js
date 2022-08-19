@@ -10,7 +10,6 @@ import AddressDetails from '../../../shared/components/AddressDetails/AddressDet
 import { FormContext } from '../../../reducer/formReducer';
 import { FlowContext } from '../../../reducer/flowReducer';
 
-import { useToasts } from '../../../components/Toast/ToastProvider';
 import useCaseCreation from '../../../components/CaseCreation';
 import Loading from '../../../components/Loading';
 import Modal from '../../../components/Modal';
@@ -84,7 +83,6 @@ export default function AddressDetailsPage({
 	} = useContext(FormContext);
 
 	const { handleSubmit, register, formState } = useForm();
-	const { addToast } = useToasts();
 
 	const { processing } = useCaseCreation(
 		'User',
@@ -92,8 +90,11 @@ export default function AddressDetailsPage({
 		'User'
 	);
 
-	const [saved, setSaved] = useState(false);
+	const [, setSaved] = useState(false);
 	const [match, setMatch] = useState(false);
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	const saveData = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
@@ -103,14 +104,6 @@ export default function AddressDetailsPage({
 
 		setUsertypeAddressData(formatedData);
 		setSaved(true);
-	};
-
-	const onSave = formData => {
-		saveData(formData);
-		addToast({
-			message: 'Saved Succesfully',
-			type: 'success',
-		});
 	};
 
 	const [proceed, setProceed] = useState(null);
@@ -128,11 +121,12 @@ export default function AddressDetailsPage({
 		if (proceed) {
 			request();
 		}
+		// eslint-disable-next-line
 	}, [proceed]);
 
 	const onProceed = (flow, subType = false) => {
 		return formData => {
-			saveData(formData);
+			!isViewLoan && saveData(formData);
 			setProceed({ flow, subType });
 		};
 	};
@@ -186,15 +180,10 @@ export default function AddressDetailsPage({
 			<ButtonWrap>
 				<Button
 					fill
-					name='Proceed'
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					onClick={handleSubmit(onProceed(map.main))}
 					disabled={processing}
 				/>
-				{/* <Button
-          name="Save"
-          onClick={handleSubmit(onSave)}
-          disabled={processing}
-        /> */}
 
 				<UserAddButton>
 					{map.sub && (

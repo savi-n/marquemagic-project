@@ -62,7 +62,7 @@ export default function Pincode(props) {
 	const [processing, setProcessing] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = editLoanData?.isViewLoan;
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	useEffect(() => {
 		if (props.value) {

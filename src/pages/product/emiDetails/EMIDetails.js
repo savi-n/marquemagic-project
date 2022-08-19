@@ -127,8 +127,16 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const { addToast } = useToasts();
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
-		headers: { Authorization: `Bearer ${userToken || companyDetail?.token}` },
+		headers: {
+			Authorization: `Bearer ${userToken ||
+				companyDetail?.token ||
+				sessionStorage.getItem('userToken')}`,
+		},
 	});
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
 	const onProceed = data => {
 		if (
 			(data?.existing_auto_loan && Number(data?.existing_auto_loan) === 0) ||
@@ -142,7 +150,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			});
 		}
 		// preData?.[`${field.name}_bank_name`]
-		onSave(data);
+		!isViewLoan && onSave(data);
 		setCompleted(id);
 		if (map.main === 'cub-document-upload') {
 			map.main = 'document-upload';
@@ -176,6 +184,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const [additionalField, setAdditionalField] = useState([]);
 
 	const onAdd = () => {
+		if (isViewLoan) return;
 		const newField = {
 			...map.fields[id].data[0],
 			name: `addDed_${additionalField.length + 1}`,
@@ -264,13 +273,18 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			/>
 
 			<Wrapper>
-				<RoundButton onClick={onAdd}>+</RoundButton> click to add additional
-				deductions/repayment obligations
+				<RoundButton onClick={onAdd} disabled={isViewLoan}>
+					+
+				</RoundButton>{' '}
+				click to add additional deductions/repayment obligations
 			</Wrapper>
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
-				{!skipButton && <Button name='Skip' onClick={onSkip} />}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
+				{!skipButton && !isViewLoan && <Button name='Skip' onClick={onSkip} />}
 			</ButtonWrap>
 		</Div>
 	);

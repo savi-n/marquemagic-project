@@ -97,8 +97,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const [uploadAgreementDocs, setUploadAgreementDocs] = useState({});
 	const [homeBranchList, sethomeBranchList] = useState([]);
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
 	const onProceed = data => {
-		onSave(data);
+		!isViewLoan && onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};
@@ -255,8 +258,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				<HomeLoanDetailsTable tableContent={map.fields[id]?.loanTable} />
 			)}
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
 			</ButtonWrap>
 
 			{uploadAgreementModal && (

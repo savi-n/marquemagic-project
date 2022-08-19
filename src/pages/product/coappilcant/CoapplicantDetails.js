@@ -127,6 +127,9 @@ export default function CoapplicantDetails({
 
 	const [isEligibility, setEligibility] = useState(false);
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
+
 	const saveData = formData => {
 		let formatedAddress = [
 			formatAddressData(
@@ -158,14 +161,6 @@ export default function CoapplicantDetails({
 			userType === 'Co-applicant' ? 'coapplicant' : USER_ROLES[userType]
 		);
 	};
-
-	// const onSave = formData => {
-	// 	saveData(formData);
-	// 	addToast({
-	// 		message: 'Saved Succesfully',
-	// 		type: 'success',
-	// 	});
-	// };
 
 	const [proceed, setProceed] = useState(false);
 	useEffect(() => {
@@ -311,8 +306,11 @@ export default function CoapplicantDetails({
 			/>
 
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
 				{userType === 'Co-applicant' && (
 					<EligibiltiyWrapper>
 						<Text>

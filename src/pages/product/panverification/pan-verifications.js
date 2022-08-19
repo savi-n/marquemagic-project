@@ -324,6 +324,8 @@ export default function PanVerification({
 	// const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	// const [panNum, setPan] = useState('');
 	// const userid = '10626';
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData?.isEditLoan;
 
 	const resetAllErrors = () => {
 		setPanError('');
@@ -1436,7 +1438,7 @@ export default function PanVerification({
 						})} */}
 						</FieldWrapperPanVerify>
 						<Button
-							name='Proceed'
+							name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 							fill
 							loading={loading}
 							onClick={onProceedPanConfirm}
