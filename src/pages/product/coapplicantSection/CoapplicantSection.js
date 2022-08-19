@@ -661,7 +661,7 @@ export default function CoapplicantDetailsSection({
 			})}
 
 			<ButtonWrap>
-				<AddCoapplicant onClick={() => addCoapplicant()}>
+				<AddCoapplicant onClick={handleSubmit(addCoapplicant, errorOnSubmit)}>
 					Add Co-applicant
 				</AddCoapplicant>
 				<Button
