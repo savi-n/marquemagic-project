@@ -531,7 +531,9 @@ export default function PersonalDetails({
 														return (
 															<Button
 																name={subF.placeholder}
-																disabled={isVerifyWithOtpDisabled || isViewLoan}
+																disabled={
+																	isVerifyWithOtpDisabled || editLoanData
+																}
 																type='submit'
 																customStyle={{ whiteSpace: 'nowrap' }}
 																onClick={onSubFieldButtonClick}

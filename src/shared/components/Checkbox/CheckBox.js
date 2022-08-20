@@ -54,8 +54,6 @@ const InputCheckBox = styled.input`
 			${({ disabled }) =>
 				disabled &&
 				`
-				background: #fafafa;
-				background-color: #fafafa;
 				cursor: not-allowed;
 			`}
 		}

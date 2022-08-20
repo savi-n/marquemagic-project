@@ -35,16 +35,17 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
-export default function SalaryDetails({
-	jsonData,
-	jsonLable,
-	register,
-	userType,
-	formState,
-	size,
-	incomeType,
-	preData,
-}) {
+export default function SalaryDetails(props) {
+	const {
+		jsonData,
+		jsonLable,
+		register,
+		userType,
+		formState,
+		size,
+		incomeType,
+		preData,
+	} = props;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
@@ -57,6 +58,9 @@ export default function SalaryDetails({
 			(preData && preData[field.name]) || formState?.values?.[field.name] || ''
 		);
 	};
+
+	// console.log('SalaryDetails-allstates-', { props });
+
 	return (
 		<>
 			<H>
