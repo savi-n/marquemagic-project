@@ -127,7 +127,7 @@ const StyledButton = styled.button`
 	align-items: center;
 	min-width: ${({ width }) => (width ? width : '200px')};
 	justify-content: space-between;
-	font-size: 1.5rem;
+	font-size: 1.2rem;
 	font-weight: 800;
 	text-align: center;
 	transition: 0.2s;
@@ -146,6 +146,7 @@ const DeleteIcon = styled.div`
 const CoapplicantDetailsSection = props => {
 	const { userType, id, onFlowChange, map, productId } = props;
 	const [loading, setLoading] = useState(false);
+	const [openDrawer, setOpenDrawer] = useState(-1);
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
@@ -196,6 +197,7 @@ const CoapplicantDetailsSection = props => {
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 	const editLoanCoApplicants = editLoanData?.director_details?.filter(
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
@@ -266,17 +268,16 @@ const CoapplicantDetailsSection = props => {
 	} = useContext(UserContext);
 
 	const openCloseCollaps = index => {
+		setOpenDrawer(openDrawer === index ? -1 : index);
 		if (showCoapplicant.length >= 0) {
-			showCoapplicant[index].showFields = !showCoapplicant[index].showFields;
 			setShowCoapplicant([...showCoapplicant]);
 		}
 	};
 
 	const addCoapplicant = () => {
-		for (let i in showCoapplicant) {
-			showCoapplicant[i].showFields = false;
-		}
-		setShowCoapplicant([...showCoapplicant, addCoApplicantData]);
+		const newShowCoapplicant = [...showCoapplicant, addCoApplicantData];
+		setShowCoapplicant(newShowCoapplicant);
+		setOpenDrawer(newShowCoapplicant.length - 1);
 	};
 
 	const deleteSection = index => {
@@ -292,8 +293,7 @@ const CoapplicantDetailsSection = props => {
 			delete formState.values[`permanent_${d.name}${index + 1}`];
 			return null;
 		});
-		let data = JSON.parse(JSON.stringify(formState.values));
-		let storeData = JSON.stringify(data);
+		let storeData = JSON.stringify(formState.values);
 		let tempObject = storeData.replaceAll('permanent_', '');
 		let changedData = JSON.parse(tempObject);
 		setFlowData(changedData, id);
@@ -303,7 +303,6 @@ const CoapplicantDetailsSection = props => {
 			setShowCoapplicant([...showCoapplicant]);
 		}
 		if (showCoapplicant.length === 1) {
-			showCoapplicant[0].showFields = true;
 			setShowCoapplicant([...showCoapplicant]);
 		}
 	};
@@ -317,11 +316,10 @@ const CoapplicantDetailsSection = props => {
 	};
 
 	useEffect(() => {
-		let a = JSON.parse(sessionStorage.getItem('coapplicant_data')) || [
-			{ showFields: true },
-		];
-		if (editLoanCoApplicants.length > 0) a = editLoanCoApplicants;
+		let a = JSON.parse(sessionStorage.getItem('coapplicant_data')) || [];
+		if (editLoanCoApplicants?.length > 0) a = editLoanCoApplicants;
 		setShowCoapplicant(a);
+		setOpenDrawer(0);
 		// eslint-disable-next-line
 	}, []);
 
@@ -360,32 +358,41 @@ const CoapplicantDetailsSection = props => {
 			showCoapplicant.map((coApplicant, index) => {
 				const indexValue = index + 1;
 				const formatedData = {
-					dfirstname: coApplicant[`firstName${indexValue}`],
-					dlastname: coApplicant[`lastName${indexValue}`],
-					ddob: coApplicant[`dob${indexValue}`],
-					dcontact: coApplicant[`mobileNo${indexValue}`],
-					demail: coApplicant[`email${indexValue}`],
+					dfirstname: formState.values[`firstName${indexValue}`],
+					dlastname: formState.values[`lastName${indexValue}`],
+					ddob: formState.values[`dob${indexValue}`],
+					dcontact: formState.values[`mobileNo${indexValue}`],
+					demail: formState.values[`email${indexValue}`],
 					applicant_relationship:
-						coApplicant[`relationship_with_applicant${indexValue}`],
-					income_type: coApplicant[`incomeType${indexValue}`],
-					dpancard: coApplicant[`panNumber${indexValue}`],
-					daadhaar: coApplicant[`aadhaar${indexValue}`],
-					residence_status: coApplicant[`residenceStatus${indexValue}`],
-					marital_status: coApplicant[`maritalStatus${indexValue}`],
-					country_residence: coApplicant[`countryResidence${indexValue}`],
-					netMonthlyIncome: coApplicant[`netMonthlyIncome${indexValue}`],
-					grossIncome: coApplicant[`grossIncome${indexValue}`],
-					address1: coApplicant[`permanent_address1${indexValue}`],
-					address2: coApplicant[`permanent_address2${indexValue}`],
-					address3: coApplicant[`permanent_address3${indexValue}`],
-					address4: coApplicant[`permanent_address4${indexValue}`],
-					locality: coApplicant[`permanent_address3${indexValue}`],
-					pincode: coApplicant[`permanent_pinCode${indexValue}`],
-					city: coApplicant[`permanent_city${indexValue}`],
-					state: coApplicant[`permanent_state${indexValue}`],
+						formState.values[`relationship_with_applicant${indexValue}`],
+					income_type: formState.values[`incomeType${indexValue}`],
+					dpancard: formState.values[`panNumber${indexValue}`],
+					daadhaar: formState.values[`aadhaar${indexValue}`],
+					residence_status: formState.values[`residenceStatus${indexValue}`],
+					marital_status: formState.values[`maritalStatus${indexValue}`],
+					country_residence: formState.values[`countryResidence${indexValue}`],
+					netMonthlyIncome: formState.values[`netMonthlyIncome${indexValue}`],
+					grossIncome: formState.values[`grossIncome${indexValue}`],
+					address1: formState.values[`permanent_address1${indexValue}`],
+					address2: formState.values[`permanent_address2${indexValue}`],
+					address3: formState.values[`permanent_address3${indexValue}`],
+					address4: formState.values[`permanent_address4${indexValue}`],
+					locality: formState.values[`permanent_address3${indexValue}`],
+					pincode: formState.values[`permanent_pinCode${indexValue}`],
+					city: formState.values[`permanent_city${indexValue}`],
+					state: formState.values[`permanent_state${indexValue}`],
+					type_name: 'Co-applicant', // don't remove this
+					business_id: +sessionStorage.getItem('business_id') || '',
 				};
-				if (isViewLoan) {
-					formatedData.id = editLoanCoApplicants?.[index]?.id;
+				if (isEditLoan) {
+					if (editLoanCoApplicants?.[index]?.id) {
+						// this check is to make sure only pass id for existing directors
+						formatedData.id = editLoanCoApplicants?.[index]?.id;
+						formatedData.business_id = editLoanCoApplicants?.[index]?.business;
+					}
+					if (!formatedData.business_id) {
+						formatedData.business_id = editLoanData?.business_id?.id;
+					}
 				}
 				reqBody.co_applicant_director_partner_data.push(formatedData);
 				return null;
@@ -500,7 +507,6 @@ const CoapplicantDetailsSection = props => {
 							</div>
 							{showCoapplicant.length > 1 ? (
 								<CollapseIcon
-									onClick={() => openCloseCollaps(index)}
 									src={downArray}
 									style={{
 										transform: item.showFields ? `rotate(180deg)` : `none`,
@@ -509,7 +515,7 @@ const CoapplicantDetailsSection = props => {
 									alt='arrow'
 								/>
 							) : null}
-							{showCoapplicant.length > 1 && !isViewLoan ? (
+							{showCoapplicant.length > 1 && !editLoanData ? (
 								<div>
 									{showCoapplicant.length === index + 1 ? (
 										<DeleteIcon onClick={() => deleteSection(index)}>
@@ -524,8 +530,8 @@ const CoapplicantDetailsSection = props => {
 							) : null}
 						</Section>
 
-						<Details open={item.showFields}>
-							<Wrapper open={item.showFields}>
+						<Details open={openDrawer === index}>
+							<Wrapper open={openDrawer === index}>
 								<PersonalDetails
 									id={'co-applicant'}
 									userType={userType}
@@ -547,18 +553,21 @@ const CoapplicantDetailsSection = props => {
 									}}
 								/>
 								{/* eslint-disable-next-line */}
-								{formState?.values?.[`incomeType${index + 1}`] != 0 ? (
+								{formState?.values?.[`incomeType${index + 1}`] === 0 ||
+								formState?.values?.[`incomeType${index + 1}`] === '0' ? null : (
 									<SalaryDetails
 										jsonData={salaryDetailsJson}
 										jsonLable={map?.fields?.['salary-details'].label}
 										register={register}
 										formState={formState}
 										incomeType={
-											formState?.values?.[`incomeType${index + 1}`] || null
+											formState?.values?.[`incomeType${index + 1}`] ||
+											prePopulateCoApplicant?.[`incomeType${index + 1}`] ||
+											''
 										}
 										preData={{ ...prePopulateCoApplicant }}
 									/>
-								) : null}
+								)}
 
 								<H>
 									{isViewLoan ? '' : 'Help us with '}

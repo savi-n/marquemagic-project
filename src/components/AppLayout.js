@@ -155,17 +155,15 @@ const AppLayout = () => {
 					// const newUID = decryptUID(UID.toString());
 					// console.log('UID-after-', newUID);
 					const userRes = await axios.get(
-						`${API_END_POINT}/usersDetails?userid=${newUID}${
-							params.token ? `&token=${params.token}` : ''
-						}`
+						`${API_END_POINT}/usersDetails?userid=${newUID}`
 						// console.log('header-userRes', userRes);
 					);
 					const userDetails = userRes?.data?.data;
-					// console.log('userres-data-', userDetails?.cacompname || '');
+					// console.log('userres-data-', userDetails);
 					const stringifyUserDetails = JSON.stringify(userDetails);
 					if (params.cid) {
 						sessionStorage.setItem('corporateDetails', stringifyUserDetails);
-					} else if (params.uid) {
+					} else {
 						// console.log('uid-passed-', { params, stringifyUserDetails });
 						sessionStorage.setItem('userDetails', stringifyUserDetails);
 					}

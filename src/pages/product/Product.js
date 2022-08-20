@@ -120,15 +120,24 @@ const ScrollBox = styled.div`
 `;
 const ProductName = styled.h5`
 	border: ${({ active }) => (active ? '1px solid' : 'none')};
-	font-size: 16px;
+	font-size: 18px;
 	font-weight: bold;
 	padding-left: 10px;
 	line-height: 30px;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
 
 	@media (max-width: 700px) {
 		display: ${({ hide }) => hide && 'none'};
 	}
 `;
+
+export const ApplicationNo = styled.span`
+	color: lightgray;
+	font-size: 14px;
+`;
+
 const BackButton = styled.img`
 	height: 30px;
 `;
@@ -202,6 +211,7 @@ export default function Product({ product, url }) {
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
@@ -319,7 +329,12 @@ export default function Product({ product, url }) {
 								/>
 							)}
 							<ProductName hide={hide} active={flow === 'product-details'}>
-								{response.data.name} <span>{response.data.description}</span>
+								<span>{response.data.name}</span>
+								{editLoanData && (
+									<ApplicationNo>
+										Application No: {editLoanData?.loan_ref_id}
+									</ApplicationNo>
+								)}
 							</ProductName>
 						</HeadingBox>
 						{response.data?.product_details?.flow?.map((m, idx) => {
@@ -331,12 +346,17 @@ export default function Product({ product, url }) {
 									<Link onClick={e => {}}>
 										<Menu active={flow === m.id} hide={hide}>
 											<div
-												style={{
-													cursor:
-														completedMenu.includes(m.id) &&
-														m.id !== 'pan-verification' &&
-														'pointer',
-												}}
+												style={
+													isEditLoan &&
+													editLoanRestrictedSections.includes(m.id)
+														? { cursor: 'not-allowed', color: 'lightgrey' }
+														: {
+																cursor:
+																	completedMenu.includes(m.id) &&
+																	m.id !== 'pan-verification' &&
+																	'pointer',
+														  }
+												}
 												onClick={e => {
 													if (isViewLoan) {
 														flow = e.target.id;

@@ -74,6 +74,7 @@ export default function AddressDetails({
 	preDataFilled,
 	keyChange,
 	presentAddressCheck,
+	hidePresentAddress = false,
 }) {
 	const presentAddress =
 		(preDataFilled &&
@@ -114,7 +115,6 @@ export default function AddressDetails({
 	}, []);
 
 	// form.address;
-
 	return (
 		<>
 			{hideHeader ? null : (
@@ -163,7 +163,7 @@ export default function AddressDetails({
 							);
 						})}
 				</Colom>
-				{!isBusiness && (
+				{!isBusiness && !hidePresentAddress && (
 					<Colom>
 						<Caption>
 							Present Address{' '}

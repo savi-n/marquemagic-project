@@ -474,6 +474,7 @@ export default function PanVerification({
 				sessionStorage.setItem('branchId', userDetailsRes.branchId);
 
 				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+					sessionStorage.setItem('userToken', userDetailsRes.token);
 					const encryptWhiteLabelReq = await newRequest(
 						WHITELABEL_ENCRYPTION_API,
 						{
