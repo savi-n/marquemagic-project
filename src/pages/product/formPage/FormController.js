@@ -315,7 +315,7 @@ export default function FormController({
 		companyData ||
 		appData;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
@@ -521,7 +521,7 @@ export default function FormController({
 				)} */}
 
 				<ButtonWrap>
-					{id === 'business-details' && (
+					{id === 'business-details' && !isViewLoan && (
 						<Button
 							fill
 							name='View Business Details'

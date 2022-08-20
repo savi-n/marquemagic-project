@@ -98,7 +98,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const [homeBranchList, sethomeBranchList] = useState([]);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const onProceed = data => {
 		!isViewLoan && onSave(data);

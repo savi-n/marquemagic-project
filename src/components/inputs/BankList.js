@@ -19,7 +19,7 @@ import { BussinesContext } from '../../reducer/bussinessReducer';
 export default function BankList(props) {
 	const { field, onSelectOptionCallback, value } = props;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	// console.log('BankList-', props);
 	const {
 		state: { userToken },

@@ -43,7 +43,7 @@ export default function BussinessDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const onSave = data => {
 		setUsertypeApplicantData({ ...data, isApplicant: '1' });
 		addToast({

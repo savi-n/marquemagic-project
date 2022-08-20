@@ -135,7 +135,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	});
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const onProceed = data => {
 		if (

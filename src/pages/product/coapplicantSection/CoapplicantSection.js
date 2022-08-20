@@ -195,7 +195,7 @@ const CoapplicantDetailsSection = props => {
 		JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] || {};
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const editLoanCoApplicants = editLoanData?.director_details?.filter(
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
