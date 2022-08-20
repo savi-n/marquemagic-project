@@ -46,7 +46,7 @@ export default function SalaryDetails({
 	preData,
 }) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
 		if (formState?.values?.[field.name] !== undefined) {

@@ -128,7 +128,7 @@ export default function CoapplicantDetails({
 	const [isEligibility, setEligibility] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const saveData = formData => {
 		let formatedAddress = [

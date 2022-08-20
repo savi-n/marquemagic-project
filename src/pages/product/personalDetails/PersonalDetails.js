@@ -91,7 +91,7 @@ export default function PersonalDetailsPage({
 	const [loading, setLoading] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const applicantDataDirectorDetails =
 		editLoanData?.director_details?.filter(d => !!d.isApplicant)?.[0] || {};

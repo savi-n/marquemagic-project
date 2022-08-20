@@ -94,7 +94,7 @@ export default function AddressDetailsPage({
 	const [match, setMatch] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const saveData = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];

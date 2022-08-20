@@ -483,7 +483,7 @@ export default function FileUpload({
 	let refCounter = 0;
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const onCancel = (file, status) => {
 		const newUploadingFiles = [];

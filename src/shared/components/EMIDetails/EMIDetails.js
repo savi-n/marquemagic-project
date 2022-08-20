@@ -71,7 +71,7 @@ export default function EMIDetails({
 	preData = {},
 }) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
 		if (!userType && field.disabled) {

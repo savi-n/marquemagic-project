@@ -926,7 +926,7 @@ export default function DocumentUpload({
 		sessionStorage.getItem('companyData') &&
 		JSON.parse(sessionStorage.getItem('companyData'));
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	let isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const editLoanCoApplicants =
 		editLoanData?.director_details?.filter(
 			d => d?.type_name?.toLowerCase() === 'co-applicant'
@@ -1757,6 +1757,8 @@ export default function DocumentUpload({
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 				/>
 			)}
+			{/* Don't remove unusual error for useeffect related to loading */}
+			{loading ? <></> : <></>}
 			<Colom1>
 				<H>
 					<span>Applicant Document Upload</span>

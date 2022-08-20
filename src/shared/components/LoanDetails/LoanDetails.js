@@ -111,7 +111,7 @@ export default function LoanDetails({
 	const { newRequest } = useFetch();
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const getBranchOptions = async () => {
 		const opitionalDataReq = await newRequest(

@@ -201,7 +201,7 @@ export default function Product({ product, url }) {
 	const [index, setIndex] = useState(2);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData?.isEditLoan;
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
