@@ -377,8 +377,7 @@ export default function Product({ product, url }) {
 															flow !== 'personal-details' &&
 															flow !== 'application-submitted' &&
 															flow !== 'identity-verification' &&
-															flow !== 'pan-verification' &&
-															!flow.includes('co-applicant')
+															flow !== 'pan-verification'
 														) {
 															flow =
 																e.target.id !== 'identity-verification' &&
