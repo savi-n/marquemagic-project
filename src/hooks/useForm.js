@@ -63,6 +63,10 @@ const VALIDATION_RULES = {
 		func: validatePattern(),
 		message: 'Pattern Mismatch',
 	},
+	panNumber: {
+		func: validatePattern(/^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/),
+		message: 'Invalid PAN Number',
+	},
 	maxLength: {
 		func: limitLength('max'),
 		message: 'Exceeds Character Length',
