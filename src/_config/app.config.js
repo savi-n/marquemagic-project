@@ -71,6 +71,8 @@ const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
+const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
+
 const CIN_UPDATE = `${API_END_POINT}/cin-update`;
 
 const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
@@ -168,4 +170,5 @@ export {
 	RESEND_OTP_TIMER,
 	DELETE_DOCUMENT,
 	VIEW_DOCUMENT,
+	CO_APPLICANTS_DOCTYPES_FETCH,
 };

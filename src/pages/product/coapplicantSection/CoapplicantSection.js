@@ -150,29 +150,28 @@ const DeleteIcon = styled.div`
 `;
 
 const CoapplicantDetailsSection = props => {
+	// CONSTANTS
 	const { userType, id, onFlowChange, map, productId } = props;
-	const [loading, setLoading] = useState(false);
-	const [openDrawer, setOpenDrawer] = useState(-1);
-	const {
-		actions: { setCompleted },
-	} = useContext(FlowContext);
-	const [prePopulateCoApplicants, setPrePopulateCoApplicants] = useState({});
 
 	const {
 		state,
 		actions: { setFlowData },
 	} = useContext(FormContext);
 
+	const {
+		state: { userToken },
+	} = useContext(UserContext);
+
 	const { handleSubmit, register, formState } = useForm();
+
 	const url = window.location.hostname;
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-	let applicantData = formReducer?.user?.applicantData;
+	const formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	const applicantData = formReducer?.user?.applicantData;
 	const applicantPresentAddress =
 		applicantData?.address?.filter(a => a.addressType === 'present')?.[0] || {};
-	let personalDetailsJsonValue = map?.fields['personal-details'].data;
-	let salaryDetailsJsonValue = map?.fields['salary-details'].data;
-	let addressDetailsJsonValue = map?.fields['address-details'].data;
-
+	// let personalDetailsJsonValue = map?.fields['personal-details'].data;
+	// let salaryDetailsJsonValue = map?.fields['salary-details'].data;
+	// let addressDetailsJsonValue = map?.fields['address-details'].data;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
@@ -225,6 +224,18 @@ const CoapplicantDetailsSection = props => {
 		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 			?.applicantData?.address[0] || {};
 
+	// -- CONSTANTS
+
+	// LOCAL STATES
+	const [loading, setLoading] = useState(false);
+	const [openDrawer, setOpenDrawer] = useState(-1);
+	const {
+		actions: { setCompleted },
+	} = useContext(FlowContext);
+	const [prePopulateCoApplicants, setPrePopulateCoApplicants] = useState(
+		formReducer?.user?.['co-applicant-details'] || {}
+	);
+
 	const [totalCoapplicant, setTotalCoapplicant] = useState(1);
 	const [match, setMatch] = useState(false);
 	const { caseCreationUserType } = useCaseCreation(
@@ -236,9 +247,7 @@ const CoapplicantDetailsSection = props => {
 	const { addToast } = useToasts();
 	const [proceed, setProceed] = useState(false);
 	const { newRequest } = useFetch();
-	const {
-		state: { userToken },
-	} = useContext(UserContext);
+	// --LOCAL STATES
 
 	const openCloseCollaps = index => {
 		if (totalCoapplicant === 1) return;
@@ -256,31 +265,40 @@ const CoapplicantDetailsSection = props => {
 		// 	index,
 		// 	formState,
 		// });
-		const newFormState = _.cloneDeep(formState);
+		const newFormState = {};
 		// return;
-		personalDetailsJsonValue.map(d => {
-			delete newFormState.values[`${d.name}${index + 1}`];
-			return null;
-		});
-		salaryDetailsJsonValue.map(d => {
-			delete newFormState.values[`${d.name}${index + 1}`];
-			return null;
-		});
-		addressDetailsJsonValue.map(d => {
-			delete newFormState.values[`permanent_${d.name}${index + 1}`];
-			return null;
-		});
+		for (const key in formState.values) {
+			if (+key.slice(-1) !== index + 1) {
+				newFormState[key] = formState.values[key];
+			}
+		}
+		// personalDetailsJsonValue.map(d => {
+		// 	delete newFormState.values[`${d.name}${index + 1}`];
+		// 	return null;
+		// });
+		// salaryDetailsJsonValue.map(d => {
+		// 	delete newFormState.values[`${d.name}${index + 1}`];
+		// 	return null;
+		// });
+		// addressDetailsJsonValue.map(d => {
+		// 	delete newFormState.values[`permanent_${d.name}${index + 1}`];
+		// 	return null;
+		// });
+		formState.values = newFormState;
+		// return;
+		const storeData = JSON.stringify(newFormState);
+		const tempObject = storeData.replaceAll('permanent_', '');
+		const changedData = JSON.parse(tempObject);
 		// console.log('deleteSection-after', {
 		// 	totalCoapplicant,
 		// 	index,
 		// 	newFormState,
 		// 	formState,
+		// 	id,
+		// 	storeData,
+		// 	tempObject,
+		// 	changedData,
 		// });
-		formState.values = newFormState.values;
-		// return;
-		const storeData = JSON.stringify(newFormState.values);
-		const tempObject = storeData.replaceAll('permanent_', '');
-		const changedData = JSON.parse(tempObject);
 		setFlowData(changedData, id);
 		setPrePopulateCoApplicants(changedData);
 		setTotalCoapplicant(totalCoapplicant - 1);
@@ -296,6 +314,7 @@ const CoapplicantDetailsSection = props => {
 
 	useEffect(() => {
 		try {
+			// console.log('coapplicantsection-useeffect-');
 			const userTokensss = sessionStorage.getItem(url);
 			let newPrePopulateCoApplicants = {};
 			const sessionCoApplicantData =
@@ -350,8 +369,6 @@ const CoapplicantDetailsSection = props => {
 			const changedData = JSON.parse(tempObject);
 			// used for prefilling values on reload
 			setFlowData(changedData, id);
-			sessionStorage.setItem('coapplicant_data', tempObject);
-
 			const reqBody = {
 				co_applicant_director_partner_data: [],
 			};
@@ -401,6 +418,7 @@ const CoapplicantDetailsSection = props => {
 					reqBody.co_applicant_director_partner_data.push(formatedData);
 					return null;
 				});
+			setFlowData(reqBody.co_applicant_director_partner_data, `${id}-reqbody`);
 			try {
 				const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
 					method: 'POST',
@@ -479,12 +497,16 @@ const CoapplicantDetailsSection = props => {
 						} else {
 							return {
 								..._.cloneDeep(d),
-
 								name: `${d.name}${index + 1}`,
 							};
 						}
 					});
-
+					// console.log('coapplicantsection-map-sections-', {
+					// 	personalDetailsJson,
+					// 	salaryDetailsJson,
+					// 	addressDetailsJson,
+					// 	prePopulateCoApplicants,
+					// });
 					if (presentAddressCheck) {
 						address1 = applicantPresentAddress?.address1;
 						address2 = applicantPresentAddress?.address2;
