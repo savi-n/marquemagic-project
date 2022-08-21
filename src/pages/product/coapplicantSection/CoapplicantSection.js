@@ -468,11 +468,22 @@ const CoapplicantDetailsSection = props => {
 					};
 				});
 				addressDetailsJson = addressDetailsJson.map(d => {
-					return {
-						..._.cloneDeep(d),
-						name: `${d.name}${index + 1}`,
-						// TODO: remove below line,
-					};
+					if (d.name.includes('pinCode')) {
+						return {
+							..._.cloneDeep(d),
+							name: `${d.name}${index + 1}`,
+							valueForFields: [
+								[`city${index + 1}`, `district`],
+								[`state${index + 1}`, `state`],
+							],
+						};
+					} else {
+						return {
+							..._.cloneDeep(d),
+
+							name: `${d.name}${index + 1}`,
+						};
+					}
 				});
 
 				if (presentAddressCheck) {
