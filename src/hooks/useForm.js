@@ -18,6 +18,10 @@ function numberOnly(value) {
 	return !Number(value);
 }
 
+function pastDatesOnly(value) {
+	return !moment().isAfter(value);
+}
+
 function validatePattern(pattern) {
 	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
@@ -58,6 +62,10 @@ const VALIDATION_RULES = {
 		// eslint-disable-next-line
 		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
 		message: 'Invalid Email Address',
+	},
+	pastDates: {
+		func: pastDatesOnly,
+		message: 'Enter only dates from the past.',
 	},
 	pattern: {
 		func: validatePattern(),
