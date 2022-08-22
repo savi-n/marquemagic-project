@@ -364,7 +364,7 @@ export default function PersonalDetailsPage({
 		<Button
 			fill
 			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-			loading={loading}
+			isLoader={loading}
 			disabled={loading}
 			onClick={handleSubmit(onProceed)}
 		/>
@@ -373,7 +373,7 @@ export default function PersonalDetailsPage({
 	const ButtonConfirm = (
 		<Button
 			fill
-			loading={loading}
+			isLoader={loading}
 			disabled={loading}
 			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 			onClick={validateForm}

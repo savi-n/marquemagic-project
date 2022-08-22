@@ -467,7 +467,7 @@ export default function FormController({
 		<Button
 			fill
 			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-			loading={loading}
+			isLoader={loading}
 			disabled={loading}
 			onClick={handleSubmit(onProceed)}
 		/>
@@ -477,7 +477,7 @@ export default function FormController({
 		<Button
 			fill
 			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-			loading={loading}
+			isLoader={loading}
 			disabled={loading}
 			onClick={() => setModalConfirm(true)}
 		/>

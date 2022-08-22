@@ -1260,7 +1260,7 @@ const PanVerification = props => {
 						<Button
 							name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 							fill
-							loading={loading}
+							isLoader={loading}
 							onClick={onProceedPanConfirm}
 							disabled={!panExtractionData.panNumber || loading}
 							style={{ alignText: 'center' }}
