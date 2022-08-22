@@ -16,11 +16,12 @@ import { UserContext } from 'reducer/userReducer';
 import { AppContext } from 'reducer/appReducer';
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
+	HOSTNAME,
 	LOGIN_CREATEUSER,
 	NC_STATUS_CODE,
 	WHITELABEL_ENCRYPTION_API,
-} from '../../../_config/app.config';
-import { APP_CLIENT } from '../../../_config/app.config';
+	APP_CLIENT,
+} from '_config/app.config';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import moment from 'moment';
 
@@ -155,6 +156,7 @@ export default function PersonalDetailsPage({
 			// userAccountToken: userDetailsReq.accToken,
 			// userDetails: userDetailsReq.userDetails,
 			// userBankDetails: userDetailsReq.cubDetails,
+			...userDataRes,
 			bankId: userDataRes.bankId,
 			branchId: userDataRes.branchId,
 			userToken: userDataRes.token,
@@ -257,8 +259,8 @@ export default function PersonalDetailsPage({
 					{};
 				if (form) return form;
 			}
-			var formStat = JSON.parse(sessionStorage.getItem('formstate'));
-			return formStat?.values;
+			const formstate = JSON.parse(sessionStorage.getItem('formstate'));
+			return formstate?.values;
 		} catch (error) {
 			return {};
 		}
@@ -266,7 +268,7 @@ export default function PersonalDetailsPage({
 
 	const getAdhar = () => {
 		try {
-			var formStat =
+			const formStat =
 				JSON.parse(sessionStorage.getItem('formstate'))?.values?.aadhaar ||
 				sessionStorage.getItem('aadhar') ||
 				editApplicantData?.aadhaar;
@@ -274,7 +276,7 @@ export default function PersonalDetailsPage({
 			if (formStat) {
 				const adharNum = formStat;
 
-				let d = `xxxxxxxx${adharNum[adharNum.length - 4]}${
+				const d = `xxxxxxxx${adharNum[adharNum.length - 4]}${
 					adharNum[adharNum.length - 3]
 				}${adharNum[adharNum.length - 2]}${adharNum[adharNum.length - 1]}`;
 
@@ -326,9 +328,7 @@ export default function PersonalDetailsPage({
 		}
 	};
 
-	const url = window.location.hostname;
-
-	let userTokensss = sessionStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(HOSTNAME);
 
 	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
 	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;

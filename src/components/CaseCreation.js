@@ -2,12 +2,12 @@
 (Post Document upload section) */
 
 import { useContext, useState } from 'react';
-import useFetch from '../hooks/useFetch';
-import { useToasts } from '../components/Toast/ToastProvider';
-import { UserContext } from '../reducer/userReducer';
-import { FormContext } from '../reducer/formReducer';
-import { AppContext } from '../reducer/appReducer';
-import { CaseContext } from '../reducer/caseReducer';
+import useFetch from 'hooks/useFetch';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { UserContext } from 'reducer/userReducer';
+import { FormContext } from 'reducer/formReducer';
+import { AppContext } from 'reducer/appReducer';
+import { CaseContext } from 'reducer/caseReducer';
 import {
 	CREATE_CASE,
 	BORROWER_UPLOAD_URL,
@@ -15,7 +15,7 @@ import {
 	CREATE_CASE_OTHER_USER,
 	NC_STATUS_CODE,
 	USER_ROLES,
-} from '../_config/app.config';
+} from '_config/app.config';
 
 export default function useCaseCreation(userType, productId, role) {
 	const {

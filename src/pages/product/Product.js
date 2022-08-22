@@ -4,16 +4,16 @@ import { useContext, useEffect, Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
-import { PRODUCT_DETAILS_URL } from '../../_config/app.config';
-import useFetch from '../../hooks/useFetch';
-import { AppContext } from '../../reducer/appReducer';
-import { FlowContext } from '../../reducer/flowReducer';
-import { FormContext } from '../../reducer/formReducer';
+import { PRODUCT_DETAILS_URL } from '_config/app.config';
+import useFetch from 'hooks/useFetch';
+import { AppContext } from 'reducer/appReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { FormContext } from 'reducer/formReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
-import ContinueModal from '../../components/modals/ContinueModal';
+import ContinueModal from 'components/modals/ContinueModal';
 import Router from './Router';
-import { UserContext } from '../../reducer/userReducer';
-import { useToasts } from '../../components/Toast/ToastProvider';
+import { UserContext } from 'reducer/userReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 import imgSideNav from 'assets/images/bg/Left-Nav_BG.png';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
@@ -24,7 +24,7 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import Button from '../../components/Button';
+import Button from 'components/Button';
 const Wrapper = styled.div`
 	width: 100%;
 	min-height: 100%;
@@ -110,6 +110,7 @@ const ScrollBox = styled.div`
 	}
 	::-webkit-scrollbar-track-piece {
 		background-color: transparent;
+		border-radius: 6px;
 		-webkit-border-radius: 6px;
 	}
 	@media (max-width: 700px) {
@@ -399,7 +400,8 @@ export default function Product({ product, url }) {
 													}
 												}}
 												id={m.id}
-												k={idx}>
+												k={idx}
+											>
 												{m.name}
 											</div>
 											{completedMenu.includes(m.id) && (
@@ -423,7 +425,8 @@ export default function Product({ product, url }) {
 							onClick={() => hideAndShowMenu()}
 							width={10}
 							heigth={10}
-							borderRadious={'0 5px 5px 0'}>
+							borderRadious={'0 5px 5px 0'}
+						>
 							<FontAwesomeIcon
 								icon={hide ? faChevronRight : faChevronLeft}
 								size='1x'

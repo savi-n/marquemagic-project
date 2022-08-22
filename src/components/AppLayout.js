@@ -9,7 +9,7 @@ import queryString from 'query-string';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
 import Loading from './Loading';
-import useFetch from '../hooks/useFetch';
+import useFetch from 'hooks/useFetch';
 
 import {
 	WHITE_LABEL_URL,
@@ -109,8 +109,8 @@ const AppLayout = () => {
 			const params = queryString.parse(window.location.search);
 			let decryptedToken = {};
 			try {
-				decryptedToken = decryptRes(params.token.replaceAll(' ', '+'));
-				if (params.token) {
+				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				if (params?.token) {
 					const loanDetailsRes = await axios.get(
 						`${API_END_POINT}/getDetailsWithLoanRefId?loan_ref_id=${
 							decryptedToken.loan_ref_id
@@ -142,6 +142,31 @@ const AppLayout = () => {
 						'encryptWhiteLabel',
 						encryptWhiteLabelRes.encrypted_whitelabel[0]
 					);
+
+					// CreateUser
+					// TODO: integrate create-user api
+					// const reqBody = {
+					// 	email: formState?.values?.Email || '',
+					// 	white_label_id: whiteLabelId,
+					// 	source: APP_CLIENT,
+					// 	name: formState?.values?.BusinessName,
+					// 	mobileNo: formState?.values?.mobileNo,
+					// };
+					// if (sessionStorage.getItem('userDetails')) {
+					// 	try {
+					// 		reqBody.user_id =
+					// 			JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+					// 	} catch (err) {
+					// 		return err;
+					// 	}
+					// }
+					// const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+					// 	method: 'POST',
+					// 	data: reqBody,
+					// });
+					// const userDetailsRes = userDetailsReq.data;
+					// sessionStorage.setItem('userToken', userDetailsRes.token);
+					// -- CreateUser
 				}
 			} catch (error) {
 				console.error('error-getDetailsWithLoanRefId-', error);

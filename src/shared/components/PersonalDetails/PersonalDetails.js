@@ -18,9 +18,9 @@ import { UserContext } from 'reducer/userReducer';
 import { FlowContext } from 'reducer/flowReducer';
 import InputField from 'components/inputs/InputField';
 import moment from 'moment';
-import Button from '../../../components/Button';
+import Button from 'components/Button';
 import AadhaarOTPModal from '../AadhaarOTPModal/AadhaarOtpModal';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -500,7 +500,8 @@ export default function PersonalDetails({
 												field.name.includes('crop') ||
 												field.name.includes('cultivated')
 											}
-											isSubFields={field?.subFields ? true : false}>
+											isSubFields={field?.subFields ? true : false}
+										>
 											{register({
 												...field,
 												value,

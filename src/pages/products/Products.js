@@ -6,17 +6,18 @@ import { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import styled from 'styled-components';
 
-import Card from '../../components/Card';
-import useFetch from '../../hooks/useFetch';
-import { AppContext } from '../../reducer/appReducer';
+import Card from 'components/Card';
+import useFetch from 'hooks/useFetch';
+import { AppContext } from 'reducer/appReducer';
 import {
 	API_END_POINT,
+	HOSTNAME,
 	OTP_API_END_POINT,
 	PRODUCT_LIST_URL,
-} from '../../_config/app.config';
+} from '_config/app.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Modal from '../../components/Modal';
+import Modal from 'components/Modal';
 import Button from 'components/Button';
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
 import imgEditIcon from 'assets/icons/edit-icon.png';
@@ -452,13 +453,12 @@ export default function Products() {
 	};
 
 	useEffect(() => {
-		const url = window.location.hostname;
 		sessionStorage.removeItem('formstate');
 		sessionStorage.removeItem('formstatepan');
 		sessionStorage.removeItem('aadhar');
 		sessionStorage.removeItem('encryptWhiteLabel');
 		sessionStorage.removeItem('userToken');
-		sessionStorage.removeItem(url);
+		sessionStorage.removeItem(HOSTNAME);
 		const wt_lbl = sessionStorage.getItem('wt_lbl');
 		const userDetails = sessionStorage.getItem('userDetails');
 		sessionStorage.clear();
@@ -507,7 +507,8 @@ export default function Products() {
 							height: 200,
 							width: 200,
 							margin: '0 auto',
-						}}>
+						}}
+					>
 						<Loading />
 					</div>
 				) : (
@@ -555,7 +556,8 @@ export default function Products() {
 							onClick={() => {
 								setOTP('');
 								generateOTP(modalOTPData);
-							}}>
+							}}
+						>
 							Resend OTP
 						</ButtonResendOTP>
 					</div>
@@ -565,7 +567,8 @@ export default function Products() {
 						fill
 						loading={verifyingOTP}
 						disabled={verifyingOTP}
-						onClick={verifyOTP}>
+						onClick={verifyOTP}
+					>
 						OK
 					</Button>
 					{errOTP && <ErrorOTP>{errOTP}</ErrorOTP>}
@@ -581,7 +584,8 @@ export default function Products() {
 					<StatusInputBox>
 						<section
 							className='flex font-medium my-2'
-							style={{ marginRight: 15 }}>
+							style={{ marginRight: 15 }}
+						>
 							<input
 								className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
 								placeholder='Enter Loan Reference ID, Phone No or PAN No'
@@ -600,7 +604,8 @@ export default function Products() {
 										height: 200,
 										width: 200,
 										margin: '0 auto',
-									}}>
+									}}
+								>
 									<Loading />
 								</div>
 							)}
@@ -610,7 +615,8 @@ export default function Products() {
 										key={d?.id}
 										style={
 											appIndex === loanList.length - 1 ? { border: 'none' } : {}
-										}>
+										}
+									>
 										<AppStatusLine1>
 											<AppEditIcon
 												src={imgEditIcon}

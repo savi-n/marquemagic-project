@@ -5,8 +5,8 @@ import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import useClickOutside from '../hooks/useOutsideClick';
-import debounceFunction from '../utils/debounce';
+import useClickOutside from 'hooks/useOutsideClick';
+import debounceFunction from 'utils/debounce';
 // import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
@@ -271,7 +271,8 @@ export default function SearchSelect(props) {
 						<Label
 							focus={optionShow || focus}
 							htmlFor={name}
-							disabled={disabled}>
+							disabled={disabled}
+						>
 							{selectedOption.name}
 						</Label>
 					)
@@ -304,7 +305,8 @@ export default function SearchSelect(props) {
 				) : (
 					<button
 						onFocus={() => setOptionShow(true)}
-						onBlur={() => setOptionShow(false)}>
+						onBlur={() => setOptionShow(false)}
+					>
 						<div>{placeholder}</div>
 					</button>
 				)}
@@ -321,7 +323,8 @@ export default function SearchSelect(props) {
 								name={name}
 								value={option.value}
 								onMouseDown={e => onOptionSelect(e, option)}
-								selected={option.value === selectedOption?.value}>
+								selected={option.value === selectedOption?.value}
+							>
 								{option.name}
 							</Option>
 						))}

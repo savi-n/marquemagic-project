@@ -7,8 +7,8 @@
 import { lazy } from 'react';
 import { Redirect, useRouteMatch } from 'react-router-dom';
 
-import userType from '../../_hoc/userType';
-import ProtectedRoute from '../../components/ProtectedRoute';
+import userType from '_hoc/userType';
+import ProtectedRoute from 'components/ProtectedRoute';
 
 // const IdentityVerification = lazy(() =>
 // 	import('./identityVerification/IdentityVerification')

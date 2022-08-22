@@ -132,3 +132,18 @@ export const LoaderWrapper = styled.div`
 	justify-content: center;
 	text-align: center;
 `;
+
+export const DocUploadNotRequiredMessage = styled.div`
+	display: flex;
+	justify-content: left;
+	align-items: center;
+	height: 50px;
+	font-size: 14px;
+	color: grey;
+`;
+
+export const CoAppName = styled.span`
+	color: grey !important;
+	margin-left: 10px;
+	font-size: 14px;
+`;

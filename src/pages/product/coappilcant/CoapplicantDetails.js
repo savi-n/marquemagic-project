@@ -3,16 +3,16 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOf, oneOfType, string } from 'prop-types';
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { USER_ROLES } from '../../../_config/app.config';
-import useCaseCreation from '../../../components/CaseCreation';
-import Loading from '../../../components/Loading';
-import Modal from '../../../components/Modal';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import AddressDetails from 'shared/components/AddressDetails/AddressDetails';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { USER_ROLES } from '_config/app.config';
+import useCaseCreation from 'components/CaseCreation';
+import Loading from 'components/Loading';
+import Modal from 'components/Modal';
 
 const ButtonWrap = styled.div`
 	display: flex;

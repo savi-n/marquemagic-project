@@ -3,26 +3,27 @@ import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 import axios from 'axios';
-import useForm from '../../../hooks/useForm';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import Button from '../../../components/Button';
-import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { FormContext } from '../../../reducer/formReducer';
+import useForm from 'hooks/useForm';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import Button from 'components/Button';
+import ROCBusinessDetailsModal from 'components/ROCBusinessDetailsModal';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+import { FormContext } from 'reducer/formReducer';
 
-import { FlowContext } from '../../../reducer/flowReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { AppContext } from '../../../reducer/appReducer';
-import { UserContext } from '../../../reducer/userReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { AppContext } from 'reducer/appReducer';
+import { UserContext } from 'reducer/userReducer';
 import {
 	LOGIN_CREATEUSER,
 	WHITELABEL_ENCRYPTION_API,
 	APP_CLIENT,
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
-} from '../../../_config/app.config';
-import useFetch from '../../../hooks/useFetch';
+	HOSTNAME,
+} from '_config/app.config';
+import useFetch from 'hooks/useFetch';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import moment from 'moment';
 
@@ -86,7 +87,7 @@ export default function FormController({
 		actions: {
 			setUsertypeLoanData,
 			// setUserSubsidiaryDetailsData,
-			// setUsertypeBankData,
+			setUsertypeBankData,
 			// setUsertypeAgreementData,
 			setFlowData,
 		},
@@ -94,6 +95,7 @@ export default function FormController({
 
 	const {
 		state: { bankId, userToken: userToken1 },
+		actions: { setUserDetails, setUserId },
 	} = useContext(UserContext);
 
 	// const {
@@ -192,8 +194,6 @@ export default function FormController({
 				source: APP_CLIENT,
 				name: formState?.values?.BusinessName,
 				mobileNo: formState?.values?.mobileNo,
-				addrr1: '',
-				addrr2: '',
 			};
 			if (sessionStorage.getItem('userDetails')) {
 				try {
@@ -215,9 +215,7 @@ export default function FormController({
 
 				const userDetailsRes = userDetailsReq.data;
 
-				const url = window.location.hostname;
-
-				let userToken = sessionStorage.getItem(url);
+				let userToken = sessionStorage.getItem(HOSTNAME);
 
 				userToken = JSON.parse(userToken);
 
@@ -230,7 +228,7 @@ export default function FormController({
 				};
 
 				sessionStorage.setItem('userToken', userDetailsRes.token);
-				sessionStorage.setItem(url, JSON.stringify(userToken));
+				sessionStorage.setItem(HOSTNAME, JSON.stringify(userToken));
 
 				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 					const encryptWhiteLabelReq = await newRequest(
@@ -247,6 +245,20 @@ export default function FormController({
 						'encryptWhiteLabel',
 						encryptWhiteLabelRes.encrypted_whitelabel[0]
 					);
+
+					const userData = {
+						...userDetailsRes,
+						bankId: userDetailsRes.bankId,
+						branchId: userDetailsRes.branchId,
+						userToken: userDetailsRes.token,
+					};
+					setUserId(userDetailsRes.userId);
+					setUserDetails(userData);
+					setUsertypeBankData({
+						bankId: userDetailsRes.bankId,
+						branchId: userDetailsRes.branchId,
+					});
+
 					// console.log('before-setting-company-details-', {
 					// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
 					// 	object: {
@@ -298,16 +310,14 @@ export default function FormController({
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
 	const [homeBranchList, sethomeBranchList] = useState([]);
 
-	const url = window.location.hostname;
-
-	let userToken = sessionStorage.getItem(url);
+	let userToken = sessionStorage.getItem(HOSTNAME);
 
 	//let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	let companyData = JSON.parse(sessionStorage.getItem('companyData'));
 
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	let form =
 		state[`${id}`] ||
 		formReducer?.user[`${id}`] ||

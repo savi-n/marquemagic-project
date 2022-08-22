@@ -2,22 +2,22 @@
 
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import useFetch from '../../../hooks/useFetch';
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import { UserContext } from '../../../reducer/userReducer';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import useCaseCreation from '../../../components/CaseCreation';
-import downArray from '../../../assets/icons/down_arrow_grey_icon.png';
+import useFetch from 'hooks/useFetch';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import { UserContext } from 'reducer/userReducer';
+import AddressDetails from 'shared/components/AddressDetails/AddressDetails';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import SalaryDetails from 'shared/components/SalaryDetails/SalaryDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import useCaseCreation from 'components/CaseCreation';
+import downArray from 'assets/icons/down_arrow_grey_icon.png';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { COAPPLICANT_DETAILS } from '../../../_config/app.config';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { COAPPLICANT_DETAILS, HOSTNAME } from '_config/app.config';
 
 const Section = styled.div`
 	display: flex;
@@ -162,10 +162,8 @@ const CoapplicantDetailsSection = props => {
 		state: { userToken },
 	} = useContext(UserContext);
 
-	const { handleSubmit, register, formState } = useForm();
-
-	const url = window.location.hostname;
-	const formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	const { handleSubmit, register, formState, clearError } = useForm();
+	const formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	const applicantData = formReducer?.user?.applicantData;
 	const applicantPresentAddress =
 		applicantData?.address?.filter(a => a.addressType === 'present')?.[0] || {};
@@ -181,6 +179,11 @@ const CoapplicantDetailsSection = props => {
 	let editCoApplicantData = {};
 	if (editLoanData && editLoanCoApplicants.length > 0) {
 		editLoanCoApplicants?.map((coApplicant, index) => {
+			for (const key in coApplicant) {
+				if (coApplicant?.[key]?.toLowerCase() === 'null') {
+					coApplicant[key] = '';
+				}
+			}
 			const currentIndex = index + 1;
 			editCoApplicantData = {
 				...editCoApplicantData,
@@ -257,6 +260,7 @@ const CoapplicantDetailsSection = props => {
 	const addCoapplicant = () => {
 		setTotalCoapplicant(totalCoapplicant + 1);
 		setOpenDrawer(totalCoapplicant);
+		clearError();
 	};
 
 	const deleteSection = index => {
@@ -315,7 +319,7 @@ const CoapplicantDetailsSection = props => {
 	useEffect(() => {
 		try {
 			// console.log('coapplicantsection-useeffect-');
-			const userTokensss = sessionStorage.getItem(url);
+			const userTokensss = sessionStorage.getItem(HOSTNAME);
 			let newPrePopulateCoApplicants = {};
 			const sessionCoApplicantData =
 				JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] ||
@@ -363,7 +367,10 @@ const CoapplicantDetailsSection = props => {
 				return;
 			}
 			setLoading(true);
-
+			const userTokensss = sessionStorage.getItem(HOSTNAME);
+			// refetch latest response form storage dynamically as this requires latest data
+			const sessionCoApplicantRes =
+				JSON.parse(userTokensss).formReducer?.user?.[`${id}-res`] || [];
 			const storeData = JSON.stringify(data);
 			const tempObject = storeData.replaceAll('permanent_', '');
 			const changedData = JSON.parse(tempObject);
@@ -371,6 +378,7 @@ const CoapplicantDetailsSection = props => {
 			setFlowData(changedData, id);
 			const reqBody = {
 				co_applicant_director_partner_data: [],
+				origin: 'nconboarding',
 			};
 			Array(totalCoapplicant)
 				.fill(0)
@@ -415,10 +423,23 @@ const CoapplicantDetailsSection = props => {
 							formatedData.business_id = editLoanData?.business_id?.id;
 						}
 					}
+					if (
+						sessionCoApplicantRes &&
+						sessionCoApplicantRes.length > 0 &&
+						sessionCoApplicantRes?.[index]?.id
+					) {
+						formatedData.id = sessionCoApplicantRes?.[index]?.id;
+					}
 					reqBody.co_applicant_director_partner_data.push(formatedData);
 					return null;
 				});
 			setFlowData(reqBody.co_applicant_director_partner_data, `${id}-reqbody`);
+			// console.log('coapplicantsection-before-submitting-', {
+			// 	formState,
+			// 	reqBody,
+			// 	sessionCoApplicantRes,
+			// });
+			// return;
 			try {
 				const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
 					method: 'POST',
@@ -429,19 +450,20 @@ const CoapplicantDetailsSection = props => {
 					},
 				});
 
-				const res = submitCoapplicantsReq.data.data;
-				sessionStorage.setItem('coapplicant_response', JSON.stringify(res));
-
+				const submitCoAppRes = submitCoapplicantsReq?.data?.data || [];
+				setFlowData(submitCoAppRes, `${id}-res`);
 				addToast({
 					message: 'Saved Succesfully',
 					type: 'success',
 				});
 			} catch (er) {
 				console.error(er);
+				setLoading(false);
 				addToast({
-					message: er.message || 'Business Profile is failed',
+					message: 'Server down, try after sometimes',
 					type: 'error',
 				});
+				return;
 			}
 			setCompleted(id);
 			onFlowChange(map.main);
@@ -520,12 +542,14 @@ const CoapplicantDetailsSection = props => {
 						<div key={`coapp-${index}`}>
 							<Section
 								hideBorderBottom={totalCoapplicant === 1}
-								onClick={() => openCloseCollaps(index)}>
+								onClick={() => openCloseCollaps(index)}
+							>
 								<div
 									style={{
 										alignItems: 'center',
 										display: 'flex',
-									}}>
+									}}
+								>
 									{totalCoapplicant > 1 ? (
 										<StyledButton width={'auto'} fill>
 											Co-Applicant {index + 1}

@@ -4,10 +4,10 @@ based on this search city and state is identified */
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import useFetch from '../../hooks/useFetch';
-import { PINCODE_ADRRESS_FETCH } from '../../_config/app.config';
+import useFetch from 'hooks/useFetch';
+import { PINCODE_ADRRESS_FETCH } from '_config/app.config';
 import InputField from './InputField';
-import { useToasts } from '../Toast/ToastProvider';
+import { useToasts } from 'components/Toast/ToastProvider';
 // const Input = styled.input`
 // 	height: 50px;
 // 	padding: 10px;

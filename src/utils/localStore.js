@@ -1,18 +1,18 @@
 /* This util file is used to store data/formdata in local/session storage */
 
-const name = window.location.hostname;
+import { HOSTNAME } from '_config/app.config';
 
 export function setStore(data, dataFrom) {
 	const storeData = {
-		...(JSON.parse(sessionStorage.getItem(name)) || {}),
+		...(JSON.parse(sessionStorage.getItem(HOSTNAME)) || {}),
 		[dataFrom]: data,
 	};
-	sessionStorage.setItem(name, JSON.stringify(storeData));
+	sessionStorage.setItem(HOSTNAME, JSON.stringify(storeData));
 }
 
 export function getStore() {
 	return {
-		...(JSON.parse(sessionStorage.getItem(name)) || {}),
+		...(JSON.parse(sessionStorage.getItem(HOSTNAME)) || {}),
 	};
 }
 
@@ -21,18 +21,17 @@ export function localStoreUserId(data) {
 }
 
 export function removeStore() {
-	sessionStorage.removeItem(name);
+	sessionStorage.removeItem(HOSTNAME);
 }
 
 export function resetAllApplicationState() {
-	const url = window.location.hostname;
 	sessionStorage.removeItem('formstate');
 	sessionStorage.removeItem('formstatepan');
 	sessionStorage.removeItem('aadhar');
 	sessionStorage.removeItem('encryptWhiteLabel');
 	sessionStorage.removeItem('userToken');
 	sessionStorage.removeItem('documentReducer');
-	sessionStorage.removeItem(url);
+	sessionStorage.removeItem(HOSTNAME);
 	const wt_lbl = sessionStorage.getItem('wt_lbl');
 	const userDetails = sessionStorage.getItem('userDetails');
 	sessionStorage.clear();

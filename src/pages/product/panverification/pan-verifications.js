@@ -6,18 +6,17 @@
 */
 
 import { useState, useContext, useEffect } from 'react';
-import styled from 'styled-components';
-import useForm from '../../../hooks/useForm';
-import useFetch from '../../../hooks/useFetch';
-import { AppContext } from '../../../reducer/appReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import CompanySelectModal from '../../../components/CompanySelectModal';
-import FileUpload from '../../../shared/components/FileUpload/FileUpload';
-import Button from '../../../components/Button';
-import Modal from '../../../components/Modal';
+import useForm from 'hooks/useForm';
+import useFetch from 'hooks/useFetch';
+import { AppContext } from 'reducer/appReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
+import CompanySelectModal from 'components/CompanySelectModal';
+import FileUpload from 'shared/components/FileUpload/FileUpload';
+import Button from 'components/Button';
+import Modal from 'components/Modal';
 import WarnIcon from 'assets/icons/amber_warning_icon.png';
 import ErrorIcon from 'assets/icons/Red_error_icon.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -28,6 +27,7 @@ import {
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
 	APP_CLIENT,
+	HOSTNAME,
 } from '../../../_config/app.config';
 import {
 	getKYCData,
@@ -40,202 +40,10 @@ import _ from 'lodash';
 import * as CONST from './const';
 import * as UI from './ui';
 import InputField from 'components/inputs/InputField';
+import { CATEGORY_KYC } from 'pages/product/documentUpload/const';
 
-const Wrapper = styled.div`
-	flex: 1;
-	padding: 50px;
-	@media (max-width: 700px) {
-		padding: 50px 0px;
-		max-width: 100%;
-	}
-`;
-const LabRed = styled.h1`
-	font-size: 1em;
-	font-weight: 500;
-	color: red;
-	margin-top: -25px;
-`;
-
-const FieldWrapper = styled.div`
-	padding: 20px 0;
-	width: 50%;
-	@media (max-width: 700px) {
-		width: 100%;
-	}
-`;
-const ImgClose = styled.img`
-	height: 25px;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
-`;
-const FieldWrapperPanVerify = styled.div`
-	padding: 30px 10px;
-	/* width: 50%; */
-	place-self: center;
-
-	@media (max-width: 700px) {
-		width: 100%;
-	}
-`;
-const ConfirmPanWrapper = styled.div`
-	padding: 40px 0;
-	margin-right: auto;
-	margin-left: auto;
-	text-align: center;
-`;
-
-const H2 = styled.h2`
-	width: 50%;
-	text-align: center;
-	font-weight: 500;
-`;
-
-const CardRadioButton = styled.div`
-	/* box-shadow: 0 4px 9px 0 #bdd2ef; */
-	box-shadow: rgb(11 92 255 / 16%) 0px 2px 5px 1px;
-	width: 180px;
-	height: 45px;
-	line-height: 45px;
-	margin-right: 20px;
-	padding-left: 20px;
-	border-radius: 6px;
-	text-align: left;
-	input {
-		cursor: pointer;
-	}
-	label {
-		padding-left: 15px;
-		cursor: pointer;
-	}
-	@media (max-width: 700px) {
-		margin-bottom: 15px;
-	}
-`;
-
-const RadioButtonWrapper = styled.div`
-	padding: 30px 0;
-	display: flex;
-	@media (max-width: 700px) {
-		display: inline-block;
-	}
-`;
-
-const ButtonWrapper = styled.div`
-	margin-top: 20px;
-`;
-
-const NotificationImg = styled.img`
-	margin-right: 8px;
-	width: 33px;
-	display: inline-block;
-`;
-
-const businessTypeMaps = [
-	[['private', 'pvt'], 4],
-	[['public', 'pub'], 5],
-	[['llp'], 3],
-];
-
-function formatCompanyData(data, panNum) {
-	let directors = {};
-	let directorsForShow = [];
-
-	for (const [i, dir] of data['directors/signatory_details']?.entries() || []) {
-		directors[`directors_${i}`] = {
-			[`ddin_no${i}`]: dir['din/pan'],
-		};
-		directorsForShow.push({
-			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din,
-		});
-	}
-
-	let businesType;
-
-	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t =>
-			data?.company_master_data?.company_name?.toLowerCase().includes(t)
-		);
-
-		if (typeAllowed) {
-			businesType = type[1];
-			break;
-		}
-	}
-
-	const [
-		date,
-		month,
-		year,
-	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
-
-	return {
-		BusinessName: data.company_master_data.company_name,
-		BusinessType: businesType,
-		Email: data.company_master_data.email_id,
-		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
-		CIN: data.company_master_data['cin '],
-		CompanyCategory: data.company_master_data.company_category,
-		Address: data.company_master_data.registered_address,
-		ClassOfCompany: data.company_master_data.class_of_company,
-		RegistrationNumber: data.company_master_data.registration_number,
-		DirectorDetails: directors,
-		directorsForShow,
-		unformatedData: data,
-	};
-}
-
-function formatCompanyDataGST(data, panNum, gstNum) {
-	if (data?.length > 1) data = data[0].data;
-	let directors = {};
-	let directorsForShow = [];
-
-	directorsForShow.push({
-		Name: data?.lgnm,
-		Din: '',
-	});
-
-	let businesType;
-
-	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t =>
-			data?.tradeNam?.toLowerCase().includes(t)
-		);
-
-		if (typeAllowed) {
-			businesType = type[1];
-			break;
-		}
-	}
-
-	const [date, month, year] = data?.rgdt.split(/\/|-/);
-
-	return {
-		BusinessName: data.tradeNam,
-		BusinessType: businesType,
-		Email: '',
-		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
-		CIN: '',
-		GSTVerification: gstNum,
-		CompanyCategory: data.nba[0],
-		Address: data.pradr?.addr,
-		ClassOfCompany: data.ctb,
-		RegistrationNumber: data.ctjCd,
-		DirectorDetails: directors,
-		directorsForShow,
-		unformatedData: data,
-	};
-}
-
-export default function PanVerification({
-	productDetails,
-	map,
-	onFlowChange,
-	id,
-}) {
+const PanVerification = props => {
+	const { productDetails, map, onFlowChange, id } = props;
 	const productType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 	const isBusinessProductType = productType === 'business';
@@ -496,7 +304,7 @@ export default function PanVerification({
 							userId: userDetailsRes.userId,
 							branchId: userDetailsRes.branchId,
 							encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-							...formatCompanyData(
+							...CONST.formatCompanyData(
 								companyData.data,
 								extractionDataRes.panNumber
 							),
@@ -517,12 +325,14 @@ export default function PanVerification({
 			return;
 		}
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData, extractionDataRes.panNumber, gstNum),
+			...CONST.formatCompanyDataGST(
+				companyData,
+				extractionDataRes.panNumber,
+				gstNum
+			),
 		});
 
-		const url = window.location.hostname;
-
-		let userToken = sessionStorage.getItem(url);
+		let userToken = sessionStorage.getItem(HOSTNAME);
 
 		let form = JSON.parse(userToken);
 
@@ -534,7 +344,7 @@ export default function PanVerification({
 					...form.formReducer.user,
 					applicantData: {
 						...form.formReducer.user.applicantData,
-						...formatCompanyDataGST(
+						...CONST.formatCompanyDataGST(
 							companyData,
 							extractionDataRes.panNumber,
 							gstNum
@@ -544,7 +354,7 @@ export default function PanVerification({
 			},
 		};
 
-		sessionStorage.setItem(url, JSON.stringify(form));
+		sessionStorage.setItem(HOSTNAME, JSON.stringify(form));
 		sessionStorage.setItem(
 			'BusinessName',
 			form.formReducer.user.applicantData.BusinessName
@@ -921,6 +731,8 @@ export default function PanVerification({
 				requestId: panExtractionRes?.data?.request_id,
 				upload_doc_name: panExtractionRes?.data.s3.filename,
 				isDocRemoveAllowed: false,
+				category: CATEGORY_KYC,
+				doc_type_id: 'app_',
 			};
 			setPanFileId(file1.id);
 			setLoanDocuments([file1]);
@@ -1121,6 +933,8 @@ export default function PanVerification({
 					requestId: frontExtractionRes?.data?.request_id,
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					isDocRemoveAllowed: false,
+					category: CATEGORY_KYC,
+					doc_type_id: 'app_',
 				};
 
 				setLoanDocuments([frontFile]);
@@ -1177,6 +991,8 @@ export default function PanVerification({
 					requestId: backExtractionRes?.data.request_id,
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					isDocRemoveAllowed: false,
+					category: CATEGORY_KYC,
+					doc_type_id: 'app_',
 				};
 
 				setLoanDocuments([backFile]);
@@ -1251,6 +1067,8 @@ export default function PanVerification({
 				requestId: frontOnlyExtractionRes?.data?.request_id,
 				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 				isDocRemoveAllowed: false,
+				category: CATEGORY_KYC,
+				doc_type_id: 'app_',
 			};
 
 			setLoanDocuments([frontOnlyFile]);
@@ -1392,7 +1210,7 @@ export default function PanVerification({
 	// });
 
 	return (
-		<Wrapper>
+		<UI.Wrapper>
 			<CompanySelectModal
 				companyNameSearch={companyNameSearch}
 				searchingCompanyName={searchingCompanyName}
@@ -1411,20 +1229,21 @@ export default function PanVerification({
 				onClose={() => {
 					setIsPanConfirmModalOpen(false);
 				}}
-				width='30%'>
+				width='30%'
+			>
 				<section className='p-4 flex flex-col gap-y-8'>
-					<ImgClose
+					<UI.ImgClose
 						onClick={() => {
 							setIsPanConfirmModalOpen(false);
 						}}
 						src={imgClose}
 						alt='close'
 					/>
-					<ConfirmPanWrapper>
+					<UI.ConfirmPanWrapper>
 						<h1 style={{ fontSize: '22px', fontWeight: '600Px' }}>
 							Confirm PAN Number and Proceed
 						</h1>
-						<FieldWrapperPanVerify>
+						<UI.FieldWrapperPanVerify>
 							{/* setConfirmPanNumber */}
 							<InputField
 								name='panNumber'
@@ -1437,7 +1256,7 @@ export default function PanVerification({
 							placeholder: 'Pan Number',
 							value: formState?.values?.panNumber,
 						})} */}
-						</FieldWrapperPanVerify>
+						</UI.FieldWrapperPanVerify>
 						<Button
 							name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 							fill
@@ -1446,7 +1265,7 @@ export default function PanVerification({
 							disabled={!panExtractionData.panNumber || loading}
 							style={{ alignText: 'center' }}
 						/>
-					</ConfirmPanWrapper>
+					</UI.ConfirmPanWrapper>
 				</section>
 			</Modal>
 			<Modal
@@ -1455,7 +1274,8 @@ export default function PanVerification({
 					setIsDocTypeChangeModalOpen(false);
 				}}
 				width='50%'
-				customStyle={{ minHeight: 200 }}>
+				customStyle={{ minHeight: 200 }}
+			>
 				<UI.DocTypeChangeModalBody>
 					<UI.DocTypeChangeModalHeader>
 						<p className='py-2'>
@@ -1512,8 +1332,9 @@ export default function PanVerification({
 						<UI.ExtractionErrorMessage
 							style={{
 								color: isWarning ? '#f7941d' : '#de524c',
-							}}>
-							<NotificationImg
+							}}
+						>
+							<UI.NotificationImg
 								src={isWarning ? WarnIcon : ErrorIcon}
 								alt='error'
 							/>
@@ -1550,10 +1371,10 @@ export default function PanVerification({
 					<h1 className='text-xl text-black'>
 						Select and Upload any one of the documents mentions below
 					</h1>
-					<RadioButtonWrapper>
+					<UI.RadioButtonWrapper>
 						{CONST.addressProofRadioButtonList.map(btn => {
 							return (
-								<CardRadioButton key={btn.key}>
+								<UI.CardRadioButton key={btn.key}>
 									<input
 										id={btn.key}
 										type='radio'
@@ -1564,17 +1385,18 @@ export default function PanVerification({
 									<label htmlFor={btn.key} style={{ marginLeft: '10px' }}>
 										{btn.name}
 									</label>
-								</CardRadioButton>
+								</UI.CardRadioButton>
 							);
 						})}
-					</RadioButtonWrapper>
+					</UI.RadioButtonWrapper>
 					<div
 						onClick={e => {
 							if (isInActiveAddressProofUpload) {
 								e.preventDefault();
 								e.stopPropagation();
 							}
-						}}>
+						}}
+					>
 						{/* ADDRESS PROOF UPLOAD SECTION */}
 						<FileUpload
 							isInActive={isInActiveAddressProofUpload}
@@ -1601,8 +1423,9 @@ export default function PanVerification({
 								color: isWarning ? '#f7941d' : '#de524c',
 								marginTop: '-25px',
 								marginBottom: '45px',
-							}}>
-							<NotificationImg
+							}}
+						>
+							<UI.NotificationImg
 								src={isWarning ? WarnIcon : ErrorIcon}
 								alt='error'
 							/>
@@ -1631,7 +1454,7 @@ export default function PanVerification({
 							</>
 						)}
 					</UI.SkipAadhaarWrapper>
-					<ButtonWrapper>
+					<UI.ButtonWrapper>
 						{isWarning ? (
 							<Button
 								onClick={() => {
@@ -1654,12 +1477,12 @@ export default function PanVerification({
 								}}
 							/>
 						)}
-					</ButtonWrapper>
+					</UI.ButtonWrapper>
 				</section>
 			)}
 			{screen === CONST.SCREEN_GST_UDHYOG && (
 				<form onSubmit={handleSubmit(onProceedGstUdhyog)}>
-					<FieldWrapper>
+					<UI.FieldWrapper>
 						{register({
 							name: 'panNumber',
 							placeholder: 'Pan Number',
@@ -1668,8 +1491,8 @@ export default function PanVerification({
 							disabled: true,
 							readonly: true,
 						})}
-					</FieldWrapper>
-					<FieldWrapper>
+					</UI.FieldWrapper>
+					<UI.FieldWrapper>
 						{register({
 							name: 'gstin',
 							placeholder: 'GST Identification Number',
@@ -1680,14 +1503,14 @@ export default function PanVerification({
 							},
 							disabled: isGstInDisabled,
 						})}
-					</FieldWrapper>
+					</UI.FieldWrapper>
 					{formState?.values?.gstin && gstError && (
-						<FieldWrapper>
-							<LabRed>{gstError}</LabRed>
-						</FieldWrapper>
+						<UI.FieldWrapper>
+							<UI.LabRed>{gstError}</UI.LabRed>
+						</UI.FieldWrapper>
 					)}
-					<H2>OR</H2>
-					<FieldWrapper>
+					<UI.H2>OR</UI.H2>
+					<UI.FieldWrapper>
 						{register({
 							name: 'udhyogAadhar',
 							placeholder: 'Udhyog Aadhar Number',
@@ -1699,22 +1522,24 @@ export default function PanVerification({
 							disabled: isudhyogAadhaarDisabled,
 							mask: { NumberOnly: true, CharacterLimit: 12 },
 						})}
-					</FieldWrapper>
+					</UI.FieldWrapper>
 					{formState?.values?.udhyogAadhar && udhyogError && (
-						<FieldWrapper>
-							<LabRed>{udhyogError}</LabRed>
-						</FieldWrapper>
+						<UI.FieldWrapper>
+							<UI.LabRed>{udhyogError}</UI.LabRed>
+						</UI.FieldWrapper>
 					)}
-					<ButtonWrapper>
+					<UI.ButtonWrapper>
 						<Button
 							isLoader={loading}
 							name={loading ? 'Please wait...' : 'Proceed'}
 							fill
 							disabled={isProceedDIsabledGstUdhyog}
 						/>
-					</ButtonWrapper>
+					</UI.ButtonWrapper>
 				</form>
 			)}
-		</Wrapper>
+		</UI.Wrapper>
 	);
-}
+};
+
+export default PanVerification;
