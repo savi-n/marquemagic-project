@@ -952,14 +952,17 @@ const DocumentUpload = props => {
 			!d.typeId
 	);
 
+	const totalMandatoryDocumentCount = allDocumentTypeList.filter(
+		d => !!d.isMandatory
+	)?.length;
+	const totalMandatoryUploadedDocumentCount =
+		state?.documents?.filter(d => !!d.isMandatory)?.length || 0;
+
 	let applicantFullName = '';
 	if (applicantData?.firstName) applicantFullName += applicantData?.firstName;
 	if (applicantData?.dlastname)
 		applicantFullName += ` ${applicantData?.lastName}`;
 
-	const totalMandatoryDocumentCount = allDocumentTypeList.filter(
-		d => !!d.isMandatory
-	)?.length;
 	return (
 		<>
 			{isAuthenticationOtpModalOpen && (
@@ -986,8 +989,8 @@ const DocumentUpload = props => {
 						>
 							Document Submitted :
 							<UI.StyledButton width={'auto'} fill>
-								{state?.documents?.filter(d => !!d.isMandatory)?.length || 0} of{' '}
-								{allDocumentTypeList.filter(d => !!d.isMandatory)?.length}
+								{totalMandatoryUploadedDocumentCount} of{' '}
+								{totalMandatoryDocumentCount}
 							</UI.StyledButton>
 						</div>
 					</UI.Section>
