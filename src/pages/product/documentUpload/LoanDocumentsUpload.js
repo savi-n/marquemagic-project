@@ -952,6 +952,12 @@ const DocumentUpload = props => {
 			!d.typeId
 	);
 
+	const totalMandatoryDocumentCount = allDocumentTypeList.filter(
+		d => !!d.isMandatory
+	)?.length;
+	const totalMandatoryUploadedDocumentCount =
+		state?.documents?.filter(d => !!d.isMandatory)?.length || 0;
+
 	let applicantFullName = '';
 	if (applicantData?.firstName) applicantFullName += applicantData?.firstName;
 	if (applicantData?.dlastname)
@@ -969,24 +975,26 @@ const DocumentUpload = props => {
 				/>
 			)}
 			<UI.Colom1>
-				<UI.Section style={{ marginBottom: 20 }}>
-					<UI.H1>
-						<span style={{ color: 'red' }}>*</span> Mandatory
-					</UI.H1>
-					<div
-						style={{
-							marginLeft: 10,
-							alignItems: 'center',
-							display: 'flex',
-						}}
-					>
-						Document Submitted :
-						<UI.StyledButton width={'auto'} fill>
-							{state?.documents?.filter(d => !!d.isMandatory)?.length || 0} of{' '}
-							{allDocumentTypeList.filter(d => !!d.isMandatory)?.length}
-						</UI.StyledButton>
-					</div>
-				</UI.Section>
+				{totalMandatoryDocumentCount > 0 && (
+					<UI.Section style={{ marginBottom: 20 }}>
+						<UI.H1>
+							<span style={{ color: 'red' }}>*</span> Mandatory
+						</UI.H1>
+						<div
+							style={{
+								marginLeft: 10,
+								alignItems: 'center',
+								display: 'flex',
+							}}
+						>
+							Document Submitted :
+							<UI.StyledButton width={'auto'} fill>
+								{totalMandatoryUploadedDocumentCount} of{' '}
+								{totalMandatoryDocumentCount}
+							</UI.StyledButton>
+						</div>
+					</UI.Section>
+				)}
 				<UI.H>
 					<span>Applicant Document Upload</span>
 					{sessionCoApplicantRes.length > 1 && (
