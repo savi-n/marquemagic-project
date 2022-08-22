@@ -117,6 +117,7 @@ export default function EMIDetails({
 											// value: formState?.values?.[field.name],
 											value: populateValue(field),
 											...customFields,
+											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
