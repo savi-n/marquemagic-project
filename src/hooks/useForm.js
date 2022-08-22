@@ -9,6 +9,7 @@ import DateField from '../components/inputs/DateField';
 import InputField from '../components/inputs/InputField';
 import SelectField from '../components/inputs/SelectField';
 import DisabledInput from '../components/inputs/DisabledInput';
+import moment from 'moment';
 
 function required(value) {
 	return !value;
@@ -16,6 +17,10 @@ function required(value) {
 
 function numberOnly(value) {
 	return !Number(value);
+}
+
+function pastDatesOnly(value) {
+	return !moment().isAfter(value);
 }
 
 function validatePattern(pattern) {
@@ -58,6 +63,10 @@ const VALIDATION_RULES = {
 		// eslint-disable-next-line
 		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
 		message: 'Invalid Email Address',
+	},
+	pastDates: {
+		func: pastDatesOnly,
+		message: 'Enter only dates from the past.',
 	},
 	pattern: {
 		func: validatePattern(),
