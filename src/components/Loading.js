@@ -6,11 +6,12 @@ import Lottie from 'lottie-react';
 import NCLogo from '../shared/constants/NcLogo.json';
 
 const Wrapper = styled.div`
-	width: 100%;
-	height: 100%;
+	width: 70%;
+	margin: 0 auto;
 `;
 
-export default function Loading() {
+export default function Loading(props) {
+	const { width } = props;
 	return (
 		<Wrapper>
 			<Lottie
@@ -18,7 +19,8 @@ export default function Loading() {
 				// options={{
 				// 	animationData: NCLogo,
 				// }}
-				width={'100%'}
+				loop={true}
+				width={width || '100%'}
 			/>
 		</Wrapper>
 	);

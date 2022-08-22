@@ -378,7 +378,7 @@ export default function AddressDetailsPage({
 			<ButtonWrap>
 				<Button
 					fill
-					loading={loading}
+					isLoader={loading}
 					disabled={loading}
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					onClick={handleSubmit(onProceed)}

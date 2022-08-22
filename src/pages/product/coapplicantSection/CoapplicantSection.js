@@ -76,8 +76,12 @@ const Caption = styled.h3`
 	display: flex;
 	justify-content: space-between;
 `;
-const AddressWrapper = styled.div`
+const PresentAddressCheckBoxWrapper = styled.div`
 	display: flex;
+	input,
+	label {
+		cursor: pointer;
+	}
 `;
 const CollapseIcon = styled.img`
 	height: 18px;
@@ -215,19 +219,6 @@ const CoapplicantDetailsSection = props => {
 			return null;
 		});
 	}
-
-	let {
-		address1,
-		address2,
-		address3,
-		address4,
-		city,
-		state: addState,
-		pinCode,
-	} =
-		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
-			?.applicantData?.address[0] || {};
-
 	// -- CONSTANTS
 
 	// LOCAL STATES
@@ -247,7 +238,7 @@ const CoapplicantDetailsSection = props => {
 		productId[(state[userType]?.applicantData?.incomeType)] || '',
 		userType
 	);
-	const [presentAddressCheck, setPresentAddressCheck] = useState(false);
+	const [presentAddressCheck, setPresentAddressCheck] = useState([]);
 	const { addToast } = useToasts();
 	const [proceed, setProceed] = useState(false);
 	const { newRequest } = useFetch();
@@ -316,49 +307,6 @@ const CoapplicantDetailsSection = props => {
 			type: 'error',
 		});
 	};
-
-	useEffect(() => {
-		try {
-			// console.log('coapplicantsection-useeffect-');
-			const userTokensss = sessionStorage.getItem(HOSTNAME);
-			let newPrePopulateCoApplicants = {};
-			const sessionCoApplicantData =
-				JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] ||
-				{};
-			if (Object.keys(sessionCoApplicantData).length > 0) {
-				newPrePopulateCoApplicants = sessionCoApplicantData;
-			} else if (Object.keys(editCoApplicantData).length > 0) {
-				newPrePopulateCoApplicants = editCoApplicantData;
-			}
-			setPrePopulateCoApplicants(newPrePopulateCoApplicants);
-			const lastKey = Object.keys(newPrePopulateCoApplicants).pop();
-			setTotalCoapplicantCount(+lastKey?.slice(-1) || 1);
-			setOpenDrawer(0);
-		} catch (error) {
-			console.error('error-coapplicantsection-prepopulate-', error);
-		}
-		// eslint-disable-next-line
-	}, []);
-
-	useEffect(() => {
-		async function request() {
-			const res = await caseCreationUserType();
-			if (res) {
-				setCompleted(id);
-				onFlowChange(map.main);
-			}
-			setProceed(false);
-		}
-
-		if (proceed) {
-			request();
-		}
-		// eslint-disable-next-line
-	}, [proceed]);
-
-	useEffect(() => {
-		if (totalCoapplicantCount === 1) setOpenDrawer(0);
-	}, [totalCoapplicantCount]);
 
 	const onProceed = async data => {
 		try {
@@ -474,11 +422,55 @@ const CoapplicantDetailsSection = props => {
 		}
 	};
 
+	useEffect(() => {
+		try {
+			// console.log('coapplicantsection-useeffect-');
+			const userTokensss = sessionStorage.getItem(HOSTNAME);
+			let newPrePopulateCoApplicants = {};
+			const sessionCoApplicantData =
+				JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] ||
+				{};
+			if (Object.keys(sessionCoApplicantData).length > 0) {
+				newPrePopulateCoApplicants = sessionCoApplicantData;
+			} else if (Object.keys(editCoApplicantData).length > 0) {
+				newPrePopulateCoApplicants = editCoApplicantData;
+			}
+			setPrePopulateCoApplicants(newPrePopulateCoApplicants);
+			const lastKey = Object.keys(newPrePopulateCoApplicants).pop();
+			setTotalCoapplicantCount(+lastKey?.slice(-1) || 1);
+			setOpenDrawer(0);
+		} catch (error) {
+			console.error('error-coapplicantsection-prepopulate-', error);
+		}
+		// eslint-disable-next-line
+	}, []);
+
+	useEffect(() => {
+		async function request() {
+			const res = await caseCreationUserType();
+			if (res) {
+				setCompleted(id);
+				onFlowChange(map.main);
+			}
+			setProceed(false);
+		}
+
+		if (proceed) {
+			request();
+		}
+		// eslint-disable-next-line
+	}, [proceed]);
+
+	useEffect(() => {
+		if (totalCoapplicantCount === 1) setOpenDrawer(0);
+	}, [totalCoapplicantCount]);
+
 	// console.log('coapplicantsectino-allstates-', {
 	// 	editCoApplicantData,
 	// 	prePopulateCoApplicants,
 	// 	openDrawer,
 	// 	totalCoapplicantCount,
+	// 	presentAddressCheck,
 	// });
 
 	return (
@@ -492,19 +484,28 @@ const CoapplicantDetailsSection = props => {
 					let personalDetailsJson = map?.fields['personal-details'].data;
 					let salaryDetailsJson = map?.fields['salary-details'].data;
 					let addressDetailsJson = map?.fields['address-details'].data;
+					let {
+						address1,
+						address2,
+						address3,
+						address4,
+						city,
+						state: addState,
+						pinCode,
+					} = {};
+					// state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
+					// 	?.applicantData?.address[0] || {};
 
 					personalDetailsJson = personalDetailsJson.map(d => {
 						return {
 							..._.cloneDeep(d),
 							name: `${d.name}${index + 1}`,
-							// TODO: remove below line,
 						};
 					});
 					salaryDetailsJson = salaryDetailsJson.map(d => {
 						return {
 							..._.cloneDeep(d),
 							name: `${d.name}${index + 1}`,
-							// TODO: remove below line
 						};
 					});
 					addressDetailsJson = addressDetailsJson.map(d => {
@@ -524,13 +525,13 @@ const CoapplicantDetailsSection = props => {
 							};
 						}
 					});
-					console.log('coapplicantsection-map-sections-', {
-						personalDetailsJson,
-						salaryDetailsJson,
-						addressDetailsJson,
-						prePopulateCoApplicants,
-					});
-					if (presentAddressCheck) {
+					// console.log('coapplicantsection-map-sections-', {
+					// 	personalDetailsJson,
+					// 	salaryDetailsJson,
+					// 	addressDetailsJson,
+					// 	prePopulateCoApplicants,
+					// });
+					if (!!presentAddressCheck[index]) {
 						address1 = applicantPresentAddress?.address1;
 						address2 = applicantPresentAddress?.address2;
 						address3 = applicantPresentAddress?.address3;
@@ -620,22 +621,28 @@ const CoapplicantDetailsSection = props => {
 										{isViewLoan ? '' : 'Help us with '}
 										<span>Address Details</span>
 									</H>
-									<AddressWrapper>
+									<PresentAddressCheckBoxWrapper>
 										<Caption>Present Address</Caption>
 										<NewCheckbox
-											id='sameAsApplicant'
+											id={`sameAsApplicant${index}`}
 											type='checkbox'
-											name='sameAsApplicant'
-											checked={presentAddressCheck}
+											name={`sameAsApplicant${index}`}
+											checked={!!presentAddressCheck[index]}
 											disabled={isViewLoan}
 											onChange={() => {
-												setPresentAddressCheck(!presentAddressCheck);
+												const newPresentAddressCheck = _.cloneDeep(
+													presentAddressCheck
+												);
+												newPresentAddressCheck[index] = !newPresentAddressCheck[
+													index
+												];
+												setPresentAddressCheck(newPresentAddressCheck);
 											}}
 										/>
-										<label htmlFor='sameAsApplicant'>
+										<label htmlFor={`sameAsApplicant${index}`}>
 											Same as applicant's Present Address
 										</label>
-									</AddressWrapper>
+									</PresentAddressCheckBoxWrapper>
 									<AddressDetails
 										hideHeader
 										userType={userType}
@@ -645,7 +652,7 @@ const CoapplicantDetailsSection = props => {
 										setMatch={setMatch}
 										isBusiness={true}
 										jsonData={addressDetailsJson}
-										presentAddressCheck={presentAddressCheck}
+										presentAddressCheck={!!presentAddressCheck[index]}
 										preData={{
 											[`address1${index + 1}`]: address1 || '',
 											[`address2${index + 1}`]: address2 || '',
@@ -672,7 +679,7 @@ const CoapplicantDetailsSection = props => {
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					loading={loading}
+					isLoader={loading}
 					disabled={loading}
 					onClick={handleSubmit(onProceed, errorOnSubmit)}
 				/>
