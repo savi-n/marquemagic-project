@@ -2,13 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
-import SearchSelect from '../components/SearchSelect';
-import BankList from '../components/inputs/BankList';
-import Pincode from '../components/inputs/PinCode';
-import DateField from '../components/inputs/DateField';
-import InputField from '../components/inputs/InputField';
-import SelectField from '../components/inputs/SelectField';
-import DisabledInput from '../components/inputs/DisabledInput';
+import SearchSelect from 'components/SearchSelect';
+import BankList from 'components/inputs/BankList';
+import Pincode from 'components/inputs/PinCode';
+import DateField from 'components/inputs/DateField';
+import InputField from 'components/inputs/InputField';
+import SelectField from 'components/inputs/SelectField';
+import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
 
 function required(value) {

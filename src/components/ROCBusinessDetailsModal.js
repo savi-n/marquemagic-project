@@ -8,7 +8,7 @@ import styled from 'styled-components';
 
 import Modal from './Modal';
 import Button from './Button';
-import { BussinesContext } from '../reducer/bussinessReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
 
 const Div = styled.div`
 	padding: 20px;

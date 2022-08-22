@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useContext } from 'react';
 
-import useFetch from '../../hooks/useFetch';
+import useFetch from 'hooks/useFetch';
 import SearchSelect from '../SearchSelect';
-import { BANK_LIST_FETCH } from '../../_config/app.config';
-import { UserContext } from '../../reducer/userReducer';
-import { BussinesContext } from '../../reducer/bussinessReducer';
+import { BANK_LIST_FETCH } from '_config/app.config';
+import { UserContext } from 'reducer/userReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
 
 // const Input = styled.input`
 // 	height: 50px;

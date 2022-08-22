@@ -4,14 +4,14 @@ import { Fragment, useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
 
-import { UserContext } from '../../../reducer/userReducer';
-import useFetch from '../../../hooks/useFetch';
-import Button from '../../../components/Button';
+import { UserContext } from 'reducer/userReducer';
+import useFetch from 'hooks/useFetch';
+import Button from 'components/Button';
 import {
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
 	SEARCH_LOAN_ASSET,
-} from '../../../_config/app.config';
+} from '_config/app.config';
 
 const H = styled.h1`
 	min-height: 1.5em;

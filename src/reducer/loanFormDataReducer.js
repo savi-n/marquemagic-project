@@ -115,6 +115,7 @@ function reducer(state, action) {
 				doc.id === action.fileId
 					? {
 							..._.cloneDeep(doc),
+							..._.cloneDeep(action?.fileType || {}),
 							typeId: action?.fileType?.value,
 							typeName: action?.fileType?.name,
 							mainType: action?.fileType?.main,

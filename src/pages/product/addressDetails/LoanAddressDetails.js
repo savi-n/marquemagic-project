@@ -1,19 +1,17 @@
 /* Loan Address details section */
-
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
-import useFetch from '../../../hooks/useFetch';
-import { BUSSINESS_PROFILE_UPDATE } from '../../../_config/app.config';
-import { UserContext } from '../../../reducer/userReducer';
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { useEffect } from 'react';
+import useFetch from 'hooks/useFetch';
+import { BUSSINESS_PROFILE_UPDATE, HOSTNAME } from '_config/app.config';
+import { UserContext } from 'reducer/userReducer';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import AddressDetails from 'shared/components/AddressDetails/AddressDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const Div = styled.div`
 	flex: 1;
@@ -97,15 +95,10 @@ export default function AddressDetailsPage({
 	companyData,
 	data,
 }) {
-	// const { newRequest } = useFetch();
-	const url = window.location.hostname;
-
-	//url = window.location.hostname;
-	//userToken = sessionStorage.getItem(url);
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+	let formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	let applicantData = formReducer?.user?.applicantData;
 
-	let userTokensss = sessionStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(HOSTNAME);
 
 	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness = productDetails.loan_request_type === 1 ? true : false;
@@ -127,7 +120,7 @@ export default function AddressDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 
-	//const [saved, setSaved] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [match, setMatch] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
@@ -213,24 +206,39 @@ export default function AddressDetailsPage({
 				'baid',
 				JSON.stringify(businessProfileres.data[0].business_address[0].id)
 			);
+			return true;
 		} catch (error) {
 			addToast({
 				message: error.message || 'Business Profile is failed',
 				type: 'error',
 			});
+			return false;
 		}
 	};
 
-	const onProceed = formData => {
+	const onProceed = async formData => {
+		setLoading(true);
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
 		!match &&
 			formatedData.push(formatData('present', formData, map.fields[id].data));
 		sessionStorage.setItem('address_details', JSON.stringify(formatedData));
 		setUsertypeAddressData(formatedData);
 		!isViewLoan && onSave(formData);
-		!isViewLoan && businessProfileUpdate(formData);
+		let isBusinessProfileUpdated = true;
+		if (!isViewLoan) {
+			isBusinessProfileUpdated = await businessProfileUpdate(formData);
+		}
+		if (!isBusinessProfileUpdated) {
+			setLoading(false);
+			addToast({
+				message: 'Server down, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
 		setCompleted(id);
 		onFlowChange(map.main);
+		setLoading(false);
 	};
 
 	//   const subFlowActivate = () => {
@@ -370,6 +378,8 @@ export default function AddressDetailsPage({
 			<ButtonWrap>
 				<Button
 					fill
+					loading={loading}
+					disabled={loading}
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					onClick={handleSubmit(onProceed)}
 				/>

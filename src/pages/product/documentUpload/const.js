@@ -1,7 +1,14 @@
+import { HOSTNAME } from '_config/app.config';
+
+export const CATEGORY_KYC = 'kyc';
+export const CATEGORY_FINANCIAL = 'financial';
+export const CATEGORY_OTHER = 'other';
+
 export const fileStructure = (documents, type) => {
 	return documents
-		.filter(file => file.mainType === type)
+		.filter(file => file.category === type)
 		.map(file => ({
+			...file,
 			// value, filename, fd, password
 			fd: file.document_key, //fd from loan document repsone
 			size: file.size, //size from loan document repsone
@@ -48,7 +55,7 @@ export const caseCreationDataFormat = (
 ) => {
 	try {
 		// console.log('-----------temp1-------------');
-		const userToken = sessionStorage.getItem(window.location.hostname);
+		const userToken = sessionStorage.getItem(HOSTNAME);
 		const formReducer = JSON.parse(userToken)?.formReducer;
 		const loan = formReducer?.user?.loanData;
 		const form = formReducer?.user?.applicantData;
@@ -164,6 +171,13 @@ export const caseCreationDataFormat = (
 				}
 				if (editLoan && editLoan?.business_id && editLoan?.business_id?.id) {
 					newBusinessDetails.businessid = editLoan?.business_id?.id;
+					newBusinessDetails.business_id = editLoan?.business_id?.id;
+				}
+				if (sessionStorage.getItem('business_id')) {
+					newBusinessDetails.business_id =
+						sessionStorage.getItem('business_id') || '';
+					newBusinessDetails.businessid =
+						sessionStorage.getItem('business_id') || '';
 				}
 				if (sessionStorage.getItem('aadhaar_otp_res')) {
 					try {
@@ -337,9 +351,9 @@ export const caseCreationDataFormat = (
 				// origin: "New_UI",
 			},
 			documents: {
-				KYC: fileStructure(uploaddedDoc || [], 'KYC'),
-				others: fileStructure(uploaddedDoc || [], 'Others'),
-				financials: fileStructure(uploaddedDoc || [], 'Financial'),
+				KYC: fileStructure(uploaddedDoc || [], CATEGORY_KYC),
+				financials: fileStructure(uploaddedDoc || [], CATEGORY_FINANCIAL),
+				others: fileStructure(uploaddedDoc || [], CATEGORY_OTHER),
 			},
 			branchId: companyData?.branchId,
 		};
@@ -415,7 +429,7 @@ export const caseCreationDataFormat = (
 };
 
 export const subsidiaryDataFormat = (caseId, data, editLoan) => {
-	const userToken = sessionStorage.getItem(window.location.hostname);
+	const userToken = sessionStorage.getItem(HOSTNAME);
 	const formReducer = JSON.parse(userToken)?.formReducer;
 	if (
 		!(
@@ -454,7 +468,7 @@ export const subsidiaryDataFormat = (caseId, data, editLoan) => {
 };
 
 export const bankDetailsDataFormat = (caseId, data, editLoan) => {
-	const userToken = sessionStorage.getItem(window.location.hostname);
+	const userToken = sessionStorage.getItem(HOSTNAME);
 	const formReducer = JSON.parse(userToken)?.formReducer;
 	let bank =
 		data['bank-details']?.BankName ||
@@ -500,7 +514,7 @@ export const bankDetailsDataFormat = (caseId, data, editLoan) => {
 };
 
 export const shareHolderDataFormat = (businessId, data, editLoan) => {
-	const userToken = sessionStorage.getItem(window.location.hostname);
+	const userToken = sessionStorage.getItem(HOSTNAME);
 	const formReducer = JSON.parse(userToken)?.formReducer;
 	if (
 		!(
@@ -543,7 +557,7 @@ export const shareHolderDataFormat = (businessId, data, editLoan) => {
 };
 
 export const refereneceDataFormat = (loanId, data, editLoan) => {
-	const userToken = sessionStorage.getItem(window.location.hostname);
+	const userToken = sessionStorage.getItem(HOSTNAME);
 	const formReducer = JSON.parse(userToken)?.formReducer;
 	const loanReferenceData = [];
 	const refData1 = {

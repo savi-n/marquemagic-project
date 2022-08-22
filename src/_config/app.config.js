@@ -84,13 +84,11 @@ const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
 const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
 const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 
-const APP_CLIENT =
-	window.location.hostname === 'localhost'
-		? 'clix.loan2pal.com'
-		: window.location.hostname;
+const HOSTNAME = window.location.hostname;
+const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
 const REDIRECT_CREATE =
-	window.location.hostname === 'localhost' ? '/' : '/onboarding/applyloan';
+	HOSTNAME === 'localhost' ? '/' : '/onboarding/applyloan';
 
 const KYC_URL = `http://40.80.80.135:1337/getKycData`;
 
@@ -171,4 +169,5 @@ export {
 	DELETE_DOCUMENT,
 	VIEW_DOCUMENT,
 	CO_APPLICANTS_DOCTYPES_FETCH,
+	HOSTNAME,
 };

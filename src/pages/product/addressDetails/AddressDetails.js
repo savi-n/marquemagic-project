@@ -4,15 +4,15 @@ import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import AddressDetails from 'shared/components/AddressDetails/AddressDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
 
-import useCaseCreation from '../../../components/CaseCreation';
-import Loading from '../../../components/Loading';
-import Modal from '../../../components/Modal';
+import useCaseCreation from 'components/CaseCreation';
+import Loading from 'components/Loading';
+import Modal from 'components/Modal';
 
 const Div = styled.div`
 	flex: 1;

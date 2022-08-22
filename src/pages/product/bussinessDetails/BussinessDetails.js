@@ -4,12 +4,12 @@ import { useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from '../../../hooks/useForm';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import Button from '../../../components/Button';
-import { FormContext } from '../../../reducer/formReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
+import useForm from 'hooks/useForm';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import Button from 'components/Button';
+import { FormContext } from 'reducer/formReducer';
+import { UserContext } from 'reducer/userReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const Div = styled.div`
 	flex: 1;

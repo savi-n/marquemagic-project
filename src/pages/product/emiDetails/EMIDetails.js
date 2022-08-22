@@ -4,17 +4,17 @@ import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import EMIDetails from '../../../shared/components/EMIDetails/EMIDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import EMIDetails from 'shared/components/EMIDetails/EMIDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
 
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { BANK_LIST_FETCH } from '../../../_config/app.config';
-import useFetch from '../../../hooks/useFetch';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { BANK_LIST_FETCH } from '_config/app.config';
+import useFetch from 'hooks/useFetch';
 
 const Div = styled.div`
 	flex: 1;
