@@ -1,7 +1,7 @@
 /* NC loader with animation */
 
 import styled from 'styled-components';
-import Lottie from 'react-lottie';
+import Lottie from 'lottie-react';
 
 import Circular from './Circular.json';
 

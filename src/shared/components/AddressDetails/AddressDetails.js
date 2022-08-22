@@ -150,6 +150,7 @@ export default function AddressDetails({
 												  }
 												: {}),
 											...customFields,
+											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[`permanent_${field.name}`]) &&
@@ -210,6 +211,7 @@ export default function AddressDetails({
 													  }
 													: {}),
 												...customFields,
+												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||
 												formState?.touched?.[`present_${field.name}`]) &&

@@ -88,12 +88,12 @@ export default function Button({
 		<StyledButton
 			type={type || 'submit'}
 			onClick={onClick}
-			fillColor={fill}
 			disabled={disabled}
 			altStyle={style}
 			width={width}
 			roundCorner={roundCorner}
 			style={customStyle}
+			fillColor={fill}
 		>
 			{isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
 			{loading && <LoaderCircle />}

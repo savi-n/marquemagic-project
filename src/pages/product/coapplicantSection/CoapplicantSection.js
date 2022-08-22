@@ -48,28 +48,28 @@ const ButtonWrap = styled.div`
 	gap: 20px;
 	margin-top: 30px;
 `;
-const AddCoapplicant = styled.button`
-	color: white;
-	border: 2px solid #2a2add;
-	border-radius: 5px;
-	padding: 10px 20px;
-	background: #1414ad;
-	-webkit-align-items: flex-start;
-	-webkit-box-align: flex-start;
-	-ms-flex-align: flex-start;
-	align-items: flex-start;
-	width: 200px;
-	font-size: 0.9em;
-	font-weight: 500;
-	text-align: center;
-	-webkit-transition: 0.2s;
-	transition: 0.2s;
-	-webkit-box-pack: center;
-	-webkit-justify-content: center;
-	-ms-flex-pack: center;
-	justify-content: center;
-	border-radius: 40px;
-`;
+// const AddCoapplicant = styled.button`
+// 	color: white;
+// 	border: 2px solid #2a2add;
+// 	border-radius: 5px;
+// 	padding: 10px 20px;
+// 	background: #1414ad;
+// 	-webkit-align-items: flex-start;
+// 	-webkit-box-align: flex-start;
+// 	-ms-flex-align: flex-start;
+// 	align-items: flex-start;
+// 	width: 200px;
+// 	font-size: 0.9em;
+// 	font-weight: 500;
+// 	text-align: center;
+// 	-webkit-transition: 0.2s;
+// 	transition: 0.2s;
+// 	-webkit-box-pack: center;
+// 	-webkit-justify-content: center;
+// 	-ms-flex-pack: center;
+// 	justify-content: center;
+// 	border-radius: 40px;
+// `;
 const Caption = styled.h3`
 	width: 20%;
 	font-weight: 500;
@@ -125,9 +125,10 @@ const Div = styled.div`
 	}
 `;
 const StyledButton = styled.button`
-	color: ${({ theme, fill }) => (fill ? '#0068FF' : 'white')};
+	color: ${({ theme, fillColor }) => (fillColor ? '#0068FF' : 'white')};
 	border: 2px solid
-		${({ theme, fill }) => fill && (typeof fill === 'string' ? fill : 'white')};
+		${({ theme, fillColor }) =>
+			fillColor && (typeof fillColor === 'string' ? fillColor : 'white')};
 	border-radius: 40px;
 	display: flex;
 	align-items: center;
@@ -239,7 +240,7 @@ const CoapplicantDetailsSection = props => {
 		formReducer?.user?.['co-applicant-details'] || {}
 	);
 
-	const [totalCoapplicant, setTotalCoapplicant] = useState(1);
+	const [totalCoapplicantCount, setTotalCoapplicantCount] = useState(1);
 	const [match, setMatch] = useState(false);
 	const { caseCreationUserType } = useCaseCreation(
 		userType,
@@ -253,19 +254,19 @@ const CoapplicantDetailsSection = props => {
 	// --LOCAL STATES
 
 	const openCloseCollaps = index => {
-		if (totalCoapplicant === 1) return;
+		if (totalCoapplicantCount === 1) return;
 		setOpenDrawer(openDrawer === index ? -1 : index);
 	};
 
 	const addCoapplicant = () => {
-		setTotalCoapplicant(totalCoapplicant + 1);
-		setOpenDrawer(totalCoapplicant);
+		setTotalCoapplicantCount(totalCoapplicantCount + 1);
+		setOpenDrawer(totalCoapplicantCount);
 		clearError();
 	};
 
 	const deleteSection = index => {
 		// console.log('deleteSection-', {
-		// 	totalCoapplicant,
+		// 	totalCoapplicantCount,
 		// 	index,
 		// 	formState,
 		// });
@@ -294,7 +295,7 @@ const CoapplicantDetailsSection = props => {
 		const tempObject = storeData.replaceAll('permanent_', '');
 		const changedData = JSON.parse(tempObject);
 		// console.log('deleteSection-after', {
-		// 	totalCoapplicant,
+		// 	totalCoapplicantCount,
 		// 	index,
 		// 	newFormState,
 		// 	formState,
@@ -305,7 +306,7 @@ const CoapplicantDetailsSection = props => {
 		// });
 		setFlowData(changedData, id);
 		setPrePopulateCoApplicants(changedData);
-		setTotalCoapplicant(totalCoapplicant - 1);
+		setTotalCoapplicantCount(totalCoapplicantCount - 1);
 	};
 
 	const errorOnSubmit = () => {
@@ -331,7 +332,7 @@ const CoapplicantDetailsSection = props => {
 			}
 			setPrePopulateCoApplicants(newPrePopulateCoApplicants);
 			const lastKey = Object.keys(newPrePopulateCoApplicants).pop();
-			setTotalCoapplicant(+lastKey.slice(-1));
+			setTotalCoapplicantCount(+lastKey?.slice(-1) || 1);
 			setOpenDrawer(0);
 		} catch (error) {
 			console.error('error-coapplicantsection-prepopulate-', error);
@@ -356,8 +357,8 @@ const CoapplicantDetailsSection = props => {
 	}, [proceed]);
 
 	useEffect(() => {
-		if (totalCoapplicant === 1) setOpenDrawer(0);
-	}, [totalCoapplicant]);
+		if (totalCoapplicantCount === 1) setOpenDrawer(0);
+	}, [totalCoapplicantCount]);
 
 	const onProceed = async data => {
 		try {
@@ -380,7 +381,7 @@ const CoapplicantDetailsSection = props => {
 				co_applicant_director_partner_data: [],
 				origin: 'nconboarding',
 			};
-			Array(totalCoapplicant)
+			Array(totalCoapplicantCount)
 				.fill(0)
 				.map((coApplicant, index) => {
 					const indexValue = index + 1;
@@ -477,12 +478,12 @@ const CoapplicantDetailsSection = props => {
 	// 	editCoApplicantData,
 	// 	prePopulateCoApplicants,
 	// 	openDrawer,
-	// 	totalCoapplicant,
+	// 	totalCoapplicantCount,
 	// });
 
 	return (
 		<Div>
-			{Array(totalCoapplicant)
+			{Array(totalCoapplicantCount)
 				.fill(0)
 				.map((item, index) => {
 					// /llogicfor index read data froms essionstarte
@@ -523,12 +524,12 @@ const CoapplicantDetailsSection = props => {
 							};
 						}
 					});
-					// console.log('coapplicantsection-map-sections-', {
-					// 	personalDetailsJson,
-					// 	salaryDetailsJson,
-					// 	addressDetailsJson,
-					// 	prePopulateCoApplicants,
-					// });
+					console.log('coapplicantsection-map-sections-', {
+						personalDetailsJson,
+						salaryDetailsJson,
+						addressDetailsJson,
+						prePopulateCoApplicants,
+					});
 					if (presentAddressCheck) {
 						address1 = applicantPresentAddress?.address1;
 						address2 = applicantPresentAddress?.address2;
@@ -541,7 +542,7 @@ const CoapplicantDetailsSection = props => {
 					return (
 						<div key={`coapp-${index}`}>
 							<Section
-								hideBorderBottom={totalCoapplicant === 1}
+								hideBorderBottom={totalCoapplicantCount === 1}
 								onClick={() => openCloseCollaps(index)}
 							>
 								<div
@@ -550,17 +551,17 @@ const CoapplicantDetailsSection = props => {
 										display: 'flex',
 									}}
 								>
-									{totalCoapplicant > 1 ? (
-										<StyledButton width={'auto'} fill>
+									{totalCoapplicantCount > 1 ? (
+										<StyledButton width={'auto'} fillColor>
 											Co-Applicant {index + 1}
 										</StyledButton>
 									) : (
-										<StyledButton width={'auto'} fill>
+										<StyledButton width={'auto'} fillColor>
 											Co-Applicant
 										</StyledButton>
 									)}
 								</div>
-								{totalCoapplicant > 1 ? (
+								{totalCoapplicantCount > 1 ? (
 									<CollapseIcon
 										src={downArray}
 										style={{
@@ -571,9 +572,9 @@ const CoapplicantDetailsSection = props => {
 										alt='arrow'
 									/>
 								) : null}
-								{totalCoapplicant > 1 && !editLoanData ? (
+								{totalCoapplicantCount > 1 && !editLoanData ? (
 									<div>
-										{totalCoapplicant === index + 1 ? (
+										{totalCoapplicantCount === index + 1 ? (
 											<DeleteIcon onClick={() => deleteSection(index)}>
 												<FontAwesomeIcon icon={faTrash} />
 											</DeleteIcon>
@@ -664,9 +665,9 @@ const CoapplicantDetailsSection = props => {
 
 			<ButtonWrap>
 				{!isViewLoan && (
-					<AddCoapplicant onClick={handleSubmit(addCoapplicant, errorOnSubmit)}>
+					<Button fill onClick={handleSubmit(addCoapplicant, errorOnSubmit)}>
 						Add Co-applicant
-					</AddCoapplicant>
+					</Button>
 				)}
 				<Button
 					fill

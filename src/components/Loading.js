@@ -1,7 +1,7 @@
 /* NC loader with animation */
 
 import styled from 'styled-components';
-import Lottie from 'react-lottie';
+import Lottie from 'lottie-react';
 
 import NCLogo from '../shared/constants/NcLogo.json';
 
@@ -14,9 +14,10 @@ export default function Loading() {
 	return (
 		<Wrapper>
 			<Lottie
-				options={{
-					animationData: NCLogo,
-				}}
+				animationData={NCLogo}
+				// options={{
+				// 	animationData: NCLogo,
+				// }}
 				width={'100%'}
 			/>
 		</Wrapper>

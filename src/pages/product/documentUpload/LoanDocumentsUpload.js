@@ -1,6 +1,6 @@
 // active page
 /* This file contains document upload section i.e visibility of documents, tags etc*/
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, Fragment } from 'react';
 import { useState } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
@@ -369,14 +369,14 @@ const DocumentUpload = props => {
 			}
 			// -- prefill document tagged and un-tagged
 
-			console.log('initializeComponent-allstates-', {
-				newAllDocumentTypeList,
-				newAppDocOptions,
-				newCoDocOptions,
-				startingDocs,
-				flowDocTypeMappingList,
-				newAllTagUnTagDocList,
-			});
+			// console.log('initializeComponent-allstates-', {
+			// 	newAllDocumentTypeList,
+			// 	newAppDocOptions,
+			// 	newCoDocOptions,
+			// 	startingDocs,
+			// 	flowDocTypeMappingList,
+			// 	newAllTagUnTagDocList,
+			// });
 
 			setAllDocumentTypeList(
 				newAllDocumentTypeList.sort((a, b) => a.id - b.id)
@@ -1244,7 +1244,7 @@ const DocumentUpload = props => {
 					if (coApplicant?.dlastname)
 						coApplicantFullName += ` ${coApplicant?.dlastname}`;
 					return (
-						<>
+						<Fragment key={`co-${index}-${coApplicant?.id}`}>
 							<div style={{ height: 30 }} />
 							<UI.H>
 								<span>
@@ -1460,7 +1460,7 @@ const DocumentUpload = props => {
 									</UI.Details>
 								</>
 							) : null}
-						</>
+						</Fragment>
 					);
 				})}
 				{/* -- CO-APPLICANT SECTION */}

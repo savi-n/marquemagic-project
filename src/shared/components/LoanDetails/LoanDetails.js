@@ -197,6 +197,7 @@ export default function LoanDetails({
 								  }
 								: {}),
 							...customFields,
+							visibility: 'visible',
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
@@ -252,6 +253,7 @@ export default function LoanDetails({
 							required: !oneOfHasValue,
 						},
 						disabled: oneOfHasValue && fields[i].name !== oneOfHasValue?.name,
+						visibility: 'visible',
 					})
 				);
 			}
