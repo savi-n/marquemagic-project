@@ -732,7 +732,7 @@ const PanVerification = props => {
 				upload_doc_name: panExtractionRes?.data.s3.filename,
 				isDocRemoveAllowed: false,
 				category: CATEGORY_KYC,
-				doc_type_id: 'app_',
+				doc_type_id: `app_${CATEGORY_KYC}`,
 			};
 			setPanFileId(file1.id);
 			setLoanDocuments([file1]);
@@ -934,7 +934,7 @@ const PanVerification = props => {
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					isDocRemoveAllowed: false,
 					category: CATEGORY_KYC,
-					doc_type_id: 'app_',
+					doc_type_id: `app_${CATEGORY_KYC}`,
 				};
 
 				setLoanDocuments([frontFile]);
@@ -992,7 +992,7 @@ const PanVerification = props => {
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					isDocRemoveAllowed: false,
 					category: CATEGORY_KYC,
-					doc_type_id: 'app_',
+					doc_type_id: `app_${CATEGORY_KYC}`,
 				};
 
 				setLoanDocuments([backFile]);
@@ -1068,7 +1068,7 @@ const PanVerification = props => {
 				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 				isDocRemoveAllowed: false,
 				category: CATEGORY_KYC,
-				doc_type_id: 'app_',
+				doc_type_id: `app_${CATEGORY_KYC}`,
 			};
 
 			setLoanDocuments([frontOnlyFile]);

@@ -113,11 +113,11 @@ export default function FileUpload({
 		if (docType) {
 			const newMappedFile = _.cloneDeep(mappedFiles);
 			const newObj = [];
-			newMappedFile[docType.value]?.map(uFile => {
+			newMappedFile[docType.doc_type_id]?.map(uFile => {
 				if (uFile.id !== file.id) newObj.push(uFile);
 				return null;
 			});
-			newMappedFile[docType.value] = newObj;
+			newMappedFile[docType.doc_type_id] = newObj;
 			setMappedFiles(newMappedFile);
 		}
 		onRemoveFile(file.id, file);
@@ -778,10 +778,16 @@ export default function FileUpload({
 			</UI.FileListWrap>
 			<UI.DocumentUploadListWrapper>
 				{docTypeOptions.map((docType, doctypeidx) => {
-					const mappedDocFiles = mappedFiles[docType.value] || [];
+					// const mappedDocFiles = mappedFiles[docType.value] || [];
+					const mappedDocFiles = startingTaggedDocs.filter(
+						d => d?.doc_type_id === docType?.doc_type_id
+					);
 
 					// // const mappedFiles = [];
 					// console.log('upload-list-', {
+					// 	startingTaggedDocs,
+					// 	documents: uploadedDocuments,
+					// 	mappedFiles,
 					// 	docTypeOptions,
 					// 	docTypeFileMap,
 					// 	docType,
@@ -843,11 +849,15 @@ export default function FileUpload({
 							</UI.DocumentUploadListRow1>
 							<UI.DocumentUploadListRow2>
 								{mappedDocFiles.map((doc, index) => {
-									const isViewMoreClicked = viewMore.includes(docType.value);
+									const isViewMoreClicked = viewMore.includes(
+										docType.doc_type_id
+									);
 									const isViewMore = !isViewMoreClicked && index === 2;
 									if (!isViewMoreClicked && index > 2) return null;
-									const uniqPassId = `${doc.id}${index}`;
+									const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
 									let isDocRemoveAllowed = true;
+
+									// console.log('viewMore-', { isViewMoreClicked, isViewMore });
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 									}
@@ -866,7 +876,7 @@ export default function FileUpload({
 												e.preventDefault();
 												e.stopPropagation();
 												if (isViewMore)
-													setViewMore([...viewMore, docType.value]);
+													setViewMore([...viewMore, docType.doc_type_id]);
 											}}
 										>
 											<UI.FileName
@@ -889,39 +899,41 @@ export default function FileUpload({
 													? doc?.name?.slice(0, 20) + '...'
 													: doc?.name}
 											</UI.FileName>
-											{CONST.FINANCIAL_DOC_TYPES?.includes(sectionType) && (
-												<UI.PasswordWrapper>
-													{isViewLoan && !doc?.document_password ? null : (
-														<UI.RoundButton
-															showTooltip={passwordForFileId !== uniqPassId}
-															isViewLoan={isViewLoan}
-															password={doc?.document_password}
-															onClick={() => onPasswordClick(uniqPassId)}
-														>
-															<UI.ImgClose
-																style={{ height: 20 }}
-																src={
-																	passwordList.includes(uniqPassId) ||
-																	isViewLoan
-																		? lockGreen
-																		: lockGrey
-																}
-																alt='lock'
-															/>
-															{/* <FontAwesomeIcon icon={faUserLock} size='1x' /> */}
-														</UI.RoundButton>
-													)}
-													{passwordForFileId === uniqPassId && (
-														<FilePasswordInput
-															fileId={doc.id}
-															uniqPassId={uniqPassId}
-															docType={docType}
-															onClickCallback={onDocTypePassword}
-															onClose={onClosePasswordEnterArea}
-														/>
-													)}
-												</UI.PasswordWrapper>
-											)}
+											{isViewMore
+												? null
+												: CONST.FINANCIAL_DOC_TYPES?.includes(sectionType) && (
+														<UI.PasswordWrapper>
+															{isViewLoan && !doc?.document_password ? null : (
+																<UI.RoundButton
+																	showTooltip={passwordForFileId !== uniqPassId}
+																	isViewLoan={isViewLoan}
+																	password={doc?.document_password}
+																	onClick={() => onPasswordClick(uniqPassId)}
+																>
+																	<UI.ImgClose
+																		style={{ height: 20 }}
+																		src={
+																			passwordList.includes(uniqPassId) ||
+																			isViewLoan
+																				? lockGreen
+																				: lockGrey
+																		}
+																		alt='lock'
+																	/>
+																	{/* <FontAwesomeIcon icon={faUserLock} size='1x' /> */}
+																</UI.RoundButton>
+															)}
+															{passwordForFileId === uniqPassId && (
+																<FilePasswordInput
+																	fileId={doc.id}
+																	uniqPassId={uniqPassId}
+																	docType={docType}
+																	onClickCallback={onDocTypePassword}
+																	onClose={onClosePasswordEnterArea}
+																/>
+															)}
+														</UI.PasswordWrapper>
+												  )}
 											{openingDocument === doc.id ? (
 												<div style={{ marginLeft: 'auto', height: '30px' }}>
 													<CircularLoading />

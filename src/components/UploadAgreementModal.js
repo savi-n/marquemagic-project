@@ -34,7 +34,7 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
 				req_type: 'property',
 				isDocRemoveAllowed: true,
 				category: CATEGORY_OTHER,
-				doc_type_id: 'app_',
+				doc_type_id: `app_${CATEGORY_OTHER}`,
 			})),
 		]);
 	};

@@ -65,9 +65,10 @@ const DocumentUpload = props => {
 	};
 
 	const {
-		state,
+		state: documentState,
 		actions: { setLoanDocuments, removeLoanDocument, setLoanDocumentType },
 	} = useContext(LoanFormContext);
+	const uploadedDocuments = documentState?.documents || [];
 
 	const {
 		state: { companyDetail },
@@ -129,7 +130,7 @@ const DocumentUpload = props => {
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 	const business_income_type_id =
 		applicantData?.incomeType ||
-		state['business-details']?.BusinessType ||
+		documentState['business-details']?.BusinessType ||
 		companyData?.BusinessType ||
 		editLoanData?.business_id?.businesstype ||
 		'';
@@ -318,13 +319,13 @@ const DocumentUpload = props => {
 			// Business_details - businessid
 			// loan_details - loanId
 			// director_details - id
-			let uploaddedDoc = state?.documents.filter(doc => {
+			let uploaddedDoc = uploadedDocuments.filter(doc => {
 				if (!doc.requestId) return doc;
 				return null;
 			});
 			const reqBody = CONST.caseCreationDataFormat(
 				{
-					...state,
+					...documentState,
 					productId,
 				},
 				uploaddedDoc,
@@ -394,7 +395,7 @@ const DocumentUpload = props => {
 				//**** uploadCacheDocuments
 				//console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
 				const uploadCacheDocsArr = [];
-				state?.documents.map(doc => {
+				uploadedDocuments.map(doc => {
 					// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 					if (!doc.typeId) return null;
 					if (doc.requestId) {
@@ -444,7 +445,11 @@ const DocumentUpload = props => {
 
 	// step: 2 if subsidary details submit request
 	const addSubsidiaryReq = async caseId => {
-		const reqBody = CONST.subsidiaryDataFormat(caseId, state, editLoanData);
+		const reqBody = CONST.subsidiaryDataFormat(
+			caseId,
+			documentState,
+			editLoanData
+		);
 		//console.log('subsidary 23 ', state);
 		if (!reqBody) {
 			return true;
@@ -478,7 +483,11 @@ const DocumentUpload = props => {
 
 	// step: 3 if subsidary details submit request
 	const addBankDetailsReq = async caseId => {
-		const formData = CONST.bankDetailsDataFormat(caseId, state, editLoanData);
+		const formData = CONST.bankDetailsDataFormat(
+			caseId,
+			documentState,
+			editLoanData
+		);
 		// console.log('addBankDetailsReq-', { formData, caseId, state });
 		// throw Error('bank details');
 
@@ -522,7 +531,7 @@ const DocumentUpload = props => {
 	const addShareHolderDetailsReq = async businessId => {
 		const formData = CONST.shareHolderDataFormat(
 			businessId,
-			state,
+			documentState,
 			editLoanData
 		);
 		if (!formData) {
@@ -556,7 +565,11 @@ const DocumentUpload = props => {
 
 	// step: 5 if subsidary details submit request
 	const addReferenceDetailsReq = async loanId => {
-		const formData = CONST.refereneceDataFormat(loanId, state, editLoanData);
+		const formData = CONST.refereneceDataFormat(
+			loanId,
+			documentState,
+			editLoanData
+		);
 		if (formData.loanReferenceData.length === 0) {
 			return true;
 		}
@@ -618,7 +631,7 @@ const DocumentUpload = props => {
 	const isFormValid = () => {
 		let isDocTypeUnTagged = false;
 		let manadatoryError = false;
-		state?.documents?.map(ele => {
+		uploadedDocuments?.map(ele => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (ele.req_type) return null;
 			if (!ele.typeId) {
@@ -637,7 +650,7 @@ const DocumentUpload = props => {
 			d => d.isMandatory && allMandatoryDocumentIds.push(d.value)
 		);
 		const uploadedDocumetnIds = [];
-		state?.documents?.map(d => uploadedDocumetnIds.push(d.typeId));
+		uploadedDocuments?.map(d => uploadedDocumetnIds.push(d.typeId));
 
 		if (productDetails.document_mandatory) {
 			allMandatoryDocumentIds.map(docId => {
@@ -714,7 +727,7 @@ const DocumentUpload = props => {
 		// -- Before Case Creation Testing Area Do not push this code
 
 		if (!userType) {
-			const loanReq = await caseCreationSteps(state);
+			const loanReq = await caseCreationSteps(documentState);
 
 			if (!loanReq && !loanReq?.loanId) {
 				setCaseCreationProgress(false);
@@ -772,7 +785,13 @@ const DocumentUpload = props => {
 		}
 
 		const newAllTagUnTagDocList = [];
-		state?.documents?.map((doc, docIndex) => {
+		uploadedDocuments?.map((doc, docIndex) => {
+			let doc_type_id = doc.doc_type_id;
+			if (!doc.typeId) {
+				doc_type_id = `app_${business_income_type_id}_${doc.category}_${
+					flowDocTypeMappingList?.[`${doc?.req_type}`]
+				}`;
+			}
 			const newDoc = {
 				..._.cloneDeep(doc),
 				name: doc.upload_doc_name,
@@ -780,6 +799,7 @@ const DocumentUpload = props => {
 				status: 'completed',
 				file: null,
 				typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
+				doc_type_id,
 			};
 			// if (newDoc.typeId) state.documents[docIndex].typeId = newDoc.typeId;
 			newAllTagUnTagDocList.push(newDoc);
@@ -788,12 +808,9 @@ const DocumentUpload = props => {
 		// -- prefill document tagged and un-tagged
 
 		// console.log('initializeComponent-allstates-', {
-		// 	newAllDocumentTypeList,
-		// 	newAppDocOptions,
-		// 	newCoDocOptions,
-		// 	startingDocs,
 		// 	flowDocTypeMappingList,
 		// 	newAllTagUnTagDocList,
+		// 	allDocumentTypeList,
 		// });
 
 		setAllTagUnTagDocList(newAllTagUnTagDocList);
@@ -840,11 +857,11 @@ const DocumentUpload = props => {
 	}, []);
 
 	useEffect(() => {
-		if (state?.documents?.length > 0) {
+		if (uploadedDocuments?.length > 0) {
 			initializeTaggUnTagDocuments();
 		}
 		// eslint-disable-next-line
-	}, [state?.documents]);
+	}, [uploadedDocuments]);
 
 	if (loading) {
 		return (
@@ -910,7 +927,7 @@ const DocumentUpload = props => {
 		d => !!d.isMandatory
 	)?.length;
 	const totalMandatoryUploadedDocumentCount =
-		state?.documents?.filter(d => !!d.isMandatory)?.length || 0;
+		uploadedDocuments?.filter(d => !!d.isMandatory)?.length || 0;
 
 	let applicantFullName = '';
 	if (applicantData?.firstName) applicantFullName += applicantData?.firstName;
@@ -957,9 +974,10 @@ const DocumentUpload = props => {
 						<UI.CoAppName>{applicantFullName}</UI.CoAppName>
 					)}
 				</UI.H>
+
 				{/* don't delete */}
 				{/* disable/enable below code when useEffect, useFetch giving errors */}
-				{/* {loading ? <></> : null} */}
+				{loading ? <></> : null}
 
 				{/* APPLICANT SECTION */}
 				{appKycDocList.length > 0 && (
