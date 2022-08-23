@@ -102,14 +102,14 @@ export const CollapseIcon = styled.img`
 export const StyledButton = styled.button`
 	/* height: 25px; */
 	margin: 5px;
-	color: ${({ theme, fill }) => (fill ? 'white' : '#0068FF')};
+	color: ${({ theme, fillColor }) => (fillColor ? 'white' : '#0068FF')};
 	border: 2px solid
-		${({ theme, fill }) =>
-			fill && (typeof fill === 'string' ? fill : '#0068FF')};
+		${({ theme, fillColor }) =>
+			fillColor && (typeof fillColor === 'string' ? fillColor : '#0068FF')};
 	border-radius: 40px;
 	padding: 0 20px;
-	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? fill : '#0068FF')};
+	background: ${({ theme, fillColor }) =>
+		fillColor && (typeof fillColor === 'string' ? fillColor : '#0068FF')};
 	display: flex;
 	align-items: center;
 	min-width: ${({ width }) => (width ? width : '200px')};

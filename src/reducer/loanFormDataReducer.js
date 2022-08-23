@@ -38,10 +38,11 @@ const useActions = dispatch => {
 		});
 	};
 
-	const removeLoanDocument = fileId => {
+	const removeLoanDocument = (fileId, fileType) => {
 		dispatch({
 			type: actionTypes.REMOVE_LOAN_DOCUMENT,
 			fileId,
+			fileType,
 		});
 	};
 
@@ -133,12 +134,13 @@ function reducer(state, action) {
 
 		case actionTypes.REMOVE_LOAN_DOCUMENT: {
 			const filteredDocs = (state.documents || []).filter(
-				doc => doc.id !== action.fileId
+				doc => doc.document_key !== action?.fileType?.document_key
 			);
 			updatedState = {
 				..._.cloneDeep(INITIAL_STATE),
 				documents: filteredDocs,
 			};
+			// console.log('updatedState', updatedState);
 			break;
 		}
 

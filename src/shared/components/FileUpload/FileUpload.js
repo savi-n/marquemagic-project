@@ -647,7 +647,11 @@ export default function FileUpload({
 								<UI.ImgClose
 									isPreTag={sectionType !== 'pan'}
 									src={imgClose}
-									onClick={() => onFileRemove(file)}
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										onFileRemove(file);
+									}}
 									alt='close'
 								/>
 							) : null}
@@ -928,7 +932,9 @@ export default function FileUpload({
 													<UI.ImgClose
 														style={{ height: '20px' }}
 														src={isViewMore ? imgArrowDownCircle : imgClose}
-														onClick={() => {
+														onClick={e => {
+															e.preventDefault();
+															e.stopPropagation();
 															// console.log('before-remove-', {
 															// 	passwordList,
 															// 	docTypeFileMap,
