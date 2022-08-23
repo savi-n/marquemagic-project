@@ -12,12 +12,12 @@ export const fileStructure = (documents, type) => {
 			// value, filename, fd, password
 			fd: file.document_key, //fd from loan document repsone
 			size: file.size, //size from loan document repsone
-			doc_type_id: file.doc_type_id,
+			doc_type_id: file.id,
 			// type: "",
 			filename: file.upload_doc_name, //fd from loan document repsone
 			// status: "",
 			// field: "",
-			value: file.doc_type_id || file.typeId, // doctype_id
+			value: file.id || file.typeId, // doctype_id
 			password: file?.password,
 			director_id: file?.director_id,
 		}));
