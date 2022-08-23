@@ -182,10 +182,15 @@ const CoapplicantDetailsSection = props => {
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
 	let editCoApplicantData = {};
-	if (editLoanData && editLoanCoApplicants.length > 0) {
+	if (isEditLoan && editLoanCoApplicants.length > 0) {
 		editLoanCoApplicants?.map((coApplicant, index) => {
 			for (const key in coApplicant) {
-				if (coApplicant?.[key]?.toLowerCase() === 'null') {
+				// console.log('key-', { key, coApplicant });
+				// console.log('key-', { value: coApplicant[key] });
+				if (
+					coApplicant[key] &&
+					(coApplicant[key] === 'null' || coApplicant[key] === 'NULL')
+				) {
 					coApplicant[key] = '';
 				}
 			}
@@ -206,8 +211,10 @@ const CoapplicantDetailsSection = props => {
 				[`maritalStatus${currentIndex}`]: coApplicant?.marital_status || '',
 				[`countryResidence${currentIndex}`]:
 					coApplicant?.country_residence || '',
-				// [`netMonthlyIncome${currentIndex}`]: coApplicant?.net_monthly_income || '',
-				// [`grossIncome${currentIndex}`]: coApplicant?.gross_income || '',
+				[`netMonthlyIncome${currentIndex}`]:
+					coApplicant?.incomeData?.net_monthly_income?.toString() || '',
+				[`grossIncome${currentIndex}`]:
+					coApplicant?.incomeData?.gross_income?.toString() || '',
 				[`address1${currentIndex}`]: coApplicant?.address1 || '',
 				[`address2${currentIndex}`]: coApplicant?.address2 || '',
 				[`address3${currentIndex}`]: coApplicant?.locality || '',
@@ -228,7 +235,7 @@ const CoapplicantDetailsSection = props => {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 	const [prePopulateCoApplicants, setPrePopulateCoApplicants] = useState(
-		formReducer?.user?.['co-applicant-details'] || {}
+		formReducer?.user?.['co-applicant-details'] || editCoApplicantData || {}
 	);
 
 	const [totalCoapplicantCount, setTotalCoapplicantCount] = useState(1);
