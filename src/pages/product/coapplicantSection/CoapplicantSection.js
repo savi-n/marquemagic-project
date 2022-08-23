@@ -39,7 +39,7 @@ const H = styled.h1`
 	margin-bottom: 20px;
 	font-weight: 500;
 	span {
-		color: ${({ theme }) => theme.main_theme_color};
+		color: black;
 	}
 `;
 const ButtonWrap = styled.div`
@@ -597,6 +597,7 @@ const CoapplicantDetailsSection = props => {
 							<Details open={openDrawer === index}>
 								<Wrapper open={openDrawer === index}>
 									<PersonalDetails
+										headingNameStyle={{ color: 'black' }}
 										id={'co-applicant'}
 										userType={userType}
 										register={register}
@@ -611,6 +612,7 @@ const CoapplicantDetailsSection = props => {
 									formState?.values?.[`incomeType${index + 1}`] ===
 										'0' ? null : (
 										<SalaryDetails
+											headingNameStyle={{ color: 'black' }}
 											jsonData={salaryDetailsJson}
 											jsonLable={map?.fields?.['salary-details'].label}
 											register={register}

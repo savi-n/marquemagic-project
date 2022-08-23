@@ -94,6 +94,7 @@ export default function PersonalDetails({
 	register,
 	formState,
 	companyDetail,
+	headingNameStyle,
 	productDetails = {},
 }) {
 	const { state } = useContext(LoanFormContext);
@@ -324,7 +325,7 @@ export default function PersonalDetails({
 				{userType || isViewLoan
 					? ''
 					: `Help us with ${id?.includes('co-applicant') ? '' : 'your'}`}{' '}
-				<span>{pageName || 'Personal Details'}</span>
+				<span style={headingNameStyle}>{pageName || 'Personal Details'}</span>
 			</H>
 			<FormWrap>
 				{jsonData && id === 'business-details'

@@ -141,7 +141,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					</Colm2>
 				</Row>
 
-				{companyDetail?.directorsForShow?.length ||
+				{companyDetail?.directorsForShow?.length > 0 ||
 					(JSON.parse(sessionStorage.getItem('companyData'))?.DirectorDetails
 						?.length > 0 ? (
 						<>
