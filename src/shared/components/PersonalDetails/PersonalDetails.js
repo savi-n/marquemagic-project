@@ -491,6 +491,10 @@ export default function PersonalDetails({
 								customFields.readonly = true;
 								customFields.disabled = true;
 							}
+							if (editLoanData && field.name.includes('incomeType')) {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
 							return (
 								field.visibility && (
 									<FieldWrap

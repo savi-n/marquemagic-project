@@ -10,6 +10,7 @@ const storeData = getStore()[DOCUMENT_REDUCER] || {};
 const actionTypes = {
 	SET_LOAN_DATA: 'SET_LOAN_DATA',
 	SET_LOAN_DOCUMENT: 'SET_LOAN_DOCUMENT',
+	RE_SET_LOAN_DOCUMENT: 'RE_SET_LOAN_DOCUMENT',
 	REMOVE_LOAN_DOCUMENT: 'REMOVE_LOAN_DOCUMENT',
 	SET_DOCUMENT_TYPE: 'SET_DOCUMENT_TYPE',
 	REMOVE_ALL_DOCUMENTS: 'REMOVE_ALL_DOCUMENTS',
@@ -28,6 +29,13 @@ const useActions = dispatch => {
 			type: actionTypes.SET_LOAN_DATA,
 			formData,
 			page,
+		});
+	};
+
+	const reSetLoanDocuments = files => {
+		dispatch({
+			type: actionTypes.RE_SET_LOAN_DOCUMENT,
+			files,
 		});
 	};
 
@@ -82,6 +90,7 @@ const useActions = dispatch => {
 
 	return {
 		setLoanData,
+		reSetLoanDocuments,
 		setLoanDocuments,
 		removeLoanDocument,
 		setLoanDocumentType,
@@ -99,6 +108,14 @@ function reducer(state, action) {
 			updatedState = {
 				..._.cloneDeep(INITIAL_STATE),
 				[action.page]: action.formData,
+			};
+			break;
+		}
+
+		case actionTypes.RE_SET_LOAN_DOCUMENT: {
+			updatedState = {
+				..._.cloneDeep(INITIAL_STATE),
+				documents: [...action.files],
 			};
 			break;
 		}

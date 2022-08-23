@@ -254,7 +254,8 @@ const AuthenticationOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0 }}>
+			customStyle={{ padding: 0 }}
+		>
 			<ModalHeader>
 				{/* Authentication Verification */}
 				<img
@@ -294,7 +295,8 @@ const AuthenticationOTPModal = props => {
 						type='submit'
 						onClick={() => {
 							resendOtpTimer <= 0 && resendOtp();
-						}}>
+						}}
+					>
 						{' '}
 						RESEND OTP {resendOtpTimer > 0 ? `IN ${resendOtpTimer}` : null}
 					</strong>
@@ -313,7 +315,7 @@ const AuthenticationOTPModal = props => {
 					name='Verify'
 					onClick={verifyOtp}
 					disabled={verifyingOtp || inputAuthenticationOTP.length < 6}
-					loading={verifyingOtp}
+					isLoader={verifyingOtp}
 				/>
 				{/* {ButtonProceed} */}
 			</ModalFooter>
