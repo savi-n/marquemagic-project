@@ -8,7 +8,11 @@ import { Popover } from 'react-tiny-popover';
 import useFetch from 'hooks/useFetch';
 import { useToasts } from 'components/Toast/ToastProvider';
 import generateUID from 'utils/uid';
-import { HOSTNAME, NC_STATUS_CODE, VIEW_DOCUMENT } from '_config/app.config';
+import {
+	NC_STATUS_CODE,
+	VIEW_DOCUMENT,
+	DELETE_DOCUMENT,
+} from '_config/app.config';
 import FilePasswordInput from './FilePasswordInput';
 import uploadCircleIcon from 'assets/icons/upload-icon-with-circle.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -23,38 +27,39 @@ import CircularLoading from 'components/Loaders/Circular';
 import _ from 'lodash';
 import * as UI from './ui';
 import * as CONST from './const';
-export default function FileUpload({
-	onDrop,
-	accept = '',
-	caption,
-	bg,
-	disabled = false,
-	upload = null,
-	onRemoveFile = id => {
-		console.info('REMOVED FILE ' + id);
-	},
-	docTypeOptions = [],
-	documentTypeChangeCallback = (id, value) => {
-		console.info('DOCUMENT TYPE CHANGED ' + id);
-	},
-	docs,
-	setDocs,
-	docsPush,
-	loan_id,
-	directorId,
-	pan,
-	section = '',
-	sectionType = 'others',
-	aadharVoterDl = false,
-	errorMessage = '',
-	errorType = '',
-	prefilledDocs = [],
-	startingTaggedDocs = [],
-	startingUnTaggedDocs = [],
-	aggreementUploadModal = true,
-	isInActive = false,
-	removeAllFileUploads = '',
-}) {
+export default function FileUpload(props) {
+	const {
+		onDrop,
+		accept = '',
+		caption,
+		disabled = false,
+		upload = null,
+		onRemoveFile = id => {
+			console.info('REMOVED FILE ' + id);
+		},
+		docTypeOptions = [],
+		documentTypeChangeCallback = (id, value) => {
+			console.info('DOCUMENT TYPE CHANGED ' + id);
+		},
+		docs,
+		setDocs,
+		docsPush,
+		loan_id,
+		directorId,
+		pan,
+		section = '',
+		sectionType = 'others',
+		aadharVoterDl = false,
+		errorMessage = '',
+		errorType = '',
+		startingTaggedDocs = [],
+		startingUnTaggedDocs = [],
+		aggreementUploadModal = true,
+		isInActive = false,
+		removeAllFileUploads = '',
+		prefilledDocs = [],
+		setPrefilledDocs,
+	} = props;
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
 	const refPopup = useRef(null);
@@ -77,9 +82,9 @@ export default function FileUpload({
 	const { newRequest } = useFetch();
 	//const [docSelected, setDocSelected] = useState('');
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
-	const [openingDocument, setOpeningDocument] = useState(false);
+	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 
-	let userToken = sessionStorage.getItem(HOSTNAME);
+	const API_TOKEN = sessionStorage.getItem('userToken');
 
 	let refCounter = 0;
 
@@ -102,27 +107,60 @@ export default function FileUpload({
 		setUploadingFiles(newUploadingFiles);
 	};
 
-	const onFileRemove = (file, docType = false) => {
-		!aadharVoterDl && setDocs && setDocs([]);
-		// in case of remove file we don't need previous uploaded files
-		const newUploadingFiles = [];
-		selectedFiles.current.map(uFile => {
-			if (uFile.id !== file.id) newUploadingFiles.push(uFile);
-			return null;
-		});
-		if (docType) {
-			const newMappedFile = _.cloneDeep(mappedFiles);
-			const newObj = [];
-			newMappedFile[docType.doc_type_id]?.map(uFile => {
-				if (uFile.id !== file.id) newObj.push(uFile);
+	const onFileRemove = async (file, docType = false) => {
+		try {
+			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
+			if (editLoanData && (file?.business_id || file?.loan)) {
+				const reqBody = {
+					loan_doc_id: file?.doc_id || '',
+					business_id: file?.business_id || editLoanData?.business_id?.id || '',
+					loan_id: file?.loan || editLoanData?.id || '',
+					userid: file?.user_id || '',
+				};
+				// console.log('reqBody-', reqBody);
+				// return;
+				await newRequest(
+					DELETE_DOCUMENT,
+					{
+						method: 'POST',
+						data: reqBody,
+					},
+					{
+						Authorization: `Bearer ${API_TOKEN}`,
+					}
+				).then(res => {
+					// console.log('handleFileRemove-Server-res', res);
+				});
+				const newPrefilledDos = _.cloneDeep(prefilledDocs);
+				setPrefilledDocs(
+					newPrefilledDos.filter(d => d.document_key !== file.document_key)
+				);
+			}
+			!aadharVoterDl && setDocs && setDocs([]);
+			// in case of remove file we don't need previous uploaded files
+			const newUploadingFiles = [];
+			selectedFiles.current.map(uFile => {
+				if (uFile.id !== file.id) newUploadingFiles.push(uFile);
 				return null;
 			});
-			newMappedFile[docType.doc_type_id] = newObj;
-			setMappedFiles(newMappedFile);
+			if (docType) {
+				const newMappedFile = _.cloneDeep(mappedFiles);
+				const newObj = [];
+				newMappedFile[docType.doc_type_id]?.map(uFile => {
+					if (uFile.id !== file.id) newObj.push(uFile);
+					return null;
+				});
+				newMappedFile[docType.doc_type_id] = newObj;
+				setMappedFiles(newMappedFile);
+			}
+			onRemoveFile(file.id, file);
+			selectedFiles.current = newUploadingFiles;
+			setUploadingFiles(newUploadingFiles);
+			setOpeningRemovingDocument(false);
+		} catch (error) {
+			console.error('error-onFileRemove-', error);
+			setOpeningRemovingDocument(false);
 		}
-		onRemoveFile(file.id, file);
-		selectedFiles.current = newUploadingFiles;
-		setUploadingFiles(newUploadingFiles);
 	};
 
 	const onProgress = (event, file, newUploadingFiles) => {
@@ -414,7 +452,8 @@ export default function FileUpload({
 
 	const openDocument = async file => {
 		try {
-			setOpeningDocument(file.id);
+			console.log('open-doc-', file);
+			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
@@ -431,15 +470,14 @@ export default function FileUpload({
 					data: reqBody,
 				},
 				{
-					Authorization: `Bearer ${JSON.parse(userToken)?.userReducer
-						?.userToken || sessionStorage.getItem('userToken')}`,
+					Authorization: `Bearer ${API_TOKEN}`,
 				}
 			);
 			// console.log('openDocument-res-', docRes);
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
-			setOpeningDocument(false);
+			setOpeningRemovingDocument(false);
 		} catch (error) {
-			setOpeningDocument(false);
+			setOpeningRemovingDocument(false);
 			console.error('Unable to open file, try after sometimes');
 		}
 	};
@@ -547,6 +585,10 @@ export default function FileUpload({
 		});
 		displayTagMessage = selectedFiles.current.length !== taggedDocumentCount;
 	}
+
+	// console.log(`FileUpload-${sectionType}-allstates-`, {
+	// 	props,
+	// });
 
 	return loading ? (
 		<>
@@ -736,6 +778,15 @@ export default function FileUpload({
 																}}
 															>
 																{docType.name}
+																{docType.isMandatory && (
+																	<span
+																		style={{
+																			color: 'red',
+																		}}
+																	>
+																		&nbsp;*
+																	</span>
+																)}
 															</UI.FileTypeList>
 														);
 													})}
@@ -857,7 +908,7 @@ export default function FileUpload({
 									const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
 									let isDocRemoveAllowed = true;
 
-									// console.log('viewMore-', { isViewMoreClicked, isViewMore });
+									// console.log('mappedDocFiles-', { doc });
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 									}
@@ -934,7 +985,7 @@ export default function FileUpload({
 															)}
 														</UI.PasswordWrapper>
 												  )}
-											{openingDocument === doc.id ? (
+											{openingRemovingDocument === doc.document_key ? (
 												<div style={{ marginLeft: 'auto', height: '30px' }}>
 													<CircularLoading />
 												</div>

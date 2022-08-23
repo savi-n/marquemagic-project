@@ -1113,6 +1113,7 @@ const PanVerification = props => {
 			const newFile = _.cloneDeep(f);
 			if (f.id === fileId) {
 				newFile.isTagged = type;
+				newFile.doc_type_id = type.id;
 			}
 			newAddressProofDocs.push(newFile);
 			return null;
@@ -1400,6 +1401,7 @@ const PanVerification = props => {
 						{/* ADDRESS PROOF UPLOAD SECTION */}
 						<FileUpload
 							isInActive={isInActiveAddressProofUpload}
+							startingTaggedDocs={addressProofDocs}
 							section={'addressproof'}
 							accept=''
 							upload={true}

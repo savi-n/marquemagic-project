@@ -1,5 +1,11 @@
 // active page
 /* This file contains document upload section i.e visibility of documents, tags etc*/
+
+// IMPORTANT RULES
+// applicant id
+// app_[business_income_type_id]_[category]_[doc_type_id]
+// co_[director_id]_[business_income_type_id]_[category]_[doc_type_id]
+
 import { useContext, useEffect, Fragment } from 'react';
 import { useState } from 'react';
 import axios from 'axios';
@@ -27,7 +33,6 @@ import {
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	UPLOAD_CACHE_DOCS,
 	AUTHENTICATION_GENERATE_OTP,
-	DELETE_DOCUMENT,
 	CO_APPLICANTS_DOCTYPES_FETCH,
 	HOSTNAME,
 } from '_config/app.config';
@@ -111,6 +116,7 @@ const DocumentUpload = props => {
 	const [loading, setLoading] = useState(false);
 	const [allDocumentTypeList, setAllDocumentTypeList] = useState([]);
 	const [allTagUnTagDocList, setAllTagUnTagDocList] = useState([]);
+	const [prefilledDocs, setPrefilledDocs] = useState([]);
 	const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
 	const formReducer = applicationState?.formReducer;
 	const userReducer = applicationState?.userReducer;
@@ -119,11 +125,12 @@ const DocumentUpload = props => {
 		sessionStorage.getItem('companyData') &&
 		JSON.parse(sessionStorage.getItem('companyData'));
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	let isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-	// const editLoanCoApplicants =
-	// 	editLoanData?.director_details?.filter(
-	// 		d => d?.type_name?.toLowerCase() === 'co-applicant'
-	// 	) || [];
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	// eslint-disable-next-line
+	const editLoanCoApplicants =
+		editLoanData?.director_details?.filter(
+			d => d?.type_name?.toLowerCase() === 'co-applicant'
+		) || [];
 	const API_TOKEN = sessionStorage.getItem('userToken');
 	const product_id = sessionStorage.getItem('productId');
 	let corporateDetails = sessionStorage.getItem('corporateDetails');
@@ -139,7 +146,9 @@ const DocumentUpload = props => {
 	// 	? formReducer?.user?.['co-applicant-details-res']
 	// 	: editLoanCoApplicants;
 	const sessionCoApplicantRes =
-		formReducer?.user?.['co-applicant-details-res'] || [];
+		formReducer?.user?.['co-applicant-details-res'] ||
+		editLoanCoApplicants ||
+		[];
 
 	const getEncryptWhiteLabel = async () => {
 		try {
@@ -271,35 +280,6 @@ const DocumentUpload = props => {
 
 	const handleFileRemove = async (fileId, file) => {
 		// console.log('handleFileRemove-', { allTagUnTagDocList, fileId, file });
-		if (editLoanData && (file?.business_id || file?.loan)) {
-			const reqBody = {
-				loan_doc_id: file?.id || '',
-				business_id: file?.business_id || editLoanData?.business_id?.id || '',
-				loan_id: file?.loan || editLoanData?.id || '',
-				userid: file?.user_id || '',
-			};
-			const newEditLoan = _.cloneDeep(editLoanData);
-			const editDocIndex = newEditLoan.loan_document.findIndex(
-				d => d.id === fileId
-			);
-			if (editDocIndex !== -1)
-				newEditLoan.loan_document[editDocIndex].deleted_by = reqBody.userid;
-			sessionStorage.setItem('editLoan', JSON.stringify(newEditLoan));
-			// console.log('reqBody-', reqBody);
-			// return;
-			newRequest(
-				DELETE_DOCUMENT,
-				{
-					method: 'POST',
-					data: reqBody,
-				},
-				{
-					Authorization: `Bearer ${API_TOKEN}`,
-				}
-			).then(res => {
-				// console.log('handleFileRemove-Server-res', res);
-			});
-		}
 		removeLoanDocument(fileId, file);
 	};
 
@@ -647,10 +627,12 @@ const DocumentUpload = props => {
 		// ];
 		const allMandatoryDocumentIds = [];
 		allDocumentTypeList.map(
-			d => d.isMandatory && allMandatoryDocumentIds.push(d.value)
+			d => d.isMandatory && allMandatoryDocumentIds.push(d.doc_type_id)
 		);
 		const uploadedDocumetnIds = [];
-		uploadedDocuments?.map(d => uploadedDocumetnIds.push(d.typeId));
+		[...uploadedDocuments, ...prefilledDocs]?.map(d =>
+			uploadedDocumetnIds.push(d.doc_type_id)
+		);
 
 		if (productDetails.document_mandatory) {
 			allMandatoryDocumentIds.map(docId => {
@@ -663,8 +645,6 @@ const DocumentUpload = props => {
 			});
 		}
 		// console.log('LoanDocumentsUpload-isFormValid-', {
-		// 	state,
-		// 	allDocOptions,
 		// 	allMandatoryDocumentIds,
 		// 	uploadedDocumetnIds,
 		// 	manadatoryError,
@@ -759,6 +739,7 @@ const DocumentUpload = props => {
 
 	const initializeTaggUnTagDocuments = () => {
 		// prefill document tagged and un-tagged
+		// console.log('initializeTaggUnTagDocuments');
 
 		const flowDocTypeMappingList = {};
 
@@ -785,22 +766,28 @@ const DocumentUpload = props => {
 		}
 
 		const newAllTagUnTagDocList = [];
-		uploadedDocuments?.map((doc, docIndex) => {
+		[...uploadedDocuments, ...prefilledDocs]?.map((doc, docIndex) => {
 			let doc_type_id = doc.doc_type_id;
-			if (!doc.typeId) {
+			// `app_${business_income_type_id}_${CATEGORY}_${editDoc?.doctype}`
+			// if (!doc.typeId) {
+			if (doc.requestId) {
 				doc_type_id = `app_${business_income_type_id}_${doc.category}_${
 					flowDocTypeMappingList?.[`${doc?.req_type}`]
 				}`;
 			}
 			const newDoc = {
 				..._.cloneDeep(doc),
-				name: doc.upload_doc_name,
+				name: doc.name || doc.upload_doc_name,
 				progress: '100',
 				status: 'completed',
 				file: null,
 				typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
 				doc_type_id,
 			};
+			if (doc.isViewEdit) {
+				newDoc.typeId = doc.doctype;
+			}
+			// newDoc.doc_type_id = 'app_7_kyc_31';
 			// if (newDoc.typeId) state.documents[docIndex].typeId = newDoc.typeId;
 			newAllTagUnTagDocList.push(newDoc);
 			return null;
@@ -808,6 +795,7 @@ const DocumentUpload = props => {
 		// -- prefill document tagged and un-tagged
 
 		// console.log('initializeComponent-allstates-', {
+		// 	uploadedDocuments,
 		// 	flowDocTypeMappingList,
 		// 	newAllTagUnTagDocList,
 		// 	allDocumentTypeList,
@@ -818,6 +806,7 @@ const DocumentUpload = props => {
 
 	const initializeDocTypeList = async () => {
 		try {
+			// console.log('initializeDocTypeList');
 			setLoading(true);
 			const newAllDocumentTypeList = [];
 			await getEncryptWhiteLabel();
@@ -827,15 +816,31 @@ const DocumentUpload = props => {
 
 			// get co-applicant document list for all income types
 			const newCoDocOptions = [];
-			const allCoAppIncomeTypes = [];
+			// const allCoAppIncomeTypeDocList = {};
 			await asyncForEach(sessionCoApplicantRes, async coApplicant => {
 				// console.log('coapplicant-', coApplicant);
-				if (allCoAppIncomeTypes.includes(coApplicant?.income_type)) return;
+				// if (`${coApplicant?.income_type}` in allCoAppIncomeTypeDocList) return;
+				// if (allCoAppIncomeTypes.includes(coApplicant?.income_type)) return;
 				// const { newIncomeTypeDocTypeList, newDocTypeList } = await getCoApplicantDocumentTypes(coApplicant);
 				const tempDocTypeList = await getCoApplicantDocumentTypes(coApplicant);
-				tempDocTypeList.map(d => newCoDocOptions.push({ ...d }));
-				allCoAppIncomeTypes.push(coApplicant?.income_type);
+				// allCoAppIncomeTypeDocList[coApplicant.income_type] = tempDocTypeList;
+				// coAppIncomeTypeDocList.push({ ...d });
+				// income_type ids to track and avoid duplicate api call
+				// allCoAppIncomeTypes.push(coApplicant?.income_type);
+				// newCoDocOptions.push()
+				tempDocTypeList.map(d => newCoDocOptions.push(d));
 			});
+			// sessionCoApplicantRes.map(coApplicant => {
+			// 	allCoAppIncomeTypeDocList[coApplicant.income_type].map(doc => {
+			// 		const co_id_income_type_kyc = `co_${coApplicant?.id}_${
+			// 			coApplicant?.income_type
+			// 		}_${CONST.CATEGORY_KYC}`;
+			// 		newCoDocOptions.push({ ...doc, doc_type_id });
+			// 		return null;
+			// 	});
+			// 	return null;
+			// });
+			// tempDocTypeList.map(d => newCoDocOptions.push({ ...d }));
 			// -- get co-applicant document list
 
 			newAppDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
@@ -843,6 +848,74 @@ const DocumentUpload = props => {
 			setAllDocumentTypeList(
 				newAllDocumentTypeList.sort((a, b) => a.id - b.id)
 			);
+
+			if (editLoanData && editLoanData?.loan_document?.length > 0) {
+				// const editApplicant = editLoanData?.director_details?.filter(
+				// 	d => d.isApplicant
+				// )?.[0];
+				const newPrefilledDos = [];
+				editLoanData?.loan_document?.map(editDoc => {
+					if (editDoc.status !== 'active') return null;
+
+					const isApplicant = !editDoc.directorId;
+					const editCoApplicant = editLoanData?.director_details?.filter(
+						d => d?.id === editDoc.directorId
+					)?.[0];
+
+					const selectedDocType = isApplicant
+						? newAppDocOptions.filter(doc => doc.id === editDoc.doctype)?.[0] ||
+						  {}
+						: newCoDocOptions.filter(doc => doc.id === editDoc.doctype)?.[0] ||
+						  {};
+					// console.log('selectedDocType-', selectedDocType);
+					let CATEGORY = '';
+					if (
+						selectedDocType?.doc_type
+							?.toLowerCase()
+							?.includes(CONST.CATEGORY_KYC)
+					)
+						CATEGORY = CONST.CATEGORY_KYC;
+					if (
+						selectedDocType?.doc_type
+							?.toLowerCase()
+							?.includes(CONST.CATEGORY_FINANCIAL)
+					)
+						CATEGORY = CONST.CATEGORY_FINANCIAL;
+					if (
+						selectedDocType?.doc_type
+							?.toLowerCase()
+							?.includes(CONST.CATEGORY_OTHER)
+					)
+						CATEGORY = CONST.CATEGORY_OTHER;
+
+					// app_[business_income_type_id]_[category]_[doc_type_id]
+					// co_[director_id]_[coapp_income_type]_[category]_[doc_type_id]
+					let doc_type_id = isApplicant
+						? `app_${business_income_type_id}_${CATEGORY}_${editDoc?.doctype}`
+						: `co_${editDoc.directorId}_${
+								editCoApplicant?.income_type
+						  }_${CATEGORY}_${editDoc?.doctype}`;
+					const docId = editDoc?.id;
+					newPrefilledDos.push({
+						...selectedDocType,
+						...editDoc,
+						doc_type_id,
+						name:
+							editDoc?.original_doc_name ||
+							editDoc?.uploaded_doc_name ||
+							editDoc?.doc_name, // displaying doc name
+						isViewEdit: true, // for not passing this in any edit api
+						doc_id: docId, // for removing document from be
+						id: editDoc?.doctype, // overwritting with doc_id cause id is used many place in creation
+						category: CATEGORY, // for prefetching
+						document_key: editDoc?.doc_name, // for loading view doc
+					});
+					return null;
+				});
+				// console.log('newPrefilledDos-', { newPrefilledDos });
+				setPrefilledDocs(newPrefilledDos);
+				// reSetLoanDocuments(editLoanList);
+			}
 			setLoading(false);
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
@@ -857,11 +930,11 @@ const DocumentUpload = props => {
 	}, []);
 
 	useEffect(() => {
-		if (uploadedDocuments?.length > 0) {
+		if (uploadedDocuments?.length > 0 || prefilledDocs?.length > 0) {
 			initializeTaggUnTagDocuments();
 		}
 		// eslint-disable-next-line
-	}, [uploadedDocuments]);
+	}, [uploadedDocuments, prefilledDocs]);
 
 	if (loading) {
 		return (
@@ -871,6 +944,8 @@ const DocumentUpload = props => {
 		);
 	}
 
+	// app_[business_income_type_id]_[category]_[doc_type_id]
+	// co_[director_id]_[business_income_type_id]_[category]_[doc_type_id]
 	const appKycDocList = allDocumentTypeList.filter(
 		d => d?.doc_type_id?.includes('app_') && d?.category === CONST.CATEGORY_KYC
 	);
@@ -884,12 +959,30 @@ const DocumentUpload = props => {
 			d?.doc_type_id?.includes('app_') && d?.category === CONST.CATEGORY_OTHER
 	);
 
+	// view / edit loan prefilling docs
+	// const preFillKycDocsViewEdit = prefilledDocs.filter(d =>
+	// 	d?.doc_type_id.includes(
+	// 		`app_${business_income_type_id}_${CONST.CATEGORY_KYC}`
+	// 	)
+	// );
+	// const preFillFinDocsViewEdit = prefilledDocs.filter(d =>
+	// 	d?.doc_type_id.includes(
+	// 		`app_${business_income_type_id}_${CONST.CATEGORY_FINANCIAL}`
+	// 	)
+	// );
+	// const preFillOtherDocsViewEdit = prefilledDocs.filter(d =>
+	// 	d?.doc_type_id.includes(
+	// 		`app_${business_income_type_id}_${CONST.CATEGORY_OTHER}`
+	// 	)
+	// );
+
 	const preFillKycDocsTag = allTagUnTagDocList.filter(
 		d =>
 			d?.doc_type_id?.includes('app_') &&
 			d?.category === CONST.CATEGORY_KYC &&
 			!!d.typeId
 	);
+
 	const preFillKycDocsUnTag = allTagUnTagDocList.filter(
 		d =>
 			d?.doc_type_id?.includes('app_') &&
@@ -927,12 +1020,22 @@ const DocumentUpload = props => {
 		d => !!d.isMandatory
 	)?.length;
 	const totalMandatoryUploadedDocumentCount =
-		uploadedDocuments?.filter(d => !!d.isMandatory)?.length || 0;
+		[...uploadedDocuments, ...prefilledDocs]?.filter(d => !!d.isMandatory)
+			?.length || 0;
 
 	let applicantFullName = '';
 	if (applicantData?.firstName) applicantFullName += applicantData?.firstName;
 	if (applicantData?.dlastname)
 		applicantFullName += ` ${applicantData?.lastName}`;
+
+	// console.log('loandocupload-allstates-', {
+	// 	allTagUnTagDocList,
+	// 	prefilledDocs,
+	// 	preFillKycDocsTag,
+	// 	preFillKycDocsUnTag,
+	// 	totalMandatoryDocumentCount,
+	// 	totalMandatoryUploadedDocumentCount,
+	// });
 
 	return (
 		<>
@@ -977,7 +1080,7 @@ const DocumentUpload = props => {
 
 				{/* don't delete */}
 				{/* disable/enable below code when useEffect, useFetch giving errors */}
-				{loading ? <></> : null}
+				{/* {loading ? <></> : null} */}
 
 				{/* APPLICANT SECTION */}
 				{appKycDocList.length > 0 && (
@@ -1011,7 +1114,8 @@ const DocumentUpload = props => {
 						<UI.Details open={openSection.includes(CONST.CATEGORY_KYC)}>
 							<UI.UploadWrapper open={openSection.includes(CONST.CATEGORY_KYC)}>
 								<FileUpload
-									// prefilledDocs={prefilledKycDocs}
+									prefilledDocs={prefilledDocs}
+									setPrefilledDocs={setPrefilledDocs}
 									startingTaggedDocs={preFillKycDocsTag}
 									startingUnTaggedDocs={preFillKycDocsUnTag}
 									sectionType='kyc'
@@ -1077,7 +1181,8 @@ const DocumentUpload = props => {
 								open={openSection.includes(CONST.CATEGORY_FINANCIAL)}
 							>
 								<FileUpload
-									// prefilledDocs={prefilledFinancialDocs}
+									prefilledDocs={prefilledDocs}
+									setPrefilledDocs={setPrefilledDocs}
 									startingTaggedDocs={preFillFinDocsTag}
 									startingUnTaggedDocs={preFillFinDocsUnTag}
 									sectionType='financial'
@@ -1141,7 +1246,8 @@ const DocumentUpload = props => {
 								open={openSection.includes(CONST.CATEGORY_OTHER)}
 							>
 								<FileUpload
-									// prefilledDocs={prefilledOtherDocs}
+									prefilledDocs={prefilledDocs}
+									setPrefilledDocs={setPrefilledDocs}
 									startingTaggedDocs={preFillOtherDocsTag}
 									startingUnTaggedDocs={preFillOtherDocsUnTag}
 									sectionType='others'
@@ -1224,6 +1330,7 @@ const DocumentUpload = props => {
 						coAppKycDocList.length === 0 &&
 						coAppFinDocList.length === 0 &&
 						coAppOtherDocList.length === 0;
+
 					let coApplicantFullName = '';
 					if (coApplicant?.dfirstname)
 						coApplicantFullName += coApplicant?.dfirstname;
@@ -1284,7 +1391,8 @@ const DocumentUpload = props => {
 											open={openSection.includes(co_id_income_type_kyc)}
 										>
 											<FileUpload
-												// prefilledDocs={prefilledKycDocs}
+												prefilledDocs={prefilledDocs}
+												setPrefilledDocs={setPrefilledDocs}
 												startingTaggedDocs={coAppPreFillKycDocsTag}
 												startingUnTaggedDocs={coAppPreFillKycDocsUnTag}
 												sectionType='kyc'
@@ -1360,7 +1468,8 @@ const DocumentUpload = props => {
 											open={openSection.includes(co_id_income_type_financial)}
 										>
 											<FileUpload
-												// prefilledDocs={prefilledFinancialDocs}
+												prefilledDocs={prefilledDocs}
+												setPrefilledDocs={setPrefilledDocs}
 												startingTaggedDocs={coAppPreFillFinDocsTag}
 												startingUnTaggedDocs={coAppPreFillFinDocsUnTag}
 												sectionType='financial'
@@ -1432,7 +1541,8 @@ const DocumentUpload = props => {
 											open={openSection.includes(co_id_income_type_other)}
 										>
 											<FileUpload
-												// prefilledDocs={prefilledKycDocs}
+												prefilledDocs={prefilledDocs}
+												setPrefilledDocs={setPrefilledDocs}
 												startingTaggedDocs={coAppPreFillOtherDocsTag}
 												startingUnTaggedDocs={coAppPreFillOtherDocsUnTag}
 												sectionType='other'

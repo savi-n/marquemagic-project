@@ -68,12 +68,13 @@ export default function Header({
 						fontWeight: 'bold',
 						fontSize: '24px',
 						color: '#525252',
-					}}>
+					}}
+				>
 					{corporateName}
 				</div>
 			)}
 			{backToDashboard && (
-				<div className='px-5' style={{ marginLeft: '51em' }}>
+				<div className='px-5' style={{ marginLeft: 'auto' }}>
 					<Button onClick={redirectDashboard}>
 						<span>BACK TO DASHBOARD</span>
 					</Button>

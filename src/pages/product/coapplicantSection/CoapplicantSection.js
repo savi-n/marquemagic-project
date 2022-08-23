@@ -407,7 +407,7 @@ const CoapplicantDetailsSection = props => {
 				});
 
 				const submitCoAppRes = submitCoapplicantsReq?.data?.data || [];
-				setFlowData(submitCoAppRes, `${id}-res`);
+				setFlowData(submitCoAppRes.sort((a, b) => a.id - b.id), `${id}-res`);
 				addToast({
 					message: 'Saved Succesfully',
 					type: 'success',

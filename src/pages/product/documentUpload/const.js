@@ -7,20 +7,25 @@ export const CATEGORY_OTHER = 'other';
 export const fileStructure = (documents, type) => {
 	return documents
 		.filter(file => file.category === type)
-		.map(file => ({
-			...file,
-			// value, filename, fd, password
-			fd: file.document_key, //fd from loan document repsone
-			size: file.size, //size from loan document repsone
-			doc_type_id: file.id,
-			// type: "",
-			filename: file.upload_doc_name, //fd from loan document repsone
-			// status: "",
-			// field: "",
-			value: file.id || file.typeId, // doctype_id
-			password: file?.password,
-			director_id: file?.director_id,
-		}));
+		.map(file => {
+			const newFile = {
+				...file,
+				// value, filename, fd, password
+				fd: file.document_key, //fd from loan document repsone
+				size: file.size, //size from loan document repsone
+				doc_type_id: file.id,
+				// type: "",
+				filename: file.upload_doc_name, //fd from loan document repsone
+				// status: "",
+				// field: "",
+				value: file.id || file.typeId, // doctype_id
+				password: file?.password,
+			};
+			if (file?.director_id) {
+				newFile.director_id = file?.director_id;
+			}
+			return newFile;
+		});
 };
 
 export const getAmountUm = a => {
