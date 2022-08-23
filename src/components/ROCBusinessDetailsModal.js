@@ -143,7 +143,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 
 				{companyDetail?.directorsForShow?.length ||
 					(JSON.parse(sessionStorage.getItem('companyData'))?.DirectorDetails
-						?.length > 0 && (
+						?.length > 0 ? (
 						<>
 							<Header>Directors/Partners</Header>
 							<Row>
@@ -157,7 +157,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 								</Row>
 							))}
 						</>
-					))}
+					) : null)}
 			</Div>
 			<Button name='Close' onClick={onClose} />
 		</Modal>
