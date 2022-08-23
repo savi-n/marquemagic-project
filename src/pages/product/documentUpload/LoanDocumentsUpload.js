@@ -106,12 +106,7 @@ const DocumentUpload = props => {
 	const onOtherStatementModalToggle = () => {
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
-	const [openKycdoc, setOpenKycDoc] = useState(true);
-	const [openCoKycdoc, setOpenCoKycdoc] = useState(false);
-	const [openFinancialdoc, setOpenFinancialDoc] = useState(false);
-	const [openCoFinancialdoc, setOpenCoFinancialdoc] = useState(false);
-	const [openOtherdoc, setOpenOtherDoc] = useState(false);
-	const [openCoOtherdoc, setOpenCoOtherDoc] = useState(false);
+	const [openSection, setOpenSection] = useState([CONST.CATEGORY_KYC]);
 	const [loading, setLoading] = useState(false);
 	const [allDocumentTypeList, setAllDocumentTypeList] = useState([]);
 	const [allTagUnTagDocList, setAllTagUnTagDocList] = useState([]);
@@ -129,6 +124,7 @@ const DocumentUpload = props => {
 	// 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	// 	) || [];
 	const API_TOKEN = sessionStorage.getItem('userToken');
+	const product_id = sessionStorage.getItem('productId');
 	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 	const business_income_type_id =
@@ -266,135 +262,6 @@ const DocumentUpload = props => {
 		}
 	};
 
-	const initializeComponent = async () => {
-		try {
-			setLoading(true);
-
-			await getEncryptWhiteLabel();
-
-			const newAllDocumentTypeList = [];
-			// get applicant document list
-			const newAppDocOptions = await getApplicantDocumentTypes();
-			// -- get applicant document list
-
-			// get co-applicant document list for all income types
-			const newCoDocOptions = [];
-			const allCoAppIncomeTypes = [];
-			await asyncForEach(sessionCoApplicantRes, async coApplicant => {
-				// console.log('coapplicant-', coApplicant);
-				if (allCoAppIncomeTypes.includes(coApplicant?.income_type)) return;
-				// const { newIncomeTypeDocTypeList, newDocTypeList } = await getCoApplicantDocumentTypes(coApplicant);
-				const tempDocTypeList = await getCoApplicantDocumentTypes(coApplicant);
-				tempDocTypeList.map(d => newCoDocOptions.push({ ...d }));
-				allCoAppIncomeTypes.push(coApplicant?.income_type);
-			});
-			// -- get co-applicant document list
-
-			newAppDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
-			newCoDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
-
-			// prefill document tagged and un-tagged
-			const startingDocs = state?.documents || [];
-			const flowDocTypeMappingList = {};
-
-			const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
-			for (const key in JSON_PAN_SECTION) {
-				JSON_PAN_SECTION[key]?.data?.map(d => {
-					if (d.req_type && d.doc_type[`${business_income_type_id}`]) {
-						flowDocTypeMappingList[`${d.req_type}`] =
-							d.doc_type[`${business_income_type_id}`];
-					}
-					return null;
-				});
-			}
-
-			const JSON_HOMELOAN_SECTION =
-				flowMap?.['home-loan-details']?.fields || [];
-			for (const key in JSON_HOMELOAN_SECTION) {
-				JSON_HOMELOAN_SECTION[key]?.data?.map(d => {
-					if (d.doc_type && d.doc_type[`${business_income_type_id}`]) {
-						flowDocTypeMappingList[`property`] =
-							d.doc_type[`${business_income_type_id}`];
-					}
-					return null;
-				});
-			}
-
-			const newAllTagUnTagDocList = [];
-			state?.documents?.map((doc, docIndex) => {
-				const newDoc = {
-					..._.cloneDeep(doc),
-					name: doc.upload_doc_name,
-					progress: '100',
-					status: 'completed',
-					file: null,
-					typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
-				};
-				if (newDoc.typeId) state.documents[docIndex].typeId = newDoc.typeId;
-				newAllTagUnTagDocList.push(newDoc);
-				return null;
-			});
-			const newKycDocs = [];
-			const newFinDocs = [];
-			const newOtherDocs = [];
-			const newKycUnTagDocs = [];
-			const newFinUnTagDocs = [];
-			const newOtherUnTagDocs = [];
-			if (startingDocs.length > 0) {
-				/* map typeId here for req_type: pan/aadhar/voter/DL property doc */
-				startingDocs.map((doc, docIndex) => {
-					const newDoc = {
-						...doc,
-						name: doc.upload_doc_name,
-						progress: '100',
-						status: 'completed',
-						file: null,
-						typeId:
-							doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
-					};
-					if (newDoc.typeId) startingDocs[docIndex].typeId = newDoc.typeId;
-					// console.log('startingDoc-', { doc, newDoc });
-					if (newDoc.mainType === 'KYC') newKycDocs.push(newDoc);
-					else if (newDoc.mainType === 'Financial') newFinDocs.push(newDoc);
-					else if (newDoc.mainType === 'Others') newOtherDocs.push(newDoc);
-					else {
-						if (newDoc.sectionType === 'kyc') newKycUnTagDocs.push(newDoc);
-						else if (newDoc.sectionType === 'financial')
-							newFinUnTagDocs.push(newDoc);
-						else if (newDoc.sectionType === 'others')
-							newOtherUnTagDocs.push(newDoc);
-					}
-					return null;
-				});
-			}
-			// -- prefill document tagged and un-tagged
-
-			// console.log('initializeComponent-allstates-', {
-			// 	newAllDocumentTypeList,
-			// 	newAppDocOptions,
-			// 	newCoDocOptions,
-			// 	startingDocs,
-			// 	flowDocTypeMappingList,
-			// 	newAllTagUnTagDocList,
-			// });
-
-			setAllDocumentTypeList(
-				newAllDocumentTypeList.sort((a, b) => a.id - b.id)
-			);
-			setAllTagUnTagDocList(newAllTagUnTagDocList);
-
-			setLoading(false);
-		} catch (error) {
-			console.error('error-initializeComponent-', error);
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		initializeComponent();
-		// eslint-disable-next-line
-	}, []);
-
 	const handleFileUpload = async (files, meta = {}) => {
 		const newFiles = [];
 		files.map(f => newFiles.push({ ...f, ...meta }));
@@ -402,7 +269,7 @@ const DocumentUpload = props => {
 	};
 
 	const handleFileRemove = async (fileId, file) => {
-		// console.log('handleFileRemove-', { fileId, file });
+		// console.log('handleFileRemove-', { allTagUnTagDocList, fileId, file });
 		if (editLoanData && (file?.business_id || file?.loan)) {
 			const reqBody = {
 				loan_doc_id: file?.id || '',
@@ -432,7 +299,7 @@ const DocumentUpload = props => {
 				// console.log('handleFileRemove-Server-res', res);
 			});
 		}
-		removeLoanDocument(fileId);
+		removeLoanDocument(fileId, file);
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
@@ -807,7 +674,6 @@ const DocumentUpload = props => {
 		}
 		return true;
 	};
-	const product_id = sessionStorage.getItem('productId');
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
@@ -869,28 +735,116 @@ const DocumentUpload = props => {
 		setCaseCreationProgress(false);
 	};
 
-	const openCloseCollaps = name => {
-		if (name === 'KYC') {
-			setOpenKycDoc(!openKycdoc);
+	const toggleOpenSection = sectionId => {
+		// console.log('toggleOpenSection-', sectionId);
+		if (openSection.includes(sectionId)) {
+			setOpenSection(openSection.filter(s => s !== sectionId));
+			return;
 		}
-		if (name === 'Financial') {
-			setOpenFinancialDoc(!openFinancialdoc);
+		setOpenSection([...openSection, sectionId]);
+	};
+
+	const initializeTaggUnTagDocuments = () => {
+		// prefill document tagged and un-tagged
+
+		const flowDocTypeMappingList = {};
+
+		const JSON_PAN_SECTION = flowMap?.['pan-verification']?.fields || [];
+		for (const key in JSON_PAN_SECTION) {
+			JSON_PAN_SECTION[key]?.data?.map(d => {
+				if (d.req_type && d.doc_type[`${business_income_type_id}`]) {
+					flowDocTypeMappingList[`${d.req_type}`] =
+						d.doc_type[`${business_income_type_id}`];
+				}
+				return null;
+			});
 		}
-		if (name === 'Others') {
-			setOpenOtherDoc(!openOtherdoc);
+
+		const JSON_HOMELOAN_SECTION = flowMap?.['home-loan-details']?.fields || [];
+		for (const key in JSON_HOMELOAN_SECTION) {
+			JSON_HOMELOAN_SECTION[key]?.data?.map(d => {
+				if (d.doc_type && d.doc_type[`${business_income_type_id}`]) {
+					flowDocTypeMappingList[`property`] =
+						d.doc_type[`${business_income_type_id}`];
+				}
+				return null;
+			});
+		}
+
+		const newAllTagUnTagDocList = [];
+		state?.documents?.map((doc, docIndex) => {
+			const newDoc = {
+				..._.cloneDeep(doc),
+				name: doc.upload_doc_name,
+				progress: '100',
+				status: 'completed',
+				file: null,
+				typeId: doc.typeId || flowDocTypeMappingList[`${doc.req_type}`] || '',
+			};
+			// if (newDoc.typeId) state.documents[docIndex].typeId = newDoc.typeId;
+			newAllTagUnTagDocList.push(newDoc);
+			return null;
+		});
+		// -- prefill document tagged and un-tagged
+
+		// console.log('initializeComponent-allstates-', {
+		// 	newAllDocumentTypeList,
+		// 	newAppDocOptions,
+		// 	newCoDocOptions,
+		// 	startingDocs,
+		// 	flowDocTypeMappingList,
+		// 	newAllTagUnTagDocList,
+		// });
+
+		setAllTagUnTagDocList(newAllTagUnTagDocList);
+	};
+
+	const initializeDocTypeList = async () => {
+		try {
+			setLoading(true);
+			const newAllDocumentTypeList = [];
+			await getEncryptWhiteLabel();
+			// get applicant document list
+			const newAppDocOptions = await getApplicantDocumentTypes();
+			// -- get applicant document list
+
+			// get co-applicant document list for all income types
+			const newCoDocOptions = [];
+			const allCoAppIncomeTypes = [];
+			await asyncForEach(sessionCoApplicantRes, async coApplicant => {
+				// console.log('coapplicant-', coApplicant);
+				if (allCoAppIncomeTypes.includes(coApplicant?.income_type)) return;
+				// const { newIncomeTypeDocTypeList, newDocTypeList } = await getCoApplicantDocumentTypes(coApplicant);
+				const tempDocTypeList = await getCoApplicantDocumentTypes(coApplicant);
+				tempDocTypeList.map(d => newCoDocOptions.push({ ...d }));
+				allCoAppIncomeTypes.push(coApplicant?.income_type);
+			});
+			// -- get co-applicant document list
+
+			newAppDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
+			newCoDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
+			setAllDocumentTypeList(
+				newAllDocumentTypeList.sort((a, b) => a.id - b.id)
+			);
+			setLoading(false);
+		} catch (error) {
+			console.error('error-initializeComponent-', error);
+			setLoading(false);
 		}
 	};
-	const openCloseCollapsCoapplicant = name => {
-		if (name === 'KYC') {
-			setOpenCoKycdoc(!openCoKycdoc);
+
+	useEffect(() => {
+		initializeDocTypeList();
+		initializeTaggUnTagDocuments();
+		// eslint-disable-next-line
+	}, []);
+
+	useEffect(() => {
+		if (state?.documents?.length > 0) {
+			initializeTaggUnTagDocuments();
 		}
-		if (name === 'Financial') {
-			setOpenCoFinancialdoc(!openCoFinancialdoc);
-		}
-		if (name === 'Others') {
-			setOpenCoOtherDoc(!openCoOtherdoc);
-		}
-	};
+		// eslint-disable-next-line
+	}, [state?.documents]);
 
 	if (loading) {
 		return (
@@ -976,7 +930,9 @@ const DocumentUpload = props => {
 			)}
 			<UI.Colom1>
 				{totalMandatoryDocumentCount > 0 && (
-					<UI.Section style={{ marginBottom: 20 }}>
+					<UI.Section
+						style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}
+					>
 						<UI.H1>
 							<span style={{ color: 'red' }}>*</span> Mandatory
 						</UI.H1>
@@ -988,7 +944,7 @@ const DocumentUpload = props => {
 							}}
 						>
 							Document Submitted :
-							<UI.StyledButton width={'auto'} fill>
+							<UI.StyledButton width={'auto'} fillColor>
 								{totalMandatoryUploadedDocumentCount} of{' '}
 								{totalMandatoryDocumentCount}
 							</UI.StyledButton>
@@ -1009,7 +965,7 @@ const DocumentUpload = props => {
 				{appKycDocList.length > 0 && (
 					<>
 						{' '}
-						<UI.Section onClick={() => openCloseCollaps('KYC')}>
+						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_KYC)}>
 							<UI.H1>KYC </UI.H1>
 							<div
 								style={{
@@ -1019,21 +975,23 @@ const DocumentUpload = props => {
 								}}
 							>
 								Document Submitted :
-								<UI.StyledButton width={'auto'} fill>
+								<UI.StyledButton width={'auto'} fillColor>
 									{preFillKycDocsTag.length} of {appKycDocList.length}
 								</UI.StyledButton>
 							</div>
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
-									transform: openKycdoc ? `rotate(180deg)` : `none`,
+									transform: openSection.includes(CONST.CATEGORY_KYC)
+										? `rotate(180deg)`
+										: `none`,
 									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</UI.Section>
-						<UI.Details open={openKycdoc}>
-							<UI.UploadWrapper open={openKycdoc}>
+						<UI.Details open={openSection.includes(CONST.CATEGORY_KYC)}>
+							<UI.UploadWrapper open={openSection.includes(CONST.CATEGORY_KYC)}>
 								<FileUpload
 									// prefilledDocs={prefilledKycDocs}
 									startingTaggedDocs={preFillKycDocsTag}
@@ -1068,7 +1026,9 @@ const DocumentUpload = props => {
 				)}
 				{appFinDocList.length > 0 && (
 					<>
-						<UI.Section onClick={() => openCloseCollaps('Financial')}>
+						<UI.Section
+							onClick={() => toggleOpenSection(CONST.CATEGORY_FINANCIAL)}
+						>
 							<UI.H1>Financial </UI.H1>
 							<div
 								style={{
@@ -1079,21 +1039,25 @@ const DocumentUpload = props => {
 								}}
 							>
 								Document Submitted :
-								<UI.StyledButton width={'auto'} fill>
+								<UI.StyledButton width={'auto'} fillColor>
 									{preFillFinDocsTag.length} of {appFinDocList.length}
 								</UI.StyledButton>
 							</div>
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
-									transform: openFinancialdoc ? `rotate(180deg)` : `none`,
+									transform: openSection.includes(CONST.CATEGORY_FINANCIAL)
+										? `rotate(180deg)`
+										: `none`,
 									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</UI.Section>
-						<UI.Details open={openFinancialdoc}>
-							<UI.UploadWrapper open={openFinancialdoc}>
+						<UI.Details open={openSection.includes(CONST.CATEGORY_FINANCIAL)}>
+							<UI.UploadWrapper
+								open={openSection.includes(CONST.CATEGORY_FINANCIAL)}
+							>
 								<FileUpload
 									// prefilledDocs={prefilledFinancialDocs}
 									startingTaggedDocs={preFillFinDocsTag}
@@ -1128,7 +1092,7 @@ const DocumentUpload = props => {
 				)}
 				{appOtherDocList.length > 0 && (
 					<>
-						<UI.Section onClick={() => openCloseCollaps('Others')}>
+						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_OTHER)}>
 							<UI.H1>Others </UI.H1>
 							<div
 								style={{
@@ -1139,21 +1103,25 @@ const DocumentUpload = props => {
 								}}
 							>
 								Document Submitted :
-								<UI.StyledButton width={'auto'} fill>
+								<UI.StyledButton width={'auto'} fillColor>
 									{preFillOtherDocsTag.length} of {appOtherDocList.length}
 								</UI.StyledButton>
 							</div>
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
-									transform: openOtherdoc ? `rotate(180deg)` : `none`,
+									transform: openSection.includes(CONST.CATEGORY_OTHER)
+										? `rotate(180deg)`
+										: `none`,
 									marginLeft: 'auto',
 								}}
 								alt='arrow'
 							/>
 						</UI.Section>
-						<UI.Details open={openOtherdoc}>
-							<UI.UploadWrapper open={openOtherdoc}>
+						<UI.Details open={openSection.includes(CONST.CATEGORY_OTHER)}>
+							<UI.UploadWrapper
+								open={openSection.includes(CONST.CATEGORY_OTHER)}
+							>
 								<FileUpload
 									// prefilledDocs={prefilledOtherDocs}
 									startingTaggedDocs={preFillOtherDocsTag}
@@ -1264,7 +1232,7 @@ const DocumentUpload = props => {
 							{coAppKycDocList.length > 0 ? (
 								<>
 									<UI.Section
-										onClick={() => openCloseCollapsCoapplicant('KYC')}
+										onClick={() => toggleOpenSection(co_id_income_type_kyc)}
 									>
 										<UI.H1>KYC </UI.H1>
 										<div
@@ -1275,7 +1243,7 @@ const DocumentUpload = props => {
 											}}
 										>
 											Document Submitted :
-											<UI.StyledButton width={'auto'} fill>
+											<UI.StyledButton width={'auto'} fillColor>
 												{coAppPreFillKycDocsTag.length} of{' '}
 												{coAppKycDocList.length}
 											</UI.StyledButton>
@@ -1283,14 +1251,20 @@ const DocumentUpload = props => {
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
-												transform: openCoKycdoc ? `rotate(180deg)` : `none`,
+												transform: openSection.includes(co_id_income_type_kyc)
+													? `rotate(180deg)`
+													: `none`,
 												marginLeft: 'auto',
 											}}
 											alt='arrow'
 										/>
 									</UI.Section>
-									<UI.Details open={openCoKycdoc}>
-										<UI.UploadWrapper open={openCoKycdoc}>
+									<UI.Details
+										open={openSection.includes(co_id_income_type_kyc)}
+									>
+										<UI.UploadWrapper
+											open={openSection.includes(co_id_income_type_kyc)}
+										>
 											<FileUpload
 												// prefilledDocs={prefilledKycDocs}
 												startingTaggedDocs={coAppPreFillKycDocsTag}
@@ -1329,7 +1303,9 @@ const DocumentUpload = props => {
 							{coAppFinDocList.length > 0 && (
 								<>
 									<UI.Section
-										onClick={() => openCloseCollapsCoapplicant('Financial')}
+										onClick={() =>
+											toggleOpenSection(co_id_income_type_financial)
+										}
 									>
 										<UI.H1>Financial </UI.H1>
 										<div
@@ -1341,7 +1317,7 @@ const DocumentUpload = props => {
 											}}
 										>
 											Document Submitted :
-											<UI.StyledButton width={'auto'} fill>
+											<UI.StyledButton width={'auto'} fillColor>
 												{coAppPreFillFinDocsTag.length} of{' '}
 												{coAppFinDocList.length}
 											</UI.StyledButton>
@@ -1349,7 +1325,9 @@ const DocumentUpload = props => {
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
-												transform: openCoFinancialdoc
+												transform: openSection.includes(
+													co_id_income_type_financial
+												)
 													? `rotate(180deg)`
 													: `none`,
 												marginLeft: 'auto',
@@ -1357,8 +1335,12 @@ const DocumentUpload = props => {
 											alt='arrow'
 										/>
 									</UI.Section>
-									<UI.Details open={openCoFinancialdoc}>
-										<UI.UploadWrapper open={openCoFinancialdoc}>
+									<UI.Details
+										open={openSection.includes(co_id_income_type_financial)}
+									>
+										<UI.UploadWrapper
+											open={openSection.includes(co_id_income_type_financial)}
+										>
 											<FileUpload
 												// prefilledDocs={prefilledFinancialDocs}
 												startingTaggedDocs={coAppPreFillFinDocsTag}
@@ -1398,7 +1380,7 @@ const DocumentUpload = props => {
 							{coAppOtherDocList.length > 0 ? (
 								<>
 									<UI.Section
-										onClick={() => openCloseCollapsCoapplicant('Others')}
+										onClick={() => toggleOpenSection(co_id_income_type_other)}
 									>
 										<UI.H1>Other </UI.H1>
 										<div
@@ -1409,7 +1391,7 @@ const DocumentUpload = props => {
 											}}
 										>
 											Document Submitted :
-											<UI.StyledButton width={'auto'} fill>
+											<UI.StyledButton width={'auto'} fillColor>
 												{coAppPreFillOtherDocsTag.length} of{' '}
 												{coAppOtherDocList.length}
 											</UI.StyledButton>
@@ -1417,14 +1399,20 @@ const DocumentUpload = props => {
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
-												transform: openCoOtherdoc ? `rotate(180deg)` : `none`,
+												transform: openSection.includes(co_id_income_type_other)
+													? `rotate(180deg)`
+													: `none`,
 												marginLeft: 'auto',
 											}}
 											alt='arrow'
 										/>
 									</UI.Section>
-									<UI.Details open={openCoOtherdoc}>
-										<UI.UploadWrapper open={openCoOtherdoc}>
+									<UI.Details
+										open={openSection.includes(co_id_income_type_other)}
+									>
+										<UI.UploadWrapper
+											open={openSection.includes(co_id_income_type_other)}
+										>
 											<FileUpload
 												// prefilledDocs={prefilledKycDocs}
 												startingTaggedDocs={coAppPreFillOtherDocsTag}
