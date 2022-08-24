@@ -459,6 +459,7 @@ export default function FileUpload(props) {
 			};
 			if (file.loan) {
 				reqBody.loan_id = file.loan;
+				reqBody.userid = file.user_id;
 			} else {
 				reqBody.isProfile = true;
 			}

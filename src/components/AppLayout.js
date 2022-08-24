@@ -117,16 +117,29 @@ const AppLayout = () => {
 						}`
 					);
 					const isEditLoan = decryptedToken.edit ? true : false;
-					sessionStorage.setItem(
-						'editLoan',
-						JSON.stringify(
+					const newEditLoanData =
+						{
+							...loanDetailsRes?.data?.data,
+							isEditLoan,
+							token: decryptedToken.token,
+						} || {};
+
+					// Request URL: http://3.108.54.252:1337/viewloanlisting?skip=0&limit=5&search=COIT00246086
+					if (loanDetailsRes?.data?.data?.lender_document?.length > 0) {
+						const viewLoanDetailsRes = await axios.get(
+							`${API_END_POINT}/viewloanlisting?skip=0&limit=5&search=${
+								decryptedToken.loan_ref_id
+							}`,
 							{
-								...loanDetailsRes?.data?.data,
-								isEditLoan,
-								token: decryptedToken.token,
-							} || {}
-						)
-					);
+								headers: {
+									Authorization: `Bearer ${decryptedToken.token}`,
+								},
+							}
+						);
+						newEditLoanData.lender_document =
+							viewLoanDetailsRes?.data?.loan_details?.[0]?.lender_document;
+					}
+					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
 					const encryptWhiteLabelReq = await newRequest(
 						WHITELABEL_ENCRYPTION_API,

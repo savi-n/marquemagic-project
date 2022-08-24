@@ -395,6 +395,9 @@ export default function FormController({
 	const formatReferenceDetailsData = referenceDetailsData => {
 		const obj = {};
 		referenceDetailsData.map((ele, i) => {
+			for (const key in ele) {
+				obj[`${key}${i}`] = ele[key];
+			}
 			obj[`Name${i}`] = ele?.ref_name;
 			obj[`ReferenceEmail${i}`] = ele?.ref_email;
 			obj[`ContactNumber${i}`] = ele?.ref_contact;

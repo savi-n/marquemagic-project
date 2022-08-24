@@ -85,18 +85,18 @@ const TotalValueWrapper = styled.div`
 	}
 `;
 
-export default function PersonalDetails({
-	preData = {},
-	id,
-	pageName,
-	userType,
-	jsonData,
-	register,
-	formState,
-	companyDetail,
-	headingNameStyle,
-	productDetails = {},
-}) {
+export default function PersonalDetails(props) {
+	const {
+		preData = {},
+		id,
+		pageName,
+		userType,
+		jsonData,
+		register,
+		formState,
+		headingNameStyle,
+		productDetails = {},
+	} = props;
 	const { state } = useContext(LoanFormContext);
 	const {
 		state: { bankId, userToken },
@@ -309,7 +309,7 @@ export default function PersonalDetails({
 		}
 	};
 
-	// console.log('PersonalDetails-states-', { preData, productDetails, userType });
+	// console.log('PersonalDetails-allstates-', { props });
 
 	return (
 		<>
@@ -495,81 +495,100 @@ export default function PersonalDetails({
 								customFields.readonly = true;
 								customFields.disabled = true;
 							}
+							let isDevider = false;
+							if (id === 'reference-details') {
+								if (field.name === 'Name1') {
+									isDevider = true;
+								}
+							}
 							return (
 								field.visibility && (
-									<FieldWrap
-										key={`${id}-field-${fieldIndex}-${field.name}`}
-										isSmallSize={
-											field.name.includes('crop') ||
-											field.name.includes('cultivated')
-										}
-										isSubFields={field?.subFields ? true : false}
-									>
-										{register({
-											...field,
-											value,
-											...(preData?.[field.name] &&
-												field?.preDataDisable && { disabled: true }),
-											...(userType ? { disabled: false } : {}),
-											// max: field.type === 'date' && '9999-12-31',
-											placeholder:
-												field.type === 'banklist'
-													? preData?.[`${field?.name}`]?.name ||
-													  field.placeholder
-													: field.type === 'search'
-													? preData?.branchIdName || field?.placeholder
-													: field.placeholder,
-											...(field.type === 'search'
-												? {
-														searchable: true,
-														...(field.fetchOnInit && {
-															fetchOptionsFunc: getHomeBranchOption,
-														}),
-												  }
-												: {}),
-											...customFields,
-											visibility: 'visible',
-										})}
-										{field?.subFields &&
-											field?.subFields.map((subF, subFIndex) => {
-												if (subF.type === 'button') {
-													return (
-														<Button
-															key={`subF-${subFIndex}-${subF.placeholder}`}
-															name={subF.placeholder}
-															disabled={isVerifyWithOtpDisabled || editLoanData}
-															type='submit'
-															customStyle={{ whiteSpace: 'nowrap' }}
-															onClick={onSubFieldButtonClick}
-														/>
-													);
-												} else return null;
-												// Different types of field should come as seperate requriement
-												// during that time we'll handle these scenarion
-												// now only button is handled
+									<>
+										{isDevider && (
+											<div
+												style={{
+													border: '1px solid #eee',
+													width: '100%',
+													margin: '30px 0',
+												}}
+											/>
+										)}
+										<FieldWrap
+											key={`${id}-field-${fieldIndex}-${field.name}`}
+											isSmallSize={
+												field.name.includes('crop') ||
+												field.name.includes('cultivated')
+											}
+											isSubFields={field?.subFields ? true : false}
+										>
+											{register({
+												...field,
+												value,
+												...(preData?.[field.name] &&
+													field?.preDataDisable && { disabled: true }),
+												...(userType ? { disabled: false } : {}),
+												// max: field.type === 'date' && '9999-12-31',
+												placeholder:
+													field.type === 'banklist'
+														? preData?.[`${field?.name}`]?.name ||
+														  field.placeholder
+														: field.type === 'search'
+														? preData?.branchIdName || field?.placeholder
+														: field.placeholder,
+												...(field.type === 'search'
+													? {
+															searchable: true,
+															...(field.fetchOnInit && {
+																fetchOptionsFunc: getHomeBranchOption,
+															}),
+													  }
+													: {}),
+												...customFields,
+												visibility: 'visible',
 											})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name] &&
-											(field.subFields ? (
-												<ErrorMessageSubFields>
-													{formState?.error?.[field.name]}
-												</ErrorMessageSubFields>
-											) : (
-												<ErrorMessage>
-													{formState?.error?.[field.name]}
-												</ErrorMessage>
-											))}
-										{pricePerAcer > 0 && (
-											<PricePerAcer>
-												Rs. {pricePerAcer}
-												/acre
-											</PricePerAcer>
-										)}
-										{totalValueCultivated > 0 && (
-											<PricePerAcer>Rs. {totalValueCultivated}</PricePerAcer>
-										)}
-									</FieldWrap>
+											{field?.subFields &&
+												field?.subFields.map((subF, subFIndex) => {
+													if (subF.type === 'button') {
+														return (
+															<Button
+																key={`subF-${subFIndex}-${subF.placeholder}`}
+																name={subF.placeholder}
+																disabled={
+																	isVerifyWithOtpDisabled || editLoanData
+																}
+																type='submit'
+																customStyle={{ whiteSpace: 'nowrap' }}
+																onClick={onSubFieldButtonClick}
+															/>
+														);
+													} else return null;
+													// Different types of field should come as seperate requriement
+													// during that time we'll handle these scenarion
+													// now only button is handled
+												})}
+											{(formState?.submit?.isSubmited ||
+												formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name] &&
+												(field.subFields ? (
+													<ErrorMessageSubFields>
+														{formState?.error?.[field.name]}
+													</ErrorMessageSubFields>
+												) : (
+													<ErrorMessage>
+														{formState?.error?.[field.name]}
+													</ErrorMessage>
+												))}
+											{pricePerAcer > 0 && (
+												<PricePerAcer>
+													Rs. {pricePerAcer}
+													/acre
+												</PricePerAcer>
+											)}
+											{totalValueCultivated > 0 && (
+												<PricePerAcer>Rs. {totalValueCultivated}</PricePerAcer>
+											)}
+										</FieldWrap>
+									</>
 								)
 							);
 					  })}

@@ -102,6 +102,11 @@ export default function PersonalDetailsPage({
 		aadhaar: applicantDataDirectorDetails?.daadhaar,
 	};
 
+	let userTokensss = sessionStorage.getItem(HOSTNAME);
+
+	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
+	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
+
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
 		return value;
@@ -245,12 +250,26 @@ export default function PersonalDetailsPage({
 			maritalStatus: personalDetails?.marital_status,
 			equifaxscore: personalDetails?.dcibil_score?.toString(),
 		};
+		if (editLoanData?.annual_turn_over) {
+			newPersonalDetails.grossIncome = amountConverter(
+				editLoanData.annual_turn_over,
+				editLoanData.revenue_um
+			).toString();
+		}
+		if (editLoanData?.annual_op_expense) {
+			newPersonalDetails.netMonthlyIncome = amountConverter(
+				editLoanData.annual_op_expense,
+				editLoanData.op_expense_um
+			).toString();
+		}
 		return newPersonalDetails;
 	};
 
 	const prefilledValues = () => {
 		try {
 			if (editLoanData) {
+				// form = formatPersonalDetails(editApplicantData);
+				// return form;
 				const appData = JSON.parse(userTokensss)?.formReducer?.user
 					?.applicantData;
 				let form =
@@ -328,11 +347,6 @@ export default function PersonalDetailsPage({
 		}
 	};
 
-	let userTokensss = sessionStorage.getItem(HOSTNAME);
-
-	// let loan = JSON.parse(userTokensss)?.formReducer?.user?.loanData;
-	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
-
 	const getDataFromPan = () => {
 		const t = JSON.parse(sessionStorage.getItem('formstatepan'));
 		const name = t?.values?.companyName?.split(' ');
@@ -340,25 +354,6 @@ export default function PersonalDetailsPage({
 			return name;
 		}
 	};
-
-	let editLoanDataSalary = {};
-	if (editLoanData && (!form || (form && Object.keys(form).length === 0))) {
-		editLoanDataSalary = {
-			grossIncome:
-				editLoanData.annual_turn_over &&
-				amountConverter(
-					editLoanData.annual_turn_over,
-					editLoanData.revenue_um
-				).toString(),
-
-			netMonthlyIncome:
-				editLoanData.annual_op_expense &&
-				amountConverter(
-					editLoanData.annual_op_expense,
-					editLoanData.op_expense_um
-				).toString(),
-		};
-	}
 
 	const ButtonProceed = (
 		<Button
@@ -413,6 +408,8 @@ export default function PersonalDetailsPage({
 		incomeType: prefilledValues()?.incomeType || '',
 		equifaxscore: prefilledValues()?.equifaxscore || '',
 		maritalStatus: prefilledValues()?.maritalStatus || '',
+		grossIncome: prefilledValues()?.grossIncome || '',
+		netMonthlyIncome: prefilledValues()?.netMonthlyIncome || '',
 		...form,
 	};
 
@@ -448,10 +445,8 @@ export default function PersonalDetailsPage({
 				formState={formState}
 				incomeType={formState?.values?.incomeType || null}
 				// incomeType={'business'}
-				preData={
-					(form && Object.keys(form).length > 0 && form) || editLoanDataSalary
-				}
-
+				preData={{ ...preDataPersonalDetails }}
+				// (form && Object.keys(form).length > 0 && form) || editLoanDataSalary
 				// preData={{
 				// 	incomeType: prefilledValues()?.incomeType?.value || '',
 				// 	incomeType:
