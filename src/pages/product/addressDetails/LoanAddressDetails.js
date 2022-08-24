@@ -331,6 +331,32 @@ export default function AddressDetailsPage({
 		(form && form.address && form.address[0]) ||
 		(editLoanData && formatAddressData(editLoanData.business_address)[0]);
 
+	// TODO: WORK ON PREFILL ISSUE
+	// const preData = {
+	// 	address1:
+	// 		Address && Address.address1
+	// 			? Address && Address.address1
+	// 			: companyDetail?.Address
+	// 			? getAddress(companyDetail?.Address)
+	// 			: prefilledValues()?.address1 || '',
+	// 	address2:
+	// 		(Address && Address.address2) || prefilledValues()?.address2 || '',
+	// 	address3:
+	// 		(Address && Address.address3) || prefilledValues()?.address3 || '',
+	// 	address4:
+	// 		(Address && Address.address4) || prefilledValues()?.address4 || '',
+	// 	city: (Address && Address.city) || prefilledValues()?.city || '',
+	// 	state: (Address && Address.state) || prefilledValues()?.state || '',
+	// 	pinCode:
+	// 		Address && Address.pinCode
+	// 			? Address.pinCode
+	// 			: companyDetail?.Address
+	// 			? companyDetail?.Address
+	// 				? getPinCode(companyDetail?.Address)
+	// 				: ''
+	// 			: prefilledValues()?.pin || '',
+	// };
+
 	// console.log('LoanAddressDetails-states-', {
 	// 	Address,
 	// 	preprefilledValues: prefilledValues(),

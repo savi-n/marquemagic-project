@@ -452,13 +452,14 @@ export default function FileUpload(props) {
 
 	const openDocument = async file => {
 		try {
-			console.log('open-doc-', file);
+			// console.log('open-doc-', file);
 			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
 			if (file.loan) {
 				reqBody.loan_id = file.loan;
+				reqBody.userid = file.user_id;
 			} else {
 				reqBody.isProfile = true;
 			}

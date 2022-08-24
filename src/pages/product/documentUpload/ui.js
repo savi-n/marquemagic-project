@@ -143,7 +143,12 @@ export const DocUploadNotRequiredMessage = styled.div`
 `;
 
 export const CoAppName = styled.span`
-	color: grey !important;
+	color: black !important;
+	font-weight: 500;
 	margin-left: 10px;
-	font-size: 14px;
+	font-size: 12px;
+	background-color: #eee;
+	padding: 5px 20px;
+	border-radius: 12px;
+	letter-spacing: 0.5px;
 `;

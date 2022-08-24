@@ -3,6 +3,8 @@ import { HOSTNAME } from '_config/app.config';
 export const CATEGORY_KYC = 'kyc';
 export const CATEGORY_FINANCIAL = 'financial';
 export const CATEGORY_OTHER = 'other';
+export const CATEGORY_LENDER = 'lender';
+export const CATEGORY_EVAL = 'eval';
 
 export const fileStructure = (documents, type) => {
 	return documents

@@ -182,7 +182,7 @@ const CoapplicantDetailsSection = props => {
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
 	let editCoApplicantData = {};
-	if (isEditLoan && editLoanCoApplicants.length > 0) {
+	if (editLoanData && editLoanCoApplicants.length > 0) {
 		editLoanCoApplicants?.map((coApplicant, index) => {
 			for (const key in coApplicant) {
 				// console.log('key-', { key, coApplicant });
@@ -204,7 +204,8 @@ const CoapplicantDetailsSection = props => {
 				[`email${currentIndex}`]: coApplicant?.demail || '',
 				[`relationship_with_applicant${currentIndex}`]:
 					coApplicant?.applicant_relationship || '',
-				[`incomeType${currentIndex}`]: coApplicant?.income_type || '',
+				[`incomeType${currentIndex}`]:
+					coApplicant?.income_type === 0 ? '0' : coApplicant?.income_type || '',
 				[`panNumber${currentIndex}`]: coApplicant?.dpancard || '',
 				[`aadhaar${currentIndex}`]: coApplicant?.daadhaar || '',
 				[`residenceStatus${currentIndex}`]: coApplicant?.residence_status || '',
@@ -473,6 +474,7 @@ const CoapplicantDetailsSection = props => {
 	}, [totalCoapplicantCount]);
 
 	// console.log('coapplicantsectino-allstates-', {
+	// 	editLoanCoApplicants,
 	// 	editCoApplicantData,
 	// 	prePopulateCoApplicants,
 	// 	openDrawer,
