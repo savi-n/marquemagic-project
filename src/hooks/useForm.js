@@ -1,16 +1,18 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, createContext } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/BankList';
+import IfscList from 'components/inputs/IfscList';
 import Pincode from 'components/inputs/PinCode';
 import DateField from 'components/inputs/DateField';
 import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
-
+import { string } from 'prop-types';
+export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;
 }
@@ -68,6 +70,10 @@ const VALIDATION_RULES = {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
 	},
+	// ifsc: {
+	// 	func: validatePattern(/^[A-Z]{4}0[A-Z0-9]{6}$/),
+	// 	message: 'Invalid IFSC',
+	// },
 	pattern: {
 		func: validatePattern(),
 		message: 'Pattern Mismatch',
@@ -204,6 +210,7 @@ export default function useForm() {
 		fieldsRef.current = remainingField;
 
 		const { [field]: _omitValue, ...remainingValue } = valuesRef.current;
+
 		valuesRef.current = remainingValue;
 
 		const { [field]: _omitValid, ...remainingValid } = validRef.current;
@@ -223,7 +230,19 @@ export default function useForm() {
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
 
-		setValue(newField.name, newField.value || '');
+		let changeValue;
+		if (newField.name === 'ifsccode') {
+			// newField.rules = {};
+			// newField.mask = {};
+			if (typeof newField?.value?.value === 'string') {
+				changeValue = newField?.value?.value;
+			}
+		} else {
+			changeValue = newField?.value;
+		}
+		if (typeof changeValue !== 'undefined') {
+			setValue(newField.name, changeValue || '');
+		}
 		checkValidity(newField.name);
 
 		return (
@@ -359,7 +378,6 @@ const Currency = styled.div`
 
 function InputFieldRender({ field, onChange, value, unregister }) {
 	const { type = 'text' } = field;
-
 	useEffect(() => {
 		return () => {
 			unregister(field.name);
@@ -397,6 +415,11 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 
 	if (field.disabled && field.pattern) {
 		return <DisabledInput {...{ ...field, ...fieldProps }} />;
+	}
+
+	if (field.name.includes('ifsc')) {
+		field.mask = {};
+		field.rules = {};
 	}
 
 	switch (type) {
@@ -469,7 +492,15 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 				/>
 			);
 		}
-
+		case 'ifsclist': {
+			return (
+				<IfscList
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
 		case 'date': {
 			return <DateField {...{ ...field, ...fieldProps }} />;
 		}

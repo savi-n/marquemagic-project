@@ -148,7 +148,6 @@ export default function FormController({
 	}, [map.name]);
 
 	const onSave = data => {
-		// console.log('onSave-', { state, id, data });
 		setFlowData(data, id);
 		// setLoanData({ ...data }, id);
 		addToast({
