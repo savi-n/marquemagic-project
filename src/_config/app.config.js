@@ -69,6 +69,7 @@ const ADD_SHAREHOLDER_DETAILS = `${API_END_POINT}/businessShareholder/create`;
 const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
+const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
@@ -150,6 +151,7 @@ export {
 	ADD_SHAREHOLDER_DETAILS,
 	ADD_REFENCE_DETAILS,
 	BANK_LIST_FETCH,
+	IFSC_LIST_FETCH,
 	DOCTYPES_FETCH,
 	APP_CLIENT,
 	SECRET,

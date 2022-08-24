@@ -139,6 +139,7 @@ export default function SearchSelect(props) {
 		field,
 		defaultValue = '',
 		customLabel = '',
+		onIfscChange,
 	} = props;
 	// console.log('SearchSelect-props-', { props, defaultValue, field });
 	const [optionShow, setOptionShow] = useState(false);
@@ -228,7 +229,7 @@ export default function SearchSelect(props) {
 	const onSearchChange = async event => {
 		const { value } = event.target;
 		setSearchKey(value);
-
+		onIfscChange(value);
 		if (searchOptionCallback && typeof searchOptionCallback === 'function') {
 			let options = [{ name: value, value: value }];
 			if (!value.trim()) {
