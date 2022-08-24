@@ -148,7 +148,6 @@ export default function FormController({
 	}, [map.name]);
 
 	const onSave = data => {
-		// console.log('onSave-', { state, id, data });
 		setFlowData(data, id);
 		// setLoanData({ ...data }, id);
 		addToast({
@@ -381,6 +380,7 @@ export default function FormController({
 
 	const formaBankDetailsData = bankDetailsData => {
 		// console.log('formaBankDetailsData-', bankDetailsData);
+		console.log(bankDetailsData, 'bankdetails in formcontroller');
 		return {
 			BankName: bankDetailsData?.bank_id?.toString(),
 			AccountNumber: bankDetailsData?.account_number,

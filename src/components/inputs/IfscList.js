@@ -1,13 +1,15 @@
 /* Populate search of ifsc with list of banks */
 
 import { useState, useEffect, useContext } from 'react';
-
+import { FlowContext } from '../../reducer/flowReducer';
 import useFetch from 'hooks/useFetch';
 import SearchSelect from '../SearchSelect';
 import { IFSC_LIST_FETCH } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
 import { BussinesContext } from 'reducer/bussinessReducer';
-
+import { includes } from 'lodash';
+import useForm from '../../hooks/useForm';
+import _ from 'lodash';
 // const Input = styled.input`
 // 	height: 50px;
 // 	padding: 10px;
@@ -17,11 +19,21 @@ import { BussinesContext } from 'reducer/bussinessReducer';
 // `;
 
 export default function IfscList(props) {
-	const { field, onSelectOptionCallback, value, ifscData } = props;
-	console.log(ifscData, 'hi', '**********ifsc in ifsclist');
+	const {
+		state: { ifscList },
+		actions: { setIfscList },
+	} = useContext(FlowContext);
+	const { field, onSelectOptionCallback, value } = props;
+
+	const { handleSubmit, register, formState, clearError } = useForm();
+	// if (field.name.includes('ifsc')) {
+	// 	field.mask = {};
+	// 	field.rules = {};
+	// }
+
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-	console.log(ifscData, 'IFSC LIST -');
+
 	const {
 		state: { userToken },
 	} = useContext(UserContext);
@@ -29,29 +41,25 @@ export default function IfscList(props) {
 	const {
 		state: { companyDetail },
 	} = useContext(BussinesContext);
-	const { response } = useFetch({
-		url: IFSC_LIST_FETCH,
-		params: { bankId: 2 },
-		headers: {
-			Authorization: `Bearer ${userToken ||
-				companyDetail?.token ||
-				sessionStorage.getItem('userToken')} `,
-		},
-	});
 
 	const [options, setOptions] = useState([]);
 
+	const onIfscChange = value => {
+		const newOptions = _.cloneDeep(options);
+		newOptions.push({ value, name: value });
+		setOptions(newOptions);
+	};
+
 	useEffect(() => {
-		console.log('ifscList-useeffect-ifscData', ifscData);
-		if (ifscData?.length > 0) {
+		if (ifscList?.length > 0) {
 			setOptions(
-				ifscData.map(bank => ({
-					value: bank.id.toString(),
+				ifscList[0].map(bank => ({
+					value: bank.ifsc,
 					name: bank.ifsc,
 				}))
 			);
 		}
-	}, [ifscData]);
+	}, [ifscList]);
 
 	return (
 		<SearchSelect
@@ -62,6 +70,7 @@ export default function IfscList(props) {
 			onSelectOptionCallback={onSelectOptionCallback}
 			defaultValue={value}
 			disabled={isViewLoan}
+			onIfscChange={onIfscChange}
 		/>
 	);
 }

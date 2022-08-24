@@ -124,7 +124,7 @@ function reducer(state, action) {
 		case actionTypes.SET_IFSC_LIST: {
 			updatedState = {
 				...state,
-				ifscList: [],
+				ifscList: [action.flow],
 			};
 			break;
 		}

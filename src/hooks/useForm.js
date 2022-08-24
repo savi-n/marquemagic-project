@@ -11,6 +11,7 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
+import { string } from 'prop-types';
 export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;
@@ -69,6 +70,10 @@ const VALIDATION_RULES = {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
 	},
+	// ifsc: {
+	// 	func: validatePattern(/^[A-Z]{4}0[A-Z0-9]{6}$/),
+	// 	message: 'Invalid IFSC',
+	// },
 	pattern: {
 		func: validatePattern(),
 		message: 'Pattern Mismatch',
@@ -205,6 +210,7 @@ export default function useForm() {
 		fieldsRef.current = remainingField;
 
 		const { [field]: _omitValue, ...remainingValue } = valuesRef.current;
+
 		valuesRef.current = remainingValue;
 
 		const { [field]: _omitValid, ...remainingValid } = validRef.current;
@@ -224,7 +230,19 @@ export default function useForm() {
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
 
-		setValue(newField.name, newField.value || '');
+		let changeValue;
+		if (newField.name === 'ifsccode') {
+			// newField.rules = {};
+			// newField.mask = {};
+			if (typeof newField?.value?.value === 'string') {
+				changeValue = newField?.value?.value;
+			}
+		} else {
+			changeValue = newField?.value;
+		}
+		if (typeof changeValue !== 'undefined') {
+			setValue(newField.name, changeValue || '');
+		}
 		checkValidity(newField.name);
 
 		return (
@@ -360,12 +378,6 @@ const Currency = styled.div`
 
 function InputFieldRender({ field, onChange, value, unregister }) {
 	const { type = 'text' } = field;
-	const [ifscData, setIfscData] = useState([]);
-	// function ifsc(ifscProp) {
-	// 	setIfscData(ifscProp);
-	// }
-
-	console.log(ifscData, '---------------ifscData in useform');
 	useEffect(() => {
 		return () => {
 			unregister(field.name);
@@ -405,12 +417,11 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		return <DisabledInput {...{ ...field, ...fieldProps }} />;
 	}
 
-	// if (field.name.includes('ifsc')) {
-	// 	console.log(field.type, 'field value 1');
-	// 	field.type = 'ifsclist';
-	// 	console.log(field.type, 'field value 2');
-	// }
-	console.log(type, 'type in useForms');
+	if (field.name.includes('ifsc')) {
+		field.mask = {};
+		field.rules = {};
+	}
+
 	switch (type) {
 		case 'search': {
 			return (
@@ -475,7 +486,6 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		case 'banklist': {
 			return (
 				<BankList
-					setIfscData={setIfscData}
 					field={{ ...field, ...fieldProps }}
 					onSelectOptionCallback={onChange}
 					value={value}
@@ -483,10 +493,8 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 			);
 		}
 		case 'ifsclist': {
-			console.log(ifscData, 'hi', '++++++++++++++++ifsc in ifsclist');
 			return (
 				<IfscList
-					ifscData={ifscData}
 					field={{ ...field, ...fieldProps }}
 					onSelectOptionCallback={onChange}
 					value={value}
@@ -494,8 +502,6 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 			);
 		}
 		case 'date': {
-			console.log(ifscData, 'date', '++++++++++++++++ifsc in ifsclist');
-
 			return <DateField {...{ ...field, ...fieldProps }} />;
 		}
 		default: {
