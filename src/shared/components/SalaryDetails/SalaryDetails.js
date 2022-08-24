@@ -45,6 +45,7 @@ export default function SalaryDetails(props) {
 		size,
 		incomeType,
 		preData,
+		headingNameStyle,
 	} = props;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
@@ -65,7 +66,7 @@ export default function SalaryDetails(props) {
 		<>
 			<H>
 				{userType || isViewLoan ? '' : 'Help us with '}
-				<span>{jsonLable || 'Income Details'}</span>
+				<span style={headingNameStyle}>{jsonLable || 'Income Details'}</span>
 			</H>
 			<FormWrap>
 				{jsonData &&
