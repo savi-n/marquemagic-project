@@ -1,16 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, createContext } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/BankList';
+import IfscList from 'components/inputs/IfscList';
 import Pincode from 'components/inputs/PinCode';
 import DateField from 'components/inputs/DateField';
 import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
-
+export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;
 }
@@ -359,7 +360,12 @@ const Currency = styled.div`
 
 function InputFieldRender({ field, onChange, value, unregister }) {
 	const { type = 'text' } = field;
+	const [ifscData, setIfscData] = useState([]);
+	// function ifsc(ifscProp) {
+	// 	setIfscData(ifscProp);
+	// }
 
+	console.log(ifscData, '---------------ifscData in useform');
 	useEffect(() => {
 		return () => {
 			unregister(field.name);
@@ -399,6 +405,12 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		return <DisabledInput {...{ ...field, ...fieldProps }} />;
 	}
 
+	// if (field.name.includes('ifsc')) {
+	// 	console.log(field.type, 'field value 1');
+	// 	field.type = 'ifsclist';
+	// 	console.log(field.type, 'field value 2');
+	// }
+	console.log(type, 'type in useForms');
 	switch (type) {
 		case 'search': {
 			return (
@@ -463,14 +475,27 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		case 'banklist': {
 			return (
 				<BankList
+					setIfscData={setIfscData}
 					field={{ ...field, ...fieldProps }}
 					onSelectOptionCallback={onChange}
 					value={value}
 				/>
 			);
 		}
-
+		case 'ifsclist': {
+			console.log(ifscData, 'hi', '++++++++++++++++ifsc in ifsclist');
+			return (
+				<IfscList
+					ifscData={ifscData}
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
 		case 'date': {
+			console.log(ifscData, 'date', '++++++++++++++++ifsc in ifsclist');
+
 			return <DateField {...{ ...field, ...fieldProps }} />;
 		}
 		default: {
