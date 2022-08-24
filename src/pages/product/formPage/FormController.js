@@ -380,7 +380,6 @@ export default function FormController({
 
 	const formaBankDetailsData = bankDetailsData => {
 		// console.log('formaBankDetailsData-', bankDetailsData);
-		console.log(bankDetailsData, 'bankdetails in formcontroller');
 		return {
 			BankName: bankDetailsData?.bank_id?.toString(),
 			AccountNumber: bankDetailsData?.account_number,
