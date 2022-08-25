@@ -321,10 +321,10 @@ export default function AddressDetailsPage({
 				city: ele.city,
 				state: ele.state,
 				pinCode: ele.pincode,
-				addressType: i === 0 ? 'permanent' : 'present',
+				addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
 			};
 		});
-		return BAddress;
+		return BAddress.sort((a, b) => b.aid - a.aid);
 	};
 
 	const Address =
