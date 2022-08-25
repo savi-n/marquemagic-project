@@ -1,4 +1,6 @@
 /* Loan Address details section */
+//aid:1 = present address
+//aid:2 = permanent address
 import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
@@ -321,10 +323,10 @@ export default function AddressDetailsPage({
 				city: ele.city,
 				state: ele.state,
 				pinCode: ele.pincode,
-				addressType: i === 0 ? 'permanent' : 'present',
+				addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
 			};
 		});
-		return BAddress;
+		return BAddress.sort((a, b) => b.aid - a.aid);
 	};
 
 	const Address =
