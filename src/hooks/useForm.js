@@ -11,7 +11,7 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
-import { string } from 'prop-types';
+
 export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;

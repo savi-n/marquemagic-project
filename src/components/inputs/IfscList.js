@@ -2,13 +2,9 @@
 
 import { useState, useEffect, useContext } from 'react';
 import { FlowContext } from '../../reducer/flowReducer';
-import useFetch from 'hooks/useFetch';
+
 import SearchSelect from '../SearchSelect';
-import { IFSC_LIST_FETCH } from '_config/app.config';
-import { UserContext } from 'reducer/userReducer';
-import { BussinesContext } from 'reducer/bussinessReducer';
-import { includes } from 'lodash';
-import useForm from '../../hooks/useForm';
+
 import _ from 'lodash';
 // const Input = styled.input`
 // 	height: 50px;
@@ -21,11 +17,9 @@ import _ from 'lodash';
 export default function IfscList(props) {
 	const {
 		state: { ifscList },
-		actions: { setIfscList },
 	} = useContext(FlowContext);
 	const { field, onSelectOptionCallback, value } = props;
 
-	const { handleSubmit, register, formState, clearError } = useForm();
 	// if (field.name.includes('ifsc')) {
 	// 	field.mask = {};
 	// 	field.rules = {};
@@ -34,22 +28,16 @@ export default function IfscList(props) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
-	const {
-		state: { userToken },
-	} = useContext(UserContext);
-
-	const {
-		state: { companyDetail },
-	} = useContext(BussinesContext);
-
 	const [options, setOptions] = useState([]);
 
 	const onIfscChange = value => {
 		const newOptions = _.cloneDeep(options);
-		newOptions.push({ value, name: value });
-		setOptions(newOptions);
+		// 11 is the length for any ifsc code
+		if (value.length === 11) {
+			newOptions.push({ value, name: value });
+			setOptions(newOptions);
+		}
 	};
-
 	useEffect(() => {
 		if (ifscList?.length > 0) {
 			setOptions(
