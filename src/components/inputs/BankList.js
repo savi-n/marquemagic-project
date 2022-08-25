@@ -10,7 +10,6 @@ import { FlowContext } from '../../reducer/flowReducer';
 import { UserContext } from 'reducer/userReducer';
 import { BussinesContext } from 'reducer/bussinessReducer';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
 
 // const Input = styled.input`
 // 	height: 50px;
@@ -26,7 +25,6 @@ export default function BankList(props) {
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const {
-		state: { ifscList },
 		actions: { setIfscList },
 	} = useContext(FlowContext);
 
