@@ -1,4 +1,6 @@
 /* Loan Address details section */
+//aid:1 = present address
+//aid:2 = permanent address
 import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
