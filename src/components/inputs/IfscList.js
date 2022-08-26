@@ -31,7 +31,7 @@ export default function IfscList(props) {
 		const newOptions = _.cloneDeep(options);
 		// 11 is the length for any ifsc code
 		if (value.length === 11) {
-			newOptions.push({ value, name: value });
+			newOptions.unshift({ value, name: value });
 			setOptions(newOptions);
 		}
 	};
