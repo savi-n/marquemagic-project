@@ -270,15 +270,21 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			let newFormState = {};
-			try {
-				newFormState = JSON.parse(sessionStorage.getItem('formstate')) || {};
-			} catch (e) {
-				newFormState = { values: {} };
-			}
+			let newPrefillValues = {};
+
+			// try {
+			// 	newFormState = JSON.parse(sessionStorage.getItem('formstate')) || {};
+			// } catch (e) {
+			// 	newFormState = { values: {} };
+			// }
 			// initialize values if not exist
-			if (!newFormState?.values) {
-				newFormState.values = {};
+			// if (!newFormState?.values) {
+			// 	newFormState.values = {};
+			// }
+
+			// priority1 prefill form formstate
+			if (formState.values && Object.keys(formState.values).length > 0) {
+				return formState.values;
 			}
 			let aadhaarOtpRes = null;
 			try {
@@ -298,20 +304,29 @@ export default function AddressDetailsPage({
 					newAddress1.push(aadhaarOtpRes?.data?.address?.vtc || '');
 				if (aadhaarOtpRes?.data?.address?.subdist)
 					newAddress1.push(aadhaarOtpRes?.data?.address?.subdist || '');
-				newFormState.values.address1 = newAddress1.join(', ');
-				newFormState.values.address2 =
+				newPrefillValues.address1 = newAddress1.join(', ');
+				newPrefillValues.address2 =
 					aadhaarOtpRes?.data?.address?.landmark || '';
-				newFormState.values.address3 = aadhaarOtpRes?.data?.address?.po || '';
-				newFormState.values.pin = aadhaarOtpRes?.data?.address?.pc || '';
-				newFormState.values.city = aadhaarOtpRes?.data?.address?.dist || '';
-				newFormState.values.state = aadhaarOtpRes?.data?.address?.state || '';
+				newPrefillValues.address3 = aadhaarOtpRes?.data?.address?.po || '';
+				newPrefillValues.pin = aadhaarOtpRes?.data?.address?.pc || '';
+				newPrefillValues.city = aadhaarOtpRes?.data?.address?.dist || '';
+				newPrefillValues.state = aadhaarOtpRes?.data?.address?.state || '';
 			}
-			return newFormState?.values;
+			if (companyDetail?.Address) {
+				newPrefillValues.address1 = getAddress(companyDetail?.Address);
+				newPrefillValues.pin = getPinCode(companyDetail?.Address);
+			}
+			if (editLoanData) {
+				newPrefillValues = formatAddressData(editLoanData.business_address)[0];
+			}
+			return newPrefillValues;
 		} catch (error) {
 			console.error('error-LoanAddressDetails-prefilledValues-', error);
 			return {};
 		}
 	};
+
+	const prefilledValuesPresent = () => {};
 
 	const formatAddressData = address => {
 		const BAddress = address.map((ele, i) => {
@@ -329,15 +344,14 @@ export default function AddressDetailsPage({
 		return BAddress.sort((a, b) => b.aid - a.aid);
 	};
 
-	const Address =
-		(form && form.address && form.address[0]) ||
-		(editLoanData && formatAddressData(editLoanData.business_address)[0]);
+	// const Address =
+	// 	(form && form.address && form.address[0]) ||
+	// 	(editLoanData && formatAddressData(editLoanData.business_address)[0]);
 
 	// TODO: WORK ON PREFILL ISSUE
 	// const preData = {
 	// 	address1:
-	// 		Address && Address.address1
-	// 			? Address && Address.address1
+	// 		prefilledValues()?.address1 ?
 	// 			: companyDetail?.Address
 	// 			? getAddress(companyDetail?.Address)
 	// 			: prefilledValues()?.address1 || '',
@@ -359,10 +373,13 @@ export default function AddressDetailsPage({
 	// 			: prefilledValues()?.pin || '',
 	// };
 
-	// console.log('LoanAddressDetails-states-', {
-	// 	Address,
-	// 	preprefilledValues: prefilledValues(),
-	// });
+	// const preDataPresent = {}
+
+	console.log('LoanAddressDetails-states-', {
+		// Address,
+		// preprefilledValues: prefilledValues(),
+		// preData,
+	});
 
 	return (
 		<Div>
@@ -374,34 +391,13 @@ export default function AddressDetailsPage({
 				match={match}
 				setMatch={setMatch}
 				jsonData={map.fields[id].data}
-				preDataFilled={
-					form?.address ||
-					(editLoanData && formatAddressData(editLoanData.business_address))
-				}
-				preData={{
-					address1:
-						Address && Address.address1
-							? Address && Address.address1
-							: companyDetail?.Address
-							? getAddress(companyDetail?.Address)
-							: prefilledValues()?.address1 || '',
-					address2:
-						(Address && Address.address2) || prefilledValues()?.address2 || '',
-					address3:
-						(Address && Address.address3) || prefilledValues()?.address3 || '',
-					address4:
-						(Address && Address.address4) || prefilledValues()?.address4 || '',
-					city: (Address && Address.city) || prefilledValues()?.city || '',
-					state: (Address && Address.state) || prefilledValues()?.state || '',
-					pinCode:
-						Address && Address.pinCode
-							? Address.pinCode
-							: companyDetail?.Address
-							? companyDetail?.Address
-								? getPinCode(companyDetail?.Address)
-								: ''
-							: prefilledValues()?.pin || '',
-				}}
+				// preDataFilled={
+				// 	editLoanData
+				// 		? formatAddressData(editLoanData.business_address)
+				// 		: form?.address
+				// }
+				preData={prefilledValues()} // permanent
+				// preDataPresent={preDataPresent}
 			/>
 			<ButtonWrap>
 				<Button

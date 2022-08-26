@@ -76,10 +76,14 @@ export default function AddressDetails({
 	presentAddressCheck,
 	hidePresentAddress = false,
 }) {
-	const presentAddress =
-		(preDataFilled &&
-			preDataFilled.filter(ele => ele.addressType === 'present')) ||
-		[];
+	// const presentAddress =
+	// 	(preDataFilled &&
+	// 		preDataFilled.filter(ele => ele.addressType === 'present')) ||
+	// 	[];
+	// const parmanentAddress =
+	// 	(preDataFilled &&
+	// 		preDataFilled.filter(ele => ele.addressType === 'permanent')) ||
+	// 	[];
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
@@ -91,21 +95,29 @@ export default function AddressDetails({
 		if (formState?.values?.[`permanent_${field.name}`]) {
 			return formState?.values?.[`permanent_${field.name}`];
 		}
-
-		return preData[field.name] || field.value || '';
+		if (preData[field.name] || field.value) {
+			return preData[field.name] || field.value || '';
+		}
+		// return (
+		// 	(parmanentAddress &&
+		// 		parmanentAddress.length &&
+		// 		parmanentAddress[0][field.name]) ||
+		// 	field.value ||
+		// 	''
+		// );
 	};
 
 	const populatePresentValue = (field, match) => {
 		if (formState?.values?.[`present_${field.name}`])
 			return formState?.values?.[`present_${field.name}`];
 
-		return (
-			(presentAddress &&
-				presentAddress.length &&
-				presentAddress[0][field.name]) ||
-			field.value ||
-			''
-		);
+		// return (
+		// 	(presentAddress &&
+		// 		presentAddress.length &&
+		// 		presentAddress[0][field.name]) ||
+		// 	field.value ||
+		// 	''
+		// );
 	};
 
 	useEffect(() => {
