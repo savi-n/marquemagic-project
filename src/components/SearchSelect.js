@@ -13,7 +13,14 @@ const Wrapper = styled.div`
 	width: 100%;
 	position: relative;
 `;
-
+// const ClearIfsc = styled.button`
+// 	background: red;
+// 	color: white;
+// 	width: 100px;
+// 	height: auto;
+// 	border-radius: 10px;
+// 	border: solid 1px red;
+// `;
 const Input = styled.input`
 	height: 50px;
 	padding: 10px;
@@ -141,7 +148,6 @@ export default function SearchSelect(props) {
 		customLabel = '',
 		onIfscChange,
 	} = props;
-	// console.log('SearchSelect-props-', { props, defaultValue, field });
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
 	const [searchKey, setSearchKey] = useState('');
@@ -228,7 +234,7 @@ export default function SearchSelect(props) {
 
 	const onSearchChange = async event => {
 		const { value } = event.target;
-		setSearchKey(value);
+		setSearchKey(value.toUpperCase());
 		if (field.name.includes('ifsc')) {
 			onIfscChange(value);
 		}
@@ -339,6 +345,23 @@ export default function SearchSelect(props) {
 					</Options>
 				)}
 			</Wrapper>
+			{/* todo - delete ifsc */}
+			{/* {ifscLIstField ? (
+				<ClearIfsc
+					onClick={() => {
+						setSelectedOption('ifsccode');
+						console.log(selectedOption, 'selected option');
+						if (field.name.includes('ifsc')) {
+							console.log(field, '------------99');
+							// field.value = 'jijo';
+							// defaultValue = 'jijo';
+							// onSelectOptionCallback({ name: '', value: '' });
+						}
+					}}
+				>
+					Clear IFSC
+				</ClearIfsc>
+			) : null} */}
 		</>
 	);
 }

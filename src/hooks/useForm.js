@@ -226,6 +226,13 @@ export default function useForm() {
 	};
 
 	const register = newField => {
+		// condition to check whether the ifsc field should be validated or not
+		if (newField.name.includes('ifsc')) {
+			if (newField.value.length === 0) {
+				newField.rules = {};
+			}
+		}
+
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
