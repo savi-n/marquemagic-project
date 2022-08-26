@@ -313,7 +313,7 @@ const DocumentUpload = props => {
 				if (!doc.requestId) return doc;
 				return null;
 			});
-			const reqBody = CONST.caseCreationDataFormat(
+			const reqBody = CONST.generateCaseCreationReqBody(
 				{
 					...documentState,
 					productId,
@@ -324,7 +324,6 @@ const DocumentUpload = props => {
 				productId,
 				editLoanData
 			);
-
 			if (sessionStorage.getItem('userDetails')) {
 				try {
 					reqBody.user_id =
@@ -337,7 +336,7 @@ const DocumentUpload = props => {
 			// Test area
 			// console.log('LoanDocumentsUpload-Create-Edit-ReqBody', reqBody);
 			// return;
-			// Test area
+			// -- Test area
 
 			const caseReq = await newRequest(
 				editLoanData && editLoanData?.loan_ref_id
@@ -793,7 +792,7 @@ const DocumentUpload = props => {
 			}
 			const newDoc = {
 				..._.cloneDeep(doc),
-				name: doc.name || doc.upload_doc_name,
+				name: doc.upload_doc_name || doc.name,
 				progress: '100',
 				status: 'completed',
 				file: null,
@@ -916,8 +915,8 @@ const DocumentUpload = props => {
 						...editDoc,
 						doc_type_id,
 						name:
-							editDoc?.original_doc_name ||
 							editDoc?.uploaded_doc_name ||
+							editDoc?.original_doc_name ||
 							editDoc?.doc_name, // displaying doc name
 						isViewEdit: true, // for not passing this in any edit api
 						doc_id: docId, // for removing document from be
@@ -1106,18 +1105,18 @@ const DocumentUpload = props => {
 	if (applicantData?.dlastname)
 		applicantFullName += ` ${applicantData?.lastName}`;
 
-	console.log('loandocupload-allstates-', {
-		allTagUnTagDocList,
-		prefilledDocs,
-		preFillKycDocsTag,
-		preFillKycDocsUnTag,
-		totalMandatoryDocumentCount,
-		totalMandatoryUploadedDocumentCount,
-		appLenderDocList,
-		appEvalDocList,
-		preFillLenderDocsTag,
-		preFillEvalDocsTag,
-	});
+	// console.log('loandocupload-allstates-', {
+	// 	allTagUnTagDocList,
+	// 	prefilledDocs,
+	// 	preFillKycDocsTag,
+	// 	preFillKycDocsUnTag,
+	// 	totalMandatoryDocumentCount,
+	// 	totalMandatoryUploadedDocumentCount,
+	// 	appLenderDocList,
+	// 	appEvalDocList,
+	// 	preFillLenderDocsTag,
+	// 	preFillEvalDocsTag,
+	// });
 
 	if (loading) {
 		return (

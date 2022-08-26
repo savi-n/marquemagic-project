@@ -52,7 +52,7 @@ export const getAmount = a => {
 	}
 };
 
-export const caseCreationDataFormat = (
+export const generateCaseCreationReqBody = (
 	data,
 	uploaddedDoc,
 	companyData,
@@ -79,10 +79,26 @@ export const caseCreationDataFormat = (
 			authentication_otp_res = null;
 		}
 		const collateralData = [];
-		if (data['collateral-details'] || formReducer?.user['collateral-details'])
-			collateralData.push(
-				data['collateral-details'] || formReducer?.user['collateral-details']
-			);
+		if (data['collateral-details'] || formReducer?.user['collateral-details']) {
+			const newCollateral = {
+				...(data['collateral-details'] ||
+					formReducer?.user['collateral-details']),
+			};
+			try {
+				if (editLoan && editLoan?.id) {
+					newCollateral.asset_id =
+						editLoan?.loan_assets?.filter(
+							c => c?.loan_type?.toLowerCase() === 'collateral'
+						)?.[0]?.id || '';
+				}
+			} catch (error) {
+				console.error(
+					'error-generateCaseCreationReqBody-cannotset-collateral-assetid-',
+					error
+				);
+			}
+			collateralData.push(newCollateral);
+		}
 		if (data['land-additional-details'])
 			collateralData.push(data['land-additional-details']);
 		if (data['fishery-additional-details'])
@@ -368,16 +384,19 @@ export const caseCreationDataFormat = (
 		if (editLoan && editLoan?.id) {
 			formatedData.loan_details.loanId = editLoan?.id;
 			formatedData.Collaterals = {
-				property_type: editLoan?.loan_asset_type,
-				assets_value: editLoan?.assets_value,
-				assets_value_um: editLoan?.assets_value_um,
+				// property_type: editLoan?.loan_asset_type,
+				// assets_value: editLoan?.assets_value,
+				// assets_value_um: editLoan?.assets_value_um,
 			};
 			formatedData.financials = {
-				annual_op_expense: editLoan?.annual_op_expense,
-				op_expense_um: editLoan?.op_expense_um,
-				gross_revenue: editLoan?.annual_revenue,
-				gross_revenue_um: editLoan?.revenue_um,
+				// annual_op_expense: editLoan?.annual_op_expense,
+				// op_expense_um: editLoan?.op_expense_um,
+				// gross_revenue: editLoan?.annual_revenue,
+				// gross_revenue_um: editLoan?.revenue_um,
 			};
+			// in edit more we don't need to pass business address because we are already updating
+			// these details in address details section if we add here it'll duplicate record
+			formatedData.businessaddress = [];
 		}
 		// console.log('-----------temp9-------------');
 		if (guarantorData?.applicantData) {
