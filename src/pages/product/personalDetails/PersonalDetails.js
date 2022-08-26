@@ -250,12 +250,18 @@ export default function PersonalDetailsPage({
 			maritalStatus: personalDetails?.marital_status,
 			equifaxscore: personalDetails?.dcibil_score?.toString(),
 		};
-		if (editLoanData?.annual_turn_over) {
+		// gross income
+		// annual_op_expense
+		// op_expense_um
+		if (editLoanData?.annual_turn_over || editLoanData?.annual_revenue) {
 			newPersonalDetails.grossIncome = amountConverter(
-				editLoanData.annual_turn_over,
+				editLoanData.annual_turn_over || editLoanData.annual_revenue,
 				editLoanData.revenue_um
 			).toString();
 		}
+		// net monthly income
+		// annual_op_expense
+		// op_expense_um
 		if (editLoanData?.annual_op_expense) {
 			newPersonalDetails.netMonthlyIncome = amountConverter(
 				editLoanData.annual_op_expense,
