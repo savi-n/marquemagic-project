@@ -229,7 +229,9 @@ export default function SearchSelect(props) {
 	const onSearchChange = async event => {
 		const { value } = event.target;
 		setSearchKey(value);
-		onIfscChange(value);
+		if (field.name.includes('ifsc')) {
+			onIfscChange(value);
+		}
 		if (searchOptionCallback && typeof searchOptionCallback === 'function') {
 			let options = [{ name: value, value: value }];
 			if (!value.trim()) {

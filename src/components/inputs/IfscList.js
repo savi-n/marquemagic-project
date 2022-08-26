@@ -45,6 +45,13 @@ export default function IfscList(props) {
 			);
 		}
 	}, [ifscList]);
+	useEffect(() => {
+		if (value.length > 0) {
+			const newOptions = _.cloneDeep(options);
+			newOptions.unshift({ value, name: value });
+			setOptions(newOptions);
+		}
+	}, []);
 
 	return (
 		<SearchSelect
