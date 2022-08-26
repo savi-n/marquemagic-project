@@ -70,10 +70,10 @@ const VALIDATION_RULES = {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
 	},
-	// ifsc: {
-	// 	func: validatePattern(/^[A-Z]{4}0[A-Z0-9]{6}$/),
-	// 	message: 'Invalid IFSC',
-	// },
+	ifsc: {
+		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
+		message: 'Invalid IFSC',
+	},
 	pattern: {
 		func: validatePattern(),
 		message: 'Pattern Mismatch',
@@ -229,20 +229,7 @@ export default function useForm() {
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
-
-		let changeValue;
-		if (newField.name === 'ifsccode') {
-			// newField.rules = {};
-			// newField.mask = {};
-			if (typeof newField?.value?.value === 'string') {
-				changeValue = newField?.value?.value;
-			}
-		} else {
-			changeValue = newField?.value;
-		}
-		if (typeof changeValue !== 'undefined') {
-			setValue(newField.name, changeValue || '');
-		}
+		setValue(newField.name, newField.value || '');
 		checkValidity(newField.name);
 
 		return (
@@ -417,10 +404,10 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		return <DisabledInput {...{ ...field, ...fieldProps }} />;
 	}
 
-	if (field.name.includes('ifsc')) {
-		field.mask = {};
-		field.rules = {};
-	}
+	// if (field.name.includes('ifsc')) {
+	// 	field.mask = {};
+	// 	field.rules = {};
+	// }
 
 	switch (type) {
 		case 'search': {
