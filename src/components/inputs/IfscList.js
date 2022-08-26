@@ -4,7 +4,6 @@ import { useState, useEffect, useContext } from 'react';
 import { FlowContext } from '../../reducer/flowReducer';
 
 import SearchSelect from '../SearchSelect';
-
 import _ from 'lodash';
 // const Input = styled.input`
 // 	height: 50px;
@@ -19,11 +18,9 @@ export default function IfscList(props) {
 		state: { ifscList },
 	} = useContext(FlowContext);
 	const { field, onSelectOptionCallback, value } = props;
-
-	// if (field.name.includes('ifsc')) {
-	// 	field.mask = {};
-	// 	field.rules = {};
-	// }
+	const onIfscSelectCallback = value => {
+		onSelectOptionCallback({ name: value.name, value: value.value.value });
+	};
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
@@ -55,7 +52,7 @@ export default function IfscList(props) {
 			name={field.name}
 			placeholder={field.placeholder || ''}
 			options={options}
-			onSelectOptionCallback={onSelectOptionCallback}
+			onSelectOptionCallback={onIfscSelectCallback}
 			defaultValue={value}
 			disabled={isViewLoan}
 			onIfscChange={onIfscChange}
