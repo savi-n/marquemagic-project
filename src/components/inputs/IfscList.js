@@ -56,6 +56,7 @@ export default function IfscList(props) {
 	return (
 		<SearchSelect
 			field={field}
+			// ifscLIstField={true}
 			name={field.name}
 			placeholder={field.placeholder || ''}
 			options={options}
