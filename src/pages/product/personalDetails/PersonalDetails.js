@@ -273,6 +273,9 @@ export default function PersonalDetailsPage({
 
 	const prefilledValues = () => {
 		try {
+			if (isViewLoan) {
+				return formatPersonalDetails(editApplicantData);
+			}
 			if (editLoanData) {
 				// form = formatPersonalDetails(editApplicantData);
 				// return form;

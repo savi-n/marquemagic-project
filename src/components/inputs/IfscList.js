@@ -51,6 +51,7 @@ export default function IfscList(props) {
 			newOptions.unshift({ value, name: value });
 			setOptions(newOptions);
 		}
+		// eslint-disable-next-line
 	}, []);
 
 	return (

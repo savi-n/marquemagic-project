@@ -251,7 +251,6 @@ const PanVerification = props => {
 				},
 				{ authorization: clientToken }
 			);
-
 			const companyData = cinNumberResponse.data;
 			const reqBody = {
 				email: companyData?.data?.company_master_data?.email_id || '',
@@ -315,6 +314,10 @@ const PanVerification = props => {
 			}
 		} catch (error) {
 			setLoading(false);
+			addToast({
+				message: error?.message || 'ROC search failed, try again',
+				type: 'error',
+			});
 			console.error('error-cinnumberfetch-', error);
 		}
 	};

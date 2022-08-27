@@ -3,7 +3,6 @@
 //aid:2 = permanent address
 import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { func, object, oneOfType, string } from 'prop-types';
 import useFetch from 'hooks/useFetch';
 import { BUSSINESS_PROFILE_UPDATE, HOSTNAME } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
@@ -42,12 +41,6 @@ const formatData = (type, data, fields) => {
 	};
 };
 
-AddressDetailsPage.propTypes = {
-	onFlowChange: func.isRequired,
-	map: oneOfType([string, object]),
-	id: string,
-	fieldConfig: object,
-};
 const getPinCode = add => {
 	// console.log('getPinCode-add-', add);
 	if (add && add?.pncd) return add.pncd;
@@ -87,22 +80,28 @@ const getAddress = add => {
 	} else return add;
 };
 
-export default function AddressDetailsPage({
-	id,
-	onFlowChange,
-	map,
-	fieldConfig,
-	productDetails,
-	productId,
-	companyData,
-	data,
-}) {
+const formatEditAddressData = address => {
+	const BAddress = address.map((ele, i) => {
+		return {
+			address1: ele.line1,
+			address2: ele.line2,
+			address3: ele.locality,
+			aid: ele.aid,
+			city: ele.city,
+			state: ele.state,
+			pinCode: ele.pincode,
+			addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
+		};
+	});
+	return BAddress.sort((a, b) => b.aid - a.aid);
+};
+
+const AddressDetailsPage = props => {
+	const { id, onFlowChange, map, productDetails } = props;
+	let { companyData } = props;
+
 	let formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	let applicantData = formReducer?.user?.applicantData;
-
-	let userTokensss = sessionStorage.getItem(HOSTNAME);
-
-	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness = productDetails.loan_request_type === 1 ? true : false;
 	const {
 		actions: { setCompleted },
@@ -169,7 +168,8 @@ export default function AddressDetailsPage({
 					formReducer?.user['business-details']?.Email ||
 					'',
 				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
-				gstin: '',
+				gstin:
+					applicantData?.GSTVerification || companyData?.GSTVerification || '',
 				businessStartDate: '4/8/90',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
 				Line1: formData?.permanent_address1 || applicantData?.address?.address1,
@@ -247,18 +247,15 @@ export default function AddressDetailsPage({
 	//     activateSubFlow(id);
 	//     onFlowChange(map.sub);
 	//   };
+
 	useEffect(() => {
 		const getData = async () => {
-			!isBusiness &&
-				form &&
-				form.address &&
-				form.address.length === 1 &&
-				setMatch(true);
-			if (form && form.address && form.address[0]) {
+			!isBusiness && applicantData?.address?.length === 1 && setMatch(true);
+			if (applicantData?.address?.[0]) {
 				// if formdata have address that allready saved details
 			} else {
 				let lengthAddress =
-					editLoanData && formatAddressData(editLoanData.business_address);
+					editLoanData && formatEditAddressData(editLoanData.business_address);
 				if (lengthAddress?.length === 1) {
 					setMatch(true);
 				}
@@ -270,21 +267,38 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			let newFormState = {};
-			try {
-				newFormState = JSON.parse(sessionStorage.getItem('formstate')) || {};
-			} catch (e) {
-				newFormState = { values: {} };
-			}
-			// initialize values if not exist
-			if (!newFormState?.values) {
-				newFormState.values = {};
+			let newPrefillValues = {};
+
+			// priority1 prefill form formstate
+			// extraction data is stored in formstate
+
+			if (Object.keys(applicantData?.address?.[0] || {}).length > 0) {
+				return applicantData?.address?.[0];
 			}
 			let aadhaarOtpRes = null;
 			try {
 				aadhaarOtpRes = JSON.parse(sessionStorage.getItem('aadhaar_otp_res'));
 			} catch (e) {
 				aadhaarOtpRes = null;
+			}
+			if (companyDetail?.Address) {
+				newPrefillValues.address1 = getAddress(companyDetail?.Address);
+				newPrefillValues.pinCode = getPinCode(companyDetail?.Address);
+			}
+			let formStateValues = {};
+			try {
+				formStateValues =
+					JSON.parse(sessionStorage.getItem('formstate'))?.values || {};
+			} catch (e) {
+				formStateValues = { values: {} };
+			}
+			if (formStateValues.address1) {
+				newPrefillValues.address1 = formStateValues.address1;
+				if (formStateValues.pin) {
+					newPrefillValues.pinCode = formStateValues.pin;
+				} else {
+					newPrefillValues.pinCode = getPinCode(formStateValues.address1);
+				}
 			}
 			if (aadhaarOtpRes) {
 				const newAddress1 = [];
@@ -298,46 +312,51 @@ export default function AddressDetailsPage({
 					newAddress1.push(aadhaarOtpRes?.data?.address?.vtc || '');
 				if (aadhaarOtpRes?.data?.address?.subdist)
 					newAddress1.push(aadhaarOtpRes?.data?.address?.subdist || '');
-				newFormState.values.address1 = newAddress1.join(', ');
-				newFormState.values.address2 =
+				newPrefillValues.address1 = newAddress1.join(', ');
+				newPrefillValues.address2 =
 					aadhaarOtpRes?.data?.address?.landmark || '';
-				newFormState.values.address3 = aadhaarOtpRes?.data?.address?.po || '';
-				newFormState.values.pin = aadhaarOtpRes?.data?.address?.pc || '';
-				newFormState.values.city = aadhaarOtpRes?.data?.address?.dist || '';
-				newFormState.values.state = aadhaarOtpRes?.data?.address?.state || '';
+				newPrefillValues.address3 = aadhaarOtpRes?.data?.address?.po || '';
+				newPrefillValues.pinCode = aadhaarOtpRes?.data?.address?.pc || '';
+				newPrefillValues.city = aadhaarOtpRes?.data?.address?.dist || '';
+				newPrefillValues.state = aadhaarOtpRes?.data?.address?.state || '';
 			}
-			return newFormState?.values;
+			if (editLoanData) {
+				newPrefillValues = formatEditAddressData(
+					editLoanData.business_address
+				)[0];
+			}
+			// console.log(
+			// 	'LoanAddressDetails-prefilledValues-newPrefillValues-',
+			// 	newPrefillValues
+			// );
+			return newPrefillValues;
 		} catch (error) {
 			console.error('error-LoanAddressDetails-prefilledValues-', error);
 			return {};
 		}
 	};
 
-	const formatAddressData = address => {
-		const BAddress = address.map((ele, i) => {
-			return {
-				address1: ele.line1,
-				address2: ele.line2,
-				address3: ele.locality,
-				aid: ele.aid,
-				city: ele.city,
-				state: ele.state,
-				pinCode: ele.pincode,
-				addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
-			};
-		});
-		return BAddress.sort((a, b) => b.aid - a.aid);
+	const prefilledValuesPresent = () => {
+		let newPrefillValues = {};
+		if (Object.keys(applicantData?.address?.[1] || {}).length > 0) {
+			return applicantData?.address?.[1];
+		}
+		if (editLoanData) {
+			newPrefillValues = formatEditAddressData(
+				editLoanData.business_address
+			)[1];
+		}
+		return newPrefillValues;
 	};
 
-	const Address =
-		(form && form.address && form.address[0]) ||
-		(editLoanData && formatAddressData(editLoanData.business_address)[0]);
+	// const Address =
+	// 	(form && form.address && form.address[0]) ||
+	// 	(editLoanData && formatEditAddressData(editLoanData.business_address)[0]);
 
 	// TODO: WORK ON PREFILL ISSUE
 	// const preData = {
 	// 	address1:
-	// 		Address && Address.address1
-	// 			? Address && Address.address1
+	// 		prefilledValues()?.address1 ?
 	// 			: companyDetail?.Address
 	// 			? getAddress(companyDetail?.Address)
 	// 			: prefilledValues()?.address1 || '',
@@ -359,59 +378,46 @@ export default function AddressDetailsPage({
 	// 			: prefilledValues()?.pin || '',
 	// };
 
+	// const preDataPresent = {}
+
 	// console.log('LoanAddressDetails-states-', {
-	// 	Address,
-	// 	preprefilledValues: prefilledValues(),
+	// 	formState,
+	// 	preData: prefilledValues(),
+	// 	preDataPresent: prefilledValuesPresent(),
+	// 	companyDetail,
 	// });
 
 	return (
 		<Div>
-			<AddressDetails
-				userType={'applicant'}
-				isBusiness={isBusiness}
-				register={register}
-				formState={formState}
-				match={match}
-				setMatch={setMatch}
-				jsonData={map.fields[id].data}
-				preDataFilled={
-					form?.address ||
-					(editLoanData && formatAddressData(editLoanData.business_address))
-				}
-				preData={{
-					address1:
-						Address && Address.address1
-							? Address && Address.address1
-							: companyDetail?.Address
-							? getAddress(companyDetail?.Address)
-							: prefilledValues()?.address1 || '',
-					address2:
-						(Address && Address.address2) || prefilledValues()?.address2 || '',
-					address3:
-						(Address && Address.address3) || prefilledValues()?.address3 || '',
-					address4:
-						(Address && Address.address4) || prefilledValues()?.address4 || '',
-					city: (Address && Address.city) || prefilledValues()?.city || '',
-					state: (Address && Address.state) || prefilledValues()?.state || '',
-					pinCode:
-						Address && Address.pinCode
-							? Address.pinCode
-							: companyDetail?.Address
-							? companyDetail?.Address
-								? getPinCode(companyDetail?.Address)
-								: ''
-							: prefilledValues()?.pin || '',
-				}}
-			/>
-			<ButtonWrap>
-				<Button
-					fill
-					isLoader={loading}
-					disabled={loading}
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					onClick={handleSubmit(onProceed)}
+			<form onSubmit={handleSubmit(onProceed)}>
+				<AddressDetails
+					userType={'applicant'}
+					isBusiness={isBusiness}
+					register={register}
+					formState={formState}
+					match={match}
+					setMatch={setMatch}
+					jsonData={map.fields[id].data}
+					// preDataFilled={
+					// 	editLoanData
+					// 		? formatEditAddressData(editLoanData.business_address)
+					// 		: form?.address
+					// }
+					preData={prefilledValues()} // permanent
+					preDataPresent={prefilledValuesPresent()}
 				/>
-			</ButtonWrap>
+				<ButtonWrap>
+					<Button
+						fill
+						isLoader={loading}
+						disabled={loading}
+						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						// onClick={handleSubmit(onProceed)}
+					/>
+				</ButtonWrap>
+			</form>
 		</Div>
 	);
-}
+};
+
+export default AddressDetailsPage;

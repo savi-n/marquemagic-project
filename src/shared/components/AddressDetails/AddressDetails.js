@@ -1,8 +1,6 @@
 /* active
 Applicant Address and Guarantor Address Details section*/
 import styled from 'styled-components';
-import { array, bool, func, object, oneOfType, string } from 'prop-types';
-
 import CheckBox from '../Checkbox/CheckBox';
 import { useEffect } from 'react';
 
@@ -51,35 +49,32 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
-AddressDetails.propTypes = {
-	userType: string,
-	jsonData: oneOfType([array, object]),
-	register: func,
-	formState: object,
-	match: bool,
-	setMatch: func.isRequired,
-};
-
-export default function AddressDetails({
-	hideHeader,
-	preData = {},
-	userType,
-	jsonData,
-	register,
-	formState,
-	match,
-	setMatch,
-	disablePermenanet = false,
-	isBusiness,
-	preDataFilled,
-	keyChange,
-	presentAddressCheck,
-	hidePresentAddress = false,
-}) {
-	const presentAddress =
-		(preDataFilled &&
-			preDataFilled.filter(ele => ele.addressType === 'present')) ||
-		[];
+const AddressDetails = props => {
+	const {
+		hideHeader,
+		preData = {},
+		userType,
+		jsonData,
+		register,
+		formState,
+		match,
+		setMatch,
+		// disablePermenanet = false,
+		isBusiness,
+		// preDataFilled,
+		preDataPresent,
+		// keyChange,
+		// presentAddressCheck,
+		hidePresentAddress = false,
+	} = props;
+	// const presentAddress =
+	// 	(preDataFilled &&
+	// 		preDataFilled.filter(ele => ele.addressType === 'present')) ||
+	// 	[];
+	// const parmanentAddress =
+	// 	(preDataFilled &&
+	// 		preDataFilled.filter(ele => ele.addressType === 'permanent')) ||
+	// 	[];
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
@@ -87,25 +82,39 @@ export default function AddressDetails({
 		// if (!userType && field.disabled) {
 		//   return preData[field.name] || "";
 		// }
-
-		if (formState?.values?.[`permanent_${field.name}`]) {
-			return formState?.values?.[`permanent_${field.name}`];
+		let value = '';
+		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
+			value = formState?.values?.[`permanent_${field.name}`];
+		} else if (preData[field.name] || field.value) {
+			value = preData[field.name] || field.value || '';
 		}
-
-		return preData[field.name] || field.value || '';
+		// console.log('returningp-permanent_-', value);
+		return value;
+		// return (
+		// 	(parmanentAddress &&
+		// 		parmanentAddress.length &&
+		// 		parmanentAddress[0][field.name]) ||
+		// 	field.value ||
+		// 	''
+		// );
 	};
 
 	const populatePresentValue = (field, match) => {
-		if (formState?.values?.[`present_${field.name}`])
-			return formState?.values?.[`present_${field.name}`];
-
-		return (
-			(presentAddress &&
-				presentAddress.length &&
-				presentAddress[0][field.name]) ||
-			field.value ||
-			''
-		);
+		let value = '';
+		if (formState?.values?.[`present_${field.name}`] !== undefined) {
+			value = formState?.values?.[`present_${field.name}`];
+		} else if (preDataPresent[field.name] || field.value) {
+			value = preDataPresent[field.name] || field.value || '';
+		}
+		// console.log('returningp-present_-', value);
+		return value;
+		// return (
+		// 	(presentAddress &&
+		// 		presentAddress.length &&
+		// 		presentAddress[0][field.name]) ||
+		// 	field.value ||
+		// 	''
+		// );
 	};
 
 	useEffect(() => {
@@ -113,6 +122,12 @@ export default function AddressDetails({
 		if (sessionStorage.getItem(`match${userType}`) === 'false') setMatch(false);
 		// eslint-disable-next-line
 	}, []);
+
+	// console.log('AddressDetails-allstates-', {
+	// 	formState,
+	// 	preData,
+	// 	preDataPresent,
+	// });
 
 	// form.address;
 	return (
@@ -189,6 +204,9 @@ export default function AddressDetails({
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
+								if (match) {
+									customFields.disabled = true;
+								}
 								return (
 									field.visibility && (
 										<FieldWrap key={`present_${field.name}`}>
@@ -229,4 +247,6 @@ export default function AddressDetails({
 			</FormWrap>
 		</>
 	);
-}
+};
+
+export default AddressDetails;

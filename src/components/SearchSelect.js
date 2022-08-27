@@ -345,23 +345,6 @@ export default function SearchSelect(props) {
 					</Options>
 				)}
 			</Wrapper>
-			{/* todo - delete ifsc */}
-			{/* {ifscLIstField ? (
-				<ClearIfsc
-					onClick={() => {
-						setSelectedOption('ifsccode');
-						console.log(selectedOption, 'selected option');
-						if (field.name.includes('ifsc')) {
-							console.log(field, '------------99');
-							// field.value = 'jijo';
-							// defaultValue = 'jijo';
-							// onSelectOptionCallback({ name: '', value: '' });
-						}
-					}}
-				>
-					Clear IFSC
-				</ClearIfsc>
-			) : null} */}
 		</>
 	);
 }
