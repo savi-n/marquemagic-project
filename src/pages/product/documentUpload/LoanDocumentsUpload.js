@@ -785,7 +785,10 @@ const DocumentUpload = props => {
 			let doc_type_id = doc.doc_type_id;
 			// `app_${business_income_type_id}_${CATEGORY}_${editDoc?.doctype}`
 			// if (!doc.typeId) {
-			if (doc.requestId) {
+
+			// this solution is not solid for tagging preuploaded document in docupload page
+			// work on this when new requirement comes
+			if (doc.requestId || doc.req_type === 'property') {
 				doc_type_id = `app_${business_income_type_id}_${doc.category}_${
 					flowDocTypeMappingList?.[`${doc?.req_type}`]
 				}`;

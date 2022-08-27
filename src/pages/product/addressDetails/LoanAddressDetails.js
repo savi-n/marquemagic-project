@@ -3,7 +3,6 @@
 //aid:2 = permanent address
 import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { func, object, oneOfType, string } from 'prop-types';
 import useFetch from 'hooks/useFetch';
 import { BUSSINESS_PROFILE_UPDATE, HOSTNAME } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
@@ -42,12 +41,6 @@ const formatData = (type, data, fields) => {
 	};
 };
 
-AddressDetailsPage.propTypes = {
-	onFlowChange: func.isRequired,
-	map: oneOfType([string, object]),
-	id: string,
-	fieldConfig: object,
-};
 const getPinCode = add => {
 	// console.log('getPinCode-add-', add);
 	if (add && add?.pncd) return add.pncd;
@@ -87,22 +80,28 @@ const getAddress = add => {
 	} else return add;
 };
 
-export default function AddressDetailsPage({
-	id,
-	onFlowChange,
-	map,
-	fieldConfig,
-	productDetails,
-	productId,
-	companyData,
-	data,
-}) {
+const formatEditAddressData = address => {
+	const BAddress = address.map((ele, i) => {
+		return {
+			address1: ele.line1,
+			address2: ele.line2,
+			address3: ele.locality,
+			aid: ele.aid,
+			city: ele.city,
+			state: ele.state,
+			pinCode: ele.pincode,
+			addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
+		};
+	});
+	return BAddress.sort((a, b) => b.aid - a.aid);
+};
+
+const AddressDetailsPage = props => {
+	const { id, onFlowChange, map, productDetails } = props;
+	let { companyData } = props;
+
 	let formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	let applicantData = formReducer?.user?.applicantData;
-
-	let userTokensss = sessionStorage.getItem(HOSTNAME);
-
-	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness = productDetails.loan_request_type === 1 ? true : false;
 	const {
 		actions: { setCompleted },
@@ -247,18 +246,15 @@ export default function AddressDetailsPage({
 	//     activateSubFlow(id);
 	//     onFlowChange(map.sub);
 	//   };
+
 	useEffect(() => {
 		const getData = async () => {
-			!isBusiness &&
-				form &&
-				form.address &&
-				form.address.length === 1 &&
-				setMatch(true);
-			if (form && form.address && form.address[0]) {
+			!isBusiness && applicantData?.address?.length === 1 && setMatch(true);
+			if (applicantData?.address?.[0]) {
 				// if formdata have address that allready saved details
 			} else {
 				let lengthAddress =
-					editLoanData && formatAddressData(editLoanData.business_address);
+					editLoanData && formatEditAddressData(editLoanData.business_address);
 				if (lengthAddress?.length === 1) {
 					setMatch(true);
 				}
@@ -283,8 +279,11 @@ export default function AddressDetailsPage({
 			// }
 
 			// priority1 prefill form formstate
-			if (formState.values && Object.keys(formState.values).length > 0) {
-				return formState.values;
+			// if (formState.values && Object.keys(formState.values).length > 0) {
+			// 	return formState.values;
+			// }
+			if (Object.keys(applicantData?.address?.[0] || {}).length > 0) {
+				return applicantData?.address?.[0];
 			}
 			let aadhaarOtpRes = null;
 			try {
@@ -317,7 +316,9 @@ export default function AddressDetailsPage({
 				newPrefillValues.pin = getPinCode(companyDetail?.Address);
 			}
 			if (editLoanData) {
-				newPrefillValues = formatAddressData(editLoanData.business_address)[0];
+				newPrefillValues = formatEditAddressData(
+					editLoanData.business_address
+				)[0];
 			}
 			return newPrefillValues;
 		} catch (error) {
@@ -326,27 +327,22 @@ export default function AddressDetailsPage({
 		}
 	};
 
-	const prefilledValuesPresent = () => {};
-
-	const formatAddressData = address => {
-		const BAddress = address.map((ele, i) => {
-			return {
-				address1: ele.line1,
-				address2: ele.line2,
-				address3: ele.locality,
-				aid: ele.aid,
-				city: ele.city,
-				state: ele.state,
-				pinCode: ele.pincode,
-				addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
-			};
-		});
-		return BAddress.sort((a, b) => b.aid - a.aid);
+	const prefilledValuesPresent = () => {
+		let newPrefillValues = {};
+		if (Object.keys(applicantData?.address?.[1] || {}).length > 0) {
+			return applicantData?.address?.[1];
+		}
+		if (editLoanData) {
+			newPrefillValues = formatEditAddressData(
+				editLoanData.business_address
+			)[1];
+		}
+		return newPrefillValues;
 	};
 
 	// const Address =
 	// 	(form && form.address && form.address[0]) ||
-	// 	(editLoanData && formatAddressData(editLoanData.business_address)[0]);
+	// 	(editLoanData && formatEditAddressData(editLoanData.business_address)[0]);
 
 	// TODO: WORK ON PREFILL ISSUE
 	// const preData = {
@@ -375,39 +371,43 @@ export default function AddressDetailsPage({
 
 	// const preDataPresent = {}
 
-	console.log('LoanAddressDetails-states-', {
-		// Address,
-		// preprefilledValues: prefilledValues(),
-		// preData,
-	});
+	// console.log('LoanAddressDetails-states-', {
+	// 	formState,
+	// 	preData: prefilledValues(),
+	// 	preDataPresent: prefilledValuesPresent(),
+	// });
 
 	return (
 		<Div>
-			<AddressDetails
-				userType={'applicant'}
-				isBusiness={isBusiness}
-				register={register}
-				formState={formState}
-				match={match}
-				setMatch={setMatch}
-				jsonData={map.fields[id].data}
-				// preDataFilled={
-				// 	editLoanData
-				// 		? formatAddressData(editLoanData.business_address)
-				// 		: form?.address
-				// }
-				preData={prefilledValues()} // permanent
-				// preDataPresent={preDataPresent}
-			/>
-			<ButtonWrap>
-				<Button
-					fill
-					isLoader={loading}
-					disabled={loading}
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					onClick={handleSubmit(onProceed)}
+			<form onSubmit={handleSubmit(onProceed)}>
+				<AddressDetails
+					userType={'applicant'}
+					isBusiness={isBusiness}
+					register={register}
+					formState={formState}
+					match={match}
+					setMatch={setMatch}
+					jsonData={map.fields[id].data}
+					// preDataFilled={
+					// 	editLoanData
+					// 		? formatEditAddressData(editLoanData.business_address)
+					// 		: form?.address
+					// }
+					preData={prefilledValues()} // permanent
+					preDataPresent={prefilledValuesPresent()}
 				/>
-			</ButtonWrap>
+				<ButtonWrap>
+					<Button
+						fill
+						isLoader={loading}
+						disabled={loading}
+						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						// onClick={handleSubmit(onProceed)}
+					/>
+				</ButtonWrap>
+			</form>
 		</Div>
 	);
-}
+};
+
+export default AddressDetailsPage;
