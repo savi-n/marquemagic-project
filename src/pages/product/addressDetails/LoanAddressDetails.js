@@ -168,7 +168,8 @@ const AddressDetailsPage = props => {
 					formReducer?.user['business-details']?.Email ||
 					'',
 				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
-				gstin: '',
+				gstin:
+					applicantData?.GSTVerification || companyData?.GSTVerification || '',
 				businessStartDate: '4/8/90',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
 				Line1: formData?.permanent_address1 || applicantData?.address?.address1,
@@ -268,20 +269,9 @@ const AddressDetailsPage = props => {
 		try {
 			let newPrefillValues = {};
 
-			// try {
-			// 	newFormState = JSON.parse(sessionStorage.getItem('formstate')) || {};
-			// } catch (e) {
-			// 	newFormState = { values: {} };
-			// }
-			// initialize values if not exist
-			// if (!newFormState?.values) {
-			// 	newFormState.values = {};
-			// }
-
 			// priority1 prefill form formstate
-			// if (formState.values && Object.keys(formState.values).length > 0) {
-			// 	return formState.values;
-			// }
+			// extraction data is stored in formstate
+
 			if (Object.keys(applicantData?.address?.[0] || {}).length > 0) {
 				return applicantData?.address?.[0];
 			}
@@ -290,6 +280,25 @@ const AddressDetailsPage = props => {
 				aadhaarOtpRes = JSON.parse(sessionStorage.getItem('aadhaar_otp_res'));
 			} catch (e) {
 				aadhaarOtpRes = null;
+			}
+			if (companyDetail?.Address) {
+				newPrefillValues.address1 = getAddress(companyDetail?.Address);
+				newPrefillValues.pinCode = getPinCode(companyDetail?.Address);
+			}
+			let formStateValues = {};
+			try {
+				formStateValues =
+					JSON.parse(sessionStorage.getItem('formstate'))?.values || {};
+			} catch (e) {
+				formStateValues = { values: {} };
+			}
+			if (formStateValues.address1) {
+				newPrefillValues.address1 = formStateValues.address1;
+				if (formStateValues.pin) {
+					newPrefillValues.pinCode = formStateValues.pin;
+				} else {
+					newPrefillValues.pinCode = getPinCode(formStateValues.address1);
+				}
 			}
 			if (aadhaarOtpRes) {
 				const newAddress1 = [];
@@ -307,19 +316,19 @@ const AddressDetailsPage = props => {
 				newPrefillValues.address2 =
 					aadhaarOtpRes?.data?.address?.landmark || '';
 				newPrefillValues.address3 = aadhaarOtpRes?.data?.address?.po || '';
-				newPrefillValues.pin = aadhaarOtpRes?.data?.address?.pc || '';
+				newPrefillValues.pinCode = aadhaarOtpRes?.data?.address?.pc || '';
 				newPrefillValues.city = aadhaarOtpRes?.data?.address?.dist || '';
 				newPrefillValues.state = aadhaarOtpRes?.data?.address?.state || '';
-			}
-			if (companyDetail?.Address) {
-				newPrefillValues.address1 = getAddress(companyDetail?.Address);
-				newPrefillValues.pin = getPinCode(companyDetail?.Address);
 			}
 			if (editLoanData) {
 				newPrefillValues = formatEditAddressData(
 					editLoanData.business_address
 				)[0];
 			}
+			// console.log(
+			// 	'LoanAddressDetails-prefilledValues-newPrefillValues-',
+			// 	newPrefillValues
+			// );
 			return newPrefillValues;
 		} catch (error) {
 			console.error('error-LoanAddressDetails-prefilledValues-', error);
@@ -375,6 +384,7 @@ const AddressDetailsPage = props => {
 	// 	formState,
 	// 	preData: prefilledValues(),
 	// 	preDataPresent: prefilledValuesPresent(),
+	// 	companyDetail,
 	// });
 
 	return (

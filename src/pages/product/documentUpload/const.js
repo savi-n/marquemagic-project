@@ -240,7 +240,7 @@ export const generateCaseCreationReqBody = (
 				applicantData?.address &&
 				applicantData?.address.length > 0 &&
 				applicantData?.address.map(ele => {
-					return {
+					const newAdd = {
 						line1: ele.address1,
 						line2: ele.address2,
 						locality: ele?.address3 || ele?.city,
@@ -250,6 +250,14 @@ export const generateCaseCreationReqBody = (
 						addressType: ele.addressType,
 						aid: ele.aid,
 					};
+					// for edit loan must pass id for updating address
+					if (editLoan) {
+						const editAdd =
+							editLoan?.business_address?.filter(a => a.aid === ele.aid)?.[0] ||
+							{};
+						if (editAdd.id) newAdd.id = editAdd.id;
+					}
+					return newAdd;
 				})) ||
 			[];
 		// console.log('-----------temp5-------------');
@@ -396,7 +404,9 @@ export const generateCaseCreationReqBody = (
 			};
 			// in edit more we don't need to pass business address because we are already updating
 			// these details in address details section if we add here it'll duplicate record
-			formatedData.businessaddress = [];
+			// temp fix - we have to pass because in /profile api we pass only parmanent address
+			// this to be fix in future
+			// formatedData.businessaddress = [];
 		}
 		// console.log('-----------temp9-------------');
 		if (guarantorData?.applicantData) {

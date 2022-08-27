@@ -88,7 +88,7 @@ const AddressDetails = props => {
 		} else if (preData[field.name] || field.value) {
 			value = preData[field.name] || field.value || '';
 		}
-		console.log('returningp-permanent_-', value);
+		// console.log('returningp-permanent_-', value);
 		return value;
 		// return (
 		// 	(parmanentAddress &&
@@ -106,7 +106,7 @@ const AddressDetails = props => {
 		} else if (preDataPresent[field.name] || field.value) {
 			value = preDataPresent[field.name] || field.value || '';
 		}
-		console.log('returningp-present_-', value);
+		// console.log('returningp-present_-', value);
 		return value;
 		// return (
 		// 	(presentAddress &&

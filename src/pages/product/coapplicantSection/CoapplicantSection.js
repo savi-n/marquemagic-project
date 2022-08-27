@@ -474,6 +474,7 @@ const CoapplicantDetailsSection = props => {
 	}, [totalCoapplicantCount]);
 
 	// console.log('coapplicantsectino-allstates-', {
+	// 	applicantPresentAddress,
 	// 	editLoanCoApplicants,
 	// 	editCoApplicantData,
 	// 	prePopulateCoApplicants,
@@ -664,6 +665,16 @@ const CoapplicantDetailsSection = props => {
 										isBusiness={true}
 										jsonData={addressDetailsJson}
 										presentAddressCheck={!!presentAddressCheck[index]}
+										preDataPresent={{
+											[`address1${index + 1}`]: address1 || '',
+											[`address2${index + 1}`]: address2 || '',
+											[`address3${index + 1}`]: address3 || '',
+											[`address4${index + 1}`]: address4 || '',
+											[`city${index + 1}`]: city || '',
+											[`pinCode${index + 1}`]: pinCode || '',
+											[`state${index + 1}`]: addState || '',
+											...prePopulateCoApplicants,
+										}}
 										preData={{
 											[`address1${index + 1}`]: address1 || '',
 											[`address2${index + 1}`]: address2 || '',

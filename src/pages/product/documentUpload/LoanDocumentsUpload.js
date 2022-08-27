@@ -126,6 +126,7 @@ const DocumentUpload = props => {
 		JSON.parse(sessionStorage.getItem('companyData'));
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 	const editLoanCoApplicants =
 		editLoanData?.director_details?.filter(
 			d => d?.type_name?.toLowerCase() === 'co-applicant'
@@ -1116,6 +1117,40 @@ const DocumentUpload = props => {
 	if (applicantData?.dlastname)
 		applicantFullName += ` ${applicantData?.lastName}`;
 
+	let displayProceedButton = null;
+	if (productDetails.otp_authentication && !isEditLoan) {
+		displayProceedButton = (
+			<Button
+				name='Submit'
+				fill
+				style={{
+					width: '200px',
+					background: 'blue',
+				}}
+				isLoader={caseCreationProgress}
+				disabled={caseCreationProgress || buttonDisabledStatus()}
+				onClick={!caseCreationProgress && onSubmitOtpAuthentication}
+			/>
+		);
+	} else {
+		displayProceedButton = (
+			<Button
+				name='Submit'
+				fill
+				style={{
+					width: '200px',
+					background: 'blue',
+				}}
+				isLoader={caseCreationProgress}
+				disabled={caseCreationProgress || buttonDisabledStatus()}
+				onClick={!caseCreationProgress && onSubmitCompleteApplication}
+			/>
+		);
+	}
+	if (isViewLoan) {
+		displayProceedButton = null;
+	}
+
 	// console.log('loandocupload-allstates-', {
 	// 	allTagUnTagDocList,
 	// 	prefilledDocs,
@@ -1137,7 +1172,6 @@ const DocumentUpload = props => {
 		);
 	}
 	// don't delete-unusuall error on useeffect conditional rendering
-	if (loading) return <></>;
 	if (loading) return <></>;
 	if (loading) return <></>;
 	if (loading) return <></>;
@@ -1179,7 +1213,9 @@ const DocumentUpload = props => {
 				)}
 				<UI.H>
 					<span>Applicant Document Upload</span>
-					<UI.CoAppName>{applicantFullName}</UI.CoAppName>
+					<UI.CoAppName>
+						{applicantFullName || companyData?.BusinessName || ''}
+					</UI.CoAppName>
 				</UI.H>
 
 				{/* APPLICANT SECTION */}
@@ -1855,33 +1891,7 @@ const DocumentUpload = props => {
 						bg='blue'
 					/>
 				</UI.CheckboxWrapper>
-				<UI.SubmitWrapper>
-					{isViewLoan ? null : productDetails.otp_authentication ? (
-						<Button
-							name='Submit'
-							fill
-							style={{
-								width: '200px',
-								background: 'blue',
-							}}
-							isLoader={caseCreationProgress}
-							disabled={caseCreationProgress || buttonDisabledStatus()}
-							onClick={!caseCreationProgress && onSubmitOtpAuthentication}
-						/>
-					) : (
-						<Button
-							name='Submit'
-							fill
-							style={{
-								width: '200px',
-								background: 'blue',
-							}}
-							isLoader={caseCreationProgress}
-							disabled={caseCreationProgress || buttonDisabledStatus()}
-							onClick={!caseCreationProgress && onSubmitCompleteApplication}
-						/>
-					)}
-				</UI.SubmitWrapper>
+				<UI.SubmitWrapper>{displayProceedButton}</UI.SubmitWrapper>
 				{otherBankStatementModal && (
 					<BankStatementModal
 						showModal={otherBankStatementModal}
