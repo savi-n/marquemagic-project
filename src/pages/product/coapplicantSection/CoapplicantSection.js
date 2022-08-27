@@ -771,6 +771,7 @@ const CoapplicantDetailsSection = props => {
 										isBusiness={true}
 										jsonData={addressDetailsJson}
 										presentAddressCheck={!!presentAddressCheck[index]}
+										preData={{ ...prePopulateCoApplicants }}
 										// preDataPresent={
 										// 	{
 										// 		// [`address1${index + 1}`]: address1 || '',
