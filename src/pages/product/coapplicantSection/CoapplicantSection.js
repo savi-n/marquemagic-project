@@ -1,5 +1,5 @@
 /* Co-applicant details section */
-
+// TODO: test all features of co-applicant and remove all commented codes
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import useFetch from 'hooks/useFetch';
@@ -167,7 +167,13 @@ const CoapplicantDetailsSection = props => {
 		state: { userToken },
 	} = useContext(UserContext);
 
-	const { handleSubmit, register, formState, clearError } = useForm();
+	const {
+		handleSubmit,
+		register,
+		formState,
+		clearError,
+		onUseFormFieldChange,
+	} = useForm();
 	const formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	const applicantData = formReducer?.user?.applicantData;
 	const applicantPresentAddress =
@@ -483,6 +489,79 @@ const CoapplicantDetailsSection = props => {
 	// 	presentAddressCheck,
 	// });
 
+	const prepopulateApplicantAddressValue = index => {
+		const newPresentAddressCheck = _.cloneDeep(presentAddressCheck);
+		newPresentAddressCheck[index] = !newPresentAddressCheck[index];
+		setPresentAddressCheck(newPresentAddressCheck);
+		if (newPresentAddressCheck[index]) {
+			onUseFormFieldChange({
+				name: [`permanent_address1${index + 1}`],
+				value: applicantPresentAddress?.address1 || '',
+			});
+			onUseFormFieldChange({
+				name: [`permanent_address2${index + 1}`],
+				value: applicantPresentAddress?.address2 || '',
+			});
+			onUseFormFieldChange({
+				name: [`permanent_address3${index + 1}`],
+				value: applicantPresentAddress?.address3 || '',
+			});
+			onUseFormFieldChange({
+				name: [`permanent_address4${index + 1}`],
+				value: applicantPresentAddress?.address4 || '',
+			});
+			onUseFormFieldChange({
+				name: [`permanent_pinCode${index + 1}`],
+				value: applicantPresentAddress?.pinCode || '',
+			});
+			onUseFormFieldChange({
+				name: [`permanent_city${index + 1}`],
+				value: applicantPresentAddress?.city || '',
+			});
+			onUseFormFieldChange({
+				name: [`permanent_state${index + 1}`],
+				value: applicantPresentAddress?.state || '',
+			});
+		}
+	};
+
+	// useEffect(() => {
+	// 	presentAddressCheck.map((isCheck, index) => {
+	// 		if (isCheck) {
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_address1${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_address2${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_address3${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_address4${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_pinCode${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_city${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 			onUseFormFieldChange({
+	// 				name: [`permanent_state${index + 1}`],
+	// 				value: applicantPresentAddress?.address1 || '',
+	// 			});
+	// 		}
+	// 		return null;
+	// 	});
+	// 	// eslint-disable-next-line
+	// }, [presentAddressCheck]);
+
 	return (
 		<Div>
 			{Array(totalCoapplicantCount)
@@ -494,15 +573,15 @@ const CoapplicantDetailsSection = props => {
 					let personalDetailsJson = map?.fields['personal-details'].data;
 					let salaryDetailsJson = map?.fields['salary-details'].data;
 					let addressDetailsJson = map?.fields['address-details'].data;
-					let {
-						address1,
-						address2,
-						address3,
-						address4,
-						city,
-						state: addState,
-						pinCode,
-					} = {};
+					// let {
+					// 	address1,
+					// 	address2,
+					// 	address3,
+					// 	address4,
+					// 	city,
+					// 	addState,
+					// 	pinCode,
+					// } = {};
 					// state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 					// 	?.applicantData?.address[0] || {};
 
@@ -541,15 +620,47 @@ const CoapplicantDetailsSection = props => {
 					// 	addressDetailsJson,
 					// 	prePopulateCoApplicants,
 					// });
-					if (!!presentAddressCheck[index]) {
-						address1 = applicantPresentAddress?.address1;
-						address2 = applicantPresentAddress?.address2;
-						address3 = applicantPresentAddress?.address3;
-						address4 = applicantPresentAddress?.address4;
-						pinCode = applicantPresentAddress?.pinCode;
-						city = applicantPresentAddress?.city;
-						addState = applicantPresentAddress?.state;
-					}
+					// const preDataAddress = { ...prePopulateCoApplicants };
+					// if (!!presentAddressCheck[index]) {
+					// formState.values = {
+					// 	...formState.values,
+					// 	[`permanent_address1${index + 1}`]:
+					// 		applicantPresentAddress?.address1 || '',
+					// 	[`permanent_address2${index + 1}`]:
+					// 		applicantPresentAddress?.address2 || '',
+					// 	[`permanent_address3${index + 1}`]:
+					// 		applicantPresentAddress?.address3 || '',
+					// 	[`permanent_address4${index + 1}`]:
+					// 		applicantPresentAddress?.address4 || '',
+					// 	[`permanent_city${index + 1}`]:
+					// 		applicantPresentAddress?.city || '',
+					// 	[`permanent_pinCode${index + 1}`]:
+					// 		applicantPresentAddress?.pinCode || '',
+					// 	[`permanent_state${index + 1}`]:
+					// 		applicantPresentAddress?.addState || '',
+					// };
+					// preDataAddress[`address1${index + 1}`] =
+					// 	applicantPresentAddress?.address1;
+					// preDataAddress[`address2${index + 1}`] =
+					// 	applicantPresentAddress?.address2;
+					// preDataAddress[`address3${index + 1}`] =
+					// 	applicantPresentAddress?.address3;
+					// preDataAddress[`address4${index + 1}`] =
+					// 	applicantPresentAddress?.address4;
+					// preDataAddress[`pinCode${index + 1}`] =
+					// 	applicantPresentAddress?.pinCode;
+					// preDataAddress[`city${index + 1}`] = applicantPresentAddress?.city;
+					// preDataAddress[`state${index + 1}`] =
+					// 	applicantPresentAddress?.state;
+					// address1 = applicantPresentAddress?.address1;
+					// address2 = applicantPresentAddress?.address2;
+					// address3 = applicantPresentAddress?.address3;
+					// address4 = applicantPresentAddress?.address4;
+					// pinCode = applicantPresentAddress?.pinCode;
+					// city = applicantPresentAddress?.city;
+					// addState = applicantPresentAddress?.state;
+					// }
+					// console.log('preDataAddress-', preDataAddress);
 					return (
 						<div key={`coapp-${index}`}>
 							<Section
@@ -642,13 +753,7 @@ const CoapplicantDetailsSection = props => {
 											checked={!!presentAddressCheck[index]}
 											disabled={isViewLoan}
 											onChange={() => {
-												const newPresentAddressCheck = _.cloneDeep(
-													presentAddressCheck
-												);
-												newPresentAddressCheck[index] = !newPresentAddressCheck[
-													index
-												];
-												setPresentAddressCheck(newPresentAddressCheck);
+												prepopulateApplicantAddressValue(index);
 											}}
 										/>
 										<label htmlFor={`sameAsApplicant${index}`}>
@@ -656,6 +761,7 @@ const CoapplicantDetailsSection = props => {
 										</label>
 									</PresentAddressCheckBoxWrapper>
 									<AddressDetails
+										id={'co-applicant'}
 										hideHeader
 										userType={userType}
 										register={register}
@@ -665,26 +771,30 @@ const CoapplicantDetailsSection = props => {
 										isBusiness={true}
 										jsonData={addressDetailsJson}
 										presentAddressCheck={!!presentAddressCheck[index]}
-										preDataPresent={{
-											[`address1${index + 1}`]: address1 || '',
-											[`address2${index + 1}`]: address2 || '',
-											[`address3${index + 1}`]: address3 || '',
-											[`address4${index + 1}`]: address4 || '',
-											[`city${index + 1}`]: city || '',
-											[`pinCode${index + 1}`]: pinCode || '',
-											[`state${index + 1}`]: addState || '',
-											...prePopulateCoApplicants,
-										}}
-										preData={{
-											[`address1${index + 1}`]: address1 || '',
-											[`address2${index + 1}`]: address2 || '',
-											[`address3${index + 1}`]: address3 || '',
-											[`address4${index + 1}`]: address4 || '',
-											[`city${index + 1}`]: city || '',
-											[`pinCode${index + 1}`]: pinCode || '',
-											[`state${index + 1}`]: addState || '',
-											...prePopulateCoApplicants,
-										}}
+										// preDataPresent={
+										// 	{
+										// 		// [`address1${index + 1}`]: address1 || '',
+										// 		// [`address2${index + 1}`]: address2 || '',
+										// 		// [`address3${index + 1}`]: address3 || '',
+										// 		// [`address4${index + 1}`]: address4 || '',
+										// 		// [`city${index + 1}`]: city || '',
+										// 		// [`pinCode${index + 1}`]: pinCode || '',
+										// 		// [`state${index + 1}`]: addState || '',
+										// 		// ...preDataAddress,
+										// 	}
+										// }
+										// preData={
+										// 	{
+										// 		// [`address1${index + 1}`]: address1 || '',
+										// 		// [`address2${index + 1}`]: address2 || '',
+										// 		// [`address3${index + 1}`]: address3 || '',
+										// 		// [`address4${index + 1}`]: address4 || '',
+										// 		// [`city${index + 1}`]: city || '',
+										// 		// [`pinCode${index + 1}`]: pinCode || '',
+										// 		// [`state${index + 1}`]: addState || '',
+										// 		// ...preDataAddress,
+										// 	}
+										// }
 									/>
 								</Wrapper>
 							</Details>

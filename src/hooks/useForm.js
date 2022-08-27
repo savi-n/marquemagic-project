@@ -329,6 +329,7 @@ export default function useForm() {
 			values: valuesRef.current,
 		},
 		clearError,
+		onUseFormFieldChange: onChange,
 	};
 }
 

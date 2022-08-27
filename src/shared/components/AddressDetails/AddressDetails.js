@@ -49,6 +49,9 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
+const PREFIX_PERMANENT = 'permanent_';
+const PREFIX_PRESENT = 'present_';
+
 const AddressDetails = props => {
 	const {
 		hideHeader,
@@ -79,16 +82,17 @@ const AddressDetails = props => {
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
+		const fieldName = `${PREFIX_PERMANENT}${field.name}`;
 		// if (!userType && field.disabled) {
-		//   return preData[field.name] || "";
+		// 	return preData[field.name] || '';
 		// }
 		let value = '';
-		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
-			value = formState?.values?.[`permanent_${field.name}`];
+		if (formState?.values?.[fieldName] !== undefined) {
+			value = formState?.values?.[fieldName];
 		} else if (preData[field.name] || field.value) {
 			value = preData[field.name] || field.value || '';
 		}
-		// console.log('returningp-permanent_-', value);
+		// console.log(`returning-${fieldName}-`, { value, formState, field });
 		return value;
 		// return (
 		// 	(parmanentAddress &&
@@ -100,13 +104,14 @@ const AddressDetails = props => {
 	};
 
 	const populatePresentValue = (field, match) => {
+		const fieldName = `${PREFIX_PRESENT}${field.name}`;
 		let value = '';
-		if (formState?.values?.[`present_${field.name}`] !== undefined) {
-			value = formState?.values?.[`present_${field.name}`];
+		if (formState?.values?.[fieldName] !== undefined) {
+			value = formState?.values?.[fieldName];
 		} else if (preDataPresent[field.name] || field.value) {
 			value = preDataPresent[field.name] || field.value || '';
 		}
-		// console.log('returningp-present_-', value);
+		// console.log(`returning-${fieldName}-`, value);
 		return value;
 		// return (
 		// 	(presentAddress &&
@@ -122,6 +127,11 @@ const AddressDetails = props => {
 		if (sessionStorage.getItem(`match${userType}`) === 'false') setMatch(false);
 		// eslint-disable-next-line
 	}, []);
+
+	// useEffect(() => {
+	// 	setRerender(!rerender);
+	// 	// eslint-disable-next-line
+	// }, [preData]);
 
 	// console.log('AddressDetails-allstates-', {
 	// 	formState,
@@ -148,12 +158,13 @@ const AddressDetails = props => {
 								customFields.readonly = true;
 								customFields.disabled = true;
 							}
+							const fieldName = `${PREFIX_PERMANENT}${field.name}`;
 							return (
 								field.visibility && (
-									<FieldWrap key={`permanent_${field.name}`}>
+									<FieldWrap key={fieldName}>
 										{register({
 											...field,
-											name: `permanent_${field.name}`,
+											name: fieldName,
 											value: populateValue(field),
 											disabled: false,
 											...(field.valueForFields
@@ -168,10 +179,10 @@ const AddressDetails = props => {
 											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[`permanent_${field.name}`]) &&
-											formState?.error?.[`permanent_${field.name}`] && (
+											formState?.touched?.[fieldName]) &&
+											formState?.error?.[fieldName] && (
 												<ErrorMessage>
-													{formState?.error?.[`permanent_${field.name}`]}
+													{formState?.error?.[fieldName]}
 												</ErrorMessage>
 											)}
 									</FieldWrap>
@@ -207,18 +218,16 @@ const AddressDetails = props => {
 								if (match) {
 									customFields.disabled = true;
 								}
+								const fieldName = `${PREFIX_PRESENT}${field.name}`;
 								return (
 									field.visibility && (
-										<FieldWrap key={`present_${field.name}`}>
+										<FieldWrap key={fieldName}>
 											{register({
 												...field,
-												name: `present_${field.name}`,
+												name: fieldName,
 												value: match
 													? formState?.values?.[`permanent_${field.name}`]
 													: populatePresentValue(field, match),
-												// value: match
-												// 	? formState?.values?.[`permanent_${field.name}`]
-												// 	: formState?.values?.[`present_${field.name}`],
 												noActionTrigger: match,
 												...(field.valueForFields
 													? {
@@ -232,10 +241,10 @@ const AddressDetails = props => {
 												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[`present_${field.name}`]) &&
-												formState?.error?.[`present_${field.name}`] && (
+												formState?.touched?.[fieldName]) &&
+												formState?.error?.[fieldName] && (
 													<ErrorMessage>
-														{formState?.error?.[`present_${field.name}`]}
+														{formState?.error?.[fieldName]}
 													</ErrorMessage>
 												)}
 										</FieldWrap>
