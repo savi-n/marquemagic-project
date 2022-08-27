@@ -109,6 +109,7 @@ const DocumentUpload = props => {
 	const { addToast } = useToasts();
 
 	const [caseCreationProgress, setCaseCreationProgress] = useState(false);
+	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 	const onOtherStatementModalToggle = () => {
 		setOtherBankStatementModal(!otherBankStatementModal);
 	};
@@ -685,9 +686,9 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
+			setCaseCreationProgress(true);
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
-			setIsAuthenticationOtpModalOpen(true);
 			await newRequest(AUTHENTICATION_GENERATE_OTP, {
 				method: 'POST',
 				data: {
@@ -699,7 +700,14 @@ const DocumentUpload = props => {
 					Authorization: `Bearer ${API_TOKEN}`,
 				},
 			});
+			setIsAuthenticationOtpModalOpen(true);
+			setCaseCreationProgress(false);
 		} catch (error) {
+			setCaseCreationProgress(false);
+			if (error?.response?.data?.timer) {
+				setIsAuthenticationOtpModalOpen(true);
+				setGenerateOtpTimer(error?.response?.data?.timer || 0);
+			}
 			console.error(error);
 			addToast({
 				message:
@@ -1143,6 +1151,7 @@ const DocumentUpload = props => {
 					setContactNo={applicantData?.mobileNo || companyData?.mobileNo}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
+					generateOtpTimer={generateOtpTimer}
 				/>
 			)}
 			<UI.Colom1>

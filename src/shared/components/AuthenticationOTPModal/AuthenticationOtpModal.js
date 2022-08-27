@@ -91,6 +91,7 @@ const AuthenticationOTPModal = props => {
 		setContactNo,
 		setIsVerifyWithOtpDisabled,
 		onSubmitCompleteApplication,
+		generateOtpTimer,
 		// toggle,
 		// ButtonProceed,
 		// type = 'income',
@@ -100,7 +101,9 @@ const AuthenticationOTPModal = props => {
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
 	const [resendOtpTimer, setResendOtpTimer] = useState(
-		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		generateOtpTimer ||
+			sessionStorage.getItem('otp_duration') ||
+			RESEND_OTP_TIMER
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [, setIsResentOtp] = useState(false);
@@ -230,14 +233,16 @@ const AuthenticationOTPModal = props => {
 	useEffect(() => {
 		setInputAuthenticationOTP('');
 		setResendOtpTimer(
-			sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			generateOtpTimer ||
+				sessionStorage.getItem('otp_duration') ||
+				RESEND_OTP_TIMER
 		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
 		}, 1000);
 		return () => clearInterval(timer);
-	}, []);
+	}, [generateOtpTimer]);
 
 	useEffect(() => {
 		if (resendOtpTimer <= 0) return;

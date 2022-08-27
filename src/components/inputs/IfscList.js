@@ -31,7 +31,7 @@ export default function IfscList(props) {
 		const newOptions = _.cloneDeep(options);
 		// 11 is the length for any ifsc code
 		if (value.length === 11) {
-			newOptions.push({ value, name: value });
+			newOptions.unshift({ value, name: value });
 			setOptions(newOptions);
 		}
 	};
@@ -45,10 +45,18 @@ export default function IfscList(props) {
 			);
 		}
 	}, [ifscList]);
+	useEffect(() => {
+		if (value.length > 0) {
+			const newOptions = _.cloneDeep(options);
+			newOptions.unshift({ value, name: value });
+			setOptions(newOptions);
+		}
+	}, []);
 
 	return (
 		<SearchSelect
 			field={field}
+			// ifscLIstField={true}
 			name={field.name}
 			placeholder={field.placeholder || ''}
 			options={options}
