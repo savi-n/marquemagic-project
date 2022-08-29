@@ -140,11 +140,20 @@ const AddressDetails = props => {
 	// });
 
 	// form.address;
+
+	let prefixLabel = 'Help us with your ';
+	if (userType && userType !== 'applicant') {
+		prefixLabel = userType;
+	}
+	if (isViewLoan) {
+		prefixLabel = '';
+	}
+
 	return (
 		<>
 			{hideHeader ? null : (
 				<H>
-					{userType || isViewLoan ? '' : 'Help us with your '}
+					{prefixLabel}
 					<span>Address Details</span>
 				</H>
 			)}
