@@ -389,6 +389,19 @@ export const generateCaseCreationReqBody = (
 			branchId: companyData?.branchId,
 		};
 		// console.log('-----------temp8-------------');
+		try {
+			if (editLoan && editLoan?.id) {
+				formatedData.loan_details.asset_id =
+					editLoan?.loan_assets?.filter(
+						c => c?.loan_type?.toLowerCase() === 'collateral'
+					)?.[0]?.id || '';
+			}
+		} catch (error) {
+			console.error(
+				'error-generateCaseCreationReqBody-cannotset-collateral-assetid-',
+				error
+			);
+		}
 		if (editLoan && editLoan?.id) {
 			formatedData.loan_details.loanId = editLoan?.id;
 			formatedData.Collaterals = {

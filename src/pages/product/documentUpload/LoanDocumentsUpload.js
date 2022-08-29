@@ -663,7 +663,6 @@ const DocumentUpload = props => {
 					// 	uploadedDocuments,
 					// 	prefilledDocs,
 					// });
-					setCaseCreationProgress(false);
 					return null;
 				}
 				return null;
@@ -687,9 +686,9 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
-			setCaseCreationProgress(true);
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
+			setCaseCreationProgress(true);
 			await newRequest(AUTHENTICATION_GENERATE_OTP, {
 				method: 'POST',
 				data: {
@@ -719,10 +718,9 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitCompleteApplication = async () => {
-		setCaseCreationProgress(true);
 		if (buttonDisabledStatus()) return;
 		if (!isFormValid()) return;
-
+		setCaseCreationProgress(true);
 		// Before Case Creation Testing Area Do not push this code
 		// const refReqBody = refereneceDataFormat('CA01000000', state);
 		// console.log('onSubmitCompleteApplication-', { refReqBody });
@@ -797,10 +795,12 @@ const DocumentUpload = props => {
 
 			// this solution is not solid for tagging preuploaded document in docupload page
 			// work on this when new requirement comes
+			let isKYCDocs = false;
 			if (doc.requestId || doc.req_type === 'property') {
 				doc_type_id = `app_${business_income_type_id}_${doc.category}_${
 					flowDocTypeMappingList?.[`${doc?.req_type}`]
 				}`;
+				isKYCDocs = true;
 			}
 			const newDoc = {
 				..._.cloneDeep(doc),
@@ -813,6 +813,9 @@ const DocumentUpload = props => {
 			};
 			if (doc.isViewEdit) {
 				newDoc.typeId = doc.doctype;
+			}
+			if (isKYCDocs) {
+				newDoc.isMandatory = true;
 			}
 			// newDoc.doc_type_id = 'app_7_kyc_31';
 			// if (newDoc.typeId) state.documents[docIndex].typeId = newDoc.typeId;
