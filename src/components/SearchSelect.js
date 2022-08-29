@@ -207,6 +207,7 @@ export default function SearchSelect(props) {
 
 	const onOptionSelect = (e, option) => {
 		e != null && e.stopPropagation();
+
 		setSelectedOption(option);
 		if (
 			onSelectOptionCallback &&
@@ -215,7 +216,7 @@ export default function SearchSelect(props) {
 			onSelectOptionCallback({ name, value: option });
 			// value: option.value
 		}
-		setOptionShow(false);
+		setOptionShow(true);
 		setSearchKey('');
 	};
 
@@ -234,6 +235,13 @@ export default function SearchSelect(props) {
 
 	const onSearchChange = async event => {
 		const { value } = event.target;
+
+		if (field.name.includes('ifsc')) {
+			// length of ifsc is always 11
+			if (value.length === 11) {
+				onOptionSelect(event, value);
+			}
+		}
 		setSearchKey(value.toUpperCase());
 		if (field.name.includes('ifsc')) {
 			onIfscChange(value);
@@ -339,7 +347,10 @@ export default function SearchSelect(props) {
 						))}
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
-								Options Not Found
+								Options Not Found.{' '}
+								{field.name.includes('ifsc')
+									? 'Enter only 11 characters'
+									: null}
 							</Option>
 						)}
 					</Options>

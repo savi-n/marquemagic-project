@@ -228,6 +228,7 @@ export default function useForm() {
 	const register = newField => {
 		// condition to check whether the ifsc field should be validated or not
 		if (newField.name.includes('ifsc')) {
+			// newField.mask = { CharacterLimit: 11 };
 			if (newField.value.length === 0) {
 				newField.rules = {};
 			}
