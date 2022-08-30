@@ -187,7 +187,6 @@ const CoapplicantDetailsSection = props => {
 	const editLoanCoApplicants = editLoanData?.director_details?.filter(
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
-	console.log(editLoanCoApplicants?.length, '100');
 
 	let editCoApplicantData = {};
 	if (editLoanData && editLoanCoApplicants.length > 0) {
@@ -448,10 +447,8 @@ const CoapplicantDetailsSection = props => {
 				{};
 			if (Object.keys(sessionCoApplicantData).length > 0) {
 				newPrePopulateCoApplicants = sessionCoApplicantData;
-				//console.log('newpre', newPrePopulateCoApplicants);
 			} else if (Object.keys(editCoApplicantData).length > 0) {
 				newPrePopulateCoApplicants = editCoApplicantData;
-				//console.log('newpre', newPrePopulateCoApplicants);
 			}
 			setPrePopulateCoApplicants(newPrePopulateCoApplicants);
 			const lastKey = Object.keys(newPrePopulateCoApplicants).pop();
