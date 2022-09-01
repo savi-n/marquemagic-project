@@ -94,12 +94,9 @@ export default function PersonalDetails(props) {
 		jsonData,
 		register,
 		formState,
-		indexCoappplicant,
-		editLoanCoApplicants,
 		headingNameStyle,
 		productDetails = {},
 	} = props;
-
 	const { state } = useContext(LoanFormContext);
 	const {
 		state: { bankId, userToken },
@@ -133,7 +130,6 @@ export default function PersonalDetails(props) {
 	}
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
@@ -498,14 +494,7 @@ export default function PersonalDetails(props) {
 							if (editLoanData && field.name.includes('incomeType')) {
 								customFields.readonly = true;
 								customFields.disabled = true;
-
-								// alow income type to change only when new coapplicant is added in the edit mode
-								if (indexCoappplicant > editLoanCoApplicants?.length) {
-									customFields.readonly = false;
-									customFields.disabled = false;
-								}
 							}
-
 							let isDevider = false;
 							if (id === 'reference-details') {
 								if (field.name === 'Name1') {

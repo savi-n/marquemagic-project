@@ -26,8 +26,7 @@ const Field = styled.div`
 	width: ${({ size }) => (size ? size : '45%')};
 	margin: 10px 0;
 	@media (max-width: 700px) {
-		width: 100%;
-		padding: 0px;
+		min-width: 86%;
 	}
 `;
 
