@@ -187,7 +187,6 @@ const CoapplicantDetailsSection = props => {
 	const editLoanCoApplicants = editLoanData?.director_details?.filter(
 		d => d?.type_name?.toLowerCase() === 'co-applicant'
 	);
-
 	let editCoApplicantData = {};
 	if (editLoanData && editLoanCoApplicants.length > 0) {
 		editLoanCoApplicants?.map((coApplicant, index) => {
@@ -708,11 +707,6 @@ const CoapplicantDetailsSection = props => {
 										)}
 									</div>
 								) : null}
-								{isEditLoan && index + 1 > editLoanCoApplicants?.length ? (
-									<DeleteIcon onClick={() => deleteSection(index)}>
-										<FontAwesomeIcon icon={faTrash} />
-									</DeleteIcon>
-								) : null}
 							</Section>
 							<Details open={openDrawer === index}>
 								<Wrapper open={openDrawer === index}>
@@ -723,8 +717,6 @@ const CoapplicantDetailsSection = props => {
 										register={register}
 										formState={formState}
 										jsonData={personalDetailsJson}
-										editLoanCoApplicants={editLoanCoApplicants}
-										indexCoappplicant={index + 1}
 										preData={{
 											...prePopulateCoApplicants,
 										}}
