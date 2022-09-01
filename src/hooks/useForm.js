@@ -72,7 +72,7 @@ const VALIDATION_RULES = {
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
-		message: 'Invalid IFSC',
+		message: 'Invalid IFSC (ex: SBIN0000304)',
 	},
 	pattern: {
 		func: validatePattern(),
@@ -80,7 +80,7 @@ const VALIDATION_RULES = {
 	},
 	panNumber: {
 		func: validatePattern(/^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/),
-		message: 'Invalid PAN Number',
+		message: 'Invalid PAN Number (ex: BDEFG4467C)',
 	},
 	maxLength: {
 		func: limitLength('max'),
