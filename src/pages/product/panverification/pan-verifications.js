@@ -1373,7 +1373,7 @@ const PanVerification = props => {
 			{screen === CONST.SCREEN_ADDRESS_PROOF && (
 				<section>
 					<h1 className='text-xl text-black'>
-						Select and Upload any one of the documents mentions below
+						Select and Upload any one of the documents mentioned below
 					</h1>
 					<UI.RadioButtonWrapper>
 						{CONST.addressProofRadioButtonList.map(btn => {
