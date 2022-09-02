@@ -182,6 +182,10 @@ const CoapplicantDetailsSection = props => {
 	// let salaryDetailsJsonValue = map?.fields['salary-details'].data;
 	// let addressDetailsJsonValue = map?.fields['address-details'].data;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const userTokensss = sessionStorage.getItem(HOSTNAME);
+	const sessionCoApplicantRes =
+		JSON.parse(userTokensss).formReducer?.user?.[`${id}-res`] || [];
+
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 	const editLoanCoApplicants = editLoanData?.director_details?.filter(
@@ -694,7 +698,10 @@ const CoapplicantDetailsSection = props => {
 										alt='arrow'
 									/>
 								) : null}
-								{totalCoapplicantCount > 1 && !editLoanData ? (
+
+								{!sessionCoApplicantRes?.[index]?.id &&
+								totalCoapplicantCount > 1 &&
+								!editLoanData ? (
 									<div>
 										{totalCoapplicantCount === index + 1 ? (
 											<DeleteIcon onClick={() => deleteSection(index)}>
