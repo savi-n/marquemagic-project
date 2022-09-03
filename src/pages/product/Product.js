@@ -366,11 +366,14 @@ export default function Product({ product, url }) {
 														return;
 													}
 													if (
-														editLoanData &&
-														editLoanRestrictedSections.includes(e.target.id)
+														!(
+															completedMenu.includes('business-details') ||
+															completedMenu.includes('personal-details')
+														)
 													) {
-														return;
+														return null;
 													}
+
 													if (index > idx) {
 														// if (idx > completedMenu.length + 1) return;
 														if (
