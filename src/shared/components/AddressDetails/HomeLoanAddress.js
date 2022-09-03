@@ -79,6 +79,7 @@ export default function HomeLoanAddressDetails({
 											name: field.name,
 											// value: formState?.values?.[field.name]
 											value: populateValue(field),
+											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&

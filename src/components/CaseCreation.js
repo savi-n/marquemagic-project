@@ -2,12 +2,12 @@
 (Post Document upload section) */
 
 import { useContext, useState } from 'react';
-import useFetch from '../hooks/useFetch';
-import { useToasts } from '../components/Toast/ToastProvider';
-import { UserContext } from '../reducer/userReducer';
-import { FormContext } from '../reducer/formReducer';
-import { AppContext } from '../reducer/appReducer';
-import { CaseContext } from '../reducer/caseReducer';
+import useFetch from 'hooks/useFetch';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { UserContext } from 'reducer/userReducer';
+import { FormContext } from 'reducer/formReducer';
+import { AppContext } from 'reducer/appReducer';
+import { CaseContext } from 'reducer/caseReducer';
 import {
 	CREATE_CASE,
 	BORROWER_UPLOAD_URL,
@@ -15,7 +15,7 @@ import {
 	CREATE_CASE_OTHER_USER,
 	NC_STATUS_CODE,
 	USER_ROLES,
-} from '../_config/app.config';
+} from '_config/app.config';
 
 export default function useCaseCreation(userType, productId, role) {
 	const {
@@ -61,7 +61,7 @@ export default function useCaseCreation(userType, productId, role) {
 
 			throw new Error(caseRes.message);
 		} catch (er) {
-			console.log('STEP: 1 => CASE CREATION ERRROR', er.message);
+			console.error('STEP: 1 => CASE CREATION ERRROR', er.message);
 			throw new Error(er.message);
 		}
 	};
@@ -98,7 +98,7 @@ export default function useCaseCreation(userType, productId, role) {
 			}
 			throw new Error(uploadDocsRes.message);
 		} catch (err) {
-			console.log('STEP: 2 => UPLOAD DOCUMENT REFERENCE ERRRO', err.message);
+			console.error('STEP: 2 => UPLOAD DOCUMENT REFERENCE ERRRO', err.message);
 			throw new Error(err.message);
 		}
 	};
@@ -139,7 +139,7 @@ export default function useCaseCreation(userType, productId, role) {
 
 			throw new Error(statementUploadRes.message);
 		} catch (err) {
-			console.log(
+			console.error(
 				'STEP: 3 => CUB STATEMENT UPLOAD TO SAILS ERRROR',
 				err.message
 			);
@@ -210,7 +210,7 @@ export default function useCaseCreation(userType, productId, role) {
 
 			return caseCreateRes;
 		} catch (er) {
-			console.log('APPLICANT CASE CREATE STEP ERROR-----> ', er.message);
+			console.error('APPLICANT CASE CREATE STEP ERROR-----> ', er.message);
 			addToast({
 				message: er.message,
 				type: 'error',
@@ -259,7 +259,7 @@ export default function useCaseCreation(userType, productId, role) {
 
 			return true;
 		} catch (err) {
-			console.log('COAPPLICANT CASE CREATION STEPS ERRRO ==> ', err.message);
+			console.error('COAPPLICANT CASE CREATION STEPS ERRRO ==> ', err.message);
 			addToast({
 				message: err.message,
 				type: 'error',
@@ -313,7 +313,7 @@ export default function useCaseCreation(userType, productId, role) {
 			return true;
 		} catch (err) {
 			setProcessing(false);
-			console.log('APPLICANT CASE CREATION INIT ERRRO ==> ', err.message);
+			console.error('APPLICANT CASE CREATION INIT ERRRO ==> ', err.message);
 			return false;
 		}
 	}
@@ -338,7 +338,10 @@ export default function useCaseCreation(userType, productId, role) {
 
 			return true;
 		} catch (err) {
-			console.log('OTHER APPLICANT CASE CREATION INIT ERRRO ==> ', err.message);
+			console.error(
+				'OTHER APPLICANT CASE CREATION INIT ERRRO ==> ',
+				err.message
+			);
 			return false;
 		}
 	}

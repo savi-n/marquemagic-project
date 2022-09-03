@@ -11,13 +11,13 @@ import {
 	BANK_LIST_API,
 	// BANK_TOKEN_API,
 	NC_STATUS_CODE,
-} from '../_config/app.config';
-import BANK_FLOW from '../_config/bankflow.config';
-import { AppContext } from '../reducer/appReducer';
-import useFetch from '../hooks/useFetch';
-import useForm from '../hooks/useForm';
+} from '_config/app.config';
+import BANK_FLOW from '_config/bankflow.config';
+import { AppContext } from 'reducer/appReducer';
+import useFetch from 'hooks/useFetch';
+import useForm from 'hooks/useForm';
 import { useToasts } from './Toast/ToastProvider';
-import Loading from '../components/Loading';
+import Loading from 'components/Loading';
 
 const Bank = styled.div`
 	padding: 10px;
@@ -370,7 +370,7 @@ export default function BankStatementModal({ showModal, onClose }) {
 			//   : flowCompleted();
 			// }
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 		setProcessing(false);
 	};

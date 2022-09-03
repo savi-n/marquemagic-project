@@ -4,10 +4,10 @@ based on this search city and state is identified */
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import useFetch from '../../hooks/useFetch';
-import { PINCODE_ADRRESS_FETCH } from '../../_config/app.config';
+import useFetch from 'hooks/useFetch';
+import { PINCODE_ADRRESS_FETCH } from '_config/app.config';
 import InputField from './InputField';
-
+import { useToasts } from 'components/Toast/ToastProvider';
 // const Input = styled.input`
 // 	height: 50px;
 // 	padding: 10px;
@@ -57,8 +57,12 @@ const Label = styled.label`
 
 export default function Pincode(props) {
 	const { newRequest } = useFetch();
+	const { addToast } = useToasts();
 
 	const [processing, setProcessing] = useState(false);
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	useEffect(() => {
 		if (props.value) {
@@ -79,6 +83,7 @@ export default function Pincode(props) {
 		}
 
 		if (value.length === props.makeApiCall) {
+			if (isViewLoan) return;
 			setProcessing(true);
 			try {
 				const response = await newRequest(
@@ -86,7 +91,7 @@ export default function Pincode(props) {
 					{}
 				);
 				const pincodeData = response.data;
-				// console.log(response);
+				//console.log(response);
 
 				if (pincodeData.status === 'nok' || !pincodeData) {
 					setProcessing(false);
@@ -99,7 +104,12 @@ export default function Pincode(props) {
 				}
 			} catch (err) {
 				setProcessing(false);
-				console.log(err);
+				//console.log(err);
+				addToast({
+					message:
+						'Could not fetch the data for entered pincode' || err.message,
+					type: 'error',
+				});
 			}
 		}
 		setProcessing(false);

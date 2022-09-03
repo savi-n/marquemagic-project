@@ -17,12 +17,14 @@ const Backdrop = styled.div`
 	justify-content: center;
 	overflow: hidden;
 `;
-const ModalClose = styled.img`
-	height: 25px;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
-`;
+
+// const ModalClose = styled.img`
+// 	height: 25px;
+// 	cursor: pointer;
+// 	margin-left: auto;
+// 	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
+// `;
+
 const Modalbody = styled.div`
 	background: #fff;
 	padding: 20px;
@@ -34,7 +36,10 @@ const Modalbody = styled.div`
 	overflow: auto;
 	box-shadow: 0px 2px 5px 1px rgb(0 0 0 / 20%);
 	@media (max-width: 700px) {
-		min-width: 100%;
+		min-width: 95%;
+	}
+	@media (max-width: 375px) {
+		min-width: 95%;
 	}
 `;
 
@@ -45,7 +50,7 @@ export default function Modal({
 	children,
 	width,
 	onClose = () => {
-		console.log('close');
+		console.info('close');
 	},
 	customStyle,
 }) {

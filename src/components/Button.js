@@ -5,14 +5,16 @@ import { string, func, object, oneOfType, bool } from 'prop-types';
 import Loader from '../Branch/components/Loader';
 
 const StyledButton = styled.button`
-	color: ${({ theme, fill }) => (fill ? 'white' : theme.main_theme_color)};
+	color: ${({ theme, fillColor }) =>
+		fillColor ? 'white' : theme.main_theme_color};
 	border: 2px solid
-		${({ theme, fill }) =>
-			fill && (typeof fill === 'string' ? fill : theme.main_theme_color)};
+		${({ theme, fillColor }) =>
+			fillColor &&
+			(typeof fillColor === 'string' ? fillColor : theme.main_theme_color)};
 	border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '5px')};
 	padding: 10px 20px;
-	background: ${({ theme, fill }) =>
-		fill && (typeof fill === 'string' ? '' : '#1414ad')};
+	background: ${({ theme, fillColor }) =>
+		fillColor && (typeof fillColor === 'string' ? '' : '#1414ad')};
 
 	align-items: flex-start;
 	/* min-width: ${({ width }) => (width ? width : '200px')}; */
@@ -86,12 +88,13 @@ export default function Button({
 		<StyledButton
 			type={type || 'submit'}
 			onClick={onClick}
-			fill={fill}
 			disabled={disabled}
 			altStyle={style}
 			width={width}
 			roundCorner={roundCorner}
-			style={customStyle}>
+			style={customStyle}
+			fillColor={fill}
+		>
 			{isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
 			{loading && <LoaderCircle />}
 			{!loading && children}

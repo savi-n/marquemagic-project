@@ -1,7 +1,7 @@
 import { func, object, oneOfType, string } from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import Button from '../../../components/Button';
+import Button from 'components/Button';
 
 const Colom1 = styled.section`
 	flex: 1;

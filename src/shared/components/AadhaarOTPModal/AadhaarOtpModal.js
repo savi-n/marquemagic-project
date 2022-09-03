@@ -9,7 +9,11 @@ import Button from 'components/Button';
 import AadhaarOTPInput from './AadhaarOTPInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { AADHAAR_VERIFY_OTP, AADHAAR_RESEND_OTP } from '_config/app.config';
+import {
+	AADHAAR_VERIFY_OTP,
+	AADHAAR_RESEND_OTP,
+	RESEND_OTP_TIMER,
+} from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
@@ -28,7 +32,7 @@ const ModalHeader = styled.div`
 `;
 
 const ModalBody = styled.div`
-	padding: 30px 0;
+	padding: 30px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -55,8 +59,17 @@ const ModalErrorMessage = styled.div`
 `;
 const ModalResentOtp = styled.div`
 	text-align: center;
-	padding-bottom: 9px;
+	padding-bottom: 10px;
 	font-size: 11px;
+	margin-top: 10px;
+`;
+
+const OtpMobileMessage = styled.p`
+	font-size: 22px;
+	text-align: center;
+	@media (max-width: 700px) {
+		font-size: 18px;
+	}
 `;
 
 const ImgStyle = styled.img`
@@ -67,7 +80,7 @@ const ImgStyle = styled.img`
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
-const DEFAULT_TIME_RESEND_OTP = 60;
+// const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AadhaarOTPModal = props => {
 	const {
@@ -83,13 +96,16 @@ const AadhaarOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
+	const [resendOtpTimer, setResendOtpTimer] = useState(
+		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
 	const {
 		state: { clientToken },
 	} = useContext(AppContext);
 
+	const product_id = sessionStorage.getItem('productId');
 	const verifyOtp = async () => {
 		if (!inputAadhaarOTP) {
 			setErrorMsg('Please enter a valid OTP.');
@@ -109,6 +125,7 @@ const AadhaarOTPModal = props => {
 					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
 					fwdp: aadhaarGenOtpResponse.data.fwdp,
 					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
+					product_id,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
@@ -137,7 +154,7 @@ const AadhaarOTPModal = props => {
 			}
 			setVerifyingOtp(false);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			if (
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
@@ -165,11 +182,14 @@ const AadhaarOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+			setResendOtpTimer(
+				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			);
 			const reqBody = {
 				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				transactionId: aadhaarGenOtpResponse.data.transactionId,
 				fwdp: aadhaarGenOtpResponse.data.fwdp,
+				product_id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const aadharResendOtpRes = await newRequest(AADHAAR_RESEND_OTP, {
@@ -186,7 +206,7 @@ const AadhaarOTPModal = props => {
 				});
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			setErrorMsg(
 				error?.response?.data?.message ||
 					' Aadhaar cannot be validated due to technical failure. Please try again after sometime'
@@ -196,7 +216,9 @@ const AadhaarOTPModal = props => {
 
 	useEffect(() => {
 		setInputAadhaarOTP('');
-		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+		setResendOtpTimer(
+			sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
@@ -219,7 +241,8 @@ const AadhaarOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
+			customStyle={{ padding: 0 }}
+		>
 			<ModalHeader>
 				Aadhaar Verification
 				<img
@@ -236,10 +259,10 @@ const AadhaarOTPModal = props => {
 				/>
 			</ModalHeader>
 			<ModalBody>
-				<p>
+				<OtpMobileMessage>
 					An OTP has been {isResentOtp ? 'resent' : 'sent'} to your number
 					please verify it below
-				</p>
+				</OtpMobileMessage>
 				<ModalWrapper>
 					<AadhaarOTPInput
 						numInputs={6}
@@ -256,7 +279,8 @@ const AadhaarOTPModal = props => {
 						type='submit'
 						onClick={() => {
 							resendOtpTimer <= 0 && resendOtp();
-						}}>
+						}}
+					>
 						{' '}
 						RESEND OTP {resendOtpTimer > 0 ? `IN ${resendOtpTimer}` : null}
 					</strong>
@@ -275,7 +299,7 @@ const AadhaarOTPModal = props => {
 					name='Verify'
 					onClick={verifyOtp}
 					disabled={verifyingOtp || inputAadhaarOTP.length < 6}
-					loading={verifyingOtp}
+					isLoader={verifyingOtp}
 				/>
 				{/* {ButtonProceed} */}
 			</ModalFooter>

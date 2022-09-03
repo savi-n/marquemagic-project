@@ -4,16 +4,16 @@ import { useContext, useEffect, Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
-import { PRODUCT_DETAILS_URL } from '../../_config/app.config';
-import useFetch from '../../hooks/useFetch';
-import { AppContext } from '../../reducer/appReducer';
-import { FlowContext } from '../../reducer/flowReducer';
-import { FormContext } from '../../reducer/formReducer';
+import { PRODUCT_DETAILS_URL } from '_config/app.config';
+import useFetch from 'hooks/useFetch';
+import { AppContext } from 'reducer/appReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { FormContext } from 'reducer/formReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
-import ContinueModal from '../../components/modals/ContinueModal';
+import ContinueModal from 'components/modals/ContinueModal';
 import Router from './Router';
-import { UserContext } from '../../reducer/userReducer';
-import { useToasts } from '../../components/Toast/ToastProvider';
+import { UserContext } from 'reducer/userReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 import imgSideNav from 'assets/images/bg/Left-Nav_BG.png';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
@@ -24,7 +24,7 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import Button from '../../components/Button';
+import Button from 'components/Button';
 const Wrapper = styled.div`
 	width: 100%;
 	min-height: 100%;
@@ -46,7 +46,7 @@ const Colom1 = styled.div`
 		padding: ${({ hide }) => (hide ? '0px' : '50px 20px')};
 		position: fixed;
 		height: 100%;
-		z-index: 14;
+		z-index: 9999;
 	}
 `;
 
@@ -86,23 +86,6 @@ const Menu = styled.h5`
 	}
 `;
 
-// background: ${({ active }) =>
-// 	active ? 'linear-gradient(to right, #2a2add , #00df8d)' : 'transparent'};
-const SubMenu = styled.h5`
-	background: ${({ active }) =>
-		active ? 'rgba(255,255,255,0.2)' : 'transparent'};
-	width: 110%;
-	border-radius: 10px;
-	padding: 10px 20px;
-	margin: 5px 0;
-	margin-left: 20px;
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	font-size: 14px;
-`;
-
 const ImgArrorRight = styled.img`
 	height: 15px;
 	padding-right: 10px;
@@ -127,6 +110,7 @@ const ScrollBox = styled.div`
 	}
 	::-webkit-scrollbar-track-piece {
 		background-color: transparent;
+		border-radius: 6px;
 		-webkit-border-radius: 6px;
 	}
 	@media (max-width: 700px) {
@@ -137,15 +121,24 @@ const ScrollBox = styled.div`
 `;
 const ProductName = styled.h5`
 	border: ${({ active }) => (active ? '1px solid' : 'none')};
-	font-size: 16px;
+	font-size: 18px;
 	font-weight: bold;
 	padding-left: 10px;
 	line-height: 30px;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
 
 	@media (max-width: 700px) {
 		display: ${({ hide }) => hide && 'none'};
 	}
 `;
+
+export const ApplicationNo = styled.span`
+	color: lightgray;
+	font-size: 14px;
+`;
+
 const BackButton = styled.img`
 	height: 30px;
 `;
@@ -158,6 +151,24 @@ const IconDottedRight = styled.img`
 	margin-right: 30px;
 `;
 
+const SectionSidebarArrow = styled.section`
+	z-index: 100;
+	display: none;
+	@media (max-width: 700px) {
+		display: block;
+	}
+`;
+const ArrowShow = styled.div`
+	width: min-content;
+	margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
+	position: fixed;
+`;
+
+const editLoanRestrictedSections = [
+	'pan-verification',
+	'identity-verification',
+	'application-submitted',
+];
 export default function Product({ product, url }) {
 	const history = useHistory();
 	const productIdPage = atob(product);
@@ -169,7 +180,6 @@ export default function Product({ product, url }) {
 	const {
 		state: {
 			completed: completedMenu,
-			activeSubFlow: subFlowMenu,
 			flowMap,
 			basePageUrl,
 			currentFlow,
@@ -197,23 +207,22 @@ export default function Product({ product, url }) {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
+	const [showContinueModal, setShowContinueModal] = useState(false);
+	const [index, setIndex] = useState(2);
 
-	const SectionSidebarArrow = styled.section`
-		z-index: 100;
-		display: none;
-		@media (max-width: 700px) {
-			display: block;
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+
+	const currentFlowDetect = () => {
+		if (completedMenu.length && productId === productIdPage) {
+			return showContinueModal ? currentFlow : basePageUrl;
 		}
-	`;
-	const ArrowShow = styled.div`
-		width: min-content;
-		margin-left: ${({ hide }) => (hide ? '0px' : '300px')};
-		position: fixed;
-	`;
-	// useEffect(() => {
-	// 	clearFlowDetails(basePageUrl);
-	// 	clearFormData();
-	// }, []);
+
+		return currentFlow || basePageUrl;
+	};
+
+	let flow = currentFlowDetect();
 
 	useEffect(() => {
 		if (response) {
@@ -223,28 +232,32 @@ export default function Product({ product, url }) {
 			}
 			configure(response.data?.product_details?.flow);
 			sessionStorage.setItem('productId', atob(product));
+			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
+				sessionStorage.setItem(
+					'otp_duration',
+					response?.data?.otp_configuration?.otp_duration_in_seconds
+				);
+			}
 		}
 		// eslint-disable-next-line
 	}, [response]);
 
 	useEffect(() => {
-		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-		if (editLoanData && flowMap) {
+		if (response && flowMap && editLoanData) {
 			const steps = Object.keys(flowMap);
-			onFlowChange(flowMap?.[flow]?.main);
 			steps.map(ele => {
 				setCompleted(ele);
 				return null;
 			});
-			// console.log('Product-useeffect-flowmap-', {
-			// 	index,
-			// 	editLoanData,
-			// 	flowMap,
-			// });
-			setIndex(index);
+			onFlowChange(
+				response?.data?.loan_request_type === 1
+					? 'business-details'
+					: 'personal-details'
+			);
+			setIndex(2);
 		}
 		// eslint-disable-next-line
-	}, [flowMap]);
+	}, [response, flowMap]);
 
 	useEffect(() => {
 		if (productId !== productIdPage || timestamp < Date.now()) {
@@ -254,18 +267,6 @@ export default function Product({ product, url }) {
 		completedMenu?.length > 0 && setIndex(completedMenu.length);
 		// eslint-disable-next-line
 	}, []);
-
-	// useEffect(() => {
-	//   if (basePageUrl) setCurrentFlow(basePageUrl);
-	// }, [basePageUrl]);
-
-	// const [
-	//   continueExistingApplication,
-	//   setContinueExistingApplication,
-	// ] = useState(false);
-
-	const [showContinueModal, setShowContinueModal] = useState(false);
-	const [index, setIndex] = useState(2);
 
 	const onYesClick = () => {
 		// setContinueExistingApplication(true);
@@ -303,15 +304,16 @@ export default function Product({ product, url }) {
 		setShowContinueModal(true);
 	};
 
-	const currentFlowDetect = () => {
-		if (completedMenu.length && productId === productIdPage) {
-			return showContinueModal ? currentFlow : basePageUrl;
-		}
-
-		return currentFlow || basePageUrl;
-	};
-
-	let flow = currentFlowDetect();
+	// console.log('Product-allStates-', {
+	// 	completedMenu,
+	// 	index,
+	// 	response,
+	// 	flowMap,
+	// 	currentFlow,
+	// 	basePageUrl,
+	// 	flow,
+	// 	subFlowMenu,
+	// });
 
 	return (
 		response &&
@@ -320,36 +322,63 @@ export default function Product({ product, url }) {
 				<Colom1 hide={hide}>
 					<ScrollBox>
 						<HeadingBox onClick={e => {}}>
-							<BackButton
-								src={imgBackArrowCircle}
-								alt='goback'
-								onClick={() => history.push('/nconboarding/applyloan')}
-							/>
+							{!editLoanData && (
+								<BackButton
+									src={imgBackArrowCircle}
+									alt='goback'
+									onClick={() => history.push('/nconboarding/applyloan')}
+								/>
+							)}
 							<ProductName hide={hide} active={flow === 'product-details'}>
-								{response.data.name} <span>{response.data.description}</span>
+								<span>{response.data.name}</span>
+								{editLoanData && (
+									<ApplicationNo>
+										Application No: {editLoanData?.loan_ref_id}
+									</ApplicationNo>
+								)}
 							</ProductName>
 						</HeadingBox>
-						{response.data?.product_details?.flow?.map((m, idx) =>
-							(!m.hidden || m.id === flow) && m.id !== 'product-details' ? (
+						{response.data?.product_details?.flow?.map((m, idx) => {
+							if (isViewLoan && editLoanRestrictedSections.includes(m.id))
+								return null;
+							return (!m.hidden || m.id === flow) &&
+								m.id !== 'product-details' ? (
 								<Fragment key={m.id}>
 									<Link onClick={e => {}}>
 										<Menu active={flow === m.id} hide={hide}>
 											<div
-												style={{
-													cursor:
-														completedMenu.includes(m.id) &&
-														m.id !== 'pan-verification' &&
-														'pointer',
-												}}
+												style={
+													isEditLoan &&
+													editLoanRestrictedSections.includes(m.id)
+														? { cursor: 'not-allowed', color: 'lightgrey' }
+														: {
+																cursor:
+																	completedMenu.includes(m.id) &&
+																	m.id !== 'pan-verification' &&
+																	'pointer',
+														  }
+												}
 												onClick={e => {
+													if (isViewLoan) {
+														flow = e.target.id;
+														setIndex(idx);
+														onFlowChange(flow, 'o');
+														return;
+													}
+													if (
+														editLoanData &&
+														editLoanRestrictedSections.includes(e.target.id)
+													) {
+														return;
+													}
 													if (index > idx) {
+														// if (idx > completedMenu.length + 1) return;
 														if (
 															flow !== 'product-details' &&
 															flow !== 'personal-details' &&
 															flow !== 'application-submitted' &&
 															flow !== 'identity-verification' &&
-															flow !== 'pan-verification' &&
-															!flow.includes('co-applicant')
+															flow !== 'pan-verification'
 														) {
 															flow =
 																e.target.id !== 'identity-verification' &&
@@ -371,7 +400,8 @@ export default function Product({ product, url }) {
 													}
 												}}
 												id={m.id}
-												k={idx}>
+												k={idx}
+											>
 												{m.name}
 											</div>
 											{completedMenu.includes(m.id) && (
@@ -383,65 +413,9 @@ export default function Product({ product, url }) {
 											)}
 										</Menu>
 									</Link>
-									{m.flow &&
-										subFlowMenu.includes(m.id) &&
-										m.flow.map((item, ind) => (
-											<Link key={item.id} onClick={e => {}}>
-												<SubMenu active={flow === item.id}>
-													<div
-														style={{
-															cursor: completedMenu.includes(m.id) && 'pointer',
-														}}
-														onClick={e => {
-															if (index >= ind) {
-																if (
-																	flow !== 'application-submitted' &&
-																	flow !== 'identity-verification' &&
-																	flow !== 'pan-verification' &&
-																	flow !== 'co-applicant-details'
-																) {
-																	flow =
-																		e.target.id !== 'identity-verification' &&
-																		e.target.id !== 'pan-verification' &&
-																		e.target.id !== 'application-submitted'
-																			? e.target.id
-																			: flow;
-																	if (
-																		e.target.id !== 'identity-verification' &&
-																		e.target.id !== 'pan-verification' &&
-																		e.target.id !== 'application-submitted'
-																	) {
-																		setIndex(ind);
-																	}
-																	if (
-																		!// state?.coapplicant?.applicantData
-																		// 	?.incomeType === 'noIncome' &&
-																		(
-																			e.target.id ===
-																			'co-applicant-income-details'
-																		)
-																	) {
-																		onFlowChange(flow, 'o');
-																	}
-																} else {
-																	onFlowChange(flow, 'o');
-																}
-															}
-														}}
-														id={item.id}
-														k={ind}>
-														{item.name}
-													</div>
-													{completedMenu.includes(item.id) && (
-														// <CheckBox bg='white' checked round fg={'blue'} />
-														<ImgCheckCircle src={imgCheckCircle} alt='check' />
-													)}
-												</SubMenu>
-											</Link>
-										))}
 								</Fragment>
-							) : null
-						)}
+							) : null;
+						})}
 					</ScrollBox>
 				</Colom1>
 				<SectionSidebarArrow>
@@ -451,7 +425,8 @@ export default function Product({ product, url }) {
 							onClick={() => hideAndShowMenu()}
 							width={10}
 							heigth={10}
-							borderRadious={'0 5px 5px 0'}>
+							borderRadious={'0 5px 5px 0'}
+						>
 							<FontAwesomeIcon
 								icon={hide ? faChevronRight : faChevronLeft}
 								size='1x'

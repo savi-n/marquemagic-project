@@ -5,11 +5,11 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { shape, string, number } from 'prop-types';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
-import { resetAllApplicationState } from '../utils/localStore';
-import { FlowContext } from '../reducer/flowReducer';
-import { FormContext } from '../reducer/formReducer';
+import { resetAllApplicationState } from 'utils/localStore';
+import { FlowContext } from 'reducer/flowReducer';
+import { FormContext } from 'reducer/formReducer';
 import { useContext } from 'react';
-import { UserContext } from '../reducer/userReducer';
+import { UserContext } from 'reducer/userReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
 const Wrapper = styled.div`
@@ -124,7 +124,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						removeAllLoanDocuments();
 						!add ? handleClick(e, product.id) : setAddedProduct(product);
 						setAddProduct && setAddProduct(false);
-					}}>
+					}}
+				>
 					{add ? 'Add Loan' : 'Get Loan'}
 				</Link>
 				<Description>{product.description}</Description>

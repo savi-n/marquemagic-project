@@ -18,9 +18,9 @@ import { UserContext } from 'reducer/userReducer';
 import { FlowContext } from 'reducer/flowReducer';
 import InputField from 'components/inputs/InputField';
 import moment from 'moment';
-import Button from '../../../components/Button';
+import Button from 'components/Button';
 import AadhaarOTPModal from '../AadhaarOTPModal/AadhaarOtpModal';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -85,17 +85,18 @@ const TotalValueWrapper = styled.div`
 	}
 `;
 
-export default function PersonalDetails({
-	preData = {},
-	id,
-	pageName,
-	userType,
-	jsonData,
-	register,
-	formState,
-	companyDetail,
-	productDetails = {},
-}) {
+export default function PersonalDetails(props) {
+	const {
+		preData = {},
+		id,
+		pageName,
+		userType,
+		jsonData,
+		register,
+		formState,
+		headingNameStyle,
+		productDetails = {},
+	} = props;
 	const { state } = useContext(LoanFormContext);
 	const {
 		state: { bankId, userToken },
@@ -114,6 +115,8 @@ export default function PersonalDetails({
 	const arrTotalValueCultivated = [0, 0, 0];
 	const numberVar = ['1', '2', '3'];
 
+	const product_id = sessionStorage.getItem('productId');
+
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [generateOtpResponse, setGenerateOtpResponse] = useState('');
 	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
@@ -125,6 +128,9 @@ export default function PersonalDetails({
 	if (aadhaar.includes('x') || aadhaar.includes('X')) {
 		aadhaar = preData.aadhaarUnMasked;
 	}
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
 		if (!userType && field.disabled) {
@@ -279,6 +285,7 @@ export default function PersonalDetails({
 				method: 'POST',
 				data: {
 					aadhaarNo: aadhaar,
+					product_id,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
@@ -293,8 +300,6 @@ export default function PersonalDetails({
 				setIsAadhaarOtpModalOpen(false);
 			}
 		} catch (error) {
-			console.log(error);
-			console.log(error.response);
 			addToast({
 				message:
 					error?.response?.data?.message ||
@@ -304,7 +309,7 @@ export default function PersonalDetails({
 		}
 	};
 
-	// console.log('PersonalDetails-states-', { preData, productDetails });
+	// console.log('PersonalDetails-allstates-', { props });
 
 	return (
 		<>
@@ -317,20 +322,19 @@ export default function PersonalDetails({
 				/>
 			)}
 			<H>
-				{userType || 'Help us with your'}{' '}
-				<span>{pageName || 'Personal Details'}</span>
+				{userType || isViewLoan
+					? ''
+					: `Help us with ${id?.includes('co-applicant') ? '' : 'your'}`}{' '}
+				<span style={headingNameStyle}>{pageName || 'Personal Details'}</span>
 			</H>
 			<FormWrap>
 				{jsonData && id === 'business-details'
-					? jsonData.map(field => {
-							const editLoanData = JSON.parse(
-								sessionStorage.getItem('editLoan')
-							);
+					? jsonData.map((field, fieldIndex) => {
 							const customFields = {};
 							if (field.name === 'BusinessType') {
 								if (
 									completedSections.includes('business-details') ||
-									(editLoanData && editLoanData?.loan_ref_id)
+									editLoanData
 								) {
 									customFields.readonly = true;
 									customFields.disabled = true;
@@ -346,43 +350,47 @@ export default function PersonalDetails({
 							) {
 								customFields.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
+								if (editLoanData) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+							}
+							if (isViewLoan) {
+								customFields.readonly = true;
+								customFields.disabled = true;
 							}
 							return (
 								field.visibility && (
-									<>
-										<FieldWrap key={field.name}>
-											{register({
-												...field,
-												value: populateValue(field),
-												...(preData?.[field.name] &&
-													field?.preDataDisable && { disabled: true }),
-												...(userType ? { disabled: false } : {}),
-												max: field.type === 'date' && '9999-12-31',
-												...customFields,
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</ErrorMessageSubFields>
-												) : (
-													<ErrorMessage>
-														{formState?.error?.[field.name]}
-													</ErrorMessage>
-												))}
-										</FieldWrap>
-									</>
+									<FieldWrap key={`${id}-field-${fieldIndex}-${field.name}`}>
+										{register({
+											...field,
+											value: populateValue(field),
+											...(preData?.[field.name] &&
+												field?.preDataDisable && { disabled: true }),
+											...(userType ? { disabled: false } : {}),
+											// max: field.type === 'date' && '9999-12-31',
+											...customFields,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name] &&
+											(field.subFields ? (
+												<ErrorMessageSubFields>
+													{formState?.error?.[field.name]}
+												</ErrorMessageSubFields>
+											) : (
+												<ErrorMessage>
+													{formState?.error?.[field.name]}
+												</ErrorMessage>
+											))}
+									</FieldWrap>
 								)
 							);
 					  })
 					: id !== 'business-details' &&
-					  jsonData.map(field => {
+					  jsonData.map((field, fieldIndex) => {
 							// console.log('field-', field);
-							const editLoanData = JSON.parse(
-								sessionStorage.getItem('editLoan')
-							);
 							const value = populateValue(field);
 							const customFields = {};
 							if (pageName === 'Bank Details') {
@@ -403,13 +411,15 @@ export default function PersonalDetails({
 							if (id === 'personal-details' && field.name === 'incomeType') {
 								if (
 									completedSections.includes('personal-details') ||
-									(editLoanData && editLoanData?.loan_ref_id)
+									editLoanData
 								) {
 									customFields.readonly = true;
 									customFields.disabled = true;
 								}
 							}
-
+							if (field.name.includes('dob')) {
+								customFields.max = moment().format('YYYY-MM-DD');
+							}
 							let pricePerAcer = 0;
 							if (
 								field?.options?.[0]?.peracre &&
@@ -456,6 +466,10 @@ export default function PersonalDetails({
 									customFields.disabled = isVerifyWithOtpDisabled;
 									customFields.readonly = isVerifyWithOtpDisabled;
 								}
+								if (editLoanData) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
 							}
 							if (id === 'personal-details' && field.name === 'panNumber') {
 								customFields.readonly = true;
@@ -468,30 +482,58 @@ export default function PersonalDetails({
 							) {
 								customFields.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
+								if (editLoanData) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+							}
+							if (isViewLoan) {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							if (editLoanData && field.name.includes('incomeType')) {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							let isDevider = false;
+							if (id === 'reference-details') {
+								if (field.name === 'Name1') {
+									isDevider = true;
+								}
 							}
 							return (
 								field.visibility && (
 									<>
+										{isDevider && (
+											<div
+												style={{
+													border: '1px solid #eee',
+													width: '100%',
+													margin: '30px 0',
+												}}
+											/>
+										)}
 										<FieldWrap
-											key={field.name}
+											key={`${id}-field-${fieldIndex}-${field.name}`}
 											isSmallSize={
 												field.name.includes('crop') ||
 												field.name.includes('cultivated')
 											}
-											isSubFields={field?.subFields ? true : false}>
+											isSubFields={field?.subFields ? true : false}
+										>
 											{register({
 												...field,
 												value,
 												...(preData?.[field.name] &&
 													field?.preDataDisable && { disabled: true }),
 												...(userType ? { disabled: false } : {}),
-												max: field.type === 'date' && '9999-12-31',
+												// max: field.type === 'date' && '9999-12-31',
 												placeholder:
 													field.type === 'banklist'
-														? preData?.[`${field.name}`]?.name ||
+														? preData?.[`${field?.name}`]?.name ||
 														  field.placeholder
 														: field.type === 'search'
-														? preData?.branchIdName || field.placeholder
+														? preData?.branchIdName || field?.placeholder
 														: field.placeholder,
 												...(field.type === 'search'
 													? {
@@ -502,14 +544,18 @@ export default function PersonalDetails({
 													  }
 													: {}),
 												...customFields,
+												visibility: 'visible',
 											})}
 											{field?.subFields &&
-												field?.subFields.map(subF => {
+												field?.subFields.map((subF, subFIndex) => {
 													if (subF.type === 'button') {
 														return (
 															<Button
+																key={`subF-${subFIndex}-${subF.placeholder}`}
 																name={subF.placeholder}
-																disabled={isVerifyWithOtpDisabled}
+																disabled={
+																	isVerifyWithOtpDisabled || editLoanData
+																}
 																type='submit'
 																customStyle={{ whiteSpace: 'nowrap' }}
 																onClick={onSubFieldButtonClick}

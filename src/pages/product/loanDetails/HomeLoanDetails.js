@@ -4,19 +4,19 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import HomeLoanAddressDetails from '../../../shared/components/AddressDetails/HomeLoanAddress';
-import HomeLoanDetailsTable from '../../../shared/components/LoanDetails/HomeLoanDetailsTable';
-import UploadAgreementModal from '../../../components/UploadAgreementModal';
-import LoanDetails from '../../../shared/components/LoanDetails/LoanDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { formatLoanData } from '../../../utils/formatData';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { SEARCH_BANK_BRANCH_LIST } from '../../../_config/app.config';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import HomeLoanAddressDetails from 'shared/components/AddressDetails/HomeLoanAddress';
+import HomeLoanDetailsTable from 'shared/components/LoanDetails/HomeLoanDetailsTable';
+import UploadAgreementModal from 'components/UploadAgreementModal';
+import LoanDetails from 'shared/components/LoanDetails/LoanDetails';
+import { FormContext } from 'reducer/formReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
+import { formatLoanData } from 'utils/formatData';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { HOSTNAME, SEARCH_BANK_BRANCH_LIST } from '_config/app.config';
 
 const Div = styled.div`
 	flex: 1;
@@ -97,8 +97,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	const [uploadAgreementDocs, setUploadAgreementDocs] = useState({});
 	const [homeBranchList, sethomeBranchList] = useState([]);
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+
 	const onProceed = data => {
-		onSave(data);
+		!isViewLoan && onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};
@@ -127,7 +130,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		// setUsertypeEmiData(emiData);
 		setUsertypeBankData({
 			bankId: bankId,
-			branchId: data.branchId.value || data.branchId,
+			branchId: data?.branchId?.value || data?.branchId || '',
 		});
 		setUsertypeLoanData({
 			...loanData,
@@ -172,7 +175,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
 			}
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 		}
 	};
 
@@ -206,9 +209,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		};
 	};
 
-	const url = window.location.hostname;
-
-	let userTokensss = sessionStorage.getItem(url);
+	let userTokensss = sessionStorage.getItem(HOSTNAME);
 	let preData = {};
 	if (
 		Object.keys(JSON.parse(userTokensss).formReducer?.user?.loanData).length > 0
@@ -255,8 +256,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				<HomeLoanDetailsTable tableContent={map.fields[id]?.loanTable} />
 			)}
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
 			</ButtonWrap>
 
 			{uploadAgreementModal && (

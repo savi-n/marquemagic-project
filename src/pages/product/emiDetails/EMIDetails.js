@@ -4,18 +4,17 @@ import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import EMIDetails from '../../../shared/components/EMIDetails/EMIDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import EMIDetails from 'shared/components/EMIDetails/EMIDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
 
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { BANK_LIST_FETCH } from '../../../_config/app.config';
-import useFetch from '../../../hooks/useFetch';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { BANK_LIST_FETCH } from '_config/app.config';
+import useFetch from 'hooks/useFetch';
 
 const Div = styled.div`
 	flex: 1;
@@ -121,9 +120,6 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	} = useContext(FormContext);
 
 	const {
-		actions: { setLoanData },
-	} = useContext(LoanFormContext);
-	const {
 		state: { userToken },
 	} = useContext(UserContext);
 
@@ -131,8 +127,16 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const { addToast } = useToasts();
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
-		headers: { Authorization: `Bearer ${userToken || companyDetail?.token}` },
+		headers: {
+			Authorization: `Bearer ${userToken ||
+				companyDetail?.token ||
+				sessionStorage.getItem('userToken')}`,
+		},
 	});
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+
 	const onProceed = data => {
 		if (
 			(data?.existing_auto_loan && Number(data?.existing_auto_loan) === 0) ||
@@ -146,7 +150,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			});
 		}
 		// preData?.[`${field.name}_bank_name`]
-		onSave(data);
+		!isViewLoan && onSave(data);
 		setCompleted(id);
 		if (map.main === 'cub-document-upload') {
 			map.main = 'document-upload';
@@ -165,9 +169,11 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			[...map.fields[id].data, ...additionalField],
 			response
 		);
+		// console.log('onSave-', emiData);
 		setUsertypeEmiData(emiData);
-		setFlowData(emiData, id);
-		setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
+		setFlowData(formatLoanEmiData(data, map.fields[id].data), id);
+		// setFlowData(emiData, id);
+		// setLoanData(formatLoanEmiData(data, map.fields[id].data), id);
 
 		addToast({
 			message: 'Saved Succesfully',
@@ -178,6 +184,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 	const [additionalField, setAdditionalField] = useState([]);
 
 	const onAdd = () => {
+		if (isViewLoan) return;
 		const newField = {
 			...map.fields[id].data[0],
 			name: `addDed_${additionalField.length + 1}`,
@@ -229,14 +236,14 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 						existing_auto_loan_bank_id = ele?.bank_name;
 					}
 					if (i === 1) {
-						existing_lap_loan = ele?.emiAmount;
-						existing_lap_loan_bank_name = ele?.bank_name;
-						existing_lap_loan_bank_id = ele?.bank_name;
-					}
-					if (i === 1) {
 						existing_personal_loan = ele?.emiAmount;
 						existing_personal_loan_bank_name = ele?.bank_name;
 						existing_personal_loan_bank_id = ele?.bank_name;
+					}
+					if (i === 2) {
+						existing_lap_loan = ele?.emiAmount;
+						existing_lap_loan_bank_name = ele?.bank_name;
+						existing_lap_loan_bank_id = ele?.bank_name;
 					}
 					return null;
 				});
@@ -266,13 +273,18 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			/>
 
 			<Wrapper>
-				<RoundButton onClick={onAdd}>+</RoundButton> click to add additional
-				deductions/repayment obligations
+				<RoundButton onClick={onAdd} disabled={isViewLoan}>
+					+
+				</RoundButton>{' '}
+				click to add additional deductions/repayment obligations
 			</Wrapper>
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
-				{!skipButton && <Button name='Skip' onClick={onSkip} />}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
+				{!skipButton && !isViewLoan && <Button name='Skip' onClick={onSkip} />}
 			</ButtonWrap>
 		</Div>
 	);

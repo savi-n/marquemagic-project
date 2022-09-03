@@ -5,19 +5,18 @@
 - 3 address proof upload screen (aadhaar-voter-dl-passport)
 */
 
-import { useState, useContext, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import useForm from '../../../hooks/useForm';
-import useFetch from '../../../hooks/useFetch';
-import { AppContext } from '../../../reducer/appReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import CompanySelectModal from '../../../components/CompanySelectModal';
-import FileUpload from '../../../shared/components/FileUpload/FileUpload';
-import Button from '../../../components/Button';
-import Modal from '../../../components/Modal';
+import { useState, useContext, useEffect } from 'react';
+import useForm from 'hooks/useForm';
+import useFetch from 'hooks/useFetch';
+import { AppContext } from 'reducer/appReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
+import CompanySelectModal from 'components/CompanySelectModal';
+import FileUpload from 'shared/components/FileUpload/FileUpload';
+import Button from 'components/Button';
+import Modal from 'components/Modal';
 import WarnIcon from 'assets/icons/amber_warning_icon.png';
 import ErrorIcon from 'assets/icons/Red_error_icon.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -28,10 +27,10 @@ import {
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
 	APP_CLIENT,
+	HOSTNAME,
 } from '../../../_config/app.config';
 import {
 	getKYCData,
-	verifyPan,
 	gstFetch,
 	getKYCDataId,
 	verifyKycDataUiUx,
@@ -41,196 +40,10 @@ import _ from 'lodash';
 import * as CONST from './const';
 import * as UI from './ui';
 import InputField from 'components/inputs/InputField';
+import { CATEGORY_KYC } from 'pages/product/documentUpload/const';
 
-const Wrapper = styled.div`
-	flex: 1;
-	padding: 50px;
-	@media (max-width: 700px) {
-		padding: 50px 0px;
-		max-width: 100%;
-	}
-`;
-const LabRed = styled.h1`
-	font-size: 1em;
-	font-weight: 500;
-	color: red;
-	margin-top: -25px;
-`;
-
-const FieldWrapper = styled.div`
-	padding: 20px 0;
-	width: 50%;
-	@media (max-width: 700px) {
-		width: 100%;
-	}
-`;
-const ImgClose = styled.img`
-	height: 25px;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
-`;
-const FieldWrapperPanVerify = styled.div`
-	padding: 30px 10px;
-	/* width: 50%; */
-	place-self: center;
-
-	@media (max-width: 700px) {
-		width: 100%;
-	}
-`;
-const ConfirmPanWrapper = styled.div`
-	padding: 40px 0;
-	margin-right: auto;
-	margin-left: auto;
-	text-align: center;
-`;
-
-const H2 = styled.h2`
-	width: 50%;
-	text-align: center;
-	font-weight: 500;
-`;
-
-const CardRadioButton = styled.div`
-	/* box-shadow: 0 4px 9px 0 #bdd2ef; */
-	box-shadow: rgb(11 92 255 / 16%) 0px 2px 5px 1px;
-	width: 180px;
-	height: 45px;
-	line-height: 45px;
-	margin-right: 20px;
-	padding-left: 20px;
-	border-radius: 6px;
-	text-align: left;
-	input {
-		cursor: pointer;
-	}
-	label {
-		padding-left: 15px;
-		cursor: pointer;
-	}
-`;
-
-const RadioButtonWrapper = styled.div`
-	padding: 30px 0;
-	display: flex;
-`;
-
-const ButtonWrapper = styled.div`
-	margin-top: 20px;
-`;
-
-const NotificationImg = styled.img`
-	margin-right: 8px;
-	width: 33px;
-	display: inline-block;
-`;
-
-const businessTypeMaps = [
-	[['private', 'pvt'], 4],
-	[['public', 'pub'], 5],
-	[['llp'], 3],
-];
-
-function formatCompanyData(data, panNum) {
-	let directors = {};
-	let directorsForShow = [];
-
-	for (const [i, dir] of data['directors/signatory_details']?.entries() || []) {
-		directors[`directors_${i}`] = {
-			[`ddin_no${i}`]: dir['din/pan'],
-		};
-		directorsForShow.push({
-			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din,
-		});
-	}
-
-	let businesType;
-
-	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t =>
-			data?.company_master_data?.company_name?.toLowerCase().includes(t)
-		);
-
-		if (typeAllowed) {
-			businesType = type[1];
-			break;
-		}
-	}
-
-	const [
-		date,
-		month,
-		year,
-	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
-
-	return {
-		BusinessName: data.company_master_data.company_name,
-		BusinessType: businesType,
-		Email: data.company_master_data.email_id,
-		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
-		CIN: data.company_master_data['cin '],
-		CompanyCategory: data.company_master_data.company_category,
-		Address: data.company_master_data.registered_address,
-		ClassOfCompany: data.company_master_data.class_of_company,
-		RegistrationNumber: data.company_master_data.registration_number,
-		DirectorDetails: directors,
-		directorsForShow,
-		unformatedData: data,
-	};
-}
-
-function formatCompanyDataGST(data, panNum, gstNum) {
-	if (data?.length > 1) data = data[0].data;
-	let directors = {};
-	let directorsForShow = [];
-
-	directorsForShow.push({
-		Name: data?.lgnm,
-		Din: '',
-	});
-
-	let businesType;
-
-	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t =>
-			data?.tradeNam?.toLowerCase().includes(t)
-		);
-
-		if (typeAllowed) {
-			businesType = type[1];
-			break;
-		}
-	}
-
-	const [date, month, year] = data?.rgdt.split(/\/|-/);
-
-	return {
-		BusinessName: data.tradeNam,
-		BusinessType: businesType,
-		Email: '',
-		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
-		CIN: '',
-		GSTVerification: gstNum,
-		CompanyCategory: data.nba[0],
-		Address: data.pradr?.addr,
-		ClassOfCompany: data.ctb,
-		RegistrationNumber: data.ctjCd,
-		DirectorDetails: directors,
-		directorsForShow,
-		unformatedData: data,
-	};
-}
-
-export default function PanVerification({
-	productDetails,
-	map,
-	onFlowChange,
-	id,
-}) {
+const PanVerification = props => {
+	const { productDetails, map, onFlowChange, id } = props;
 	const productType =
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 	const isBusinessProductType = productType === 'business';
@@ -249,12 +62,10 @@ export default function PanVerification({
 	} = useContext(FlowContext);
 
 	const {
-		state: { documents: loanDocuments },
 		actions: {
 			setLoanDocuments,
 			removeAllLoanDocuments,
 			setLoanDocumentType,
-			removeLoanDocument,
 			removeAllAddressProofLoanDocuments,
 		},
 	} = useContext(LoanFormContext);
@@ -273,6 +84,8 @@ export default function PanVerification({
 	const [addressProofError, setAddressProofError] = useState('');
 	const [udhyogError, setUdhyogError] = useState('');
 	const [gstError, setGstError] = useState('');
+	const [isGstInDisabled, setIsGstInDisabled] = useState(false);
+	const [isudhyogAadhaarDisabled, setIsUdhyogAadhaarDisabled] = useState(false);
 	// const [selectDoc, selectDocs] = useState(false);
 	// const [verificationFailed, setVerificationFailed] = useState('');
 	//const [gstNum, setGstNum] = useState(null);
@@ -305,7 +118,7 @@ export default function PanVerification({
 	// const [backUpload, setBackUpload] = useState(false);
 	// const [backUploading, setBackUploading] = useState(false);
 	// const [disableButton, setDisableSubmit] = useState(false);
-	const [panFileId, setPanFileId] = useState(null);
+	const [, setPanFileId] = useState(null);
 	const [isError, setIsError] = useState(false);
 	const [isWarning, setIsWarning] = useState(false);
 	const [selectedAddressProof, setSelectedAddressProof] = useState('');
@@ -314,13 +127,13 @@ export default function PanVerification({
 	const [addressProofDocs, setAddressProofDocs] = useState([]);
 	const [extractionDataRes, setExtractionDataRes] = useState({});
 	const [panExtractionData, setPanExtractionData] = useState({});
-	const [addressProofExtractionData, setAddressProofExtractionData] = useState(
-		{}
-	);
+	const [, setAddressProofExtractionData] = useState({});
 	const [searchingCompanyName, setSearchingCompanyName] = useState(false);
 	// const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	// const [panNum, setPan] = useState('');
 	// const userid = '10626';
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const resetAllErrors = () => {
 		setPanError('');
@@ -331,10 +144,10 @@ export default function PanVerification({
 		setIsWarning(false);
 	};
 
-	const onCompanySelect = cinNumber => {
+	const onCompanySelect = async cinNumber => {
 		setIsCompanyListModalOpen(false);
 		setLoading(true);
-		cinNumberFetch(cinNumber);
+		await cinNumberFetch(cinNumber);
 	};
 
 	const proceedToNextSection = () => {
@@ -426,73 +239,86 @@ export default function PanVerification({
 	};
 
 	const cinNumberFetch = async cinNumber => {
-		const cinNumberResponse = await newRequest(
-			ROC_DATA_FETCH,
-			{
-				method: 'POST',
-				data: {
-					cin_number: cinNumber,
-				},
-			},
-			{ authorization: clientToken }
-		);
-
-		const companyData = cinNumberResponse.data;
-		const reqBody = {
-			email: companyData.data.company_master_data.email_id,
-			white_label_id: whiteLabelId,
-			source: APP_CLIENT,
-			name: companyData.data.company_master_data.company_name,
-			mobileNo: '9999999999',
-			addrr1: '',
-			addrr2: '',
-		};
-		if (sessionStorage.getItem('userDetails')) {
-			try {
-				reqBody.user_id =
-					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
-			} catch (err) {
-				return err;
-			}
-		}
-
-		if (companyData.status === NC_STATUS_CODE.OK) {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: reqBody,
-			});
-
-			const userDetailsRes = userDetailsReq.data;
-
-			sessionStorage.setItem('branchId', userDetailsRes.branchId);
-
-			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
+		try {
+			setLoading(true);
+			const cinNumberResponse = await newRequest(
+				ROC_DATA_FETCH,
+				{
+					method: 'POST',
+					data: {
+						cin_number: cinNumber,
 					},
-					{ Authorization: `Bearer ${userDetailsRes.token}` }
-				);
-
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				sessionStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
-
-				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-					setCompanyDetails({
-						token: userDetailsRes.token,
-						userId: userDetailsRes.userId,
-						branchId: userDetailsRes.branchId,
-						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						...formatCompanyData(companyData.data, extractionDataRes.panNumber),
-					});
-				proceedToNextSection();
-				return;
+				},
+				{ authorization: clientToken }
+			);
+			const companyData = cinNumberResponse.data;
+			const reqBody = {
+				email: companyData?.data?.company_master_data?.email_id || '',
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: companyData?.data?.company_master_data?.company_name || '',
+				mobileNo: '9999999999',
+				addrr1: '',
+				addrr2: '',
+			};
+			if (sessionStorage.getItem('userDetails')) {
+				try {
+					reqBody.user_id =
+						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+				} catch (err) {
+					return err;
+				}
 			}
+
+			if (companyData.status === NC_STATUS_CODE.OK) {
+				const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+					method: 'POST',
+					data: reqBody,
+				});
+
+				const userDetailsRes = userDetailsReq.data;
+
+				sessionStorage.setItem('branchId', userDetailsRes.branchId);
+
+				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+					sessionStorage.setItem('userToken', userDetailsRes.token);
+					const encryptWhiteLabelReq = await newRequest(
+						WHITELABEL_ENCRYPTION_API,
+						{
+							method: 'GET',
+						},
+						{ Authorization: `Bearer ${userDetailsRes.token}` }
+					);
+
+					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+					sessionStorage.setItem(
+						'encryptWhiteLabel',
+						encryptWhiteLabelRes.encrypted_whitelabel[0]
+					);
+
+					if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+						setCompanyDetails({
+							token: userDetailsRes.token,
+							userId: userDetailsRes.userId,
+							branchId: userDetailsRes.branchId,
+							encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+							...CONST.formatCompanyData(
+								companyData.data,
+								extractionDataRes.panNumber
+							),
+						});
+					proceedToNextSection();
+					return;
+				}
+			}
+		} catch (error) {
+			setLoading(false);
+			addToast({
+				message: error?.message || 'ROC search failed, try again',
+				type: 'error',
+			});
+			console.error('error-cinnumberfetch-', error);
 		}
 	};
 
@@ -502,12 +328,14 @@ export default function PanVerification({
 			return;
 		}
 		setCompanyDetails({
-			...formatCompanyDataGST(companyData, extractionDataRes.panNumber, gstNum),
+			...CONST.formatCompanyDataGST(
+				companyData,
+				extractionDataRes.panNumber,
+				gstNum
+			),
 		});
 
-		const url = window.location.hostname;
-
-		let userToken = sessionStorage.getItem(url);
+		let userToken = sessionStorage.getItem(HOSTNAME);
 
 		let form = JSON.parse(userToken);
 
@@ -519,7 +347,7 @@ export default function PanVerification({
 					...form.formReducer.user,
 					applicantData: {
 						...form.formReducer.user.applicantData,
-						...formatCompanyDataGST(
+						...CONST.formatCompanyDataGST(
 							companyData,
 							extractionDataRes.panNumber,
 							gstNum
@@ -529,7 +357,7 @@ export default function PanVerification({
 			},
 		};
 
-		sessionStorage.setItem(url, JSON.stringify(form));
+		sessionStorage.setItem(HOSTNAME, JSON.stringify(form));
 		sessionStorage.setItem(
 			'BusinessName',
 			form.formReducer.user.applicantData.BusinessName
@@ -585,6 +413,20 @@ export default function PanVerification({
 
 	useEffect(() => {
 		resetAllErrors();
+		if (formState?.values?.gstin && formState?.values?.gstin.length > 0) {
+			setIsUdhyogAadhaarDisabled(true);
+		} else {
+			setIsUdhyogAadhaarDisabled(false);
+		}
+		if (
+			formState?.values?.udhyogAadhar &&
+			formState?.values?.udhyogAadhar > 0
+		) {
+			setIsGstInDisabled(true);
+		} else {
+			setIsGstInDisabled(false);
+		}
+		// if (formState?.values?.udhyogAadhar) setIsGstInDisabled(true);
 		// eslint-disable-next-line
 	}, [formState?.values?.gstin, formState?.values?.udhyogAadhar]);
 
@@ -607,6 +449,7 @@ export default function PanVerification({
 	};
 	const onProceedGstUdhyog = async data => {
 		const { panNumber, gstin, udhyogAadhar } = data;
+		//console.log('panNumberfromproceed', panNumber);
 		try {
 			setLoading(true);
 			resetAllErrors();
@@ -708,6 +551,7 @@ export default function PanVerification({
 				CONST.EXTRACTION_KEY_PAN,
 				panExtractionData
 			);
+
 			// console.log(
 			// 	'pan-verification-handlePanConfirm-verifiedRes-',
 			// 	verifiedRes
@@ -721,6 +565,35 @@ export default function PanVerification({
 			// don't change 'pan' to different key it'll effect prepopulation logic
 			sessionStorage.setItem('pan', panExtractionData?.panNumber);
 
+			// console.log('panExtraction', panExtractionData?.panNumber);
+			if (
+				panExtractionData?.panNumber &&
+				panExtractionData?.panNumber.length !== 10
+			) {
+				addToast({
+					message: 'PanNumber should be 10 digits',
+					type: 'error',
+				});
+				setLoading(false);
+				return;
+			}
+			if (panExtractionData?.panNumber) {
+				const lastFourDigitsValidation = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(
+					panExtractionData?.panNumber
+				);
+
+				if (
+					!lastFourDigitsValidation ||
+					panExtractionData?.panNumber.trim().length <= 0
+				) {
+					addToast({
+						message: 'Please specify a valid Pan Number',
+						type: 'error',
+					});
+					setLoading(false);
+					return;
+				}
+			}
 			// business product + business pan card
 			if (isBusinessProductType && panExtractionData.isBusinessPan) {
 				// TODO: simplify below logic
@@ -843,6 +716,10 @@ export default function PanVerification({
 				setPanError(panForensicFlagMsg);
 				// CONTINUE EXECUTION
 			}
+			if (panForensicFlag !== 'warning') {
+				setIsWarning(true);
+				setIsPanConfirmModalOpen(true);
+			}
 			const file1 = {
 				...(panExtractionRes?.data?.extractionData || {}),
 				document_key: panExtractionRes?.data.s3.fd,
@@ -857,6 +734,8 @@ export default function PanVerification({
 				requestId: panExtractionRes?.data?.request_id,
 				upload_doc_name: panExtractionRes?.data.s3.filename,
 				isDocRemoveAllowed: false,
+				category: CATEGORY_KYC,
+				doc_type_id: `app_${CATEGORY_KYC}`,
 			};
 			setPanFileId(file1.id);
 			setLoanDocuments([file1]);
@@ -895,7 +774,6 @@ export default function PanVerification({
 			setPanExtractionData(newPanExtractionData);
 			// fileRef.current = [];
 			setLoading(false);
-			if (panForensicFlag !== 'warning') setIsPanConfirmModalOpen(true);
 		} catch (error) {
 			console.error('error-pan-verification-handleExtractionPan-', error);
 			setLoading(false);
@@ -936,10 +814,12 @@ export default function PanVerification({
 
 		if (address) {
 			let locationArr = address && address?.split(' ');
+			// eslint-disable-next-line
 			let y = locationArr?.map(e => Number(e) !== NaN && e);
 			let pin;
 			y.map(e => {
 				if (e?.length === 6) pin = e;
+				return null;
 			});
 
 			formState.values.pin = pinCode || pin;
@@ -1056,6 +936,8 @@ export default function PanVerification({
 					requestId: frontExtractionRes?.data?.request_id,
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					isDocRemoveAllowed: false,
+					category: CATEGORY_KYC,
+					doc_type_id: `app_${CATEGORY_KYC}`,
 				};
 
 				setLoanDocuments([frontFile]);
@@ -1112,6 +994,8 @@ export default function PanVerification({
 					requestId: backExtractionRes?.data.request_id,
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					isDocRemoveAllowed: false,
+					category: CATEGORY_KYC,
+					doc_type_id: `app_${CATEGORY_KYC}`,
 				};
 
 				setLoanDocuments([backFile]);
@@ -1123,7 +1007,10 @@ export default function PanVerification({
 					requestId: backExtractionRes?.data.request_id,
 				};
 				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
-				getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
+				await getVerifiedKycData(
+					selectedAddressProof,
+					newAddressProofExtractionData
+				);
 				if (backForensicFlag !== 'warning') proceedToNextSection();
 				setLoading(false);
 				return;
@@ -1183,6 +1070,8 @@ export default function PanVerification({
 				requestId: frontOnlyExtractionRes?.data?.request_id,
 				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 				isDocRemoveAllowed: false,
+				category: CATEGORY_KYC,
+				doc_type_id: `app_${CATEGORY_KYC}`,
 			};
 
 			setLoanDocuments([frontOnlyFile]);
@@ -1194,7 +1083,10 @@ export default function PanVerification({
 				requestId: frontOnlyExtractionRes?.data?.request_id,
 			};
 			prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
-			getVerifiedKycData(selectedAddressProof, newAddressProofExtractionData);
+			await getVerifiedKycData(
+				selectedAddressProof,
+				newAddressProofExtractionData
+			);
 			if (frontOnlyForensicFlag !== 'warning') proceedToNextSection();
 			setLoading(false);
 		} catch (error) {
@@ -1224,6 +1116,7 @@ export default function PanVerification({
 			const newFile = _.cloneDeep(f);
 			if (f.id === fileId) {
 				newFile.isTagged = type;
+				newFile.doc_type_id = type.id;
 			}
 			newAddressProofDocs.push(newFile);
 			return null;
@@ -1241,9 +1134,6 @@ export default function PanVerification({
 		}
 	};
 
-	let isFrontTagged = false;
-	let isBackTagged = false;
-	let isFrontBackTagged = false;
 	let isInActiveAddressProofUpload = false;
 	let isProceedDisabledAddressProof = true;
 	let isSkipOptionDisabled = false;
@@ -1324,7 +1214,7 @@ export default function PanVerification({
 	// });
 
 	return (
-		<Wrapper>
+		<UI.Wrapper>
 			<CompanySelectModal
 				companyNameSearch={companyNameSearch}
 				searchingCompanyName={searchingCompanyName}
@@ -1343,20 +1233,21 @@ export default function PanVerification({
 				onClose={() => {
 					setIsPanConfirmModalOpen(false);
 				}}
-				width='30%'>
+				width='30%'
+			>
 				<section className='p-4 flex flex-col gap-y-8'>
-					<ImgClose
+					<UI.ImgClose
 						onClick={() => {
 							setIsPanConfirmModalOpen(false);
 						}}
 						src={imgClose}
 						alt='close'
 					/>
-					<ConfirmPanWrapper>
-						<h1 style={{ fontSize: '24px', fontWeight: '600Px' }}>
+					<UI.ConfirmPanWrapper>
+						<h1 style={{ fontSize: '22px', fontWeight: '600Px' }}>
 							Confirm PAN Number and Proceed
 						</h1>
-						<FieldWrapperPanVerify>
+						<UI.FieldWrapperPanVerify>
 							{/* setConfirmPanNumber */}
 							<InputField
 								name='panNumber'
@@ -1369,16 +1260,16 @@ export default function PanVerification({
 							placeholder: 'Pan Number',
 							value: formState?.values?.panNumber,
 						})} */}
-						</FieldWrapperPanVerify>
+						</UI.FieldWrapperPanVerify>
 						<Button
-							name='Proceed'
+							name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 							fill
-							loading={loading}
+							isLoader={loading}
 							onClick={onProceedPanConfirm}
 							disabled={!panExtractionData.panNumber || loading}
 							style={{ alignText: 'center' }}
 						/>
-					</ConfirmPanWrapper>
+					</UI.ConfirmPanWrapper>
 				</section>
 			</Modal>
 			<Modal
@@ -1387,7 +1278,8 @@ export default function PanVerification({
 					setIsDocTypeChangeModalOpen(false);
 				}}
 				width='50%'
-				customStyle={{ minHeight: 200 }}>
+				customStyle={{ minHeight: 200 }}
+			>
 				<UI.DocTypeChangeModalBody>
 					<UI.DocTypeChangeModalHeader>
 						<p className='py-2'>
@@ -1441,41 +1333,29 @@ export default function PanVerification({
 					/>
 
 					{panError && (
-						<p
+						<UI.ExtractionErrorMessage
 							style={{
 								color: isWarning ? '#f7941d' : '#de524c',
-								marginTop: '-100px',
-							}}>
-							<NotificationImg
+							}}
+						>
+							<UI.NotificationImg
 								src={isWarning ? WarnIcon : ErrorIcon}
 								alt='error'
 							/>
 							{panError}
 							{/* <Span>supported formats - jpeg, png, jpg</Span> */}
-						</p>
+						</UI.ExtractionErrorMessage>
 					)}
 					<section style={{ marginTop: panError ? 100 : 20 }}>
 						{isWarning ? (
 							<Button
+								isLoader={loading}
+								disabled={loading}
 								onClick={() => {
 									setLoading(false);
 									setIsPanConfirmModalOpen(true);
-									// resetAllErrors();
-									// TODO: Keep this commented till new solution is finalized
-									// if (isBusinessProductType && isBusiness) {
-									// 	onSubmit(formState);
-									// 	return;
-									// }
-									// if (isBusinessProductType) {
-									// 	setPanUpload(false);
-									// 	setUploadOtherDocs(false);
-									// 	return;
-									// }
-									// if (isSalariedProductType) {
-									// 	setIsPanConfirmModalOpen(true);
-									// }
 								}}
-								name={'Proceed'}
+								name={loading ? 'Please wait...' : 'Proceed'}
 								fill
 							/>
 						) : (
@@ -1483,7 +1363,6 @@ export default function PanVerification({
 								onClick={handleExtractionPan}
 								isLoader={loading}
 								name={loading ? 'Please wait...' : 'Proceed'}
-								// disabled={!docs.length > 0}
 								disabled={!panDoc.length > 0 || isError || loading}
 								fill
 							/>
@@ -1496,10 +1375,10 @@ export default function PanVerification({
 					<h1 className='text-xl text-black'>
 						Select and Upload any one of the documents mentions below
 					</h1>
-					<RadioButtonWrapper>
+					<UI.RadioButtonWrapper>
 						{CONST.addressProofRadioButtonList.map(btn => {
 							return (
-								<CardRadioButton key={btn.key}>
+								<UI.CardRadioButton key={btn.key}>
 									<input
 										id={btn.key}
 										type='radio'
@@ -1510,20 +1389,22 @@ export default function PanVerification({
 									<label htmlFor={btn.key} style={{ marginLeft: '10px' }}>
 										{btn.name}
 									</label>
-								</CardRadioButton>
+								</UI.CardRadioButton>
 							);
 						})}
-					</RadioButtonWrapper>
+					</UI.RadioButtonWrapper>
 					<div
 						onClick={e => {
 							if (isInActiveAddressProofUpload) {
 								e.preventDefault();
 								e.stopPropagation();
 							}
-						}}>
+						}}
+					>
 						{/* ADDRESS PROOF UPLOAD SECTION */}
 						<FileUpload
 							isInActive={isInActiveAddressProofUpload}
+							startingTaggedDocs={addressProofDocs}
 							section={'addressproof'}
 							accept=''
 							upload={true}
@@ -1547,8 +1428,9 @@ export default function PanVerification({
 								color: isWarning ? '#f7941d' : '#de524c',
 								marginTop: '-25px',
 								marginBottom: '45px',
-							}}>
-							<NotificationImg
+							}}
+						>
+							<UI.NotificationImg
 								src={isWarning ? WarnIcon : ErrorIcon}
 								alt='error'
 							/>
@@ -1577,7 +1459,7 @@ export default function PanVerification({
 							</>
 						)}
 					</UI.SkipAadhaarWrapper>
-					<ButtonWrapper>
+					<UI.ButtonWrapper>
 						{isWarning ? (
 							<Button
 								onClick={() => {
@@ -1600,12 +1482,12 @@ export default function PanVerification({
 								}}
 							/>
 						)}
-					</ButtonWrapper>
+					</UI.ButtonWrapper>
 				</section>
 			)}
 			{screen === CONST.SCREEN_GST_UDHYOG && (
 				<form onSubmit={handleSubmit(onProceedGstUdhyog)}>
-					<FieldWrapper>
+					<UI.FieldWrapper>
 						{register({
 							name: 'panNumber',
 							placeholder: 'Pan Number',
@@ -1614,8 +1496,8 @@ export default function PanVerification({
 							disabled: true,
 							readonly: true,
 						})}
-					</FieldWrapper>
-					<FieldWrapper>
+					</UI.FieldWrapper>
+					<UI.FieldWrapper>
 						{register({
 							name: 'gstin',
 							placeholder: 'GST Identification Number',
@@ -1624,15 +1506,16 @@ export default function PanVerification({
 							style: {
 								borderColor: formState?.values?.gstin && gstError && 'red',
 							},
+							disabled: isGstInDisabled,
 						})}
-					</FieldWrapper>
+					</UI.FieldWrapper>
 					{formState?.values?.gstin && gstError && (
-						<FieldWrapper>
-							<LabRed>{gstError}</LabRed>
-						</FieldWrapper>
+						<UI.FieldWrapper>
+							<UI.LabRed>{gstError}</UI.LabRed>
+						</UI.FieldWrapper>
 					)}
-					<H2>OR</H2>
-					<FieldWrapper>
+					<UI.H2>OR</UI.H2>
+					<UI.FieldWrapper>
 						{register({
 							name: 'udhyogAadhar',
 							placeholder: 'Udhyog Aadhar Number',
@@ -1641,24 +1524,27 @@ export default function PanVerification({
 								borderColor:
 									formState?.values?.udhyogAadhar && udhyogError && 'red',
 							},
-							mask: { CharacterLimit: 12 },
+							disabled: isudhyogAadhaarDisabled,
+							mask: { NumberOnly: true, CharacterLimit: 12 },
 						})}
-					</FieldWrapper>
+					</UI.FieldWrapper>
 					{formState?.values?.udhyogAadhar && udhyogError && (
-						<FieldWrapper>
-							<LabRed>{udhyogError}</LabRed>
-						</FieldWrapper>
+						<UI.FieldWrapper>
+							<UI.LabRed>{udhyogError}</UI.LabRed>
+						</UI.FieldWrapper>
 					)}
-					<ButtonWrapper>
+					<UI.ButtonWrapper>
 						<Button
 							isLoader={loading}
 							name={loading ? 'Please wait...' : 'Proceed'}
 							fill
 							disabled={isProceedDIsabledGstUdhyog}
 						/>
-					</ButtonWrapper>
+					</UI.ButtonWrapper>
 				</form>
 			)}
-		</Wrapper>
+		</UI.Wrapper>
 	);
-}
+};
+
+export default PanVerification;

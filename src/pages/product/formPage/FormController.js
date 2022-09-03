@@ -3,27 +3,29 @@ import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 import axios from 'axios';
-import useForm from '../../../hooks/useForm';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import Button from '../../../components/Button';
-import ROCBusinessDetailsModal from '../../../components/ROCBusinessDetailsModal';
-import { LoanFormContext } from '../../../reducer/loanFormDataReducer';
-import { FormContext } from '../../../reducer/formReducer';
+import useForm from 'hooks/useForm';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import Button from 'components/Button';
+import ROCBusinessDetailsModal from 'components/ROCBusinessDetailsModal';
+import { LoanFormContext } from 'reducer/loanFormDataReducer';
+import { FormContext } from 'reducer/formReducer';
 
-import { FlowContext } from '../../../reducer/flowReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { AppContext } from '../../../reducer/appReducer';
-import { UserContext } from '../../../reducer/userReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { AppContext } from 'reducer/appReducer';
+import { UserContext } from 'reducer/userReducer';
 import {
 	LOGIN_CREATEUSER,
 	WHITELABEL_ENCRYPTION_API,
 	APP_CLIENT,
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
-} from '../../../_config/app.config';
-import useFetch from '../../../hooks/useFetch';
+	HOSTNAME,
+} from '_config/app.config';
+import useFetch from 'hooks/useFetch';
 import ConfirmModal from 'components/modals/ConfirmModal';
+import moment from 'moment';
 
 const Div = styled.div`
 	flex: 1;
@@ -62,10 +64,7 @@ export default function FormController({
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 
-	const {
-		state,
-		actions: { setLoanData },
-	} = useContext(LoanFormContext);
+	const { state } = useContext(LoanFormContext);
 
 	// loanData?.loanAmount ||
 	// loan?.loanAmount ||
@@ -88,7 +87,7 @@ export default function FormController({
 		actions: {
 			setUsertypeLoanData,
 			// setUserSubsidiaryDetailsData,
-			// setUsertypeBankData,
+			setUsertypeBankData,
 			// setUsertypeAgreementData,
 			setFlowData,
 		},
@@ -96,6 +95,7 @@ export default function FormController({
 
 	const {
 		state: { bankId, userToken: userToken1 },
+		actions: { setUserDetails, setUserId },
 	} = useContext(UserContext);
 
 	// const {
@@ -111,13 +111,14 @@ export default function FormController({
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
 	const [modalConfirm, setModalConfirm] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		if (id === 'vehicle-loan-details') {
 			getBranchOptions();
 		}
 		return () => {
-			console.log('unmount form');
+			// console.log('unmount form');
 		};
 		// eslint-disable-next-line
 	}, []);
@@ -127,14 +128,17 @@ export default function FormController({
 			const opitionalDataReq = await axios.get(
 				SEARCH_BANK_BRANCH_LIST({ bankId }),
 				{
-					headers: { Authorization: `Bearer ${userToken1}` },
+					headers: {
+						Authorization: `Bearer ${userToken1 ||
+							sessionStorage.getItem('userToken')}`,
+					},
 				}
 			);
 			if (opitionalDataReq.data.status === 'ok') {
 				sethomeBranchList(opitionalDataReq?.data?.branchList || []);
 			}
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 		}
 	};
 
@@ -144,9 +148,8 @@ export default function FormController({
 	}, [map.name]);
 
 	const onSave = data => {
-		// console.log('state', state, id, data);
 		setFlowData(data, id);
-		setLoanData({ ...data }, id);
+		// setLoanData({ ...data }, id);
 		addToast({
 			message: 'Saved Succesfully',
 			type: 'success',
@@ -154,122 +157,140 @@ export default function FormController({
 	};
 
 	const onProceed = async data => {
-		setModalConfirm(false);
-		// console.log('form-controller-on-proceed-data-', {
-		// 	data,
-		// 	companyDetail,
-		// 	api: LOGIN_CREATEUSER,
-		// 	reqBody: {
-		// 		email: formState?.values?.Email,
-		// 		white_label_id: whiteLabelId,
-		// 		source: APP_CLIENT,
-		// 		name: formState?.values?.BusinessName,
-		// 		mobileNo: formState?.values?.mobileNo,
-		// 		addrr1: '',
-		// 		addrr2: '',
-		// 	},
-		// });
-		let homeLoanBranchName = '';
-		if (id === 'vehicle-loan-details') {
-			homeLoanBranchName =
-				homeBranchList.filter(ele => ele.id === data.branchId)[0]?.branch || '';
-			data = { ...data, branchIdName: homeLoanBranchName };
-		}
-		if (id === 'business-loan-details') {
-			setUsertypeLoanData({
-				...data,
-			});
-		}
-
-		const reqBody = {
-			email: formState?.values?.Email,
-			white_label_id: whiteLabelId,
-			source: APP_CLIENT,
-			name: formState?.values?.BusinessName,
-			mobileNo: formState?.values?.mobileNo,
-			addrr1: '',
-			addrr2: '',
-		};
-		if (sessionStorage.getItem('userDetails')) {
-			try {
-				reqBody.user_id =
-					JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
-			} catch (err) {
-				return err;
+		try {
+			setModalConfirm(false);
+			setLoading(true);
+			// console.log('form-controller-on-proceed-data-', {
+			// 	data,
+			// 	companyDetail,
+			// 	api: LOGIN_CREATEUSER,
+			// 	reqBody: {
+			// 		email: formState?.values?.Email,
+			// 		white_label_id: whiteLabelId,
+			// 		source: APP_CLIENT,
+			// 		name: formState?.values?.BusinessName,
+			// 		mobileNo: formState?.values?.mobileNo,
+			// 		addrr1: '',
+			// 		addrr2: '',
+			// 	},
+			// });
+			let homeLoanBranchName = '';
+			if (id === 'vehicle-loan-details') {
+				homeLoanBranchName =
+					homeBranchList.filter(ele => ele.id === data.branchId)[0]?.branch ||
+					'';
+				data = { ...data, branchIdName: homeLoanBranchName };
 			}
-		}
+			if (id === 'business-loan-details') {
+				setUsertypeLoanData({
+					...data,
+				});
+			}
 
-		// or loan type
-		// Loan Against Property Individual Loan
-		// console.log('formcontroller-onProceed-productDetails-', productDetails);
-		if (id === 'business-details') {
-			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-				method: 'POST',
-				data: reqBody,
-			});
-
-			const userDetailsRes = userDetailsReq.data;
-
-			const url = window.location.hostname;
-
-			let userToken = sessionStorage.getItem(url);
-
-			userToken = JSON.parse(userToken);
-
-			userToken = {
-				...userToken,
-				userReducer: {
-					...userToken.userReducer,
-					userToken: userDetailsRes.token,
-				},
+			const reqBody = {
+				email: formState?.values?.Email || '',
+				white_label_id: whiteLabelId,
+				source: APP_CLIENT,
+				name: formState?.values?.BusinessName,
+				mobileNo: formState?.values?.mobileNo,
 			};
-
-			sessionStorage.setItem('userToken', userDetailsRes.token);
-			sessionStorage.setItem(url, JSON.stringify(userToken));
-
-			if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
-				const encryptWhiteLabelReq = await newRequest(
-					WHITELABEL_ENCRYPTION_API,
-					{
-						method: 'GET',
-					},
-					{ Authorization: `Bearer ${userDetailsRes.token}` }
-				);
-
-				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-				sessionStorage.setItem(
-					'encryptWhiteLabel',
-					encryptWhiteLabelRes.encrypted_whitelabel[0]
-				);
-				// console.log('before-setting-company-details-', {
-				// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
-				// 	object: {
-				// 		...companyDetail,
-				// 		token: userDetailsRes.token,
-				// 		userId: userDetailsRes.userId,
-				// 		branchId: userDetailsRes.branchId,
-				// 		encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-				// 	},
-				// });
-				if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-					setCompanyDetails({
-						...companyDetail,
-						...formState?.values,
-						token: userDetailsRes.token,
-						userId: userDetailsRes.userId,
-						branchId: userDetailsRes.branchId,
-						encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						// formEmail: formState?.values?.Email,
-						// formMobile: formState?.values?.mobileNo,
-						Email: formState?.values?.Email,
-						mobileNo: formState?.values?.mobileNo,
-					});
+			if (sessionStorage.getItem('userDetails')) {
+				try {
+					reqBody.user_id =
+						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+				} catch (err) {
+					return err;
+				}
 			}
+
+			// or loan type
+			// Loan Against Property Individual Loan
+			// console.log('formcontroller-onProceed-productDetails-', productDetails);
+			if (!isViewLoan && id === 'business-details') {
+				const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+					method: 'POST',
+					data: reqBody,
+				});
+
+				const userDetailsRes = userDetailsReq.data;
+
+				let userToken = sessionStorage.getItem(HOSTNAME);
+
+				userToken = JSON.parse(userToken);
+
+				userToken = {
+					...userToken,
+					userReducer: {
+						...userToken.userReducer,
+						userToken: userDetailsRes.token,
+					},
+				};
+
+				sessionStorage.setItem('userToken', userDetailsRes.token);
+				sessionStorage.setItem(HOSTNAME, JSON.stringify(userToken));
+
+				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+					const encryptWhiteLabelReq = await newRequest(
+						WHITELABEL_ENCRYPTION_API,
+						{
+							method: 'GET',
+						},
+						{ Authorization: `Bearer ${userDetailsRes.token}` }
+					);
+
+					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+					sessionStorage.setItem(
+						'encryptWhiteLabel',
+						encryptWhiteLabelRes.encrypted_whitelabel[0]
+					);
+
+					const userData = {
+						...userDetailsRes,
+						bankId: userDetailsRes.bankId,
+						branchId: userDetailsRes.branchId,
+						userToken: userDetailsRes.token,
+					};
+					setUserId(userDetailsRes.userId);
+					setUserDetails(userData);
+					setUsertypeBankData({
+						bankId: userDetailsRes.bankId,
+						branchId: userDetailsRes.branchId,
+					});
+
+					// console.log('before-setting-company-details-', {
+					// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
+					// 	object: {
+					// 		...companyDetail,
+					// 		token: userDetailsRes.token,
+					// 		userId: userDetailsRes.userId,
+					// 		branchId: userDetailsRes.branchId,
+					// 		encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+					// 	},
+					// });
+					if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+						setCompanyDetails({
+							...companyDetail,
+							...formState?.values,
+							token: userDetailsRes.token,
+							userId: userDetailsRes.userId,
+							branchId: userDetailsRes.branchId,
+							encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+							// formEmail: formState?.values?.Email,
+							// formMobile: formState?.values?.mobileNo,
+							Email: formState?.values?.Email,
+							mobileNo: formState?.values?.mobileNo,
+						});
+				}
+			}
+			!isViewLoan && onSave(data);
+			setCompleted(id);
+			onFlowChange(map.main);
+			setLoading(false);
+		} catch (error) {
+			setLoading(false);
+			console.error('error-formcontroller-onproceed-', error);
 		}
-		onSave(data);
-		setCompleted(id);
-		onFlowChange(map.main);
 	};
 
 	const onSkip = () => {
@@ -288,16 +309,25 @@ export default function FormController({
 	const [viewBusinessDetail, setViewBusinessDetail] = useState(false);
 	const [homeBranchList, sethomeBranchList] = useState([]);
 
-	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
-
-	const url = window.location.hostname;
-
-	let userToken = sessionStorage.getItem(url);
+	let userToken = sessionStorage.getItem(HOSTNAME);
 
 	//let loan = JSON.parse(userToken)?.formReducer?.user?.loanData;
 
 	let appData = JSON.parse(userToken)?.formReducer?.user?.applicantData;
 	let companyData = JSON.parse(sessionStorage.getItem('companyData'));
+
+	let formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
+	let form =
+		state[`${id}`] ||
+		formReducer?.user[`${id}`] ||
+		companyDetail ||
+		companyData ||
+		appData;
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+
+	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
+
 	const amountConverter = (value, k) => {
 		if (k) return value * valueConversion[k || 'One'];
 		return value;
@@ -329,35 +359,45 @@ export default function FormController({
 	const formatSubsidiaryData = subsidiaryData => {
 		return {
 			SubsidiaryName: subsidiaryData?.business_name,
-			BankName: subsidiaryData?.SubsidiaryName,
+			BankName: subsidiaryData?.SubsidiaryName || subsidiaryData?.bank_name,
 			AccountNumber: subsidiaryData?.account_number,
 			Relation: subsidiaryData?.relation,
+			RelationSubsidiary: subsidiaryData?.relation,
 		};
 	};
 
 	const formatShareholderData = shareholderData => {
+		// console.log('formatShareholderData-', { shareholderData });
 		return {
 			ShareholderName: shareholderData?.name,
 			ShareholderPercentage: shareholderData?.percentage.toString(),
 			Relation: shareholderData?.relationship,
+			RelationShareholder: shareholderData?.relationship,
+			CompanyAddress: shareholderData?.address,
+			Pincode: shareholderData?.pincode,
 		};
 	};
 
 	const formaBankDetailsData = bankDetailsData => {
+		// console.log('formaBankDetailsData-', bankDetailsData);
 		return {
-			BankName: bankDetailsData?.bank_id,
+			BankName: bankDetailsData?.bank_id?.toString(),
 			AccountNumber: bankDetailsData?.account_number,
 			AccountType: bankDetailsData?.account_type,
 			Relation: bankDetailsData?.relationship || '',
 			AccountHolderName: bankDetailsData?.account_holder_name,
 			StartDate: bankDetailsData?.outstanding_start_date,
 			EndDate: bankDetailsData?.outstanding_end_date,
+			ifsccode: bankDetailsData?.IFSC,
 		};
 	};
 
-	const formReferenceDetailsData = referenceDetailsData => {
+	const formatReferenceDetailsData = referenceDetailsData => {
 		const obj = {};
 		referenceDetailsData.map((ele, i) => {
+			for (const key in ele) {
+				obj[`${key}${i}`] = ele[key];
+			}
 			obj[`Name${i}`] = ele?.ref_name;
 			obj[`ReferenceEmail${i}`] = ele?.ref_email;
 			obj[`ContactNumber${i}`] = ele?.ref_contact;
@@ -366,14 +406,20 @@ export default function FormController({
 		});
 		return obj;
 	};
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
-	let form =
-		state[`${id}`] ||
-		formReducer?.user[`${id}`] ||
-		companyDetail ||
-		companyData ||
-		appData;
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+
+	const formatCollateralDetails = () => {
+		const collateralData =
+			editLoanData?.loan_assets?.filter(
+				d => d?.loan_type === 'Collateral'
+			)?.[0] || {};
+		return {
+			...(collateralData?.loan_json?.[0] || {}),
+			Collateraltype: collateralData?.loan_json?.[0]?.Collateraltype || '',
+			CurrentMarketValue:
+				collateralData?.loan_json?.[0]?.CurrentMarketValue || '',
+		};
+	};
+
 	if (state[`${id}`]) {
 		if (id === 'business-loan-details') {
 			form =
@@ -393,6 +439,7 @@ export default function FormController({
 				(Object.keys(JSON.parse(userToken)?.formReducer?.user?.loanData)
 					.length > 0 &&
 					JSON.parse(userToken)?.formReducer?.user?.loanData) ||
+				JSON.parse(userToken)?.formReducer?.user?.['vehicle-loan-details'] ||
 				(editLoanData && formatVehicalLoanData(editLoanData));
 		}
 		if (id === 'subsidiary-details' && editLoanData) {
@@ -411,16 +458,31 @@ export default function FormController({
 		if (id === 'reference-details' && editLoanData?.reference_details) {
 			form =
 				editLoanData &&
-				formReferenceDetailsData(editLoanData.reference_details);
+				formatReferenceDetailsData(editLoanData.reference_details);
+		}
+		if (id === 'collateral-details' && editLoanData) {
+			form = formatCollateralDetails();
 		}
 	}
 
 	const ButtonProceed = (
-		<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
+		<Button
+			fill
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+			isLoader={loading}
+			disabled={loading}
+			onClick={handleSubmit(onProceed)}
+		/>
 	);
 
 	const ButtonConfirm = (
-		<Button fill name='Proceed' onClick={() => setModalConfirm(true)} />
+		<Button
+			fill
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+			isLoader={loading}
+			disabled={loading}
+			onClick={() => setModalConfirm(true)}
+		/>
 	);
 
 	let displayProceedButton = ButtonProceed;
@@ -431,6 +493,8 @@ export default function FormController({
 		Object.keys(formState.error).length === 0
 	)
 		displayProceedButton = ButtonConfirm;
+
+	// console.log('FormController-allstates-', { form });
 
 	return (
 		<>
@@ -449,6 +513,9 @@ export default function FormController({
 					preData={{
 						...form,
 						panNumber: sessionStorage.getItem('pan') || form?.panNumber || '',
+						BusinessVintage: form?.BusinessVintage
+							? moment(form?.BusinessVintage).format('YYYY-MM-DD')
+							: '',
 					}}
 					jsonData={map?.fields[id]?.data || []}
 					id={id}
@@ -466,7 +533,7 @@ export default function FormController({
 				)} */}
 
 				<ButtonWrap>
-					{id === 'business-details' && (
+					{id === 'business-details' && !isViewLoan && (
 						<Button
 							fill
 							name='View Business Details'
@@ -474,8 +541,9 @@ export default function FormController({
 						/>
 					)}
 					{displayProceedButton}
-					{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
-					{!skipButton && <Button name='Skip' onClick={onSkip} />}
+					{!skipButton && !isViewLoan && (
+						<Button name='Skip' onClick={onSkip} />
+					)}
 				</ButtonWrap>
 			</Div>
 

@@ -1,21 +1,28 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, createContext } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
-import SearchSelect from '../components/SearchSelect';
-import BankList from '../components/inputs/BankList';
-import Pincode from '../components/inputs/PinCode';
-import DateField from '../components/inputs/DateField';
-import InputField from '../components/inputs/InputField';
-import SelectField from '../components/inputs/SelectField';
-import DisabledInput from '../components/inputs/DisabledInput';
+import SearchSelect from 'components/SearchSelect';
+import BankList from 'components/inputs/BankList';
+import IfscList from 'components/inputs/IfscList';
+import Pincode from 'components/inputs/PinCode';
+import DateField from 'components/inputs/DateField';
+import InputField from 'components/inputs/InputField';
+import SelectField from 'components/inputs/SelectField';
+import DisabledInput from 'components/inputs/DisabledInput';
+import moment from 'moment';
 
+export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;
 }
 
 function numberOnly(value) {
 	return !Number(value);
+}
+
+function pastDatesOnly(value) {
+	return !moment().isAfter(value);
 }
 
 function validatePattern(pattern) {
@@ -55,12 +62,25 @@ const VALIDATION_RULES = {
 		message: 'Numbers only Allowed',
 	},
 	email: {
-		func: validatePattern(/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/g),
+		// eslint-disable-next-line
+		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
 		message: 'Invalid Email Address',
+	},
+	pastDates: {
+		func: pastDatesOnly,
+		message: 'Enter only dates from the past.',
+	},
+	ifsc: {
+		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
+		message: 'Invalid IFSC (ex: SBIN0000304)',
 	},
 	pattern: {
 		func: validatePattern(),
 		message: 'Pattern Mismatch',
+	},
+	panNumber: {
+		func: validatePattern(/^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/),
+		message: 'Invalid PAN Number (ex: BDEFG4467C)',
 	},
 	maxLength: {
 		func: limitLength('max'),
@@ -190,6 +210,7 @@ export default function useForm() {
 		fieldsRef.current = remainingField;
 
 		const { [field]: _omitValue, ...remainingValue } = valuesRef.current;
+
 		valuesRef.current = remainingValue;
 
 		const { [field]: _omitValid, ...remainingValid } = validRef.current;
@@ -205,10 +226,17 @@ export default function useForm() {
 	};
 
 	const register = newField => {
+		// condition to check whether the ifsc field should be validated or not
+		if (newField.name.includes('ifsc')) {
+			// newField.mask = { CharacterLimit: 11 };
+			if (newField.value.length === 0) {
+				newField.rules = {};
+			}
+		}
+
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
-
 		setValue(newField.name, newField.value || '');
 		checkValidity(newField.name);
 
@@ -266,7 +294,6 @@ export default function useForm() {
 		} else {
 			await invalid(valuesRef.current);
 		}
-
 		submitRef.current = {
 			...submitRef.current,
 			isSubmitting: false,
@@ -303,6 +330,7 @@ export default function useForm() {
 			values: valuesRef.current,
 		},
 		clearError,
+		onUseFormFieldChange: onChange,
 	};
 }
 
@@ -346,7 +374,6 @@ const Currency = styled.div`
 
 function InputFieldRender({ field, onChange, value, unregister }) {
 	const { type = 'text' } = field;
-
 	useEffect(() => {
 		return () => {
 			unregister(field.name);
@@ -386,6 +413,11 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		return <DisabledInput {...{ ...field, ...fieldProps }} />;
 	}
 
+	// if (field.name.includes('ifsc')) {
+	// 	field.mask = {};
+	// 	field.rules = {};
+	// }
+
 	switch (type) {
 		case 'search': {
 			return (
@@ -399,6 +431,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 					searchKeyAsValue={field.searchKeyAsValue}
 					disabled={field.disabled}
 					rules={field.rules}
+					defaultValue={value}
 					field={{ ...field, ...fieldProps }}
 				/>
 			);
@@ -451,10 +484,19 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 				<BankList
 					field={{ ...field, ...fieldProps }}
 					onSelectOptionCallback={onChange}
+					value={value}
 				/>
 			);
 		}
-
+		case 'ifsclist': {
+			return (
+				<IfscList
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
 		case 'date': {
 			return <DateField {...{ ...field, ...fieldProps }} />;
 		}

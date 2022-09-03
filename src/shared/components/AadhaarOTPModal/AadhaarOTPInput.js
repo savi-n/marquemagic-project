@@ -10,19 +10,26 @@ const DELETE = 46;
 const SPACEBAR = 32;
 
 const OTPWrapper = styled.div`
+	padding: 0 50px;
 	display: flex;
 	align-items: center;
 	/* gap: 10px; */
 	width: 100%;
 	justify-content: center;
 	@media (max-width: 700px) {
-		gap: 0px;
+		padding: 0;
+		width: 60%;
+		gap: 10px;
+		margin: 0 auto;
+		position: relative;
+		display: flex;
+		flex-wrap: wrap;
 	}
 `;
 
 const SytledInput = styled.input`
-	width: 48px;
-	height: 48px;
+	width: 55px;
+	height: 55px;
 	outline: none;
 	border: 1px solid;
 	margin: 10px;
@@ -42,6 +49,12 @@ const SytledInput = styled.input`
 	}
 	@media (max-width: 700px) {
 		margin: 5px;
+		width: 45px;
+		height: 45px;
+	}
+	@media (max-width: 375px) {
+		width: 40px;
+		height: 40px;
 	}
 `;
 

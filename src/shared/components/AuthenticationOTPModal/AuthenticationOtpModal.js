@@ -1,7 +1,7 @@
 /* This section contains modal/popup onClick of Verify Authentication button.
   This section also contains resend otp option */
 
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
@@ -12,9 +12,9 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	AUTHENTICATION_VERIFY_OTP,
 	AUTHENTICATION_GENERATE_OTP,
+	RESEND_OTP_TIMER,
 } from '_config/app.config';
 import useFetch from 'hooks/useFetch';
-import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
 
 const ModalHeader = styled.div`
@@ -31,16 +31,13 @@ const ModalHeader = styled.div`
 `;
 
 const ModalBody = styled.div`
-	padding: 52px 0;
+	padding: 30px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
 	margin: auto;
-	font-size: 20px;
-	width: 57%;
-	margin-top: 15px;
-	text-align: center;
+	font-size: 13px;
 `;
 
 const ModalFooter = styled.div`
@@ -61,8 +58,20 @@ const ModalErrorMessage = styled.div`
 `;
 const ModalResentOtp = styled.div`
 	text-align: center;
-	padding-bottom: 9px;
+	padding-bottom: 10px;
 	font-size: 14px;
+	margin-top: 10px;
+	@media (max-width: 700px) {
+		padding-bottom: 0px;
+	}
+`;
+
+const OtpMobileMessage = styled.p`
+	font-size: 22px;
+	text-align: center;
+	@media (max-width: 700px) {
+		font-size: 18px;
+	}
 `;
 
 const ImgStyle = styled.img`
@@ -73,7 +82,7 @@ const ImgStyle = styled.img`
 // const generatedOTP = '123456'; //hardcoded
 
 // As per digitap we can only make one request per 60 second;
-const DEFAULT_TIME_RESEND_OTP = 60;
+// const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AuthenticationOTPModal = props => {
 	const {
@@ -82,6 +91,7 @@ const AuthenticationOTPModal = props => {
 		setContactNo,
 		setIsVerifyWithOtpDisabled,
 		onSubmitCompleteApplication,
+		generateOtpTimer,
 		// toggle,
 		// ButtonProceed,
 		// type = 'income',
@@ -90,12 +100,13 @@ const AuthenticationOTPModal = props => {
 	const { newRequest } = useFetch();
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
-	const [resendOtpTimer, setResendOtpTimer] = useState(DEFAULT_TIME_RESEND_OTP);
+	const [resendOtpTimer, setResendOtpTimer] = useState(
+		generateOtpTimer ||
+			sessionStorage.getItem('otp_duration') ||
+			RESEND_OTP_TIMER
+	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
-	const [isResentOtp, setIsResentOtp] = useState(false);
-	const {
-		state: { clientToken },
-	} = useContext(AppContext);
+	const [, setIsResentOtp] = useState(false);
 
 	const API_TOKEN = sessionStorage.getItem('userToken');
 
@@ -104,6 +115,7 @@ const AuthenticationOTPModal = props => {
 	}${setContactNo[setContactNo.length - 3]}${
 		setContactNo[setContactNo.length - 2]
 	}${setContactNo[setContactNo.length - 1]}`;
+	const product_id = sessionStorage.getItem('productId');
 
 	const verifyOtp = async () => {
 		if (!inputAuthenticationOTP) {
@@ -122,7 +134,9 @@ const AuthenticationOTPModal = props => {
 					method: 'POST',
 					data: {
 						mobile: setContactNo,
+						business_id: sessionStorage.getItem('business_id') || '',
 						otp: Number(inputAuthenticationOTP),
+						product_id,
 					},
 					headers: {
 						Authorization: `Bearer ${API_TOKEN}`,
@@ -153,7 +167,7 @@ const AuthenticationOTPModal = props => {
 			}
 			setVerifyingOtp(false);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			if (
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
@@ -177,9 +191,13 @@ const AuthenticationOTPModal = props => {
 		}
 		try {
 			setIsResentOtp(true);
-			setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+			setResendOtpTimer(
+				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+			);
 			const reqBody = {
 				mobile: setContactNo,
+				business_id: sessionStorage.getItem('business_id') || '',
+				product_id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const authenticationResendOtpRes = await newRequest(
@@ -197,9 +215,14 @@ const AuthenticationOTPModal = props => {
 					message: 'OTP generated again',
 					type: 'success',
 				});
+			} else {
+				addToast({
+					message: authenticationResendOtpRes.data.message,
+					type: 'error',
+				});
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			setErrorMsg(
 				error?.response?.data?.message ||
 					' Authentication cannot be validated due to technical failure. Please try again after sometime'
@@ -209,13 +232,17 @@ const AuthenticationOTPModal = props => {
 
 	useEffect(() => {
 		setInputAuthenticationOTP('');
-		setResendOtpTimer(DEFAULT_TIME_RESEND_OTP);
+		setResendOtpTimer(
+			generateOtpTimer ||
+				sessionStorage.getItem('otp_duration') ||
+				RESEND_OTP_TIMER
+		);
 		setIsResentOtp(false);
 		const timer = setInterval(() => {
 			setResendOtpTimer(resendOtpTimer => resendOtpTimer - 1);
 		}, 1000);
 		return () => clearInterval(timer);
-	}, []);
+	}, [generateOtpTimer]);
 
 	useEffect(() => {
 		if (resendOtpTimer <= 0) return;
@@ -232,7 +259,8 @@ const AuthenticationOTPModal = props => {
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0, minWidth: '42% ', maxWidth: '42%' }}>
+			customStyle={{ padding: 0 }}
+		>
 			<ModalHeader>
 				{/* Authentication Verification */}
 				<img
@@ -249,13 +277,13 @@ const AuthenticationOTPModal = props => {
 				/>
 			</ModalHeader>
 			<ModalBody>
-				<p>
+				<OtpMobileMessage>
 					{/* To{isResentOtp ? 'resent' : 'sent'} to your number
 					please verify it below */}
 					To authenticate your application please enter the OTP sent to
 					{/* XXXXX99999{maskedContactNo} */}
 					{' ' + maskedContactNo}
-				</p>
+				</OtpMobileMessage>
 				<ModalWrapper>
 					<AuthenticationOTPInput
 						numInputs={6}
@@ -272,7 +300,8 @@ const AuthenticationOTPModal = props => {
 						type='submit'
 						onClick={() => {
 							resendOtpTimer <= 0 && resendOtp();
-						}}>
+						}}
+					>
 						{' '}
 						RESEND OTP {resendOtpTimer > 0 ? `IN ${resendOtpTimer}` : null}
 					</strong>
@@ -291,7 +320,7 @@ const AuthenticationOTPModal = props => {
 					name='Verify'
 					onClick={verifyOtp}
 					disabled={verifyingOtp || inputAuthenticationOTP.length < 6}
-					loading={verifyingOtp}
+					isLoader={verifyingOtp}
 				/>
 				{/* {ButtonProceed} */}
 			</ModalFooter>
