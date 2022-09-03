@@ -8,6 +8,7 @@ const storeData = getStore()[FLOW_REDUCER] || {};
 
 const actionTypes = {
 	SET_COMPLETED: 'SET_COMPLETED',
+	SET_IFSC_LIST: 'SET_IFSC_LIST',
 	ACTIVATE_SUB_FLOW: 'ACTIVATE_SUB_FLOW',
 	SET_BASE_PAGE: 'SET_BASE_PAGE',
 	CONFIGURE_FLOW: 'CONFIGURE_FLOW',
@@ -16,6 +17,7 @@ const actionTypes = {
 };
 
 const INITIAL_STATE = {
+	ifscList: [],
 	completed: [],
 	activeSubFlow: [],
 	basePageUrl: null,
@@ -27,6 +29,10 @@ const INITIAL_STATE = {
 const useActions = dispatch => {
 	const setCompleted = flow => {
 		dispatch({ type: actionTypes.SET_COMPLETED, flow });
+	};
+
+	const setIfscList = flow => {
+		dispatch({ type: actionTypes.SET_IFSC_LIST, flow });
 	};
 
 	const activateSubFlow = flow => {
@@ -94,6 +100,7 @@ const useActions = dispatch => {
 
 	return {
 		setCompleted,
+		setIfscList,
 		activateSubFlow,
 		configure,
 		setCurrentFlow,
@@ -111,6 +118,13 @@ function reducer(state, action) {
 				completed: [],
 				activeSubFlow: [],
 				currentFlow: state.basePageUrl,
+			};
+			break;
+		}
+		case actionTypes.SET_IFSC_LIST: {
+			updatedState = {
+				...state,
+				ifscList: [action.flow],
 			};
 			break;
 		}

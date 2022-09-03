@@ -2,14 +2,14 @@
 On click of that a modal is popped up which is defined in this file */
 
 import { useEffect, useContext, useRef } from 'react';
-import Loading from '../components/Loading';
+import Loading from 'components/Loading';
 import {
 	FETCH_CIBIL_SCORE,
 	NC_STATUS_CODE,
 	BANK_TOKEN_API,
-} from '../_config/app.config';
-import { AppContext } from '../reducer/appReducer';
-import useFetch from '../hooks/useFetch';
+} from '_config/app.config';
+import { AppContext } from 'reducer/appReducer';
+import useFetch from 'hooks/useFetch';
 import Modal from './Modal';
 
 export default function GetCIBILScoreModal({ onClose, userData }) {
@@ -123,7 +123,8 @@ export default function GetCIBILScoreModal({ onClose, userData }) {
 		<Modal
 			show={true}
 			onClose={() => onClose(false, { message: 'not working' })}
-			width='50%'>
+			width='50%'
+		>
 			<Loading />
 		</Modal>
 	);

@@ -5,15 +5,22 @@ import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import useClickOutside from '../hooks/useOutsideClick';
-import debounceFunction from '../utils/debounce';
+import useClickOutside from 'hooks/useOutsideClick';
+import debounceFunction from 'utils/debounce';
 // import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
 	width: 100%;
 	position: relative;
 `;
-
+// const ClearIfsc = styled.button`
+// 	background: red;
+// 	color: white;
+// 	width: 100px;
+// 	height: auto;
+// 	border-radius: 10px;
+// 	border: solid 1px red;
+// `;
 const Input = styled.input`
 	height: 50px;
 	padding: 10px;
@@ -91,6 +98,13 @@ const Label = styled.label`
       right: 5px;
       bottom: 5px;
     `}
+	${({ disabled }) =>
+		disabled &&
+		`
+		color: grey;
+    background: #fafafa;
+		cursor: not-allowed;
+  `}
 `;
 
 const Div = styled.div`
@@ -116,20 +130,24 @@ const PlaceHolder = styled.label`
 	padding: 0 10px;
 `;
 
-export default function SearchSelect({
-	name,
-	options = [],
-	placeholder,
-	searchable,
-	fetchOptionsFunc,
-	onSelectOptionCallback,
-	searchOptionCallback,
-	onBlurCallback,
-	searchKeyAsValue,
-	rules,
-	disabled,
-	field,
-}) {
+export default function SearchSelect(props) {
+	const {
+		name,
+		options = [],
+		placeholder,
+		searchable,
+		fetchOptionsFunc,
+		onSelectOptionCallback,
+		searchOptionCallback,
+		onBlurCallback,
+		// searchKeyAsValue,
+		rules,
+		disabled,
+		field,
+		defaultValue = '',
+		customLabel = '',
+		onIfscChange,
+	} = props;
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
 	const [searchKey, setSearchKey] = useState('');
@@ -145,13 +163,25 @@ export default function SearchSelect({
 	});
 
 	useEffect(() => {
-		if (field?.value.length > 0) {
-			// (function(e) {
-			onOptionSelect(null, { name: field.placeholder, value: field.value });
-			// })();
+		if (field?.value?.length > 0) {
+			onOptionSelect(null, {
+				name: field.placeholder,
+				value: field.value,
+			});
 		}
 		// eslint-disable-next-line
 	}, []);
+
+	useEffect(() => {
+		if (defaultValue && options?.length > 0) {
+			const defaultSelected = options.filter(
+				o => `${o.value}` === `${defaultValue}`
+			)?.[0];
+			// console.log('defaultSelected-', defaultSelected);
+			defaultSelected && onOptionSelect(null, defaultSelected);
+		}
+		// eslint-disable-next-line
+	}, [defaultValue, options]);
 
 	useEffect(() => {
 		if (options.length) setSelectOptions(options);
@@ -177,6 +207,7 @@ export default function SearchSelect({
 
 	const onOptionSelect = (e, option) => {
 		e != null && e.stopPropagation();
+
 		setSelectedOption(option);
 		if (
 			onSelectOptionCallback &&
@@ -185,7 +216,7 @@ export default function SearchSelect({
 			onSelectOptionCallback({ name, value: option });
 			// value: option.value
 		}
-		setOptionShow(false);
+		// setOptionShow(true);
 		setSearchKey('');
 	};
 
@@ -204,8 +235,17 @@ export default function SearchSelect({
 
 	const onSearchChange = async event => {
 		const { value } = event.target;
-		setSearchKey(value);
-
+		if (field.name.includes('ifsc')) {
+			if (value.length > 11) return;
+			onIfscChange(value);
+		}
+		if (field.name.includes('ifsc')) {
+			// length of ifsc is always 11
+			if (value.length === 11) {
+				onOptionSelect(event, value);
+			}
+		}
+		setSearchKey(value.toUpperCase());
 		if (searchOptionCallback && typeof searchOptionCallback === 'function') {
 			let options = [{ name: value, value: value }];
 			if (!value.trim()) {
@@ -241,10 +281,18 @@ export default function SearchSelect({
 	return (
 		<>
 			<Wrapper ref={compRef}>
-				{selectedOption && (
-					<Label focus={optionShow || focus} htmlFor={name}>
-						{selectedOption.name}
-					</Label>
+				{customLabel ? (
+					<Label focus={true}>{customLabel}</Label>
+				) : (
+					selectedOption && (
+						<Label
+							focus={optionShow || focus}
+							htmlFor={name}
+							disabled={disabled}
+						>
+							{selectedOption.name}
+						</Label>
+					)
 				)}
 				{searchable ? (
 					<Div>
@@ -262,6 +310,7 @@ export default function SearchSelect({
 							onChange={onSearchChange}
 							value={searchKey}
 							autoComplete='off'
+							disabled={disabled}
 						/>
 						{!optionShow && !selectedOption?.name && (
 							<PlaceHolder htmlFor={name} disabled={disabled}>
@@ -273,7 +322,8 @@ export default function SearchSelect({
 				) : (
 					<button
 						onFocus={() => setOptionShow(true)}
-						onBlur={() => setOptionShow(false)}>
+						onBlur={() => setOptionShow(false)}
+					>
 						<div>{placeholder}</div>
 					</button>
 				)}
@@ -290,13 +340,18 @@ export default function SearchSelect({
 								name={name}
 								value={option.value}
 								onMouseDown={e => onOptionSelect(e, option)}
-								selected={option.value === selectedOption?.value}>
+								selected={option.value === selectedOption?.value}
+							>
 								{option.name}
 							</Option>
 						))}
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
-								Options Not Found
+								Options Not Found.
+								{/* {' '}
+								{field.name.includes('ifsc')
+									? 'Enter only 11 characters'
+									: null} */}
 							</Option>
 						)}
 					</Options>

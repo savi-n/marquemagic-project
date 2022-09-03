@@ -6,8 +6,8 @@ In this section protected routes are created for nc-onboarding application
 import { useContext } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 
-import { FlowContext } from '../reducer/flowReducer';
-import { UserContext } from '../reducer/userReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { UserContext } from 'reducer/userReducer';
 
 const ProtectedRoute = ({
 	path,
@@ -35,7 +35,8 @@ const ProtectedRoute = ({
 					) : (
 						<Redirect to={basePageUrl} />
 					)
-				}>
+				}
+			>
 				{children}
 			</Route>
 		);
@@ -46,7 +47,8 @@ const ProtectedRoute = ({
 			path={path}
 			component={({ match }) => (
 				<Component productId={atob(match.params.product)} />
-			)}>
+			)}
+		>
 			{children}
 		</Route>
 	);

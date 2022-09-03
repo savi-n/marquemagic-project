@@ -1,9 +1,8 @@
 /* active
 Applicant Address and Guarantor Address Details section*/
 import styled from 'styled-components';
-import { array, bool, func, object, oneOfType, string } from 'prop-types';
-
 import CheckBox from '../Checkbox/CheckBox';
+import { useEffect } from 'react';
 
 const H = styled.h1`
 	font-size: 1.5em;
@@ -50,75 +49,131 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
-AddressDetails.propTypes = {
-	userType: string,
-	jsonData: oneOfType([array, object]),
-	register: func,
-	formState: object,
-	match: bool,
-	setMatch: func.isRequired,
-};
+const PREFIX_PERMANENT = 'permanent_';
+const PREFIX_PRESENT = 'present_';
 
-export default function AddressDetails({
-	preData = {},
-	userType,
-	jsonData,
-	register,
-	formState,
-	match,
-	setMatch,
-	disablePermenanet = false,
-	isBusiness,
-	preDataFilled,
-}) {
-	const presentAddress =
-		(preDataFilled &&
-			preDataFilled.filter(ele => ele.addressType === 'present')) ||
-		[];
+const AddressDetails = props => {
+	const {
+		hideHeader,
+		preData = {},
+		userType,
+		jsonData,
+		register,
+		formState,
+		match,
+		setMatch,
+		// disablePermenanet = false,
+		isBusiness,
+		// preDataFilled,
+		preDataPresent,
+		// keyChange,
+		// presentAddressCheck,
+		hidePresentAddress = false,
+	} = props;
+	// const presentAddress =
+	// 	(preDataFilled &&
+	// 		preDataFilled.filter(ele => ele.addressType === 'present')) ||
+	// 	[];
+	// const parmanentAddress =
+	// 	(preDataFilled &&
+	// 		preDataFilled.filter(ele => ele.addressType === 'permanent')) ||
+	// 	[];
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const populateValue = field => {
+		const fieldName = `${PREFIX_PERMANENT}${field.name}`;
 		// if (!userType && field.disabled) {
-		//   return preData[field.name] || "";
+		// 	return preData[field.name] || '';
 		// }
-
-		if (formState?.values?.[`permanent_${field.name}`] !== undefined) {
-			return formState?.values?.[`permanent_${field.name}`];
+		let value = '';
+		if (formState?.values?.[fieldName] !== undefined) {
+			value = formState?.values?.[fieldName];
+		} else if (preData[field.name] || field.value) {
+			value = preData[field.name] || field.value || '';
 		}
-
-		return preData[field.name] || field.value || '';
+		// console.log(`returning-${fieldName}-`, { value, formState, field });
+		return value;
+		// return (
+		// 	(parmanentAddress &&
+		// 		parmanentAddress.length &&
+		// 		parmanentAddress[0][field.name]) ||
+		// 	field.value ||
+		// 	''
+		// );
 	};
 
 	const populatePresentValue = (field, match) => {
-		if (formState?.values?.[`present_${field.name}`] !== undefined)
-			return formState?.values?.[`present_${field.name}`];
-
-		return (
-			(presentAddress &&
-				presentAddress.length &&
-				presentAddress[0][field.name]) ||
-			field.value ||
-			''
-		);
+		const fieldName = `${PREFIX_PRESENT}${field.name}`;
+		let value = '';
+		if (formState?.values?.[fieldName] !== undefined) {
+			value = formState?.values?.[fieldName];
+		} else if (preDataPresent[field.name] || field.value) {
+			value = preDataPresent[field.name] || field.value || '';
+		}
+		// console.log(`returning-${fieldName}-`, value);
+		return value;
+		// return (
+		// 	(presentAddress &&
+		// 		presentAddress.length &&
+		// 		presentAddress[0][field.name]) ||
+		// 	field.value ||
+		// 	''
+		// );
 	};
+
+	useEffect(() => {
+		if (sessionStorage.getItem(`match${userType}`) === 'true') setMatch(true);
+		if (sessionStorage.getItem(`match${userType}`) === 'false') setMatch(false);
+		// eslint-disable-next-line
+	}, []);
+
+	// useEffect(() => {
+	// 	setRerender(!rerender);
+	// 	// eslint-disable-next-line
+	// }, [preData]);
+
+	// console.log('AddressDetails-allstates-', {
+	// 	formState,
+	// 	preData,
+	// 	preDataPresent,
+	// });
 
 	// form.address;
 
+	let prefixLabel = 'Help us with your ';
+	if (userType && userType !== 'applicant') {
+		prefixLabel = userType;
+	}
+	if (isViewLoan) {
+		prefixLabel = '';
+	}
+
 	return (
 		<>
-			<H>
-				{userType || 'Help us with your'} <span>Address Details</span>
-			</H>
+			{hideHeader ? null : (
+				<H>
+					{prefixLabel}
+					<span>Address Details</span>
+				</H>
+			)}
 			<FormWrap>
 				<Colom>
 					{!isBusiness && <Caption>Permanent Address</Caption>}
 					{jsonData &&
-						jsonData.map(
-							field =>
+						jsonData.map(field => {
+							const customFields = {};
+							if (isViewLoan) {
+								customFields.readonly = true;
+								customFields.disabled = true;
+							}
+							const fieldName = `${PREFIX_PERMANENT}${field.name}`;
+							return (
 								field.visibility && (
-									<FieldWrap key={`permanent_${field.name}`}>
+									<FieldWrap key={fieldName}>
 										{register({
 											...field,
-											name: `permanent_${field.name}`,
+											name: fieldName,
 											value: populateValue(field),
 											disabled: false,
 											...(field.valueForFields
@@ -129,43 +184,59 @@ export default function AddressDetails({
 														]),
 												  }
 												: {}),
+											...customFields,
+											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[`permanent_${field.name}`]) &&
-											formState?.error?.[`permanent_${field.name}`] && (
+											formState?.touched?.[fieldName]) &&
+											formState?.error?.[fieldName] && (
 												<ErrorMessage>
-													{formState?.error?.[`permanent_${field.name}`]}
+													{formState?.error?.[fieldName]}
 												</ErrorMessage>
 											)}
 									</FieldWrap>
 								)
-						)}
+							);
+						})}
 				</Colom>
-				{!isBusiness && (
+				{!isBusiness && !hidePresentAddress && (
 					<Colom>
 						<Caption>
 							Present Address{' '}
 							<CheckBox
 								checked={match}
-								onChange={() => setMatch(!match)}
+								onChange={() => {
+									sessionStorage.setItem(
+										`match${userType}`,
+										!match === true ? 'true' : 'false'
+									);
+									setMatch(!match);
+								}}
+								disabled={isViewLoan}
 								bg='blue'
 								name='Same as Permanent Address'
 							/>
 						</Caption>
 						{jsonData &&
-							jsonData.map(
-								field =>
+							jsonData.map(field => {
+								const customFields = {};
+								if (isViewLoan) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
+								if (match) {
+									customFields.disabled = true;
+								}
+								const fieldName = `${PREFIX_PRESENT}${field.name}`;
+								return (
 									field.visibility && (
-										<FieldWrap key={`present_${field.name}`}>
+										<FieldWrap key={fieldName}>
 											{register({
 												...field,
-												name: `present_${field.name}`,
+												name: fieldName,
 												value: match
 													? formState?.values?.[`permanent_${field.name}`]
 													: populatePresentValue(field, match),
-												// value: match
-												// 	? formState?.values?.[`permanent_${field.name}`]
-												// 	: formState?.values?.[`present_${field.name}`],
 												noActionTrigger: match,
 												...(field.valueForFields
 													? {
@@ -175,20 +246,25 @@ export default function AddressDetails({
 															]),
 													  }
 													: {}),
+												...customFields,
+												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[`present_${field.name}`]) &&
-												formState?.error?.[`present_${field.name}`] && (
+												formState?.touched?.[fieldName]) &&
+												formState?.error?.[fieldName] && (
 													<ErrorMessage>
-														{formState?.error?.[`present_${field.name}`]}
+														{formState?.error?.[fieldName]}
 													</ErrorMessage>
 												)}
 										</FieldWrap>
 									)
-							)}
+								);
+							})}
 					</Colom>
 				)}
 			</FormWrap>
 		</>
 	);
-}
+};
+
+export default AddressDetails;

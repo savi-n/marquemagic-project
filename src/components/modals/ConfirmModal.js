@@ -7,25 +7,30 @@ import Modal from 'components/Modal';
 import Button from 'components/Button';
 
 const ModalBody = styled.div`
-	padding: 40px;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
 	align-items: center;
-	margin: auto;
+	justify-content: center;
+	height: 100px;
+	padding: 0 40px;
 `;
 
 const ModalFooter = styled.div`
 	display: flex;
 	justify-content: center;
-	gap: 50px;
-	margin-bottom: 10px;
+	margin-bottom: 40px;
+	gap: 40px;
 `;
 
 const ConfirmModal = props => {
 	const { show, onClose, ButtonProceed, type = 'income' } = props;
 	return (
-		<Modal show={show} onClose={() => onClose(false)} width='30%'>
+		<Modal
+			show={show}
+			onClose={() => onClose(false)}
+			width='30%'
+			customStyle={{ minHeight: '200px' }}
+		>
 			<ModalBody>
 				Please check the {type} Type selected. {type} Type can't be changed
 				later

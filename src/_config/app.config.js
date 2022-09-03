@@ -56,6 +56,8 @@ const LOGIN_CREATEUSER = `${API_END_POINT}/login/createUser`;
 
 const BUSSINESS_PROFILE_UPDATE = `${API_END_POINT}/profile/`;
 
+const COAPPLICANT_DETAILS = `${API_END_POINT}/addCo-Applicant`;
+
 const WHITELABEL_ENCRYPTION_API = `${API_END_POINT}/case-whitelabelEncrypt`;
 
 const SEARCH_COMPANY_NAME = `${API_END_POINT}/companySearch`;
@@ -67,8 +69,11 @@ const ADD_SHAREHOLDER_DETAILS = `${API_END_POINT}/businessShareholder/create`;
 const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
+const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
+const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
+
 const CIN_UPDATE = `${API_END_POINT}/cin-update`;
 
 const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
@@ -77,14 +82,14 @@ const AADHAAR_VERIFY_OTP = `${ENDPOINT_BANK}/aadhaar/verifyOTP`;
 const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
 const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
 const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
+const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
+const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 
-const APP_CLIENT =
-	window.location.hostname === 'localhost'
-		? 'clix.loan2pal.com'
-		: window.location.hostname;
+const HOSTNAME = window.location.hostname;
+const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
 const REDIRECT_CREATE =
-	window.location.hostname === 'localhost' ? '/' : '/onboarding/applyloan';
+	HOSTNAME === 'localhost' ? '/' : '/onboarding/applyloan';
 
 const KYC_URL = `http://40.80.80.135:1337/getKycData`;
 
@@ -146,6 +151,7 @@ export {
 	ADD_SHAREHOLDER_DETAILS,
 	ADD_REFENCE_DETAILS,
 	BANK_LIST_FETCH,
+	IFSC_LIST_FETCH,
 	DOCTYPES_FETCH,
 	APP_CLIENT,
 	SECRET,
@@ -160,5 +166,10 @@ export {
 	AUTHENTICATION_GENERATE_OTP,
 	AUTHENTICATION_VERIFY_OTP,
 	BUSSINESS_PROFILE_UPDATE,
+	COAPPLICANT_DETAILS,
 	RESEND_OTP_TIMER,
+	DELETE_DOCUMENT,
+	VIEW_DOCUMENT,
+	CO_APPLICANTS_DOCTYPES_FETCH,
+	HOSTNAME,
 };

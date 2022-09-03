@@ -35,16 +35,21 @@ const ErrorMessage = styled.div`
 	font-weight: 500;
 `;
 
-export default function SalaryDetails({
-	jsonData,
-	jsonLable,
-	register,
-	userType,
-	formState,
-	size,
-	incomeType,
-	preData,
-}) {
+export default function SalaryDetails(props) {
+	const {
+		jsonData,
+		jsonLable,
+		register,
+		userType,
+		formState,
+		size,
+		incomeType,
+		preData,
+		headingNameStyle,
+	} = props;
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+
 	const populateValue = field => {
 		if (formState?.values?.[field.name] !== undefined) {
 			return formState?.values?.[field.name];
@@ -54,16 +59,24 @@ export default function SalaryDetails({
 			(preData && preData[field.name]) || formState?.values?.[field.name] || ''
 		);
 	};
+
+	// console.log('SalaryDetails-allstates-', { props });
+
 	return (
 		<>
 			<H>
-				{userType || 'Help us with'}{' '}
-				<span>{jsonLable || 'Income Details'}</span>
+				{userType || isViewLoan ? '' : 'Help us with '}
+				<span style={headingNameStyle}>{jsonLable || 'Income Details'}</span>
 			</H>
 			<FormWrap>
 				{jsonData &&
-					jsonData.map(
-						field =>
+					jsonData.map(field => {
+						const customFields = {};
+						if (isViewLoan) {
+							customFields.readonly = true;
+							customFields.disabled = true;
+						}
+						return (
 							field.visibility &&
 							(incomeType == field.forType || !incomeType || !field.forType ? (
 								<FieldWrap key={field.name} size={size}>
@@ -71,6 +84,8 @@ export default function SalaryDetails({
 										...field,
 										// value: formState?.values?.[field.name],
 										value: populateValue(field),
+										...customFields,
+										visibility: 'visible',
 									})}
 									{(formState?.submit?.isSubmited ||
 										formState?.touched?.[field.name]) &&
@@ -81,7 +96,8 @@ export default function SalaryDetails({
 										)}
 								</FieldWrap>
 							) : null)
-					)}
+						);
+					})}
 			</FormWrap>
 		</>
 	);

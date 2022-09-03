@@ -17,12 +17,14 @@ const Backdrop = styled.div`
 	justify-content: center;
 	overflow: hidden;
 `;
-const ModalClose = styled.img`
-	height: 25px;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
-`;
+
+// const ModalClose = styled.img`
+// 	height: 25px;
+// 	cursor: pointer;
+// 	margin-left: auto;
+// 	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
+// `;
+
 const Modalbody = styled.div`
 	background: #fff;
 	padding: 20px;
@@ -48,7 +50,7 @@ export default function Modal({
 	children,
 	width,
 	onClose = () => {
-		console.log('close');
+		console.info('close');
 	},
 	customStyle,
 }) {

@@ -4,11 +4,12 @@ For the same purpose we have another component to handle upload of agreement doc
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import { DOCS_UPLOAD_URL } from '../_config/app.config';
+import { DOCS_UPLOAD_URL } from '_config/app.config';
 import Modal from './Modal';
 import Button from './Button';
-import { UserContext } from '../reducer/userReducer';
-import FileUpload from '../shared/components/FileUpload/FileUpload';
+import { UserContext } from 'reducer/userReducer';
+import FileUpload from 'shared/components/FileUpload/FileUpload';
+import { CATEGORY_OTHER } from 'pages/product/documentUpload/const';
 
 const Div = styled.div`
 	text-align: center;
@@ -29,10 +30,11 @@ export default function UploadAgreementModal({ onClose, onDone, name }) {
 			...preFiles,
 			...files.map(file => ({
 				...file,
-				// doc_type_id: '12',
 				mainType: 'Others',
 				req_type: 'property',
 				isDocRemoveAllowed: true,
+				category: CATEGORY_OTHER,
+				doc_type_id: `app_${CATEGORY_OTHER}`,
 			})),
 		]);
 	};

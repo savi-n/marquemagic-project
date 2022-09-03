@@ -3,13 +3,13 @@ import RedError from 'assets/icons/Red_error_icon.png';
 import SuccessSymbol from 'assets/icons/success_icon.png';
 import warningSymbol from 'assets/icons/amber_warning_icon.png';
 
-const TOAST_TYPE_SYMBOLS = {
-	success: ['&check;', '#01914a'],
-	warning: ['&#33;', '#ff8405'],
-	error: ['&#10006;', '#ff0000'],
-	info: ['i', 'blue'],
-	default: ['', 'grey'],
-};
+// const TOAST_TYPE_SYMBOLS = {
+// 	success: ['&check;', '#01914a'],
+// 	warning: ['&#33;', '#ff8405'],
+// 	error: ['&#10006;', '#ff0000'],
+// 	info: ['i', 'blue'],
+// 	default: ['', 'grey'],
+// };
 
 const ToastElement = styled.div`
 	padding: 10px;
@@ -26,21 +26,21 @@ const ToastElement = styled.div`
 	position: fixed;
 `;
 
-const ToastIcon = styled.span`
-	padding: 10px;
-	margin: 0 10px;
-	border-radius: 50%;
-	width: 20px;
-	height: 20px;
-	align-items: center;
-	justify-content: center;
-	display: flex;
-	background: ${({ type }) => TOAST_TYPE_SYMBOLS[type][1]};
-	overflow: hidden;
-	color: white;
-	font-size: 15px;
-	font-weight: 500;
-`;
+// const ToastIcon = styled.span`
+// 	padding: 10px;
+// 	margin: 0 10px;
+// 	border-radius: 50%;
+// 	width: 20px;
+// 	height: 20px;
+// 	align-items: center;
+// 	justify-content: center;
+// 	display: flex;
+// 	background: ${({ type }) => TOAST_TYPE_SYMBOLS[type][1]};
+// 	overflow: hidden;
+// 	color: white;
+// 	font-size: 15px;
+// 	font-weight: 500;
+// `;
 
 const ToastMessage = styled.span`
 	font-size: 12px;

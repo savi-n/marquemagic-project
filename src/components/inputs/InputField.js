@@ -18,6 +18,7 @@ const Div = styled.div`
 
 const Label = styled.label`
 	position: absolute;
+	/* display: none; */
 	z-index: 9;
 	display: flex;
 	align-items: center;
@@ -25,6 +26,13 @@ const Label = styled.label`
 	overflow: hidden;
 	transition: 0.2s;
 
+	@media (max-width: 700px) {
+		${({ isLargeTextLable }) =>
+			isLargeTextLable &&
+			`
+    width:150%;
+  `}
+	}
 	${Input}:focus ~ & {
 		top: -14%;
 		left: 2%;
@@ -72,10 +80,15 @@ const Span = styled.span`
 `;
 
 export default function InputField(props) {
+	const isLargeTextLable = props.name.length > 15;
 	return (
 		<Div>
 			<Input id={props.name} type={props.type} {...props} />
-			<Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
+			<Label
+				isLargeTextLable={isLargeTextLable}
+				value={props.value}
+				htmlFor={props.name}
+				disabled={props.disabled}>
 				<Span>
 					{props.placeholder}{' '}
 					{props?.rules?.minValue && `min ${props?.rules?.minValue}`}

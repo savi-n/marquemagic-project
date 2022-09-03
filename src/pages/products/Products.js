@@ -6,17 +6,18 @@ import { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import styled from 'styled-components';
 
-import Card from '../../components/Card';
-import useFetch from '../../hooks/useFetch';
-import { AppContext } from '../../reducer/appReducer';
+import Card from 'components/Card';
+import useFetch from 'hooks/useFetch';
+import { AppContext } from 'reducer/appReducer';
 import {
 	API_END_POINT,
+	HOSTNAME,
 	OTP_API_END_POINT,
 	PRODUCT_LIST_URL,
-} from '../../_config/app.config';
+} from '_config/app.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Modal from '../../components/Modal';
+import Modal from 'components/Modal';
 import Button from 'components/Button';
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
 import imgEditIcon from 'assets/icons/edit-icon.png';
@@ -194,8 +195,8 @@ const AppNumber = styled.div`
 	padding-left: 65px;
 	@media (max-width: 700px) {
 		padding-left: 40px;
-		white-space: nowrap;
-		font-size: 14px;
+		font-size: 13px;
+		text-align: left;
 	}
 `;
 const AppStatus = styled.div`
@@ -203,7 +204,6 @@ const AppStatus = styled.div`
 	@media (max-width: 700px) {
 		padding-left: 40px;
 		/* margin-top: 35px; */
-		white-space: nowrap;
 		font-size: 14px;
 	}
 `;
@@ -364,7 +364,7 @@ export default function Products() {
 			setLoanList([]);
 			setSearching(false);
 			// alert('Server down, Try after sometimes.!');
-			console.log('error-PersonalDetails-getStatusCustomer-', error);
+			console.error('error-PersonalDetails-getStatusCustomer-', error);
 			// alert(error.response.data.message);
 		}
 	};
@@ -391,15 +391,21 @@ export default function Products() {
 						modalOTPData.loan_ref_id
 					}`
 				);
-				const productID = loanDetailsRes?.data?.data?.product_details?.id;
-				sessionStorage.setItem(
-					'editLoan',
-					JSON.stringify(loanDetailsRes?.data?.data || {})
-				);
+				const productID = Array.isArray(
+					loanDetailsRes?.data?.data?.product_details
+				)
+					? loanDetailsRes?.data?.data?.product_details?.[0]?.id
+					: loanDetailsRes?.data?.data?.product_details?.id;
+				// sessionStorage.setItem(
+				// 	'editLoan',
+				// 	JSON.stringify(loanDetailsRes?.data?.data || {})
+				// );
 				// console.log('loanDetailsRes-', loanDetailsRes?.data);
 				setVerifyingOTP(false);
 				history.push({
-					pathname: `/applyloan/product/${btoa(productID)}`,
+					pathname: `/applyloan/product/${btoa(
+						productID
+					)}?token=abcd&loan_ref_id=${modalOTPData?.loan_ref_id}`,
 					data: productID,
 				});
 			} else {
@@ -407,7 +413,7 @@ export default function Products() {
 			}
 			setVerifyingOTP(false);
 		} catch (err) {
-			console.log('err-verifyOTP-', err);
+			console.error('err-verifyOTP-', err);
 			setErrOTP('Invalid OTP');
 			setVerifyingOTP(false);
 		}
@@ -437,7 +443,7 @@ export default function Products() {
 				});
 			}
 		} catch (err) {
-			console.log('err-generateOTP-', err);
+			console.error('err-generateOTP-', err);
 			setLoadingOTP(false);
 			addToast({
 				message: 'Server down, Try after sometimes',
@@ -447,13 +453,12 @@ export default function Products() {
 	};
 
 	useEffect(() => {
-		const url = window.location.hostname;
 		sessionStorage.removeItem('formstate');
 		sessionStorage.removeItem('formstatepan');
 		sessionStorage.removeItem('aadhar');
 		sessionStorage.removeItem('encryptWhiteLabel');
 		sessionStorage.removeItem('userToken');
-		sessionStorage.removeItem(url);
+		sessionStorage.removeItem(HOSTNAME);
 		const wt_lbl = sessionStorage.getItem('wt_lbl');
 		const userDetails = sessionStorage.getItem('userDetails');
 		sessionStorage.clear();
@@ -502,7 +507,8 @@ export default function Products() {
 							height: 200,
 							width: 200,
 							margin: '0 auto',
-						}}>
+						}}
+					>
 						<Loading />
 					</div>
 				) : (
@@ -550,7 +556,8 @@ export default function Products() {
 							onClick={() => {
 								setOTP('');
 								generateOTP(modalOTPData);
-							}}>
+							}}
+						>
 							Resend OTP
 						</ButtonResendOTP>
 					</div>
@@ -560,85 +567,88 @@ export default function Products() {
 						fill
 						loading={verifyingOTP}
 						disabled={verifyingOTP}
-						onClick={verifyOTP}>
+						onClick={verifyOTP}
+					>
 						OK
 					</Button>
 					{errOTP && <ErrorOTP>{errOTP}</ErrorOTP>}
 				</ModalOTPFooter>
 			</Modal>
-			<StatusBox>
-				<ProductName>
-					Here, you can check your application status by entering the Loan
-					Reference ID, Phone No or PAN No
-				</ProductName>
-				<StatusInputBox>
-					<section
-						className='flex font-medium my-2'
-						style={{ marginRight: 15 }}>
-						<input
-							className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
-							placeholder='Enter Loan Reference ID, Phone No or PAN No'
-							onChange={e => setRefstatus(e.target.value)}
-						/>
-						<FontAwesomeIcon
-							className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2 my-2'
-							icon={faSearch}
-							onClick={() => getStatusCustomer()}
-						/>
-					</section>
-					{/* <section className='flex items-center font-semibold'>
-					<span className='px-3 font-semibold'>Application status :</span>{' '}
-					{searching ? <Loader /> : status && status}
-				</section> */}
-					<AppList>
-						{searching && (
-							<div
-								style={{
-									height: 200,
-									width: 200,
-									margin: '0 auto',
-								}}>
-								<Loading />
-							</div>
-						)}
-						{loanList.map((d, appIndex) => {
-							return (
-								<AppStatusList
-									key={d?.id}
-									style={
-										appIndex === loanList.length - 1 ? { border: 'none' } : {}
-									}>
-									<AppStatusLine1>
-										<AppEditIcon
-											src={imgEditIcon}
-											alt='edit'
-											onClick={() => {
-												generateOTP(d);
-											}}
-										/>
-										<AppNumber>
-											Application Number: <strong>{d?.loan_ref_id}</strong>
-										</AppNumber>
-										<AppStatus>
-											Status: <strong>{d?.currentLoanStatus?.name}</strong>
-										</AppStatus>
-									</AppStatusLine1>
-									<AppStatusLine2>
-										<AppStatusDotLine />
-										{primaryStatusList.map((p, i) => {
-											return (
-												<AppStatusDots
-													active={i + 1 <= d?.currentLoanStatus?.sort_by_id}
-												/>
-											);
-										})}
-									</AppStatusLine2>
-								</AppStatusList>
-							);
-						})}
-					</AppList>
-				</StatusInputBox>
-			</StatusBox>
+			{/* disabled in muthooth phase-1 vew & edit requirement */}
+			{false && (
+				<StatusBox>
+					<ProductName>
+						Here, you can check your application status by entering the Loan
+						Reference ID, Phone No or PAN No
+					</ProductName>
+					<StatusInputBox>
+						<section
+							className='flex font-medium my-2'
+							style={{ marginRight: 15 }}
+						>
+							<input
+								className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
+								placeholder='Enter Loan Reference ID, Phone No or PAN No'
+								onChange={e => setRefstatus(e.target.value)}
+							/>
+							<FontAwesomeIcon
+								className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2 my-2'
+								icon={faSearch}
+								onClick={() => getStatusCustomer()}
+							/>
+						</section>
+						<AppList>
+							{searching && (
+								<div
+									style={{
+										height: 200,
+										width: 200,
+										margin: '0 auto',
+									}}
+								>
+									<Loading />
+								</div>
+							)}
+							{loanList.map((d, appIndex) => {
+								return (
+									<AppStatusList
+										key={d?.id}
+										style={
+											appIndex === loanList.length - 1 ? { border: 'none' } : {}
+										}
+									>
+										<AppStatusLine1>
+											<AppEditIcon
+												src={imgEditIcon}
+												alt='edit'
+												onClick={() => {
+													generateOTP(d);
+												}}
+											/>
+											<AppNumber>
+												Application Number: <strong>{d?.loan_ref_id}</strong>
+											</AppNumber>
+											<AppStatus>
+												Status: <strong>{d?.currentLoanStatus?.name}</strong>
+											</AppStatus>
+										</AppStatusLine1>
+										<AppStatusLine2>
+											<AppStatusDotLine />
+											{primaryStatusList.map((p, i) => {
+												return (
+													<AppStatusDots
+														active={i + 1 <= d?.currentLoanStatus?.sort_by_id}
+													/>
+												);
+											})}
+										</AppStatusLine2>
+									</AppStatusList>
+								);
+							})}
+						</AppList>
+					</StatusInputBox>
+				</StatusBox>
+			)}
 		</Wrapper>
 	);
 }

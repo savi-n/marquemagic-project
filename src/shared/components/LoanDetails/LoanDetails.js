@@ -4,14 +4,14 @@ import { Fragment, useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
 
-import { UserContext } from '../../../reducer/userReducer';
-import useFetch from '../../../hooks/useFetch';
-import Button from '../../../components/Button';
+import { UserContext } from 'reducer/userReducer';
+import useFetch from 'hooks/useFetch';
+import Button from 'components/Button';
 import {
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
 	SEARCH_LOAN_ASSET,
-} from '../../../_config/app.config';
+} from '_config/app.config';
 
 const H = styled.h1`
 	min-height: 1.5em;
@@ -34,6 +34,9 @@ const FieldWrapper = styled.div`
 	width: 100%;
 	display: flex;
 	align-items: center;
+	@media (max-width: 700px) {
+		display: block;
+	}
 `;
 
 const FormWrap = styled.div`
@@ -61,17 +64,20 @@ const ErrorMessage = styled.div`
 	width: ${({ size }) => (size ? size : '60%')};
 `;
 
-const Currency = styled.div`
-	width: auto;
-	padding: 0 10px 0 10px;
-	font-size: 13px;
-	text-align: center;
-	font-weight: 500;
-`;
+// const Currency = styled.div`
+// 	width: auto;
+// 	padding: 0 10px 0 10px;
+// 	font-size: 13px;
+// 	text-align: center;
+// 	font-weight: 500;
+// `;
 
 const Or = styled.span`
 	text-align: center;
 	width: 60%;
+`;
+const UploadButtonSpace = styled.div`
+	padding-left: 60px;
 `;
 
 LoanDetails.propTypes = {
@@ -103,6 +109,9 @@ export default function LoanDetails({
 	} = useContext(UserContext);
 
 	const { newRequest } = useFetch();
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const getBranchOptions = async () => {
 		const opitionalDataReq = await newRequest(
@@ -155,6 +164,11 @@ export default function LoanDetails({
 	};
 
 	const fieldTemplate = field => {
+		const customFields = {};
+		if (isViewLoan) {
+			customFields.readonly = true;
+			customFields.disabled = true;
+		}
 		return (
 			<Fragment key={field.name}>
 				<FieldWrapper>
@@ -182,21 +196,24 @@ export default function LoanDetails({
 										}),
 								  }
 								: {}),
+							...customFields,
+							visibility: 'visible',
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}
 					</Field>
-					{<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>}
-
-					{field.uploadButton && (
-						<Button
-							name={field.uploadButton}
-							roundCorner={true}
-							width='150px'
-							style={{ marginLeft: '300px' }}
-							onClick={() => onUploadAgreementAction(field.name)}
-							disabled={field.disabled}
-						/>
-					)}
+					{/* {<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>} */}
+					<UploadButtonSpace>
+						{field.uploadButton && (
+							<Button
+								name={field.uploadButton}
+								roundCorner={true}
+								width='150px'
+								style={{ marginLeft: '300px' }}
+								onClick={() => onUploadAgreementAction(field.name)}
+								disabled={field.disabled}
+							/>
+						)}
+					</UploadButtonSpace>
 				</FieldWrapper>
 				{(formState?.submit?.isSubmited || formState?.touched?.[field.name]) &&
 					formState?.error?.[field.name] && (
@@ -236,6 +253,7 @@ export default function LoanDetails({
 							required: !oneOfHasValue,
 						},
 						disabled: oneOfHasValue && fields[i].name !== oneOfHasValue?.name,
+						visibility: 'visible',
 					})
 				);
 			}
@@ -248,7 +266,8 @@ export default function LoanDetails({
 	return (
 		<>
 			<H>
-				{label?.trim() ? 'Help us with ' : ''} <span>{label}</span>
+				{label?.trim() || !isViewLoan ? 'Help us with ' : ''}{' '}
+				<span>{label}</span>
 			</H>
 			<FormWrap>
 				<Colom>

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { createContext, useReducer } from 'react';
 
 import { setStore, getStore } from '../utils/localStore';
@@ -379,13 +380,11 @@ function reducer(state, action) {
 		}
 
 		case actionTypes.SET_FLOW_DATA: {
+			const newState = _.cloneDeep(state);
 			updatedState = {
-				...state,
-				[action.userType]: {
-					...state[action.userType],
-					[action.flowId]: action.flowData,
-				},
+				...newState,
 			};
+			updatedState[action.userType][action.flowId] = action.flowData;
 			break;
 		}
 

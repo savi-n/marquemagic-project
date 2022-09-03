@@ -24,6 +24,12 @@ export const addressProofRadioButtonList = [
 
 export const SECTION_TYPE_ADDRESSPROOF = 'addressproof';
 
+export const businessTypeMaps = [
+	[['private', 'pvt'], 4],
+	[['public', 'pub'], 5],
+	[['llp'], 3],
+];
+
 export const getDocumentTypeList = selectedAddressProof => {
 	if (selectedAddressProof === EXTRACTION_KEY_AADHAAR) {
 		return [
@@ -137,38 +143,95 @@ export const isBusinessPan = companyName => {
 	);
 };
 
-// onSubmit={handleSubmit(onSubmit)}
-// TODO: Cleanup
-// disabled={
-// 	!selectedAddressProof
-// 		? true
-// 		: productType !== 'salaried'
-// 		? isBusiness
-// 			? !(
-// 					formState.values?.companyName ||
-// 					formState.values?.panNumber
-// 			  ) ||
-// 			  (formState.values?.companyName &&
-// 					formState.values?.panNumber)
-// 			: (!(
-// 					formState.values?.udhyogAadhar &&
-// 					formState.values?.panNumber
-// 			  ) &&
-// 					!(
-// 						formState.values?.panNumber &&
-// 						formState?.values?.gstin
-// 					)) ||
-// 			  loading ||
-// 			  (verificationFailed &&
-// 					verificationFailed.length > 0)
-// 		: !(
-// 				aadhar.length > 0 ||
-// 				otherDoc.length > 0 ||
-// 				voter.length > 0
-// 		  ) ||
-// 		  disableButton ||
-// 		  loading ||
-// 		  voterError.length > 0 ||
-// 		  aadharError.length > 0 ||
-// 		  dlError.length > 0
-// }
+export const formatCompanyData = (data, panNum) => {
+	let directors = {};
+	let directorsForShow = [];
+
+	for (const [i, dir] of data['directors/signatory_details']?.entries() || []) {
+		directors[`directors_${i}`] = {
+			[`ddin_no${i}`]: dir['din/pan'],
+		};
+		directorsForShow.push({
+			Name: dir.assosiate_company_details?.director_data.name,
+			Din: dir.assosiate_company_details?.director_data.din,
+		});
+	}
+
+	let businesType;
+
+	for (const type of businessTypeMaps) {
+		const typeAllowed = type[0].find(t =>
+			data?.company_master_data?.company_name?.toLowerCase().includes(t)
+		);
+
+		if (typeAllowed) {
+			businesType = type[1];
+			break;
+		}
+	}
+
+	const [
+		date,
+		month,
+		year,
+	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
+
+	return {
+		BusinessName: data.company_master_data.company_name,
+		BusinessType: businesType,
+		Email: data.company_master_data.email_id,
+		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
+		panNumber: panNum,
+		CIN: data.company_master_data['cin '],
+		CompanyCategory: data.company_master_data.company_category,
+		Address: data.company_master_data.registered_address,
+		ClassOfCompany: data.company_master_data.class_of_company,
+		RegistrationNumber: data.company_master_data.registration_number,
+		DirectorDetails: directors,
+		directorsForShow,
+		unformatedData: data,
+	};
+};
+
+export const formatCompanyDataGST = (data, panNum, gstNum) => {
+	if (data?.length > 1) data = data[0].data;
+	let directors = {};
+	let directorsForShow = [];
+
+	directorsForShow.push({
+		Name: data?.lgnm,
+		Din: '',
+	});
+
+	let businesType;
+
+	for (const type of businessTypeMaps) {
+		const typeAllowed = type[0].find(t =>
+			data?.tradeNam?.toLowerCase().includes(t)
+		);
+
+		if (typeAllowed) {
+			businesType = type[1];
+			break;
+		}
+	}
+
+	const [date, month, year] = data?.rgdt.split(/\/|-/);
+
+	return {
+		BusinessName: data.tradeNam,
+		BusinessType: businesType,
+		Email: '',
+		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
+		panNumber: panNum,
+		CIN: '',
+		GSTVerification: gstNum,
+		CompanyCategory: data.nba[0],
+		Address: data.pradr?.addr,
+		ClassOfCompany: data.ctb,
+		RegistrationNumber: data.ctjCd,
+		DirectorDetails: directors,
+		directorsForShow,
+		unformatedData: data,
+	};
+};

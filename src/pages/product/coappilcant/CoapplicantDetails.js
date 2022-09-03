@@ -3,16 +3,16 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOf, oneOfType, string } from 'prop-types';
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { USER_ROLES } from '../../../_config/app.config';
-import useCaseCreation from '../../../components/CaseCreation';
-import Loading from '../../../components/Loading';
-import Modal from '../../../components/Modal';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import AddressDetails from 'shared/components/AddressDetails/AddressDetails';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { USER_ROLES } from '_config/app.config';
+import useCaseCreation from 'components/CaseCreation';
+import Loading from 'components/Loading';
+import Modal from 'components/Modal';
 
 const ButtonWrap = styled.div`
 	display: flex;
@@ -96,6 +96,9 @@ export default function CoapplicantDetails({
 
 	const [isEligibility, setEligibility] = useState(false);
 
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+
 	const saveData = formData => {
 		let formatedAddress = [
 			formatAddressData(
@@ -128,14 +131,6 @@ export default function CoapplicantDetails({
 		);
 	};
 
-	// const onSave = formData => {
-	// 	saveData(formData);
-	// 	addToast({
-	// 		message: 'Saved Succesfully',
-	// 		type: 'success',
-	// 	});
-	// };
-
 	const [proceed, setProceed] = useState(false);
 	useEffect(() => {
 		async function request() {
@@ -155,6 +150,7 @@ export default function CoapplicantDetails({
 
 	const onProceed = async data => {
 		// console.log('CoapplicantDetails-', data);
+
 		saveData(data);
 		setCompleted(id);
 		onFlowChange(map.main);
@@ -169,7 +165,6 @@ export default function CoapplicantDetails({
 	// console.log('coapplicantdetails-guaranter-state', state);
 	let {
 		aadhaar,
-		countryResidence,
 		dob,
 		email,
 		firstName,
@@ -178,6 +173,8 @@ export default function CoapplicantDetails({
 		mobileNo,
 		panNumber,
 		residenceStatus,
+		maritalStatus = '',
+		countryResidence = '',
 	} =
 		state?.[(userType === 'Co-applicant' ? 'coapplicant' : userType)]
 			?.applicantData || {};
@@ -203,12 +200,13 @@ export default function CoapplicantDetails({
 		lastName = director[0]?.dlastname;
 		incomeType = director[0]?.income_type;
 		aadhaar = director[0]?.daadhaar;
-		countryResidence = director[0]?.country_residence;
 		dob = director[0]?.ddob;
 		email = director[0]?.demail;
 		mobileNo = director[0]?.dcontact;
 		panNumber = director[0]?.dpancard;
 		residenceStatus = director[0]?.residence_status;
+		maritalStatus = director[0]?.marital_status;
+		countryResidence = director[0]?.country_residence;
 
 		address1 = director[0]?.address1;
 		address2 = director[0]?.address2;
@@ -222,7 +220,6 @@ export default function CoapplicantDetails({
 	return (
 		<Div>
 			<PersonalDetails
-				userType={userType}
 				register={register}
 				formState={formState}
 				jsonData={map.fields['personal-details'].data}
@@ -236,16 +233,19 @@ export default function CoapplicantDetails({
 					lastName: lastName || '',
 					mobileNo: mobileNo || '',
 					panNumber: panNumber || '',
-					residenceStatus: residenceStatus || '',
+					residenceStatusGuarantor: residenceStatus || '',
+					maritalStatusGuarantor: maritalStatus || '',
+					countryResidenceGuarantor: countryResidence || '',
 				}}
 			/>
 			<AddressDetails
-				userType={userType}
+				hidePresentAddress
 				register={register}
 				formState={formState}
 				match={match}
 				setMatch={setMatch}
-				jsonData={map.fields['address-details'].data}
+				jsonData={map?.fields['address-details']?.data}
+				disablePermenanet={true}
 				preData={{
 					address1: address1 || '',
 					address2: address2 || '',
@@ -256,9 +256,13 @@ export default function CoapplicantDetails({
 					state: addState || '',
 				}}
 			/>
+
 			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name="Save" onClick={handleSubmit(onSave)} /> */}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					onClick={handleSubmit(onProceed)}
+				/>
 				{userType === 'Co-applicant' && (
 					<EligibiltiyWrapper>
 						<Text>

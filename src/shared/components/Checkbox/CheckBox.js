@@ -1,12 +1,10 @@
 /* This section is seen in Document upload section where checkbox is placed*/
 
 import { v4 as uuidv4 } from 'uuid';
-import { string, func, object, bool } from 'prop-types';
 import styled from 'styled-components';
 
 const InputCheckBox = styled.input`
 	display: none;
-
 	+ label {
 		font-size: 15px;
 		position: relative;
@@ -26,6 +24,13 @@ const InputCheckBox = styled.input`
 			border-color: ${({ checked, bg }) => (checked ? bg : 'black')};
 			border-radius: ${({ round }) => (round ? '50%' : '4px')};
 			background: ${({ checked, bg }) => (checked ? bg : 'transparent')};
+			${({ disabled }) =>
+				disabled &&
+				`
+				background: lightgrey;
+				cursor: not-allowed;
+				border: none;
+			`}
 		}
 
 		&::after {
@@ -46,6 +51,11 @@ const InputCheckBox = styled.input`
 			align-items: center;
 			background: transparent;
 			transform: rotate(10deg);
+			${({ disabled }) =>
+				disabled &&
+				`
+				cursor: not-allowed;
+			`}
 		}
 	}
 `;
@@ -62,6 +72,7 @@ export default function CheckBox({
 	const id = uuidv4();
 
 	function handleChange(event) {
+		if (disabled) return;
 		const { checked } = event.target;
 		onChange(checked);
 	}
@@ -83,24 +94,24 @@ export default function CheckBox({
 	);
 }
 
-CheckBox.defaultProps = {
-	name: '',
-	onChange: () => {},
-	style: {},
-	checked: false,
-	round: false,
-	disabled: false,
-	bg: 'transparent',
-	fg: 'white',
-};
+// CheckBox.defaultProps = {
+// 	name: '',
+// 	onChange: () => {},
+// 	style: {},
+// 	checked: false,
+// 	round: false,
+// 	disabled: false,
+// 	bg: 'transparent',
+// 	fg: 'white',
+// };
 
-CheckBox.propTypes = {
-	name: string,
-	checked: bool,
-	onChange: func,
-	round: bool,
-	disabled: bool,
-	bg: string,
-	fg: string,
-	style: object,
-};
+// CheckBox.propTypes = {
+// 	name: string,
+// 	checked: bool,
+// 	onChange: func,
+// 	round: bool,
+// 	disabled: bool,
+// 	bg: string,
+// 	fg: string,
+// 	style: object,
+// };

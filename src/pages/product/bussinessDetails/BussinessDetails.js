@@ -4,16 +4,12 @@ import { useContext } from 'react';
 import styled from 'styled-components';
 import { func, object, oneOfType, string } from 'prop-types';
 
-import useForm from '../../../hooks/useForm';
-import PersonalDetails from '../../../shared/components/PersonalDetails/PersonalDetails';
-import SalaryDetails from '../../../shared/components/SalaryDetails/SalaryDetails';
-import Button from '../../../components/Button';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { UserContext } from '../../../reducer/userReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { LOGIN_CREATEUSER, APP_CLIENT } from '../../../_config/app.config';
-import { AppContext } from '../../../reducer/appReducer';
+import useForm from 'hooks/useForm';
+import PersonalDetails from 'shared/components/PersonalDetails/PersonalDetails';
+import Button from 'components/Button';
+import { FormContext } from 'reducer/formReducer';
+import { UserContext } from 'reducer/userReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const Div = styled.div`
 	flex: 1;
@@ -37,10 +33,6 @@ export default function BussinessDetailsPage({
 	fieldConfig,
 }) {
 	const {
-		actions: { setCompleted },
-	} = useContext(FlowContext);
-
-	const {
 		actions: { setUsertypeApplicantData },
 	} = useContext(FormContext);
 
@@ -50,7 +42,8 @@ export default function BussinessDetailsPage({
 
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
-
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const onSave = data => {
 		setUsertypeApplicantData({ ...data, isApplicant: '1' });
 		addToast({
@@ -58,20 +51,6 @@ export default function BussinessDetailsPage({
 			type: 'success',
 		});
 	};
-
-	const onProceed = async data => {
-		onSave(data);
-		setCompleted(id);
-		onFlowChange(map.main);
-	};
-
-	const url = window.location.hostname;
-
-	let userToken = sessionStorage.getItem(url);
-
-	let loan = JSON.parse(userToken).formReducer.user.loanData;
-
-	let form = JSON.parse(userToken).formReducer.user.applicantData;
 
 	return (
 		<Div>
@@ -89,8 +68,7 @@ export default function BussinessDetailsPage({
 				jsonData={fieldConfig.bussiness_details.data}
 			/>
 			<ButtonWrap>
-				<Button fill name='Proceed' />
-				<Button name='Save' onClick={handleSubmit(onSave)} />
+				<Button fill name={`${isViewLoan ? 'Next' : 'Proceed'}`} />
 			</ButtonWrap>
 		</Div>
 	);

@@ -1,19 +1,18 @@
 /* Loan Address details section */
-
-import { useContext, useState } from 'react';
+//aid:1 = present address
+//aid:2 = permanent address
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { func, object, oneOfType, string } from 'prop-types';
-import useFetch from '../../../hooks/useFetch';
-import { BUSSINESS_PROFILE_UPDATE } from '../../../_config/app.config';
-import { UserContext } from '../../../reducer/userReducer';
-import useForm from '../../../hooks/useForm';
-import Button from '../../../components/Button';
-import AddressDetails from '../../../shared/components/AddressDetails/AddressDetails';
-import { FormContext } from '../../../reducer/formReducer';
-import { FlowContext } from '../../../reducer/flowReducer';
-import { BussinesContext } from '../../../reducer/bussinessReducer';
-import { useToasts } from '../../../components/Toast/ToastProvider';
-import { useEffect } from 'react';
+import useFetch from 'hooks/useFetch';
+import { BUSSINESS_PROFILE_UPDATE, HOSTNAME } from '_config/app.config';
+import { UserContext } from 'reducer/userReducer';
+import useForm from 'hooks/useForm';
+import Button from 'components/Button';
+import AddressDetails from 'shared/components/AddressDetails/AddressDetails';
+import { FormContext } from 'reducer/formReducer';
+import { FlowContext } from 'reducer/flowReducer';
+import { BussinesContext } from 'reducer/bussinessReducer';
+import { useToasts } from 'components/Toast/ToastProvider';
 
 const Div = styled.div`
 	flex: 1;
@@ -42,12 +41,6 @@ const formatData = (type, data, fields) => {
 	};
 };
 
-AddressDetailsPage.propTypes = {
-	onFlowChange: func.isRequired,
-	map: oneOfType([string, object]),
-	id: string,
-	fieldConfig: object,
-};
 const getPinCode = add => {
 	// console.log('getPinCode-add-', add);
 	if (add && add?.pncd) return add.pncd;
@@ -87,27 +80,28 @@ const getAddress = add => {
 	} else return add;
 };
 
-export default function AddressDetailsPage({
-	id,
-	onFlowChange,
-	map,
-	fieldConfig,
-	productDetails,
-	productId,
-	companyData,
-	data,
-}) {
-	// const { newRequest } = useFetch();
-	const url = window.location.hostname;
+const formatEditAddressData = address => {
+	const BAddress = address.map((ele, i) => {
+		return {
+			address1: ele.line1,
+			address2: ele.line2,
+			address3: ele.locality,
+			aid: ele.aid,
+			city: ele.city,
+			state: ele.state,
+			pinCode: ele.pincode,
+			addressType: ele.aid === 1 || ele.aid === '1' ? 'present' : 'permanent',
+		};
+	});
+	return BAddress.sort((a, b) => b.aid - a.aid);
+};
 
-	//url = window.location.hostname;
-	//userToken = sessionStorage.getItem(url);
-	let formReducer = JSON.parse(sessionStorage.getItem(url))?.formReducer;
+const AddressDetailsPage = props => {
+	const { id, onFlowChange, map, productDetails } = props;
+	let { companyData } = props;
+
+	let formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	let applicantData = formReducer?.user?.applicantData;
-
-	let userTokensss = sessionStorage.getItem(url);
-
-	let form = JSON.parse(userTokensss).formReducer?.user?.applicantData;
 	const isBusiness = productDetails.loan_request_type === 1 ? true : false;
 	const {
 		actions: { setCompleted },
@@ -127,8 +121,11 @@ export default function AddressDetailsPage({
 	const { handleSubmit, register, formState } = useForm();
 	const { addToast } = useToasts();
 
-	//const [saved, setSaved] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [match, setMatch] = useState(false);
+
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	const onSave = formData => {
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
@@ -145,6 +142,7 @@ export default function AddressDetailsPage({
 			type: 'success',
 		});
 	};
+
 	const businessProfileUpdate = async formData => {
 		try {
 			if (!companyData) {
@@ -170,7 +168,8 @@ export default function AddressDetailsPage({
 					formReducer?.user['business-details']?.Email ||
 					'',
 				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
-				gstin: '',
+				gstin:
+					applicantData?.GSTVerification || companyData?.GSTVerification || '',
 				businessStartDate: '4/8/90',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
 				Line1: formData?.permanent_address1 || applicantData?.address?.address1,
@@ -187,6 +186,10 @@ export default function AddressDetailsPage({
 				aid: 2,
 				origin: 'nconboarding',
 			};
+			if (editLoanData) {
+				reqBody.business_id = editLoanData?.business_id?.id;
+				reqBody.baid = editLoanData?.business_address?.[0]?.id;
+			}
 			const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
 				method: 'POST',
 				data: reqBody,
@@ -197,7 +200,6 @@ export default function AddressDetailsPage({
 			});
 
 			const businessProfileres = businessProfilereq.data;
-			console.log('businees_id', businessProfileres);
 			sessionStorage.setItem(
 				'business_id',
 				JSON.stringify(businessProfileres.data[0].id)
@@ -206,44 +208,54 @@ export default function AddressDetailsPage({
 				'baid',
 				JSON.stringify(businessProfileres.data[0].business_address[0].id)
 			);
+			return true;
 		} catch (error) {
 			addToast({
 				message: error.message || 'Business Profile is failed',
 				type: 'error',
 			});
+			return false;
 		}
 	};
 
-	const onProceed = formData => {
-		//console.log('fomdata', formdata1);
+	const onProceed = async formData => {
+		setLoading(true);
 		let formatedData = [formatData('permanent', formData, map.fields[id].data)];
-
 		!match &&
 			formatedData.push(formatData('present', formData, map.fields[id].data));
-
+		sessionStorage.setItem('address_details', JSON.stringify(formatedData));
 		setUsertypeAddressData(formatedData);
-		onSave(formData);
-		businessProfileUpdate(formData);
+		!isViewLoan && onSave(formData);
+		let isBusinessProfileUpdated = true;
+		if (!isViewLoan) {
+			isBusinessProfileUpdated = await businessProfileUpdate(formData);
+		}
+		if (!isBusinessProfileUpdated) {
+			setLoading(false);
+			addToast({
+				message: 'Server down, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
 		setCompleted(id);
 		onFlowChange(map.main);
+		setLoading(false);
 	};
 
 	//   const subFlowActivate = () => {
 	//     activateSubFlow(id);
 	//     onFlowChange(map.sub);
 	//   };
+
 	useEffect(() => {
 		const getData = async () => {
-			!isBusiness &&
-				form &&
-				form.address &&
-				form.address.length === 1 &&
-				setMatch(true);
-			if (form && form.address && form.address[0]) {
+			!isBusiness && applicantData?.address?.length === 1 && setMatch(true);
+			if (applicantData?.address?.[0]) {
 				// if formdata have address that allready saved details
 			} else {
 				let lengthAddress =
-					editLoanData && formatAddressData(editLoanData.business_address);
+					editLoanData && formatEditAddressData(editLoanData.business_address);
 				if (lengthAddress?.length === 1) {
 					setMatch(true);
 				}
@@ -255,21 +267,38 @@ export default function AddressDetailsPage({
 
 	const prefilledValues = () => {
 		try {
-			let formStat = {};
-			try {
-				formStat = JSON.parse(sessionStorage.getItem('formstate'));
-			} catch (e) {
-				formStat = { values: {} };
-			}
-			// initialize values if not exist
-			if (!formStat?.values) {
-				formStat.values = {};
+			let newPrefillValues = {};
+
+			// priority1 prefill form formstate
+			// extraction data is stored in formstate
+
+			if (Object.keys(applicantData?.address?.[0] || {}).length > 0) {
+				return applicantData?.address?.[0];
 			}
 			let aadhaarOtpRes = null;
 			try {
 				aadhaarOtpRes = JSON.parse(sessionStorage.getItem('aadhaar_otp_res'));
 			} catch (e) {
 				aadhaarOtpRes = null;
+			}
+			if (companyDetail?.Address) {
+				newPrefillValues.address1 = getAddress(companyDetail?.Address);
+				newPrefillValues.pinCode = getPinCode(companyDetail?.Address);
+			}
+			let formStateValues = {};
+			try {
+				formStateValues =
+					JSON.parse(sessionStorage.getItem('formstate'))?.values || {};
+			} catch (e) {
+				formStateValues = { values: {} };
+			}
+			if (formStateValues.address1) {
+				newPrefillValues.address1 = formStateValues.address1;
+				if (formStateValues.pin) {
+					newPrefillValues.pinCode = formStateValues.pin;
+				} else {
+					newPrefillValues.pinCode = getPinCode(formStateValues.address1);
+				}
 			}
 			if (aadhaarOtpRes) {
 				const newAddress1 = [];
@@ -283,88 +312,112 @@ export default function AddressDetailsPage({
 					newAddress1.push(aadhaarOtpRes?.data?.address?.vtc || '');
 				if (aadhaarOtpRes?.data?.address?.subdist)
 					newAddress1.push(aadhaarOtpRes?.data?.address?.subdist || '');
-				formStat.values.address1 = newAddress1.join(', ');
-				formStat.values.address2 = aadhaarOtpRes?.data?.address?.landmark || '';
-				formStat.values.address3 = aadhaarOtpRes?.data?.address?.po || '';
-				formStat.values.pin = aadhaarOtpRes?.data?.address?.pc || '';
-				formStat.values.city = aadhaarOtpRes?.data?.address?.dist || '';
-				formStat.values.state = aadhaarOtpRes?.data?.address?.state || '';
+				newPrefillValues.address1 = newAddress1.join(', ');
+				newPrefillValues.address2 =
+					aadhaarOtpRes?.data?.address?.landmark || '';
+				newPrefillValues.address3 = aadhaarOtpRes?.data?.address?.po || '';
+				newPrefillValues.pinCode = aadhaarOtpRes?.data?.address?.pc || '';
+				newPrefillValues.city = aadhaarOtpRes?.data?.address?.dist || '';
+				newPrefillValues.state = aadhaarOtpRes?.data?.address?.state || '';
 			}
-			return formStat?.values;
+			if (editLoanData) {
+				newPrefillValues = formatEditAddressData(
+					editLoanData.business_address
+				)[0];
+			}
+			// console.log(
+			// 	'LoanAddressDetails-prefilledValues-newPrefillValues-',
+			// 	newPrefillValues
+			// );
+			return newPrefillValues;
 		} catch (error) {
-			console.log('error-LoanAddressDetails-prefilledValues-', error);
+			console.error('error-LoanAddressDetails-prefilledValues-', error);
 			return {};
 		}
 	};
 
-	const formatAddressData = address => {
-		const BAddress = address.map((ele, i) => {
-			return {
-				address1: ele.line1,
-				address2: ele.line2,
-				address3: ele.locality,
-				aid: ele.aid,
-				city: ele.city,
-				state: ele.state,
-				pinCode: ele.pincode,
-				addressType: i === 0 ? 'permanent' : 'present',
-			};
-		});
-		return BAddress;
+	const prefilledValuesPresent = () => {
+		let newPrefillValues = {};
+		if (Object.keys(applicantData?.address?.[1] || {}).length > 0) {
+			return applicantData?.address?.[1];
+		}
+		if (editLoanData) {
+			newPrefillValues = formatEditAddressData(
+				editLoanData.business_address
+			)[1];
+		}
+		return newPrefillValues;
 	};
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 
-	const Address =
-		(form && form.address && form.address[0]) ||
-		(editLoanData && formatAddressData(editLoanData.business_address)[0]);
+	// const Address =
+	// 	(form && form.address && form.address[0]) ||
+	// 	(editLoanData && formatEditAddressData(editLoanData.business_address)[0]);
+
+	// TODO: WORK ON PREFILL ISSUE
+	// const preData = {
+	// 	address1:
+	// 		prefilledValues()?.address1 ?
+	// 			: companyDetail?.Address
+	// 			? getAddress(companyDetail?.Address)
+	// 			: prefilledValues()?.address1 || '',
+	// 	address2:
+	// 		(Address && Address.address2) || prefilledValues()?.address2 || '',
+	// 	address3:
+	// 		(Address && Address.address3) || prefilledValues()?.address3 || '',
+	// 	address4:
+	// 		(Address && Address.address4) || prefilledValues()?.address4 || '',
+	// 	city: (Address && Address.city) || prefilledValues()?.city || '',
+	// 	state: (Address && Address.state) || prefilledValues()?.state || '',
+	// 	pinCode:
+	// 		Address && Address.pinCode
+	// 			? Address.pinCode
+	// 			: companyDetail?.Address
+	// 			? companyDetail?.Address
+	// 				? getPinCode(companyDetail?.Address)
+	// 				: ''
+	// 			: prefilledValues()?.pin || '',
+	// };
+
+	// const preDataPresent = {}
 
 	// console.log('LoanAddressDetails-states-', {
-	// 	Address,
-	// 	preprefilledValues: prefilledValues(),
+	// 	formState,
+	// 	preData: prefilledValues(),
+	// 	preDataPresent: prefilledValuesPresent(),
+	// 	companyDetail,
 	// });
 
 	return (
 		<Div>
-			<AddressDetails
-				isBusiness={isBusiness}
-				register={register}
-				formState={formState}
-				match={match}
-				setMatch={setMatch}
-				jsonData={map.fields[id].data}
-				preDataFilled={
-					form?.address ||
-					(editLoanData && formatAddressData(editLoanData.business_address))
-				}
-				preData={{
-					address1:
-						Address && Address.address1
-							? Address && Address.address1
-							: companyDetail?.Address
-							? getAddress(companyDetail?.Address)
-							: prefilledValues()?.address1 || '',
-					address2:
-						(Address && Address.address2) || prefilledValues()?.address2 || '',
-					address3:
-						(Address && Address.address3) || prefilledValues()?.address3 || '',
-					address4:
-						(Address && Address.address4) || prefilledValues()?.address4 || '',
-					city: (Address && Address.city) || prefilledValues()?.city || '',
-					state: (Address && Address.state) || prefilledValues()?.state || '',
-					pinCode:
-						Address && Address.pinCode
-							? Address.pinCode
-							: companyDetail?.Address
-							? companyDetail?.Address
-								? getPinCode(companyDetail?.Address)
-								: ''
-							: prefilledValues()?.pin || '',
-				}}
-			/>
-			<ButtonWrap>
-				<Button fill name='Proceed' onClick={handleSubmit(onProceed)} />
-				{/* <Button name='Save' onClick={handleSubmit(onSave)} /> */}
-			</ButtonWrap>
+			<form onSubmit={handleSubmit(onProceed)}>
+				<AddressDetails
+					userType={'applicant'}
+					isBusiness={isBusiness}
+					register={register}
+					formState={formState}
+					match={match}
+					setMatch={setMatch}
+					jsonData={map.fields[id].data}
+					// preDataFilled={
+					// 	editLoanData
+					// 		? formatEditAddressData(editLoanData.business_address)
+					// 		: form?.address
+					// }
+					preData={prefilledValues()} // permanent
+					preDataPresent={prefilledValuesPresent()}
+				/>
+				<ButtonWrap>
+					<Button
+						fill
+						isLoader={loading}
+						disabled={loading}
+						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						// onClick={handleSubmit(onProceed)}
+					/>
+				</ButtonWrap>
+			</form>
 		</Div>
 	);
-}
+};
+
+export default AddressDetailsPage;
