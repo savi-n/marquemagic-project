@@ -297,7 +297,7 @@ const DocumentUpload = props => {
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
-		// console.log('handleDocumentTypeChange-', { fileId, type });
+		console.log('handleDocumentTypeChange-', { fileId, type });
 		setLoanDocumentType(fileId, type);
 	};
 
@@ -1156,8 +1156,9 @@ const DocumentUpload = props => {
 	}
 
 	// console.log('loandocupload-allstates-', {
-	// 	allTagUnTagDocList,
+	// 	uploadedDocuments,
 	// 	prefilledDocs,
+	// 	allTagUnTagDocList,
 	// 	preFillKycDocsTag,
 	// 	preFillKycDocsUnTag,
 	// 	totalMandatoryDocumentCount,
