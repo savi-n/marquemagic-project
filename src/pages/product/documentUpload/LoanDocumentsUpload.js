@@ -297,7 +297,7 @@ const DocumentUpload = props => {
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
-		console.log('handleDocumentTypeChange-', { fileId, type });
+		// console.log('handleDocumentTypeChange-', { fileId, type });
 		setLoanDocumentType(fileId, type);
 	};
 
