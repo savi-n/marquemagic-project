@@ -136,6 +136,12 @@ const DocumentUpload = props => {
 	let corporateDetails = sessionStorage.getItem('corporateDetails');
 	if (corporateDetails) corporateDetails = JSON.parse(corporateDetails);
 	let applicantData = formReducer?.user?.applicantData;
+	let business_income_type_id =
+		applicantData?.incomeType ||
+		documentState['business-details']?.BusinessType ||
+		companyData?.BusinessType ||
+		editLoanData?.business_id?.businesstype ||
+		'';
 	if (editLoanData) {
 		const editApplicant =
 			editLoanData?.director_details?.filter(d => d?.isApplicant)?.[0] || {};
@@ -146,13 +152,8 @@ const DocumentUpload = props => {
 			firstName: editApplicant?.dfirstname || '',
 			lastName: editApplicant?.dlastname || '',
 		};
+		business_income_type_id = editLoanData?.business_id?.businesstype;
 	}
-	const business_income_type_id =
-		applicantData?.incomeType ||
-		documentState['business-details']?.BusinessType ||
-		companyData?.BusinessType ||
-		editLoanData?.business_id?.businesstype ||
-		'';
 
 	// const coApplicants = formReducer?.user?.['co-applicant-details-res']
 	// 	? formReducer?.user?.['co-applicant-details-res']
@@ -1175,8 +1176,6 @@ const DocumentUpload = props => {
 		);
 	}
 	// don't delete-unusuall error on useeffect conditional rendering
-	if (loading) return <></>;
-	if (loading) return <></>;
 	if (loading) return <></>;
 
 	return (

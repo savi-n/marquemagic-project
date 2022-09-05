@@ -271,8 +271,11 @@ export const generateCaseCreationReqBody = (
 				: addressArrayUni;
 		// console.log('-----------temp6-------------');
 		const { loanAmount, tenure, ...restLoanData } = loanData;
-		const business_income_type_id =
+		let business_income_type_id =
 			applicantData?.incomeType || companyData?.BusinessType;
+		if (editLoan) {
+			business_income_type_id = editLoan?.business_id?.businesstype;
+		}
 		let annual_incnome = 0;
 		if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
 			annual_incnome = applicantData?.annualIncome;
