@@ -204,7 +204,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				city: loanData?.city,
 				state: loanData?.state,
 			},
-			// branchId:
+			branchId: loanData?.branch_id,
 			// loanType:
 		};
 	};
