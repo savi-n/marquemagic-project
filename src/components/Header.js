@@ -41,18 +41,19 @@ export default function Header(props) {
 	};
 
 	useEffect(() => {
-		// + sign in the query string is URL-decoded to a space. %2B in the query string is URL-decoded to a + sign.
-		// const params = queryString.parse(window.location.search);
-		// if (params.cid || params.uid) {
-		// 	getUserDetails(params);
-		// }
-		const userDetails = sessionStorage.getItem('userDetails');
-		const editLoan = sessionStorage.getItem('editLoan');
-		if (editLoan) {
-			setLoanRefId(JSON.parse(editLoan)?.loan_ref_id || '');
+		try {
+			const userDetails = sessionStorage.getItem('userDetails');
+			const editLoan = sessionStorage.getItem('editLoan');
+			if (editLoan) {
+				setLoanRefId(JSON.parse(editLoan)?.loan_ref_id || '');
+			}
+			if (userDetails || editLoan) setBackToDashboard(true);
+			if (userDetails) {
+				setCorporateName(JSON.parse(userDetails)?.cacompname);
+			}
+		} catch (error) {
+			console.error('error-Header-useEffect-', error);
 		}
-		if (userDetails || editLoan) setBackToDashboard(true);
-		if (userDetails?.cacompname) setCorporateName(userDetails?.cacompname);
 	}, []);
 
 	return (
