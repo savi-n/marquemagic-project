@@ -28,15 +28,15 @@ export default function Header({
 	openAccountLink,
 	logoLink,
 }) {
+	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const [corporateName, setCorporateName] = useState('');
 	const [backToDashboard, setBackToDashboard] = useState(false);
 
 	const redirectDashboard = e => {
 		e.preventDefault();
-		const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
-		if (editLoan?.loan_ref_id) {
+		if (editLoanData?.loan_ref_id) {
 			window.open(
-				`${window.origin}/newui/main/loanlist?id=${editLoan?.loan_ref_id}`,
+				`${window.origin}/newui/main/loanlist?id=${editLoanData?.loan_ref_id}`,
 				'_self'
 			);
 		} else {
@@ -76,7 +76,11 @@ export default function Header({
 			{backToDashboard && (
 				<div className='px-5' style={{ marginLeft: 'auto' }}>
 					<Button onClick={redirectDashboard}>
-						<span>BACK TO DASHBOARD</span>
+						<span>
+							{editLoanData?.loan_ref_id
+								? 'BACK TO LOAN LISTING'
+								: 'BACK TO DASHBOARD'}
+						</span>
 					</Button>
 				</div>
 			)}
