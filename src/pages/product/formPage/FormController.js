@@ -412,11 +412,27 @@ export default function FormController({
 			editLoanData?.loan_assets?.filter(
 				d => d?.loan_type === 'Collateral'
 			)?.[0] || {};
+		// console.log(
+		// 	collateralData?.loan_json,
+		// 	typeof collateralData?.loan_json,
+		// 	'100'
+		// );
+
+		let collateralValue;
+		if (typeof collateralData?.loan_json === 'string') {
+			collateralValue = JSON.parse(collateralData?.loan_json);
+		}
+		// console.log(collateralValue, typeof collateralValue, '101');
 		return {
 			...(collateralData?.loan_json?.[0] || {}),
-			Collateraltype: collateralData?.loan_json?.[0]?.Collateraltype || '',
+			Collateraltype:
+				collateralData?.loan_json?.[0]?.Collateraltype ||
+				collateralValue?.[0]?.Collateraltype ||
+				'',
 			CurrentMarketValue:
-				collateralData?.loan_json?.[0]?.CurrentMarketValue || '',
+				collateralData?.loan_json?.[0]?.CurrentMarketValue ||
+				collateralValue?.[0]?.CurrentMarketValue ||
+				'',
 		};
 	};
 
