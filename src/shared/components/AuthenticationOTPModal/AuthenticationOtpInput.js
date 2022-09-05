@@ -15,10 +15,10 @@ const OTPWrapper = styled.div`
 	/* gap: 10px; */
 	width: 100%;
 	justify-content: center;
-	@media (max-width: 700px) {
+	@media (max-width: 800px) {
 		padding: 0;
-		width: 60%;
-		gap: 10px;
+		width: 100%;
+		gap: 0px;
 		margin: 0 auto;
 		position: relative;
 		display: flex;
@@ -46,8 +46,8 @@ const SytledInput = styled.input`
 		background-color: #ebedf3;
 		border-color: #ebedf3;
 	}
-	@media (max-width: 700px) {
-		margin: 5px 0;
+	@media (max-width: 800px) {
+		margin: 0px;
 		width: 45px;
 		height: 45px;
 	}
