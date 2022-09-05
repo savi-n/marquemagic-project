@@ -22,21 +22,17 @@ const Logo = styled.img`
 	}
 `;
 
-export default function Header({
-	logo,
-	openAccount,
-	openAccountLink,
-	logoLink,
-}) {
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+export default function Header(props) {
+	const { logo, openAccount, openAccountLink, logoLink } = props;
 	const [corporateName, setCorporateName] = useState('');
 	const [backToDashboard, setBackToDashboard] = useState(false);
+	const [loanRefId, setLoanRefId] = useState('');
 
 	const redirectDashboard = e => {
 		e.preventDefault();
-		if (editLoanData?.loan_ref_id) {
+		if (loanRefId) {
 			window.open(
-				`${window.origin}/newui/main/loanlist?id=${editLoanData?.loan_ref_id}`,
+				`${window.origin}/newui/main/loanlist?id=${loanRefId}`,
 				'_self'
 			);
 		} else {
@@ -51,7 +47,11 @@ export default function Header({
 		// 	getUserDetails(params);
 		// }
 		const userDetails = sessionStorage.getItem('userDetails');
-		if (userDetails) setBackToDashboard(true);
+		const editLoan = sessionStorage.getItem('editLoan');
+		if (editLoan) {
+			setLoanRefId(JSON.parse(editLoan)?.loan_ref_id || '');
+		}
+		if (userDetails || editLoan) setBackToDashboard(true);
 		if (userDetails?.cacompname) setCorporateName(userDetails?.cacompname);
 	}, []);
 
@@ -77,9 +77,7 @@ export default function Header({
 				<div className='px-5' style={{ marginLeft: 'auto' }}>
 					<Button onClick={redirectDashboard}>
 						<span>
-							{editLoanData?.loan_ref_id
-								? 'BACK TO LOAN LISTING'
-								: 'BACK TO DASHBOARD'}
+							{loanRefId ? 'BACK TO LOAN LISTING' : 'BACK TO DASHBOARD'}
 						</span>
 					</Button>
 				</div>
