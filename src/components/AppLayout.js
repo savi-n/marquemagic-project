@@ -187,6 +187,7 @@ const AppLayout = () => {
 			try {
 				if (params.cid || params.uid || decryptedToken?.userId) {
 					let UID = params?.cid || params?.uid || '';
+					// + sign in the query string is URL-decoded to a space. %2B in the query string is URL-decoded to a + sign.
 					UID = UID?.replaceAll(' ', '+');
 					// console.log('UID-before-', UID);
 					const newUID = decryptedToken?.userId || decryptRes(UID);
