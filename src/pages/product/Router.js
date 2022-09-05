@@ -138,7 +138,7 @@ export default function Router({
 	const formatCompanyData = (companyData, allData) => {
 		return {
 			BusinessName: companyData?.businessname,
-			businesstype: companyData?.BusinessType,
+			BusinessType: companyData?.businesstype,
 			BusinessVintage: companyData?.businessstartdate,
 			panNumber: companyData?.businesspancardnumber,
 			GSTVerification: companyData?.gstin,

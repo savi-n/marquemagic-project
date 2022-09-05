@@ -281,11 +281,13 @@ export default function PersonalDetailsPage({
 				// return form;
 				const appData = JSON.parse(userTokensss)?.formReducer?.user
 					?.applicantData;
-				let form =
-					(appData && Object.keys(appData).length > 0 && appData) ||
-					formatPersonalDetails(editApplicantData) ||
-					{};
-				if (form) return form;
+				let form = {};
+				if (appData?.firstName !== undefined) {
+					form = (appData && Object.keys(appData).length > 0 && appData) || {};
+				} else {
+					form = formatPersonalDetails(editApplicantData) || {};
+				}
+				return form;
 			}
 			const formstate = JSON.parse(sessionStorage.getItem('formstate'));
 			return formstate?.values;
