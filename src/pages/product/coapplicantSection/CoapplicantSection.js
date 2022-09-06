@@ -182,6 +182,10 @@ const CoapplicantDetailsSection = props => {
 	// let salaryDetailsJsonValue = map?.fields['salary-details'].data;
 	// let addressDetailsJsonValue = map?.fields['address-details'].data;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	const userTokensss = sessionStorage.getItem(HOSTNAME);
+	const sessionCoApplicantRes =
+		JSON.parse(userTokensss).formReducer?.user?.[`${id}-res`] || [];
+
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 	const editLoanCoApplicants = editLoanData?.director_details?.filter(
@@ -238,6 +242,7 @@ const CoapplicantDetailsSection = props => {
 	// LOCAL STATES
 	const [loading, setLoading] = useState(false);
 	const [openDrawer, setOpenDrawer] = useState(-1);
+	const resData = formReducer?.user?.['co-applicant-details-res'] || [];
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
@@ -257,7 +262,9 @@ const CoapplicantDetailsSection = props => {
 	const [proceed, setProceed] = useState(false);
 	const { newRequest } = useFetch();
 	// --LOCAL STATES
-
+	// useEffect(() => {
+	// 	console.log(submitCoAppRes, '000');
+	// }, [submitCoAppRes]);
 	const openCloseCollaps = index => {
 		if (totalCoapplicantCount === 1) return;
 		setOpenDrawer(openDrawer === index ? -1 : index);
@@ -412,8 +419,8 @@ const CoapplicantDetailsSection = props => {
 							sessionStorage.getItem('userToken')}`,
 					},
 				});
+				let submitCoAppRes = submitCoapplicantsReq?.data?.data;
 
-				const submitCoAppRes = submitCoapplicantsReq?.data?.data || [];
 				setFlowData(submitCoAppRes.sort((a, b) => a.id - b.id), `${id}-res`);
 				addToast({
 					message: 'Saved Succesfully',
@@ -423,7 +430,7 @@ const CoapplicantDetailsSection = props => {
 				console.error(er);
 				setLoading(false);
 				addToast({
-					message: 'Server down, try after sometimes',
+					message: 'Server down, try after sometime',
 					type: 'error',
 				});
 				return;
@@ -694,20 +701,26 @@ const CoapplicantDetailsSection = props => {
 										alt='arrow'
 									/>
 								) : null}
-								{totalCoapplicantCount > 1 && !editLoanData ? (
+
+								{(!sessionCoApplicantRes?.[index]?.id &&
+									totalCoapplicantCount > 1 &&
+									!editLoanData &&
+									(resData.length === 0 ||
+										totalCoapplicantCount > resData.length)) ||
+								(isEditLoan &&
+									index + 1 > editLoanCoApplicants?.length &&
+									(resData.length === 0 ||
+										totalCoapplicantCount > resData.length)) ? (
 									<div>
 										{totalCoapplicantCount === index + 1 ? (
 											<DeleteIcon onClick={() => deleteSection(index)}>
 												<FontAwesomeIcon icon={faTrash} />
 											</DeleteIcon>
-										) : (
-											<DeleteIcon onClick={() => {}}>
-												&nbsp;&nbsp;&nbsp;
-											</DeleteIcon>
-										)}
+										) : null}
 									</div>
 								) : null}
 							</Section>
+
 							<Details open={openDrawer === index}>
 								<Wrapper open={openDrawer === index}>
 									<PersonalDetails
@@ -717,6 +730,8 @@ const CoapplicantDetailsSection = props => {
 										register={register}
 										formState={formState}
 										jsonData={personalDetailsJson}
+										editLoanCoApplicants={editLoanCoApplicants}
+										indexCoappplicant={index + 1}
 										preData={{
 											...prePopulateCoApplicants,
 										}}

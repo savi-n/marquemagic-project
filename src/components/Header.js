@@ -22,21 +22,17 @@ const Logo = styled.img`
 	}
 `;
 
-export default function Header({
-	logo,
-	openAccount,
-	openAccountLink,
-	logoLink,
-}) {
+export default function Header(props) {
+	const { logo, openAccount, openAccountLink, logoLink } = props;
 	const [corporateName, setCorporateName] = useState('');
 	const [backToDashboard, setBackToDashboard] = useState(false);
+	const [loanRefId, setLoanRefId] = useState('');
 
 	const redirectDashboard = e => {
 		e.preventDefault();
-		const editLoan = JSON.parse(sessionStorage.getItem('editLoan'));
-		if (editLoan?.loan_ref_id) {
+		if (loanRefId) {
 			window.open(
-				`${window.origin}/newui/main/loanlist?id=${editLoan?.loan_ref_id}`,
+				`${window.origin}/newui/main/loanlist?id=${loanRefId}`,
 				'_self'
 			);
 		} else {
@@ -45,14 +41,19 @@ export default function Header({
 	};
 
 	useEffect(() => {
-		// + sign in the query string is URL-decoded to a space. %2B in the query string is URL-decoded to a + sign.
-		// const params = queryString.parse(window.location.search);
-		// if (params.cid || params.uid) {
-		// 	getUserDetails(params);
-		// }
-		const userDetails = sessionStorage.getItem('userDetails');
-		if (userDetails) setBackToDashboard(true);
-		if (userDetails?.cacompname) setCorporateName(userDetails?.cacompname);
+		try {
+			const userDetails = sessionStorage.getItem('userDetails');
+			const editLoan = sessionStorage.getItem('editLoan');
+			if (editLoan) {
+				setLoanRefId(JSON.parse(editLoan)?.loan_ref_id || '');
+			}
+			if (userDetails || editLoan) setBackToDashboard(true);
+			if (userDetails) {
+				setCorporateName(JSON.parse(userDetails)?.cacompname);
+			}
+		} catch (error) {
+			console.error('error-Header-useEffect-', error);
+		}
 	}, []);
 
 	return (
@@ -74,9 +75,11 @@ export default function Header({
 				</div>
 			)}
 			{backToDashboard && (
-				<div className='px-5' style={{ marginLeft: 'auto' }}>
-					<Button onClick={redirectDashboard}>
-						<span>BACK TO DASHBOARD</span>
+				<div className='px-5' style={{ marginLeft: 'auto', width: 'auto' }}>
+					<Button onClick={redirectDashboard} customStyle={{ width: 'auto' }}>
+						<span>
+							{loanRefId ? 'BACK TO LOAN LISTING' : 'BACK TO DASHBOARD'}
+						</span>
 					</Button>
 				</div>
 			)}

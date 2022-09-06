@@ -26,6 +26,7 @@ export const fileStructure = (documents, type) => {
 			if (file?.director_id) {
 				newFile.director_id = file?.director_id;
 			}
+			newFile.id = undefined;
 			return newFile;
 		});
 };
@@ -271,8 +272,11 @@ export const generateCaseCreationReqBody = (
 				: addressArrayUni;
 		// console.log('-----------temp6-------------');
 		const { loanAmount, tenure, ...restLoanData } = loanData;
-		const business_income_type_id =
+		let business_income_type_id =
 			applicantData?.incomeType || companyData?.BusinessType;
+		if (editLoan) {
+			business_income_type_id = editLoan?.business_id?.businesstype;
+		}
 		let annual_incnome = 0;
 		if (applicantData?.annualIncome && applicantData?.annualIncome !== '0') {
 			annual_incnome = applicantData?.annualIncome;

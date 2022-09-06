@@ -13,6 +13,7 @@ import {
 	NC_STATUS_CODE,
 	SEARCH_BANK_BRANCH_LIST,
 	AADHAAR_GENERATE_OTP,
+	HOSTNAME,
 } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
 import { FlowContext } from 'reducer/flowReducer';
@@ -95,6 +96,7 @@ export default function PersonalDetails(props) {
 		register,
 		formState,
 		headingNameStyle,
+		indexCoappplicant,
 		productDetails = {},
 	} = props;
 	const { state } = useContext(LoanFormContext);
@@ -131,6 +133,10 @@ export default function PersonalDetails(props) {
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const userTokensss = sessionStorage.getItem(HOSTNAME);
+	const sessionCoApplicantRes =
+		JSON.parse(userTokensss).formReducer?.user?.[`co-applicant-details-res`] ||
+		[];
 
 	const populateValue = field => {
 		if (!userType && field.disabled) {
@@ -491,9 +497,21 @@ export default function PersonalDetails(props) {
 								customFields.readonly = true;
 								customFields.disabled = true;
 							}
-							if (editLoanData && field.name.includes('incomeType')) {
+							if (
+								field.name.includes('incomeType') &&
+								sessionCoApplicantRes[indexCoappplicant - 1]?.id
+							) {
 								customFields.readonly = true;
 								customFields.disabled = true;
+							}
+							if (editLoanData && field.name.includes('incomeType')) {
+								const editLoanCoApplicants = editLoanData?.director_details?.filter(
+									d => d?.type_name?.toLowerCase() === 'co-applicant'
+								);
+								if (editLoanCoApplicants.length >= indexCoappplicant) {
+									customFields.readonly = true;
+									customFields.disabled = true;
+								}
 							}
 							let isDevider = false;
 							if (id === 'reference-details') {
