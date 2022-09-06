@@ -75,8 +75,8 @@ export default function Header(props) {
 				</div>
 			)}
 			{backToDashboard && (
-				<div className='px-5' style={{ marginLeft: 'auto' }}>
-					<Button onClick={redirectDashboard}>
+				<div className='px-5' style={{ marginLeft: 'auto', width: 'auto' }}>
+					<Button onClick={redirectDashboard} customStyle={{ width: 'auto' }}>
 						<span>
 							{loanRefId ? 'BACK TO LOAN LISTING' : 'BACK TO DASHBOARD'}
 						</span>
