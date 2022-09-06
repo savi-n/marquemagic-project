@@ -719,17 +719,8 @@ const CoapplicantDetailsSection = props => {
 										) : null}
 									</div>
 								) : null}
-								{/* {index + 1 > resData.length ? (
-									<div>
-										{totalCoapplicantCount === index + 1 ? (
-											<DeleteIcon onClick={() => deleteSection(index)}>
-												<FontAwesomeIcon icon={faTrash} />
-											</DeleteIcon>
-										) : null}
-									</div>
-								) : null} */}
 							</Section>
-							{resData.length}
+
 							<Details open={openDrawer === index}>
 								<Wrapper open={openDrawer === index}>
 									<PersonalDetails
