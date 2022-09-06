@@ -496,15 +496,15 @@ export default function FileUpload(props) {
 				};
 				prefilledDocs.map(doc => {
 					const tempFile = _.cloneDeep(doc);
-					const tempDocType = { value: doc.doctype };
+					// const tempDocType = { value: doc.id };
 					const selectedDocType = docTypeOptions.find(
-						d => d.value === tempDocType.value
+						d => d.value === tempFile.id
 					);
-					const newObj = newMappedFile[tempDocType.value] || [];
+					const newObj = newMappedFile[tempFile.id] || [];
 					newObj.push(tempFile);
-					newMappedFile[tempDocType.value] = newObj;
-					newDocTypeFileMap[tempDocType.id] = selectedDocType;
-					documentTypeChangeCallback(tempFile.id, selectedDocType);
+					newMappedFile[tempFile.id] = newObj;
+					newDocTypeFileMap[tempFile.id] = selectedDocType;
+					// documentTypeChangeCallback(tempFile.id, selectedDocType);
 					return null;
 				});
 				setDocTypeFileMap(newDocTypeFileMap);

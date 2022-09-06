@@ -26,6 +26,7 @@ export const fileStructure = (documents, type) => {
 			if (file?.director_id) {
 				newFile.director_id = file?.director_id;
 			}
+			newFile.id = undefined;
 			return newFile;
 		});
 };
