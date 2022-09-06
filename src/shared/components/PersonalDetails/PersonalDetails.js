@@ -95,6 +95,8 @@ export default function PersonalDetails(props) {
 		register,
 		formState,
 		headingNameStyle,
+		editLoanCoApplicants,
+		indexCoappplicant,
 		productDetails = {},
 	} = props;
 	const { state } = useContext(LoanFormContext);
@@ -494,6 +496,13 @@ export default function PersonalDetails(props) {
 							if (editLoanData && field.name.includes('incomeType')) {
 								customFields.readonly = true;
 								customFields.disabled = true;
+								if (
+									indexCoappplicant > editLoanCoApplicants?.length &&
+									id.includes('co-applicant')
+								) {
+									customFields.readonly = false;
+									customFields.disabled = false;
+								}
 							}
 							let isDevider = false;
 							if (id === 'reference-details') {
