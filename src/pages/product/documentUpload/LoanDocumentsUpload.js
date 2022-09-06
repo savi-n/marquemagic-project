@@ -1156,8 +1156,9 @@ const DocumentUpload = props => {
 	}
 
 	// console.log('loandocupload-allstates-', {
-	// 	allTagUnTagDocList,
+	// 	uploadedDocuments,
 	// 	prefilledDocs,
+	// 	allTagUnTagDocList,
 	// 	preFillKycDocsTag,
 	// 	preFillKycDocsUnTag,
 	// 	totalMandatoryDocumentCount,
