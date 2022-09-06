@@ -187,7 +187,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		// eslint-disable-next-line
 	}, []);
 	const amountConverter = (value, k) => {
-		return value * valueConversion[k || 'One'];
+		return Math.round(value * valueConversion[k || 'One']);
 	};
 	const formatEditLoanData = loanData => {
 		return {

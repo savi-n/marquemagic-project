@@ -108,7 +108,7 @@ export default function PersonalDetailsPage({
 	let form = JSON.parse(userTokensss)?.formReducer?.user?.applicantData;
 
 	const amountConverter = (value, k) => {
-		if (k) return value * valueConversion[k || 'One'];
+		if (k) return Math.round(value * valueConversion[k || 'One']);
 		return value;
 	};
 

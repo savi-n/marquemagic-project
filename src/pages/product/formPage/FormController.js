@@ -329,7 +329,7 @@ export default function FormController({
 	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
 	const amountConverter = (value, k) => {
-		if (k) return value * valueConversion[k || 'One'];
+		if (k) return Math.round(value * valueConversion[k || 'One']);
 		return value;
 	};
 	const formatLoanData = loanData => {
