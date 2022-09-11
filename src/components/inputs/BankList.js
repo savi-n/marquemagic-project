@@ -81,7 +81,11 @@ export default function BankList(props) {
 	return (
 		<SearchSelect
 			// customLabel='Bank Name'
-			onBlurCallback={() => getIfscData(value.value)}
+			onBlurCallback={() => {
+				if (field.name === 'BankName') {
+					getIfscData(value.value);
+				}
+			}}
 			field={field}
 			name={field.name}
 			placeholder={field.placeholder || ''}
