@@ -213,6 +213,7 @@ export default function Product({ product, url }) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+	const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
@@ -322,7 +323,7 @@ export default function Product({ product, url }) {
 				<Colom1 hide={hide}>
 					<ScrollBox>
 						<HeadingBox onClick={e => {}}>
-							{!editLoanData && (
+							{!editLoanData && !userDetails && (
 								<BackButton
 									src={imgBackArrowCircle}
 									alt='goback'
