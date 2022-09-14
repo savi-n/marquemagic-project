@@ -209,11 +209,11 @@ export default function Product({ product, url }) {
 	});
 	const [showContinueModal, setShowContinueModal] = useState(false);
 	const [index, setIndex] = useState(2);
+	const [disableBackCTA, setDisableBackCTA] = useState(false);
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
-	const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
@@ -261,11 +261,19 @@ export default function Product({ product, url }) {
 	}, [response, flowMap]);
 
 	useEffect(() => {
-		if (productId !== productIdPage || timestamp < Date.now()) {
-			clearFlowDetails();
-			clearFormData();
+		try {
+			if (productId !== productIdPage || timestamp < Date.now()) {
+				clearFlowDetails();
+				clearFormData();
+			}
+			completedMenu?.length > 0 && setIndex(completedMenu.length);
+
+			const userDetails = sessionStorage.getItem('userDetails');
+			const editLoan = sessionStorage.getItem('editLoan');
+			if (userDetails || editLoan) setDisableBackCTA(true);
+		} catch (error) {
+			console.error('error-Header-useEffect-', error);
 		}
-		completedMenu?.length > 0 && setIndex(completedMenu.length);
 		// eslint-disable-next-line
 	}, []);
 
@@ -323,7 +331,7 @@ export default function Product({ product, url }) {
 				<Colom1 hide={hide}>
 					<ScrollBox>
 						<HeadingBox onClick={e => {}}>
-							{!editLoanData && !userDetails && (
+							{!disableBackCTA && (
 								<BackButton
 									src={imgBackArrowCircle}
 									alt='goback'
