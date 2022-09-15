@@ -1,27 +1,57 @@
 /* NC loader with animation */
-
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Lottie from 'lottie-react';
 
-import NCLogo from '../shared/constants/NcLogo.json';
-
+import DefaultLogo from '../shared/constants/DefaultLogo.json';
+//import NcLogo from '../shared/constants/NcLogo.json';
 const Wrapper = styled.div`
 	width: 70%;
 	margin: 0 auto;
 `;
 
+//import loader1 from loaderPermission;
+
 export default function Loading(props) {
+	const [loaders, setLoaders] = useState(DefaultLogo);
+
+	let loaderPermission = DefaultLogo;
+	try {
+		loaderPermission = JSON.parse(sessionStorage.getItem('permission'))
+			.color_theme_react.loader_json;
+	} catch (err) {
+		loaderPermission = DefaultLogo;
+	}
+
+	useEffect(() => {
+		fetch(loaderPermission)
+			.then(response => response.json())
+			.then(json => setLoaders(json));
+		// eslint-disable-next-line
+	}, []);
+
 	const { width } = props;
 	return (
 		<Wrapper>
-			<Lottie
-				animationData={NCLogo}
-				// options={{
-				// 	animationData: NCLogo,
-				// }}
-				loop={true}
-				width={width || '100%'}
-			/>
+			{loaderPermission ? (
+				<Lottie
+					animationData={loaders}
+					// options={{
+					// 	animationData: NCLogo,
+					// }}
+					loop={true}
+					width={width || '100%'}
+				/>
+			) : (
+				<Lottie
+					animationData={DefaultLogo}
+					// options={{
+					// 	animationData: NCLogo,
+					// }}
+					loop={true}
+					width={width || '100%'}
+				/>
+			)}
 		</Wrapper>
 	);
 }
