@@ -182,7 +182,12 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	useEffect(() => {
 		sessionStorage.removeItem('pan');
 		// homebranchdropdown();
-		getBranchOptions();
+		let branchField = map?.fields?.['home-loan-details']?.data?.find(field => {
+			return field.name === 'branchId';
+		});
+		if (branchField.visibility) {
+			getBranchOptions();
+		}
 		// sethomeBranchList(dropdown);
 		// eslint-disable-next-line
 	}, []);
