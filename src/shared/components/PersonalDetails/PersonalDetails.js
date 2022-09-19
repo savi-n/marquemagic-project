@@ -14,6 +14,7 @@ import {
 	SEARCH_BANK_BRANCH_LIST,
 	AADHAAR_GENERATE_OTP,
 	HOSTNAME,
+	CO_APP_CREATE_RESPONSE,
 } from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
 import { FlowContext } from 'reducer/flowReducer';
@@ -135,8 +136,7 @@ export default function PersonalDetails(props) {
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const userTokensss = sessionStorage.getItem(HOSTNAME);
 	const sessionCoApplicantRes =
-		JSON.parse(userTokensss).formReducer?.user?.[`co-applicant-details-res`] ||
-		[];
+		JSON.parse(userTokensss).formReducer?.user?.[CO_APP_CREATE_RESPONSE] || [];
 
 	const populateValue = field => {
 		if (!userType && field.disabled) {

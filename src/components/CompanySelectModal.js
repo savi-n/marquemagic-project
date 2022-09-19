@@ -62,7 +62,7 @@ export default function CompanySelectModal({
 }) {
 	//const { register } = useForm();
 	const [company, setCompany] = useState(panExtractionData?.companyName);
-	//console.log('company information', companyList);
+	// console.log('company information', companyList);
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>
 			<ImgClose onClick={onClose} src={imgClose} alt='close' />
@@ -76,7 +76,8 @@ export default function CompanySelectModal({
 							key={company.id}
 							onClick={() =>
 								onCompanySelect(company.CORPORATE_IDENTIFICATION_NUMBER)
-							}>
+							}
+						>
 							<div>{company.COMPANY_NAME}</div>
 							<div>CIN : {company.CORPORATE_IDENTIFICATION_NUMBER}</div>
 						</Company>
@@ -84,7 +85,8 @@ export default function CompanySelectModal({
 				) : (
 					<section
 						className='w-full flex flex-col items-center'
-						style={{ width: '84%' }}>
+						style={{ width: '84%' }}
+					>
 						<section className='py-10'>
 							No data found for the given company
 						</section>

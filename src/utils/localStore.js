@@ -16,6 +16,20 @@ export function getStore() {
 	};
 }
 
+export const getFlowData = id => {
+	try {
+		const formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))
+			?.formReducer;
+		// console.log('formReducer-getFlowData-', { formReducer });
+		return formReducer?.user?.[id] || {};
+	} catch (error) {
+		console.error('error-localStorage-getFlowData-', {
+			error,
+		});
+		return {};
+	}
+};
+
 export function localStoreUserId(data) {
 	sessionStorage.setItem('cub_user_id_dev', JSON.stringify(data));
 }

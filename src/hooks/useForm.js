@@ -343,7 +343,7 @@ export default function useForm() {
 // `;
 
 // function patternSynthesize(value, pattern, name) {
-//   console.log(value, pattern, name);
+// console.log(value, pattern, name);
 //   if (pattern) {
 //     return "***";
 //   }

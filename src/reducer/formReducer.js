@@ -2,6 +2,18 @@ import _ from 'lodash';
 import { createContext, useReducer } from 'react';
 
 import { setStore, getStore } from '../utils/localStore';
+import {
+	APP_DOCTYPE_LIST_REQ_BODY,
+	APP_DOCTYPE_LIST_RESPONSE,
+	BANK_LIST_FETCH_RESPONSE,
+	BUSINESS_PROFILE_REQ_BODY,
+	CO_APP_CREATE_REQ_BODY,
+	CO_APP_CREATE_RESPONSE,
+	CO_APP_DOCTYPE_LIST_REQ_BODY,
+	CO_APP_DOCTYPE_LIST_RESPONSE,
+	LOGIN_CREATEUSER_REQ_BODY,
+	PINCODE_RESPONSE,
+} from '_config/app.config';
 
 const FORM_REDUCER = 'formReducer';
 
@@ -38,6 +50,16 @@ const INIT_ROLE_DATA_TYPES = {
 	cibilData: {},
 	cubStatement: {},
 	otherBankStatement: {},
+	[LOGIN_CREATEUSER_REQ_BODY]: {},
+	[BUSINESS_PROFILE_REQ_BODY]: {},
+	[BANK_LIST_FETCH_RESPONSE]: {},
+	[APP_DOCTYPE_LIST_REQ_BODY]: {},
+	[APP_DOCTYPE_LIST_RESPONSE]: {},
+	[CO_APP_DOCTYPE_LIST_REQ_BODY]: {},
+	[CO_APP_DOCTYPE_LIST_RESPONSE]: {},
+	[CO_APP_CREATE_REQ_BODY]: [],
+	[CO_APP_CREATE_RESPONSE]: [],
+	[PINCODE_RESPONSE]: {},
 };
 
 const INITIAL_STATE = {
@@ -380,10 +402,11 @@ function reducer(state, action) {
 		}
 
 		case actionTypes.SET_FLOW_DATA: {
-			const newState = _.cloneDeep(state);
+			const newState = _.cloneDeep({ ...INITIAL_STATE, ...state });
 			updatedState = {
 				...newState,
 			};
+			// console.log('SET_FLOW_DATA-', { state, action, updatedState });
 			updatedState[action.userType][action.flowId] = action.flowData;
 			break;
 		}

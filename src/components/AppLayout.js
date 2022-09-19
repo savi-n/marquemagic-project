@@ -141,23 +141,26 @@ const AppLayout = () => {
 					}
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
-					const encryptWhiteLabelReq = await newRequest(
-						WHITELABEL_ENCRYPTION_API,
-						{
-							method: 'GET',
-						},
-						{ Authorization: `Bearer ${decryptedToken.token}` }
-					);
 
-					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+					if (!sessionStorage.getItem('encryptWhiteLabel')) {
+						const encryptWhiteLabelReq = await newRequest(
+							WHITELABEL_ENCRYPTION_API,
+							{
+								method: 'GET',
+							},
+							{ Authorization: `Bearer ${decryptedToken.token}` }
+						);
 
-					sessionStorage.setItem(
-						'encryptWhiteLabel',
-						encryptWhiteLabelRes.encrypted_whitelabel[0]
-					);
+						const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+						sessionStorage.setItem(
+							'encryptWhiteLabel',
+							encryptWhiteLabelRes.encrypted_whitelabel[0]
+						);
+					}
 
 					// CreateUser
-					// TODO: integrate create-user api
+					// TODO: integrate create-user api for view/edit mode
 					// const reqBody = {
 					// 	email: formState?.values?.Email || '',
 					// 	white_label_id: whiteLabelId,
@@ -221,6 +224,9 @@ const AppLayout = () => {
 		}
 		// eslint-disable-next-line
 	}, [response]);
+
+	// Test loader here
+	// return <Loading />;
 
 	return loading ? (
 		<Loading />

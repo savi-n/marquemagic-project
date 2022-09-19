@@ -104,7 +104,7 @@ export const generateCaseCreationReqBody = (
 			collateralData.push(data['land-additional-details']);
 		if (data['fishery-additional-details'])
 			collateralData.push(data['fishery-additional-details']);
-		//console.log(
+		// console.log(
 		//'LoanDoccumentUpload-caseCreationDataFormat-collatralData ',
 		//	collatralData
 		//);
@@ -137,7 +137,7 @@ export const generateCaseCreationReqBody = (
 					? JSON.parse(sessionStorage.getItem('formstate'))
 					: {};
 
-				//console.log('corportae Details', corporateDetails);
+				// console.log('corportae Details', corporateDetails);
 				const newBusinessDetails = {
 					first_name: applicantData?.firstName || '',
 					last_name: applicantData?.lastName || '',

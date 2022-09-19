@@ -113,6 +113,18 @@ const USER_ROLES = {
 
 const RESEND_OTP_TIMER = 90;
 
+const LOGIN_CREATEUSER_REQ_BODY = 'login-create-user-reqbody';
+const BUSINESS_PROFILE_REQ_BODY = 'business-profile-reqbody';
+const BANK_LIST_FETCH_RESPONSE = 'bank-list-fetch-response';
+const APP_DOCTYPE_LIST_REQ_BODY = 'app-doctype-list-reqbody';
+const APP_DOCTYPE_LIST_RESPONSE = 'app-doctype-list-response';
+const CO_APP_DOCTYPE_LIST_REQ_BODY = 'co_app-doctype-list-reqbody';
+const CO_APP_DOCTYPE_LIST_RESPONSE = 'co_app-doctype-list-response';
+const CO_APP_DETAILS = 'co-applicant-details';
+const CO_APP_CREATE_REQ_BODY = 'co_app-create-reqbody';
+const CO_APP_CREATE_RESPONSE = 'co_app-create-response';
+const PINCODE_RESPONSE = 'pincode-response';
+
 export {
 	API_END_POINT,
 	OTP_API_END_POINT,
@@ -172,4 +184,15 @@ export {
 	VIEW_DOCUMENT,
 	CO_APPLICANTS_DOCTYPES_FETCH,
 	HOSTNAME,
+	LOGIN_CREATEUSER_REQ_BODY,
+	BUSINESS_PROFILE_REQ_BODY,
+	BANK_LIST_FETCH_RESPONSE,
+	APP_DOCTYPE_LIST_REQ_BODY,
+	APP_DOCTYPE_LIST_RESPONSE,
+	CO_APP_DOCTYPE_LIST_REQ_BODY,
+	CO_APP_DOCTYPE_LIST_RESPONSE,
+	CO_APP_DETAILS,
+	CO_APP_CREATE_REQ_BODY,
+	CO_APP_CREATE_RESPONSE,
+	PINCODE_RESPONSE,
 };
