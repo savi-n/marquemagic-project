@@ -182,7 +182,12 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	useEffect(() => {
 		sessionStorage.removeItem('pan');
 		// homebranchdropdown();
-		getBranchOptions();
+		let branchField = map?.fields?.['home-loan-details']?.data?.find(field => {
+			return field.name === 'branchId';
+		});
+		if (branchField.visibility) {
+			getBranchOptions();
+		}
 		// sethomeBranchList(dropdown);
 		// eslint-disable-next-line
 	}, []);
@@ -196,16 +201,16 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 				loanData?.loan_amount_um
 			).toString(),
 			tenure: loanData?.applied_tenure.toString(),
+			loanType: loanData?.loan_type_id || '',
 			address: {
-				address1: loanData?.address1,
-				address2: loanData?.address2,
-				address3: loanData?.address3,
-				pinCode: loanData?.pinCode,
-				city: loanData?.city,
-				state: loanData?.state,
+				address1: loanData?.address1 || loanData?.loan_assets?.[0]?.address1,
+				address2: loanData?.address2 || loanData?.loan_assets?.[0]?.address2,
+				address3: loanData?.address3 || loanData?.loan_assets?.[0]?.flat_no,
+				pinCode: loanData?.pinCode || loanData?.loan_assets?.[0]?.pincode,
+				city: loanData?.city || loanData?.loan_assets?.[0]?.city,
+				state: loanData?.state || loanData?.loan_assets?.[0]?.state,
 			},
 			branchId: loanData?.branch_id,
-			// loanType:
 		};
 	};
 
@@ -243,6 +248,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 							formState={formState}
 							size='100%'
 							preData={preData?.address}
+							isViewLoan={isViewLoan}
 						/>
 					</FlexColom>
 				)}
