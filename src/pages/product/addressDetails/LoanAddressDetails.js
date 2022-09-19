@@ -211,8 +211,21 @@ const AddressDetailsPage = props => {
 				reqBody.business_id = editLoanData?.business_id?.id;
 				reqBody.baid = editLoanData?.business_address?.[0]?.id;
 			}
-			const oldReqBody = getFlowData(BUSINESS_PROFILE_REQ_BODY);
-			if (!_.isEqual(oldReqBody, reqBody)) {
+			const oldReqBody = getFlowData(BUSINESS_PROFILE_REQ_BODY) || {};
+			if (
+				!_.isEqual(
+					{
+						...oldReqBody,
+						business_id: '',
+						baid: '',
+					},
+					{
+						...reqBody,
+						business_id: '',
+						baid: '',
+					}
+				)
+			) {
 				const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
 					method: 'POST',
 					data: reqBody,

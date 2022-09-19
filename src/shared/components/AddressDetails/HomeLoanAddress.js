@@ -2,7 +2,6 @@
 
 import styled from 'styled-components';
 import { func, object, oneOfType, string, array } from 'prop-types';
-import { useEffect } from 'react';
 
 const H = styled.h1`
 	font-size: 1.5em;
