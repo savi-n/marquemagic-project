@@ -35,9 +35,15 @@ import {
 	AUTHENTICATION_GENERATE_OTP,
 	CO_APPLICANTS_DOCTYPES_FETCH,
 	HOSTNAME,
+	APP_DOCTYPE_LIST_REQ_BODY,
+	APP_DOCTYPE_LIST_RESPONSE,
+	CO_APP_CREATE_RESPONSE,
+	CO_APP_DOCTYPE_LIST_REQ_BODY,
+	CO_APP_DOCTYPE_LIST_RESPONSE,
 } from '_config/app.config';
 import { BussinesContext } from 'reducer/bussinessReducer';
 import { FlowContext } from 'reducer/flowReducer';
+import { FormContext } from 'reducer/formReducer';
 import { AppContext } from 'reducer/appReducer';
 import { CaseContext } from 'reducer/caseReducer';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -47,6 +53,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import { asyncForEach } from 'utils/helper';
 import downArray from 'assets/icons/down_arrow_grey_icon.png';
+import { getFlowData } from 'utils/localStore';
 
 const DocumentUpload = props => {
 	const { productDetails, userType, id, onFlowChange, map, productId } = props;
@@ -83,6 +90,10 @@ const DocumentUpload = props => {
 		state: { flowMap },
 		actions: { setCompleted },
 	} = useContext(FlowContext);
+
+	const {
+		actions: { setFlowData },
+	} = useContext(FormContext);
 
 	const {
 		actions: { setLoanRef },
@@ -155,30 +166,30 @@ const DocumentUpload = props => {
 		business_income_type_id = editLoanData?.business_id?.businesstype;
 	}
 
-	// const coApplicants = formReducer?.user?.['co-applicant-details-res']
-	// 	? formReducer?.user?.['co-applicant-details-res']
+	// const coApplicants = formReducer?.user?.[CO_APP_CREATE_RESPONSE]
+	// 	? formReducer?.user?.[CO_APP_CREATE_RESPONSE]
 	// 	: editLoanCoApplicants;
 	const sessionCoApplicantRes =
-		formReducer?.user?.['co-applicant-details-res'] ||
-		editLoanCoApplicants ||
-		[];
+		formReducer?.user?.[CO_APP_CREATE_RESPONSE] || editLoanCoApplicants || [];
 
 	const getEncryptWhiteLabel = async () => {
 		try {
-			const encryptWhiteLabelReq = await newRequest(
-				WHITELABEL_ENCRYPTION_API,
-				{
-					method: 'GET',
-				},
-				{
-					Authorization: `Bearer ${API_TOKEN}`,
-				}
-			);
-			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-			sessionStorage.setItem(
-				'encryptWhiteLabel',
-				encryptWhiteLabelRes.encrypted_whitelabel[0]
-			);
+			if (!sessionStorage.getItem('encryptWhiteLabel')) {
+				const encryptWhiteLabelReq = await newRequest(
+					WHITELABEL_ENCRYPTION_API,
+					{
+						method: 'GET',
+					},
+					{
+						Authorization: `Bearer ${API_TOKEN}`,
+					}
+				);
+				const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+				sessionStorage.setItem(
+					'encryptWhiteLabel',
+					encryptWhiteLabelRes.encrypted_whitelabel[0]
+				);
+			}
 		} catch (error) {
 			console.error('error-getEncryptWhiteLabel', error);
 		}
@@ -193,11 +204,25 @@ const DocumentUpload = props => {
 					productId[(applicantData?.incomeType)] ||
 					productId[idType],
 			};
-			const applicantDocRes = await axios.post(DOCTYPES_FETCH, reqBody, {
-				headers: {
-					Authorization: `Bearer ${API_TOKEN}`,
-				},
-			});
+			const UID_REQ_ID = `${APP_DOCTYPE_LIST_REQ_BODY}-${
+				reqBody.business_type
+			}-${reqBody.loan_product}`;
+			const UID_RES_ID = `${APP_DOCTYPE_LIST_RESPONSE}-${
+				reqBody.business_type
+			}-${reqBody.loan_product}`;
+			const oldReqBody = await getFlowData(UID_REQ_ID);
+			let applicantDocRes = {};
+			if (!_.isEqual(oldReqBody, reqBody)) {
+				applicantDocRes = await axios.post(DOCTYPES_FETCH, reqBody, {
+					headers: {
+						Authorization: `Bearer ${API_TOKEN}`,
+					},
+				});
+				setFlowData(reqBody, UID_REQ_ID);
+				setFlowData(applicantDocRes, UID_RES_ID);
+			} else {
+				applicantDocRes = await getFlowData(UID_RES_ID);
+			}
 			// console.log('applicantDocRes-', applicantDocRes);
 			const newAppDocOptions = [];
 			for (const key in applicantDocRes?.data) {
@@ -234,24 +259,39 @@ const DocumentUpload = props => {
 		try {
 			if (sessionCoApplicantRes.length > 0) {
 				// http://3.108.54.252:1337/coApplicantDocList?income_type=1
-				const coAppDocTypesRes = await axios.get(
-					`${CO_APPLICANTS_DOCTYPES_FETCH}?income_type=${
-						coApplicant?.income_type
-					}`,
-					{
-						headers: {
-							Authorization: `Bearer ${API_TOKEN}`,
-						},
-					}
-				);
+				const UID_REQ_ID = `${CO_APP_DOCTYPE_LIST_REQ_BODY}-${
+					coApplicant?.income_type
+				}`;
+				const UID_RES_ID = `${CO_APP_DOCTYPE_LIST_RESPONSE}-${
+					coApplicant?.income_type
+				}`;
+				const oldReqBody = await getFlowData(UID_REQ_ID);
+				let coAppDocTypesRes = {};
+				if (!_.isEqual(oldReqBody, UID_REQ_ID)) {
+					coAppDocTypesRes = await axios.get(
+						`${CO_APPLICANTS_DOCTYPES_FETCH}?income_type=${
+							coApplicant?.income_type
+						}`,
+						{
+							headers: {
+								Authorization: `Bearer ${API_TOKEN}`,
+							},
+						}
+					);
+					coAppDocTypesRes = coAppDocTypesRes?.data?.data;
+					setFlowData(UID_REQ_ID, UID_REQ_ID);
+					setFlowData(coAppDocTypesRes, UID_RES_ID);
+				} else {
+					coAppDocTypesRes = await getFlowData(UID_RES_ID);
+				}
 				// console.log('coAppDocTypesRes-', coAppDocTypesRes);
 				// coApplicant
 				// const newIncomeTypeDocTypeList = {};
 				const newDocTypeList = [];
-				for (const key in coAppDocTypesRes?.data?.data) {
+				for (const key in coAppDocTypesRes) {
 					// console.log('coAppDocTypesRes?.data?.data-', { key });
 					// newIncomeTypeDocTypeList[key] = [];
-					coAppDocTypesRes?.data?.data?.[key]?.map(d => {
+					coAppDocTypesRes[key]?.map(d => {
 						let category = '';
 						if (d?.doc_type?.toLowerCase()?.includes(CONST.CATEGORY_KYC))
 							category = CONST.CATEGORY_KYC;
@@ -385,7 +425,7 @@ const DocumentUpload = props => {
 				}
 
 				//**** uploadCacheDocuments
-				//console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
+				// console.log('LoanDocumentsUpload-UPLOAD_CACHE_DOCS-state', state);
 				const uploadCacheDocsArr = [];
 				allTagUnTagDocList.map(doc => {
 					// filtering pre application journey documents
@@ -441,7 +481,7 @@ const DocumentUpload = props => {
 			documentState,
 			editLoanData
 		);
-		//console.log('subsidary 23 ', state);
+		// console.log('subsidary 23 ', state);
 		if (!reqBody) {
 			return true;
 		}

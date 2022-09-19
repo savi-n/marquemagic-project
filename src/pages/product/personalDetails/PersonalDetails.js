@@ -21,9 +21,14 @@ import {
 	NC_STATUS_CODE,
 	WHITELABEL_ENCRYPTION_API,
 	APP_CLIENT,
+	BANK_LIST_FETCH,
+	BANK_LIST_FETCH_RESPONSE,
+	LOGIN_CREATEUSER_REQ_BODY,
 } from '_config/app.config';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import moment from 'moment';
+import { getFlowData } from 'utils/localStore';
+import _ from 'lodash';
 
 const Div = styled.div`
 	flex: 1;
@@ -73,7 +78,7 @@ export default function PersonalDetailsPage({
 	} = useContext(FlowContext);
 
 	const {
-		actions: { setUsertypeApplicantData, setUsertypeBankData },
+		actions: { setUsertypeApplicantData, setUsertypeBankData, setFlowData },
 	} = useContext(FormContext);
 
 	const {
@@ -130,49 +135,69 @@ export default function PersonalDetailsPage({
 				return err;
 			}
 		}
-		// if (!userToken) {
-		const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-			method: 'POST',
-			data: reqBody,
-		});
 
-		const userDataRes = userDetailsReq.data;
+		const oldReqBody = await getFlowData(LOGIN_CREATEUSER_REQ_BODY);
+		if (!_.isEqual(oldReqBody, reqBody)) {
+			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+				method: 'POST',
+				data: reqBody,
+			});
+			setFlowData(reqBody, LOGIN_CREATEUSER_REQ_BODY);
+			const userDataRes = userDetailsReq.data;
 
-		if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
-			sessionStorage.setItem('userToken', userDataRes.token);
+			if (userDataRes.statusCode === NC_STATUS_CODE.NC200) {
+				sessionStorage.setItem('userToken', userDataRes.token);
+				if (!sessionStorage.getItem('encryptWhiteLabel')) {
+					const encryptWhiteLabelReq = await newRequest(
+						WHITELABEL_ENCRYPTION_API,
+						{
+							method: 'GET',
+						},
+						{ Authorization: `Bearer ${userDataRes.token}` }
+					);
 
-			const encryptWhiteLabelReq = await newRequest(
-				WHITELABEL_ENCRYPTION_API,
-				{
-					method: 'GET',
-				},
-				{ Authorization: `Bearer ${userDataRes.token}` }
-			);
+					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
-
-			sessionStorage.setItem(
-				'encryptWhiteLabel',
-				encryptWhiteLabelRes.encrypted_whitelabel[0]
-			);
+					sessionStorage.setItem(
+						'encryptWhiteLabel',
+						encryptWhiteLabelRes.encrypted_whitelabel[0]
+					);
+				}
+			}
+			// fetch BANK-LIST to avoid repetate api call's
+			try {
+				const bankListRes = await newRequest(
+					BANK_LIST_FETCH,
+					{
+						method: 'GET',
+					},
+					{ Authorization: `Bearer ${userDataRes.token}` }
+				);
+				// console.log('formconroller-fetch-bank-list-res', bankListRes);
+				if (bankListRes?.data?.length > 0) {
+					setFlowData(bankListRes?.data, BANK_LIST_FETCH_RESPONSE);
+				}
+			} catch (error) {
+				console.error('error-formcontroller-fetch-bank-list-', error);
+			}
+			// --fetch BANK-LIST
+			const userData = {
+				// userAccountToken: userDetailsReq.accToken,
+				// userDetails: userDetailsReq.userDetails,
+				// userBankDetails: userDetailsReq.cubDetails,
+				...userDataRes,
+				bankId: userDataRes.bankId,
+				branchId: userDataRes.branchId,
+				userToken: userDataRes.token,
+			};
+			setUserId(userDataRes.userId);
+			setUserDetails(userData);
+			setUsertypeBankData({
+				bankId: userDataRes.bankId,
+				branchId: userDataRes.branchId,
+			});
+			// }
 		}
-
-		const userData = {
-			// userAccountToken: userDetailsReq.accToken,
-			// userDetails: userDetailsReq.userDetails,
-			// userBankDetails: userDetailsReq.cubDetails,
-			...userDataRes,
-			bankId: userDataRes.bankId,
-			branchId: userDataRes.branchId,
-			userToken: userDataRes.token,
-		};
-		setUserId(userDataRes.userId);
-		setUserDetails(userData);
-		setUsertypeBankData({
-			bankId: userDataRes.bankId,
-			branchId: userDataRes.branchId,
-		});
-		// }
 
 		setUsertypeApplicantData({
 			...data,
