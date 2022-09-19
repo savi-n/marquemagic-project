@@ -144,6 +144,9 @@ const AddressDetailsPage = props => {
 	};
 
 	const businessProfileUpdate = async formData => {
+		// console.log('333', applicantData?.mobileNo || companyData?.mobileNo);
+		let personalDataFormState = JSON.parse(sessionStorage.getItem('formstate'));
+		// console.log(personalDataFormState.mobileNo, '111');
 		try {
 			if (!companyData) {
 				companyData =
@@ -167,7 +170,11 @@ const AddressDetailsPage = props => {
 					companyData?.Email ||
 					formReducer?.user['business-details']?.Email ||
 					'',
-				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
+				contactNo:
+					personalDataFormState?.mobileNo ||
+					applicantData?.mobileNo ||
+					companyData?.mobileNo ||
+					'',
 				gstin:
 					applicantData?.GSTVerification || companyData?.GSTVerification || '',
 				businessStartDate: '4/8/90',
