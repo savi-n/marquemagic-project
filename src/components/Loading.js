@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Lottie from 'lottie-react';
 
-import DefaultLogo from '../shared/constants/DefaultLogo.json';
+import DefaultLogo from 'shared/constants/DefaultLogo.json';
 //import NcLogo from '../shared/constants/NcLogo.json';
+
 const Wrapper = styled.div`
 	width: 70%;
 	margin: 0 auto;
@@ -15,43 +16,32 @@ const Wrapper = styled.div`
 export default function Loading(props) {
 	const [loaders, setLoaders] = useState(DefaultLogo);
 
-	let loaderPermission = DefaultLogo;
-	try {
-		loaderPermission = JSON.parse(sessionStorage.getItem('permission'))
-			.color_theme_react.loader_json;
-	} catch (err) {
-		loaderPermission = DefaultLogo;
-	}
-
 	useEffect(() => {
-		fetch(loaderPermission)
-			.then(response => response.json())
-			.then(json => setLoaders(json));
+		let loaderPermission = DefaultLogo;
+		try {
+			loaderPermission = JSON.parse(sessionStorage.getItem('permission'))
+				.color_theme_react.loader_json;
+			fetch(loaderPermission)
+				.then(response => response.json())
+				.then(json => setLoaders(json));
+		} catch (error) {
+			console.error('Loading-loaderpermission-', error);
+		}
 		// eslint-disable-next-line
 	}, []);
 
 	const { width } = props;
+
 	return (
 		<Wrapper>
-			{loaderPermission ? (
-				<Lottie
-					animationData={loaders}
-					// options={{
-					// 	animationData: NCLogo,
-					// }}
-					loop={true}
-					width={width || '100%'}
-				/>
-			) : (
-				<Lottie
-					animationData={DefaultLogo}
-					// options={{
-					// 	animationData: NCLogo,
-					// }}
-					loop={true}
-					width={width || '100%'}
-				/>
-			)}
+			<Lottie
+				animationData={loaders}
+				// options={{
+				// 	animationData: NCLogo,
+				// }}
+				loop={true}
+				width={width || '100%'}
+			/>
 		</Wrapper>
 	);
 }
