@@ -15,6 +15,14 @@ export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_PASSPORT,
 ];
 
+export const EXTRACTION_KEYS = [
+	EXTRACTION_KEY_AADHAAR,
+	EXTRACTION_KEY_DL,
+	EXTRACTION_KEY_VOTERID,
+	EXTRACTION_KEY_PASSPORT,
+	EXTRACTION_KEY_PAN,
+];
+
 export const addressProofRadioButtonList = [
 	{ key: EXTRACTION_KEY_AADHAAR, name: 'Aadhaar' },
 	{ key: EXTRACTION_KEY_VOTERID, name: 'Voter ID' },
