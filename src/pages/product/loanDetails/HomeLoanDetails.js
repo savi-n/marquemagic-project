@@ -99,13 +99,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-	// console.log(editLoanData, '777');
 	const onProceed = data => {
 		!isViewLoan && onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};
-
 	const onSave = data => {
 		const {
 			branchId,
