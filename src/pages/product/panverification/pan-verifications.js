@@ -581,7 +581,7 @@ const PanVerification = props => {
 				return;
 			}
 			if (panExtractionData?.panNumber) {
-				const lastFourDigitsValidation = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(
+				const lastFourDigitsValidation = /^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/.test(
 					panExtractionData?.panNumber
 				);
 
