@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Lottie from 'lottie-react';
 
-import DefaultLogo from 'shared/constants/DefaultLogo.json';
+import DefaultLogo from 'shared/constants/generic_loader_1.json';
 //import NcLogo from '../shared/constants/NcLogo.json';
 
 const Wrapper = styled.div`
