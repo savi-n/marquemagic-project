@@ -57,6 +57,7 @@ import { getFlowData } from 'utils/localStore';
 
 const DocumentUpload = props => {
 	const { productDetails, userType, id, onFlowChange, map, productId } = props;
+	//console.log('productDetails from document upload', props);
 	const aTag = (
 		<a
 			href={productDetails?.termsandconditionsurl}

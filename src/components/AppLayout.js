@@ -217,6 +217,12 @@ const AppLayout = () => {
 		}
 		if (response) {
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
+
+			sessionStorage.setItem(
+				'permission',
+				JSON.stringify(response?.permission)
+			);
+
 			setWhitelabelId(response?.permission?.id);
 			setLogo(response?.permission?.logo);
 			fetchData();
