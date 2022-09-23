@@ -10,7 +10,7 @@ import { useContext, useEffect, Fragment } from 'react';
 import { useState } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
-
+import { EXTRACTION_KEYS } from 'pages/product/panverification/const';
 import Button from 'components/Button';
 import CheckBox from 'shared/components/Checkbox/CheckBox';
 import FileUpload from 'shared/components/FileUpload/FileUpload';
@@ -57,6 +57,7 @@ import { getFlowData } from 'utils/localStore';
 
 const DocumentUpload = props => {
 	const { productDetails, userType, id, onFlowChange, map, productId } = props;
+	//console.log('productDetails from document upload', props);
 	const aTag = (
 		<a
 			href={productDetails?.termsandconditionsurl}
@@ -430,7 +431,13 @@ const DocumentUpload = props => {
 				allTagUnTagDocList.map(doc => {
 					// filtering pre application journey documents
 					if (doc.requestId && doc.typeId) {
-						const ele = { request_id: doc.requestId, doc_type_id: doc.typeId };
+						const ele = {
+							request_id: doc.requestId,
+							doc_type_id: doc.typeId,
+							deleteDocument: EXTRACTION_KEYS?.includes(doc.req_type)
+								? true
+								: false,
+						};
 						uploadCacheDocsArr.push(ele);
 					}
 					return null;
