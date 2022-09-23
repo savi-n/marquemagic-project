@@ -19,8 +19,9 @@ export default function Loading(props) {
 	useEffect(() => {
 		let loaderPermission = DefaultLogo;
 		try {
-			loaderPermission = JSON.parse(sessionStorage.getItem('permission'))
-				.color_theme_react.loader_json;
+			loaderPermission =
+				JSON.parse(sessionStorage.getItem('permission'))?.color_theme_react
+					?.loader_json || DefaultLogo;
 			fetch(loaderPermission)
 				.then(response => response.json())
 				.then(json => setLoaders(json));
