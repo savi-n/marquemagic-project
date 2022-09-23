@@ -282,32 +282,35 @@ const PanVerification = props => {
 
 				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
 					sessionStorage.setItem('userToken', userDetailsRes.token);
-					const encryptWhiteLabelReq = await newRequest(
-						WHITELABEL_ENCRYPTION_API,
-						{
-							method: 'GET',
-						},
-						{ Authorization: `Bearer ${userDetailsRes.token}` }
-					);
 
-					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+					if (!sessionStorage.getItem('encryptWhiteLabel')) {
+						const encryptWhiteLabelReq = await newRequest(
+							WHITELABEL_ENCRYPTION_API,
+							{
+								method: 'GET',
+							},
+							{ Authorization: `Bearer ${userDetailsRes.token}` }
+						);
 
-					sessionStorage.setItem(
-						'encryptWhiteLabel',
-						encryptWhiteLabelRes.encrypted_whitelabel[0]
-					);
+						const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-					if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-						setCompanyDetails({
-							token: userDetailsRes.token,
-							userId: userDetailsRes.userId,
-							branchId: userDetailsRes.branchId,
-							encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-							...CONST.formatCompanyData(
-								companyData.data,
-								extractionDataRes.panNumber
-							),
-						});
+						sessionStorage.setItem(
+							'encryptWhiteLabel',
+							encryptWhiteLabelRes.encrypted_whitelabel[0]
+						);
+					}
+					// if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+					setCompanyDetails({
+						token: userDetailsRes.token,
+						userId: userDetailsRes.userId,
+						branchId: userDetailsRes.branchId,
+						// encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+						encryptedWhitelabel: sessionStorage.getItem('encryptWhiteLabel'),
+						...CONST.formatCompanyData(
+							companyData.data,
+							extractionDataRes.panNumber
+						),
+					});
 					proceedToNextSection();
 					return;
 				}
@@ -522,7 +525,7 @@ const PanVerification = props => {
 	// }, [otherDoc, aadhar, voter, backUploading]);
 
 	const handleFileRemovePan = docId => {
-		//console.log('handleFileRemovePan docId-', docId);
+		// console.log('handleFileRemovePan docId-', docId);
 		removeAllLoanDocuments();
 		setRemoveAllFileUploads(!removeAllFileUploads);
 		resetAllErrors();
@@ -675,7 +678,7 @@ const PanVerification = props => {
 	// Pancard extraction function
 	const handleExtractionPan = async () => {
 		try {
-			//	console.log('handleExtractionPan-', panDoc);
+			// console.log('handleExtractionPan-', panDoc);
 			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', product_id);
@@ -850,7 +853,7 @@ const PanVerification = props => {
 	};
 
 	const handleFileRemoveAddressProof = docId => {
-		//console.log('handleFileRemoveAddressProof docId-', docId);
+		// console.log('handleFileRemoveAddressProof docId-', docId);
 		removeAllAddressProofLoanDocuments();
 		resetAllErrors();
 		// const newAddressProofDocs = _.cloneDeep(

@@ -90,6 +90,7 @@ export default function FileUpload(props) {
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 
 	const onCancel = (file, status) => {
 		const newUploadingFiles = [];
@@ -908,10 +909,11 @@ export default function FileUpload(props) {
 									if (!isViewMoreClicked && index > 2) return null;
 									const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
 									let isDocRemoveAllowed = true;
-
-									// console.log('mappedDocFiles-', { doc });
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
+									}
+									if (isEditLoan && doc?.document_delete === 'true') {
+										isDocRemoveAllowed = false;
 									}
 									return (
 										<UI.File

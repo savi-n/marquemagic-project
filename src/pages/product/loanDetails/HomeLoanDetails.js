@@ -99,13 +99,11 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-
 	const onProceed = data => {
 		!isViewLoan && onSave(data);
 		setCompleted(id);
 		onFlowChange(map.main);
 	};
-
 	const onSave = data => {
 		const {
 			branchId,
@@ -182,7 +180,12 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 	useEffect(() => {
 		sessionStorage.removeItem('pan');
 		// homebranchdropdown();
-		getBranchOptions();
+		let branchField = map?.fields?.['home-loan-details']?.data?.find(field => {
+			return field.name === 'branchId';
+		});
+		if (branchField.visibility) {
+			getBranchOptions();
+		}
 		// sethomeBranchList(dropdown);
 		// eslint-disable-next-line
 	}, []);
@@ -190,22 +193,48 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 		return Math.round(value * valueConversion[k || 'One']);
 	};
 	const formatEditLoanData = loanData => {
+		// console.log(loanData, '222');
 		return {
 			loanAmount: amountConverter(
 				loanData?.loan_amount,
 				loanData?.loan_amount_um
 			).toString(),
 			tenure: loanData?.applied_tenure.toString(),
+			loanType: loanData?.loan_assets?.[0]?.loan_type || '',
 			address: {
-				address1: loanData?.address1,
-				address2: loanData?.address2,
-				address3: loanData?.address3,
-				pinCode: loanData?.pinCode,
-				city: loanData?.city,
-				state: loanData?.state,
+				address1: loanData?.address1 || loanData?.loan_assets?.[0]?.address1,
+				address2: loanData?.address2 || loanData?.loan_assets?.[0]?.address2,
+				address3: loanData?.address3 || loanData?.loan_assets?.[0]?.flat_no,
+				pinCode: loanData?.pinCode || loanData?.loan_assets?.[0]?.pincode,
+				city: loanData?.city || loanData?.loan_assets?.[0]?.city,
+				state: loanData?.state || loanData?.loan_assets?.[0]?.state,
 			},
 			branchId: loanData?.branch_id,
-			// loanType:
+
+			outstanding: loanData?.loan_assets?.[0]?.loan_json?.outstanding || '',
+
+			constructionValue:
+				loanData?.loan_assets?.[0]?.loan_json?.constructionValue || '',
+			constructionArchitectValue:
+				loanData?.loan_assets?.[0]?.loan_json?.constructionArchitectValue || '',
+			salesValue: loanData?.loan_assets?.[0]?.loan_json?.salesValue || '',
+			landValue: loanData?.loan_assets?.[0]?.loan_json?.landValue || '',
+			bank: loanData?.loan_assets?.[0]?.loan_json?.bank || '',
+			bankName: loanData?.loan_assets?.[0]?.loan_json?.bankName || '',
+			// option1 - select a loan type
+			// bank: - n/a
+			// outstanding: - done
+			// bankName - n/a
+
+			// option2- construction of house or flat
+			// constructionValue - done
+			// constructionArchitectValue - done
+
+			// option3- purchase of house site and construction
+			// landValue - done
+
+			// option4- purchase of ready built house
+			// salesValue - done
 		};
 	};
 
@@ -243,6 +272,7 @@ export default function HomeLoanDetailsPage({ id, map, onFlowChange }) {
 							formState={formState}
 							size='100%'
 							preData={preData?.address}
+							isViewLoan={isViewLoan}
 						/>
 					</FlexColom>
 				)}
