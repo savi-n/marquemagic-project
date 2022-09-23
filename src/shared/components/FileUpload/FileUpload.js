@@ -912,7 +912,7 @@ export default function FileUpload(props) {
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 									}
-									if (isEditLoan && doc?.deleteDocument) {
+									if (isEditLoan && doc?.deleteDocument === 'true') {
 										isDocRemoveAllowed = false;
 									}
 									return (
