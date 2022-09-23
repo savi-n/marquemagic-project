@@ -10,7 +10,7 @@ import { useContext, useEffect, Fragment } from 'react';
 import { useState } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
-import { EXTRACTION_KEYS } from '../panverification/const';
+import { EXTRACTION_KEYS } from 'pages/product/panverification/const';
 import Button from 'components/Button';
 import CheckBox from 'shared/components/Checkbox/CheckBox';
 import FileUpload from 'shared/components/FileUpload/FileUpload';
