@@ -331,10 +331,26 @@ const DocumentUpload = props => {
 		files.map(f => newFiles.push({ ...f, ...meta }));
 		setLoanDocuments(newFiles);
 	};
-
+	const removeFileFromSessionStorage = file => {
+		let cloneEditLoan = _.cloneDeep(editLoanData);
+		let filteredFileData = editLoanData.loan_document.filter(
+			doc => doc.id !== file.doc_id
+		);
+		cloneEditLoan.loan_document = filteredFileData;
+		sessionStorage.removeItem('editLoan');
+		sessionStorage.setItem('editLoan', JSON.stringify(cloneEditLoan));
+	};
 	const handleFileRemove = async (fileId, file) => {
-		// console.log('handleFileRemove-', { allTagUnTagDocList, fileId, file });
+		// console.log('handleFileRemove-', {
+		// 	allTagUnTagDocList,
+		// 	fileId,
+		// 	file: file.doc_id,
+		// 	prefilledDocs,
+		// });
 		removeLoanDocument(fileId, file);
+		if (isEditLoan) {
+			removeFileFromSessionStorage(file);
+		}
 	};
 
 	const handleDocumentTypeChange = async (fileId, type) => {
