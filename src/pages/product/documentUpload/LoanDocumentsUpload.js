@@ -1242,6 +1242,7 @@ const DocumentUpload = props => {
 	}
 	// don't delete-unusuall error on useeffect conditional rendering
 	if (loading) return <></>;
+	if (loading) return <></>;
 
 	return (
 		<>
