@@ -171,8 +171,9 @@ const DocumentUpload = props => {
 	// 	? formReducer?.user?.[CO_APP_CREATE_RESPONSE]
 	// 	: editLoanCoApplicants;
 	const sessionCoApplicantRes =
-		formReducer?.user?.[CO_APP_CREATE_RESPONSE] || editLoanCoApplicants || [];
-
+		formReducer?.user?.[CO_APP_CREATE_RESPONSE].length > 0
+			? formReducer?.user?.[CO_APP_CREATE_RESPONSE]
+			: editLoanCoApplicants || [];
 	const getEncryptWhiteLabel = async () => {
 		try {
 			if (!sessionStorage.getItem('encryptWhiteLabel')) {
