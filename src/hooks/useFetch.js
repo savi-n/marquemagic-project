@@ -49,7 +49,7 @@ export default function useFetch({
 				setLoading(false);
 			}
 		};
-		if (isViewLoan) return;
+		if (isViewLoan && url === BANK_LIST_FETCH) return;
 		if (url === BANK_LIST_FETCH) {
 			const oldBankList = getFlowData(BANK_LIST_FETCH_RESPONSE);
 			if (oldBankList && oldBankList?.length > 0) {
