@@ -20,6 +20,7 @@ import Modal from 'components/Modal';
 import WarnIcon from 'assets/icons/amber_warning_icon.png';
 import ErrorIcon from 'assets/icons/Red_error_icon.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import Hint from 'components/Hint';
 import {
 	ROC_DATA_FETCH,
 	LOGIN_CREATEUSER,
@@ -1316,11 +1317,15 @@ const PanVerification = props => {
 			</Modal>
 			{screen === CONST.SCREEN_PAN && (
 				<section className='flex flex-col gap-y-6'>
-					<p className='py-4 text-xl'>
+					<p className='py-2 text-xl'>
 						Upload your PAN Card{' '}
 						{/* <Span>supported formats - jpeg, png, jpg</Span> */}
 					</p>
 					{/* PAN UPLOAD SECTION */}
+					<Hint
+						hint={'Please upload the document with KYC image in Portrait Mode '}
+						hintIconName={'Portrait Mode'}
+					/>
 					<FileUpload
 						accept=''
 						upload={true}
@@ -1404,6 +1409,12 @@ const PanVerification = props => {
 							}
 						}}
 					>
+						<Hint
+							hint={
+								'Please upload the document with KYC image in Portrait Mode '
+							}
+							hintIconName={'Portrait Mode'}
+						/>
 						{/* ADDRESS PROOF UPLOAD SECTION */}
 						<FileUpload
 							isInActive={isInActiveAddressProofUpload}
