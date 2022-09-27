@@ -12,10 +12,9 @@ import Info from 'assets/images/hint/info_icon.png';
 import Button from './Button';
 const HintText = styled.div`
 	/* color: #8ec5f3; */
-	color: blue;
+	color: #007cff;
 	cursor: default;
 	display: flex;
-	margin-bottom: 10px;
 	@media (max-width: 768px) {
 		display: block;
 	}
@@ -48,18 +47,24 @@ const HintIconBadge = styled.div`
 `;
 const ModalTitle = styled.div`
 	text-align: center;
-	font-size: x-large;
+	font-size: large;
 	font-weight: bold;
 `;
 const HintImages = styled.img`
 	height: auto;
 	display: block;
-	margin-left: auto;
-	margin-right: auto;
 `;
 const ModalBody = styled.div`
 	display: flex;
 	margin: 20px 0 20px 0;
+	justify-content: center;
+	gap: 32.5%;
+`;
+const ModalImages = styled.div`
+	display: flex;
+	margin: 20px 0 20px 0;
+	justify-content: center;
+	gap: 15%;
 `;
 const ButtonWrapper = styled.div`
 	text-align: center;
@@ -83,7 +88,7 @@ function Hint(props) {
 						onClose={() => {
 							setShow(false);
 						}}
-						width='35%'
+						width='40%'
 					>
 						<section className='p-4 flex flex-col gap-y-8'>
 							<UI.ImgClose
@@ -98,13 +103,13 @@ function Hint(props) {
 							Please upload your document in Portrait Mode.
 						</ModalTitle>
 						<ModalBody>
-							<HintImages style={{ width: 50 }} src={GreenTick} />
-							<HintImages style={{ width: 50 }} src={RedTick} />
+							<HintImages style={{ width: 30 }} src={GreenTick} />
+							<HintImages style={{ width: 30 }} src={RedTick} />
 						</ModalBody>
-						<ModalBody>
-							<HintImages style={{ width: 150 }} src={PortraitRight} />
-							<HintImages style={{ width: 150 }} src={PortraitWrong} />
-						</ModalBody>
+						<ModalImages>
+							<HintImages style={{ width: 120 }} src={PortraitWrong} />
+							<HintImages style={{ width: 120 }} src={PortraitRight} />
+						</ModalImages>
 						<ButtonWrapper>
 							<Button
 								customStyle={{

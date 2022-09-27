@@ -1316,7 +1316,7 @@ const PanVerification = props => {
 				</UI.DocTypeChangeModalBody>
 			</Modal>
 			{screen === CONST.SCREEN_PAN && (
-				<section className='flex flex-col gap-y-6'>
+				<section className='flex flex-col gap-y-1'>
 					<p className='py-2 text-xl'>
 						Upload your PAN Card{' '}
 						{/* <Span>supported formats - jpeg, png, jpg</Span> */}
