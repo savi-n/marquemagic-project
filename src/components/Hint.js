@@ -15,6 +15,7 @@ const HintText = styled.div`
 	color: #007cff;
 	cursor: default;
 	display: flex;
+	margin-bottom: 2px;
 	@media (max-width: 768px) {
 		display: block;
 	}
@@ -58,13 +59,16 @@ const ModalBody = styled.div`
 	display: flex;
 	margin: 20px 0 20px 0;
 	justify-content: center;
-	gap: 32.5%;
+	gap: 140px;
+	@media (max-width: 768px) {
+		gap: 130px;
+	}
 `;
 const ModalImages = styled.div`
 	display: flex;
 	margin: 20px 0 20px 0;
 	justify-content: center;
-	gap: 15%;
+	gap: 50px;
 `;
 const ButtonWrapper = styled.div`
 	text-align: center;
@@ -107,8 +111,8 @@ function Hint(props) {
 							<HintImages style={{ width: 30 }} src={RedTick} />
 						</ModalBody>
 						<ModalImages>
-							<HintImages style={{ width: 120 }} src={PortraitWrong} />
 							<HintImages style={{ width: 120 }} src={PortraitRight} />
+							<HintImages style={{ width: 120 }} src={PortraitWrong} />
 						</ModalImages>
 						<ButtonWrapper>
 							<Button
