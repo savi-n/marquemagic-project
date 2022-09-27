@@ -169,7 +169,9 @@ const editLoanRestrictedSections = [
 	'identity-verification',
 	'application-submitted',
 ];
-export default function Product({ product, url }) {
+export default function Product(props) {
+	const { product } = props;
+	// console.log('Product-allStates-', { props });
 	const history = useHistory();
 	const productIdPage = atob(product);
 	const { addToast } = useToasts();
