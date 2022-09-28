@@ -22,9 +22,11 @@ export default function Loading(props) {
 			loaderPermission =
 				JSON.parse(sessionStorage.getItem('permission'))?.color_theme_react
 					?.loader_json || DefaultLogo;
-			fetch(loaderPermission)
-				.then(response => response.json())
-				.then(json => setLoaders(json));
+			if (typeof loaderPermission === 'string') {
+				fetch(loaderPermission)
+					.then(response => response.json())
+					.then(json => setLoaders(json));
+			}
 		} catch (error) {
 			console.error('Loading-loaderpermission-', error);
 		}
