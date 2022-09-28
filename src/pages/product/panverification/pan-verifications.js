@@ -168,10 +168,7 @@ const PanVerification = props => {
 				selectedAddressProof !== CONST.EXTRACTION_KEY_AADHAAR
 			) {
 				const reqBody = {
-					doc_ref_id:
-						selectedAddressProof === CONST.EXTRACTION_KEY_PAN
-							? extractionData?.doc_ref_id
-							: extractionData?.doc_ref_id,
+					doc_ref_id: selectedAddressProof === extractionData?.doc_ref_id,
 					doc_type: selectedAddressProof,
 				};
 				if (selectedAddressProof === CONST.EXTRACTION_KEY_PAN) {
@@ -819,7 +816,8 @@ const PanVerification = props => {
 		if (address) {
 			let locationArr = address && address?.split(' ');
 			// eslint-disable-next-line
-			let y = locationArr?.map(e => Number(e) !== NaN && e);
+			let y = locationArr?.map(e => !Number(isNaN(e)) && e);
+			// return Number(e) !== NaN && e;
 			let pin;
 			y.map(e => {
 				if (e?.length === 6) pin = e;
