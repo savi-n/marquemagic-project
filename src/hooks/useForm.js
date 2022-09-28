@@ -63,7 +63,8 @@ const VALIDATION_RULES = {
 	},
 	email: {
 		// eslint-disable-next-line
-		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
+		// func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
+		func: validatePattern(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
 	pastDates: {
@@ -233,7 +234,6 @@ export default function useForm() {
 				newField.rules = {};
 			}
 		}
-
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
