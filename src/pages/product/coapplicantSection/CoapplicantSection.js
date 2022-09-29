@@ -425,39 +425,39 @@ const CoapplicantDetailsSection = props => {
 			// 	oldPrePopulateCoApplicants,
 			// 	newCoApplicantValues,
 			// });
-			if (!_.isEqual(oldPrePopulateCoApplicants, newCoApplicantValues)) {
-				try {
-					const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
-						method: 'POST',
-						data: reqBody,
-						headers: {
-							Authorization: `Bearer ${userToken ||
-								sessionStorage.getItem('userToken')}`,
-						},
-					});
-					let submitCoAppRes = submitCoapplicantsReq?.data?.data;
-					setFlowData(
-						reqBody.co_applicant_director_partner_data,
-						CO_APP_CREATE_REQ_BODY
-					);
-					setFlowData(
-						submitCoAppRes.sort((a, b) => a.id - b.id),
-						CO_APP_CREATE_RESPONSE
-					);
-					addToast({
-						message: 'Saved Succesfully',
-						type: 'success',
-					});
-				} catch (er) {
-					console.error(er);
-					setLoading(false);
-					addToast({
-						message: 'Server down, try after sometime',
-						type: 'error',
-					});
-					return;
-				}
+			// if (!_.isEqual(oldPrePopulateCoApplicants, newCoApplicantValues)) {
+			try {
+				const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
+					method: 'POST',
+					data: reqBody,
+					headers: {
+						Authorization: `Bearer ${userToken ||
+							sessionStorage.getItem('userToken')}`,
+					},
+				});
+				let submitCoAppRes = submitCoapplicantsReq?.data?.data;
+				setFlowData(
+					reqBody.co_applicant_director_partner_data,
+					CO_APP_CREATE_REQ_BODY
+				);
+				setFlowData(
+					submitCoAppRes.sort((a, b) => a.id - b.id),
+					CO_APP_CREATE_RESPONSE
+				);
+				addToast({
+					message: 'Saved Succesfully',
+					type: 'success',
+				});
+			} catch (er) {
+				console.error(er);
+				setLoading(false);
+				addToast({
+					message: 'Server down, try after sometime',
+					type: 'error',
+				});
+				return;
 			}
+			// }
 			const storeData = JSON.stringify(data);
 			const tempObject = storeData.replaceAll('permanent_', '');
 			const changedData = JSON.parse(tempObject);
