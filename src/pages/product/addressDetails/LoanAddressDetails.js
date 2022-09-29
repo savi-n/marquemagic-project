@@ -152,7 +152,7 @@ const AddressDetailsPage = props => {
 	const updateBusinessProfile = async formData => {
 		// console.log('333', applicantData?.mobileNo || companyData?.mobileNo);
 		let personalDataFormState = JSON.parse(sessionStorage.getItem('formstate'));
-		// console.log(personalDataFormState.mobileNo, '111');
+		// console.log(personalDataFormState, '111');
 		try {
 			if (!companyData) {
 				companyData =
@@ -160,18 +160,24 @@ const AddressDetailsPage = props => {
 					JSON.parse(sessionStorage.getItem('companyData'));
 			}
 			const reqBody = {
-				first_name: applicantData?.firstName || '',
-				last_name: applicantData?.lastName || '',
+				first_name:
+					personalDataFormState?.firstName || applicantData?.firstName || '',
+				last_name:
+					personalDataFormState?.lastName || applicantData?.lastName || '',
 				businessName:
 					applicantData?.firstName ||
 					sessionStorage.getItem('BusinessName') ||
 					companyData?.BusinessName ||
 					'',
 				businessPancardNumber:
-					applicantData?.panNumber || companyData?.panNumber || '',
+					personalDataFormState?.panNumber ||
+					applicantData?.panNumber ||
+					companyData?.panNumber ||
+					'',
 				// // crime_check: "Yes",,
 				businessPancardFdkey: '',
 				businessEmail:
+					personalDataFormState?.email ||
 					applicantData?.email ||
 					companyData?.email ||
 					companyData?.Email ||
@@ -212,6 +218,7 @@ const AddressDetailsPage = props => {
 				reqBody.baid = editLoanData?.business_address?.[0]?.id;
 			}
 			const oldReqBody = getFlowData(BUSINESS_PROFILE_REQ_BODY) || {};
+			// console.log(oldReqBody, '999', reqBody);
 			if (
 				!_.isEqual(
 					{
