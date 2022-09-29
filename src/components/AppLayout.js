@@ -21,8 +21,8 @@ import {
 	APP_CLIENT,
 	API_END_POINT,
 	WHITELABEL_ENCRYPTION_API,
-} from '../_config/app.config.js';
-import { AppContext } from '../reducer/appReducer';
+} from '_config/app.config.js';
+import { AppContext } from 'reducer/appReducer';
 import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
 

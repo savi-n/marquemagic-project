@@ -11,8 +11,8 @@ export default function useFetch({
 	const [response, setResponse] = useState(null);
 	const [error, setError] = useState(null);
 	const [loading, setLoading] = useState(true);
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	// const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	// const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	headers = {
 		'Content-Type': 'application/json',
@@ -49,7 +49,6 @@ export default function useFetch({
 				setLoading(false);
 			}
 		};
-		if (isViewLoan && url === BANK_LIST_FETCH) return;
 		if (url === BANK_LIST_FETCH) {
 			const oldBankList = getFlowData(BANK_LIST_FETCH_RESPONSE);
 			if (oldBankList && oldBankList?.length > 0) {

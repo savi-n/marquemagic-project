@@ -390,6 +390,7 @@ export default function FormController({
 	};
 
 	const formatSubsidiaryData = subsidiaryData => {
+		// console.log('formatSubsidiaryData-', { subsidiaryData });
 		return {
 			SubsidiaryName: subsidiaryData?.business_name,
 			BankName: subsidiaryData?.SubsidiaryName || subsidiaryData?.bank_name,
