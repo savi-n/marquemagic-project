@@ -36,9 +36,9 @@ const HintIcon = styled.div`
 	display: flex;
 	margin-left: 5px;
 	font-size: small;
+	width: fit-content;
 	@media (max-width: 768px) {
 		display: flex;
-		width: 50%;
 		margin-top: 10px;
 		padding: 6px 6px 6px 6px;
 	}
