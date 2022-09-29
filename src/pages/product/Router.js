@@ -133,7 +133,7 @@ export default function Router({
 		return <Loading />;
 	}
 	const amountConverter = (value, k) => {
-		return value * valueConversion[k || 'One'];
+		return Math.trunc(value * valueConversion[k]);
 	};
 	const formatCompanyData = (companyData, allData) => {
 		return {
