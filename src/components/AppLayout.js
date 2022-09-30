@@ -21,8 +21,8 @@ import {
 	APP_CLIENT,
 	API_END_POINT,
 	WHITELABEL_ENCRYPTION_API,
-} from '../_config/app.config.js';
-import { AppContext } from '../reducer/appReducer';
+} from '_config/app.config.js';
+import { AppContext } from 'reducer/appReducer';
 import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
 
@@ -141,23 +141,26 @@ const AppLayout = () => {
 					}
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
-					const encryptWhiteLabelReq = await newRequest(
-						WHITELABEL_ENCRYPTION_API,
-						{
-							method: 'GET',
-						},
-						{ Authorization: `Bearer ${decryptedToken.token}` }
-					);
 
-					const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+					if (!sessionStorage.getItem('encryptWhiteLabel')) {
+						const encryptWhiteLabelReq = await newRequest(
+							WHITELABEL_ENCRYPTION_API,
+							{
+								method: 'GET',
+							},
+							{ Authorization: `Bearer ${decryptedToken.token}` }
+						);
 
-					sessionStorage.setItem(
-						'encryptWhiteLabel',
-						encryptWhiteLabelRes.encrypted_whitelabel[0]
-					);
+						const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+						sessionStorage.setItem(
+							'encryptWhiteLabel',
+							encryptWhiteLabelRes.encrypted_whitelabel[0]
+						);
+					}
 
 					// CreateUser
-					// TODO: integrate create-user api
+					// TODO: integrate create-user api for view/edit mode
 					// const reqBody = {
 					// 	email: formState?.values?.Email || '',
 					// 	white_label_id: whiteLabelId,
@@ -214,6 +217,12 @@ const AppLayout = () => {
 		}
 		if (response) {
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
+
+			sessionStorage.setItem(
+				'permission',
+				JSON.stringify(response?.permission)
+			);
+
 			setWhitelabelId(response?.permission?.id);
 			setLogo(response?.permission?.logo);
 			fetchData();
@@ -221,6 +230,9 @@ const AppLayout = () => {
 		}
 		// eslint-disable-next-line
 	}, [response]);
+
+	// Test loader here
+	// return <Loading />;
 
 	return loading ? (
 		<Loading />

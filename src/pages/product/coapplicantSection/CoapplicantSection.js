@@ -17,7 +17,14 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { COAPPLICANT_DETAILS, HOSTNAME } from '_config/app.config';
+import {
+	COAPPLICANT_DETAILS,
+	CO_APP_CREATE_REQ_BODY,
+	CO_APP_CREATE_RESPONSE,
+	CO_APP_DETAILS,
+	HOSTNAME,
+} from '_config/app.config';
+import { getFlowData } from 'utils/localStore';
 
 const Section = styled.div`
 	display: flex;
@@ -184,7 +191,7 @@ const CoapplicantDetailsSection = props => {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const userTokensss = sessionStorage.getItem(HOSTNAME);
 	const sessionCoApplicantRes =
-		JSON.parse(userTokensss).formReducer?.user?.[`${id}-res`] || [];
+		JSON.parse(userTokensss).formReducer?.user?.[CO_APP_CREATE_RESPONSE] || [];
 
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
@@ -242,12 +249,12 @@ const CoapplicantDetailsSection = props => {
 	// LOCAL STATES
 	const [loading, setLoading] = useState(false);
 	const [openDrawer, setOpenDrawer] = useState(-1);
-	const resData = formReducer?.user?.['co-applicant-details-res'] || [];
+	const resData = formReducer?.user?.[CO_APP_CREATE_RESPONSE] || [];
 	const {
 		actions: { setCompleted },
 	} = useContext(FlowContext);
 	const [prePopulateCoApplicants, setPrePopulateCoApplicants] = useState(
-		formReducer?.user?.['co-applicant-details'] || editCoApplicantData || {}
+		formReducer?.user?.[CO_APP_DETAILS] || editCoApplicantData || {}
 	);
 
 	const [totalCoapplicantCount, setTotalCoapplicantCount] = useState(1);
@@ -263,7 +270,7 @@ const CoapplicantDetailsSection = props => {
 	const { newRequest } = useFetch();
 	// --LOCAL STATES
 	// useEffect(() => {
-	// 	console.log(submitCoAppRes, '000');
+	// console.log(submitCoAppRes, '000');
 	// }, [submitCoAppRes]);
 	const openCloseCollaps = index => {
 		if (totalCoapplicantCount === 1) return;
@@ -340,12 +347,8 @@ const CoapplicantDetailsSection = props => {
 			const userTokensss = sessionStorage.getItem(HOSTNAME);
 			// refetch latest response form storage dynamically as this requires latest data
 			const sessionCoApplicantRes =
-				JSON.parse(userTokensss).formReducer?.user?.[`${id}-res`] || [];
-			const storeData = JSON.stringify(data);
-			const tempObject = storeData.replaceAll('permanent_', '');
-			const changedData = JSON.parse(tempObject);
-			// used for prefilling values on reload
-			setFlowData(changedData, id);
+				JSON.parse(userTokensss).formReducer?.user?.[CO_APP_CREATE_RESPONSE] ||
+				[];
 			const reqBody = {
 				co_applicant_director_partner_data: [],
 				origin: 'nconboarding',
@@ -403,13 +406,26 @@ const CoapplicantDetailsSection = props => {
 					reqBody.co_applicant_director_partner_data.push(formatedData);
 					return null;
 				});
-			setFlowData(reqBody.co_applicant_director_partner_data, `${id}-reqbody`);
 			// console.log('coapplicantsection-before-submitting-', {
 			// 	formState,
 			// 	reqBody,
 			// 	sessionCoApplicantRes,
 			// });
 			// return;
+			const oldPrePopulateCoApplicants = getFlowData(CO_APP_DETAILS) || [];
+			const newCoApplicantValues = {};
+			for (const key in formState?.values || {}) {
+				let newKey = key;
+				if (key.includes('permanent_')) {
+					newKey = key.slice(10);
+				}
+				newCoApplicantValues[newKey] = formState.values[key];
+			}
+			// console.log('coapplicantsection-onproceed-', {
+			// 	oldPrePopulateCoApplicants,
+			// 	newCoApplicantValues,
+			// });
+			// if (!_.isEqual(oldPrePopulateCoApplicants, newCoApplicantValues)) {
 			try {
 				const submitCoapplicantsReq = await newRequest(COAPPLICANT_DETAILS, {
 					method: 'POST',
@@ -420,8 +436,14 @@ const CoapplicantDetailsSection = props => {
 					},
 				});
 				let submitCoAppRes = submitCoapplicantsReq?.data?.data;
-
-				setFlowData(submitCoAppRes.sort((a, b) => a.id - b.id), `${id}-res`);
+				setFlowData(
+					reqBody.co_applicant_director_partner_data,
+					CO_APP_CREATE_REQ_BODY
+				);
+				setFlowData(
+					submitCoAppRes.sort((a, b) => a.id - b.id),
+					CO_APP_CREATE_RESPONSE
+				);
 				addToast({
 					message: 'Saved Succesfully',
 					type: 'success',
@@ -435,10 +457,17 @@ const CoapplicantDetailsSection = props => {
 				});
 				return;
 			}
+			// }
+			const storeData = JSON.stringify(data);
+			const tempObject = storeData.replaceAll('permanent_', '');
+			const changedData = JSON.parse(tempObject);
+			// used for prefilling values on reload
+			setFlowData(changedData, CO_APP_DETAILS);
 			setCompleted(id);
 			onFlowChange(map.main);
 			setLoading(false);
 		} catch (error) {
+			setLoading(false);
 			console.error('error-coapplicantsection-onproceed-', error);
 		}
 	};
@@ -449,8 +478,7 @@ const CoapplicantDetailsSection = props => {
 			const userTokensss = sessionStorage.getItem(HOSTNAME);
 			let newPrePopulateCoApplicants = {};
 			const sessionCoApplicantData =
-				JSON.parse(userTokensss).formReducer?.user?.['co-applicant-details'] ||
-				{};
+				JSON.parse(userTokensss).formReducer?.user?.[CO_APP_DETAILS] || {};
 			if (Object.keys(sessionCoApplicantData).length > 0) {
 				newPrePopulateCoApplicants = sessionCoApplicantData;
 			} else if (Object.keys(editCoApplicantData).length > 0) {

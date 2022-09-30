@@ -4,9 +4,13 @@ import { useState, useEffect, useContext } from 'react';
 
 import useFetch from 'hooks/useFetch';
 import SearchSelect from '../SearchSelect';
-import { BANK_LIST_FETCH } from '_config/app.config';
-import { IFSC_LIST_FETCH } from '_config/app.config';
-import { FlowContext } from '../../reducer/flowReducer';
+import {
+	IFSC_LIST_FETCH,
+	BANK_LIST_FETCH,
+	BANK_LIST_FETCH_RESPONSE,
+} from '_config/app.config';
+import { FlowContext } from 'reducer/flowReducer';
+import { FormContext } from 'reducer/formReducer';
 import { UserContext } from 'reducer/userReducer';
 import { BussinesContext } from 'reducer/bussinessReducer';
 import axios from 'axios';
@@ -27,6 +31,10 @@ export default function BankList(props) {
 	const {
 		actions: { setIfscList },
 	} = useContext(FlowContext);
+
+	const {
+		actions: { setFlowData },
+	} = useContext(FormContext);
 
 	const {
 		state: { userToken },
@@ -74,14 +82,20 @@ export default function BankList(props) {
 					name: bank.bankname,
 				}))
 			);
+			setFlowData(response, BANK_LIST_FETCH_RESPONSE);
 		}
+		// eslint-disable-next-line
 	}, [response]);
 
 	// TODO: provide custom label to bank details and emi details section
 	return (
 		<SearchSelect
 			// customLabel='Bank Name'
-			onBlurCallback={() => getIfscData(value.value)}
+			onBlurCallback={() => {
+				if (field.ifscRequired) {
+					getIfscData(value.value);
+				}
+			}}
 			field={field}
 			name={field.name}
 			placeholder={field.placeholder || ''}

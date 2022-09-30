@@ -4,7 +4,11 @@
 import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import useFetch from 'hooks/useFetch';
-import { BUSSINESS_PROFILE_UPDATE, HOSTNAME } from '_config/app.config';
+import {
+	BUSINESS_PROFILE_REQ_BODY,
+	BUSSINESS_PROFILE_UPDATE,
+	HOSTNAME,
+} from '_config/app.config';
 import { UserContext } from 'reducer/userReducer';
 import useForm from 'hooks/useForm';
 import Button from 'components/Button';
@@ -13,6 +17,8 @@ import { FormContext } from 'reducer/formReducer';
 import { FlowContext } from 'reducer/flowReducer';
 import { BussinesContext } from 'reducer/bussinessReducer';
 import { useToasts } from 'components/Toast/ToastProvider';
+import { getFlowData } from 'utils/localStore';
+import _ from 'lodash';
 
 const Div = styled.div`
 	flex: 1;
@@ -111,7 +117,7 @@ const AddressDetailsPage = props => {
 		state: { userToken },
 	} = useContext(UserContext);
 	const {
-		actions: { setUsertypeAddressData },
+		actions: { setUsertypeAddressData, setFlowData },
 	} = useContext(FormContext);
 
 	const {
@@ -143,7 +149,10 @@ const AddressDetailsPage = props => {
 		});
 	};
 
-	const businessProfileUpdate = async formData => {
+	const updateBusinessProfile = async formData => {
+		// console.log('333', applicantData?.mobileNo || companyData?.mobileNo);
+		let personalDataFormState = JSON.parse(sessionStorage.getItem('formstate'));
+		// console.log(personalDataFormState, '111');
 		try {
 			if (!companyData) {
 				companyData =
@@ -151,36 +160,54 @@ const AddressDetailsPage = props => {
 					JSON.parse(sessionStorage.getItem('companyData'));
 			}
 			const reqBody = {
-				first_name: applicantData?.firstName || '',
-				last_name: applicantData?.lastName || '',
+				first_name:
+					personalDataFormState?.firstName || applicantData?.firstName || '',
+				last_name:
+					personalDataFormState?.lastName || applicantData?.lastName || '',
 				businessName:
 					applicantData?.firstName ||
 					sessionStorage.getItem('BusinessName') ||
-					companyData?.BusinessName,
+					companyData?.BusinessName ||
+					'',
 				businessPancardNumber:
-					applicantData?.panNumber || companyData?.panNumber || '',
+					personalDataFormState?.panNumber ||
+					applicantData?.panNumber ||
+					companyData?.panNumber ||
+					'',
 				// // crime_check: "Yes",,
 				businessPancardFdkey: '',
 				businessEmail:
+					personalDataFormState?.email ||
 					applicantData?.email ||
 					companyData?.email ||
 					companyData?.Email ||
 					formReducer?.user['business-details']?.Email ||
 					'',
-				contactNo: applicantData?.mobileNo || companyData?.mobileNo || '',
+				contactNo:
+					personalDataFormState?.mobileNo ||
+					applicantData?.mobileNo ||
+					companyData?.mobileNo ||
+					'',
 				gstin:
 					applicantData?.GSTVerification || companyData?.GSTVerification || '',
 				businessStartDate: '4/8/90',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
-				Line1: formData?.permanent_address1 || applicantData?.address?.address1,
-				Line2: formData?.permanent_address2 || applicantData?.address?.address2,
+				Line1:
+					formData?.permanent_address1 ||
+					applicantData?.address?.address1 ||
+					'',
+				Line2:
+					formData?.permanent_address2 ||
+					applicantData?.address?.address2 ||
+					'',
 				locality:
 					formData?.permanent_address3 ||
 					formData?.permanent_city ||
-					applicantData?.address?.city,
-				city: formData?.permanent_city,
-				state: formData?.permanent_state,
-				pincode: formData?.permanent_pinCode,
+					applicantData?.address?.city ||
+					'',
+				city: formData?.permanent_city || '',
+				state: formData?.permanent_state || '',
+				pincode: formData?.permanent_pinCode || '',
 				business_id: sessionStorage.getItem('business_id') || '',
 				baid: sessionStorage.getItem('baid') || '',
 				aid: 2,
@@ -190,24 +217,41 @@ const AddressDetailsPage = props => {
 				reqBody.business_id = editLoanData?.business_id?.id;
 				reqBody.baid = editLoanData?.business_address?.[0]?.id;
 			}
-			const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
-				method: 'POST',
-				data: reqBody,
-				headers: {
-					Authorization: `Bearer ${userToken ||
-						sessionStorage.getItem('userToken')}`,
-				},
-			});
-
-			const businessProfileres = businessProfilereq.data;
-			sessionStorage.setItem(
-				'business_id',
-				JSON.stringify(businessProfileres.data[0].id)
-			);
-			sessionStorage.setItem(
-				'baid',
-				JSON.stringify(businessProfileres.data[0].business_address[0].id)
-			);
+			const oldReqBody = getFlowData(BUSINESS_PROFILE_REQ_BODY) || {};
+			// console.log(oldReqBody, '999', reqBody);
+			if (
+				!_.isEqual(
+					{
+						...oldReqBody,
+						business_id: '',
+						baid: '',
+					},
+					{
+						...reqBody,
+						business_id: '',
+						baid: '',
+					}
+				)
+			) {
+				const businessProfilereq = await newRequest(BUSSINESS_PROFILE_UPDATE, {
+					method: 'POST',
+					data: reqBody,
+					headers: {
+						Authorization: `Bearer ${userToken ||
+							sessionStorage.getItem('userToken')}`,
+					},
+				});
+				setFlowData(reqBody, BUSINESS_PROFILE_REQ_BODY);
+				const businessProfileres = businessProfilereq.data;
+				sessionStorage.setItem(
+					'business_id',
+					JSON.stringify(businessProfileres.data[0].id)
+				);
+				sessionStorage.setItem(
+					'baid',
+					JSON.stringify(businessProfileres.data[0].business_address[0].id)
+				);
+			}
 			return true;
 		} catch (error) {
 			addToast({
@@ -228,7 +272,7 @@ const AddressDetailsPage = props => {
 		!isViewLoan && onSave(formData);
 		let isBusinessProfileUpdated = true;
 		if (!isViewLoan) {
-			isBusinessProfileUpdated = await businessProfileUpdate(formData);
+			isBusinessProfileUpdated = await updateBusinessProfile(formData);
 		}
 		if (!isBusinessProfileUpdated) {
 			setLoading(false);

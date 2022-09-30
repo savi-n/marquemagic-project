@@ -54,16 +54,17 @@ export default function HomeLoanAddressDetails({
 	formState,
 	size,
 	preData,
+	isViewLoan,
 }) {
 	const populateValue = field => {
 		if (formState?.values?.[field.name] !== undefined) {
 			return formState?.values?.[field.name];
 		}
-
 		return (
 			(preData && preData[field.name]) || formState?.values?.[field.name] || ''
 		);
 	};
+
 	return (
 		<>
 			<H>Address of the Property(with locality)</H>
@@ -80,6 +81,8 @@ export default function HomeLoanAddressDetails({
 											// value: formState?.values?.[field.name]
 											value: populateValue(field),
 											visibility: 'visible',
+											disabled: isViewLoan ? true : false,
+											readonly: isViewLoan ? true : false,
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&

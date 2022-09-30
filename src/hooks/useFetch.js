@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { BANK_LIST_FETCH, BANK_LIST_FETCH_RESPONSE } from '_config/app.config';
+import { getFlowData } from 'utils/localStore';
 
 export default function useFetch({
 	url,
@@ -9,6 +11,8 @@ export default function useFetch({
 	const [response, setResponse] = useState(null);
 	const [error, setError] = useState(null);
 	const [loading, setLoading] = useState(true);
+	// const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+	// const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
 	headers = {
 		'Content-Type': 'application/json',
@@ -45,7 +49,12 @@ export default function useFetch({
 				setLoading(false);
 			}
 		};
-
+		if (url === BANK_LIST_FETCH) {
+			const oldBankList = getFlowData(BANK_LIST_FETCH_RESPONSE);
+			if (oldBankList && oldBankList?.length > 0) {
+				return setResponse(oldBankList);
+			}
+		}
 		url && fetchData();
 		return () => {
 			source.cancel('axios request cancelled');
