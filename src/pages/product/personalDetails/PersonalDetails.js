@@ -98,6 +98,7 @@ export default function PersonalDetailsPage({
 
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 
 	const applicantDataDirectorDetails =
 		editLoanData?.director_details?.filter(d => !!d.isApplicant)?.[0] || {};
@@ -137,7 +138,14 @@ export default function PersonalDetailsPage({
 		}
 
 		const oldReqBody = await getFlowData(LOGIN_CREATEUSER_REQ_BODY);
-		if (!_.isEqual(oldReqBody, reqBody)) {
+		const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
+		const userReducer = applicationState?.userReducer;
+		// console.log(userReducer?.userId, typeof userReducer?.userId, isEditLoan);
+		if (
+			!_.isEqual(oldReqBody, reqBody) &&
+			typeof userReducer?.userId === 'object' &&
+			!isEditLoan
+		) {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 				method: 'POST',
 				data: reqBody,

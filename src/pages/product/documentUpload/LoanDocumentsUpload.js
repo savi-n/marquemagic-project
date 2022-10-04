@@ -136,6 +136,9 @@ const DocumentUpload = props => {
 	const companyData =
 		sessionStorage.getItem('companyData') &&
 		JSON.parse(sessionStorage.getItem('companyData'));
+	const businessFormstate = JSON.parse(
+		sessionStorage.getItem('businessFormstate')
+	);
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
@@ -151,6 +154,7 @@ const DocumentUpload = props => {
 	let business_income_type_id =
 		applicantData?.incomeType ||
 		documentState['business-details']?.BusinessType ||
+		businessFormstate?.BusinessType ||
 		companyData?.BusinessType ||
 		editLoanData?.business_id?.businesstype ||
 		'';
@@ -757,7 +761,10 @@ const DocumentUpload = props => {
 			await newRequest(AUTHENTICATION_GENERATE_OTP, {
 				method: 'POST',
 				data: {
-					mobile: applicantData?.mobileNo || companyData?.mobileNo,
+					mobile:
+						applicantData?.mobileNo ||
+						businessFormstate?.mobileNo ||
+						companyData?.mobileNo,
 					business_id: sessionStorage.getItem('business_id') || '',
 					product_id,
 				},
@@ -1250,7 +1257,11 @@ const DocumentUpload = props => {
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
-					setContactNo={applicantData?.mobileNo || companyData?.mobileNo}
+					setContactNo={
+						applicantData?.mobileNo ||
+						businessFormstate?.mobileNo ||
+						companyData?.mobileNo
+					}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					generateOtpTimer={generateOtpTimer}
@@ -1282,7 +1293,10 @@ const DocumentUpload = props => {
 				<UI.H>
 					<span>Applicant Document Upload</span>
 					<UI.CoAppName>
-						{applicantFullName || companyData?.BusinessName || ''}
+						{applicantFullName ||
+							businessFormstate?.BusinessName ||
+							companyData?.BusinessName ||
+							''}
 					</UI.CoAppName>
 				</UI.H>
 
