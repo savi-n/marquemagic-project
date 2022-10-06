@@ -11,6 +11,7 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
+import _ from 'lodash';
 
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -113,10 +114,9 @@ const VALIDATION_RULES = {
 		message: 'Upload agreement is mandatory',
 	},
 };
-
+// const maskValuesForViewLoan = () => {}
 function validate(rules, value) {
 	if (!rules) return false;
-
 	for (const rule in rules) {
 		if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
 			return VALIDATION_RULES[rule].message;
@@ -129,6 +129,36 @@ const MASKS = {
 	CharacterLimit: (value, n) => String(value).substring(0, n) || '',
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
 	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
+	MaskValues: (value, options) => {
+		console.log(value, options, '!!!');
+		let cloneValue = _.cloneDeep(value);
+		// middle value
+		let middleStringValue = value.substring(
+			+options.charactersNotTobeMasked.startingLength,
+			+value.length - options.charactersNotTobeMasked.endingLength
+		).length;
+		// start value
+		let startingValuesOfMask = value
+			.slice(0, +options.charactersNotTobeMasked.startingLength)
+			.padEnd(
+				+value.length - options.charactersNotTobeMasked.endingLength,
+				options.maskPattern
+			);
+		// end value
+		let endingValuesOfMask = value.slice(
+			+value.length - +options.charactersNotTobeMasked.endingLength
+		);
+
+		console.log(
+			startingValuesOfMask + endingValuesOfMask,
+			'|',
+			middleStringValue,
+			'|',
+			endingValuesOfMask,
+			'123'
+		);
+		return;
+	},
 };
 
 function revealMask(masks, value) {
@@ -226,6 +256,50 @@ export default function useForm() {
 	};
 
 	const register = newField => {
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+		// console.log(newField, '333');
+		if (newField.name.includes('email') && isViewLoan) {
+			newField.rules = {}; //$$
+			newField.mask = {
+				MaskValues: {
+					maskPattern: '*',
+					charactersNotTobeMasked: { startingLength: 0, endingLength: 4 },
+				},
+			}; //$$
+			newField.isMask = true; //$$
+			// newField.maskPattern = '*'; //$$
+			// newField.charactersNotTobeMasked = { startingLength: 4, endingLength: 3 }; //$$
+			// --------------------------------------------------start masking
+
+			// console.log(newField.value, '111');
+			// let cloneValue = _.cloneDeep(newField.value);
+			// // middle value
+			// let middleStringValue = newField.value.substring(
+			// 	+newField.charactersNotTobeMasked.startingLength,
+			// 	+newField.value.length - newField.charactersNotTobeMasked.endingLength
+			// ).length;
+			// // start value
+			// let startingValuesOfMask = newField.value
+			// 	.slice(0, +newField.charactersNotTobeMasked.startingLength)
+			// 	.padEnd(middleStringValue, newField.maskPattern);
+			// // end value
+			// let endingValuesOfMask = newField.value.slice(
+			// 	+newField.value.length - +newField.charactersNotTobeMasked.endingLength
+			// );
+
+			// console.log(
+			// 	startingValuesOfMask + endingValuesOfMask,
+			// 	'|',
+			// 	middleStringValue,
+			// 	'|',
+			// 	endingValuesOfMask,
+			// 	'123'
+			// );
+			// newField.value = startingValuesOfMask + endingValuesOfMask;
+		}
+		// --------------------------------------------------end masking
+
 		// condition to check whether the ifsc field should be validated or not
 		if (newField.name.includes('ifsc')) {
 			// newField.mask = { CharacterLimit: 11 };
