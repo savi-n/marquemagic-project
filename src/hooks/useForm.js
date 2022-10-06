@@ -133,22 +133,22 @@ const MASKS = {
 		console.log(value, options, '!!!');
 		let cloneValue = _.cloneDeep(value);
 		// middle value
-		let middleStringValue = value.substring(
+		let middleStringValue = value?.substring(
 			+options.charactersNotTobeMasked.startingLength,
-			+value.length - options.charactersNotTobeMasked.endingLength
+			+value?.length - options.charactersNotTobeMasked.endingLength
 		).length;
 		// start value
 		let startingValuesOfMask = value
-			.slice(0, +options.charactersNotTobeMasked.startingLength)
+			?.slice(0, +options.charactersNotTobeMasked.startingLength)
 			.padEnd(
-				+value.length - options.charactersNotTobeMasked.endingLength,
+				+value?.length - options.charactersNotTobeMasked.endingLength,
 				options.maskPattern
 			);
 		// end value
-		let endingValuesOfMask = value.slice(
-			+value.length - +options.charactersNotTobeMasked.endingLength
+		let endingValuesOfMask = value?.slice(
+			+value?.length - +options.charactersNotTobeMasked.endingLength
 		);
-
+		let finalValue = startingValuesOfMask + endingValuesOfMask;
 		console.log(
 			startingValuesOfMask + endingValuesOfMask,
 			'|',
@@ -157,7 +157,7 @@ const MASKS = {
 			endingValuesOfMask,
 			'123'
 		);
-		return;
+		return finalValue;
 	},
 };
 
@@ -264,7 +264,7 @@ export default function useForm() {
 			newField.mask = {
 				MaskValues: {
 					maskPattern: '*',
-					charactersNotTobeMasked: { startingLength: 0, endingLength: 4 },
+					charactersNotTobeMasked: { startingLength: 6, endingLength: 6 },
 				},
 			}; //$$
 			newField.isMask = true; //$$
