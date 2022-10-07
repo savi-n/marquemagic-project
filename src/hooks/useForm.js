@@ -129,7 +129,6 @@ const MASKS = {
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
 	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
 	MaskValues: (value, options) => {
-		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
@@ -241,45 +240,23 @@ export default function useForm() {
 	};
 
 	const register = newField => {
-		// // --------------------------------------------------start masking
+		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
-		// if (!isViewLoan && newField.isMasked) {
-		// 	delete newField?.mask?.MaskValues;
-		// }
-		// console.log(newField, '333');
-		// if (newField.name.includes('email')) {
-		// 	// newField.userTypesAllowed = ['Bank', 'Branch']; //$$
-		// 	newField.userTypesAllowed = ['*'];
-		// 	newField.isMasked = true; //$$
-		// 	newField.mask = {
-		// 		MaskValues: {
-		// 			maskPattern: '*',
-		// 			charactersNotTobeMasked: { fromStarting: 1, fromEnding: 6 },
-		// 		},
-		// 	}; //$$
-		// 	console.log(
-		// 		isViewLoan,
-		// 		'@@@',
-		// 		!newField?.userTypesAllowed?.includes(userDetails?.usertype),
-		// 		'$$$',
-		// 		!newField?.userTypesAllowed?.includes('*')
-		// 	);
-		// }
 		if (
 			newField.isMasked &&
 			!isViewLoan &&
 			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
 				!newField?.userTypesAllowed?.includes('*'))
 		) {
-			// console.log('not inside mask');
 			delete newField?.mask?.MaskValues;
 		} else {
-			newField.rules = {};
+			if (newField?.isMasked) {
+				newField.rules = {};
+			}
 		}
-
-		// --------------------------------------------------end masking
+		// Masking ends
 
 		// condition to check whether the ifsc field should be validated or not
 		if (newField.name.includes('ifsc')) {
