@@ -129,13 +129,7 @@ const MASKS = {
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
 	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
 	MaskValues: (value, options) => {
-		console.log(value, options, '!!!');
-		let cloneValue = _.cloneDeep(value);
-		// middle value
-		let middleStringValue = value?.substring(
-			+options.charactersNotTobeMasked.fromStarting,
-			+value?.length - options.charactersNotTobeMasked.fromEnding
-		).length;
+		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
@@ -147,16 +141,8 @@ const MASKS = {
 		let endingValuesOfMask = value?.slice(
 			+value?.length - +options.charactersNotTobeMasked.fromEnding
 		);
-		let finalValue = startingValuesOfMask + endingValuesOfMask;
-		console.log(
-			startingValuesOfMask + endingValuesOfMask,
-			'|',
-			middleStringValue,
-			'|',
-			endingValuesOfMask,
-			'123'
-		);
-		return finalValue;
+		let maskedValue = startingValuesOfMask + endingValuesOfMask;
+		return maskedValue;
 	},
 };
 
@@ -255,55 +241,44 @@ export default function useForm() {
 	};
 
 	const register = newField => {
+		// // --------------------------------------------------start masking
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+		// if (!isViewLoan && newField.isMasked) {
+		// 	delete newField?.mask?.MaskValues;
+		// }
 		// console.log(newField, '333');
-		if (newField.name.includes('email')) {
-			newField.rules = {}; //$$
-			newField.userTypesAllowed = ['*']; //$$
-			newField.mask = {
-				MaskValues: {
-					maskPattern: '*',
-					charactersNotTobeMasked: { fromStarting: 6, fromEnding: 6 },
-				},
-			}; //$$
-			if (
-				!isViewLoan &&
-				!newField?.userTypesAllowed?.includes(userDetails?.usertype || '*')
-			) {
-				delete newField?.mask?.MaskValues;
-			}
-			// newField.maskPattern = '*'; //$$
-			// newField.charactersNotTobeMasked = { fromStarting: 4, fromEnding: 3 }; //$$
-			// --------------------------------------------------start masking
-
-			// console.log(newField.value, '111');
-			// let cloneValue = _.cloneDeep(newField.value);
-			// // middle value
-			// let middleStringValue = newField.value.substring(
-			// 	+newField.charactersNotTobeMasked.fromStarting,
-			// 	+newField.value.length - newField.charactersNotTobeMasked.fromEnding
-			// ).length;
-			// // start value
-			// let startingValuesOfMask = newField.value
-			// 	.slice(0, +newField.charactersNotTobeMasked.fromStarting)
-			// 	.padEnd(middleStringValue, newField.maskPattern);
-			// // end value
-			// let endingValuesOfMask = newField.value.slice(
-			// 	+newField.value.length - +newField.charactersNotTobeMasked.fromEnding
-			// );
-
-			// console.log(
-			// 	startingValuesOfMask + endingValuesOfMask,
-			// 	'|',
-			// 	middleStringValue,
-			// 	'|',
-			// 	endingValuesOfMask,
-			// 	'123'
-			// );
-			// newField.value = startingValuesOfMask + endingValuesOfMask;
+		// if (newField.name.includes('email')) {
+		// 	// newField.userTypesAllowed = ['Bank', 'Branch']; //$$
+		// 	newField.userTypesAllowed = ['*'];
+		// 	newField.isMasked = true; //$$
+		// 	newField.mask = {
+		// 		MaskValues: {
+		// 			maskPattern: '*',
+		// 			charactersNotTobeMasked: { fromStarting: 1, fromEnding: 6 },
+		// 		},
+		// 	}; //$$
+		// 	console.log(
+		// 		isViewLoan,
+		// 		'@@@',
+		// 		!newField?.userTypesAllowed?.includes(userDetails?.usertype),
+		// 		'$$$',
+		// 		!newField?.userTypesAllowed?.includes('*')
+		// 	);
+		// }
+		if (
+			newField.isMasked &&
+			!isViewLoan &&
+			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				!newField?.userTypesAllowed?.includes('*'))
+		) {
+			// console.log('not inside mask');
+			delete newField?.mask?.MaskValues;
+		} else {
+			newField.rules = {};
 		}
+
 		// --------------------------------------------------end masking
 
 		// condition to check whether the ifsc field should be validated or not
