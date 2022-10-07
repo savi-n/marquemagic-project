@@ -12,7 +12,6 @@ import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
 import _ from 'lodash';
-
 export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;
@@ -134,19 +133,19 @@ const MASKS = {
 		let cloneValue = _.cloneDeep(value);
 		// middle value
 		let middleStringValue = value?.substring(
-			+options.charactersNotTobeMasked.startingLength,
-			+value?.length - options.charactersNotTobeMasked.endingLength
+			+options.charactersNotTobeMasked.fromStarting,
+			+value?.length - options.charactersNotTobeMasked.fromEnding
 		).length;
 		// start value
 		let startingValuesOfMask = value
-			?.slice(0, +options.charactersNotTobeMasked.startingLength)
+			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
 			.padEnd(
-				+value?.length - options.charactersNotTobeMasked.endingLength,
+				+value?.length - options.charactersNotTobeMasked.fromEnding,
 				options.maskPattern
 			);
 		// end value
 		let endingValuesOfMask = value?.slice(
-			+value?.length - +options.charactersNotTobeMasked.endingLength
+			+value?.length - +options.charactersNotTobeMasked.fromEnding
 		);
 		let finalValue = startingValuesOfMask + endingValuesOfMask;
 		console.log(
@@ -258,34 +257,41 @@ export default function useForm() {
 	const register = newField => {
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 		// console.log(newField, '333');
-		if (newField.name.includes('email') && isViewLoan) {
+		if (newField.name.includes('email')) {
 			newField.rules = {}; //$$
+			newField.userTypesAllowed = ['*']; //$$
 			newField.mask = {
 				MaskValues: {
 					maskPattern: '*',
-					charactersNotTobeMasked: { startingLength: 6, endingLength: 6 },
+					charactersNotTobeMasked: { fromStarting: 6, fromEnding: 6 },
 				},
 			}; //$$
-			newField.isMask = true; //$$
+			if (
+				!isViewLoan &&
+				!newField?.userTypesAllowed?.includes(userDetails?.usertype || '*')
+			) {
+				delete newField?.mask?.MaskValues;
+			}
 			// newField.maskPattern = '*'; //$$
-			// newField.charactersNotTobeMasked = { startingLength: 4, endingLength: 3 }; //$$
+			// newField.charactersNotTobeMasked = { fromStarting: 4, fromEnding: 3 }; //$$
 			// --------------------------------------------------start masking
 
 			// console.log(newField.value, '111');
 			// let cloneValue = _.cloneDeep(newField.value);
 			// // middle value
 			// let middleStringValue = newField.value.substring(
-			// 	+newField.charactersNotTobeMasked.startingLength,
-			// 	+newField.value.length - newField.charactersNotTobeMasked.endingLength
+			// 	+newField.charactersNotTobeMasked.fromStarting,
+			// 	+newField.value.length - newField.charactersNotTobeMasked.fromEnding
 			// ).length;
 			// // start value
 			// let startingValuesOfMask = newField.value
-			// 	.slice(0, +newField.charactersNotTobeMasked.startingLength)
+			// 	.slice(0, +newField.charactersNotTobeMasked.fromStarting)
 			// 	.padEnd(middleStringValue, newField.maskPattern);
 			// // end value
 			// let endingValuesOfMask = newField.value.slice(
-			// 	+newField.value.length - +newField.charactersNotTobeMasked.endingLength
+			// 	+newField.value.length - +newField.charactersNotTobeMasked.fromEnding
 			// );
 
 			// console.log(
