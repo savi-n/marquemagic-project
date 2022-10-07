@@ -24,7 +24,7 @@ import {
 	CO_APP_DETAILS,
 	HOSTNAME,
 } from '_config/app.config';
-import { getFlowData } from 'utils/localStore';
+// import { getFlowData } from 'utils/localStore';
 
 const Section = styled.div`
 	display: flex;
@@ -412,7 +412,7 @@ const CoapplicantDetailsSection = props => {
 			// 	sessionCoApplicantRes,
 			// });
 			// return;
-			const oldPrePopulateCoApplicants = getFlowData(CO_APP_DETAILS) || [];
+			// const oldPrePopulateCoApplicants = getFlowData(CO_APP_DETAILS) || [];
 			const newCoApplicantValues = {};
 			for (const key in formState?.values || {}) {
 				let newKey = key;
