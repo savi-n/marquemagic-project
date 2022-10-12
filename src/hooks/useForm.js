@@ -25,14 +25,14 @@ function pastDatesOnly(value) {
 }
 
 function validatePattern(pattern) {
-	return function(value, pat) {
+	return function (value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
 		return !new RegExp(pat).test(value);
 	};
 }
 
 function limitLength(type) {
-	return function(value, limit) {
+	return function (value, limit) {
 		if (type === 'max') return value?.length > limit;
 		else if (type === 'min') return value?.length < limit;
 		return value?.length !== limit;
@@ -112,7 +112,6 @@ const VALIDATION_RULES = {
 		message: 'Upload agreement is mandatory',
 	},
 };
-// const maskValuesForViewLoan = () => {}
 function validate(rules, value) {
 	if (!rules) return false;
 	for (const rule in rules) {
@@ -537,7 +536,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
-						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
+					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>

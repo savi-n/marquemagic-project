@@ -12,6 +12,6 @@
 	"prettier.proseWrap": "always",
 	"prettier.arrowParens": "avoid",
 	"[javascript]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "vscode.typescript-language-features"
 	} // Ensures there's only one blank line at the end of the file
 }
