@@ -59,6 +59,7 @@ export default function CompanySelectModal({
 	formState,
 	panExtractionData = {},
 	searchingCompanyName = false,
+	proceedToNextSection,
 }) {
 	//const { register } = useForm();
 	const [company, setCompany] = useState(panExtractionData?.companyName);
@@ -96,7 +97,7 @@ export default function CompanySelectModal({
 							defaultValue={panExtractionData?.companyName}
 							onChange={e => setCompany(e.target.value)}
 						/>
-						<section className='flex flex-col py-8 items-center w-full'>
+						<section className='flex py-8 items-center w-full'>
 							<Button
 								onClick={() => companyNameSearch(company)}
 								isLoader={searchingCompanyName}
@@ -108,6 +109,7 @@ export default function CompanySelectModal({
 								}
 								fill
 							/>
+							<Button name='Continue' fill onClick={proceedToNextSection} />
 						</section>
 					</section>
 				)}
