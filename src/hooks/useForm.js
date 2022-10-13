@@ -25,14 +25,14 @@ function pastDatesOnly(value) {
 }
 
 function validatePattern(pattern) {
-	return function (value, pat) {
+	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
 		return !new RegExp(pat).test(value);
 	};
 }
 
 function limitLength(type) {
-	return function (value, limit) {
+	return function(value, limit) {
 		if (type === 'max') return value?.length > limit;
 		else if (type === 'min') return value?.length < limit;
 		return value?.length !== limit;
@@ -244,10 +244,14 @@ export default function useForm() {
 		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 		if (
 			newField.isMasked &&
-			!isViewLoan &&
-			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
-				!newField?.userTypesAllowed?.includes('*'))
+			!newField?.userTypesAllowed?.includes(userDetails?.usertype) &&
+			!newField?.userTypesAllowed?.includes('*') &&
+			!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type)
 		) {
+			delete newField?.mask?.MaskValues;
+		}
+
+		if (newField.isMasked && !isViewLoan) {
 			delete newField?.mask?.MaskValues;
 		} else {
 			if (newField?.isMasked) {
@@ -536,7 +540,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
-					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
+						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
