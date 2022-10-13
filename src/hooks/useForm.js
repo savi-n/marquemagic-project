@@ -244,14 +244,10 @@ export default function useForm() {
 		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 		if (
 			newField.isMasked &&
-			!newField?.userTypesAllowed?.includes(userDetails?.usertype) &&
-			!newField?.userTypesAllowed?.includes('*') &&
-			!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type)
+			!isViewLoan &&
+			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				!newField?.userTypesAllowed?.includes('*'))
 		) {
-			delete newField?.mask?.MaskValues;
-		}
-
-		if (newField.isMasked && !isViewLoan) {
 			delete newField?.mask?.MaskValues;
 		} else {
 			if (newField?.isMasked) {
