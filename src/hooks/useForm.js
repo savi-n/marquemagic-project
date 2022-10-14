@@ -11,7 +11,6 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import moment from 'moment';
-
 export const ComboBoxContext = createContext();
 function required(value) {
 	return !value;
@@ -26,14 +25,14 @@ function pastDatesOnly(value) {
 }
 
 function validatePattern(pattern) {
-	return function(value, pat) {
+	return function (value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
 		return !new RegExp(pat).test(value);
 	};
 }
 
 function limitLength(type) {
-	return function(value, limit) {
+	return function (value, limit) {
 		if (type === 'max') return value?.length > limit;
 		else if (type === 'min') return value?.length < limit;
 		return value?.length !== limit;
@@ -113,10 +112,8 @@ const VALIDATION_RULES = {
 		message: 'Upload agreement is mandatory',
 	},
 };
-
 function validate(rules, value) {
 	if (!rules) return false;
-
 	for (const rule in rules) {
 		if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
 			return VALIDATION_RULES[rule].message;
@@ -129,6 +126,21 @@ const MASKS = {
 	CharacterLimit: (value, n) => String(value).substring(0, n) || '',
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
 	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
+	MaskValues: (value, options) => {
+		// start value
+		let startingValuesOfMask = value
+			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
+			.padEnd(
+				+value?.length - options.charactersNotTobeMasked.fromEnding,
+				options.maskPattern
+			);
+		// end value
+		let endingValuesOfMask = value?.slice(
+			+value?.length - +options.charactersNotTobeMasked.fromEnding
+		);
+		let maskedValue = startingValuesOfMask + endingValuesOfMask;
+		return maskedValue;
+	},
 };
 
 function revealMask(masks, value) {
@@ -226,6 +238,24 @@ export default function useForm() {
 	};
 
 	const register = newField => {
+		// Masking the values for view loan based on the configuration (Masking starts)
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+		if (
+			newField.isMasked &&
+			!isViewLoan &&
+			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				!newField?.userTypesAllowed?.includes('*'))
+		) {
+			delete newField?.mask?.MaskValues;
+		} else {
+			if (newField?.isMasked) {
+				newField.rules = {};
+			}
+		}
+		// Masking ends
+
 		// condition to check whether the ifsc field should be validated or not
 		if (newField.name.includes('ifsc')) {
 			// newField.mask = { CharacterLimit: 11 };
@@ -506,7 +536,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
-						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
+					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
