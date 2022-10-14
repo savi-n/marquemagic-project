@@ -84,6 +84,7 @@ const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
 const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
 const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
 const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
+const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -195,4 +196,5 @@ export {
 	CO_APP_CREATE_REQ_BODY,
 	CO_APP_CREATE_RESPONSE,
 	PINCODE_RESPONSE,
+	FETCH_EVAL_DETAILS,
 };

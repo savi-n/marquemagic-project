@@ -40,6 +40,7 @@ import {
 	CO_APP_CREATE_RESPONSE,
 	CO_APP_DOCTYPE_LIST_REQ_BODY,
 	CO_APP_DOCTYPE_LIST_RESPONSE,
+	FETCH_EVAL_DETAILS,
 } from '_config/app.config';
 import { BussinesContext } from 'reducer/bussinessReducer';
 import { FlowContext } from 'reducer/flowReducer';
@@ -130,6 +131,7 @@ const DocumentUpload = props => {
 	const [allDocumentTypeList, setAllDocumentTypeList] = useState([]);
 	const [allTagUnTagDocList, setAllTagUnTagDocList] = useState([]);
 	const [prefilledDocs, setPrefilledDocs] = useState([]);
+	// const [selectedDocCheckList, setSelectedDocCheckList] = useState([]);
 	const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
 	const formReducer = applicationState?.formReducer;
 	const userReducer = applicationState?.userReducer;
@@ -142,6 +144,10 @@ const DocumentUpload = props => {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+	const editLoanApplicant =
+		editLoanData?.director_details?.filter(
+			d => d?.type_name?.toLowerCase() === 'applicant'
+		)?.[0] || {};
 	const editLoanCoApplicants =
 		editLoanData?.director_details?.filter(
 			d => d?.type_name?.toLowerCase() === 'co-applicant'
@@ -905,10 +911,47 @@ const DocumentUpload = props => {
 
 		setAllTagUnTagDocList(newAllTagUnTagDocList);
 	};
+
+	const initializeExternalUserDocCheckList = async () => {
+		try {
+			const userDetails = sessionStorage.getItem('userDetails')
+				? JSON.parse(sessionStorage.getItem('userDetails'))
+				: {};
+			const evalData = await axios.get(
+				`${FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${API_TOKEN}`,
+					},
+				}
+			);
+			const selectedEvalData = evalData?.data?.data?.filter(
+				d => d.assign_userid === userDetails.id
+			)[0];
+			const newSelectedDocCheckList = selectedEvalData
+				? selectedEvalData?.assigned_document_list
+					? JSON.parse(selectedEvalData?.assigned_document_list)
+					: []
+				: [];
+			// setSelectedDocCheckList(newSelectedDocCheckList);
+			// console.log('initializeExternalUserDocCheckList-evalData-', {
+			// 	evalData,
+			// 	selectedEvalData,
+			// });
+			return newSelectedDocCheckList;
+		} catch (error) {
+			console.error('error-initializeExternalUserDocCheckList-', error);
+		}
+	};
+
 	const initializeDocTypeList = async () => {
 		try {
 			// console.log('initializeDocTypeList');
 			setLoading(true);
+			let externalUserSelectedDocTypeList = [];
+			if (isViewLoan) {
+				externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
+			}
 			const newAllDocumentTypeList = [];
 			await getEncryptWhiteLabel();
 			// get applicant document list
@@ -944,12 +987,44 @@ const DocumentUpload = props => {
 			// tempDocTypeList.map(d => newCoDocOptions.push({ ...d }));
 			// -- get co-applicant document list
 
-			newAppDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
-			newCoDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
+			newAppDocOptions.map(d => {
+				if (externalUserSelectedDocTypeList.length > 0) {
+					externalUserSelectedDocTypeList.map(eDoc => {
+						if (
+							eDoc.doc_type_id === d.id &&
+							eDoc.director_id === editLoanApplicant?.id
+						)
+							newAllDocumentTypeList.push({ ...d });
+						return null;
+					});
+				} else {
+					newAllDocumentTypeList.push({ ...d });
+				}
+				return null;
+			});
+			newCoDocOptions.map(d => {
+				if (externalUserSelectedDocTypeList.length > 0) {
+					externalUserSelectedDocTypeList.map(eDoc => {
+						if (eDoc.doc_type_id === d.id && eDoc.director_id === d.director_id)
+							newAllDocumentTypeList.push({ ...d });
+						return null;
+					});
+				} else {
+					newAllDocumentTypeList.push({ ...d });
+				}
+				return null;
+			});
 			setAllDocumentTypeList(
 				newAllDocumentTypeList.sort((a, b) => a.id - b.id)
 			);
 
+			// console.log('externalUserSelectedDocTypeList-', {
+			// 	editLoanApplicant,
+			// 	externalUserSelectedDocTypeList,
+			// 	newAppDocOptions,
+			// 	newCoDocOptions,
+			// 	newAllDocumentTypeList,
+			// });
 			if (editLoanData && editLoanData?.loan_document?.length > 0) {
 				// const editApplicant = editLoanData?.director_details?.filter(
 				// 	d => d.isApplicant
