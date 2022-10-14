@@ -319,10 +319,14 @@ const PanVerification = props => {
 		} catch (error) {
 			setLoading(false);
 			addToast({
-				message: error?.message || 'ROC search failed, try again',
+				message:
+					'Unable to fetch the data from ROC. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
 				type: 'error',
 			});
 			console.error('error-cinnumberfetch-', error);
+			proceedToNextSection();
 		}
 	};
 
