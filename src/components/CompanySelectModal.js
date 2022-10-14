@@ -125,7 +125,12 @@ export default function CompanySelectModal({
 								fill
 							/>
 							{isCompanyApi && (
-								<Button name='Proceed' fill onClick={proceedToNextSection} />
+								<Button
+									customStyle={{ marginLeft: '2px' }}
+									name='Proceed'
+									fill
+									onClick={proceedToNextSection}
+								/>
 							)}
 						</section>
 					</section>
