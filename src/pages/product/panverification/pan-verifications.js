@@ -1235,6 +1235,7 @@ const PanVerification = props => {
 				}}
 				onCompanySelect={onCompanySelect}
 				formState={formState}
+				proceedToNextSection={proceedToNextSection}
 			/>
 			<Modal
 				show={isPanConfirmModalOpen}
