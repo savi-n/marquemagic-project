@@ -246,6 +246,7 @@ export default function useForm() {
 			newField.isMasked &&
 			!isViewLoan &&
 			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) ||
 				!newField?.userTypesAllowed?.includes('*'))
 		) {
 			delete newField?.mask?.MaskValues;
