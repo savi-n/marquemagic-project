@@ -212,7 +212,7 @@ export default function Product(props) {
 	const [showContinueModal, setShowContinueModal] = useState(false);
 	const [index, setIndex] = useState(2);
 	const [disableBackCTA, setDisableBackCTA] = useState(false);
-
+	const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
@@ -233,18 +233,19 @@ export default function Product(props) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;
 			}
-			console.log(response.data?.product_details?.flow, '000', isViewLoan);
 			// displaying the sections based on the config data
 			if (isViewLoan) {
 				let data = response?.data?.product_details?.flow.filter(section => {
-					return section.hide_section !== true;
+					// return !section?.usertype?.includes('Legal');
+					return !section?.hide_section_usertype?.includes(
+						userDetails?.usertype
+					);
 				});
-				console.log(data, '222');
-				configure(data);
-				// response?.data?.product_details?.flow = data;
-			} else {
-				configure(response.data?.product_details?.flow);
+				if (data.length > 0) {
+					response.data.product_details.flow = data;
+				}
 			}
+			configure(response.data?.product_details?.flow);
 			// displaying the sections based on the config data
 			sessionStorage.setItem('productId', atob(product));
 			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
