@@ -233,7 +233,19 @@ export default function Product(props) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;
 			}
-			configure(response.data?.product_details?.flow);
+			console.log(response.data?.product_details?.flow, '000', isViewLoan);
+			// displaying the sections based on the config data
+			if (isViewLoan) {
+				let data = response?.data?.product_details?.flow.filter(section => {
+					return section.hide_section !== true;
+				});
+				console.log(data, '222');
+				configure(data);
+				// response?.data?.product_details?.flow = data;
+			} else {
+				configure(response.data?.product_details?.flow);
+			}
+			// displaying the sections based on the config data
 			sessionStorage.setItem('productId', atob(product));
 			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
 				sessionStorage.setItem(
