@@ -237,8 +237,11 @@ export default function Product(props) {
 			if (isViewLoan) {
 				let flowData = response?.data?.product_details?.flow.filter(section => {
 					// return !section?.hide_section_usertype?.includes('Legal');
-					return !section?.hide_section_usertype?.includes(
-						userDetails?.usertype
+					return (
+						!section?.hide_section_usertype?.includes(userDetails?.usertype) ||
+						!section?.hide_section_usertype?.includes(
+							userDetails?.user_sub_type
+						)
 					);
 				});
 				// if (flowData.length > 0) {
