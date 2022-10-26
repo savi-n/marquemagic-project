@@ -236,17 +236,16 @@ export default function Product(props) {
 			// displaying the sections based on the config data
 			if (isViewLoan) {
 				let flowData = response?.data?.product_details?.flow.filter(section => {
-					// return !section?.hide_section_usertype?.includes('Legal');
 					return (
-						!section?.hide_section_usertype?.includes(userDetails?.usertype) ||
+						!section?.hide_section_usertype?.includes(userDetails?.usertype) &&
 						!section?.hide_section_usertype?.includes(
 							userDetails?.user_sub_type
 						)
 					);
 				});
-				// if (flowData.length > 0) {
-				response.data.product_details.flow = flowData;
-				// }
+				if (flowData.length > 0) {
+					response.data.product_details.flow = flowData;
+				}
 			}
 			configure(response.data?.product_details?.flow);
 			// displaying the sections based on the config data
