@@ -233,7 +233,7 @@ export default function Product(props) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;
 			}
-			// displaying the sections based on the config data
+			// displaying the sections based on the config data starts
 			if (isViewLoan) {
 				let flowData = response?.data?.product_details?.flow.filter(section => {
 					return (
@@ -248,7 +248,7 @@ export default function Product(props) {
 				}
 			}
 			configure(response.data?.product_details?.flow);
-			// displaying the sections based on the config data
+			// displaying the sections based on the config data ends
 			sessionStorage.setItem('productId', atob(product));
 			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
 				sessionStorage.setItem(
