@@ -253,6 +253,10 @@ export default function useForm() {
 		} else {
 			if (newField?.isMasked) {
 				newField.rules = {};
+				delete newField.mask.NumberOnly;
+				delete newField.mask.CharacterLimit;
+				delete newField.mask.AlphaCharOnly;
+				delete newField.mask.AlphaNumericOnly;
 			}
 		}
 		// Masking ends
