@@ -241,7 +241,7 @@ export default function useForm() {
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+		const userDetails = JSON.parse(sessionStorage.getItem('userDetails')) || [];
 		if (
 			newField.isMasked &&
 			!isViewLoan &&
