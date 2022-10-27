@@ -132,6 +132,9 @@ const DocumentUpload = props => {
 	const [allTagUnTagDocList, setAllTagUnTagDocList] = useState([]);
 	const [prefilledDocs, setPrefilledDocs] = useState([]);
 	// const [selectedDocCheckList, setSelectedDocCheckList] = useState([]);
+	const userDetailsData = sessionStorage.getItem('userDetails')
+		? JSON.parse(sessionStorage.getItem('userDetails')) || {}
+		: {};
 	const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
 	const formReducer = applicationState?.formReducer;
 	const userReducer = applicationState?.userReducer;
@@ -1382,18 +1385,20 @@ const DocumentUpload = props => {
 						{' '}
 						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_KYC)}>
 							<UI.H1>KYC </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{preFillKycDocsTag.length} of {appKycDocList.length}
-								</UI.StyledButton>
-							</div>
+							{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+								<div
+									style={{
+										marginLeft: 10,
+										alignItems: 'center',
+										display: 'flex',
+									}}
+								>
+									Document Submitted :
+									<UI.StyledButton width={'auto'} fillColor>
+										{preFillKycDocsTag.length} of {appKycDocList.length}
+									</UI.StyledButton>
+								</div>
+							)}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1446,19 +1451,21 @@ const DocumentUpload = props => {
 							onClick={() => toggleOpenSection(CONST.CATEGORY_FINANCIAL)}
 						>
 							<UI.H1>Financial </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{preFillFinDocsTag.length} of {appFinDocList.length}
-								</UI.StyledButton>
-							</div>
+							{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+								<div
+									style={{
+										marginLeft: 10,
+										alignItems: 'center',
+										/* minWidth: '500px', */
+										display: 'flex',
+									}}
+								>
+									Document Submitted :
+									<UI.StyledButton width={'auto'} fillColor>
+										{preFillFinDocsTag.length} of {appFinDocList.length}
+									</UI.StyledButton>
+								</div>
+							)}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1511,19 +1518,21 @@ const DocumentUpload = props => {
 					<>
 						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_OTHER)}>
 							<UI.H1>Others </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{preFillOtherDocsTag.length} of {appOtherDocList.length}
-								</UI.StyledButton>
-							</div>
+							{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+								<div
+									style={{
+										marginLeft: 10,
+										alignItems: 'center',
+										/* minWidth: '500px', */
+										display: 'flex',
+									}}
+								>
+									Document Submitted :
+									<UI.StyledButton width={'auto'} fillColor>
+										{preFillOtherDocsTag.length} of {appOtherDocList.length}
+									</UI.StyledButton>
+								</div>
+							)}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1578,19 +1587,21 @@ const DocumentUpload = props => {
 							onClick={() => toggleOpenSection(CONST.CATEGORY_LENDER)}
 						>
 							<UI.H1>Lender </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{appLenderDocList.length}
-								</UI.StyledButton>
-							</div>
+							{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+								<div
+									style={{
+										marginLeft: 10,
+										alignItems: 'center',
+										/* minWidth: '500px', */
+										display: 'flex',
+									}}
+								>
+									Document Submitted :
+									<UI.StyledButton width={'auto'} fillColor>
+										{appLenderDocList.length}
+									</UI.StyledButton>
+								</div>
+							)}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1643,19 +1654,21 @@ const DocumentUpload = props => {
 					<>
 						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_EVAL)}>
 							<UI.H1>Evaluation </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{appEvalDocList.length}
-								</UI.StyledButton>
-							</div>
+							{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+								<div
+									style={{
+										marginLeft: 10,
+										alignItems: 'center',
+										/* minWidth: '500px', */
+										display: 'flex',
+									}}
+								>
+									Document Submitted :
+									<UI.StyledButton width={'auto'} fillColor>
+										{appEvalDocList.length}
+									</UI.StyledButton>
+								</div>
+							)}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1784,19 +1797,21 @@ const DocumentUpload = props => {
 										onClick={() => toggleOpenSection(co_id_income_type_kyc)}
 									>
 										<UI.H1>KYC </UI.H1>
-										<div
-											style={{
-												marginLeft: 10,
-												alignItems: 'center',
-												display: 'flex',
-											}}
-										>
-											Document Submitted :
-											<UI.StyledButton width={'auto'} fillColor>
-												{coAppPreFillKycDocsTag.length} of{' '}
-												{coAppKycDocList.length}
-											</UI.StyledButton>
-										</div>
+										{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+											<div
+												style={{
+													marginLeft: 10,
+													alignItems: 'center',
+													display: 'flex',
+												}}
+											>
+												Document Submitted :
+												<UI.StyledButton width={'auto'} fillColor>
+													{coAppPreFillKycDocsTag.length} of{' '}
+													{coAppKycDocList.length}
+												</UI.StyledButton>
+											</div>
+										)}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -1858,20 +1873,22 @@ const DocumentUpload = props => {
 										}
 									>
 										<UI.H1>Financial </UI.H1>
-										<div
-											style={{
-												marginLeft: 10,
-												alignItems: 'center',
-												/* minWidth: '500px', */
-												display: 'flex',
-											}}
-										>
-											Document Submitted :
-											<UI.StyledButton width={'auto'} fillColor>
-												{coAppPreFillFinDocsTag.length} of{' '}
-												{coAppFinDocList.length}
-											</UI.StyledButton>
-										</div>
+										{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+											<div
+												style={{
+													marginLeft: 10,
+													alignItems: 'center',
+													/* minWidth: '500px', */
+													display: 'flex',
+												}}
+											>
+												Document Submitted :
+												<UI.StyledButton width={'auto'} fillColor>
+													{coAppPreFillFinDocsTag.length} of{' '}
+													{coAppFinDocList.length}
+												</UI.StyledButton>
+											</div>
+										)}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -1934,19 +1951,21 @@ const DocumentUpload = props => {
 										onClick={() => toggleOpenSection(co_id_income_type_other)}
 									>
 										<UI.H1>Other </UI.H1>
-										<div
-											style={{
-												marginLeft: 10,
-												alignItems: 'center',
-												display: 'flex',
-											}}
-										>
-											Document Submitted :
-											<UI.StyledButton width={'auto'} fillColor>
-												{coAppPreFillOtherDocsTag.length} of{' '}
-												{coAppOtherDocList.length}
-											</UI.StyledButton>
-										</div>
+										{userDetailsData?.is_other === 1 && isViewLoan ? null : (
+											<div
+												style={{
+													marginLeft: 10,
+													alignItems: 'center',
+													display: 'flex',
+												}}
+											>
+												Document Submitted :
+												<UI.StyledButton width={'auto'} fillColor>
+													{coAppPreFillOtherDocsTag.length} of{' '}
+													{coAppOtherDocList.length}
+												</UI.StyledButton>
+											</div>
+										)}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
