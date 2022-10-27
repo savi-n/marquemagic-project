@@ -1398,21 +1398,6 @@ const DocumentUpload = props => {
 							uploaded: totalMandatoryUploadedDocumentCount,
 							total: totalMandatoryDocumentCount,
 						})}
-						{/* {displayUploadedDocCount ? (
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{totalMandatoryUploadedDocumentCount} of{' '}
-									{totalMandatoryDocumentCount}
-								</UI.StyledButton>
-							</div>
-						) : null} */}
 					</UI.Section>
 				) : null}
 				<UI.H>
@@ -1434,22 +1419,6 @@ const DocumentUpload = props => {
 								uploaded: preFillKycDocsTag.length,
 								total: appKycDocList.length,
 							})}
-							{/* {displayUploadedDocCount ? (
-								<div
-									style={{
-										marginLeft: 10,
-										alignItems: 'center',
-										display: 'flex',
-									}}
-								>
-									Document Submitted :
-									<UI.StyledButton width={'auto'} fillColor>
-										{preFillKycDocsTag.length} of {appKycDocList.length}
-									</UI.StyledButton>
-								</div>
-							) : (
-								<></>
-							)} */}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1507,22 +1476,6 @@ const DocumentUpload = props => {
 								uploaded: preFillFinDocsTag.length,
 								total: appFinDocList.length,
 							})}
-							{/* {displayUploadedDocCount ? (
-								<div
-									style={{
-										marginLeft: 10,
-										alignItems: 'center',
-										display: 'flex',
-									}}
-								>
-									Document Submitted :
-									<UI.StyledButton width={'auto'} fillColor>
-										{preFillFinDocsTag.length} of {appFinDocList.length}
-									</UI.StyledButton>
-								</div>
-							) : (
-								<></>
-							)} */}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1580,22 +1533,6 @@ const DocumentUpload = props => {
 								uploaded: preFillOtherDocsTag.length,
 								total: appOtherDocList.length,
 							})}
-							{/* {displayUploadedDocCount ? (
-								<div
-									style={{
-										marginLeft: 10,
-										alignItems: 'center',
-										display: 'flex',
-									}}
-								>
-									Document Submitted :
-									<UI.StyledButton width={'auto'} fillColor>
-										{preFillOtherDocsTag.length} of {appOtherDocList.length}
-									</UI.StyledButton>
-								</div>
-							) : (
-								<></>
-							)} */}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1654,22 +1591,6 @@ const DocumentUpload = props => {
 							{renderDocUploadedCount({
 								uploaded: appLenderDocList.length,
 							})}
-							{/* {displayUploadedDocCount ? (
-								<div
-									style={{
-										marginLeft: 10,
-										alignItems: 'center',
-										display: 'flex',
-									}}
-								>
-									Document Submitted :
-									<UI.StyledButton width={'auto'} fillColor>
-										{appLenderDocList.length}
-									</UI.StyledButton>
-								</div>
-							) : (
-								<></>
-							)} */}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1725,22 +1646,6 @@ const DocumentUpload = props => {
 							{renderDocUploadedCount({
 								uploaded: appEvalDocList.length,
 							})}
-							{/* {displayUploadedDocCount ? (
-								<div
-									style={{
-										marginLeft: 10,
-										alignItems: 'center',
-										display: 'flex',
-									}}
-								>
-									Document Submitted :
-									<UI.StyledButton width={'auto'} fillColor>
-										{appEvalDocList.length}
-									</UI.StyledButton>
-								</div>
-							) : (
-								<></>
-							)} */}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1873,23 +1778,6 @@ const DocumentUpload = props => {
 											uploaded: coAppPreFillKycDocsTag.length,
 											total: coAppKycDocList.length,
 										})}
-										{/* {displayUploadedDocCount ? (
-											<div
-												style={{
-													marginLeft: 10,
-													alignItems: 'center',
-													display: 'flex',
-												}}
-											>
-												Document Submitted :
-												<UI.StyledButton width={'auto'} fillColor>
-													{coAppPreFillKycDocsTag.length} of{' '}
-													{coAppKycDocList.length}
-												</UI.StyledButton>
-											</div>
-										) : (
-											<></>
-										)} */}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -1956,23 +1844,6 @@ const DocumentUpload = props => {
 											uploaded: coAppPreFillFinDocsTag.length,
 											total: coAppFinDocList.length,
 										})}
-										{/* {displayUploadedDocCount ? (
-											<div
-												style={{
-													marginLeft: 10,
-													alignItems: 'center',
-													display: 'flex',
-												}}
-											>
-												Document Submitted :
-												<UI.StyledButton width={'auto'} fillColor>
-													{coAppPreFillFinDocsTag.length} of{' '}
-													{coAppFinDocList.length}
-												</UI.StyledButton>
-											</div>
-										) : (
-											<></>
-										)} */}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -2040,23 +1911,6 @@ const DocumentUpload = props => {
 											uploaded: coAppPreFillOtherDocsTag.length,
 											total: coAppOtherDocList.length,
 										})}
-										{/* {displayUploadedDocCount ? (
-											<div
-												style={{
-													marginLeft: 10,
-													alignItems: 'center',
-													display: 'flex',
-												}}
-											>
-												Document Submitted :
-												<UI.StyledButton width={'auto'} fillColor>
-													{coAppPreFillOtherDocsTag.length} of{' '}
-													{coAppOtherDocList.length}
-												</UI.StyledButton>
-											</div>
-										) : (
-											<></>
-										)} */}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
