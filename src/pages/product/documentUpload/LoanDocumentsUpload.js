@@ -1437,6 +1437,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
+												sessionStorage.getItem('userToken') ||
 												''}`,
 										},
 									}}
@@ -1506,7 +1507,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1573,7 +1574,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1642,7 +1643,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1709,7 +1710,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1857,6 +1858,7 @@ const DocumentUpload = props => {
 													header: {
 														Authorization: `Bearer ${companyDetail?.token ||
 															userReducer?.userToken ||
+															sessionStorage.getItem('userToken') ||
 															''}`,
 													},
 												}}
@@ -1936,6 +1938,7 @@ const DocumentUpload = props => {
 													header: {
 														Authorization: `Bearer ${companyDetail?.token ||
 															userReducer?.userToken ||
+															sessionStorage.getItem('userToken') ||
 															''}`,
 													},
 												}}
@@ -2011,6 +2014,7 @@ const DocumentUpload = props => {
 													header: {
 														Authorization: `Bearer ${companyDetail?.token ||
 															userReducer?.userToken ||
+															sessionStorage.getItem('userToken') ||
 															''}`,
 													},
 												}}
