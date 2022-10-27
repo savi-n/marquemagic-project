@@ -212,7 +212,6 @@ export default function Product(props) {
 	const [showContinueModal, setShowContinueModal] = useState(false);
 	const [index, setIndex] = useState(2);
 	const [disableBackCTA, setDisableBackCTA] = useState(false);
-	const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
@@ -235,6 +234,7 @@ export default function Product(props) {
 			}
 			// displaying the sections based on the config data starts
 			if (isViewLoan) {
+				const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
 				let flowData = response?.data?.product_details?.flow.filter(section => {
 					if (section?.hide_section_usertype) {
 						return (
