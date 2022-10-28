@@ -850,6 +850,11 @@ const PanVerification = props => {
 		// if (screen === CONST.SCREEN_PAN) setPanFile(newFiles);
 		const newFiles = _.cloneDeep(addressProofDocs);
 		files.map(f => newFiles.push(_.cloneDeep(f)));
+		// console.log('pan-verification-handleFileUploadAddressProof-', {
+		// 	files,
+		// 	newFiles,
+		// 	addressProofDocs,
+		// });
 		if (selectedAddressProof) setAddressProofDocs(newFiles);
 		// setDisableSubmit(false);
 		setIsAddharSkipChecked(false);
@@ -1208,17 +1213,13 @@ const PanVerification = props => {
 
 	// console.log('pan-verifications-states-', {
 	// 	productDetails,
-	// 	isFrontTagged,
-	// 	isBackTagged,
-	// 	isFrontBackTagged,
-	// 	fileRef: fileRef.current,
-	// 	loanDocuments,
 	// 	addressProofDocs,
 	// 	isInActiveAddressProofUpload,
 	// 	isProceedDisabledAddressProof,
 	// 	formState,
 	// 	extractionDataRes,
 	// 	panExtractionData,
+	// 	selectedAddressProof,
 	// });
 
 	return (
