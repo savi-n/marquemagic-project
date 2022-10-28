@@ -353,12 +353,29 @@ export default function FileUpload(props) {
 		if (accept) {
 			files = files.filter(file => accept.includes(file.type.split('/')[1]));
 		}
-
+		// console.log('after-accept-', {
+		// 	accept,
+		// 	pan,
+		// 	upload,
+		// 	files,
+		// 	event,
+		// 	eventFiles: event.dataTransfer.files,
+		// });
 		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
 			if (upload) {
+				// console.log('before-handleUpload-', {
+				// 	files,
+				// });
 				files = await handleUpload(files);
+				// console.log('after-handleUpload-', {
+				// 	files,
+				// });
 			}
 			onDrop(files);
+			// console.log('before current-files-', {
+			// 	current: selectedFiles.current,
+			// 	files,
+			// });
 			if (!pan) {
 				files = [...selectedFiles.current, ...files].filter(f =>
 					f.name ? true : false
@@ -543,7 +560,7 @@ export default function FileUpload(props) {
 	useEffect(() => {
 		initializeComponent();
 		// eslint-disable-next-line
-	}, []);
+	}, [sectionType]);
 
 	useEffect(() => {
 		// console.log('useEffect-removeAllFileUploads-', removeAllFileUploads);
@@ -552,7 +569,7 @@ export default function FileUpload(props) {
 		setUploadingFiles([]);
 		setDocTypeFileMap({});
 		setMappedFiles({});
-	}, [removeAllFileUploads]);
+	}, [removeAllFileUploads, sectionType]);
 
 	useEffect(() => {
 		if (isViewLoan) return;
@@ -571,7 +588,7 @@ export default function FileUpload(props) {
 			div?.removeEventListener('dragend', handleDrag);
 		};
 		// eslint-disable-next-line
-	}, [disabled]);
+	}, [disabled, sectionType]);
 
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
