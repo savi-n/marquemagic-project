@@ -281,6 +281,11 @@ export default function FileUpload(props) {
 			// });
 			setUploading(false);
 			if (pan) {
+				// console.log('FileUpload-before-setdocs-', {
+				// 	aadharVoterDl,
+				// 	docs,
+				// 	filesToUpload,
+				// });
 				aadharVoterDl
 					? setDocs([...docs, filesToUpload[0]])
 					: setDocs([filesToUpload[0]]);
@@ -505,7 +510,7 @@ export default function FileUpload(props) {
 		try {
 			setLoading(true);
 			// in case of edit_loan
-			// console.log('prefilledDocs', prefilledDocs);
+			// console.log('FileUpload-initializeComponent-', { mappedFiles, props });
 			if (prefilledDocs && prefilledDocs.length > 0) {
 				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
 				const newMappedFile = _.cloneDeep(mappedFiles);
@@ -545,7 +550,7 @@ export default function FileUpload(props) {
 				selectedFiles.current = startingUnTaggedDocs;
 				setUploadingFiles(startingUnTaggedDocs);
 			}
-			// console.log('starting-docs-', {
+			// console.log('FileUpload-initializeComponent-EOD-', {
 			// 	prefilledDocs,
 			// 	startingTaggedDocs,
 			// 	startingUnTaggedDocs,
@@ -564,7 +569,7 @@ export default function FileUpload(props) {
 
 	useEffect(() => {
 		// console.log('useEffect-removeAllFileUploads-', removeAllFileUploads);
-		if (removeAllFileUploads === '') return;
+		if (!removeAllFileUploads) return;
 		selectedFiles.current = [];
 		setUploadingFiles([]);
 		setDocTypeFileMap({});
@@ -674,7 +679,11 @@ export default function FileUpload(props) {
 			)}
 			<UI.FileListWrap>
 				{uploadingFiles.map((file, upidx) => {
-					// console.log('uplodaing-file-FileListWrap-file', file);
+					// console.log('uplodaing-file-FileListWrap-file', {
+					// 	uploadingFiles,
+					// 	file,
+					// 	docTypeFileMap,
+					// });
 					let isMapped = false;
 					for (const key in docTypeFileMap) {
 						if (file.id === key) {
@@ -856,7 +865,7 @@ export default function FileUpload(props) {
 					// // const mappedFiles = [];
 					// console.log('upload-list-', {
 					// 	startingTaggedDocs,
-					// 	documents: uploadedDocuments,
+					// 	uploadingFiles,
 					// 	mappedFiles,
 					// 	docTypeOptions,
 					// 	docTypeFileMap,
