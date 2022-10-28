@@ -857,24 +857,22 @@ const PanVerification = props => {
 	// }, [addressProofDocs])
 
 	const handleFileUploadAddressProof = files => {
-		// const newFiles = _.cloneDeep(fileRef.current);
-		// fileRef.current.map(f => newFiles.push({ ...f }));
-		// files.map(f => newFiles.push({ ...f }));
-		// console.log('pan-verification-handleFileUpload-', { newFiles });
-		// fileRef.current = newFiles;
-		// setFile(newFiles);
-		// if (screen === CONST.SCREEN_PAN) setPanFile(newFiles);
-		const newFiles = _.cloneDeep(addressProofDocsRef.current);
-		// const newFiles = [];
-		files.map(f => newFiles.push(_.cloneDeep(f)));
+		let newAddressProofDocs = _.cloneDeep(addressProofDocsRef.current);
+		files.map(f => newAddressProofDocs.push(_.cloneDeep(f)));
+		newAddressProofDocs = _.uniqBy(newAddressProofDocs, function(e) {
+			return e.id;
+		});
 		// console.log('pan-verification-handleFileUploadAddressProof-', {
-		// 	files,
-		// 	newFiles,
-		// 	addressProofDocs,
-		// 	selectedAddressProof,
+		//  files,
+		//  newAddressProofDocs,
+		//  addressProofDocs,
+		//  selectedAddressProof,
 		// });
 
-		if (selectedAddressProof) setAddressProofDocs(newFiles);
+		if (selectedAddressProof) {
+			setAddressProofDocs(newAddressProofDocs);
+			addressProofDocsRef.current = newAddressProofDocs;
+		}
 		// setDisableSubmit(false);
 		setIsAddharSkipChecked(false);
 		resetAllErrors();
@@ -1474,6 +1472,9 @@ const PanVerification = props => {
 								// 	current: addressProofDocsRef.current,
 								// });
 								const newAddressProofDocs = [];
+
+								console.log('newaddress', newAddressProofDocs);
+
 								addressProofDocsRef?.current?.map(d =>
 									newAddressProofDocs.push(d)
 								);
