@@ -127,6 +127,7 @@ const MASKS = {
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
 	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
 	MaskValues: (value, options) => {
+		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
@@ -244,20 +245,39 @@ export default function useForm() {
 		const userDetails = JSON.parse(sessionStorage.getItem('userDetails')) || [];
 		if (
 			newField.isMasked &&
-			!isViewLoan &&
-			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
-				!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) ||
-				!newField?.userTypesAllowed?.includes('*'))
+			isViewLoan &&
+			!newField?.userTypesAllowed?.includes(userDetails?.usertype) &&
+			!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) &&
+			!newField?.userTypesAllowed?.includes('*')
 		) {
 			delete newField?.mask?.MaskValues;
-		} else {
+			// console.log('deleted mask as there was no usertype or user sub type');
+		}
+		// new addition
+		if (
+			newField.isMasked &&
+			isViewLoan &&
+			(newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) ||
+				newField?.userTypesAllowed?.includes('*'))
+		) {
+			// console.log('masking happens ' + newField.name);
 			if (newField?.isMasked) {
+				// console.log('deleted rules and other masks');
 				newField.rules = {};
 				delete newField.mask.NumberOnly;
 				delete newField.mask.CharacterLimit;
 				delete newField.mask.AlphaCharOnly;
 				delete newField.mask.AlphaNumericOnly;
 			}
+		}
+
+		if (!isViewLoan && newField?.mask?.MaskValues) {
+			// console.log(
+			// 	'deleted masking as it is not view loan and field has maskvalues',
+			// 	newField.name
+			// );
+			delete newField?.mask?.MaskValues;
 		}
 		// Masking ends
 
