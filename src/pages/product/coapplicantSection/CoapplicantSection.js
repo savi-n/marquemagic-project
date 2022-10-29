@@ -847,7 +847,7 @@ const CoapplicantDetailsSection = props => {
 				})}
 
 			<ButtonWrap>
-				{!isViewLoan && (
+				{!isViewLoan && totalCoapplicantCount < 9 && (
 					<Button fill onClick={handleSubmit(addCoapplicant, errorOnSubmit)}>
 						Add Co-applicant
 					</Button>
