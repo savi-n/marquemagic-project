@@ -374,7 +374,7 @@ export default function PersonalDetailsPage({
 				formStat = JSON.parse(sessionStorage.getItem('formstatepan'))?.values
 					?.dob;
 			}
-			if (formStat && formStat) {
+			if (formStat) {
 				let d = formStat.split('/');
 				if (d.length > 2) {
 					d = `${d[2]}-${d[1]}-${d[0]}`;
