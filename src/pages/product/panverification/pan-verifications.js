@@ -5,7 +5,7 @@
 - 3 address proof upload screen (aadhaar-voter-dl-passport)
 */
 
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import useForm from 'hooks/useForm';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
@@ -95,7 +95,7 @@ const PanVerification = props => {
 	// const [screen, setScreen] = useState(CONST.SCREEN_ADDRESS_PROOF);
 	// const [panUpload, setPanUpload] = useState(true);
 	// const [file, setFile] = useState([]);
-	// const fileRef = useRef([]);
+	const addressProofDocsRef = useRef([]);
 	// const [panFile, setPanFile] = useState([]);
 	const [panDoc, setPanDoc] = useState([]);
 	//const [panResponse, setPanResponse] = useState(null);
@@ -316,10 +316,14 @@ const PanVerification = props => {
 		} catch (error) {
 			setLoading(false);
 			addToast({
-				message: error?.message || 'ROC search failed, try again',
+				message:
+					'Unable to fetch the data from ROC. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
 				type: 'error',
 			});
 			console.error('error-cinnumberfetch-', error);
+			proceedToNextSection();
 		}
 	};
 
@@ -834,17 +838,39 @@ const PanVerification = props => {
 		sessionStorage.setItem('formstate', JSON.stringify(formState));
 	};
 
+	// const handleFileUploadAddressProof = useCallback((files) => {
+	// 	const newFiles = _.cloneDeep(addressProofDocs);
+	// 	files.map(f => newFiles.push(_.cloneDeep(f)));
+	// 	console.log('pan-verification-handleFileUploadAddressProof-', {
+	// 		files,
+	// 		newFiles,
+	// 		addressProofDocs,
+	// 	});
+
+	// 	if (selectedAddressProof) setAddressProofDocs(newFiles);
+	// 	// setDisableSubmit(false);
+	// 	setIsAddharSkipChecked(false);
+	// 	resetAllErrors();
+	// 	setIsError(false);
+	// }, [addressProofDocs])
+
 	const handleFileUploadAddressProof = files => {
-		// const newFiles = _.cloneDeep(fileRef.current);
-		// fileRef.current.map(f => newFiles.push({ ...f }));
-		// files.map(f => newFiles.push({ ...f }));
-		// console.log('pan-verification-handleFileUpload-', { newFiles });
-		// fileRef.current = newFiles;
-		// setFile(newFiles);
-		// if (screen === CONST.SCREEN_PAN) setPanFile(newFiles);
-		const newFiles = _.cloneDeep(addressProofDocs);
-		files.map(f => newFiles.push(_.cloneDeep(f)));
-		if (selectedAddressProof) setAddressProofDocs(newFiles);
+		let newAddressProofDocs = _.cloneDeep(addressProofDocsRef.current);
+		files.map(f => newAddressProofDocs.push(_.cloneDeep(f)));
+		newAddressProofDocs = _.uniqBy(newAddressProofDocs, function(e) {
+			return e.id;
+		});
+		// console.log('pan-verification-handleFileUploadAddressProof-', {
+		//  files,
+		//  newAddressProofDocs,
+		//  addressProofDocs,
+		//  selectedAddressProof,
+		// });
+
+		if (selectedAddressProof) {
+			setAddressProofDocs(newAddressProofDocs);
+			addressProofDocsRef.current = newAddressProofDocs;
+		}
 		// setDisableSubmit(false);
 		setIsAddharSkipChecked(false);
 		resetAllErrors();
@@ -861,9 +887,10 @@ const PanVerification = props => {
 		// );
 		// fileRef.current = newAddressProofDocs;
 		const newAddressProofDocs = _.cloneDeep(
-			addressProofDocs.filter(f => f.id !== docId)
+			addressProofDocsRef.current.filter(f => f.id !== docId)
 		);
 		setAddressProofDocs(newAddressProofDocs);
+		addressProofDocsRef.current = newAddressProofDocs;
 	};
 
 	// Address proof upload handle function
@@ -874,7 +901,7 @@ const PanVerification = props => {
 			setLoading(true);
 			resetAllErrors();
 			// TODO Filter selected address proof docs before extracting
-			const selectedAddressProofFiles = addressProofDocs.filter(
+			const selectedAddressProofFiles = addressProofDocsRef?.current?.filter(
 				f => f?.sectionType === selectedAddressProof
 			);
 			if (selectedAddressProofFiles.length > 2) {
@@ -1113,8 +1140,9 @@ const PanVerification = props => {
 	const handleDocumentTypeChangeAddressProof = async (fileId, type) => {
 		setLoanDocumentType(fileId, type);
 		// const newAddressProofDocs = fileRef.current || [];
+		// const newAddressProofDocs = _.cloneDeep(addressProofDocs);
 		const newAddressProofDocs = [];
-		addressProofDocs.map(f => {
+		addressProofDocsRef?.current?.map(f => {
 			const newFile = _.cloneDeep(f);
 			if (f.id === fileId) {
 				newFile.isTagged = type;
@@ -1123,8 +1151,14 @@ const PanVerification = props => {
 			newAddressProofDocs.push(newFile);
 			return null;
 		});
-		// fileRef.current = newAddressProofDocs;
+
+		// console.log('handleDocumentTypeChangeAddressProof-', {
+		// 	addressProofDocs,
+		// 	newAddressProofDocs,
+		// });
+		// // fileRef.current = newAddressProofDocs;
 		setAddressProofDocs(newAddressProofDocs);
+		addressProofDocsRef.current = newAddressProofDocs;
 	};
 
 	const onSelectedAddressProofChange = (e, btn) => {
@@ -1202,17 +1236,13 @@ const PanVerification = props => {
 
 	// console.log('pan-verifications-states-', {
 	// 	productDetails,
-	// 	isFrontTagged,
-	// 	isBackTagged,
-	// 	isFrontBackTagged,
-	// 	fileRef: fileRef.current,
-	// 	loanDocuments,
 	// 	addressProofDocs,
 	// 	isInActiveAddressProofUpload,
 	// 	isProceedDisabledAddressProof,
 	// 	formState,
 	// 	extractionDataRes,
 	// 	panExtractionData,
+	// 	selectedAddressProof,
 	// });
 
 	return (
@@ -1229,6 +1259,7 @@ const PanVerification = props => {
 				}}
 				onCompanySelect={onCompanySelect}
 				formState={formState}
+				proceedToNextSection={proceedToNextSection}
 			/>
 			<Modal
 				show={isPanConfirmModalOpen}
@@ -1298,6 +1329,7 @@ const PanVerification = props => {
 							fill
 							onClick={() => {
 								setAddressProofDocs([]);
+								addressProofDocsRef.current = [];
 								removeAllAddressProofLoanDocuments();
 								setIsDocTypeChangeModalOpen(false);
 								setRemoveAllFileUploads(!removeAllFileUploads);
@@ -1423,10 +1455,31 @@ const PanVerification = props => {
 							pan={true}
 							docTypeOptions={selectedDocTypeList}
 							sectionType={selectedAddressProof}
+							// onDrop={files =>
+							// 	handleFileUploadAddressProof(files, addressProofDocs)
+							// }
 							onDrop={handleFileUploadAddressProof}
 							onRemoveFile={handleFileRemoveAddressProof}
 							docs={addressProofDocs}
-							setDocs={setAddressProofDocs}
+							// setDocs={setAddressProofDocs}
+							setDocs={newDocs => {
+								// console.log('addressproof-setDocs-', {
+								// 	newDocs,
+								// 	type: typeof newDocs,
+								// 	addressProofDocs,
+								// 	current: addressProofDocsRef.current,
+								// });
+								const newAddressProofDocs = [];
+
+								console.log('newaddress', newAddressProofDocs);
+
+								addressProofDocsRef?.current?.map(d =>
+									newAddressProofDocs.push(d)
+								);
+								newDocs.map(d => newAddressProofDocs.push(d));
+								setAddressProofDocs(newAddressProofDocs);
+								addressProofDocsRef.current = newAddressProofDocs;
+							}}
 							documentTypeChangeCallback={handleDocumentTypeChangeAddressProof}
 							aadharVoterDl={true}
 							errorMessage={addressProofError}

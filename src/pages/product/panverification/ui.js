@@ -41,7 +41,7 @@ export const DocTypeChangeModalFooter = styled.div`
 `;
 
 export const ExtractionErrorMessage = styled.p`
-	margin-top: -100px;
+	margin-top: -80px;
 	@media (max-width: 700px) {
 		margin-top: -20px;
 	}

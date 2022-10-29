@@ -212,12 +212,22 @@ export default function FormController({
 			// Loan Against Property Individual Loan
 			// console.log('formcontroller-onProceed-productDetails-', productDetails);
 			if (!isViewLoan && id === 'business-details') {
+				sessionStorage.setItem(
+					'businessFormstate',
+					JSON.stringify(formState.values)
+				);
 				const oldReqBody = await getFlowData(LOGIN_CREATEUSER_REQ_BODY);
+				const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
+				const userReducer = applicationState?.userReducer;
 				// console.log('FormController-onProceed-LOGIN_CREATEUSER_REQ_BODY-', {
 				// 	oldReqBody,
 				// 	reqBody,
 				// });
-				if (!_.isEqual(oldReqBody, reqBody)) {
+				if (
+					!_.isEqual(oldReqBody, reqBody) &&
+					typeof userReducer?.userId === 'object' &&
+					!isEditLoan
+				) {
 					const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
 						method: 'POST',
 						data: reqBody,
@@ -358,7 +368,7 @@ export default function FormController({
 		appData;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-
+	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 	const skipButton = map?.fields[id]?.data?.some(f => f?.rules?.required);
 
 	const amountConverter = (value, k) => {
@@ -390,6 +400,7 @@ export default function FormController({
 	};
 
 	const formatSubsidiaryData = subsidiaryData => {
+		// console.log('formatSubsidiaryData-', { subsidiaryData });
 		return {
 			SubsidiaryName: subsidiaryData?.business_name,
 			BankName: subsidiaryData?.SubsidiaryName || subsidiaryData?.bank_name,
