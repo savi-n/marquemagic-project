@@ -5,6 +5,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import Modal from './Modal';
 import Button from './Button';
+import { useToasts } from 'components/Toast/ToastProvider';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 const Wrapper = styled.div`
 	display: flex;
@@ -59,9 +60,12 @@ export default function CompanySelectModal({
 	formState,
 	panExtractionData = {},
 	searchingCompanyName = false,
+	proceedToNextSection,
 }) {
 	//const { register } = useForm();
+	const { addToast } = useToasts();
 	const [company, setCompany] = useState(panExtractionData?.companyName);
+	const [isCompanyApi, setIsCompanyApi] = useState(false);
 	// console.log('company information', companyList);
 	return (
 		<Modal show={show} onClose={onClose} width='50%'>
@@ -96,9 +100,21 @@ export default function CompanySelectModal({
 							defaultValue={panExtractionData?.companyName}
 							onChange={e => setCompany(e.target.value)}
 						/>
-						<section className='flex flex-col py-8 items-center w-full'>
+						<section
+							className={`flex ${
+								isCompanyApi ? '' : 'flex-col'
+							} py-8 items-center`}
+						>
 							<Button
-								onClick={() => companyNameSearch(company)}
+								onClick={() => {
+									companyNameSearch(company);
+									setIsCompanyApi(true);
+									addToast({
+										message:
+											'If Company data is not fetched, Click on Proceed to complete the application',
+										type: 'warning',
+									});
+								}}
 								isLoader={searchingCompanyName}
 								name={searchingCompanyName ? 'Please wait...' : 'Search'}
 								disabled={
@@ -108,6 +124,14 @@ export default function CompanySelectModal({
 								}
 								fill
 							/>
+							{isCompanyApi && (
+								<Button
+									customStyle={{ marginLeft: '2px' }}
+									name='Proceed'
+									fill
+									onClick={proceedToNextSection}
+								/>
+							)}
 						</section>
 					</section>
 				)}

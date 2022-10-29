@@ -40,6 +40,7 @@ import {
 	CO_APP_CREATE_RESPONSE,
 	CO_APP_DOCTYPE_LIST_REQ_BODY,
 	CO_APP_DOCTYPE_LIST_RESPONSE,
+	FETCH_EVAL_DETAILS,
 } from '_config/app.config';
 import { BussinesContext } from 'reducer/bussinessReducer';
 import { FlowContext } from 'reducer/flowReducer';
@@ -130,18 +131,37 @@ const DocumentUpload = props => {
 	const [allDocumentTypeList, setAllDocumentTypeList] = useState([]);
 	const [allTagUnTagDocList, setAllTagUnTagDocList] = useState([]);
 	const [prefilledDocs, setPrefilledDocs] = useState([]);
+	// const [selectedDocCheckList, setSelectedDocCheckList] = useState([]);
+	let userDetailsData = {};
+	if (sessionStorage.getItem('userDetails')) {
+		try {
+			userDetailsData = JSON.parse(sessionStorage.getItem('userDetails'));
+		} catch (error) {
+			userDetailsData = {};
+		}
+	}
 	const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
 	const formReducer = applicationState?.formReducer;
 	const userReducer = applicationState?.userReducer;
-	const companyData =
-		sessionStorage.getItem('companyData') &&
-		JSON.parse(sessionStorage.getItem('companyData'));
+	let companyData = {};
+	if (sessionStorage.getItem('companyData')) {
+		try {
+			companyData = JSON.parse(sessionStorage.getItem('companyData'));
+		} catch (error) {
+			companyData = {};
+		}
+	}
+
 	const businessFormstate = JSON.parse(
 		sessionStorage.getItem('businessFormstate')
 	);
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+	const editLoanApplicant =
+		editLoanData?.director_details?.filter(
+			d => d?.type_name?.toLowerCase() === 'applicant'
+		)?.[0] || {};
 	const editLoanCoApplicants =
 		editLoanData?.director_details?.filter(
 			d => d?.type_name?.toLowerCase() === 'co-applicant'
@@ -178,6 +198,7 @@ const DocumentUpload = props => {
 		formReducer?.user?.[CO_APP_CREATE_RESPONSE].length > 0
 			? formReducer?.user?.[CO_APP_CREATE_RESPONSE]
 			: editLoanCoApplicants || [];
+
 	const getEncryptWhiteLabel = async () => {
 		try {
 			if (!sessionStorage.getItem('encryptWhiteLabel')) {
@@ -336,6 +357,7 @@ const DocumentUpload = props => {
 		files.map(f => newFiles.push({ ...f, ...meta }));
 		setLoanDocuments(newFiles);
 	};
+
 	const removeFileFromSessionStorage = file => {
 		let cloneEditLoan = _.cloneDeep(editLoanData);
 		let filteredFileData = editLoanData.loan_document.filter(
@@ -345,6 +367,7 @@ const DocumentUpload = props => {
 		sessionStorage.removeItem('editLoan');
 		sessionStorage.setItem('editLoan', JSON.stringify(cloneEditLoan));
 	};
+
 	const handleFileRemove = async (fileId, file) => {
 		// console.log('handleFileRemove-', {
 		// 	allTagUnTagDocList,
@@ -905,10 +928,47 @@ const DocumentUpload = props => {
 
 		setAllTagUnTagDocList(newAllTagUnTagDocList);
 	};
+
+	const initializeExternalUserDocCheckList = async () => {
+		try {
+			const userDetails = sessionStorage.getItem('userDetails')
+				? JSON.parse(sessionStorage.getItem('userDetails'))
+				: {};
+			const evalData = await axios.get(
+				`${FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${API_TOKEN}`,
+					},
+				}
+			);
+			const selectedEvalData = evalData?.data?.data?.filter(
+				d => d.assign_userid === userDetails.id
+			)[0];
+			const newSelectedDocCheckList = selectedEvalData
+				? selectedEvalData?.assigned_document_list
+					? JSON.parse(selectedEvalData?.assigned_document_list)
+					: []
+				: [];
+			// setSelectedDocCheckList(newSelectedDocCheckList);
+			// console.log('initializeExternalUserDocCheckList-evalData-', {
+			// 	evalData,
+			// 	selectedEvalData,
+			// });
+			return newSelectedDocCheckList;
+		} catch (error) {
+			console.error('error-initializeExternalUserDocCheckList-', error);
+		}
+	};
+
 	const initializeDocTypeList = async () => {
 		try {
 			// console.log('initializeDocTypeList');
 			setLoading(true);
+			let externalUserSelectedDocTypeList = [];
+			if (isViewLoan) {
+				externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
+			}
 			const newAllDocumentTypeList = [];
 			await getEncryptWhiteLabel();
 			// get applicant document list
@@ -944,12 +1004,44 @@ const DocumentUpload = props => {
 			// tempDocTypeList.map(d => newCoDocOptions.push({ ...d }));
 			// -- get co-applicant document list
 
-			newAppDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
-			newCoDocOptions.map(d => newAllDocumentTypeList.push({ ...d }));
+			newAppDocOptions.map(d => {
+				if (externalUserSelectedDocTypeList.length > 0) {
+					externalUserSelectedDocTypeList.map(eDoc => {
+						if (
+							eDoc.doc_type_id === d.id &&
+							eDoc.director_id === editLoanApplicant?.id
+						)
+							newAllDocumentTypeList.push({ ...d });
+						return null;
+					});
+				} else {
+					newAllDocumentTypeList.push({ ...d });
+				}
+				return null;
+			});
+			newCoDocOptions.map(d => {
+				if (externalUserSelectedDocTypeList.length > 0) {
+					externalUserSelectedDocTypeList.map(eDoc => {
+						if (eDoc.doc_type_id === d.id && eDoc.director_id === d.director_id)
+							newAllDocumentTypeList.push({ ...d });
+						return null;
+					});
+				} else {
+					newAllDocumentTypeList.push({ ...d });
+				}
+				return null;
+			});
 			setAllDocumentTypeList(
 				newAllDocumentTypeList.sort((a, b) => a.id - b.id)
 			);
 
+			// console.log('externalUserSelectedDocTypeList-', {
+			// 	editLoanApplicant,
+			// 	externalUserSelectedDocTypeList,
+			// 	newAppDocOptions,
+			// 	newCoDocOptions,
+			// 	newAllDocumentTypeList,
+			// });
 			if (editLoanData && editLoanData?.loan_document?.length > 0) {
 				// const editApplicant = editLoanData?.director_details?.filter(
 				// 	d => d.isApplicant
@@ -1056,6 +1148,7 @@ const DocumentUpload = props => {
 	const appEvalDocList = [];
 	const preFillLenderDocsTag = [];
 	const preFillEvalDocsTag = [];
+
 	if (isViewLoan) {
 		editLoanData?.lender_document?.map(lenderDoc => {
 			const docListItem = lenderDoc?.doc_type;
@@ -1222,10 +1315,15 @@ const DocumentUpload = props => {
 			/>
 		);
 	}
+
 	if (isViewLoan) {
 		displayProceedButton = null;
 	}
 
+	let displayUploadedDocCount = true;
+	if (userDetailsData.is_other === 1 && isViewLoan) {
+		displayUploadedDocCount = false;
+	}
 	// console.log('loandocupload-allstates-', {
 	// 	uploadedDocuments,
 	// 	prefilledDocs,
@@ -1252,9 +1350,29 @@ const DocumentUpload = props => {
 	if (loading) return <></>;
 	if (loading) return <></>;
 
+	const renderDocUploadedCount = data => {
+		const { uploaded, total } = data;
+		if (!displayUploadedDocCount) return null;
+		return (
+			<div
+				style={{
+					marginLeft: 10,
+					alignItems: 'center',
+					display: 'flex',
+				}}
+			>
+				Document Submitted :
+				<UI.StyledButton width={'auto'} fillColor>
+					{uploaded}
+					{total ? ` of ${total}` : ''}
+				</UI.StyledButton>
+			</div>
+		);
+	};
+
 	return (
-		<>
-			{isAuthenticationOtpModalOpen && (
+		<Fragment>
+			{isAuthenticationOtpModalOpen ? (
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
@@ -1267,30 +1385,21 @@ const DocumentUpload = props => {
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					generateOtpTimer={generateOtpTimer}
 				/>
-			)}
+			) : null}
 			<UI.Colom1>
-				{totalMandatoryDocumentCount > 0 && (
+				{totalMandatoryDocumentCount > 0 ? (
 					<UI.Section
 						style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}
 					>
 						<UI.H1>
 							<span style={{ color: 'red' }}>*</span> Mandatory
 						</UI.H1>
-						<div
-							style={{
-								marginLeft: 10,
-								alignItems: 'center',
-								display: 'flex',
-							}}
-						>
-							Document Submitted :
-							<UI.StyledButton width={'auto'} fillColor>
-								{totalMandatoryUploadedDocumentCount} of{' '}
-								{totalMandatoryDocumentCount}
-							</UI.StyledButton>
-						</div>
+						{renderDocUploadedCount({
+							uploaded: totalMandatoryUploadedDocumentCount,
+							total: totalMandatoryDocumentCount,
+						})}
 					</UI.Section>
-				)}
+				) : null}
 				<UI.H>
 					<span>Applicant Document Upload</span>
 					<UI.CoAppName>
@@ -1302,23 +1411,14 @@ const DocumentUpload = props => {
 				</UI.H>
 
 				{/* APPLICANT SECTION */}
-				{appKycDocList.length > 0 && (
+				{appKycDocList.length > 0 ? (
 					<>
-						{' '}
 						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_KYC)}>
 							<UI.H1>KYC </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{preFillKycDocsTag.length} of {appKycDocList.length}
-								</UI.StyledButton>
-							</div>
+							{renderDocUploadedCount({
+								uploaded: preFillKycDocsTag.length,
+								total: appKycDocList.length,
+							})}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1357,6 +1457,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
+												sessionStorage.getItem('userToken') ||
 												''}`,
 										},
 									}}
@@ -1364,26 +1465,17 @@ const DocumentUpload = props => {
 							</UI.UploadWrapper>
 						</UI.Details>
 					</>
-				)}
+				) : null}
 				{appFinDocList.length > 0 && (
 					<>
 						<UI.Section
 							onClick={() => toggleOpenSection(CONST.CATEGORY_FINANCIAL)}
 						>
 							<UI.H1>Financial </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{preFillFinDocsTag.length} of {appFinDocList.length}
-								</UI.StyledButton>
-							</div>
+							{renderDocUploadedCount({
+								uploaded: preFillFinDocsTag.length,
+								total: appFinDocList.length,
+							})}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1424,7 +1516,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1436,19 +1528,11 @@ const DocumentUpload = props => {
 					<>
 						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_OTHER)}>
 							<UI.H1>Others </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{preFillOtherDocsTag.length} of {appOtherDocList.length}
-								</UI.StyledButton>
-							</div>
+
+							{renderDocUploadedCount({
+								uploaded: preFillOtherDocsTag.length,
+								total: appOtherDocList.length,
+							})}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1489,7 +1573,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1503,19 +1587,10 @@ const DocumentUpload = props => {
 							onClick={() => toggleOpenSection(CONST.CATEGORY_LENDER)}
 						>
 							<UI.H1>Lender </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{appLenderDocList.length}
-								</UI.StyledButton>
-							</div>
+
+							{renderDocUploadedCount({
+								uploaded: appLenderDocList.length,
+							})}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1556,7 +1631,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1568,19 +1643,9 @@ const DocumentUpload = props => {
 					<>
 						<UI.Section onClick={() => toggleOpenSection(CONST.CATEGORY_EVAL)}>
 							<UI.H1>Evaluation </UI.H1>
-							<div
-								style={{
-									marginLeft: 10,
-									alignItems: 'center',
-									/* minWidth: '500px', */
-									display: 'flex',
-								}}
-							>
-								Document Submitted :
-								<UI.StyledButton width={'auto'} fillColor>
-									{appEvalDocList.length}
-								</UI.StyledButton>
-							</div>
+							{renderDocUploadedCount({
+								uploaded: appEvalDocList.length,
+							})}
 							<UI.CollapseIcon
 								src={downArray}
 								style={{
@@ -1621,7 +1686,7 @@ const DocumentUpload = props => {
 										header: {
 											Authorization: `Bearer ${companyDetail?.token ||
 												userReducer?.userToken ||
-												''}`,
+												sessionStorage.getItem('userToken')}`,
 										},
 									}}
 								/>
@@ -1709,19 +1774,10 @@ const DocumentUpload = props => {
 										onClick={() => toggleOpenSection(co_id_income_type_kyc)}
 									>
 										<UI.H1>KYC </UI.H1>
-										<div
-											style={{
-												marginLeft: 10,
-												alignItems: 'center',
-												display: 'flex',
-											}}
-										>
-											Document Submitted :
-											<UI.StyledButton width={'auto'} fillColor>
-												{coAppPreFillKycDocsTag.length} of{' '}
-												{coAppKycDocList.length}
-											</UI.StyledButton>
-										</div>
+										{renderDocUploadedCount({
+											uploaded: coAppPreFillKycDocsTag.length,
+											total: coAppKycDocList.length,
+										})}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -1767,6 +1823,7 @@ const DocumentUpload = props => {
 													header: {
 														Authorization: `Bearer ${companyDetail?.token ||
 															userReducer?.userToken ||
+															sessionStorage.getItem('userToken') ||
 															''}`,
 													},
 												}}
@@ -1783,20 +1840,10 @@ const DocumentUpload = props => {
 										}
 									>
 										<UI.H1>Financial </UI.H1>
-										<div
-											style={{
-												marginLeft: 10,
-												alignItems: 'center',
-												/* minWidth: '500px', */
-												display: 'flex',
-											}}
-										>
-											Document Submitted :
-											<UI.StyledButton width={'auto'} fillColor>
-												{coAppPreFillFinDocsTag.length} of{' '}
-												{coAppFinDocList.length}
-											</UI.StyledButton>
-										</div>
+										{renderDocUploadedCount({
+											uploaded: coAppPreFillFinDocsTag.length,
+											total: coAppFinDocList.length,
+										})}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -1844,6 +1891,7 @@ const DocumentUpload = props => {
 													header: {
 														Authorization: `Bearer ${companyDetail?.token ||
 															userReducer?.userToken ||
+															sessionStorage.getItem('userToken') ||
 															''}`,
 													},
 												}}
@@ -1859,19 +1907,10 @@ const DocumentUpload = props => {
 										onClick={() => toggleOpenSection(co_id_income_type_other)}
 									>
 										<UI.H1>Other </UI.H1>
-										<div
-											style={{
-												marginLeft: 10,
-												alignItems: 'center',
-												display: 'flex',
-											}}
-										>
-											Document Submitted :
-											<UI.StyledButton width={'auto'} fillColor>
-												{coAppPreFillOtherDocsTag.length} of{' '}
-												{coAppOtherDocList.length}
-											</UI.StyledButton>
-										</div>
+										{renderDocUploadedCount({
+											uploaded: coAppPreFillOtherDocsTag.length,
+											total: coAppOtherDocList.length,
+										})}
 										<UI.CollapseIcon
 											src={downArray}
 											style={{
@@ -1917,6 +1956,7 @@ const DocumentUpload = props => {
 													header: {
 														Authorization: `Bearer ${companyDetail?.token ||
 															userReducer?.userToken ||
+															sessionStorage.getItem('userToken') ||
 															''}`,
 													},
 												}}
@@ -1982,7 +2022,7 @@ const DocumentUpload = props => {
 					/>
 				)}
 			</UI.Colom1>
-		</>
+		</Fragment>
 	);
 };
 
