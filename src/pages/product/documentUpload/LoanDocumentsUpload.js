@@ -1159,51 +1159,53 @@ const DocumentUpload = props => {
 				lenderDoc?.original_doc_name ||
 				lenderDoc?.doc_name;
 			const document_key = lenderDoc?.doc_name;
-			if (priority === '300') {
-				const doc_type_id = `app_${business_income_type_id}_${
-					CONST.CATEGORY_LENDER
-				}_${doctype}`;
-				const category = CONST.CATEGORY_LENDER;
-				if (appLenderDocList?.filter(d => d?.id === doctype)?.length <= 0) {
-					appLenderDocList.push({
-						...docListItem,
+			if (lenderDoc.uploaded_by === userDetailsData.id) {
+				if (priority === '300') {
+					const doc_type_id = `app_${business_income_type_id}_${
+						CONST.CATEGORY_LENDER
+					}_${doctype}`;
+					const category = CONST.CATEGORY_LENDER;
+					if (appLenderDocList?.filter(d => d?.id === doctype)?.length <= 0) {
+						appLenderDocList.push({
+							...docListItem,
+							doc_type_id,
+							category,
+						});
+					}
+					preFillLenderDocsTag.push({
+						...lenderDoc,
+						doctype,
+						typeId: doctype,
 						doc_type_id,
 						category,
+						name,
+						document_key,
 					});
+					return null;
 				}
-				preFillLenderDocsTag.push({
-					...lenderDoc,
-					doctype,
-					typeId: doctype,
-					doc_type_id,
-					category,
-					name,
-					document_key,
-				});
-				return null;
-			}
-			if (priority === '3') {
-				const doc_type_id = `app_${business_income_type_id}_${
-					CONST.CATEGORY_EVAL
-				}_${doctype}`;
-				const category = CONST.CATEGORY_EVAL;
-				if (appEvalDocList?.filter(d => d?.id === doctype)?.length <= 0) {
-					appEvalDocList.push({
-						...docListItem,
+				if (priority === '3') {
+					const doc_type_id = `app_${business_income_type_id}_${
+						CONST.CATEGORY_EVAL
+					}_${doctype}`;
+					const category = CONST.CATEGORY_EVAL;
+					if (appEvalDocList?.filter(d => d?.id === doctype)?.length <= 0) {
+						appEvalDocList.push({
+							...docListItem,
+							doc_type_id,
+							category,
+						});
+					}
+					preFillEvalDocsTag.push({
+						...lenderDoc,
+						doctype,
+						typeId: doctype,
 						doc_type_id,
 						category,
+						name,
+						document_key,
 					});
+					return null;
 				}
-				preFillEvalDocsTag.push({
-					...lenderDoc,
-					doctype,
-					typeId: doctype,
-					doc_type_id,
-					category,
-					name,
-					document_key,
-				});
-				return null;
 			}
 			return null;
 		});
