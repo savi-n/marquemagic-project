@@ -1159,7 +1159,10 @@ const DocumentUpload = props => {
 				lenderDoc?.original_doc_name ||
 				lenderDoc?.doc_name;
 			const document_key = lenderDoc?.doc_name;
-			if (lenderDoc.uploaded_by === userDetailsData.id) {
+			if (
+				userDetailsData.is_other &&
+				lenderDoc.uploaded_by === userDetailsData.id
+			) {
 				if (priority === '300') {
 					const doc_type_id = `app_${business_income_type_id}_${
 						CONST.CATEGORY_LENDER
