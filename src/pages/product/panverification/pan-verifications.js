@@ -1471,7 +1471,7 @@ const PanVerification = props => {
 								// });
 								const newAddressProofDocs = [];
 
-								console.log('newaddress', newAddressProofDocs);
+								// console.log('newaddress', newAddressProofDocs);
 
 								addressProofDocsRef?.current?.map(d =>
 									newAddressProofDocs.push(d)
