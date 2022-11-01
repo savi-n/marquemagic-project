@@ -142,7 +142,7 @@ const DocumentUpload = props => {
 	}
 	const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
 	const formReducer = applicationState?.formReducer;
-	const userReducer = applicationState?.userReducer;
+	const userReducer = applicationState?.userReducer || {};
 	let companyData = {};
 	if (sessionStorage.getItem('companyData')) {
 		try {
@@ -158,6 +158,9 @@ const DocumentUpload = props => {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+	if (isEditLoan) {
+		userReducer.userId = Number(editLoanData?.createdUserId);
+	}
 	const editLoanApplicant =
 		editLoanData?.director_details?.filter(
 			d => d?.type_name?.toLowerCase() === 'applicant'
