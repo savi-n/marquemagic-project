@@ -1162,10 +1162,13 @@ const DocumentUpload = props => {
 				lenderDoc?.original_doc_name ||
 				lenderDoc?.doc_name;
 			const document_key = lenderDoc?.doc_name;
-			if (
-				userDetailsData.is_other &&
-				lenderDoc.uploaded_by === userDetailsData.id
-			) {
+			let displayEvalDoc = false;
+			if (userDetailsData.is_other) {
+				if (lenderDoc.uploaded_by === userDetailsData.id) displayEvalDoc = true;
+			} else {
+				displayEvalDoc = true;
+			}
+			if (displayEvalDoc) {
 				if (priority === '300') {
 					const doc_type_id = `app_${business_income_type_id}_${
 						CONST.CATEGORY_LENDER
@@ -1332,19 +1335,19 @@ const DocumentUpload = props => {
 	if (userDetailsData.is_other === 1 && isViewLoan) {
 		displayUploadedDocCount = false;
 	}
-	// console.log('loandocupload-allstates-', {
-	// 	uploadedDocuments,
-	// 	prefilledDocs,
-	// 	allTagUnTagDocList,
-	// 	preFillKycDocsTag,
-	// 	preFillKycDocsUnTag,
-	// 	totalMandatoryDocumentCount,
-	// 	totalMandatoryUploadedDocumentCount,
-	// 	appLenderDocList,
-	// 	appEvalDocList,
-	// 	preFillLenderDocsTag,
-	// 	preFillEvalDocsTag,
-	// });
+	console.log('loandocupload-allstates-', {
+		uploadedDocuments,
+		prefilledDocs,
+		allTagUnTagDocList,
+		preFillKycDocsTag,
+		preFillKycDocsUnTag,
+		totalMandatoryDocumentCount,
+		totalMandatoryUploadedDocumentCount,
+		appLenderDocList,
+		appEvalDocList,
+		preFillLenderDocsTag,
+		preFillEvalDocsTag,
+	});
 
 	if (loading) {
 		return (
