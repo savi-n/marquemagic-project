@@ -935,8 +935,10 @@ export default function FileUpload(props) {
 									if (!isViewMoreClicked && index > 2) return null;
 									const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
 									let isDocRemoveAllowed = true;
+									let isViewDocAllowed = true;
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
+										isViewDocAllowed = false;
 									}
 									if (isEditLoan && doc?.document_delete === 'true') {
 										isDocRemoveAllowed = false;
@@ -950,7 +952,7 @@ export default function FileUpload(props) {
 												height: '35px',
 												lineHeight: '35px',
 												background: isViewMore ? '#e6ffef' : '',
-												cursor: 'pointer',
+												cursor: isViewDocAllowed ? 'pointer' : 'not-allowed',
 											}}
 											onClick={e => {
 												e.preventDefault();
@@ -969,7 +971,7 @@ export default function FileUpload(props) {
 													if (!isViewMore) {
 														e.preventDefault();
 														e.stopPropagation();
-														openDocument(doc);
+														isViewDocAllowed && openDocument(doc);
 													}
 												}}
 											>
