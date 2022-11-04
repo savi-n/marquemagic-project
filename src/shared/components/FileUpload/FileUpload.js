@@ -281,6 +281,11 @@ export default function FileUpload(props) {
 			// });
 			setUploading(false);
 			if (pan) {
+				// console.log('FileUpload-before-setdocs-', {
+				// 	aadharVoterDl,
+				// 	docs,
+				// 	filesToUpload,
+				// });
 				aadharVoterDl
 					? setDocs([...docs, filesToUpload[0]])
 					: setDocs([filesToUpload[0]]);
@@ -353,12 +358,29 @@ export default function FileUpload(props) {
 		if (accept) {
 			files = files.filter(file => accept.includes(file.type.split('/')[1]));
 		}
-
+		// console.log('after-accept-', {
+		// 	accept,
+		// 	pan,
+		// 	upload,
+		// 	files,
+		// 	event,
+		// 	eventFiles: event.dataTransfer.files,
+		// });
 		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
 			if (upload) {
+				// console.log('before-handleUpload-', {
+				// 	files,
+				// });
 				files = await handleUpload(files);
+				// console.log('after-handleUpload-', {
+				// 	files,
+				// });
 			}
 			onDrop(files);
+			// console.log('before current-files-', {
+			// 	current: selectedFiles.current,
+			// 	files,
+			// });
 			if (!pan) {
 				files = [...selectedFiles.current, ...files].filter(f =>
 					f.name ? true : false
@@ -488,7 +510,7 @@ export default function FileUpload(props) {
 		try {
 			setLoading(true);
 			// in case of edit_loan
-			// console.log('prefilledDocs', prefilledDocs);
+			// console.log('FileUpload-initializeComponent-', { mappedFiles, props });
 			if (prefilledDocs && prefilledDocs.length > 0) {
 				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
 				const newMappedFile = _.cloneDeep(mappedFiles);
@@ -528,7 +550,7 @@ export default function FileUpload(props) {
 				selectedFiles.current = startingUnTaggedDocs;
 				setUploadingFiles(startingUnTaggedDocs);
 			}
-			// console.log('starting-docs-', {
+			// console.log('FileUpload-initializeComponent-EOD-', {
 			// 	prefilledDocs,
 			// 	startingTaggedDocs,
 			// 	startingUnTaggedDocs,
@@ -543,16 +565,16 @@ export default function FileUpload(props) {
 	useEffect(() => {
 		initializeComponent();
 		// eslint-disable-next-line
-	}, []);
+	}, [sectionType]);
 
 	useEffect(() => {
 		// console.log('useEffect-removeAllFileUploads-', removeAllFileUploads);
-		if (removeAllFileUploads === '') return;
+		if (!removeAllFileUploads) return;
 		selectedFiles.current = [];
 		setUploadingFiles([]);
 		setDocTypeFileMap({});
 		setMappedFiles({});
-	}, [removeAllFileUploads]);
+	}, [removeAllFileUploads, sectionType]);
 
 	useEffect(() => {
 		if (isViewLoan) return;
@@ -571,7 +593,7 @@ export default function FileUpload(props) {
 			div?.removeEventListener('dragend', handleDrag);
 		};
 		// eslint-disable-next-line
-	}, [disabled]);
+	}, [disabled, sectionType]);
 
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
@@ -657,7 +679,11 @@ export default function FileUpload(props) {
 			)}
 			<UI.FileListWrap>
 				{uploadingFiles.map((file, upidx) => {
-					// console.log('uplodaing-file-FileListWrap-file', file);
+					// console.log('uplodaing-file-FileListWrap-file', {
+					// 	uploadingFiles,
+					// 	file,
+					// 	docTypeFileMap,
+					// });
 					let isMapped = false;
 					for (const key in docTypeFileMap) {
 						if (file.id === key) {
@@ -839,7 +865,7 @@ export default function FileUpload(props) {
 					// // const mappedFiles = [];
 					// console.log('upload-list-', {
 					// 	startingTaggedDocs,
-					// 	documents: uploadedDocuments,
+					// 	uploadingFiles,
 					// 	mappedFiles,
 					// 	docTypeOptions,
 					// 	docTypeFileMap,
@@ -909,8 +935,10 @@ export default function FileUpload(props) {
 									if (!isViewMoreClicked && index > 2) return null;
 									const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
 									let isDocRemoveAllowed = true;
+									let isViewDocAllowed = true;
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
+										isViewDocAllowed = false;
 									}
 									if (isEditLoan && doc?.document_delete === 'true') {
 										isDocRemoveAllowed = false;
@@ -924,7 +952,7 @@ export default function FileUpload(props) {
 												height: '35px',
 												lineHeight: '35px',
 												background: isViewMore ? '#e6ffef' : '',
-												cursor: 'pointer',
+												cursor: isViewDocAllowed ? 'pointer' : 'not-allowed',
 											}}
 											onClick={e => {
 												e.preventDefault();
@@ -943,7 +971,7 @@ export default function FileUpload(props) {
 													if (!isViewMore) {
 														e.preventDefault();
 														e.stopPropagation();
-														openDocument(doc);
+														isViewDocAllowed && openDocument(doc);
 													}
 												}}
 											>

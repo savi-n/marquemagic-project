@@ -152,6 +152,9 @@ const AddressDetailsPage = props => {
 	const updateBusinessProfile = async formData => {
 		// console.log('333', applicantData?.mobileNo || companyData?.mobileNo);
 		let personalDataFormState = JSON.parse(sessionStorage.getItem('formstate'));
+		let businessDataFormState = JSON.parse(
+			sessionStorage.getItem('businessFormstate')
+		);
 		// console.log(personalDataFormState, '111');
 		try {
 			if (!companyData) {
@@ -167,11 +170,13 @@ const AddressDetailsPage = props => {
 				businessName:
 					applicantData?.firstName ||
 					sessionStorage.getItem('BusinessName') ||
+					businessDataFormState?.BusinessName ||
 					companyData?.BusinessName ||
 					'',
 				businessPancardNumber:
 					personalDataFormState?.panNumber ||
 					applicantData?.panNumber ||
+					businessDataFormState?.panNumber ||
 					companyData?.panNumber ||
 					'',
 				// // crime_check: "Yes",,
@@ -180,12 +185,14 @@ const AddressDetailsPage = props => {
 					personalDataFormState?.email ||
 					applicantData?.email ||
 					companyData?.email ||
+					businessDataFormState?.Email ||
 					companyData?.Email ||
 					formReducer?.user['business-details']?.Email ||
 					'',
 				contactNo:
 					personalDataFormState?.mobileNo ||
 					applicantData?.mobileNo ||
+					businessDataFormState?.mobileNo ||
 					companyData?.mobileNo ||
 					'',
 				gstin:
