@@ -138,12 +138,13 @@ export default function PersonalDetailsPage({
 		}
 
 		const oldReqBody = await getFlowData(LOGIN_CREATEUSER_REQ_BODY);
-		const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
-		const userReducer = applicationState?.userReducer;
+		// const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
+		// const userReducer = applicationState?.userReducer;
 		// console.log(userReducer?.userId, typeof userReducer?.userId, isEditLoan);
 		if (
 			!_.isEqual(oldReqBody, reqBody) &&
-			typeof userReducer?.userId === 'object' &&
+			// typeof userReducer?.userId === 'object' &&
+			!sessionStorage.getItem('userToken') &&
 			!isEditLoan
 		) {
 			const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
@@ -260,7 +261,7 @@ export default function PersonalDetailsPage({
 			'formstate',
 			JSON.stringify({ ...formstate, ...data })
 		);
-		!isViewLoan && onSave(data);
+		!isViewLoan && (await onSave(data));
 		setCompleted(id);
 		onFlowChange(map.main);
 		setLoading(false);
