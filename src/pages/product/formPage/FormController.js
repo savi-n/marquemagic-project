@@ -217,15 +217,16 @@ export default function FormController({
 					JSON.stringify(formState.values)
 				);
 				const oldReqBody = await getFlowData(LOGIN_CREATEUSER_REQ_BODY);
-				const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
-				const userReducer = applicationState?.userReducer;
+				// const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
+				// const userReducer = applicationState?.userReducer;
 				// console.log('FormController-onProceed-LOGIN_CREATEUSER_REQ_BODY-', {
 				// 	oldReqBody,
 				// 	reqBody,
 				// });
 				if (
 					!_.isEqual(oldReqBody, reqBody) &&
-					typeof userReducer?.userId === 'object' &&
+					// typeof userReducer?.userId === 'object' &&
+					!sessionStorage.getItem('userToken') &&
 					!isEditLoan
 				) {
 					const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
