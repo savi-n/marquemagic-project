@@ -159,7 +159,8 @@ const DocumentUpload = props => {
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 	if (isEditLoan) {
-		userReducer.userId = Number(editLoanData?.createdUserId);
+		userReducer.userId = +editLoanData?.business_id?.userid;
+		// console.log(userReducer, '999');
 	}
 	const editLoanApplicant =
 		editLoanData?.director_details?.filter(
@@ -1335,19 +1336,19 @@ const DocumentUpload = props => {
 	if (userDetailsData.is_other === 1 && isViewLoan) {
 		displayUploadedDocCount = false;
 	}
-	console.log('loandocupload-allstates-', {
-		uploadedDocuments,
-		prefilledDocs,
-		allTagUnTagDocList,
-		preFillKycDocsTag,
-		preFillKycDocsUnTag,
-		totalMandatoryDocumentCount,
-		totalMandatoryUploadedDocumentCount,
-		appLenderDocList,
-		appEvalDocList,
-		preFillLenderDocsTag,
-		preFillEvalDocsTag,
-	});
+	// console.log('loandocupload-allstates-', {
+	// 	uploadedDocuments,
+	// 	prefilledDocs,
+	// 	allTagUnTagDocList,
+	// 	preFillKycDocsTag,
+	// 	preFillKycDocsUnTag,
+	// 	totalMandatoryDocumentCount,
+	// 	totalMandatoryUploadedDocumentCount,
+	// 	appLenderDocList,
+	// 	appEvalDocList,
+	// 	preFillLenderDocsTag,
+	// 	preFillEvalDocsTag,
+	// });
 
 	if (loading) {
 		return (
