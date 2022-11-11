@@ -25,14 +25,14 @@ function pastDatesOnly(value) {
 }
 
 function validatePattern(pattern) {
-	return function (value, pat) {
+	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
 		return !new RegExp(pat).test(value);
 	};
 }
 
 function limitLength(type) {
-	return function (value, limit) {
+	return function(value, limit) {
 		if (type === 'max') return value?.length > limit;
 		else if (type === 'min') return value?.length < limit;
 		return value?.length !== limit;
@@ -62,7 +62,8 @@ const VALIDATION_RULES = {
 	},
 	email: {
 		// eslint-disable-next-line
-		func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
+		// func: validatePattern(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g),
+		func: validatePattern(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
 	pastDates: {
@@ -127,6 +128,7 @@ const MASKS = {
 	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
 	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
 	MaskValues: (value, options) => {
+		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
@@ -241,18 +243,42 @@ export default function useForm() {
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-		const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+		const userDetails = JSON.parse(sessionStorage.getItem('userDetails')) || [];
 		if (
 			newField.isMasked &&
-			!isViewLoan &&
-			(!newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
-				!newField?.userTypesAllowed?.includes('*'))
+			isViewLoan &&
+			!newField?.userTypesAllowed?.includes(userDetails?.usertype) &&
+			!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) &&
+			!newField?.userTypesAllowed?.includes('*')
 		) {
 			delete newField?.mask?.MaskValues;
-		} else {
+			// console.log('deleted mask as there was no usertype or user sub type');
+		}
+		// new addition
+		if (
+			newField.isMasked &&
+			isViewLoan &&
+			(newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) ||
+				newField?.userTypesAllowed?.includes('*'))
+		) {
+			// console.log('masking happens ' + newField.name);
 			if (newField?.isMasked) {
+				// console.log('deleted rules and other masks');
 				newField.rules = {};
+				delete newField.mask.NumberOnly;
+				delete newField.mask.CharacterLimit;
+				delete newField.mask.AlphaCharOnly;
+				delete newField.mask.AlphaNumericOnly;
 			}
+		}
+
+		if (!isViewLoan && newField?.mask?.MaskValues) {
+			// console.log(
+			// 	'deleted masking as it is not view loan and field has maskvalues',
+			// 	newField.name
+			// );
+			delete newField?.mask?.MaskValues;
 		}
 		// Masking ends
 
@@ -263,7 +289,6 @@ export default function useForm() {
 				newField.rules = {};
 			}
 		}
-
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
@@ -536,7 +561,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
-					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
+						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
