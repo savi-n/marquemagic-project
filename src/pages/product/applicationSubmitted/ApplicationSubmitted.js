@@ -82,8 +82,10 @@ export default function ApplicationSubmitted({
 }) {
 	useEffect(() => {
 		const wt_lbl = sessionStorage.getItem('wt_lbl');
+		const userDetails = sessionStorage.getItem('userDetails');
 		sessionStorage.clear();
 		sessionStorage.setItem('wt_lbl', wt_lbl);
+		if (userDetails) sessionStorage.setItem('userDetails', userDetails);
 	}, []);
 
 	// const {
