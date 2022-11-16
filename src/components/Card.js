@@ -3,7 +3,6 @@ This card is designed and defined here */
 
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { shape, string, number } from 'prop-types';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
 import { resetAllApplicationState } from 'utils/localStore';
 import { FlowContext } from 'reducer/flowReducer';
@@ -133,13 +132,3 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		</Wrapper>
 	);
 }
-
-Card.propTypes = {
-	product: shape({
-		name: string.isRequired,
-		url: string.isRequired,
-		description: string.isRequired,
-		id: number.isRequired,
-		product_id: number.isRequired,
-	}),
-};

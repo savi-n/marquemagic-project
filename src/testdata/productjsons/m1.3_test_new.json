@@ -1,0 +1,1085 @@
+{
+	"status": "ok",
+	"data": {
+		"name": "Test New JSON ",
+		"description": "",
+		"url": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/1-SM572923.jpg",
+		"id": 27,
+		"product_id": {
+			"1": 146,
+			"7": 145,
+			"business": 146,
+			"salaried": 145
+		},
+		"product_details": {
+			"head": "NC offers Housing loan in a <span>speedy manner</span>",
+			"loanType": "Housing Loan Individual",
+			"productDetailsImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
+			"applicationSubmittedImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
+			"termsandconditionsurl": "https://testbank-nc.s3.ap-southeast-1.amazonaws.com/condition/Muthoot_T_C_V2.pdf",
+			"kyc_verification": true,
+			"otp_authentication": true,
+			"document_mandatory": true,
+			"is_coapplicant_mandatory": true,
+			"li": [
+				"CUB offers two-wheelers loans to individuals(Salaried/Self Employed) for new vehicles",
+				"Eligibility : 10 months net take home pay in case of salaried employee(maximum)/50% of the gross annual income declared in the lastest ITR in case of non salaried group(maximum)",
+				"Loan amount : maximum of Rs. 1.5 Lakhs",
+				"Margin : 10%",
+				"Repayment tenor : 36 to 60 Months",
+				"<a href=link>Click here</a> for Interest rate and required documents",
+				"<a href=link>Click here</a> for Schemes",
+				"<a href=link>Click here</a> for Processing Charges",
+				"<a href=link>EMI Calculator</a>"
+			],
+			"sections": [
+				{
+					"id": "basic_details",
+					"name": "Baisc Details",
+					"is_applicant": true,
+					"sub_sections": [
+						{
+							"id": "basic_details",
+							"name": "Basic Details",
+							"fields": [
+								{
+									"name": "existing_customer",
+									"placeholder": "Existing Customer",
+									"db_key": "existing_customer",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Yes",
+											"name": "Yes"
+										},
+										{
+											"value": "No",
+											"name": "No"
+										}
+									]
+								},
+								{
+									"label": "Upload your Profile",
+									"type": "file",
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									}
+								},
+								{
+									"label": "Upload your PAN Card",
+									"type": "file",
+									"req_type": "pan",
+									"process_type": "extraction",
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									},
+									"doc_type": {
+										"1": 8,
+										"7": 31
+									}
+								},
+								{
+									"name": "pan_number",
+									"placeholder": "PAN Number",
+									"db_key": "businesspancardnumber",
+									"pre_data_disable": false,
+									"rules": {
+										"required": true,
+										"length": 10
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										},
+										"character_limit": 10,
+										"alpha_numeric_only": true
+									},
+									"type": "text",
+									"protected": true,
+									"visibility": true
+								},
+								{
+									"name": "income_type",
+									"placeholder": "Income/Customer Type",
+									"db_key": "businesstype",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "7",
+											"name": "Salaried"
+										},
+										{
+											"value": "1",
+											"name": "Business"
+										}
+									],
+									"value": "7"
+								},
+								{
+									"name": "first_name",
+									"placeholder": "First Name",
+									"db_key": "first_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "last_name",
+									"placeholder": "Last Name",
+									"db_key": "last_name",
+									"rules": {},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"pre_data_disable": false,
+									"type": "text",
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "dob",
+									"placeholder": "Date of Birth (dd-mm-yyyy)",
+									"db_key": "ddob",
+									"rules": {
+										"required": true,
+										"past_dates": true
+									},
+									"type": "date",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true
+								},
+								{
+									"name": "gender",
+									"placeholder": "Gender",
+									"type": "select",
+									"rules": {
+										"required": true
+									},
+									"db_key": "gender",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Male",
+											"name": "Male"
+										},
+										{
+											"value": "Female",
+											"name": "Female"
+										}
+									]
+								},
+								{
+									"name": "email",
+									"placeholder": "Email ID",
+									"rules": {},
+									"db_key": "business_email",
+									"type": "text",
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										}
+									},
+									"visibility": true
+								},
+								{
+									"name": "mobile_no",
+									"placeholder": "Enter a Valid Mobile Number to Recieve OTP",
+									"db_key": "contactno",
+									"rules": {
+										"required": true,
+										"length": 10
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										}
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "marital_status",
+									"placeholder": "Marital Status",
+									"db_key": "marital_status",
+									"rules": {},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Married",
+											"name": "Married"
+										},
+										{
+											"value": "Single",
+											"name": "Single"
+										},
+										{
+											"value": "Divorced",
+											"name": "Divorced"
+										}
+									]
+								},
+								{
+									"name": "spouse_name",
+									"placeholder": "Spouse Name",
+									"db_key": "spouse_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "residence_status",
+									"placeholder": "Residence Status",
+									"db_key": "residence_status",
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"name": "Resident",
+											"value": "Resident"
+										},
+										{
+											"name": "Resident and Ordinarily Resident",
+											"value": "Resident and Ordinarily Resident"
+										},
+										{
+											"name": "Resident but Not Ordinarily Resident",
+											"value": "Resident but Not Ordinarily Resident"
+										},
+										{
+											"name": "Non-Resident",
+											"value": "Non-Resident"
+										}
+									]
+								},
+								{
+									"name": "country_residence",
+									"placeholder": "Country of Residence",
+									"db_key": "country_residence",
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"name": "India",
+											"value": "India"
+										},
+										{
+											"name": "Other",
+											"value": "Other"
+										}
+									]
+								},
+								{
+									"name": "father_name",
+									"placeholder": "Father's Name",
+									"db_key": "father_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "mother_name",
+									"placeholder": "Mother's Name",
+									"db_key": "mother_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "upi_id",
+									"placeholder": "UPI ID",
+									"db_key": "",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "loan_address_details",
+					"name": "Address Details",
+					"is_applicant": true,
+					"hide_section_usertype": ["Legal", "Technical", "RCU", "Document"],
+					"sub_sections": [
+						{
+							"id": "address_proof_upload",
+							"label": "",
+							"fields": [
+								{
+									"name": "address_proof_type",
+									"type": "radio",
+									"options": [
+										{
+											"label": "Aadhaar",
+											"type": "file",
+											"req_type": "aadhar",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"label": " Voter ID",
+											"type": "file",
+											"req_type": "voter",
+											"value": "voter",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"label": "Upload your DL",
+											"type": "file",
+											"req_type": "DL",
+											"value": "DL",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"label": "Passport",
+											"type": "file",
+											"req_type": "passport",
+											"value": "passport",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"label": "Others",
+											"type": "file",
+											"min": 1,
+											"max": 1,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 8,
+												"7": 31
+											}
+										}
+									]
+								},
+								{
+									"label": "Upload your ID Proof",
+									"type": "file",
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									}
+								},
+								{
+									"name": "aadhaar",
+									"placeholder": "Aadhaar Number",
+									"db_key": "daadhaar",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"protected": false,
+									"pattern": "x",
+									"mask": {
+										"alpha_numeric_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"sub_fields": [
+										{
+											"name": "verifywithotp",
+											"placeholder": "Verify with OTP",
+											"type": "button",
+											"rules": {},
+											"isbuttonfilled": false
+										}
+									]
+								},
+								{
+									"name": "address_proof_id",
+									"placeholder": "Address Proof ID",
+									"db_key": "",
+									"for_type": ["voter", "DL", "passport"],
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "loan_address_details",
+							"label": "Address Details",
+							"fields": [
+								{
+									"name": "address1",
+									"placeholder": "Address Line 1",
+									"db_key": "line1",
+									"rules": {
+										"required": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "address2",
+									"placeholder": "Address Line 2",
+									"db_key": "line2",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "address3",
+									"placeholder": "Landmark",
+									"db_key": "locality",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "pinCode",
+									"placeholder": "Pin Code",
+									"db_key": "pincode",
+									"rules": {
+										"required": true,
+										"length": 6
+									},
+									"mask": {
+										"number_only": true,
+										"character_limit": 6
+									},
+									"make_api_call": 6,
+									"type": "pincode",
+									"value_for_fields": [
+										["city", "district"],
+										["state", "state"]
+									],
+									"visibility": true
+								},
+								{
+									"name": "city",
+									"placeholder": "City",
+									"db_key": "city",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "state",
+									"placeholder": "State",
+									"db_key": "state",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "property_type",
+									"placeholder": "Property Type",
+									"db_key": "residential_type",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "select",
+									"options": [
+										{
+											"name": "Owned",
+											"value": "Owned"
+										},
+										{
+											"name": "Family",
+											"value": "Family"
+										},
+										{
+											"name": "Renter",
+											"value": "Renter"
+										},
+										{
+											"name": "Employer",
+											"value": "Employer"
+										},
+										{
+											"name": "Others",
+											"value": "Others"
+										}
+									],
+									"visibility": true
+								},
+								{
+									"name": "property_tenure",
+									"placeholder": "Tenure in Current property",
+									"db_key": "residential_stability",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "employment_details",
+					"name": "Employment Details",
+					"is_applicant": true,
+					"sub_sections": [
+						{
+							"id": "basic_details",
+							"name": "Employment Details",
+							"fields": [
+								{
+									"name": "employment_category",
+									"placeholder": "Employment Category",
+									"db_key": "employment_category",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Salaried",
+											"name": "Salaried"
+										},
+										{
+											"value": "Business",
+											"name": "Business"
+										},
+										{
+											"value": "Professional",
+											"name": "Professional"
+										},
+										{
+											"value": "Salaried + Self-Employed",
+											"name": "Salaried + Self-Employed"
+										},
+										{
+											"value": "Not Employed",
+											"name": "Not Employed"
+										},
+										{
+											"value": "Others",
+											"name": "Others"
+										}
+									]
+								},
+								{
+									"name": "organization_type",
+									"placeholder": "Organization Type",
+									"db_key": "organization_type",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Central/State Government",
+											"name": "Central/State Government"
+										},
+										{
+											"value": "Public Sector Unit",
+											"name": "Public Sector Unit"
+										},
+										{
+											"value": "Public Limited",
+											"name": "Public Limited"
+										},
+										{
+											"value": "Private Limited",
+											"name": "Private Limited"
+										},
+										{
+											"value": "Proprietorship",
+											"name": "Proprietorship"
+										},
+										{
+											"value": "Partnership",
+											"name": "Partnership"
+										},
+										{
+											"value": "Others",
+											"name": "Others"
+										}
+									]
+								},
+								{
+									"name": "company_name",
+									"placeholder": "Company/Business Name",
+									"db_key": "company_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"pre_data_disable": false,
+									"type": "text",
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "current_designation",
+									"placeholder": "Current Designation",
+									"db_key": "current_designation",
+									"rules": {},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"pre_data_disable": false,
+									"type": "text",
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "years_in_company",
+									"placeholder": "Number of years in current compnay/business",
+									"db_key": "year_in_company",
+									"rules": {},
+									"is_masked": false,
+									"user_types_allowed": "",
+									"mask": {
+										"number_only": true,
+										"character_limit": 10
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "total_experience",
+									"placeholder": "Total years of work experience",
+									"db_key": "total_experience",
+									"rules": {},
+									"is_masked": false,
+									"user_types_allowed": "",
+									"mask": {
+										"number_only": true,
+										"character_limit": 10
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "office_phone",
+									"placeholder": "Office Phone Number",
+									"db_key": "office_phone",
+									"rules": {},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','CO','Sales']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										},
+										"number_only": true,
+										"character_limit": 10
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "office_email",
+									"placeholder": "Office Email ID",
+									"db_key": "office_email",
+									"rules": {},
+									"type": "text",
+									"is_masked": true,
+									"user_types_allowed": "['Legal','CO','Sales']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										}
+									},
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "address_details",
+							"name": "Address Details",
+							"fields": [
+								{
+									"name": "address1",
+									"placeholder": "Address Line 1",
+									"db_key": "address1",
+									"rules": {
+										"required": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "address2",
+									"placeholder": "Address Line 2",
+									"db_key": "address2",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "landmark",
+									"placeholder": "Landmark",
+									"db_key": "landmark",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "pinCode",
+									"placeholder": "Pin Code",
+									"db_key": "pincode",
+									"rules": {
+										"required": true,
+										"length": 6
+									},
+									"mask": {
+										"number_only": true,
+										"character_limit": 6
+									},
+									"make_api_call": 6,
+									"type": "pincode",
+									"value_for_fields": [
+										["city", "district"],
+										["state", "state"]
+									],
+									"visibility": true
+								},
+								{
+									"name": "city",
+									"placeholder": "City",
+									"db_key": "city",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "state",
+									"placeholder": "State",
+									"db_key": "state",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "salary_details",
+							"name": "Income Details",
+							"fields": [
+								{
+									"name": "gross_income",
+									"for_type": [
+										"Business",
+										"Professional",
+										"Salaried + Self Employed"
+									],
+									"for_type_name": "employment_category",
+									"placeholder": "Gross Income from Employment(Monthly)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "net_monthly_income",
+									"for_type": "Salaried",
+									"placeholder": "Net Income from Employment(Monthly)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "income_from_other_business",
+									"placeholder": "Income from Other Business (Annual)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "income_from_rent",
+									"placeholder": "Income from Rent (Annual)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "income_from_agriculture",
+									"placeholder": "Income from Agriculture (Annual)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "any_other_income",
+									"placeholder": "Any Other Income (Annual)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "document_upload",
+					"name": "Document Upload"
+				},
+				{
+					"id": "application_submitted",
+					"name": "Application Submitted"
+				}
+			],
+			"error": {
+				"message": "The application is currently for individuals only. Please contact your branch for processing your application",
+				"button": {
+					"header": "<b>Become a customer with </b><a href=link>City Union Bank</a>",
+					"link": "www.google.com",
+					"message": "Click here to complete your e-kyc"
+				}
+			}
+		},
+		"color_theme_react": {},
+		"edit_json": "{\n  \"head\": \"NC offers Housing loan in a <span>speedy manner</span>\",\n  \"loanType\": \"Housing Loan Individual\",\n  \"productDetailsImage\": \"https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg\",\n  \"applicationSubmittedImage\": \"https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg\",\n  \"termsandconditionsurl\": \"https://testbank-nc.s3.ap-southeast-1.amazonaws.com/condition/Muthoot_T_C_V2.pdf\",\n  \"kyc_verification\": true,\n  \"otp_authentication\": true,\n  \"document_mandatory\": true,\n  \"li\": [\n    \"CUB offers two-wheelers loans to individuals(Salaried/Self Employed) for new vehicles\",\n    \"Eligibility : 10 months net take home pay in case of salaried employee(maximum)/50% of the gross annual income declared in the lastest ITR in case of non salaried group(maximum)\",\n    \"Loan amount : maximum of Rs. 1.5 Lakhs\",\n    \"Margin : 10%\",\n    \"Repayment tenor : 36 to 60 Months\",\n    \"<a href=link>Click here</a> for Interest rate and required documents\",\n    \"<a href=link>Click here</a> for Schemes\",\n    \"<a href=link>Click here</a> for Processing Charges\",\n    \"<a href=link>EMI Calculator</a>\"\n  ],\n  \"flow\": [\n    {\n      \"name\": \"Baisc Details\",\n      \"id\": \"basic_details\",\n      \"fields\": {\n        \"basic_details\": {\n          \"label\": \"Basic Details\",\n          \"data\": [\n            {\n              \"name\": \"existing_customer\",\n              \"placeholder\": \"Existing Customer\",\n              \"db_key\": \"existing_customer\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"value\": \"Yes\",\n                  \"name\": \"Yes\"\n                },\n                {\n                  \"value\": \"No\",\n                  \"name\": \"No\"\n                }\n              ]\n            },\n            {\n              \"label\": \"Upload your Profile\",\n              \"type\": \"file\",\n              \"rules\": {\n                \"required\": true,\n                \"supported_formats\": [\n                  \"*\"\n                ]\n              }\n            },\n            {\n              \"label\": \"Upload your PAN Card\",\n              \"type\": \"file\",\n              \"req_type\": \"pan\",\n              \"process_type\": \"extraction\",\n              \"min\": 1,\n              \"max\": 1,\n              \"rules\": {\n                \"required\": true,\n                \"supported_formats\": [\n                  \"*\"\n                ]\n              },\n              \"doc_type\": {\n                \"1\": 8,\n                \"7\": 31\n              }\n            },\n            {\n              \"name\": \"pan_number\",\n              \"placeholder\": \"PAN Number\",\n              \"db_key\": \"businesspancard\",\n              \"pre_data_disable\": false,\n              \"rules\": {\n                \"required\": true,\n                \"length\": 10\n              },\n              \"is_masked\": true,\n              \"user_types_allowed\": \"['Technical','RCU']\",\n              \"mask\": {\n                \"mask_values\": {\n                  \"mask_pattern\": \"*\",\n                  \"characters_not_to_be_masked\": {\n                    \"from_starting\": 1,\n                    \"from_ending\": 1\n                  }\n                },\n                \"character_limit\": 10,\n                \"alpha_numeric_only\": true\n              },\n              \"type\": \"text\",\n              \"protected\": true,\n              \"visibility\": true\n            },\n            {\n              \"name\": \"income_type\",\n              \"placeholder\": \"Income/Customer Type\",\n              \"db_key\": \"businesstype\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"value\": \"7\",\n                  \"name\": \"Salaried\"\n                },\n                {\n                  \"value\": \"1\",\n                  \"name\": \"Business\"\n                }\n              ],\n              \"value\": \"7\"\n            },\n            {\n              \"name\": \"first_name\",\n              \"placeholder\": \"First Name\",\n              \"db_key\": \"first_name\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"AlphaCharOnly\": true\n              },\n              \"type\": \"text\",\n              \"pre_data_disable\": false,\n              \"protected\": false,\n              \"visibility\": true,\n              \"default_value\": \"\"\n            },\n            {\n              \"name\": \"last_name\",\n              \"placeholder\": \"Last Name\",\n              \"db_key\": \"last_name\",\n              \"rules\": {},\n              \"mask\": {\n                \"alpha_char_only\": true\n              },\n              \"pre_data_disable\": false,\n              \"type\": \"text\",\n              \"protected\": false,\n              \"visibility\": true,\n              \"default_value\": \"\"\n            },\n            {\n              \"name\": \"dob\",\n              \"placeholder\": \"Date of Birth (dd-mm-yyyy)\",\n              \"db_key\": \"ddob\",\n              \"rules\": {\n                \"required\": true,\n                \"pastDates\": true\n              },\n              \"type\": \"date\",\n              \"pre_data_disable\": false,\n              \"protected\": false,\n              \"visibility\": true\n            },\n            {\n              \"name\": \"gender\",\n              \"placeholder\": \"Gender\",\n              \"type\": \"select\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"db_key\": \"gender\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"value\": \"Male\",\n                  \"name\": \"Male\"\n                },\n                {\n                  \"value\": \"Female\",\n                  \"name\": \"Female\"\n                }\n              ]\n            },\n            {\n              \"name\": \"email\",\n              \"placeholder\": \"Email ID\",\n              \"rules\": {},\n              \"db_key\": \"business_email\",\n              \"type\": \"text\",\n              \"is_masked\": true,\n              \"user_types_allowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"mask_values\": {\n                  \"mask_pattern\": \"*\",\n                  \"characters_not_to_be_masked\": {\n                    \"fromStarting\": 1,\n                    \"fromEnding\": 1\n                  }\n                }\n              },\n              \"visibility\": true\n            },\n            {\n              \"name\": \"mobile_no\",\n              \"placeholder\": \"Enter a Valid Mobile Number to Recieve OTP\",\n              \"db_key\": \"contactno\",\n              \"rules\": {\n                \"required\": true,\n                \"length\": 10\n              },\n              \"is_masked\": true,\n              \"user_types_allowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"mask_values\": {\n                  \"mask_pattern\": \"*\",\n                  \"characters_not_to_be_masked\": {\n                    \"fromStarting\": 1,\n                    \"fromEnding\": 1\n                  }\n                }\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"marital_status\",\n              \"placeholder\": \"Marital Status\",\n              \"db_key\": \"marital_status\",\n              \"rules\": {},\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"value\": \"Married\",\n                  \"name\": \"Married\"\n                },\n                {\n                  \"value\": \"Single\",\n                  \"name\": \"Single\"\n                },\n                {\n                  \"value\": \"Divorced\",\n                  \"name\": \"Divorced\"\n                }\n              ]\n            },\n            {\n              \"name\": \"spouseName\",\n              \"placeholder\": \"Spouse Name\",\n              \"db_key\": \"spouse_name\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"alpha_char_only\": true\n              },\n              \"type\": \"text\",\n              \"pre_data_disable\": false,\n              \"protected\": false,\n              \"visibility\": true,\n              \"default_value\": \"\"\n            },\n            {\n              \"name\": \"residenceStatus\",\n              \"placeholder\": \"Residence Status\",\n              \"db_key\": \"residence_status\",\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"name\": \"Resident\",\n                  \"value\": \"Resident\"\n                },\n                {\n                  \"name\": \"Resident and Ordinarily Resident\",\n                  \"value\": \"Resident and Ordinarily Resident\"\n                },\n                {\n                  \"name\": \"Resident but Not Ordinarily Resident\",\n                  \"value\": \"Resident but Not Ordinarily Resident\"\n                },\n                {\n                  \"name\": \"Non-Resident\",\n                  \"value\": \"Non-Resident\"\n                }\n              ]\n            },\n            {\n              \"name\": \"countryResidence\",\n              \"placeholder\": \"Country of Residence\",\n              \"db_key\": \"country_residence\",\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"name\": \"India\",\n                  \"value\": \"India\"\n                },\n                {\n                  \"name\": \"Other\",\n                  \"value\": \"Other\"\n                }\n              ]\n            }\n          ]\n        }\n      }\n    },\n    {\n      \"name\": \"Address Details\",\n      \"id\": \"loan_address_details\",\n      \"hide_section_usertype\": [\n        \"Legal\",\n        \"Technical\",\n        \"RCU\",\n        \"Document\"\n      ],\n      \"fields\": {\n        \"address_proof_upload\": {\n          \"label\": \"\",\n          \"data\": [\n            {\n              \"name\": \"address_proof_type\",\n              \"type\": \"radio\",\n              \"options\": [\n                {\n                  \"label\": \"Aadhaar\",\n                  \"type\": \"file\",\n                  \"req_type\": \"aadhar\",\n                  \"process_type\": \"extraction\",\n                  \"min\": 1,\n                  \"max\": 2,\n                  \"rules\": {\n                    \"required\": true,\n                    \"supported_formats\": [\n                      \"*\"\n                    ]\n                  },\n                  \"doc_type\": {\n                    \"1\": 302,\n                    \"7\": 302\n                  }\n                },\n                {\n                  \"label\": \" Voter ID\",\n                  \"type\": \"file\",\n                  \"req_type\": \"voter\",\n                  \"value\": \"voter\",\n                  \"process_type\": \"extraction\",\n                  \"min\": 1,\n                  \"max\": 2,\n                  \"rules\": {\n                    \"required\": true,\n                    \"supported_formats\": [\n                      \"*\"\n                    ]\n                  },\n                  \"doc_type\": {\n                    \"1\": 302,\n                    \"7\": 302\n                  }\n                },\n                {\n                  \"label\": \"Upload your DL\",\n                  \"type\": \"file\",\n                  \"req_type\": \"DL\",\n                  \"value\": \"DL\",\n                  \"process_type\": \"extraction\",\n                  \"min\": 1,\n                  \"max\": 2,\n                  \"rules\": {\n                    \"required\": true,\n                    \"supported_formats\": [\n                      \"*\"\n                    ]\n                  },\n                  \"doc_type\": {\n                    \"1\": 302,\n                    \"7\": 302\n                  }\n                },\n                {\n                  \"label\": \"Passport\",\n                  \"type\": \"file\",\n                  \"req_type\": \"passport\",\n                  \"value\": \"passport\",\n                  \"process_type\": \"extraction\",\n                  \"min\": 1,\n                  \"max\": 2,\n                  \"rules\": {\n                    \"required\": true,\n                    \"supported_formats\": [\n                      \"*\"\n                    ]\n                  },\n                  \"doc_type\": {\n                    \"1\": 302,\n                    \"7\": 302\n                  }\n                },\n                {\n                  \"label\": \"Others\",\n                  \"type\": \"file\",\n                  \"min\": 1,\n                  \"max\": 1,\n                  \"rules\": {\n                    \"required\": true,\n                    \"supported_formats\": [\n                      \"*\"\n                    ]\n                  },\n                  \"doc_type\": {\n                    \"1\": 8,\n                    \"7\": 31\n                  }\n                }\n              ]\n            },\n            {\n              \"label\": \"Upload your ID Proof\",\n              \"type\": \"file\",\n              \"min\": 1,\n              \"max\": 1,\n              \"rules\": {\n                \"required\": true,\n                \"supported_formats\": [\n                  \"*\"\n                ]\n              }\n            },\n            {\n              \"name\": \"aadhaar\",\n              \"placeholder\": \"Aadhaar Number\",\n              \"db_key\": \"\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"protected\": false,\n              \"pattern\": \"x\",\n              \"mask\": {\n                \"alpha_numeric_only\": true,\n                \"character_limit\": 12\n              },\n              \"visibility\": true,\n              \"sub_fields\": [\n                {\n                  \"name\": \"verifywithotp\",\n                  \"placeholder\": \"Verify with OTP\",\n                  \"type\": \"button\",\n                  \"rules\": {},\n                  \"isbuttonfilled\": false\n                }\n              ]\n            },\n            {\n              \"name\": \"address_proof_id\",\n              \"placeholder\": \"Address Proof ID\",\n              \"db_key\": \"\",\n              \"for_type\": [\n                \"voter\",\n                \"DL\",\n                \"passport\"\n              ],\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"visibility\": true\n            }\n          ]\n        },\n        \"loan-address-details\": {\n          \"label\": \"Address Details\",\n          \"data\": [\n            {\n              \"name\": \"address1\",\n              \"placeholder\": \"Address Line 1\",\n              \"db_key\": \"line1\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"address2\",\n              \"placeholder\": \"Address Line 2\",\n              \"db_key\": \"line2\",\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"address3\",\n              \"placeholder\": \"Landmark\",\n              \"db_key\": \"locality\",\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"pinCode\",\n              \"placeholder\": \"Pin Code\",\n              \"db_key\": \"pincode\",\n              \"rules\": {\n                \"required\": true,\n                \"length\": 6\n              },\n              \"mask\": {\n                \"number_only\": true,\n                \"character_limit\": 6\n              },\n              \"make_api_call\": 6,\n              \"type\": \"pincode\",\n              \"value_for_fields\": [\n                [\n                  \"city\",\n                  \"district\"\n                ],\n                [\n                  \"state\",\n                  \"state\"\n                ]\n              ],\n              \"visibility\": true\n            },\n            {\n              \"name\": \"city\",\n              \"placeholder\": \"City\",\n              \"db_key\": \"city\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"AlphaCharOnly\": true\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"state\",\n              \"placeholder\": \"State\",\n              \"db_key\": \"state\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"alpha_char_only\": true\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            }\n          ]\n        }\n      }\n    },\n    {\n      \"name\": \"Employment Details\",\n      \"id\": \"employment_details\",\n      \"fields\": {\n        \"basic-details\": {\n          \"label\": \"Employment Details\",\n          \"data\": [\n            {\n              \"name\": \"employment_category\",\n              \"placeholder\": \"Employment Category\",\n              \"db_key\": \"employment_category\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"value\": \"Salaried\",\n                  \"name\": \"Salaried\"\n                },\n                {\n                  \"value\": \"Business\",\n                  \"name\": \"Business\"\n                },\n                {\n                  \"value\": \"Professional\",\n                  \"name\": \"Professional\"\n                },\n                {\n                  \"value\": \"Salaried + Self-Employed\",\n                  \"name\": \"Salaried + Self-Employed\"\n                },\n                {\n                  \"value\": \"Not Employed\",\n                  \"name\": \"Not Employed\"\n                },\n                {\n                  \"value\": \"Others\",\n                  \"name\": \"Others\"\n                }\n              ]\n            },\n            {\n              \"name\": \"organization_type\",\n              \"placeholder\": \"Organization Type\",\n              \"db_key\": \"organization_type\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"type\": \"select\",\n              \"visibility\": true,\n              \"options\": [\n                {\n                  \"value\": \"Central/State Government\",\n                  \"name\": \"Central/State Government\"\n                },\n                {\n                  \"value\": \"Public Sector Unit\",\n                  \"name\": \"Public Sector Unit\"\n                },\n                {\n                  \"value\": \"Public Limited\",\n                  \"name\": \"Public Limited\"\n                },\n                {\n                  \"value\": \"Private Limited\",\n                  \"name\": \"Private Limited\"\n                },\n                {\n                  \"value\": \"Proprietorship\",\n                  \"name\": \"Proprietorship\"\n                },\n                {\n                  \"value\": \"Partnership\",\n                  \"name\": \"Partnership\"\n                },\n                {\n                  \"value\": \"Others\",\n                  \"name\": \"Others\"\n                }\n              ]\n            },\n            {\n              \"name\": \"company_name\",\n              \"placeholder\": \"Company/Business Name\",\n              \"db_key\": \"company_name\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"AlphaCharOnly\": true\n              },\n              \"preDataDisable\": false,\n              \"type\": \"text\",\n              \"protected\": false,\n              \"visibility\": true,\n              \"default_value\": \"\"\n            },\n            {\n              \"name\": \"current_designation\",\n              \"placeholder\": \"Current Designation\",\n              \"db_key\": \"current_designation\",\n              \"rules\": {},\n              \"mask\": {\n                \"AlphaCharOnly\": true\n              },\n              \"preDataDisable\": false,\n              \"type\": \"text\",\n              \"protected\": false,\n              \"visibility\": true,\n              \"default_value\": \"\"\n            },\n            {\n              \"name\": \"years_in_company\",\n              \"placeholder\": \"Number of years in current compnay/business\",\n              \"db_key\": \"year_in_company\",\n              \"rules\": {},\n              \"isMasked\": false,\n              \"userTypesAllowed\": \"\",\n              \"mask\": {\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 10\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"total_experience\",\n              \"placeholder\": \"Total years of work experience\",\n              \"db_key\": \"total_experience\",\n              \"rules\": {},\n              \"isMasked\": false,\n              \"userTypesAllowed\": \"\",\n              \"mask\": {\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 10\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"office_phone\",\n              \"placeholder\": \"Office Phone Number\",\n              \"db_key\": \"office_phone\",\n              \"rules\": {},\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','CO','Sales']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 1,\n                    \"fromEnding\": 1\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 10\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"office_email\",\n              \"placeholder\": \"Office Email ID\",\n              \"db_key\": \"office_email\",\n              \"rules\": {},\n              \"type\": \"text\",\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','CO','Sales']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 1,\n                    \"fromEnding\": 1\n                  }\n                }\n              },\n              \"visibility\": true\n            }\n          ]\n        },\n        \"address-details\": {\n          \"label\": \"Address Details\",\n          \"data\": [\n            {\n              \"name\": \"address1\",\n              \"placeholder\": \"Address Line 1\",\n              \"db_key\": \"address1\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"address2\",\n              \"placeholder\": \"Address Line 2\",\n              \"db_key\": \"address2\",\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"landmark\",\n              \"placeholder\": \"Landmark\",\n              \"db_key\": \"landmark\",\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"pinCode\",\n              \"placeholder\": \"Pin Code\",\n              \"db_key\": \"pincode\",\n              \"rules\": {\n                \"required\": true,\n                \"length\": 6\n              },\n              \"mask\": {\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 6\n              },\n              \"makeApiCall\": 6,\n              \"type\": \"pincode\",\n              \"valueForFields\": [\n                [\n                  \"city\",\n                  \"district\"\n                ],\n                [\n                  \"state\",\n                  \"state\"\n                ]\n              ],\n              \"visibility\": true\n            },\n            {\n              \"name\": \"city\",\n              \"placeholder\": \"City\",\n              \"db_key\": \"city\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"AlphaCharOnly\": true\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            },\n            {\n              \"name\": \"state\",\n              \"placeholder\": \"State\",\n              \"db_key\": \"state\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"mask\": {\n                \"AlphaCharOnly\": true\n              },\n              \"type\": \"text\",\n              \"visibility\": true\n            }\n          ]\n        },\n        \"salary-details\": {\n          \"label\": \"Income Details\",\n          \"data\": [\n            {\n              \"name\": \"grossIncome\",\n              \"forType\": [\n                \"Business\",\n                \"Professional\",\n                \"Salaried + Self Employed\"\n              ],\n              \"forTypeName\": \"employment_category\",\n              \"placeholder\": \"Gross Total Income from Employment\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 0,\n                    \"fromEnding\": 0\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            },\n            {\n              \"name\": \"netMonthlyIncome\",\n              \"forType\": \"Salaried\",\n              \"placeholder\": \"Net Monthly Income from Employment\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 0,\n                    \"fromEnding\": 0\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            },\n            {\n              \"name\": \"income_from_other_business\",\n              \"placeholder\": \"Income from Other Business (Annual)\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 0,\n                    \"fromEnding\": 0\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            },\n            {\n              \"name\": \"income_from_rent\",\n              \"placeholder\": \"Income from Rent (Annual)\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 0,\n                    \"fromEnding\": 0\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            },\n            {\n              \"name\": \"income_from_agriculture\",\n              \"placeholder\": \"Income from Agriculture (Annual)\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 0,\n                    \"fromEnding\": 0\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            },\n            {\n              \"name\": \"any_other_income\",\n              \"placeholder\": \"Any Other Income (Annual)\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"MaskValues\": {\n                  \"maskPattern\": \"*\",\n                  \"charactersNotTobeMasked\": {\n                    \"fromStarting\": 0,\n                    \"fromEnding\": 0\n                  }\n                },\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            },\n            {\n              \"name\": \"upi_id\",\n              \"placeholder\": \"UPI ID\",\n              \"type\": \"text\",\n              \"rules\": {\n                \"required\": true\n              },\n              \"isMasked\": true,\n              \"userTypesAllowed\": \"['Legal','Technical','RCU']\",\n              \"mask\": {\n                \"NumberOnly\": true,\n                \"CharacterLimit\": 12\n              },\n              \"visibility\": true,\n              \"inrupees\": true\n            }\n          ]\n        }\n      }\n    },\n    {\n      \"name\": \"Document Upload\",\n      \"id\": \"document-upload\"\n    },\n    {\n      \"name\": \"Application Submitted\",\n      \"id\": \"application-submitted\"\n    }\n  ],\n  \"error\": {\n    \"message\": \"The application is currently for individuals only. Please contact your branch for processing your application\",\n    \"button\": {\n      \"header\": \"<b>Become a customer with </b><a href=link>City Union Bank</a>\",\n      \"link\": \"www.google.com\",\n      \"message\": \"Click here to complete your e-kyc\"\n    }\n  }\n}",
+		"loan_request_type": 2,
+		"otp_configuration": {
+			"no_of_attempts": 3,
+			"time_limit_in_minutes": 60,
+			"otp_duration_in_seconds": 90
+		}
+	}
+}

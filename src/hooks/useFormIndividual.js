@@ -124,11 +124,11 @@ function validate(rules, value) {
 }
 
 const MASKS = {
-	NumberOnly: value => value?.replace(/[^\d]+/g, '') || '',
-	CharacterLimit: (value, n) => String(value).substring(0, n) || '',
-	AlphaCharOnly: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
-	AlphaNumericOnly: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
-	MaskValues: (value, options) => {
+	number_only: value => value?.replace(/[^\d]+/g, '') || '',
+	character_limit: (value, n) => String(value).substring(0, n) || '',
+	alpha_char_only: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
+	alphaNumeric_only: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
+	mask_values: (value, options) => {
 		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
@@ -247,46 +247,46 @@ export default function useForm() {
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 		const userDetails = JSON.parse(sessionStorage.getItem('userDetails')) || [];
 		if (
-			newField.isMasked &&
+			newField.is_masked &&
 			isViewLoan &&
-			!newField?.userTypesAllowed?.includes(userDetails?.usertype) &&
-			!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) &&
-			!newField?.userTypesAllowed?.includes('*')
+			!newField?.user_types_allowed?.includes(userDetails?.usertype) &&
+			!newField?.user_types_allowed?.includes(userDetails?.user_sub_type) &&
+			!newField?.user_types_allowed?.includes('*')
 		) {
-			delete newField?.mask?.MaskValues;
+			delete newField?.mask?.mask_values;
 			// console.log('deleted mask as there was no usertype or user sub type');
 		}
 		// new addition
 		if (
-			newField.isMasked &&
+			newField.is_masked &&
 			isViewLoan &&
-			(newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
-				newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) ||
-				newField?.userTypesAllowed?.includes('*'))
+			(newField?.user_types_allowed?.includes(userDetails?.usertype) ||
+				newField?.user_types_allowed?.includes(userDetails?.user_sub_type) ||
+				newField?.user_types_allowed?.includes('*'))
 		) {
 			// console.log('masking happens ' + newField.name);
-			if (newField?.isMasked) {
+			if (newField?.is_masked) {
 				// console.log('deleted rules and other masks');
 				newField.rules = {};
-				delete newField.mask.NumberOnly;
-				delete newField.mask.CharacterLimit;
-				delete newField.mask.AlphaCharOnly;
-				delete newField.mask.AlphaNumericOnly;
+				delete newField.mask.number_only;
+				delete newField.mask.character_limit;
+				delete newField.mask.alpha_char_only;
+				delete newField.mask.alphaNumeric_only;
 			}
 		}
 
-		if (!isViewLoan && newField?.mask?.MaskValues) {
+		if (!isViewLoan && newField?.mask?.mask_values) {
 			// console.log(
 			// 	'deleted masking as it is not view loan and field has maskvalues',
 			// 	{ newField }
 			// );
-			delete newField?.mask?.MaskValues;
+			delete newField?.mask?.mask_values;
 		}
 		// Masking ends
 
 		// condition to check whether the ifsc field should be validated or not
 		if (newField.name.includes('ifsc')) {
-			// newField.mask = { CharacterLimit: 11 };
+			// newField.mask = { character_limit: 11 };
 			if (newField.value.length === 0) {
 				newField.rules = {};
 			}

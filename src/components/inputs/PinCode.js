@@ -120,7 +120,7 @@ export default function Pincode(props) {
 				// const pincodeData = pincodeResponse.data;
 				//console.log(response);
 
-				for (const [k, v] of props.valueForFields) {
+				for (const [k, v] of props.value_for_fields) {
 					const target = { name: k, value: selectedPincodeRes?.[v]?.[0] || '' };
 					props.onChange({ target });
 				}

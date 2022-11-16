@@ -637,7 +637,7 @@ const CoapplicantDetailsSection = props => {
 							return {
 								..._.cloneDeep(d),
 								name: `${d.name}${index + 1}`,
-								valueForFields: [
+								value_for_fields: [
 									[`city${index + 1}`, `district`],
 									[`state${index + 1}`, `state`],
 								],

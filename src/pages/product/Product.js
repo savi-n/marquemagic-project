@@ -1,6 +1,10 @@
 /* This file defines the side menu that is seen in loan application creation journey */
 
 import { useContext, useEffect, Fragment, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import _ from 'lodash';
+
+import { setSelectedProduct, setSelectedSectionId } from 'store/appSlice';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
@@ -11,6 +15,8 @@ import { FlowContext } from 'reducer/flowReducer';
 import { FormContext } from 'reducer/formReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import ContinueModal from 'components/modals/ContinueModal';
+import ProductIndividual from 'pages/product/ProductIndividual';
+
 import Router from './Router';
 import { UserContext } from 'reducer/userReducer';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -25,6 +31,7 @@ import {
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/Button';
+
 const Wrapper = styled.div`
 	width: 100%;
 	min-height: 100%;
@@ -172,6 +179,8 @@ const editLoanRestrictedSections = [
 export default function Product(props) {
 	const { product } = props;
 	// console.log('Product-allStates-', { props });
+	// const app = useSelector(state => state.app);
+	const dispatch = useDispatch();
 	const history = useHistory();
 	const productIdPage = atob(product);
 	const { addToast } = useToasts();
@@ -215,6 +224,8 @@ export default function Product(props) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+	const isIndividual =
+		response && response.data && response.data.loan_request_type === 2;
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
@@ -228,6 +239,16 @@ export default function Product(props) {
 
 	useEffect(() => {
 		if (response) {
+			if (isIndividual) {
+				const selectedProductRes = _.cloneDeep(response.data);
+				dispatch(setSelectedProduct(selectedProductRes));
+				dispatch(
+					setSelectedSectionId(
+						selectedProductRes?.product_details?.sections[0]?.id
+					)
+				);
+				return;
+			}
 			if (response?.data?.loan_request_type) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;
@@ -254,7 +275,6 @@ export default function Product(props) {
 				}
 			}
 			configure(response.data?.product_details?.flow);
-			// displaying the sections based on the config data ends
 			sessionStorage.setItem('productId', atob(product));
 			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
 				sessionStorage.setItem(
@@ -262,6 +282,7 @@ export default function Product(props) {
 					response?.data?.otp_configuration?.otp_duration_in_seconds
 				);
 			}
+			// displaying the sections based on the config data ends
 		}
 		// eslint-disable-next-line
 	}, [response]);
@@ -346,6 +367,10 @@ export default function Product(props) {
 	// 	flow,
 	// 	subFlowMenu,
 	// });
+
+	if (response && response.data && response.data.loan_request_type === 2) {
+		return <ProductIndividual selectedProduct={response.data} />;
+	}
 
 	return (
 		response &&

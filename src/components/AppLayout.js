@@ -1,11 +1,13 @@
 /* App layout like color, theme and logo and routes are defined in this section  */
 
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
+import { useDispatch } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
 
+import { setEditLoanData } from 'store/appSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
 import Loading from './Loading';
@@ -54,6 +56,7 @@ const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
 // const BranchUserContent = lazy(() => import('./BranchUserContent'));
 
 const AppLayout = () => {
+	const dispatch = useDispatch();
 	const { response, newRequest } = useFetch({
 		url: WHITE_LABEL_URL({ name: APP_CLIENT }),
 	});
@@ -141,6 +144,7 @@ const AppLayout = () => {
 					}
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
+					dispatch(setEditLoanData(newEditLoanData));
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(

@@ -176,9 +176,9 @@ const AddressDetails = props => {
 											name: fieldName,
 											value: populateValue(field),
 											disabled: false,
-											...(field.valueForFields
+											...(field.value_for_fields
 												? {
-														valueForFields: field.valueForFields.map(f => [
+														value_for_fields: field.value_for_fields.map(f => [
 															`permanent_${f[0]}`,
 															f[1],
 														]),
@@ -238,12 +238,11 @@ const AddressDetails = props => {
 													? formState?.values?.[`permanent_${field.name}`]
 													: populatePresentValue(field, match),
 												noActionTrigger: match,
-												...(field.valueForFields
+												...(field.value_for_fields
 													? {
-															valueForFields: field.valueForFields.map(f => [
-																`present_${f[0]}`,
-																f[1],
-															]),
+															value_for_fields: field.value_for_fields.map(
+																f => [`present_${f[0]}`, f[1]]
+															),
 													  }
 													: {}),
 												...customFields,

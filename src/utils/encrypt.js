@@ -32,3 +32,23 @@ export const decryptViewDocumentUrl = url => {
 	});
 	return plaintextData.toString(CryptoJS.enc.Latin1);
 };
+
+export const encryptBase64 = reqBody => {
+	try {
+		const wordArray = CryptoJS.enc.Utf8.parse(reqBody);
+		const base64 = CryptoJS.enc.Base64.stringify(wordArray);
+		return base64;
+	} catch (err) {
+		return err;
+	}
+};
+
+export const decryptBase64 = reqBody => {
+	try {
+		const parsedWordArray = CryptoJS.enc.Base64.parse(reqBody);
+		const parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+		return parsedStr;
+	} catch (err) {
+		return err;
+	}
+};
