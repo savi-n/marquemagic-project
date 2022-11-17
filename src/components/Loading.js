@@ -17,6 +17,13 @@ export default function Loading(props) {
 	const [loaders, setLoaders] = useState(DefaultLogo);
 
 	useEffect(() => {
+		if (sessionStorage.getItem('loading_json')) {
+			try {
+				setLoaders(JSON.parse(sessionStorage.getItem('loading_json')));
+			} catch (e) {
+				setLoaders(DefaultLogo);
+			}
+		}
 		let loaderPermission = DefaultLogo;
 		try {
 			loaderPermission =
@@ -25,7 +32,10 @@ export default function Loading(props) {
 			if (typeof loaderPermission === 'string') {
 				fetch(loaderPermission)
 					.then(response => response.json())
-					.then(json => setLoaders(json));
+					.then(json => {
+						setLoaders(json);
+						sessionStorage.setItem('loading_json', JSON.stringify(json));
+					});
 			}
 		} catch (error) {
 			console.error('Loading-loaderpermission-', error);

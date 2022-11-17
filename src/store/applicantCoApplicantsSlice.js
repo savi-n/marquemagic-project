@@ -3,6 +3,7 @@ import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import _ from 'lodash';
 
 const initialState = {
+	applicantId: '', // applicant directorId
 	applicant: {},
 	coApplicants: {},
 	selectedApplicantCoApplicantId: CONST_APP_CO_APP_HEADER.APPLICANT,
@@ -13,9 +14,10 @@ export const applicantCoApplicantsSlice = createSlice({
 	initialState,
 	reducers: {
 		updateApplicant: (state, action) => {
-			const { values } = action.payload;
+			const { id, values } = action.payload;
 			const newApplicant = state.applicant;
 			state.applicant = { ...newApplicant, ...values };
+			if (id) state.applicantId = id;
 		},
 		updateApplicantCoApplicantSection: (state, action) => {
 			const { id, values } = action.payload;

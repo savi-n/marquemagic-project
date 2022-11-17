@@ -126,6 +126,8 @@ const CO_APP_CREATE_REQ_BODY = 'co_app-create-reqbody';
 const CO_APP_CREATE_RESPONSE = 'co_app-create-response';
 const PINCODE_RESPONSE = 'pincode-response';
 
+const ORIGIN = 'nconboarding';
+
 export {
 	API_END_POINT,
 	OTP_API_END_POINT,
@@ -197,4 +199,5 @@ export {
 	CO_APP_CREATE_RESPONSE,
 	PINCODE_RESPONSE,
 	FETCH_EVAL_DETAILS,
+	ORIGIN,
 };

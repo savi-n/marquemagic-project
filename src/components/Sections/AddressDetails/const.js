@@ -1,0 +1,15 @@
+export const initialFormState = {
+	aadhaar: '323232323232',
+	address_proof_id: '242424',
+	address_proof_id_passport: '242424',
+	address_proof_id_dl: '242424',
+	address_proof_id_voter: '242424',
+	address1: 'Add Line 1',
+	address2: 'Add Line 2',
+	address3: 'Add Line 3',
+	pin_code: '560078',
+	city: 'Bangalore',
+	state: 'Karnataka',
+	property_type: 'Owned',
+	property_tenure: 'abcde',
+};

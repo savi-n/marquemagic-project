@@ -7,6 +7,7 @@ import Button from 'components/Button';
 
 import * as SectionUI from '../ui';
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
+import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
 import {
@@ -22,6 +23,7 @@ const EmploymentDetails = () => {
 		selectedProduct,
 		nextSectionId,
 		firstSectionId,
+		isTestMode,
 	} = app;
 	const {
 		applicant,
@@ -92,6 +94,13 @@ const EmploymentDetails = () => {
 			if (formState?.values?.[field.name] !== undefined) {
 				return formState?.values?.[field.name];
 			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
 			if (
 				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
 			) {

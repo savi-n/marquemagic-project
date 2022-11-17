@@ -369,7 +369,7 @@ export default function Product(props) {
 	// });
 
 	if (response && response.data && response.data.loan_request_type === 2) {
-		return <ProductIndividual selectedProduct={response.data} />;
+		return <ProductIndividual />;
 	}
 
 	return (

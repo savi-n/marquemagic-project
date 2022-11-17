@@ -24,6 +24,8 @@ const initialState = {
 	whiteLabelName: window.location.hostname.includes('localhost')
 		? process.env.REACT_APP_QA_WHITELABEL_NAME
 		: window.location.hostname,
+	loginCreateUserRes: {},
+	whiteLabelId: '',
 	permission: {},
 	userDetails: {},
 	userToken: '',
@@ -36,6 +38,7 @@ const initialState = {
 	},
 	selectedApplicant: '',
 	selectedSectionId: '',
+	selectedSection: {},
 	firstSectionId: '',
 	prevSectionId: '',
 	nextSectionId: '',
@@ -46,12 +49,19 @@ const initialState = {
 	isEditOrViewLoan: false,
 	isViewLoan: false,
 	isEditLoan: false,
+	isTestMode: true,
 };
 
 export const appSlice = createSlice({
 	name: 'app',
 	initialState,
 	reducers: {
+		setLoginCreateUserRes: (state, action) => {
+			state.loginCreateUserRes = action.payload;
+		},
+		setWhiteLabelId: (state, action) => {
+			state.whiteLabelId = action.payload;
+		},
 		setPermission: (state, action) => {
 			// Redux Toolkit allows us to write "mutating" logic in reducers. It
 			// doesn't actually mutate the state because it uses the Immer library,
@@ -93,6 +103,8 @@ export const appSlice = createSlice({
 			const selectedIndex = state?.selectedProduct?.product_details?.sections?.findIndex(
 				section => section?.id === action.payload
 			);
+			state.selectedSection =
+				state?.selectedProduct?.product_details?.sections[selectedIndex] || {};
 			state.prevSectionId =
 				state?.selectedProduct?.product_details?.sections?.[selectedIndex - 1]
 					?.id || '';
@@ -129,6 +141,8 @@ export const appSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
+	setLoginCreateUserRes,
+	setWhiteLabelId,
 	setPermission,
 	setUserDetails,
 	setUserToken,

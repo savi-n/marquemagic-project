@@ -76,7 +76,7 @@ const SideNav = props => {
 							<span>{selectedProduct?.name}</span>
 							<UI.ApplicationNo>
 								Application No:{' '}
-								{editLoanData?.loan_ref_id || application?.caseRefId}
+								{editLoanData?.loan_ref_id || application?.loanRefId}
 							</UI.ApplicationNo>
 						</UI.ProductName>
 					</UI.HeadingBox>

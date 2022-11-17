@@ -1,13 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { FlowContext } from 'reducer/flowReducer';
-import { FormContext } from 'reducer/formReducer';
-import { LoanFormContext } from 'reducer/loanFormDataReducer';
 
-// import Router from '../Router';
-import ContinueModal from 'components/modals/ContinueModal';
-import { UserContext } from 'reducer/userReducer';
-import { useToasts } from 'components/Toast/ToastProvider';
 import AppCoAppHeader from 'components/AppCoAppHeader';
 import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
@@ -30,63 +23,7 @@ const ProductIndividual = props => {
 		state => state.applicantCoApplicants
 	);
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
-	const { addToast } = useToasts();
-	const {
-		state: { completed: completedMenu, basePageUrl, productId },
-		actions: { clearFlowDetails },
-	} = useContext(FlowContext);
-	const {
-		actions: { clearFormData, setUsertypeAfterRefresh },
-	} = useContext(FormContext);
-
-	const {
-		actions: { resetUserDetails },
-	} = useContext(UserContext);
-
-	const {
-		actions: { removeAllLoanDocuments },
-	} = useContext(LoanFormContext);
-
-	const [showContinueModal, setShowContinueModal] = useState(false);
 	const [loading, setLoading] = useState(false);
-	// const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	// const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-
-	const onYesClick = () => {
-		// setContinueExistingApplication(true);
-		if (!completedMenu.includes('document-upload')) {
-			setShowContinueModal(true);
-			setUsertypeAfterRefresh();
-		} else {
-			onNoClick();
-			addToast({
-				message: 'Application already created',
-				type: 'error',
-			});
-		}
-	};
-
-	const onNoClick = () => {
-		// setContinueExistingApplication(false);
-		setShowContinueModal(true);
-		const wt_lbl = sessionStorage.getItem('wt_lbl');
-		const product_id = sessionStorage.getItem('productId');
-		sessionStorage.clear();
-		sessionStorage.setItem('wt_lbl', wt_lbl);
-		sessionStorage.setItem('productId', product_id);
-		clearFlowDetails(basePageUrl);
-		clearFormData();
-		resetUserDetails();
-		removeAllLoanDocuments();
-	};
-
-	console.log('ProductIndividual-allStates-', {
-		selectedProduct,
-		app,
-		applicantCoApplicants,
-		completedMenu,
-		basePageUrl,
-	});
 
 	let SelectedComponent = BasicDetails;
 	switch (selectedSectionId) {
@@ -110,6 +47,14 @@ const ProductIndividual = props => {
 		});
 	}, [selectedSectionId, selectedApplicantCoApplicantId]);
 
+	useEffect(() => {
+		console.log('ProductIndividual-allStates-', {
+			selectedProduct,
+			app,
+			applicantCoApplicants,
+		});
+	}, [selectedProduct, app, applicantCoApplicants]);
+
 	return (
 		<UI.Wrapper>
 			<SideNav />
@@ -124,11 +69,6 @@ const ProductIndividual = props => {
 					</UI.DynamicSubSectionWrapper>
 				</UI.DynamicSectionWrapper>
 			</UI.RightSectionWrapper>
-			{!!completedMenu.length &&
-				!showContinueModal &&
-				productId === selectedProduct.id && (
-					<ContinueModal onYes={onYesClick} onNo={onNoClick} />
-				)}
 		</UI.Wrapper>
 	);
 };

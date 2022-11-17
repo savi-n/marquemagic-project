@@ -7,7 +7,10 @@ import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
 
-import { setEditLoanData } from 'store/appSlice';
+import {
+	setEditLoanData,
+	setWhiteLabelId as appSetWhiteLabelId,
+} from 'store/appSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
 import Loading from './Loading';
@@ -221,6 +224,7 @@ const AppLayout = () => {
 		}
 		if (response) {
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
+			dispatch(appSetWhiteLabelId(response?.permission?.id));
 
 			sessionStorage.setItem(
 				'permission',

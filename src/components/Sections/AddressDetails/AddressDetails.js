@@ -10,17 +10,29 @@ import Button from 'components/Button';
 
 import * as SectionUI from '../ui';
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
+import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
+// import { formatSectionReqBody } from 'utils/formatData';
 
 const AddressDetails = () => {
 	const app = useSelector(state => state.app);
-	const { isViewLoan, selectedSectionId, selectedProduct, nextSectionId } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		selectedSection,
+		nextSectionId,
+		isTestMode,
+	} = app;
+	const applicantCoApplicants = useSelector(
+		state => state.applicantCoApplicants
+	);
 	const {
 		selectedApplicantCoApplicantId,
 		applicant,
 		coApplicants,
-	} = useSelector(state => state.applicantCoApplicants);
+	} = applicantCoApplicants;
+	// const application = useSelector(state => state.application);
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
@@ -30,6 +42,20 @@ const AddressDetails = () => {
 			if (Object.keys(formState.values).length === 0) return onSkip();
 			setLoading(true);
 			await sleep(100);
+			// const addressDetailsReqBody = formatSectionReqBody({
+			// 	section: selectedSection,
+			// 	values: formState.values,
+			// 	app,
+			// 	applicantCoApplicants,
+			// 	application,
+			// });
+			// const basicDetailsRes = await axios.post(
+			// 	`/basic_details`,
+			// 	addressDetailsReqBody
+			// );
+			// console.log('onProceed-addressDetailsReqBody-', {
+			// 	addressDetailsReqBody,
+			// });
 			const newAddressDetails = {
 				id: selectedSectionId,
 				values: formState.values,
@@ -65,6 +91,13 @@ const AddressDetails = () => {
 			if (formState?.values?.[field.name] !== undefined) {
 				return formState?.values?.[field.name];
 			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
 			if (
 				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
 			) {
@@ -94,49 +127,47 @@ const AddressDetails = () => {
 
 	return (
 		<div>
-			{selectedProduct?.product_details?.sections
-				?.filter(section => section.id === selectedSectionId)?.[0]
-				?.sub_sections?.map((sub_section, sectionIndex) => {
-					return (
-						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-							{sub_section?.name ? (
-								<SectionUI.SubSectionHeader>
-									{sub_section.name}
-								</SectionUI.SubSectionHeader>
-							) : null}
-							<SectionUI.FormWrap>
-								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!field.visibility) return null;
-									const customFields = {};
-									return (
-										<SectionUI.FieldWrap
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											{register({
-												...field,
-												value: prefilledValues(field),
-												...customFields,
-												visibility: 'visible',
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
-												) : (
-													<SectionUI.ErrorMessage>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessage>
-												))}
-										</SectionUI.FieldWrap>
-									);
-								})}
-							</SectionUI.FormWrap>
-						</Fragment>
-					);
-				})}
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				return (
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						{sub_section?.name ? (
+							<SectionUI.SubSectionHeader>
+								{sub_section.name}
+							</SectionUI.SubSectionHeader>
+						) : null}
+						<SectionUI.FormWrap>
+							{sub_section?.fields?.map((field, fieldIndex) => {
+								if (!field.visibility) return null;
+								const customFields = {};
+								return (
+									<SectionUI.FieldWrap
+										key={`field-${fieldIndex}-${field.name}`}
+									>
+										{register({
+											...field,
+											value: prefilledValues(field),
+											...customFields,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name] &&
+											(field.subFields ? (
+												<SectionUI.ErrorMessageSubFields>
+													{formState?.error?.[field.name]}
+												</SectionUI.ErrorMessageSubFields>
+											) : (
+												<SectionUI.ErrorMessage>
+													{formState?.error?.[field.name]}
+												</SectionUI.ErrorMessage>
+											))}
+									</SectionUI.FieldWrap>
+								);
+							})}
+						</SectionUI.FormWrap>
+					</Fragment>
+				);
+			})}
 			<SectionUI.Footer>
 				<Button
 					fill
