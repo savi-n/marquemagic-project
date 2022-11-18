@@ -76,15 +76,19 @@ const IconDelete = styled.img`
 	cursor: pointer;
 `;
 
-const IconCamera = styled.img`
-	height: 40px;
-	width: 40px;
+const CameraIconWrapper = styled.div`
+	/* border: 1px solid red; */
 	position: absolute;
 	right: 0;
 	bottom: 0;
 	margin-right: 20px;
 	margin-bottom: 20px;
 	cursor: pointer;
+`;
+
+const IconCamera = styled.img`
+	height: 40px;
+	width: 40px;
 `;
 
 const ImgProfilePreview = styled.img`
@@ -102,7 +106,7 @@ const ImageBgProfile = styled.img`
 
 const ProfileUpload = props => {
 	const [files, setFiles] = useState([]);
-	const { getRootProps } = useDropzone({
+	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
 			'image/*': [],
 		},
@@ -150,11 +154,10 @@ const ProfileUpload = props => {
 	return (
 		<Container isPrevie={isPreview}>
 			<ImageBgProfile src={imageBgProfile} alt='upload your profile' />
-			<IconCamera
-				src={iconCameraGrey}
-				alt='camera'
-				{...getRootProps({ className: 'dropzone' })}
-			/>
+			<CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+				<input {...getInputProps()} />
+				<IconCamera src={iconCameraGrey} alt='camera' />
+			</CameraIconWrapper>
 		</Container>
 	);
 };
