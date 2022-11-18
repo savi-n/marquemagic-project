@@ -37,6 +37,7 @@ const ContainerPreview = styled.div`
 	background-color: #eeeeee; */
 	background-color: #dce2f7;
 	border: 2px dashed rgba(0, 0, 255, 0.5);
+	/* border: 2px dashed black; */
 	/* border: dashed #0000ff80; */
 	color: #bdbdbd;
 	outline: none;
@@ -57,6 +58,7 @@ const Container = styled.div`
 	border-color: ${props => getColor(props)};
 	border-style: dashed;
 	background: '#f5f5f5';
+	border: 2px dashed lightgrey;
 	color: #bdbdbd;
 	outline: none;
 	transition: border 0.24s ease-in-out;

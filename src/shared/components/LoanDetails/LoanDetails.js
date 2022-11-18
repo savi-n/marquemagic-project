@@ -164,10 +164,10 @@ export default function LoanDetails({
 	};
 
 	const fieldTemplate = field => {
-		const customFields = {};
+		const customFieldProps = {};
 		if (isViewLoan) {
-			customFields.readonly = true;
-			customFields.disabled = true;
+			customFieldProps.readonly = true;
+			customFieldProps.disabled = true;
 		}
 		return (
 			<Fragment key={field.name}>
@@ -196,7 +196,7 @@ export default function LoanDetails({
 										}),
 								  }
 								: {}),
-							...customFields,
+							...customFieldProps,
 							visibility: 'visible',
 						})}
 						{/* rules:{subAction: !uploadedDocs[field.name]?.length}*/}

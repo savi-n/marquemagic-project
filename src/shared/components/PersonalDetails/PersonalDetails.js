@@ -336,34 +336,34 @@ export default function PersonalDetails(props) {
 			<FormWrap>
 				{jsonData && id === 'business-details'
 					? jsonData.map((field, fieldIndex) => {
-							const customFields = {};
+							const customFieldProps = {};
 							if (field.name === 'BusinessType') {
 								if (
 									completedSections.includes('business-details') ||
 									editLoanData
 								) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 							}
 							if (field.name === 'panNumber') {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							if (
 								field.name === 'mobileNo' &&
 								productDetails?.otp_authentication
 							) {
-								customFields.placeholder =
+								customFieldProps.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
 								if (editLoanData) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 							}
 							if (isViewLoan) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							return (
 								field.visibility && (
@@ -375,7 +375,7 @@ export default function PersonalDetails(props) {
 												field?.preDataDisable && { disabled: true }),
 											...(userType ? { disabled: false } : {}),
 											// max: field.type === 'date' && '9999-12-31',
-											...customFields,
+											...customFieldProps,
 											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
@@ -398,19 +398,19 @@ export default function PersonalDetails(props) {
 					  jsonData.map((field, fieldIndex) => {
 							// console.log('field-', field);
 							const value = populateValue(field);
-							const customFields = {};
+							const customFieldProps = {};
 							if (pageName === 'Bank Details') {
 								const startDateValue = populateValue(
 									jsonData.filter(f => f.name === 'StartDate')[0]
 								);
 								// console.log('startDateValue-', startDateValue);
 								if (field.name === 'EndDate' && startDateValue) {
-									customFields.min = moment(startDateValue).format(
+									customFieldProps.min = moment(startDateValue).format(
 										'YYYY-MM-DD'
 									);
 								}
 								if (field.name === 'StartDate' || field.name === 'EndDate') {
-									customFields.max = moment().format('YYYY-MM-DD');
+									customFieldProps.max = moment().format('YYYY-MM-DD');
 								}
 							}
 
@@ -419,12 +419,12 @@ export default function PersonalDetails(props) {
 									completedSections.includes('personal-details') ||
 									editLoanData
 								) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 							}
 							if (field.name.includes('dob')) {
-								customFields.max = moment().format('YYYY-MM-DD');
+								customFieldProps.max = moment().format('YYYY-MM-DD');
 							}
 							let pricePerAcer = 0;
 							if (
@@ -464,53 +464,53 @@ export default function PersonalDetails(props) {
 									state?.documents?.filter(d => d.req_type === 'aadhar')
 										?.length >= 1
 								) {
-									customFields.disabled =
+									customFieldProps.disabled =
 										isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
-									customFields.readonly =
+									customFieldProps.readonly =
 										isVerifyWithOtpDisabled || preData?.aadhaar?.length === 12;
 								} else {
-									customFields.disabled = isVerifyWithOtpDisabled;
-									customFields.readonly = isVerifyWithOtpDisabled;
+									customFieldProps.disabled = isVerifyWithOtpDisabled;
+									customFieldProps.readonly = isVerifyWithOtpDisabled;
 								}
 								if (editLoanData) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 							}
 							if (id === 'personal-details' && field.name === 'panNumber') {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							if (
 								id === 'personal-details' &&
 								field.name === 'mobileNo' &&
 								productDetails?.otp_authentication
 							) {
-								customFields.placeholder =
+								customFieldProps.placeholder =
 									'Enter a Valid Mobile Number to Receive OTP';
 								if (editLoanData) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 							}
 							if (isViewLoan) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							if (
 								field.name.includes('incomeType') &&
 								sessionCoApplicantRes[indexCoappplicant - 1]?.id
 							) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							if (editLoanData && field.name.includes('incomeType')) {
 								const editLoanCoApplicants = editLoanData?.director_details?.filter(
 									d => d?.type_name?.toLowerCase() === 'co-applicant'
 								);
 								if (editLoanCoApplicants.length >= indexCoappplicant) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 							}
 							let isDevider = false;
@@ -561,7 +561,7 @@ export default function PersonalDetails(props) {
 															}),
 													  }
 													: {}),
-												...customFields,
+												...customFieldProps,
 												visibility: 'visible',
 											})}
 											{field?.subFields &&

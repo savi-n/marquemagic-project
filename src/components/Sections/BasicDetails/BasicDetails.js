@@ -179,76 +179,71 @@ const BasicDetails = props => {
 
 	return (
 		<SectionUI.Wrapper>
-			<form>
-				{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-					return (
-						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-							{sub_section?.name ? (
-								<SectionUI.SubSectionHeader>
-									{sub_section.name}
-								</SectionUI.SubSectionHeader>
-							) : null}
-							<SectionUI.FormWrapGrid>
-								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (
-										field.type === 'file' &&
-										field.label.includes('Profile')
-									) {
-										return (
-											<SectionUI.FieldWrapGrid
-												style={{ gridRow: 'span 3', height: '100%' }}
-												key={`field-${fieldIndex}-${field.name}`}
-											>
-												<UI.ProfilePicWrapper>
-													<ProfileUpload />
-												</UI.ProfilePicWrapper>
-											</SectionUI.FieldWrapGrid>
-										);
-									}
-									if (!field.visibility || !field.name || !field.type)
-										return null;
-									const newValue = prefilledValues(field);
-									const customFields = {};
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				return (
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						{sub_section?.name ? (
+							<SectionUI.SubSectionHeader>
+								{sub_section.name}
+							</SectionUI.SubSectionHeader>
+						) : null}
+						<SectionUI.FormWrapGrid>
+							{sub_section?.fields?.map((field, fieldIndex) => {
+								if (field.type === 'file' && field.label.includes('Profile')) {
 									return (
 										<SectionUI.FieldWrapGrid
+											style={{ gridRow: 'span 3', height: '100%' }}
 											key={`field-${fieldIndex}-${field.name}`}
 										>
-											{register({
-												...field,
-												value: newValue,
-												...customFields,
-												visibility: 'visible',
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
-												) : (
-													<SectionUI.ErrorMessage>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessage>
-												))}
+											<UI.ProfilePicWrapper>
+												<ProfileUpload />
+											</UI.ProfilePicWrapper>
 										</SectionUI.FieldWrapGrid>
 									);
-								})}
-							</SectionUI.FormWrapGrid>
-						</Fragment>
-					);
-				})}
-				<SectionUI.Footer>
-					<Button
-						fill
-						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onProceed)}
-						// onClick={onProceed}
-					/>
-				</SectionUI.Footer>
-			</form>
+								}
+								if (!field.visibility || !field.name || !field.type)
+									return null;
+								const newValue = prefilledValues(field);
+								const customFieldProps = {};
+								return (
+									<SectionUI.FieldWrapGrid
+										key={`field-${fieldIndex}-${field.name}`}
+									>
+										{register({
+											...field,
+											value: newValue,
+											...customFieldProps,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name] &&
+											(field.subFields ? (
+												<SectionUI.ErrorMessageSubFields>
+													{formState?.error?.[field.name]}
+												</SectionUI.ErrorMessageSubFields>
+											) : (
+												<SectionUI.ErrorMessage>
+													{formState?.error?.[field.name]}
+												</SectionUI.ErrorMessage>
+											))}
+									</SectionUI.FieldWrapGrid>
+								);
+							})}
+						</SectionUI.FormWrapGrid>
+					</Fragment>
+				);
+			})}
+			<SectionUI.Footer>
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					isLoader={loading}
+					disabled={loading}
+					onClick={handleSubmit(onProceed)}
+					// onClick={onProceed}
+				/>
+			</SectionUI.Footer>
 		</SectionUI.Wrapper>
 	);
 };

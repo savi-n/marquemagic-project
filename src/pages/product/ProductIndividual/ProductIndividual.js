@@ -13,7 +13,9 @@ import * as UI from './ui';
 import { sleep } from 'utils/helper';
 
 const ProductIndividual = props => {
-	const { app, applicantCoApplicants } = useSelector(state => state);
+	const { app, applicantCoApplicants, application } = useSelector(
+		state => state
+	);
 	const { selectedSectionId, applicantCoApplicantSectionIds } = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
@@ -40,12 +42,13 @@ const ProductIndividual = props => {
 		});
 	}, [selectedSectionId, selectedApplicantCoApplicantId]);
 
-	// useEffect(() => {
-	// 	console.log('ProductIndividual-allStates-', {
-	// 		app,
-	// 		applicantCoApplicants,
-	// 	});
-	// }, [selectedProduct, app, applicantCoApplicants]);
+	useEffect(() => {
+		console.log('ProductIndividual-allStates-', {
+			app,
+			application,
+			applicantCoApplicants,
+		});
+	}, [app, application, applicantCoApplicants]);
 
 	return (
 		<UI.Wrapper>

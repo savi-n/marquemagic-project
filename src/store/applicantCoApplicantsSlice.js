@@ -7,6 +7,8 @@ const initialState = {
 		applicantId: '', // applicant directorId
 		employmentId: '',
 		incomeDataId: '',
+		selectedParmanentAddressProofId: '',
+		selectedPresentAddressProofId: '',
 	},
 	coApplicants: {},
 	selectedApplicantCoApplicantId: CONST_APP_CO_APP_HEADER.APPLICANT,
@@ -61,6 +63,30 @@ export const applicantCoApplicantsSlice = createSlice({
 		setSelectedApplicantCoApplicantId: (state, action) => {
 			state.selectedApplicantCoApplicantId = action.payload;
 		},
+		setSelectedParmanentAddressProofId: (state, action) => {
+			if (
+				state.selectedApplicantCoApplicantId ===
+				CONST_APP_CO_APP_HEADER.APPLICANT
+			) {
+				state.applicant.selectedParmanentAddressProofId = action.payload;
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].selectedParmanentAddressProofId = action.payload;
+			}
+		},
+		setSelectedPresentAddressProofId: (state, action) => {
+			if (
+				state.selectedApplicantCoApplicantId ===
+				CONST_APP_CO_APP_HEADER.APPLICANT
+			) {
+				state.applicant.selectedPresentAddressProofId = action.payload;
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].selectedPresentAddressProofId = action.payload;
+			}
+		},
 	},
 });
 
@@ -69,6 +95,8 @@ export const {
 	updateCoApplicantSection,
 	setSelectedApplicantCoApplicantId,
 	updateApplicantCoApplicantSection,
+	setSelectedParmanentAddressProofId,
+	setSelectedPresentAddressProofId,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

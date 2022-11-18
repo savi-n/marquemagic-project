@@ -13,3 +13,8 @@ export const initialFormState = {
 	property_type: 'Owned',
 	property_tenure: 'abcde',
 };
+
+export const AID1_PREFIX_PERMANENT = 'permanent_';
+export const AID2_PREFIX_PRESENT = 'present_';
+export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
+export const ADDRESSPROOF = 'addressproof';

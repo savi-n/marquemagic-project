@@ -162,10 +162,10 @@ const AddressDetails = props => {
 					{!isBusiness && <Caption>Permanent Address</Caption>}
 					{jsonData &&
 						jsonData.map(field => {
-							const customFields = {};
+							const customFieldProps = {};
 							if (isViewLoan) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							const fieldName = `${PREFIX_PERMANENT}${field.name}`;
 							return (
@@ -184,7 +184,7 @@ const AddressDetails = props => {
 														]),
 												  }
 												: {}),
-											...customFields,
+											...customFieldProps,
 											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
@@ -219,13 +219,13 @@ const AddressDetails = props => {
 						</Caption>
 						{jsonData &&
 							jsonData.map(field => {
-								const customFields = {};
+								const customFieldProps = {};
 								if (isViewLoan) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 								if (match) {
-									customFields.disabled = true;
+									customFieldProps.disabled = true;
 								}
 								const fieldName = `${PREFIX_PRESENT}${field.name}`;
 								return (
@@ -245,7 +245,7 @@ const AddressDetails = props => {
 															),
 													  }
 													: {}),
-												...customFields,
+												...customFieldProps,
 												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||

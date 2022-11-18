@@ -22,7 +22,13 @@ export const FormWrapGrid = styled.div`
 
 export const FieldWrapGrid = styled.div`
 	width: 100%;
-	display: grid;
+	${({ isSubFields }) =>
+		isSubFields &&
+		`
+		display: flex;
+		justify-content: space-between;
+		gap: 20px;
+	`}
 	@media (max-width: 700px) {
 		width: 100%;
 	}

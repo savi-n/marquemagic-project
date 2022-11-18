@@ -182,7 +182,7 @@ const EmploymentDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<div>
+		<SectionUI.Wrapper>
 			{selectedProduct?.product_details?.sections
 				?.filter(section => section.id === selectedSectionId)?.[0]
 				?.sub_sections?.map((sub_section, sectionIndex) => {
@@ -204,7 +204,7 @@ const EmploymentDetails = () => {
 										)
 											return null;
 									}
-									const customFields = {};
+									const customFieldProps = {};
 									return (
 										<SectionUI.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
@@ -212,7 +212,7 @@ const EmploymentDetails = () => {
 											{register({
 												...field,
 												value: prefilledValues(field),
-												...customFields,
+												...customFieldProps,
 												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||
@@ -254,7 +254,7 @@ const EmploymentDetails = () => {
 					// onClick={onAddCoApplicant}
 				/>
 			</SectionUI.Footer>
-		</div>
+		</SectionUI.Wrapper>
 	);
 };
 
