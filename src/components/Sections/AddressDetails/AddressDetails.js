@@ -16,7 +16,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 // import { formatSectionReqBody } from 'utils/formatData';
 
 const AddressDetails = () => {
-	const app = useSelector(state => state.app);
+	const { app, applicantCoApplicants } = useSelector(state => state);
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -24,15 +24,11 @@ const AddressDetails = () => {
 		nextSectionId,
 		isTestMode,
 	} = app;
-	const applicantCoApplicants = useSelector(
-		state => state.applicantCoApplicants
-	);
 	const {
 		selectedApplicantCoApplicantId,
 		applicant,
 		coApplicants,
 	} = applicantCoApplicants;
-	// const application = useSelector(state => state.application);
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();

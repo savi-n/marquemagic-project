@@ -113,6 +113,7 @@ export const ProductName = styled.h5`
 	margin: 0;
 	display: flex;
 	flex-direction: column;
+	cursor: auto;
 
 	@media (max-width: 700px) {
 		display: ${({ hide }) => hide && 'none'};

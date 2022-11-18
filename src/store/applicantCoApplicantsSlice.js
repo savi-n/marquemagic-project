@@ -3,8 +3,11 @@ import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import _ from 'lodash';
 
 const initialState = {
-	applicantId: '', // applicant directorId
-	applicant: {},
+	applicant: {
+		applicantId: '', // applicant directorId
+		employmentId: '',
+		incomeDataId: '',
+	},
 	coApplicants: {},
 	selectedApplicantCoApplicantId: CONST_APP_CO_APP_HEADER.APPLICANT,
 };
@@ -13,12 +16,6 @@ export const applicantCoApplicantsSlice = createSlice({
 	name: 'applicantCoApplicants',
 	initialState,
 	reducers: {
-		updateApplicant: (state, action) => {
-			const { id, values } = action.payload;
-			const newApplicant = state.applicant;
-			state.applicant = { ...newApplicant, ...values };
-			if (id) state.applicantId = id;
-		},
 		updateApplicantCoApplicantSection: (state, action) => {
 			const { id, values } = action.payload;
 			if (
@@ -34,14 +31,32 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		updateApplicantSection: (state, action) => {
-			const { id, values } = action.payload;
+			const {
+				id,
+				values,
+				applicantId,
+				employmentId,
+				incomeDataId,
+			} = action.payload;
 			state.applicant[id] = values;
+			if (applicantId) state.applicant.applicantId = applicantId;
+			if (employmentId) state.applicant.employmentId = employmentId;
+			if (incomeDataId) state.applicant.incomeDataId = incomeDataId;
 		},
 		updateCoApplicantSection: (state, action) => {
-			const { directorId, id, values } = action.payload;
-			const newSectionData = state.coApplicants;
-			if (!newSectionData[directorId]) newSectionData[directorId] = {};
+			const {
+				directorId,
+				id,
+				values,
+				employmentId,
+				incomeDataId,
+			} = action.payload;
+			if (!state.coApplicants[directorId]) state.coApplicants[directorId] = {};
 			state.coApplicants[directorId][id] = values;
+			if (employmentId)
+				state.coApplicants[directorId].employmentId = employmentId;
+			if (incomeDataId)
+				state.coApplicants[directorId].incomeDataId = incomeDataId;
 		},
 		setSelectedApplicantCoApplicantId: (state, action) => {
 			state.selectedApplicantCoApplicantId = action.payload;
@@ -50,7 +65,6 @@ export const applicantCoApplicantsSlice = createSlice({
 });
 
 export const {
-	updateApplicant,
 	updateApplicantSection,
 	updateCoApplicantSection,
 	setSelectedApplicantCoApplicantId,

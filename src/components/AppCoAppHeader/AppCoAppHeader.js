@@ -1,5 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
+import DeleteCoApplicantModal from 'components/modals/DeleteCoApplicantModal';
 
 import { setSelectedSectionId } from 'store/appSlice';
 import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
@@ -10,11 +12,17 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const AppCoAppHeader = props => {
-	const { firstSectionId } = useSelector(state => state.app);
-	const { coApplicants, selectedApplicantCoApplicantId } = useSelector(
-		state => state.applicantCoApplicants
-	);
+	const { app, applicantCoApplicants } = useSelector(state => state);
+	const { firstSectionId } = app;
+	const {
+		coApplicants,
+		selectedApplicantCoApplicantId,
+	} = applicantCoApplicants;
 	const dispatch = useDispatch();
+	const [
+		isSeleteCoApplicantModalOpen,
+		setIsSeleteCoApplicantModalOpen,
+	] = useState(false);
 	const refListWrapper = useRef(null);
 
 	// console.log('AppCoAppHeader-allstates-', {
@@ -33,6 +41,16 @@ const AppCoAppHeader = props => {
 
 	return (
 		<UI.Wrapper>
+			{isSeleteCoApplicantModalOpen && (
+				<DeleteCoApplicantModal
+					onNo={() => setIsSeleteCoApplicantModalOpen(false)}
+					onYes={() => {
+						setIsSeleteCoApplicantModalOpen(false);
+						onClickApplicantCoApplicant(CONST.APPLICANT);
+					}}
+					coApplicantNumber={Object.keys(coApplicants).length + 1}
+				/>
+			)}
 			<UI.UL ref={refListWrapper} id='appRefList'>
 				<UI.LI>
 					<UI.Avatar
@@ -70,7 +88,8 @@ const AppCoAppHeader = props => {
 					<UI.LI>
 						<UI.BadgeDelete
 							src={iconDelete}
-							onClick={() => onClickApplicantCoApplicant(CONST.APPLICANT)}
+							onClick={() => setIsSeleteCoApplicantModalOpen(true)}
+							alt='delete'
 						/>
 						<UI.Avatar
 							src={

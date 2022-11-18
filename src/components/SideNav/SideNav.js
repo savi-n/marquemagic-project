@@ -19,7 +19,9 @@ import * as UI from './ui';
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 
 const SideNav = props => {
-	const app = useSelector(state => state.app);
+	const { app, applicantCoApplicants, application } = useSelector(
+		state => state
+	);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -30,9 +32,8 @@ const SideNav = props => {
 		applicant,
 		coApplicants,
 		selectedApplicantCoApplicantId,
-	} = useSelector(state => state.applicantCoApplicants);
+	} = applicantCoApplicants;
 	const dispatch = useDispatch();
-	const application = useSelector(state => state.application);
 	const history = useHistory();
 	const [hide, setShowHideSidebar] = useState(true);
 

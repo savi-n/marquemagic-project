@@ -18,14 +18,19 @@ export const RightSectionWrapper = styled.div`
 	}
 	@media (max-width: 700px) {
 		/* z-index: 2; */
-		padding: 0 50px;
+		padding: 0;
+		padding-bottom: 50px;
 	}
 `;
 
 export const DynamicSectionWrapper = styled.div`
 	/* border: 1px solid purple; */
 	width: 100%;
-	padding: 0px 50px;
+	padding: 0 50px;
+	@media (max-width: 700px) {
+		/* z-index: 2; */
+		padding: 0 30px;
+	}
 `;
 
 export const DynamicSubSectionWrapper = styled.div`

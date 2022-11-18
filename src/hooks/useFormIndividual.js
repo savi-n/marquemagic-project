@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, createContext } from 'react';
-import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
@@ -303,6 +302,11 @@ export default function useForm() {
 				onChange={onChange}
 				value={valuesRef.current[newField.name] || ''}
 				unregister={unregister}
+				error={
+					(touchedRef?.current?.[newField?.name] &&
+						errorsRef?.current?.[newField?.name]) ||
+					''
+				}
 			/>
 		);
 	};
@@ -407,19 +411,19 @@ export default function useForm() {
 //   return value;
 // }
 
-const Currency = styled.div`
-	/* position: absolute; */
-	margin-left: 100%;
-	padding-left: 10px;
-	padding-bottom: 15px;
-	margin-top: -35px;
-	width: 50px;
-	font-size: 13px;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	top: 0;
-`;
+// const Currency = styled.div`
+// 	/* position: absolute; */
+// 	margin-left: 100%;
+// 	padding-left: 10px;
+// 	padding-bottom: 15px;
+// 	margin-top: -35px;
+// 	width: 50px;
+// 	font-size: 13px;
+// 	font-weight: 500;
+// 	display: flex;
+// 	align-items: center;
+// 	top: 0;
+// `;
 
 // const InputFieldWrapper = styled.div`
 // 	/* display: flex; */
@@ -429,7 +433,7 @@ const Currency = styled.div`
 // 	}
 // `;
 
-function InputFieldRender({ field, onChange, value, unregister }) {
+function InputFieldRender({ field, onChange, value, unregister, error }) {
 	const { type = 'text' } = field;
 	useEffect(() => {
 		return () => {
@@ -464,6 +468,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 		disabled: field.disabled,
 		className: field.className,
 		style: field.style,
+		error,
 	};
 
 	if (field.disabled && field.pattern) {
@@ -565,9 +570,9 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 						{...{ ...field, ...fieldProps }}
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
-					{field?.inrupees && (
+					{/* {field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
-					)}
+					)} */}
 				</>
 			);
 		}

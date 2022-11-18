@@ -178,8 +178,6 @@ const editLoanRestrictedSections = [
 ];
 export default function Product(props) {
 	const { product } = props;
-	// console.log('Product-allStates-', { props });
-	// const app = useSelector(state => state.app);
 	const dispatch = useDispatch();
 	const history = useHistory();
 	const productIdPage = atob(product);

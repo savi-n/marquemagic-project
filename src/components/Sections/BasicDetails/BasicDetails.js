@@ -11,11 +11,12 @@ import {
 } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
+import ProfileUpload from 'components/ProfileUpload';
 
 import * as SectionUI from '../ui';
+import * as UI from './ui';
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import * as CONST from './const';
-import { getRandomNumber, sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
 import { formatSectionReqBody } from 'utils/formatData';
 import {
@@ -25,23 +26,22 @@ import {
 } from '_config/app.config';
 
 const BasicDetails = props => {
-	const app = useSelector(state => state.app);
+	const { app, applicantCoApplicants, application } = useSelector(
+		state => state
+	);
 	const {
 		selectedSectionId,
 		nextSectionId,
 		isTestMode,
 		selectedSection,
 		whiteLabelId,
+		loginCreateUserRes,
 	} = app;
-	const applicantCoApplicants = useSelector(
-		state => state.applicantCoApplicants
-	);
 	const {
 		selectedApplicantCoApplicantId,
 		applicant,
 		coApplicants,
 	} = applicantCoApplicants;
-	const application = useSelector(state => state.application);
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -50,30 +50,33 @@ const BasicDetails = props => {
 	const onProceed = async () => {
 		try {
 			setLoading(true);
-			const newDirectorId = `${getRandomNumber()}`;
 			// console.log('nextSectionId-', {
 			// 	nextSectionId,
 			// 	selectedApplicantCoApplicantId,
 			// 	newDirectorId,
 			// });
-			await sleep(100);
-			const loginCreateUserReqBody = {
-				email: formState?.values?.email || '',
-				white_label_id: whiteLabelId,
-				source: APP_CLIENT,
-				name: formState?.values?.first_name,
-				mobileNo: formState?.values?.mobile_no,
-				addrr1: '',
-				addrr2: '',
-			};
-			const loginCreateUserRes = await axios.post(
-				`${LOGIN_CREATEUSER}`,
-				loginCreateUserReqBody
-			);
-			dispatch(setLoginCreateUserRes(loginCreateUserRes?.data));
-			axios.defaults.headers.Authorization = `Bearer ${
-				loginCreateUserRes?.data?.token
-			}`;
+
+			// call login api only once
+			if (!loginCreateUserRes) {
+				const loginCreateUserReqBody = {
+					email: formState?.values?.email || '',
+					white_label_id: whiteLabelId,
+					source: APP_CLIENT,
+					name: formState?.values?.first_name,
+					mobileNo: formState?.values?.mobile_no,
+					addrr1: '',
+					addrr2: '',
+				};
+				const loginCreateUserRes = await axios.post(
+					`${LOGIN_CREATEUSER}`,
+					loginCreateUserReqBody
+				);
+				dispatch(setLoginCreateUserRes(loginCreateUserRes?.data));
+				axios.defaults.headers.Authorization = `Bearer ${
+					loginCreateUserRes?.data?.token
+				}`;
+			}
+
 			// console.log('onProceed-loginCreateUserReqRes-', {
 			// 	loginCreateUserReqBody,
 			// 	loginCreateUserRes,
@@ -90,11 +93,15 @@ const BasicDetails = props => {
 				`${API_END_POINT}/basic_details`,
 				basicDetailsReqBody
 			);
+			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
+			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
+			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
 			dispatch(
 				setLoanIds({
-					loanRefId: basicDetailsRes?.data?.data?.loan_data?.loan_ref_id,
-					loanId: basicDetailsRes?.data?.data?.loan_data?.id,
-					businessId: basicDetailsRes?.data?.business_data?.id,
+					loanRefId: newLoanRefId,
+					loanId: newLoanId,
+					businessId: newBusinessId,
 				})
 			);
 			// console.log('onProceed-basicDetailsReqBody-', {
@@ -111,6 +118,7 @@ const BasicDetails = props => {
 			if (
 				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
 			) {
+				newBasicDetails.applicantId = newDirectorId;
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else if (
 				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.CO_APPLICANT
@@ -180,13 +188,29 @@ const BasicDetails = props => {
 									{sub_section.name}
 								</SectionUI.SubSectionHeader>
 							) : null}
-							<SectionUI.FormWrap>
+							<SectionUI.FormWrapGrid>
 								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!field.visibility) return null;
+									if (
+										field.type === 'file' &&
+										field.label.includes('Profile')
+									) {
+										return (
+											<SectionUI.FieldWrapGrid
+												style={{ gridRow: 'span 3', height: '100%' }}
+												key={`field-${fieldIndex}-${field.name}`}
+											>
+												<UI.ProfilePicWrapper>
+													<ProfileUpload />
+												</UI.ProfilePicWrapper>
+											</SectionUI.FieldWrapGrid>
+										);
+									}
+									if (!field.visibility || !field.name || !field.type)
+										return null;
 									const newValue = prefilledValues(field);
 									const customFields = {};
 									return (
-										<SectionUI.FieldWrap
+										<SectionUI.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											{register({
@@ -207,10 +231,10 @@ const BasicDetails = props => {
 														{formState?.error?.[field.name]}
 													</SectionUI.ErrorMessage>
 												))}
-										</SectionUI.FieldWrap>
+										</SectionUI.FieldWrapGrid>
 									);
 								})}
-							</SectionUI.FormWrap>
+							</SectionUI.FormWrapGrid>
 						</Fragment>
 					);
 				})}

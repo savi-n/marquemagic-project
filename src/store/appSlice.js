@@ -24,7 +24,7 @@ const initialState = {
 	whiteLabelName: window.location.hostname.includes('localhost')
 		? process.env.REACT_APP_QA_WHITELABEL_NAME
 		: window.location.hostname,
-	loginCreateUserRes: {},
+	loginCreateUserRes: null,
 	whiteLabelId: '',
 	permission: {},
 	userDetails: {},
@@ -50,6 +50,7 @@ const initialState = {
 	isViewLoan: false,
 	isEditLoan: false,
 	isTestMode: true,
+	// isTestMode: false,
 };
 
 export const appSlice = createSlice({

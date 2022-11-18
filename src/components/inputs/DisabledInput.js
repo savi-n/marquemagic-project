@@ -15,6 +15,9 @@ const Input = styled.div`
 	display: flex;
 	align-items: center;
 `;
+//  ${({ error }) =>
+// 		error ? `border: 1px solid red; outline-color: red;` : ``}
+// TODO: handler error
 
 const Div = styled.div`
 	position: relative;
@@ -31,29 +34,32 @@ const Label = styled.label`
 	transition: 0.2s;
 
 	${Input}:focus ~ & {
-		top: -14%;
+		top: -15%;
 		left: 2%;
 		font-size: 10px;
 		color: black;
-		height: auto;
-		padding: 0 2px;
+		height: 20px;
+		padding: 0 5px;
 		line-height: 1;
 		width: fit-content;
+		/* border: 1px solid red; */
 	}
 	${({ value }) =>
 		value
 			? `
-      top: -14%;
+      top: -15%;
       left: 2%;
-      font-size:10px;
-      color:black;
-      /* height: 20%; */
-      padding:0 2px;
+      font-size: 10px;
+      color: black;
+      height: 20px;
+      padding: 0 5px;
+			line-height: 1;
+			width: fit-content;
   `
 			: `
-      top: 3%;
+      top: 4%;
       left: 1%;
-      height: 90%;
+      height: 45px;
       width: 98%;
       color: lightgray;
       padding: 0 10px;
@@ -76,10 +82,21 @@ const Span = styled.span`
 	max-height: 100%;
 `;
 
+const FieldPostfixIcon = styled.span`
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 999;
+	font-size: 12px;
+	color: grey;
+	line-height: 50px;
+	margin-right: 3%;
+`;
+
 export default function DisabledInput(props) {
 	return (
 		<Div>
-			<Input id={props.name}>
+			<Input id={props.name} {...props} disabled>
 				{props.name === 'aadhaar' && props?.value?.length === 12
 					? props?.pattern?.repeat(props.value.length - 4) +
 					  props?.value?.slice(8, 12)
@@ -94,6 +111,22 @@ export default function DisabledInput(props) {
 				</Span>
 				{props.rules?.required && <Asteris>*</Asteris>}
 			</Label>
+			{props.inrupees && (
+				<FieldPostfixIcon
+					style={{
+						position: 'absolute',
+						right: 0,
+						top: 0,
+						zIndex: 999,
+						fontSize: '12px',
+						color: 'grey',
+						lineHeight: '50px',
+						marginRight: '3%',
+					}}
+				>
+					(In ₹)
+				</FieldPostfixIcon>
+			)}
 		</Div>
 	);
 }

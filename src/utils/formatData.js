@@ -32,18 +32,18 @@ export const formatSectionReqBody = data => {
 	const { section, values, app, applicantCoApplicants, application } = data;
 	const { whiteLabelId, selectedProduct } = app;
 	const { loanRefId, loanId, businessId } = application;
-	const { selectedApplicantCoApplicantId, applicantId } = applicantCoApplicants;
+	const { selectedApplicantCoApplicantId, applicant } = applicantCoApplicants;
+	const { applicantId } = applicant;
 
 	const subSectionsData = {};
 	section.sub_sections.map(sub_section => {
 		const sectionBody = {};
 		sub_section.fields.map(field => {
-			if (!field.db_key || !field.name) return null;
+			if (!field.db_key || !field.name || values?.[field.name] === undefined)
+				return null;
 			sectionBody[field.db_key] = values[field.name];
 			return null;
 		});
-		// Custom Logic For Address Details Page
-		// loan_address_details: [{aid: 1}, {aid: 2}]
 		subSectionsData[sub_section.id] = sectionBody;
 		return null;
 	});
@@ -58,10 +58,10 @@ export const formatSectionReqBody = data => {
 
 	// STATIC DATA PRESENT IN ALL UPDATE REQBODY
 	if (loanRefId) {
-		reqBody.case_ref_id = loanRefId;
+		reqBody.loan_ref_id = loanRefId;
 	}
 	if (loanId) {
-		reqBody.business_id = loanId;
+		reqBody.loan_id = loanId;
 	}
 	if (businessId) {
 		reqBody.business_id = businessId;
