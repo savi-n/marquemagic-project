@@ -1,7 +1,50 @@
 import styled from 'styled-components';
 
+export const DropZoneOtpFieldWrapper = styled.div`
+	margin: 20px 0;
+	display: grid;
+	grid-gap: 25px 50px;
+	grid-template-columns: repeat(2, 1fr);
+	grid-auto-flow: dense;
+	position: relative;
+	@media (max-width: 700px) {
+		grid-template-columns: repeat(1, 1fr);
+	}
+`;
+
+export const AadhaarNumberOtpFieldWrapper = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	gap: 20px;
+	@media (max-width: 700px) {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 20px;
+		margin-top: 20px;
+		button {
+			width: 100% !important;
+		}
+	}
+`;
+
+export const OR = styled.div`
+	/* border: 1px solid red; */
+	z-index: 0;
+	position: absolute;
+	width: 100%;
+	text-align: center;
+	height: 50px;
+	line-height: 50px;
+	@media (max-width: 700px) {
+		margin-top: 50px;
+	}
+`;
+
 export const Dropzone = styled.div`
-width: ${({ width }) => width};
+z-index: 1;
 height: 50px;
 position: relative;
 display: flex;

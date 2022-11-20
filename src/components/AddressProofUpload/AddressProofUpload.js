@@ -13,7 +13,7 @@ import {
 	VIEW_DOCUMENT,
 	DELETE_DOCUMENT,
 } from '_config/app.config';
-import uploadCircleIcon from 'assets/icons/upload-icon-with-circle.png';
+import uploadCircleIcon from 'assets/icons/upload_icon_blue.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import imgArrowDownCircle from 'assets/icons/drop_down_green-05.svg';
 import imgGreyCheck from 'assets/icons/grey_tick_icon.png';
@@ -22,8 +22,11 @@ import { decryptViewDocumentUrl } from 'utils/encrypt';
 import CircularLoading from 'components/Loaders/Circular';
 
 import _ from 'lodash';
+import * as SectionUI from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
+import InputField from 'components/inputs/InputField';
+import Button from 'components/Button';
 export default function AddressProofUpload(props) {
 	const {
 		onDrop = () => {},
@@ -56,6 +59,7 @@ export default function AddressProofUpload(props) {
 		removeAllFileUploads = '',
 		prefilledDocs = [],
 		setPrefilledDocs,
+		aadhaarProofOTPField,
 	} = props;
 	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
 	const ref = useRef(uuidv4());
@@ -77,7 +81,6 @@ export default function AddressProofUpload(props) {
 	const selectedFiles = useRef([]);
 	const { newRequest } = useFetch();
 	//const [docSelected, setDocSelected] = useState('');
-	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 
 	const API_TOKEN = sessionStorage.getItem('userToken');
@@ -399,29 +402,29 @@ export default function AddressProofUpload(props) {
 		}
 	};
 
-	// const onChange = async event => {
-	// 	let files = [...event.target.files];
-	// 	if (upload) {
-	// 		files = await handleUpload(files);
-	// 	}
-	// 	onDrop(files);
-	// 	if (!pan) {
-	// 		files = [...selectedFiles.current, ...files].filter(f =>
-	// 			f.name ? true : false
-	// 		);
-	// 		selectedFiles.current = files;
-	// 		setUploadingFiles(files);
-	// 	}
-	// 	// console.log('FileUpload-onChange-', {
-	// 	// 	pan,
-	// 	// 	disabled,
-	// 	// 	accept,
-	// 	// 	upload,
-	// 	// 	files,
-	// 	// 	uploadingFiles,
-	// 	// 	selectedFiles: selectedFiles.current,
-	// 	// });
-	// };
+	const onChange = async event => {
+		let files = [...event.target.files];
+		if (upload) {
+			files = await handleUpload(files);
+		}
+		onDrop(files);
+		if (!pan) {
+			files = [...selectedFiles.current, ...files].filter(f =>
+				f.name ? true : false
+			);
+			selectedFiles.current = files;
+			setUploadingFiles(files);
+		}
+		// console.log('FileUpload-onChange-', {
+		// 	pan,
+		// 	disabled,
+		// 	accept,
+		// 	upload,
+		// 	files,
+		// 	uploadingFiles,
+		// 	selectedFiles: selectedFiles.current,
+		// });
+	};
 
 	// const onDocTypeChange = (fileId, value, file) => {
 	const onDocTypeChange = (file, docType) => {
@@ -592,37 +595,72 @@ export default function AddressProofUpload(props) {
 		</>
 	) : (
 		<>
-			{!disabled && !isViewLoan && (
-				<UI.Dropzone
-					isInActive={isInActive}
-					ref={ref}
-					dragging={dragging}
-					// bg={bg}
-					disabled={disabled}
-					uploading={uploading}
-				>
-					{dragging && !disabled && <UI.Droping>Drop here :)</UI.Droping>}
-					<UI.Caption>
-						{caption || `Upload Address Proof`}{' '}
-						{accept && <UI.AcceptFilesTypes>{accept}</UI.AcceptFilesTypes>}
-					</UI.Caption>
-					{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
-					<UI.UploadCircle
-						htmlFor={id}
-						style={{ marginLeft: 'auto', padding: 10 }}
+			<UI.DropZoneOtpFieldWrapper>
+				{!disabled && !isViewLoan && (
+					<UI.Dropzone
+						isInActive={isInActive}
+						ref={ref}
+						dragging={dragging}
+						// bg={bg}
+						disabled={disabled}
+						uploading={uploading}
 					>
-						<img
-							src={uploadCircleIcon}
-							width={30}
-							style={{
-								maxWidth: 'none',
-								filter: isInActive ? 'grayscale(200%)' : 'none',
+						{dragging && !disabled && <UI.Droping>Drop here :)</UI.Droping>}
+						<UI.Caption>
+							{caption || `Upload Address Proof`}{' '}
+							{accept && <UI.AcceptFilesTypes>{accept}</UI.AcceptFilesTypes>}
+						</UI.Caption>
+						{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
+						<UI.UploadButton
+							type='file'
+							id={id}
+							onChange={onChange}
+							onClick={e => {
+								if (isInActive) {
+									e.preventDefault();
+									e.stopPropagation();
+								}
+								e.target.value = '';
 							}}
-							alt='upload'
+							accept={accept}
+							disabled={disabled}
+							multiple={section === 'document-upload' ? true : false}
 						/>
-					</UI.UploadCircle>
-				</UI.Dropzone>
-			)}
+						<UI.UploadCircle
+							htmlFor={id}
+							style={{ marginLeft: 'auto', padding: 10 }}
+						>
+							<img
+								src={uploadCircleIcon}
+								width={30}
+								style={{
+									maxWidth: 'none',
+									filter: isInActive ? 'grayscale(200%)' : 'none',
+								}}
+								alt='upload'
+							/>
+						</UI.UploadCircle>
+					</UI.Dropzone>
+				)}
+				<UI.OR>or</UI.OR>
+				<UI.AadhaarNumberOtpFieldWrapper>
+					<InputField {...aadhaarProofOTPField} />
+					<Button
+						name='Verify with OTP'
+						// disabled={isVerifyWithOtpDisabled || editLoanData}
+						type='submit'
+						customStyle={{
+							whiteSpace: 'nowrap',
+							width: '150px',
+							height: '50px',
+						}}
+						// onClick={onSubFieldButtonClick}
+					/>
+					<SectionUI.ErrorMessageSubFields>
+						sub field error
+					</SectionUI.ErrorMessageSubFields>
+				</UI.AadhaarNumberOtpFieldWrapper>
+			</UI.DropZoneOtpFieldWrapper>
 			{displayTagMessage && aggreementUploadModal ? (
 				<UI.WarningMessage>
 					{' '}
@@ -632,11 +670,6 @@ export default function AddressProofUpload(props) {
 						: 'and tag your uploaded documents to their respective document tags'}
 				</UI.WarningMessage>
 			) : null}
-			{pan && disabled && (
-				<p style={{ color: 'grey' }}>
-					Please remove current uploaded file to reupload
-				</p>
-			)}
 			<UI.FileListWrap>
 				{uploadingFiles.map((file, upidx) => {
 					// console.log('uplodaing-file-FileListWrap-file', {
@@ -851,20 +884,7 @@ export default function AddressProofUpload(props) {
 									src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 									alt='check'
 								/>
-								{aadharVoterDl
-									? null
-									: docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
-											<UI.DocumentUploadNameToolTip>
-												{docType.name}
-											</UI.DocumentUploadNameToolTip>
-									  )}
-								<UI.DocumentUploadName
-									onMouseOver={() =>
-										setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
-									}
-									onMouseOut={() => setDocTypeNameToolTip(-1)}
-									isSelected={mappedDocFiles.length}
-								>
+								<UI.DocumentUploadName isSelected={mappedDocFiles.length}>
 									{docType.isMandatory && (
 										<span
 											style={{

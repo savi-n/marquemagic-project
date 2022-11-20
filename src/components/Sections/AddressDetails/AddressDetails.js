@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import _ from 'lodash';
 
@@ -9,7 +9,7 @@ import {
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import * as SectionUI from '../ui';
+import * as SectionUI from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import * as CONST_ADDRESS_PROOF_UPLOAD from 'components/AddressProofUpload/const';
@@ -17,6 +17,10 @@ import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
 import AddressProofUpload from 'components/AddressProofUpload';
+import {
+	removeLoanDocument,
+	updateSelectedDocumentTypeId,
+} from 'store/applicationSlice';
 // import { formatSectionReqBody } from 'utils/formatData';
 
 const AddressDetails = props => {
@@ -50,7 +54,7 @@ const AddressDetails = props => {
 			newSelectedAddressProofId = applicant.selectedAddressProofId;
 		} else {
 			newSelectedAddressProofId =
-				coApplicants[selectedApplicantCoApplicantId].selectAddressProofField;
+				coApplicants[selectedApplicantCoApplicantId].selectedAddressProofId;
 		}
 		setSelectedAddressProofId(newSelectedAddressProofId);
 	}, [
@@ -59,6 +63,7 @@ const AddressDetails = props => {
 		selectedApplicantCoApplicantId,
 		setSelectedAddressProofId,
 	]);
+
 	const resetAllErrors = () => {
 		setAddressProofError('');
 		setIsError(false);
@@ -89,10 +94,7 @@ const AddressDetails = props => {
 
 	const handleFileRemoveAddressProof = docId => {
 		// console.log('handleFileRemoveAddressProof docId-', docId);
-
-		// TODO: Remove from redux
-		// removeAllAddressProofLoanDocuments();
-
+		removeLoanDocument();
 		resetAllErrors();
 		// const newAddressProofDocs = _.cloneDeep(
 		// 	// eslint-disable-next-line
@@ -107,11 +109,7 @@ const AddressDetails = props => {
 	};
 
 	const handleDocumentTypeChangeAddressProof = async (fileId, type) => {
-		// TODO: handle redux
-		// setLoanDocumentType(fileId, type);
-
-		// const newAddressProofDocs = fileRef.current || [];
-		// const newAddressProofDocs = _.cloneDeep(addressProofDocs);
+		updateSelectedDocumentTypeId(fileId, type);
 		const newAddressProofDocs = [];
 		addressProofDocsRef?.current?.map(f => {
 			const newFile = _.cloneDeep(f);
@@ -223,7 +221,7 @@ const AddressDetails = props => {
 	let isInActiveAddressProofUpload = false;
 	let isProceedDisabledAddressProof = true;
 
-	if (selectedAddressProofId) {
+	if (!selectedAddressProofId) {
 		isInActiveAddressProofUpload = true;
 		isProceedDisabledAddressProof = true;
 	}
@@ -273,12 +271,16 @@ const AddressDetails = props => {
 		isProceedDisabledAddressProof = true;
 	}
 
-	const selectAddressProofField =
-		selectedSection?.sub_sections?.[0]?.fields?.[0] || {};
+	const addressProofUploadSection = selectedSection?.sub_sections?.[0] || {};
+	const selectAddressProofRadioField =
+		addressProofUploadSection?.fields?.[0] || {};
+	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
+	const addressFields = selectedSection?.sub_sections?.[1]?.fields || [];
+
+	// console.log('AddressDetails-allProps-', { selectedDocTypeList });
 	return (
 		<SectionUI.Wrapper>
 			{/*  AID1_PREFIX_PERMANENT */}
-
 			<UI.SubSectionCustomHeader>
 				<h4>
 					Select any one of the documents mentioned below for{' '}
@@ -287,16 +289,21 @@ const AddressDetails = props => {
 				<span />
 			</UI.SubSectionCustomHeader>
 			<UI.RadioButtonWrapper>
-				{selectAddressProofField?.options?.map((option, optionIndex) => {
+				{selectAddressProofRadioField?.options?.map((option, optionIndex) => {
 					return (
 						<UI.CardRadioButton key={`option${optionIndex}${option.req_type}`}>
 							<input
-								name={selectAddressProofField?.name}
+								name={selectAddressProofRadioField?.name}
 								id={option.req_type}
 								type='radio'
-								value={option.req_type}
-								// onChange={e => onSelectedAddressProofChange(e, option)}
-								// checked={selectedAddressProof === option.req_type}
+								// value={option.req_type}
+								onChange={e => {
+									// TODO: remove document only belongs to app/coapp
+									// removeAllAddressProofDocs()
+									setSelectedAddressProofId(option.req_type);
+								}}
+								checked={selectedAddressProofId === option.req_type}
+								visibility='visible'
 							/>
 							<label htmlFor={option.req_type} style={{ marginLeft: '10px' }}>
 								{option.label}
@@ -305,121 +312,67 @@ const AddressDetails = props => {
 					);
 				})}
 			</UI.RadioButtonWrapper>
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<SectionUI.SubSectionHeader>
-								{sub_section.name}
-							</SectionUI.SubSectionHeader>
-						) : null}
-						<SectionUI.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								const customField = _.cloneDeep(field);
-								customField.name = `${CONST.AID1_PREFIX_PERMANENT}${
-									customField.name
-								}`;
-								if (
-									customField.type === 'file' &&
-									customField.name.includes('id_upload')
-								) {
-									return (
-										<SectionUI.FieldWrapGrid>
-											<AddressProofUpload
-												isInActive={isInActiveAddressProofUpload}
-												startingTaggedDocs={addressProofDocs}
-												section={CONST.ADDRESSPROOF}
-												accept=''
-												upload={true}
-												pan={true}
-												docTypeOptions={selectedDocTypeList}
-												sectionType={selectedAddressProofId}
-												// onDrop={files =>
-												// 	handleFileUploadAddressProof(files, addressProofDocs)
-												// }
-												onDrop={handleFileUploadAddressProof}
-												onRemoveFile={handleFileRemoveAddressProof}
-												docs={addressProofDocs}
-												// setDocs={setAddressProofDocs}
-												setDocs={newDocs => {
-													const newAddressProofDocs = [];
-													addressProofDocsRef?.current?.map(d =>
-														newAddressProofDocs.push(d)
-													);
-													newDocs.map(d => newAddressProofDocs.push(d));
-													setAddressProofDocs(newAddressProofDocs);
-													addressProofDocsRef.current = newAddressProofDocs;
-												}}
-												documentTypeChangeCallback={
-													handleDocumentTypeChangeAddressProof
-												}
-												aadharVoterDl={true}
-												errorMessage={addressProofError}
-												errorType={
-													addressProofError && (isWarning ? 'warning' : 'error')
-												}
-											/>
-										</SectionUI.FieldWrapGrid>
-									);
-								}
-								if (!customField.visibility) return null;
-								const customFieldProps = {};
-								return (
-									<SectionUI.FieldWrapGrid
-										key={`field-${fieldIndex}-${customField.name}`}
-										isSubFields={!!customField?.sub_fields}
-									>
-										{register({
-											...customField,
-											value: prefilledValues(customField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
-										{customField?.sub_fields?.map((subF, subFIndex) => {
-											if (subF.type === 'button') {
-												return (
-													<Button
-														key={`subF-${subFIndex}-${subF.placeholder}`}
-														name={subF.placeholder}
-														// disabled={isVerifyWithOtpDisabled || editLoanData}
-														type='submit'
-														customStyle={{
-															whiteSpace: 'nowrap',
-															width: '150px',
-															height: '50px',
-														}}
-														// onClick={onSubFieldButtonClick}
-													/>
-												);
-											} else return null;
-											// Different types of field should come as seperate requriement
-											// during that time we'll handle these scenarion
-											// now only button is handled
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[customField.name]) &&
-											formState?.error?.[customField.name] &&
-											(customField.sub_fields ? (
-												<SectionUI.ErrorMessageSubFields>
-													{formState?.error?.[customField.name]}
-												</SectionUI.ErrorMessageSubFields>
-											) : (
-												<SectionUI.ErrorMessage>
-													{formState?.error?.[customField.name]}
-												</SectionUI.ErrorMessage>
-											))}
-									</SectionUI.FieldWrapGrid>
-								);
+			<AddressProofUpload
+				isInActive={isInActiveAddressProofUpload}
+				// startingTaggedDocs={addressProofDocs}
+				section={CONST.ADDRESSPROOF}
+				accept=''
+				upload={true}
+				pan={true}
+				docTypeOptions={selectedDocTypeList}
+				sectionType={selectedAddressProofId}
+				// onDrop={files =>
+				// 	handleFileUploadAddressProof(files, addressProofDocs)
+				// }
+				onDrop={handleFileUploadAddressProof}
+				onRemoveFile={handleFileRemoveAddressProof}
+				docs={addressProofDocs}
+				// setDocs={setAddressProofDocs}
+				setDocs={newDocs => {
+					const newAddressProofDocs = [];
+					addressProofDocsRef?.current?.map(d => newAddressProofDocs.push(d));
+					newDocs.map(d => newAddressProofDocs.push(d));
+					setAddressProofDocs(newAddressProofDocs);
+					addressProofDocsRef.current = newAddressProofDocs;
+				}}
+				documentTypeChangeCallback={handleDocumentTypeChangeAddressProof}
+				aadharVoterDl={true}
+				errorMessage={addressProofError}
+				errorType={addressProofError && (isWarning ? 'warning' : 'error')}
+				aadhaarProofOTPField={aadhaarProofOTPField}
+			/>
+			<SectionUI.FormWrapGrid>
+				{addressFields?.map((field, fieldIndex) => {
+					const customField = _.cloneDeep(field);
+					customField.name = `${CONST.AID1_PREFIX_PERMANENT}${
+						customField.name
+					}`;
+					if (!customField.visibility) return null;
+					const customFieldProps = {};
+					return (
+						<SectionUI.FieldWrapGrid
+							key={`field-${fieldIndex}-${customField.name}`}
+						>
+							{register({
+								...customField,
+								value: prefilledValues(customField),
+								...customFieldProps,
+								visibility: 'visible',
 							})}
-						</SectionUI.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-
+							{(formState?.submit?.isSubmited ||
+								formState?.touched?.[customField.name]) &&
+								formState?.error?.[customField.name] && (
+									<SectionUI.ErrorMessage>
+										{formState?.error?.[customField.name]}
+									</SectionUI.ErrorMessage>
+								)}
+						</SectionUI.FieldWrapGrid>
+					);
+				})}
+			</SectionUI.FormWrapGrid>
 			<div style={{ marginTop: 100 }} />
-
 			{/* AID2_PREFIX_PRESENT */}
-			<UI.SubSectionCustomHeader>
+			{/* <UI.SubSectionCustomHeader>
 				<h4>
 					Select any one of the documents mentioned below for{' '}
 					<strong>Present Address</strong>
@@ -431,51 +384,38 @@ const AddressDetails = props => {
 					</label>
 				</h4>
 			</UI.SubSectionCustomHeader>
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<SectionUI.SubSectionHeader>
-								{sub_section.name}
-							</SectionUI.SubSectionHeader>
-						) : null}
-						<SectionUI.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								const customField = _.cloneDeep(field);
-								customField.name = `${CONST.AID2_PREFIX_PRESENT}${
-									customField.name
-								}`;
-								if (!customField.visibility) return null;
-								const customFieldProps = {};
-								return (
-									<SectionUI.FieldWrapGrid
-										key={`field-${fieldIndex}-${customField.name}`}
-									>
-										{register({
-											...customField,
-											value: prefilledValues(customField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[customField.name]) &&
-											formState?.error?.[customField.name] &&
-											(customField.sub_fields ? (
-												<SectionUI.ErrorMessageSubFields>
-													{formState?.error?.[customField.name]}
-												</SectionUI.ErrorMessageSubFields>
-											) : (
-												<SectionUI.ErrorMessage>
-													{formState?.error?.[customField.name]}
-												</SectionUI.ErrorMessage>
-											))}
-									</SectionUI.FieldWrapGrid>
-								);
+			<SectionUI.FormWrapGrid>
+				{addressFields?.map((field, fieldIndex) => {
+					const customField = _.cloneDeep(field);
+					customField.name = `${CONST.AID2_PREFIX_PRESENT}${customField.name}`;
+					if (!customField.visibility) return null;
+					const customFieldProps = {};
+					return (
+						<SectionUI.FieldWrapGrid
+							key={`field-${fieldIndex}-${customField.name}`}
+						>
+							{register({
+								...customField,
+								value: prefilledValues(customField),
+								...customFieldProps,
+								visibility: 'visible',
 							})}
-						</SectionUI.FormWrapGrid>
-					</Fragment>
-				);
-			})}
+							{(formState?.submit?.isSubmited ||
+								formState?.touched?.[customField.name]) &&
+								formState?.error?.[customField.name] &&
+								(customField.sub_fields ? (
+									<SectionUI.ErrorMessageSubFields>
+										{formState?.error?.[customField.name]}
+									</SectionUI.ErrorMessageSubFields>
+								) : (
+									<SectionUI.ErrorMessage>
+										{formState?.error?.[customField.name]}
+									</SectionUI.ErrorMessage>
+								))}
+						</SectionUI.FieldWrapGrid>
+					);
+				})}
+			</SectionUI.FormWrapGrid> */}
 			<SectionUI.Footer>
 				<Button
 					fill

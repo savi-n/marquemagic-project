@@ -5,7 +5,7 @@ from where he had left or start from the beginning*/
 import styled from 'styled-components';
 
 import Button from '../Button';
-import Modal from '../Modal';
+import Modal from 'components/Modal';
 
 const Text = styled.div`
 	text-align: center;

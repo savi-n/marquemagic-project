@@ -179,7 +179,7 @@ const CoapplicantDetailsSection = props => {
 		register,
 		formState,
 		clearError,
-		onUseFormFieldChange,
+		onChangeFormStateField,
 	} = useForm();
 	const formReducer = JSON.parse(sessionStorage.getItem(HOSTNAME))?.formReducer;
 	const applicantData = formReducer?.user?.applicantData;
@@ -529,31 +529,31 @@ const CoapplicantDetailsSection = props => {
 		newPresentAddressCheck[index] = !newPresentAddressCheck[index];
 		setPresentAddressCheck(newPresentAddressCheck);
 		if (newPresentAddressCheck[index]) {
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_address1${index + 1}`],
 				value: applicantPresentAddress?.address1 || '',
 			});
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_address2${index + 1}`],
 				value: applicantPresentAddress?.address2 || '',
 			});
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_address3${index + 1}`],
 				value: applicantPresentAddress?.address3 || '',
 			});
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_address4${index + 1}`],
 				value: applicantPresentAddress?.address4 || '',
 			});
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_pinCode${index + 1}`],
 				value: applicantPresentAddress?.pinCode || '',
 			});
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_city${index + 1}`],
 				value: applicantPresentAddress?.city || '',
 			});
-			onUseFormFieldChange({
+			onChangeFormStateField({
 				name: [`permanent_state${index + 1}`],
 				value: applicantPresentAddress?.state || '',
 			});
@@ -563,31 +563,31 @@ const CoapplicantDetailsSection = props => {
 	// useEffect(() => {
 	// 	presentAddressCheck.map((isCheck, index) => {
 	// 		if (isCheck) {
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_address1${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_address2${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_address3${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_address4${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_pinCode${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_city${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});
-	// 			onUseFormFieldChange({
+	// 			onChangeFormStateField({
 	// 				name: [`permanent_state${index + 1}`],
 	// 				value: applicantPresentAddress?.address1 || '',
 	// 			});

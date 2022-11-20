@@ -12,3 +12,13 @@ export const asyncForEach = async (array, callback) => {
 export const getRandomNumber = (min = 10000, max = 99999) => {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 };
+
+export const isBusinessPan = companyName => {
+	return (
+		companyName?.toLowerCase()?.includes('private limited') ||
+		companyName?.toLowerCase()?.includes('public limited') ||
+		companyName?.toLowerCase()?.includes('limited') ||
+		companyName?.toLowerCase()?.includes('pvt ltd') ||
+		companyName?.toLowerCase()?.includes('private')
+	);
+};

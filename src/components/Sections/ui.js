@@ -66,6 +66,7 @@ export const ErrorMessageSubFields = styled.div`
 	margin-top: 50px;
 	color: red;
 	text-align: left;
+	padding-top: 2px;
 	font-size: 12px;
 	font-weight: 500;
 `;
@@ -76,6 +77,7 @@ export const ErrorMessage = styled.div`
 	padding-top: 2px;
 	font-size: 12px;
 	font-weight: 500;
+	${({ borderColorCode }) => borderColorCode && `color: ${borderColorCode};`}
 `;
 
 export const Footer = styled.div`

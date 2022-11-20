@@ -1,125 +1,61 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-import styled from 'styled-components';
+import axios from 'axios';
+
+import LoadingIcon from 'components/Loading/LoadingIcon';
+
+import { setProfileImageRes } from 'store/applicantCoApplicantsSlice';
 
 import iconCameraBlue from 'assets/icons/camera_blue.png';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
-
-const getColor = props => {
-	if (props.isDragAccept) {
-		return '#00e676';
-	}
-	if (props.isDragReject) {
-		return '#ff1744';
-	}
-	if (props.isFocused) {
-		return '#2196f3';
-	}
-	return '#eeeeee';
-};
-
-const ContainerPreview = styled.div`
-	position: relative;
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	/* padding: 20px; */
-	border-width: 2px;
-	border-radius: 2px;
-	border-color: ${props => getColor(props)};
-	border-style: dashed;
-	/* background: rgba(0, 0, 0, 0.7);
-	background-color: rgba(255, 255, 255, 0.8);
-	background-color: #eeeeee; */
-	background-color: #dce2f7;
-	border: 2px dashed rgba(0, 0, 255, 0.5);
-	/* border: 2px dashed black; */
-	/* border: dashed #0000ff80; */
-	color: #bdbdbd;
-	outline: none;
-	transition: border 0.24s ease-in-out;
-	height: 100%;
-`;
-
-const Container = styled.div`
-	position: relative;
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	/* padding: 20px; */
-	border-width: 2px;
-	border-radius: 2px;
-	border-color: ${props => getColor(props)};
-	border-style: dashed;
-	background: '#f5f5f5';
-	border: 2px dashed lightgrey;
-	color: #bdbdbd;
-	outline: none;
-	transition: border 0.24s ease-in-out;
-	height: 100%;
-`;
-
-const IconDelete = styled.img`
-	height: 40px;
-	width: 40px;
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	margin-right: 20px;
-	margin-bottom: 70px;
-	cursor: pointer;
-`;
-
-const CameraIconWrapper = styled.div`
-	/* border: 1px solid red; */
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	margin-right: 20px;
-	margin-bottom: 20px;
-	cursor: pointer;
-`;
-
-const IconCamera = styled.img`
-	height: 40px;
-	width: 40px;
-`;
-
-const ImgProfilePreview = styled.img`
-	/* border: 1px solid red; */
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 200px;
-	width: 200px;
-`;
-
-const ImageBgProfile = styled.img`
-	height: 200px;
-`;
+import { API_END_POINT } from '_config/app.config';
+import * as UI from './ui';
 
 const ProfileUpload = props => {
+	const { whiteLabelId } = useSelector(state => state.app);
 	const [files, setFiles] = useState([]);
+	const [loading, setLoading] = useState(false);
+	const [selectedProfileImageUrl, setSelectedProfileImageUrl] = useState(
+		props.selectedProfileImageUrl
+	);
+	const dispatch = useDispatch();
+
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
 			'image/*': [],
 		},
-		onDrop: acceptedFiles => {
-			setFiles(
-				acceptedFiles.map(file =>
-					Object.assign(file, {
-						preview: URL.createObjectURL(file),
-					})
-				)
-			);
+		onDrop: async acceptedFiles => {
+			try {
+				setLoading(true);
+				const formData = new FormData();
+				formData.append('white_label_id', whiteLabelId);
+				formData.append('document', acceptedFiles[0]);
+				const profileRes = await axios.post(
+					`${API_END_POINT}/profilePicUpload`,
+					formData
+				);
+				dispatch(setProfileImageRes(profileRes?.data));
+				setFiles(
+					acceptedFiles.map(file =>
+						Object.assign(file, {
+							preview: URL.createObjectURL(file),
+						})
+					)
+				);
+			} catch (error) {
+				console.error('error-ProfileFileUpload-onDrop-', error);
+			} finally {
+				setLoading(false);
+			}
 		},
 	});
+
+	useEffect(() => {
+		setSelectedProfileImageUrl(props.selectedProfileImageUrl);
+	}, [props.selectedProfileImageUrl]);
 
 	useEffect(() => {
 		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -131,34 +67,55 @@ const ProfileUpload = props => {
 
 	const isPreview = files.length > 0;
 
-	if (isPreview) {
+	if (isPreview || selectedProfileImageUrl) {
 		return (
-			<ContainerPreview isPrevie={isPreview}>
-				<ImgProfilePreview src={files?.[0]?.preview} alt='profile' />
-				<IconDelete
-					src={iconDelete}
-					alt='delete'
-					onClick={() => {
-						setFiles([]);
-					}}
+			<UI.ContainerPreview isPrevie={isPreview}>
+				<UI.ImgProfilePreview
+					src={files?.[0]?.preview || selectedProfileImageUrl}
+					alt='profile'
 				/>
-				<IconCamera
-					src={iconCameraBlue}
-					alt='camera'
-					{...getRootProps({ className: 'dropzone' })}
-				/>
-			</ContainerPreview>
+				{loading ? (
+					<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+						<LoadingIcon />
+					</UI.CameraIconWrapper>
+				) : (
+					<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+						<UI.IconDelete
+							src={iconDelete}
+							alt='delete'
+							onClick={e => {
+								e.preventDefault();
+								e.stopPropagation();
+								setFiles([]);
+								setSelectedProfileImageUrl('');
+							}}
+						/>
+						<input {...getInputProps()} />
+						<UI.IconCamera
+							src={iconCameraBlue}
+							alt='camera'
+							{...getRootProps({ className: 'dropzone' })}
+						/>
+					</UI.CameraIconWrapper>
+				)}
+			</UI.ContainerPreview>
 		);
 	}
 
 	return (
-		<Container isPrevie={isPreview}>
-			<ImageBgProfile src={imageBgProfile} alt='upload your profile' />
-			<CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-				<input {...getInputProps()} />
-				<IconCamera src={iconCameraGrey} alt='camera' />
-			</CameraIconWrapper>
-		</Container>
+		<UI.Container>
+			<UI.ImageBgProfile src={imageBgProfile} alt='upload your profile' />
+			{loading ? (
+				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+					<LoadingIcon />
+				</UI.CameraIconWrapper>
+			) : (
+				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+					<input {...getInputProps()} />
+					<UI.IconCamera src={iconCameraGrey} alt='camera' />
+				</UI.CameraIconWrapper>
+			)}
+		</UI.Container>
 	);
 };
 

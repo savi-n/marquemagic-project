@@ -5,7 +5,7 @@ This modal is defined here with all its flow */
 import { useState, useContext } from 'react';
 import styled from 'styled-components';
 
-import Modal from './Modal';
+import Modal from 'components/Modal';
 import Button from './Button';
 import {
 	BANK_LIST_API,

@@ -1,394 +1,98 @@
 import styled from 'styled-components';
 
-export const Dropzone = styled.div`
-width: ${({ width }) => width};
-min-height: 100px;
-position: relative;
-display: flex;
-align-items: center;
-background: ${({ theme, bg }) => bg ?? theme.upload_background_color};
-gap: 15px;
-border: dashed #0000ff80;
-border-radius: 10px;
-border-width: 2px;
-overflow: hidden;
-@media (max-width: 700px) {
-  width: 100%;
-}
+const getColor = props => {
+	if (props.isDragAccept) {
+		return '#00e676';
+	}
+	if (props.isDragReject) {
+		return '#ff1744';
+	}
+	if (props.isFocused) {
+		return '#2196f3';
+	}
+	return '#eeeeee';
+};
 
-${({ isInActive }) =>
-	isInActive &&
-	`border: dashed grey 2px;
-      background-color: #EEEEEE;
-      cursor: not-allowed;`}
-
-${({ dragging }) =>
-	dragging &&
-	`border: dashed grey 2px;
-      background-color: rgba(255,255,255,.8);`}
-${({ uploading }) =>
-	uploading &&
-	`
-    pointer-events: none;
-  `}
-
-&::after {
-  ${({ uploading }) =>
-		uploading &&
-		`
-      content:'Uploading...';
-    `}
-  inset: 0 0 0 0;
-  position: absolute;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8em;
-  font-weight: 500;
-  color: white;
-  z-index: 999;
-  pointer-events: none;
-}
-@media (max-width: 700px) {
-  min-width: 72vw;
-  overflow: visible;
-}
-`;
-
-export const Caption = styled.p`
-	font-size: 15px;
-	font-weight: 400;
-	margin-left: 20px;
-`;
-
-export const AcceptFilesTypes = styled.span`
-	font-size: 12px;
-	color: red;
-	text-align: center;
+export const ContainerPreview = styled.div`
+	position: relative;
+	flex: 1;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	/* padding: 20px; */
+	border-width: 2px;
+	border-radius: 2px;
+	border-color: ${props => getColor(props)};
+	border-style: dashed;
+	/* background: rgba(0, 0, 0, 0.7);
+background-color: rgba(255, 255, 255, 0.8);
+background-color: #eeeeee; */
+	background-color: #dce2f7;
+	border: 2px dashed rgba(0, 0, 255, 0.5);
+	/* border: 2px dashed black; */
+	/* border: dashed #0000ff80; */
+	color: #bdbdbd;
+	outline: none;
+	transition: border 0.24s ease-in-out;
+	height: 100%;
 `;
 
-export const UploadButton = styled.input`
-	display: none;
-	width: 100px;
-	text-align: center;
-	border-radius: 10px;
+export const Container = styled.div`
+	position: relative;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	/* padding: 20px; */
+	border-width: 2px;
+	border-radius: 2px;
+	border-color: ${props => getColor(props)};
+	border-style: dashed;
+	background: '#f5f5f5';
+	border: 2px dashed lightgrey;
+	color: #bdbdbd;
+	outline: none;
+	transition: border 0.24s ease-in-out;
+	height: 100%;
 `;
 
-export const Label = styled.label`
-	padding: 10px 15px;
-	color: #323232;
-	font-size: 15px;
-	cursor: pointer;
-	background: transparent;
-	border-radius: 5px;
-	border: ${({ theme, bg }) => bg ?? theme.upload_button_color} solid 1px;
-	width: 100px;
-	text-align: center;
-	border-radius: 10px;
-`;
-
-export const Droping = styled.div`
+export const IconDelete = styled.img`
+	height: 40px;
+	width: 40px;
 	position: absolute;
-	top: 0;
-	left: 0;
 	right: 0;
 	bottom: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(255, 255, 255);
-	font-size: 20px;
-	z-index: 9999;
-`;
-
-export const FileListWrap = styled.div`
-	display: flex;
-	flex-direction: column;
-	align-items: start;
-	gap: 20px;
-	flex-wrap: wrap;
-	margin: 10px;
-	display: -webkit-box;
-	@media (max-width: 700px) {
-		width: 72vw;
-	}
-`;
-
-export const WarningMessage = styled.div`
-	background: #e6ffef;
-	height: inherit;
-	border-radius: 10px;
-	border: 2px solid #4cc97f;
-	display: flex;
-	margin: 20px 5px 5px 5px;
-	width: fit-content;
-	padding: 5px 10px 5px 10px;
-	font-size: 14px;
-	@media (max-width: 700px) {
-		width: 72vw;
-	}
-`;
-export const File = styled.div`
-	width: 32%;
-	position: relative;
-	background: transparent;
-	border-radius: 5px;
-	height: 40px;
-	line-height: 40px;
-	margin: 10px -5px;
-	display: flex;
-	border: dashed
-		${({ errorType }) => {
-			if (errorType === 'warning') return '#f7941d';
-			if (errorType === 'error') return '#de524c';
-			return `rgba(76, 201, 127, 0.6)`;
-		}};
-
-	border-radius: 10px;
-	border-width: 2px;
-	align-items: center;
-	justify-content: space-between;
-	transition: 0.2s;
-	@media (max-width: 700px) {
-		width: 100%;
-	}
-	&::after {
-		content: '';
-		bottom: 0;
-		left: 0;
-		position: absolute;
-		width: ${({ progress }) => `${progress >= 100 ? 0 : progress}%`};
-		height: 2px;
-		background: ${({ theme, status }) => {
-			if (['error', 'cancelled'].includes(status)) return '#ff0000';
-			return theme.buttonColor2 || 'blue';
-		}};
-	}
-`;
-
-export const ImgClose = styled.img`
-	height: 25px;
+	margin-right: 0;
+	margin-bottom: 50px;
 	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
 `;
 
-export const PasswordWrapper = styled.div`
-	position: relative;
-	margin-left: auto;
-	/* margin-right: 10px; */
-`;
-
-export const RoundButton = styled.div`
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: relative;
-
-	${({ showTooltip, isViewLoan, password }) =>
-		showTooltip &&
-		`&:hover {
-    &::before {
-      content: "${
-				isViewLoan && password
-					? password
-					: 'If the document is password protected, please help us with the Password.'
-			}";
-      font-size: 13px;
-      line-height: 20px;
-      position: absolute;
-      color: white;
-      padding: 10px;
-      bottom: 105%;
-      width: 200px;
-      background: black;
-      z-index: 999;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      text-align: center;
-      /* clip-path: path("M 0 200 L 0,75 A 5,5 0,0,1 150,75 L 200 200 z"); */
-    }
-
-    &::after {
-      content: "";
-      width: 0;
-      height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-top: 10px solid black;
-      position: absolute;
-      bottom: 105%;
-    }
-}`}
-`;
-
-export const FileName = styled.span`
-	font-size: 14px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-	padding-left: 15px;
-	&:hover {
-		color: ${({ link }) => (link ? '#2a2add' : 'black')};
-	}
-`;
-
-export const UploadCircle = styled.label`
-	cursor: pointer;
-	margin-right: 10px;
-`;
-
-export const FileType = styled.div`
+export const CameraIconWrapper = styled.div`
+	/* border: 1px solid red; */
 	position: absolute;
 	right: 0;
-	margin-right: -2px;
-	background: #e6ffef;
-	height: inherit;
-	width: 50px;
-	border-radius: 0 10px 10px 0;
-	border: 2px solid #4cc97f;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	bottom: 0;
+	margin-right: 20px;
+	margin-bottom: 20px;
 	cursor: pointer;
 `;
 
-export const FileTypeIconOutsidePopover = styled.img`
-	height: 25px;
+export const IconCamera = styled.img`
+	height: 40px;
+	width: 40px;
 `;
 
-export const FileTypeIconInsidePopover = styled.img`
-	height: 25px;
-	background-color: white;
-`;
-
-export const FileTypeSmallIcon = styled.img`
-	height: 20px;
-	align-self: center;
-	padding-left: 2px;
-	padding-right: 2px;
-`;
-
-export const FileTypeBox = styled.ul`
-	width: 400px;
+export const ImgProfilePreview = styled.img`
+	/* border: 1px solid red; */
 	display: flex;
-	padding: 0 15px;
-	background: white;
-	border: #f8f8f8;
-	border-radius: 10px;
-	border: 1px solid #4cc97f;
-	max-height: 300px;
-	overflow: auto;
-	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-		rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-	img {
-		position: absolute;
-		right: 0;
-		margin-right: 20px;
-		margin-top: 15px;
-		transform: rotate(90deg);
-		cursor: pointer;
-	}
-	@media (max-width: 700px) {
-		max-width: 270px;
-	}
-`;
-
-export const FileTypeUL = styled.ul`
-	margin: 0 20px;
-	padding: 10px 0px;
-	li:last-of-type {
-		border-bottom: none;
-	}
-	@media (max-width: 700px) {
-		padding: 40px 0;
-	}
-`;
-
-export const FileTypeList = styled.li`
-	padding: 10px 0;
-	font-size: 14px;
-	min-width: 280px;
-	border-bottom: 1px solid lightgrey;
-	:hover {
-		cursor: pointer;
-		color: #4cc97f;
-	}
-`;
-
-export const DocumentUploadListWrapper = styled.div`
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	margin: 30px 0;
-	gap: 10px;
-	@media (max-width: 700px) {
-		padding: 0px;
-		gap: 0px;
-		margin: 0px;
-		width: 72vw;
-	}
-`;
-
-export const DocumentUploadList = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: left;
-	flex-direction: column;
-	width: 32%;
-	margin: 10px 0;
 	align-items: center;
-	@media (max-width: 700px) {
-		width: 100%;
-	}
+	justify-content: center;
+	height: 200px;
+	width: 200px;
 `;
 
-export const DocumentUploadListRow1 = styled.div`
-	display: flex;
-	justify-content: left;
-	width: 100%;
-	align-items: center;
-`;
-
-export const DocumentUploadCheck = styled.img`
-	height: 28px;
-`;
-
-export const DocumentUploadListRow2 = styled.div`
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	text-align: left;
-	padding: 10px 0;
-	flex-wrap: wrap;
-	gap: 10px;
-`;
-
-export const DocumentUploadName = styled.div`
-	width: 100%;
-	font-size: 14px;
-	color: ${({ isSelected }) => (isSelected ? 'black' : 'grey')};
-	padding: 0 20px;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	@media (max-width: 700px) {
-		overflow: visible;
-		white-space: normal;
-		text-overflow: unset;
-	}
-`;
-export const DocumentUploadNameToolTip = styled.div`
-	position: absolute;
-	font-size: 12px;
-	margin-top: -50px;
-	margin-left: 30px;
-	background: black;
-	color: white;
-	padding: 5px;
+export const ImageBgProfile = styled.img`
+	height: 200px;
 `;

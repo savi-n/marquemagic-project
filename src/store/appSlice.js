@@ -29,12 +29,15 @@ const initialState = {
 	permission: {},
 	userDetails: {},
 	userToken: '',
+	clientToken: '',
 	bankToken: '',
 	productList: [],
 
 	selectedProduct: {
 		idBase64: '',
 		applicationNo: '',
+		isSelectedProductTypeBusiness: '',
+		isSelectedProductTypeSalaried: '',
 	},
 	selectedApplicant: '',
 	selectedSectionId: '',
@@ -49,8 +52,8 @@ const initialState = {
 	isEditOrViewLoan: false,
 	isViewLoan: false,
 	isEditLoan: false,
-	isTestMode: true,
-	// isTestMode: false,
+	// isTestMode: true,
+	isTestMode: false,
 };
 
 export const appSlice = createSlice({
@@ -76,6 +79,9 @@ export const appSlice = createSlice({
 		setUserToken: (state, action) => {
 			state.userToken = action.payload;
 		},
+		setClientToken: (state, action) => {
+			state.clientToken = action.payload;
+		},
 		setBankToken: (state, action) => {
 			state.bankToken = action.payload;
 		},
@@ -87,6 +93,8 @@ export const appSlice = createSlice({
 			state.selectedProduct = {
 				...action.payload,
 				idBase64: encryptBase64(action.payload.id),
+				isSelectedProductTypeBusiness: action.payload.loan_req_type === 1,
+				isSelectedProductTypeSalaried: action.payload.loan_req_type === 2,
 			};
 			const newApplicantCoApplicantSectionIds = [];
 			let newFirstSectionId = '';
@@ -147,6 +155,7 @@ export const {
 	setPermission,
 	setUserDetails,
 	setUserToken,
+	setClientToken,
 	setBankToken,
 	setProductList,
 

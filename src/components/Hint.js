@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Modal from './Modal';
+import Modal from 'components/Modal';
 import { useState } from 'react';
 import * as UI from 'pages/product/panverification/ui';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';

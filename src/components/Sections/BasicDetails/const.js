@@ -1,6 +1,7 @@
 export const initialFormState = {
 	existing_customer: 'Yes',
-	pan_number: 'ABCDE2222F',
+	// pan_number: 'ABCDE2222F',
+	pan_number: '',
 	income_type: '7',
 	first_name: 'Tensa',
 	last_name: 'Zangetsu',

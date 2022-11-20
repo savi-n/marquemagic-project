@@ -49,7 +49,7 @@ const PanVerification = props => {
 		productDetails.loan_request_type === 1 ? 'business' : 'salaried';
 	const isBusinessProductType = productType === 'business';
 	const isSalariedProductType = !isBusinessProductType; // 'salaried'
-	const isVerifyKycData = productDetails?.kyc_verification; // TODO: make it to false before pushing
+	const isVerifyKycData = productDetails?.kyc_verification;
 	const {
 		state: { whiteLabelId, clientToken },
 	} = useContext(AppContext);

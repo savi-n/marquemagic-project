@@ -148,6 +148,17 @@ export const ADDRESS_PROOF_DOC_TYPE_LIST = {
 	],
 };
 
+export const EXTRACTION_FLAG_SUCCESS = 'Success:';
+export const EXTRACTION_FLAG_ERROR = 'Error:';
+export const EXTRACTION_FLAG_WARNING = 'Warning:';
+
+export const getExtractionFlagColorCode = errorMessage => {
+	if (errorMessage.includes(EXTRACTION_FLAG_SUCCESS)) return '#4cc97f';
+	if (errorMessage.includes(EXTRACTION_FLAG_ERROR)) return '#de524c';
+	if (errorMessage.includes(EXTRACTION_FLAG_WARNING)) return '#f7941d';
+	return '';
+};
+
 export const isBusinessPan = companyName => {
 	return (
 		companyName?.toLowerCase()?.includes('private limited') ||

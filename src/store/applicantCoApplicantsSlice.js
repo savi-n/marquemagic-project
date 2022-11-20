@@ -3,12 +3,16 @@ import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import _ from 'lodash';
 
 const initialState = {
+	profileImageRes: {},
+	companyRocData: {},
+	panExtractionRes: {},
 	applicant: {
 		applicantId: '', // applicant directorId
 		employmentId: '',
 		incomeDataId: '',
 		selectedParmanentAddressProofId: '',
 		selectedPresentAddressProofId: '',
+		cin: '',
 	},
 	coApplicants: {},
 	selectedApplicantCoApplicantId: CONST_APP_CO_APP_HEADER.APPLICANT,
@@ -87,6 +91,15 @@ export const applicantCoApplicantsSlice = createSlice({
 				].selectedPresentAddressProofId = action.payload;
 			}
 		},
+		setProfileImageRes: (state, action) => {
+			state.profileImageRes = action.payload;
+		},
+		setCompanyRocData: (state, action) => {
+			state.companyRocData = action.payload;
+		},
+		setPanExtractionRes: (state, action) => {
+			state.panExtractionRes = action.payload;
+		},
 	},
 });
 
@@ -97,6 +110,8 @@ export const {
 	updateApplicantCoApplicantSection,
 	setSelectedParmanentAddressProofId,
 	setSelectedPresentAddressProofId,
+	setProfileImageRes,
+	setPanExtractionRes,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

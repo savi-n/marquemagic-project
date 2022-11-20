@@ -209,6 +209,21 @@ export default function useForm() {
 		};
 	};
 
+	const setError = (name, error) => {
+		const { [name]: _, ...touchedRef } = errorsRef.current;
+		errorsRef.current = { ...touchedRef, ...(error ? { [name]: error } : {}) };
+
+		const { [name]: __, ...errorFields } = errorsRef.current;
+		errorsRef.current = { ...errorFields, ...(error ? { [name]: error } : {}) };
+
+		const { [name]: ___, ...validFields } = validRef.current;
+		validRef.current = {
+			...validFields,
+			...(!error ? { [name]: !error } : {}),
+		};
+		updateFormState(uuidv4());
+	};
+
 	const setValue = (name, value) => {
 		const mask = fieldsRef.current[name]?.mask;
 		if (mask) {
@@ -390,8 +405,9 @@ export default function useForm() {
 			valid: validRef.current,
 			values: valuesRef.current,
 		},
-		clearError,
-		onUseFormFieldChange: onChange,
+		clearErrorFormState: clearError,
+		onChangeFormStateField: onChange,
+		setErrorFormStateField: setError,
 	};
 }
 

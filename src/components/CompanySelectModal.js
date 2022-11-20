@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import styled from 'styled-components';
-import Modal from './Modal';
+import Modal from 'components/Modal';
 import Button from './Button';
 import { useToasts } from 'components/Toast/ToastProvider';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';

@@ -10,10 +10,11 @@ import queryString from 'query-string';
 import {
 	setEditLoanData,
 	setWhiteLabelId as appSetWhiteLabelId,
+	setClientToken as appSetClientToken,
 } from 'store/appSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
-import Loading from './Loading';
+import Loading from 'components/Loading';
 import useFetch from 'hooks/useFetch';
 
 import {
@@ -82,7 +83,7 @@ const AppLayout = () => {
 				});
 
 				const clientId = res.data;
-
+				dispatch(appSetClientToken(clientId.token));
 				if (clientId?.statusCode === 200) {
 					const bankToken = await newRequest(
 						BANK_TOKEN_API,

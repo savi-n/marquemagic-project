@@ -6,7 +6,7 @@ import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import * as SectionUI from '../ui';
+import * as SectionUI from 'components/Sections/ui';
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import * as CONST from './const';
 import { sleep } from 'utils/helper';

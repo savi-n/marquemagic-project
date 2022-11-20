@@ -2,7 +2,13 @@
 import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
 import { ORIGIN } from '_config/app.config';
 
-const formaterHOF = (formData, fields, callback) => {
+export const businessTypeMaps = [
+	[['private', 'pvt'], 4],
+	[['public', 'pub'], 5],
+	[['llp'], 3],
+];
+
+export const formaterHOF = (formData, fields, callback) => {
 	let data = {};
 
 	for (let { name, type } of fields) {
@@ -82,4 +88,54 @@ export const formatSectionReqBody = data => {
 	// }
 
 	return reqBody;
+};
+
+export const formatCompanyData = (data, panNum) => {
+	let directors = {};
+	let directorsForShow = [];
+
+	for (const [i, dir] of data['directors/signatory_details']?.entries() || []) {
+		directors[`directors_${i}`] = {
+			[`ddin_no${i}`]: dir['din/pan'],
+		};
+		directorsForShow.push({
+			Name: dir.assosiate_company_details?.director_data.name,
+			Din: dir.assosiate_company_details?.director_data.din,
+		});
+	}
+
+	let businesType;
+
+	for (const type of businessTypeMaps) {
+		const typeAllowed = type[0].find(t =>
+			data?.company_master_data?.company_name?.toLowerCase().includes(t)
+		);
+
+		if (typeAllowed) {
+			businesType = type[1];
+			break;
+		}
+	}
+
+	const [
+		date,
+		month,
+		year,
+	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
+
+	return {
+		BusinessName: data.company_master_data.company_name,
+		BusinessType: businesType,
+		Email: data.company_master_data.email_id,
+		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
+		panNumber: panNum,
+		CIN: data.company_master_data['cin '],
+		CompanyCategory: data.company_master_data.company_category,
+		Address: data.company_master_data.registered_address,
+		ClassOfCompany: data.company_master_data.class_of_company,
+		RegistrationNumber: data.company_master_data.registration_number,
+		DirectorDetails: directors,
+		directorsForShow,
+		unformatedData: data,
+	};
 };
