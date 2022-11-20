@@ -62,6 +62,7 @@ export const appSlice = createSlice({
 	reducers: {
 		setLoginCreateUserRes: (state, action) => {
 			state.loginCreateUserRes = action.payload;
+			state.userToken = action.payload.token;
 		},
 		setWhiteLabelId: (state, action) => {
 			state.whiteLabelId = action.payload;

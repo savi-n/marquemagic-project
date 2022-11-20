@@ -51,8 +51,8 @@ const BasicDetails = props => {
 		isTestMode,
 		selectedSection,
 		whiteLabelId,
-		loginCreateUserRes,
 		clientToken,
+		userToken,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -88,7 +88,7 @@ const BasicDetails = props => {
 			// });
 
 			// call login api only once
-			if (!loginCreateUserRes) {
+			if (!userToken) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -98,14 +98,16 @@ const BasicDetails = props => {
 					addrr1: '',
 					addrr2: '',
 				};
-				const loginCreateUserRes = await axios.post(
+				const newLoginCreateUserRes = await axios.post(
 					`${LOGIN_CREATEUSER}`,
 					loginCreateUserReqBody
 				);
-				dispatch(setLoginCreateUserRes(loginCreateUserRes?.data));
+				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
 				axios.defaults.headers.Authorization = `Bearer ${
-					loginCreateUserRes?.data?.token
+					newLoginCreateUserRes?.data?.token
 				}`;
+			} else {
+				axios.defaults.headers.Authorization = `Bearer ${app.userToken}`;
 			}
 
 			// console.log('onProceed-loginCreateUserReqRes-', {
@@ -383,7 +385,15 @@ const BasicDetails = props => {
 				?.profile_image_url;
 	}
 
-	// console.log('BasicDetails-', { panExtractionRes, formState });
+	console.log('BasicDetails-', {
+		panExtractionRes,
+		formState,
+		app,
+		applicantCoApplicants,
+		application,
+	});
+
+	const isPanNumberExist = !!formState.values.pan_number;
 
 	return (
 		<SectionUI.Wrapper>
@@ -439,7 +449,7 @@ const BasicDetails = props => {
 							fill
 							isLoader={loading}
 							onClick={onProceedPanConfirm}
-							disabled={!panExtractionRes.panNumber || loading}
+							disabled={loading}
 							style={{ alignText: 'center' }}
 						/>
 					</UI.ConfirmPanWrapper>
@@ -476,6 +486,10 @@ const BasicDetails = props => {
 											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name]) ||
 										'';
+
+									// console.log('pancard-error-msg-', {
+									// 	panErrorMessage,
+									// });
 									const panErrorColorCode = CONST_ADDRESS_PROOF_UPLOAD.getExtractionFlagColorCode(
 										panErrorMessage
 									);
@@ -492,19 +506,20 @@ const BasicDetails = props => {
 									)
 										? ''
 										: panErrorMessage;
+									// console.log('pancard-error-msg-', {
+									// 	panErrorColorCode,
+									// 	panErrorMessage,
+									// });
 									return (
 										<SectionUI.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											<UI.ProfilePicWrapper>
 												<PanUpload
-													formState={formState}
 													field={field}
-													loading={loading}
-													panErrorColorCode={panErrorColorCode}
-													panErrorMessage={panErrorMessage}
 													setIsPanConfirmModalOpen={setIsPanConfirmModalOpen}
 													setErrorFormStateField={setErrorFormStateField}
+													panErrorColorCode={panErrorColorCode}
 												/>
 												{panErrorMessage && (
 													<SectionUI.ErrorMessage colorCode={panErrorColorCode}>
@@ -519,8 +534,7 @@ const BasicDetails = props => {
 									return null;
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
-								if (!formState.values.pan_number)
-									customFieldProps.disabled = true;
+								if (!isPanNumberExist) customFieldProps.disabled = true;
 								// customFieldProps.disabled = false;
 								return (
 									<SectionUI.FieldWrapGrid
@@ -551,7 +565,7 @@ const BasicDetails = props => {
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					isLoader={loading}
-					disabled={loading}
+					disabled={loading || !isPanNumberExist}
 					onClick={handleSubmit(onProceed)}
 					// onClick={onProceed}
 				/>

@@ -102,9 +102,9 @@ const PreviewUploadIconWrapper = styled.div`
 
 const PanUpload = props => {
 	const {
+		field,
 		setIsPanConfirmModalOpen,
 		setErrorFormStateField,
-		field,
 		panErrorColorCode,
 	} = props;
 	const { app } = useSelector(state => state);
@@ -129,9 +129,9 @@ const PanUpload = props => {
 			formData.append('process_type', 'extraction');
 			formData.append('document', file);
 			const panExtractionRes = await getKYCData(formData, clientToken);
-			// console.log('handleExtractionPan-', {
-			// 	panExtractionRes,
-			// });
+			console.log('handleExtractionPan-', {
+				panExtractionRes,
+			});
 			const panExtractionStatus = panExtractionRes?.data?.status || '';
 			const panExtractionMsg = panExtractionRes?.data?.message || '';
 			const panForensicRes = panExtractionRes?.data?.forensicData || {};

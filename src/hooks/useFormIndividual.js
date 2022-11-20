@@ -210,17 +210,24 @@ export default function useForm() {
 	};
 
 	const setError = (name, error) => {
-		const { [name]: _, ...touchedRef } = errorsRef.current;
-		errorsRef.current = { ...touchedRef, ...(error ? { [name]: error } : {}) };
+		const newTouchedRef =
+			Object.keys(touchedRef.current).length > 0
+				? { ...touchedRef.current, [name]: true }
+				: { [name]: true };
+		touchedRef.current = newTouchedRef;
 
-		const { [name]: __, ...errorFields } = errorsRef.current;
-		errorsRef.current = { ...errorFields, ...(error ? { [name]: error } : {}) };
+		const newErrorsValues =
+			Object.keys(errorsRef.current).length > 0
+				? { ...errorsRef.current, [name]: error }
+				: { [name]: error };
+		errorsRef.current = newErrorsValues;
 
-		const { [name]: ___, ...validFields } = validRef.current;
+		const { [name]: __, ...validFields } = validRef.current;
 		validRef.current = {
 			...validFields,
 			...(!error ? { [name]: !error } : {}),
 		};
+
 		updateFormState(uuidv4());
 	};
 
@@ -374,6 +381,7 @@ export default function useForm() {
 			...submitRef.current,
 			isSubmitting: false,
 		};
+		// console.log('-error-ref-', { valuesRef, touchedRef, errorsRef });
 		if (Object.keys(errorsRef.current).length > 0) {
 			document.getElementsByName(Object.keys(errorsRef.current)[0])[0].focus();
 		}
