@@ -14,7 +14,9 @@ export const initialFormState = {
 	property_tenure: 'abcde',
 };
 
-export const AID1_PREFIX_PERMANENT = 'permanent_';
-export const AID2_PREFIX_PRESENT = 'present_';
+export const PREFIX_PRESENT = 'present_';
+export const PREFIX_PERMANENT = 'permanent_';
+export const AID_PRESENT = '1';
+export const AID_PERMANENT = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
 export const ADDRESSPROOF = 'addressproof';

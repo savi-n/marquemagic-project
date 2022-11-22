@@ -63,9 +63,9 @@
 									]
 								},
 								{
+									"name": "profile_url",
 									"label": "Upload your Profile",
 									"type": "file",
-									"name": "profile",
 									"db_key": "profile_image_url",
 									"visibility": true,
 									"min": 1,
@@ -76,9 +76,12 @@
 									}
 								},
 								{
+									"name": "pan_upload",
 									"label": "Upload your PAN Card",
 									"type": "file",
+									"db_key": "loan_document",
 									"req_type": "pan",
+									"value": "pan",
 									"process_type": "extraction",
 									"min": 1,
 									"max": 1,
@@ -357,7 +360,7 @@
 								{
 									"name": "upi_id",
 									"placeholder": "UPI ID",
-									"db_key": "",
+									"db_key": "upi_id",
 									"type": "text",
 									"rules": {
 										"required": true
@@ -368,8 +371,7 @@
 										"number_only": true,
 										"character_limit": 12
 									},
-									"visibility": true,
-									"inrupees": true
+									"visibility": true
 								}
 							]
 						}
@@ -393,6 +395,8 @@
 											"label": "Aadhaar",
 											"type": "file",
 											"req_type": "aadhar",
+											"value": "aadhar",
+											"db_key": "loan_document",
 											"process_type": "extraction",
 											"min": 1,
 											"max": 2,
@@ -406,9 +410,11 @@
 											}
 										},
 										{
+											"name": "voter_upload",
 											"label": " Voter ID",
 											"type": "file",
 											"req_type": "voter",
+											"db_key": "loan_document",
 											"value": "voter",
 											"process_type": "extraction",
 											"min": 1,
@@ -423,7 +429,9 @@
 											}
 										},
 										{
+											"name": "dl_upload",
 											"label": "Upload your DL",
+											"db_key": "loan_document",
 											"type": "file",
 											"req_type": "DL",
 											"value": "DL",
@@ -440,6 +448,8 @@
 											}
 										},
 										{
+											"name": "passport_upload",
+											"db_key": "loan_document",
 											"label": "Passport",
 											"type": "file",
 											"req_type": "passport",
@@ -457,8 +467,11 @@
 											}
 										},
 										{
+											"name": "others_upload",
 											"label": "Others",
 											"type": "file",
+											"db_key": "loan_document",
+											"value": "others",
 											"min": 1,
 											"max": 1,
 											"rules": {
@@ -473,8 +486,11 @@
 									]
 								},
 								{
+									"name": "id_upload",
 									"label": "Upload your ID Proof",
 									"type": "file",
+									"db_key": "loan_document",
+									"visibility": true,
 									"min": 1,
 									"max": 1,
 									"rules": {
@@ -508,10 +524,32 @@
 									]
 								},
 								{
-									"name": "address_proof_id",
+									"name": "address_proof_id_passport",
 									"placeholder": "Address Proof ID",
-									"db_key": "",
-									"for_type": ["voter", "DL", "passport"],
+									"db_key": "dpassport",
+									"for_type": ["passport"],
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true
+								},
+								{
+									"name": "address_proof_id_dl",
+									"placeholder": "Address Proof ID",
+									"db_key": "ddlNumber",
+									"for_type": ["DL"],
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true
+								},
+								{
+									"name": "address_proof_id_voter",
+									"placeholder": "Address Proof ID",
+									"db_key": "dvoterid",
+									"for_type": ["voter"],
 									"type": "text",
 									"rules": {
 										"required": true
@@ -523,6 +561,7 @@
 						{
 							"id": "loan_address_details",
 							"label": "Address Details",
+							"aid": 1,
 							"fields": [
 								{
 									"name": "address1",
@@ -549,7 +588,7 @@
 									"visibility": true
 								},
 								{
-									"name": "pinCode",
+									"name": "pin_code",
 									"placeholder": "Pin Code",
 									"db_key": "pincode",
 									"rules": {
@@ -860,7 +899,7 @@
 									"visibility": true
 								},
 								{
-									"name": "pinCode",
+									"name": "pin_code",
 									"placeholder": "Pin Code",
 									"db_key": "pincode",
 									"rules": {
@@ -913,6 +952,7 @@
 							"fields": [
 								{
 									"name": "gross_income",
+									"db_key": "gross_income",
 									"for_type": [
 										"Business",
 										"Professional",
@@ -942,7 +982,9 @@
 								},
 								{
 									"name": "net_monthly_income",
-									"for_type": "Salaried",
+									"db_key": "net_monthly_income",
+									"for_type": ["Salaried"],
+									"for_type_name": "employment_category",
 									"placeholder": "Net Income from Employment(Monthly)",
 									"type": "text",
 									"rules": {
@@ -967,6 +1009,7 @@
 								{
 									"name": "income_from_other_business",
 									"placeholder": "Income from Other Business (Annual)",
+									"db_key": "income_from_other_business",
 									"type": "text",
 									"rules": {
 										"required": true
@@ -990,6 +1033,7 @@
 								{
 									"name": "income_from_rent",
 									"placeholder": "Income from Rent (Annual)",
+									"db_key": "income_from_rent",
 									"type": "text",
 									"rules": {
 										"required": true
@@ -1012,6 +1056,7 @@
 								},
 								{
 									"name": "income_from_agriculture",
+									"db_key": "income_from_agriculture",
 									"placeholder": "Income from Agriculture (Annual)",
 									"type": "text",
 									"rules": {
@@ -1036,6 +1081,7 @@
 								{
 									"name": "any_other_income",
 									"placeholder": "Any Other Income (Annual)",
+									"db_key": "any_other_income",
 									"type": "text",
 									"rules": {
 										"required": true
@@ -1055,6 +1101,207 @@
 									},
 									"visibility": true,
 									"inrupees": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "loan_details",
+					"name": "Loan Details",
+					"is_applicant": true,
+					"sub_sections": [
+						{
+							"id": "loan_details",
+							"name": "Help us with Loan Details",
+							"fields": [
+								{
+									"name": "required_loan_amount",
+									"db_key": "required_loan_amount",
+									"placeholder": "Required Loan Amount e.g.,10,000",
+									"rules": {
+										"required": true
+									},
+									"type": "number",
+									"mask": {
+										"NumberOnly": true,
+										"CharacterLimit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "tenure",
+									"db_key": "tenure",
+									"rules": {},
+									"placeholder": "Tenure (in months)",
+									"type": "number",
+									"mask": {
+										"NumberOnly": true,
+										"CharacterLimit": 3
+									},
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "source_details",
+							"name": "Help us with Source Details",
+							"fields": [
+								{
+									"name": "loan_source",
+									"db_key": "loan_source",
+									"placeholder": "Loan Source",
+									"rules": {},
+									"options": [
+										{
+											"name": "Branch",
+											"value": "Branch"
+										},
+										{
+											"name": "Connector",
+											"value": "Connector"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "connector_name",
+									"db_key": "connector_name",
+									"placeholder": "Connector Name",
+									"for_type_name": "loan_source",
+									"for_type": ["Connector"],
+									"rules": {},
+									"options": [
+										{
+											"name": "Connector Name",
+											"value": "111"
+										},
+										{
+											"name": "Connector Name",
+											"value": "222"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "connector_code",
+									"db_key": "connector_code",
+									"placeholder": "Connector Code",
+									"for_type_name": "loan_source",
+									"for_type": ["Connector"],
+									"rules": {
+										"required": true
+									},
+									"type": "text",
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "imd_details",
+							"name": "Help us with IMD Details",
+							"fields": [
+								{
+									"name": "imd_collected",
+									"db_key": "imd_collected",
+									"placeholder": "IMD Collected",
+									"rules": { "required": true },
+									"options": [
+										{
+											"name": "Yes",
+											"value": "Yes"
+										},
+										{
+											"name": "No",
+											"value": "No"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "imd_document_proof",
+									"db_key": "imd_document_proof",
+									"label": "Upload IMD Document Proof",
+									"for_type": ["Yes"],
+									"for_type_name": "imd_collected",
+									"type": "file",
+									"value": "imd_doc",
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									},
+									"doc_type": {
+										"1": 8,
+										"7": 31
+									}
+								},
+								{
+									"name": "amount_paid",
+									"db_key": "amount_paid",
+									"placeholder": "Amount Paid",
+									"for_type": ["Yes"],
+									"for_type_name": "imd_collected",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "mode_of_payment",
+									"db_key": "mode_of_payment",
+									"placeholder": "Mode of Payment",
+									"rules": { "required": true },
+									"options": [
+										{
+											"name": "Credit Card",
+											"value": "cc"
+										},
+										{
+											"name": "Debit Card",
+											"value": "dc"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "transaction_reference",
+									"db_key": "transaction_reference",
+									"placeholder": "Transaction Reference",
+									"for_type": ["Yes"],
+									"for_type_name": "imd_collected",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "imd_paid_by",
+									"db_key": "imd_paid_by",
+									"placeholder": "IMD Paid By",
+									"rules": { "required": true },
+									"options": [
+										{
+											"name": "Shubham Gaurav",
+											"value": "1111"
+										},
+										{
+											"name": "Akshat Singhal",
+											"value": "2222"
+										}
+									],
+									"type": "select",
+									"visibility": true
 								}
 							]
 						}

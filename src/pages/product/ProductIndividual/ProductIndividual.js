@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import AppCoAppHeader from 'components/AppCoAppHeader';
+import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
 import AddressDetails from 'components/Sections/AddressDetails';
@@ -57,7 +57,7 @@ const ProductIndividual = props => {
 				<UI.IconDottedRight src={iconDottedRight} alt='dot' />
 				<UI.DynamicSectionWrapper>
 					{applicantCoApplicantSectionIds?.includes(selectedSectionId) && (
-						<AppCoAppHeader />
+						<ApplicantCoApplicantHeader />
 					)}
 					<UI.DynamicSubSectionWrapper>
 						{loading ? <div /> : <SelectedComponent />}

@@ -66,7 +66,7 @@ export const ErrorMessageSubFields = styled.div`
 	margin-top: 50px;
 	color: red;
 	text-align: left;
-	padding-top: 2px;
+	padding-top: 20px;
 	font-size: 12px;
 	font-weight: 500;
 `;

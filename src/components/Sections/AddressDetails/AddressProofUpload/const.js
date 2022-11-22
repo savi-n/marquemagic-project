@@ -3,14 +3,14 @@ export const EXTRACTION_KEY_DL = 'DL';
 export const EXTRACTION_KEY_AADHAAR = 'aadhar';
 export const EXTRACTION_KEY_VOTERID = 'voter';
 export const EXTRACTION_KEY_PASSPORT = 'passport';
-export const EXTRACTION_KEY_OTHERS = 'others';
+// export const EXTRACTION_KEY_OTHERS = 'others';
 
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
 	EXTRACTION_KEY_DL,
 	EXTRACTION_KEY_VOTERID,
 	EXTRACTION_KEY_PASSPORT,
-	EXTRACTION_KEY_OTHERS,
+	// EXTRACTION_KEY_OTHERS,
 ];
 
 export const EXTRACTION_KEYS = [
@@ -123,29 +123,29 @@ export const ADDRESS_PROOF_DOC_TYPE_LIST = {
 			name: 'Passport Front and Back',
 		},
 	],
-	[EXTRACTION_KEY_OTHERS]: [
-		{
-			typeId: 513,
-			value: 513,
-			doc_type_id: 513,
-			id: 513,
-			name: 'Other Front Part',
-		},
-		{
-			typeId: 514,
-			value: 514,
-			doc_type_id: 514,
-			id: 514,
-			name: 'Other Back Part',
-		},
-		{
-			typeId: 515,
-			value: 515,
-			doc_type_id: 515,
-			id: 515,
-			name: 'Other Front and Back',
-		},
-	],
+	// [EXTRACTION_KEY_OTHERS]: [
+	// 	{
+	// 		typeId: 513,
+	// 		value: 513,
+	// 		doc_type_id: 513,
+	// 		id: 513,
+	// 		name: 'Other Front Part',
+	// 	},
+	// 	{
+	// 		typeId: 514,
+	// 		value: 514,
+	// 		doc_type_id: 514,
+	// 		id: 514,
+	// 		name: 'Other Back Part',
+	// 	},
+	// 	{
+	// 		typeId: 515,
+	// 		value: 515,
+	// 		doc_type_id: 515,
+	// 		id: 515,
+	// 		name: 'Other Front and Back',
+	// 	},
+	// ],
 };
 
 export const EXTRACTION_FLAG_SUCCESS = 'Success:';
@@ -167,97 +167,4 @@ export const isBusinessPan = companyName => {
 		companyName?.toLowerCase()?.includes('pvt ltd') ||
 		companyName?.toLowerCase()?.includes('private')
 	);
-};
-
-export const formatCompanyData = (data, panNum) => {
-	let directors = {};
-	let directorsForShow = [];
-
-	for (const [i, dir] of data['directors/signatory_details']?.entries() || []) {
-		directors[`directors_${i}`] = {
-			[`ddin_no${i}`]: dir['din/pan'],
-		};
-		directorsForShow.push({
-			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din,
-		});
-	}
-
-	let businesType;
-
-	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t =>
-			data?.company_master_data?.company_name?.toLowerCase().includes(t)
-		);
-
-		if (typeAllowed) {
-			businesType = type[1];
-			break;
-		}
-	}
-
-	const [
-		date,
-		month,
-		year,
-	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
-
-	return {
-		BusinessName: data.company_master_data.company_name,
-		BusinessType: businesType,
-		Email: data.company_master_data.email_id,
-		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
-		CIN: data.company_master_data['cin '],
-		CompanyCategory: data.company_master_data.company_category,
-		Address: data.company_master_data.registered_address,
-		ClassOfCompany: data.company_master_data.class_of_company,
-		RegistrationNumber: data.company_master_data.registration_number,
-		DirectorDetails: directors,
-		directorsForShow,
-		unformatedData: data,
-	};
-};
-
-export const formatCompanyDataGST = (data, panNum, gstNum) => {
-	if (data?.length > 1) data = data[0].data;
-	let directors = {};
-	let directorsForShow = [];
-
-	directorsForShow.push({
-		Name: data?.lgnm,
-		Din: '',
-	});
-
-	let businesType;
-
-	for (const type of businessTypeMaps) {
-		const typeAllowed = type[0].find(t =>
-			data?.tradeNam?.toLowerCase().includes(t)
-		);
-
-		if (typeAllowed) {
-			businesType = type[1];
-			break;
-		}
-	}
-
-	const [date, month, year] = data?.rgdt.split(/\/|-/);
-
-	return {
-		BusinessName: data.tradeNam,
-		BusinessType: businesType,
-		Email: '',
-		BusinessVintage: `${year}-${month}-${date}`, //1990-03-16
-		panNumber: panNum,
-		CIN: '',
-		GSTVerification: gstNum,
-		CompanyCategory: data.nba[0],
-		Address: data.pradr?.addr,
-		ClassOfCompany: data.ctb,
-		RegistrationNumber: data.ctjCd,
-		DirectorDetails: directors,
-		directorsForShow,
-		unformatedData: data,
-	};
 };

@@ -4,6 +4,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import appReducer from './appSlice';
 import applicationReducer from './applicationSlice';
 import applicantCoApplicantsReducer from './applicantCoApplicantsSlice';
+import storageSession from 'redux-persist/lib/storage/session';
 // import { appSlice } from './appSlice';
 // import { applicantSlice } from './applicationSlice';
 // import { applicantCoApplicantsSlice } from './applicantCoApplicantsSlice';
@@ -17,12 +18,12 @@ import {
 	PURGE,
 	REGISTER,
 } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+// import storage from 'redux-persist/lib/storage';
 
 const persistConfig = {
 	key: 'root',
-	storage, // do not use localStorage
-	// storage: sessionStorage,
+	// storage, // do not use localStorage
+	storage: storageSession,
 };
 
 export const rootReducers = combineReducers({

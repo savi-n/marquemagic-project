@@ -6,8 +6,8 @@ import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import * as SectionUI from 'components/Sections/ui';
-import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
+import * as UI_SECTIONS from 'components/Sections/ui';
+import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -53,9 +53,7 @@ const EmploymentDetails = () => {
 
 			let editEmploymentId = '';
 			let editIncomeDataId = '';
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				editEmploymentId = applicant?.employmentId;
 				editIncomeDataId = applicant?.incomeDataId;
 			} else {
@@ -80,14 +78,12 @@ const EmploymentDetails = () => {
 			// 	employmentDetailsRes,
 			// });
 			const newEmploymentDetails = {
-				id: selectedSectionId,
-				values: formState.values,
+				sectionId: selectedSectionId,
+				sectionValues: formState.values,
 				employmentId: employmentDetailsRes?.data?.data?.employment_id,
 				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
 			};
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				dispatch(updateApplicantSection(newEmploymentDetails));
 			} else {
 				newEmploymentDetails.directorId = selectedApplicantCoApplicantId;
@@ -115,8 +111,8 @@ const EmploymentDetails = () => {
 	const onSkip = () => {
 		dispatch(
 			updateApplicantSection({
-				id: selectedSectionId,
-				values: { isSkip: true },
+				sectionId: selectedSectionId,
+				sectionValues: { isSkip: true },
 			})
 		);
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -126,9 +122,7 @@ const EmploymentDetails = () => {
 		setLoading(true);
 		await submitEmploymentDetails();
 		dispatch(setSelectedSectionId(firstSectionId));
-		dispatch(
-			setSelectedApplicantCoApplicantId(CONST_APP_CO_APP_HEADER.CO_APPLICANT)
-		);
+		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
 		setLoading(false);
 	};
 
@@ -144,16 +138,12 @@ const EmploymentDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);
 			}
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.CO_APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
 			if (selectedApplicantCoApplicantId) {
@@ -182,18 +172,18 @@ const EmploymentDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<SectionUI.Wrapper>
+		<UI_SECTIONS.Wrapper>
 			{selectedProduct?.product_details?.sections
 				?.filter(section => section.id === selectedSectionId)?.[0]
 				?.sub_sections?.map((sub_section, sectionIndex) => {
 					return (
 						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 							{sub_section?.name ? (
-								<SectionUI.SubSectionHeader>
+								<UI_SECTIONS.SubSectionHeader>
 									{sub_section.name}
-								</SectionUI.SubSectionHeader>
+								</UI_SECTIONS.SubSectionHeader>
 							) : null}
-							<SectionUI.FormWrapGrid>
+							<UI_SECTIONS.FormWrapGrid>
 								{sub_section?.fields?.map((field, fieldIndex) => {
 									if (!field.visibility) return null;
 									if (field?.for_type_name) {
@@ -206,7 +196,7 @@ const EmploymentDetails = () => {
 									}
 									const customFieldProps = {};
 									return (
-										<SectionUI.FieldWrapGrid
+										<UI_SECTIONS.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											{register({
@@ -219,22 +209,22 @@ const EmploymentDetails = () => {
 												formState?.touched?.[field.name]) &&
 												formState?.error?.[field.name] &&
 												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
+													<UI_SECTIONS.ErrorMessageSubFields>
 														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
+													</UI_SECTIONS.ErrorMessageSubFields>
 												) : (
-													<SectionUI.ErrorMessage>
+													<UI_SECTIONS.ErrorMessage>
 														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessage>
+													</UI_SECTIONS.ErrorMessage>
 												))}
-										</SectionUI.FieldWrapGrid>
+										</UI_SECTIONS.FieldWrapGrid>
 									);
 								})}
-							</SectionUI.FormWrapGrid>
+							</UI_SECTIONS.FormWrapGrid>
 						</Fragment>
 					);
 				})}
-			<SectionUI.Footer>
+			<UI_SECTIONS.Footer>
 				{displayProceedCTA && (
 					<Button
 						fill
@@ -253,8 +243,8 @@ const EmploymentDetails = () => {
 					onClick={handleSubmit(onAddCoApplicant)}
 					// onClick={onAddCoApplicant}
 				/>
-			</SectionUI.Footer>
-		</SectionUI.Wrapper>
+			</UI_SECTIONS.Footer>
+		</UI_SECTIONS.Wrapper>
 	);
 };
 
