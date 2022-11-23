@@ -49,11 +49,11 @@ const AddressDetails = props => {
 		selectedApplicantCoApplicantId,
 		applicant,
 		coApplicants,
+		isApplicant,
 	} = applicantCoApplicants;
-	const selectedApplicant =
-		selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT
-			? applicant
-			: coApplicants[selectedApplicantCoApplicantId];
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId];
 	const {
 		isSameAsAboveAddressChecked,
 		selectedPresentAddressProofId,
@@ -531,7 +531,7 @@ const AddressDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
 			};
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				dispatch(updateApplicantSection(newAddressDetails));
 			} else {
 				newAddressDetails.directorId = selectedApplicantCoApplicantId;
@@ -572,7 +572,7 @@ const AddressDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);

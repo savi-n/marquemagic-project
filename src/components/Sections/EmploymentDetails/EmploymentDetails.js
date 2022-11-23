@@ -35,6 +35,7 @@ const EmploymentDetails = () => {
 		applicant,
 		coApplicants,
 		selectedApplicantCoApplicantId,
+		isApplicant,
 	} = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ const EmploymentDetails = () => {
 
 			let editEmploymentId = '';
 			let editIncomeDataId = '';
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				editEmploymentId = applicant?.employmentId;
 				editIncomeDataId = applicant?.incomeDataId;
 			} else {
@@ -83,7 +84,7 @@ const EmploymentDetails = () => {
 				employmentId: employmentDetailsRes?.data?.data?.employment_id,
 				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
 			};
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				dispatch(updateApplicantSection(newEmploymentDetails));
 			} else {
 				newEmploymentDetails.directorId = selectedApplicantCoApplicantId;
@@ -138,7 +139,7 @@ const EmploymentDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);

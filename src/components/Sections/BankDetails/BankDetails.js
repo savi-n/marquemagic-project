@@ -8,7 +8,7 @@ import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
 import * as SectionUI from 'components/Sections/ui';
-import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -36,6 +36,7 @@ const BankDetails = () => {
 		applicant,
 		coApplicants,
 		selectedApplicantCoApplicantId,
+		isApplicant,
 	} = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -66,9 +67,7 @@ const BankDetails = () => {
 				employmentId: bankDetailsRes?.data?.data?.employment_id,
 				incomeDataId: bankDetailsRes?.data?.data?.income_data_id,
 			};
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (isApplicant) {
 				dispatch(updateApplicantSection(newBankDetails));
 			} else {
 				newBankDetails.directorId = selectedApplicantCoApplicantId;
@@ -107,9 +106,7 @@ const BankDetails = () => {
 		setLoading(true);
 		await submitBankDetails();
 		dispatch(setSelectedSectionId(firstSectionId));
-		dispatch(
-			setSelectedApplicantCoApplicantId(CONST_APP_CO_APP_HEADER.CO_APPLICANT)
-		);
+		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
 		setLoading(false);
 	};
 
@@ -125,16 +122,12 @@ const BankDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (isApplicant) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);
 			}
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.CO_APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
 			if (selectedApplicantCoApplicantId) {

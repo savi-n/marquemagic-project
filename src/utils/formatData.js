@@ -42,12 +42,12 @@ export const formatSectionReqBody = data => {
 		selectedApplicantCoApplicantId,
 		applicant,
 		coApplicants,
+		isApplicant,
 	} = applicantCoApplicants;
 
-	const selectedApplicant =
-		selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT
-			? applicant
-			: coApplicants[selectedApplicantCoApplicantId];
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId];
 
 	const subSectionsData = {};
 	section.sub_sections.map(sub_section => {
@@ -83,8 +83,7 @@ export const formatSectionReqBody = data => {
 	if (selectedApplicant?.directorId) {
 		reqBody.director_id = selectedApplicant?.directorId;
 	}
-	reqBody.is_applicant =
-		selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT;
+	reqBody.is_applicant = isApplicant;
 	// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 	// if (employmentId) {

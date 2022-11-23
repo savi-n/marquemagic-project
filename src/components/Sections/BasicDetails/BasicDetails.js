@@ -160,7 +160,7 @@ const BasicDetails = props => {
 			// });
 			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
 			newBasicDetails.directorId = newDirectorId;
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else if (
 				selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT
@@ -344,7 +344,7 @@ const BasicDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+			if (isApplicant) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);
@@ -368,7 +368,7 @@ const BasicDetails = props => {
 	};
 
 	let selectedProfileImageUrl = '';
-	if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
+	if (isApplicant) {
 		selectedProfileImageUrl = applicant?.[selectedSectionId]?.profile_image_url;
 	} else if (selectedApplicantCoApplicantId !== CONST_SECTIONS.CO_APPLICANT) {
 		selectedProfileImageUrl =
