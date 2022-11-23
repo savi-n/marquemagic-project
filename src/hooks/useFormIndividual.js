@@ -262,6 +262,9 @@ export default function useForm() {
 	};
 
 	const register = field => {
+		// if (field.type.includes('banklist')) {
+		// 	field.ifsc_required = true;
+		// }
 		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));

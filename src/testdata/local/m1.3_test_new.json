@@ -1,0 +1,1336 @@
+{
+	"status": "ok",
+	"data": {
+		"name": "Test New JSON ",
+		"description": "",
+		"url": "https://cubuat.s3.ap-south-1.amazonaws.com/CUB-Images/1-SM572923.jpg",
+		"id": 27,
+		"product_id": {
+			"1": 146,
+			"7": 145,
+			"business": 146,
+			"salaried": 145
+		},
+		"product_details": {
+			"head": "NC offers Housing loan in a <span>speedy manner</span>",
+			"loanType": "Housing Loan Individual",
+			"productDetailsImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
+			"applicationSubmittedImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
+			"termsandconditionsurl": "https://testbank-nc.s3.ap-southeast-1.amazonaws.com/condition/Muthoot_T_C_V2.pdf",
+			"kyc_verification": true,
+			"otp_authentication": true,
+			"document_mandatory": true,
+			"is_coapplicant_mandatory": true,
+			"li": [
+				"CUB offers two-wheelers loans to individuals(Salaried/Self Employed) for new vehicles",
+				"Eligibility : 10 months net take home pay in case of salaried employee(maximum)/50% of the gross annual income declared in the lastest ITR in case of non salaried group(maximum)",
+				"Loan amount : maximum of Rs. 1.5 Lakhs",
+				"Margin : 10%",
+				"Repayment tenor : 36 to 60 Months",
+				"<a href=link>Click here</a> for Interest rate and required documents",
+				"<a href=link>Click here</a> for Schemes",
+				"<a href=link>Click here</a> for Processing Charges",
+				"<a href=link>EMI Calculator</a>"
+			],
+			"sections": [
+				{
+					"id": "basic_details",
+					"name": "Baisc Details",
+					"is_applicant": true,
+					"sub_sections": [
+						{
+							"id": "basic_details",
+							"name": "Basic Details",
+							"fields": [
+								{
+									"name": "existing_customer",
+									"placeholder": "Existing Customer",
+									"db_key": "existing_customer",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Yes",
+											"name": "Yes"
+										},
+										{
+											"value": "No",
+											"name": "No"
+										}
+									]
+								},
+								{
+									"name": "profile_url",
+									"label": "Upload your Profile",
+									"type": "file",
+									"db_key": "profile_image_url",
+									"visibility": true,
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									}
+								},
+								{
+									"name": "pan_upload",
+									"label": "Upload your PAN Card",
+									"type": "file",
+									"db_key": "loan_document",
+									"req_type": "pan",
+									"value": "pan",
+									"process_type": "extraction",
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									},
+									"doc_type": {
+										"1": 8,
+										"7": 31
+									}
+								},
+								{
+									"name": "pan_number",
+									"placeholder": "PAN Number",
+									"db_key": "businesspancardnumber",
+									"pre_data_disable": false,
+									"rules": {
+										"required": true,
+										"length": 10
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										},
+										"character_limit": 10,
+										"alpha_numeric_only": true
+									},
+									"type": "text",
+									"protected": true,
+									"visibility": true
+								},
+								{
+									"name": "income_type",
+									"placeholder": "Income/Customer Type",
+									"db_key": "businesstype",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "7",
+											"name": "Salaried"
+										},
+										{
+											"value": "1",
+											"name": "Business"
+										}
+									],
+									"value": "7"
+								},
+								{
+									"name": "first_name",
+									"placeholder": "First Name",
+									"db_key": "first_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "last_name",
+									"placeholder": "Last Name",
+									"db_key": "last_name",
+									"rules": {},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"pre_data_disable": false,
+									"type": "text",
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "dob",
+									"placeholder": "Date of Birth (dd-mm-yyyy)",
+									"db_key": "ddob",
+									"rules": {
+										"required": true,
+										"past_dates": true
+									},
+									"type": "date",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true
+								},
+								{
+									"name": "gender",
+									"placeholder": "Gender",
+									"type": "select",
+									"rules": {
+										"required": true
+									},
+									"db_key": "gender",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Male",
+											"name": "Male"
+										},
+										{
+											"value": "Female",
+											"name": "Female"
+										}
+									]
+								},
+								{
+									"name": "email",
+									"placeholder": "Email ID",
+									"rules": {},
+									"db_key": "business_email",
+									"type": "text",
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										}
+									},
+									"visibility": true
+								},
+								{
+									"name": "mobile_no",
+									"placeholder": "Enter a Valid Mobile Number to Recieve OTP",
+									"db_key": "contactno",
+									"rules": {
+										"required": true,
+										"length": 10
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										}
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "marital_status",
+									"placeholder": "Marital Status",
+									"db_key": "marital_status",
+									"rules": {},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Married",
+											"name": "Married"
+										},
+										{
+											"value": "Single",
+											"name": "Single"
+										},
+										{
+											"value": "Divorced",
+											"name": "Divorced"
+										}
+									]
+								},
+								{
+									"name": "spouse_name",
+									"placeholder": "Spouse Name",
+									"db_key": "spouse_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "residence_status",
+									"placeholder": "Residence Status",
+									"db_key": "residence_status",
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"name": "Resident",
+											"value": "Resident"
+										},
+										{
+											"name": "Resident and Ordinarily Resident",
+											"value": "Resident and Ordinarily Resident"
+										},
+										{
+											"name": "Resident but Not Ordinarily Resident",
+											"value": "Resident but Not Ordinarily Resident"
+										},
+										{
+											"name": "Non-Resident",
+											"value": "Non-Resident"
+										}
+									]
+								},
+								{
+									"name": "country_residence",
+									"placeholder": "Country of Residence",
+									"db_key": "country_residence",
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"name": "India",
+											"value": "India"
+										},
+										{
+											"name": "Other",
+											"value": "Other"
+										}
+									]
+								},
+								{
+									"name": "father_name",
+									"placeholder": "Father's Name",
+									"db_key": "father_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "mother_name",
+									"placeholder": "Mother's Name",
+									"db_key": "mother_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"pre_data_disable": false,
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "upi_id",
+									"placeholder": "UPI ID",
+									"db_key": "upi_id",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "loan_address_details",
+					"name": "Address Details",
+					"is_applicant": true,
+					"hide_section_usertype": ["Legal", "Technical", "RCU", "Document"],
+					"sub_sections": [
+						{
+							"id": "address_proof_upload",
+							"label": "",
+							"fields": [
+								{
+									"name": "address_proof_type",
+									"type": "radio",
+									"options": [
+										{
+											"label": "Aadhaar",
+											"type": "file",
+											"req_type": "aadhar",
+											"value": "aadhar",
+											"db_key": "loan_document",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"name": "voter_upload",
+											"label": " Voter ID",
+											"type": "file",
+											"req_type": "voter",
+											"db_key": "loan_document",
+											"value": "voter",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"name": "dl_upload",
+											"label": "Upload your DL",
+											"db_key": "loan_document",
+											"type": "file",
+											"req_type": "DL",
+											"value": "DL",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"name": "passport_upload",
+											"db_key": "loan_document",
+											"label": "Passport",
+											"type": "file",
+											"req_type": "passport",
+											"value": "passport",
+											"process_type": "extraction",
+											"min": 1,
+											"max": 2,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 302,
+												"7": 302
+											}
+										},
+										{
+											"name": "others_upload",
+											"label": "Others",
+											"type": "file",
+											"db_key": "loan_document",
+											"value": "others",
+											"min": 1,
+											"max": 1,
+											"rules": {
+												"required": true,
+												"supported_formats": ["*"]
+											},
+											"doc_type": {
+												"1": 8,
+												"7": 31
+											}
+										}
+									]
+								},
+								{
+									"name": "id_upload",
+									"label": "Upload your ID Proof",
+									"type": "file",
+									"db_key": "loan_document",
+									"visibility": true,
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									}
+								},
+								{
+									"name": "aadhaar",
+									"placeholder": "Aadhaar Number",
+									"db_key": "daadhaar",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"protected": false,
+									"pattern": "x",
+									"mask": {
+										"alpha_numeric_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"sub_fields": [
+										{
+											"name": "verifywithotp",
+											"placeholder": "Verify with OTP",
+											"type": "button",
+											"rules": {},
+											"isbuttonfilled": false
+										}
+									]
+								},
+								{
+									"name": "address_proof_id_passport",
+									"placeholder": "Address Proof ID",
+									"db_key": "dpassport",
+									"for_type": ["passport"],
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true
+								},
+								{
+									"name": "address_proof_id_dl",
+									"placeholder": "Address Proof ID",
+									"db_key": "ddlNumber",
+									"for_type": ["DL"],
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true
+								},
+								{
+									"name": "address_proof_id_voter",
+									"placeholder": "Address Proof ID",
+									"db_key": "dvoterid",
+									"for_type": ["voter"],
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "loan_address_details",
+							"label": "Address Details",
+							"aid": 1,
+							"fields": [
+								{
+									"name": "address1",
+									"placeholder": "Address Line 1",
+									"db_key": "line1",
+									"rules": {
+										"required": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "address2",
+									"placeholder": "Address Line 2",
+									"db_key": "line2",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "address3",
+									"placeholder": "Landmark",
+									"db_key": "locality",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "pin_code",
+									"placeholder": "Pin Code",
+									"db_key": "pincode",
+									"rules": {
+										"required": true,
+										"length": 6
+									},
+									"mask": {
+										"number_only": true,
+										"character_limit": 6
+									},
+									"make_api_call": 6,
+									"type": "pincode",
+									"value_for_fields": [
+										["city", "district"],
+										["state", "state"]
+									],
+									"visibility": true
+								},
+								{
+									"name": "city",
+									"placeholder": "City",
+									"db_key": "city",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "state",
+									"placeholder": "State",
+									"db_key": "state",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "property_type",
+									"placeholder": "Property Type",
+									"db_key": "residential_type",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "select",
+									"options": [
+										{
+											"name": "Owned",
+											"value": "Owned"
+										},
+										{
+											"name": "Family",
+											"value": "Family"
+										},
+										{
+											"name": "Renter",
+											"value": "Renter"
+										},
+										{
+											"name": "Employer",
+											"value": "Employer"
+										},
+										{
+											"name": "Others",
+											"value": "Others"
+										}
+									],
+									"visibility": true
+								},
+								{
+									"name": "property_tenure",
+									"placeholder": "Tenure in Current property",
+									"db_key": "residential_stability",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "employment_details",
+					"name": "Employment Details",
+					"is_applicant": true,
+					"sub_sections": [
+						{
+							"id": "basic_details",
+							"name": "Employment Details",
+							"fields": [
+								{
+									"name": "employment_category",
+									"placeholder": "Employment Category",
+									"db_key": "employment_category",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Salaried",
+											"name": "Salaried"
+										},
+										{
+											"value": "Business",
+											"name": "Business"
+										},
+										{
+											"value": "Professional",
+											"name": "Professional"
+										},
+										{
+											"value": "Salaried + Self-Employed",
+											"name": "Salaried + Self-Employed"
+										},
+										{
+											"value": "Not Employed",
+											"name": "Not Employed"
+										},
+										{
+											"value": "Others",
+											"name": "Others"
+										}
+									]
+								},
+								{
+									"name": "organization_type",
+									"placeholder": "Organization Type",
+									"db_key": "organization_type",
+									"rules": {
+										"required": true
+									},
+									"type": "select",
+									"visibility": true,
+									"options": [
+										{
+											"value": "Central/State Government",
+											"name": "Central/State Government"
+										},
+										{
+											"value": "Public Sector Unit",
+											"name": "Public Sector Unit"
+										},
+										{
+											"value": "Public Limited",
+											"name": "Public Limited"
+										},
+										{
+											"value": "Private Limited",
+											"name": "Private Limited"
+										},
+										{
+											"value": "Proprietorship",
+											"name": "Proprietorship"
+										},
+										{
+											"value": "Partnership",
+											"name": "Partnership"
+										},
+										{
+											"value": "Others",
+											"name": "Others"
+										}
+									]
+								},
+								{
+									"name": "company_name",
+									"placeholder": "Company/Business Name",
+									"db_key": "company_name",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"pre_data_disable": false,
+									"type": "text",
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "current_designation",
+									"placeholder": "Current Designation",
+									"db_key": "current_designation",
+									"rules": {},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"pre_data_disable": false,
+									"type": "text",
+									"protected": false,
+									"visibility": true,
+									"default_value": ""
+								},
+								{
+									"name": "years_in_company",
+									"placeholder": "Number of years in current compnay/business",
+									"db_key": "year_in_company",
+									"rules": {},
+									"is_masked": false,
+									"user_types_allowed": "",
+									"mask": {
+										"number_only": true,
+										"character_limit": 10
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "total_experience",
+									"placeholder": "Total years of work experience",
+									"db_key": "total_experience",
+									"rules": {},
+									"is_masked": false,
+									"user_types_allowed": "",
+									"mask": {
+										"number_only": true,
+										"character_limit": 10
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "office_phone",
+									"placeholder": "Office Phone Number",
+									"db_key": "office_phone",
+									"rules": {},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','CO','Sales']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										},
+										"number_only": true,
+										"character_limit": 10
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "office_email",
+									"placeholder": "Office Email ID",
+									"db_key": "office_email",
+									"rules": {},
+									"type": "text",
+									"is_masked": true,
+									"user_types_allowed": "['Legal','CO','Sales']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 1,
+												"from_ending": 1
+											}
+										}
+									},
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "address_details",
+							"name": "Address Details",
+							"fields": [
+								{
+									"name": "address1",
+									"placeholder": "Address Line 1",
+									"db_key": "address1",
+									"rules": {
+										"required": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "address2",
+									"placeholder": "Address Line 2",
+									"db_key": "address2",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "landmark",
+									"placeholder": "Landmark",
+									"db_key": "landmark",
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "pin_code",
+									"placeholder": "Pin Code",
+									"db_key": "pincode",
+									"rules": {
+										"required": true,
+										"length": 6
+									},
+									"mask": {
+										"number_only": true,
+										"character_limit": 6
+									},
+									"make_api_call": 6,
+									"type": "pincode",
+									"value_for_fields": [
+										["city", "district"],
+										["state", "state"]
+									],
+									"visibility": true
+								},
+								{
+									"name": "city",
+									"placeholder": "City",
+									"db_key": "city",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								},
+								{
+									"name": "state",
+									"placeholder": "State",
+									"db_key": "state",
+									"rules": {
+										"required": true
+									},
+									"mask": {
+										"alpha_char_only": true
+									},
+									"type": "text",
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "salary_details",
+							"name": "Income Details",
+							"fields": [
+								{
+									"name": "gross_income",
+									"db_key": "gross_income",
+									"for_type": [
+										"Business",
+										"Professional",
+										"Salaried + Self Employed"
+									],
+									"for_type_name": "employment_category",
+									"placeholder": "Gross Income from Employment(Monthly)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "net_monthly_income",
+									"db_key": "net_monthly_income",
+									"for_type": ["Salaried"],
+									"for_type_name": "employment_category",
+									"placeholder": "Net Income from Employment(Monthly)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "income_from_other_business",
+									"placeholder": "Income from Other Business (Annual)",
+									"db_key": "income_from_other_business",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "income_from_rent",
+									"placeholder": "Income from Rent (Annual)",
+									"db_key": "income_from_rent",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "income_from_agriculture",
+									"db_key": "income_from_agriculture",
+									"placeholder": "Income from Agriculture (Annual)",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "any_other_income",
+									"placeholder": "Any Other Income (Annual)",
+									"db_key": "any_other_income",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"is_masked": true,
+									"user_types_allowed": "['Legal','Technical','RCU']",
+									"mask": {
+										"mask_values": {
+											"mask_pattern": "*",
+											"characters_not_to_be_masked": {
+												"from_starting": 0,
+												"from_ending": 0
+											}
+										},
+										"number_only": true,
+										"character_limit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "loan_details",
+					"name": "Loan Details",
+					"is_applicant": true,
+					"sub_sections": [
+						{
+							"id": "loan_details",
+							"name": "Help us with Loan Details",
+							"fields": [
+								{
+									"name": "required_loan_amount",
+									"db_key": "required_loan_amount",
+									"placeholder": "Required Loan Amount e.g.,10,000",
+									"rules": {
+										"required": true
+									},
+									"type": "number",
+									"mask": {
+										"NumberOnly": true,
+										"CharacterLimit": 12
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "tenure",
+									"db_key": "tenure",
+									"rules": {},
+									"placeholder": "Tenure (in months)",
+									"type": "number",
+									"mask": {
+										"NumberOnly": true,
+										"CharacterLimit": 3
+									},
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "source_details",
+							"name": "Help us with Source Details",
+							"fields": [
+								{
+									"name": "loan_source",
+									"db_key": "loan_source",
+									"placeholder": "Loan Source",
+									"rules": {},
+									"options": [
+										{
+											"name": "Branch",
+											"value": "Branch"
+										},
+										{
+											"name": "Connector",
+											"value": "Connector"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "connector_name",
+									"db_key": "connector_name",
+									"placeholder": "Connector Name",
+									"for_type_name": "loan_source",
+									"for_type": ["Connector"],
+									"rules": {},
+									"options": [
+										{
+											"name": "Connector Name",
+											"value": "111"
+										},
+										{
+											"name": "Connector Name",
+											"value": "222"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "connector_code",
+									"db_key": "connector_code",
+									"placeholder": "Connector Code",
+									"for_type_name": "loan_source",
+									"for_type": ["Connector"],
+									"rules": {
+										"required": true
+									},
+									"type": "text",
+									"visibility": true
+								}
+							]
+						},
+						{
+							"id": "imd_details",
+							"name": "Help us with IMD Details",
+							"fields": [
+								{
+									"name": "imd_collected",
+									"db_key": "imd_collected",
+									"placeholder": "IMD Collected",
+									"rules": { "required": true },
+									"options": [
+										{
+											"name": "Yes",
+											"value": "Yes"
+										},
+										{
+											"name": "No",
+											"value": "No"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "imd_document_proof",
+									"db_key": "imd_document_proof",
+									"label": "Upload IMD Document Proof",
+									"for_type": ["Yes"],
+									"for_type_name": "imd_collected",
+									"type": "file",
+									"value": "imd_doc",
+									"min": 1,
+									"max": 1,
+									"rules": {
+										"required": true,
+										"supported_formats": ["*"]
+									},
+									"doc_type": {
+										"1": 8,
+										"7": 31
+									}
+								},
+								{
+									"name": "amount_paid",
+									"db_key": "amount_paid",
+									"placeholder": "Amount Paid",
+									"for_type": ["Yes"],
+									"for_type_name": "imd_collected",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "mode_of_payment",
+									"db_key": "mode_of_payment",
+									"placeholder": "Mode of Payment",
+									"rules": { "required": true },
+									"options": [
+										{
+											"name": "Credit Card",
+											"value": "cc"
+										},
+										{
+											"name": "Debit Card",
+											"value": "dc"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								},
+								{
+									"name": "transaction_reference",
+									"db_key": "transaction_reference",
+									"placeholder": "Transaction Reference",
+									"for_type": ["Yes"],
+									"for_type_name": "imd_collected",
+									"type": "text",
+									"rules": {
+										"required": true
+									},
+									"visibility": true,
+									"inrupees": true
+								},
+								{
+									"name": "imd_paid_by",
+									"db_key": "imd_paid_by",
+									"placeholder": "IMD Paid By",
+									"rules": { "required": true },
+									"options": [
+										{
+											"name": "Shubham Gaurav",
+											"value": "1111"
+										},
+										{
+											"name": "Akshat Singhal",
+											"value": "2222"
+										}
+									],
+									"type": "select",
+									"visibility": true
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": "document_upload",
+					"name": "Document Upload"
+				},
+				{
+					"id": "application_submitted",
+					"name": "Application Submitted"
+				}
+			],
+			"error": {
+				"message": "The application is currently for individuals only. Please contact your branch for processing your application",
+				"button": {
+					"header": "<b>Become a customer with </b><a href=link>City Union Bank</a>",
+					"link": "www.google.com",
+					"message": "Click here to complete your e-kyc"
+				}
+			}
+		},
+		"color_theme_react": {},
+		"loan_request_type": 2,
+		"otp_configuration": {
+			"no_of_attempts": 3,
+			"time_limit_in_minutes": 60,
+			"otp_duration_in_seconds": 90
+		}
+	}
+}

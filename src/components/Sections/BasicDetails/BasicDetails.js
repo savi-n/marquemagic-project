@@ -385,13 +385,13 @@ const BasicDetails = props => {
 				?.profile_image_url;
 	}
 
-	console.log('BasicDetails-', {
-		panExtractionRes,
-		formState,
-		app,
-		applicantCoApplicants,
-		application,
-	});
+	// console.log('BasicDetails-', {
+	// 	panExtractionRes,
+	// 	formState,
+	// 	app,
+	// 	applicantCoApplicants,
+	// 	application,
+	// });
 
 	const isPanNumberExist = !!formState.values.pan_number;
 

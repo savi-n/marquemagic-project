@@ -69,7 +69,7 @@ export default function SelectField(props) {
 					{props.placeholder}
 				</option>
 				{props.options?.map(({ value, name }) => (
-					<option key={value} value={value.toString().trim()}>
+					<option key={value} value={value?.toString().trim()}>
 						{name}
 					</option>
 				))}
