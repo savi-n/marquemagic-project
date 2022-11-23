@@ -109,6 +109,7 @@ export const appSlice = createSlice({
 			state.applicantCoApplicantSectionIds = newApplicantCoApplicantSectionIds;
 		},
 		setSelectedSectionId: (state, action) => {
+			// state.selectedSectionId = 'document_upload';
 			state.selectedSectionId = action.payload;
 			const selectedIndex = state?.selectedProduct?.product_details?.sections?.findIndex(
 				section => section?.id === action.payload

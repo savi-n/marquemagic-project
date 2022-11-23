@@ -18,6 +18,7 @@ import PanUpload from 'components/PanUpload';
 import Modal from 'components/Modal';
 import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
+import Hint from 'components/Hint';
 
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -454,6 +455,10 @@ const BasicDetails = props => {
 								{sub_section.name}
 							</UI_SECTIONS.SubSectionHeader>
 						) : null}
+						<Hint
+							hint='Please uplaod the document with KYC image in Portrait Mode'
+							hintIconName='Portrait Mode'
+						/>
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								if (field.type === 'file' && field.label.includes('Profile')) {
