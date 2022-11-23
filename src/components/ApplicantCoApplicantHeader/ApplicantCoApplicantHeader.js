@@ -9,7 +9,8 @@ import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
 import * as UI from './ui';
-import * as CONST from './const';
+// import * as CONST_SECTIONS from './const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, applicantCoApplicants } = useSelector(state => state);
@@ -47,7 +48,7 @@ const ApplicantCoApplicantHeader = props => {
 					onNo={() => setIsSeleteCoApplicantModalOpen(false)}
 					onYes={() => {
 						setIsSeleteCoApplicantModalOpen(false);
-						onClickApplicantCoApplicant(CONST.APPLICANT);
+						onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT);
 					}}
 					coApplicantNumber={Object.keys(coApplicants).length + 1}
 				/>
@@ -57,7 +58,9 @@ const ApplicantCoApplicantHeader = props => {
 					<UI.Avatar
 						src={isApplicant ? iconAvatarActive : iconAvatarInActive}
 						alt='Avatar'
-						onClick={() => onClickApplicantCoApplicant(CONST.APPLICANT)}
+						onClick={() =>
+							onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT)
+						}
 					/>
 					<UI.AvatarName>Applicant</UI.AvatarName>
 				</UI.LI>
@@ -81,7 +84,7 @@ const ApplicantCoApplicantHeader = props => {
 						</UI.LI>
 					);
 				})}
-				{selectedApplicantCoApplicantId === CONST.CO_APPLICANT && (
+				{selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT && (
 					<UI.LI>
 						<UI.BadgeDelete
 							src={iconDelete}
@@ -90,12 +93,14 @@ const ApplicantCoApplicantHeader = props => {
 						/>
 						<UI.Avatar
 							src={
-								selectedApplicantCoApplicantId === CONST.CO_APPLICANT
+								selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT
 									? iconAvatarActive
 									: iconAvatarInActive
 							}
 							alt='Avatar'
-							onClick={() => onClickApplicantCoApplicant(CONST.CO_APPLICANT)}
+							onClick={() =>
+								onClickApplicantCoApplicant(CONST_SECTIONS.CO_APPLICANT)
+							}
 						/>
 						<UI.AvatarName>
 							Co-Applicant {Object.keys(coApplicants).length + 1}

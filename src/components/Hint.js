@@ -13,7 +13,7 @@ import Button from './Button';
 const HintText = styled.div`
 	/* color: #8ec5f3; */
 	color: #007cff;
-	cursor: default;
+	cursor: pointer;
 	display: flex;
 	margin-bottom: 2px;
 	@media (max-width: 768px) {

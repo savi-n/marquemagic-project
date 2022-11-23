@@ -84,10 +84,12 @@ const EmploymentDetails = () => {
 				employmentId: employmentDetailsRes?.data?.data?.employment_id,
 				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
 			};
+			// console.log(newEmploymentDetails, '222');
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newEmploymentDetails));
 			} else {
 				newEmploymentDetails.directorId = selectedApplicantCoApplicantId;
+				// console.log(newEmploymentDetails, '333');
 				dispatch(updateCoApplicantSection(newEmploymentDetails));
 			}
 		} catch (error) {
@@ -122,6 +124,7 @@ const EmploymentDetails = () => {
 	const onAddCoApplicant = async () => {
 		setLoading(true);
 		await submitEmploymentDetails();
+		console.log(firstSectionId, '111', CONST_SECTIONS.CO_APPLICANT);
 		dispatch(setSelectedSectionId(firstSectionId));
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
 		setLoading(false);

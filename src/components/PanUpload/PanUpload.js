@@ -119,7 +119,7 @@ const PanUpload = props => {
 	// Pancard extraction function
 	const handleExtractionPan = async file => {
 		try {
-			// console.log('handleExtractionPan-', panDoc);
+			// console.log('handleExtractionPan-', file);
 			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', selectedProduct.id);
@@ -215,7 +215,7 @@ const PanUpload = props => {
 					newPanExtractionData.lastName = name[1];
 				}
 			}
-
+			// console.log(newPanExtractionData, '33333');
 			// TODO: set this response to app / coapps / slice
 			// console.log('beforeset-setPanExtractionRes-', { newPanExtractionData });
 			dispatch(setPanExtractionRes(newPanExtractionData));

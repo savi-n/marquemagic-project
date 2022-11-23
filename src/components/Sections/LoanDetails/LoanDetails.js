@@ -72,7 +72,7 @@ const LoanDetails = () => {
 			}
 
 			const loanDetailsRes = await axios.post(
-				`${API_END_POINT}/employmentData`,
+				`${API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
 			// console.log('-loanDetailsRes-', {
@@ -96,7 +96,7 @@ const LoanDetails = () => {
 		}
 	};
 	// useEffect(() => {
-	// 	console.log(selectedProduct, '8888', selectedSectionId);
+	// 	console.log(coApplicants, '8888');
 	// }, []);
 	const onProceed = async () => {
 		try {
@@ -229,23 +229,13 @@ const LoanDetails = () => {
 					);
 				})}
 			<SectionUI.Footer>
-				{displayProceedCTA && (
-					<Button
-						fill
-						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onProceed)}
-						// onClick={onProceed}
-					/>
-				)}
 				<Button
 					fill
-					name='Add Co-Applicant'
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					isLoader={loading}
 					disabled={loading}
-					onClick={handleSubmit(onAddCoApplicant)}
-					// onClick={onAddCoApplicant}
+					onClick={handleSubmit(onProceed)}
+					// onClick={onProceed}
 				/>
 			</SectionUI.Footer>
 		</SectionUI.Wrapper>

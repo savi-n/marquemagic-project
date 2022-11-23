@@ -241,6 +241,18 @@ export default function useForm() {
 	};
 
 	const register = field => {
+		// if (field.name.includes('AccountNumber')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountHolderName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('BankName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountType')) {
+		// 	field.rules = {};
+		// }
 		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));

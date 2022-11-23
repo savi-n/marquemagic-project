@@ -62,6 +62,7 @@ const BasicDetails = props => {
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant ? applicant : coApplicants;
 	const { panExtractionRes } = selectedApplicant;
+	// console.log(panExtractionRes, '333', selectedApplicant);
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);

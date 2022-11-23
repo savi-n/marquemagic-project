@@ -131,7 +131,7 @@ const AddressDetails = props => {
 	};
 
 	const prepopulateAadhaarAndAddressState = extractionData => {
-		console.log('prepopulateAadhaarAndAddressState-', extractionData);
+		// console.log('prepopulateAadhaarAndAddressState-', extractionData);
 
 		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
 			/\s/g,
@@ -649,15 +649,15 @@ const AddressDetails = props => {
 		addressProofUploadSection?.fields?.[0] || {};
 	const addressFields = selectedSection?.sub_sections?.[1]?.fields || [];
 
-	console.log('AddressDetails-allProps-', {
-		applicant,
-		coApplicants,
-		selectedApplicant,
-		selectedPresentAddressProofId,
-		presentAddressProofDocs,
-		selectedPresentDocumentTypes,
-		isSameAsAboveAddressChecked,
-	});
+	// console.log('AddressDetails-allProps-', {
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedApplicant,
+	// 	selectedPresentAddressProofId,
+	// 	presentAddressProofDocs,
+	// 	selectedPresentDocumentTypes,
+	// 	isSameAsAboveAddressChecked,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper>
