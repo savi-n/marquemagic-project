@@ -9,8 +9,12 @@ import EmploymentDetails from 'components/Sections/EmploymentDetails';
 import LoanDetails from 'components/Sections/LoanDetails/LoanDetails';
 import CollateralDetails from 'components/Sections/CollateralDetails';
 import BankDetails from 'components/Sections/BankDetails';
-import Button from 'components/Button';
+import DocumentUpload from 'components/Sections/DocumentUpload';
+import ReferenceDetails from 'components/Sections/ReferenceDetails';
+import EMIDetails from 'components/Sections/EMIDetails';
+
 import { useDispatch } from 'react-redux';
+import Button from 'components/Button';
 import { setSelectedSectionId } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 // import * as CONST from './const';
@@ -29,31 +33,19 @@ const ProductIndividual = props => {
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
-	let SelectedComponent = BasicDetails;
-	switch (selectedSectionId) {
-		case 'loan_address_details': {
-			SelectedComponent = AddressDetails;
-			break;
-		}
-		case 'employment_details': {
-			SelectedComponent = EmploymentDetails;
-			break;
-		}
-		case 'loan_details': {
-			SelectedComponent = LoanDetails;
-			break;
-		}
-		case 'collateral_details': {
-			SelectedComponent = CollateralDetails;
-			break;
-		}
-		case 'bank_details': {
-			SelectedComponent = BankDetails;
-			break;
-		}
-		default:
-			break;
-	}
+	const SELECTED_SECTION_MAPPING = {
+		basic_details: BasicDetails,
+		loan_address_details: AddressDetails,
+		employment_details: EmploymentDetails,
+		loan_details: LoanDetails,
+		collateral_details: CollateralDetails,
+		bank_details: BankDetails,
+		document_upload: DocumentUpload,
+		reference_details: ReferenceDetails,
+		emi_details: EMIDetails,
+	};
+	let SelectedComponent =
+		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
 
 	// for reseting formstate
 	useEffect(() => {
