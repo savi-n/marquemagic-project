@@ -6,7 +6,12 @@ import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
 import AddressDetails from 'components/Sections/AddressDetails';
 import EmploymentDetails from 'components/Sections/EmploymentDetails';
-
+import LoanDetails from 'components/Sections/LoanDetails/LoanDetails';
+import CollateralDetails from 'components/Sections/CollateralDetails';
+import BankDetails from 'components/Sections/BankDetails';
+import Button from 'components/Button';
+import { useDispatch } from 'react-redux';
+import { setSelectedSectionId } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 // import * as CONST from './const';
 import * as UI from './ui';
@@ -16,10 +21,14 @@ const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { selectedSectionId, applicantCoApplicantSectionIds } = app;
+	const {
+		selectedSectionId,
+		applicantCoApplicantSectionIds,
+		nextSectionId,
+	} = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
-
+	const dispatch = useDispatch();
 	let SelectedComponent = BasicDetails;
 	switch (selectedSectionId) {
 		case 'loan_address_details': {
@@ -28,6 +37,18 @@ const ProductIndividual = props => {
 		}
 		case 'employment_details': {
 			SelectedComponent = EmploymentDetails;
+			break;
+		}
+		case 'loan_details': {
+			SelectedComponent = LoanDetails;
+			break;
+		}
+		case 'collateral_details': {
+			SelectedComponent = CollateralDetails;
+			break;
+		}
+		case 'bank_details': {
+			SelectedComponent = BankDetails;
 			break;
 		}
 		default:
@@ -42,13 +63,13 @@ const ProductIndividual = props => {
 		});
 	}, [selectedSectionId, selectedApplicantCoApplicantId]);
 
-	useEffect(() => {
-		console.log('ProductIndividual-allStates-', {
-			app,
-			application,
-			applicantCoApplicants,
-		});
-	}, [app, application, applicantCoApplicants]);
+	// useEffect(() => {
+	// 	console.log('ProductIndividual-allStates-', {
+	// 		app,
+	// 		application,
+	// 		applicantCoApplicants,
+	// 	});
+	// }, [app, application, applicantCoApplicants]);
 
 	return (
 		<UI.Wrapper>
@@ -62,6 +83,10 @@ const ProductIndividual = props => {
 					<UI.DynamicSubSectionWrapper>
 						{loading ? <div /> : <SelectedComponent />}
 					</UI.DynamicSubSectionWrapper>
+					<Button
+						name='Temp button'
+						onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
+					/>
 				</UI.DynamicSectionWrapper>
 			</UI.RightSectionWrapper>
 		</UI.Wrapper>
