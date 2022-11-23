@@ -1,78 +1,83 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 import _ from 'lodash';
 
+import Button from 'components/Button';
+import AadhaarOTPModal from './AadhaarOTPModal';
+import AddressProofUpload from './AddressProofUpload';
+
 import {
+	setIsSameAsAboveAddressChecked,
 	updateApplicantSection,
 	updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
-import useForm from 'hooks/useFormIndividual';
-import Button from 'components/Button';
-
-import * as SectionUI from 'components/Sections/ui';
-import * as UI from './ui';
-import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
-import * as CONST_ADDRESS_PROOF_UPLOAD from 'components/AddressProofUpload/const';
-import * as CONST from './const';
-import { sleep } from 'utils/helper';
-import { setSelectedSectionId } from 'store/appSlice';
-import AddressProofUpload from 'components/AddressProofUpload';
-import {
 	removeLoanDocument,
 	updateSelectedDocumentTypeId,
-} from 'store/applicationSlice';
+} from 'store/applicantCoApplicantsSlice';
+import {
+	setSelectedPresentAddressProofId,
+	setPresentAddressProofExtractionRes,
+} from 'store/applicantCoApplicantsSlice';
+import { setSelectedSectionId } from 'store/appSlice';
+import useForm from 'hooks/useFormIndividual';
+import { useToasts } from 'components/Toast/ToastProvider';
+import { getKYCData, getKYCDataId } from 'utils/request';
+import { sleep } from 'utils/helper';
+import { verifyKycDataUiUx } from 'utils/request';
+import * as UI_SECTIONS from 'components/Sections/ui';
+import * as UI from './ui';
+import * as CONST_SECTIONS from 'components/Sections/const';
+import * as CONST from './const';
+import { AADHAAR_GENERATE_OTP } from '_config/app.config';
+import { isInvalidAadhaar } from 'utils/validation';
+// import { formatAddressProofDocTypeList } from 'utils/formatData';
 // import { formatSectionReqBody } from 'utils/formatData';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants } = useSelector(state => state);
 	const {
 		isViewLoan,
+		selectedProduct,
+		selectedProductId,
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
 		isTestMode,
+		clientToken,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
 		applicant,
 		coApplicants,
 	} = applicantCoApplicants;
+	const selectedApplicant =
+		selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT
+			? applicant
+			: coApplicants[selectedApplicantCoApplicantId];
+	const {
+		isSameAsAboveAddressChecked,
+		selectedPresentAddressProofId,
+		selectedPresentDocumentTypes,
+	} = selectedApplicant;
 	const dispatch = useDispatch();
-	const { handleSubmit, register, formState } = useForm();
+	const {
+		handleSubmit,
+		register,
+		formState,
+		onChangeFormStateField,
+	} = useForm();
 	const [loading, setLoading] = useState(false);
-	const [addressProofDocs, setAddressProofDocs] = useState([]);
-	const [isError, setIsError] = useState(false);
-	const [isWarning, setIsWarning] = useState(false);
-	const addressProofDocsRef = useRef([]);
-	const [selectedAddressProofId, setSelectedAddressProofId] = useState('');
-	const [addressProofError, setAddressProofError] = useState('');
+	const [fetchingAddress, setFetchingAddress] = useState(false);
+	const [verifyingWithOtp, setVerifyingWithOtp] = useState(false);
+	const [presentAddressProofDocs, setPresentAddressProofDocs] = useState([]);
+	const [presentAddressProofError, setPresentAddressProofError] = useState('');
+	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
+	const presentAddressProofDocsRef = useRef([]);
+	const { addToast } = useToasts();
 
-	useEffect(() => {
-		let newSelectedAddressProofId = '';
-
-		if (selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT) {
-			newSelectedAddressProofId = applicant.selectedAddressProofId;
-		} else {
-			newSelectedAddressProofId =
-				coApplicants[selectedApplicantCoApplicantId].selectedAddressProofId;
-		}
-		setSelectedAddressProofId(newSelectedAddressProofId);
-	}, [
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		setSelectedAddressProofId,
-	]);
-
-	const resetAllErrors = () => {
-		setAddressProofError('');
-		setIsError(false);
-		setIsWarning(false);
-	};
-
-	const handleFileUploadAddressProof = files => {
-		let newAddressProofDocs = _.cloneDeep(addressProofDocsRef.current);
-		files.map(f => newAddressProofDocs.push(_.cloneDeep(f)));
+	const handleFileUploadAddressProof = (files, aid) => {
+		let newAddressProofDocs = _.cloneDeep(presentAddressProofDocsRef.current);
+		files.map(f => newAddressProofDocs.push(_.cloneDeep({ ...f, aid })));
 		newAddressProofDocs = _.uniqBy(newAddressProofDocs, function(e) {
 			return e.id;
 		});
@@ -82,36 +87,31 @@ const AddressDetails = props => {
 		//  addressProofDocs,
 		//  selectedAddressProof,
 		// });
-
-		if (selectedAddressProofId) {
-			setAddressProofDocs(newAddressProofDocs);
-			addressProofDocsRef.current = newAddressProofDocs;
-		}
+		setPresentAddressProofDocs(newAddressProofDocs);
+		presentAddressProofDocsRef.current = newAddressProofDocs;
 		// setDisableSubmit(false);
-		resetAllErrors();
-		setIsError(false);
+		setPresentAddressProofError('');
 	};
 
 	const handleFileRemoveAddressProof = docId => {
 		// console.log('handleFileRemoveAddressProof docId-', docId);
-		removeLoanDocument();
-		resetAllErrors();
+		dispatch(removeLoanDocument(docId));
 		// const newAddressProofDocs = _.cloneDeep(
 		// 	// eslint-disable-next-line
 		// 	fileRef.current.filter(f => f.id != docId)
 		// );
 		// fileRef.current = newAddressProofDocs;
 		const newAddressProofDocs = _.cloneDeep(
-			addressProofDocsRef.current.filter(f => f.id !== docId)
+			presentAddressProofDocsRef.current.filter(f => f.id !== docId)
 		);
-		setAddressProofDocs(newAddressProofDocs);
-		addressProofDocsRef.current = newAddressProofDocs;
+		setPresentAddressProofDocs(newAddressProofDocs);
+		presentAddressProofDocsRef.current = newAddressProofDocs;
 	};
 
 	const handleDocumentTypeChangeAddressProof = async (fileId, type) => {
-		updateSelectedDocumentTypeId(fileId, type);
+		dispatch(updateSelectedDocumentTypeId({ fileId, docType: type }));
 		const newAddressProofDocs = [];
-		addressProofDocsRef?.current?.map(f => {
+		presentAddressProofDocsRef?.current?.map(f => {
 			const newFile = _.cloneDeep(f);
 			if (f.id === fileId) {
 				newFile.isTagged = type;
@@ -126,8 +126,386 @@ const AddressDetails = props => {
 		// 	newAddressProofDocs,
 		// });
 		// // fileRef.current = newAddressProofDocs;
-		setAddressProofDocs(newAddressProofDocs);
-		addressProofDocsRef.current = newAddressProofDocs;
+		setPresentAddressProofDocs(newAddressProofDocs);
+		presentAddressProofDocsRef.current = newAddressProofDocs;
+	};
+
+	const prepopulateAadhaarAndAddressState = extractionData => {
+		console.log('prepopulateAadhaarAndAddressState-', extractionData);
+
+		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
+			/\s/g,
+			''
+		).split('');
+		const aadhaarUnMasked = aadharNum?.join('') || '';
+		// const aadhaarMasked = aadharNum
+		// 	? 'XXXXXXXX' + aadharNum?.splice(8, 4).join('')
+		// 	: '';
+		onChangeFormStateField({
+			name: `aadhaar`,
+			value: aadhaarUnMasked,
+		});
+		// const fullName =
+		// 	extractionData?.name?.split(' ') || extractionData?.Name?.split(' ');
+		// const firstName = fullName[0].join(' ');
+		// const lastName = fullName[fullName.length - 1];
+		// const dob = extractionData?.DOB || extractionData?.dob;
+		// const dlNo = extractionData?.dl_no;
+		const fullAddress = extractionData?.address || extractionData?.Address;
+		onChangeFormStateField({
+			name: `${CONST.PREFIX_PRESENT}address1`,
+			value: fullAddress,
+		});
+		const pinCode = extractionData?.pincode;
+		if (fullAddress) {
+			let locationArr = fullAddress && fullAddress?.split(' ');
+			// eslint-disable-next-line
+			let y = locationArr?.map(e => !Number(isNaN(e)) && e);
+			// return Number(e) !== NaN && e;
+			let pin;
+			y.map(e => {
+				if (e?.length === 6) pin = e;
+				return null;
+			});
+
+			const extractedPinCode = pinCode || pin;
+			onChangeFormStateField({
+				name: `${CONST.PREFIX_PRESENT}pin_code`,
+				value: extractedPinCode,
+			});
+		}
+	};
+
+	const verifyKycAddressProof = async (
+		selectedAddressProof,
+		extractionData
+	) => {
+		try {
+			// console.log('verifyKycAddressProof-', {
+			// 	selectedAddressProof,
+			// 	isVerifyKycData,
+			// 	extractionData,
+			// });
+			if (
+				!selectedProduct?.kyc_verification ||
+				selectedAddressProof === CONST_SECTIONS.EXTRACTION_KEY_AADHAAR
+			)
+				return {};
+			const reqBody = {
+				doc_ref_id: extractionData?.doc_ref_id,
+				doc_type: selectedAddressProof,
+			};
+			if (selectedAddressProof === CONST_SECTIONS.EXTRACTION_KEY_DL) {
+				reqBody.number = extractionData?.dl_no || '';
+				reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
+			}
+			if (selectedAddressProof === CONST_SECTIONS.EXTRACTION_KEY_VOTERID) {
+				reqBody.number = extractionData?.vid || '';
+				reqBody.state = extractionData?.state || '';
+				reqBody.name = extractionData?.Name || extractionData?.name || '';
+			}
+			if (selectedAddressProof === CONST_SECTIONS.EXTRACTION_KEY_PASSPORT) {
+				// TODO: verify by testing passport extraction data
+				reqBody.number = extractionData?.passport_no || '';
+				reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
+				reqBody.name = extractionData?.Name || extractionData?.name || '';
+			}
+			const verifiedRes = await verifyKycDataUiUx(reqBody, clientToken);
+			return verifiedRes;
+		} catch (error) {
+			console.error('error-verifyKycDataUiUx-', error);
+			addToast({
+				message: error.message || 'Something Went Wrong. Try Again!',
+				type: 'error',
+			});
+			return {};
+		}
+	};
+
+	const onClickVerifyWithOtp = async () => {
+		try {
+			const aadhaarErrorMessage = isInvalidAadhaar(formState.values.aadhaar);
+			if (aadhaarErrorMessage) {
+				return addToast({
+					message: aadhaarErrorMessage,
+					type: 'error',
+				});
+			}
+			setVerifyingWithOtp(true);
+			try {
+				const aadhaarOtpReqBody = {
+					aadhaarNo: formState.values.aadhaar,
+					product_id: selectedProductId,
+				};
+				const aadharOtpReq = await axios.post(
+					AADHAAR_GENERATE_OTP,
+					aadhaarOtpReqBody,
+					{
+						headers: {
+							Authorization: `${clientToken}`,
+						},
+					}
+				);
+				const aadhaarGenOtpResponse = aadharOtpReq.data;
+				if (aadhaarGenOtpResponse.status === 'nok') {
+					addToast({
+						message:
+							aadhaarGenOtpResponse?.data?.msg ||
+							'Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+						type: 'error',
+					});
+				}
+				if (aadhaarGenOtpResponse.status === 'ok') {
+					aadhaarGenOtpResponse.aadhaarNo = formState.values.aadhaar;
+					// dispatch(setGenerateOtpResponse(aadhaarGenOtpResponse));
+					addToast({
+						message: 'OTP is sent to aadhaar link mobile number',
+						type: 'success',
+					});
+					setIsAadhaarOtpModalOpen(true);
+				}
+			} catch (error) {
+				console.error('error-generate-aadhaar-otp-', error);
+				addToast({
+					message:
+						error?.response?.data?.message ||
+						error?.response?.data?.data?.msg ||
+						'Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+					type: 'error',
+				});
+			} finally {
+				setVerifyingWithOtp(false);
+			}
+		} catch (error) {
+			console.error('error-onClickVerifyWithOtp-', error);
+		} finally {
+			setVerifyingWithOtp(false);
+		}
+	};
+
+	const onClickFetchAddress = async () => {
+		try {
+			setLoading(true);
+			setFetchingAddress(true);
+			setPresentAddressProofError('');
+			// TODO Filter selected address proof docs before extracting
+			const selectedAddressProofFiles = presentAddressProofDocsRef?.current?.filter(
+				f => f?.sectionType === selectedPresentAddressProofId
+			);
+			if (selectedAddressProofFiles.length > 2) {
+				addToast({
+					message: 'Max 2 doucment is allowed',
+					type: 'error',
+				});
+				return;
+			}
+			// console.log(
+			// 	'onClickFetchAddress-selectedAddressProofFiles-',
+			// 	selectedAddressProofFiles
+			// );
+
+			// Front + Back Extract
+			if (selectedAddressProofFiles.length > 1) {
+				const frontFormData = new FormData();
+				frontFormData.append('product_id', selectedProductId);
+				frontFormData.append('req_type', selectedPresentAddressProofId);
+				frontFormData.append('process_type', 'extraction');
+				frontFormData.append('document', selectedAddressProofFiles[0].file);
+
+				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
+				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
+				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
+				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
+				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
+				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
+
+				if (frontExtractionStatus === 'nok') {
+					setPresentAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontExtractionMsg}`
+					);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'error') {
+					setPresentAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontForensicFlagMsg}`
+					);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'warning') {
+					setPresentAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				}
+
+				// const frontFile = {
+				// 	...(frontExtractionRes?.data?.extractionData || {}),
+				// 	document_key: frontExtractionRes?.data?.s3?.fd,
+				// 	id: selectedAddressProofFiles[0].id,
+				// 	mainType: 'KYC',
+				// 	size: frontExtractionRes?.data?.s3?.size,
+				// 	type: 'other',
+				// 	req_type: selectedPresentAddressProofId, // requires for mapping with JSON
+				// 	requestId: frontExtractionRes?.data?.request_id,
+				// 	upload_doc_name: frontExtractionRes?.data?.s3?.filename,
+				// 	isDocRemoveAllowed: false,
+				// 	category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				// 	doc_type_id: `app_${CONST_SECTIONS.DOC_CATEGORY_KYC}`,
+				// };
+
+				// TODO: Set doc to Redux
+				// setLoanDocuments([frontFile]);
+				// this ends here
+
+				const backFormData = new FormData();
+				backFormData.append('product_id', selectedProductId);
+				backFormData.append('req_type', selectedPresentAddressProofId);
+				backFormData.append(
+					'ref_id',
+					frontExtractionRes?.data?.extractionData?.id
+				);
+				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
+				backFormData.append('process_type', 'extraction');
+				backFormData.append('document', selectedAddressProofFiles[1].file);
+
+				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
+				const backExtractionStatus = backExtractionRes?.data?.status || '';
+				const backExtractionMsg = backExtractionRes?.data?.message || '';
+				const backForensicRes = backExtractionRes?.data?.forensicData || {};
+				const backForensicFlag = backForensicRes?.flag?.toLowerCase() || '';
+				const backForensicFlagMsg = backForensicRes?.flag_message || '';
+
+				if (backExtractionStatus === 'nok') {
+					setPresentAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${backExtractionMsg}`
+					);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'error') {
+					setPresentAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${backForensicFlagMsg}`
+					);
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'warning') {
+					setPresentAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${backForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				}
+
+				// const backFile = {
+				// 	...(backExtractionRes?.data?.extractionData || {}),
+				// 	document_key: backExtractionRes?.data.s3.fd,
+				// 	id: selectedAddressProofFiles[1].id,
+				// 	mainType: 'KYC',
+				// 	size: backExtractionRes?.data.s3.size,
+				// 	type: 'other',
+				// 	req_type: selectedPresentAddressProofId,
+				// 	requestId: backExtractionRes?.data.request_id,
+				// 	upload_doc_name: backExtractionRes?.data.s3.filename,
+				// 	isDocRemoveAllowed: false,
+				// 	category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				// 	doc_type_id: `app_${CONST_SECTIONS.DOC_CATEGORY_KYC}`,
+				// };
+				// TODO: Set doc to Redux
+				// setLoanDocuments([backFile]);
+				// this ends here
+
+				dispatch(
+					setPresentAddressProofExtractionRes(backExtractionRes?.data || {})
+				);
+				const newAddressProofExtractionData = {
+					...backExtractionRes?.data?.extractionData,
+					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+					requestId: backExtractionRes?.data.request_id,
+				};
+				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
+				await verifyKycAddressProof(
+					selectedPresentAddressProofId,
+					newAddressProofExtractionData
+				);
+				return;
+			}
+
+			// Front Only Extract
+			const frontOnlyFormData = new FormData();
+			frontOnlyFormData.append('product_id', selectedProductId);
+			frontOnlyFormData.append('req_type', selectedPresentAddressProofId);
+			frontOnlyFormData.append('process_type', 'extraction');
+			frontOnlyFormData.append('document', selectedAddressProofFiles[0].file);
+
+			const frontOnlyExtractionRes = await getKYCData(
+				frontOnlyFormData,
+				clientToken
+			);
+			const frontOnlyExtractionStatus =
+				frontOnlyExtractionRes?.data?.status || '';
+			const frontOnlyExtractionMsg =
+				frontOnlyExtractionRes?.data?.message || '';
+			const frontOnlyForensicRes =
+				frontOnlyExtractionRes?.data?.forensicData || {};
+			const frontOnlyForensicFlag =
+				frontOnlyForensicRes?.flag?.toLowerCase() || '';
+			const frontOnlyForensicFlagMsg = frontOnlyForensicRes?.flag_message || '';
+
+			if (frontOnlyExtractionStatus === 'nok') {
+				setPresentAddressProofError(
+					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontOnlyExtractionMsg}`
+				);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (frontOnlyForensicFlag === 'error') {
+				setPresentAddressProofError(
+					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontOnlyForensicFlagMsg}`
+				);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (frontOnlyForensicFlag === 'warning') {
+				setPresentAddressProofError(
+					`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontOnlyForensicFlagMsg}`
+				);
+				// CONTINUE EXECUTION
+			}
+
+			// const frontOnlyFile = {
+			// 	...(frontOnlyExtractionRes?.data?.extractionData || {}),
+			// 	document_key: frontOnlyExtractionRes?.data?.s3?.fd,
+			// 	id: selectedAddressProofFiles[0].id,
+			// 	mainType: 'KYC',
+			// 	size: frontOnlyExtractionRes?.data?.s3?.size,
+			// 	type: 'other',
+			// 	req_type: selectedPresentAddressProofId,
+			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
+			// 	upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
+			// 	isDocRemoveAllowed: false,
+			// 	category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+			// 	doc_type_id: `app_${CONST_SECTIONS.DOC_CATEGORY_KYC}`,
+			// };
+
+			// TODO: Set doc to redux
+			// setLoanDocuments([frontOnlyFile]);
+			// this ends here
+
+			dispatch(
+				setPresentAddressProofExtractionRes(frontOnlyExtractionRes?.data || {})
+			);
+			const newAddressProofExtractionData = {
+				...(frontOnlyExtractionRes?.data?.extractionData || {}),
+				doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
+				requestId: frontOnlyExtractionRes?.data?.request_id,
+			};
+			prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
+			await verifyKycAddressProof(
+				selectedPresentAddressProofId,
+				newAddressProofExtractionData
+			);
+		} catch (error) {
+			console.error('error-pan-verification-onClickFetchAddress-', error);
+		} finally {
+			setLoading(false);
+			setFetchingAddress(false);
+		}
 	};
 
 	const onProceed = async () => {
@@ -150,12 +528,10 @@ const AddressDetails = props => {
 			// 	addressDetailsReqBody,
 			// });
 			const newAddressDetails = {
-				id: selectedSectionId,
-				values: formState.values,
+				sectionId: selectedSectionId,
+				sectionValues: formState.values,
 			};
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				dispatch(updateApplicantSection(newAddressDetails));
 			} else {
 				newAddressDetails.directorId = selectedApplicantCoApplicantId;
@@ -172,8 +548,8 @@ const AddressDetails = props => {
 	const onSkip = () => {
 		dispatch(
 			updateApplicantSection({
-				id: selectedSectionId,
-				values: { isSkip: true },
+				sectionId: selectedSectionId,
+				sectionValues: { isSkip: true },
 			})
 		);
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -181,6 +557,11 @@ const AddressDetails = props => {
 
 	const prefilledValues = field => {
 		try {
+			if (isSameAsAboveAddressChecked) {
+				return formState?.values?.[
+					field?.name?.replace(CONST.PREFIX_PERMANENT, CONST.PREFIX_PRESENT)
+				];
+			}
 			if (formState?.values?.[field.name] !== undefined) {
 				return formState?.values?.[field.name];
 			}
@@ -191,16 +572,12 @@ const AddressDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);
 			}
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.CO_APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
 			if (selectedApplicantCoApplicantId) {
@@ -221,28 +598,23 @@ const AddressDetails = props => {
 	let isInActiveAddressProofUpload = false;
 	let isProceedDisabledAddressProof = true;
 
-	if (!selectedAddressProofId) {
+	if (!selectedPresentAddressProofId) {
 		isInActiveAddressProofUpload = true;
 		isProceedDisabledAddressProof = true;
 	}
 
-	const selectedDocTypeList =
-		CONST_ADDRESS_PROOF_UPLOAD.ADDRESS_PROOF_DOC_TYPE_LIST[
-			selectedAddressProofId
-		];
-
-	if (selectedAddressProofId) {
+	if (selectedPresentAddressProofId) {
 		const isFrontTagged =
-			addressProofDocs.filter(
-				f => f?.isTagged?.id === selectedDocTypeList[0].id
+			presentAddressProofDocs?.filter(
+				f => f?.isTagged?.id === selectedPresentDocumentTypes?.[0]?.id
 			).length > 0;
 		const isBackTagged =
-			addressProofDocs.filter(
-				f => f?.isTagged?.id === selectedDocTypeList[1].id
+			presentAddressProofDocs?.filter(
+				f => f?.isTagged?.id === selectedPresentDocumentTypes?.[1]?.id
 			).length > 0;
 		const isFrontBackTagged =
-			addressProofDocs.filter(
-				f => f?.isTagged?.id === selectedDocTypeList[2].id
+			presentAddressProofDocs?.filter(
+				f => f?.isTagged?.id === selectedPresentDocumentTypes?.[2]?.id
 			).length > 0;
 		if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
 			isProceedDisabledAddressProof = false;
@@ -258,15 +630,16 @@ const AddressDetails = props => {
 			isInActiveAddressProofUpload = true;
 			isProceedDisabledAddressProof = false;
 		}
-		if (isError) {
+		if (presentAddressProofError) {
 			isInActiveAddressProofUpload = true;
 			isProceedDisabledAddressProof = true;
 		}
-		if (addressProofDocs.filter(f => !f?.isTagged?.id).length > 0) {
+		if (presentAddressProofDocs.filter(f => !f?.isTagged?.id).length > 0) {
 			isInActiveAddressProofUpload = true;
 			isProceedDisabledAddressProof = true;
 		}
 	}
+
 	if (loading) {
 		isProceedDisabledAddressProof = true;
 	}
@@ -274,13 +647,29 @@ const AddressDetails = props => {
 	const addressProofUploadSection = selectedSection?.sub_sections?.[0] || {};
 	const selectAddressProofRadioField =
 		addressProofUploadSection?.fields?.[0] || {};
-	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
 	const addressFields = selectedSection?.sub_sections?.[1]?.fields || [];
 
-	// console.log('AddressDetails-allProps-', { selectedDocTypeList });
+	console.log('AddressDetails-allProps-', {
+		applicant,
+		coApplicants,
+		selectedApplicant,
+		selectedPresentAddressProofId,
+		presentAddressProofDocs,
+		selectedPresentDocumentTypes,
+		isSameAsAboveAddressChecked,
+	});
+
 	return (
-		<SectionUI.Wrapper>
-			{/*  AID1_PREFIX_PERMANENT */}
+		<UI_SECTIONS.Wrapper>
+			{isAadhaarOtpModalOpen && (
+				<AadhaarOTPModal
+					isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
+					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
+					// aadhaarGenOtpResponse={generateOtpResponse}
+					// setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
+				/>
+			)}
+			{/*  PREFIX_PRESENT */}
 			<UI.SubSectionCustomHeader>
 				<h4>
 					Select any one of the documents mentioned below for{' '}
@@ -291,21 +680,22 @@ const AddressDetails = props => {
 			<UI.RadioButtonWrapper>
 				{selectAddressProofRadioField?.options?.map((option, optionIndex) => {
 					return (
-						<UI.CardRadioButton key={`option${optionIndex}${option.req_type}`}>
+						<UI.CardRadioButton key={`option${optionIndex}${option.value}`}>
 							<input
 								name={selectAddressProofRadioField?.name}
-								id={option.req_type}
+								id={option.value}
 								type='radio'
-								// value={option.req_type}
+								// value={option.value}
 								onChange={e => {
 									// TODO: remove document only belongs to app/coapp
+									// if document is tagged alert user for removal of all document
 									// removeAllAddressProofDocs()
-									setSelectedAddressProofId(option.req_type);
+									dispatch(setSelectedPresentAddressProofId(option.value));
 								}}
-								checked={selectedAddressProofId === option.req_type}
+								checked={selectedPresentAddressProofId === option.value}
 								visibility='visible'
 							/>
-							<label htmlFor={option.req_type} style={{ marginLeft: '10px' }}>
+							<label htmlFor={option.value} style={{ marginLeft: '10px' }}>
 								{option.label}
 							</label>
 						</UI.CardRadioButton>
@@ -314,43 +704,46 @@ const AddressDetails = props => {
 			</UI.RadioButtonWrapper>
 			<AddressProofUpload
 				isInActive={isInActiveAddressProofUpload}
-				// startingTaggedDocs={addressProofDocs}
+				startingTaggedDocs={presentAddressProofDocs}
 				section={CONST.ADDRESSPROOF}
-				accept=''
-				upload={true}
-				pan={true}
-				docTypeOptions={selectedDocTypeList}
-				sectionType={selectedAddressProofId}
-				// onDrop={files =>
-				// 	handleFileUploadAddressProof(files, addressProofDocs)
-				// }
-				onDrop={handleFileUploadAddressProof}
+				sectionType={selectedPresentAddressProofId}
+				docTypeOptions={selectedPresentDocumentTypes}
+				onDrop={files => handleFileUploadAddressProof(files, CONST.AID_PRESENT)}
 				onRemoveFile={handleFileRemoveAddressProof}
-				docs={addressProofDocs}
-				// setDocs={setAddressProofDocs}
+				docs={presentAddressProofDocs}
 				setDocs={newDocs => {
 					const newAddressProofDocs = [];
-					addressProofDocsRef?.current?.map(d => newAddressProofDocs.push(d));
-					newDocs.map(d => newAddressProofDocs.push(d));
-					setAddressProofDocs(newAddressProofDocs);
-					addressProofDocsRef.current = newAddressProofDocs;
+					presentAddressProofDocsRef?.current?.map(d =>
+						newAddressProofDocs.push(d)
+					);
+					newDocs.map(d =>
+						newAddressProofDocs.push({ ...d, aid: CONST.AID_PRESENT })
+					);
+					setPresentAddressProofDocs(newAddressProofDocs);
+					presentAddressProofDocsRef.current = newAddressProofDocs;
 				}}
 				documentTypeChangeCallback={handleDocumentTypeChangeAddressProof}
-				aadharVoterDl={true}
-				errorMessage={addressProofError}
-				errorType={addressProofError && (isWarning ? 'warning' : 'error')}
-				aadhaarProofOTPField={aadhaarProofOTPField}
+				addressProofUploadSection={addressProofUploadSection}
+				selectedApplicant={selectedApplicant}
+				onClickFetchAddress={onClickFetchAddress}
+				fetchingAddress={fetchingAddress}
+				register={register}
+				formState={formState}
+				onChangeFormStateField={onChangeFormStateField}
+				prefilledValues={prefilledValues}
+				addressProofError={presentAddressProofError}
+				setAddressProofError={setPresentAddressProofError}
+				onClickVerifyWithOtp={onClickVerifyWithOtp}
+				verifyingWithOtp={verifyingWithOtp}
 			/>
-			<SectionUI.FormWrapGrid>
+			<UI_SECTIONS.FormWrapGrid>
 				{addressFields?.map((field, fieldIndex) => {
 					const customField = _.cloneDeep(field);
-					customField.name = `${CONST.AID1_PREFIX_PERMANENT}${
-						customField.name
-					}`;
+					customField.name = `${CONST.PREFIX_PRESENT}${customField.name}`;
 					if (!customField.visibility) return null;
 					const customFieldProps = {};
 					return (
-						<SectionUI.FieldWrapGrid
+						<UI_SECTIONS.FieldWrapGrid
 							key={`field-${fieldIndex}-${customField.name}`}
 						>
 							{register({
@@ -362,36 +755,46 @@ const AddressDetails = props => {
 							{(formState?.submit?.isSubmited ||
 								formState?.touched?.[customField.name]) &&
 								formState?.error?.[customField.name] && (
-									<SectionUI.ErrorMessage>
+									<UI_SECTIONS.ErrorMessage>
 										{formState?.error?.[customField.name]}
-									</SectionUI.ErrorMessage>
+									</UI_SECTIONS.ErrorMessage>
 								)}
-						</SectionUI.FieldWrapGrid>
+						</UI_SECTIONS.FieldWrapGrid>
 					);
 				})}
-			</SectionUI.FormWrapGrid>
+			</UI_SECTIONS.FormWrapGrid>
 			<div style={{ marginTop: 100 }} />
-			{/* AID2_PREFIX_PRESENT */}
-			{/* <UI.SubSectionCustomHeader>
+			{/* PREFIX_PERMANENT */}
+			<UI.SubSectionCustomHeader>
 				<h4>
 					Select any one of the documents mentioned below for{' '}
 					<strong>Present Address</strong>
 				</h4>
 				<h4>
-					<UI.CheckboxSameAs type='checkbox' id={CONST.CHECKBOX_SAME_AS_ID} />
+					<UI.CheckboxSameAs
+						type='checkbox'
+						id={CONST.CHECKBOX_SAME_AS_ID}
+						checked={!!isSameAsAboveAddressChecked}
+						onChange={() => {
+							dispatch(
+								setIsSameAsAboveAddressChecked(!isSameAsAboveAddressChecked)
+							);
+						}}
+					/>
 					<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
 						Same as Permanent Address
 					</label>
 				</h4>
 			</UI.SubSectionCustomHeader>
-			<SectionUI.FormWrapGrid>
+			<UI_SECTIONS.FormWrapGrid>
 				{addressFields?.map((field, fieldIndex) => {
 					const customField = _.cloneDeep(field);
-					customField.name = `${CONST.AID2_PREFIX_PRESENT}${customField.name}`;
+					customField.name = `${CONST.PREFIX_PERMANENT}${customField.name}`;
 					if (!customField.visibility) return null;
 					const customFieldProps = {};
+					if (isSameAsAboveAddressChecked) customField.disabled = true;
 					return (
-						<SectionUI.FieldWrapGrid
+						<UI_SECTIONS.FieldWrapGrid
 							key={`field-${fieldIndex}-${customField.name}`}
 						>
 							{register({
@@ -404,19 +807,19 @@ const AddressDetails = props => {
 								formState?.touched?.[customField.name]) &&
 								formState?.error?.[customField.name] &&
 								(customField.sub_fields ? (
-									<SectionUI.ErrorMessageSubFields>
+									<UI_SECTIONS.ErrorMessageSubFields>
 										{formState?.error?.[customField.name]}
-									</SectionUI.ErrorMessageSubFields>
+									</UI_SECTIONS.ErrorMessageSubFields>
 								) : (
-									<SectionUI.ErrorMessage>
+									<UI_SECTIONS.ErrorMessage>
 										{formState?.error?.[customField.name]}
-									</SectionUI.ErrorMessage>
+									</UI_SECTIONS.ErrorMessage>
 								))}
-						</SectionUI.FieldWrapGrid>
+						</UI_SECTIONS.FieldWrapGrid>
 					);
 				})}
-			</SectionUI.FormWrapGrid> */}
-			<SectionUI.Footer>
+			</UI_SECTIONS.FormWrapGrid>
+			<UI_SECTIONS.Footer>
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
@@ -425,8 +828,8 @@ const AddressDetails = props => {
 					onClick={handleSubmit(onProceed)}
 					// onClick={onProceed}
 				/>
-			</SectionUI.Footer>
-		</SectionUI.Wrapper>
+			</UI_SECTIONS.Footer>
+		</UI_SECTIONS.Wrapper>
 	);
 };
 

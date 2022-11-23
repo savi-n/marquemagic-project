@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import _ from 'lodash';
 import { encryptBase64 } from 'utils/encrypt';
+import _ from 'lodash';
 
 /*
 	whiteLabelName: whitelabelname is used to get permissions and site configuration

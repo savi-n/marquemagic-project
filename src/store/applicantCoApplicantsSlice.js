@@ -1,77 +1,93 @@
 import { createSlice } from '@reduxjs/toolkit';
-import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 import _ from 'lodash';
+
+const initializeApplicantCoApplicant = {
+	directorId: '', // applicant directorId
+	employmentId: '',
+	incomeDataId: '',
+	selectedPresentAddressProofId: '',
+	selectedPresentDocumentTypes: [],
+	selectedParmanentAddressProofId: '',
+	selectedParmanentDocumentTypes: [],
+	isSameAsAboveAddressChecked: false,
+	cin: '',
+	panExtractionRes: {},
+	presentAddressProofExtractionRes: {},
+	documents: [],
+};
 
 const initialState = {
 	profileImageRes: {},
 	companyRocData: {},
-	panExtractionRes: {},
-	applicant: {
-		applicantId: '', // applicant directorId
-		employmentId: '',
-		incomeDataId: '',
-		selectedParmanentAddressProofId: '',
-		selectedPresentAddressProofId: '',
-		cin: '',
-	},
+	applicant: initializeApplicantCoApplicant,
+	selectedApplicantCoApplicantId: CONST_SECTIONS.APPLICANT,
+	isApplicant: true,
 	coApplicants: {},
-	selectedApplicantCoApplicantId: CONST_APP_CO_APP_HEADER.APPLICANT,
 };
 
 export const applicantCoApplicantsSlice = createSlice({
 	name: 'applicantCoApplicants',
 	initialState,
 	reducers: {
+		onChangeSelectedApplicantField: (state, action) => {
+			const { name, value } = action.payload;
+			if (state.isApplicant) {
+				state.applicant[name] = value;
+			} else {
+				state.coApplicants[state.selectedApplicantCoApplicantId][name] = value;
+			}
+		},
 		updateApplicantCoApplicantSection: (state, action) => {
-			const { id, values } = action.payload;
-			if (
-				state.selectedApplicantCoApplicantId ===
-				CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
-				state.applicant[id] = values;
+			const { sectionId, sectionValues } = action.payload;
+			if (state.isApplicant) {
+				state.applicant[sectionId] = sectionValues;
 			} else {
 				const { directorId } = action.payload;
 				const newSectionData = _.cloneDeep(state.coApplicants);
 				if (!newSectionData[directorId]) newSectionData[directorId] = {};
-				state.coApplicants[directorId][id] = values;
+				state.coApplicants[directorId][sectionId] = sectionValues;
 			}
 		},
 		updateApplicantSection: (state, action) => {
 			const {
-				id,
-				values,
-				applicantId,
+				sectionId,
+				sectionValues,
+				directorId,
 				employmentId,
 				incomeDataId,
 			} = action.payload;
-			state.applicant[id] = values;
-			if (applicantId) state.applicant.applicantId = applicantId;
+			state.applicant[sectionId] = sectionValues;
+			if (directorId) state.applicant.directorId = directorId;
 			if (employmentId) state.applicant.employmentId = employmentId;
 			if (incomeDataId) state.applicant.incomeDataId = incomeDataId;
 		},
 		updateCoApplicantSection: (state, action) => {
 			const {
 				directorId,
-				id,
-				values,
+				sectionId,
+				sectionValues,
 				employmentId,
 				incomeDataId,
 			} = action.payload;
-			if (!state.coApplicants[directorId]) state.coApplicants[directorId] = {};
-			state.coApplicants[directorId][id] = values;
+			if (!state.coApplicants[directorId])
+				state.coApplicants[directorId] = initializeApplicantCoApplicant;
+			state.coApplicants[directorId][sectionId] = sectionValues;
 			if (employmentId)
 				state.coApplicants[directorId].employmentId = employmentId;
 			if (incomeDataId)
 				state.coApplicants[directorId].incomeDataId = incomeDataId;
 		},
+		updateApplicationSection: (state, action) => {
+			const { id, values } = action.payload;
+			state.sections[id] = values;
+		},
 		setSelectedApplicantCoApplicantId: (state, action) => {
 			state.selectedApplicantCoApplicantId = action.payload;
+			state.isApplicant = action.payload === CONST_SECTIONS.APPLICANT;
 		},
 		setSelectedParmanentAddressProofId: (state, action) => {
-			if (
-				state.selectedApplicantCoApplicantId ===
-				CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (state.isApplicant) {
 				state.applicant.selectedParmanentAddressProofId = action.payload;
 			} else {
 				state.coApplicants[
@@ -80,15 +96,18 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		setSelectedPresentAddressProofId: (state, action) => {
-			if (
-				state.selectedApplicantCoApplicantId ===
-				CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (state.isApplicant) {
 				state.applicant.selectedPresentAddressProofId = action.payload;
+				state.applicant.selectedPresentDocumentTypes =
+					CONST_SECTIONS.ADDRESS_PROOF_DOC_TYPE_LIST[action.payload];
 			} else {
 				state.coApplicants[
 					state.selectedApplicantCoApplicantId
 				].selectedPresentAddressProofId = action.payload;
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].selectedParmanentDocumentTypes =
+					CONST_SECTIONS.ADDRESS_PROOF_DOC_TYPE_LIST[action.payload];
 			}
 		},
 		setProfileImageRes: (state, action) => {
@@ -98,8 +117,136 @@ export const applicantCoApplicantsSlice = createSlice({
 			state.companyRocData = action.payload;
 		},
 		setPanExtractionRes: (state, action) => {
-			state.panExtractionRes = action.payload;
+			if (state.isApplicant) {
+				state.applicant.panExtractionRes = action.payload;
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].panExtractionRes = action.payload;
+			}
 		},
+		setPresentAddressProofExtractionRes: (state, action) => {
+			if (state.isApplicant) {
+				state.applicant.presentAddressProofExtractionRes = action.payload;
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].presentAddressProofExtractionRes = action.payload;
+			}
+		},
+		setIsSameAsAboveAddressChecked: (state, action) => {
+			if (state.isApplicant) {
+				state.applicant.isSameAsAboveAddressChecked = action.payload;
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].isSameAsAboveAddressChecked = action.payload;
+			}
+		},
+
+		// DOCUMENT RELATED ACTIONS
+		addLoanDocument: (state, action) => {
+			// const { file } = action.payload;
+			// pass only single file object
+			if (state.isApplicant) {
+				state.applicant.documents.push(action.payload);
+			} else {
+				state.coApplicants[state.selectedApplicantCoApplicantId].documents.push(
+					action.payload
+				);
+			}
+		},
+		addLoanDocuments: (state, action) => {
+			// const { files } = action.payload;
+			// you can pass array of files
+			const oldDocuments = state.isApplicant
+				? state.applicant.documents
+				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+
+			if (state.isApplicant) {
+				state.applicant.documents = [...oldDocuments, ...action.payload];
+			} else {
+				state.coApplicants[state.selectedApplicantCoApplicantId].documents = [
+					...oldDocuments,
+					...action.payload,
+				];
+			}
+		},
+		removeLoanDocument: (state, action) => {
+			const oldDocuments = state.isApplicant
+				? state.applicant.documents
+				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+
+			if (state.isApplicant) {
+				state.applicant.documents = oldDocuments.filter(
+					d => d.id === action.payload
+				);
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].documents = oldDocuments.filter(d => d.id === action.payload);
+			}
+		},
+		removeAllLoanDocuments: state => {
+			if (state.isApplicant) {
+				state.applicant.documents = [];
+			} else {
+				state.coApplicants[state.selectedApplicantCoApplicantId].documents = [];
+			}
+		},
+		removeAllAddressProofDocs: state => {
+			const oldDocuments = state.isApplicant
+				? state.applicant.documents
+				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+			if (state.isApplicant) {
+				state.applicant.documents = oldDocuments.filter(
+					d => !CONST_SECTIONS.ADDRESS_PROOF_KEYS.includes(d.req_type)
+				);
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].documents = oldDocuments.filter(
+					d => !CONST_SECTIONS.ADDRESS_PROOF_KEYS.includes(d.req_type)
+				);
+			}
+		},
+		updateSelectedDocumentTypeId: (state, action) => {
+			// console.log('updateSelectedDocumentTypeId-', { action });
+			const { fileId, docType } = action.payload;
+			const oldDocuments = state.isApplicant
+				? state.applicant.documents
+				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+			if (state.isApplicant) {
+				state.applicant.documents = oldDocuments?.map(doc =>
+					doc.id === fileId
+						? {
+								..._.cloneDeep(doc),
+								..._.cloneDeep(docType || {}),
+								typeId: docType?.value,
+								typeName: docType?.name,
+								mainType: docType?.main,
+								password: docType?.password,
+						  }
+						: doc
+				);
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].documents = oldDocuments.map(doc =>
+					doc.id === fileId
+						? {
+								..._.cloneDeep(doc),
+								..._.cloneDeep(action.payload?.docType || {}),
+								typeId: docType?.value,
+								typeName: docType?.name,
+								mainType: docType?.main,
+								password: docType?.password,
+						  }
+						: doc
+				);
+			}
+		},
+		// -- DOCUMENT RELATED ACTIONS
 	},
 });
 
@@ -112,6 +259,16 @@ export const {
 	setSelectedPresentAddressProofId,
 	setProfileImageRes,
 	setPanExtractionRes,
+	setIsSameAsAboveAddressChecked,
+	setPresentAddressProofExtractionRes,
+
+	addLoanDocument,
+	addLoanDocuments,
+	removeLoanDocument,
+	removeAllLoanDocuments,
+	updateApplicationSection,
+	updateSelectedDocumentTypeId,
+	removeAllAddressProofDocs,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

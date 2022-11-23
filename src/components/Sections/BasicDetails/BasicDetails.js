@@ -19,13 +19,10 @@ import Modal from 'components/Modal';
 import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
 
-import * as SectionUI from 'components/Sections/ui';
+import * as UI_SECTIONS from 'components/Sections/ui';
+import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
-import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
-import * as CONST_ADDRESS_PROOF_UPLOAD from 'components/AddressProofUpload/const';
 import * as CONST from './const';
-// import * as CONST_PAN_UPLOAD from 'components/PanUpload/const';
-import { EXTRACTION_KEY_PAN } from 'components/AddressProofUpload/const';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { setSelectedSectionId } from 'store/appSlice';
 import { formatCompanyData, formatSectionReqBody } from 'utils/formatData';
@@ -55,13 +52,15 @@ const BasicDetails = props => {
 		userToken,
 	} = app;
 	const {
-		selectedApplicantCoApplicantId,
+		isApplicant,
 		applicant,
 		coApplicants,
 		profileImageRes,
 		setCompanyRocData,
-		panExtractionRes,
+		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant ? applicant : coApplicants;
+	const { panExtractionRes } = selectedApplicant;
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -150,8 +149,8 @@ const BasicDetails = props => {
 			// 	basicDetailsRes,
 			// });
 			const newBasicDetails = {
-				id: selectedSectionId,
-				values: {
+				sectionId: selectedSectionId,
+				sectionValues: {
 					...formState.values,
 					profile_image_url: profileImageRes?.presignedUrl,
 				},
@@ -160,15 +159,12 @@ const BasicDetails = props => {
 			// 	newBasicDetails,
 			// });
 			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
-				newBasicDetails.applicantId = newDirectorId;
+			newBasicDetails.directorId = newDirectorId;
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.CO_APPLICANT
+				selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT
 			) {
-				newBasicDetails.directorId = newDirectorId;
 				dispatch(updateCoApplicantSection(newBasicDetails));
 				dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
 			} else {
@@ -190,6 +186,7 @@ const BasicDetails = props => {
 			// 	isVerifyKycData,
 			// 	extractionData,
 			// });
+			if (!selectedProduct?.kyc_verification) return {};
 			const verifyKycPanReqBody = {
 				doc_ref_id: extractionData?.doc_ref_id,
 				doc_type: selectedAddressProof,
@@ -248,7 +245,7 @@ const BasicDetails = props => {
 			setLoading(true);
 			// call verifykyc api
 			const verifiedRes = await verifyKycPan(
-				EXTRACTION_KEY_PAN,
+				CONST_SECTIONS.EXTRACTION_KEY_PAN,
 				panExtractionRes
 			);
 			// console.log(
@@ -347,16 +344,12 @@ const BasicDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 				return (
 					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
 				);
 			}
-			if (
-				selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.CO_APPLICANT
-			) {
+			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
 			if (selectedApplicantCoApplicantId) {
@@ -375,11 +368,9 @@ const BasicDetails = props => {
 	};
 
 	let selectedProfileImageUrl = '';
-	if (selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT) {
+	if (selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT) {
 		selectedProfileImageUrl = applicant?.[selectedSectionId]?.profile_image_url;
-	} else if (
-		selectedApplicantCoApplicantId !== CONST_APP_CO_APP_HEADER.CO_APPLICANT
-	) {
+	} else if (selectedApplicantCoApplicantId !== CONST_SECTIONS.CO_APPLICANT) {
 		selectedProfileImageUrl =
 			coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]
 				?.profile_image_url;
@@ -396,7 +387,7 @@ const BasicDetails = props => {
 	const isPanNumberExist = !!formState.values.pan_number;
 
 	return (
-		<SectionUI.Wrapper>
+		<UI_SECTIONS.Wrapper>
 			<CompanySelectModal
 				companyNameSearch={companyNameSearch}
 				searchingCompanyName={loading}
@@ -459,15 +450,15 @@ const BasicDetails = props => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
-							<SectionUI.SubSectionHeader>
+							<UI_SECTIONS.SubSectionHeader>
 								{sub_section.name}
-							</SectionUI.SubSectionHeader>
+							</UI_SECTIONS.SubSectionHeader>
 						) : null}
-						<SectionUI.FormWrapGrid>
+						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								if (field.type === 'file' && field.label.includes('Profile')) {
 									return (
-										<SectionUI.FieldWrapGrid
+										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
 											key={`field-${fieldIndex}-${field.name}`}
 										>
@@ -476,7 +467,7 @@ const BasicDetails = props => {
 													selectedProfileImageUrl={selectedProfileImageUrl}
 												/>
 											</UI.ProfilePicWrapper>
-										</SectionUI.FieldWrapGrid>
+										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
 
@@ -490,19 +481,19 @@ const BasicDetails = props => {
 									// console.log('pancard-error-msg-', {
 									// 	panErrorMessage,
 									// });
-									const panErrorColorCode = CONST_ADDRESS_PROOF_UPLOAD.getExtractionFlagColorCode(
+									const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
 										panErrorMessage
 									);
 									panErrorMessage = panErrorMessage.replace(
-										CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_ERROR,
+										CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
 										''
 									);
 									panErrorMessage = panErrorMessage.replace(
-										CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_WARNING,
+										CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
 										''
 									);
 									panErrorMessage = panErrorMessage.includes(
-										CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_SUCCESS
+										CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
 									)
 										? ''
 										: panErrorMessage;
@@ -511,7 +502,7 @@ const BasicDetails = props => {
 									// 	panErrorMessage,
 									// });
 									return (
-										<SectionUI.FieldWrapGrid
+										<UI_SECTIONS.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											<UI.ProfilePicWrapper>
@@ -522,12 +513,14 @@ const BasicDetails = props => {
 													panErrorColorCode={panErrorColorCode}
 												/>
 												{panErrorMessage && (
-													<SectionUI.ErrorMessage colorCode={panErrorColorCode}>
+													<UI_SECTIONS.ErrorMessage
+														colorCode={panErrorColorCode}
+													>
 														{panErrorMessage}
-													</SectionUI.ErrorMessage>
+													</UI_SECTIONS.ErrorMessage>
 												)}
 											</UI.ProfilePicWrapper>
-										</SectionUI.FieldWrapGrid>
+										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
 								if (!field.visibility || !field.name || !field.type)
@@ -535,9 +528,11 @@ const BasicDetails = props => {
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
 								if (!isPanNumberExist) customFieldProps.disabled = true;
+								if (isPanNumberExist && field.name === 'pan_number')
+									customFieldProps.disabled = true;
 								// customFieldProps.disabled = false;
 								return (
-									<SectionUI.FieldWrapGrid
+									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
 									>
 										{register({
@@ -549,18 +544,18 @@ const BasicDetails = props => {
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name] && (
-												<SectionUI.ErrorMessage>
+												<UI_SECTIONS.ErrorMessage>
 													{formState?.error?.[field.name]}
-												</SectionUI.ErrorMessage>
+												</UI_SECTIONS.ErrorMessage>
 											)}
-									</SectionUI.FieldWrapGrid>
+									</UI_SECTIONS.FieldWrapGrid>
 								);
 							})}
-						</SectionUI.FormWrapGrid>
+						</UI_SECTIONS.FormWrapGrid>
 					</Fragment>
 				);
 			})}
-			<SectionUI.Footer>
+			<UI_SECTIONS.Footer>
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
@@ -569,8 +564,8 @@ const BasicDetails = props => {
 					onClick={handleSubmit(onProceed)}
 					// onClick={onProceed}
 				/>
-			</SectionUI.Footer>
-		</SectionUI.Wrapper>
+			</UI_SECTIONS.Footer>
+		</UI_SECTIONS.Wrapper>
 	);
 };
 

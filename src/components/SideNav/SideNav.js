@@ -15,8 +15,7 @@ import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
 import * as UI from './ui';
-// import * as CONST from './const';
-import * as CONST_APP_CO_APP_HEADER from 'components/AppCoAppHeader/const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 
 const SideNav = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -40,7 +39,7 @@ const SideNav = props => {
 	const completedMenu = [];
 	selectedProduct?.product_details?.sections?.map(section => {
 		if (
-			selectedApplicantCoApplicantId === CONST_APP_CO_APP_HEADER.APPLICANT &&
+			selectedApplicantCoApplicantId === CONST_SECTIONS.APPLICANT &&
 			Object.keys(applicant?.[section?.id] || {}).length > 0
 		) {
 			completedMenu.push(section.id);

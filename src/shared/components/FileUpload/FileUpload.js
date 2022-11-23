@@ -502,7 +502,7 @@ export default function FileUpload(props) {
 			setOpeningRemovingDocument(false);
 		} catch (error) {
 			setOpeningRemovingDocument(false);
-			console.error('Unable to open file, try after sometimes');
+			console.error('Unable to open file, try after sometime');
 		}
 	};
 

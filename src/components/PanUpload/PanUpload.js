@@ -5,8 +5,10 @@ import styled from 'styled-components';
 // import axios from 'axios';
 import _ from 'lodash';
 
-import { setPanExtractionRes } from 'store/applicantCoApplicantsSlice';
-import { addLoanDocument } from 'store/applicationSlice';
+import {
+	setPanExtractionRes,
+	addLoanDocument,
+} from 'store/applicantCoApplicantsSlice';
 import { getKYCData } from 'utils/request';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import iconUploadBlue from 'assets/icons/upload_icon_blue.png';
@@ -15,8 +17,7 @@ import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 // import { API_END_POINT } from '_config/app.config';
 import { isBusinessPan } from 'utils/helper';
 import { useToasts } from 'components/Toast/ToastProvider';
-import * as CONST_ADDRESS_PROOF_UPLOAD from 'components/AddressProofUpload/const';
-import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 // import * as CONST from './const';
 
 const FieldWrapper = styled.div`
@@ -122,35 +123,27 @@ const PanUpload = props => {
 			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', selectedProduct.id);
-			formData.append(
-				'req_type',
-				CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_KEY_PAN
-			);
+			formData.append('req_type', CONST_SECTIONS.EXTRACTION_KEY_PAN);
 			formData.append('process_type', 'extraction');
 			formData.append('document', file);
-			const panExtractionRes = await getKYCData(formData, clientToken);
-			console.log('handleExtractionPan-', {
-				panExtractionRes,
-			});
-			const panExtractionStatus = panExtractionRes?.data?.status || '';
-			const panExtractionMsg = panExtractionRes?.data?.message || '';
-			const panForensicRes = panExtractionRes?.data?.forensicData || {};
+			const panExtractionApiRes = await getKYCData(formData, clientToken);
+			const panExtractionStatus = panExtractionApiRes?.data?.status || '';
+			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
+			const panForensicRes = panExtractionApiRes?.data?.forensicData || {};
 			const panForensicFlag = panForensicRes?.flag?.toLowerCase() || '';
 			const panForensicFlagMsg = panForensicRes?.flag_message || '';
-			// console.log('handleExtractionPan-', {
-			// 	panExtractionRes,
-			// 	panExtractionStatus,
-			// 	panExtractionMsg,
-			// 	panForensicRes,
-			// 	panForensicFlag,
-			// 	panForensicFlagMsg,
-			// });
+			console.log('handleExtractionPan-', {
+				panExtractionApiRes,
+				panExtractionStatus,
+				panExtractionMsg,
+				panForensicRes,
+				panForensicFlag,
+				panForensicFlagMsg,
+			});
 			if (panExtractionStatus === 'nok') {
 				setErrorFormStateField(
 					field.name,
-					`${
-						CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_ERROR
-					}${panExtractionMsg}`
+					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${panExtractionMsg}`
 				);
 				setLoading(false);
 				return; // STOP FURTHER EXECUTION
@@ -158,9 +151,7 @@ const PanUpload = props => {
 			if (panForensicFlag === 'error') {
 				setErrorFormStateField(
 					field.name,
-					`${
-						CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_ERROR
-					}${panForensicFlagMsg}`
+					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${panForensicFlagMsg}`
 				);
 				setLoading(false);
 				return; // STOP FURTHER EXECUTION
@@ -168,9 +159,7 @@ const PanUpload = props => {
 			if (panForensicFlag === 'warning') {
 				setErrorFormStateField(
 					field.name,
-					`${
-						CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_WARNING
-					}${panForensicFlagMsg}`
+					`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${panForensicFlagMsg}`
 				);
 				// CONTINUE EXECUTION
 			}
@@ -179,35 +168,36 @@ const PanUpload = props => {
 				// setErrorFormStateField(
 				// 	field.name,
 				// 	`${
-				// 		CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_FLAG_SUCCESS
+				// 		CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
 				// 	}${panForensicFlagMsg}`
 				// );
 				setIsPanConfirmModalOpen(true);
 			}
 			const file1 = {
-				...(panExtractionRes?.data?.extractionData || {}),
-				document_key: panExtractionRes?.data.s3.fd,
+				...(panExtractionApiRes?.data?.extractionData || {}),
+				document_key: panExtractionApiRes?.data.s3.fd,
 				id: Math.random()
 					.toString(36)
 					.replace(/[^a-z]+/g, '')
 					.substr(0, 6),
 				mainType: 'KYC',
-				size: panExtractionRes?.data.s3.size,
-				type: CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_KEY_PAN,
-				req_type: CONST_ADDRESS_PROOF_UPLOAD.EXTRACTION_KEY_PAN, // requires for mapping with JSON
-				requestId: panExtractionRes?.data?.request_id,
-				upload_doc_name: panExtractionRes?.data.s3.filename,
+				size: panExtractionApiRes?.data.s3.size,
+				type: CONST_SECTIONS.EXTRACTION_KEY_PAN,
+				req_type: CONST_SECTIONS.EXTRACTION_KEY_PAN, // requires for mapping with JSON
+				requestId: panExtractionApiRes?.data?.request_id,
+				upload_doc_name: panExtractionApiRes?.data.s3.filename,
 				isDocRemoveAllowed: false,
-				category: CONST_DOCUMENT_UPLOAD.CATEGORY_KYC,
-				doc_type_id: `app_${CONST_DOCUMENT_UPLOAD.CATEGORY_KYC}`,
+				category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				doc_type_id: `app_${CONST_SECTIONS.DOC_CATEGORY_KYC}`,
 			};
 			addLoanDocument(file1);
 			const newPanExtractionData = _.cloneDeep(
-				panExtractionRes?.data?.extractionData || {}
+				panExtractionApiRes?.data?.extractionData || {}
 			);
 			newPanExtractionData.doc_ref_id =
-				panExtractionRes?.data?.doc_ref_id || '';
-			newPanExtractionData.requestId = panExtractionRes?.data?.request_id || '';
+				panExtractionApiRes?.data?.doc_ref_id || '';
+			newPanExtractionData.requestId =
+				panExtractionApiRes?.data?.request_id || '';
 			newPanExtractionData.panNumber = newPanExtractionData?.Pan_number || '';
 			newPanExtractionData.responseId = newPanExtractionData?.id || '';
 			newPanExtractionData.dob = newPanExtractionData?.DOB || '';

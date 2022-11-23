@@ -11,12 +11,13 @@ import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
 import * as UI from './ui';
 import * as CONST from './const';
 
-const AppCoAppHeader = props => {
+const ApplicantCoApplicantHeader = props => {
 	const { app, applicantCoApplicants } = useSelector(state => state);
 	const { firstSectionId } = app;
 	const {
 		coApplicants,
 		selectedApplicantCoApplicantId,
+		isApplicant,
 	} = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const [
@@ -25,7 +26,7 @@ const AppCoAppHeader = props => {
 	] = useState(false);
 	const refListWrapper = useRef(null);
 
-	// console.log('AppCoAppHeader-allstates-', {
+	// console.log('ApplicantCoApplicantHeader-allstates-', {
 	// 	props,
 	// 	refListWrapper,
 	// 	maxWidth,
@@ -54,11 +55,7 @@ const AppCoAppHeader = props => {
 			<UI.UL ref={refListWrapper} id='appRefList'>
 				<UI.LI>
 					<UI.Avatar
-						src={
-							selectedApplicantCoApplicantId === CONST.APPLICANT
-								? iconAvatarActive
-								: iconAvatarInActive
-						}
+						src={isApplicant ? iconAvatarActive : iconAvatarInActive}
 						alt='Avatar'
 						onClick={() => onClickApplicantCoApplicant(CONST.APPLICANT)}
 					/>
@@ -110,4 +107,4 @@ const AppCoAppHeader = props => {
 	);
 };
 
-export default AppCoAppHeader;
+export default ApplicantCoApplicantHeader;

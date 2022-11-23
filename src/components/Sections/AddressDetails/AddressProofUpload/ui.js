@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+export const Wrapper = styled.div``;
+
 export const DropZoneOtpFieldWrapper = styled.div`
 	margin: 20px 0;
 	display: grid;
@@ -16,6 +18,7 @@ export const AadhaarNumberOtpFieldWrapper = styled.div`
 	width: 100%;
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	gap: 20px;
 	@media (max-width: 700px) {
 		width: 100%;
@@ -80,6 +83,7 @@ ${({ uploading }) =>
 		uploading &&
 		`
       content:'Uploading...';
+			font-size: 14px;
     `}
   inset: 0 0 0 0;
   position: absolute;
@@ -163,7 +167,6 @@ export const FileListWrap = styled.div`
 
 export const WarningMessage = styled.div`
 	background: #e6ffef;
-	height: inherit;
 	border-radius: 10px;
 	border: 2px solid #4cc97f;
 	display: flex;
@@ -175,6 +178,20 @@ export const WarningMessage = styled.div`
 		width: 72vw;
 	}
 `;
+
+export const AddressProofErrorMessage = styled.div`
+	color: #de524c;
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	${({ addressProofErrorColorCode }) =>
+		addressProofErrorColorCode && `color: ${addressProofErrorColorCode};`}
+`;
+
+export const ImgErrorIcon = styled.img`
+	height: 20px;
+`;
+
 export const File = styled.div`
 	width: 32%;
 	position: relative;
@@ -184,12 +201,11 @@ export const File = styled.div`
 	line-height: 40px;
 	margin: 10px -5px;
 	display: flex;
-	border: dashed
-		${({ errorType }) => {
-			if (errorType === 'warning') return '#f7941d';
-			if (errorType === 'error') return '#de524c';
-			return `rgba(76, 201, 127, 0.6)`;
-		}};
+	border: dashed 2px rgba(76, 201, 127, 0.6);
+	${({ addressProofErrorColorCode }) =>
+		addressProofErrorColorCode &&
+		`border: dashed ${addressProofErrorColorCode} 2px;
+      background-color: rgba(255,255,255,.8);`}
 
 	border-radius: 10px;
 	border-width: 2px;
@@ -217,7 +233,7 @@ export const ImgClose = styled.img`
 	height: 25px;
 	cursor: pointer;
 	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
+	margin-right: 10px;
 `;
 
 export const PasswordWrapper = styled.div`
@@ -280,10 +296,19 @@ export const FileName = styled.span`
 		color: ${({ link }) => (link ? '#2a2add' : 'black')};
 	}
 `;
-
-export const UploadCircle = styled.label`
+export const IconWrapper = styled.div`
+	display: flex;
+	margin-left: auto;
+	margin-right: 15px;
+	gap: 10px;
+`;
+export const IconUpload = styled.label`
 	cursor: pointer;
-	margin-right: 10px;
+`;
+export const IconCollapse = styled.img`
+	cursor: pointer;
+	transform: ${({ isDocumentTaggingOpen }) =>
+		isDocumentTaggingOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
 `;
 
 export const FileType = styled.div`
@@ -434,4 +459,13 @@ export const DocumentUploadNameToolTip = styled.div`
 	background: black;
 	color: white;
 	padding: 5px;
+`;
+
+export const CTAWrapper = styled.div``;
+
+export const DocumentTaggingSectionWrapper = styled.div`
+	overflow: hidden;
+	transition: all 0.3s ease-in-out;
+	height: ${({ isDocumentTaggingOpen }) =>
+		isDocumentTaggingOpen ? '250px' : '0'};
 `;
