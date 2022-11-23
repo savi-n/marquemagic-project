@@ -84,7 +84,7 @@ const ProductIndividual = props => {
 						{loading ? <div /> : <SelectedComponent />}
 					</UI.DynamicSubSectionWrapper>
 					<Button
-						name='Temp button'
+						name='Skip'
 						onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
 					/>
 				</UI.DynamicSectionWrapper>
