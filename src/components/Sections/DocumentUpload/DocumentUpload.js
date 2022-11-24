@@ -4,13 +4,15 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
-import Modal from 'components/Modal';
+// import Modal from 'components/Modal';
 import CheckBox from 'shared/components/Checkbox/CheckBox';
 import AuthenticationOtpModal from './AuthenticationOTPModal';
 import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 // import CategoryFileUpload from './CategoryFileUpload';
-import CategoryFileUpload from 'shared/components/FileUpload/FileUpload';
+// import CategoryFileUpload from 'shared/components/FileUpload/FileUpload';
+import CategoryFileUpload from './CategoryFileUpload';
+import Textarea from 'components/inputs/Textarea';
 
 import {
 	DOCS_UPLOAD_URL,
@@ -342,9 +344,7 @@ const DocumentUpload = props => {
 	}, [selectedApplicantCoApplicantId]);
 
 	useEffect(() => {
-		if (uploadedDocuments?.length > 0 || prefilledDocs?.length > 0) {
-			initializeTaggUnTagDocuments();
-		}
+		initializeTaggUnTagDocuments();
 		// eslint-disable-next-line
 	}, [uploadedDocuments, prefilledDocs]);
 
@@ -746,10 +746,16 @@ const DocumentUpload = props => {
 				);
 			})}
 			<UI.Footer>
+				{/*  */}
+				<UI.Divider />
+				<UI.CategoryNameHeader>Comments for Office Use</UI.CategoryNameHeader>
+				<Textarea {...CONST.commentsForOfficeUseField} />
+				<UI.Divider />
 				{!isViewLoan && (
 					<Button
 						name='Get Other Bank Statements'
 						onClick={isOtherBankStatementModalOpen}
+						customStyle={{ width: 'auto', height: '45px' }}
 					/>
 				)}
 				<UI.CheckboxWrapper>

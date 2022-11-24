@@ -2,6 +2,7 @@
 of file, upload and deletion */
 
 import { useEffect, useRef, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { Popover } from 'react-tiny-popover';
@@ -92,6 +93,11 @@ const CategoryFileUpload = props => {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
+
+	const { app, applicantCoApplicants, application } = useSelector(
+		state => state
+	);
+	const { businessUserId, loanId } = application;
 
 	const onCancel = (file, status) => {
 		const newUploadingFiles = [];
@@ -474,28 +480,15 @@ const CategoryFileUpload = props => {
 
 	const openDocument = async file => {
 		try {
-			// console.log('open-doc-', file);
+			// console.log('open-doc-', { file, loanId, businessUserId });
 			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
-			if (file.loan) {
-				reqBody.loan_id = file.loan;
-				reqBody.userid = file.user_id;
-			} else {
-				reqBody.isProfile = true;
-			}
+			reqBody.loan_id = loanId;
+			reqBody.userid = businessUserId;
 			// console.log('openDocument-reqBody-', { reqBody, file });
-			const docRes = await newRequest(
-				VIEW_DOCUMENT,
-				{
-					method: 'POST',
-					data: reqBody,
-				},
-				{
-					Authorization: `Bearer ${API_TOKEN}`,
-				}
-			);
+			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
 			// console.log('openDocument-res-', docRes);
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 			setOpeningRemovingDocument(false);

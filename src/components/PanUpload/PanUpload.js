@@ -98,6 +98,13 @@ const PreviewUploadIconWrapper = styled.div`
 	min-height: 50px;
 `;
 
+const UploadedFileName = styled.div`
+	cursor: pointer;
+	&:hover {
+		color: ${({ link }) => (link ? '#2a2add' : 'black')};
+	}
+`;
+
 const PanUpload = props => {
 	const {
 		field,
@@ -106,9 +113,9 @@ const PanUpload = props => {
 		panErrorColorCode,
 		setPanExtractionResTemp,
 	} = props;
-	const { app } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const { selectedProduct, clientToken } = app;
-	// const {  } = application;
+	const { loanRefId } = application;
 	const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
@@ -280,24 +287,35 @@ const PanUpload = props => {
 					<IconUpload src={iconUploadBlue} alt='camera' />
 				</PreviewUploadIconWrapper>
 				<ContainerPreview panErrorColorCode={panErrorColorCode}>
-					<label>{uploadedFile?.name}</label>
+					<UploadedFileName
+						// link={'https://www.google.com'}
+						onClick={e => {
+							e.preventDefault();
+							e.stopPropagation();
+							// window.open('https://www.google.com', '_blank');
+						}}
+					>
+						{uploadedFile?.name}
+					</UploadedFileName>
 					{loading ? (
 						<UploadIconWrapper>
 							<LoadingIcon />
 						</UploadIconWrapper>
 					) : (
 						<UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
-							<IconDelete
-								src={iconDelete}
-								alt='delete'
-								onClick={e => {
-									e.preventDefault();
-									e.stopPropagation();
-									setFiles([]);
-									setErrorFormStateField(field.name, '');
-									setLoading(false);
-								}}
-							/>
+							{!loanRefId && (
+								<IconDelete
+									src={iconDelete}
+									alt='delete'
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										setFiles([]);
+										setErrorFormStateField(field.name, '');
+										setLoading(false);
+									}}
+								/>
+							)}
 						</UploadIconWrapper>
 					)}
 				</ContainerPreview>

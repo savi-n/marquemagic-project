@@ -17,3 +17,20 @@ export const textForCheckbox = {
 	defaultDeclaration:
 		'I here do declare that what is stated above is true to the best of my knowledge and  belief',
 };
+
+export const commentsForOfficeUseField = {
+	name: 'first_name',
+	placeholder: 'First Name',
+	db_key: 'first_name',
+	rules: {
+		required: true,
+	},
+	mask: {
+		alpha_char_only: true,
+	},
+	type: 'text',
+	pre_data_disable: false,
+	protected: false,
+	visibility: true,
+	default_value: '',
+};

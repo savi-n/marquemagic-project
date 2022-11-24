@@ -111,3 +111,7 @@ export const LoaderWrapper = styled.div`
 	justify-content: center;
 	text-align: center;
 `;
+
+export const CommentsForOfficeUse = styled.textarea``;
+
+export const Divider = styled.div``;

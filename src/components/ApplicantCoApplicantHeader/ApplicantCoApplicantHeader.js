@@ -21,8 +21,8 @@ const ApplicantCoApplicantHeader = props => {
 	} = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const [
-		isSeleteCoApplicantModalOpen,
-		setIsSeleteCoApplicantModalOpen,
+		isDeleteCoApplicantModalOpen,
+		setIsDeleteCoApplicantModalOpen,
 	] = useState(false);
 	const refListWrapper = useRef(null);
 
@@ -32,17 +32,20 @@ const ApplicantCoApplicantHeader = props => {
 	// });
 
 	const onClickApplicantCoApplicant = id => {
+		// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
+		// 	return setIsDeleteCoApplicantModalOpen(id);
+		// }
 		dispatch(setSelectedApplicantCoApplicantId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
 	return (
 		<UI.Wrapper>
-			{isSeleteCoApplicantModalOpen && (
+			{isDeleteCoApplicantModalOpen && (
 				<DeleteCoApplicantModal
-					onNo={() => setIsSeleteCoApplicantModalOpen(false)}
+					onNo={() => setIsDeleteCoApplicantModalOpen(false)}
 					onYes={() => {
-						setIsSeleteCoApplicantModalOpen(false);
+						setIsDeleteCoApplicantModalOpen(false);
 						onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT);
 					}}
 					coApplicantNumber={Object.keys(coApplicants).length + 1}
@@ -83,7 +86,7 @@ const ApplicantCoApplicantHeader = props => {
 					<UI.LI>
 						<UI.BadgeDelete
 							src={iconDelete}
-							onClick={() => setIsSeleteCoApplicantModalOpen(true)}
+							onClick={() => setIsDeleteCoApplicantModalOpen(true)}
 							alt='delete'
 						/>
 						<UI.Avatar
