@@ -43,6 +43,7 @@ const EmploymentDetails = () => {
 
 	const submitEmploymentDetails = async () => {
 		try {
+			setLoading(true);
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -90,22 +91,24 @@ const EmploymentDetails = () => {
 				newEmploymentDetails.directorId = selectedApplicantCoApplicantId;
 				dispatch(updateCoApplicantSection(newEmploymentDetails));
 			}
+			return true;
 		} catch (error) {
 			console.error('error-submitEmploymentDetails-', error);
+			// TODO: Handle error toast and error code
+			return false;
+		} finally {
+			setLoading(false);
 		}
 	};
 
 	const onProceed = async () => {
 		try {
 			if (Object.keys(formState.values).length === 0) return onSkip();
-			setLoading(true);
-			await sleep(100);
-			await submitEmploymentDetails();
+			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+			if (!isEmploymentDetailsSubmited) return;
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onProceed-', error);
-		} finally {
-			setLoading(false);
 		}
 	};
 
@@ -120,11 +123,10 @@ const EmploymentDetails = () => {
 	};
 
 	const onAddCoApplicant = async () => {
-		setLoading(true);
-		await submitEmploymentDetails();
+		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedSectionId(firstSectionId));
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
-		setLoading(false);
 	};
 
 	const prefilledValues = field => {

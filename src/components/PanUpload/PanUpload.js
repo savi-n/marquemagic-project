@@ -5,10 +5,7 @@ import styled from 'styled-components';
 // import axios from 'axios';
 import _ from 'lodash';
 
-import {
-	setPanExtractionRes,
-	addLoanDocument,
-} from 'store/applicantCoApplicantsSlice';
+import { addLoanDocument } from 'store/applicantCoApplicantsSlice';
 import { getKYCData } from 'utils/request';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import iconUploadBlue from 'assets/icons/upload_icon_blue.png';
@@ -107,13 +104,13 @@ const PanUpload = props => {
 		setIsPanConfirmModalOpen,
 		setErrorFormStateField,
 		panErrorColorCode,
+		setPanExtractionResTemp,
 	} = props;
 	const { app } = useSelector(state => state);
 	const { selectedProduct, clientToken } = app;
 	// const {  } = application;
 	const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
-	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 
 	// Pancard extraction function
@@ -215,10 +212,8 @@ const PanUpload = props => {
 					newPanExtractionData.lastName = name[1];
 				}
 			}
-
-			// TODO: set this response to app / coapps / slice
 			// console.log('beforeset-setPanExtractionRes-', { newPanExtractionData });
-			dispatch(setPanExtractionRes(newPanExtractionData));
+			setPanExtractionResTemp(newPanExtractionData);
 		} catch (error) {
 			console.error('error-pan-verification-handleExtractionPan-', error);
 			setIsPanConfirmModalOpen(true);

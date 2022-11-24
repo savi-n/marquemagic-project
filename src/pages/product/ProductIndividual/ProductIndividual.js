@@ -12,6 +12,7 @@ import BankDetails from 'components/Sections/BankDetails';
 import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
+import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
 
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -20,6 +21,28 @@ import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 // import * as CONST from './const';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
+
+const SkipComponent = () => {
+	const { app } = useSelector(state => state);
+	const dispatch = useDispatch();
+	const { nextSectionId } = app;
+	return (
+		<div
+			style={{
+				height: '100%',
+				width: '100%',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItem: 'center',
+			}}
+		>
+			<Button
+				name='Skip'
+				onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
+			/>
+		</div>
+	);
+};
 
 const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -38,11 +61,12 @@ const ProductIndividual = props => {
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
 		loan_details: LoanDetails,
-		collateral_details: CollateralDetails,
+		collateral_details: SkipComponent,
 		bank_details: BankDetails,
 		document_upload: DocumentUpload,
-		reference_details: ReferenceDetails,
-		emi_details: EMIDetails,
+		reference_details: SkipComponent,
+		emi_details: SkipComponent,
+		application_submitted: ApplicationSubmitted,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
@@ -55,13 +79,13 @@ const ProductIndividual = props => {
 		});
 	}, [selectedSectionId, selectedApplicantCoApplicantId]);
 
-	// useEffect(() => {
-	// 	console.log('ProductIndividual-allStates-', {
-	// 		app,
-	// 		application,
-	// 		applicantCoApplicants,
-	// 	});
-	// }, [app, application, applicantCoApplicants]);
+	useEffect(() => {
+		console.log('ProductIndividual-allStates-', {
+			app,
+			application,
+			applicantCoApplicants,
+		});
+	}, [app, application, applicantCoApplicants]);
 
 	return (
 		<UI.Wrapper>
@@ -69,16 +93,12 @@ const ProductIndividual = props => {
 			<UI.RightSectionWrapper>
 				<UI.IconDottedRight src={iconDottedRight} alt='dot' />
 				<UI.DynamicSectionWrapper>
-					{applicantCoApplicantSectionIds?.includes(selectedSectionId) && (
-						<ApplicantCoApplicantHeader />
-					)}
+					{[...applicantCoApplicantSectionIds, 'document_upload']?.includes(
+						selectedSectionId
+					) && <ApplicantCoApplicantHeader />}
 					<UI.DynamicSubSectionWrapper>
 						{loading ? <div /> : <SelectedComponent />}
 					</UI.DynamicSubSectionWrapper>
-					<Button
-						name='Skip'
-						onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
-					/>
 				</UI.DynamicSectionWrapper>
 			</UI.RightSectionWrapper>
 		</UI.Wrapper>

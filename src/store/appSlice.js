@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 /*
 	selectedProduct: once use select one product / click on Apply Now CTA we'll store selected product object here
-		productId: when product get selected in home page uniq id will be assign here for future refrance
+		id: when product get selected in home page uniq id will be assign here for future refrance
 		idBase64: same product id will be converted in to base64 and will be stored here for future use
 	selectedSectionId: current selected section id
 	completedSections: once section form is successfully submited that section id will be added to this array before moving to next section
@@ -28,6 +28,7 @@ const initialState = {
 	whiteLabelId: '',
 	permission: {},
 	userDetails: {},
+	isCorporate: false, // TODO: dynamically update flag based on corporate user
 	userToken: '',
 	clientToken: '',
 	bankToken: '',
@@ -52,8 +53,8 @@ const initialState = {
 	isEditOrViewLoan: false,
 	isViewLoan: false,
 	isEditLoan: false,
-	// isTestMode: true,
-	isTestMode: false,
+	isTestMode: true,
+	// isTestMode: false,
 };
 
 export const appSlice = createSlice({
@@ -89,7 +90,6 @@ export const appSlice = createSlice({
 		setProductList: (state, action) => {
 			state.productList = action.payload;
 		},
-
 		setSelectedProduct: (state, action) => {
 			state.selectedProduct = {
 				...action.payload,
@@ -109,19 +109,28 @@ export const appSlice = createSlice({
 			state.applicantCoApplicantSectionIds = newApplicantCoApplicantSectionIds;
 		},
 		setSelectedSectionId: (state, action) => {
-			// state.selectedSectionId = 'document_upload';
 			state.selectedSectionId = action.payload;
 			const selectedIndex = state?.selectedProduct?.product_details?.sections?.findIndex(
 				section => section?.id === action.payload
 			);
-			state.selectedSection =
+			const newSelectedSection =
 				state?.selectedProduct?.product_details?.sections[selectedIndex] || {};
-			state.prevSectionId =
+			const newPrevSectionId =
 				state?.selectedProduct?.product_details?.sections?.[selectedIndex - 1]
 					?.id || '';
-			state.nextSectionId =
+			const newNextSectionId =
 				state?.selectedProduct?.product_details?.sections?.[selectedIndex + 1]
 					?.id || '';
+			state.selectedSection = newSelectedSection;
+			state.prevSectionId = newPrevSectionId;
+			state.nextSectionId = newNextSectionId;
+			// Test Mode
+			// state.prevSectionId = newPrevSectionId;
+			// state.nextSectionId =
+			// 	action.payload === 'basic_details'
+			// 		? 'document_upload'
+			// 		: 'application_submitted';
+			// -- Test Mode
 		},
 		setCompletedSections: (state, action) => {
 			state.completedSections = action.payload;

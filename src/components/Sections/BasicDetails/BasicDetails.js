@@ -8,7 +8,7 @@ import { setLoanIds } from 'store/applicationSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
-	setSelectedApplicantCoApplicantId,
+	setCompanyRocData,
 	setPanExtractionRes,
 } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
@@ -57,17 +57,21 @@ const BasicDetails = props => {
 		applicant,
 		coApplicants,
 		profileImageRes,
-		setCompanyRocData,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant ? applicant : coApplicants;
-	const { panExtractionRes } = selectedApplicant;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId] || {};
+
+	const selectedApplicantIncomeTypeId =
+		selectedApplicant?.basic_details?.income_type;
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
+	const [panExtractionResTemp, setPanExtractionResTemp] = useState({});
 	const {
 		handleSubmit,
 		register,
@@ -107,7 +111,7 @@ const BasicDetails = props => {
 					newLoginCreateUserRes?.data?.token
 				}`;
 			} else {
-				axios.defaults.headers.Authorization = `Bearer ${app.userToken}`;
+				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
 
 			// console.log('onProceed-loginCreateUserReqRes-', {
@@ -115,6 +119,8 @@ const BasicDetails = props => {
 			// 	loginCreateUserRes,
 			// });
 			// return;
+			const selectedLoanProductId =
+				selectedProduct?.product_id[formState?.values?.income_type];
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -124,6 +130,7 @@ const BasicDetails = props => {
 				app,
 				applicantCoApplicants,
 				application,
+				selectedLoanProductId,
 			});
 
 			// TEST MODE
@@ -138,11 +145,15 @@ const BasicDetails = props => {
 			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
 			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
 			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
+			const newBusinessUserId =
+				basicDetailsRes?.data?.data?.business_data?.userid;
 			dispatch(
 				setLoanIds({
 					loanRefId: newLoanRefId,
 					loanId: newLoanId,
 					businessId: newBusinessId,
+					businessUserId: newBusinessUserId,
+					loanProductId: selectedLoanProductId,
 				})
 			);
 			// console.log('onProceed-basicDetailsReqBody-', {
@@ -163,15 +174,11 @@ const BasicDetails = props => {
 			newBasicDetails.directorId = newDirectorId;
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
-			} else if (
-				selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT
-			) {
-				dispatch(updateCoApplicantSection(newBasicDetails));
-				dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
 			} else {
-				newBasicDetails.directorId = selectedApplicantCoApplicantId;
 				dispatch(updateCoApplicantSection(newBasicDetails));
+				// dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
 			}
+			dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-BasicDetails-onProceed-', error);
@@ -236,7 +243,7 @@ const BasicDetails = props => {
 
 	const onProceedPanConfirm = async () => {
 		try {
-			const panErrorMessage = isInvalidPan(panExtractionRes?.panNumber);
+			const panErrorMessage = isInvalidPan(panExtractionResTemp?.panNumber);
 			if (panErrorMessage) {
 				return addToast({
 					message: panErrorMessage,
@@ -247,7 +254,7 @@ const BasicDetails = props => {
 			// call verifykyc api
 			const verifiedRes = await verifyKycPan(
 				CONST_SECTIONS.EXTRACTION_KEY_PAN,
-				panExtractionRes
+				panExtractionResTemp
 			);
 			// console.log(
 			// 	'pan-verification-handlePanConfirm-verifiedRes-',
@@ -257,15 +264,15 @@ const BasicDetails = props => {
 
 			onChangeFormStateField({
 				name: 'pan_number',
-				value: panExtractionRes?.panNumber,
+				value: panExtractionResTemp?.panNumber,
 			});
 			if (
 				selectedProduct.isSelectedProductTypeBusiness &&
-				panExtractionRes.isBusinessPan
+				panExtractionResTemp.isBusinessPan
 			) {
 				await companyNameSearch(
 					verifiedRes?.data?.message?.upstreamName ||
-						panExtractionRes.companyName
+						panExtractionResTemp.companyName
 				);
 				// console.log('company information from pancardfile', newCompanyList);
 				// console.log(
@@ -309,9 +316,9 @@ const BasicDetails = props => {
 			const companyData = cinNumberResponse?.data?.data;
 			const formattedCompanyData = formatCompanyData(
 				companyData,
-				panExtractionRes.panNumber
+				panExtractionResTemp.panNumber
 			);
-			setCompanyRocData(formattedCompanyData);
+			dispatch(setCompanyRocData(formattedCompanyData));
 		} catch (error) {
 			setLoading(false);
 			addToast({
@@ -338,7 +345,6 @@ const BasicDetails = props => {
 			if (formState?.values?.[field.name] !== undefined) {
 				return formState?.values?.[field.name];
 			}
-
 			// TEST MODE
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
@@ -378,7 +384,7 @@ const BasicDetails = props => {
 	}
 
 	// console.log('BasicDetails-', {
-	// 	panExtractionRes,
+	// 	panExtractionResTemp,
 	// 	formState,
 	// 	app,
 	// 	applicantCoApplicants,
@@ -395,7 +401,7 @@ const BasicDetails = props => {
 				show={isCompanyListModalOpen}
 				companyName={formState?.values?.companyName}
 				companyList={companyList}
-				panExtractionData={panExtractionRes}
+				panExtractionData={panExtractionResTemp}
 				onClose={() => {
 					setIsCompanyListModalOpen(false);
 				}}
@@ -427,11 +433,13 @@ const BasicDetails = props => {
 						<UI.FieldWrapperPanVerify>
 							<InputField
 								name='panNumber'
-								value={panExtractionRes?.panNumber || ''}
+								value={panExtractionResTemp?.panNumber || ''}
 								onChange={e => {
-									const newPanExtractionData = _.cloneDeep(panExtractionRes);
+									const newPanExtractionData = _.cloneDeep(
+										panExtractionResTemp
+									);
 									newPanExtractionData.panNumber = e.target.value;
-									dispatch(setPanExtractionRes(newPanExtractionData));
+									dispatch(panExtractionResTemp(newPanExtractionData));
 								}}
 								style={{ textAlign: 'center' }}
 							/>
@@ -516,6 +524,8 @@ const BasicDetails = props => {
 													setIsPanConfirmModalOpen={setIsPanConfirmModalOpen}
 													setErrorFormStateField={setErrorFormStateField}
 													panErrorColorCode={panErrorColorCode}
+													panExtractionResTemp={panExtractionResTemp}
+													setPanExtractionResTemp={setPanExtractionResTemp}
 												/>
 												{panErrorMessage && (
 													<UI_SECTIONS.ErrorMessage
@@ -534,6 +544,11 @@ const BasicDetails = props => {
 								const customFieldProps = {};
 								if (!isPanNumberExist) customFieldProps.disabled = true;
 								if (isPanNumberExist && field.name === 'pan_number')
+									customFieldProps.disabled = true;
+								if (
+									selectedApplicant?.directorId &&
+									field.name === 'income_type'
+								)
 									customFieldProps.disabled = true;
 								// customFieldProps.disabled = false;
 								return (
@@ -561,6 +576,7 @@ const BasicDetails = props => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
+				{/* TODO: shreyash before proceed impliment modal popup alerting user that they cannot change income type in future same as old req */}
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
