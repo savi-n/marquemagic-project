@@ -477,6 +477,7 @@ const BasicDetails = props => {
 										>
 											<UI.ProfilePicWrapper>
 												<ProfileUpload
+													isPanNumberExist={isPanNumberExist}
 													selectedProfileImageUrl={selectedProfileImageUrl}
 												/>
 											</UI.ProfilePicWrapper>
@@ -520,6 +521,7 @@ const BasicDetails = props => {
 										>
 											<UI.ProfilePicWrapper>
 												<PanUpload
+													isPanNumberExist={isPanNumberExist}
 													field={field}
 													setIsPanConfirmModalOpen={setIsPanConfirmModalOpen}
 													setErrorFormStateField={setErrorFormStateField}

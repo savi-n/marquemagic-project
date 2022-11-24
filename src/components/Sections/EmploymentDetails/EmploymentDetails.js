@@ -105,7 +105,6 @@ const EmploymentDetails = () => {
 
 	const onProceed = async () => {
 		try {
-			if (Object.keys(formState.values).length === 0) return onSkip();
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
 			dispatch(setSelectedSectionId(nextSectionId));
@@ -113,17 +112,6 @@ const EmploymentDetails = () => {
 		} catch (error) {
 			console.error('error-EmploymentDetails-onProceed-', error);
 		}
-	};
-
-	const onSkip = () => {
-		dispatch(
-			updateApplicantSection({
-				sectionId: selectedSectionId,
-				sectionValues: { isSkip: true },
-			})
-		);
-		dispatch(setSelectedSectionId(nextSectionId));
-		dispatch(setSelectedSectionId(CONST_SECTIONS.APPLICANT));
 	};
 
 	const onAddCoApplicant = async () => {

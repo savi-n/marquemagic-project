@@ -15,6 +15,7 @@ import { API_END_POINT } from '_config/app.config';
 import * as UI from './ui';
 
 const ProfileUpload = props => {
+	const { isPanNumberExist } = props;
 	const { whiteLabelId } = useSelector(state => state.app);
 	const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -75,7 +76,7 @@ const ProfileUpload = props => {
 					alt='profile'
 				/>
 				{loading ? (
-					<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+					<UI.CameraIconWrapper>
 						<LoadingIcon />
 					</UI.CameraIconWrapper>
 				) : (
@@ -105,8 +106,8 @@ const ProfileUpload = props => {
 	return (
 		<UI.Container>
 			<UI.ImageBgProfile src={imageBgProfile} alt='upload your profile' />
-			{loading ? (
-				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+			{!isPanNumberExist ? null : loading ? (
+				<UI.CameraIconWrapper>
 					<LoadingIcon />
 				</UI.CameraIconWrapper>
 			) : (

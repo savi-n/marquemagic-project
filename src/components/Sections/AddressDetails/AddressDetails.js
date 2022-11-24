@@ -703,10 +703,6 @@ const AddressDetails = props => {
 		isProceedDisabledAddressProof = true;
 	}
 
-	// TEST MODE
-	isProceedDisabledAddressProof = false;
-	// -- TEST MODE
-
 	const addressProofUploadSection = selectedSection?.sub_sections?.[0] || {};
 	const selectAddressProofRadioField =
 		addressProofUploadSection?.fields?.[0] || {};

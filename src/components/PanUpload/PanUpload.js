@@ -116,6 +116,7 @@ const PanUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedProduct, clientToken } = app;
 	const { loanRefId } = application;
+	const { isPanNumberExist } = props;
 	const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
@@ -303,7 +304,7 @@ const PanUpload = props => {
 						</UploadIconWrapper>
 					) : (
 						<UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
-							{!loanRefId && (
+							{!isPanNumberExist && (
 								<IconDelete
 									src={iconDelete}
 									alt='delete'
