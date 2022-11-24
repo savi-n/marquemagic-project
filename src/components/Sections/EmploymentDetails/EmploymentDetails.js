@@ -109,6 +109,7 @@ const EmploymentDetails = () => {
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
 			dispatch(setSelectedSectionId(nextSectionId));
+			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onProceed-', error);
 		}
@@ -122,6 +123,7 @@ const EmploymentDetails = () => {
 			})
 		);
 		dispatch(setSelectedSectionId(nextSectionId));
+		dispatch(setSelectedSectionId(CONST_SECTIONS.APPLICANT));
 	};
 
 	const onAddCoApplicant = async () => {
