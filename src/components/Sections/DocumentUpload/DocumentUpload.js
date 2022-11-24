@@ -746,11 +746,11 @@ const DocumentUpload = props => {
 				);
 			})}
 			<UI.Footer>
-				{/*  */}
-				<UI.Divider />
+				{/* TODO: comment for office use  */}
+				{/* <UI.Divider />
 				<UI.CategoryNameHeader>Comments for Office Use</UI.CategoryNameHeader>
 				<Textarea {...CONST.commentsForOfficeUseField} />
-				<UI.Divider />
+				<UI.Divider /> */}
 				{!isViewLoan && (
 					<Button
 						name='Get Other Bank Statements'

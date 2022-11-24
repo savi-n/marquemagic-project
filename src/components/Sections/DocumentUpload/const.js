@@ -19,9 +19,9 @@ export const textForCheckbox = {
 };
 
 export const commentsForOfficeUseField = {
-	name: 'first_name',
-	placeholder: 'First Name',
-	db_key: 'first_name',
+	name: 'comment_for_office_use',
+	placeholder: '',
+	db_key: 'comment_for_office_use',
 	rules: {
 		required: true,
 	},
