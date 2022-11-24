@@ -87,10 +87,6 @@ export const applicantCoApplicantsSlice = createSlice({
 			state.coApplicants[directorId] = newCoApplicantValues;
 			state.selectedApplicantCoApplicantId = directorId;
 		},
-		updateApplicationSection: (state, action) => {
-			const { id, values } = action.payload;
-			state.sections[id] = values;
-		},
 		setSelectedApplicantCoApplicantId: (state, action) => {
 			state.selectedApplicantCoApplicantId = action.payload;
 			state.isApplicant = action.payload === CONST_SECTIONS.APPLICANT;
@@ -105,6 +101,7 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		setSelectedPresentAddressProofId: (state, action) => {
+			// console.log('setSelectedPresentAddressProofId-', { action });
 			if (state.isApplicant) {
 				state.applicant.selectedPresentAddressProofId = action.payload;
 				state.applicant.selectedPresentDocumentTypes =
@@ -115,7 +112,7 @@ export const applicantCoApplicantsSlice = createSlice({
 				].selectedPresentAddressProofId = action.payload;
 				state.coApplicants[
 					state.selectedApplicantCoApplicantId
-				].selectedParmanentDocumentTypes =
+				].selectedPresentDocumentTypes =
 					CONST_SECTIONS.ADDRESS_PROOF_DOC_TYPE_LIST[action.payload];
 			}
 		},
@@ -271,7 +268,6 @@ export const {
 	addLoanDocuments,
 	removeLoanDocument,
 	removeAllLoanDocuments,
-	updateApplicationSection,
 	updateSelectedDocumentTypeId,
 	removeAllAddressProofDocs,
 } = applicantCoApplicantsSlice.actions;

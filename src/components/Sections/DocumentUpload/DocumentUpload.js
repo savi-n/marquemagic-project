@@ -39,9 +39,9 @@ import {
 import {
 	addLoanDocuments,
 	removeLoanDocument,
-	setSelectedApplicantCoApplicantId,
 	updateSelectedDocumentTypeId,
 } from 'store/applicantCoApplicantsSlice';
+import { updateApplicationSection } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -64,6 +64,7 @@ const DocumentUpload = props => {
 		userDetails,
 		isCorporate,
 		nextSectionId,
+		selectedSectionId,
 	} = app;
 	const {
 		isApplicant,
@@ -463,34 +464,16 @@ const DocumentUpload = props => {
 				});
 				return null;
 			});
-			documentUploadReqBody.uploaded_documents = newUploadedDocuments;
+			documentUploadReqBody.data.document_upload = newUploadedDocuments;
 			console.log('documentUploadReqBody-', documentUploadReqBody);
 			await axios.post(`${BORROWER_UPLOAD_URL}`, documentUploadReqBody);
-			const coApplicantList = Object.keys(coApplicants);
-			if (coApplicantList.length > 0) {
-				const currentCoApplicantIndex = coApplicantList.findIndex(
-					directorId => directorId === selectedApplicantCoApplicantId
-				);
-				const nextCoApplicantIndex = currentCoApplicantIndex + 1;
-				console.log('co-app-index-', {
-					coApplicantList,
-					currentCoApplicantIndex,
-					nextCoApplicantIndex,
-					nextSectionId,
-				});
-				if (nextCoApplicantIndex < coApplicantList.length) {
-					dispatch(
-						setSelectedApplicantCoApplicantId(
-							coApplicantList[nextCoApplicantIndex]
-						)
-					);
-				} else {
-					dispatch(setSelectedSectionId(nextSectionId));
-				}
-			} else {
-				// TODO: move to next section
-				dispatch(setSelectedSectionId(nextSectionId));
-			}
+			dispatch(
+				updateApplicationSection({
+					sectionId: selectedSectionId,
+					sectionValues: { isSkip: true },
+				})
+			);
+			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-onProceedCompleteApplication-', error);
 			// TODO: shreyas alert approprepate error from api
@@ -510,6 +493,34 @@ const DocumentUpload = props => {
 		// TODO: dispatch action for final submission
 		setLoading(false);
 	};
+
+	// const onProceed = () => {
+	// 	const coApplicantList = Object.keys(coApplicants);
+	// 	if (coApplicantList.length > 0) {
+	// 		const currentCoApplicantIndex = coApplicantList.findIndex(
+	// 			directorId => directorId === selectedApplicantCoApplicantId
+	// 		);
+	// 		const nextCoApplicantIndex = currentCoApplicantIndex + 1;
+	// 		console.log('co-app-index-', {
+	// 			coApplicantList,
+	// 			currentCoApplicantIndex,
+	// 			nextCoApplicantIndex,
+	// 			nextSectionId,
+	// 		});
+	// 		if (nextCoApplicantIndex < coApplicantList.length) {
+	// 			dispatch(
+	// 				setSelectedApplicantCoApplicantId(
+	// 					coApplicantList[nextCoApplicantIndex]
+	// 				)
+	// 			);
+	// 		} else {
+	// 			dispatch(setSelectedSectionId(nextSectionId));
+	// 		}
+	// 	} else {
+	// 		// TODO: move to next section
+	// 		// dispatch(setSelectedSectionId(nextSectionId));
+	// 	}
+	// };
 
 	const toggleOpenSection = sectionId => {
 		// console.log('toggleOpenSection-', sectionId);

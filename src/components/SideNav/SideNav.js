@@ -31,7 +31,6 @@ const SideNav = props => {
 		applicant,
 		coApplicants,
 		selectedApplicantCoApplicantId,
-		isApplicant,
 	} = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const history = useHistory();
@@ -39,7 +38,7 @@ const SideNav = props => {
 
 	const completedMenu = [];
 	selectedProduct?.product_details?.sections?.map(section => {
-		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
+		if (Object.keys(applicant?.[section?.id] || {}).length > 0) {
 			completedMenu.push(section.id);
 		} else {
 			if (
@@ -48,6 +47,9 @@ const SideNav = props => {
 				).length > 0
 			)
 				completedMenu.push(section.id);
+		}
+		if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
+			completedMenu.push(section.id);
 		}
 		return null;
 	});

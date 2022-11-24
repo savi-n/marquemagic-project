@@ -320,3 +320,24 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 		unformatedData: data,
 	};
 };
+
+export const getApplicantCoApplicantSelectOptions = applicantCoApplicants => {
+	const { applicant, coApplicants } = applicantCoApplicants;
+	const options = [];
+	options.push({
+		name: `${applicant?.basic_details?.first_name} ${
+			applicant?.basic_details?.last_name
+		}`,
+		value: applicant?.directorId,
+	});
+	Object.keys(coApplicants).map(directorId => {
+		options.push({
+			name: `${coApplicants?.[directorId]?.basic_details?.first_name} ${
+				coApplicants?.[directorId]?.basic_details?.last_name
+			}`,
+			value: directorId,
+		});
+		return null;
+	});
+	return options;
+};

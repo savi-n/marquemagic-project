@@ -512,9 +512,9 @@ const AddressDetails = props => {
 
 	const onProceed = async () => {
 		try {
-			if (Object.keys(formState.values).length === 0) return onSkip();
+			// if (Object.keys(formState.values).length === 0) return onSkip();
 			setLoading(true);
-			await sleep(100);
+			// await sleep(100);
 			// const addressDetailsReqBody = formatSectionReqBody({
 			// 	section: selectedSection,
 			// 	values: formState.values,
@@ -645,6 +645,10 @@ const AddressDetails = props => {
 	if (loading) {
 		isProceedDisabledAddressProof = true;
 	}
+
+	// TEST MODE
+	isProceedDisabledAddressProof = false;
+	// -- TEST MODE
 
 	const addressProofUploadSection = selectedSection?.sub_sections?.[0] || {};
 	const selectAddressProofRadioField =

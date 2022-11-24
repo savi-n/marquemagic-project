@@ -21,24 +21,34 @@ import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 // import * as CONST from './const';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
+import { updateApplicationSection } from 'store/applicationSlice';
 
 const SkipComponent = () => {
 	const { app } = useSelector(state => state);
 	const dispatch = useDispatch();
-	const { nextSectionId } = app;
+	const { nextSectionId, selectedSectionId } = app;
 	return (
 		<div
 			style={{
-				height: '100%',
+				height: '100vh',
 				width: '100%',
 				display: 'flex',
 				justifyContent: 'center',
-				alignItem: 'center',
+				alignItems: 'center',
 			}}
 		>
 			<Button
+				customStyle={{ height: '50px' }}
 				name='Skip'
-				onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
+				onClick={() => {
+					dispatch(
+						updateApplicationSection({
+							sectionId: selectedSectionId,
+							sectionValues: { isSkip: true },
+						})
+					);
+					dispatch(setSelectedSectionId(nextSectionId));
+				}}
 			/>
 		</div>
 	);
@@ -62,7 +72,7 @@ const ProductIndividual = props => {
 		employment_details: EmploymentDetails,
 		loan_details: LoanDetails,
 		collateral_details: SkipComponent,
-		bank_details: BankDetails,
+		bank_details: SkipComponent,
 		document_upload: DocumentUpload,
 		reference_details: SkipComponent,
 		emi_details: SkipComponent,

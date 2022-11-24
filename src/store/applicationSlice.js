@@ -37,6 +37,10 @@ export const applicantSlice = createSlice({
 		setBusinessId: (state, action) => {
 			state.businessId = action.payload;
 		},
+		updateApplicationSection: (state, action) => {
+			const { sectionId, sectionValues } = action.payload;
+			state.sections[sectionId] = sectionValues;
+		},
 	},
 });
 
@@ -45,6 +49,7 @@ export const {
 	setloanRefId,
 	setLoanId,
 	setBusinessId,
+	updateApplicationSection,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;

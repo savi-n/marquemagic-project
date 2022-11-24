@@ -404,11 +404,11 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
-	// console.log(`FileUpload-${sectionType}-allstates-`, {
-	// 	props,
-	// 	addressProofErrorColorCode,
-	// 	addressProofError,
-	// });
+	console.log(`AddressProofUpload-allstates-`, {
+		props,
+		addressProofErrorColorCode,
+		addressProofError,
+	});
 
 	return loading ? (
 		<>

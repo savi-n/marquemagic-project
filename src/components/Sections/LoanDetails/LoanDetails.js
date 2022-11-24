@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import _ from 'lodash';
 
-import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
@@ -12,12 +12,15 @@ import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
 import {
-	setSelectedApplicantCoApplicantId,
+	updateApplicantSection,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-import { formatSectionReqBody } from 'utils/formatData';
+import { updateApplicationSection } from 'store/applicationSlice';
+import {
+	formatSectionReqBody,
+	getApplicantCoApplicantSelectOptions,
+} from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
-import { useEffect } from 'react';
 
 const LoanDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
@@ -75,22 +78,21 @@ const LoanDetails = () => {
 				`${API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
-			// console.log('-loanDetailsRes-', {
-			// 	loanDetailsReqBody,
-			// 	loanDetailsRes,
-			// });
+			console.log('-loanDetailsRes-', {
+				loanDetailsReqBody,
+				loanDetailsRes,
+			});
 			const newLoanDetails = {
-				id: selectedSectionId,
-				values: formState.values,
-				employmentId: loanDetailsRes?.data?.data?.employment_id,
-				incomeDataId: loanDetailsRes?.data?.data?.income_data_id,
+				sectionId: selectedSectionId,
+				sectionValues: formState.values,
 			};
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newLoanDetails));
-			} else {
-				newLoanDetails.directorId = selectedApplicantCoApplicantId;
-				dispatch(updateCoApplicantSection(newLoanDetails));
-			}
+			dispatch(updateApplicationSection(newLoanDetails));
+			// if (isApplicant) {
+			// 	dispatch(updateApplicantSection(newLoanDetails));
+			// } else {
+			// 	newLoanDetails.directorId = selectedApplicantCoApplicantId;
+			// 	dispatch(updateCoApplicantSection(newLoanDetails));
+			// }
 		} catch (error) {
 			console.error('error-submitLoanDetails-', error);
 		}
@@ -122,14 +124,6 @@ const LoanDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
-	const onAddCoApplicant = async () => {
-		setLoading(true);
-		await submitLoanDetails();
-		dispatch(setSelectedSectionId(firstSectionId));
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
-		setLoading(false);
-	};
-
 	const prefilledValues = field => {
 		try {
 			if (formState?.values?.[field.name] !== undefined) {
@@ -142,36 +136,15 @@ const LoanDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (isApplicant) {
-				return (
-					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
-				);
-			}
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-				return formState?.values?.[field.name] || field.value || '';
-			}
-			if (selectedApplicantCoApplicantId) {
-				return (
-					coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
-						field?.name
-					] ||
-					field.value ||
-					''
-				);
-			}
-			return '';
+			return (
+				application?.sections?.[selectedSectionId]?.[field?.name] ||
+				field.value ||
+				''
+			);
 		} catch (error) {
 			return {};
 		}
 	};
-
-	let displayProceedCTA = true;
-	if (
-		selectedProduct?.product_details?.is_coapplicant_mandatory &&
-		Object.keys(coApplicants || {})?.length <= 0
-	) {
-		displayProceedCTA = false;
-	}
 
 	// console.log('employment-details-', { coApplicants, app });
 
@@ -189,38 +162,40 @@ const LoanDetails = () => {
 							) : null}
 							<SectionUI.FormWrapGrid>
 								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!field.visibility) return null;
-									if (field?.for_type_name) {
+									const newField = _.cloneDeep(field);
+									if (!newField.visibility) return null;
+									if (newField?.for_type_name) {
 										if (
-											!field?.for_type.includes(
-												formState?.values?.[field?.for_type_name]
+											!newField?.for_type.includes(
+												formState?.values?.[newField?.for_type_name]
 											)
 										)
 											return null;
 									}
+									if (newField.name === 'imd_paid_by') {
+										const newOptions = getApplicantCoApplicantSelectOptions(
+											applicantCoApplicants
+										);
+										newField.options = [...newOptions, ...newField.options];
+									}
 									const customFieldProps = {};
 									return (
 										<SectionUI.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
+											key={`field-${fieldIndex}-${newField.name}`}
 										>
 											{register({
-												...field,
-												value: prefilledValues(field),
+												...newField,
+												value: prefilledValues(newField),
 												...customFieldProps,
 												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
-												) : (
+												formState?.touched?.[newField.name]) &&
+												formState?.error?.[newField.name] && (
 													<SectionUI.ErrorMessage>
-														{formState?.error?.[field.name]}
+														{formState?.error?.[newField.name]}
 													</SectionUI.ErrorMessage>
-												))}
+												)}
 										</SectionUI.FieldWrapGrid>
 									);
 								})}
