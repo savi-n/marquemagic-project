@@ -25,6 +25,8 @@ const initialState = {
 	selectedApplicantCoApplicantId: CONST_SECTIONS.APPLICANT,
 	isApplicant: true,
 	coApplicants: {},
+	generateAadhaarOtpResponse: {},
+	verifyOtpResponse: {},
 };
 
 export const applicantCoApplicantsSlice = createSlice({
@@ -250,10 +252,15 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 			console.log('updateSelectedDocumentTypeId-', { oldDocuments });
 		},
+		setGenerateAadhaarOtpResponse: (state, action) => {
+			state.generateAadhaarOtpResponse = action.payload;
+		},
+		setVerifyOtpResponse: (state, action) => {
+			state.verifyOtpResponse = action.payload;
+		},
 		// -- DOCUMENT RELATED ACTIONS
 	},
 });
-
 export const {
 	updateApplicantSection,
 	updateCoApplicantSection,
@@ -266,6 +273,8 @@ export const {
 	setIsSameAsAboveAddressChecked,
 	setPresentAddressProofExtractionRes,
 	setCompanyRocData,
+	setGenerateAadhaarOtpResponse,
+	setVerifyOtpResponse,
 
 	addLoanDocument,
 	addLoanDocuments,

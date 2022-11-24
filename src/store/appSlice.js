@@ -53,8 +53,8 @@ const initialState = {
 	isEditOrViewLoan: false,
 	isViewLoan: false,
 	isEditLoan: false,
-	isTestMode: true,
-	// isTestMode: false,
+	// isTestMode: true,
+	isTestMode: false,
 };
 
 export const appSlice = createSlice({

@@ -5,11 +5,11 @@ import React, { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
-
+import moment from 'moment';
 import Button from 'components/Button';
 import AadhaarOTPModal from './AadhaarOTPModal';
 import AddressProofUpload from './AddressProofUpload';
-
+import { formatSectionReqBody } from 'utils/formatData';
 import {
 	setIsSameAsAboveAddressChecked,
 	updateApplicantSection,
@@ -18,6 +18,7 @@ import {
 	updateSelectedDocumentTypeId,
 	setSelectedPresentAddressProofId,
 	setPresentAddressProofExtractionRes,
+	setGenerateAadhaarOtpResponse,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import useForm from 'hooks/useFormIndividual';
@@ -29,14 +30,17 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
-import { AADHAAR_GENERATE_OTP } from '_config/app.config';
+import { AADHAAR_GENERATE_OTP, API_END_POINT } from '_config/app.config';
 import { isInvalidAadhaar } from 'utils/validation';
 import Hint from 'components/Hint';
 // import { formatAddressProofDocTypeList } from 'utils/formatData';
 // import { formatSectionReqBody } from 'utils/formatData';
 
 const AddressDetails = props => {
-	const { app, applicantCoApplicants } = useSelector(state => state);
+	const { app, applicantCoApplicants, application } = useSelector(
+		state => state
+	);
+	const { loanProductId } = application;
 	const {
 		isViewLoan,
 		selectedProduct,
@@ -51,6 +55,7 @@ const AddressDetails = props => {
 		applicant,
 		coApplicants,
 		isApplicant,
+		verifyOtpResponse,
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -237,8 +242,10 @@ const AddressDetails = props => {
 			try {
 				const aadhaarOtpReqBody = {
 					aadhaarNo: formState.values.aadhaar,
-					product_id: selectedProduct.id,
+					product_id: loanProductId,
 				};
+				// console.log(aadhaarOtpReqBody, '555', clientToken);
+				// --------------------
 				const aadharOtpReq = await axios.post(
 					AADHAAR_GENERATE_OTP,
 					aadhaarOtpReqBody,
@@ -249,6 +256,7 @@ const AddressDetails = props => {
 					}
 				);
 				const aadhaarGenOtpResponse = aadharOtpReq.data;
+				// console.log(aadhaarGenOtpResponse, '333');
 				if (aadhaarGenOtpResponse.status === 'nok') {
 					addToast({
 						message:
@@ -259,12 +267,20 @@ const AddressDetails = props => {
 				}
 				if (aadhaarGenOtpResponse.status === 'ok') {
 					aadhaarGenOtpResponse.aadhaarNo = formState.values.aadhaar;
-					// dispatch(setGenerateOtpResponse(aadhaarGenOtpResponse));
+					dispatch(setGenerateAadhaarOtpResponse(aadhaarGenOtpResponse));
 					addToast({
 						message: 'OTP is sent to aadhaar link mobile number',
 						type: 'success',
 					});
 					setIsAadhaarOtpModalOpen(true);
+					// console.log(formState.values, '555777');
+					if (verifyOtpResponse.data.address) {
+						// to be continued
+						let address = verifyOtpResponse?.data?.address;
+						// population of the data from the aadhaar otp verification is pending here
+
+						// console.log(formState, '111222');
+					}
 				}
 			} catch (error) {
 				console.error('error-generate-aadhaar-otp-', error);
@@ -422,6 +438,7 @@ const AddressDetails = props => {
 					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
 					requestId: backExtractionRes?.data.request_id,
 				};
+				// console.log(newAddressProofExtractionData, '2222');
 				prepopulateAadhaarAndAddressState(newAddressProofExtractionData);
 				await verifyKycAddressProof(
 					selectedPresentAddressProofId,
@@ -509,12 +526,53 @@ const AddressDetails = props => {
 			setFetchingAddress(false);
 		}
 	};
-
+	const submitAddressDetails = async () => {
+		let addressDetailsCustomReqBody = {
+			loan_address_details: [
+				{
+					aid: 1,
+					line1: formState.values.present_address1,
+					line2: formState.values.present_address2,
+					locality: formState.values.present_address3,
+					pincode: formState.values.present_pin_code,
+					city: formState.values.permanent_city,
+					state: formState.values.permanent_state,
+					residential_type: formState.values.present_property_type,
+					residential_stability: formState.values.present_property_tenure,
+				},
+				{
+					aid: 2,
+					line1: formState.values.permanent_address1,
+					line2: formState.values.permanent_address2,
+					locality: formState.values.permanent_address3,
+					pincode: formState.values.permanent_pin_code,
+					city: formState.values.permanent_city,
+					state: formState.values.permanent_state,
+					residential_type: formState.values.permanent_property_type,
+					residential_stability: formState.values.permanent_property_tenure,
+				},
+			],
+		};
+		const reqBody = formatSectionReqBody({
+			section: selectedSection,
+			values: formState.values,
+			app,
+			applicantCoApplicants,
+			application,
+		});
+		reqBody.data = addressDetailsCustomReqBody;
+		// console.log(reqBody, '111222333', formState);
+		const addressDetailsRes = await axios.post(
+			`${API_END_POINT}/basic_details`,
+			reqBody
+		);
+	};
 	const onProceed = async () => {
 		try {
 			if (Object.keys(formState.values).length === 0) return onSkip();
 			setLoading(true);
 			await sleep(100);
+			await submitAddressDetails();
 			// const addressDetailsReqBody = formatSectionReqBody({
 			// 	section: selectedSection,
 			// 	values: formState.values,
@@ -672,7 +730,9 @@ const AddressDetails = props => {
 				<AadhaarOTPModal
 					isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
 					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
-					// aadhaarGenOtpResponse={generateOtpResponse}
+					aadhaarGenOtpResponse={
+						applicantCoApplicants.generateAadhaarOtpResponse
+					}
 					// setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 				/>
 			)}
@@ -764,6 +824,9 @@ const AddressDetails = props => {
 					customField.name = `${CONST.PREFIX_PRESENT}${customField.name}`;
 					if (!customField.visibility) return null;
 					const customFieldProps = {};
+					if (field.name === 'property_tenure') {
+						customFieldProps.max = moment().format('YYYY-MM');
+					}
 					if (isPresentAddressProofExtracted) customFieldProps.disabled = true;
 					return (
 						<UI_SECTIONS.FieldWrapGrid

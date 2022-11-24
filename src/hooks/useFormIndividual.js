@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, createContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import _ from 'lodash';
+import _, { max } from 'lodash';
 
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/BankList';
@@ -21,6 +21,7 @@ function numberOnly(value) {
 }
 
 function pastDatesOnly(value) {
+	// console.log(moment().format('YYYY/MM'), '222');
 	return !moment().isAfter(value);
 }
 
@@ -262,15 +263,6 @@ export default function useForm() {
 	};
 
 	const register = field => {
-		// if (field.type.includes('banklist')) {
-		// 	field.ifsc_required = true;
-		// }
-		// if (field.name.includes('ifsc')) {
-		// 	field.type = 'ifsclist';
-		// }
-		// if (field.name.includes('imd_paid_by')) {
-		// 	field.options = [{ name: 'jijo', value: 'jijo' }];
-		// }
 		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
