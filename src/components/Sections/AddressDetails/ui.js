@@ -8,6 +8,24 @@ export const SubSectionCustomHeader = styled.div`
 		cursor: pointer;
 	}
 `;
+export const HeaderWrapper = styled.div`
+	display: flex;
+	align-items: flex-end;
+	@media (max-width: 768px) {
+		display: block;
+	}
+`;
+
+export const HeaderTitle = styled.h1`
+	margin-right: 15px;
+	font-size: 30px;
+	font-weight: 400;
+`;
+
+export const Tip = styled.span`
+	font-size: 18px;
+	font-weight: 400;
+`;
 
 export const CheckboxSameAs = styled.input`
 	margin-right: 10px;
