@@ -393,8 +393,8 @@ export default function useForm() {
 		// console.log('-error-ref-', { valuesRef, touchedRef, errorsRef });
 		if (Object.keys(errorsRef?.current || {}).length > 0) {
 			document
-				.getElementsByName(Object.keys(errorsRef?.current || {})[0])[0]
-				.focus();
+				.getElementsByName(Object.keys(errorsRef?.current || {})?.[0])?.[0]
+				?.focus();
 		}
 
 		updateFormState(uuidv4());
