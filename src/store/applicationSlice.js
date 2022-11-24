@@ -4,6 +4,8 @@ const initialState = {
 	loanRefId: '',
 	loanId: '',
 	businessId: '',
+	businessUserId: '',
+	loanProductId: '',
 	documents: [],
 	sections: {},
 };
@@ -13,10 +15,18 @@ export const applicantSlice = createSlice({
 	initialState,
 	reducers: {
 		setLoanIds: (state, action) => {
-			const { loanRefId, loanId, businessId } = action.payload;
+			const {
+				loanRefId,
+				loanId,
+				businessId,
+				businessUserId,
+				loanProductId,
+			} = action.payload;
 			state.loanRefId = loanRefId;
 			state.loanId = loanId;
 			state.businessId = businessId;
+			state.setBusinessId = businessUserId;
+			state.loanProductId = loanProductId;
 		},
 		setloanRefId: (state, action) => {
 			state.loanRefId = action.payload;

@@ -35,62 +35,69 @@ export const formatLoanData = (formData, fields) => {
 };
 
 export const formatSectionReqBody = data => {
-	const { section, values, app, applicantCoApplicants, application } = data;
-	const { whiteLabelId, selectedProduct } = app;
-	const { loanRefId, loanId, businessId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId];
-
-	const subSectionsData = {};
-	section.sub_sections.map(sub_section => {
-		const sectionBody = {};
-		sub_section.fields.map(field => {
-			if (!field.db_key || !field.name || values?.[field.name] === undefined)
+	try {
+		const {
+			values,
+			app,
+			applicantCoApplicants,
+			application,
+			selectedLoanProductId,
+		} = data;
+		const { whiteLabelId, selectedProduct, selectedSection } = app;
+		const { loanRefId, businessId, loanProductId, loanId } = application;
+		const {
+			selectedApplicantCoApplicantId,
+			applicant,
+			coApplicants,
+			isApplicant,
+		} = applicantCoApplicants;
+		const selectedApplicant = isApplicant
+			? applicant
+			: coApplicants[selectedApplicantCoApplicantId] || {};
+		const subSectionsData = {};
+		selectedSection?.sub_sections?.map(sub_section => {
+			const sectionBody = {};
+			sub_section.fields.map(field => {
+				if (!field.db_key || !field.name || values?.[field.name] === undefined)
+					return null;
+				sectionBody[field.db_key] = values[field.name];
 				return null;
-			sectionBody[field.db_key] = values[field.name];
+			});
+			subSectionsData[sub_section.id] = sectionBody;
 			return null;
 		});
-		subSectionsData[sub_section.id] = sectionBody;
-		return null;
-	});
 
-	const reqBody = {
-		section_id: section.id,
-		white_label_id: whiteLabelId,
-		product_id: selectedProduct.id,
-		origin: ORIGIN,
-		data: subSectionsData,
-	};
+		const reqBody = {
+			section_id: selectedSection?.id,
+			white_label_id: whiteLabelId,
+			product_id: selectedProduct?.id,
+			loan_product_id: selectedLoanProductId || loanProductId,
+			origin: ORIGIN,
+			data: subSectionsData,
+		};
 
-	// STATIC DATA PRESENT IN ALL UPDATE REQBODY
-	if (loanRefId) {
-		reqBody.loan_ref_id = loanRefId;
-	}
-	if (loanId) {
-		reqBody.loan_id = loanId;
-	}
-	if (businessId) {
-		reqBody.business_id = businessId;
-	}
-	if (selectedApplicant?.directorId) {
-		reqBody.director_id = selectedApplicant?.directorId;
-	}
-	reqBody.is_applicant = isApplicant;
-	// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
+		// STATIC DATA PRESENT IN ALL UPDATE REQBODY
+		if (loanRefId) {
+			reqBody.loan_ref_id = loanRefId;
+		}
+		if (loanId) {
+			reqBody.loan_id = loanId;
+		}
+		if (businessId) {
+			reqBody.business_id = businessId;
+		}
 
-	// if (employmentId) {
-	// 	reqBody.employment_id = employmentId;
-	// }
+		if (selectedApplicant?.directorId) {
+			reqBody.director_id = selectedApplicant?.directorId;
+		}
+		reqBody.is_applicant = isApplicant;
+		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
-	return reqBody;
+		console.log('formatSectionReqBody-', { data, selectedApplicant });
+		return reqBody;
+	} catch (error) {
+		console.error('error-formatSectionReqBody-', error);
+	}
 };
 
 export const formatCompanyData = (data, panNum) => {

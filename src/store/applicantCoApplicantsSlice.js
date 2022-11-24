@@ -15,12 +15,13 @@ const initializeApplicantCoApplicant = {
 	panExtractionRes: {},
 	presentAddressProofExtractionRes: {},
 	documents: [],
+	documentTypeList: [],
 };
 
 const initialState = {
 	profileImageRes: {},
 	companyRocData: {},
-	applicant: initializeApplicantCoApplicant,
+	applicant: _.cloneDeep(initializeApplicantCoApplicant),
 	selectedApplicantCoApplicantId: CONST_SECTIONS.APPLICANT,
 	isApplicant: true,
 	coApplicants: {},
@@ -70,13 +71,21 @@ export const applicantCoApplicantsSlice = createSlice({
 				employmentId,
 				incomeDataId,
 			} = action.payload;
-			if (!state.coApplicants[directorId])
-				state.coApplicants[directorId] = initializeApplicantCoApplicant;
-			state.coApplicants[directorId][sectionId] = sectionValues;
-			if (employmentId)
-				state.coApplicants[directorId].employmentId = employmentId;
-			if (incomeDataId)
-				state.coApplicants[directorId].incomeDataId = incomeDataId;
+			const newCoApplicants = _.cloneDeep(state.coApplicants);
+			const newCoApplicantValues = newCoApplicants[directorId]
+				? _.cloneDeep(newCoApplicants[directorId])
+				: _.cloneDeep(initializeApplicantCoApplicant);
+			newCoApplicantValues[sectionId] = sectionValues;
+			if (directorId) newCoApplicantValues.directorId = directorId;
+			if (employmentId) newCoApplicantValues.employmentId = employmentId;
+			if (incomeDataId) newCoApplicantValues.incomeDataId = incomeDataId;
+			console.log('updateCoApplicantSection-', {
+				newCoApplicantValues,
+				sectionId,
+				action,
+			});
+			state.coApplicants[directorId] = newCoApplicantValues;
+			state.selectedApplicantCoApplicantId = directorId;
 		},
 		updateApplicationSection: (state, action) => {
 			const { id, values } = action.payload;
@@ -179,12 +188,12 @@ export const applicantCoApplicantsSlice = createSlice({
 
 			if (state.isApplicant) {
 				state.applicant.documents = oldDocuments.filter(
-					d => d.id === action.payload
+					d => d.id !== action.payload
 				);
 			} else {
 				state.coApplicants[
 					state.selectedApplicantCoApplicantId
-				].documents = oldDocuments.filter(d => d.id === action.payload);
+				].documents = oldDocuments.filter(d => d.id !== action.payload);
 			}
 		},
 		removeAllLoanDocuments: state => {
@@ -211,40 +220,35 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		updateSelectedDocumentTypeId: (state, action) => {
-			// console.log('updateSelectedDocumentTypeId-', { action });
+			console.log('updateSelectedDocumentTypeId-', { action });
 			const { fileId, docType } = action.payload;
 			const oldDocuments = state.isApplicant
-				? state.applicant.documents
-				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+				? state.applicant.documents || []
+				: state.coApplicants[state.selectedApplicantCoApplicantId].documents ||
+				  [];
+			const newDocuments = oldDocuments.map(doc =>
+				doc.id === fileId
+					? {
+							..._.cloneDeep(doc),
+							..._.cloneDeep(docType || {}),
+							typeId: docType?.value,
+							typeName: docType?.name,
+							password: docType?.password,
+					  }
+					: doc
+			);
+			console.log('updateSelectedDocumentTypeId-', {
+				oldDocuments,
+				newDocuments,
+			});
 			if (state.isApplicant) {
-				state.applicant.documents = oldDocuments?.map(doc =>
-					doc.id === fileId
-						? {
-								..._.cloneDeep(doc),
-								..._.cloneDeep(docType || {}),
-								typeId: docType?.value,
-								typeName: docType?.name,
-								mainType: docType?.main,
-								password: docType?.password,
-						  }
-						: doc
-				);
+				state.applicant.documents = newDocuments;
 			} else {
 				state.coApplicants[
 					state.selectedApplicantCoApplicantId
-				].documents = oldDocuments.map(doc =>
-					doc.id === fileId
-						? {
-								..._.cloneDeep(doc),
-								..._.cloneDeep(action.payload?.docType || {}),
-								typeId: docType?.value,
-								typeName: docType?.name,
-								mainType: docType?.main,
-								password: docType?.password,
-						  }
-						: doc
-				);
+				].documents = newDocuments;
 			}
+			console.log('updateSelectedDocumentTypeId-', { oldDocuments });
 		},
 		// -- DOCUMENT RELATED ACTIONS
 	},
@@ -261,6 +265,7 @@ export const {
 	setPanExtractionRes,
 	setIsSameAsAboveAddressChecked,
 	setPresentAddressProofExtractionRes,
+	setCompanyRocData,
 
 	addLoanDocument,
 	addLoanDocuments,

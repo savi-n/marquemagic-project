@@ -9,7 +9,6 @@ import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
 import * as UI from './ui';
-// import * as CONST_SECTIONS from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
 
 const ApplicantCoApplicantHeader = props => {
@@ -30,15 +29,11 @@ const ApplicantCoApplicantHeader = props => {
 	// console.log('ApplicantCoApplicantHeader-allstates-', {
 	// 	props,
 	// 	refListWrapper,
-	// 	maxWidth,
-	// 	scrollPos,
 	// });
-
-	useEffect(() => {}, [coApplicants]);
 
 	const onClickApplicantCoApplicant = id => {
 		dispatch(setSelectedApplicantCoApplicantId(id));
-		dispatch(setSelectedSectionId(firstSectionId));
+		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
 	return (
@@ -73,7 +68,7 @@ const ApplicantCoApplicantHeader = props => {
 							)} */}
 							<UI.Avatar
 								src={
-									selectedApplicantCoApplicantId === directorId
+									+selectedApplicantCoApplicantId === +directorId
 										? iconAvatarActive
 										: iconAvatarInActive
 								}

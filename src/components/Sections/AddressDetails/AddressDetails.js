@@ -16,8 +16,6 @@ import {
 	updateCoApplicantSection,
 	removeLoanDocument,
 	updateSelectedDocumentTypeId,
-} from 'store/applicantCoApplicantsSlice';
-import {
 	setSelectedPresentAddressProofId,
 	setPresentAddressProofExtractionRes,
 } from 'store/applicantCoApplicantsSlice';
@@ -42,7 +40,6 @@ const AddressDetails = props => {
 	const {
 		isViewLoan,
 		selectedProduct,
-		selectedProductId,
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
@@ -57,11 +54,12 @@ const AddressDetails = props => {
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
-		: coApplicants[selectedApplicantCoApplicantId];
+		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const {
 		isSameAsAboveAddressChecked,
 		selectedPresentAddressProofId,
 		selectedPresentDocumentTypes,
+		presentAddressProofExtractionRes,
 	} = selectedApplicant;
 	const dispatch = useDispatch();
 	const {
@@ -239,7 +237,7 @@ const AddressDetails = props => {
 			try {
 				const aadhaarOtpReqBody = {
 					aadhaarNo: formState.values.aadhaar,
-					product_id: selectedProductId,
+					product_id: selectedProduct.id,
 				};
 				const aadharOtpReq = await axios.post(
 					AADHAAR_GENERATE_OTP,
@@ -311,7 +309,7 @@ const AddressDetails = props => {
 			// Front + Back Extract
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
-				frontFormData.append('product_id', selectedProductId);
+				frontFormData.append('product_id', selectedProduct.id);
 				frontFormData.append('req_type', selectedPresentAddressProofId);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', selectedAddressProofFiles[0].file);
@@ -362,7 +360,7 @@ const AddressDetails = props => {
 				// this ends here
 
 				const backFormData = new FormData();
-				backFormData.append('product_id', selectedProductId);
+				backFormData.append('product_id', selectedProduct.id);
 				backFormData.append('req_type', selectedPresentAddressProofId);
 				backFormData.append(
 					'ref_id',
@@ -434,7 +432,7 @@ const AddressDetails = props => {
 
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
-			frontOnlyFormData.append('product_id', selectedProductId);
+			frontOnlyFormData.append('product_id', selectedProduct.id);
 			frontOnlyFormData.append('req_type', selectedPresentAddressProofId);
 			frontOnlyFormData.append('process_type', 'extraction');
 			frontOnlyFormData.append('document', selectedAddressProofFiles[0].file);
@@ -652,6 +650,11 @@ const AddressDetails = props => {
 	const selectAddressProofRadioField =
 		addressProofUploadSection?.fields?.[0] || {};
 	const addressFields = selectedSection?.sub_sections?.[1]?.fields || [];
+	// const isPresentAddressProofExtracted =
+	// 	presentAddressProofDocs.length <= 0 ||
+	// 	Object.keys(presentAddressProofExtractionRes || {}).length <= 0;
+
+	const isPresentAddressProofExtracted = presentAddressProofDocs.length <= 0;
 
 	// console.log('AddressDetails-allProps-', {
 	// 	applicant,
@@ -688,6 +691,7 @@ const AddressDetails = props => {
 				<h4>
 					Select any one of the documents mentioned below for{' '}
 					<strong>Permanent Address</strong>
+					<span className='text-danger'>*</span>
 				</h4>
 				<span />
 			</UI.SubSectionCustomHeader>
@@ -760,6 +764,7 @@ const AddressDetails = props => {
 					customField.name = `${CONST.PREFIX_PRESENT}${customField.name}`;
 					if (!customField.visibility) return null;
 					const customFieldProps = {};
+					if (isPresentAddressProofExtracted) customFieldProps.disabled = true;
 					return (
 						<UI_SECTIONS.FieldWrapGrid
 							key={`field-${fieldIndex}-${customField.name}`}
@@ -785,8 +790,9 @@ const AddressDetails = props => {
 			{/* PREFIX_PERMANENT */}
 			<UI.SubSectionCustomHeader>
 				<h4>
-					Select any one of the documents mentioned below for{' '}
-					<strong>Present Address</strong>
+					{/* TODO: next release */}
+					{/* Select any one of the documents mentioned below for{' '}
+					<strong>Present Address</strong> */}
 				</h4>
 				<h4>
 					<UI.CheckboxSameAs
@@ -811,6 +817,7 @@ const AddressDetails = props => {
 					if (!customField.visibility) return null;
 					const customFieldProps = {};
 					if (isSameAsAboveAddressChecked) customField.disabled = true;
+					if (isPresentAddressProofExtracted) customFieldProps.disabled = true;
 					return (
 						<UI_SECTIONS.FieldWrapGrid
 							key={`field-${fieldIndex}-${customField.name}`}
