@@ -265,6 +265,12 @@ export default function useForm() {
 		// if (field.type.includes('banklist')) {
 		// 	field.ifsc_required = true;
 		// }
+		// if (field.name.includes('ifsc')) {
+		// 	field.type = 'ifsclist';
+		// }
+		// if (field.name.includes('imd_paid_by')) {
+		// 	field.options = [{ name: 'jijo', value: 'jijo' }];
+		// }
 		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));

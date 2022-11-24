@@ -1,3 +1,6 @@
+//aid:1 = present address
+//aid:2 = permanent address
+
 import React, { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
@@ -28,6 +31,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import { AADHAAR_GENERATE_OTP } from '_config/app.config';
 import { isInvalidAadhaar } from 'utils/validation';
+import Hint from 'components/Hint';
 // import { formatAddressProofDocTypeList } from 'utils/formatData';
 // import { formatSectionReqBody } from 'utils/formatData';
 
@@ -129,7 +133,7 @@ const AddressDetails = props => {
 	};
 
 	const prepopulateAadhaarAndAddressState = extractionData => {
-		console.log('prepopulateAadhaarAndAddressState-', extractionData);
+		// console.log('prepopulateAadhaarAndAddressState-', extractionData);
 
 		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
 			/\s/g,
@@ -652,15 +656,15 @@ const AddressDetails = props => {
 
 	const isPresentAddressProofExtracted = presentAddressProofDocs.length <= 0;
 
-	console.log('AddressDetails-allProps-', {
-		applicant,
-		coApplicants,
-		selectedApplicant,
-		selectedPresentAddressProofId,
-		presentAddressProofDocs,
-		selectedPresentDocumentTypes,
-		isSameAsAboveAddressChecked,
-	});
+	// console.log('AddressDetails-allProps-', {
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedApplicant,
+	// 	selectedPresentAddressProofId,
+	// 	presentAddressProofDocs,
+	// 	selectedPresentDocumentTypes,
+	// 	isSameAsAboveAddressChecked,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -673,6 +677,16 @@ const AddressDetails = props => {
 				/>
 			)}
 			{/*  PREFIX_PRESENT */}
+			<UI.HeaderWrapper>
+				<UI.HeaderTitle>Help us with Address details</UI.HeaderTitle>
+				{/* <UI.Tip> */}
+				<Hint
+					hint='Please uplaod the document with KYC image in Portrait Mode'
+					hintIconName='Portrait Mode'
+				/>
+				{/* </UI.Tip> */}
+			</UI.HeaderWrapper>
+
 			<UI.SubSectionCustomHeader>
 				<h4>
 					Select any one of the documents mentioned below for{' '}
@@ -706,6 +720,10 @@ const AddressDetails = props => {
 					);
 				})}
 			</UI.RadioButtonWrapper>
+			<Hint
+				hint='You can choose to upload document or enter Aadhaar Number to proceed with Address Details'
+				showIcon={false}
+			/>
 			<AddressProofUpload
 				isInActive={isInActiveAddressProofUpload}
 				startingTaggedDocs={presentAddressProofDocs}

@@ -116,7 +116,7 @@ const PanUpload = props => {
 	// Pancard extraction function
 	const handleExtractionPan = async file => {
 		try {
-			// console.log('handleExtractionPan-', panDoc);
+			// console.log('handleExtractionPan-', file);
 			setLoading(true);
 			const formData = new FormData();
 			formData.append('product_id', selectedProduct.id);

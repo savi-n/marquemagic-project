@@ -16,6 +16,7 @@ const HintText = styled.div`
 	cursor: default;
 	display: flex;
 	margin-bottom: 2px;
+	font-size: medium;
 	@media (max-width: 768px) {
 		display: block;
 	}
@@ -36,6 +37,7 @@ const HintIcon = styled.div`
 	display: flex;
 	margin-left: 5px;
 	font-size: small;
+	cursor: pointer;
 	width: fit-content;
 	@media (max-width: 768px) {
 		display: flex;
@@ -76,65 +78,67 @@ const ButtonWrapper = styled.div`
 `;
 
 function Hint(props) {
-	const { hint, hintIconName } = props;
+	const { hint, hintIconName, showIcon = true } = props;
 	const [show, setShow] = useState(false);
 	return (
 		<HintText>
 			{hint}
-			<HintIcon
-				onClick={() => {
-					setShow(true);
-				}}
-			>
-				<HintIconBadge>
-					<Modal
-						show={show}
-						onClose={() => {
-							setShow(false);
-						}}
-						width='40%'
-					>
-						<section className='p-4 flex flex-col gap-y-8'>
-							<UI.ImgClose
-								onClick={() => {
-									setShow(false);
-								}}
-								src={imgClose}
-								alt='close'
-							/>
-						</section>
-						<ModalTitle>
-							Please upload your document in Portrait Mode.
-						</ModalTitle>
-						<ModalBody>
-							<HintImages style={{ width: 30 }} src={GreenTick} />
-							<HintImages style={{ width: 30 }} src={RedTick} />
-						</ModalBody>
-						<ModalImages>
-							<HintImages style={{ width: 120 }} src={PortraitRight} />
-							<HintImages style={{ width: 120 }} src={PortraitWrong} />
-						</ModalImages>
-						<ButtonWrapper>
-							<Button
-								customStyle={{
-									color: '#fff',
-									background: '#1414ad',
-									left: '50%',
-									minWidth: '200px',
-									borderRadius: '30px',
-								}}
-								onClick={() => {
-									setShow(false);
-								}}
-							>
-								Done
-							</Button>
-						</ButtonWrapper>
-					</Modal>
-				</HintIconBadge>
-				<InfoIcon src={Info} />
-				{hintIconName}
-			</HintIcon>
+			{showIcon && (
+				<HintIcon
+					onClick={() => {
+						setShow(true);
+					}}
+				>
+					<HintIconBadge>
+						<Modal
+							show={show}
+							onClose={() => {
+								setShow(false);
+							}}
+							width='40%'
+						>
+							<section className='p-4 flex flex-col gap-y-8'>
+								<UI.ImgClose
+									onClick={() => {
+										setShow(false);
+									}}
+									src={imgClose}
+									alt='close'
+								/>
+							</section>
+							<ModalTitle>
+								Please upload your document in Portrait Mode.
+							</ModalTitle>
+							<ModalBody>
+								<HintImages style={{ width: 30 }} src={GreenTick} />
+								<HintImages style={{ width: 30 }} src={RedTick} />
+							</ModalBody>
+							<ModalImages>
+								<HintImages style={{ width: 120 }} src={PortraitRight} />
+								<HintImages style={{ width: 120 }} src={PortraitWrong} />
+							</ModalImages>
+							<ButtonWrapper>
+								<Button
+									customStyle={{
+										color: '#fff',
+										background: '#1414ad',
+										left: '50%',
+										minWidth: '200px',
+										borderRadius: '30px',
+									}}
+									onClick={() => {
+										setShow(false);
+									}}
+								>
+									Done
+								</Button>
+							</ButtonWrapper>
+						</Modal>
+					</HintIconBadge>
+					<InfoIcon src={Info} />
+					{hintIconName}
+				</HintIcon>
+			)}
 		</HintText>
 	);
 }

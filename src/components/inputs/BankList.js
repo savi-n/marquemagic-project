@@ -61,9 +61,7 @@ export default function BankList(props) {
 				const ifscDataReq = await axios.get(IFSC_LIST_FETCH, {
 					params: { bankId: bankId },
 					headers: {
-						Authorization: `Bearer ${userToken ||
-							companyDetail?.token ||
-							sessionStorage.getItem('userToken')}`,
+						Authorization: `Bearer ${userToken}`,
 					},
 				});
 				if (ifscDataReq.data.status === 'ok') {
@@ -101,7 +99,7 @@ export default function BankList(props) {
 		<SearchSelect
 			// customLabel='Bank Name'
 			onBlurCallback={() => {
-				if (field.ifscRequired) {
+				if (field.ifsc_required) {
 					getIfscData(value.value);
 				}
 			}}

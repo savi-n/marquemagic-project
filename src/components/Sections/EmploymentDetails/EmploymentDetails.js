@@ -85,10 +85,12 @@ const EmploymentDetails = () => {
 				employmentId: employmentDetailsRes?.data?.data?.employment_id,
 				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
 			};
+			// console.log(newEmploymentDetails, '222');
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newEmploymentDetails));
 			} else {
 				newEmploymentDetails.directorId = selectedApplicantCoApplicantId;
+				// console.log(newEmploymentDetails, '333');
 				dispatch(updateCoApplicantSection(newEmploymentDetails));
 			}
 			return true;
