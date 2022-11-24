@@ -2,6 +2,7 @@
   This section also contains resend otp option */
 
 import { useEffect, useState, useContext } from 'react';
+import { useDispatch } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
@@ -14,9 +15,13 @@ import {
 	AADHAAR_RESEND_OTP,
 	RESEND_OTP_TIMER,
 } from '_config/app.config';
+import { setVerifyOtpResponse } from 'store/applicantCoApplicantsSlice';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
+import { useSelector } from 'react-redux';
+import { formatSectionReqBody } from 'utils/formatData';
+import { initialFormState } from '../const';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -83,6 +88,7 @@ const ImgStyle = styled.img`
 // const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AadhaarOTPModal = props => {
+	const dispatch = useDispatch();
 	const {
 		isAadhaarOtpModalOpen,
 		setIsAadhaarOtpModalOpen,
@@ -92,6 +98,11 @@ const AadhaarOTPModal = props => {
 		// ButtonProceed,
 		// type = 'income',
 	} = props;
+	const { application, app, applicantCoApplicants } = useSelector(
+		state => state
+	);
+	const { loanProductId } = application;
+	const { selectedSection, clientToken } = app;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
 	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
@@ -101,9 +112,9 @@ const AadhaarOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
-	const {
-		state: { clientToken },
-	} = useContext(AppContext);
+	// const {
+	// 	state: { clientToken },
+	// } = useContext(AppContext);
 
 	const product_id = sessionStorage.getItem('productId');
 	const verifyOtp = async () => {
@@ -115,23 +126,34 @@ const AadhaarOTPModal = props => {
 			setErrorMsg('Please enter 6 digit OTP Number');
 			return;
 		}
+
+		const otpReqBody = formatSectionReqBody({
+			section: selectedSection,
+			values: initialFormState.values,
+			app,
+			applicantCoApplicants,
+			application,
+		});
+
 		try {
 			setVerifyingOtp(true);
 			const aadharVerifyReq = await newRequest(AADHAAR_VERIFY_OTP, {
 				method: 'POST',
 				data: {
+					...otpReqBody,
 					transactionId: aadhaarGenOtpResponse.data.transactionId,
 					otp: inputAadhaarOTP,
 					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
 					fwdp: aadhaarGenOtpResponse.data.fwdp,
 					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-					product_id,
+					product_id: loanProductId,
 				},
 				headers: {
 					Authorization: `${clientToken}`,
 				},
 			});
 			const aadhaarVerifyResponse = aadharVerifyReq.data;
+			dispatch(setVerifyOtpResponse(aadhaarVerifyResponse));
 
 			if (aadhaarVerifyResponse.status === 'ok') {
 				setIsAadhaarOtpModalOpen(false);
