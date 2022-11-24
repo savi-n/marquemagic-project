@@ -599,8 +599,8 @@ const AddressDetails = props => {
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', error);
-			// TODO: used for testing remove this
-			dispatch(setSelectedSectionId(nextSectionId));
+			// TODO: below line is used for testing remove this before push
+			// dispatch(setSelectedSectionId(nextSectionId));
 		} finally {
 			setLoading(false);
 		}
