@@ -482,7 +482,7 @@ const DocumentUpload = props => {
 						const ele = {
 							request_id: doc.requestId,
 							doc_type_id: doc.typeId,
-							deleteDocument: EXTRACTION_KEYS?.includes(doc.req_type)
+							is_delete_not_allowed: EXTRACTION_KEYS?.includes(doc.req_type)
 								? true
 								: false,
 						};

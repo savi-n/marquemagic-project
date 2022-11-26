@@ -3,40 +3,40 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
 
+import useForm from 'hooks/useFormIndividual';
+import Button from 'components/Button';
+import ProfileUpload from './ProfileUpload';
+import PanUpload from './PanUpload';
+// import Modal from 'components/Modal';
+// import CompanySelectModal from 'components/CompanySelectModal';
+// import InputField from 'components/inputs/InputField';
+import Hint from 'components/Hint';
+import ConfirmModal from 'components/modals/ConfirmModal';
+
 import { setLoginCreateUserRes } from 'store/appSlice';
 import { setLoanIds } from 'store/applicationSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
-	setCompanyRocData,
-	setPanExtractionRes,
+	// setCompanyRocData,
+	// setPanExtractionRes,
+	addCacheDocuments,
+	removeCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
-import useForm from 'hooks/useFormIndividual';
-import Button from 'components/Button';
-import ProfileUpload from 'components/ProfileUpload';
-import PanUpload from 'components/PanUpload';
-import Modal from 'components/Modal';
-import CompanySelectModal from 'components/CompanySelectModal';
-import InputField from 'components/inputs/InputField';
-import Hint from 'components/Hint';
-
+// import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import { setSelectedSectionId } from 'store/appSlice';
+import {
+	// formatCompanyData,
+	formatSectionReqBody,
+} from 'utils/formatData';
+// import { verifyKycDataUiUx } from 'utils/request';
+// import { isInvalidPan } from 'utils/validation';
+// import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
+import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
-import imgClose from 'assets/icons/close_icon_grey-06.svg';
-import { setSelectedSectionId } from 'store/appSlice';
-import { formatCompanyData, formatSectionReqBody } from 'utils/formatData';
-import {
-	API_END_POINT,
-	LOGIN_CREATEUSER,
-	APP_CLIENT,
-	SEARCH_COMPANY_NAME,
-	ROC_DATA_FETCH,
-} from '_config/app.config';
-import { verifyKycDataUiUx } from 'utils/request';
-import { useToasts } from 'components/Toast/ToastProvider';
-import { isInvalidPan } from 'utils/validation';
 
 const BasicDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -56,22 +56,20 @@ const BasicDetails = props => {
 		isApplicant,
 		applicant,
 		coApplicants,
-		profileImageRes,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
-
-	const selectedApplicantIncomeTypeId =
-		selectedApplicant?.basic_details?.income_type;
+	const { cacheDocuments } = selectedApplicant;
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
-	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
-	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
-	const [companyList, setCompanyList] = useState([]);
-	const [panExtractionResTemp, setPanExtractionResTemp] = useState({});
+	const [
+		isIncomeTypeConfirmModalOpen,
+		setIsIncomeTypeConfirmModalOpen,
+	] = useState(false);
+	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const {
 		handleSubmit,
 		register,
@@ -80,7 +78,14 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const { addToast } = useToasts();
+	const profileImageResTemp =
+		cacheDocumentsTemp.filter(
+			doc => doc.field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		cacheDocuments.filter(
+			doc => doc.field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		null;
 
 	const onProceed = async () => {
 		try {
@@ -92,18 +97,19 @@ const BasicDetails = props => {
 			// });
 
 			// call login api only once
+			// TODO: varun do not call this api when RM is creating loan
 			if (!userToken) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
-					source: APP_CLIENT,
+					source: API.APP_CLIENT,
 					name: formState?.values?.first_name,
 					mobileNo: formState?.values?.mobile_no,
 					addrr1: '',
 					addrr2: '',
 				};
 				const newLoginCreateUserRes = await axios.post(
-					`${LOGIN_CREATEUSER}`,
+					`${API.LOGIN_CREATEUSER}`,
 					loginCreateUserReqBody
 				);
 				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
@@ -119,13 +125,15 @@ const BasicDetails = props => {
 			// 	loginCreateUserRes,
 			// });
 			// return;
+			const selectedIncomeType =
+				formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 			const selectedLoanProductId =
-				selectedProduct?.product_id[formState?.values?.income_type];
+				selectedProduct?.product_id[selectedIncomeType];
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
 					...formState.values,
-					profile_image_url: profileImageRes?.file,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileImageResTemp?.file,
 				},
 				app,
 				applicantCoApplicants,
@@ -137,16 +145,86 @@ const BasicDetails = props => {
 			// return dispatch(setSelectedSectionId(nextSectionId));
 			// -- TEST MODE
 
+			// console.log('onProceed-basicDetailsReq-', {
+			// 	basicDetailsReqBody,
+			// });
 			const basicDetailsRes = await axios.post(
-				`${API_END_POINT}/basic_details`,
+				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
 			);
+			// console.log('onProceed-basicDetailsResBody-', {
+			// 	basicDetailsRes,
+			// });
 			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
 			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
 			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
 			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
 			const newBusinessUserId =
 				basicDetailsRes?.data?.data?.business_data?.userid;
+			const newCreatedByUserId =
+				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+			if (cacheDocumentsTemp.length > 0) {
+				try {
+					const uploadCacheDocumentsTemp = [];
+					cacheDocumentsTemp.map(doc => {
+						uploadCacheDocumentsTemp.push({
+							...doc,
+							request_id: doc.requestId,
+							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType], // pending
+							is_delete_not_allowed: true,
+							director_id: newDirectorId,
+						});
+						return null;
+					});
+					if (uploadCacheDocumentsTemp.length) {
+						const uploadCacheDocumentsTempReqBody = {
+							loan_id: newLoanId,
+							request_ids_obj: uploadCacheDocumentsTemp,
+							user_id: newCreatedByUserId,
+						};
+						// console.log('uploadCacheDocumentsTempReqBody-', {
+						// 	uploadCacheDocumentsTempReqBody,
+						// });
+						await axios.post(
+							API.UPLOAD_CACHE_DOCS,
+							uploadCacheDocumentsTempReqBody,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+						dispatch(
+							addCacheDocuments({
+								files: uploadCacheDocumentsTemp,
+								directorId: newDirectorId,
+							})
+						);
+					}
+				} catch (error) {
+					console.error('error-', error);
+				}
+			}
+			const newBasicDetails = {
+				sectionId: selectedSectionId,
+				sectionValues: {
+					...formState.values,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]:
+						profileImageResTemp?.presignedUrl,
+				},
+			};
+			// console.log('onProceed-', {
+			// 	newBasicDetails,
+			// });
+			// TODO: varun update cin properly peding discussion with savita
+			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			newBasicDetails.directorId = newDirectorId;
+			if (isApplicant) {
+				dispatch(updateApplicantSection(newBasicDetails));
+			} else {
+				dispatch(updateCoApplicantSection(newBasicDetails));
+				// dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
+			}
 			dispatch(
 				setLoanIds({
 					loanRefId: newLoanRefId,
@@ -156,29 +234,7 @@ const BasicDetails = props => {
 					loanProductId: selectedLoanProductId,
 				})
 			);
-			// console.log('onProceed-basicDetailsReqBody-', {
-			// 	basicDetailsReqBody,
-			// 	basicDetailsRes,
-			// });
-			const newBasicDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: {
-					...formState.values,
-					profile_image_url: profileImageRes?.presignedUrl,
-				},
-			};
-			// console.log('onProceed-', {
-			// 	newBasicDetails,
-			// });
-			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
-			newBasicDetails.directorId = newDirectorId;
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newBasicDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newBasicDetails));
-				// dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
-			}
-			dispatch(setPanExtractionRes(panExtractionResTemp));
+			// dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-BasicDetails-onProceed-', error);
@@ -187,157 +243,24 @@ const BasicDetails = props => {
 		}
 	};
 
-	const verifyKycPan = async (selectedAddressProof, extractionData) => {
-		try {
-			// console.log('verifyKycPan-', {
-			// 	selectedAddressProof,
-			// 	isVerifyKycData,
-			// 	extractionData,
-			// });
-			if (!selectedProduct?.kyc_verification) return {};
-			const verifyKycPanReqBody = {
-				doc_ref_id: extractionData?.doc_ref_id,
-				doc_type: selectedAddressProof,
-				number: extractionData.panNumber || '',
-				name: extractionData.companyName || '',
-			};
-			const verifiedRes = await verifyKycDataUiUx(
-				verifyKycPanReqBody,
-				clientToken
-			);
-			return verifiedRes;
-		} catch (error) {
-			console.error('error-verifyKycPan-', error);
-			addToast({
-				message: error.message || 'Something Went Wrong. Try Again!',
-				type: 'error',
-			});
-			return {};
-		}
+	const addCacheDocumentTemp = file => {
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		newCacheDocumentTemp.push(file);
+		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
-	const companyNameSearch = async companyName => {
-		try {
-			setLoading(true);
-			const companyNameReqBody = {
-				search: companyName.trim(),
-			};
-			const companyNameSearchRes = await axios.post(
-				SEARCH_COMPANY_NAME,
-				companyNameReqBody
+	const removeCacheDocumentTemp = fieldName => {
+		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		if (
+			cacheDocumentsTemp.filter(doc => doc.field.name === fieldName).length > 0
+		) {
+			setCacheDocumentsTemp(
+				newCacheDocumentTemp.filter(doc => doc.field.name !== fieldName)
 			);
-			const newCompanyList = companyNameSearchRes?.data?.data || [];
-			setCompanyList(newCompanyList);
-			return newCompanyList;
-		} catch (error) {
-			console.error('error-companyNameSearch-', error);
-			addToast({
-				message: error.message || 'Company search failed, try again',
-				type: 'error',
-			});
-			return [];
-		} finally {
-			setLoading(false);
+		} else {
+			dispatch(removeCacheDocument({ fieldName }));
 		}
-	};
-
-	const onProceedPanConfirm = async () => {
-		try {
-			const panErrorMessage = isInvalidPan(panExtractionResTemp?.panNumber);
-			if (panErrorMessage) {
-				return addToast({
-					message: panErrorMessage,
-					type: 'error',
-				});
-			}
-			setLoading(true);
-			// call verifykyc api
-			const verifiedRes = await verifyKycPan(
-				CONST_SECTIONS.EXTRACTION_KEY_PAN,
-				panExtractionResTemp
-			);
-			// console.log(
-			// 	'pan-verification-handlePanConfirm-verifiedRes-',
-			// 	verifiedRes
-			// );
-			// business product + business pan card
-
-			onChangeFormStateField({
-				name: 'pan_number',
-				value: panExtractionResTemp?.panNumber,
-			});
-			if (
-				selectedProduct.isSelectedProductTypeBusiness &&
-				panExtractionResTemp.isBusinessPan
-			) {
-				await companyNameSearch(
-					verifiedRes?.data?.message?.upstreamName ||
-						panExtractionResTemp.companyName
-				);
-				// console.log('company information from pancardfile', newCompanyList);
-				// console.log(
-				// 	'information related to pancardextraction',
-				// 	panExtractionData
-				// );
-				setIsPanConfirmModalOpen(false);
-				setIsCompanyListModalOpen(true);
-				setLoading(false);
-				return;
-			}
-			// business product + personal pan card
-			if (selectedProduct.isSelectedProductTypeBusiness) {
-				setIsPanConfirmModalOpen(false);
-				setLoading(false);
-			}
-			// salaried product + personal pan card
-			if (selectedProduct.isSelectedProductTypeSalaried) {
-				setIsPanConfirmModalOpen(false);
-				setLoading(false);
-			}
-			setLoading(false);
-			setIsPanConfirmModalOpen(false);
-			clearErrorFormState();
-		} catch (error) {
-			console.error('error-handlePanConfirm-', error);
-		}
-	};
-
-	const cinNumberFetch = async cinNumber => {
-		try {
-			setLoading(true);
-			const cinFetchReqBody = {
-				cin_number: cinNumber,
-			};
-			const cinNumberResponse = await axios.post(
-				ROC_DATA_FETCH,
-				cinFetchReqBody,
-				{ authorization: clientToken }
-			);
-			const companyData = cinNumberResponse?.data?.data;
-			const formattedCompanyData = formatCompanyData(
-				companyData,
-				panExtractionResTemp.panNumber
-			);
-			dispatch(setCompanyRocData(formattedCompanyData));
-		} catch (error) {
-			setLoading(false);
-			addToast({
-				message:
-					'Unable to fetch the data from ROC. Please continue to fill the details.',
-				// || error?.message ||
-				// 'ROC search failed, try again',
-				type: 'error',
-			});
-			console.error('error-cinnumberfetch-', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const onCompanySelect = async cinNumber => {
-		setIsCompanyListModalOpen(false);
-		setLoading(true);
-		await cinNumberFetch(cinNumber);
 	};
 
 	const prefilledValues = field => {
@@ -374,87 +297,34 @@ const BasicDetails = props => {
 		}
 	};
 
-	let selectedProfileImageUrl = '';
-	if (isApplicant) {
-		selectedProfileImageUrl = applicant?.[selectedSectionId]?.profile_image_url;
-	} else if (selectedApplicantCoApplicantId !== CONST_SECTIONS.CO_APPLICANT) {
-		selectedProfileImageUrl =
-			coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]
-				?.profile_image_url;
-	}
-
 	// console.log('BasicDetails-', {
-	// 	panExtractionResTemp,
 	// 	formState,
-	// 	app,
-	// 	applicantCoApplicants,
-	// 	application,
 	// });
 
 	const isPanNumberExist = !!formState.values.pan_number;
+	let isProfileMandatory = false;
+
+	const ButtonProceed = (
+		<Button
+			fill
+			name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+			isLoader={loading}
+			disabled={loading}
+			onClick={handleSubmit(() => {
+				setIsIncomeTypeConfirmModalOpen(false);
+				onProceed();
+			})}
+		/>
+	);
 
 	return (
 		<UI_SECTIONS.Wrapper>
-			<CompanySelectModal
-				companyNameSearch={companyNameSearch}
-				searchingCompanyName={loading}
-				show={isCompanyListModalOpen}
-				companyName={formState?.values?.companyName}
-				companyList={companyList}
-				panExtractionData={panExtractionResTemp}
-				onClose={() => {
-					setIsCompanyListModalOpen(false);
-				}}
-				onCompanySelect={onCompanySelect}
-				formState={formState}
-				proceedToNextSection={() => {
-					setIsCompanyListModalOpen(false);
-				}}
+			<ConfirmModal
+				type='Income'
+				show={isIncomeTypeConfirmModalOpen}
+				onClose={setIsIncomeTypeConfirmModalOpen}
+				ButtonProceed={ButtonProceed}
 			/>
-			<Modal
-				show={isPanConfirmModalOpen}
-				onClose={() => {
-					setIsPanConfirmModalOpen(false);
-				}}
-				width='30%'
-			>
-				<section className='p-4 flex flex-col gap-y-8'>
-					<UI.ImgClose
-						onClick={() => {
-							setIsPanConfirmModalOpen(false);
-						}}
-						src={imgClose}
-						alt='close'
-					/>
-					<UI.ConfirmPanWrapper>
-						<h1 style={{ fontSize: '22px', fontWeight: '600Px' }}>
-							Confirm PAN Number and Proceed
-						</h1>
-						<UI.FieldWrapperPanVerify>
-							<InputField
-								name='panNumber'
-								value={panExtractionResTemp?.panNumber || ''}
-								onChange={e => {
-									const newPanExtractionData = _.cloneDeep(
-										panExtractionResTemp
-									);
-									newPanExtractionData.panNumber = e.target.value;
-									dispatch(panExtractionResTemp(newPanExtractionData));
-								}}
-								style={{ textAlign: 'center' }}
-							/>
-						</UI.FieldWrapperPanVerify>
-						<Button
-							name='Proceed'
-							fill
-							isLoader={loading}
-							onClick={onProceedPanConfirm}
-							disabled={loading}
-							style={{ alignText: 'center' }}
-						/>
-					</UI.ConfirmPanWrapper>
-				</section>
-			</Modal>
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -469,7 +339,11 @@ const BasicDetails = props => {
 						/>
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
-								if (field.type === 'file' && field.label.includes('Profile')) {
+								if (
+									field.type === 'file' &&
+									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+								) {
+									isProfileMandatory = !!field?.rules?.required;
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
@@ -477,15 +351,23 @@ const BasicDetails = props => {
 										>
 											<UI.ProfilePicWrapper>
 												<ProfileUpload
+													field={field}
 													isPanNumberExist={isPanNumberExist}
-													selectedProfileImageUrl={selectedProfileImageUrl}
+													isFormSubmited={formState?.submit?.isSubmited}
+													isProfileMandatory={isProfileMandatory}
+													cacheDocumentsTemp={cacheDocumentsTemp}
+													addCacheDocumentTemp={addCacheDocumentTemp}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
 
-								if (field.type === 'file' && field.name === 'pan_upload') {
+								if (
+									field.type === 'file' &&
+									field.name === CONST.PAN_UPLOAD_FIELD_NAME
+								) {
 									let panErrorMessage =
 										((formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
@@ -521,17 +403,24 @@ const BasicDetails = props => {
 										>
 											<UI.ProfilePicWrapper>
 												<PanUpload
+													formState={formState}
+													cacheDocumentsTemp={cacheDocumentsTemp}
+													addCacheDocumentTemp={addCacheDocumentTemp}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
+													// panExtractionResTemp={panExtractionResTemp}
+													// setPanExtractionResTemp={setPanExtractionResTemp}
 													isPanNumberExist={isPanNumberExist}
 													field={field}
-													setIsPanConfirmModalOpen={setIsPanConfirmModalOpen}
-													setErrorFormStateField={setErrorFormStateField}
+													// setIsPanConfirmModalOpen={setIsPanConfirmModalOpen}
+													panErrorMessage={panErrorMessage}
 													panErrorColorCode={panErrorColorCode}
-													panExtractionResTemp={panExtractionResTemp}
-													setPanExtractionResTemp={setPanExtractionResTemp}
+													setErrorFormStateField={setErrorFormStateField}
+													onChangeFormStateField={onChangeFormStateField}
+													clearErrorFormState={clearErrorFormState}
 												/>
 												{panErrorMessage && (
 													<UI_SECTIONS.ErrorMessage
-														colorCode={panErrorColorCode}
+														borderColorCode={panErrorColorCode}
 													>
 														{panErrorMessage}
 													</UI_SECTIONS.ErrorMessage>
@@ -544,12 +433,19 @@ const BasicDetails = props => {
 									return null;
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
-								if (!isPanNumberExist) customFieldProps.disabled = true;
-								if (isPanNumberExist && field.name === 'pan_number')
+								if (
+									!isPanNumberExist &&
+									field.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
+								)
+									customFieldProps.disabled = true;
+								if (
+									isPanNumberExist &&
+									field.name === CONST.PAN_NUMBER_FIELD_NAME
+								)
 									customFieldProps.disabled = true;
 								if (
 									selectedApplicant?.directorId &&
-									field.name === 'income_type'
+									field.name === CONST.INCOME_TYPE_FIELD_NAME
 								)
 									customFieldProps.disabled = true;
 								// customFieldProps.disabled = false;
@@ -578,15 +474,26 @@ const BasicDetails = props => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				{/* TODO: shreyash before proceed impliment modal popup alerting user that they cannot change income type in future same as old req */}
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading || !isPanNumberExist}
-					onClick={handleSubmit(onProceed)}
-					// onClick={onProceed}
-				/>
+				{selectedApplicant?.directorId ? (
+					ButtonProceed
+				) : (
+					<Button
+						fill
+						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						isLoader={loading}
+						disabled={loading || !isPanNumberExist}
+						onClick={handleSubmit(() => {
+							// console.log({
+							// 	isProfileMandatory,
+							// 	selectedProfileImageUrl,
+							// 	profileImageResTemp,
+							// });
+							if (isProfileMandatory && profileImageResTemp === null) return;
+							setIsIncomeTypeConfirmModalOpen(true);
+						})}
+						// onClick={onProceed}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

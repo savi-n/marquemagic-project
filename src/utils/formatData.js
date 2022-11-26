@@ -1,6 +1,8 @@
 /* This file contains util function to formatLoanData which is used in HomeLoanDetails component */
+import _ from 'lodash';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import { ORIGIN } from '_config/app.config';
+import { isBusinessPan } from 'utils/helper';
 
 export const businessTypeMaps = [
 	[['private', 'pvt'], 4],
@@ -93,14 +95,14 @@ export const formatSectionReqBody = data => {
 		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
-		console.log('formatSectionReqBody-', { data, selectedApplicant });
+		// console.log('formatSectionReqBody-', { data, selectedApplicant });
 		return reqBody;
 	} catch (error) {
 		console.error('error-formatSectionReqBody-', error);
 	}
 };
 
-export const formatCompanyData = (data, panNum) => {
+export const formatCompanyRocData = (data, panNum) => {
 	let directors = {};
 	let directorsForShow = [];
 
@@ -148,6 +150,35 @@ export const formatCompanyData = (data, panNum) => {
 		directorsForShow,
 		unformatedData: data,
 	};
+};
+
+export const formatPanExtractionData = data => {
+	const { panExtractionApiRes, isSelectedProductTypeBusiness } = data;
+	const newPanExtractionData = _.cloneDeep(
+		panExtractionApiRes?.data?.extractionData || {}
+	);
+	const panName =
+		newPanExtractionData?.Name ||
+		newPanExtractionData?.name ||
+		newPanExtractionData?.father_name ||
+		'';
+	newPanExtractionData.doc_ref_id = panExtractionApiRes?.data?.doc_ref_id || '';
+	newPanExtractionData.requestId = panExtractionApiRes?.data?.request_id || '';
+	newPanExtractionData.panNumber = newPanExtractionData?.Pan_number || '';
+	newPanExtractionData.responseId = newPanExtractionData?.id || '';
+	newPanExtractionData.dob = newPanExtractionData?.DOB || '';
+	newPanExtractionData.isBusinessPan = isBusinessPan(panName) || false;
+	newPanExtractionData.companyName = panName;
+	if (isSelectedProductTypeBusiness) {
+		const name =
+			newPanExtractionData?.name?.split(' ') ||
+			newPanExtractionData?.Name?.split(' ');
+		if (name) {
+			newPanExtractionData.firstName = name[0];
+			newPanExtractionData.lastName = name[1];
+		}
+	}
+	return newPanExtractionData;
 };
 
 export const formatAddressProofDocTypeList = data => {

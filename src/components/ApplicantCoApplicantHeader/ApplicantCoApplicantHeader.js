@@ -1,9 +1,8 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import DeleteCoApplicantModal from 'components/modals/DeleteCoApplicantModal';
 
-import { setSelectedSectionId } from 'store/appSlice';
 import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
 import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
@@ -12,8 +11,7 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 
 const ApplicantCoApplicantHeader = props => {
-	const { app, applicantCoApplicants } = useSelector(state => state);
-	const { firstSectionId } = app;
+	const { applicantCoApplicants } = useSelector(state => state);
 	const {
 		coApplicants,
 		selectedApplicantCoApplicantId,

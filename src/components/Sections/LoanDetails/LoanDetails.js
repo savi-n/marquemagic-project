@@ -7,13 +7,13 @@ import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
 import * as SectionUI from 'components/Sections/ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
+// import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
 import {
 	updateApplicantSection,
-	updateCoApplicantSection,
+	// updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import {
@@ -31,7 +31,7 @@ const LoanDetails = () => {
 		selectedSectionId,
 		selectedProduct,
 		nextSectionId,
-		firstSectionId,
+		// firstSectionId,
 		isTestMode,
 		selectedSection,
 	} = app;
@@ -78,10 +78,10 @@ const LoanDetails = () => {
 				`${API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
-			console.log('-loanDetailsRes-', {
-				loanDetailsReqBody,
-				loanDetailsRes,
-			});
+			// console.log('-loanDetailsRes-', {
+			// 	loanDetailsReqBody,
+			// 	loanDetailsRes,
+			// });
 			const newLoanDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
@@ -149,7 +149,7 @@ const LoanDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<SectionUI.Wrapper>
+		<SectionUI.Wrapper style={{ marginTop: 50 }}>
 			{selectedProduct?.product_details?.sections
 				?.filter(section => section.id === selectedSectionId)?.[0]
 				?.sub_sections?.map((sub_section, sectionIndex) => {

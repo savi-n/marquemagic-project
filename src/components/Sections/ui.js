@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-	padding-top: 50px;
+	/* padding-top: 50px; */
 `;
 
 export const SubSectionHeader = styled.h2`
@@ -14,7 +14,9 @@ export const FormWrapGrid = styled.div`
 	display: grid;
 	grid-gap: 25px 50px;
 	grid-template-columns: repeat(2, 1fr);
-	grid-auto-rows: 60px;
+	/* grid-auto-rows: 60px; */
+	/* grid-auto-rows: min-content; */
+	grid-auto-rows: minmax(60px, auto);
 	grid-auto-flow: dense;
 	position: relative;
 	@media (max-width: 700px) {

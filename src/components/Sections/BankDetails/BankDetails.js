@@ -44,7 +44,7 @@ const BankDetails = () => {
 
 	const submitBankDetails = async () => {
 		try {
-			console.log('submitBankDetails-', { formState, '111': '111' });
+			// console.log('submitBankDetails-', { formState, '111': '111' });
 			const bankDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: formState.values,

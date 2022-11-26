@@ -50,6 +50,8 @@ const initialState = {
 	completedSections: [],
 	formData: {},
 	editLoanData: null,
+	isCreateLoan: true,
+	isUpdateMode: false,
 	isEditOrViewLoan: false,
 	isViewLoan: false,
 	isEditLoan: false,
@@ -149,12 +151,19 @@ export const appSlice = createSlice({
 				[action.payload.key]: [action.payload.value], // pass section id and form value for submission
 			};
 		},
-
 		setEditLoanData: (state, action) => {
-			state.editLoanData = action.payload;
-			state.isEditOrViewLoan = !!action.payload;
-			state.isViewLoan = !action.payload ? false : !action.payload?.isEditLoan;
-			state.isEditLoan = !action.payload ? false : action.payload?.isEditLoan;
+			const { isUpdateMode, editLoanData } = action.payload;
+			state.editLoanData = editLoanData;
+			if (isUpdateMode) {
+				state.isUpdateMode = true;
+			} else {
+				state.isEditOrViewLoan = !!action.payload;
+				state.isViewLoan = !action.payload
+					? false
+					: !action.payload?.isEditLoan;
+				state.isEditLoan = !action.payload ? false : action.payload?.isEditLoan;
+				state.isCreateLoan = false;
+			}
 		},
 	},
 });

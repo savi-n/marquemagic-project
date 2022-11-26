@@ -12,10 +12,11 @@ const initializeApplicantCoApplicant = {
 	selectedParmanentDocumentTypes: [],
 	isSameAsAboveAddressChecked: false,
 	cin: '',
-	panExtractionRes: {},
+	// panExtractionRes: {},
 	presentAddressProofExtractionRes: {},
 	documents: [],
 	documentTypeList: [],
+	cacheDocuments: [],
 };
 
 const initialState = {
@@ -124,15 +125,15 @@ export const applicantCoApplicantsSlice = createSlice({
 		setCompanyRocData: (state, action) => {
 			state.companyRocData = action.payload;
 		},
-		setPanExtractionRes: (state, action) => {
-			if (state.isApplicant) {
-				state.applicant.panExtractionRes = action.payload;
-			} else {
-				state.coApplicants[
-					state.selectedApplicantCoApplicantId
-				].panExtractionRes = action.payload;
-			}
-		},
+		// setPanExtractionRes: (state, action) => {
+		// 	if (state.isApplicant) {
+		// 		state.applicant.panExtractionRes = action.payload;
+		// 	} else {
+		// 		state.coApplicants[
+		// 			state.selectedApplicantCoApplicantId
+		// 		].panExtractionRes = action.payload;
+		// 	}
+		// },
 		setPresentAddressProofExtractionRes: (state, action) => {
 			if (state.isApplicant) {
 				state.applicant.presentAddressProofExtractionRes = action.payload;
@@ -167,9 +168,11 @@ export const applicantCoApplicantsSlice = createSlice({
 		addLoanDocuments: (state, action) => {
 			// const { files } = action.payload;
 			// you can pass array of files
-			const oldDocuments = state.isApplicant
-				? state.applicant.documents
-				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+			const oldDocuments = _.cloneDeep(
+				state.isApplicant
+					? state.applicant.documents
+					: state.coApplicants[state.selectedApplicantCoApplicantId].documents
+			);
 
 			if (state.isApplicant) {
 				state.applicant.documents = [...oldDocuments, ...action.payload];
@@ -181,9 +184,11 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		removeLoanDocument: (state, action) => {
-			const oldDocuments = state.isApplicant
-				? state.applicant.documents
-				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+			const oldDocuments = _.cloneDeep(
+				state.isApplicant
+					? state.applicant.documents
+					: state.coApplicants[state.selectedApplicantCoApplicantId].documents
+			);
 
 			if (state.isApplicant) {
 				state.applicant.documents = oldDocuments.filter(
@@ -203,9 +208,11 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		removeAllAddressProofDocs: state => {
-			const oldDocuments = state.isApplicant
-				? state.applicant.documents
-				: state.coApplicants[state.selectedApplicantCoApplicantId].documents;
+			const oldDocuments = _.cloneDeep(
+				state.isApplicant
+					? state.applicant.documents
+					: state.coApplicants[state.selectedApplicantCoApplicantId].documents
+			);
 			if (state.isApplicant) {
 				state.applicant.documents = oldDocuments.filter(
 					d => !CONST_SECTIONS.ADDRESS_PROOF_KEYS.includes(d.req_type)
@@ -221,25 +228,27 @@ export const applicantCoApplicantsSlice = createSlice({
 		updateSelectedDocumentTypeId: (state, action) => {
 			console.log('updateSelectedDocumentTypeId-', { action });
 			const { fileId, docType } = action.payload;
-			const oldDocuments = state.isApplicant
-				? state.applicant.documents || []
-				: state.coApplicants[state.selectedApplicantCoApplicantId].documents ||
-				  [];
+			const oldDocuments = _.cloneDeep(
+				state.isApplicant
+					? state.applicant.documents
+					: state.coApplicants[state.selectedApplicantCoApplicantId].documents
+			);
+
 			const newDocuments = oldDocuments.map(doc =>
 				doc.id === fileId
 					? {
-							..._.cloneDeep(doc),
-							..._.cloneDeep(docType || {}),
+							...doc,
+							...(docType || {}),
 							typeId: docType?.value,
 							typeName: docType?.name,
 							password: docType?.password,
 					  }
 					: doc
 			);
-			console.log('updateSelectedDocumentTypeId-', {
-				oldDocuments,
-				newDocuments,
-			});
+			// console.log('updateSelectedDocumentTypeId-', {
+			// 	oldDocuments,
+			// 	newDocuments,
+			// });
 			if (state.isApplicant) {
 				state.applicant.documents = newDocuments;
 			} else {
@@ -247,15 +256,64 @@ export const applicantCoApplicantsSlice = createSlice({
 					state.selectedApplicantCoApplicantId
 				].documents = newDocuments;
 			}
-			console.log('updateSelectedDocumentTypeId-', { oldDocuments });
+			// console.log('updateSelectedDocumentTypeId-', { oldDocuments });
 		},
+		// -- DOCUMENT RELATED ACTIONS
+
+		// CACHE DOCUMENT RELATED ACTIONS
+		addCacheDocument: (state, action) => {
+			// pass only single file object
+			const { file, directorId } = action.payload;
+			const selectedDirectorId =
+				directorId || state.selectedApplicantCoApplicantId;
+			if (state.isApplicant) {
+				state.applicant.cacheDocuments.push(file);
+			} else {
+				state.coApplicants[selectedDirectorId].cacheDocuments.push(file);
+			}
+		},
+		addCacheDocuments: (state, action) => {
+			const { files, directorId } = action.payload;
+			const selectedDirectorId =
+				directorId || state.selectedApplicantCoApplicantId;
+			const oldDocuments = _.cloneDeep(
+				state.isApplicant
+					? state.applicant.cacheDocuments
+					: state.coApplicants[selectedDirectorId].cacheDocuments
+			);
+			const newDocuments = [...oldDocuments, ...files];
+			if (state.isApplicant) {
+				state.applicant.cacheDocuments = newDocuments;
+			} else {
+				state.coApplicants[selectedDirectorId].cacheDocuments = newDocuments;
+			}
+		},
+		removeCacheDocument: (state, action) => {
+			const { fieldName, directorId } = action.payload;
+			const selectedDirectorId =
+				directorId || state.selectedApplicantCoApplicantId;
+			const oldDocuments = _.cloneDeep(
+				state.isApplicant
+					? state.applicant.cacheDocuments
+					: state.coApplicants[selectedDirectorId].cacheDocuments
+			);
+			const newDocuments = oldDocuments.filter(
+				doc => doc.field.name !== fieldName
+			);
+			if (state.isApplicant) {
+				state.applicant.cacheDocuments = newDocuments;
+			} else {
+				state.coApplicants[selectedDirectorId].cacheDocuments = newDocuments;
+			}
+		},
+		// -- CACHE DOCUMENT RELATED ACTIONS
+
 		setGenerateAadhaarOtpResponse: (state, action) => {
 			state.generateAadhaarOtpResponse = action.payload;
 		},
 		setVerifyOtpResponse: (state, action) => {
 			state.verifyOtpResponse = action.payload;
 		},
-		// -- DOCUMENT RELATED ACTIONS
 	},
 });
 export const {
@@ -265,13 +323,11 @@ export const {
 	updateApplicantCoApplicantSection,
 	setSelectedParmanentAddressProofId,
 	setSelectedPresentAddressProofId,
+	// setPanExtractionRes,
 	setProfileImageRes,
-	setPanExtractionRes,
 	setIsSameAsAboveAddressChecked,
 	setPresentAddressProofExtractionRes,
 	setCompanyRocData,
-	setGenerateAadhaarOtpResponse,
-	setVerifyOtpResponse,
 
 	addLoanDocument,
 	addLoanDocuments,
@@ -279,6 +335,13 @@ export const {
 	removeAllLoanDocuments,
 	updateSelectedDocumentTypeId,
 	removeAllAddressProofDocs,
+
+	addCacheDocument,
+	addCacheDocuments,
+	removeCacheDocument,
+
+	setGenerateAadhaarOtpResponse,
+	setVerifyOtpResponse,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

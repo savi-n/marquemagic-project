@@ -404,11 +404,11 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
-	console.log(`AddressProofUpload-allstates-`, {
-		props,
-		addressProofErrorColorCode,
-		addressProofError,
-	});
+	// console.log(`AddressProofUpload-allstates-`, {
+	// 	props,
+	// 	addressProofErrorColorCode,
+	// 	addressProofError,
+	// });
 
 	return loading ? (
 		<>
@@ -770,7 +770,7 @@ const AddressProofUpload = props => {
 											isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 											isViewDocAllowed = false;
 										}
-										if (isEditLoan && doc?.document_delete === 'true') {
+										if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
 											isDocRemoveAllowed = false;
 										}
 										return (

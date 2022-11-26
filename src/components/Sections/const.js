@@ -1,5 +1,5 @@
 import iconError from 'assets/icons/Red_error_icon.png';
-// import iconSuccess from 'assets/icons/success_icon.png';
+import iconSuccess from 'assets/icons/success_icon.png';
 import iconWarning from 'assets/icons/amber_warning_icon.png';
 
 export const APPLICANT = 'applicant';
@@ -166,7 +166,7 @@ export const getExtractionFlagColorCode = errorMessage => {
 	return '';
 };
 export const getExtractionFlagIcon = errorMessage => {
-	if (errorMessage.includes(EXTRACTION_FLAG_SUCCESS)) return iconError;
+	if (errorMessage.includes(EXTRACTION_FLAG_SUCCESS)) return iconSuccess;
 	if (errorMessage.includes(EXTRACTION_FLAG_ERROR)) return iconError;
 	if (errorMessage.includes(EXTRACTION_FLAG_WARNING)) return iconWarning;
 	return '';

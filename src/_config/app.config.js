@@ -86,6 +86,9 @@ const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
 const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
 
+const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
+const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
+
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
@@ -200,4 +203,6 @@ export {
 	PINCODE_RESPONSE,
 	FETCH_EVAL_DETAILS,
 	ORIGIN,
+	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
+	UPLOAD_PROFILE_IMAGE,
 };

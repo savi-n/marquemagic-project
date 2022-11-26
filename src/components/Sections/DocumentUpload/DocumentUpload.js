@@ -132,9 +132,9 @@ const DocumentUpload = props => {
 				business_type: selectedApplicantIncomeTypeId,
 				loan_product: selectedProduct.product_id[selectedApplicantIncomeTypeId],
 			};
-			console.log('applicantDocReqBody-', { reqBody });
+			// console.log('applicantDocReqBody-', { reqBody });
 			const applicantDocRes = await axios.post(DOCTYPES_FETCH, reqBody);
-			console.log('applicantDocRes-', applicantDocRes);
+			// console.log('applicantDocRes-', applicantDocRes);
 			const newAppDocOptions = [];
 			for (const key in applicantDocRes?.data) {
 				applicantDocRes?.data[key].map(d => {
@@ -251,9 +251,9 @@ const DocumentUpload = props => {
 			const newAppDocOptions = isApplicant
 				? await getApplicantDocumentTypes()
 				: await getCoApplicantDocumentTypes(selectedApplicant);
-			console.log('newAppDocOptions-before-sort-', { newAppDocOptions });
+			// console.log('newAppDocOptions-before-sort-', { newAppDocOptions });
 			setAllDocumentTypeList(newAppDocOptions.sort((a, b) => a.id - b.id));
-			console.log('newAppDocOptions-', { newAppDocOptions });
+			// console.log('newAppDocOptions-', { newAppDocOptions });
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
 		} finally {
@@ -465,7 +465,7 @@ const DocumentUpload = props => {
 				return null;
 			});
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
-			console.log('documentUploadReqBody-', documentUploadReqBody);
+			// console.log('documentUploadReqBody-', documentUploadReqBody);
 			await axios.post(`${BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			dispatch(
 				updateApplicationSection({
@@ -623,15 +623,15 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	console.log('DocumentUpload-allStates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		displayProceedButton,
-		displayUploadedDocCount,
-		selectedApplicant,
-		selectedApplicantIncomeTypeId,
-	});
+	// console.log('DocumentUpload-allStates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	displayProceedButton,
+	// 	displayUploadedDocCount,
+	// 	selectedApplicant,
+	// 	selectedApplicantIncomeTypeId,
+	// });
 
 	if (loading) {
 		return (

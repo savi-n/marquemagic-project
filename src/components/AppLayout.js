@@ -27,6 +27,7 @@ import {
 	APP_CLIENT,
 	API_END_POINT,
 	WHITELABEL_ENCRYPTION_API,
+	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 } from '_config/app.config.js';
 import { AppContext } from 'reducer/appReducer';
 import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
@@ -119,7 +120,7 @@ const AppLayout = () => {
 				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 				if (params?.token) {
 					const loanDetailsRes = await axios.get(
-						`${API_END_POINT}/getDetailsWithLoanRefId?loan_ref_id=${
+						`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${
 							decryptedToken.loan_ref_id
 						}`
 					);
@@ -148,7 +149,7 @@ const AppLayout = () => {
 					}
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
-					dispatch(setEditLoanData(newEditLoanData));
+					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(

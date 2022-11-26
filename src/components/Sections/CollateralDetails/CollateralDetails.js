@@ -43,16 +43,14 @@ const CollateralDetails = () => {
 
 	const submitCollateralDetails = async () => {
 		try {
-			console.log('submitCollateralDetails-', { formState, '222': '222' });
-
-			console.log(
-				selectedSection,
-				formState.values,
-				'123',
-				app,
-				applicantCoApplicants,
-				application
-			);
+			// console.log('submitCollateralDetails-',
+			// 	selectedSection,
+			// 	formState.values,
+			// 	'123',
+			// 	app,
+			// 	applicantCoApplicants,
+			// 	application
+			// );
 
 			const collateralDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,

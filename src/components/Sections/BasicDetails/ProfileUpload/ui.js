@@ -48,10 +48,9 @@ export const Container = styled.div`
 	/* padding: 20px; */
 	border-width: 2px;
 	border-radius: 2px;
-	border-color: ${props => getColor(props)};
 	border-style: dashed;
-	background: '#f5f5f5';
-	border: 2px dashed lightgrey;
+	background: #f5f5f5;
+	border: 2px dashed ${({ isError }) => (isError ? 'red' : 'lightgrey')};
 	color: #bdbdbd;
 	outline: none;
 	transition: border 0.24s ease-in-out;
@@ -86,6 +85,7 @@ export const IconCamera = styled.img`
 
 export const ImgProfilePreview = styled.img`
 	/* border: 1px solid red; */
+	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;

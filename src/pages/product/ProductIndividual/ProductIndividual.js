@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
@@ -14,14 +15,14 @@ import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
 
-import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
-import { setSelectedSectionId } from 'store/appSlice';
+import { setEditLoanData, setSelectedSectionId } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 // import * as CONST from './const';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { updateApplicationSection } from 'store/applicationSlice';
+import { GE_LOAN_DETAILS_WITH_LOAN_REF_ID } from '_config/app.config';
 
 const SkipComponent = () => {
 	const { app } = useSelector(state => state);
@@ -61,9 +62,11 @@ const ProductIndividual = props => {
 	const {
 		selectedSectionId,
 		applicantCoApplicantSectionIds,
-		nextSectionId,
+		editLoanData,
+		userToken,
 	} = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
+	const { loanRefId } = application;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
 	const SELECTED_SECTION_MAPPING = {
@@ -96,6 +99,41 @@ const ProductIndividual = props => {
 			applicantCoApplicants,
 		});
 	}, [app, application, applicantCoApplicants]);
+
+	useEffect(() => {
+		if (!userToken) return;
+		axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+	}, [userToken]);
+
+	// TODO: FUTURE RELEASE
+	// useEffect(() => {
+	// 	console.log({ loanRefId, editLoanData });
+	// 	if (
+	// 		!!loanRefId &&
+	// 		editLoanData === null
+	// 		// && selectedSectionId === 'basic_details'
+	// 	) {
+	// 		const fetchLoanDetails = async () => {
+	// 			try {
+	// 				setLoading(true);
+	// 				const res = await axios.get(
+	// 					`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${loanRefId}`
+	// 				);
+	// 				dispatch(
+	// 					setEditLoanData({
+	// 						editLoanData: res?.data?.data || null,
+	// 						isUpdateMode: true,
+	// 					})
+	// 				);
+	// 			} catch (error) {
+	// 				console.error('error-fetchLoanDetails-', error);
+	// 			} finally {
+	// 				setLoading(false);
+	// 			}
+	// 		};
+	// 		fetchLoanDetails();
+	// 	}
+	// }, [loanRefId, dispatch, editLoanData]);
 
 	return (
 		<UI.Wrapper>

@@ -590,10 +590,10 @@ const AddressDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
 			};
+			newAddressDetails.directorId = selectedApplicantCoApplicantId;
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newAddressDetails));
 			} else {
-				newAddressDetails.directorId = selectedApplicantCoApplicantId;
 				dispatch(updateCoApplicantSection(newAddressDetails));
 			}
 			dispatch(setSelectedSectionId(nextSectionId));
@@ -618,6 +618,7 @@ const AddressDetails = props => {
 
 	const prefilledValues = field => {
 		try {
+			// console.log('prefilledValues-', field);
 			if (isSameAsAboveAddressChecked) {
 				return formState?.values?.[
 					field?.name?.replace(CONST.PREFIX_PERMANENT, CONST.PREFIX_PRESENT)

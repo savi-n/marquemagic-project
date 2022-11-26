@@ -8,6 +8,7 @@ const initialState = {
 	loanProductId: '',
 	documents: [],
 	sections: {},
+	preUploadedDocuments: [],
 };
 
 export const applicantSlice = createSlice({
