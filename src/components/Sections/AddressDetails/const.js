@@ -20,3 +20,8 @@ export const AID_PRESENT = '1';
 export const AID_PERMANENT = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
 export const ADDRESSPROOF = 'addressproof';
+
+export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
+export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
+export const AADHAAR_FIELD_NAME = 'aadhaar';
+export const ADDRESS_PROOF_TYPE_FIELD_NAME = 'address_proof_type';

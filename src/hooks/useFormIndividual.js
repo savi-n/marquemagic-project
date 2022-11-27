@@ -10,6 +10,7 @@ import DateField from 'components/inputs/DateField';
 import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
+import AddressProofRadio from 'components/inputs/AddressProofRadio';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -529,7 +530,9 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		case 'select': {
 			return <SelectField {...{ ...field, ...fieldProps }} />;
 		}
-
+		case 'address_proof_radio': {
+			return <AddressProofRadio {...{ ...field, ...fieldProps }} />;
+		}
 		case 'radio': {
 			return field.options.map(el => (
 				<section className='flex items-center gap-x-4 w-full py-4'>

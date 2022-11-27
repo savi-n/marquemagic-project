@@ -1,0 +1,578 @@
+[
+	{
+		"id": "permanent_address_proof_upload",
+		"name": "Help us with Address details",
+		"fields": [
+			{
+				"name": "permanent_address_proof_type",
+				"db_key": "address_proof_type",
+				"type": "address_proof_radio",
+				"visibility": true,
+				"options": [
+					{
+						"name": "permanent_aadhaar",
+						"db_key": "loan_document",
+						"label": "Aadhaar",
+						"type": "file",
+						"req_type": "aadhar",
+						"value": "aadhar",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					},
+					{
+						"name": "permanent_voter_id",
+						"db_key": "loan_document",
+						"label": " Voter ID",
+						"type": "file",
+						"req_type": "voter",
+						"value": "voter",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					},
+					{
+						"name": "permanent_dl",
+						"db_key": "loan_document",
+						"label": "DL",
+						"type": "file",
+						"req_type": "DL",
+						"value": "DL",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					},
+					{
+						"name": "permanent_passport",
+						"db_key": "loan_document",
+						"label": "Passport",
+						"type": "file",
+						"req_type": "passport",
+						"value": "passport",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					}
+				]
+			},
+			{
+				"name": "permanent_id_upload",
+				"db_key": "loan_document",
+				"label": "Upload your ID Proof",
+				"type": "file",
+				"visibility": true,
+				"min": 1,
+				"max": 1,
+				"rules": {
+					"required": true,
+					"supported_formats": ["*"]
+				}
+			},
+			{
+				"name": "permanent_aadhaar",
+				"db_key": "daadhaar",
+				"placeholder": "Aadhaar Number",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"protected": false,
+				"pattern": "x",
+				"mask": {
+					"alpha_numeric_only": true,
+					"character_limit": 12
+				},
+				"visibility": true,
+				"sub_fields": [
+					{
+						"name": "verifywithotp",
+						"placeholder": "Verify with OTP",
+						"type": "button",
+						"rules": {},
+						"isbuttonfilled": false
+					}
+				]
+			},
+			{
+				"name": "permanent_address_proof_id_voter",
+				"placeholder": "Voter ID",
+				"db_key": "dvoterid",
+				"for_type_name": "permanent_address_proof_type",
+				"for_type": ["voter"],
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"visibility": true
+			},
+			{
+				"name": "permanent_address_proof_id_dl",
+				"placeholder": "DL Number",
+				"db_key": "ddlNumber",
+				"for_type_name": "permanent_address_proof_type",
+				"for_type": ["DL"],
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"visibility": true
+			},
+			{
+				"name": "permanent_address_proof_id_passport",
+				"placeholder": "Passport Number",
+				"db_key": "dpassport",
+				"for_type_name": "permanent_address_proof_type",
+				"for_type": ["passport"],
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"visibility": true
+			}
+		]
+	},
+	{
+		"id": "permanent_address_details",
+		"name": "",
+		"aid": 2,
+		"fields": [
+			{
+				"name": "permanent_address1",
+				"placeholder": "Address Line 1",
+				"db_key": "line1",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "permanent_address2",
+				"placeholder": "Address Line 2",
+				"db_key": "line2",
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "permanent_address3",
+				"placeholder": "Landmark",
+				"rules": {
+					"required": false
+				},
+				"db_key": "locality",
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "permanent_pin_code",
+				"placeholder": "Pin Code",
+				"db_key": "pincode",
+				"rules": {
+					"required": false,
+					"length": 6
+				},
+				"mask": {
+					"number_only": true,
+					"character_limit": 6
+				},
+				"make_api_call": 6,
+				"type": "pincode",
+				"value_for_fields": [["city", "district"], ["state", "state"]],
+				"visibility": true
+			},
+			{
+				"name": "permanent_city",
+				"placeholder": "City",
+				"db_key": "city",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"alpha_char_only": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "permanent_state",
+				"placeholder": "State",
+				"db_key": "state",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"alpha_char_only": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "permanent_property_type",
+				"placeholder": "Property Type",
+				"db_key": "residential_type",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"alpha_char_only": true
+				},
+				"type": "select",
+				"options": [
+					{
+						"name": "Owned",
+						"value": "Owned"
+					},
+					{
+						"name": "Family",
+						"value": "Family"
+					},
+					{
+						"name": "Renter",
+						"value": "Renter"
+					},
+					{
+						"name": "Employer",
+						"value": "Employer"
+					},
+					{
+						"name": "Others",
+						"value": "Others"
+					}
+				],
+				"visibility": true
+			},
+			{
+				"name": "permanent_property_tenure",
+				"placeholder": "Tenure in Current property",
+				"db_key": "residential_stability",
+				"rules": {
+					"required": true
+				},
+				"mask": {},
+				"type": "month",
+				"is_month_picker": true,
+				"visibility": true
+			}
+		]
+	},
+	{
+		"id": "present_address_proof_upload",
+		"name": "",
+		"fields": [
+			{
+				"name": "present_address_proof_type",
+				"db_key": "address_proof_type",
+				"type": "address_proof_radio",
+				"visibility": true,
+				"options": [
+					{
+						"name": "present_aadhaar",
+						"db_key": "loan_document",
+						"label": "Aadhaar",
+						"type": "file",
+						"req_type": "aadhar",
+						"value": "aadhar",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					},
+					{
+						"name": "present_voter_id",
+						"db_key": "loan_document",
+						"label": " Voter ID",
+						"type": "file",
+						"req_type": "voter",
+						"value": "voter",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					},
+					{
+						"name": "present_dl",
+						"db_key": "loan_document",
+						"label": "DL",
+						"type": "file",
+						"req_type": "DL",
+						"value": "DL",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					},
+					{
+						"name": "present_passport",
+						"db_key": "loan_document",
+						"label": "Passport",
+						"type": "file",
+						"req_type": "passport",
+						"value": "passport",
+						"process_type": "extraction",
+						"min": 1,
+						"max": 2,
+						"rules": {
+							"required": true,
+							"supported_formats": ["*"]
+						},
+						"doc_type": {
+							"1": 302,
+							"7": 302
+						}
+					}
+				]
+			},
+			{
+				"name": "present_id_upload",
+				"db_key": "loan_document",
+				"label": "Upload your ID Proof",
+				"type": "file",
+				"visibility": true,
+				"min": 1,
+				"max": 1,
+				"rules": {
+					"required": true,
+					"supported_formats": ["*"]
+				}
+			},
+			{
+				"name": "present_aadhaar",
+				"db_key": "daadhaar",
+				"placeholder": "Aadhaar Number",
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"protected": false,
+				"pattern": "x",
+				"mask": {
+					"alpha_numeric_only": true,
+					"character_limit": 12
+				},
+				"visibility": true,
+				"sub_fields": [
+					{
+						"name": "verifywithotp",
+						"placeholder": "Verify with OTP",
+						"type": "button",
+						"rules": {},
+						"isbuttonfilled": false
+					}
+				]
+			},
+			{
+				"name": "present_address_proof_id_voter",
+				"placeholder": "Voter ID",
+				"db_key": "dvoterid",
+				"for_type_name": "present_address_proof_type",
+				"for_type": ["voter"],
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"visibility": true
+			},
+			{
+				"name": "present_address_proof_id_dl",
+				"placeholder": "DL Number",
+				"db_key": "ddlNumber",
+				"for_type_name": "present_address_proof_type",
+				"for_type": ["DL"],
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"visibility": true
+			},
+			{
+				"name": "present_address_proof_id_passport",
+				"placeholder": "Passport Number",
+				"db_key": "dpassport",
+				"for_type_name": "present_address_proof_type",
+				"for_type": ["passport"],
+				"type": "text",
+				"rules": {
+					"required": true
+				},
+				"visibility": true
+			}
+		]
+	},
+	{
+		"id": "present_address_details",
+		"name": "",
+		"aid": 1,
+		"fields": [
+			{
+				"name": "present_address1",
+				"placeholder": "Address Line 1",
+				"db_key": "line1",
+				"rules": {
+					"required": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "present_address2",
+				"placeholder": "Address Line 2",
+				"db_key": "line2",
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "present_address3",
+				"placeholder": "Landmark",
+				"rules": {
+					"required": false
+				},
+				"db_key": "locality",
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "present_pin_code",
+				"placeholder": "Pin Code",
+				"db_key": "pincode",
+				"rules": {
+					"required": false,
+					"length": 6
+				},
+				"mask": {
+					"number_only": true,
+					"character_limit": 6
+				},
+				"make_api_call": 6,
+				"type": "pincode",
+				"value_for_fields": [["city", "district"], ["state", "state"]],
+				"visibility": true
+			},
+			{
+				"name": "present_city",
+				"placeholder": "City",
+				"db_key": "city",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"alpha_char_only": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "present_state",
+				"placeholder": "State",
+				"db_key": "state",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"alpha_char_only": true
+				},
+				"type": "text",
+				"visibility": true
+			},
+			{
+				"name": "present_property_type",
+				"placeholder": "Property Type",
+				"db_key": "residential_type",
+				"rules": {
+					"required": true
+				},
+				"mask": {
+					"alpha_char_only": true
+				},
+				"type": "select",
+				"options": [
+					{
+						"name": "Owned",
+						"value": "Owned"
+					},
+					{
+						"name": "Family",
+						"value": "Family"
+					},
+					{
+						"name": "Renter",
+						"value": "Renter"
+					},
+					{
+						"name": "Employer",
+						"value": "Employer"
+					},
+					{
+						"name": "Others",
+						"value": "Others"
+					}
+				],
+				"visibility": true
+			},
+			{
+				"name": "present_property_tenure",
+				"placeholder": "Tenure in Current property",
+				"db_key": "residential_stability",
+				"rules": {
+					"required": true
+				},
+				"mask": {},
+				"type": "month",
+				"is_month_picker": true,
+				"visibility": true
+			}
+		]
+	}
+]

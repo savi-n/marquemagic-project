@@ -7,9 +7,6 @@ import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import ProfileUpload from './ProfileUpload';
 import PanUpload from './PanUpload';
-// import Modal from 'components/Modal';
-// import CompanySelectModal from 'components/CompanySelectModal';
-// import InputField from 'components/inputs/InputField';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 
@@ -18,20 +15,11 @@ import { setLoanIds } from 'store/applicationSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
-	// setCompanyRocData,
-	// setPanExtractionRes,
 	addCacheDocuments,
 	removeCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
-// import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { setSelectedSectionId } from 'store/appSlice';
-import {
-	// formatCompanyData,
-	formatSectionReqBody,
-} from 'utils/formatData';
-// import { verifyKycDataUiUx } from 'utils/request';
-// import { isInvalidPan } from 'utils/validation';
-// import { useToasts } from 'components/Toast/ToastProvider';
+import { formatSectionReqBody } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';

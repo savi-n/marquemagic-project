@@ -60,3 +60,15 @@ export const RadioButtonWrapper = styled.div`
 		display: inline-block;
 	}
 `;
+export const OR = styled.div`
+	/* border: 1px solid red; */
+	z-index: 0;
+	position: absolute;
+	width: 100%;
+	text-align: center;
+	height: 50px;
+	line-height: 50px;
+	@media (max-width: 700px) {
+		margin-top: 50px;
+	}
+`;

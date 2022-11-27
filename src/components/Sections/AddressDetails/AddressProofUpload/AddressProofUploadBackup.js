@@ -21,11 +21,9 @@ import _ from 'lodash';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST_ADDRESS_DETAILS from '../const';
 
 const AddressProofUpload = props => {
 	const {
-		field,
 		formState,
 		onDrop = () => {},
 		disabled = false,
@@ -475,42 +473,38 @@ const AddressProofUpload = props => {
 						</UI.IconWrapper>
 					</UI.Dropzone>
 				)}
-				{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
-					<>
-						<UI.OR>or</UI.OR>
-						<UI.AadhaarNumberOtpFieldWrapper>
-							{register({
-								...aadhaarProofOTPField,
-								value: prefilledValues(aadhaarProofOTPField),
-								visibility: 'visible',
-							})}
-							<Button
-								name='Verify with OTP'
-								isLoader={verifyingWithOtp}
-								disabled={
-									!formState.values[aadhaarProofOTPField.name] ||
-									verifyingWithOtp ||
-									isEditLoan
-								}
-								type='submit'
-								customStyle={{
-									whiteSpace: 'nowrap',
-									width: '150px',
-									minWidth: '150px',
-									height: '45px',
-								}}
-								onClick={onClickVerifyWithOtp}
-							/>
-							{(formState?.submit?.isSubmited ||
-								formState?.touched?.[aadhaarProofOTPField.name]) &&
-								formState?.error?.[aadhaarProofOTPField.name] && (
-									<UI_SECTIONS.ErrorMessageSubFields>
-										{formState?.error?.[aadhaarProofOTPField.name]}
-									</UI_SECTIONS.ErrorMessageSubFields>
-								)}
-						</UI.AadhaarNumberOtpFieldWrapper>
-					</>
-				)}
+				<UI.OR>or</UI.OR>
+				<UI.AadhaarNumberOtpFieldWrapper>
+					{register({
+						...aadhaarProofOTPField,
+						value: prefilledValues(aadhaarProofOTPField),
+						visibility: 'visible',
+					})}
+					<Button
+						name='Verify with OTP'
+						isLoader={verifyingWithOtp}
+						disabled={
+							!formState.values[aadhaarProofOTPField.name] ||
+							verifyingWithOtp ||
+							isEditLoan
+						}
+						type='submit'
+						customStyle={{
+							whiteSpace: 'nowrap',
+							width: '150px',
+							minWidth: '150px',
+							height: '45px',
+						}}
+						onClick={onClickVerifyWithOtp}
+					/>
+					{(formState?.submit?.isSubmited ||
+						formState?.touched?.[aadhaarProofOTPField.name]) &&
+						formState?.error?.[aadhaarProofOTPField.name] && (
+							<UI_SECTIONS.ErrorMessageSubFields>
+								{formState?.error?.[aadhaarProofOTPField.name]}
+							</UI_SECTIONS.ErrorMessageSubFields>
+						)}
+				</UI.AadhaarNumberOtpFieldWrapper>
 			</UI.DropZoneOtpFieldWrapper>
 			<UI.DocumentTaggingSectionWrapper
 				isDocumentTaggingOpen={isDocumentTaggingOpen}

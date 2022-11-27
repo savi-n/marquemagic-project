@@ -718,16 +718,15 @@ const AddressDetails = props => {
 
 	const isPresentAddressProofExtracted = presentAddressProofDocs.length <= 0;
 
-	console.log('AddressDetails-allProps-', {
-		applicant,
-		coApplicants,
-		selectedApplicant,
-		selectedPresentAddressProofId,
-		presentAddressProofDocs,
-		selectedPresentDocumentTypes,
-		isSameAsAboveAddressChecked,
-		formState,
-	});
+	// console.log('AddressDetails-allProps-', {
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedApplicant,
+	// 	selectedPresentAddressProofId,
+	// 	presentAddressProofDocs,
+	// 	selectedPresentDocumentTypes,
+	// 	isSameAsAboveAddressChecked,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -741,9 +740,9 @@ const AddressDetails = props => {
 					// setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 				/>
 			)}
-			{selectedSection?.sub_sections?.map((sub_section, subSectionIndex) => {
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
-					<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
 							<>
 								<UI_SECTIONS.SubSectionHeader>
@@ -755,37 +754,6 @@ const AddressDetails = props => {
 								/>
 							</>
 						) : null}
-						{sub_section.id.includes(CONST.ADDRESS_PROOF_UPLOAD_SECTION_ID) && (
-							<UI.SubSectionCustomHeader style={{ marginTop: 40 }}>
-								<h4>
-									Select any one of the documents mentioned below for{' '}
-									<strong>
-										{sub_section?.name ? 'Permanent' : 'Present'} Address
-									</strong>
-								</h4>
-								<h4>
-									{sub_section?.name ? null : (
-										<>
-											<UI.CheckboxSameAs
-												type='checkbox'
-												id={CONST.CHECKBOX_SAME_AS_ID}
-												checked={!!isSameAsAboveAddressChecked}
-												onChange={() => {
-													dispatch(
-														setIsSameAsAboveAddressChecked(
-															!isSameAsAboveAddressChecked
-														)
-													);
-												}}
-											/>
-											<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-												Same as Present Address
-											</label>
-										</>
-									)}
-								</h4>
-							</UI.SubSectionCustomHeader>
-						)}
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								if (!field.visibility || !field.name || !field.type)
@@ -793,77 +761,9 @@ const AddressDetails = props => {
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
 								// customFieldProps.disabled = false;
-								const customStyle = {};
-								const isVerifyWithOtpField = field.name.includes(
-									CONST.AADHAAR_FIELD_NAME
-								);
-								const isIdProofUploadField =
-									field.type === 'file' &&
-									field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
-								if (isVerifyWithOtpField) return null;
-								if (field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)) {
-									customStyle.gridColumn = 'span 2';
-								}
-								if (isIdProofUploadField) {
-									return (
-										<UI_SECTIONS.FieldWrapGrid style={{ gridColumn: 'span 2' }}>
-											<AddressProofUpload
-												field={field}
-												register={register}
-												formState={formState}
-												isInActive={isInActiveAddressProofUpload}
-												startingTaggedDocs={presentAddressProofDocs}
-												section={CONST.ADDRESSPROOF}
-												sectionType={selectedPresentAddressProofId}
-												docTypeOptions={selectedPresentDocumentTypes}
-												onDrop={files =>
-													handleFileUploadAddressProof(files, CONST.AID_PRESENT)
-												}
-												onRemoveFile={handleFileRemoveAddressProof}
-												docs={presentAddressProofDocs}
-												setDocs={newDocs => {
-													const newAddressProofDocs = [];
-													presentAddressProofDocsRef?.current?.map(d =>
-														newAddressProofDocs.push(d)
-													);
-													newDocs.map(d =>
-														newAddressProofDocs.push({
-															...d,
-															aid: CONST.AID_PRESENT,
-														})
-													);
-													setPresentAddressProofDocs(newAddressProofDocs);
-													presentAddressProofDocsRef.current = newAddressProofDocs;
-												}}
-												documentTypeChangeCallback={
-													handleDocumentTypeChangeAddressProof
-												}
-												addressProofUploadSection={addressProofUploadSection}
-												selectedApplicant={selectedApplicant}
-												onClickFetchAddress={onClickFetchAddress}
-												fetchingAddress={fetchingAddress}
-												onChangeFormStateField={onChangeFormStateField}
-												prefilledValues={prefilledValues}
-												addressProofError={presentAddressProofError}
-												setAddressProofError={setPresentAddressProofError}
-												onClickVerifyWithOtp={onClickVerifyWithOtp}
-												verifyingWithOtp={verifyingWithOtp}
-											/>
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
-								if (field?.for_type_name) {
-									if (
-										!field?.for_type.includes(
-											formState?.values?.[field?.for_type_name]
-										)
-									)
-										return null;
-								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
-										style={customStyle}
 									>
 										{register({
 											...field,
@@ -885,6 +785,183 @@ const AddressDetails = props => {
 					</Fragment>
 				);
 			})}
+
+			{/*  PREFIX_PRESENT */}
+			<UI.HeaderWrapper>
+				<UI.HeaderTitle>Help us with Address details</UI.HeaderTitle>
+				{/* <UI.Tip> */}
+				<Hint
+					hint='Please uplaod the document with KYC image in Portrait Mode'
+					hintIconName='Portrait Mode'
+				/>
+				{/* </UI.Tip> */}
+			</UI.HeaderWrapper>
+
+			<UI.SubSectionCustomHeader>
+				<h4>
+					Select any one of the documents mentioned below for{' '}
+					<strong>Present Address</strong>
+					<span className='text-danger'>*</span>
+				</h4>
+				<span />
+			</UI.SubSectionCustomHeader>
+			{register({
+				...selectAddressProofRadioField,
+				type: 'radio_address_proof',
+				value: prefilledValues(selectAddressProofRadioField),
+			})}
+			{/* <UI.RadioButtonWrapper>
+				{selectAddressProofRadioField?.options?.map((option, optionIndex) => {
+					return (
+						<UI.CardRadioButton key={`option${optionIndex}${option.value}`}>
+							<input
+								name={selectAddressProofRadioField?.name}
+								id={option.value}
+								type='radio'
+								// value={option.value}
+								onChange={e => {
+									// TODO: remove document only belongs to app/coapp
+									// if document is tagged alert user for removal of all document
+									// removeAllAddressProofDocs()
+									dispatch(setSelectedPresentAddressProofId(option.value));
+								}}
+								checked={selectedPresentAddressProofId === option.value}
+								visibility='visible'
+							/>
+							<label htmlFor={option.value} style={{ marginLeft: '10px' }}>
+								{option.label}
+							</label>
+						</UI.CardRadioButton>
+					);
+				})}
+			</UI.RadioButtonWrapper> */}
+			<Hint
+				hint='You can choose to upload document or enter Aadhaar Number to proceed with Address Details'
+				showIcon={false}
+			/>
+			<AddressProofUpload
+				isInActive={isInActiveAddressProofUpload}
+				startingTaggedDocs={presentAddressProofDocs}
+				section={CONST.ADDRESSPROOF}
+				sectionType={selectedPresentAddressProofId}
+				docTypeOptions={selectedPresentDocumentTypes}
+				onDrop={files => handleFileUploadAddressProof(files, CONST.AID_PRESENT)}
+				onRemoveFile={handleFileRemoveAddressProof}
+				docs={presentAddressProofDocs}
+				setDocs={newDocs => {
+					const newAddressProofDocs = [];
+					presentAddressProofDocsRef?.current?.map(d =>
+						newAddressProofDocs.push(d)
+					);
+					newDocs.map(d =>
+						newAddressProofDocs.push({ ...d, aid: CONST.AID_PRESENT })
+					);
+					setPresentAddressProofDocs(newAddressProofDocs);
+					presentAddressProofDocsRef.current = newAddressProofDocs;
+				}}
+				documentTypeChangeCallback={handleDocumentTypeChangeAddressProof}
+				addressProofUploadSection={addressProofUploadSection}
+				selectedApplicant={selectedApplicant}
+				onClickFetchAddress={onClickFetchAddress}
+				fetchingAddress={fetchingAddress}
+				register={register}
+				formState={formState}
+				onChangeFormStateField={onChangeFormStateField}
+				prefilledValues={prefilledValues}
+				addressProofError={presentAddressProofError}
+				setAddressProofError={setPresentAddressProofError}
+				onClickVerifyWithOtp={onClickVerifyWithOtp}
+				verifyingWithOtp={verifyingWithOtp}
+			/>
+			<UI_SECTIONS.FormWrapGrid>
+				{addressFields?.map((field, fieldIndex) => {
+					const customField = _.cloneDeep(field);
+					customField.name = `${CONST.PREFIX_PRESENT}${customField.name}`;
+					if (!customField.visibility) return null;
+					const customFieldProps = {};
+					if (field.name === 'property_tenure') {
+						customFieldProps.max = moment().format('YYYY-MM');
+					}
+					if (isPresentAddressProofExtracted) customFieldProps.disabled = true;
+					return (
+						<UI_SECTIONS.FieldWrapGrid
+							key={`field-${fieldIndex}-${customField.name}`}
+						>
+							{register({
+								...customField,
+								value: prefilledValues(customField),
+								...customFieldProps,
+								visibility: 'visible',
+							})}
+							{(formState?.submit?.isSubmited ||
+								formState?.touched?.[customField.name]) &&
+								formState?.error?.[customField.name] && (
+									<UI_SECTIONS.ErrorMessage>
+										{formState?.error?.[customField.name]}
+									</UI_SECTIONS.ErrorMessage>
+								)}
+						</UI_SECTIONS.FieldWrapGrid>
+					);
+				})}
+			</UI_SECTIONS.FormWrapGrid>
+			<div style={{ marginTop: 100 }} />
+			{/* PREFIX_PERMANENT */}
+			<UI.SubSectionCustomHeader>
+				<h4>
+					{/* TODO: next release */}
+					{/* Select any one of the documents mentioned below for{' '}
+					<strong>Present Address</strong> */}
+				</h4>
+				<h4>
+					<UI.CheckboxSameAs
+						type='checkbox'
+						id={CONST.CHECKBOX_SAME_AS_ID}
+						checked={!!isSameAsAboveAddressChecked}
+						onChange={() => {
+							dispatch(
+								setIsSameAsAboveAddressChecked(!isSameAsAboveAddressChecked)
+							);
+						}}
+					/>
+					<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+						Same as Present Address
+					</label>
+				</h4>
+			</UI.SubSectionCustomHeader>
+			<UI_SECTIONS.FormWrapGrid>
+				{addressFields?.map((field, fieldIndex) => {
+					const customField = _.cloneDeep(field);
+					customField.name = `${CONST.PREFIX_PERMANENT}${customField.name}`;
+					if (!customField.visibility) return null;
+					const customFieldProps = {};
+					if (isSameAsAboveAddressChecked) customField.disabled = true;
+					if (isPresentAddressProofExtracted) customFieldProps.disabled = true;
+					return (
+						<UI_SECTIONS.FieldWrapGrid
+							key={`field-${fieldIndex}-${customField.name}`}
+						>
+							{register({
+								...customField,
+								value: prefilledValues(customField),
+								...customFieldProps,
+								visibility: 'visible',
+							})}
+							{(formState?.submit?.isSubmited ||
+								formState?.touched?.[customField.name]) &&
+								formState?.error?.[customField.name] &&
+								(customField.sub_fields ? (
+									<UI_SECTIONS.ErrorMessageSubFields>
+										{formState?.error?.[customField.name]}
+									</UI_SECTIONS.ErrorMessageSubFields>
+								) : (
+									<UI_SECTIONS.ErrorMessage>
+										{formState?.error?.[customField.name]}
+									</UI_SECTIONS.ErrorMessage>
+								))}
+						</UI_SECTIONS.FieldWrapGrid>
+					);
+				})}
+			</UI_SECTIONS.FormWrapGrid>
 			<UI_SECTIONS.Footer>
 				<Button
 					fill

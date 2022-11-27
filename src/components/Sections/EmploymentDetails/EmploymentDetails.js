@@ -193,6 +193,11 @@ const EmploymentDetails = () => {
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
+											style={
+												field.type === 'address_proof_radio'
+													? { gridColumn: 'span 2' }
+													: {}
+											}
 										>
 											{register({
 												...field,

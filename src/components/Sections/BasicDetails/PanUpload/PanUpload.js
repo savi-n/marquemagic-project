@@ -397,15 +397,6 @@ const PanUpload = props => {
 
 	// Disable click and keydown behavior on the <Dropzone>
 
-	// useEffect(() => {
-	// 	if (cacheDocuments?.length > 0) {
-	// 		const selectedPanDocument = cacheDocuments?.filter(
-	// 			d => d.field.name === CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME
-	// 		);
-	// 		setFiles(selectedPanDocument);
-	// 	}
-	// }, [cacheDocuments]);
-
 	const isPreview = !!panExtractionFile;
 	const uploadedFile = panExtractionFile;
 

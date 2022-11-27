@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const Wrapper = styled.div``;
 
 export const DropZoneOtpFieldWrapper = styled.div`
-	margin: 20px 0;
 	display: grid;
 	grid-gap: 25px 50px;
 	grid-template-columns: repeat(2, 1fr);
