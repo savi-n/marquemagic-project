@@ -25,3 +25,13 @@ export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
 export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
 export const AADHAAR_FIELD_NAME = 'aadhaar';
 export const ADDRESS_PROOF_TYPE_FIELD_NAME = 'address_proof_type';
+export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
+	'permanent_address_proof_type';
+export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
+	'present_address_proof_type';
+export const PRESENT_ID_PROOF_UPLOAD_FIELD_NAME = 'present_id_upload';
+
+export const HIDE_PRESENT_ADDRESS_FIELDS = [
+	PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
+	PRESENT_ID_PROOF_UPLOAD_FIELD_NAME,
+];

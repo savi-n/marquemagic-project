@@ -151,7 +151,7 @@ export const Droping = styled.div`
 	z-index: 9999;
 `;
 
-export const FileListWrap = styled.div`
+export const UnTaggedFileListWrap = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: start;
@@ -179,6 +179,7 @@ export const WarningMessage = styled.div`
 `;
 
 export const AddressProofErrorMessage = styled.div`
+	margin-top: 40px;
 	color: #de524c;
 	display: flex;
 	gap: 10px;
@@ -467,4 +468,19 @@ export const DocumentTaggingSectionWrapper = styled.div`
 	transition: all 0.3s ease-in-out;
 	height: ${({ isDocumentTaggingOpen }) =>
 		isDocumentTaggingOpen ? '250px' : '0'};
+`;
+
+export const DocTypeChangeModalBody = styled.div`
+	text-align: center;
+	padding: 20px;
+`;
+
+export const DocTypeChangeModalHeader = styled.div`
+	/* text-align: left; */
+`;
+export const DocTypeChangeModalFooter = styled.div`
+	margin-top: 30px;
+	display: flex;
+	justify-content: center;
+	gap: 20px;
 `;

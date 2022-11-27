@@ -2,6 +2,8 @@
 	{
 		"id": "permanent_address_proof_upload",
 		"name": "Help us with Address details",
+		"aid": "2",
+		"prefix": "permanent_",
 		"fields": [
 			{
 				"name": "permanent_address_proof_type",
@@ -15,7 +17,7 @@
 						"label": "Aadhaar",
 						"type": "file",
 						"req_type": "aadhar",
-						"value": "aadhar",
+						"value": "permanent_aadhar",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -34,7 +36,7 @@
 						"label": " Voter ID",
 						"type": "file",
 						"req_type": "voter",
-						"value": "voter",
+						"value": "permanent_voter",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -53,7 +55,7 @@
 						"label": "DL",
 						"type": "file",
 						"req_type": "DL",
-						"value": "DL",
+						"value": "permanent_DL",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -72,7 +74,7 @@
 						"label": "Passport",
 						"type": "file",
 						"req_type": "passport",
-						"value": "passport",
+						"value": "permanent_passport",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -85,7 +87,10 @@
 							"7": 302
 						}
 					}
-				]
+				],
+				"rules": {
+					"required": true
+				}
 			},
 			{
 				"name": "permanent_id_upload",
@@ -130,7 +135,7 @@
 				"placeholder": "Voter ID",
 				"db_key": "dvoterid",
 				"for_type_name": "permanent_address_proof_type",
-				"for_type": ["voter"],
+				"for_type": ["permanent_voter"],
 				"type": "text",
 				"rules": {
 					"required": true
@@ -142,7 +147,7 @@
 				"placeholder": "DL Number",
 				"db_key": "ddlNumber",
 				"for_type_name": "permanent_address_proof_type",
-				"for_type": ["DL"],
+				"for_type": ["permanent_DL"],
 				"type": "text",
 				"rules": {
 					"required": true
@@ -154,7 +159,7 @@
 				"placeholder": "Passport Number",
 				"db_key": "dpassport",
 				"for_type_name": "permanent_address_proof_type",
-				"for_type": ["passport"],
+				"for_type": ["permanent_passport"],
 				"type": "text",
 				"rules": {
 					"required": true
@@ -166,7 +171,8 @@
 	{
 		"id": "permanent_address_details",
 		"name": "",
-		"aid": 2,
+		"aid": "2",
+		"prefix": "permanent_",
 		"fields": [
 			{
 				"name": "permanent_address1",
@@ -290,6 +296,8 @@
 	{
 		"id": "present_address_proof_upload",
 		"name": "",
+		"aid": "1",
+		"prefix": "present_",
 		"fields": [
 			{
 				"name": "present_address_proof_type",
@@ -303,7 +311,7 @@
 						"label": "Aadhaar",
 						"type": "file",
 						"req_type": "aadhar",
-						"value": "aadhar",
+						"value": "present_aadhar",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -322,7 +330,7 @@
 						"label": " Voter ID",
 						"type": "file",
 						"req_type": "voter",
-						"value": "voter",
+						"value": "present_voter",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -341,7 +349,7 @@
 						"label": "DL",
 						"type": "file",
 						"req_type": "DL",
-						"value": "DL",
+						"value": "present_DL",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -360,7 +368,7 @@
 						"label": "Passport",
 						"type": "file",
 						"req_type": "passport",
-						"value": "passport",
+						"value": "present_passport",
 						"process_type": "extraction",
 						"min": 1,
 						"max": 2,
@@ -373,7 +381,10 @@
 							"7": 302
 						}
 					}
-				]
+				],
+				"rules": {
+					"required": true
+				}
 			},
 			{
 				"name": "present_id_upload",
@@ -418,7 +429,7 @@
 				"placeholder": "Voter ID",
 				"db_key": "dvoterid",
 				"for_type_name": "present_address_proof_type",
-				"for_type": ["voter"],
+				"for_type": ["present_voter"],
 				"type": "text",
 				"rules": {
 					"required": true
@@ -430,7 +441,7 @@
 				"placeholder": "DL Number",
 				"db_key": "ddlNumber",
 				"for_type_name": "present_address_proof_type",
-				"for_type": ["DL"],
+				"for_type": ["present_DL"],
 				"type": "text",
 				"rules": {
 					"required": true
@@ -442,7 +453,7 @@
 				"placeholder": "Passport Number",
 				"db_key": "dpassport",
 				"for_type_name": "present_address_proof_type",
-				"for_type": ["passport"],
+				"for_type": ["present_passport"],
 				"type": "text",
 				"rules": {
 					"required": true
@@ -454,7 +465,8 @@
 	{
 		"id": "present_address_details",
 		"name": "",
-		"aid": 1,
+		"aid": "1",
+		"prefix": "present_",
 		"fields": [
 			{
 				"name": "present_address1",

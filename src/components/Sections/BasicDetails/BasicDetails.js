@@ -205,8 +205,8 @@ const BasicDetails = props => {
 			// 	newBasicDetails,
 			// });
 			// TODO: varun update cin properly peding discussion with savita
-			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
 			newBasicDetails.directorId = newDirectorId;
+			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else {

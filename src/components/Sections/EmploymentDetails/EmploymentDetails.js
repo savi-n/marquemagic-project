@@ -9,7 +9,6 @@ import Button from 'components/Button';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
-import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
 import {
 	setSelectedApplicantCoApplicantId,
@@ -29,7 +28,6 @@ const EmploymentDetails = () => {
 		nextSectionId,
 		firstSectionId,
 		isTestMode,
-		selectedSection,
 	} = app;
 	const {
 		applicant,
@@ -37,6 +35,9 @@ const EmploymentDetails = () => {
 		selectedApplicantCoApplicantId,
 		isApplicant,
 	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId];
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
@@ -46,51 +47,43 @@ const EmploymentDetails = () => {
 			setLoading(true);
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
-				section: selectedSection,
+				app,
+				applicantCoApplicants,
+				application,
 				values: formState.values,
+			});
+
+			if (selectedApplicant?.employmentId) {
+				employmentDetailsReqBody.employment_id =
+					selectedApplicant?.employmentId;
+			}
+			if (selectedApplicant?.incomeDataId) {
+				employmentDetailsReqBody.income_data_id =
+					selectedApplicant?.incomeDataId;
+			}
+
+			console.log('-employmentDetailsReq-', {
+				employmentDetailsReqBody,
 				app,
 				applicantCoApplicants,
 				application,
 			});
-
-			let editEmploymentId = '';
-			let editIncomeDataId = '';
-			if (isApplicant) {
-				editEmploymentId = applicant?.employmentId;
-				editIncomeDataId = applicant?.incomeDataId;
-			} else {
-				editEmploymentId =
-					coApplicants?.[selectedApplicantCoApplicantId]?.employmentId;
-				editIncomeDataId =
-					coApplicants?.[selectedApplicantCoApplicantId]?.incomeDataId;
-			}
-			if (editEmploymentId) {
-				employmentDetailsReqBody.employment_id = editEmploymentId;
-			}
-			if (editIncomeDataId) {
-				employmentDetailsReqBody.income_data_id = editIncomeDataId;
-			}
-
 			const employmentDetailsRes = await axios.post(
 				`${API_END_POINT}/employmentData`,
 				employmentDetailsReqBody
 			);
-			// console.log('-employmentDetailsRes-', {
-			// 	employmentDetailsReqBody,
-			// 	employmentDetailsRes,
-			// });
+			console.log('-employmentDetailsRes-', {
+				employmentDetailsRes,
+			});
 			const newEmploymentDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
 				employmentId: employmentDetailsRes?.data?.data?.employment_id,
 				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
 			};
-			// console.log(newEmploymentDetails, '222');
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newEmploymentDetails));
 			} else {
-				newEmploymentDetails.directorId = selectedApplicantCoApplicantId;
-				// console.log(newEmploymentDetails, '333');
 				dispatch(updateCoApplicantSection(newEmploymentDetails));
 			}
 			return true;

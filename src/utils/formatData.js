@@ -182,125 +182,125 @@ export const formatPanExtractionData = data => {
 };
 
 export const formatAddressProofDocTypeList = data => {
-	const { selectedAddressProofId } = data;
-	switch (selectedAddressProofId) {
-		case [CONST_SECTIONS.EXTRACTION_KEY_AADHAAR]:
+	const { selectedAddressProofId, prefix } = data;
+	switch (selectedAddressProofId?.replaceAll(prefix, '')) {
+		case CONST_SECTIONS.EXTRACTION_KEY_AADHAAR:
 			return [
 				{
-					typeId: 501,
-					value: 501,
-					doc_type_id: 501,
-					id: 501,
+					typeId: `${prefix}501`,
+					value: `${prefix}501`,
+					doc_type_id: `${prefix}501`,
+					id: `${prefix}501`,
 					name: 'Aadhaar Front Part',
 				},
 				{
-					typeId: 502,
-					value: 502,
-					doc_type_id: 502,
-					id: 502,
+					typeId: `${prefix}502`,
+					value: `${prefix}502`,
+					doc_type_id: `${prefix}502`,
+					id: `${prefix}502`,
 					name: 'Aadhaar Back Part',
 				},
 				{
-					typeId: 503,
-					value: 503,
-					doc_type_id: 503,
-					id: 503,
+					typeId: `${prefix}503`,
+					value: `${prefix}503`,
+					doc_type_id: `${prefix}503`,
+					id: `${prefix}503`,
 					name: 'Aadhaar Front and Back',
 				},
 			];
-		case [CONST_SECTIONS.EXTRACTION_KEY_VOTERID]:
+		case CONST_SECTIONS.EXTRACTION_KEY_VOTERID:
 			return [
 				{
-					typeId: 504,
-					value: 504,
-					doc_type_id: 504,
-					id: 504,
+					typeId: `${prefix}504`,
+					value: `${prefix}504`,
+					doc_type_id: `${prefix}504`,
+					id: `${prefix}504`,
 					name: 'Voter Front Part',
 				},
 				{
-					typeId: 505,
-					value: 505,
-					doc_type_id: 505,
-					id: 505,
+					typeId: `${prefix}505`,
+					value: `${prefix}505`,
+					doc_type_id: `${prefix}505`,
+					id: `${prefix}505`,
 					name: 'Voter Back Part',
 				},
 				{
-					typeId: 506,
-					value: 506,
-					doc_type_id: 506,
-					id: 506,
+					typeId: `${prefix}506`,
+					value: `${prefix}506`,
+					doc_type_id: `${prefix}506`,
+					id: `${prefix}506`,
 					name: 'Voter Front and Back ',
 				},
 			];
-		case [CONST_SECTIONS.EXTRACTION_KEY_DL]:
+		case CONST_SECTIONS.EXTRACTION_KEY_DL:
 			return [
 				{
-					typeId: 507,
-					value: 507,
-					doc_type_id: 507,
-					id: 507,
+					typeId: `${prefix}507`,
+					value: `${prefix}507`,
+					doc_type_id: `${prefix}507`,
+					id: `${prefix}507`,
 					name: 'DL Front Part',
 				},
 				{
-					typeId: 508,
-					value: 508,
-					doc_type_id: 508,
-					id: 508,
+					typeId: `${prefix}508`,
+					value: `${prefix}508`,
+					doc_type_id: `${prefix}508`,
+					id: `${prefix}508`,
 					name: 'DL Back Part',
 				},
 				{
-					typeId: 509,
-					value: 509,
-					doc_type_id: 509,
-					id: 509,
+					typeId: `${prefix}509`,
+					value: `${prefix}509`,
+					doc_type_id: `${prefix}509`,
+					id: `${prefix}509`,
 					name: 'DL Front and Back',
 				},
 			];
-		case [CONST_SECTIONS.EXTRACTION_KEY_PASSPORT]:
+		case CONST_SECTIONS.EXTRACTION_KEY_PASSPORT:
 			return [
 				{
-					typeId: 510,
-					value: 510,
-					doc_type_id: 510,
-					id: 510,
+					typeId: `${prefix}510`,
+					value: `${prefix}510`,
+					doc_type_id: `${prefix}510`,
+					id: `${prefix}510`,
 					name: 'Passport Front Part',
 				},
 				{
-					typeId: 511,
-					value: 511,
-					doc_type_id: 511,
-					id: 511,
+					typeId: `${prefix}511`,
+					value: `${prefix}511`,
+					doc_type_id: `${prefix}511`,
+					id: `${prefix}511`,
 					name: 'Passport Back Part',
 				},
 				{
-					typeId: 512,
-					value: 512,
-					doc_type_id: 512,
-					id: 512,
+					typeId: `${prefix}512`,
+					value: `${prefix}512`,
+					doc_type_id: `${prefix}512`,
+					id: `${prefix}512`,
 					name: 'Passport Front and Back',
 				},
 			];
-		// case [CONST_SECTIONS.EXTRACTION_KEY_OTHERS]:
+		// case CONST_SECTIONS.EXTRACTION_KEY_OTHERS:
 		// 	return [
 		// 		{
-		// 			typeId: 513,
-		// 			value: 513,
-		// 			doc_type_id: 513,
-		// 			id: 513,
+		// 			typeId: `${prefix}513`,
+		// 			value: `${prefix}513`,
+		// 			doc_type_id: `${prefix}513`,
+		// 			id: `${prefix}513`,
 		// 			name: 'Other Front Part',
 		// 		},
 		// 		{
-		// 			typeId: 514,
-		// 			value: 514,
-		// 			doc_type_id: 514,
-		// 			id: 514,
+		// 			typeId: `${prefix}514`,
+		// 			value: `${prefix}514`,
+		// 			doc_type_id: `${prefix}514`,
+		// 			id: `${prefix}514`,
 		// 			name: 'Other Back Part',
 		// 		},
 		// 		{
-		// 			typeId: 515,
-		// 			value: 515,
-		// 			doc_type_id: 515,
-		// 			id: 515,
+		// 			typeId: `${prefix}515`,
+		// 			value: `${prefix}515`,
+		// 			doc_type_id: `${prefix}515`,
+		// 			id: `${prefix}515`,
 		// 			name: 'Other Front and Back',
 		// 		},
 		// 	];
