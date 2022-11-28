@@ -22,12 +22,14 @@ export const applicantSlice = createSlice({
 				businessId,
 				businessUserId,
 				loanProductId,
+				createdByUserId,
 			} = action.payload;
-			state.loanRefId = loanRefId;
-			state.loanId = loanId;
-			state.businessId = businessId;
-			state.setBusinessId = businessUserId;
-			state.loanProductId = loanProductId;
+			if (loanRefId) state.loanRefId = loanRefId;
+			if (loanId) state.loanId = loanId;
+			if (businessId) state.businessId = businessId;
+			if (businessUserId) state.setBusinessId = businessUserId;
+			if (loanProductId) state.loanProductId = loanProductId;
+			if (createdByUserId) state.createdByUserId = createdByUserId;
 		},
 		setloanRefId: (state, action) => {
 			state.loanRefId = action.payload;

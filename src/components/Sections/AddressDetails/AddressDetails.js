@@ -18,6 +18,7 @@ import {
 	setPresentAddressProofExtractionRes,
 	setGenerateAadhaarOtpResponse,
 	removeCacheDocument,
+	addCacheDocuments,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 
@@ -42,7 +43,7 @@ const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { loanProductId } = application;
+	const { loanProductId, loanId, createdByUserId } = application;
 	const {
 		isViewLoan,
 		selectedProduct,
@@ -61,7 +62,7 @@ const AddressDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
-	// const { isSameAsAboveAddressChecked } = selectedApplicant;
+	const { directorId } = selectedApplicant;
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
@@ -639,7 +640,52 @@ const AddressDetails = props => {
 				addressDetailsReqBody
 			);
 			console.log('addressDetailsRes-', { addressDetailsRes });
-
+			const cacheDocumentsTemp = [
+				...permanentCacheDocumentsTemp,
+				...presentCacheDocumentsTemp,
+			];
+			if (cacheDocumentsTemp.length > 0) {
+				try {
+					const uploadCacheDocumentsTemp = [];
+					cacheDocumentsTemp.map(doc => {
+						uploadCacheDocumentsTemp.push({
+							...doc,
+							request_id: doc.requestId,
+							doc_type_id: doc.selectedDocTypeId,
+							is_delete_not_allowed: true,
+							director_id: directorId,
+							file: null,
+						});
+						return null;
+					});
+					if (uploadCacheDocumentsTemp.length) {
+						const uploadCacheDocumentsTempReqBody = {
+							loan_id: loanId,
+							request_ids_obj: uploadCacheDocumentsTemp,
+							user_id: createdByUserId,
+						};
+						// console.log('uploadCacheDocumentsTempReqBody-', {
+						// 	uploadCacheDocumentsTempReqBody,
+						// });
+						await axios.post(
+							API.UPLOAD_CACHE_DOCS,
+							uploadCacheDocumentsTempReqBody,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+						dispatch(
+							addCacheDocuments({
+								files: uploadCacheDocumentsTemp,
+							})
+						);
+					}
+				} catch (error) {
+					console.error('error-', error);
+				}
+			}
 			const newAddressDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,

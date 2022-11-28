@@ -220,6 +220,7 @@ const BasicDetails = props => {
 					businessId: newBusinessId,
 					businessUserId: newBusinessUserId,
 					loanProductId: selectedLoanProductId,
+					createdByUserId: newCreatedByUserId,
 				})
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
