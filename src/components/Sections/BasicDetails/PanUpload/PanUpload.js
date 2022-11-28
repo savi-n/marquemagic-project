@@ -35,17 +35,14 @@ const PanUpload = props => {
 	const {
 		field,
 		formState,
-		// setIsPanConfirmModalOpen,
 		setErrorFormStateField,
 		panErrorColorCode,
 		panErrorMessage,
-		// setPanExtractionResTemp,
 		onChangeFormStateField,
 		clearErrorFormState,
 		cacheDocumentsTemp,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
-		// setCacheDocumentsTemp,
 	} = props;
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
@@ -528,7 +525,6 @@ const PanUpload = props => {
 										onClick={e => {
 											e.preventDefault();
 											e.stopPropagation();
-											// setFiles([]);
 											removeCacheDocumentTemp(field.name);
 											onChangeFormStateField({
 												name: 'pan_number',

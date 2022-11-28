@@ -20,7 +20,6 @@ const ProfileUpload = props => {
 		isPanNumberExist,
 		isFormSubmited,
 		isProfileMandatory,
-		// setProfileImageResTemp,
 		cacheDocumentsTemp,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
@@ -169,7 +168,7 @@ const ProfileUpload = props => {
 								// setProfileImageResTemp(null);
 							}}
 						/>
-						{/* TODO: verify upload */}
+						{/* TODO: verify requirement and push back re-upload before delete */}
 						{/* <UI.IconDelete
 							src={iconDelete}
 							alt='delete'

@@ -53,6 +53,7 @@ function minValue(value, limit) {
 	return +value < +limit;
 }
 
+// TODO: varun make validation key align with new json small letter with underscore
 const VALIDATION_RULES = {
 	required: {
 		func: required,

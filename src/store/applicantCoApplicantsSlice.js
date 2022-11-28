@@ -343,7 +343,7 @@ export const applicantCoApplicantsSlice = createSlice({
 					: state.coApplicants[selectedDirectorId].cacheDocuments
 			);
 			const newDocuments = oldDocuments.filter(
-				doc => doc.field.name !== fieldName
+				doc => doc?.field?.name !== fieldName
 			);
 			if (state.isApplicant) {
 				state.applicant.cacheDocuments = newDocuments;

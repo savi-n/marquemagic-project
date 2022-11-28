@@ -4,6 +4,7 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
+import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
 
 import useForm from 'hooks/useFormIndividual';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -12,8 +13,10 @@ import {
 	formatSectionReqBody,
 	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
-import { API_END_POINT } from '_config/app.config';
-import * as SectionUI from 'components/Sections/ui';
+import { addCacheDocuments, removeCacheDocument } from 'store/applicationSlice';
+import * as API from '_config/app.config';
+import * as UI_SECTIONS from 'components/Sections/ui';
+import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
 
 const LoanDetails = () => {
@@ -26,24 +29,62 @@ const LoanDetails = () => {
 		selectedSection,
 		nextSectionId,
 		isTestMode,
+		clientToken,
 	} = app;
+	const { loanId, businessUserId } = application;
+	const {
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	const selectedIncomeType =
+		selectedApplicant?.basic_details?.[
+			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
+		];
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
+	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const {
 		handleSubmit,
 		register,
 		formState,
 		onChangeFormStateField,
+		clearErrorFormState,
 	} = useForm();
 	const prevSelectedConnectorId = useRef(null);
 	const selectedConnectorId =
 		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
 
+	const addCacheDocumentTemp = file => {
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		newCacheDocumentTemp.push(file);
+		setCacheDocumentsTemp(newCacheDocumentTemp);
+	};
+
+	const removeCacheDocumentTemp = fieldName => {
+		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		if (
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName).length >
+			0
+		) {
+			setCacheDocumentsTemp(
+				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
+			);
+		} else {
+			dispatch(removeCacheDocument({ fieldName }));
+		}
+	};
+
 	const getConnectors = async () => {
 		try {
 			setLoading(true);
-			const connectorRes = await axios.get(`${API_END_POINT}/connectors`);
+			const connectorRes = await axios.get(`${API.API_END_POINT}/connectors`);
 			// console.log('connectorRes-', { connectorRes });
 			const newConnectorOptions = [];
 			connectorRes?.data?.data?.map(connector => {
@@ -69,14 +110,52 @@ const LoanDetails = () => {
 			});
 
 			const loanDetailsRes = await axios.post(
-				`${API_END_POINT}/updateLoanDetails`,
+				`${API.API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
 			console.log('-loanDetailsRes-', {
 				loanDetailsReqBody,
 				loanDetailsRes,
 			});
-
+			if (cacheDocumentsTemp.length > 0) {
+				try {
+					const uploadCacheDocumentsTemp = [];
+					cacheDocumentsTemp.map(doc => {
+						uploadCacheDocumentsTemp.push({
+							...doc,
+							loan_id: loanId,
+						});
+						return null;
+					});
+					if (uploadCacheDocumentsTemp.length) {
+						const borrowerDocUploadRedBody = {
+							...loanDetailsReqBody,
+							data: {
+								document_upload: uploadCacheDocumentsTemp,
+							},
+						};
+						// console.log('borrowerDocUploadRedBody-', {
+						// 	borrowerDocUploadRedBody,
+						// });
+						// const borrowerDocUploadRes =
+						// TODO: varun get uniquie doc id for deleting on navigate back or edit mode
+						await axios.post(
+							`${API.BORROWER_UPLOAD_URL}`,
+							borrowerDocUploadRedBody
+						);
+						// console.log('borrowerDocUploadRes-', {
+						// 	borrowerDocUploadRes,
+						// });
+						dispatch(
+							addCacheDocuments({
+								files: uploadCacheDocumentsTemp,
+							})
+						);
+					}
+				} catch (error) {
+					console.error('error-', error);
+				}
+			}
 			const newLoanDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
@@ -159,20 +238,21 @@ const LoanDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<SectionUI.Wrapper style={{ marginTop: 50 }}>
+		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
-							<SectionUI.SubSectionHeader>
+							<UI_SECTIONS.SubSectionHeader>
 								{sub_section.name}
-							</SectionUI.SubSectionHeader>
+							</UI_SECTIONS.SubSectionHeader>
 						) : null}
-						<SectionUI.FormWrapGrid>
+						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								const newField = _.cloneDeep(field);
 								const customFieldProps = {};
-								if (!newField.visibility) return null;
+								// TODO: varun to be enable after json changes
+								// if (!newField.visibility) return null;
 								if (newField?.for_type_name) {
 									if (
 										!newField?.for_type.includes(
@@ -193,8 +273,40 @@ const LoanDetails = () => {
 								if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
 									customFieldProps.disabled = true;
 								}
+								if (
+									newField.type === 'file' &&
+									newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+								) {
+									const selectedDocTypeId =
+										field?.doc_type?.[selectedIncomeType];
+									const errorMessage =
+										(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+										formState?.error?.[field.name];
+									return (
+										<UI_SECTIONS.FieldWrapGrid
+											key={`field-${fieldIndex}-${field.name}`}
+										>
+											<InputFieldSingleFileUpload
+												field={field}
+												selectedDocTypeId={selectedDocTypeId}
+												clearErrorFormState={clearErrorFormState}
+												cacheDocumentsTemp={cacheDocumentsTemp}
+												addCacheDocumentTemp={addCacheDocumentTemp}
+												removeCacheDocumentTemp={removeCacheDocumentTemp}
+												errorColorCode={errorMessage ? 'red' : ''}
+												isFormSubmited={!!formState?.submit?.isSubmited}
+											/>
+											{errorMessage && (
+												<UI_SECTIONS.ErrorMessage>
+													{errorMessage}
+												</UI_SECTIONS.ErrorMessage>
+											)}
+										</UI_SECTIONS.FieldWrapGrid>
+									);
+								}
 								return (
-									<SectionUI.FieldWrapGrid
+									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${newField.name}`}
 									>
 										{register({
@@ -206,28 +318,37 @@ const LoanDetails = () => {
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[newField.name]) &&
 											formState?.error?.[newField.name] && (
-												<SectionUI.ErrorMessage>
+												<UI_SECTIONS.ErrorMessage>
 													{formState?.error?.[newField.name]}
-												</SectionUI.ErrorMessage>
+												</UI_SECTIONS.ErrorMessage>
 											)}
-									</SectionUI.FieldWrapGrid>
+									</UI_SECTIONS.FieldWrapGrid>
 								);
 							})}
-						</SectionUI.FormWrapGrid>
+						</UI_SECTIONS.FormWrapGrid>
 					</Fragment>
 				);
 			})}
-			<SectionUI.Footer>
+			<UI_SECTIONS.Footer>
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
 					isLoader={loading}
 					disabled={loading}
-					onClick={handleSubmit(onProceed)}
+					onClick={handleSubmit(() => {
+						if (
+							formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
+							cacheDocumentsTemp.filter(
+								doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+							).length <= 0
+						)
+							return;
+						onProceed();
+					})}
 					// onClick={onProceed}
 				/>
-			</SectionUI.Footer>
-		</SectionUI.Wrapper>
+			</UI_SECTIONS.Footer>
+		</UI_SECTIONS.Wrapper>
 	);
 };
 

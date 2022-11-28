@@ -600,8 +600,6 @@ const AddressDetails = props => {
 														? setPermanentCacheDocumentsTemp
 														: setPresentCacheDocumentsTemp
 												}
-												// addCacheDocumentTemp={addCacheDocumentTemp}
-												// removeCacheDocumentTemp={removeCacheDocumentTemp}
 												selectedDocTypeId={selectedDocTypeId}
 											/>
 										</UI_SECTIONS.FieldWrapGrid>

@@ -22,19 +22,10 @@ const InputFieldSingleFileUpload = props => {
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		errorColorCode,
+		isFormSubmited,
 	} = props;
-	const { application, applicantCoApplicants } = useSelector(state => state);
-	const { loanRefId, loanId, businessUserId } = application;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { cacheDocuments } = selectedApplicant;
+	const { application } = useSelector(state => state);
+	const { loanId, businessUserId, cacheDocuments } = application;
 	const [loading, setLoading] = useState(false);
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
@@ -42,6 +33,7 @@ const InputFieldSingleFileUpload = props => {
 		cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 		cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 		null;
+	const isMandatory = !!field?.rules?.required;
 
 	const openDocument = async file => {
 		try {
@@ -65,9 +57,9 @@ const InputFieldSingleFileUpload = props => {
 
 	const handleFileUpload = async file => {
 		const previewFileData = {
+			field,
 			name: file.name,
 			preview: URL.createObjectURL(file),
-			field,
 		};
 		let newFileData = {};
 		try {
@@ -97,6 +89,7 @@ const InputFieldSingleFileUpload = props => {
 				document_key: resFile.fd,
 				size: resFile.size,
 				loan_id: loanId,
+				doc_type_id: selectedDocTypeId,
 			};
 		} catch (error) {
 			console.error('error-inputfieldsinglefileupload-', error);
@@ -137,15 +130,14 @@ const InputFieldSingleFileUpload = props => {
 	const isPreview = !!selectedFile;
 	const uploadedFile = selectedFile;
 
-	// console.log('PanUpload-', {
-	// 	cacheDocumentsTemp,
-	// 	props,
-	// 	panExtractionFile,
-	// 	panExtractionData,
-	// 	isPreview,
-	// 	uploadedFile,
-	// 	cacheDocuments,
-	// });
+	console.log('PanUpload-', {
+		cacheDocumentsTemp,
+		props,
+		businessUserId,
+		isPreview,
+		uploadedFile,
+		cacheDocuments,
+	});
 
 	return (
 		<>
@@ -160,7 +152,8 @@ const InputFieldSingleFileUpload = props => {
 							onClick={e => {
 								e.preventDefault();
 								e.stopPropagation();
-								if (loanRefId) return openDocument(uploadedFile);
+								if (selectedFile?.document_id)
+									return openDocument(uploadedFile);
 								window.open(uploadedFile.preview, '_blank');
 								// window.open('https://www.google.com', '_blank');
 							}}
@@ -180,18 +173,16 @@ const InputFieldSingleFileUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!loanRefId && (
-									<UI.IconDelete
-										src={iconDelete}
-										alt='delete'
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											removeCacheDocumentTemp(field.name);
-											clearErrorFormState();
-										}}
-									/>
-								)}
+								<UI.IconDelete
+									src={iconDelete}
+									alt='delete'
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										removeCacheDocumentTemp(field.name);
+										clearErrorFormState();
+									}}
+								/>
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>
@@ -200,13 +191,13 @@ const InputFieldSingleFileUpload = props => {
 				<UI.Container
 					loading={loading}
 					errorColorCode={errorColorCode}
-					style={{ border: `2px dashed red;` }}
+					isError={isMandatory && isFormSubmited && !isPreview}
 				>
 					<label>
-						{field?.placeholder
+						{field?.label
 							? loading
 								? 'Uploading...'
-								: field?.placeholder
+								: field?.label
 							: `Upload${loading ? 'ing...' : null} File`}
 					</label>
 					{loading ? (

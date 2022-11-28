@@ -243,10 +243,11 @@ const BasicDetails = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
-			cacheDocumentsTemp.filter(doc => doc.field.name === fieldName).length > 0
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
+			0
 		) {
 			setCacheDocumentsTemp(
-				newCacheDocumentTemp.filter(doc => doc.field.name !== fieldName)
+				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
 		} else {
 			dispatch(removeCacheDocument({ fieldName }));
@@ -397,11 +398,8 @@ const BasicDetails = props => {
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
-													// panExtractionResTemp={panExtractionResTemp}
-													// setPanExtractionResTemp={setPanExtractionResTemp}
 													isPanNumberExist={isPanNumberExist}
 													field={field}
-													// setIsPanConfirmModalOpen={setIsPanConfirmModalOpen}
 													panErrorMessage={panErrorMessage}
 													panErrorColorCode={panErrorColorCode}
 													setErrorFormStateField={setErrorFormStateField}

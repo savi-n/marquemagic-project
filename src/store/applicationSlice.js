@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import _ from 'lodash';
 
 const initialState = {
 	loanRefId: '',
@@ -10,9 +11,9 @@ const initialState = {
 	assetsAdditionalId: '',
 	refId1: '',
 	refId2: '',
-	documents: [],
 	sections: {},
-	preUploadedDocuments: [],
+	cacheDocuments: [],
+	documents: [],
 };
 
 export const applicantSlice = createSlice({
@@ -31,7 +32,7 @@ export const applicantSlice = createSlice({
 			if (loanRefId) state.loanRefId = loanRefId;
 			if (loanId) state.loanId = loanId;
 			if (businessId) state.businessId = businessId;
-			if (businessUserId) state.setBusinessId = businessUserId;
+			if (businessUserId) state.businessUserId = businessUserId;
 			if (loanProductId) state.loanProductId = loanProductId;
 			if (createdByUserId) state.createdByUserId = createdByUserId;
 		},
@@ -59,6 +60,28 @@ export const applicantSlice = createSlice({
 			if (refId1) state.refId1 = refId1;
 			if (refId2) state.refId2 = refId2;
 		},
+
+		// CACHE DOCUMENT RELATED ACTIONS
+		addCacheDocument: (state, action) => {
+			// pass only single file object
+			const { file } = action.payload;
+			state.cacheDocuments.push(file);
+		},
+		addCacheDocuments: (state, action) => {
+			const { files } = action.payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			const newDocuments = [...oldDocuments, ...files];
+			state.cacheDocuments = newDocuments;
+		},
+		removeCacheDocument: (state, action) => {
+			const { fieldName } = action.payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			const newDocuments = oldDocuments.filter(
+				doc => doc?.field?.name !== fieldName
+			);
+			state.cacheDocuments = newDocuments;
+		},
+		// -- CACHE DOCUMENT RELATED ACTIONS
 	},
 });
 
@@ -68,6 +91,10 @@ export const {
 	setLoanId,
 	setBusinessId,
 	updateApplicationSection,
+
+	addCacheDocument,
+	addCacheDocuments,
+	removeCacheDocument,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;
