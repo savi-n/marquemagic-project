@@ -1,26 +1,20 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
 
-import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import * as SectionUI from 'components/Sections/ui';
-// import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST from './const';
-import { sleep } from 'utils/helper';
+import useForm from 'hooks/useFormIndividual';
 import { setSelectedSectionId } from 'store/appSlice';
-import {
-	updateApplicantSection,
-	// updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
 	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
+import * as SectionUI from 'components/Sections/ui';
+import * as CONST from './const';
 
 const LoanDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
@@ -31,97 +25,69 @@ const LoanDetails = () => {
 		selectedSectionId,
 		selectedProduct,
 		nextSectionId,
-		// firstSectionId,
 		isTestMode,
-		selectedSection,
 	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
-	const { handleSubmit, register, formState } = useForm();
+	const [connectorOptions, setConnectorOptions] = useState([]);
+	const {
+		handleSubmit,
+		register,
+		formState,
+		onChangeFormStateField,
+	} = useForm();
+	const prevSelectedConnectorId = useRef(null);
+	const selectedConnectorId =
+		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
 
-	const submitLoanDetails = async () => {
+	const getConnectors = async () => {
 		try {
-			// console.log('submitLoanDetails-', { formState });
+			setLoading(true);
+			const connectorRes = await axios.get(`${API_END_POINT}/connectors`);
+			// console.log('connectorRes-', { connectorRes });
+			const newConnectorOptions = [];
+			connectorRes?.data?.data?.map(connector => {
+				newConnectorOptions.push({ ...connector, value: connector.id });
+				return null;
+			});
+			setConnectorOptions(newConnectorOptions);
+		} catch (error) {
+			console.error('error-getConnectors-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const onProceed = async () => {
+		try {
+			setLoading(true);
 			const loanDetailsReqBody = formatSectionReqBody({
-				section: selectedSection,
-				values: formState.values,
 				app,
 				applicantCoApplicants,
 				application,
+				values: formState.values,
 			});
-
-			let editEmploymentId = '';
-			let editIncomeDataId = '';
-			if (isApplicant) {
-				editEmploymentId = applicant?.employmentId;
-				editIncomeDataId = applicant?.incomeDataId;
-			} else {
-				editEmploymentId =
-					coApplicants?.[selectedApplicantCoApplicantId]?.employmentId;
-				editIncomeDataId =
-					coApplicants?.[selectedApplicantCoApplicantId]?.incomeDataId;
-			}
-			if (editEmploymentId) {
-				loanDetailsReqBody.employment_id = editEmploymentId;
-			}
-			if (editIncomeDataId) {
-				loanDetailsReqBody.income_data_id = editIncomeDataId;
-			}
 
 			const loanDetailsRes = await axios.post(
 				`${API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
-			// console.log('-loanDetailsRes-', {
-			// 	loanDetailsReqBody,
-			// 	loanDetailsRes,
-			// });
+			console.log('-loanDetailsRes-', {
+				loanDetailsReqBody,
+				loanDetailsRes,
+			});
+
 			const newLoanDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
 			};
 			dispatch(updateApplicationSection(newLoanDetails));
-			// if (isApplicant) {
-			// 	dispatch(updateApplicantSection(newLoanDetails));
-			// } else {
-			// 	newLoanDetails.directorId = selectedApplicantCoApplicantId;
-			// 	dispatch(updateCoApplicantSection(newLoanDetails));
-			// }
-		} catch (error) {
-			console.error('error-submitLoanDetails-', error);
-		}
-	};
-	// useEffect(() => {
-	// 	console.log(coApplicants, '8888');
-	// }, []);
-	const onProceed = async () => {
-		try {
-			if (Object.keys(formState.values).length === 0) return onSkip();
-			setLoading(true);
-			await sleep(100);
-			await submitLoanDetails();
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LoanDetails-onProceed-', error);
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		dispatch(
-			updateApplicantSection({
-				id: selectedSectionId,
-				values: { isSkip: true },
-			})
-		);
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
@@ -146,6 +112,50 @@ const LoanDetails = () => {
 		}
 	};
 
+	useEffect(() => {
+		if (!selectedConnectorId) return;
+		// console.log('useEffect-', {
+		// 	prev: prevSelectedConnectorId?.current,
+		// 	current: selectedConnectorId,
+		// });
+		if (prevSelectedConnectorId?.current !== selectedConnectorId) {
+			const selectedConnector = connectorOptions.filter(
+				connector => `${connector?.value}` === `${selectedConnectorId}`
+			)?.[0];
+			// console.log('useEffect-', {
+			// 	connectorOptions,
+			// 	selectedConnector,
+			// 	prev: prevSelectedConnectorId?.current,
+			// 	current: selectedConnectorId,
+			// });
+			onChangeFormStateField({
+				name: CONST.CONNECTOR_CODE_FIELD_NAME,
+				value: selectedConnector?.id,
+			});
+			prevSelectedConnectorId.current = selectedConnectorId;
+		}
+		// eslint-disable-next-line
+	}, [selectedConnectorId]);
+
+	// useEffect(() => {
+	// 	if (formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME]) {
+	// 		const selectedConnector = connectorOptions.filter(
+	// 			connector =>
+	// 				connector?.value ===
+	// 				formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME]
+	// 		)?.[0];
+	// 		onChangeFormStateField({
+	// 			name: CONST.CONNECTOR_CODE_FIELD_NAME,
+	// 			value: selectedConnector?.id,
+	// 		});
+	// 	}
+	// 	// eslint-disable-next-line
+	// }, [formState.values, connectorOptions]);
+
+	useEffect(() => {
+		getConnectors();
+	}, []);
+
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
@@ -163,6 +173,7 @@ const LoanDetails = () => {
 							<SectionUI.FormWrapGrid>
 								{sub_section?.fields?.map((field, fieldIndex) => {
 									const newField = _.cloneDeep(field);
+									const customFieldProps = {};
 									if (!newField.visibility) return null;
 									if (newField?.for_type_name) {
 										if (
@@ -172,13 +183,18 @@ const LoanDetails = () => {
 										)
 											return null;
 									}
-									if (newField.name === 'imd_paid_by') {
+									if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
 										const newOptions = getApplicantCoApplicantSelectOptions(
 											applicantCoApplicants
 										);
 										newField.options = [...newOptions, ...newField.options];
 									}
-									const customFieldProps = {};
+									if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
+										newField.options = connectorOptions;
+									}
+									if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
+										customFieldProps.disabled = true;
+									}
 									return (
 										<SectionUI.FieldWrapGrid
 											key={`field-${fieldIndex}-${newField.name}`}

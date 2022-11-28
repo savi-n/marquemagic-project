@@ -2,21 +2,15 @@ import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
-import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import * as SectionUI from 'components/Sections/ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST from './const';
-import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
-import {
-	setSelectedApplicantCoApplicantId,
-	updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
 import { formatSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
+import { updateApplicationSection } from 'store/applicationSlice';
+import * as SectionUI from 'components/Sections/ui';
+import * as CONST from './const';
 
 const CollateralDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
@@ -27,31 +21,17 @@ const CollateralDetails = () => {
 		selectedSectionId,
 		selectedProduct,
 		nextSectionId,
-		firstSectionId,
 		isTestMode,
 		selectedSection,
 	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
+	const { loanAssetsId, assetsAdditionalId } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 
-	const submitCollateralDetails = async () => {
+	const onProceed = async () => {
 		try {
-			// console.log('submitCollateralDetails-',
-			// 	selectedSection,
-			// 	formState.values,
-			// 	'123',
-			// 	app,
-			// 	applicantCoApplicants,
-			// 	application
-			// );
-
+			setLoading(true);
 			const collateralDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: formState.values,
@@ -59,6 +39,9 @@ const CollateralDetails = () => {
 				applicantCoApplicants,
 				application,
 			});
+			if (loanAssetsId) collateralDetailsReqBody.loan_assets_id = loanAssetsId;
+			if (assetsAdditionalId)
+				collateralDetailsReqBody.assets_additional_id = assetsAdditionalId;
 
 			const collateralDetailsRes = await axios.post(
 				`${API_END_POINT}/collateralData`,
@@ -68,52 +51,22 @@ const CollateralDetails = () => {
 			// 	collateralDetailsReqBody,
 			// 	collateralDetailsRes,
 			// });
+			const newLoanAssetsId = collateralDetailsRes?.data?.data?.loan_assets_id;
+			const newAssetsAdditionalId =
+				collateralDetailsRes?.data?.data?.assets_additional_id;
 			const newCollateralDetails = {
-				id: selectedSectionId,
-				values: formState.values,
-				employmentId: collateralDetailsRes?.data?.data?.employment_id,
-				incomeDataId: collateralDetailsRes?.data?.data?.income_data_id,
+				sectionId: selectedSectionId,
+				sectionValues: formState.values,
+				loanAssetsId: newLoanAssetsId,
+				assetsAdditionalId: newAssetsAdditionalId,
 			};
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newCollateralDetails));
-			} else {
-				newCollateralDetails.directorId = selectedApplicantCoApplicantId;
-				dispatch(updateCoApplicantSection(newCollateralDetails));
-			}
-		} catch (error) {
-			console.error('error-submitCollateralDetails-', error);
-		}
-	};
-
-	const onProceed = async () => {
-		try {
-			if (Object.keys(formState.values).length === 0) return onSkip();
-			setLoading(true);
-			await sleep(100);
-			await submitCollateralDetails();
+			dispatch(updateApplicationSection(newCollateralDetails));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-CollateralDetails-onProceed-', error);
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		dispatch(
-			updateApplicantSection({
-				id: selectedSectionId,
-				values: { isSkip: true },
-			})
-		);
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const onAddCoApplicant = async () => {
-		setLoading(true);
-		await submitCollateralDetails();
-		dispatch(setSelectedSectionId(firstSectionId));
-		setLoading(false);
 	};
 
 	const prefilledValues = field => {
@@ -128,41 +81,20 @@ const CollateralDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (isApplicant) {
-				return (
-					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
-				);
-			}
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-				return formState?.values?.[field.name] || field.value || '';
-			}
-			if (selectedApplicantCoApplicantId) {
-				return (
-					coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
-						field?.name
-					] ||
-					field.value ||
-					''
-				);
-			}
-			return '';
+			return (
+				application?.sections?.[selectedSectionId]?.[field?.name] ||
+				field.value ||
+				''
+			);
 		} catch (error) {
 			return {};
 		}
 	};
 
-	let displayProceedCTA = true;
-	if (
-		selectedProduct?.product_details?.is_coapplicant_mandatory &&
-		Object.keys(coApplicants || {})?.length <= 0
-	) {
-		displayProceedCTA = false;
-	}
-
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<SectionUI.Wrapper>
+		<SectionUI.Wrapper style={{ paddingTop: 50 }}>
 			{selectedProduct?.product_details?.sections
 				?.filter(section => section.id === selectedSectionId)?.[0]
 				?.sub_sections?.map((sub_section, sectionIndex) => {

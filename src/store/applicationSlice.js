@@ -6,6 +6,8 @@ const initialState = {
 	businessId: '',
 	businessUserId: '',
 	loanProductId: '',
+	loanAssetsId: '',
+	assetsAdditionalId: '',
 	documents: [],
 	sections: {},
 	preUploadedDocuments: [],
@@ -41,8 +43,15 @@ export const applicantSlice = createSlice({
 			state.businessId = action.payload;
 		},
 		updateApplicationSection: (state, action) => {
-			const { sectionId, sectionValues } = action.payload;
+			const {
+				sectionId,
+				sectionValues,
+				loanAssetsId,
+				assetsAdditionalId,
+			} = action.payload;
 			state.sections[sectionId] = sectionValues;
+			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
+			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
 		},
 	},
 });

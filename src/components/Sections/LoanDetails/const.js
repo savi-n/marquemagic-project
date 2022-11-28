@@ -22,3 +22,7 @@ export const initialFormState = {
 	income_from_agriculture: '100000',
 	any_other_income: '100000',
 };
+
+export const CONNECTOR_NAME_FIELD_NAME = 'connector_name';
+export const CONNECTOR_CODE_FIELD_NAME = 'connector_code';
+export const IMD_PAID_BY_FIELD_NAME = 'imd_paid_by';
