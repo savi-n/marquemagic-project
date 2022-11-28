@@ -16,13 +16,12 @@ import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
 
 import Button from 'components/Button';
-import { setEditLoanData, setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 // import * as CONST from './const';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { updateApplicationSection } from 'store/applicationSlice';
-import { GE_LOAN_DETAILS_WITH_LOAN_REF_ID } from '_config/app.config';
 
 const SkipComponent = () => {
 	const { app } = useSelector(state => state);
@@ -74,10 +73,10 @@ const ProductIndividual = props => {
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
 		loan_details: LoanDetails,
-		collateral_details: SkipComponent,
+		collateral_details: CollateralDetails,
 		bank_details: SkipComponent,
 		document_upload: DocumentUpload,
-		reference_details: SkipComponent,
+		reference_details: ReferenceDetails,
 		emi_details: SkipComponent,
 		application_submitted: ApplicationSubmitted,
 	};
@@ -104,36 +103,6 @@ const ProductIndividual = props => {
 		if (!userToken) return;
 		axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 	}, [userToken]);
-
-	// TODO: FUTURE RELEASE
-	// useEffect(() => {
-	// 	console.log({ loanRefId, editLoanData });
-	// 	if (
-	// 		!!loanRefId &&
-	// 		editLoanData === null
-	// 		// && selectedSectionId === 'basic_details'
-	// 	) {
-	// 		const fetchLoanDetails = async () => {
-	// 			try {
-	// 				setLoading(true);
-	// 				const res = await axios.get(
-	// 					`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${loanRefId}`
-	// 				);
-	// 				dispatch(
-	// 					setEditLoanData({
-	// 						editLoanData: res?.data?.data || null,
-	// 						isUpdateMode: true,
-	// 					})
-	// 				);
-	// 			} catch (error) {
-	// 				console.error('error-fetchLoanDetails-', error);
-	// 			} finally {
-	// 				setLoading(false);
-	// 			}
-	// 		};
-	// 		fetchLoanDetails();
-	// 	}
-	// }, [loanRefId, dispatch, editLoanData]);
 
 	return (
 		<UI.Wrapper>

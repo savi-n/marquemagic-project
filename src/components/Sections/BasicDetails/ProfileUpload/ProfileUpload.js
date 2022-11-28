@@ -43,8 +43,8 @@ const ProfileUpload = props => {
 	// const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const profileUploadedFile =
-		cacheDocumentsTemp.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		cacheDocuments.filter(doc => doc?.field?.name === field.name)?.[0] ||
+		cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
+		cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 		null;
 
 	const openDocument = async file => {

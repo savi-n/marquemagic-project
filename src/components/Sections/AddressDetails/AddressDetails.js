@@ -60,7 +60,7 @@ const AddressDetails = props => {
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const {
 		directorId,
 		cacheDocuments,
@@ -284,6 +284,7 @@ const AddressDetails = props => {
 				businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
 					address => address.aid === 2
 				)?.[0]?.id,
+				directorId,
 			};
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newAddressDetails));

@@ -104,6 +104,11 @@ const ApplicantCoApplicantHeader = props => {
 					</UI.LI>
 				)}
 			</UI.UL>
+			{window.location.hostname.includes('localhost') && (
+				<UI.UL>
+					<UI.LI>{selectedApplicantCoApplicantId}</UI.LI>
+				</UI.UL>
+			)}
 		</UI.Wrapper>
 	);
 };

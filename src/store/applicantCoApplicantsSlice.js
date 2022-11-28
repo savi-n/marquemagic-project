@@ -14,7 +14,6 @@ const initializeApplicantCoApplicant = {
 	selectedParmanentDocumentTypes: [],
 	isSameAsAboveAddressChecked: false,
 	cin: '',
-	// panExtractionRes: {},
 	presentAddressProofExtractionRes: {},
 	documents: [],
 	documentTypeList: [],
@@ -55,6 +54,32 @@ export const applicantCoApplicantsSlice = createSlice({
 				state.coApplicants[directorId][sectionId] = sectionValues;
 			}
 		},
+		updateBasicDetailsSection: (state, action) => {
+			const {
+				sectionId,
+				sectionValues,
+				directorId,
+				employmentId,
+				incomeDataId,
+				businessAddressIdAid1,
+				businessAddressIdAid2,
+				isApplicant,
+			} = action.payload;
+			if (isApplicant) {
+				state.applicant[sectionId] = sectionValues;
+				if (directorId) state.applicant.directorId = directorId;
+				if (employmentId) state.applicant.employmentId = employmentId;
+				if (incomeDataId) state.applicant.incomeDataId = incomeDataId;
+				if (businessAddressIdAid1)
+					state.applicant.businessAddressIdAid1 = businessAddressIdAid1;
+				if (businessAddressIdAid2)
+					state.applicant.businessAddressIdAid2 = businessAddressIdAid2;
+			} else {
+				state.coApplicants[directorId] = _.cloneDeep(
+					initializeApplicantCoApplicant
+				);
+			}
+		},
 		updateApplicantSection: (state, action) => {
 			const {
 				sectionId,
@@ -85,6 +110,11 @@ export const applicantCoApplicantsSlice = createSlice({
 				businessAddressIdAid2,
 			} = action.payload;
 			const newCoApplicants = _.cloneDeep(state.coApplicants);
+			if (Object.keys(newCoApplicants?.[directorId] || {}).length <= 0) {
+				newCoApplicants.directorId = _.cloneDeep(
+					initializeApplicantCoApplicant
+				);
+			}
 			const newCoApplicantValues = newCoApplicants[directorId]
 				? _.cloneDeep(newCoApplicants[directorId])
 				: _.cloneDeep(initializeApplicantCoApplicant);
@@ -96,16 +126,17 @@ export const applicantCoApplicantsSlice = createSlice({
 				newCoApplicantValues.businessAddressIdAid1 = businessAddressIdAid1;
 			if (businessAddressIdAid2)
 				newCoApplicantValues.businessAddressIdAid2 = businessAddressIdAid2;
-			// console.log('updateCoApplicantSection-', {
-			// 	newCoApplicantValues,
-			// 	sectionId,
-			// 	action,
-			// });
 			state.coApplicants[directorId] = newCoApplicantValues;
-			state.selectedApplicantCoApplicantId = directorId;
+			if (
+				state.selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT
+			) {
+				state.selectedApplicantCoApplicantId = directorId;
+			}
 		},
 		setSelectedApplicantCoApplicantId: (state, action) => {
-			state.selectedApplicantCoApplicantId = action.payload;
+			if (action.payload) {
+				state.selectedApplicantCoApplicantId = action.payload;
+			}
 			state.isApplicant = action.payload === CONST_SECTIONS.APPLICANT;
 		},
 		setSelectedParmanentAddressProofId: (state, action) => {

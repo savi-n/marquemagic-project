@@ -77,8 +77,8 @@ const PanUpload = props => {
 	// 		doc => doc.field.name === CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME
 	// 	)?.[0] || null;
 	const panExtractionFile =
-		cacheDocumentsTemp.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		cacheDocuments.filter(doc => doc?.field?.name === field.name)?.[0] ||
+		cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
+		cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 		null;
 	const panExtractionData = panExtractionFile?.panExtractionData;
 

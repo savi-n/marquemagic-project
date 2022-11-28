@@ -17,6 +17,7 @@ import {
 	updateCoApplicantSection,
 	addCacheDocuments,
 	removeCacheDocument,
+	setSelectedApplicantCoApplicantId,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { formatSectionReqBody } from 'utils/formatData';
@@ -48,7 +49,7 @@ const BasicDetails = props => {
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { cacheDocuments } = selectedApplicant;
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
@@ -67,10 +68,10 @@ const BasicDetails = props => {
 		setErrorFormStateField,
 	} = useForm();
 	const profileImageResTemp =
-		cacheDocumentsTemp.filter(
+		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
-		cacheDocuments.filter(
+		cacheDocuments?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		null;
@@ -211,7 +212,7 @@ const BasicDetails = props => {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else {
 				dispatch(updateCoApplicantSection(newBasicDetails));
-				// dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
+				dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
 			}
 			dispatch(
 				setLoanIds({
@@ -424,7 +425,8 @@ const BasicDetails = props => {
 								const customFieldProps = {};
 								if (
 									!isPanNumberExist &&
-									field.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
+									field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME &&
+									!!field?.rules?.required
 								)
 									customFieldProps.disabled = true;
 								if (

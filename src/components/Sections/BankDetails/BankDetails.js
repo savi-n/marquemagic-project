@@ -106,7 +106,6 @@ const BankDetails = () => {
 		setLoading(true);
 		await submitBankDetails();
 		dispatch(setSelectedSectionId(firstSectionId));
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
 		setLoading(false);
 	};
 

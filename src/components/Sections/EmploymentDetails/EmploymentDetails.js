@@ -37,7 +37,8 @@ const EmploymentDetails = () => {
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
-		: coApplicants[selectedApplicantCoApplicantId];
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	const { directorId } = selectedApplicant;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
@@ -80,6 +81,7 @@ const EmploymentDetails = () => {
 				sectionValues: formState.values,
 				employmentId: employmentDetailsRes?.data?.data?.employment_id,
 				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
+				directorId,
 			};
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newEmploymentDetails));
@@ -100,8 +102,8 @@ const EmploymentDetails = () => {
 		try {
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
-			dispatch(setSelectedSectionId(nextSectionId));
 			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
+			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onProceed-', error);
 		}
@@ -110,8 +112,8 @@ const EmploymentDetails = () => {
 	const onAddCoApplicant = async () => {
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
-		dispatch(setSelectedSectionId(firstSectionId));
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
+		dispatch(setSelectedSectionId(firstSectionId));
 	};
 
 	const prefilledValues = field => {

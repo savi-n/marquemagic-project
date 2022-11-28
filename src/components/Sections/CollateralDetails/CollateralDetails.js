@@ -113,7 +113,6 @@ const CollateralDetails = () => {
 		setLoading(true);
 		await submitCollateralDetails();
 		dispatch(setSelectedSectionId(firstSectionId));
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
 		setLoading(false);
 	};
 
