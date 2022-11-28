@@ -1,2 +1,2 @@
-import C from './AddressDetails';
-export default C;
+import AddressDetails from './AddressDetails';
+export default AddressDetails;

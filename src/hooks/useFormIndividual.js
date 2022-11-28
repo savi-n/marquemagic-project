@@ -68,7 +68,7 @@ const VALIDATION_RULES = {
 		func: validatePattern(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
-	pastDates: {
+	past_dates: {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
 	},

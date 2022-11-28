@@ -23,7 +23,7 @@ const LoanDetails = () => {
 	const {
 		isViewLoan,
 		selectedSectionId,
-		selectedProduct,
+		selectedSection,
 		nextSectionId,
 		isTestMode,
 	} = app;
@@ -160,65 +160,63 @@ const LoanDetails = () => {
 
 	return (
 		<SectionUI.Wrapper style={{ marginTop: 50 }}>
-			{selectedProduct?.product_details?.sections
-				?.filter(section => section.id === selectedSectionId)?.[0]
-				?.sub_sections?.map((sub_section, sectionIndex) => {
-					return (
-						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-							{sub_section?.name ? (
-								<SectionUI.SubSectionHeader>
-									{sub_section.name}
-								</SectionUI.SubSectionHeader>
-							) : null}
-							<SectionUI.FormWrapGrid>
-								{sub_section?.fields?.map((field, fieldIndex) => {
-									const newField = _.cloneDeep(field);
-									const customFieldProps = {};
-									if (!newField.visibility) return null;
-									if (newField?.for_type_name) {
-										if (
-											!newField?.for_type.includes(
-												formState?.values?.[newField?.for_type_name]
-											)
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				return (
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						{sub_section?.name ? (
+							<SectionUI.SubSectionHeader>
+								{sub_section.name}
+							</SectionUI.SubSectionHeader>
+						) : null}
+						<SectionUI.FormWrapGrid>
+							{sub_section?.fields?.map((field, fieldIndex) => {
+								const newField = _.cloneDeep(field);
+								const customFieldProps = {};
+								if (!newField.visibility) return null;
+								if (newField?.for_type_name) {
+									if (
+										!newField?.for_type.includes(
+											formState?.values?.[newField?.for_type_name]
 										)
-											return null;
-									}
-									if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-										const newOptions = getApplicantCoApplicantSelectOptions(
-											applicantCoApplicants
-										);
-										newField.options = [...newOptions, ...newField.options];
-									}
-									if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
-										newField.options = connectorOptions;
-									}
-									if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
-										customFieldProps.disabled = true;
-									}
-									return (
-										<SectionUI.FieldWrapGrid
-											key={`field-${fieldIndex}-${newField.name}`}
-										>
-											{register({
-												...newField,
-												value: prefilledValues(newField),
-												...customFieldProps,
-												visibility: 'visible',
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[newField.name]) &&
-												formState?.error?.[newField.name] && (
-													<SectionUI.ErrorMessage>
-														{formState?.error?.[newField.name]}
-													</SectionUI.ErrorMessage>
-												)}
-										</SectionUI.FieldWrapGrid>
+									)
+										return null;
+								}
+								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
+									const newOptions = getApplicantCoApplicantSelectOptions(
+										applicantCoApplicants
 									);
-								})}
-							</SectionUI.FormWrapGrid>
-						</Fragment>
-					);
-				})}
+									newField.options = [...newOptions, ...newField.options];
+								}
+								if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
+									newField.options = connectorOptions;
+								}
+								if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
+									customFieldProps.disabled = true;
+								}
+								return (
+									<SectionUI.FieldWrapGrid
+										key={`field-${fieldIndex}-${newField.name}`}
+									>
+										{register({
+											...newField,
+											value: prefilledValues(newField),
+											...customFieldProps,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[newField.name]) &&
+											formState?.error?.[newField.name] && (
+												<SectionUI.ErrorMessage>
+													{formState?.error?.[newField.name]}
+												</SectionUI.ErrorMessage>
+											)}
+									</SectionUI.FieldWrapGrid>
+								);
+							})}
+						</SectionUI.FormWrapGrid>
+					</Fragment>
+				);
+			})}
 			<SectionUI.Footer>
 				<Button
 					fill

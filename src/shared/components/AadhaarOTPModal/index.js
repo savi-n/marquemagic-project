@@ -1,2 +1,2 @@
-import C from './AadhaarOTPModal';
-export default C;
+import AadhaarOTPModal from './AadhaarOTPModal';
+export default AadhaarOTPModal;

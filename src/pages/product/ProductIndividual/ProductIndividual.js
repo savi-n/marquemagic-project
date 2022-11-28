@@ -76,7 +76,7 @@ const ProductIndividual = props => {
 		collateral_details: CollateralDetails,
 		bank_details: SkipComponent,
 		document_upload: DocumentUpload,
-		reference_details: SkipComponent,
+		reference_details: ReferenceDetails,
 		emi_details: SkipComponent,
 		application_submitted: ApplicationSubmitted,
 	};

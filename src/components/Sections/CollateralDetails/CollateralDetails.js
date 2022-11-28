@@ -95,57 +95,55 @@ const CollateralDetails = () => {
 
 	return (
 		<SectionUI.Wrapper style={{ paddingTop: 50 }}>
-			{selectedProduct?.product_details?.sections
-				?.filter(section => section.id === selectedSectionId)?.[0]
-				?.sub_sections?.map((sub_section, sectionIndex) => {
-					return (
-						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-							{sub_section?.name ? (
-								<SectionUI.SubSectionHeader>
-									{sub_section.name}
-								</SectionUI.SubSectionHeader>
-							) : null}
-							<SectionUI.FormWrapGrid>
-								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!field.visibility) return null;
-									if (field?.for_type_name) {
-										if (
-											!field?.for_type.includes(
-												formState?.values?.[field?.for_type_name]
-											)
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				return (
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						{sub_section?.name ? (
+							<SectionUI.SubSectionHeader>
+								{sub_section.name}
+							</SectionUI.SubSectionHeader>
+						) : null}
+						<SectionUI.FormWrapGrid>
+							{sub_section?.fields?.map((field, fieldIndex) => {
+								if (!field.visibility) return null;
+								if (field?.for_type_name) {
+									if (
+										!field?.for_type.includes(
+											formState?.values?.[field?.for_type_name]
 										)
-											return null;
-									}
-									const customFieldProps = {};
-									return (
-										<SectionUI.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											{register({
-												...field,
-												value: prefilledValues(field),
-												...customFieldProps,
-												visibility: 'visible',
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
-												) : (
-													<SectionUI.ErrorMessage>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessage>
-												))}
-										</SectionUI.FieldWrapGrid>
-									);
-								})}
-							</SectionUI.FormWrapGrid>
-						</Fragment>
-					);
-				})}
+									)
+										return null;
+								}
+								const customFieldProps = {};
+								return (
+									<SectionUI.FieldWrapGrid
+										key={`field-${fieldIndex}-${field.name}`}
+									>
+										{register({
+											...field,
+											value: prefilledValues(field),
+											...customFieldProps,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name] &&
+											(field.subFields ? (
+												<SectionUI.ErrorMessageSubFields>
+													{formState?.error?.[field.name]}
+												</SectionUI.ErrorMessageSubFields>
+											) : (
+												<SectionUI.ErrorMessage>
+													{formState?.error?.[field.name]}
+												</SectionUI.ErrorMessage>
+											))}
+									</SectionUI.FieldWrapGrid>
+								);
+							})}
+						</SectionUI.FormWrapGrid>
+					</Fragment>
+				);
+			})}
 			<SectionUI.Footer>
 				<Button
 					fill

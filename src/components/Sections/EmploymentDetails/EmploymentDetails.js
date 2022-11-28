@@ -220,6 +220,13 @@ const EmploymentDetails = () => {
 					);
 				})}
 			<UI_SECTIONS.Footer>
+				{/* <Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					isLoader={loading}
+					disabled={loading}
+					onClick={handleSubmit(onProceed)}
+				/> */}
 				{displayProceedCTA && (
 					<Button
 						fill
@@ -227,7 +234,6 @@ const EmploymentDetails = () => {
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}
-						// onClick={onProceed}
 					/>
 				)}
 				<Button
@@ -236,7 +242,6 @@ const EmploymentDetails = () => {
 					isLoader={loading}
 					disabled={loading}
 					onClick={handleSubmit(onAddCoApplicant)}
-					// onClick={onAddCoApplicant}
 				/>
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>

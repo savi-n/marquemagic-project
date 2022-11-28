@@ -60,7 +60,7 @@ const PanUpload = props => {
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { cacheDocuments } = selectedApplicant;
 	// const [files, setFiles] = useState([]);
 	// const [panFile, setPanFile] = useState(null);

@@ -1,2 +1,2 @@
-import C from './BankDetails';
-export default C;
+import BankDetails from './BankDetails';
+export default BankDetails;

@@ -1,2 +1,2 @@
-import C from './EmploymentDetails';
-export default C;
+import EmploymentDetails from './EmploymentDetails';
+export default EmploymentDetails;

@@ -1,2 +1,2 @@
-import C from './BasicDetails';
-export default C;
+import BasicDetails from './BasicDetails';
+export default BasicDetails;

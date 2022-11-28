@@ -1,2 +1,2 @@
-import C from './ProductIndividual';
-export default C;
+import ProductIndividual from './ProductIndividual';
+export default ProductIndividual;

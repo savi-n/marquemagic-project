@@ -8,6 +8,8 @@ const initialState = {
 	loanProductId: '',
 	loanAssetsId: '',
 	assetsAdditionalId: '',
+	refId1: '',
+	refId2: '',
 	documents: [],
 	sections: {},
 	preUploadedDocuments: [],
@@ -48,10 +50,14 @@ export const applicantSlice = createSlice({
 				sectionValues,
 				loanAssetsId,
 				assetsAdditionalId,
+				refId1,
+				refId2,
 			} = action.payload;
 			state.sections[sectionId] = sectionValues;
 			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
 			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
+			if (refId1) state.refId1 = refId1;
+			if (refId2) state.refId2 = refId2;
 		},
 	},
 });

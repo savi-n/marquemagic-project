@@ -1,2 +1,2 @@
-import C from './SideNav';
-export default C;
+import SideNav from './SideNav';
+export default SideNav;
