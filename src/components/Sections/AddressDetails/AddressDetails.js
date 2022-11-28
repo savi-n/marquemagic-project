@@ -28,6 +28,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatAddressProofDocTypeList,
 	formatSectionReqBody,
+	getCompletedSections,
 } from 'utils/formatData';
 // import { verifyKycDataUiUx } from 'utils/request';
 import { isInvalidAadhaar } from 'utils/validation';
@@ -37,7 +38,6 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
-import SUB_SECTIONS_JSON from 'testdata/productjsons/m1.3_address_subsections.json';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -51,6 +51,7 @@ const AddressDetails = props => {
 		nextSectionId,
 		isTestMode,
 		clientToken,
+		selectedSection,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -62,14 +63,16 @@ const AddressDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
+	const {
+		directorId,
+		cacheDocuments,
+		businessAddressIdAid1,
+		businessAddressIdAid2,
+	} = selectedApplicant;
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
 		];
-	let { selectedSection } = app;
-	selectedSection = _.cloneDeep(selectedSection);
-	selectedSection.sub_sections = SUB_SECTIONS_JSON;
 	const dispatch = useDispatch();
 	const {
 		handleSubmit,
@@ -99,7 +102,15 @@ const AddressDetails = props => {
 	] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
-
+	const completedSections = getCompletedSections({
+		selectedProduct,
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+		application,
+	});
+	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	// const addCacheDocumentTemp = file => {
 	// 	const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 	// 	newCacheDocumentTemp.push(file);
@@ -601,26 +612,30 @@ const AddressDetails = props => {
 			setLoading(true);
 			const newLoanAddressDetails = [
 				{
+					business_address_id: businessAddressIdAid1,
 					aid: 1,
-					line1: formState.values.present_address1,
-					line2: formState.values.present_address2,
-					locality: formState.values.present_address3,
-					pincode: formState.values.present_pin_code,
-					city: formState.values.permanent_city,
-					state: formState.values.permanent_state,
-					residential_type: formState.values.present_property_type,
-					residential_stability: formState.values.present_property_tenure,
+					line1: formState?.values?.present_address1 || '',
+					line2: formState?.values?.present_address2 || '',
+					locality: formState?.values?.present_address3 || '',
+					pincode: formState?.values?.present_pin_code || '',
+					city: formState?.values?.permanent_city || '',
+					state: formState?.values?.permanent_state || '',
+					residential_type: formState?.values?.present_property_type || '',
+					residential_stability:
+						formState?.values?.present_property_tenure || '',
 				},
 				{
+					business_address_id: businessAddressIdAid2,
 					aid: 2,
-					line1: formState.values.permanent_address1,
-					line2: formState.values.permanent_address2,
-					locality: formState.values.permanent_address3,
-					pincode: formState.values.permanent_pin_code,
-					city: formState.values.permanent_city,
-					state: formState.values.permanent_state,
-					residential_type: formState.values.permanent_property_type,
-					residential_stability: formState.values.permanent_property_tenure,
+					line1: formState?.values?.permanent_address1 || '',
+					line2: formState?.values?.permanent_address2 || '',
+					locality: formState?.values?.permanent_address3 || '',
+					pincode: formState?.values?.permanent_pin_code || '',
+					city: formState?.values?.permanent_city || '',
+					state: formState?.values?.permanent_state || '',
+					residential_type: formState?.values?.permanent_property_type || '',
+					residential_stability:
+						formState?.values?.permanent_property_tenure || '',
 				},
 			];
 			const addressDetailsReqBody = formatSectionReqBody({
@@ -630,16 +645,16 @@ const AddressDetails = props => {
 				values: formState.values,
 			});
 
-			addressDetailsReqBody.loan_address_details = newLoanAddressDetails;
-			console.log('addressDetailsReqBody-', {
-				addressDetailsReqBody,
-			});
+			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
+			// console.log('addressDetailsReqBody-', {
+			// 	addressDetailsReqBody,
+			// });
 			// reqBody.data = addressDetailsCustomReqBody;
 			const addressDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				addressDetailsReqBody
 			);
-			console.log('addressDetailsRes-', { addressDetailsRes });
+			// console.log('addressDetailsRes-', { addressDetailsRes });
 			const cacheDocumentsTemp = [
 				...permanentCacheDocumentsTemp,
 				...presentCacheDocumentsTemp,
@@ -689,6 +704,12 @@ const AddressDetails = props => {
 			const newAddressDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
+				businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
+					address => address.aid === 1
+				)?.[0]?.id,
+				businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
+					address => address.aid === 2
+				)?.[0]?.id,
 			};
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newAddressDetails));
@@ -752,13 +773,13 @@ const AddressDetails = props => {
 	// 	isProceedDisabledAddressProof = true;
 	// }
 
-	console.log('AddressDetails-allProps-', {
-		applicant,
-		coApplicants,
-		selectedApplicant,
-		isSameAsAboveAddressChecked,
-		formState,
-	});
+	// console.log('AddressDetails-allProps-', {
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedApplicant,
+	// 	isSameAsAboveAddressChecked,
+	// 	formState,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -840,18 +861,23 @@ const AddressDetails = props => {
 						// isProceedDisabledAddressProof = true;
 					}
 				}
-				selectedDocTypeId &&
-					console.log(
-						'%c sub_sections_selectedDocumentTypes-',
-						'color: green',
-						{
-							sub_section,
-							isPermanent,
-							selectedAddressProofId,
-							selectedDocumentTypes,
-							selectedAddressProofTypeOption,
-						}
-					);
+
+				if (isSectionCompleted) {
+					isInActiveAddressProofUpload = true;
+				}
+
+				// selectedDocTypeId &&
+				// 	console.log(
+				// 		'%c sub_sections_selectedDocumentTypes-',
+				// 		'color: green',
+				// 		{
+				// 			sub_section,
+				// 			isPermanent,
+				// 			selectedAddressProofId,
+				// 			selectedDocumentTypes,
+				// 			selectedAddressProofTypeOption,
+				// 		}
+				// 	);
 				return (
 					<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
@@ -941,8 +967,10 @@ const AddressDetails = props => {
 												register={register}
 												formState={formState}
 												isInActive={isInActiveAddressProofUpload}
+												isSectionCompleted={isSectionCompleted}
 												// startingTaggedDocs={cacheDocumentsTemp}
 												// section={CONST.ADDRESSPROOF}
+												prefilledDocs={cacheDocuments}
 												selectedAddressProofId={selectedAddressProofId}
 												selectedAddressProofFieldName={
 													selectedAddressProofFieldName
@@ -1011,6 +1039,12 @@ const AddressDetails = props => {
 										)
 									)
 										return null;
+								}
+								if (
+									isSectionCompleted &&
+									field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
+								) {
+									customFieldProps.disabled = true;
 								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid

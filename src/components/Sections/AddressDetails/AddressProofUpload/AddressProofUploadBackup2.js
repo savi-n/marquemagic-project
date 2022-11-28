@@ -156,9 +156,9 @@ const AddressProofUpload = props => {
 				return;
 			}
 
-			console.log('onClickFetchAddress-selectedAddressProofFiles-', {
-				selectedAddressProofFiles,
-			});
+			// console.log('onClickFetchAddress-selectedAddressProofFiles-', {
+			// 	selectedAddressProofFiles,
+			// });
 			// Front + Back Extract
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
@@ -265,10 +265,10 @@ const AddressProofUpload = props => {
 					selectedDocTypeId,
 				};
 
-				console.log('%c front and back', 'color: red', {
-					frontFile,
-					backFile,
-				});
+				// console.log('%c front and back', 'color: red', {
+				// 	frontFile,
+				// 	backFile,
+				// });
 				// const newAddressProofExtractionData = {
 				// 	...backExtractionRes?.data?.extractionData,
 				// 	doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
@@ -351,7 +351,7 @@ const AddressProofUpload = props => {
 			});
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 
-			console.log('%c front only file', 'color: red', { frontOnlyFile });
+			// console.log('%c front only file', 'color: red', { frontOnlyFile });
 
 			// const newAddressProofExtractionData = {
 			// 	...(frontOnlyExtractionRes?.data?.extractionData || {}),
@@ -724,11 +724,11 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
-	console.log(`AddressProofUpload-allstates-`, {
-		props,
-		addressProofErrorColorCode,
-		addressProofError,
-	});
+	// console.log(`AddressProofUpload-allstates-`, {
+	// 	props,
+	// 	addressProofErrorColorCode,
+	// 	addressProofError,
+	// });
 
 	return loading ? (
 		<>

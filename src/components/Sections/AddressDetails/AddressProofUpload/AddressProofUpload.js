@@ -42,7 +42,7 @@ const AddressProofUpload = props => {
 		// startingTaggedDocs = [],
 		// startingUnTaggedDocs = [],
 		isInActive = false,
-		// prefilledDocs = [],
+		prefilledDocs = [],
 		addressProofUploadSection,
 		register,
 		prefilledValues,
@@ -53,6 +53,7 @@ const AddressProofUpload = props => {
 		setCacheDocumentsTemp,
 		selectedDocTypeId,
 		onChangeFormStateField,
+		isSectionCompleted,
 	} = props;
 	let { addressProofError } = props;
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -101,10 +102,10 @@ const AddressProofUpload = props => {
 		try {
 			const { req_type, extractionRes, doc_ref_id } = data;
 			const { extractionData } = extractionRes;
-			console.log('verifyKycAddressProof-', {
-				data,
-				selectedProduct,
-			});
+			// console.log('verifyKycAddressProof-', {
+			// 	data,
+			// 	selectedProduct,
+			// });
 			if (
 				!selectedProduct?.product_details?.kyc_verification ||
 				req_type === CONST_SECTIONS.EXTRACTION_KEY_AADHAAR
@@ -143,7 +144,7 @@ const AddressProofUpload = props => {
 
 	const prepopulateAddressDetails = data => {
 		const { extractionData } = data?.extractionRes;
-		console.log('prepopulateAddressDetails-', extractionData);
+		// console.log('prepopulateAddressDetails-', extractionData);
 
 		// AADHAAR NUMBER
 		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
@@ -236,9 +237,9 @@ const AddressProofUpload = props => {
 				return;
 			}
 
-			console.log('onClickFetchAddress-selectedAddressProofFiles-', {
-				selectedAddressProofFiles,
-			});
+			// console.log('onClickFetchAddress-selectedAddressProofFiles-', {
+			// 	selectedAddressProofFiles,
+			// });
 			// Front + Back Extract
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
@@ -343,10 +344,10 @@ const AddressProofUpload = props => {
 					selectedDocTypeId,
 				};
 
-				console.log('%c front and back', 'color: red', {
-					frontFile,
-					backFile,
-				});
+				// console.log('%c front and back', 'color: red', {
+				// 	frontFile,
+				// 	backFile,
+				// });
 
 				const newCacheDocumentTemp = [];
 				cacheDocumentsTemp.map(doc => {
@@ -444,7 +445,7 @@ const AddressProofUpload = props => {
 			});
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 
-			console.log('%c front only file', 'color: red', { frontOnlyFile });
+			// console.log('%c front only file', 'color: red', { frontOnlyFile });
 
 			// const newAddressProofExtractionData = {
 			// 	...(frontOnlyExtractionRes?.data?.extractionData || {}),
@@ -831,11 +832,11 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
-	console.log(`AddressProofUpload-allstates-`, {
-		props,
-		addressProofErrorColorCode,
-		addressProofError,
-	});
+	// console.log(`AddressProofUpload-allstates-`, {
+	// 	props,
+	// 	addressProofErrorColorCode,
+	// 	addressProofError,
+	// });
 
 	return (
 		<UI.Wrapper>
@@ -883,7 +884,7 @@ const AddressProofUpload = props => {
 			<UI.DropZoneOtpFieldWrapper>
 				{!disabled && !isViewLoan && (
 					<UI.Dropzone
-						isInActive={isInActive}
+						isInActive={isInActive || isSectionCompleted}
 						ref={ref}
 						dragging={dragging}
 						// bg={bg}
@@ -1162,15 +1163,24 @@ const AddressProofUpload = props => {
 							d => d?.doc_type_id === docType?.doc_type_id
 						);
 
+						// TODO: discuss with PM not possible
+						const uploadedDocuments = prefilledDocs.filter(
+							doc => doc?.isTagged?.doc_type_id === docType?.doc_type_id
+						);
+						uploadedDocuments.map(doc => mappedDocFiles.push(doc));
+						// TODO: discuss with PM not possible
+
 						// // const mappedFiles = [];
 						// console.log('upload-list-', {
-						// 	startingTaggedDocs,
-						// 	uploadingFiles,
-						// 	mappedFiles,
+						// 	// startingTaggedDocs,
+						// 	// uploadingFiles,
+						// 	// mappedFiles,
+						// 	prefilledDocs,
 						// 	docTypeOptions,
-						// 	docTypeFileMap,
+						// 	// docTypeFileMap,
 						// 	docType,
 						// 	mappedDocFiles,
+						// 	uploadedDocuments,
 						// });
 						// for (const key in docTypeFileMap) {
 						// 	if (docType.value === docTypeFileMap[key].value) {
@@ -1226,6 +1236,9 @@ const AddressProofUpload = props => {
 										if ('isDocRemoveAllowed' in doc) {
 											isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 											isViewDocAllowed = false;
+										}
+										if (doc?.is_delete_not_allowed === true) {
+											isDocRemoveAllowed = false;
 										}
 										if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
 											isDocRemoveAllowed = false;

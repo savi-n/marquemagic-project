@@ -34,7 +34,6 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
-import SUB_SECTIONS_JSON from 'testdata/productjsons/m1.3_address_subsections.json';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -48,6 +47,7 @@ const AddressDetails = props => {
 		nextSectionId,
 		isTestMode,
 		clientToken,
+		selectedSection,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -65,9 +65,6 @@ const AddressDetails = props => {
 		selectedPresentDocumentTypes,
 		presentAddressProofExtractionRes,
 	} = selectedApplicant;
-	let { selectedSection } = app;
-	selectedSection = _.cloneDeep(selectedSection);
-	selectedSection.sub_sections = SUB_SECTIONS_JSON;
 	const dispatch = useDispatch();
 	const {
 		handleSubmit,

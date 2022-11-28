@@ -68,10 +68,10 @@ const BasicDetails = props => {
 	} = useForm();
 	const profileImageResTemp =
 		cacheDocumentsTemp.filter(
-			doc => doc.field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		cacheDocuments.filter(
-			doc => doc.field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		null;
 

@@ -6,6 +6,8 @@ const initializeApplicantCoApplicant = {
 	directorId: '', // applicant directorId
 	employmentId: '',
 	incomeDataId: '',
+	businessAddressIdAid1: '',
+	businessAddressIdAid2: '',
 	selectedPresentAddressProofId: '',
 	selectedPresentDocumentTypes: [],
 	selectedParmanentAddressProofId: '',
@@ -60,11 +62,17 @@ export const applicantCoApplicantsSlice = createSlice({
 				directorId,
 				employmentId,
 				incomeDataId,
+				businessAddressIdAid1,
+				businessAddressIdAid2,
 			} = action.payload;
 			state.applicant[sectionId] = sectionValues;
 			if (directorId) state.applicant.directorId = directorId;
 			if (employmentId) state.applicant.employmentId = employmentId;
 			if (incomeDataId) state.applicant.incomeDataId = incomeDataId;
+			if (businessAddressIdAid1)
+				state.applicant.businessAddressIdAid1 = businessAddressIdAid1;
+			if (businessAddressIdAid2)
+				state.applicant.businessAddressIdAid2 = businessAddressIdAid2;
 		},
 		updateCoApplicantSection: (state, action) => {
 			const {
@@ -73,6 +81,8 @@ export const applicantCoApplicantsSlice = createSlice({
 				sectionValues,
 				employmentId,
 				incomeDataId,
+				businessAddressIdAid1,
+				businessAddressIdAid2,
 			} = action.payload;
 			const newCoApplicants = _.cloneDeep(state.coApplicants);
 			const newCoApplicantValues = newCoApplicants[directorId]
@@ -82,11 +92,15 @@ export const applicantCoApplicantsSlice = createSlice({
 			if (directorId) newCoApplicantValues.directorId = directorId;
 			if (employmentId) newCoApplicantValues.employmentId = employmentId;
 			if (incomeDataId) newCoApplicantValues.incomeDataId = incomeDataId;
-			console.log('updateCoApplicantSection-', {
-				newCoApplicantValues,
-				sectionId,
-				action,
-			});
+			if (businessAddressIdAid1)
+				newCoApplicantValues.businessAddressIdAid1 = businessAddressIdAid1;
+			if (businessAddressIdAid2)
+				newCoApplicantValues.businessAddressIdAid2 = businessAddressIdAid2;
+			// console.log('updateCoApplicantSection-', {
+			// 	newCoApplicantValues,
+			// 	sectionId,
+			// 	action,
+			// });
 			state.coApplicants[directorId] = newCoApplicantValues;
 			state.selectedApplicantCoApplicantId = directorId;
 		},
@@ -226,7 +240,7 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		updateSelectedDocumentTypeId: (state, action) => {
-			console.log('updateSelectedDocumentTypeId-', { action });
+			// console.log('updateSelectedDocumentTypeId-', { action });
 			const { fileId, docType } = action.payload;
 			const oldDocuments = _.cloneDeep(
 				state.isApplicant

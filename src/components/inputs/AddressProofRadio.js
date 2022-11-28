@@ -31,7 +31,7 @@ const CardRadioButton = styled.div`
 `;
 
 const AddressProofRadio = props => {
-	const { name, value, onChange, options } = props;
+	const { name, value, onChange, options, disabled } = props;
 	// console.log('AddressProofRadio-', { props });
 	return (
 		<RadioButtonWrapper>
@@ -46,6 +46,7 @@ const AddressProofRadio = props => {
 							onChange={onChange}
 							checked={value === option.value}
 							visibility='visible'
+							disabled={!!disabled}
 						/>
 						<label
 							htmlFor={`${name}${option.value}`}

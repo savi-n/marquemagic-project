@@ -14,6 +14,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
+import { getCompletedSections } from 'utils/formatData';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 
@@ -37,28 +38,35 @@ const SideNav = props => {
 	const history = useHistory();
 	const [hide, setShowHideSidebar] = useState(true);
 
-	const completedMenu = [];
-	selectedProduct?.product_details?.sections?.map(section => {
-		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
-			completedMenu.push(section.id);
-		} else {
-			if (
-				Object.keys(
-					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
-				).length > 0
-			)
-				completedMenu.push(section.id);
-		}
-		if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
-			completedMenu.push(section.id);
-		}
-		return null;
+	const completedSections = getCompletedSections({
+		selectedProduct,
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+		application,
 	});
+	// selectedProduct?.product_details?.sections?.map(section => {
+	// 	if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
+	// 		completedSections.push(section.id);
+	// 	} else {
+	// 		if (
+	// 			Object.keys(
+	// 				coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
+	// 			).length > 0
+	// 		)
+	// 			completedSections.push(section.id);
+	// 	}
+	// 	if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
+	// 		completedSections.push(section.id);
+	// 	}
+	// 	return null;
+	// });
 
 	// console.log('SideNav-allStates-', {
 	// 	app,
 	// 	selectedProduct,
-	// 	completedMenu,
+	// 	completedSections,
 	// });
 
 	return (
@@ -84,7 +92,7 @@ const SideNav = props => {
 					{selectedProduct?.product_details?.sections?.map(
 						(section, sectionIndex) => {
 							const isActive = selectedSectionId === section.id;
-							const isCompleted = completedMenu.includes(section.id);
+							const isCompleted = completedSections.includes(section.id);
 							return (
 								<Fragment key={section.id}>
 									<UI.Link

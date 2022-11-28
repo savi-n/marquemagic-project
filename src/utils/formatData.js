@@ -372,3 +372,32 @@ export const getApplicantCoApplicantSelectOptions = applicantCoApplicants => {
 	});
 	return options;
 };
+
+export const getCompletedSections = data => {
+	const {
+		selectedProduct,
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+		application,
+	} = data;
+	const completedMenu = [];
+	selectedProduct?.product_details?.sections?.map(section => {
+		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
+			completedMenu.push(section.id);
+		} else {
+			if (
+				Object.keys(
+					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
+				).length > 0
+			)
+				completedMenu.push(section.id);
+		}
+		if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
+			completedMenu.push(section.id);
+		}
+		return null;
+	});
+	return completedMenu;
+};
