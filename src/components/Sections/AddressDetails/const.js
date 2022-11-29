@@ -24,6 +24,7 @@ export const ADDRESSPROOF = 'addressproof';
 export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
 export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
 export const AADHAAR_FIELD_NAME = 'aadhaar';
+export const AADHAAR_FIELD_NAME_FOR_OTP = 'permanent_aadhaar';
 export const ADDRESS_PROOF_TYPE_FIELD_NAME = 'address_proof_type';
 export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 	'permanent_address_proof_type';

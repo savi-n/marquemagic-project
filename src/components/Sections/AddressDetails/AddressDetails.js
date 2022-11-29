@@ -15,7 +15,7 @@ import {
 	// setIsSameAsAboveAddressChecked,
 	updateApplicantSection,
 	updateCoApplicantSection,
-	setGenerateAadhaarOtpResponse,
+	setGenerateAadhaarOtp,
 	addCacheDocuments,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
@@ -37,6 +37,7 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+import { useEffect } from 'react';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -60,6 +61,7 @@ const AddressDetails = props => {
 		isApplicant,
 		verifyOtpResponse,
 	} = applicantCoApplicants;
+	const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
@@ -99,6 +101,7 @@ const AddressDetails = props => {
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
+	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
 	const completedSections = getCompletedSections({
@@ -110,10 +113,12 @@ const AddressDetails = props => {
 		application,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
-
+	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const onClickVerifyWithOtp = async () => {
 		try {
-			const aadhaarErrorMessage = isInvalidAadhaar(formState.values.aadhaar);
+			const aadhaarErrorMessage = isInvalidAadhaar(
+				formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
+			);
 			if (aadhaarErrorMessage) {
 				return addToast({
 					message: aadhaarErrorMessage,
@@ -123,7 +128,7 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(true);
 			try {
 				const aadhaarOtpReqBody = {
-					aadhaarNo: formState.values.aadhaar,
+					aadhaarNo: formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP],
 					product_id: loanProductId,
 				};
 				// console.log(aadhaarOtpReqBody, '555', clientToken);
@@ -138,7 +143,6 @@ const AddressDetails = props => {
 					}
 				);
 				const aadhaarGenOtpResponse = aadharOtpReq.data;
-				// console.log(aadhaarGenOtpResponse, '333');
 				if (aadhaarGenOtpResponse.status === 'nok') {
 					addToast({
 						message:
@@ -148,20 +152,37 @@ const AddressDetails = props => {
 					});
 				}
 				if (aadhaarGenOtpResponse.status === 'ok') {
-					aadhaarGenOtpResponse.aadhaarNo = formState.values.aadhaar;
-					dispatch(setGenerateAadhaarOtpResponse(aadhaarGenOtpResponse));
+					aadhaarGenOtpResponse.aadhaarNo =
+						formState?.values?.[CONST.AADHAAR_FIELD_NAME_FOR_OTP];
+
+					setAadharOtpResponse({
+						req: aadhaarOtpReqBody,
+						res: aadhaarGenOtpResponse,
+					});
+
 					addToast({
 						message: 'OTP is sent to aadhaar link mobile number',
 						type: 'success',
 					});
 					setIsAadhaarOtpModalOpen(true);
-					// console.log(formState.values, '555777');
-					if (verifyOtpResponse.data.address) {
-						// to be continued
-						// verifyOtpResponse?.data?.address;
-						// population of the data from the aadhaar otp verification is pending here
-						// console.log(formState, '111222');
-					}
+					// console.log(verifyOtpResponse, '555777', verifyOtpResponse.status);
+					setIsVerifyWithOtpDisabled(true);
+					// if (isApplicant) {
+					// 	if (applicant?.api?.verifyOtp?.res?.status === 'ok') {
+					// 		setIsVerifyWithOtpDisabled(true);
+					// 		console.log('if block , applicant');
+					// 	}
+					// } else {
+					// 	if (
+					// 		coApplicants[selectedDirectorId]?.api.verifyOtp.res.status ===
+					// 		'ok'
+					// 	) {
+					// 		setIsVerifyWithOtpDisabled(true);
+					// 		console.log('else block coapplicant');
+					// 	}
+					// }
+					// if (verifyOtpResponse.status === 'ok') {
+					// }
 				}
 			} catch (error) {
 				console.error('error-generate-aadhaar-otp-', error);
@@ -181,7 +202,9 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(false);
 		}
 	};
-
+	// useEffect(() => {
+	// 	setIsVerifyWithOtpDisabled(true);
+	// }, []);
 	const onProceed = async () => {
 		try {
 			setLoading(true);
@@ -390,10 +413,8 @@ const AddressDetails = props => {
 				<AadhaarOTPModal
 					isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
 					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
-					aadhaarGenOtpResponse={
-						applicantCoApplicants.generateAadhaarOtpResponse
-					}
-					// setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
+					aadhaarGenOtpResponse={aadharOtpResponse?.res}
+					setIsVerifyWithOtpDisabled={isVerifyWithOtpDisabled}
 				/>
 			)}
 			{selectedSection?.sub_sections?.map((sub_section, subSectionIndex) => {
