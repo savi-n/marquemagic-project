@@ -489,7 +489,7 @@ const AddressDetails = props => {
 									{sub_section.name}
 								</UI_SECTIONS.SubSectionHeader>
 								<Hint
-									hint='Please uplaod the document with KYC image in Portrait Mode'
+									hint='Please upload the document with KYC image in Portrait Mode'
 									hintIconName='Portrait Mode'
 								/>
 							</>
