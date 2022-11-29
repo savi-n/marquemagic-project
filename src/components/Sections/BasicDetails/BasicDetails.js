@@ -373,7 +373,7 @@ const BasicDetails = props => {
 							</UI_SECTIONS.SubSectionHeader>
 						) : null}
 						<Hint
-							hint='Please uplaod the document with KYC image in Portrait Mode'
+							hint='Please upload the document with KYC image in Portrait Mode'
 							hintIconName='Portrait Mode'
 						/>
 						<UI_SECTIONS.FormWrapGrid>

@@ -746,7 +746,7 @@ const AddressDetails = props => {
 									{sub_section.name}
 								</UI_SECTIONS.SubSectionHeader>
 								<Hint
-									hint='Please uplaod the document with KYC image in Portrait Mode'
+									hint='Please upload the document with KYC image in Portrait Mode'
 									hintIconName='Portrait Mode'
 								/>
 							</>
@@ -788,7 +788,7 @@ const AddressDetails = props => {
 				<UI.HeaderTitle>Help us with Address details</UI.HeaderTitle>
 				{/* <UI.Tip> */}
 				<Hint
-					hint='Please uplaod the document with KYC image in Portrait Mode'
+					hint='Please upload the document with KYC image in Portrait Mode'
 					hintIconName='Portrait Mode'
 				/>
 				{/* </UI.Tip> */}
