@@ -67,6 +67,7 @@ const AddressProofUpload = props => {
 		coApplicants,
 		isApplicant,
 	} = applicantCoApplicants;
+	const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
@@ -794,6 +795,15 @@ const AddressProofUpload = props => {
 		// eslint-disable-next-line
 	}, [selectedAddressProofId]);
 
+	// useEffect(() => {
+	// 	console.log(coApplicants[selectedDirectorId], '999888', applicant);
+	// 	console.log(
+	// 		coApplicants[selectedDirectorId]?.api?.verifyOtp?.res?.status === 'ok',
+	// 		applicant?.api?.verifyOtp?.res?.status === 'ok',
+	// 		'%%%'
+	// 	);
+	// }, []);
+
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
@@ -947,9 +957,14 @@ const AddressProofUpload = props => {
 								name='Verify with OTP'
 								isLoader={verifyingWithOtp}
 								disabled={
+									coApplicants?.[selectedDirectorId]?.api?.verifyOtp?.res
+										?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
 									verifyingWithOtp ||
 									isEditLoan
+
+									// ||
+									// applicant?.api?.verifyOtp?.res?.status === 'ok'
 								}
 								type='submit'
 								customStyle={{

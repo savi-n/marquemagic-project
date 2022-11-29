@@ -101,6 +101,7 @@ const AadhaarOTPModal = props => {
 	const { application, app, applicantCoApplicants } = useSelector(
 		state => state
 	);
+	const { applicant, coApplicants } = applicantCoApplicants;
 	const { loanProductId } = application;
 	const { selectedSection, clientToken } = app;
 	const { addToast } = useToasts();
@@ -133,6 +134,8 @@ const AadhaarOTPModal = props => {
 			app,
 			applicantCoApplicants,
 			application,
+			applicant,
+			coApplicants,
 		});
 
 		try {
@@ -153,7 +156,20 @@ const AadhaarOTPModal = props => {
 				},
 			});
 			const aadhaarVerifyResponse = aadharVerifyReq.data;
-			dispatch(setVerifyOtpResponse(aadhaarVerifyResponse));
+			dispatch(
+				setVerifyOtpResponse({
+					req: {
+						...otpReqBody,
+						transactionId: aadhaarGenOtpResponse.data.transactionId,
+						otp: inputAadhaarOTP,
+						codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
+						fwdp: aadhaarGenOtpResponse.data.fwdp,
+						aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
+						product_id: loanProductId,
+					},
+					res: aadhaarVerifyResponse,
+				})
+			);
 
 			if (aadhaarVerifyResponse.status === 'ok') {
 				setIsAadhaarOtpModalOpen(false);
@@ -170,7 +186,7 @@ const AadhaarOTPModal = props => {
 				setIsAadhaarOtpModalOpen(false);
 				addToast({
 					message:
-						' Aadhaar cannot be validated due to technical failure. Please try again after sometime',
+						' Aadhaar is not validated due to technical failure. Please try again after sometime',
 					type: 'error',
 				});
 			}
