@@ -45,6 +45,17 @@ export const Avatar = styled.img`
 	/* background-color: #dce2f7; */
 `;
 
+export const BadgeInvalid = styled.div`
+	position: absolute;
+	height: 12px;
+	width: 12px;
+	top: 0;
+	margin-top: 30px;
+	margin-left: 50px;
+	background-color: #dc3545;
+	border-radius: 25px;
+`;
+
 export const AvatarName = styled.h4``;
 
 export const BadgeDelete = styled.img`

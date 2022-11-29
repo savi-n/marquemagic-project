@@ -5,7 +5,7 @@ import axios from 'axios';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import { setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
@@ -22,8 +22,9 @@ const CollateralDetails = () => {
 		selectedSectionId,
 		// selectedProduct,
 		nextSectionId,
-		isTestMode,
 		selectedSection,
+		isLocalhost,
+		isTestMode,
 	} = app;
 	const { loanAssetsId, assetsAdditionalId } = application;
 	const dispatch = useDispatch();
@@ -176,6 +177,13 @@ const CollateralDetails = () => {
 					onClick={handleSubmit(onProceed)}
 				/>
 				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</SectionUI.Footer>
 		</SectionUI.Wrapper>
 	);

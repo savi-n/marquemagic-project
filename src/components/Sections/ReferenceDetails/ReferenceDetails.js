@@ -6,7 +6,7 @@ import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { updateApplicationSection } from 'store/applicationSlice';
@@ -22,8 +22,9 @@ const ReferenceDetails = () => {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
-		isTestMode,
 		selectedSection,
+		isTestMode,
+		isLocalhost,
 	} = app;
 	const { refId1, refId2 } = application;
 	const dispatch = useDispatch();
@@ -205,6 +206,13 @@ const ReferenceDetails = () => {
 					onClick={handleSubmit(onProceed)}
 				/>
 				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</SectionUI.Footer>
 		</SectionUI.Wrapper>
 	);

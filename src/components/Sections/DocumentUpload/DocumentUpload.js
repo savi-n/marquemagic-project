@@ -14,30 +14,7 @@ import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
 
-import {
-	DOCS_UPLOAD_URL,
-	BUSSINESS_LOAN_CASE_CREATION,
-	NC_STATUS_CODE,
-	ADD_SUBSIDIARY_DETAILS,
-	ADD_BANK_DETAILS,
-	ADD_SHAREHOLDER_DETAILS,
-	ADD_REFENCE_DETAILS,
-	DOCTYPES_FETCH,
-	WHITELABEL_ENCRYPTION_API,
-	CIN_UPDATE,
-	BUSSINESS_LOAN_CASE_CREATION_EDIT,
-	UPLOAD_CACHE_DOCS,
-	AUTHENTICATION_GENERATE_OTP,
-	CO_APPLICANTS_DOCTYPES_FETCH,
-	HOSTNAME,
-	APP_DOCTYPE_LIST_REQ_BODY,
-	APP_DOCTYPE_LIST_RESPONSE,
-	CO_APP_CREATE_RESPONSE,
-	CO_APP_DOCTYPE_LIST_REQ_BODY,
-	CO_APP_DOCTYPE_LIST_RESPONSE,
-	FETCH_EVAL_DETAILS,
-	BORROWER_UPLOAD_URL,
-} from '_config/app.config';
+import * as API from '_config/app.config';
 import {
 	addLoanDocuments,
 	removeLoanDocument,
@@ -105,7 +82,7 @@ const DocumentUpload = props => {
 	const initializeExternalUserDocCheckList = async () => {
 		try {
 			const evalData = await axios.get(
-				`${FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
+				`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
 			);
 			const selectedEvalData = evalData?.data?.data?.filter(
 				d => d.assign_userid === userDetails.id
@@ -133,7 +110,7 @@ const DocumentUpload = props => {
 				loan_product: selectedProduct.product_id[selectedApplicantIncomeTypeId],
 			};
 			// console.log('applicantDocReqBody-', { reqBody });
-			const applicantDocRes = await axios.post(DOCTYPES_FETCH, reqBody);
+			const applicantDocRes = await axios.post(API.DOCTYPES_FETCH, reqBody);
 			// console.log('applicantDocRes-', applicantDocRes);
 			const newAppDocOptions = [];
 			for (const key in applicantDocRes?.data) {
@@ -182,7 +159,9 @@ const DocumentUpload = props => {
 			// http://3.108.54.252:1337/coApplicantDocList?income_type=1
 			const coApplicantIncomeTypeId = coApplicant?.basic_details?.income_type;
 			let coAppDocTypesRes = await axios.get(
-				`${CO_APPLICANTS_DOCTYPES_FETCH}?income_type=${coApplicantIncomeTypeId}`
+				`${
+					API.CO_APPLICANTS_DOCTYPES_FETCH
+				}?income_type=${coApplicantIncomeTypeId}`
 			);
 			coAppDocTypesRes = coAppDocTypesRes?.data?.data || [];
 			// console.log('coAppDocTypesRes-', coAppDocTypesRes);
@@ -243,10 +222,10 @@ const DocumentUpload = props => {
 			// console.log('initializeDocTypeList');
 			setLoading(true);
 			// TODO: viewloan external evaluation
-			// let externalUserSelectedDocTypeList = [];
-			// if (isViewLoan) {
-			// 	externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
-			// }
+			let externalUserSelectedDocTypeList = [];
+			if (isViewLoan) {
+				externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
+			}
 			// get applicant document list
 			const newAppDocOptions = isApplicant
 				? await getApplicantDocumentTypes()
@@ -362,7 +341,10 @@ const DocumentUpload = props => {
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
-			await axios.post(AUTHENTICATION_GENERATE_OTP, authenticationOtpReqBody);
+			await axios.post(
+				API.AUTHENTICATION_GENERATE_OTP,
+				authenticationOtpReqBody
+			);
 			setIsAuthenticationOtpModalOpen(true);
 			setLoading(false);
 		} catch (error) {
@@ -466,7 +448,7 @@ const DocumentUpload = props => {
 			});
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
 			// console.log('documentUploadReqBody-', documentUploadReqBody);
-			await axios.post(`${BORROWER_UPLOAD_URL}`, documentUploadReqBody);
+			await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			dispatch(
 				updateApplicationSection({
 					sectionId: selectedSectionId,
@@ -735,7 +717,7 @@ const DocumentUpload = props => {
 									documentTypeChangeCallback={handleDocumentTypeChange}
 									accept=''
 									upload={{
-										url: DOCS_UPLOAD_URL({
+										url: API.DOCS_UPLOAD_URL({
 											userId: businessUserId,
 										}),
 									}}

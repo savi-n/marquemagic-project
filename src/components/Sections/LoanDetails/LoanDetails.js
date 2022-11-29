@@ -8,7 +8,7 @@ import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -31,6 +31,7 @@ const LoanDetails = () => {
 		selectedSection,
 		nextSectionId,
 		isTestMode,
+		isLocalhost,
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const {
@@ -395,6 +396,13 @@ const LoanDetails = () => {
 					})}
 				/>
 				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

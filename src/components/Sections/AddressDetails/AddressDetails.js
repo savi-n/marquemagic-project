@@ -18,7 +18,7 @@ import {
 	setGenerateAadhaarOtpResponse,
 	addCacheDocuments,
 } from 'store/applicantCoApplicantsSlice';
-import { setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -51,6 +51,7 @@ const AddressDetails = props => {
 		isTestMode,
 		clientToken,
 		selectedSection,
+		isLocalhost,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -318,6 +319,7 @@ const AddressDetails = props => {
 				...(selectedApplicant?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
+			directorId,
 		};
 		if (isApplicant) {
 			dispatch(updateApplicantSection(skipSectionData));
@@ -679,6 +681,13 @@ const AddressDetails = props => {
 					onClick={handleSubmit(onProceed)}
 				/>
 				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

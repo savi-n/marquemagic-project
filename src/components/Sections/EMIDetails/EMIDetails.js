@@ -7,8 +7,7 @@ import Button from 'components/Button';
 
 import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import { formatSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
@@ -19,7 +18,14 @@ const EMIDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		isLocalhost,
+		isTestMode,
+	} = app;
 	const { applicant, isApplicant } = applicantCoApplicants;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -30,7 +36,6 @@ const EMIDetails = props => {
 
 	const onProceed = async () => {
 		try {
-			if (Object.keys(formState.values).length === 0) return onSkip();
 			setLoading(true);
 
 			let finalData = [];
@@ -86,12 +91,14 @@ const EMIDetails = props => {
 	};
 
 	const onSkip = () => {
-		dispatch(
-			updateApplicantSection({
-				id: selectedSectionId,
-				values: { isSkip: true },
-			})
-		);
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(application?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -215,6 +222,13 @@ const EMIDetails = props => {
 					// onClick={onProceed}
 				/>
 				<Button name='Skip' onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

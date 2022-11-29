@@ -27,6 +27,7 @@ const initialState = {
 	selectedApplicantCoApplicantId: CONST_SECTIONS.APPLICANT,
 	isApplicant: true,
 	coApplicants: {},
+	selectedApplicant: {},
 	generateAadhaarOtpResponse: {},
 	verifyOtpResponse: {},
 };
@@ -35,51 +36,6 @@ export const applicantCoApplicantsSlice = createSlice({
 	name: 'applicantCoApplicants',
 	initialState,
 	reducers: {
-		onChangeSelectedApplicantField: (state, action) => {
-			const { name, value } = action.payload;
-			if (state.isApplicant) {
-				state.applicant[name] = value;
-			} else {
-				state.coApplicants[state.selectedApplicantCoApplicantId][name] = value;
-			}
-		},
-		updateApplicantCoApplicantSection: (state, action) => {
-			const { sectionId, sectionValues } = action.payload;
-			if (state.isApplicant) {
-				state.applicant[sectionId] = sectionValues;
-			} else {
-				const { directorId } = action.payload;
-				const newSectionData = _.cloneDeep(state.coApplicants);
-				if (!newSectionData[directorId]) newSectionData[directorId] = {};
-				state.coApplicants[directorId][sectionId] = sectionValues;
-			}
-		},
-		updateBasicDetailsSection: (state, action) => {
-			const {
-				sectionId,
-				sectionValues,
-				directorId,
-				employmentId,
-				incomeDataId,
-				businessAddressIdAid1,
-				businessAddressIdAid2,
-				isApplicant,
-			} = action.payload;
-			if (isApplicant) {
-				state.applicant[sectionId] = sectionValues;
-				if (directorId) state.applicant.directorId = directorId;
-				if (employmentId) state.applicant.employmentId = employmentId;
-				if (incomeDataId) state.applicant.incomeDataId = incomeDataId;
-				if (businessAddressIdAid1)
-					state.applicant.businessAddressIdAid1 = businessAddressIdAid1;
-				if (businessAddressIdAid2)
-					state.applicant.businessAddressIdAid2 = businessAddressIdAid2;
-			} else {
-				state.coApplicants[directorId] = _.cloneDeep(
-					initializeApplicantCoApplicant
-				);
-			}
-		},
 		updateApplicantSection: (state, action) => {
 			const {
 				sectionId,
@@ -111,7 +67,7 @@ export const applicantCoApplicantsSlice = createSlice({
 			} = action.payload;
 			const newCoApplicants = _.cloneDeep(state.coApplicants);
 			if (Object.keys(newCoApplicants?.[directorId] || {}).length <= 0) {
-				newCoApplicants.directorId = _.cloneDeep(
+				newCoApplicants[directorId] = _.cloneDeep(
 					initializeApplicantCoApplicant
 				);
 			}
@@ -311,10 +267,25 @@ export const applicantCoApplicantsSlice = createSlice({
 			const { file, directorId } = action.payload;
 			const selectedDirectorId =
 				directorId || state.selectedApplicantCoApplicantId;
+			const newDocuments = _.cloneDeep(
+				state.isApplicant
+					? state?.applicant?.cacheDocuments || []
+					: state?.coApplicants?.[selectedDirectorId]?.cacheDocuments || []
+			);
+			newDocuments.push(file);
 			if (state.isApplicant) {
-				state.applicant.cacheDocuments.push(file);
+				state.applicant.cacheDocuments = newDocuments;
 			} else {
-				state.coApplicants[selectedDirectorId].cacheDocuments.push(file);
+				if (state?.coApplicants?.[selectedDirectorId]) {
+					state.coApplicants[selectedDirectorId].cacheDocuments = newDocuments;
+				} else {
+					const newCoApplicants = _.cloneDeep(state.coApplicants);
+					newCoApplicants[selectedDirectorId] = _.cloneDeep(
+						initializeApplicantCoApplicant
+					);
+					newCoApplicants[selectedDirectorId].cacheDocuments = newDocuments;
+					state.coApplicants = newCoApplicants;
+				}
 			}
 		},
 		addCacheDocuments: (state, action) => {
@@ -365,7 +336,6 @@ export const {
 	updateApplicantSection,
 	updateCoApplicantSection,
 	setSelectedApplicantCoApplicantId,
-	updateApplicantCoApplicantSection,
 	setSelectedParmanentAddressProofId,
 	setSelectedPresentAddressProofId,
 	// setPanExtractionRes,

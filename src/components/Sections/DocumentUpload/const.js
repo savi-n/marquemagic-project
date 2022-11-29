@@ -34,3 +34,5 @@ export const commentsForOfficeUseField = {
 	visibility: true,
 	default_value: '',
 };
+
+export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';

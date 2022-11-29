@@ -9,9 +9,11 @@ import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
+import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 
 const ApplicantCoApplicantHeader = props => {
-	const { applicantCoApplicants } = useSelector(state => state);
+	const { app, applicantCoApplicants } = useSelector(state => state);
+	const { selectedSectionId } = app;
 	const {
 		coApplicants,
 		selectedApplicantCoApplicantId,
@@ -58,6 +60,10 @@ const ApplicantCoApplicantHeader = props => {
 							onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT)
 						}
 					/>
+					{selectedSectionId ===
+						CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID && (
+						<UI.BadgeInvalid />
+					)}
 					<UI.AvatarName>Applicant</UI.AvatarName>
 				</UI.LI>
 				{Object.keys(coApplicants).map((directorId, directorIndex) => {
@@ -76,6 +82,10 @@ const ApplicantCoApplicantHeader = props => {
 								alt='Avatar'
 								onClick={() => onClickApplicantCoApplicant(directorId)}
 							/>
+							{selectedSectionId ===
+								CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID && (
+								<UI.BadgeInvalid />
+							)}
 							<UI.AvatarName>Co-Applicant {directorIndex + 1}</UI.AvatarName>
 						</UI.LI>
 					);

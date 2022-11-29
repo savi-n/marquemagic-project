@@ -10,7 +10,7 @@ import Button from 'components/Button';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
-import { setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import {
 	setSelectedApplicantCoApplicantId,
 	updateCoApplicantSection,
@@ -29,6 +29,7 @@ const EmploymentDetails = () => {
 		nextSectionId,
 		firstSectionId,
 		isTestMode,
+		isLocalhost,
 	} = app;
 	const {
 		applicant,
@@ -127,6 +128,24 @@ const EmploymentDetails = () => {
 		}
 	};
 
+	const onSkipAddCoApplicant = () => {
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(selectedApplicant?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+			directorId,
+		};
+		if (isApplicant) {
+			dispatch(updateApplicantSection(skipSectionData));
+		} else {
+			dispatch(updateCoApplicantSection(skipSectionData));
+		}
+		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
+		dispatch(setSelectedSectionId(firstSectionId));
+	};
+
 	const onSkip = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
@@ -134,6 +153,7 @@ const EmploymentDetails = () => {
 				...(selectedApplicant?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
+			directorId,
 		};
 		if (isApplicant) {
 			dispatch(updateApplicantSection(skipSectionData));
@@ -263,7 +283,20 @@ const EmploymentDetails = () => {
 					disabled={loading}
 					onClick={handleSubmit(onAddCoApplicant)}
 				/>
-				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				<Button
+					fill
+					name='Skip Add-CoApplicant'
+					disabled={loading}
+					onClick={onSkipAddCoApplicant}
+				/>
+				<Button fill name='Skip Proceed' disabled={loading} onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

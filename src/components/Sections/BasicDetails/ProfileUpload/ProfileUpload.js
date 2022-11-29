@@ -17,6 +17,7 @@ import * as UI from './ui';
 const ProfileUpload = props => {
 	const {
 		field,
+		isPanMandatory,
 		isPanNumberExist,
 		isFormSubmited,
 		isProfileMandatory,
@@ -200,7 +201,7 @@ const ProfileUpload = props => {
 	return (
 		<UI.Container isError={isProfileMandatory && isFormSubmited && !isPreview}>
 			<UI.ImageBgProfile src={imageBgProfile} alt='upload your profile' />
-			{!isPanNumberExist ? null : loading ? (
+			{isPanMandatory && !isPanNumberExist ? null : loading ? (
 				<UI.CameraIconWrapper>
 					<LoadingIcon />
 				</UI.CameraIconWrapper>

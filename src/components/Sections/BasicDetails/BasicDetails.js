@@ -10,7 +10,7 @@ import PanUpload from './PanUpload';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 
-import { setLoginCreateUserRes } from 'store/appSlice';
+import { setLoginCreateUserRes, toggleTestMode } from 'store/appSlice';
 import { setLoanIds } from 'store/applicationSlice';
 import {
 	updateApplicantSection,
@@ -42,6 +42,7 @@ const BasicDetails = props => {
 		whiteLabelId,
 		clientToken,
 		userToken,
+		isLocalhost,
 	} = app;
 	const {
 		isApplicant,
@@ -164,9 +165,6 @@ const BasicDetails = props => {
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
 			);
-			// console.log('onProceed-basicDetailsResBody-', {
-			// 	basicDetailsRes,
-			// });
 			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
 			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
 			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
@@ -183,9 +181,15 @@ const BasicDetails = props => {
 				preview: null,
 				file: null,
 			};
+			// console.log('onProceed-basicDetailsResBody-', {
+			// 	basicDetailsRes,
+			// 	newProfileData,
+			// 	newDirectorId,
+			// });
 			dispatch(
 				addCacheDocument({
 					file: newProfileData,
+					directorId: newDirectorId,
 				})
 			);
 			if (cacheDocumentsTemp.length > 0) {
@@ -392,6 +396,7 @@ const BasicDetails = props => {
 												<ProfileUpload
 													field={field}
 													isPanNumberExist={isPanNumberExist}
+													isPanMandatory={isPanUploadMandatory}
 													isFormSubmited={formState?.submit?.isSubmited}
 													isProfileMandatory={isProfileMandatory}
 													uploadedFile={profileUploadedFile}
@@ -529,6 +534,14 @@ const BasicDetails = props => {
 						setIsIncomeTypeConfirmModalOpen(true);
 					})}
 				/>
+
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

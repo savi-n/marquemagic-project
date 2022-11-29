@@ -58,7 +58,12 @@ const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { selectedSectionId, applicantCoApplicantSectionIds, userToken } = app;
+	const {
+		selectedSectionId,
+		applicantCoApplicantSectionIds,
+		userToken,
+		isTestMode,
+	} = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
 	const SELECTED_SECTION_MAPPING = {
@@ -82,7 +87,7 @@ const ProductIndividual = props => {
 		sleep(100).then(res => {
 			setLoading(false);
 		});
-	}, [selectedSectionId, selectedApplicantCoApplicantId]);
+	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
 
 	useEffect(() => {
 		console.log('ProductIndividual-allStates-', {

@@ -24,6 +24,7 @@ const initialState = {
 	whiteLabelName: window.location.hostname.includes('localhost')
 		? process.env.REACT_APP_QA_WHITELABEL_NAME
 		: window.location.hostname,
+	isLocalhost: window.location.hostname.includes('localhost'),
 	loginCreateUserRes: null,
 	whiteLabelId: '',
 	permission: {},
@@ -165,6 +166,10 @@ export const appSlice = createSlice({
 				state.isCreateLoan = false;
 			}
 		},
+
+		toggleTestMode: (state, action) => {
+			state.isTestMode = !state.isTestMode;
+		},
 	},
 });
 
@@ -187,6 +192,8 @@ export const {
 	addFormData,
 
 	setEditLoanData,
+
+	toggleTestMode,
 } = appSlice.actions;
 
 export default appSlice.reducer;
