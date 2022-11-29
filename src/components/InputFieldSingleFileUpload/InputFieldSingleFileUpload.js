@@ -49,6 +49,7 @@ const InputFieldSingleFileUpload = props => {
 			setLoading(false);
 		}
 	};
+
 	const deleteDocument = async file => {
 		try {
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);

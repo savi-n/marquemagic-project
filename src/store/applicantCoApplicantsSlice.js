@@ -16,7 +16,7 @@ const initializeApplicantCoApplicant = {
 	cin: '',
 	presentAddressProofExtractionRes: {},
 	documents: [],
-	documentTypeList: [],
+	documentTypes: [],
 	cacheDocuments: [],
 	api: {},
 };
@@ -325,6 +325,17 @@ export const applicantCoApplicantsSlice = createSlice({
 		},
 		// -- CACHE DOCUMENT RELATED ACTIONS
 
+		// DOCUMENT TYPE
+		addApplicantDocumentTypes: (state, action) => {
+			state.applicant.documentTypes = action.payload;
+		},
+		addCoApplicantDocumentTypes: (state, action) => {
+			const { documentTypes, directorId } = action.payload;
+			state.coApplicants[directorId].documentTypes = documentTypes;
+		},
+		// -- DOCUMENT TYPE
+
+		// API REQ RES RELATED ACTIONS
 		setGenerateAadhaarOtp: (state, action) => {
 			const selectedDirectorId = state.selectedApplicantCoApplicantId;
 			// console.log(action.payload, '223344', selectedDirectorId);
@@ -364,8 +375,8 @@ export const applicantCoApplicantsSlice = createSlice({
 					},
 				};
 			}
-			console.log(state.applicant.api, state.coApplicants, '444555');
 		},
+		// -- API REQ RES RELATED ACTIONS
 	},
 });
 export const {
@@ -393,6 +404,9 @@ export const {
 
 	setGenerateAadhaarOtp,
 	setVerifyOtpResponse,
+
+	addApplicantDocumentTypes,
+	addCoApplicantDocumentTypes,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

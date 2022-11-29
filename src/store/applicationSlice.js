@@ -12,8 +12,10 @@ const initialState = {
 	refId1: '',
 	refId2: '',
 	sections: {},
-	cacheDocuments: [],
 	documents: [],
+	cacheDocuments: [],
+	allDocumentTypes: [],
+	api: {},
 };
 
 export const applicantSlice = createSlice({
@@ -74,14 +76,97 @@ export const applicantSlice = createSlice({
 			state.cacheDocuments = newDocuments;
 		},
 		removeCacheDocument: (state, action) => {
-			const { fieldName } = action.payload;
+			const { doc_type_id, directorId, fileId } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
-			const newDocuments = oldDocuments.filter(
-				doc => doc?.field?.name !== fieldName
-			);
+			const newDocuments = oldDocuments.filter(doc => {
+				if (fileId && doc?.id === fileId) return false;
+				if (
+					doc?.doc_type_id === doc_type_id &&
+					doc?.directorId === directorId
+				) {
+					return false;
+				}
+				return true;
+			});
+			state.cacheDocuments = newDocuments;
+		},
+		updateCacheDocumentTypeId: (state, action) => {
+			// console.log('updateSelectedDocumentTypeId-', { action });
+			const { fileId, docType } = action.payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			const newDocuments = [];
+			oldDocuments.map(doc => {
+				if (doc.id === fileId) {
+					return newDocuments.push({
+						// ...(docType || {}), // add more field only if required
+						...doc,
+						doc_type_id: docType?.doc_type_id,
+						isMandatory: !!docType?.isMandatory,
+					});
+				}
+				return newDocuments.push(doc);
+			});
+			state.cacheDocuments = newDocuments;
+		},
+		updateCacheDocumentPassword: (state, action) => {
+			// console.log('updateSelectedDocumentTypeId-', { action });
+			const { fileId, password } = action.payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			const newDocuments = [];
+			oldDocuments.map(doc => {
+				if (doc.id === fileId) {
+					return newDocuments.push({
+						...doc,
+						password,
+					});
+				}
+				return newDocuments.push(doc);
+			});
+			state.cacheDocuments = newDocuments;
+		},
+		updateCacheDocumentProgress: (state, action) => {
+			// console.log('updateSelectedDocumentTypeId-', { action });
+			const { fileId, progress } = action.payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			const newDocuments = [];
+			oldDocuments.map(doc => {
+				if (doc.id === fileId) {
+					return newDocuments.push({
+						...doc,
+						progress,
+					});
+				}
+				return newDocuments.push(doc);
+			});
+			state.cacheDocuments = newDocuments;
+		},
+		updateCacheDocumentsFdKey: (state, action) => {
+			const { files } = action.payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			const newDocuments = [];
+			oldDocuments.map(doc => {
+				const filterFile =
+					files?.filter(file => file?.id === doc?.id)?.[0] || {};
+				newDocuments.push({
+					...doc,
+					...filterFile,
+				});
+				return null;
+			});
 			state.cacheDocuments = newDocuments;
 		},
 		// -- CACHE DOCUMENT RELATED ACTIONS
+
+		// API
+		addCacheAPIReqRes: (state, action) => {
+			const { req, res, path } = action.payload;
+			state.api[path] = { req, res };
+		},
+		// -- API
+
+		addAllDocumentTypes: (state, action) => {
+			state.allDocumentTypes = action.payload;
+		},
 	},
 });
 
@@ -95,6 +180,12 @@ export const {
 	addCacheDocument,
 	addCacheDocuments,
 	removeCacheDocument,
+	updateCacheDocumentTypeId,
+	updateCacheDocumentPassword,
+	updateCacheDocumentProgress,
+	updateCacheDocumentsFdKey,
+
+	addAllDocumentTypes,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;

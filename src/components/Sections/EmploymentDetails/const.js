@@ -11,6 +11,7 @@ export const initialFormState = {
 	address1: 'Add Line 1',
 	address2: 'Add Line 2',
 	landmark: 'Landmark',
+	address3: 'Landmark',
 	pin_code: '560078',
 	city: 'Bangalore',
 	state: 'Karnataka',

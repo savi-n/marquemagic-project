@@ -417,3 +417,14 @@ export const getApiErrorMessage = error => {
 	}
 	return errorMessage;
 };
+
+export const getDocumentCategoryName = type => {
+	let category = '';
+	if (type?.toLowerCase()?.includes(CONST_SECTIONS.DOC_CATEGORY_KYC))
+		category = CONST_SECTIONS.DOC_CATEGORY_KYC;
+	if (type?.toLowerCase()?.includes(CONST_SECTIONS.DOC_CATEGORY_FINANCIAL))
+		category = CONST_SECTIONS.DOC_CATEGORY_FINANCIAL;
+	if (type?.toLowerCase()?.includes(CONST_SECTIONS.DOC_CATEGORY_OTHER))
+		category = CONST_SECTIONS.DOC_CATEGORY_OTHER;
+	return category;
+};

@@ -12,19 +12,47 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 
 const ApplicantCoApplicantHeader = props => {
-	const { app, applicantCoApplicants } = useSelector(state => state);
-	const { selectedSectionId } = app;
+	const { app, applicantCoApplicants, application } = useSelector(
+		state => state
+	);
+	const { selectedSectionId, selectedProduct, isLocalhost } = app;
 	const {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 		isApplicant,
+		applicant,
 	} = applicantCoApplicants;
+	const { cacheDocuments, allDocumentTypes } = application;
 	const dispatch = useDispatch();
 	const [
 		isDeleteCoApplicantModalOpen,
 		setIsDeleteCoApplicantModalOpen,
 	] = useState(false);
 	const refListWrapper = useRef(null);
+
+	let isApplicantMandatoryDocumentSubmited = true;
+	if (selectedProduct?.product_details?.document_mandatory) {
+		const applicantMandatoryDocumentIds = [];
+		cacheDocuments?.map(doc => {
+			if (
+				`${doc?.directorId}` === `${applicant.directorId}` &&
+				!!doc?.isMandatory
+			) {
+				applicantMandatoryDocumentIds.push(doc?.doc_type_id);
+			}
+			return null;
+		});
+		allDocumentTypes?.map(docType => {
+			if (
+				`${docType?.directorId}` === `${applicant.directorId}` &&
+				!!docType?.isMandatory &&
+				!applicantMandatoryDocumentIds.includes(docType?.doc_type_id)
+			) {
+				isApplicantMandatoryDocumentSubmited = false;
+			}
+			return null;
+		});
+	}
 
 	// console.log('ApplicantCoApplicantHeader-allstates-', {
 	// 	props,
@@ -61,12 +89,34 @@ const ApplicantCoApplicantHeader = props => {
 						}
 					/>
 					{selectedSectionId ===
-						CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID && (
-						<UI.BadgeInvalid />
-					)}
+						CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+						!isApplicantMandatoryDocumentSubmited && <UI.BadgeInvalid />}
 					<UI.AvatarName>Applicant</UI.AvatarName>
 				</UI.LI>
 				{Object.keys(coApplicants).map((directorId, directorIndex) => {
+					let isCoApplicantMandatoryDocumentSubmited = true;
+					if (selectedProduct?.product_details?.document_mandatory) {
+						const coApplicantMandatoryDocumentIds = [];
+						cacheDocuments?.map(doc => {
+							if (
+								`${doc?.directorId}` === `${directorId}` &&
+								!!doc?.isMandatory
+							) {
+								coApplicantMandatoryDocumentIds.push(doc?.doc_type_id);
+							}
+							return null;
+						});
+						allDocumentTypes?.map(docType => {
+							if (
+								`${docType?.directorId}` === `${directorId}` &&
+								!!docType?.isMandatory &&
+								!coApplicantMandatoryDocumentIds.includes(docType?.doc_type_id)
+							) {
+								isCoApplicantMandatoryDocumentSubmited = false;
+							}
+							return null;
+						});
+					}
 					return (
 						<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
 							{/* DELETE Co-Applicant will be part of future release */}
@@ -83,9 +133,8 @@ const ApplicantCoApplicantHeader = props => {
 								onClick={() => onClickApplicantCoApplicant(directorId)}
 							/>
 							{selectedSectionId ===
-								CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID && (
-								<UI.BadgeInvalid />
-							)}
+								CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+								!isCoApplicantMandatoryDocumentSubmited && <UI.BadgeInvalid />}
 							<UI.AvatarName>Co-Applicant {directorIndex + 1}</UI.AvatarName>
 						</UI.LI>
 					);
@@ -114,7 +163,7 @@ const ApplicantCoApplicantHeader = props => {
 					</UI.LI>
 				)}
 			</UI.UL>
-			{window.location.hostname.includes('localhost') && (
+			{isLocalhost && (
 				<UI.UL>
 					<UI.LI>{selectedApplicantCoApplicantId}</UI.LI>
 				</UI.UL>

@@ -105,7 +105,7 @@ export const Droping = styled.div`
 	z-index: 9999;
 `;
 
-export const FileListWrap = styled.div`
+export const UnTaggedFileListWrap = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: start;

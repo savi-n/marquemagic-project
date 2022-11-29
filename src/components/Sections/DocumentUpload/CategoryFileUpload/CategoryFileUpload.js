@@ -1,19 +1,17 @@
 /* FIle upload details section. This section handles drag, drop
 of file, upload and deletion */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Popover } from 'react-tiny-popover';
+
+import CircularLoading from 'components/Loaders/Circular';
+
 import useFetch from 'hooks/useFetch';
-import { useToasts } from 'components/Toast/ToastProvider';
 import generateUID from 'utils/uid';
-import {
-	NC_STATUS_CODE,
-	VIEW_DOCUMENT,
-	DELETE_DOCUMENT,
-} from '_config/app.config';
 import FilePasswordInput from './FilePasswordInput';
 import uploadCircleIcon from 'assets/icons/upload-icon-with-circle.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -23,180 +21,119 @@ import imgGreenCheck from 'assets/icons/green_tick_icon.png';
 import lockGrey from 'assets/icons/Lock_icon_grey-05-05.svg';
 import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
-import CircularLoading from 'components/Loaders/Circular';
+import {
+	removeCacheDocument,
+	addCacheDocuments,
+	updateCacheDocumentTypeId,
+	updateCacheDocumentPassword,
+	updateCacheDocumentProgress,
+	updateCacheDocumentsFdKey,
+} from 'store/applicationSlice';
 
-import _ from 'lodash';
+import * as CONST_SECTION from 'components/Sections/const';
+import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+let refCounter = 0;
 
 const CategoryFileUpload = props => {
 	const {
-		onDrop = () => {},
-		accept = '',
-		caption,
 		disabled = false,
-		upload = null,
-		onRemoveFile = id => {
-			console.info('REMOVED FILE ' + id);
-		},
-		docTypeOptions = [],
-		documentTypeChangeCallback = (id, value) => {
-			console.info('DOCUMENT TYPE CHANGED ' + id);
-		},
-		docs,
-		setDocs,
-		docsPush,
-		loan_id,
+		documentTypes = [],
+		documents,
+		category,
 		directorId,
-		pan,
-		section = '',
-		sectionType = 'others',
-		aadharVoterDl = false,
-		errorMessage = '',
-		errorType = '',
-		startingTaggedDocs = [],
-		startingUnTaggedDocs = [],
-		aggreementUploadModal = true,
-		isInActive = false,
-		removeAllFileUploads = '',
-		prefilledDocs = [],
-		setPrefilledDocs,
 	} = props;
-	// console.log('fileupload-props', { accept, disabled, pan, docs, setDocs });
+	const { app, application } = useSelector(state => state);
+	const { isViewLoan, isEditLoan, isLocalhost } = app;
+	const { businessId, businessUserId, loanId, userId } = application;
 	const ref = useRef(uuidv4());
 	const refPopup = useRef(null);
-	const { addToast } = useToasts();
+	const { newRequest } = useFetch();
+	const dispatch = useDispatch();
 
 	const id = uuidv4();
 
 	const [loading, setLoading] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const [uploading, setUploading] = useState(false);
-	const [uploadingFiles, setUploadingFiles] = useState([]);
 	const [passwordForFileId, setPasswordForFileId] = useState(null);
-
-	const [docTypeFileMap, setDocTypeFileMap] = useState({});
 	const [isPopoverOpen, setIsPopoverOpen] = useState(-1);
 	const [viewMore, setViewMore] = useState([]);
 	const [passwordList, setPasswordList] = useState([]);
-	const [mappedFiles, setMappedFiles] = useState({});
-	const selectedFiles = useRef([]);
-	const { newRequest } = useFetch();
-	//const [docSelected, setDocSelected] = useState('');
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 
-	const API_TOKEN = sessionStorage.getItem('userToken');
-
-	let refCounter = 0;
-
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
-
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
-	const { businessUserId, loanId } = application;
-
-	const onCancel = (file, status) => {
-		const newUploadingFiles = [];
-		selectedFiles.current.map(uFile => {
-			if (uFile.id === file.id) {
-				return {
-					...uFile,
-					status,
-				};
-			}
-			newUploadingFiles.push(uFile);
-			return null;
-		});
-		selectedFiles.current = newUploadingFiles;
-		setUploadingFiles(newUploadingFiles);
-	};
-
-	const onFileRemove = async (file, docType = false) => {
+	const openDocument = async file => {
 		try {
-			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
-			if (editLoanData && (file?.business_id || file?.loan)) {
-				const reqBody = {
-					loan_doc_id: file?.doc_id || '',
-					business_id: file?.business_id || editLoanData?.business_id?.id || '',
-					loan_id: file?.loan || editLoanData?.id || '',
-					userid: file?.user_id || '',
-				};
-				// console.log('reqBody-', reqBody);
-				// return;
-				await newRequest(
-					DELETE_DOCUMENT,
-					{
-						method: 'POST',
-						data: reqBody,
-					},
-					{
-						Authorization: `Bearer ${API_TOKEN}`,
-					}
-				).then(res => {
-					// console.log('handleFileRemove-Server-res', res);
-				});
-				const newPrefilledDos = _.cloneDeep(prefilledDocs);
-				setPrefilledDocs(
-					newPrefilledDos.filter(d => d.document_key !== file.document_key)
-				);
-			}
-			const newUploadingFiles = [];
-			selectedFiles.current.map(uFile => {
-				if (uFile.id !== file.id) newUploadingFiles.push(uFile);
-				return null;
-			});
-			if (docType) {
-				const newMappedFile = _.cloneDeep(mappedFiles);
-				const newObj = [];
-				newMappedFile[docType.doc_type_id]?.map(uFile => {
-					if (uFile.id !== file.id) newObj.push(uFile);
-					return null;
-				});
-				newMappedFile[docType.doc_type_id] = newObj;
-				setMappedFiles(newMappedFile);
-			}
-			onRemoveFile(file.id, file);
-			selectedFiles.current = newUploadingFiles;
-			setUploadingFiles(newUploadingFiles);
-			setOpeningRemovingDocument(false);
+			setLoading(true);
+			// console.log('open-doc-', { file, loanId, businessUserId });
+			const reqBody = {
+				filename: file?.doc_name || file?.document_key || file?.fd || '',
+			};
+			reqBody.loan_id = loanId;
+			reqBody.userid = businessUserId;
+			// console.log('openDocument-reqBody-', { reqBody, file });
+			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
+			// console.log('openDocument-res-', docRes);
+			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
-			console.error('error-onFileRemove-', error);
+			console.error('Unable to open file, try after sometime', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const deleteDocument = async file => {
+		try {
+			if (!file?.document_id)
+				return dispatch(removeCacheDocument({ fileId: file.id }));
+			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
+			const reqBody = {
+				loan_doc_id: file?.document_id || '',
+				business_id: businessId,
+				loan_id: loanId,
+				userid: userId,
+			};
+			// console.log('reqBody-', reqBody);
+			// return;
+			await axios.post(API.DELETE_DOCUMENT, reqBody);
+			// dispatch(removeCacheDocument({fileId: file.id})); // TODO: only if user navigate back and deletes
+		} catch (error) {
+			console.error('error-deleteDocument-', error);
+		} finally {
 			setOpeningRemovingDocument(false);
 		}
 	};
 
-	const onProgress = (event, file, newUploadingFiles) => {
-		if (!newUploadingFiles.length) {
-			return;
-		}
-		// const newUploadingFiles = _.cloneDeep(uploadingFiles);
-		const newOnProgressFiles = [];
-		newUploadingFiles.map(uFile => {
-			uFile.sectionType = sectionType;
+	const onProgress = (event, file) => {
+		documents?.map(uFile => {
 			if (uFile.id === file.id) {
-				const percentageCompleted = (
-					(event.loaded / event.total) *
-					100
-				).toFixed();
-				newOnProgressFiles.push({
-					...uFile,
-					progress: percentageCompleted,
-				});
+				const progress = ((event.loaded / event.total) * 100).toFixed();
+				dispatch(updateCacheDocumentProgress({ fileId: file.id, progress }));
 				return null;
 				// status:
 				//     Number(percentageCompleted) === 100 ? "completed" : "progress",
 			}
-			newOnProgressFiles.push(uFile);
 			return null;
 		});
-		// console.log('newOnProgressFiles-', newOnProgressFiles);
-		setUploadingFiles(newOnProgressFiles);
-		selectedFiles.current = newOnProgressFiles;
 	};
+
+	// FUTURE
+	// const onCancel = (file, status) => {
+	// 	const newUploadingFiles = [];
+	// 	uploadingFiles.map(uFile => {
+	// 		if (uFile.id === file.id) {
+	// 			return {
+	// 				..._.cloneDeep(uFile),
+	// 				status,
+	// 			};
+	// 		}
+	// 		newUploadingFiles.push(uFile);
+	// 		return null;
+	// 	});
+	// 	setUploadingFiles(newUploadingFiles);
+	// };
 
 	const handleUpload = async files => {
 		const filesToUpload = [];
@@ -207,111 +144,85 @@ const CategoryFileUpload = props => {
 
 			filesToUpload.push({
 				id,
-				name: files[i].name,
+				name: files[i]?.name,
 				file: files[i],
 				progress: 0,
 				status: 'progress',
 				cancelToken: source,
-				sectionType,
+				category,
+				directorId,
+				preview: URL.createObjectURL(files[i]),
 			});
 		}
-		const newUploadingFiles = _.cloneDeep(selectedFiles.current);
-		// const newUploadingFiles = [];
-		filesToUpload.map(f => newUploadingFiles.push(f));
-		// uploadingProgressFiles.current = [
-		// 	..._.cloneDeep(uploadingFiles),
-		// 	..._.cloneDeep(uploadingProgressFiles.current),
-		// 	...filesToUpload,
-		// ];
+		dispatch(addCacheDocuments({ files: filesToUpload }));
 		setUploading(true);
-		// console.log('file-upload-before-promise-', newUploadingFiles);
-		selectedFiles.current = newUploadingFiles;
-		setUploadingFiles(newUploadingFiles);
-
 		return await Promise.all(
 			filesToUpload.map(file => {
-				if (!pan) {
-					const formData = new FormData();
-					formData.append('document', file.file);
+				const formData = new FormData();
+				formData.append('document', file.file);
 
-					return newRequest(
-						upload.url,
-						{
-							method: 'POST',
-							data: formData,
-							onUploadProgress: event =>
-								onProgress(event, file, newUploadingFiles),
-							cancelToken: file.cancelToken.token,
-						},
-						upload.header ?? {}
-					)
-						.then(res => {
-							if (res.data.status === NC_STATUS_CODE.OK) {
-								const resFile = res.data.files[0];
-								const uploadfile = {
-									id: file.id,
-									upload_doc_name: resFile.filename,
-									document_key: resFile.fd,
-									size: resFile.size,
-									sectionType,
-								};
-
-								if (docsPush) {
-									uploadfile['loan_id'] = loan_id;
-									uploadfile['directorId'] = directorId;
-									setDocs([...docs, uploadfile]);
-								}
-
-								return uploadfile;
-							}
-							// return res.data.files[0];
-							return { ...file, status: 'error' };
-						})
-						.catch(err => {
-							console.error(err);
-							if (err.message === CONST.USER_CANCELED) {
-								onCancel(file, 'cancelled');
-							} else {
-								onCancel(file, 'error');
-							}
-							return { ...file, status: 'error', error: err };
-						});
-				}
-				return null;
+				return newRequest(
+					API.DOCS_UPLOAD_URL({
+						userId: businessUserId,
+					}),
+					{
+						method: 'POST',
+						data: formData,
+						onUploadProgress: event => onProgress(event, file, documents),
+						cancelToken: file.cancelToken.token,
+					}
+				)
+					.then(res => {
+						if (res.data.status === API.NC_STATUS_CODE.OK) {
+							const resFile = res.data.files[0];
+							const uploadfile = {
+								...file,
+								id: file?.id,
+								upload_doc_name: resFile?.filename,
+								name: resFile?.filename,
+								document_key: resFile.fd,
+								size: resFile.size,
+								category,
+								directorId,
+								file: null,
+							};
+							return uploadfile;
+						}
+						// return res.data.files[0];
+						return { ...file, status: 'error' };
+					})
+					.catch(err => {
+						console.error(err);
+						if (err.message === CONST.USER_CANCELED) {
+							// onCancel(file, 'cancelled');
+						} else {
+							// onCancel(file, 'error');
+						}
+						return { ...file, status: 'error', error: err };
+					});
 			})
 		).then(postUploadFiles => {
 			// console.log('postUploadFiles-', {
 			// 	postUploadFiles,
-			// 	newUploadingFiles,
 			// });
+			dispatch(updateCacheDocumentsFdKey({ files: postUploadFiles }));
 			setUploading(false);
-			if (pan) {
-				// console.log('FileUpload-before-setdocs-', {
-				// 	aadharVoterDl,
-				// 	docs,
-				// 	filesToUpload,
-				// });
-				aadharVoterDl
-					? setDocs([...docs, filesToUpload[0]])
-					: setDocs([filesToUpload[0]]);
-				return [filesToUpload[0]];
-			}
+			// return [filesToUpload[0]];
 
-			const newUploadCompletedFiles = [];
-			// const newUploadingFiles = _.cloneDeep(uploadingFiles);
-			newUploadingFiles.map(file => {
-				newUploadCompletedFiles.push({
-					...file,
-					status: 'completed',
-					document_key:
-						postUploadFiles?.filter(f => f.id === file.id)?.[0]?.document_key ||
-						'',
-				});
-				return null;
-			});
+			// const newUploadCompletedFiles = [];
+			// // const newUploadingFiles = _.cloneDeep(uploadingFiles);
+			// documents.map(file => {
+			// 	newUploadCompletedFiles.push({
+			// 		...file,
+			// 		status: 'completed',
+			// 		document_key:
+			// 			postUploadFiles?.filter(f => f.id === file.id)?.[0]?.document_key ||
+			// 			'',
+			// 	});
+			// 	return null;
+			// });
 			// console.log('file-upload-promise-resolved-', newUploadCompletedFiles);
-			selectedFiles.current = newUploadCompletedFiles;
-			setUploadingFiles(newUploadCompletedFiles);
+			// setUploadingFiles(newUploadCompletedFiles);
 			return postUploadFiles.filter(file => file.status !== 'error');
 		});
 	};
@@ -343,65 +254,26 @@ const CategoryFileUpload = props => {
 		event.preventDefault();
 		event.stopPropagation();
 		setDragging(false);
-		if (pan && disabled) {
-			addToast({
-				message: `Only one document is allowed for pan card.!`,
-				type: 'error',
-			});
-			return false;
-		}
-		if (pan && event.dataTransfer.files.length > 1) {
-			addToast({
-				message: `Only one document is allowed to upload at one time!`,
-				type: 'error',
-			});
-			return false;
-		}
 		if (disabled) return false;
-
 		let files = [...event.dataTransfer.files];
-		if (accept) {
-			files = files.filter(file => accept.includes(file.type.split('/')[1]));
-		}
-		// console.log('after-accept-', {
-		// 	accept,
-		// 	pan,
-		// 	upload,
-		// 	files,
-		// 	event,
-		// 	eventFiles: event.dataTransfer.files,
-		// });
+
+		// FUTURE
+		// if (accept) {
+		// 	files = files.filter(file => accept.includes(file.type.split('/')[1]));
+		// }
+
 		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-			if (upload) {
-				// console.log('before-handleUpload-', {
-				// 	files,
-				// });
-				files = await handleUpload(files);
-				// console.log('after-handleUpload-', {
-				// 	files,
-				// });
-			}
-			onDrop(files);
+			// console.log('before-handleUpload-', {
+			// 	files,
+			// });
+			// files =
+			await handleUpload(files);
+			// console.log('after-handleUpload-', {
+			// 	files,
+			// });
 			// console.log('before current-files-', {
 			// 	current: selectedFiles.current,
 			// 	files,
-			// });
-			if (!pan) {
-				files = [...selectedFiles.current, ...files].filter(f =>
-					f.name ? true : false
-				);
-				selectedFiles.current = files;
-				setUploadingFiles(files);
-			}
-
-			// console.log('FileUpload-handleDrop-', {
-			// 	pan,
-			// 	disabled,
-			// 	accept,
-			// 	upload,
-			// 	files,
-			// 	uploadingFiles,
-			// 	selectedFiles: selectedFiles.current,
 			// });
 			event.dataTransfer.clearData();
 			refCounter = 0;
@@ -410,48 +282,10 @@ const CategoryFileUpload = props => {
 
 	const onChange = async event => {
 		let files = [...event.target.files];
-		if (upload) {
-			files = await handleUpload(files);
-		}
-		onDrop(files);
-		if (!pan) {
-			files = [...selectedFiles.current, ...files].filter(f =>
-				f.name ? true : false
-			);
-			selectedFiles.current = files;
-			setUploadingFiles(files);
-		}
-		// console.log('FileUpload-onChange-', {
-		// 	pan,
-		// 	disabled,
-		// 	accept,
-		// 	upload,
-		// 	files,
-		// 	uploadingFiles,
-		// 	selectedFiles: selectedFiles.current,
-		// });
-	};
-
-	// const onDocTypeChange = (fileId, value, file) => {
-	const onDocTypeChange = (file, docType) => {
-		const selectedDocType = docTypeOptions.find(d => d.value === docType.value);
-		// console.log('onDocTypeChange-selected-doctype-', {
-		// 	file,
-		// 	docType,
-		// 	selectedDocType,
-		// });
-		const newMappedFile = _.cloneDeep(mappedFiles);
-		const newObj = newMappedFile[docType.value] || [];
-		newObj.push(file);
-		newMappedFile[docType.value] = newObj;
-		setMappedFiles(newMappedFile);
-		const newDocTypeFileMap = {
-			..._.cloneDeep(docTypeFileMap),
-			[file.id]: selectedDocType, // value
-		};
-		documentTypeChangeCallback(file.id, selectedDocType);
-		setDocTypeFileMap(newDocTypeFileMap);
-		// console.log('onDocTypeChange-eod-', { newMappedFile, newDocTypeFileMap });
+		// console.log('onChange-beforeupload-', files);
+		// files =
+		await handleUpload(files);
+		// console.log('onChange-after-', files);
 	};
 
 	const onPasswordClick = fileId => {
@@ -463,110 +297,15 @@ const CategoryFileUpload = props => {
 	};
 
 	const onDocTypePassword = (fileId, value, uniqPassId, docType) => {
-		if (value) {
-			const selectedDocType = docTypeOptions.find(
-				d => d.value === docType.value
-			);
-			passwordList.push(uniqPassId);
-			const newFile = {
-				...selectedDocType,
+		dispatch(
+			updateCacheDocumentPassword({
+				fileId,
 				password: value,
-			};
-			// console.log('onDocTypePassword-', fileId, newFile);
-			documentTypeChangeCallback(fileId, newFile);
-		}
+			})
+		);
+		passwordList.push(uniqPassId);
 		onClosePasswordEnterArea();
 	};
-
-	const openDocument = async file => {
-		try {
-			// console.log('open-doc-', { file, loanId, businessUserId });
-			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
-			const reqBody = {
-				filename: file?.doc_name || file?.document_key || file?.fd || '',
-			};
-			reqBody.loan_id = loanId;
-			reqBody.userid = businessUserId;
-			// console.log('openDocument-reqBody-', { reqBody, file });
-			const docRes = await axios.post(VIEW_DOCUMENT, reqBody);
-			// console.log('openDocument-res-', docRes);
-			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
-			setOpeningRemovingDocument(false);
-		} catch (error) {
-			setOpeningRemovingDocument(false);
-			console.error('Unable to open file, try after sometime');
-		}
-	};
-
-	const initializeComponent = async () => {
-		try {
-			setLoading(true);
-			// in case of edit_loan
-			// console.log('FileUpload-initializeComponent-', { mappedFiles, props });
-			if (prefilledDocs && prefilledDocs.length > 0) {
-				setDocTypeFileMap(_.cloneDeep(prefilledDocs));
-				const newMappedFile = _.cloneDeep(mappedFiles);
-				const newDocTypeFileMap = {
-					..._.cloneDeep(docTypeFileMap),
-				};
-				prefilledDocs.map(doc => {
-					const tempFile = _.cloneDeep(doc);
-					// const tempDocType = { value: doc.id };
-					const selectedDocType = docTypeOptions.find(
-						d => d.value === tempFile.id
-					);
-					const newObj = newMappedFile[tempFile.id] || [];
-					newObj.push(tempFile);
-					newMappedFile[tempFile.id] = newObj;
-					newDocTypeFileMap[tempFile.id] = selectedDocType;
-					// documentTypeChangeCallback(tempFile.id, selectedDocType);
-					return null;
-				});
-				setDocTypeFileMap(newDocTypeFileMap);
-				setMappedFiles(newMappedFile);
-			}
-			// doc upload section navigation history
-			// + pan adhar dl voter
-			if (startingTaggedDocs && startingTaggedDocs.length > 0) {
-				const newMappedFiles = _.cloneDeep(mappedFiles);
-				startingTaggedDocs.map(doc => {
-					const newObj = newMappedFiles[+doc.typeId] || [];
-					newObj.push(doc);
-					newMappedFiles[+doc.typeId] = newObj;
-					return null;
-				});
-				setMappedFiles(newMappedFiles);
-			}
-			// doc upload section navigation history
-			if (startingUnTaggedDocs && startingUnTaggedDocs.length > 0) {
-				selectedFiles.current = startingUnTaggedDocs;
-				setUploadingFiles(startingUnTaggedDocs);
-			}
-			// console.log('FileUpload-initializeComponent-EOD-', {
-			// 	prefilledDocs,
-			// 	startingTaggedDocs,
-			// 	startingUnTaggedDocs,
-			// });
-			setLoading(false);
-		} catch (error) {
-			console.error('error-FileUpload-initializeComponent-', error);
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		initializeComponent();
-		// eslint-disable-next-line
-	}, [sectionType]);
-
-	useEffect(() => {
-		// console.log('useEffect-removeAllFileUploads-', removeAllFileUploads);
-		if (!removeAllFileUploads) return;
-		selectedFiles.current = [];
-		setUploadingFiles([]);
-		setDocTypeFileMap({});
-		setMappedFiles({});
-	}, [removeAllFileUploads, sectionType]);
 
 	useEffect(() => {
 		if (isViewLoan) return;
@@ -585,24 +324,31 @@ const CategoryFileUpload = props => {
 			div?.removeEventListener('dragend', handleDrag);
 		};
 		// eslint-disable-next-line
-	}, [disabled, sectionType]);
+	}, [disabled, category]);
+
+	useEffect(() => {
+		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+		return () => {
+			documents?.map(doc => {
+				if (doc?.preview) URL.revokeObjectURL(doc.preview);
+				return null;
+			});
+		};
+		// eslint-disable-next-line
+	}, []);
 
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
-	if (sectionType !== 'pan') {
-		selectedFiles.current.map(file => {
-			for (const key in docTypeFileMap) {
-				if (file.id === key) {
-					taggedDocumentCount += 1;
-				}
-			}
-			return null;
-		});
-		displayTagMessage = selectedFiles.current.length !== taggedDocumentCount;
-	}
+	documents?.map(doc => {
+		if (!!doc?.doc_type_id) {
+			taggedDocumentCount += 1;
+		}
+		return null;
+	});
+	displayTagMessage = documents?.length !== taggedDocumentCount;
 
-	// console.log(`FileUpload-${sectionType}-allstates-`, {
+	// console.log(`FileUpload-${category}-allstates-`, {
 	// 	props,
 	// });
 
@@ -614,7 +360,7 @@ const CategoryFileUpload = props => {
 		<>
 			{!disabled && !isViewLoan && (
 				<UI.Dropzone
-					isInActive={isInActive}
+					isInActive={isViewLoan}
 					ref={ref}
 					dragging={dragging}
 					// bg={bg}
@@ -623,8 +369,8 @@ const CategoryFileUpload = props => {
 				>
 					{dragging && !disabled && <UI.Droping>Drop here :)</UI.Droping>}
 					<UI.Caption>
-						{caption || `Drag and drop or`}{' '}
-						{accept && <UI.AcceptFilesTypes>{accept}</UI.AcceptFilesTypes>}
+						{`Drag and drop or`}{' '}
+						{/* {accept && <UI.AcceptFilesTypes>{accept}</UI.AcceptFilesTypes>} */}
 					</UI.Caption>
 					<UI.UploadButton
 						type='file'
@@ -633,9 +379,9 @@ const CategoryFileUpload = props => {
 						onClick={e => {
 							e.target.value = '';
 						}}
-						accept={accept}
+						// accept={accept}
 						disabled={disabled}
-						multiple={section === 'document-upload' ? true : false}
+						multiple={true}
 					/>
 					<UI.Label htmlFor={id}>Browse</UI.Label>
 					{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
@@ -648,52 +394,39 @@ const CategoryFileUpload = props => {
 							width={40}
 							style={{
 								maxWidth: 'none',
-								filter: isInActive ? 'grayscale(200%)' : 'none',
+								filter: isViewLoan ? 'grayscale(200%)' : 'none',
 							}}
 							alt='upload'
 						/>
 					</UI.UploadCircle>
 				</UI.Dropzone>
 			)}
-			{displayTagMessage && aggreementUploadModal ? (
+			{displayTagMessage ? (
 				<UI.WarningMessage>
 					{' '}
 					Click on <UI.FileTypeSmallIcon src={imgArrowDownCircle} alt='arrow' />
-					{aadharVoterDl
-						? 'and select the front and back part of the uploaded document'
-						: 'and tag your uploaded documents to their respective document tags'}
+					and tag your uploaded documents to their respective document tags
 				</UI.WarningMessage>
 			) : null}
-			{pan && disabled && (
-				<p style={{ color: 'grey' }}>
-					Please remove current uploaded file to reupload
-				</p>
-			)}
-			<UI.FileListWrap>
-				{uploadingFiles.map((file, upidx) => {
-					// console.log('uplodaing-file-FileListWrap-file', {
+			<UI.UnTaggedFileListWrap>
+				{documents?.map((file, upidx) => {
+					// console.log('uplodaing-file-UnTaggedFileListWrap-file', {
 					// 	uploadingFiles,
 					// 	file,
 					// 	docTypeFileMap,
 					// });
-					let isMapped = false;
-					for (const key in docTypeFileMap) {
-						if (file.id === key) {
-							isMapped = true;
-							break;
-						}
-					}
+					const isMapped = !!file?.doc_type_id;
 					if (isMapped) return null;
-					const isFileUploaded = file.progress >= 100 || file.progress <= 0;
-					file.name = file.name || file.upload_doc_name || '';
+					// const isFileUploaded = file.progress >= 100 || file.progress <= 0;
+					// TODO: fix above logic
+					const isFileUploaded = true;
+					const fileName = file?.name || file?.upload_doc_name || '';
 					return (
 						<UI.File
-							error={errorMessage}
-							errorType={errorType}
 							key={`${file.id}-${upidx}-${file.doc_type_id}`}
 							progress={file.progress}
 							status={file.status}
-							tooltip={file.name}
+							tooltip={fileName}
 							// style={
 							// 	docTypeOptions.length > 0 && isFileUploaded
 							// 		? { borderRight: 0 }
@@ -701,23 +434,22 @@ const CategoryFileUpload = props => {
 							// }
 						>
 							<UI.FileName>
-								{file?.name?.length > 20
-									? file?.name?.slice(0, 20) + '...'
-									: file?.name}
+								{fileName.length > 20
+									? fileName.slice(0, 20) + '...'
+									: fileName}
 							</UI.FileName>
 							{isFileUploaded && !uploading ? (
 								<UI.ImgClose
-									isPreTag={sectionType !== 'pan'}
 									src={imgClose}
 									onClick={e => {
 										e.preventDefault();
 										e.stopPropagation();
-										onFileRemove(file);
+										deleteDocument(file);
 									}}
 									alt='close'
 								/>
 							) : null}
-							{docTypeOptions?.length > 0 && isFileUploaded && !uploading && (
+							{documentTypes?.length > 0 && isFileUploaded && !uploading && (
 								<Popover
 									isOpen={isPopoverOpen === file.id}
 									align='start'
@@ -737,55 +469,18 @@ const CategoryFileUpload = props => {
 										// you can also provide a render function that injects some useful stuff!
 										// console.log('popupProps-', { popupProps });
 										// const isOutside = nudgedLeft < -10;
-										let isFrontTagged = false;
-										let isBackTagged = false;
-										let isFrontBackTagged = false;
-										if (section === 'addressproof') {
-											const fontDocTypeId = `${docTypeOptions[0]?.id}`;
-											const backDocTypeId = `${docTypeOptions[1]?.id}`;
-											const frontBackDocTypeId = `${docTypeOptions[2]?.id}`;
-											isFrontTagged =
-												fontDocTypeId in mappedFiles &&
-												mappedFiles[fontDocTypeId]?.length > 0;
-											isBackTagged =
-												backDocTypeId in mappedFiles &&
-												mappedFiles[backDocTypeId]?.length > 0;
-											isFrontBackTagged =
-												frontBackDocTypeId in mappedFiles &&
-												mappedFiles[frontBackDocTypeId]?.length > 0;
-										}
 										return (
 											<UI.FileTypeBox
 											// style={isOutside ? { marginLeft: '-400px' } : {}}
 											>
 												<UI.FileTypeUL>
-													{docTypeOptions.map((docType, docoptidx) => {
+													{documentTypes.map((docType, docoptidx) => {
 														// console.log('poup-', {
 														// 	docTypeOptions,
-														// 	mappedFiles,
 														// 	docs,
 														// 	docType,
 														// 	file,
-														// 	isFrontTagged,
-														// 	isBackTagged,
-														// 	isFrontBackTagged,
 														// });
-														if (section === 'addressproof') {
-															if (isFrontTagged && docoptidx === 0) return null;
-															if (isBackTagged && docoptidx === 1) return null;
-															if (isFrontBackTagged && docoptidx === 2)
-																return null;
-															if (
-																(isFrontTagged || isBackTagged) &&
-																docoptidx === 2
-															)
-																return null;
-															if (
-																isFrontBackTagged &&
-																(docoptidx === 0 || docoptidx === 1)
-															)
-																return null;
-														}
 														return (
 															<UI.FileTypeList
 																key={`${docType.value}-${docoptidx}-${
@@ -793,7 +488,12 @@ const CategoryFileUpload = props => {
 																}`}
 																value={docType.name}
 																onClick={() => {
-																	onDocTypeChange(file, docType);
+																	dispatch(
+																		updateCacheDocumentTypeId({
+																			fileId: file.id,
+																			docType,
+																		})
+																	);
 																	setIsPopoverOpen(-1);
 																}}
 															>
@@ -836,66 +536,36 @@ const CategoryFileUpload = props => {
 									</UI.FileType>
 								</Popover>
 							)}
-							{/* don't remove this code */}
-							{/* {file.status === 'progress' && (
-							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
-						)}
-						{file.status === 'completed' && (
-							<CancelBtn onClick={() => onFileRemove(file)}>&#10006;</CancelBtn>
-						)} */}
 						</UI.File>
 					);
 				})}
-			</UI.FileListWrap>
+			</UI.UnTaggedFileListWrap>
 			<UI.DocumentUploadListWrapper>
-				{docTypeOptions.map((docType, doctypeidx) => {
-					// const mappedDocFiles = mappedFiles[docType.value] || [];
-					const mappedDocFiles = startingTaggedDocs.filter(
-						d => d?.doc_type_id === docType?.doc_type_id
+				{documentTypes.map((docType, doctypeidx) => {
+					const mappedDocFiles = documents?.filter(
+						doc => doc?.doc_type_id === docType?.doc_type_id
 					);
 
-					// // const mappedFiles = [];
-					// console.log('upload-list-', {
-					// 	startingTaggedDocs,
-					// 	uploadingFiles,
-					// 	mappedFiles,
-					// 	docTypeOptions,
-					// 	docTypeFileMap,
-					// 	docType,
-					// 	mappedDocFiles,
-					// });
-					// for (const key in docTypeFileMap) {
-					// 	if (docType.value === docTypeFileMap[key].value) {
-					// 		const newMappedFile = {
-					// 			..._.cloneDeep(docTypeFileMap[key]),
-					// 			docTypeKey: key,
-					// 		};
-					// 		// console.log('new-mapped-file-', newMappedFile);
-					// 		mappedFiles.push(newMappedFile);
-					// 	}
-					// }
 					return (
 						<UI.DocumentUploadList
 							key={`${docType.id}-${doctypeidx}-${docType.doc_type_id}`}
 						>
 							<UI.DocumentUploadListRow1>
 								<UI.DocumentUploadCheck
-									src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
+									src={mappedDocFiles?.length ? imgGreenCheck : imgGreyCheck}
 									alt='check'
 								/>
-								{aadharVoterDl
-									? null
-									: docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
-											<UI.DocumentUploadNameToolTip>
-												{docType.name}
-											</UI.DocumentUploadNameToolTip>
-									  )}
+								{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+									<UI.DocumentUploadNameToolTip>
+										{docType.name}
+									</UI.DocumentUploadNameToolTip>
+								)}
 								<UI.DocumentUploadName
 									onMouseOver={() =>
 										setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
 									}
 									onMouseOut={() => setDocTypeNameToolTip(-1)}
-									isSelected={mappedDocFiles.length}
+									isSelected={mappedDocFiles?.length}
 								>
 									{docType.isMandatory && (
 										<span
@@ -906,7 +576,7 @@ const CategoryFileUpload = props => {
 											*&nbsp;
 										</span>
 									)}
-									{window?.location?.hostname?.includes('localhost') && (
+									{isLocalhost && (
 										<span style={{ color: 'blue' }}>
 											{docType?.doc_type_id}{' '}
 										</span>
@@ -963,6 +633,10 @@ const CategoryFileUpload = props => {
 													if (!isViewMore) {
 														e.preventDefault();
 														e.stopPropagation();
+														if (!doc?.document_id && doc?.preview) {
+															window.open(doc?.preview, '_blank');
+															return;
+														}
 														isViewDocAllowed && openDocument(doc);
 													}
 												}}
@@ -975,7 +649,7 @@ const CategoryFileUpload = props => {
 											</UI.FileName>
 											{isViewMore
 												? null
-												: CONST.FINANCIAL_DOC_TYPES?.includes(sectionType) && (
+												: category === CONST_SECTION.DOC_CATEGORY_FINANCIAL && (
 														<UI.PasswordWrapper>
 															{isViewLoan && !doc?.document_password ? null : (
 																<UI.RoundButton
@@ -1030,18 +704,7 @@ const CategoryFileUpload = props => {
 															const newPasswordList = passwordList.filter(
 																p => p !== uniqPassId
 															);
-															const newDocTypeFileMap = _.cloneDeep(
-																docTypeFileMap
-															);
-															delete newDocTypeFileMap[doc.docTypeKey];
-															delete newDocTypeFileMap[doc.id];
-															// console.log('after-remove-', {
-															// 	newPasswordList,
-															// 	newDocTypeFileMap,
-															// 	doc,
-															// });
-															onFileRemove(doc, docType);
-															setDocTypeFileMap(newDocTypeFileMap);
+															deleteDocument(doc);
 															setPasswordList(newPasswordList);
 														}}
 														alt='close'
