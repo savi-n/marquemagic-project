@@ -58,16 +58,9 @@ const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const {
-		selectedSectionId,
-		applicantCoApplicantSectionIds,
-		editLoanData,
-		userToken,
-	} = app;
+	const { selectedSectionId, applicantCoApplicantSectionIds, userToken } = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
-	const { loanRefId } = application;
 	const [loading, setLoading] = useState(false);
-	const dispatch = useDispatch();
 	const SELECTED_SECTION_MAPPING = {
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
@@ -77,7 +70,7 @@ const ProductIndividual = props => {
 		bank_details: SkipComponent,
 		document_upload: DocumentUpload,
 		reference_details: ReferenceDetails,
-		emi_details: SkipComponent,
+		emi_details: EMIDetails,
 		application_submitted: ApplicationSubmitted,
 	};
 	let SelectedComponent =
