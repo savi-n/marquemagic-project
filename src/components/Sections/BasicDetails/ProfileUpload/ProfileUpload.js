@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
@@ -20,31 +20,33 @@ const ProfileUpload = props => {
 		isPanNumberExist,
 		isFormSubmited,
 		isProfileMandatory,
-		cacheDocumentsTemp,
+		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 	} = props;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const {
+		app,
+		application,
+		// applicantCoApplicants
+	} = useSelector(state => state);
 	const { whiteLabelId } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
-	const { cacheDocuments } = selectedApplicant;
+	// const {
+	// 	isApplicant,
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedApplicantCoApplicantId,
+	// } = applicantCoApplicants;
+	// const selectedApplicant = isApplicant
+	// 	? applicant
+	// 	: coApplicants[selectedApplicantCoApplicantId] || {};
+	// const { cacheDocuments } = selectedApplicant;
 	// const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
-	const profileUploadedFile =
-		cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		null;
+	// const profileUploadedFile =
+	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
+	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
+	// 	null;
 
 	const openDocument = async file => {
 		try {
@@ -68,10 +70,10 @@ const ProfileUpload = props => {
 
 	const deleteDocument = async file => {
 		try {
-			if (!file?.doc_id) return removeCacheDocumentTemp(field.name);
+			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
 			setLoading(true);
 			const reqBody = {
-				loan_doc_id: file?.doc_id || '',
+				loan_doc_id: file?.document_id || '',
 				business_id: businessId,
 				loan_id: loanId,
 				userid: userId,
@@ -119,17 +121,18 @@ const ProfileUpload = props => {
 			}
 		},
 	});
-	// useEffect(() => {
-	// 	// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-	// 	return () => files.forEach(file => URL.revokeObjectURL(file.preview));
-	// 	// eslint-disable-next-line
-	// }, []);
+
+	useEffect(() => {
+		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+		return () =>
+			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
+		// eslint-disable-next-line
+	}, []);
 
 	// Disable click and keydown behavior on the <Dropzone>
 
 	// const isPreview = files.length > 0;
-	const isPreview = !!profileUploadedFile;
-	const uploadedFile = profileUploadedFile;
+	const isPreview = !!uploadedFile;
 
 	// console.log('ProfileUpload-', {
 	// 	props,
@@ -142,13 +145,16 @@ const ProfileUpload = props => {
 		return (
 			<UI.ContainerPreview isPrevie={isPreview}>
 				<UI.ImgProfilePreview
-					src={uploadedFile.preview}
+					src={uploadedFile?.preview || uploadedFile?.presignedUrl}
 					alt='profile'
 					onClick={e => {
 						e.preventDefault();
 						e.stopPropagation();
-						if (!uploadedFile.preview) openDocument(uploadedFile);
-						window.open(uploadedFile.preview, '_blank');
+						if (!uploadedFile?.document_id && uploadedFile?.preview) {
+							window.open(uploadedFile?.preview, '_blank');
+							return;
+						}
+						openDocument(uploadedFile);
 						// window.open('https://www.google.com', '_blank');
 					}}
 				/>

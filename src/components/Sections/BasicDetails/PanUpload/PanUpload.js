@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 // import _ from 'lodash';
@@ -40,25 +40,28 @@ const PanUpload = props => {
 		panErrorMessage,
 		onChangeFormStateField,
 		clearErrorFormState,
-		cacheDocumentsTemp,
+		// cacheDocumentsTemp,
+		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 	} = props;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const {
+		app,
+		application,
+		// applicantCoApplicants
+	} = useSelector(state => state);
 	const { selectedProduct, clientToken } = app;
 	const { loanRefId, loanId, businessUserId } = application;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { cacheDocuments } = selectedApplicant;
+	// const {
+	// 	isApplicant,
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedApplicantCoApplicantId,
+	// } = applicantCoApplicants;
+	// const selectedApplicant = isApplicant
+	// 	? applicant
+	// 	: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	// const { cacheDocuments } = selectedApplicant;
 	// const [files, setFiles] = useState([]);
 	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
@@ -73,11 +76,11 @@ const PanUpload = props => {
 	// 	cacheDocumentsTemp.filter(
 	// 		doc => doc.field.name === CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME
 	// 	)?.[0] || null;
-	const panExtractionFile =
-		cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		null;
-	const panExtractionData = panExtractionFile?.panExtractionData;
+	// const panExtractionFile =
+	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
+	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
+	// 	null;
+	const panExtractionData = uploadedFile?.panExtractionData;
 
 	const openDocument = async file => {
 		try {
@@ -345,7 +348,7 @@ const PanUpload = props => {
 			console.error('error-pan-verification-handleExtractionPan-', error);
 			setIsPanConfirmModalOpen(true);
 			addToast({
-				message: error.message,
+				message: error?.message,
 				type: 'error',
 			});
 		} finally {
@@ -386,25 +389,23 @@ const PanUpload = props => {
 		},
 	});
 
-	// useEffect(() => {
-	// 	// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-	// 	return () => files.forEach(file => URL.revokeObjectURL(file.preview));
-	// 	// eslint-disable-next-line
-	// }, []);
+	useEffect(() => {
+		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+		return () =>
+			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
+		// eslint-disable-next-line
+	}, []);
 
 	// Disable click and keydown behavior on the <Dropzone>
 
-	const isPreview = !!panExtractionFile;
-	const uploadedFile = panExtractionFile;
+	const isPreview = !!uploadedFile;
+	// const uploadedFile = panExtractionFile;
 
 	// console.log('PanUpload-', {
-	// 	cacheDocumentsTemp,
 	// 	props,
-	// 	panExtractionFile,
 	// 	panExtractionData,
 	// 	isPreview,
 	// 	uploadedFile,
-	// 	cacheDocuments,
 	// });
 
 	return (
@@ -498,8 +499,11 @@ const PanUpload = props => {
 							onClick={e => {
 								e.preventDefault();
 								e.stopPropagation();
-								if (loanRefId) return openDocument(uploadedFile);
-								window.open(uploadedFile.preview, '_blank');
+								if (!uploadedFile?.document_id && uploadedFile?.preview) {
+									window.open(uploadedFile?.preview, '_blank');
+									return;
+								}
+								openDocument(uploadedFile);
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>

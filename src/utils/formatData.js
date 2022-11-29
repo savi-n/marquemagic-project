@@ -401,3 +401,19 @@ export const getCompletedSections = data => {
 	});
 	return completedMenu;
 };
+
+export const getApiErrorMessage = error => {
+	let errorMessage = '';
+	if (typeof error?.response?.data === 'string') {
+		errorMessage = error?.response?.data;
+	} else if (typeof error?.response?.data?.message === 'string') {
+		errorMessage = error?.response?.data?.message;
+	} else if (typeof error?.response?.data?.details === 'string') {
+		errorMessage = error?.response?.data?.details;
+	} else if (typeof error?.response?.data?.cause?.details === 'string') {
+		errorMessage = error?.response?.data?.cause?.details;
+	} else {
+		errorMessage = 'Something went wrong, Try after sometimes!';
+	}
+	return errorMessage;
+};

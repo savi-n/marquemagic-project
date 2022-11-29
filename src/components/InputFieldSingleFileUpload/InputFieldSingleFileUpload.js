@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
@@ -18,26 +18,21 @@ const InputFieldSingleFileUpload = props => {
 		field,
 		selectedDocTypeId,
 		clearErrorFormState,
-		cacheDocumentsTemp,
+		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		errorColorCode,
 		isFormSubmited,
 	} = props;
 	const { application } = useSelector(state => state);
-	const { loanId, businessUserId, cacheDocuments } = application;
+	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
-	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	const selectedFile =
-		cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-		null;
 	const isMandatory = !!field?.rules?.required;
 
 	const openDocument = async file => {
 		try {
-			setLoadingFile(true);
+			setLoading(true);
 			// console.log('open-doc-', { file, loanId, businessUserId });
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
@@ -51,7 +46,27 @@ const InputFieldSingleFileUpload = props => {
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
 		} finally {
-			setLoadingFile(false);
+			setLoading(false);
+		}
+	};
+	const deleteDocument = async file => {
+		try {
+			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
+			setLoading(true);
+			const reqBody = {
+				loan_doc_id: file?.document_id || '',
+				business_id: businessId,
+				loan_id: loanId,
+				userid: userId,
+			};
+			// console.log('reqBody-', reqBody);
+			// return;
+			await axios.post(API.DELETE_DOCUMENT, reqBody);
+			removeCacheDocumentTemp(field.name);
+		} catch (error) {
+			console.error('error-deleteDocument-', error);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -119,25 +134,24 @@ const InputFieldSingleFileUpload = props => {
 		},
 	});
 
-	// useEffect(() => {
-	// 	// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-	// 	return () => files.forEach(file => URL.revokeObjectURL(file.preview));
-	// 	// eslint-disable-next-line
-	// }, []);
+	useEffect(() => {
+		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+		return () =>
+			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
+		// eslint-disable-next-line
+	}, []);
 
 	// Disable click and keydown behavior on the <Dropzone>
 
-	const isPreview = !!selectedFile;
-	const uploadedFile = selectedFile;
+	const isPreview = !!uploadedFile;
 
-	console.log('PanUpload-', {
-		cacheDocumentsTemp,
-		props,
-		businessUserId,
-		isPreview,
-		uploadedFile,
-		cacheDocuments,
-	});
+	// console.log('InputFieldSingleFileUpload-', {
+	// 	props,
+	// 	businessUserId,
+	// 	isPreview,
+	// 	uploadedFile,
+	// 	cacheDocuments,
+	// });
 
 	return (
 		<>
@@ -152,9 +166,11 @@ const InputFieldSingleFileUpload = props => {
 							onClick={e => {
 								e.preventDefault();
 								e.stopPropagation();
-								if (selectedFile?.document_id)
-									return openDocument(uploadedFile);
-								window.open(uploadedFile.preview, '_blank');
+								if (!uploadedFile?.document_id && uploadedFile?.preview) {
+									window.open(uploadedFile?.preview, '_blank');
+									return;
+								}
+								openDocument(uploadedFile);
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>
@@ -168,18 +184,13 @@ const InputFieldSingleFileUpload = props => {
 							<UI.UploadIconWrapper
 								{...getRootProps({ className: 'dropzone' })}
 							>
-								{loadingFile ? (
-									<div style={{ marginLeft: 'auto', height: '30px' }}>
-										<CircularLoading />
-									</div>
-								) : null}
 								<UI.IconDelete
 									src={iconDelete}
 									alt='delete'
 									onClick={e => {
 										e.preventDefault();
 										e.stopPropagation();
-										removeCacheDocumentTemp(field.name);
+										deleteDocument(uploadedFile);
 										clearErrorFormState();
 									}}
 								/>

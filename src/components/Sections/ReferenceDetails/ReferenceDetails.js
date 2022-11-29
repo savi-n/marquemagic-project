@@ -5,8 +5,9 @@ import axios from 'axios';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
+import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
-import { formatSectionReqBody } from 'utils/formatData';
+import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { updateApplicationSection } from 'store/applicationSlice';
 import * as SectionUI from 'components/Sections/ui';
@@ -26,6 +27,7 @@ const ReferenceDetails = () => {
 	} = app;
 	const { refId1, refId2 } = application;
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 
@@ -89,10 +91,31 @@ const ReferenceDetails = () => {
 			dispatch(updateApplicationSection(newReferenceDetails));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-CollateralDetails-onProceed-', error);
+			console.error('error-ReferenceDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const onSkip = () => {
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(application?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		dispatch(updateApplicationSection(skipSectionData));
+		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
@@ -181,6 +204,7 @@ const ReferenceDetails = () => {
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
 				/>
+				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
 			</SectionUI.Footer>
 		</SectionUI.Wrapper>
 	);

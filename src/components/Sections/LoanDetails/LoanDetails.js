@@ -7,10 +7,12 @@ import Button from 'components/Button';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
 
 import useForm from 'hooks/useFormIndividual';
+import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
+	getApiErrorMessage,
 	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
 import { addCacheDocuments, removeCacheDocument } from 'store/applicationSlice';
@@ -29,9 +31,8 @@ const LoanDetails = () => {
 		selectedSection,
 		nextSectionId,
 		isTestMode,
-		clientToken,
 	} = app;
-	const { loanId, businessUserId } = application;
+	const { loanId, cacheDocuments } = application;
 	const {
 		isApplicant,
 		applicant,
@@ -46,6 +47,7 @@ const LoanDetails = () => {
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
 		];
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
@@ -59,6 +61,14 @@ const LoanDetails = () => {
 	const prevSelectedConnectorId = useRef(null);
 	const selectedConnectorId =
 		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
+	const selectedImdDocumentFile =
+		cacheDocumentsTemp?.filter(
+			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		cacheDocuments?.filter(
+			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		null;
 
 	const addCacheDocumentTemp = file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
@@ -109,14 +119,15 @@ const LoanDetails = () => {
 				values: formState.values,
 			});
 
-			const loanDetailsRes = await axios.post(
+			// const loanDetailsRes =
+			await axios.post(
 				`${API.API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
 			);
-			console.log('-loanDetailsRes-', {
-				loanDetailsReqBody,
-				loanDetailsRes,
-			});
+			// console.log('-loanDetailsRes-', {
+			// 	loanDetailsReqBody,
+			// 	loanDetailsRes,
+			// });
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
@@ -124,6 +135,7 @@ const LoanDetails = () => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
 							loan_id: loanId,
+							preview: null,
 						});
 						return null;
 					});
@@ -137,18 +149,33 @@ const LoanDetails = () => {
 						// console.log('borrowerDocUploadRedBody-', {
 						// 	borrowerDocUploadRedBody,
 						// });
-						// const borrowerDocUploadRes =
-						// TODO: varun get uniquie doc id for deleting on navigate back or edit mode
-						await axios.post(
+						const borrowerDocUploadRes = await axios.post(
 							`${API.BORROWER_UPLOAD_URL}`,
 							borrowerDocUploadRedBody
 						);
 						// console.log('borrowerDocUploadRes-', {
 						// 	borrowerDocUploadRes,
 						// });
+						const updateDocumentIdToCacheDocuments = [];
+						uploadCacheDocumentsTemp.map(cacheDoc => {
+							const resDoc =
+								borrowerDocUploadRes?.data?.data?.filter(
+									resDoc => resDoc?.doc_name === cacheDoc?.document_key
+								)?.[0] || {};
+							const newDoc = {
+								...resDoc,
+								...cacheDoc,
+								document_id: resDoc?.id,
+							};
+							updateDocumentIdToCacheDocuments.push(newDoc);
+							return null;
+						});
+						// console.log('updateDocumentIdToCacheDocuments-', {
+						// 	updateDocumentIdToCacheDocuments,
+						// });
 						dispatch(
 							addCacheDocuments({
-								files: uploadCacheDocumentsTemp,
+								files: updateDocumentIdToCacheDocuments,
 							})
 						);
 					}
@@ -163,10 +190,31 @@ const LoanDetails = () => {
 			dispatch(updateApplicationSection(newLoanDetails));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-LoanDetails-onProceed-', error);
+			console.error('error-LoanDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const onSkip = () => {
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(application?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		dispatch(updateApplicationSection(skipSectionData));
+		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
@@ -289,9 +337,9 @@ const LoanDetails = () => {
 										>
 											<InputFieldSingleFileUpload
 												field={field}
+												uploadedFile={selectedImdDocumentFile}
 												selectedDocTypeId={selectedDocTypeId}
 												clearErrorFormState={clearErrorFormState}
-												cacheDocumentsTemp={cacheDocumentsTemp}
 												addCacheDocumentTemp={addCacheDocumentTemp}
 												removeCacheDocumentTemp={removeCacheDocumentTemp}
 												errorColorCode={errorMessage ? 'red' : ''}
@@ -345,8 +393,8 @@ const LoanDetails = () => {
 							return;
 						onProceed();
 					})}
-					// onClick={onProceed}
 				/>
+				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

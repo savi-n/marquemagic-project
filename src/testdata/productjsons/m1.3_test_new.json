@@ -71,6 +71,10 @@
 								"rules": {
 									"required": true,
 									"supported_formats": ["*"]
+								},
+								"doc_type": {
+									"1": 8,
+									"7": 31
 								}
 							},
 							{

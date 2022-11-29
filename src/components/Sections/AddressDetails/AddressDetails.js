@@ -26,6 +26,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatAddressProofDocTypeList,
 	formatSectionReqBody,
+	getApiErrorMessage,
 	getCompletedSections,
 } from 'utils/formatData';
 // import { verifyKycDataUiUx } from 'utils/request';
@@ -182,7 +183,6 @@ const AddressDetails = props => {
 
 	const onProceed = async () => {
 		try {
-			// if (Object.keys(formState.values).length === 0) return onSkip();
 			setLoading(true);
 			const newLoanAddressDetails = [
 				{
@@ -237,6 +237,7 @@ const AddressDetails = props => {
 				try {
 					const uploadCacheDocumentsTemp = [];
 					cacheDocumentsTemp.map(doc => {
+						if (!doc?.requestId) return null;
 						uploadCacheDocumentsTemp.push({
 							...doc,
 							request_id: doc.requestId,
@@ -293,12 +294,37 @@ const AddressDetails = props => {
 			}
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-AddressDetails-onProceed-', error);
+			console.error('error-AddressDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 			// TODO: below line is used for testing remove this before push
 			// dispatch(setSelectedSectionId(nextSectionId));
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const onSkip = () => {
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(selectedApplicant?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		if (isApplicant) {
+			dispatch(updateApplicantSection(skipSectionData));
+		} else {
+			dispatch(updateCoApplicantSection(skipSectionData));
+		}
+		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
@@ -652,6 +678,7 @@ const AddressDetails = props => {
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
 				/>
+				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

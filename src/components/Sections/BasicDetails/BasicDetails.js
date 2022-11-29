@@ -18,9 +18,11 @@ import {
 	addCacheDocuments,
 	removeCacheDocument,
 	setSelectedApplicantCoApplicantId,
+	addCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
-import { formatSectionReqBody } from 'utils/formatData';
+import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -53,6 +55,7 @@ const BasicDetails = props => {
 	const { cacheDocuments } = selectedApplicant;
 	const { isViewLoan } = application;
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [
 		isIncomeTypeConfirmModalOpen,
@@ -67,12 +70,20 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const profileImageResTemp =
+	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		cacheDocuments?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		null;
+	const panUploadedFile =
+		cacheDocumentsTemp?.filter(
+			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		cacheDocuments?.filter(
+			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		null;
 
@@ -118,11 +129,20 @@ const BasicDetails = props => {
 				formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 			const selectedLoanProductId =
 				selectedProduct?.product_id[selectedIncomeType];
+			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			)?.[0];
+			const profileFieldValue = profileUploadedFile?.file
+				? {
+						...profileUploadedFile?.file,
+						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
+				  }
+				: profileUploadedFile?.presignedUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileImageResTemp?.file,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
 				applicantCoApplicants,
@@ -136,7 +156,10 @@ const BasicDetails = props => {
 
 			// console.log('onProceed-basicDetailsReq-', {
 			// 	basicDetailsReqBody,
+			// 	profileKey: CONST.PROFILE_UPLOAD_FIELD_DB_KEY,
+			// 	profileUploadedFile,
 			// });
+			// return;
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -152,16 +175,31 @@ const BasicDetails = props => {
 				basicDetailsRes?.data?.data?.business_data?.userid;
 			const newCreatedByUserId =
 				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+			const newProfileData = {
+				...(basicDetailsRes?.data?.data?.loan_document_data || {}),
+				...profileUploadedFile,
+				...profileFieldValue,
+				document_id: basicDetailsRes?.data?.data?.loan_document_data?.id,
+				preview: null,
+				file: null,
+			};
+			dispatch(
+				addCacheDocument({
+					file: newProfileData,
+				})
+			);
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
 					cacheDocumentsTemp.map(doc => {
+						if (!doc?.requestId) return null;
 						uploadCacheDocumentsTemp.push({
 							...doc,
-							request_id: doc.requestId,
+							request_id: doc?.requestId,
 							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType], // pending
 							is_delete_not_allowed: true,
 							director_id: newDirectorId,
+							preview: null,
 						});
 						return null;
 					});
@@ -199,7 +237,7 @@ const BasicDetails = props => {
 				sectionValues: {
 					...formState.values,
 					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]:
-						profileImageResTemp?.presignedUrl,
+						profileUploadedFile?.presignedUrl,
 				},
 			};
 			// console.log('onProceed-', {
@@ -227,7 +265,16 @@ const BasicDetails = props => {
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-BasicDetails-onProceed-', error);
+			console.error('error-BasicDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -294,6 +341,7 @@ const BasicDetails = props => {
 
 	const isPanNumberExist = !!formState.values.pan_number;
 	let isProfileMandatory = false;
+	let isPanUploadMandatory = true;
 
 	const ButtonProceed = (
 		<Button
@@ -346,6 +394,7 @@ const BasicDetails = props => {
 													isPanNumberExist={isPanNumberExist}
 													isFormSubmited={formState?.submit?.isSubmited}
 													isProfileMandatory={isProfileMandatory}
+													uploadedFile={profileUploadedFile}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
@@ -364,7 +413,7 @@ const BasicDetails = props => {
 											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name]) ||
 										'';
-
+									isPanUploadMandatory = !!field?.rules?.required;
 									// console.log('pancard-error-msg-', {
 									// 	panErrorMessage,
 									// });
@@ -395,7 +444,7 @@ const BasicDetails = props => {
 											<UI.ProfilePicWrapper>
 												<PanUpload
 													formState={formState}
-													cacheDocumentsTemp={cacheDocumentsTemp}
+													uploadedFile={panUploadedFile}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													isPanNumberExist={isPanNumberExist}
@@ -422,12 +471,14 @@ const BasicDetails = props => {
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
 								if (
+									isPanUploadMandatory &&
 									!isPanNumberExist &&
 									field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME &&
 									!!field?.rules?.required
 								)
 									customFieldProps.disabled = true;
 								if (
+									isPanUploadMandatory &&
 									isPanNumberExist &&
 									field.name === CONST.PAN_NUMBER_FIELD_NAME
 								)
@@ -463,26 +514,21 @@ const BasicDetails = props => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				{selectedApplicant?.directorId ? (
-					ButtonProceed
-				) : (
-					<Button
-						fill
-						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-						isLoader={loading}
-						disabled={loading || !isPanNumberExist}
-						onClick={handleSubmit(() => {
-							// console.log({
-							// 	isProfileMandatory,
-							// 	selectedProfileImageUrl,
-							// 	profileImageResTemp,
-							// });
-							if (isProfileMandatory && profileImageResTemp === null) return;
-							setIsIncomeTypeConfirmModalOpen(true);
-						})}
-						// onClick={onProceed}
-					/>
-				)}
+				<Button
+					fill
+					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+					isLoader={loading}
+					disabled={loading || !isPanNumberExist}
+					onClick={handleSubmit(() => {
+						// console.log({
+						// 	isProfileMandatory,
+						// 	selectedProfileImageUrl,
+						// 	profileImageResTemp,
+						// });
+						if (isProfileMandatory && profileUploadedFile === null) return;
+						setIsIncomeTypeConfirmModalOpen(true);
+					})}
+				/>
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

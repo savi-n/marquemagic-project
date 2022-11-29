@@ -81,7 +81,7 @@ const VALIDATION_RULES = {
 		func: validatePattern(),
 		message: 'Pattern Mismatch',
 	},
-	panNumber: {
+	pan_number: {
 		func: validatePattern(/^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/),
 		message: 'Invalid PAN Number (ex: BDEFG4467C)',
 	},

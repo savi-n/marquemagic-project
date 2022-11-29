@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
+import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
 
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -14,7 +15,7 @@ import {
 	setSelectedApplicantCoApplicantId,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-import { formatSectionReqBody } from 'utils/formatData';
+import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 
 const EmploymentDetails = () => {
@@ -40,6 +41,7 @@ const EmploymentDetails = () => {
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 
@@ -63,19 +65,19 @@ const EmploymentDetails = () => {
 					selectedApplicant?.incomeDataId;
 			}
 
-			console.log('-employmentDetailsReq-', {
-				employmentDetailsReqBody,
-				app,
-				applicantCoApplicants,
-				application,
-			});
+			// console.log('-employmentDetailsReq-', {
+			// 	employmentDetailsReqBody,
+			// 	app,
+			// 	applicantCoApplicants,
+			// 	application,
+			// });
 			const employmentDetailsRes = await axios.post(
 				`${API_END_POINT}/employmentData`,
 				employmentDetailsReqBody
 			);
-			console.log('-employmentDetailsRes-', {
-				employmentDetailsRes,
-			});
+			// console.log('-employmentDetailsRes-', {
+			// 	employmentDetailsRes,
+			// });
 			const newEmploymentDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
@@ -90,12 +92,28 @@ const EmploymentDetails = () => {
 			}
 			return true;
 		} catch (error) {
-			console.error('error-submitEmploymentDetails-', error);
+			console.error('error-submitEmploymentDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 			// TODO: Handle error toast and error code
 			return false;
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const onAddCoApplicant = async () => {
+		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+		if (!isEmploymentDetailsSubmited) return;
+		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
+		dispatch(setSelectedSectionId(firstSectionId));
 	};
 
 	const onProceed = async () => {
@@ -109,11 +127,20 @@ const EmploymentDetails = () => {
 		}
 	};
 
-	const onAddCoApplicant = async () => {
-		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
-		if (!isEmploymentDetailsSubmited) return;
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
-		dispatch(setSelectedSectionId(firstSectionId));
+	const onSkip = () => {
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(selectedApplicant?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		if (isApplicant) {
+			dispatch(updateApplicantSection(skipSectionData));
+		} else {
+			dispatch(updateCoApplicantSection(skipSectionData));
+		}
+		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
@@ -220,13 +247,6 @@ const EmploymentDetails = () => {
 					);
 				})}
 			<UI_SECTIONS.Footer>
-				{/* <Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(onProceed)}
-				/> */}
 				{displayProceedCTA && (
 					<Button
 						fill
@@ -243,6 +263,7 @@ const EmploymentDetails = () => {
 					disabled={loading}
 					onClick={handleSubmit(onAddCoApplicant)}
 				/>
+				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
