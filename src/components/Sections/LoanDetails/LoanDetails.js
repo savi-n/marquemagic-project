@@ -395,7 +395,7 @@ const LoanDetails = () => {
 						onProceed();
 					})}
 				/>
-				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				<Button name='Skip' disabled={loading} onClick={onSkip} />
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

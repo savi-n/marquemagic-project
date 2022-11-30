@@ -321,11 +321,15 @@ const DocumentUpload = props => {
 		let manadatoryError = false;
 		const allMandatoryDocumentIds = [];
 		allDocumentTypes.map(
-			d => d?.isMandatory && allMandatoryDocumentIds.push(d?.doc_type_id)
+			d =>
+				d?.isMandatory &&
+				allMandatoryDocumentIds.push(`${d?.directorId}${d?.doc_type_id}`)
 		);
 		const uploadedDocumetnIds = [];
 		// [...uploadedDocuments, ...prefilledDocs]?.map(d =>
-		cacheDocuments?.map(d => uploadedDocumetnIds.push(d?.doc_type_id));
+		cacheDocuments?.map(d =>
+			uploadedDocumetnIds.push(`${d?.directorId}${d?.doc_type_id}`)
+		);
 
 		if (isDocumentUploadMandatory) {
 			allMandatoryDocumentIds.map(docId => {

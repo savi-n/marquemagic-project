@@ -165,6 +165,23 @@ const ReferenceDetails = () => {
 										return null;
 								}
 								const customFieldProps = {};
+								// TODO: varun handle following changes in json
+								if (field.name.includes('pincode')) {
+									customFieldProps.type = 'pincode';
+									customFieldProps.value_for_fields = [
+										['city0', 'district'],
+										['state0', 'state'],
+									];
+									customFieldProps.rules = {
+										required: false,
+										length: 6,
+									};
+									customFieldProps.make_api_call = 6;
+									customFieldProps.mask = {
+										number_only: true,
+										character_limit: 6,
+									};
+								}
 								return (
 									<>
 										{field.name === 'Name1' && <UI.Divider />}
@@ -205,7 +222,7 @@ const ReferenceDetails = () => {
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
 				/>
-				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				<Button name='Skip' disabled={loading} onClick={onSkip} />
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

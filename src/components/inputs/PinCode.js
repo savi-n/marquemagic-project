@@ -59,7 +59,7 @@ const Label = styled.label`
 	}
 `;
 
-const getCityStateName = (props, k) => {
+const showCityState = (props, k) => {
 	if (
 		props?.name.split('_')[0].includes('permanent') ||
 		props?.name.split('_')[0].includes('present')
@@ -101,7 +101,10 @@ export default function Pincode(props) {
 			return;
 		}
 
-		if (value.length === props.makeApiCall) {
+		if (
+			value.length === props.makeApiCall ||
+			value.length === props.make_api_call
+		) {
 			if (isViewLoan) return;
 			setProcessing(true);
 			try {
@@ -120,6 +123,7 @@ export default function Pincode(props) {
 					);
 
 					if (pincodeRes.status === 'nok' || !pincodeRes) {
+						await addToast({ message: 'Invalid Pincode', type: 'error' });
 						setProcessing(false);
 						return;
 					}
@@ -132,7 +136,7 @@ export default function Pincode(props) {
 				//console.log(response);
 				for (const [k, v] of props.value_for_fields) {
 					const target = {
-						name: getCityStateName(props, k),
+						name: showCityState(props, k),
 						value: selectedPincodeRes?.[v]?.[0] || '',
 					};
 					props.onChange({ target });

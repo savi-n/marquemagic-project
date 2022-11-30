@@ -53,7 +53,7 @@ const CategoryFileUpload = props => {
 
 	const id = uuidv4();
 
-	const [loading, setLoading] = useState(false);
+	// const [loading, setLoading] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [passwordForFileId, setPasswordForFileId] = useState(null);
@@ -65,7 +65,7 @@ const CategoryFileUpload = props => {
 
 	const openDocument = async file => {
 		try {
-			setLoading(true);
+			setOpeningRemovingDocument(file?.document_key || file?.doc_type_id);
 			// console.log('open-doc-', { file, loanId, businessUserId });
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
@@ -79,7 +79,7 @@ const CategoryFileUpload = props => {
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
 		} finally {
-			setLoading(false);
+			setOpeningRemovingDocument(false);
 		}
 	};
 
@@ -352,11 +352,7 @@ const CategoryFileUpload = props => {
 	// 	props,
 	// });
 
-	return loading ? (
-		<>
-			<h1>Loading...</h1>
-		</>
-	) : (
+	return (
 		<>
 			{!disabled && !isViewLoan && (
 				<UI.Dropzone
@@ -637,7 +633,7 @@ const CategoryFileUpload = props => {
 															window.open(doc?.preview, '_blank');
 															return;
 														}
-														isViewDocAllowed && openDocument(doc);
+														openDocument(doc);
 													}
 												}}
 											>

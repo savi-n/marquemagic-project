@@ -412,6 +412,7 @@ export default function useForm() {
 			...submitRef.current,
 			isSubmitting: false,
 		};
+		errorsRef.current = {};
 		updateFormState(uuidv4());
 	};
 

@@ -3,13 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
 
-import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
 import { sleep } from 'utils/helper';
-import { setSelectedSectionId } from 'store/appSlice';
 import { formatSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -18,7 +17,14 @@ const BankDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		isTestMode,
+		isLocalhost,
+	} = app;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
@@ -48,7 +54,6 @@ const BankDetails = () => {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
 			};
-			console.log(newBankDetails);
 			dispatch(updateApplicationSection(newBankDetails));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
@@ -71,17 +76,18 @@ const BankDetails = () => {
 	};
 
 	const onSkip = () => {
-		dispatch(
-			updateApplicantSection({
-				id: selectedSectionId,
-				values: { isSkip: true },
-			})
-		);
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(application?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
-		console.log(field);
 		try {
 			// if (formState?.values?.[field.name] !== undefined) {
 			// 	return formState?.values?.[field.name];
@@ -162,6 +168,14 @@ const BankDetails = () => {
 
 								const newField = _.cloneDeep(field);
 								const customFieldProps = {};
+								// TODO: varun do following chagnes from config
+								// ifsc field is lagging need to fix
+								if (field.name === 'ifsc_code') {
+									customFieldProps.type = 'ifsclist';
+								}
+								if (field.name === 'bank_name') {
+									customFieldProps.ifsc_required = true;
+								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${newField.name}`}
@@ -196,8 +210,15 @@ const BankDetails = () => {
 					isLoader={loading}
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
-					// onClick={onProceed}
 				/>
+				<Button name='Skip' disabled={loading} onClick={onSkip} />
+				{isLocalhost && (
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+				)}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

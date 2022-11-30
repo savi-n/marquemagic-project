@@ -48,17 +48,22 @@ const EMIDetails = props => {
 					[newKeyName]: formState.values[key],
 				};
 			}
+			const newValues = [];
+			finalData.map(data => {
+				if (data.emi_amount && data.bank_name) {
+					newValues.push(data);
+				}
+				return null;
+			});
 			const emiDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
-				values: finalData,
+				values: newValues,
 				app,
 				applicantCoApplicants,
 				application,
 			});
 
-			emiDetailsReqBody.data.emi_details = finalData;
-			console.log(applicant);
-
+			emiDetailsReqBody.data.emi_details = newValues;
 			let editLoanDataId = '';
 			if (isApplicant) {
 				editLoanDataId = applicant?.loan_id;
@@ -67,15 +72,20 @@ const EMIDetails = props => {
 				emiDetailsReqBody.loan_id = editLoanDataId;
 			}
 
-			const emiDetailsRes = await axios.post(
-				`${API_END_POINT}/addBankDetailsNew`,
-				emiDetailsReqBody
-			);
-
-			console.log('-emiDetailsRes-', {
-				emiDetailsReqBody,
-				emiDetailsRes,
-			});
+			// console.log('-emiDetailsRes-', {
+			// 	emiDetailsReqBody,
+			// });
+			// return;
+			// const emiDetailsRes =
+			if (emiDetailsReqBody.data.emi_details?.length > 0) {
+				await axios.post(
+					`${API_END_POINT}/addBankDetailsNew`,
+					emiDetailsReqBody
+				);
+			}
+			// console.log('-emiDetailsRes-', {
+			// 	emiDetailsRes,
+			// });
 			const newEmiDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
@@ -188,10 +198,10 @@ const EMIDetails = props => {
 			);
 		});
 
-	console.log('EMIDetails-allstates-', {
-		selectedSection,
-		selectedEmiDetailsSubSection,
-	});
+	// console.log('EMIDetails-allstates-', {
+	// 	selectedSection,
+	// 	selectedEmiDetailsSubSection,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -231,9 +241,8 @@ const EMIDetails = props => {
 					isLoader={loading}
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
-					// onClick={onProceed}
 				/>
-				<Button name='Skip' onClick={onSkip} />
+				<Button name='Skip' disabled={loading} onClick={onSkip} />
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

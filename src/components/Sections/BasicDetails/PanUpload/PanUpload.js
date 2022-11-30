@@ -213,10 +213,44 @@ const PanUpload = props => {
 			// );
 			// business product + business pan card
 
+			// Pre population from pan
+
 			onChangeFormStateField({
 				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: confirmPanNumber,
 			});
+
+			/* split the name into first and last name */
+			let name = panExtractionData?.Name,
+				first_name = '',
+				last_name = '';
+			if (name) {
+				let nameSplit = name.split(' ');
+				if (nameSplit.length > 1) {
+					last_name = nameSplit[nameSplit.length - 1];
+					nameSplit.pop();
+				}
+				first_name = nameSplit.join(' ');
+			}
+
+			if (first_name) {
+				onChangeFormStateField({
+					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
+					value: first_name || '',
+				});
+			}
+			if (last_name) {
+				onChangeFormStateField({
+					name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
+					value: last_name || '',
+				});
+			}
+			if (panExtractionData?.father_name) {
+				onChangeFormStateField({
+					name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
+					value: panExtractionData?.father_name || '',
+				});
+			}
 
 			// Company search select is only applicable for business loans
 			if (
@@ -250,6 +284,7 @@ const PanUpload = props => {
 			console.error('error-handlePanConfirm-', error);
 		} finally {
 			setLoading(false);
+			clearErrorFormState();
 		}
 	};
 
@@ -533,11 +568,11 @@ const PanUpload = props => {
 											e.stopPropagation();
 											removeCacheDocumentTemp(field.name);
 											onChangeFormStateField({
-												name: 'pan_number',
+												name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
 											});
 											onChangeFormStateField({
-												name: 'pan_upload',
+												name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
 												value: '',
 											});
 											clearErrorFormState();

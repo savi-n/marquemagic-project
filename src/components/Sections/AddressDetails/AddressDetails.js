@@ -699,6 +699,13 @@ const AddressDetails = props => {
 									)
 										return null;
 								}
+								// TODO: varun fix this by json change
+								if (field.name === 'permanent_pin_code') {
+									customFieldProps.type = 'pincode';
+								}
+								if (field.name === 'present_pin_code') {
+									customFieldProps.type = 'pincode';
+								}
 								if (
 									isSectionCompleted &&
 									field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
@@ -738,7 +745,7 @@ const AddressDetails = props => {
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
 				/>
-				<Button fill name='Skip' disabled={loading} onClick={onSkip} />
+				<Button name='Skip' disabled={loading} onClick={onSkip} />
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

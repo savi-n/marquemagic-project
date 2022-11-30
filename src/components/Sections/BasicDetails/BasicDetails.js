@@ -15,12 +15,13 @@ import { setLoanIds } from 'store/applicationSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
-	addCacheDocuments,
+	// addCacheDocuments,
 	removeCacheDocument,
 	setSelectedApplicantCoApplicantId,
-	addCacheDocument,
+	// addCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
+import { addCacheDocument, addCacheDocuments } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
@@ -61,7 +62,8 @@ const BasicDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { cacheDocuments } = selectedApplicant;
+	const { cacheDocuments } = application;
+	const { directorId } = selectedApplicant;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -83,7 +85,9 @@ const BasicDetails = props => {
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		cacheDocuments?.filter(
-			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			doc =>
+				doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME &&
+				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
 	const panUploadedFile =
@@ -91,7 +95,9 @@ const BasicDetails = props => {
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		cacheDocuments?.filter(
-			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
+			doc =>
+				doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME &&
+				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
 	let prefilledProfileUploadValue = '';
@@ -186,6 +192,7 @@ const BasicDetails = props => {
 				...profileUploadedFile,
 				...profileFieldValue,
 				document_id: basicDetailsRes?.data?.data?.loan_document_data?.id,
+				directorId: newDirectorId,
 				preview: null,
 				file: null,
 			};
@@ -197,7 +204,6 @@ const BasicDetails = props => {
 			dispatch(
 				addCacheDocument({
 					file: newProfileData,
-					directorId: newDirectorId,
 				})
 			);
 			if (cacheDocumentsTemp.length > 0) {
@@ -211,6 +217,7 @@ const BasicDetails = props => {
 							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType], // pending
 							is_delete_not_allowed: true,
 							director_id: newDirectorId,
+							directorId: newDirectorId,
 							preview: null,
 						});
 						return null;
@@ -236,7 +243,6 @@ const BasicDetails = props => {
 						dispatch(
 							addCacheDocuments({
 								files: uploadCacheDocumentsTemp,
-								directorId: newDirectorId,
 							})
 						);
 					}
@@ -605,8 +611,6 @@ const BasicDetails = props => {
 					onClick={handleSubmit(() => {
 						// console.log({
 						// 	isProfileMandatory,
-						// 	selectedProfileImageUrl,
-						// 	profileImageResTemp,
 						// });
 						let isProfileError = false;
 						if (isProfileMandatory && profileUploadedFile === null) {
