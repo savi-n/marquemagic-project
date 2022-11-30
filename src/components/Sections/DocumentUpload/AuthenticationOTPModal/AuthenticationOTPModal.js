@@ -112,14 +112,11 @@ const AuthenticationOTPModal = props => {
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [, setIsResentOtp] = useState(false);
 
-	const API_TOKEN = sessionStorage.getItem('userToken');
-
 	const maskedContactNo = `XXXXX${setContactNo[setContactNo?.length - 5]}${
 		setContactNo[setContactNo?.length - 4]
 	}${setContactNo[setContactNo?.length - 3]}${
 		setContactNo[setContactNo?.length - 2]
 	}${setContactNo[setContactNo?.length - 1]}`;
-	const product_id = sessionStorage.getItem('productId');
 
 	const verifyOtp = async () => {
 		if (!inputAuthenticationOTP) {

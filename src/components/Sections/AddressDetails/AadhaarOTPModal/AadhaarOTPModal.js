@@ -1,7 +1,7 @@
 /* This section contains modal/popup onClick of Verify Aadhaar button.
   This section also contains resend otp option */
 
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
@@ -17,7 +17,6 @@ import {
 } from '_config/app.config';
 import { setVerifyOtpResponse } from 'store/applicantCoApplicantsSlice';
 import useFetch from 'hooks/useFetch';
-import { AppContext } from 'reducer/appReducer';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
 import { formatSectionReqBody } from 'utils/formatData';

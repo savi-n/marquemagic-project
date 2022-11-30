@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
@@ -15,44 +15,9 @@ import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
 
-import Button from 'components/Button';
-import { setSelectedSectionId } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
-// import * as CONST from './const';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
-import { updateApplicationSection } from 'store/applicationSlice';
-
-const SkipComponent = () => {
-	const { app } = useSelector(state => state);
-	const dispatch = useDispatch();
-	const { nextSectionId, selectedSectionId } = app;
-	return (
-		<div
-			style={{
-				height: '100vh',
-				width: '100%',
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
-			<Button
-				customStyle={{ height: '50px' }}
-				name='Skip'
-				onClick={() => {
-					dispatch(
-						updateApplicationSection({
-							sectionId: selectedSectionId,
-							sectionValues: { isSkip: true },
-						})
-					);
-					dispatch(setSelectedSectionId(nextSectionId));
-				}}
-			/>
-		</div>
-	);
-};
 
 const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(

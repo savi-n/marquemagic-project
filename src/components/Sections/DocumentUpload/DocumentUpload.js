@@ -277,7 +277,8 @@ const DocumentUpload = props => {
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
-			let authenticateOtp = await axios.post(
+			// let authenticateOtp =
+			await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
 			);

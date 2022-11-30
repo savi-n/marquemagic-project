@@ -4,7 +4,6 @@ of file, upload and deletion */
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Popover } from 'react-tiny-popover';
 

@@ -4,7 +4,6 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
 
 import Button from 'components/Button';
 import AadhaarOTPModal from './AadhaarOTPModal';
@@ -15,7 +14,6 @@ import {
 	// setIsSameAsAboveAddressChecked,
 	updateApplicantSection,
 	updateCoApplicantSection,
-	setGenerateAadhaarOtp,
 	addCacheDocuments,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
@@ -37,7 +35,6 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
-import { useEffect } from 'react';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -61,9 +58,7 @@ const AddressDetails = props => {
 		applicant,
 		coApplicants,
 		isApplicant,
-		verifyOtpResponse,
 	} = applicantCoApplicants;
-	const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, createContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import _, { max } from 'lodash';
+import _ from 'lodash';
 
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/BankList';

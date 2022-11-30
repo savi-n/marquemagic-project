@@ -34,7 +34,7 @@ import * as UI from './ui';
 const PanUpload = props => {
 	const {
 		field,
-		value,
+		// value,
 		formState,
 		setErrorFormStateField,
 		panErrorColorCode,

@@ -11,10 +11,10 @@ import {
 } from '_config/app.config';
 import { FlowContext } from 'reducer/flowReducer';
 import { FormContext } from 'reducer/formReducer';
-import { UserContext } from 'reducer/userReducer';
-import { BussinesContext } from 'reducer/bussinessReducer';
+// import { UserContext } from 'reducer/userReducer';
+// import { BussinesContext } from 'reducer/bussinessReducer';
 import axios from 'axios';
-import { API_END_POINT } from '_config/app.config';
+// import { API_END_POINT } from '_config/app.config';
 
 // const Input = styled.input`
 // 	height: 50px;
@@ -44,9 +44,9 @@ export default function BankList(props) {
 	// 	state: { userToken },
 	// } = useContext(UserContext);
 
-	const {
-		state: { companyDetail },
-	} = useContext(BussinesContext);
+	// const {
+	// 	state: { companyDetail },
+	// } = useContext(BussinesContext);
 
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
