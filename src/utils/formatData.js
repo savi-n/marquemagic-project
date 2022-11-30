@@ -381,9 +381,14 @@ export const getCompletedSections = data => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 		application,
+		isEditOrViewLoan,
 	} = data;
 	const completedMenu = [];
 	selectedProduct?.product_details?.sections?.map(section => {
+		if (isEditOrViewLoan) {
+			completedMenu.push(section?.id);
+			return null;
+		}
 		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
 			completedMenu.push(section.id);
 		} else {
@@ -427,4 +432,16 @@ export const getDocumentCategoryName = type => {
 	if (type?.toLowerCase()?.includes(CONST_SECTIONS.DOC_CATEGORY_OTHER))
 		category = CONST_SECTIONS.DOC_CATEGORY_OTHER;
 	return category;
+};
+
+export const getEditLoanLoanDocuments = data => {
+	const { documents, directorId, docTypeId } = data;
+	return documents?.filter(doc => {
+		if (
+			`${doc?.directorId}` === `${directorId}` &&
+			`${doc?.doctype}` === `${docTypeId}`
+		)
+			return true;
+		return false;
+	});
 };

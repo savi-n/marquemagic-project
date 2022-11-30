@@ -53,6 +53,8 @@ const AddressDetails = props => {
 		clientToken,
 		selectedSection,
 		isLocalhost,
+		isEditLoan,
+		isEditOrViewLoan,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -247,7 +249,6 @@ const AddressDetails = props => {
 			// console.log('addressDetailsReqBody-', {
 			// 	addressDetailsReqBody,
 			// });
-			// reqBody.data = addressDetailsCustomReqBody;
 			const addressDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				addressDetailsReqBody
@@ -352,15 +353,54 @@ const AddressDetails = props => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const preData = {
+			permanent_aadhaar: '', // TODO: shreyas
+			permanent_address_proof_id: '', // TODO: shreyas
+			permanent_address_proof_id_passport: '', // TODO: shreyas
+			permanent_address_proof_id_dl: '', // TODO: shreyas
+			permanent_address_proof_id_voter: '', // TODO: shreyas
+			permanent_address1: selectedApplicant?.permanent_address1,
+			permanent_address2: selectedApplicant?.permanent_address2,
+			permanent_address3: selectedApplicant?.permanent_locality,
+			permanent_pin_code: selectedApplicant?.permanent_pincode,
+			permanent_city: selectedApplicant?.permanent_city,
+			permanent_state: selectedApplicant?.permanent_state,
+			permanent_property_type: '', // TOOD: shreyas
+			permanent_property_tenure: '', // TODO: shreyas
+
+			present_aadhaar: selectedApplicant?.daadhaar, // TODO: shreyas
+			present_address_proof_id: '', // TODO: shreyas
+			present_address_proof_id_passport: selectedApplicant?.dpassport, // TODO: shreyas
+			present_address_proof_id_dl: selectedApplicant?.ddlNumber, // TODO: shreyas
+			present_address_proof_id_voter: selectedApplicant?.dvoterid, // TODO: shreyas
+			present_address1: selectedApplicant?.address1,
+			present_address2: selectedApplicant?.address2,
+			present_address3: selectedApplicant?.locality,
+			present_pin_code: selectedApplicant?.pincode,
+			present_city: selectedApplicant?.city,
+			present_state: selectedApplicant?.state,
+			present_property_type: '', // TOOD: shreyas
+			present_property_tenure: '', // TODO: shreyas
+		};
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			// console.log('prefilledValues-', field);
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			// custom prefill only for this section
 			if (isSameAsAboveAddressChecked) {
 				return formState?.values?.[
 					field?.name?.replace(CONST.PREFIX_PRESENT, CONST.PREFIX_PERMANENT)
 				];
 			}
-			if (formState?.values?.[field.name] !== undefined) {
+
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
 
@@ -370,24 +410,23 @@ const AddressDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (isApplicant) {
-				return (
-					selectedApplicant?.[selectedSectionId]?.[field?.name] ||
-					field.value ||
-					''
-				);
-			}
 			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
-			if (selectedApplicantCoApplicantId) {
-				return (
-					selectedApplicant?.[selectedSectionId]?.[field?.name] ||
-					field.value ||
-					''
-				);
+
+			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
-			return '';
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}
@@ -490,6 +529,9 @@ const AddressDetails = props => {
 					isInActiveAddressProofUpload = true;
 				}
 
+				if (isEditOrViewLoan) {
+					isInActiveAddressProofUpload = true;
+				}
 				// selectedDocTypeId &&
 				// 	console.log(
 				// 		'%c sub_sections_selectedDocumentTypes-',

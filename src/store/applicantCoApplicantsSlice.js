@@ -378,6 +378,37 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		// -- API REQ RES RELATED ACTIONS
+
+		// EDIT LOAN
+		setEditLoanApplicantsData: (state, action) => {
+			const { editLoanData } = action.payload;
+			const applicant =
+				editLoanData?.director_details?.filter(d => d?.isApplicant)?.[0] || {};
+			const coApplicants =
+				editLoanData?.director_details?.filter(
+					d =>
+						d?.type_name?.toLowerCase() ===
+						CONST_SECTIONS.DIRECTOR_TYPE_CO_APPLICANT
+				) || [];
+			const newApplicantData = {
+				..._.cloneDeep(initializeApplicantCoApplicant),
+				directorId: applicant?.id,
+				...applicant,
+			};
+			state.applicant = newApplicantData;
+			const newCoApplicants = {};
+			coApplicants.map(coApplicant => {
+				const newCoApplicantData = {
+					..._.cloneDeep(initializeApplicantCoApplicant),
+					directorId: coApplicant?.id,
+					...coApplicant,
+				};
+				newCoApplicants[coApplicant.id] = newCoApplicantData;
+				return null;
+			});
+			state.coApplicants = newCoApplicants;
+		},
+		// -- EDIT LOAN
 	},
 });
 export const {
@@ -409,6 +440,8 @@ export const {
 
 	addApplicantDocumentTypes,
 	addCoApplicantDocumentTypes,
+
+	setEditLoanApplicantsData,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

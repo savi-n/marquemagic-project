@@ -59,7 +59,13 @@ const AddressProofUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { selectedProduct, clientToken, isEditLoan, isViewLoan } = app;
+	const {
+		selectedProduct,
+		clientToken,
+		isEditLoan,
+		isViewLoan,
+		isEditOrViewLoan,
+	} = app;
 	const { loanId, businessUserId } = application;
 	const {
 		selectedApplicantCoApplicantId,
@@ -939,7 +945,10 @@ const AddressProofUpload = props => {
 									filter: isInActive ? 'grayscale(200%)' : 'none',
 								}}
 								alt='upload'
-								onClick={() => setIsDocumentTaggingOpen(!isDocumentTaggingOpen)}
+								onClick={e => {
+									if (isEditOrViewLoan) return;
+									setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
+								}}
 							/>
 						</UI.IconWrapper>
 					</UI.Dropzone>

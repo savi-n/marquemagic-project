@@ -222,8 +222,6 @@ export default function Product(props) {
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 	const isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
-	const isIndividual =
-		response && response.data && response.data.loan_request_type === 2;
 
 	const currentFlowDetect = () => {
 		if (completedMenu.length && productId === productIdPage) {
@@ -237,7 +235,7 @@ export default function Product(props) {
 
 	useEffect(() => {
 		if (response) {
-			if (isIndividual) {
+			if (response?.data?.loan_request_type === 2) {
 				const selectedProductRes = _.cloneDeep(response.data);
 				dispatch(setSelectedProduct(selectedProductRes));
 				dispatch(

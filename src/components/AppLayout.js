@@ -11,7 +11,17 @@ import {
 	setEditLoanData,
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
+	reInitializeAppSlice,
+	setUserToken,
 } from 'store/appSlice';
+import {
+	reInitializeApplicationSlice,
+	setLoanIds,
+} from 'store/applicationSlice';
+import {
+	reInitializeApplicantCoApplicantSlice,
+	setEditLoanApplicantsData,
+} from 'store/applicantCoApplicantsSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from './Header';
 import Loading from 'components/Loading';
@@ -149,7 +159,25 @@ const AppLayout = () => {
 					}
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
+					dispatch(setUserToken(decryptedToken.token));
 					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
+					dispatch(
+						setEditLoanApplicantsData({ editLoanData: newEditLoanData })
+					);
+					dispatch(
+						setLoanIds({
+							loanRefId: newEditLoanData?.loan_ref_id,
+							loanId: newEditLoanData?.id,
+							businessId: newEditLoanData?.business_id?.id,
+							businessUserId: newEditLoanData?.business_id?.userid,
+							loanProductId: newEditLoanData?.loan_product_id,
+							createdByUserId: newEditLoanData?.createdUserId,
+							loanAssetsId: newEditLoanData?.loan_assets?.[0]?.id,
+							assetsAdditionalId: newEditLoanData?.assets_additional_id,
+							refId1: newEditLoanData?.reference_details?.[0]?.id,
+							refId2: newEditLoanData?.reference_details?.[1]?.id,
+						})
+					);
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(
@@ -225,6 +253,9 @@ const AppLayout = () => {
 			setLoading(false);
 		}
 		if (response) {
+			dispatch(reInitializeAppSlice());
+			dispatch(reInitializeApplicantCoApplicantSlice());
+			dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
 

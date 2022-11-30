@@ -11,12 +11,14 @@ import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
 import { UPLOAD_PROFILE_IMAGE } from '_config/app.config';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
+import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 
 const ProfileUpload = props => {
 	const {
 		field,
+		value,
 		isPanMandatory,
 		isPanNumberExist,
 		isFormSubmited,
@@ -24,6 +26,7 @@ const ProfileUpload = props => {
 		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
+		onChangeFormStateField,
 	} = props;
 	const {
 		app,
@@ -133,24 +136,27 @@ const ProfileUpload = props => {
 	// Disable click and keydown behavior on the <Dropzone>
 
 	// const isPreview = files.length > 0;
-	const isPreview = !!uploadedFile;
+	const isPreview = !!uploadedFile || !!value;
 
 	// console.log('ProfileUpload-', {
 	// 	props,
 	// 	isPreview,
 	// 	uploadedFile,
-	// 	cacheDocumentsTemp,
 	// });
 
 	if (isPreview) {
 		return (
 			<UI.ContainerPreview isPrevie={isPreview}>
 				<UI.ImgProfilePreview
-					src={uploadedFile?.preview || uploadedFile?.presignedUrl}
+					src={uploadedFile?.preview || uploadedFile?.presignedUrl || value}
 					alt='profile'
 					onClick={e => {
 						e.preventDefault();
 						e.stopPropagation();
+						if (value) {
+							window.open(value, '_blank');
+							return;
+						}
 						if (!uploadedFile?.document_id && uploadedFile?.preview) {
 							window.open(uploadedFile?.preview, '_blank');
 							return;
@@ -171,6 +177,13 @@ const ProfileUpload = props => {
 							onClick={e => {
 								e.preventDefault();
 								e.stopPropagation();
+								if (value) {
+									onChangeFormStateField({
+										name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
+										value: '',
+									});
+									return;
+								}
 								deleteDocument(uploadedFile);
 								// setProfileImageResTemp(null);
 							}}

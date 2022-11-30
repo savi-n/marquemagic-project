@@ -159,11 +159,9 @@ export const appSlice = createSlice({
 			if (isUpdateMode) {
 				state.isUpdateMode = true;
 			} else {
-				state.isEditOrViewLoan = !!action.payload;
-				state.isViewLoan = !action.payload
-					? false
-					: !action.payload?.isEditLoan;
-				state.isEditLoan = !action.payload ? false : action.payload?.isEditLoan;
+				state.isEditOrViewLoan = !!editLoanData;
+				state.isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+				state.isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 				state.isCreateLoan = false;
 			}
 		},

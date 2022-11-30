@@ -27,6 +27,7 @@ const SideNav = props => {
 		selectedSectionId,
 		applicantCoApplicantSectionIds,
 		editLoanData,
+		isEditOrViewLoan,
 	} = app;
 	const {
 		applicant,
@@ -47,6 +48,7 @@ const SideNav = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 		application,
+		isEditOrViewLoan,
 	});
 	// selectedProduct?.product_details?.sections?.map(section => {
 	// 	if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {

@@ -116,6 +116,20 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				<Link
 					href={!add && `/applyloan/product/${btoa(product.id)}`}
 					onClick={e => {
+						if (product.loan_request_type === 2) {
+							if (add) {
+								setAddedProduct(product);
+								setAddProduct(false);
+								return;
+							}
+							e.preventDefault();
+							sessionStorage.clear();
+							window.open(
+								`/nconboarding/applyloan/product/${btoa(product.id)}`,
+								'_self'
+							);
+							return;
+						}
 						resetAllApplicationState();
 						clearFlowDetails(basePageUrl);
 						clearFormData();

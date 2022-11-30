@@ -197,3 +197,5 @@ export const ALL_DOC_CATEGORY = [
 ];
 
 export const APPLICATION_SUBMITTED_SECTION_ID = 'application_submitted';
+
+export const DIRECTOR_TYPE_CO_APPLICANT = 'co-applicant';

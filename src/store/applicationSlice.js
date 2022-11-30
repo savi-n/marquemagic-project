@@ -7,6 +7,7 @@ const initialState = {
 	businessId: '',
 	businessUserId: '',
 	loanProductId: '',
+	createdByUserId: '',
 	loanAssetsId: '',
 	assetsAdditionalId: '',
 	refId1: '',
@@ -32,6 +33,10 @@ export const applicantSlice = createSlice({
 				businessUserId,
 				loanProductId,
 				createdByUserId,
+				loanAssetsId,
+				assetsAdditionalId,
+				refId1,
+				refId2,
 			} = action.payload;
 			if (loanRefId) state.loanRefId = loanRefId;
 			if (loanId) state.loanId = loanId;
@@ -39,6 +44,10 @@ export const applicantSlice = createSlice({
 			if (businessUserId) state.businessUserId = businessUserId;
 			if (loanProductId) state.loanProductId = loanProductId;
 			if (createdByUserId) state.createdByUserId = createdByUserId;
+			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
+			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
+			if (refId1) state.refId1 = refId1;
+			if (refId2) state.refId2 = refId2;
 		},
 		setloanRefId: (state, action) => {
 			state.loanRefId = action.payload;

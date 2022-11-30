@@ -21,7 +21,11 @@ import {
 	addCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
-import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import {
+	formatSectionReqBody,
+	getApiErrorMessage,
+	getEditLoanLoanDocuments,
+} from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -43,6 +47,10 @@ const BasicDetails = props => {
 		clientToken,
 		userToken,
 		isLocalhost,
+		isViewLoan,
+		isEditLoan,
+		isEditOrViewLoan,
+		editLoanData,
 	} = app;
 	const {
 		isApplicant,
@@ -54,7 +62,6 @@ const BasicDetails = props => {
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { cacheDocuments } = selectedApplicant;
-	const { isViewLoan } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -87,6 +94,7 @@ const BasicDetails = props => {
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		null;
+	let prefilledProfileUploadValue = '';
 
 	const onProceed = async () => {
 		try {
@@ -305,35 +313,101 @@ const BasicDetails = props => {
 		}
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		// console.log('applicant-', { selectedApplicant });
+		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
+			const panFile = getEditLoanLoanDocuments({
+				documents: editLoanData?.loan_document,
+				directorId: selectedApplicant?.directorId,
+				docTypeId: field?.doc_type?.[selectedApplicant?.income_type],
+			});
+			// console.log('all-pan-files-', panFile);
+			return panFile[0];
+		}
+		const preData = {
+			existing_customer: selectedApplicant?.existing_customer,
+			pan_number: selectedApplicant?.dpancard,
+			income_type: selectedApplicant?.income_type,
+			first_name: selectedApplicant?.dfirstname,
+			last_name: selectedApplicant?.dlastname,
+			dob: selectedApplicant?.ddob,
+			gender: selectedApplicant?.gender,
+			email: selectedApplicant?.demail,
+			mobile_no: selectedApplicant?.dcontact,
+			marital_status: selectedApplicant?.marital_status,
+			spouse_name: selectedApplicant?.spouse_name,
+			residence_status: selectedApplicant?.residence_status,
+			country_residence: selectedApplicant?.country_residence,
+			father_name: selectedApplicant?.father_name,
+			mother_name: selectedApplicant?.mother_name,
+			upi_id: selectedApplicant?.upi_id,
+			profile_upload: selectedApplicant?.customer_picture,
+		};
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			if (formState?.values?.[field.name] !== undefined) {
+			// [Priority - 0]
+			// view loan
+			// in view loan user cannot edit any information
+			// hence this is the first priority
+			// so always prepopulate value from <editLoanData>
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			// [Priority - 1]
+			// update value from form state
+			// whenever user decides to type or enter value
+			// form state should be the first value to prepopulate
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
+
 			// TEST MODE
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
 
-			if (isApplicant) {
-				return (
-					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
-				);
-			}
+			// [Priority - Special]
+			// special case when co-applicant is filling basic details for first time
+			// when director id is not created we prepopulate value from formstate only
+			// and last priority is to set default value <field.value> comming from JSON
 			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
-			if (selectedApplicantCoApplicantId) {
-				return (
-					coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
-						field?.name
-					] ||
-					field.value ||
-					''
-				);
+
+			// [Priority - 2]
+			// fetch data from redux slice
+			// this is to prefill value when user navigates backs
+			// once user press proceed and submit api success
+			// value is stored to redux and the same we can use to prepopulate
+			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
-			return '';
+
+			// [Priority - 3]
+			// fetch value from edit loan
+			// this is to prefill value only once per section
+			// ex: if user visits this section for first time we prepopulate value from <editLoanData>
+			// and then when he moves to next section redux store will be ready with new updated values
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			// [Priority - 4]
+			// finally last priority is for JSON value
+			// this value will be always overwritten by other all priority
+			// this scenario will only come in loan creation first time entering form
+			// also we'll have fall back <''> empty value in case above all priority fails to prepopulate
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}
@@ -387,6 +461,7 @@ const BasicDetails = props => {
 									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 								) {
 									isProfileMandatory = !!field?.rules?.required;
+									prefilledProfileUploadValue = prefilledValues(field);
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
@@ -395,6 +470,7 @@ const BasicDetails = props => {
 											<UI.ProfilePicWrapper>
 												<ProfileUpload
 													field={field}
+													value={prefilledProfileUploadValue}
 													isPanNumberExist={isPanNumberExist}
 													isPanMandatory={isPanUploadMandatory}
 													isFormSubmited={formState?.submit?.isSubmited}
@@ -403,6 +479,7 @@ const BasicDetails = props => {
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
+													onChangeFormStateField={onChangeFormStateField}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
@@ -448,12 +525,13 @@ const BasicDetails = props => {
 										>
 											<UI.ProfilePicWrapper>
 												<PanUpload
+													field={field}
+													value={prefilledValues(field)}
 													formState={formState}
 													uploadedFile={panUploadedFile}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													isPanNumberExist={isPanNumberExist}
-													field={field}
 													panErrorMessage={panErrorMessage}
 													panErrorColorCode={panErrorColorCode}
 													setErrorFormStateField={setErrorFormStateField}
@@ -530,7 +608,34 @@ const BasicDetails = props => {
 						// 	selectedProfileImageUrl,
 						// 	profileImageResTemp,
 						// });
-						if (isProfileMandatory && profileUploadedFile === null) return;
+						let isProfileError = false;
+						if (isProfileMandatory && profileUploadedFile === null) {
+							isProfileError = true;
+						}
+						if (
+							isEditOrViewLoan &&
+							prefilledProfileUploadValue &&
+							typeof prefilledProfileUploadValue === 'string'
+						) {
+							isProfileError = false;
+						}
+						if (isProfileError) {
+							// console.log('profile-error-', {
+							// 	isProfileError,
+							// 	profileUploadedFile,
+							// 	isEditOrViewLoan,
+							// 	value: formState?.values?.[CONST.PAN_UPLOAD_FIELD_NAME],
+							// });
+							addToast({
+								message: 'Profile is mandatory',
+								type: 'error',
+							});
+							return;
+						}
+						if (isEditOrViewLoan) {
+							onProceed();
+							return;
+						}
 						setIsIncomeTypeConfirmModalOpen(true);
 					})}
 				/>

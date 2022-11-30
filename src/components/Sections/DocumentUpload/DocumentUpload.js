@@ -514,19 +514,19 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	console.log('DocumentUpload-allStates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		displayProceedButton,
-		displayUploadedDocCount,
-		selectedApplicant,
-		selectedApplicantIncomeTypeId,
-		directorId,
-		allDocumentTypes,
-		selectedApplicantDocumentTypes,
-		cacheDocuments,
-	});
+	// console.log('DocumentUpload-allStates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	displayProceedButton,
+	// 	displayUploadedDocCount,
+	// 	selectedApplicant,
+	// 	selectedApplicantIncomeTypeId,
+	// 	directorId,
+	// 	allDocumentTypes,
+	// 	selectedApplicantDocumentTypes,
+	// 	cacheDocuments,
+	// });
 
 	if (loading) {
 		return (

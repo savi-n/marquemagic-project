@@ -99,6 +99,7 @@ const ProductIndividual = props => {
 
 	useEffect(() => {
 		if (!userToken) return;
+		// console.log('setting default header axios-');
 		axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 	}, [userToken]);
 
