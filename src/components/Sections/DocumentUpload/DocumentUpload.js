@@ -70,6 +70,7 @@ const DocumentUpload = props => {
 	const selectedApplicantDocuments = cacheDocuments.filter(
 		doc => `${doc.directorId}` === `${directorId}`
 	);
+	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
 	// TODO: visibility of documents
@@ -272,11 +273,11 @@ const DocumentUpload = props => {
 			if (!isFormValid()) return;
 			setLoading(true);
 			const authenticationOtpReqBody = {
-				mobile: selectedApplicant?.basic_details?.mobileNo,
+				mobile: +selectedApplicant?.basic_details?.mobile_no,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
-			await axios.post(
+			let authenticateOtp = await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
 			);
@@ -465,7 +466,7 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	if (selectedProduct.otp_authentication && !isEditLoan) {
+	if (selectedProduct.product_details.otp_authentication && !isEditLoan) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
@@ -542,8 +543,9 @@ const DocumentUpload = props => {
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
-					setContactNo={selectedApplicant?.basic_details?.mobileNo}
+					setContactNo={selectedApplicant?.basic_details?.mobile_no}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
+					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
 				/>
 			) : null}

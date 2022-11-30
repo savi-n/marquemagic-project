@@ -16,6 +16,7 @@ import {
 } from '_config/app.config';
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
+import { useSelector } from 'react-redux';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -96,6 +97,9 @@ const AuthenticationOTPModal = props => {
 		// ButtonProceed,
 		// type = 'income',
 	} = props;
+	const { app, application } = useSelector(state => state);
+	const { selectedProduct, userToken } = app;
+	const { businessId } = application;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
@@ -110,11 +114,11 @@ const AuthenticationOTPModal = props => {
 
 	const API_TOKEN = sessionStorage.getItem('userToken');
 
-	const maskedContactNo = `XXXXX${setContactNo[setContactNo.length - 5]}${
-		setContactNo[setContactNo.length - 4]
-	}${setContactNo[setContactNo.length - 3]}${
-		setContactNo[setContactNo.length - 2]
-	}${setContactNo[setContactNo.length - 1]}`;
+	const maskedContactNo = `XXXXX${setContactNo[setContactNo?.length - 5]}${
+		setContactNo[setContactNo?.length - 4]
+	}${setContactNo[setContactNo?.length - 3]}${
+		setContactNo[setContactNo?.length - 2]
+	}${setContactNo[setContactNo?.length - 1]}`;
 	const product_id = sessionStorage.getItem('productId');
 
 	const verifyOtp = async () => {
@@ -133,13 +137,13 @@ const AuthenticationOTPModal = props => {
 				{
 					method: 'POST',
 					data: {
-						mobile: setContactNo,
-						business_id: sessionStorage.getItem('business_id') || '',
+						mobile: +setContactNo,
+						business_id: businessId || '',
 						otp: Number(inputAuthenticationOTP),
-						product_id,
+						product_id: selectedProduct.id,
 					},
 					headers: {
-						Authorization: `Bearer ${API_TOKEN}`,
+						Authorization: `Bearer ${userToken}`,
 					},
 				}
 			);
@@ -195,9 +199,9 @@ const AuthenticationOTPModal = props => {
 				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
 			);
 			const reqBody = {
-				mobile: setContactNo,
-				business_id: sessionStorage.getItem('business_id') || '',
-				product_id,
+				mobile: +setContactNo,
+				business_id: businessId || '',
+				product_id: selectedProduct.id,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const authenticationResendOtpRes = await newRequest(
@@ -206,7 +210,7 @@ const AuthenticationOTPModal = props => {
 					method: 'POST',
 					data: reqBody,
 					headers: {
-						Authorization: `Bearer ${API_TOKEN}`,
+						Authorization: `Bearer ${userToken}`,
 					},
 				}
 			);
