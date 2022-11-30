@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import LoadingIcon from 'components/Loading/LoadingIcon';
 
 const Input = styled.textarea`
 	padding: 10px;
@@ -73,6 +74,15 @@ const Span = styled.span`
 	max-height: 100%;
 `;
 
+const LoadingWrapper = styled.div`
+	/* border: 1px solid red; */
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	margin-bottom: 20px;
+	margin-right: 20px;
+`;
+
 export default function InputField(props) {
 	const newProps = {
 		...props,
@@ -81,11 +91,17 @@ export default function InputField(props) {
 	return (
 		<Div>
 			<Input id={props.name} type={props.type} {...newProps} />
+			{newProps?.loading && (
+				<LoadingWrapper>
+					<LoadingIcon />
+				</LoadingWrapper>
+			)}
 			{props.floatingLabel === false ? null : (
 				<Label
 					value={props.value}
 					htmlFor={props.name}
-					disabled={props.disabled}>
+					disabled={props.disabled}
+				>
 					<Span>
 						{props.placeholder}{' '}
 						{props?.rules?.minValue && `min ${props?.rules?.minValue}`}

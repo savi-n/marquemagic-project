@@ -9,12 +9,13 @@ import AuthenticationOtpModal from './AuthenticationOTPModal';
 import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
-// import Textarea from 'components/inputs/Textarea';
+import Textarea from 'components/inputs/Textarea';
 
 import * as API from '_config/app.config';
 import {
 	updateApplicationSection,
 	addAllDocumentTypes,
+	setCommentsForOfficeUse,
 } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -50,10 +51,12 @@ const DocumentUpload = props => {
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
 	const {
+		loanId,
 		businessId,
 		loanProductId,
 		allDocumentTypes,
 		cacheDocuments,
+		commentsForOfficeUse,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -67,6 +70,8 @@ const DocumentUpload = props => {
 	const selectedApplicantDocuments = cacheDocuments.filter(
 		doc => `${doc.directorId}` === `${directorId}`
 	);
+	const isDocumentUploadMandatory = !!selectedProduct?.product_details
+		?.document_mandatory;
 	// TODO: visibility of documents
 	// selectedApplicant?.cacheDocuments.map(doc =>
 	// 	selectedApplicantDocuments.push(doc)
@@ -76,6 +81,7 @@ const DocumentUpload = props => {
 	]);
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [savingComments, setSavingComments] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [declareCheck, setDeclareCheck] = useState(false);
@@ -319,7 +325,7 @@ const DocumentUpload = props => {
 		// [...uploadedDocuments, ...prefilledDocs]?.map(d =>
 		cacheDocuments?.map(d => uploadedDocumetnIds.push(d?.doc_type_id));
 
-		if (selectedProduct?.product_details?.document_mandatory) {
+		if (isDocumentUploadMandatory) {
 			allMandatoryDocumentIds.map(docId => {
 				if (!uploadedDocumetnIds.includes(docId)) {
 					manadatoryError = true;
@@ -337,6 +343,17 @@ const DocumentUpload = props => {
 			return false;
 		}
 		return true;
+	};
+	const onSkip = () => {
+		const skipSectionData = {
+			sectionId: selectedSectionId,
+			sectionValues: {
+				...(application?.[selectedSectionId] || {}),
+				isSkip: true,
+			},
+		};
+		dispatch(updateApplicationSection(skipSectionData));
+		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const onSubmitCompleteApplication = async () => {
@@ -357,28 +374,29 @@ const DocumentUpload = props => {
 					file: null,
 					preview: null,
 					id: doc.doc_type_id,
+					loan_id: loanId,
 				});
 				return null;
 			});
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
-			console.log('onSubmitCompleteApplication-documentUploadReqBody', {
-				documentUploadReqBody,
-			});
+			if (isDocumentUploadMandatory) {
+				documentUploadReqBody.is_mandatory_documents_uploaded = true;
+			}
+			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
+			// 	documentUploadReqBody,
+			// });
 			// return;
-			const documentUploadRes = await axios.post(
-				`${API.BORROWER_UPLOAD_URL}`,
-				documentUploadReqBody
-			);
-			console.log('onSubmitCompleteApplication-documentUploadRes', {
-				documentUploadRes,
-			});
-			dispatch(
-				updateApplicationSection({
-					sectionId: selectedSectionId,
-					sectionValues: { isSkip: true },
-				})
-			);
-			dispatch(setSelectedSectionId(nextSectionId));
+			// const documentUploadRes =
+			if (
+				documentUploadReqBody.is_mandatory_documents_uploaded ||
+				documentUploadReqBody.data.document_upload.length > 0
+			) {
+				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
+			}
+			// console.log('onSubmitCompleteApplication-documentUploadRes', {
+			// 	documentUploadRes,
+			// });
+			onSkip();
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
 			// TODO: shreyas alert approprepate error from api
@@ -397,6 +415,24 @@ const DocumentUpload = props => {
 		}
 		// TODO: dispatch action for final submission
 		setLoading(false);
+	};
+
+	const onBlurCommentsForOfficeUse = async () => {
+		try {
+			setSavingComments(true);
+			const commentReqBody = formatSectionReqBody({
+				app,
+				applicantCoApplicants,
+				application,
+				values: {},
+			});
+			commentReqBody.comments_for_office_use = commentsForOfficeUse;
+			await axios.post(`${API.ADD_COMMENTS_FOR_OFFICE_USE}`, commentReqBody);
+		} catch (error) {
+			console.error('error-onBlurCommentsForOfficeUse-', error);
+		} finally {
+			setSavingComments(false);
+		}
 	};
 
 	const toggleOpenSection = sectionId => {
@@ -583,10 +619,19 @@ const DocumentUpload = props => {
 			})}
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
-				{/* <UI.Divider />
+				<UI.Divider />
 				<UI.CategoryNameHeader>Comments for Office Use</UI.CategoryNameHeader>
-				<Textarea {...CONST.commentsForOfficeUseField} />
-				<UI.Divider /> */}
+				<Textarea
+					{...CONST.commentsForOfficeUseField}
+					value={commentsForOfficeUse}
+					onChange={e => {
+						dispatch(setCommentsForOfficeUse(e.target.value));
+					}}
+					loading={savingComments}
+					disabled={savingComments}
+					onBlur={onBlurCommentsForOfficeUse}
+				/>
+				<UI.Divider />
 				{!isViewLoan && (
 					<Button
 						name='Get Other Bank Statements'

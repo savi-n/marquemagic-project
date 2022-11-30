@@ -15,8 +15,8 @@ import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
 import { getCompletedSections } from 'utils/formatData';
-import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
+import * as UI from './ui';
 
 const SideNav = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -37,6 +37,8 @@ const SideNav = props => {
 	const dispatch = useDispatch();
 	const history = useHistory();
 	const [hide, setShowHideSidebar] = useState(true);
+	const isApplicationSubmitted =
+		selectedSectionId === CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID;
 
 	const completedSections = getCompletedSections({
 		selectedProduct,
@@ -71,7 +73,15 @@ const SideNav = props => {
 
 	return (
 		<Fragment>
-			<UI.Colom1 hide={hide}>
+			<UI.Wrapper
+				hide={hide}
+				onClick={e => {
+					if (isApplicationSubmitted) {
+						e.preventDefault();
+						e.stopPropagation();
+					}
+				}}
+			>
 				<UI.ScrollBox>
 					<UI.HeadingBox onClick={e => {}}>
 						{editLoanData ? null : (
@@ -93,18 +103,17 @@ const SideNav = props => {
 						(section, sectionIndex) => {
 							const isActive = selectedSectionId === section.id;
 							const isCompleted = completedSections.includes(section.id);
+							const customStyle = { cursor: 'not-allowed', color: 'lightgrey' };
+							if (!isApplicationSubmitted && (isCompleted || isActive)) {
+								customStyle.cursor = 'pointer';
+								customStyle.color = 'white';
+							}
 							return (
 								<Fragment key={section.id}>
 									<UI.Link
-										style={
-											isCompleted || isActive
-												? {
-														cursor: 'pointer',
-														color: 'white',
-												  }
-												: { cursor: 'not-allowed', color: 'lightgrey' }
-										}
+										style={customStyle}
 										onClick={e => {
+											if (isApplicationSubmitted) return;
 											if (isCompleted || isActive) {
 												dispatch(setSelectedSectionId(section.id));
 											}
@@ -132,7 +141,7 @@ const SideNav = props => {
 						}
 					)}
 				</UI.ScrollBox>
-			</UI.Colom1>
+			</UI.Wrapper>
 			<UI.SectionSidebarArrow>
 				<UI.ArrowShow hide={hide}>
 					<Button

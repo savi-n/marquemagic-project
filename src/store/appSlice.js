@@ -64,6 +64,7 @@ export const appSlice = createSlice({
 	name: 'app',
 	initialState,
 	reducers: {
+		reInitializeAppSlice: () => _.cloneDeep(initialState),
 		setLoginCreateUserRes: (state, action) => {
 			state.loginCreateUserRes = action.payload;
 			state.userToken = action.payload.token;
@@ -175,6 +176,8 @@ export const appSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
+	reInitializeAppSlice,
+
 	setLoginCreateUserRes,
 	setWhiteLabelId,
 	setPermission,

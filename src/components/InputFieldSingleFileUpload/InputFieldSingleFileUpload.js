@@ -4,7 +4,6 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
 import LoadingIcon from 'components/Loading/LoadingIcon';
-import CircularLoading from 'components/Loaders/Circular';
 
 import { useToasts } from 'components/Toast/ToastProvider';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
@@ -80,14 +79,14 @@ const InputFieldSingleFileUpload = props => {
 		let newFileData = {};
 		try {
 			setLoading(true);
-			const source = axios.CancelToken.source();
+			// const source = axios.CancelToken.source();
 			const filesToUpload = {
 				id: selectedDocTypeId,
 				name: file.name,
 				file: file,
 				progress: 0,
 				status: 'progress',
-				cancelToken: source,
+				// cancelToken: source,
 			};
 			const formData = new FormData();
 			formData.append('document', filesToUpload.file);

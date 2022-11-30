@@ -141,19 +141,20 @@ const CategoryFileUpload = props => {
 			const source = axios.CancelToken.source();
 
 			const id = generateUID();
-
-			filesToUpload.push({
+			const newFile = {
 				id,
 				name: files[i]?.name,
 				file: files[i],
 				progress: 0,
 				status: 'progress',
-				cancelToken: source,
 				category,
 				directorId,
+				cancelToken: source,
 				preview: URL.createObjectURL(files[i]),
-			});
+			};
+			filesToUpload.push(newFile);
 		}
+		// TODO: varun remove file and cancel token object before storing to redux do this for entier project
 		dispatch(addCacheDocuments({ files: filesToUpload }));
 		setUploading(true);
 		return await Promise.all(

@@ -104,6 +104,7 @@ const ProductIndividual = props => {
 
 	return (
 		<UI.Wrapper>
+			{/* {selectedSectionId !== 'application_submitted' && <SideNav />} */}
 			<SideNav />
 			<UI.RightSectionWrapper>
 				<UI.IconDottedRight src={iconDottedRight} alt='dot' />

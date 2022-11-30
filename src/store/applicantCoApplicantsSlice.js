@@ -37,6 +37,7 @@ export const applicantCoApplicantsSlice = createSlice({
 	name: 'applicantCoApplicants',
 	initialState,
 	reducers: {
+		reInitializeApplicantCoApplicantSlice: () => _.cloneDeep(initialState),
 		updateApplicantSection: (state, action) => {
 			const {
 				sectionId,
@@ -380,6 +381,7 @@ export const applicantCoApplicantsSlice = createSlice({
 	},
 });
 export const {
+	reInitializeApplicantCoApplicantSlice,
 	updateApplicantSection,
 	updateCoApplicantSection,
 	setSelectedApplicantCoApplicantId,

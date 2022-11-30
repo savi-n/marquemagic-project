@@ -114,4 +114,7 @@ export const LoaderWrapper = styled.div`
 
 export const CommentsForOfficeUse = styled.textarea``;
 
-export const Divider = styled.div``;
+export const Divider = styled.div`
+	border: 1px solid #eee;
+	margin: 40px 0;
+`;

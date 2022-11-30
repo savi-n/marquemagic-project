@@ -88,6 +88,7 @@ const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
 
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
+const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -205,4 +206,5 @@ export {
 	ORIGIN,
 	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 	UPLOAD_PROFILE_IMAGE,
+	ADD_COMMENTS_FOR_OFFICE_USE,
 };

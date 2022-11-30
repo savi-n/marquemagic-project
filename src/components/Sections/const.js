@@ -195,3 +195,5 @@ export const ALL_DOC_CATEGORY = [
 	DOC_CATEGORY_LENDER,
 	DOC_CATEGORY_EVAL,
 ];
+
+export const APPLICATION_SUBMITTED_SECTION_ID = 'application_submitted';

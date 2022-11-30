@@ -33,6 +33,7 @@ export const commentsForOfficeUseField = {
 	protected: false,
 	visibility: true,
 	default_value: '',
+	floatingLabel: false,
 };
 
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';

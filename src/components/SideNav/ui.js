@@ -1,14 +1,8 @@
 import styled from 'styled-components';
 import imgSideNav from 'assets/images/bg/Left-Nav_BG.png';
 
-export const Wrapper = styled.div`
-	width: 100%;
-	min-height: 100%;
-	display: flex;
-`;
-
 /* background: ${({ theme }) => theme.main_theme_color}; */
-export const Colom1 = styled.div`
+export const Wrapper = styled.div`
 	background-image: url(${imgSideNav});
 	background-size: cover;
 	background-position-y: -120px;

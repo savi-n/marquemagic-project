@@ -1,18 +1,28 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import { useState, useContext, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import {
+	useState,
+	// useEffect
+} from 'react';
+import {
+	useSelector,
+	// useDispatch
+} from 'react-redux';
 import styled from 'styled-components';
 
 // import Button from 'components/Button';
-// import GuageMeter from 'components/GuageMeter';
-// import { FlowContext } from 'reducer/flowReducer';
+// import {
+// 	reInitializeAppSlice,
+// 	setUserDetails,
+// 	setWhiteLabelId,
+// } from 'store/appSlice';
+// import { reInitializeApplicantCoApplicantSlice } from 'store/applicantCoApplicantsSlice';
+// import { reInitializeApplicationSlice } from 'store/applicationSlice';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
-import { CaseContext } from 'reducer/caseReducer';
 
-const Colom1 = styled.div`
+const Wrapper = styled.div`
 	flex: 1;
 	padding: 50px;
 	display: flex;
@@ -28,10 +38,6 @@ const Colom1 = styled.div`
 		text-align: center;
 		transform: translate(-50%, -50%);
 	}
-`;
-
-const Colom2 = styled.div`
-	width: 30%;
 `;
 
 const Caption = styled.h2`
@@ -70,37 +76,38 @@ const data = [
 const ApplicationSubmitted = props => {
 	const { application } = useSelector(state => state);
 	const { loanRefId } = application;
+	// const reduxStore = useSelector(state => state);
+	// const dispatch = useDispatch();
+	// const [loanRefId, setLoanRefId] = useState('');
 	const [count] = useState(0);
 	const d = data[count];
 
-	return (
-		<>
-			<Colom1>
-				{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
-				<CaptionImg bg={d.img} />
-				<Caption>{d.caption}</Caption>
-				<section>
-					Application Reference Number:{' '}
-					<span className='font-bold'> {loanRefId}</span>
-				</section>
+	// TODO: develop this feature
+	// useEffect(() => {
+	// 	if (reduxStore?.app?.userToken) {
+	// 		const { app, application } = reduxStore;
+	// 		const { whiteLabelId, userDetails } = app;
+	// 		const { loanRefId: newLoanRefId } = application;
+	// 		setLoanRefId(newLoanRefId);
+	// 		dispatch(reInitializeAppSlice());
+	// 		dispatch(reInitializeApplicantCoApplicantSlice());
+	// 		dispatch(reInitializeApplicationSlice());
+	// 		sessionStorage.clear();
+	// 		userDetails && dispatch(setUserDetails(userDetails));
+	// 		whiteLabelId && dispatch(setWhiteLabelId(whiteLabelId));
+	// 	}
+	// }, []);
 
-				{/* {d.guarantor && map.sub && (
-          <>
-            <Caption>Any Guarantor?</Caption>
-            <BtnWrap>
-              <Button name="Yes" onClick={subFlowActivate} />
-              <Button name="No" onClick={() => setData(count + 1)} />
-            </BtnWrap>
-          </>
-        )} */}
-			</Colom1>
-			<Colom2>
-				{/* <Img
-					src={productDetails.applicationSubmittedImage}
-					alt='Loan Caption'
-				/> */}
-			</Colom2>
-		</>
+	return (
+		<Wrapper>
+			{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
+			<CaptionImg bg={d.img} />
+			<Caption>{d.caption}</Caption>
+			<section>
+				Application Reference Number:{' '}
+				<span className='font-bold'> {loanRefId}</span>
+			</section>
+		</Wrapper>
 	);
 };
 

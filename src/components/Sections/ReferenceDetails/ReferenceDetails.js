@@ -10,7 +10,7 @@ import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { updateApplicationSection } from 'store/applicationSlice';
-import * as SectionUI from 'components/Sections/ui';
+import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 
@@ -144,16 +144,16 @@ const ReferenceDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<SectionUI.Wrapper style={{ paddingTop: 50 }}>
+		<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
-							<SectionUI.SubSectionHeader>
+							<UI_SECTIONS.SubSectionHeader>
 								{sub_section.name}
-							</SectionUI.SubSectionHeader>
+							</UI_SECTIONS.SubSectionHeader>
 						) : null}
-						<SectionUI.FormWrapGrid>
+						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								if (!field.visibility) return null;
 								if (field?.for_type_name) {
@@ -168,7 +168,7 @@ const ReferenceDetails = () => {
 								return (
 									<>
 										{field.name === 'Name1' && <UI.Divider />}
-										<SectionUI.FieldWrapGrid
+										<UI_SECTIONS.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											{register({
@@ -181,23 +181,23 @@ const ReferenceDetails = () => {
 												formState?.touched?.[field.name]) &&
 												formState?.error?.[field.name] &&
 												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
+													<UI_SECTIONS.ErrorMessageSubFields>
 														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
+													</UI_SECTIONS.ErrorMessageSubFields>
 												) : (
-													<SectionUI.ErrorMessage>
+													<UI_SECTIONS.ErrorMessage>
 														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessage>
+													</UI_SECTIONS.ErrorMessage>
 												))}
-										</SectionUI.FieldWrapGrid>
+										</UI_SECTIONS.FieldWrapGrid>
 									</>
 								);
 							})}
-						</SectionUI.FormWrapGrid>
+						</UI_SECTIONS.FormWrapGrid>
 					</Fragment>
 				);
 			})}
-			<SectionUI.Footer>
+			<UI_SECTIONS.Footer>
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
@@ -213,8 +213,8 @@ const ReferenceDetails = () => {
 						onClick={() => dispatch(toggleTestMode())}
 					/>
 				)}
-			</SectionUI.Footer>
-		</SectionUI.Wrapper>
+			</UI_SECTIONS.Footer>
+		</UI_SECTIONS.Wrapper>
 	);
 };
 

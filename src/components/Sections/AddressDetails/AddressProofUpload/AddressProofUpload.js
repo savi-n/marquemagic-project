@@ -501,7 +501,7 @@ const AddressProofUpload = props => {
 	const handleUpload = async files => {
 		const filesToUpload = [];
 		for (let i = 0; i < files.length; i++) {
-			const source = axios.CancelToken.source();
+			// const source = axios.CancelToken.source();
 
 			const id = generateUID();
 
@@ -511,7 +511,7 @@ const AddressProofUpload = props => {
 				file: files[i],
 				progress: 100,
 				status: 'progress',
-				cancelToken: source,
+				// cancelToken: source,
 				selectedAddressProofId,
 			});
 		}

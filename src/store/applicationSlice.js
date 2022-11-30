@@ -16,12 +16,14 @@ const initialState = {
 	cacheDocuments: [],
 	allDocumentTypes: [],
 	api: {},
+	commentsForOfficeUse: '',
 };
 
 export const applicantSlice = createSlice({
 	name: 'application',
 	initialState,
 	reducers: {
+		reInitializeApplicationSlice: () => _.cloneDeep(initialState),
 		setLoanIds: (state, action) => {
 			const {
 				loanRefId,
@@ -71,8 +73,11 @@ export const applicantSlice = createSlice({
 		},
 		addCacheDocuments: (state, action) => {
 			const { files } = action.payload;
-			const oldDocuments = _.cloneDeep(state.cacheDocuments);
-			const newDocuments = [...oldDocuments, ...files];
+			const newDocuments = _.cloneDeep(state.cacheDocuments);
+			files.map(file => {
+				newDocuments.push(file);
+				return null;
+			});
 			state.cacheDocuments = newDocuments;
 		},
 		removeCacheDocument: (state, action) => {
@@ -167,10 +172,16 @@ export const applicantSlice = createSlice({
 		addAllDocumentTypes: (state, action) => {
 			state.allDocumentTypes = action.payload;
 		},
+
+		setCommentsForOfficeUse: (state, action) => {
+			state.commentsForOfficeUse = action.payload;
+		},
 	},
 });
 
 export const {
+	reInitializeApplicationSlice,
+
 	setLoanIds,
 	setloanRefId,
 	setLoanId,
@@ -186,6 +197,8 @@ export const {
 	updateCacheDocumentsFdKey,
 
 	addAllDocumentTypes,
+
+	setCommentsForOfficeUse,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;
