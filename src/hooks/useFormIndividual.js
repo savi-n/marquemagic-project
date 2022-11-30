@@ -318,7 +318,14 @@ export default function useForm() {
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField.name.split(' ').join('');
 		fieldsRef.current[newField.name] = newField;
-		setValue(newField.name, newField.value || '');
+
+		// old
+		// setValue(newField.name, newField.value || '');
+		// new changes by akash cloud stoke nov-30
+		newField.value &&
+			!valuesRef.current[newField.name] &&
+			setValue(newField.name, newField.value || '');
+
 		checkValidity(newField.name);
 
 		return (

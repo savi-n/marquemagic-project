@@ -67,21 +67,20 @@ const EMIDetails = props => {
 				emiDetailsReqBody.loan_id = editLoanDataId;
 			}
 
-			const loanDetailsRes = await axios.post(
+			const emiDetailsRes = await axios.post(
 				`${API_END_POINT}/addBankDetailsNew`,
 				emiDetailsReqBody
 			);
 
-			console.log('-loanDetailsRes-', {
+			console.log('-emiDetailsRes-', {
 				emiDetailsReqBody,
-				loanDetailsRes,
+				emiDetailsRes,
 			});
-
-			const newLoanDetails = {
+			const newEmiDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
 			};
-			dispatch(updateApplicationSection(newLoanDetails));
+			dispatch(updateApplicationSection(newEmiDetails));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LoanDetails-onProceed-', error);
@@ -113,6 +112,12 @@ const EMIDetails = props => {
 			// 	return CONST.initialFormState?.[field?.name];
 			// }
 			// // -- TEST MODE
+			if (
+				typeof application?.sections?.[selectedSectionId]?.[field.name] ===
+				'object'
+			) {
+				return application?.sections?.[selectedSectionId]?.[field?.name].value;
+			}
 
 			return (
 				application?.sections?.[selectedSectionId]?.[field?.name] ||
@@ -132,7 +137,14 @@ const EMIDetails = props => {
 
 	const createForm = subSection => {
 		let sections = [];
-		for (let x = 0; x < count; x++) {
+		let filledCount =
+			Object.keys(application?.sections?.[selectedSectionId] || {}).length === 0
+				? 0
+				: Object.keys(application?.sections?.[selectedSectionId] || {}).length /
+				  2;
+		if (!isNaN(filledCount) && filledCount > count) setCount(filledCount);
+		else filledCount = count;
+		for (let x = 0; x < filledCount; x++) {
 			sections.push(subSection);
 		}
 		return sections;

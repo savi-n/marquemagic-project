@@ -59,6 +59,17 @@ const Label = styled.label`
 	}
 `;
 
+const getCityStateName = (props, k) => {
+	if (
+		props?.name.split('_')[0].includes('permanent') ||
+		props?.name.split('_')[0].includes('present')
+	) {
+		return `${props.name.split('_')[0]}_${k}`;
+	} else {
+		return k;
+	}
+};
+
 export default function Pincode(props) {
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
@@ -119,9 +130,11 @@ export default function Pincode(props) {
 				}
 				// const pincodeData = pincodeResponse.data;
 				//console.log(response);
-
 				for (const [k, v] of props.value_for_fields) {
-					const target = { name: k, value: selectedPincodeRes?.[v]?.[0] || '' };
+					const target = {
+						name: getCityStateName(props, k),
+						value: selectedPincodeRes?.[v]?.[0] || '',
+					};
 					props.onChange({ target });
 				}
 			} catch (err) {

@@ -1,43 +1,24 @@
 import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import BankList from 'components/inputs/BankList';
+import _ from 'lodash';
 
 import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
+import { updateApplicationSection } from 'store/applicationSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import * as SectionUI from 'components/Sections/ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST from './const';
 import { sleep } from 'utils/helper';
 import { setSelectedSectionId } from 'store/appSlice';
-import {
-	setSelectedApplicantCoApplicantId,
-	updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
 import { formatSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
+import * as UI_SECTIONS from 'components/Sections/ui';
 
 const BankDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		selectedProduct,
-		nextSectionId,
-		firstSectionId,
-		isTestMode,
-		selectedSection,
-	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
@@ -52,9 +33,11 @@ const BankDetails = () => {
 				applicantCoApplicants,
 				application,
 			});
-
-			const bankDetailsRes = await axios.post(
-				`${API_END_POINT}/bankData`,
+			bankDetailsReqBody.data.bank_details.bank_id =
+				bankDetailsReqBody.data.bank_details.bank_id.value;
+			// const bankDetailsRes =
+			await axios.post(
+				`${API_END_POINT}/addBankDetailsNew`,
 				bankDetailsReqBody
 			);
 			// console.log('-bankDetailsRes-', {
@@ -62,17 +45,12 @@ const BankDetails = () => {
 			// 	bankDetailsRes,
 			// });
 			const newBankDetails = {
-				id: selectedSectionId,
-				values: formState.values,
-				employmentId: bankDetailsRes?.data?.data?.employment_id,
-				incomeDataId: bankDetailsRes?.data?.data?.income_data_id,
+				sectionId: selectedSectionId,
+				sectionValues: formState.values,
 			};
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newBankDetails));
-			} else {
-				newBankDetails.directorId = selectedApplicantCoApplicantId;
-				dispatch(updateCoApplicantSection(newBankDetails));
-			}
+			console.log(newBankDetails);
+			dispatch(updateApplicationSection(newBankDetails));
+			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-submitBankDetails-', error);
 		}
@@ -102,117 +80,116 @@ const BankDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
-	const onAddCoApplicant = async () => {
-		setLoading(true);
-		await submitBankDetails();
-		dispatch(setSelectedSectionId(firstSectionId));
-		setLoading(false);
-	};
-
 	const prefilledValues = field => {
+		console.log(field);
 		try {
-			if (formState?.values?.[field.name] !== undefined) {
-				return formState?.values?.[field.name];
+			// if (formState?.values?.[field.name] !== undefined) {
+			// 	return formState?.values?.[field.name];
+			// }
+
+			// // TEST MODE
+			// if (isTestMode && CONST.initialFormState?.[field?.name]) {
+			// 	return CONST.initialFormState?.[field?.name];
+			// }
+			// // -- TEST MODE
+
+			// if (isApplicant) {
+			// 	return (
+			// 		applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
+			// 	);
+			// }
+			// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
+			// 	return formState?.values?.[field.name] || field.value || '';
+			// }
+			// if (selectedApplicantCoApplicantId) {
+			// 	return (
+			// 		coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
+			// 			field?.name
+			// 		] ||
+			// 		field.value ||
+			// 		''
+			// 	);
+			// }
+
+			if (
+				typeof application?.sections?.[selectedSectionId]?.[field.name] ===
+				'object'
+			) {
+				return application?.sections?.[selectedSectionId]?.[field?.name].value;
 			}
 
-			// TEST MODE
-			if (isTestMode && CONST.initialFormState?.[field?.name]) {
-				return CONST.initialFormState?.[field?.name];
-			}
-			// -- TEST MODE
-
-			if (isApplicant) {
-				return (
-					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
-				);
-			}
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-				return formState?.values?.[field.name] || field.value || '';
-			}
-			if (selectedApplicantCoApplicantId) {
-				return (
-					coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
-						field?.name
-					] ||
-					field.value ||
-					''
-				);
-			}
-			return '';
+			return (
+				application?.sections?.[selectedSectionId]?.[field?.name] ||
+				field.value ||
+				''
+			);
 		} catch (error) {
 			return {};
 		}
 	};
 
-	let displayProceedCTA = true;
-	if (
-		selectedProduct?.product_details?.is_coapplicant_mandatory &&
-		Object.keys(coApplicants || {})?.length <= 0
-	) {
-		displayProceedCTA = false;
-	}
-
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
-		<SectionUI.Wrapper>
-			{selectedProduct?.product_details?.sections
-				?.filter(section => section.id === selectedSectionId)?.[0]
-				?.sub_sections?.map((sub_section, sectionIndex) => {
-					return (
-						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-							{sub_section?.name ? (
-								<SectionUI.SubSectionHeader>
+		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				return (
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						{sub_section?.name ? (
+							<UI_SECTIONS.SubSectionHeader>
+								Help us with your{' '}
+								<span
+									style={{
+										color: '#1414ad',
+									}}
+								>
 									{sub_section.name}
-								</SectionUI.SubSectionHeader>
-							) : null}
+								</span>
+							</UI_SECTIONS.SubSectionHeader>
+						) : null}
 
-							<SectionUI.FormWrapGrid>
-								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!field.visibility) return null;
-									if (field?.for_type_name) {
-										if (
-											!field?.for_type.includes(
-												formState?.values?.[field?.for_type_name]
-											)
+						<UI_SECTIONS.FormWrapGrid>
+							{sub_section?.fields?.map((field, fieldIndex) => {
+								if (!field.visibility) return null;
+								if (field?.for_type_name) {
+									if (
+										!field?.for_type.includes(
+											formState?.values?.[field?.for_type_name]
 										)
-											return null;
-									}
-									// if (field.type.includes('banklist')) {
-									// 	console.log(field.name);
-									// 	<BankList value={field.value} />;
-									// }
-									const customFieldProps = {};
-									return (
-										<SectionUI.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											{register({
-												...field,
-												value: prefilledValues(field),
-												...customFieldProps,
-												visibility: 'visible',
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<SectionUI.ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessageSubFields>
-												) : (
-													<SectionUI.ErrorMessage>
-														{formState?.error?.[field.name]}
-													</SectionUI.ErrorMessage>
-												))}
-										</SectionUI.FieldWrapGrid>
-									);
-								})}
-							</SectionUI.FormWrapGrid>
-						</Fragment>
-					);
-				})}
-			<SectionUI.Footer>
+									)
+										return null;
+								}
+
+								const newField = _.cloneDeep(field);
+								const customFieldProps = {};
+								return (
+									<UI_SECTIONS.FieldWrapGrid
+										key={`field-${fieldIndex}-${newField.name}`}
+									>
+										{register({
+											...field,
+											value: prefilledValues(newField),
+											...customFieldProps,
+											visibility: 'visible',
+											rules: {
+												required: true,
+											},
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[newField.name]) &&
+											formState?.error?.[newField.name] && (
+												<UI_SECTIONS.ErrorMessage>
+													{formState?.error?.[newField.name]}
+												</UI_SECTIONS.ErrorMessage>
+											)}
+									</UI_SECTIONS.FieldWrapGrid>
+								);
+							})}
+						</UI_SECTIONS.FormWrapGrid>
+					</Fragment>
+				);
+			})}
+			<UI_SECTIONS.Footer>
 				<Button
 					fill
 					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
@@ -221,8 +198,8 @@ const BankDetails = () => {
 					onClick={handleSubmit(onProceed)}
 					// onClick={onProceed}
 				/>
-			</SectionUI.Footer>
-		</SectionUI.Wrapper>
+			</UI_SECTIONS.Footer>
+		</UI_SECTIONS.Wrapper>
 	);
 };
 

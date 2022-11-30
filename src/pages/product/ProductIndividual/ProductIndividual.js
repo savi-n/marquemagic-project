@@ -72,7 +72,7 @@ const ProductIndividual = props => {
 		employment_details: EmploymentDetails,
 		loan_details: LoanDetails,
 		collateral_details: CollateralDetails,
-		bank_details: SkipComponent,
+		bank_details: BankDetails,
 		document_upload: DocumentUpload,
 		reference_details: ReferenceDetails,
 		emi_details: EMIDetails,
