@@ -12,6 +12,7 @@ import { sleep } from 'utils/helper';
 import { formatSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
+import * as CONST from './const';
 
 const BankDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
@@ -24,6 +25,8 @@ const BankDetails = () => {
 		selectedSection,
 		isTestMode,
 		isLocalhost,
+		editLoanData,
+		isEditLoan,
 	} = app;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -87,53 +90,55 @@ const BankDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const bankData = editLoanData?.bank_details?.[0] || {};
+		const preData = {
+			bank_name: bankData?.bank_id,
+			account_number: bankData?.account_number,
+			ifsc_code: bankData?.IFSC,
+			account_type: bankData?.account_type,
+			account_holder_name: bankData?.account_holder_name,
+			start_date: bankData?.outstanding_start_date,
+			end_date: bankData?.outstanding_end_date,
+		};
+		// console.log('predata-', { bankData });
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			// if (formState?.values?.[field.name] !== undefined) {
-			// 	return formState?.values?.[field.name];
-			// }
-
-			// // TEST MODE
-			// if (isTestMode && CONST.initialFormState?.[field?.name]) {
-			// 	return CONST.initialFormState?.[field?.name];
-			// }
-			// // -- TEST MODE
-
-			// if (isApplicant) {
-			// 	return (
-			// 		applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
-			// 	);
-			// }
-			// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-			// 	return formState?.values?.[field.name] || field.value || '';
-			// }
-			// if (selectedApplicantCoApplicantId) {
-			// 	return (
-			// 		coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
-			// 			field?.name
-			// 		] ||
-			// 		field.value ||
-			// 		''
-			// 	);
-			// }
-
-			if (
-				typeof application?.sections?.[selectedSectionId]?.[field.name] ===
-				'object'
-			) {
-				return application?.sections?.[selectedSectionId]?.[field?.name].value;
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
 			}
 
-			return (
-				application?.sections?.[selectedSectionId]?.[field?.name] ||
-				field.value ||
-				''
-			);
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field.name];
+			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
+			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+				return application?.sections?.[selectedSectionId]?.[field?.name];
+			}
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}
 	};
-
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
@@ -185,9 +190,6 @@ const BankDetails = () => {
 											value: prefilledValues(newField),
 											...customFieldProps,
 											visibility: 'visible',
-											rules: {
-												required: true,
-											},
 										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[newField.name]) &&

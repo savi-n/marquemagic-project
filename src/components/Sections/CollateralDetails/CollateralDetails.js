@@ -20,11 +20,12 @@ const CollateralDetails = () => {
 	const {
 		isViewLoan,
 		selectedSectionId,
-		// selectedProduct,
 		nextSectionId,
 		selectedSection,
 		isLocalhost,
 		isTestMode,
+		isEditLoan,
+		editLoanData,
 	} = app;
 	const { loanAssetsId, assetsAdditionalId } = application;
 	const dispatch = useDispatch();
@@ -93,9 +94,30 @@ const CollateralDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const collateralData = editLoanData?.loan_assets?.[0] || {};
+		const collateralDetailsSection = collateralData?.loan_json?.[0] || {};
+		const preData = {
+			...collateralData,
+			collateral_type: collateralDetailsSection?.Collateraltype,
+			current_market_value: collateralDetailsSection?.CurrentMarketValue,
+			pin_code: collateralData.pincode,
+			nature_of_ownership: collateralData?.owned_type,
+			property_occupant: collateralData?.current_occupant,
+			address3: collateralData?.locality,
+		};
+		// console.log('predata-', { preData });
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			if (formState?.values?.[field.name] !== undefined) {
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
 
@@ -105,11 +127,19 @@ const CollateralDetails = () => {
 			}
 			// -- TEST MODE
 
-			return (
-				application?.sections?.[selectedSectionId]?.[field?.name] ||
-				field.value ||
-				''
-			);
+			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+				return application?.sections?.[selectedSectionId]?.[field?.name];
+			}
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}

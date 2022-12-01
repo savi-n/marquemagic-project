@@ -352,20 +352,32 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 	};
 };
 
-export const getApplicantCoApplicantSelectOptions = applicantCoApplicants => {
+export const getApplicantCoApplicantSelectOptions = data => {
+	const { applicantCoApplicants, isEditLoan } = data;
 	const { applicant, coApplicants } = applicantCoApplicants;
 	const options = [];
+	let applicantName = `${applicant?.basic_details?.first_name} ${
+		applicant?.basic_details?.last_name
+	}`;
+	if (isEditLoan) {
+		applicantName = `${applicant?.dfirstname} ${applicant?.dlastname}`;
+	}
 	options.push({
-		name: `${applicant?.basic_details?.first_name} ${
-			applicant?.basic_details?.last_name
-		}`,
+		name: applicantName,
 		value: applicant?.directorId,
 	});
 	Object.keys(coApplicants).map(directorId => {
+		let coApplicantName = `${
+			coApplicants?.[directorId]?.basic_details?.first_name
+		} ${coApplicants?.[directorId]?.basic_details?.last_name}`;
+
+		if (isEditLoan) {
+			coApplicantName = `${coApplicants?.[directorId]?.dfirstname} ${
+				coApplicants?.[directorId]?.dlastname
+			}`;
+		}
 		options.push({
-			name: `${coApplicants?.[directorId]?.basic_details?.first_name} ${
-				coApplicants?.[directorId]?.basic_details?.last_name
-			}`,
+			name: coApplicantName,
 			value: directorId,
 		});
 		return null;
@@ -444,4 +456,30 @@ export const getEditLoanLoanDocuments = data => {
 			return true;
 		return false;
 	});
+};
+
+export const parseJSON = data => {
+	try {
+		return JSON.parse(data);
+	} catch (error) {
+		console.error('error-parseJSON-', { error, data });
+		return {};
+	}
+};
+
+export const createIndexKeyObjectFromArrayOfObject = data => {
+	const { arrayOfObject, isEmiDetails } = data;
+	const keysOfObject = {};
+	arrayOfObject?.map((item, itemIndex) => {
+		Object.keys(item || {}).map(itemKey => {
+			if (isEmiDetails && itemKey === 'bank_name') {
+				keysOfObject[`${itemKey}_${itemIndex}`] = item?.[itemKey]?.value;
+			} else {
+				keysOfObject[`${itemKey}_${itemIndex}`] = item?.[itemKey];
+			}
+			return null;
+		});
+		return null;
+	});
+	return keysOfObject;
 };

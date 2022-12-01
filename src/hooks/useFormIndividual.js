@@ -3,9 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
 import SearchSelect from 'components/SearchSelect';
-import BankList from 'components/inputs/BankList';
-import IfscList from 'components/inputs/IfscList';
-import Pincode from 'components/inputs/PinCode';
+import BankList from 'components/inputs/Individual/BankList';
+import IfscList from 'components/inputs/Individual/IfscList';
+import Pincode from 'components/inputs/Individual/PinCode';
 import DateField from 'components/inputs/DateField';
 import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
@@ -130,22 +130,22 @@ function validate(rules, value) {
 }
 
 const MASKS = {
-	number_only: value => value?.replace(/[^\d]+/g, '') || '',
-	character_limit: (value, n) => String(value).substring(0, n) || '',
-	alpha_char_only: value => value?.replace(/[^a-zA-Z .]/g, '') || '',
-	alphaNumeric_only: value => value?.replace(/[^a-zA-Z0-9]+$/i, ''),
+	number_only: value => `${value}`?.replace(/[^\d]+/g, '') || '',
+	character_limit: (value, n) => `${value}`?.substring(0, n) || '',
+	alpha_char_only: value => `${value}`?.replace(/[^a-zA-Z .]/g, '') || '',
+	alphaNumeric_only: value => `${value}`?.replace(/[^a-zA-Z0-9]+$/i, ''),
 	mask_values: (value, options) => {
 		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
-			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
-			.padEnd(
-				+value?.length - options.charactersNotTobeMasked.fromEnding,
-				options.maskPattern
+			?.slice(0, +options?.charactersNotTobeMasked?.fromStarting)
+			?.padEnd(
+				+value?.length - options?.charactersNotTobeMasked?.fromEnding,
+				options?.maskPattern
 			);
 		// end value
 		let endingValuesOfMask = value?.slice(
-			+value?.length - +options.charactersNotTobeMasked.fromEnding
+			+value?.length - +options?.charactersNotTobeMasked?.fromEnding
 		);
 		let maskedValue = startingValuesOfMask + endingValuesOfMask;
 		return maskedValue;

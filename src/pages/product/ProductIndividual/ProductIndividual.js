@@ -16,11 +16,11 @@ import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
 
-import { setIsTestMode } from 'store/appSlice';
+import { setIsTestMode, setBankList } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
-import { TEST_DOMAINS } from '_config/app.config';
+import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 
 const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -54,6 +54,7 @@ const ProductIndividual = props => {
 
 	// for reseting formstate
 	useEffect(() => {
+		if (!selectedSectionId) return;
 		setLoading(true);
 		sleep(100).then(res => {
 			setLoading(false);
@@ -68,10 +69,29 @@ const ProductIndividual = props => {
 		});
 	}, [app, application, applicantCoApplicants]);
 
+	const getBankList = () => {
+		try {
+			axios.get(BANK_LIST_FETCH).then(res => {
+				const newBankList = [];
+				res?.data?.map(bank => {
+					newBankList.push({
+						value: `${bank?.id}`,
+						name: `${bank?.bankname}`,
+					});
+					return null;
+				});
+				dispatch(setBankList(newBankList));
+			});
+		} catch (error) {
+			console.error('error-getbanklist-', error);
+		}
+	};
+
 	useEffect(() => {
 		if (!userToken) return;
 		// console.log('setting default header axios-');
 		axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+		getBankList();
 		// dispatch(setSelectedSectionId(nextSectionId));
 		// eslint-disable-next-line
 	}, [userToken]);

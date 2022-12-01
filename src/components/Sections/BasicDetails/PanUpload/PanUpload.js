@@ -279,7 +279,6 @@ const PanUpload = props => {
 				setIsPanConfirmModalOpen(false);
 			}
 			setIsPanConfirmModalOpen(false);
-			clearErrorFormState();
 		} catch (error) {
 			console.error('error-handlePanConfirm-', error);
 		} finally {

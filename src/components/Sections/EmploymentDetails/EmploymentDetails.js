@@ -31,6 +31,7 @@ const EmploymentDetails = () => {
 		isTestMode,
 		isLocalhost,
 		selectedSection,
+		isEditLoan,
 	} = app;
 	const {
 		applicant,
@@ -164,9 +165,27 @@ const EmploymentDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const selectedEmploymentData =
+			selectedApplicant?.employment_data?.[0] || {};
+		const selectedEmploymentIncomeData = selectedApplicant?.incomeData || {};
+		const preData = {
+			...selectedEmploymentData,
+			years_in_company: selectedEmploymentData?.year_in_company,
+			pin_code: selectedEmploymentData?.pincode,
+			...selectedEmploymentIncomeData,
+		};
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			if (formState?.values?.[field.name] !== undefined) {
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
 
@@ -176,24 +195,19 @@ const EmploymentDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (isApplicant) {
-				return (
-					applicant?.[selectedSectionId]?.[field?.name] || field.value || ''
-				);
+			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-				return formState?.values?.[field.name] || field.value || '';
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
 			}
-			if (selectedApplicantCoApplicantId) {
-				return (
-					coApplicants?.[selectedApplicantCoApplicantId]?.[selectedSectionId]?.[
-						field?.name
-					] ||
-					field.value ||
-					''
-				);
-			}
-			return '';
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}

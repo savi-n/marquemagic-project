@@ -34,6 +34,8 @@ const initialState = {
 	clientToken: '',
 	bankToken: '',
 	productList: [],
+	bankList: [],
+	ifscList: [],
 
 	selectedProduct: {
 		idBase64: '',
@@ -172,6 +174,13 @@ export const appSlice = createSlice({
 		setIsTestMode: (state, action) => {
 			state.isTestMode = action.payload;
 		},
+
+		setBankList: (state, action) => {
+			state.bankList = action.payload;
+		},
+		setIfscList: (state, action) => {
+			state.ifscList = action.payload;
+		},
 	},
 });
 
@@ -199,6 +208,8 @@ export const {
 
 	toggleTestMode,
 	setIsTestMode,
+	setBankList,
+	setIfscList,
 } = appSlice.actions;
 
 export default appSlice.reducer;

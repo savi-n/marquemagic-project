@@ -96,6 +96,24 @@ export const applicantSlice = createSlice({
 			}
 			state.cacheDocuments = newDocuments;
 		},
+		addOrUpdateCacheDocuments: (state, action) => {
+			const { files } = action.payload;
+			const newDocuments = _.cloneDeep(state.cacheDocuments);
+			files?.map?.(newFile => {
+				const isExistIndex = newDocuments?.findIndex(
+					doc =>
+						`${doc?.directorId}` === `${newFile?.directorId}` &&
+						`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
+				);
+				if (isExistIndex >= 0) {
+					newDocuments[isExistIndex] = newFile;
+				} else {
+					newDocuments.push(newFile);
+				}
+				return null;
+			});
+			state.cacheDocuments = newDocuments;
+		},
 		addCacheDocuments: (state, action) => {
 			const { files } = action.payload;
 			const newDocuments = _.cloneDeep(state.cacheDocuments);
@@ -189,8 +207,14 @@ export const applicantSlice = createSlice({
 
 		// API
 		addCacheAPIReqRes: (state, action) => {
-			const { req, res, path } = action.payload;
-			state.api[path] = { req, res };
+			const { reqId, res, path } = action.payload;
+			if (state.api[path]) {
+				state.api[path][reqId] = res;
+			} else {
+				state.api[path] = {
+					[reqId]: res,
+				};
+			}
 		},
 		// -- API
 
@@ -215,6 +239,7 @@ export const {
 
 	addCacheDocument,
 	addOrUpdateCacheDocument,
+	addOrUpdateCacheDocuments,
 	addCacheDocuments,
 	removeCacheDocument,
 	updateCacheDocumentTypeId,
@@ -225,6 +250,8 @@ export const {
 	addAllDocumentTypes,
 
 	setCommentsForOfficeUse,
+
+	addCacheAPIReqRes,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;

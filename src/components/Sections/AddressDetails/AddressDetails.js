@@ -32,7 +32,6 @@ import { isInvalidAadhaar } from 'utils/validation';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 
@@ -204,26 +203,28 @@ const AddressDetails = props => {
 	// }, []);
 	const onProceed = async () => {
 		try {
-			if (isApplicant) {
-				if (applicant?.api?.verifyOtp?.res?.status !== 'ok') {
-					addToast({
-						message:
-							'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
-						type: 'error',
-					});
-					return;
-				}
-			} else {
-				if (
-					coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-						?.status !== 'ok'
-				) {
-					addToast({
-						message:
-							'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
-						type: 'error',
-					});
-					return;
+			if (!isEditOrViewLoan) {
+				if (isApplicant) {
+					if (applicant?.api?.verifyOtp?.res?.status !== 'ok') {
+						addToast({
+							message:
+								'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
+							type: 'error',
+						});
+						return;
+					}
+				} else {
+					if (
+						coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
+							?.status !== 'ok'
+					) {
+						addToast({
+							message:
+								'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
+							type: 'error',
+						});
+						return;
+					}
 				}
 			}
 
@@ -373,33 +374,34 @@ const AddressDetails = props => {
 
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
-			permanent_aadhaar: '', // TODO: shreyas
-			permanent_address_proof_id: '', // TODO: shreyas
-			permanent_address_proof_id_passport: '', // TODO: shreyas
-			permanent_address_proof_id_dl: '', // TODO: shreyas
-			permanent_address_proof_id_voter: '', // TODO: shreyas
+			permanent_aadhaar: selectedApplicant?.daadhaar,
+			permanent_address_proof_id: '', // others for future
+			permanent_address_proof_id_passport: selectedApplicant?.dpassport,
+			permanent_address_proof_id_dl: selectedApplicant?.ddlNumber,
+			permanent_address_proof_id_voter: selectedApplicant?.dvoterid,
 			permanent_address1: selectedApplicant?.permanent_address1,
 			permanent_address2: selectedApplicant?.permanent_address2,
 			permanent_address3: selectedApplicant?.permanent_locality,
 			permanent_pin_code: selectedApplicant?.permanent_pincode,
 			permanent_city: selectedApplicant?.permanent_city,
 			permanent_state: selectedApplicant?.permanent_state,
-			permanent_property_type: '', // TOOD: shreyas
-			permanent_property_tenure: '', // TODO: shreyas
+			permanent_property_type: selectedApplicant?.permanent_residential_type,
+			permanent_property_tenure:
+				selectedApplicant?.permanent_residential_stability,
 
-			present_aadhaar: selectedApplicant?.daadhaar, // TODO: shreyas
-			present_address_proof_id: '', // TODO: shreyas
-			present_address_proof_id_passport: selectedApplicant?.dpassport, // TODO: shreyas
-			present_address_proof_id_dl: selectedApplicant?.ddlNumber, // TODO: shreyas
-			present_address_proof_id_voter: selectedApplicant?.dvoterid, // TODO: shreyas
+			present_aadhaar: selectedApplicant?.daadhaar,
+			present_address_proof_id: '', // others for future
+			present_address_proof_id_passport: selectedApplicant?.dpassport,
+			present_address_proof_id_dl: selectedApplicant?.ddlNumber,
+			present_address_proof_id_voter: selectedApplicant?.dvoterid,
 			present_address1: selectedApplicant?.address1,
 			present_address2: selectedApplicant?.address2,
 			present_address3: selectedApplicant?.locality,
 			present_pin_code: selectedApplicant?.pincode,
 			present_city: selectedApplicant?.city,
 			present_state: selectedApplicant?.state,
-			present_property_type: '', // TOOD: shreyas
-			present_property_tenure: '', // TODO: shreyas
+			present_property_type: selectedApplicant?.residential_type,
+			present_property_tenure: selectedApplicant?.residential_stability,
 		};
 		return preData?.[field?.name];
 	};
@@ -427,10 +429,6 @@ const AddressDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-				return formState?.values?.[field.name] || field.value || '';
-			}
 
 			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
 				return selectedApplicant?.[selectedSectionId]?.[field?.name];

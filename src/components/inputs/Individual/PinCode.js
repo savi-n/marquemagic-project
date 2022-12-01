@@ -1,24 +1,13 @@
 /* Input field which is used to search if valid pincode is entered and
 based on this search city and state is identified */
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-
-import useFetch from 'hooks/useFetch';
-import { PINCODE_ADRRESS_FETCH, PINCODE_RESPONSE } from '_config/app.config';
-import InputField from './InputField';
+import InputField from '../InputField';
+import { PINCODE_ADRRESS_FETCH } from '_config/app.config';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { FormContext } from 'reducer/formReducer';
-import _ from 'lodash';
-import { getFlowData } from 'utils/localStore';
-
-// const Input = styled.input`
-// 	height: 50px;
-// 	padding: 10px;
-// 	width: 100%;
-// 	border: 1px solid rgba(0, 0, 0, 0.1);
-// 	border-radius: 6px;
-// 	position: relative;
-// `;
+import { addCacheAPIReqRes } from 'store/applicationSlice';
+import axios from 'axios';
 
 const Div = styled.div`
 	position: relative;
@@ -69,18 +58,15 @@ const showCityState = (props, k) => {
 	}
 };
 
+const PINCODE_PATH = 'pincode';
+
 export default function Pincode(props) {
-	const { newRequest } = useFetch();
+	const { app, application } = useSelector(state => state);
+	const { isViewLoan } = app;
+	const { api } = application;
 	const { addToast } = useToasts();
-
 	const [processing, setProcessing] = useState(false);
-
-	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-
-	const {
-		actions: { setFlowData },
-	} = useContext(FormContext);
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (props.value) {
@@ -105,34 +91,32 @@ export default function Pincode(props) {
 			value.length === props.make_api_call
 		) {
 			if (isViewLoan) return;
+			if (processing) return;
 			setProcessing(true);
 			try {
-				const oldPincodeData = getFlowData(PINCODE_RESPONSE);
-				const pincodeResponseHistory = [];
-				for (const key in oldPincodeData || {}) {
-					pincodeResponseHistory.push(key);
-				}
 				let selectedPincodeRes = {};
-				if (pincodeResponseHistory.includes(value)) {
-					selectedPincodeRes = oldPincodeData[value];
+				const API_REQ_ID = `${value}`;
+				const isPinCodeResExist = !!api?.[PINCODE_PATH]?.[API_REQ_ID];
+				if (isPinCodeResExist) {
+					selectedPincodeRes = api?.[PINCODE_PATH]?.[API_REQ_ID];
 				} else {
-					const pincodeRes = await newRequest(
-						PINCODE_ADRRESS_FETCH({ pinCode: value }),
-						{}
+					const pincodeRes = await axios.get(
+						PINCODE_ADRRESS_FETCH({ pinCode: value })
 					);
-
 					if (pincodeRes.status === 'nok' || !pincodeRes) {
 						await addToast({ message: 'Invalid Pincode', type: 'error' });
 						setProcessing(false);
 						return;
 					}
 					selectedPincodeRes = pincodeRes.data;
-					const newPincodeData = _.cloneDeep(oldPincodeData);
-					newPincodeData[value] = selectedPincodeRes;
-					setFlowData(newPincodeData, PINCODE_RESPONSE);
+					dispatch(
+						addCacheAPIReqRes({
+							path: PINCODE_PATH,
+							reqId: API_REQ_ID,
+							res: selectedPincodeRes,
+						})
+					);
 				}
-				// const pincodeData = pincodeResponse.data;
-				//console.log(response);
 				for (const [k, v] of props.value_for_fields) {
 					const target = {
 						name: showCityState(props, k),

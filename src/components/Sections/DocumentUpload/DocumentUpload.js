@@ -16,6 +16,7 @@ import {
 	updateApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
+	addOrUpdateCacheDocuments,
 } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -43,6 +44,7 @@ const DocumentUpload = props => {
 		isCorporate,
 		nextSectionId,
 		selectedSectionId,
+		isEditOrViewLoan,
 	} = app;
 	const {
 		isApplicant,
@@ -62,8 +64,9 @@ const DocumentUpload = props => {
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
-	const selectedApplicantIncomeTypeId =
-		selectedApplicant?.basic_details?.income_type;
+	let selectedApplicantIncomeTypeId =
+		selectedApplicant?.basic_details?.income_type ||
+		selectedApplicant?.income_type;
 	const selectedApplicantDocumentTypes = allDocumentTypes?.filter(
 		docType => `${docType.directorId}` === `${directorId}`
 	);
@@ -155,7 +158,8 @@ const DocumentUpload = props => {
 	const getCoApplicantDocumentTypes = async coApplicant => {
 		try {
 			// http://3.108.54.252:1337/coApplicantDocList?income_type=1
-			const coApplicantIncomeTypeId = coApplicant?.basic_details?.income_type;
+			const coApplicantIncomeTypeId =
+				coApplicant?.basic_details?.income_type || coApplicant?.income_type;
 			let coAppDocTypesRes = await axios.get(
 				`${
 					API.CO_APPLICANTS_DOCTYPES_FETCH
@@ -247,6 +251,34 @@ const DocumentUpload = props => {
 
 			newAllDocumentTypes.sort((a, b) => a.id - b.id);
 			dispatch(addAllDocumentTypes(newAllDocumentTypes));
+
+			if (isEditOrViewLoan) {
+				const newDoc = [];
+				editLoanData?.loan_document?.map(doc => {
+					// if (`${doc.directorId}` !== `${directorId}`) return null;
+					const selectedDocType =
+						newAllDocumentTypes.filter(docType => {
+							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
+							return false;
+						})?.[0] || {};
+					// console.log('selectedDocType-', { selectedDocType });
+					newDoc.push({
+						...selectedDocType,
+						...doc,
+						name:
+							doc?.uploaded_doc_name ||
+							doc?.original_doc_name ||
+							doc?.doc_name ||
+							selectedDocType?.name ||
+							'',
+						document_id: doc.id,
+					});
+					return null;
+				});
+				// console.log('newDocs-', { newDoc });
+				dispatch(addOrUpdateCacheDocuments({ files: newDoc }));
+			}
+
 			// console.log('allDocumentTypes-', newAllDocumentTypes);
 			// console.log('newAppDocOptions-before-sort-', { newAppDocOptions });
 			// setAllDocumentTypeList(newAppDocOptions.sort((a, b) => a.id - b.id));
@@ -482,7 +514,10 @@ const DocumentUpload = props => {
 				}}
 				isLoader={submitting}
 				disabled={submitting || buttonDisabledStatus()}
-				onClick={!submitting && onSubmitOtpAuthentication}
+				onClick={() => {
+					if (submitting) return;
+					onSubmitOtpAuthentication();
+				}}
 			/>
 		);
 	} else {
@@ -496,7 +531,10 @@ const DocumentUpload = props => {
 				}}
 				isLoader={submitting}
 				disabled={submitting || buttonDisabledStatus()}
-				onClick={!submitting && onSubmitCompleteApplication}
+				onClick={() => {
+					if (submitting) return;
+					onSubmitCompleteApplication();
+				}}
 			/>
 		);
 	}

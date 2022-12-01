@@ -32,6 +32,8 @@ const LoanDetails = () => {
 		nextSectionId,
 		isTestMode,
 		isLocalhost,
+		isEditLoan,
+		editLoanData,
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const {
@@ -220,9 +222,30 @@ const LoanDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const imdDetails = editLoanData?.imd_details || {};
+		const preData = {
+			loan_amount: editLoanData?.loan_amount,
+			tenure: editLoanData?.applied_tenure,
+			loan_usage_type_id: '', // TODO: pending mapping
+			loan_source: editLoanData?.loan_source,
+			connector_name: '', // TODO: pending
+			connector_code: '', // TODO: pending
+			...imdDetails,
+			imd_document_proof: '', // TODO document mapping
+			mode_of_payment: imdDetails?.payment_mode,
+		};
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			if (formState?.values?.[field.name] !== undefined) {
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
 
@@ -235,7 +258,16 @@ const LoanDetails = () => {
 			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
 				return application?.sections?.[selectedSectionId]?.[field?.name];
 			}
-			return field.value || '';
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}
@@ -285,7 +317,7 @@ const LoanDetails = () => {
 		getConnectors();
 	}, []);
 
-	console.log('employment-details-', { app, application, formState });
+	// console.log('employment-details-', { app, application, formState });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -312,9 +344,10 @@ const LoanDetails = () => {
 										return null;
 								}
 								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-									const newOptions = getApplicantCoApplicantSelectOptions(
-										applicantCoApplicants
-									);
+									const newOptions = getApplicantCoApplicantSelectOptions({
+										applicantCoApplicants,
+										isEditLoan,
+									});
 									newField.options = [...newOptions, ...newField.options];
 								}
 								if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {

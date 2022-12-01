@@ -25,6 +25,8 @@ const ReferenceDetails = () => {
 		selectedSection,
 		isTestMode,
 		isLocalhost,
+		editLoanData,
+		isEditLoan,
 	} = app;
 	const { refId1, refId2 } = application;
 	const dispatch = useDispatch();
@@ -119,9 +121,44 @@ const ReferenceDetails = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const ref1Data = editLoanData?.reference_details?.[0] || {};
+		const ref2Data = editLoanData?.reference_details?.[1] || {};
+		const preData = {
+			Name0: ref1Data?.ref_name,
+			reference_email0: ref1Data?.ref_email,
+			contact_number0: ref1Data?.ref_contact,
+			ref_type0: ref1Data?.ref_type,
+			address_line10: ref1Data?.address1,
+			address_line20: ref1Data?.address2,
+			landmark0: ref1Data?.landmark,
+			pincode0: ref1Data?.ref_pincode,
+			city0: ref1Data?.ref_city,
+			state0: ref1Data?.ref_state,
+
+			Name1: ref2Data?.ref_name,
+			reference_email1: ref2Data?.ref_email,
+			contact_number1: ref2Data?.ref_contact,
+			ref_type1: ref2Data?.ref_type,
+			address_line11: ref2Data?.address1,
+			address_line21: ref2Data?.address2,
+			landmark1: ref2Data?.landmark,
+			pincode1: ref2Data?.ref_pincode,
+			city1: ref2Data?.ref_city,
+			state1: ref2Data?.ref_state,
+		};
+		// console.log('predata-', { bankData });
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			if (formState?.values?.[field.name] !== undefined) {
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
 
@@ -131,11 +168,19 @@ const ReferenceDetails = () => {
 			}
 			// -- TEST MODE
 
-			return (
-				application?.sections?.[selectedSectionId]?.[field?.name] ||
-				field.value ||
-				''
-			);
+			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+				return application?.sections?.[selectedSectionId]?.[field?.name];
+			}
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}

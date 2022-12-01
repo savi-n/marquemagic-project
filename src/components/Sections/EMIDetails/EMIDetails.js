@@ -9,10 +9,15 @@ import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
-import { formatSectionReqBody } from 'utils/formatData';
+import {
+	createIndexKeyObjectFromArrayOfObject,
+	formatSectionReqBody,
+	parseJSON,
+} from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
+import * as CONST from './const';
 
 const EMIDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
@@ -25,6 +30,8 @@ const EMIDetails = props => {
 		selectedSection,
 		isLocalhost,
 		isTestMode,
+		editLoanData,
+		isEditLoan,
 	} = app;
 	const { applicant, isApplicant } = applicantCoApplicants;
 	const dispatch = useDispatch();
@@ -111,29 +118,50 @@ const EMIDetails = props => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
+	const prefilledEditOrViewLoanValues = field => {
+		const emiDetails = parseJSON(
+			editLoanData?.bank_details?.[0]?.emi_details || {}
+		);
+		const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
+			arrayOfObject: emiDetails,
+			isEmiDetails: true,
+		});
+		const preData = {
+			...emiDetailsIndex,
+		};
+		return preData?.[field?.name];
+	};
+
 	const prefilledValues = field => {
 		try {
-			// if (formState?.values?.[field.name] !== undefined) {
-			// 	return formState?.values?.[field.name];
-			// }
-
-			// // TEST MODE
-			// if (isTestMode && CONST.initialFormState?.[field?.name]) {
-			// 	return CONST.initialFormState?.[field?.name];
-			// }
-			// // -- TEST MODE
-			if (
-				typeof application?.sections?.[selectedSectionId]?.[field.name] ===
-				'object'
-			) {
-				return application?.sections?.[selectedSectionId]?.[field?.name].value;
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
 			}
 
-			return (
-				application?.sections?.[selectedSectionId]?.[field?.name] ||
-				field.value ||
-				''
-			);
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field.name];
+			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
+			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+				return application?.sections?.[selectedSectionId]?.[field?.name];
+			}
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
 		} catch (error) {
 			return {};
 		}
@@ -159,6 +187,7 @@ const EMIDetails = props => {
 		}
 		return sections;
 	};
+
 	const renderSubSection = (sub_section, index) =>
 		sub_section.fields?.map((field, fieldIndex) => {
 			const newField = _.cloneDeep(field);
