@@ -301,19 +301,6 @@ const LoanDetails = () => {
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								const newField = _.cloneDeep(field);
 								const customFieldProps = {};
-								// disable fields based on config starts
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
-								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
-								// disable fields based on config ends
-
 								// TODO: varun to be enable after json changes
 								// if (!newField.visibility) return null;
 								if (newField?.for_type_name) {
