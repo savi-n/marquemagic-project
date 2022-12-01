@@ -67,6 +67,14 @@ const ApplicantCoApplicantHeader = props => {
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
+	let totalCoApplicantCount = 0;
+	if (!!Object?.keys(coApplicants)?.length) {
+		totalCoApplicantCount += Object?.keys(coApplicants)?.length;
+	}
+	if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
+		totalCoApplicantCount += 1;
+	}
+
 	return (
 		<UI.Wrapper>
 			{isDeleteCoApplicantModalOpen && (
@@ -135,7 +143,10 @@ const ApplicantCoApplicantHeader = props => {
 							{selectedSectionId ===
 								CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
 								!isCoApplicantMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-							<UI.AvatarName>Co-Applicant {directorIndex + 1}</UI.AvatarName>
+							<UI.AvatarName>
+								Co-Applicant
+								{totalCoApplicantCount > 1 ? ` ${directorIndex + 1}` : ''}
+							</UI.AvatarName>
 						</UI.LI>
 					);
 				})}
@@ -158,7 +169,10 @@ const ApplicantCoApplicantHeader = props => {
 							}
 						/>
 						<UI.AvatarName>
-							Co-Applicant {Object.keys(coApplicants).length + 1}
+							Co-Applicant
+							{totalCoApplicantCount > 1
+								? ` ${Object.keys(coApplicants).length + 1}`
+								: ''}
 						</UI.AvatarName>
 					</UI.LI>
 				)}
