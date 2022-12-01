@@ -11,15 +11,15 @@ import {
 	setEditLoanData,
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
-	reInitializeAppSlice,
+	// reInitializeAppSlice,
 	setUserToken,
 } from 'store/appSlice';
 import {
-	reInitializeApplicationSlice,
+	// reInitializeApplicationSlice,
 	setLoanIds,
 } from 'store/applicationSlice';
 import {
-	reInitializeApplicantCoApplicantSlice,
+	// reInitializeApplicantCoApplicantSlice,
 	setEditLoanApplicantsData,
 } from 'store/applicantCoApplicantsSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
@@ -253,9 +253,9 @@ const AppLayout = () => {
 			setLoading(false);
 		}
 		if (response) {
-			dispatch(reInitializeAppSlice());
-			dispatch(reInitializeApplicantCoApplicantSlice());
-			dispatch(reInitializeApplicationSlice());
+			// dispatch(reInitializeAppSlice());
+			// dispatch(reInitializeApplicantCoApplicantSlice());
+			// dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
 

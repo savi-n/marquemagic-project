@@ -1,5 +1,9 @@
 /* This file defines the side menu that is seen in loan application creation journey */
-import { Fragment, useState } from 'react';
+import {
+	Fragment,
+	useState,
+	// useEffect
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -28,6 +32,7 @@ const SideNav = props => {
 		applicantCoApplicantSectionIds,
 		editLoanData,
 		isEditOrViewLoan,
+		// nextSectionId,
 	} = app;
 	const {
 		applicant,
@@ -72,6 +77,13 @@ const SideNav = props => {
 	// 	selectedProduct,
 	// 	completedSections,
 	// });
+
+	// useEffect(() => {
+	// 	if (completedSections?.length > 0) {
+	// 		dispatch(setSelectedSectionId(nextSectionId));
+	// 	}
+	// 	// eslint-disable-next-line
+	// }, []);
 
 	return (
 		<Fragment>

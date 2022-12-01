@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import {
+	useSelector,
+	// useDispatch
+} from 'react-redux';
 import axios from 'axios';
 
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
@@ -14,6 +17,7 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
+// import { setSelectedSectionId } from 'store/appSlice';
 
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
@@ -28,9 +32,12 @@ const ProductIndividual = props => {
 		applicantCoApplicantSectionIds,
 		userToken,
 		isTestMode,
+		// nextSectionId,
 	} = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
+	// const dispatch = useDispatch();
+
 	const SELECTED_SECTION_MAPPING = {
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
@@ -66,6 +73,8 @@ const ProductIndividual = props => {
 		if (!userToken) return;
 		// console.log('setting default header axios-');
 		axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+		// dispatch(setSelectedSectionId(nextSectionId));
+		// eslint-disable-next-line
 	}, [userToken]);
 
 	return (
