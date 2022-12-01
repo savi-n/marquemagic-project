@@ -12,7 +12,20 @@ export const DropZoneOtpFieldWrapper = styled.div`
 		grid-template-columns: repeat(1, 1fr);
 	}
 `;
-
+export const GreenTickImage = styled.img`
+	height: 20px;
+	z-index: 100;
+	position: absolute;
+	right: 200px;
+	@media (max-width: 768px) {
+		right: 50px;
+		margin-top: 15px;
+	}
+`;
+export const HintWrapper = styled.div`
+	margin-bottom: 10px;
+	margin-top: -25px;
+`;
 export const AadhaarNumberOtpFieldWrapper = styled.div`
 	width: 100%;
 	display: flex;
@@ -461,7 +474,9 @@ export const DocumentUploadNameToolTip = styled.div`
 	padding: 5px;
 `;
 
-export const CTAWrapper = styled.div``;
+export const CTAWrapper = styled.div`
+	margin: 20px 0 0 0;
+`;
 
 export const DocumentTaggingSectionWrapper = styled.div`
 	overflow: hidden;

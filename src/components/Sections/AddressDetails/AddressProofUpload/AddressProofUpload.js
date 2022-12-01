@@ -26,6 +26,8 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
+import Hint from 'components/Hint';
+import GreenTick from 'assets/icons/green_tick_icon.png';
 
 const AddressProofUpload = props => {
 	const {
@@ -81,9 +83,8 @@ const AddressProofUpload = props => {
 	const prevSelectedAddressProofId = useRef(null);
 	const refPopup = useRef(null);
 	const { addToast } = useToasts();
-
+	// console.log(selectedAddressProofFieldName, '8899', selectedAddressProofId);
 	const id = uuidv4();
-
 	// const [loading, setLoading] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	// const [uploadingFiles, setUploadingFiles] = useState([]);
@@ -380,7 +381,6 @@ const AddressProofUpload = props => {
 				// prepopulateAddressDetails(newAddressProofExtractionData);
 				return;
 			}
-
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
@@ -853,9 +853,26 @@ const AddressProofUpload = props => {
 	// 	addressProofErrorColorCode,
 	// 	addressProofError,
 	// });
-
+	const customFieldProps = {};
+	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
+		customFieldProps.disabled = true;
+	}
+	if (
+		coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
+			?.status === 'ok'
+	) {
+		customFieldProps.disabled = true;
+	}
 	return (
 		<UI.Wrapper>
+			{selectedAddressProofId === 'permanent_aadhar' && (
+				<UI.HintWrapper>
+					<Hint
+						hint='You can choose to upload document or enter Aadhaar Number to proceed with Address Details'
+						showIcon={false}
+					/>
+				</UI.HintWrapper>
+			)}
 			<Modal
 				show={isDocTypeChangeModalOpen}
 				onClose={() => {
@@ -955,13 +972,23 @@ const AddressProofUpload = props => {
 				)}
 				{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
 					<>
-						<UI.OR>or</UI.OR>
+						{selectedAddressProofId === 'permanent_aadhar' && <UI.OR>or</UI.OR>}
 						<UI.AadhaarNumberOtpFieldWrapper>
 							{register({
 								...aadhaarProofOTPField,
 								value: prefilledValues(aadhaarProofOTPField),
 								visibility: 'visible',
+								...customFieldProps,
 							})}
+							{isApplicant &&
+								applicant?.api?.verifyOtp?.res?.status === 'ok' && (
+									<UI.GreenTickImage src={GreenTick} alt='green tick' />
+								)}
+							{coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp
+								?.res?.status === 'ok' && (
+								<UI.GreenTickImage src={GreenTick} alt='green tick' />
+							)}
+
 							<Button
 								name='Verify with OTP'
 								isLoader={verifyingWithOtp}
@@ -1354,6 +1381,23 @@ const AddressProofUpload = props => {
 						);
 					})}
 				</UI.DocumentUploadListWrapper>
+				{/* <UI.CTAWrapper>
+					{!addressProofError && (
+						<Button
+							fill
+							name='Fetch Address'
+							isLoader={fetchingAddress}
+							disabled={
+								fetchingAddress ||
+								cacheDocumentsTemp.length <= 0 ||
+								addressProofError
+							}
+							onClick={onClickFetchAddress}
+						/>
+					)}
+				</UI.CTAWrapper> */}
+			</UI.DocumentTaggingSectionWrapper>
+			{selectedAddressProofFieldName === 'permanent_address_proof_type' && (
 				<UI.CTAWrapper>
 					{!addressProofError && (
 						<Button
@@ -1369,7 +1413,7 @@ const AddressProofUpload = props => {
 						/>
 					)}
 				</UI.CTAWrapper>
-			</UI.DocumentTaggingSectionWrapper>
+			)}
 		</UI.Wrapper>
 	);
 };
