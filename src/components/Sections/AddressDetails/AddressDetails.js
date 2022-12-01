@@ -639,12 +639,14 @@ const AddressDetails = props => {
 									if (CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name))
 										return null;
 								}
+
 								if (isIdProofUploadField) {
 									return (
 										<UI_SECTIONS.FieldWrapGrid style={{ gridColumn: 'span 2' }}>
 											<AddressProofUpload
 												prefix={prefix}
 												isPermanent={isPermanent}
+												disabled = {!selectedAddressProofId}
 												field={field}
 												register={register}
 												formState={formState}
@@ -720,6 +722,14 @@ const AddressDetails = props => {
 									)
 										return null;
 								}
+
+								// Disable field if prrof_type is not selected
+								if(!formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME] && field.name !=='permanent_address_proof_type' && !field.name.includes('proof_id')){
+									customFieldProps.disabled = true;
+								}
+								if(field.name === 'present_address_proof_type' && !formState?.values?.['permanent_address1']){
+									customFieldProps.disabled = true;
+								}
 								// TODO: varun fix this by json change
 								if (field.name === 'permanent_pin_code') {
 									customFieldProps.type = 'pincode';
@@ -735,6 +745,7 @@ const AddressDetails = props => {
 								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
+										id={field.name}
 										key={`field-${fieldIndex}-${field.name}`}
 										style={customStyle}
 									>
