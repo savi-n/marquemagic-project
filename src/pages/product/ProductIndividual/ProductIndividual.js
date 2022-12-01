@@ -79,7 +79,6 @@ const ProductIndividual = props => {
 	useEffect(() => {
 		if (TEST_DOMAINS.includes(window.location.hostname)) {
 			const params = queryString.parse(window.location.search);
-			if (!('isTestMode' in params)) return;
 			if (params.isTestMode) {
 				dispatch(setIsTestMode(true));
 			} else {
