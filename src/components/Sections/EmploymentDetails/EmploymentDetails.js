@@ -282,12 +282,14 @@ const EmploymentDetails = () => {
 					disabled={loading}
 					onClick={handleSubmit(onAddCoApplicant)}
 				/>
-				<Button
-					fill
-					name='Skip Add-CoApplicant'
-					disabled={loading}
-					onClick={onSkipAddCoApplicant}
-				/>
+				{!!selectedSection?.is_skip || !!isTestMode ? (
+					<Button
+						fill
+						name='Skip Add-CoApplicant'
+						disabled={loading}
+						onClick={onSkipAddCoApplicant}
+					/>
+				) : null}
 				{!!selectedSection?.is_skip || !!isTestMode ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
