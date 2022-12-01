@@ -179,7 +179,15 @@ const ApplicantCoApplicantHeader = props => {
 			</UI.UL>
 			{isLocalhost && (
 				<UI.UL>
-					<UI.LI>{selectedApplicantCoApplicantId}</UI.LI>
+					<UI.LI>
+						selected <br />
+						{selectedApplicantCoApplicantId}
+						<br />
+						<br />
+						applicant
+						<br />
+						{applicant?.directorId}
+					</UI.LI>
 				</UI.UL>
 			)}
 		</UI.Wrapper>

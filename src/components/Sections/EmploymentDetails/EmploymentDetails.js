@@ -30,6 +30,7 @@ const EmploymentDetails = () => {
 		firstSectionId,
 		isTestMode,
 		isLocalhost,
+		selectedSection,
 	} = app;
 	const {
 		applicant,
@@ -210,62 +211,60 @@ const EmploymentDetails = () => {
 
 	return (
 		<UI_SECTIONS.Wrapper>
-			{selectedProduct?.product_details?.sections
-				?.filter(section => section.id === selectedSectionId)?.[0]
-				?.sub_sections?.map((sub_section, sectionIndex) => {
-					return (
-						<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-							{sub_section?.name ? (
-								<UI_SECTIONS.SubSectionHeader>
-									{sub_section.name}
-								</UI_SECTIONS.SubSectionHeader>
-							) : null}
-							<UI_SECTIONS.FormWrapGrid>
-								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!field.visibility) return null;
-									if (field?.for_type_name) {
-										if (
-											!field?.for_type.includes(
-												formState?.values?.[field?.for_type_name]
-											)
+			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				return (
+					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+						{sub_section?.name ? (
+							<UI_SECTIONS.SubSectionHeader>
+								{sub_section.name}
+							</UI_SECTIONS.SubSectionHeader>
+						) : null}
+						<UI_SECTIONS.FormWrapGrid>
+							{sub_section?.fields?.map((field, fieldIndex) => {
+								if (!field.visibility) return null;
+								if (field?.for_type_name) {
+									if (
+										!field?.for_type.includes(
+											formState?.values?.[field?.for_type_name]
 										)
-											return null;
-									}
-									const customFieldProps = {};
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-											style={
-												field.type === 'address_proof_radio'
-													? { gridColumn: 'span 2' }
-													: {}
-											}
-										>
-											{register({
-												...field,
-												value: prefilledValues(field),
-												...customFieldProps,
-												visibility: 'visible',
-											})}
-											{(formState?.submit?.isSubmited ||
-												formState?.touched?.[field.name]) &&
-												formState?.error?.[field.name] &&
-												(field.subFields ? (
-													<UI_SECTIONS.ErrorMessageSubFields>
-														{formState?.error?.[field.name]}
-													</UI_SECTIONS.ErrorMessageSubFields>
-												) : (
-													<UI_SECTIONS.ErrorMessage>
-														{formState?.error?.[field.name]}
-													</UI_SECTIONS.ErrorMessage>
-												))}
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								})}
-							</UI_SECTIONS.FormWrapGrid>
-						</Fragment>
-					);
-				})}
+									)
+										return null;
+								}
+								const customFieldProps = {};
+								return (
+									<UI_SECTIONS.FieldWrapGrid
+										key={`field-${fieldIndex}-${field.name}`}
+										style={
+											field.type === 'address_proof_radio'
+												? { gridColumn: 'span 2' }
+												: {}
+										}
+									>
+										{register({
+											...field,
+											value: prefilledValues(field),
+											...customFieldProps,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name] &&
+											(field.subFields ? (
+												<UI_SECTIONS.ErrorMessageSubFields>
+													{formState?.error?.[field.name]}
+												</UI_SECTIONS.ErrorMessageSubFields>
+											) : (
+												<UI_SECTIONS.ErrorMessage>
+													{formState?.error?.[field.name]}
+												</UI_SECTIONS.ErrorMessage>
+											))}
+									</UI_SECTIONS.FieldWrapGrid>
+								);
+							})}
+						</UI_SECTIONS.FormWrapGrid>
+					</Fragment>
+				);
+			})}
 			<UI_SECTIONS.Footer>
 				{displayProceedCTA && (
 					<Button
@@ -289,7 +288,9 @@ const EmploymentDetails = () => {
 					disabled={loading}
 					onClick={onSkipAddCoApplicant}
 				/>
-				<Button fill name='Skip Proceed' disabled={loading} onClick={onSkip} />
+				{!!selectedSection?.is_skip || !!isTestMode ? (
+					<Button name='Skip' disabled={loading} onClick={onSkip} />
+				) : null}
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

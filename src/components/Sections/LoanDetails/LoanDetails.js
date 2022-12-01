@@ -166,6 +166,8 @@ const LoanDetails = () => {
 							const newDoc = {
 								...resDoc,
 								...cacheDoc,
+								directorId: applicant?.directorId,
+								isDocRemoveAllowed: false,
 								document_id: resDoc?.id,
 							};
 							updateDocumentIdToCacheDocuments.push(newDoc);
@@ -230,11 +232,10 @@ const LoanDetails = () => {
 			}
 			// -- TEST MODE
 
-			return (
-				application?.sections?.[selectedSectionId]?.[field?.name] ||
-				field.value ||
-				''
-			);
+			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+				return application?.sections?.[selectedSectionId]?.[field?.name];
+			}
+			return field.value || '';
 		} catch (error) {
 			return {};
 		}
@@ -284,7 +285,7 @@ const LoanDetails = () => {
 		getConnectors();
 	}, []);
 
-	// console.log('employment-details-', { coApplicants, app });
+	console.log('employment-details-', { app, application, formState });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -387,15 +388,20 @@ const LoanDetails = () => {
 					onClick={handleSubmit(() => {
 						if (
 							formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
-							cacheDocumentsTemp.filter(
-								doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-							).length <= 0
-						)
+							!selectedImdDocumentFile
+						) {
+							addToast({
+								message: 'IMD document is mandatory',
+								type: 'error',
+							});
 							return;
+						}
 						onProceed();
 					})}
 				/>
-				<Button name='Skip' disabled={loading} onClick={onSkip} />
+				{!!selectedSection?.is_skip || !!isTestMode ? (
+					<Button name='Skip' disabled={loading} onClick={onSkip} />
+				) : null}
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

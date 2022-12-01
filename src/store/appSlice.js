@@ -169,6 +169,9 @@ export const appSlice = createSlice({
 		toggleTestMode: (state, action) => {
 			state.isTestMode = !state.isTestMode;
 		},
+		setIsTestMode: (state, action) => {
+			state.isTestMode = action.payload;
+		},
 	},
 });
 
@@ -195,6 +198,7 @@ export const {
 	setEditLoanData,
 
 	toggleTestMode,
+	setIsTestMode,
 } = appSlice.actions;
 
 export default appSlice.reducer;

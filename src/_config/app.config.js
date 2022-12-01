@@ -131,6 +131,7 @@ const CO_APP_CREATE_RESPONSE = 'co_app-create-response';
 const PINCODE_RESPONSE = 'pincode-response';
 
 const ORIGIN = 'nconboarding';
+const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
 
 export {
 	API_END_POINT,
@@ -207,4 +208,5 @@ export {
 	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 	UPLOAD_PROFILE_IMAGE,
 	ADD_COMMENTS_FOR_OFFICE_USE,
+	TEST_DOMAINS,
 };

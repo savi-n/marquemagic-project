@@ -768,7 +768,9 @@ const AddressDetails = props => {
 					disabled={loading}
 					onClick={handleSubmit(onProceed)}
 				/>
-				<Button name='Skip' disabled={loading} onClick={onSkip} />
+				{!!selectedSection?.is_skip || !!isTestMode ? (
+					<Button name='Skip' disabled={loading} onClick={onSkip} />
+				) : null}
 				{isLocalhost && (
 					<Button
 						fill={!!isTestMode}

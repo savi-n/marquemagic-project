@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-	useSelector,
-	// useDispatch
-} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import queryString from 'query-string';
 
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
@@ -17,11 +15,12 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
-// import { setSelectedSectionId } from 'store/appSlice';
 
+import { setIsTestMode } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
+import { TEST_DOMAINS } from '_config/app.config';
 
 const ProductIndividual = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -36,7 +35,7 @@ const ProductIndividual = props => {
 	} = app;
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
-	// const dispatch = useDispatch();
+	const dispatch = useDispatch();
 
 	const SELECTED_SECTION_MAPPING = {
 		basic_details: BasicDetails,
@@ -76,6 +75,19 @@ const ProductIndividual = props => {
 		// dispatch(setSelectedSectionId(nextSectionId));
 		// eslint-disable-next-line
 	}, [userToken]);
+
+	useEffect(() => {
+		if (TEST_DOMAINS.includes(window.location.hostname)) {
+			const params = queryString.parse(window.location.search);
+			if (!('isTestMode' in params)) return;
+			if (params.isTestMode) {
+				dispatch(setIsTestMode(true));
+			} else {
+				dispatch(setIsTestMode(false));
+			}
+		}
+		// eslint-disable-next-line
+	}, []);
 
 	return (
 		<UI.Wrapper>

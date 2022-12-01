@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
@@ -7,6 +7,7 @@ import LoadingIcon from 'components/Loading/LoadingIcon';
 
 import { useToasts } from 'components/Toast/ToastProvider';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
+import { removeCacheDocument } from 'store/applicationSlice';
 import iconUploadBlue from 'assets/icons/upload_icon_blue.png';
 import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import * as API from '_config/app.config';
@@ -27,6 +28,7 @@ const InputFieldSingleFileUpload = props => {
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
+	const dispatch = useDispatch();
 	const isMandatory = !!field?.rules?.required;
 
 	const openDocument = async file => {
@@ -63,6 +65,7 @@ const InputFieldSingleFileUpload = props => {
 			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
+			dispatch(removeCacheDocument(file));
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
 		} finally {
