@@ -997,7 +997,9 @@ const AddressProofUpload = props => {
 										?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
 									verifyingWithOtp ||
-									isEditLoan
+									isEditLoan ||
+									(isApplicant &&
+										applicant?.api?.verifyOtp?.res?.status === 'ok')
 
 									// ||
 									// applicant?.api?.verifyOtp?.res?.status === 'ok'

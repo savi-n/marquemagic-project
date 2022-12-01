@@ -204,6 +204,29 @@ const AddressDetails = props => {
 	// }, []);
 	const onProceed = async () => {
 		try {
+			if (isApplicant) {
+				if (applicant?.api?.verifyOtp?.res?.status !== 'ok') {
+					addToast({
+						message:
+							'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
+						type: 'error',
+					});
+					return;
+				}
+			} else {
+				if (
+					coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
+						?.status !== 'ok'
+				) {
+					addToast({
+						message:
+							'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
+						type: 'error',
+					});
+					return;
+				}
+			}
+
 			setLoading(true);
 			const newLoanAddressDetails = [
 				{
