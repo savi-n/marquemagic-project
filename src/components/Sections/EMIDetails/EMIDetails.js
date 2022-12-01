@@ -161,6 +161,18 @@ const EMIDetails = props => {
 	};
 	const renderSubSection = (sub_section, index) =>
 		sub_section.fields?.map((field, fieldIndex) => {
+			// disable fields based on config starts
+			if (field?.hasOwnProperty('is_applicant')) {
+				if (field.is_applicant === false && isApplicant) {
+					return null;
+				}
+			}
+			if (field?.hasOwnProperty('is_co_applicant')) {
+				if (field.is_co_applicant === false && !isApplicant) {
+					return null;
+				}
+			}
+			// disable fields based on config ends
 			const newField = _.cloneDeep(field);
 			if (!newField.visibility) return null;
 			if (newField?.for_type_name) {

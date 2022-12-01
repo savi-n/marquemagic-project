@@ -28,7 +28,7 @@ const BankDetails = () => {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
-
+	const { isApplicant } = applicantCoApplicants;
 	const submitBankDetails = async () => {
 		try {
 			// console.log('submitBankDetails-', { formState, '111': '111' });
@@ -156,6 +156,18 @@ const BankDetails = () => {
 
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
+								// disable fields based on config starts
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
+								// disable fields based on config ends
 								if (!field.visibility) return null;
 								if (field?.for_type_name) {
 									if (

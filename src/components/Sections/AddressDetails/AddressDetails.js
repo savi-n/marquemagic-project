@@ -723,6 +723,18 @@ const AddressDetails = props => {
 										return null;
 								}
 								// TODO: varun fix this by json change
+								// disable fields based on config starts
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
+								// disable fields based on config ends
 								if (field.name === 'permanent_pin_code') {
 									customFieldProps.type = 'pincode';
 								}
