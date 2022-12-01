@@ -854,6 +854,9 @@ const AddressProofUpload = props => {
 	// 	addressProofError,
 	// });
 	const customFieldProps = {};
+	if(disabled){
+		customFieldProps.disabled = disabled;
+	}
 	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
 	}
