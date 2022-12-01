@@ -123,7 +123,7 @@ const InputFieldSingleFileUpload = props => {
 
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
-			'image/*': [],
+			'*': [],
 		},
 		onDrop: async acceptedFiles => {
 			try {
