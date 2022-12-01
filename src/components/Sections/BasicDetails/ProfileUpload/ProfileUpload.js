@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
 import LoadingIcon from 'components/Loading/LoadingIcon';
 
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
+import { removeCacheDocument } from 'store/applicationSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
@@ -33,6 +34,7 @@ const ProfileUpload = props => {
 		application,
 		// applicantCoApplicants
 	} = useSelector(state => state);
+	const dispatch = useDispatch();
 	const { whiteLabelId } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	// const {
@@ -86,6 +88,7 @@ const ProfileUpload = props => {
 			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
+			dispatch(removeCacheDocument(file));
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
 		} finally {

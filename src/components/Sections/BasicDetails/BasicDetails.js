@@ -11,7 +11,6 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 
 import { setLoginCreateUserRes, toggleTestMode } from 'store/appSlice';
-import { setLoanIds } from 'store/applicationSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
@@ -21,7 +20,11 @@ import {
 	// addCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
-import { addCacheDocument, addCacheDocuments } from 'store/applicationSlice';
+import {
+	addOrUpdateCacheDocument,
+	addCacheDocuments,
+	setLoanIds,
+} from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
@@ -147,7 +150,8 @@ const BasicDetails = props => {
 			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
-			const profileFieldValue = profileUploadedFile?.file
+			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
 						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
@@ -187,25 +191,39 @@ const BasicDetails = props => {
 				basicDetailsRes?.data?.data?.business_data?.userid;
 			const newCreatedByUserId =
 				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
-			const newProfileData = {
-				...(basicDetailsRes?.data?.data?.loan_document_data || {}),
-				...profileUploadedFile,
-				...profileFieldValue,
-				document_id: basicDetailsRes?.data?.data?.loan_document_data?.id,
-				directorId: newDirectorId,
-				preview: null,
-				file: null,
-			};
-			// console.log('onProceed-basicDetailsResBody-', {
-			// 	basicDetailsRes,
-			// 	newProfileData,
-			// 	newDirectorId,
-			// });
-			dispatch(
-				addCacheDocument({
-					file: newProfileData,
-				})
-			);
+
+			if (isNewProfileUploaded) {
+				const uploadedProfileRes =
+					basicDetailsRes?.data?.data?.loan_document_data || null;
+				const newProfileData = {
+					...(uploadedProfileRes || {}),
+					...profileUploadedFile,
+					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
+					directorId: newDirectorId,
+					preview: null,
+					file: null,
+					isDocRemoveAllowed: false,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				};
+				if (uploadedProfileRes?.id) {
+					newProfileData.document_id = uploadedProfileRes?.id;
+				}
+				newProfileData.name =
+					newProfileData?.filename ||
+					newProfileData?.uploaded_doc_name ||
+					newProfileData?.original_doc_name;
+				// console.log('onProceed-basicDetailsResBody-', {
+				// 	basicDetailsRes,
+				// 	newProfileData,
+				// 	newDirectorId,
+				// });
+				// return;
+				dispatch(
+					addOrUpdateCacheDocument({
+						file: newProfileData,
+					})
+				);
+			}
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
@@ -636,7 +654,9 @@ const BasicDetails = props => {
 							});
 							return;
 						}
-						if (isEditOrViewLoan) {
+						// director id will be present in case of aplicant / coapplicant if they move out of basic details page
+						// so avoid opening income type popup at below condition
+						if (isEditOrViewLoan || !!selectedApplicant?.directorId) {
 							onProceed();
 							return;
 						}

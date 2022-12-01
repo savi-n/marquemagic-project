@@ -80,6 +80,22 @@ export const applicantSlice = createSlice({
 			const { file } = action.payload;
 			state.cacheDocuments.push(file);
 		},
+		addOrUpdateCacheDocument: (state, action) => {
+			// pass only single file object
+			const { file } = action.payload;
+			const newDocuments = _.cloneDeep(state.cacheDocuments);
+			const isExistIndex = newDocuments?.findIndex(
+				doc =>
+					`${doc?.directorId}` === `${file?.directorId}` &&
+					`${doc?.doc_type_id}` === `${file?.doc_type_id}`
+			);
+			if (isExistIndex >= 0) {
+				newDocuments[isExistIndex] = file;
+			} else {
+				newDocuments.push(file);
+			}
+			state.cacheDocuments = newDocuments;
+		},
 		addCacheDocuments: (state, action) => {
 			const { files } = action.payload;
 			const newDocuments = _.cloneDeep(state.cacheDocuments);
@@ -198,6 +214,7 @@ export const {
 	updateApplicationSection,
 
 	addCacheDocument,
+	addOrUpdateCacheDocument,
 	addCacheDocuments,
 	removeCacheDocument,
 	updateCacheDocumentTypeId,

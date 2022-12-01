@@ -593,10 +593,10 @@ const CategoryFileUpload = props => {
 									if (!isViewMoreClicked && index > 2) return null;
 									const uniqPassId = `${doc.id}${index}${doc.doc_type_id}`;
 									let isDocRemoveAllowed = true;
-									let isViewDocAllowed = true;
+									// let isViewDocAllowed = true;
 									if ('isDocRemoveAllowed' in doc) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
-										isViewDocAllowed = false;
+										// isViewDocAllowed = false;
 									}
 									if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
 										isDocRemoveAllowed = false;
@@ -610,7 +610,8 @@ const CategoryFileUpload = props => {
 												height: '35px',
 												lineHeight: '35px',
 												background: isViewMore ? '#e6ffef' : '',
-												cursor: isViewDocAllowed ? 'pointer' : 'not-allowed',
+												cursor: 'pointer',
+												// cursor: isViewDocAllowed ? 'pointer' : 'not-allowed',
 											}}
 											onClick={e => {
 												e.preventDefault();
@@ -678,7 +679,8 @@ const CategoryFileUpload = props => {
 															)}
 														</UI.PasswordWrapper>
 												  )}
-											{openingRemovingDocument === doc.document_key ? (
+											{openingRemovingDocument === doc?.document_key ||
+											openingRemovingDocument === doc?.doc_type_id ? (
 												<div style={{ marginLeft: 'auto', height: '30px' }}>
 													<CircularLoading />
 												</div>
