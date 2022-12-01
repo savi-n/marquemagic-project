@@ -770,6 +770,7 @@ const AddressProofUpload = props => {
 	useEffect(() => {
 		if (isViewLoan) return;
 		let div = ref?.current;
+		if (!div?.addEventListener) return;
 		div?.addEventListener('dragenter', handleDragIn);
 		div?.addEventListener('dragleave', handleDragOut);
 		div?.addEventListener('dragover', handleDrag);
@@ -854,9 +855,6 @@ const AddressProofUpload = props => {
 	// 	addressProofError,
 	// });
 	const customFieldProps = {};
-	if(disabled){
-		customFieldProps.disabled = disabled;
-	}
 	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
 	}
@@ -865,6 +863,9 @@ const AddressProofUpload = props => {
 			?.status === 'ok'
 	) {
 		customFieldProps.disabled = true;
+	}
+	if(disabled){
+		customFieldProps.disabled = disabled;
 	}
 	return (
 		<UI.Wrapper>
@@ -918,7 +919,7 @@ const AddressProofUpload = props => {
 				</UI.DocTypeChangeModalBody>
 			</Modal>
 			<UI.DropZoneOtpFieldWrapper>
-				{!disabled && !isViewLoan && (
+				{!isViewLoan && (
 					<UI.Dropzone
 						isInActive={isInActive || isSectionCompleted}
 						ref={ref}

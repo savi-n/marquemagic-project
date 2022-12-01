@@ -724,8 +724,12 @@ const AddressDetails = props => {
 									)
 										return null;
 								}
+
 								// Disable field if prrof_type is not selected
-								if(!selectedAddressProofId && !field.name.includes('proof_type')){
+								if(!formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME] && field.name !=='permanent_address_proof_type' && !field.name.includes('proof_id')){
+									customFieldProps.disabled = true;
+								}
+								if(field.name === 'present_address_proof_type' && !formState?.values?.['permanent_address1']){
 									customFieldProps.disabled = true;
 								}
 								// TODO: varun fix this by json change
@@ -743,6 +747,7 @@ const AddressDetails = props => {
 								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
+										id={field.name}
 										key={`field-${fieldIndex}-${field.name}`}
 										style={customStyle}
 									>
