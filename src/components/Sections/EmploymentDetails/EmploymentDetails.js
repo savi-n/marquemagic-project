@@ -329,7 +329,7 @@ const EmploymentDetails = () => {
 				)}
 
 				{/* buttons for easy development starts */}
-				{!!selectedSection?.is_skip || !!isTestMode ? (
+				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button
 						fill
 						name='Skip Add-CoApplicant'
@@ -337,10 +337,10 @@ const EmploymentDetails = () => {
 						onClick={onSkipAddCoApplicant}
 					/>
 				) : null}
-				{!!selectedSection?.is_skip || !!isTestMode ? (
+				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && !!isTestMode && (
+				{!isViewLoan && (isLocalhost && !!isTestMode) && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'

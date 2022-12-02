@@ -387,6 +387,7 @@ const LoanDetails = () => {
 												removeCacheDocumentTemp={removeCacheDocumentTemp}
 												errorColorCode={errorMessage ? 'red' : ''}
 												isFormSubmited={!!formState?.submit?.isSubmited}
+												isDisabled={isViewLoan}
 											/>
 											{errorMessage && (
 												<UI_SECTIONS.ErrorMessage>
@@ -453,10 +454,10 @@ const LoanDetails = () => {
 					</>
 				)}
 
-				{!!selectedSection?.is_skip || !!isTestMode ? (
+				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && !!isTestMode && (
+				{isLocalhost && !isViewLoan && !!isTestMode && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'
