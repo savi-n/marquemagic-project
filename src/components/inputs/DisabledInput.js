@@ -97,7 +97,7 @@ export default function DisabledInput(props) {
 	return (
 		<Div>
 			<Input id={props.name} {...props} disabled>
-				{props.name === 'aadhaar' && props?.value?.length === 12
+				{props.name.includes('aadhaar') && props?.value?.length === 12
 					? props?.pattern?.repeat(props.value.length - 4) +
 					  props?.value?.slice(8, 12)
 					: props?.pattern?.repeat(props.value.length)}

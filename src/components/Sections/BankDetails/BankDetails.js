@@ -55,7 +55,10 @@ const BankDetails = () => {
 			// });
 			const newBankDetails = {
 				sectionId: selectedSectionId,
-				sectionValues: formState.values,
+				sectionValues: {
+					...formState?.values,
+					bank_name: formState?.values?.bank_name?.value,
+				},
 			};
 			dispatch(updateApplicationSection(newBankDetails));
 			dispatch(setSelectedSectionId(nextSectionId));

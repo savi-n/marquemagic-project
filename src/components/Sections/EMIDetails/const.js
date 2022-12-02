@@ -10,3 +10,5 @@ export const initialFormState = {
 	emi_amount_4: '555',
 	bank_name_4: '22',
 };
+
+export const FIN_TYPE_OUTSTANDING_LOANS = 'Outstanding Loans';

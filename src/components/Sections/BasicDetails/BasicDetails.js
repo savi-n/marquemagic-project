@@ -68,7 +68,7 @@ const BasicDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { cacheDocuments } = application;
+	const { cacheDocuments, bankDetailsFinId } = application;
 	const { directorId } = selectedApplicant;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -102,8 +102,10 @@ const BasicDetails = props => {
 		)?.[0] ||
 		cacheDocuments?.filter(
 			doc =>
-				doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME &&
-				`${doc?.directorId}` === `${directorId}`
+				doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
+				(doc?.classification_sub_type ===
+					CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
+					`${directorId}`
 		)?.[0] ||
 		null;
 	let prefilledProfileUploadValue = '';
@@ -173,6 +175,7 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
+			if (bankDetailsFinId) basicDetailsReqBody.fin_id = bankDetailsFinId;
 
 			// TEST MODE
 			// return dispatch(setSelectedSectionId(nextSectionId));
@@ -237,11 +240,13 @@ const BasicDetails = props => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
 							request_id: doc?.requestId,
-							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType], // pending
+							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType],
 							is_delete_not_allowed: true,
 							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
+							classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
+							classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 						});
 						return null;
 					});
@@ -442,9 +447,12 @@ const BasicDetails = props => {
 		}
 	};
 
-	// console.log('BasicDetails-', {
-	// 	formState,
-	// });
+	console.log('BasicDetails-', {
+		formState,
+		cacheDocuments,
+		panUploadedFile,
+		profileUploadedFile,
+	});
 
 	const isPanNumberExist = !!formState.values.pan_number;
 	let isProfileMandatory = false;
@@ -600,8 +608,7 @@ const BasicDetails = props => {
 								if (
 									isPanUploadMandatory &&
 									!isPanNumberExist &&
-									field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME &&
-									!!field?.rules?.required
+									field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
 								)
 									customFieldProps.disabled = true;
 								if (

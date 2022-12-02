@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
 import Button from 'components/Button';
-// import Modal from 'components/Modal';
 import CheckBox from 'shared/components/Checkbox/CheckBox';
 import AuthenticationOtpModal from './AuthenticationOTPModal';
 import BankStatementModal from 'components/BankStatementModal';
@@ -99,6 +98,7 @@ const DocumentUpload = props => {
 	] = useState(false);
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 
+	// EVAL DOCUMENTS
 	// const initializeExternalUserDocCheckList = async () => {
 	// 	try {
 	// 		const evalData = await axios.get(
@@ -254,24 +254,15 @@ const DocumentUpload = props => {
 
 			if (isEditOrViewLoan) {
 				const newDoc = [];
-				editLoanData?.loan_document?.map(doc => {
-					// if (`${doc.directorId}` !== `${directorId}`) return null;
+				cacheDocuments?.map(doc => {
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
 							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
 							return false;
 						})?.[0] || {};
-					// console.log('selectedDocType-', { selectedDocType });
 					newDoc.push({
 						...selectedDocType,
 						...doc,
-						name:
-							doc?.uploaded_doc_name ||
-							doc?.original_doc_name ||
-							doc?.doc_name ||
-							selectedDocType?.name ||
-							'',
-						document_id: doc.id,
 					});
 					return null;
 				});
@@ -604,14 +595,6 @@ const DocumentUpload = props => {
 					})}
 				</UI.CollapseBody>
 			) : null}
-			{/* <UI.NameHeaderWrapper>
-				<span>Applicant Document Upload</span>
-				<UI.ApplicantCoApplicantName>
-					{`${selectedApplicant?.basic_details?.first_name} ${
-						selectedApplicant?.basic_details?.last_name
-					}`}
-				</UI.ApplicantCoApplicantName>
-			</UI.NameHeaderWrapper> */}
 			{CONST_SECTIONS.ALL_DOC_CATEGORY.map((category, categoryIndex) => {
 				const selectedDocumentTypes =
 					selectedApplicantDocumentTypes?.filter(

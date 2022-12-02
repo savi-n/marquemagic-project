@@ -252,6 +252,16 @@ const PanUpload = props => {
 					value: panExtractionData?.father_name || '',
 				});
 			}
+			if (panExtractionData?.DOB) {
+				let DOB = panExtractionData?.DOB;
+				DOB = DOB?.split('/')
+					?.reverse()
+					?.join('-');
+				onChangeFormStateField({
+					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
+					value: DOB || '',
+				});
+			}
 
 			// Company search select is only applicable for business loans
 			if (

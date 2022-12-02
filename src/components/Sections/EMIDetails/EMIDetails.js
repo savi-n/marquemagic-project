@@ -34,7 +34,7 @@ const EMIDetails = props => {
 		editLoanData,
 		isEditLoan,
 	} = app;
-	const { applicant, isApplicant } = applicantCoApplicants;
+	const { emiDetailsFinId } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const selectedEmiDetailsSubSection = selectedSection?.sub_sections?.[0] || {};
@@ -77,13 +77,7 @@ const EMIDetails = props => {
 			});
 
 			emiDetailsReqBody.data.emi_details = newValues;
-			let editLoanDataId = '';
-			if (isApplicant) {
-				editLoanDataId = applicant?.loan_id;
-			}
-			if (editLoanDataId) {
-				emiDetailsReqBody.loan_id = editLoanDataId;
-			}
+			if (emiDetailsFinId) emiDetailsReqBody.fin_id = emiDetailsFinId;
 
 			// console.log('-emiDetailsRes-', {
 			// 	emiDetailsReqBody,

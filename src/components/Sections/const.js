@@ -199,3 +199,22 @@ export const ALL_DOC_CATEGORY = [
 export const APPLICATION_SUBMITTED_SECTION_ID = 'application_submitted';
 
 export const DIRECTOR_TYPE_CO_APPLICANT = 'co-applicant';
+
+export const CLASSIFICATION_TYPES = [
+	'pan',
+	'aadhaar',
+	'voter',
+	'passport',
+	'dl',
+];
+export const CLASSIFICATION_SUB_TYPES = ['F', 'B', 'F&B'];
+
+export const CLASSIFICATION_TYPE_PAN = 'pan';
+export const CLASSIFICATION_TYPE_AADHAAR = 'aadhaar';
+export const CLASSIFICATION_TYPE_VOTER = 'voter';
+export const CLASSIFICATION_TYPE_PASSPORT = 'passport';
+export const CLASSIFICATION_TYPE_DL = 'dl';
+
+export const CLASSIFICATION_SUB_TYPE_F = 'F';
+export const CLASSIFICATION_SUB_TYPE_B = 'B';
+export const CLASSIFICATION_SUB_TYPE_FB = 'F&B';

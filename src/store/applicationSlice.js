@@ -1,6 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
+/*
+bankDetailsFinId,
+	fin_type = Bank Account
+	fin_id pass this id in api for update
+emiDetailsFinId
+	fin_type = Outstanding Loans
+	fin_id pass this id in api for update
+*/
+
 const initialState = {
 	loanRefId: '',
 	loanId: '',
@@ -12,6 +21,10 @@ const initialState = {
 	assetsAdditionalId: '',
 	refId1: '',
 	refId2: '',
+	bankDetailsFinId: '',
+	emiDetailsFinId: '',
+	businessAddressIdAid1: '',
+	businessAddressIdAid2: '',
 	sections: {},
 	documents: [],
 	cacheDocuments: [],
@@ -37,6 +50,10 @@ export const applicantSlice = createSlice({
 				assetsAdditionalId,
 				refId1,
 				refId2,
+				bankDetailsFinId,
+				emiDetailsFinId,
+				businessAddressIdAid1,
+				businessAddressIdAid2,
 			} = action.payload;
 			if (loanRefId) state.loanRefId = loanRefId;
 			if (loanId) state.loanId = loanId;
@@ -48,6 +65,12 @@ export const applicantSlice = createSlice({
 			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
 			if (refId1) state.refId1 = refId1;
 			if (refId2) state.refId2 = refId2;
+			if (bankDetailsFinId) state.bankDetailsFinId = bankDetailsFinId;
+			if (emiDetailsFinId) state.emiDetailsFinId = emiDetailsFinId;
+			if (businessAddressIdAid1)
+				state.businessAddressIdAid1 = businessAddressIdAid1;
+			if (businessAddressIdAid2)
+				state.businessAddressIdAid2 = businessAddressIdAid2;
 		},
 		setloanRefId: (state, action) => {
 			state.loanRefId = action.payload;
@@ -100,10 +123,13 @@ export const applicantSlice = createSlice({
 			const { files } = action.payload;
 			const newDocuments = _.cloneDeep(state.cacheDocuments);
 			files?.map?.(newFile => {
+				// doc =>
+				// 	`${doc?.directorId}` === `${newFile?.directorId}` &&
+				// 	`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
 				const isExistIndex = newDocuments?.findIndex(
 					doc =>
-						`${doc?.directorId}` === `${newFile?.directorId}` &&
-						`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
+						`${doc?.id}` === `${newFile?.document_id}` ||
+						`${doc?.id}` === `${newFile?.id}`
 				);
 				if (isExistIndex >= 0) {
 					newDocuments[isExistIndex] = newFile;

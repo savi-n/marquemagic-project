@@ -11,3 +11,5 @@ export const initialFormState = {
 	start_date: '2022-12-01',
 	end_date: '2022-12-15',
 };
+
+export const FIN_TYPE_BANK_ACCOUNT = 'Bank Account';

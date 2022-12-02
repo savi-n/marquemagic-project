@@ -35,6 +35,7 @@ const LoanDetails = () => {
 		isLocalhost,
 		isEditLoan,
 		editLoanData,
+		isEditOrViewLoan,
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const {
@@ -49,7 +50,7 @@ const LoanDetails = () => {
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		];
+		] || selectedApplicant?.income_type;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -73,6 +74,7 @@ const LoanDetails = () => {
 			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		null;
+	let editLoanUploadedFile = null;
 
 	const addCacheDocumentTemp = file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
@@ -130,15 +132,7 @@ const LoanDetails = () => {
 				values: formState.values,
 			});
 
-			// const loanDetailsRes =
-			await axios.post(
-				`${API.API_END_POINT}/updateLoanDetails`,
-				loanDetailsReqBody
-			);
-			// console.log('-loanDetailsRes-', {
-			// 	loanDetailsReqBody,
-			// 	loanDetailsRes,
-			// });
+			let imd_Details_doc_id = '';
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
@@ -180,6 +174,7 @@ const LoanDetails = () => {
 								isDocRemoveAllowed: false,
 								document_id: resDoc?.id,
 							};
+							imd_Details_doc_id = resDoc?.id;
 							updateDocumentIdToCacheDocuments.push(newDoc);
 							return null;
 						});
@@ -196,6 +191,18 @@ const LoanDetails = () => {
 					console.error('error-', error);
 				}
 			}
+			if (imd_Details_doc_id) {
+				loanDetailsReqBody.data.imd_details.doc_id = imd_Details_doc_id;
+			}
+			// const loanDetailsRes =
+			await axios.post(
+				`${API.API_END_POINT}/updateLoanDetails`,
+				loanDetailsReqBody
+			);
+			// console.log('-loanDetailsRes-', {
+			// 	loanDetailsReqBody,
+			// 	loanDetailsRes,
+			// });
 			const newLoanDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
@@ -236,11 +243,11 @@ const LoanDetails = () => {
 			loan_amount: editLoanData?.loan_amount,
 			tenure: editLoanData?.applied_tenure,
 			loan_usage_type_id: '', // TODO: pending mapping
-			loan_source: editLoanData?.loan_source,
-			connector_name: '', // TODO: pending
-			connector_code: '', // TODO: pending
+			loan_source: editLoanData?.loan_origin,
+			connector_name: editLoanData?.connector_user_id,
+			connector_code: editLoanData?.connector_user_id,
 			...imdDetails,
-			imd_document_proof: '', // TODO document mapping
+			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 		};
 		return preData?.[field?.name];
@@ -374,13 +381,24 @@ const LoanDetails = () => {
 										(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
 										formState?.error?.[field.name];
+									if (isEditOrViewLoan) {
+										const imd_document_id = prefilledEditOrViewLoanValues(
+											field
+										);
+										editLoanUploadedFile =
+											cacheDocuments?.filter(
+												doc => `${doc?.document_id}` === `${imd_document_id}`
+											)?.[0] || null;
+									}
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											<InputFieldSingleFileUpload
 												field={field}
-												uploadedFile={selectedImdDocumentFile}
+												uploadedFile={
+													selectedImdDocumentFile || editLoanUploadedFile
+												}
 												selectedDocTypeId={selectedDocTypeId}
 												clearErrorFormState={clearErrorFormState}
 												addCacheDocumentTemp={addCacheDocumentTemp}
@@ -432,9 +450,11 @@ const LoanDetails = () => {
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(() => {
+							const isIMDDocumentExist =
+								selectedImdDocumentFile || editLoanUploadedFile;
 							if (
 								formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
-								!selectedImdDocumentFile
+								!isIMDDocumentExist
 							) {
 								addToast({
 									message: 'IMD document is mandatory',
