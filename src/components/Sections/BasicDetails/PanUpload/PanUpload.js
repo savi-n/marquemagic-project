@@ -53,7 +53,7 @@ const PanUpload = props => {
 		// applicantCoApplicants
 	} = useSelector(state => state);
 	const { selectedProduct, clientToken } = app;
-	const { loanRefId, loanId, businessUserId } = application;
+	const { loanId, businessUserId } = application;
 	// const {
 	// 	isApplicant,
 	// 	applicant,
@@ -569,7 +569,7 @@ const PanUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!loanRefId && (
+								{!uploadedFile?.document_id && (
 									<UI.IconDelete
 										src={iconDelete}
 										alt='delete'

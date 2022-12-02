@@ -583,7 +583,7 @@ const AddressDetails = props => {
 												}}
 											/>
 											<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-												Same as Present Address
+												Same as Permanent Address
 											</label>
 										</>
 									)}

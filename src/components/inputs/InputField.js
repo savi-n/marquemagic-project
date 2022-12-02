@@ -9,6 +9,13 @@ const Input = styled.input`
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
+	/* Chrome, Safari, Edge, Opera */
+	::-webkit-outer-spin-button,
+	::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		-moz-appearance: textfield;
+		margin: 0;
+	}
 `;
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}

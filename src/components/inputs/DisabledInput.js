@@ -14,6 +14,12 @@ const Input = styled.div`
 	background-color: rgba(239, 239, 239, 0.3);
 	display: flex;
 	align-items: center;
+	::-webkit-outer-spin-button,
+	::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		-moz-appearance: textfield;
+		margin: 0;
+	}
 `;
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}
