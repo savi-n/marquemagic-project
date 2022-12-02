@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, createContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
-
+import { useSelector } from 'react-redux';
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/Individual/BankList';
 import IfscList from 'components/inputs/Individual/IfscList';
@@ -138,14 +138,14 @@ const MASKS = {
 		// console.log('inside mask');
 		// start value
 		let startingValuesOfMask = value
-			?.slice(0, +options?.charactersNotTobeMasked?.fromStarting)
+			?.slice(0, +options?.characters_not_to_be_masked?.from_starting)
 			?.padEnd(
-				+value?.length - options?.charactersNotTobeMasked?.fromEnding,
-				options?.maskPattern
+				+value?.length - options?.characters_not_to_be_masked?.from_ending,
+				options?.mask_pattern
 			);
 		// end value
 		let endingValuesOfMask = value?.slice(
-			+value?.length - +options?.charactersNotTobeMasked?.fromEnding
+			+value?.length - +options?.characters_not_to_be_masked?.from_ending
 		);
 		let maskedValue = startingValuesOfMask + endingValuesOfMask;
 		return maskedValue;
@@ -171,6 +171,7 @@ const validDefault = formData => {
 };
 
 export default function useForm() {
+	const { app } = useSelector(state => state);
 	const fieldsRef = useRef({});
 	const valuesRef = useRef({});
 	const touchedRef = useRef({});
@@ -269,11 +270,9 @@ export default function useForm() {
 	};
 
 	const register = field => {
+		const { userDetails, isViewLoan } = app;
 		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
-		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
-		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-		const userDetails = JSON.parse(sessionStorage.getItem('userDetails')) || [];
 		if (
 			newField.is_masked &&
 			isViewLoan &&
