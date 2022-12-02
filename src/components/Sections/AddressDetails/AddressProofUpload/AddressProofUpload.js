@@ -252,6 +252,7 @@ const AddressProofUpload = props => {
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
 				frontFormData.append('product_id', selectedProduct.id);
+				frontFormData.append('director_id', selectedApplicant?.directorId);
 				frontFormData.append('req_type', SELECTED_REQ_TYPE);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
@@ -300,6 +301,7 @@ const AddressProofUpload = props => {
 
 				const backFormData = new FormData();
 				backFormData.append('product_id', selectedProduct.id);
+				backFormData.append('director_id', selectedApplicant?.directorId);
 				backFormData.append('req_type', SELECTED_REQ_TYPE);
 				backFormData.append(
 					'ref_id',
@@ -384,6 +386,7 @@ const AddressProofUpload = props => {
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
+			frontOnlyFormData.append('director_id', selectedApplicant?.directorId);
 			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
 			frontOnlyFormData.append('process_type', 'extraction');
 			frontOnlyFormData.append(
@@ -864,7 +867,7 @@ const AddressProofUpload = props => {
 	) {
 		customFieldProps.disabled = true;
 	}
-	if(disabled){
+	if (disabled) {
 		customFieldProps.disabled = disabled;
 	}
 	return (
