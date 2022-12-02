@@ -9,6 +9,7 @@ import queryString from 'query-string';
 
 import {
 	setEditLoanData,
+	setUserDetails,
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
 	// reInitializeAppSlice,
@@ -239,6 +240,7 @@ const AppLayout = () => {
 					);
 					const userDetails = userRes?.data?.data;
 					// console.log('userres-data-', userDetails);
+					dispatch(setUserDetails(userDetails));
 					const stringifyUserDetails = JSON.stringify(userDetails);
 					if (params.cid) {
 						sessionStorage.setItem('corporateDetails', stringifyUserDetails);
