@@ -30,6 +30,7 @@ const LoanDetails = () => {
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
+		prevSectionId,
 		isTestMode,
 		isLocalhost,
 		isEditLoan,
@@ -112,6 +113,13 @@ const LoanDetails = () => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
 	const onProceed = async () => {
@@ -397,6 +405,7 @@ const LoanDetails = () => {
 												removeCacheDocumentTemp={removeCacheDocumentTemp}
 												errorColorCode={errorMessage ? 'red' : ''}
 												isFormSubmited={!!formState?.submit?.isSubmited}
+												isDisabled={isViewLoan}
 											/>
 											{errorMessage && (
 												<UI_SECTIONS.ErrorMessage>
@@ -405,6 +414,9 @@ const LoanDetails = () => {
 											)}
 										</UI_SECTIONS.FieldWrapGrid>
 									);
+								}
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
 								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
@@ -431,31 +443,41 @@ const LoanDetails = () => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(() => {
-						const isIMDDocumentExist =
-							selectedImdDocumentFile || editLoanUploadedFile;
-						if (
-							formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
-							!isIMDDocumentExist
-						) {
-							addToast({
-								message: 'IMD document is mandatory',
-								type: 'error',
-							});
-							return;
-						}
-						onProceed();
-					})}
-				/>
-				{!!selectedSection?.is_skip || !!isTestMode ? (
+				{!isViewLoan && (
+					<Button
+						fill
+						name='Proceed'
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(() => {
+							const isIMDDocumentExist =
+								selectedImdDocumentFile || editLoanUploadedFile;
+							if (
+								formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
+								!isIMDDocumentExist
+							) {
+								addToast({
+									message: 'IMD document is mandatory',
+									type: 'error',
+								});
+								return;
+							}
+							onProceed();
+						})}
+					/>
+				)}
+
+				{isViewLoan && (
+					<>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+
+				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && (
+				{isLocalhost && !isViewLoan && !!isTestMode && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'

@@ -40,6 +40,7 @@ export const Container = styled.div`
 	width: 100%;
 	height: 50px;
 	padding: 0 15px;
+	pointer-events: ${({ isDisabled }) => isDisabled && `none`};
 	${({ loading }) =>
 		loading &&
 		`border: dashed grey 2px;

@@ -45,6 +45,7 @@ const PanUpload = props => {
 		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
+		isDisabled,
 	} = props;
 	const {
 		app,
@@ -595,8 +596,11 @@ const PanUpload = props => {
 			) : (
 				<UI.Container
 					loading={loading}
+					isDisabled={isDisabled}
 					panErrorColorCode={panErrorColorCode}
-					style={{ border: `2px dashed red;` }}
+					style={{
+						border: `2px dashed red`,
+					}}
 				>
 					<label>Upload{loading ? 'ing...' : null} PAN</label>
 					{loading ? (

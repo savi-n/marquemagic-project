@@ -27,6 +27,7 @@ const EMIDetails = props => {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
+		prevSectionId,
 		selectedSection,
 		isLocalhost,
 		isTestMode,
@@ -40,7 +41,12 @@ const EMIDetails = props => {
 	const [count, setCount] = useState(selectedEmiDetailsSubSection?.min || 3);
 	const MAX_COUNT = selectedEmiDetailsSubSection?.max || 10;
 	const { handleSubmit, register, formState } = useForm();
-
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
+	};
 	const onProceed = async () => {
 		try {
 			setLoading(true);
@@ -197,6 +203,9 @@ const EMIDetails = props => {
 					return null;
 			}
 			const customFieldProps = {};
+			if (isViewLoan) {
+				customFieldProps.disabled = true;
+			}
 			newField.db_key = newField.db_key + '_' + index;
 			newField.name = newField.name + '_' + index;
 			return (
@@ -258,23 +267,36 @@ const EMIDetails = props => {
 				click to add additional deductions/repayment obligations
 			</UI.AddMoreWrapper>
 			<UI_SECTIONS.Footer>
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(onProceed)}
-				/>
-				{!!selectedSection?.is_skip || !!isTestMode ? (
+				{!isViewLoan && (
+					<Button
+						fill
+						name='Proceed'
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(onProceed)}
+					/>
+				)}
+
+				{isViewLoan && (
+					<>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+
+				{/* buttons for easy development starts */}
+
+				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && (
+				{isLocalhost && !isViewLoan && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'
 						onClick={() => dispatch(toggleTestMode())}
 					/>
 				)}
+				{/* buttons for easy development ends */}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

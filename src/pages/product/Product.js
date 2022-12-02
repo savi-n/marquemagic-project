@@ -1,7 +1,7 @@
 /* This file defines the side menu that is seen in loan application creation journey */
 
 import { useContext, useEffect, Fragment, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import _ from 'lodash';
 
 import { setSelectedProduct, setSelectedSectionId } from 'store/appSlice';
@@ -182,6 +182,8 @@ export default function Product(props) {
 	const history = useHistory();
 	const productIdPage = atob(product);
 	const { addToast } = useToasts();
+	const { app } = useSelector(state => state);
+	const { userDetails } = app;
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
@@ -237,6 +239,32 @@ export default function Product(props) {
 		if (response) {
 			if (response?.data?.loan_request_type === 2) {
 				const selectedProductRes = _.cloneDeep(response.data);
+				// New Individual loan changes for displaying sections based on the config - starts
+				if (isViewLoan) {
+					let tempSections = _.cloneDeep(
+						selectedProductRes?.product_details?.sections
+					);
+
+					let flowData = tempSections?.filter(section => {
+						if (section?.hide_section_usertype) {
+							return (
+								!section?.hide_section_usertype?.includes(
+									userDetails?.usertype
+									// 'Sales' - for reference
+								) &&
+								!section?.hide_section_usertype?.includes(
+									userDetails?.user_sub_type
+									// 'RCU' - for reference
+								)
+							);
+						} else {
+							return tempSections;
+						}
+					});
+					selectedProductRes.product_details.sections = flowData;
+				}
+				// New Individual loan changes for displaying sections based on the config - ends
+
 				dispatch(setSelectedProduct(selectedProductRes));
 				dispatch(
 					setSelectedSectionId(
@@ -251,15 +279,17 @@ export default function Product(props) {
 			}
 			// displaying the sections based on the config data starts
 			if (isViewLoan) {
-				const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+				const sessionUserDetails = JSON.parse(
+					sessionStorage.getItem('userDetails')
+				);
 				let flowData = response?.data?.product_details?.flow.filter(section => {
 					if (section?.hide_section_usertype) {
 						return (
 							!section?.hide_section_usertype?.includes(
-								userDetails?.usertype
+								sessionUserDetails?.usertype
 							) &&
 							!section?.hide_section_usertype?.includes(
-								userDetails?.user_sub_type
+								sessionUserDetails?.user_sub_type
 							)
 						);
 					} else {
@@ -270,7 +300,7 @@ export default function Product(props) {
 					response.data.product_details.flow = flowData;
 				}
 			}
-			configure(response.data?.product_details?.flow);
+			configure(response?.data?.product_details?.flow);
 			sessionStorage.setItem('productId', atob(product));
 			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
 				sessionStorage.setItem(
@@ -308,9 +338,9 @@ export default function Product(props) {
 			}
 			completedMenu?.length > 0 && setIndex(completedMenu.length);
 
-			const userDetails = sessionStorage.getItem('userDetails');
+			const sessionUserDetails = sessionStorage.getItem('userDetails');
 			const editLoan = sessionStorage.getItem('editLoan');
-			if (userDetails || editLoan) setDisableBackCTA(true);
+			if (sessionUserDetails || editLoan) setDisableBackCTA(true);
 		} catch (error) {
 			console.error('error-Header-useEffect-', error);
 		}

@@ -32,6 +32,7 @@ const SideNav = props => {
 		applicantCoApplicantSectionIds,
 		editLoanData,
 		isEditOrViewLoan,
+		isViewLoan,
 		// nextSectionId,
 	} = app;
 	const {
@@ -122,36 +123,40 @@ const SideNav = props => {
 								customStyle.cursor = 'pointer';
 								customStyle.color = 'white';
 							}
-							return (
-								<Fragment key={section.id}>
-									<UI.Link
-										style={customStyle}
-										onClick={e => {
-											if (isApplicationSubmitted) return;
-											if (isCompleted || isActive) {
-												dispatch(setSelectedSectionId(section.id));
-											}
-										}}
-									>
-										<UI.Menu active={isActive} hide={hide}>
-											<div k={sectionIndex}>{section.name}</div>
-											{isCompleted && (
-												// <CheckBox bg='white' checked round fg={'blue'} />
-												<UI.ImgCheckCircle
-													src={imgCheckCircle}
-													alt='check'
-													active={isActive}
-												/>
-											)}
-											{isActive && (
-												<UI.ImgArrorRight src={imgArrorRight} alt='arrow' />
-											)}
-										</UI.Menu>
-									</UI.Link>
-									{applicantCoApplicantSectionIds?.length ===
-										sectionIndex + 1 && <UI.SectionDevider />}
-								</Fragment>
-							);
+							if (isViewLoan && section?.id === 'application_submitted') {
+								return null;
+							} else {
+								return (
+									<Fragment key={section.id}>
+										<UI.Link
+											style={customStyle}
+											onClick={e => {
+												if (isApplicationSubmitted) return;
+												if (isCompleted || isActive) {
+													dispatch(setSelectedSectionId(section.id));
+												}
+											}}
+										>
+											<UI.Menu active={isActive} hide={hide}>
+												<div k={sectionIndex}>{section.name}</div>
+												{isCompleted && (
+													// <CheckBox bg='white' checked round fg={'blue'} />
+													<UI.ImgCheckCircle
+														src={imgCheckCircle}
+														alt='check'
+														active={isActive}
+													/>
+												)}
+												{isActive && (
+													<UI.ImgArrorRight src={imgArrorRight} alt='arrow' />
+												)}
+											</UI.Menu>
+										</UI.Link>
+										{applicantCoApplicantSectionIds?.length ===
+											sectionIndex + 1 && <UI.SectionDevider />}
+									</Fragment>
+								);
+							}
 						}
 					)}
 				</UI.ScrollBox>

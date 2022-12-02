@@ -23,6 +23,7 @@ const InputFieldSingleFileUpload = props => {
 		removeCacheDocumentTemp,
 		errorColorCode,
 		isFormSubmited,
+		isDisabled,
 	} = props;
 	const { application } = useSelector(state => state);
 	const { loanId, businessUserId, businessId, userId } = application;
@@ -204,6 +205,7 @@ const InputFieldSingleFileUpload = props => {
 			) : (
 				<UI.Container
 					loading={loading}
+					isDisabled={isDisabled}
 					errorColorCode={errorColorCode}
 					isError={isMandatory && isFormSubmited && !isPreview}
 				>

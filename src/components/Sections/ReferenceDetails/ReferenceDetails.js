@@ -22,6 +22,7 @@ const ReferenceDetails = () => {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
+		prevSectionId,
 		selectedSection,
 		isTestMode,
 		isLocalhost,
@@ -33,7 +34,12 @@ const ReferenceDetails = () => {
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
-
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
+	};
 	const onProceed = async () => {
 		try {
 			setLoading(true);
@@ -211,6 +217,9 @@ const ReferenceDetails = () => {
 								}
 								const customFieldProps = {};
 								// TODO: varun handle following changes in json
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 								if (field.name.includes('pincode')) {
 									customFieldProps.type = 'pincode';
 									customFieldProps.value_for_fields = [
@@ -260,17 +269,26 @@ const ReferenceDetails = () => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(onProceed)}
-				/>
+				{!isViewLoan && (
+					<Button
+						fill
+						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(onProceed)}
+					/>
+				)}
+				{isViewLoan && (
+					<>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+
 				{!!selectedSection?.is_skip || !!isTestMode ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && (
+				{isLocalhost && !!isTestMode && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'
