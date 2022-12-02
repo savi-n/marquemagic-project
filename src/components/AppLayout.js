@@ -6,6 +6,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
+import _ from 'lodash';
 
 import {
 	setEditLoanData,
@@ -17,6 +18,7 @@ import {
 import {
 	// reInitializeApplicationSlice,
 	setLoanIds,
+	addOrUpdateCacheDocuments,
 } from 'store/applicationSlice';
 import {
 	// reInitializeApplicantCoApplicantSlice,
@@ -42,6 +44,9 @@ import {
 import { AppContext } from 'reducer/appReducer';
 import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
+import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
+import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
+import { formatLenderDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -68,7 +73,7 @@ const Div = styled.div`
 `;
 
 const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
-// const BranchUserContent = lazy(() => import('./BranchUserContent'));
+// const SomethingWentWrong = lazy(() => import('./SomethingWentWrong'));
 
 const AppLayout = () => {
 	const dispatch = useDispatch();
@@ -137,7 +142,7 @@ const AppLayout = () => {
 					const isEditLoan = decryptedToken.edit ? true : false;
 					const newEditLoanData =
 						{
-							...loanDetailsRes?.data?.data,
+							..._.cloneDeep(loanDetailsRes?.data?.data),
 							isEditLoan,
 							token: decryptedToken.token,
 						} || {};
@@ -176,8 +181,39 @@ const AppLayout = () => {
 							assetsAdditionalId: newEditLoanData?.assets_additional_id,
 							refId1: newEditLoanData?.reference_details?.[0]?.id,
 							refId2: newEditLoanData?.reference_details?.[1]?.id,
+							bankDetailsFinId: newEditLoanData?.bank_details?.filter(
+								bank =>
+									bank?.fin_type === CONST_BANK_DETAILS.FIN_TYPE_BANK_ACCOUNT
+							)?.[0]?.id,
+							emiDetailsFinId: newEditLoanData?.bank_details?.filter(
+								bank =>
+									bank?.fin_type ===
+									CONST_EMI_DETAILS.FIN_TYPE_OUTSTANDING_LOANS
+							)?.[0]?.id,
+							businessAddressIdAid1: newEditLoanData?.business_address?.filter(
+								address => `${address?.aid}` === '1'
+							)?.[0]?.id,
+							businessAddressIdAid2: newEditLoanData?.business_address?.filter(
+								address => `${address?.aid}` === '2'
+							)?.[1]?.id,
 						})
 					);
+					const newDocs = formatLenderDocuments(
+						newEditLoanData?.loan_document || []
+					);
+					// const newDocs = [];
+					// newEditLoanData?.loan_document?.map(doc => {
+					// 	const newDoc = {
+					// 		...(doc?.loan_document_details?.[0] || {}),
+					// 		...doc,
+					// 		document_id: doc?.id,
+					// 		doc_type_id: doc.doctype,
+					// 		name: getDocumentNameFromLoanDocuments(doc),
+					// 	};
+					// 	newDocs.push(newDoc);
+					// 	return null;
+					// });
+					dispatch(addOrUpdateCacheDocuments({ files: newDocs }));
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(
@@ -223,6 +259,7 @@ const AppLayout = () => {
 				}
 			} catch (error) {
 				console.error('error-getDetailsWithLoanRefId-', error);
+				// window.open('/somethingwentwrong', '_self');
 			}
 			try {
 				if (params.cid || params.uid || decryptedToken?.userId) {
@@ -299,12 +336,12 @@ const AppLayout = () => {
 					<BrowserRouter basename='/nconboarding'>
 						<Suspense fallback={<Loading />}>
 							<Switch>
-								{/* <Route
-									path='/branch'
-									manager={true}
-									component={BranchUserContent}
-								/> */}
 								<Route path='/applyloan' component={ApplyLoanContent} />
+								{/* <Route
+									path='/somethingwentwrong'
+									component={SomethingWentWrong}
+									exact
+								/> */}
 								<Route render={() => <Redirect to='/applyloan' />} />
 							</Switch>
 						</Suspense>

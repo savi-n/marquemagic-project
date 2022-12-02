@@ -93,22 +93,21 @@ const AadhaarOTPModal = props => {
 		setIsAadhaarOtpModalOpen,
 		aadhaarGenOtpResponse,
 		setIsVerifyWithOtpDisabled,
-		// toggle,
-		// ButtonProceed,
-		// type = 'income',
+		prePopulateAddressDetailsFromVerifyOtpRes,
 	} = props;
 	const { application, app, applicantCoApplicants } = useSelector(
 		state => state
 	);
 	const { applicant, coApplicants } = applicantCoApplicants;
 	const { loanProductId } = application;
-	const { selectedSection, clientToken } = app;
+	const { selectedSection, clientToken, selectedProduct } = app;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
 	const [inputAadhaarOTP, setInputAadhaarOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
 	const [resendOtpTimer, setResendOtpTimer] = useState(
-		sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+		selectedProduct?.otp_configuration?.otp_duration_in_seconds ||
+			RESEND_OTP_TIMER
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
@@ -116,7 +115,6 @@ const AadhaarOTPModal = props => {
 	// 	state: { clientToken },
 	// } = useContext(AppContext);
 
-	const product_id = sessionStorage.getItem('productId');
 	const verifyOtp = async () => {
 		if (!inputAadhaarOTP) {
 			setErrorMsg('Please enter a valid OTP.');
@@ -169,6 +167,7 @@ const AadhaarOTPModal = props => {
 					res: aadhaarVerifyResponse,
 				})
 			);
+			prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
 
 			if (aadhaarVerifyResponse.status === 'ok') {
 				setIsAadhaarOtpModalOpen(false);
@@ -226,7 +225,7 @@ const AadhaarOTPModal = props => {
 				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
 				transactionId: aadhaarGenOtpResponse.data.transactionId,
 				fwdp: aadhaarGenOtpResponse.data.fwdp,
-				product_id,
+				product_id: loanProductId,
 			};
 			// console.log('resendOtp-reqBody-', reqBody);
 			const aadharResendOtpRes = await newRequest(AADHAAR_RESEND_OTP, {

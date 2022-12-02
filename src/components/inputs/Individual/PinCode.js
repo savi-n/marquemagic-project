@@ -124,14 +124,14 @@ export default function Pincode(props) {
 					};
 					props.onChange({ target });
 				}
-			} catch (err) {
+			} catch (error) {
 				setProcessing(false);
-				// console.log(err);
-				addToast({
-					message:
-						'Could not fetch the data for entered pincode' || err.message,
-					type: 'error',
-				});
+				console.error('error-pincodefetch-', error);
+				// addToast({
+				// 	message:
+				// 		'Could not fetch the data for entered pincode' || err.message,
+				// 	type: 'error',
+				// });
 			}
 		}
 		setProcessing(false);

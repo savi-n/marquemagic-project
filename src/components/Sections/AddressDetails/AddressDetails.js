@@ -11,7 +11,6 @@ import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
 
 import {
-	// setIsSameAsAboveAddressChecked,
 	updateApplicantSection,
 	updateCoApplicantSection,
 	addCacheDocuments,
@@ -20,26 +19,35 @@ import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { getKYCData, getKYCDataId } from 'utils/request';
 import {
+	formatAadhaarOtpResponse,
 	formatAddressProofDocTypeList,
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getCompletedSections,
+	isFieldValid,
 } from 'utils/formatData';
-// import { verifyKycDataUiUx } from 'utils/request';
 import { isInvalidAadhaar } from 'utils/validation';
+import { setLoanIds } from 'store/applicationSlice';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { loanProductId, loanId, createdByUserId } = application;
+	const {
+		loanProductId,
+		loanId,
+		createdByUserId,
+		businessAddressIdAid1,
+		businessAddressIdAid2,
+	} = application;
 	const {
 		isViewLoan,
 		selectedProduct,
@@ -61,16 +69,11 @@ const AddressDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const {
-		directorId,
-		cacheDocuments,
-		businessAddressIdAid1,
-		businessAddressIdAid2,
-	} = selectedApplicant;
+	const { directorId, cacheDocuments } = selectedApplicant;
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		];
+		] || selectedApplicant?.income_type;
 	const dispatch = useDispatch();
 	const {
 		handleSubmit,
@@ -161,24 +164,7 @@ const AddressDetails = props => {
 						type: 'success',
 					});
 					setIsAadhaarOtpModalOpen(true);
-					// console.log(verifyOtpResponse, '555777', verifyOtpResponse.status);
 					setIsVerifyWithOtpDisabled(true);
-					// if (isApplicant) {
-					// 	if (applicant?.api?.verifyOtp?.res?.status === 'ok') {
-					// 		setIsVerifyWithOtpDisabled(true);
-					// 		console.log('if block , applicant');
-					// 	}
-					// } else {
-					// 	if (
-					// 		coApplicants[selectedDirectorId]?.api.verifyOtp.res.status ===
-					// 		'ok'
-					// 	) {
-					// 		setIsVerifyWithOtpDisabled(true);
-					// 		console.log('else block coapplicant');
-					// 	}
-					// }
-					// if (verifyOtpResponse.status === 'ok') {
-					// }
 				}
 			} catch (error) {
 				console.error('error-generate-aadhaar-otp-', error);
@@ -198,26 +184,20 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(false);
 		}
 	};
-	// useEffect(() => {
-	// 	setIsVerifyWithOtpDisabled(true);
-	// }, []);
+
 	const onProceed = async () => {
 		try {
 			if (!isEditOrViewLoan) {
-				if (isApplicant) {
-					if (applicant?.api?.verifyOtp?.res?.status !== 'ok') {
-						addToast({
-							message:
-								'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
-							type: 'error',
-						});
-						return;
-					}
-				} else {
-					if (
-						coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-							?.status !== 'ok'
-					) {
+				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
+					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
+				// console.log('onproceed-', {
+				// 	isPermanentSelectedAddressProofTypeAadhaar,
+				// 	selectedIncomeType:
+				// 		formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME],
+				// });
+				if (!isPermanentSelectedAddressProofTypeAadhaar) {
+					if (selectedApplicant?.api?.verifyOtp?.res?.status !== 'ok') {
 						addToast({
 							message:
 								'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
@@ -323,15 +303,19 @@ const AddressDetails = props => {
 			const newAddressDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
-				businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
-					address => address.aid === 1
-				)?.[0]?.id,
-				businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
-					address => address.aid === 2
-				)?.[0]?.id,
 				directorId,
 			};
 			if (isApplicant) {
+				dispatch(
+					setLoanIds({
+						businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
+							address => address.aid === 1
+						)?.[0]?.id,
+						businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
+							address => address.aid === 2
+						)?.[0]?.id,
+					})
+				);
 				dispatch(updateApplicantSection(newAddressDetails));
 			} else {
 				dispatch(updateCoApplicantSection(newAddressDetails));
@@ -370,6 +354,17 @@ const AddressDetails = props => {
 			dispatch(updateCoApplicantSection(skipSectionData));
 		}
 		dispatch(setSelectedSectionId(nextSectionId));
+	};
+
+	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
+		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
+		Object.keys(formatedData || {}).map(key => {
+			onChangeFormStateField({
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PERMANENT}${key}`,
+				value: formatedData?.[key] || '',
+			});
+			return null;
+		});
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
@@ -448,12 +443,6 @@ const AddressDetails = props => {
 		}
 	};
 
-	// let isProceedDisabledAddressProof = true;
-
-	// if (loading) {
-	// 	isProceedDisabledAddressProof = true;
-	// }
-
 	// console.log('AddressDetails-allProps-', {
 	// 	applicant,
 	// 	coApplicants,
@@ -470,6 +459,9 @@ const AddressDetails = props => {
 					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
 					aadhaarGenOtpResponse={aadharOtpResponse?.res}
 					setIsVerifyWithOtpDisabled={isVerifyWithOtpDisabled}
+					prePopulateAddressDetailsFromVerifyOtpRes={
+						prePopulateAddressDetailsFromVerifyOtpRes
+					}
 				/>
 			)}
 			{selectedSection?.sub_sections?.map((sub_section, subSectionIndex) => {
@@ -494,6 +486,7 @@ const AddressDetails = props => {
 				const selectedDocumentTypes = formatAddressProofDocTypeList({
 					selectedAddressProofId,
 					prefix,
+					aid: sub_section.aid,
 				});
 
 				if (!selectedAddressProofId) {
@@ -548,18 +541,7 @@ const AddressDetails = props => {
 				if (isEditOrViewLoan) {
 					isInActiveAddressProofUpload = true;
 				}
-				// selectedDocTypeId &&
-				// 	console.log(
-				// 		'%c sub_sections_selectedDocumentTypes-',
-				// 		'color: green',
-				// 		{
-				// 			sub_section,
-				// 			isPermanent,
-				// 			selectedAddressProofId,
-				// 			selectedDocumentTypes,
-				// 			selectedAddressProofTypeOption,
-				// 		}
-				// 	);
+
 				return (
 					<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
@@ -589,15 +571,15 @@ const AddressDetails = props => {
 												type='checkbox'
 												id={CONST.CHECKBOX_SAME_AS_ID}
 												checked={!!isSameAsAboveAddressChecked}
+												disabled={
+													!formState?.values?.[
+														CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS1_FIELD_NAME
+													] || !!businessAddressIdAid1
+												}
 												onChange={() => {
 													setIsSameAsAboveAddressChecked(
 														!isSameAsAboveAddressChecked
 													);
-													// dispatch(
-													// 	setIsSameAsAboveAddressChecked(
-													// 		!isSameAsAboveAddressChecked
-													// 	)
-													// );
 												}}
 											/>
 											<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
@@ -610,28 +592,10 @@ const AddressDetails = props => {
 						)}
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
-								if (!field.visibility || !field.name || !field.type)
+								if (!isFieldValid({ field, formState, isApplicant })) {
 									return null;
-								const newValue = prefilledValues(field);
-								const customFieldProps = {};
-								const customStyle = {};
+								}
 
-								if (
-									isSameAsAboveAddressChecked &&
-									field.name.includes(CONST.PREFIX_PRESENT)
-								) {
-									customFieldProps.disabled = true;
-								}
-								const isVerifyWithOtpField = field.name.includes(
-									CONST.AADHAAR_FIELD_NAME
-								);
-								const isIdProofUploadField =
-									field.type === 'file' &&
-									field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
-								if (isVerifyWithOtpField) return null;
-								if (field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)) {
-									customStyle.gridColumn = 'span 2';
-								}
 								if (
 									sub_section.aid === CONST.AID_PRESENT &&
 									isSameAsAboveAddressChecked
@@ -639,56 +603,45 @@ const AddressDetails = props => {
 									if (CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name))
 										return null;
 								}
+								const isVerifyWithOtpField = field.name.includes(
+									CONST.AADHAAR_FIELD_NAME
+								);
+								if (isVerifyWithOtpField) return null;
+
+								const newValue = prefilledValues(field);
+								const customFieldProps = {};
+								const customStyle = {};
+
+								const isIdProofUploadField =
+									field.type === 'file' &&
+									field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
+
+								if (field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)) {
+									customStyle.gridColumn = 'span 2';
+								}
 
 								if (isIdProofUploadField) {
 									return (
-										<UI_SECTIONS.FieldWrapGrid style={{ gridColumn: 'span 2' }}>
+										<UI_SECTIONS.FieldWrapGrid
+											style={{ gridColumn: 'span 2' }}
+											key={`field-${fieldIndex}-${field.name}`}
+										>
 											<AddressProofUpload
 												prefix={prefix}
 												isPermanent={isPermanent}
-												disabled = {!selectedAddressProofId}
+												disabled={!selectedAddressProofId}
 												field={field}
 												register={register}
 												formState={formState}
 												isInActive={isInActiveAddressProofUpload}
 												isSectionCompleted={isSectionCompleted}
-												// startingTaggedDocs={cacheDocumentsTemp}
-												// section={CONST.ADDRESSPROOF}
-												prefilledDocs={cacheDocuments}
 												selectedAddressProofId={selectedAddressProofId}
 												selectedAddressProofFieldName={
 													selectedAddressProofFieldName
 												}
 												docTypeOptions={selectedDocumentTypes}
-												// onDrop={files =>
-												// 	handleFileUploadAddressProof(files, isPermanent)
-												// }
-												// onRemoveFile={docId =>
-												// 	handleFileRemoveAddressProof(docId, isPermanent)
-												// }
-												// docs={cacheDocumentsTemp}
-												// setDocs={addCacheDocumentsTemp}
-												// setDocs={newDocs => {
-												// 	const newAddressProofDocs = [];
-												// 	presentAddressProofDocsRef?.current?.map(d =>
-												// 		newAddressProofDocs.push(d)
-												// 	);
-												// 	newDocs.map(d =>
-												// 		newAddressProofDocs.push({
-												// 			...d,
-												// 			aid: CONST.AID_PRESENT,
-												// 		})
-												// 	);
-												// 	setPresentAddressProofDocs(newAddressProofDocs);
-												// 	presentAddressProofDocsRef.current = newAddressProofDocs;
-												// }}
-												// documentTypeChangeCallback={
-												// 	handleDocumentTypeChangeAddressProof
-												// }
 												addressProofUploadSection={sub_section}
 												selectedApplicant={selectedApplicant}
-												// onClickFetchAddress={onClickFetchAddress}
-												// fetchingAddress={fetchingAddress}
 												onChangeFormStateField={onChangeFormStateField}
 												prefilledValues={prefilledValues}
 												addressProofError={
@@ -703,6 +656,7 @@ const AddressDetails = props => {
 												}
 												onClickVerifyWithOtp={onClickVerifyWithOtp}
 												verifyingWithOtp={verifyingWithOtp}
+												prefilledDocs={cacheDocuments}
 												cacheDocumentsTemp={cacheDocumentsTemp}
 												setCacheDocumentsTemp={
 													isPermanent
@@ -714,50 +668,47 @@ const AddressDetails = props => {
 										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
-								if (field?.for_type_name) {
+
+								if (!!selectedApplicant?.api?.verifyOtp?.res) {
+									customFieldProps.disabled = false;
+								} else if (
+									cacheDocumentsTemp?.filter(doc => !!doc?.extractionRes)
+										.length > 0
+								) {
+									customFieldProps.disabled = false;
+								} else {
 									if (
-										!field?.for_type.includes(
-											formState?.values?.[field?.for_type_name]
-										)
-									)
-										return null;
+										!field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
+									) {
+										customFieldProps.disabled = true;
+									}
 								}
 
-								// Disable field if prrof_type is not selected
-								if(!formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME] && field.name !=='permanent_address_proof_type' && !field.name.includes('proof_id')){
-									customFieldProps.disabled = true;
-								}
-								if(field.name === 'present_address_proof_type' && !formState?.values?.['permanent_address1']){
-									customFieldProps.disabled = true;
-								}
-								// TODO: varun fix this by json change
-								// disable fields based on config starts
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
-								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
-								// disable fields based on config ends
-								if (field.name === 'permanent_pin_code') {
-									customFieldProps.type = 'pincode';
-								}
-								if (field.name === 'present_pin_code') {
-									customFieldProps.type = 'pincode';
-								}
 								if (
 									isSectionCompleted &&
 									field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
 								) {
 									customFieldProps.disabled = true;
 								}
+
+								if (
+									isSameAsAboveAddressChecked &&
+									field.name.includes(CONST.PREFIX_PRESENT)
+								) {
+									customFieldProps.disabled = true;
+								}
+
+								if (
+									businessAddressIdAid1 &&
+									field?.name?.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
+								) {
+									customFieldProps.disabled = true;
+								} else {
+									customFieldProps.disabled = false;
+								}
+
 								return (
 									<UI_SECTIONS.FieldWrapGrid
-										id={field.name}
 										key={`field-${fieldIndex}-${field.name}`}
 										style={customStyle}
 									>

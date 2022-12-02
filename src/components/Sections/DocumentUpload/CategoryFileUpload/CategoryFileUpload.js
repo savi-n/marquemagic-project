@@ -22,11 +22,11 @@ import lockGreen from 'assets/icons/Lock_icon_green-05.svg';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
 	removeCacheDocument,
-	addCacheDocuments,
 	updateCacheDocumentTypeId,
 	updateCacheDocumentPassword,
 	updateCacheDocumentProgress,
 	updateCacheDocumentsFdKey,
+	addOrUpdateCacheDocuments,
 } from 'store/applicationSlice';
 
 import * as CONST_SECTION from 'components/Sections/const';
@@ -154,7 +154,7 @@ const CategoryFileUpload = props => {
 			filesToUpload.push(newFile);
 		}
 		// TODO: varun remove file and cancel token object before storing to redux do this for entier project
-		dispatch(addCacheDocuments({ files: filesToUpload }));
+		dispatch(addOrUpdateCacheDocuments({ files: filesToUpload }));
 		setUploading(true);
 		return await Promise.all(
 			filesToUpload.map(file => {

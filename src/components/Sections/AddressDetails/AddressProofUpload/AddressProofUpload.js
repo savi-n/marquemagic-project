@@ -34,15 +34,10 @@ const AddressProofUpload = props => {
 		field,
 		formState,
 		prefix,
-		// onDrop = () => {},
 		disabled = false,
 		docTypeOptions = [],
-		// docs,
-		// setDocs,
 		selectedAddressProofFieldName = '',
 		selectedAddressProofId = '',
-		// startingTaggedDocs = [],
-		// startingUnTaggedDocs = [],
 		isInActive = false,
 		prefilledDocs = [],
 		addressProofUploadSection,
@@ -83,23 +78,15 @@ const AddressProofUpload = props => {
 	const prevSelectedAddressProofId = useRef(null);
 	const refPopup = useRef(null);
 	const { addToast } = useToasts();
-	// console.log(selectedAddressProofFieldName, '8899', selectedAddressProofId);
 	const id = uuidv4();
-	// const [loading, setLoading] = useState(false);
 	const [dragging, setDragging] = useState(false);
-	// const [uploadingFiles, setUploadingFiles] = useState([]);
-	// const [docTypeFileMap, setDocTypeFileMap] = useState({});
-	// const [mappedFiles, setMappedFiles] = useState({});
 	const [isPopoverOpen, setIsPopoverOpen] = useState(-1);
 	const [viewMore, setViewMore] = useState([]);
-	// const [passwordList, setPasswordList] = useState([]);
 	const [isDocumentTaggingOpen, setIsDocumentTaggingOpen] = useState(false);
 	const [fetchingAddress, setFetchingAddress] = useState(false);
 	const [isDocTypeChangeModalOpen, setIsDocTypeChangeModalOpen] = useState(
 		false
 	);
-	// const selectedFiles = useRef([]);
-	//const [docSelected, setDocSelected] = useState('');
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
 
 	let refCounter = 0;
@@ -472,37 +459,24 @@ const AddressProofUpload = props => {
 		}
 	};
 
-	const onFileRemove = async (file, docType = false) => {
+	const deleteDocument = async file => {
 		try {
 			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
-			// const newUploadingFiles = [];
-			// selectedFiles.current.map(uFile => {
-			// 	if (uFile.id !== file.id) newUploadingFiles.push(uFile);
-			// 	return null;
-			// });
-			// if (docType) {
-			// 	const newMappedFile = _.cloneDeep(mappedFiles);
-			// 	const newObj = [];
-			// 	newMappedFile[docType.doc_type_id]?.map(uFile => {
-			// 		if (uFile.id !== file.id) newObj.push(uFile);
-			// 		return null;
-			// 	});
-			// 	newMappedFile[docType.doc_type_id] = newObj;
-			// 	setMappedFiles(newMappedFile);
-			// }
-
 			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp).filter(
 				doc => doc.id !== file.id
 			);
-			// removeCacheDocument(newCacheDocumentTemp);
 			setCacheDocumentsTemp(newCacheDocumentTemp);
-			// onRemoveFile(file.id, file);
-			// selectedFiles.current = newUploadingFiles;
-			// setUploadingFiles(newUploadingFiles);
 			setOpeningRemovingDocument(false);
 			setAddressProofError('');
+			Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+				onChangeFormStateField({
+					name: `${prefix}${key}`,
+					value: '',
+				});
+				return null;
+			});
 		} catch (error) {
-			console.error('error-onFileRemove-', error);
+			console.error('error-deleteDocument-', error);
 			setOpeningRemovingDocument(false);
 		}
 	};
@@ -569,6 +543,7 @@ const AddressProofUpload = props => {
 	const handleDrop = async event => {
 		event.preventDefault();
 		event.stopPropagation();
+		if (isInActive) return;
 		setDragging(false);
 		if (disabled) {
 			addToast({
@@ -602,7 +577,6 @@ const AddressProofUpload = props => {
 			// console.log('after-handleUpload-', {
 			// 	files,
 			// });
-			// onDrop(files);
 			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 			files.map(f => newCacheDocumentTemp.push(f));
 			setCacheDocumentsTemp(newCacheDocumentTemp);
@@ -626,7 +600,6 @@ const AddressProofUpload = props => {
 	const onChange = async event => {
 		let files = [...event.target.files];
 		files = await handleUpload(files);
-		// onDrop(files);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		files.map(f => newCacheDocumentTemp.push(f));
 		setCacheDocumentsTemp(newCacheDocumentTemp);
@@ -640,24 +613,8 @@ const AddressProofUpload = props => {
 		// });
 	};
 
-	// const onDocTypeChange = (fileId, value, file) => {
 	const onDocTypeChange = (file, docType) => {
 		const selectedDocType = docTypeOptions.find(d => d.value === docType.value);
-		// console.log('onDocTypeChange-selected-doctype-', {
-		// 	file,
-		// 	docType,
-		// 	selectedDocType,
-		// });
-		// const newMappedFile = _.cloneDeep(mappedFiles);
-		// const newObj = newMappedFile[docType.value] || [];
-		// newObj.push(file);
-		// newMappedFile[docType.value] = newObj;
-		// setMappedFiles(newMappedFile);
-		// const newDocTypeFileMap = {
-		// 	..._.cloneDeep(docTypeFileMap),
-		// 	[file.id]: selectedDocType, // value
-		// };
-		// documentTypeChangeCallback(file.id, selectedDocType);
 		const newCacheDocumentTemp = [];
 		cacheDocumentsTemp.map(doc => {
 			const newDoc = _.cloneDeep(doc);
@@ -669,8 +626,6 @@ const AddressProofUpload = props => {
 			return null;
 		});
 		setCacheDocumentsTemp(newCacheDocumentTemp);
-		// setDocTypeFileMap(newDocTypeFileMap);
-		// console.log('onDocTypeChange-eod-', { newMappedFile, newDocTypeFileMap });
 	};
 
 	const openDocument = async file => {
@@ -693,73 +648,8 @@ const AddressProofUpload = props => {
 		}
 	};
 
-	// const initializeComponent = async () => {
-	// 	try {
-	// 		setLoading(true);
-	// 		// in case of edit_loan
-	// 		// console.log('FileUpload-initializeComponent-', { mappedFiles, props });
-	// 		if (prefilledDocs && prefilledDocs.length > 0) {
-	// 			setDocTypeFileMap(_.cloneDeep(prefilledDocs));
-	// 			const newMappedFile = _.cloneDeep(mappedFiles);
-	// 			const newDocTypeFileMap = {
-	// 				..._.cloneDeep(docTypeFileMap),
-	// 			};
-	// 			prefilledDocs.map(doc => {
-	// 				const tempFile = _.cloneDeep(doc);
-	// 				// const tempDocType = { value: doc.id };
-	// 				const selectedDocType = docTypeOptions.find(
-	// 					d => d.value === tempFile.id
-	// 				);
-	// 				const newObj = newMappedFile[tempFile.id] || [];
-	// 				newObj.push(tempFile);
-	// 				newMappedFile[tempFile.id] = newObj;
-	// 				newDocTypeFileMap[tempFile.id] = selectedDocType;
-	// 				// documentTypeChangeCallback(tempFile.id, selectedDocType);
-	// 				return null;
-	// 			});
-	// 			setDocTypeFileMap(newDocTypeFileMap);
-	// 			setMappedFiles(newMappedFile);
-	// 		}
-	// 		// doc upload section navigation history
-	// 		// + pan adhar dl voter
-	// 		if (startingTaggedDocs && startingTaggedDocs.length > 0) {
-	// 			const newMappedFiles = _.cloneDeep(mappedFiles);
-	// 			startingTaggedDocs.map(doc => {
-	// 				const newObj = newMappedFiles[+doc.typeId] || [];
-	// 				newObj.push(doc);
-	// 				newMappedFiles[+doc.typeId] = newObj;
-	// 				return null;
-	// 			});
-	// 			setMappedFiles(newMappedFiles);
-	// 		}
-	// 		// doc upload section navigation history
-	// 		if (startingUnTaggedDocs && startingUnTaggedDocs.length > 0) {
-	// 			selectedFiles.current = startingUnTaggedDocs;
-	// 			setUploadingFiles(startingUnTaggedDocs);
-	// 		}
-	// 		// console.log('FileUpload-initializeComponent-EOD-', {
-	// 		// 	prefilledDocs,
-	// 		// 	startingTaggedDocs,
-	// 		// 	startingUnTaggedDocs,
-	// 		// });
-	// 		setLoading(false);
-	// 	} catch (error) {
-	// 		console.error('error-FileUpload-initializeComponent-', error);
-	// 		setLoading(false);
-	// 	}
-	// };
-
-	// useEffect(() => {
-	// 	initializeComponent();
-	// 	// eslint-disable-next-line
-	// }, [selectedAddressProofId]);
-
 	const resetAllStates = () => {
-		// selectedFiles.current = [];
 		setIsDocumentTaggingOpen(false);
-		// setUploadingFiles([]);
-		// setDocTypeFileMap({});
-		// setMappedFiles({});
 		setAddressProofError('');
 		const newCacheDocumentTemp = _.cloneDeep(
 			cacheDocumentsTemp.filter(doc => {
@@ -805,15 +695,6 @@ const AddressProofUpload = props => {
 		// eslint-disable-next-line
 	}, [selectedAddressProofId]);
 
-	// useEffect(() => {
-	// 	console.log(coApplicants[selectedDirectorId], '999888', applicant);
-	// 	console.log(
-	// 		coApplicants[selectedDirectorId]?.api?.verifyOtp?.res?.status === 'ok',
-	// 		applicant?.api?.verifyOtp?.res?.status === 'ok',
-	// 		'%%%'
-	// 	);
-	// }, []);
-
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
@@ -821,15 +702,7 @@ const AddressProofUpload = props => {
 		if (!!doc?.isTagged) taggedDocumentCount += 1;
 		return null;
 	});
-	// selectedFiles.current.map(file => {
-	// 	for (const key in docTypeFileMap) {
-	// 		if (file.id === key) {
-	// 			taggedDocumentCount += 1;
-	// 		}
-	// 	}
-	// 	return null;
-	// });
-	// displayTagMessage = selectedFiles.current.length !== taggedDocumentCount;
+
 	displayTagMessage = cacheDocumentsTemp.length !== taggedDocumentCount;
 	const addressProofErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
 		addressProofError
@@ -852,11 +725,6 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
-	// console.log(`AddressProofUpload-allstates-`, {
-	// 	props,
-	// 	addressProofErrorColorCode,
-	// 	addressProofError,
-	// });
 	const customFieldProps = {};
 	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
@@ -870,6 +738,7 @@ const AddressProofUpload = props => {
 	if (disabled) {
 		customFieldProps.disabled = disabled;
 	}
+
 	return (
 		<UI.Wrapper>
 			{selectedAddressProofId === 'permanent_aadhar' && (
@@ -931,9 +800,7 @@ const AddressProofUpload = props => {
 						disabled={disabled}
 						uploading={fetchingAddress}
 					>
-						{/* {dragging && !disabled && <UI.Droping>Drop here :)</UI.Droping>} */}
 						<UI.Caption>Upload Address Proof</UI.Caption>
-						{/* {pan && <LabelFormat>only jpeg, png, jpg</LabelFormat>} */}
 						<UI.UploadButton
 							type='file'
 							id={id}
@@ -951,6 +818,7 @@ const AddressProofUpload = props => {
 						<UI.IconWrapper>
 							<UI.IconUpload htmlFor={id}>
 								<img
+									draggable={false}
 									src={uploadCircleIcon}
 									width={30}
 									style={{
@@ -961,6 +829,7 @@ const AddressProofUpload = props => {
 								/>
 							</UI.IconUpload>
 							<UI.IconCollapse
+								draggable={false}
 								isDocumentTaggingOpen={isDocumentTaggingOpen}
 								src={imgArrowDownCircle}
 								width={30}
@@ -1052,20 +921,7 @@ const AddressProofUpload = props => {
 				)}
 				<UI.UnTaggedFileListWrap>
 					{cacheDocumentsTemp.map((doc, upidx) => {
-						// console.log('uplodaing-file-UnTaggedFileListWrap-file', {
-						// 	uploadingFiles,
-						// 	file,
-						// 	docTypeFileMap,
-						// });
-						// let isMapped = false;
-						// for (const key in docTypeFileMap) {
-						// 	if (file.id === key) {
-						// 		isMapped = true;
-						// 		break;
-						// 	}
-						// }
 						if (!!doc?.isTagged) return null;
-						// const isFileUploaded = file.progress >= 100 || file.progress <= 0;
 						doc.name = doc.name || doc.upload_doc_name || '';
 						return (
 							<UI.File
@@ -1074,11 +930,6 @@ const AddressProofUpload = props => {
 								progress={doc.progress}
 								status={doc.status}
 								tooltip={doc.name}
-								// style={
-								// 	docTypeOptions.length > 0 && isFileUploaded
-								// 		? { borderRight: 0 }
-								// 		: {}
-								// }
 							>
 								<UI.FileName>
 									{doc?.name?.length > 20
@@ -1091,7 +942,7 @@ const AddressProofUpload = props => {
 										onClick={e => {
 											e.preventDefault();
 											e.stopPropagation();
-											onFileRemove(doc);
+											deleteDocument(doc);
 										}}
 										alt='close'
 									/>
@@ -1106,16 +957,6 @@ const AddressProofUpload = props => {
 										onClickOutside={() => setIsPopoverOpen(-1)} // handle click events outside of the popover/target here!
 										ref={refPopup}
 										content={popupProps => {
-											// const {
-											// 	position,
-											// 	nudgedLeft,
-											// 	nudgedTop,
-											// 	childRect,
-											// 	popoverRect,
-											// } = popupProps;
-											// you can also provide a render function that injects some useful stuff!
-											// console.log('popupProps-', { popupProps });
-											// const isOutside = nudgedLeft < -10;
 											const fontDocTypeId = `${docTypeOptions[0]?.id}`;
 											const backDocTypeId = `${docTypeOptions[1]?.id}`;
 											const frontBackDocTypeId = `${docTypeOptions[2]?.id}`;
@@ -1132,22 +973,9 @@ const AddressProofUpload = props => {
 													doc => doc.doc_type_id === frontBackDocTypeId
 												).length > 0;
 											return (
-												<UI.FileTypeBox
-												// style={isOutside ? { marginLeft: '-400px' } : {}}
-												>
+												<UI.FileTypeBox>
 													<UI.FileTypeUL>
 														{docTypeOptions.map((docType, docoptidx) => {
-															// console.log('poup-', {
-															// 	docTypeOptions,
-															// 	mappedFiles,
-															// 	docs,
-															// 	docType,
-															// 	file,
-															// 	isFrontTagged,
-															// 	isBackTagged,
-															// 	isFrontBackTagged,
-															// });
-
 															if (isFrontTagged && docoptidx === 0) return null;
 															if (isBackTagged && docoptidx === 1) return null;
 															if (isFrontBackTagged && docoptidx === 2)
@@ -1188,6 +1016,7 @@ const AddressProofUpload = props => {
 														})}
 													</UI.FileTypeUL>
 													<UI.FileTypeIconInsidePopover
+														draggable={false}
 														src={imgArrowDownCircle}
 														alt='arrow'
 														onClick={() => {
@@ -1206,6 +1035,7 @@ const AddressProofUpload = props => {
 											}
 										>
 											<UI.FileTypeIconOutsidePopover
+												draggable={false}
 												src={imgArrowDownCircle}
 												alt='arrow'
 											/>
@@ -1218,7 +1048,6 @@ const AddressProofUpload = props => {
 				</UI.UnTaggedFileListWrap>
 				<UI.DocumentUploadListWrapper>
 					{docTypeOptions.map((docType, doctypeidx) => {
-						// const mappedDocFiles = mappedFiles[docType.value] || [];
 						const mappedDocFiles = cacheDocumentsTemp.filter(
 							d => d?.doc_type_id === docType?.doc_type_id
 						);
@@ -1228,30 +1057,6 @@ const AddressProofUpload = props => {
 							doc => doc?.isTagged?.doc_type_id === docType?.doc_type_id
 						);
 						uploadedDocuments.map(doc => mappedDocFiles.push(doc));
-						// TODO: discuss with PM not possible
-
-						// // const mappedFiles = [];
-						// console.log('upload-list-', {
-						// 	// startingTaggedDocs,
-						// 	// uploadingFiles,
-						// 	// mappedFiles,
-						// 	prefilledDocs,
-						// 	docTypeOptions,
-						// 	// docTypeFileMap,
-						// 	docType,
-						// 	mappedDocFiles,
-						// 	uploadedDocuments,
-						// });
-						// for (const key in docTypeFileMap) {
-						// 	if (docType.value === docTypeFileMap[key].value) {
-						// 		const newMappedFile = {
-						// 			..._.cloneDeep(docTypeFileMap[key]),
-						// 			docTypeKey: key,
-						// 		};
-						// 		// console.log('new-mapped-file-', newMappedFile);
-						// 		mappedFiles.push(newMappedFile);
-						// 	}
-						// }
 						return (
 							<UI.DocumentUploadList
 								key={`${docType.id}-${doctypeidx}-${docType.doc_type_id}`}
@@ -1277,10 +1082,6 @@ const AddressProofUpload = props => {
 											</span>
 										)}
 										{docType.name}
-										{/* {docType.name && docType.isMandatory
-											? docType.name + '*'
-										: docType.name} */}
-										{/* {isDocTypeMandatory(docType.name)} */}
 									</UI.DocumentUploadName>
 								</UI.DocumentUploadListRow1>
 								<UI.DocumentUploadListRow2>
@@ -1355,28 +1156,8 @@ const AddressProofUpload = props => {
 															onClick={e => {
 																e.preventDefault();
 																e.stopPropagation();
-																// console.log('before-remove-', {
-																// 	passwordList,
-																// 	docTypeFileMap,
-																// 	doc,
-																// });
 																if (isViewMore) return;
-																// const newPasswordList = passwordList.filter(
-																// 	p => p !== uniqPassId
-																// );
-																// const newDocTypeFileMap = _.cloneDeep(
-																// 	docTypeFileMap
-																// );
-																// delete newDocTypeFileMap[doc.docTypeKey];
-																// delete newDocTypeFileMap[doc.id];
-																// console.log('after-remove-', {
-																// 	newPasswordList,
-																// 	newDocTypeFileMap,
-																// 	doc,
-																// });
-																onFileRemove(doc, docType);
-																// setDocTypeFileMap(newDocTypeFileMap);
-																// setPasswordList(newPasswordList);
+																deleteDocument(doc);
 															}}
 															alt='close'
 														/>
@@ -1390,23 +1171,6 @@ const AddressProofUpload = props => {
 						);
 					})}
 				</UI.DocumentUploadListWrapper>
-				{/* <UI.CTAWrapper>
-					{!addressProofError && (
-						<Button
-							fill
-							name='Fetch Address'
-							isLoader={fetchingAddress}
-							disabled={
-								fetchingAddress ||
-								cacheDocumentsTemp.length <= 0 ||
-								addressProofError
-							}
-							onClick={onClickFetchAddress}
-						/>
-					)}
-				</UI.CTAWrapper> */}
-			</UI.DocumentTaggingSectionWrapper>
-			{selectedAddressProofFieldName === 'permanent_address_proof_type' && (
 				<UI.CTAWrapper>
 					{!addressProofError && (
 						<Button
@@ -1422,7 +1186,7 @@ const AddressProofUpload = props => {
 						/>
 					)}
 				</UI.CTAWrapper>
-			)}
+			</UI.DocumentTaggingSectionWrapper>
 		</UI.Wrapper>
 	);
 };

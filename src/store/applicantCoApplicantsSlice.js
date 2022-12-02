@@ -339,7 +339,6 @@ export const applicantCoApplicantsSlice = createSlice({
 		// API REQ RES RELATED ACTIONS
 		setGenerateAadhaarOtp: (state, action) => {
 			const selectedDirectorId = state.selectedApplicantCoApplicantId;
-			// console.log(action.payload, '223344', selectedDirectorId);
 			if (state.isApplicant) {
 				state.applicant.api.generateOTP.req = action.payload.req;
 				state.applicant.api.generateOTP.res = action.payload.res;
@@ -349,15 +348,10 @@ export const applicantCoApplicantsSlice = createSlice({
 				state.coApplicants[selectedDirectorId].api.generateOTP.req =
 					action.payload.req;
 			}
-			// state.generateAadhaarOtpResponse = action.payload;
 		},
 		setVerifyOtpResponse: (state, action) => {
-			// state.verifyOtpResponse = action.payload;
 			const selectedDirectorId = state.selectedApplicantCoApplicantId;
-			// console.log(action.payload, '223344', selectedDirectorId);
 			if (state.isApplicant) {
-				// state.applicant.api['verifyOtp'].req = action.payload.req;
-				// state.applicant.api['verifyOtp'].res = action.payload.res;
 				state.applicant.api = {
 					verifyOtp: {
 						req: action.payload.req,
@@ -365,10 +359,6 @@ export const applicantCoApplicantsSlice = createSlice({
 					},
 				};
 			} else {
-				// state.coApplicants[selectedDirectorId]['verifyOtp'].verifyOtp.req =
-				// 	action.payload.req;
-				// state.coApplicants[selectedDirectorId]['verifyOtp'].verifyOtp.res =
-				// 	action.payload.res;
 				state.coApplicants[selectedDirectorId].api = {
 					verifyOtp: {
 						req: action.payload.req,

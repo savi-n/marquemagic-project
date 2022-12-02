@@ -182,7 +182,7 @@ export const formatPanExtractionData = data => {
 };
 
 export const formatAddressProofDocTypeList = data => {
-	const { selectedAddressProofId, prefix } = data;
+	const { selectedAddressProofId, prefix, aid } = data;
 	switch (selectedAddressProofId?.replaceAll(prefix, '')) {
 		case CONST_SECTIONS.EXTRACTION_KEY_AADHAAR:
 			return [
@@ -192,6 +192,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}501`,
 					id: `${prefix}501`,
 					name: 'Aadhaar Front Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_AADHAAR,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 				},
 				{
 					typeId: `${prefix}502`,
@@ -199,6 +202,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}502`,
 					id: `${prefix}502`,
 					name: 'Aadhaar Back Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_AADHAAR,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_B,
 				},
 				{
 					typeId: `${prefix}503`,
@@ -206,6 +212,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}503`,
 					id: `${prefix}503`,
 					name: 'Aadhaar Front and Back',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_AADHAAR,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
 		case CONST_SECTIONS.EXTRACTION_KEY_VOTERID:
@@ -216,6 +225,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}504`,
 					id: `${prefix}504`,
 					name: 'Voter Front Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_VOTER,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 				},
 				{
 					typeId: `${prefix}505`,
@@ -223,6 +235,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}505`,
 					id: `${prefix}505`,
 					name: 'Voter Back Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_VOTER,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_B,
 				},
 				{
 					typeId: `${prefix}506`,
@@ -230,6 +245,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}506`,
 					id: `${prefix}506`,
 					name: 'Voter Front and Back ',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_VOTER,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
 		case CONST_SECTIONS.EXTRACTION_KEY_DL:
@@ -240,6 +258,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}507`,
 					id: `${prefix}507`,
 					name: 'DL Front Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_DL,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 				},
 				{
 					typeId: `${prefix}508`,
@@ -247,6 +268,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}508`,
 					id: `${prefix}508`,
 					name: 'DL Back Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_DL,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_B,
 				},
 				{
 					typeId: `${prefix}509`,
@@ -254,6 +278,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}509`,
 					id: `${prefix}509`,
 					name: 'DL Front and Back',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_DL,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
 		case CONST_SECTIONS.EXTRACTION_KEY_PASSPORT:
@@ -264,6 +291,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}510`,
 					id: `${prefix}510`,
 					name: 'Passport Front Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PASSPORT,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 				},
 				{
 					typeId: `${prefix}511`,
@@ -271,6 +301,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}511`,
 					id: `${prefix}511`,
 					name: 'Passport Back Part',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PASSPORT,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_B,
 				},
 				{
 					typeId: `${prefix}512`,
@@ -278,6 +311,9 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}512`,
 					id: `${prefix}512`,
 					name: 'Passport Front and Back',
+					aid,
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PASSPORT,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
 		// case CONST_SECTIONS.EXTRACTION_KEY_OTHERS:
@@ -482,4 +518,95 @@ export const createIndexKeyObjectFromArrayOfObject = data => {
 		return null;
 	});
 	return keysOfObject;
+};
+
+export const formatUploadCacheDocumentReqBody = data => {
+	const { documents, application, directorId, selectedIncomeType } = data;
+	const { loanId, businessUserId } = application;
+	const reqBody = {
+		loan_id: loanId,
+		user_id: businessUserId,
+		request_ids_obj: [],
+	};
+	documents?.map(doc => {
+		if (!doc?.requestId) return null;
+		reqBody.request_ids_obj.push({
+			request_id: doc?.requestId,
+			doc_type_id: doc?.field?.doc_type?.[selectedIncomeType], // pending
+			is_delete_not_allowed: true,
+			director_id: directorId,
+		});
+		return null;
+	});
+	return reqBody;
+};
+
+export const isFieldValid = data => {
+	// should return only null
+	const { field, isApplicant, formState } = data;
+	if (!field.visibility || !field.name || !field.type) return false;
+	if (field?.hasOwnProperty('is_applicant')) {
+		if (field.is_applicant === false && isApplicant) {
+			return false;
+		}
+	}
+	if (field?.hasOwnProperty('is_co_applicant')) {
+		if (field.is_co_applicant === false && !isApplicant) {
+			return false;
+		}
+	}
+	if (field?.for_type_name) {
+		if (!field?.for_type.includes(formState?.values?.[field?.for_type_name]))
+			return false;
+	}
+	// ALL CHECK PASS SO RETURN VALID TRUE
+	return true;
+};
+
+export const formatAadhaarOtpResponse = aadhaarOtpRes => {
+	let newPrefillValues = {};
+	if (aadhaarOtpRes) {
+		const newAddress1 = [];
+		if (aadhaarOtpRes?.data?.address?.house)
+			newAddress1.push(aadhaarOtpRes?.data?.address?.house || '');
+		if (aadhaarOtpRes?.data?.address?.street)
+			newAddress1.push(aadhaarOtpRes?.data?.address?.street || '');
+		if (aadhaarOtpRes?.data?.address?.loc)
+			newAddress1.push(aadhaarOtpRes?.data?.address?.loc || '');
+		if (aadhaarOtpRes?.data?.address?.vtc)
+			newAddress1.push(aadhaarOtpRes?.data?.address?.vtc || '');
+		if (aadhaarOtpRes?.data?.address?.subdist)
+			newAddress1.push(aadhaarOtpRes?.data?.address?.subdist || '');
+		newPrefillValues.address1 = newAddress1.join(', ');
+		newPrefillValues.address2 = aadhaarOtpRes?.data?.address?.landmark || '';
+		newPrefillValues.address3 = aadhaarOtpRes?.data?.address?.po || '';
+		newPrefillValues.pinCode = aadhaarOtpRes?.data?.address?.pc || '';
+		newPrefillValues.pin_code = aadhaarOtpRes?.data?.address?.pc || '';
+		newPrefillValues.pincode = aadhaarOtpRes?.data?.address?.pc || '';
+		newPrefillValues.city = aadhaarOtpRes?.data?.address?.dist || '';
+		newPrefillValues.state = aadhaarOtpRes?.data?.address?.state || '';
+	}
+	return newPrefillValues;
+};
+
+export const getDocumentNameFromLoanDocuments = doc => {
+	return (
+		doc?.uploaded_doc_name || doc?.original_doc_name || doc?.doc_name || ''
+	);
+};
+
+export const formatLenderDocuments = docs => {
+	const newDocs = [];
+	docs?.map(doc => {
+		const newDoc = {
+			...(doc?.loan_document_details?.[0] || {}),
+			...doc,
+			document_id: doc?.id,
+			doc_type_id: doc.doctype,
+			name: getDocumentNameFromLoanDocuments(doc),
+		};
+		newDocs.push(newDoc);
+		return null;
+	});
+	return newDocs;
 };
