@@ -27,6 +27,7 @@ const CollateralDetails = () => {
 		isEditLoan,
 		editLoanData,
 	} = app;
+	const { isApplicant } = applicantCoApplicants;
 	const { loanAssetsId, assetsAdditionalId } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();

@@ -31,7 +31,7 @@ const BankDetails = () => {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
-
+	const { isApplicant } = applicantCoApplicants;
 	const submitBankDetails = async () => {
 		try {
 			// console.log('submitBankDetails-', { formState, '111': '111' });

@@ -573,6 +573,19 @@ const BasicDetails = props => {
 										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
+								// disable fields based on config starts
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
+								// disable fields based on config ends
+
 								if (!field.visibility || !field.name || !field.type)
 									return null;
 								const newValue = prefilledValues(field);
