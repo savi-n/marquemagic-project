@@ -28,7 +28,6 @@ const ReferenceDetails = () => {
 		editLoanData,
 		isEditLoan,
 	} = app;
-	const { isApplicant } = applicantCoApplicants;
 	const { refId1, refId2 } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
