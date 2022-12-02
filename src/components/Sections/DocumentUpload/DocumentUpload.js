@@ -680,7 +680,7 @@ const DocumentUpload = props => {
 				{!isViewLoan && (
 					<Button
 						name='Get Other Bank Statements'
-						onClick={isOtherBankStatementModalOpen}
+						onClick={() => setIsOtherBankStatementModal(true)}
 						customStyle={{ width: 'auto', height: '45px' }}
 					/>
 				)}
