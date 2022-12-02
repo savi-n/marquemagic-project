@@ -40,6 +40,7 @@ export const Container = styled.div`
 	width: 100%;
 	height: 50px;
 	padding: 0 15px;
+	pointer-events: ${({ isDisabled }) => isDisabled && `none`};
 	${({ loading }) =>
 		loading &&
 		`border: dashed grey 2px;
@@ -47,7 +48,7 @@ export const Container = styled.div`
 	${({ panErrorColorCode }) =>
 		panErrorColorCode &&
 		`border: dashed ${panErrorColorCode} 2px;
-    background-color: rgba(255,255,255,.8);`}
+    background-color: rgba(255,255,255,.8);`};
 `;
 
 export const IconDelete = styled.img`

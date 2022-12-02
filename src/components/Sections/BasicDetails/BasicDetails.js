@@ -10,7 +10,11 @@ import PanUpload from './PanUpload';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 
-import { setLoginCreateUserRes, toggleTestMode } from 'store/appSlice';
+import {
+	setLoginCreateUserRes,
+	toggleTestMode,
+	setSelectedSectionId,
+} from 'store/appSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
@@ -19,7 +23,6 @@ import {
 	setSelectedApplicantCoApplicantId,
 	// addCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
-import { setSelectedSectionId } from 'store/appSlice';
 import {
 	addOrUpdateCacheDocument,
 	addCacheDocuments,
@@ -104,7 +107,9 @@ const BasicDetails = props => {
 		)?.[0] ||
 		null;
 	let prefilledProfileUploadValue = '';
-
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
 	const onProceed = async () => {
 		try {
 			setLoading(true);
@@ -504,6 +509,7 @@ const BasicDetails = props => {
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													onChangeFormStateField={onChangeFormStateField}
+													isDisabled={isViewLoan}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
@@ -561,6 +567,7 @@ const BasicDetails = props => {
 													setErrorFormStateField={setErrorFormStateField}
 													onChangeFormStateField={onChangeFormStateField}
 													clearErrorFormState={clearErrorFormState}
+													isDisabled={isViewLoan}
 												/>
 												{panErrorMessage && (
 													<UI_SECTIONS.ErrorMessage
@@ -608,7 +615,9 @@ const BasicDetails = props => {
 									field.name === CONST.INCOME_TYPE_FIELD_NAME
 								)
 									customFieldProps.disabled = true;
-								// customFieldProps.disabled = false;
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
@@ -634,50 +643,56 @@ const BasicDetails = props => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading || !isPanNumberExist}
-					onClick={handleSubmit(() => {
-						// console.log({
-						// 	isProfileMandatory,
-						// });
-						let isProfileError = false;
-						if (isProfileMandatory && profileUploadedFile === null) {
-							isProfileError = true;
-						}
-						if (
-							isEditOrViewLoan &&
-							prefilledProfileUploadValue &&
-							typeof prefilledProfileUploadValue === 'string'
-						) {
-							isProfileError = false;
-						}
-						if (isProfileError) {
-							// console.log('profile-error-', {
-							// 	isProfileError,
-							// 	profileUploadedFile,
-							// 	isEditOrViewLoan,
-							// 	value: formState?.values?.[CONST.PAN_UPLOAD_FIELD_NAME],
+				{!isViewLoan && (
+					<Button
+						fill
+						name='Proceed'
+						isLoader={loading}
+						disabled={loading || !isPanNumberExist}
+						onClick={handleSubmit(() => {
+							// console.log({
+							// 	isProfileMandatory,
 							// });
-							addToast({
-								message: 'Profile is mandatory',
-								type: 'error',
-							});
-							return;
-						}
-						// director id will be present in case of aplicant / coapplicant if they move out of basic details page
-						// so avoid opening income type popup at below condition
-						if (isEditOrViewLoan || !!selectedApplicant?.directorId) {
-							onProceed();
-							return;
-						}
-						setIsIncomeTypeConfirmModalOpen(true);
-					})}
-				/>
-
-				{isLocalhost && (
+							let isProfileError = false;
+							if (isProfileMandatory && profileUploadedFile === null) {
+								isProfileError = true;
+							}
+							if (
+								isEditOrViewLoan &&
+								prefilledProfileUploadValue &&
+								typeof prefilledProfileUploadValue === 'string'
+							) {
+								isProfileError = false;
+							}
+							if (isProfileError) {
+								// console.log('profile-error-', {
+								// 	isProfileError,
+								// 	profileUploadedFile,
+								// 	isEditOrViewLoan,
+								// 	value: formState?.values?.[CONST.PAN_UPLOAD_FIELD_NAME],
+								// });
+								addToast({
+									message: 'Profile is mandatory',
+									type: 'error',
+								});
+								return;
+							}
+							// director id will be present in case of aplicant / coapplicant if they move out of basic details page
+							// so avoid opening income type popup at below condition
+							if (isEditOrViewLoan || !!selectedApplicant?.directorId) {
+								onProceed();
+								return;
+							}
+							setIsIncomeTypeConfirmModalOpen(true);
+						})}
+					/>
+				)}
+				{isViewLoan && (
+					<>
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+				{isLocalhost && !isViewLoan && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'

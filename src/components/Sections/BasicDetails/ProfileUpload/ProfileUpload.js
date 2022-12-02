@@ -28,6 +28,7 @@ const ProfileUpload = props => {
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		onChangeFormStateField,
+		isDisabled,
 	} = props;
 	const {
 		app,
@@ -174,23 +175,25 @@ const ProfileUpload = props => {
 					</UI.CameraIconWrapper>
 				) : (
 					<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-						<UI.IconCamera
-							src={iconDelete}
-							alt='delete'
-							onClick={e => {
-								e.preventDefault();
-								e.stopPropagation();
-								if (value) {
-									onChangeFormStateField({
-										name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
-										value: '',
-									});
-									return;
-								}
-								deleteDocument(uploadedFile);
-								// setProfileImageResTemp(null);
-							}}
-						/>
+						{!isDisabled && (
+							<UI.IconCamera
+								src={iconDelete}
+								alt='delete'
+								onClick={e => {
+									e.preventDefault();
+									e.stopPropagation();
+									if (value) {
+										onChangeFormStateField({
+											name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
+											value: '',
+										});
+										return;
+									}
+									deleteDocument(uploadedFile);
+									// setProfileImageResTemp(null);
+								}}
+							/>
+						)}
 						{/* TODO: verify requirement and push back re-upload before delete */}
 						{/* <UI.IconDelete
 							src={iconDelete}
@@ -224,7 +227,7 @@ const ProfileUpload = props => {
 			) : (
 				<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
 					<input {...getInputProps()} />
-					<UI.IconCamera src={iconCameraGrey} alt='camera' />
+					{!isDisabled && <UI.IconCamera src={iconCameraGrey} alt='camera' />}
 				</UI.CameraIconWrapper>
 			)}
 		</UI.Container>

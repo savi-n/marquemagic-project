@@ -30,6 +30,7 @@ const LoanDetails = () => {
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
+		prevSectionId,
 		isTestMode,
 		isLocalhost,
 		isEditLoan,
@@ -110,6 +111,13 @@ const LoanDetails = () => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
 	const onProceed = async () => {
@@ -388,6 +396,9 @@ const LoanDetails = () => {
 										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${newField.name}`}
@@ -413,29 +424,39 @@ const LoanDetails = () => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(() => {
-						if (
-							formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
-							!selectedImdDocumentFile
-						) {
-							addToast({
-								message: 'IMD document is mandatory',
-								type: 'error',
-							});
-							return;
-						}
-						onProceed();
-					})}
-				/>
+				{!isViewLoan && (
+					<Button
+						fill
+						name='Proceed'
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(() => {
+							if (
+								formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
+								!selectedImdDocumentFile
+							) {
+								addToast({
+									message: 'IMD document is mandatory',
+									type: 'error',
+								});
+								return;
+							}
+							onProceed();
+						})}
+					/>
+				)}
+
+				{isViewLoan && (
+					<>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+
 				{!!selectedSection?.is_skip || !!isTestMode ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && (
+				{isLocalhost && !!isTestMode && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'

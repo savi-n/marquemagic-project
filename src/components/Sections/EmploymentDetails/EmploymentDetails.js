@@ -27,6 +27,7 @@ const EmploymentDetails = () => {
 		selectedSectionId,
 		selectedProduct,
 		nextSectionId,
+		prevSectionId,
 		firstSectionId,
 		isTestMode,
 		isLocalhost,
@@ -117,6 +118,13 @@ const EmploymentDetails = () => {
 		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
 		dispatch(setSelectedSectionId(firstSectionId));
+	};
+
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
 	const onProceed = async () => {
@@ -257,6 +265,9 @@ const EmploymentDetails = () => {
 										return null;
 								}
 								const customFieldProps = {};
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
@@ -292,22 +303,32 @@ const EmploymentDetails = () => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				{displayProceedCTA && (
+				{displayProceedCTA && !isViewLoan && (
 					<Button
 						fill
-						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						name='Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}
 					/>
 				)}
-				<Button
-					fill
-					name='Add Co-Applicant'
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(onAddCoApplicant)}
-				/>
+				{!isViewLoan && (
+					<Button
+						fill
+						name='Add Co-Applicant'
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(onAddCoApplicant)}
+					/>
+				)}
+				{isViewLoan && (
+					<>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+
+				{/* buttons for easy development starts */}
 				{!!selectedSection?.is_skip || !!isTestMode ? (
 					<Button
 						fill
@@ -319,13 +340,14 @@ const EmploymentDetails = () => {
 				{!!selectedSection?.is_skip || !!isTestMode ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && (
+				{isLocalhost && !!isTestMode && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'
 						onClick={() => dispatch(toggleTestMode())}
 					/>
 				)}
+				{/* buttons for easy development ends */}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
