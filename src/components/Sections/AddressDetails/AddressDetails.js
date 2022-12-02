@@ -698,18 +698,27 @@ const AddressDetails = props => {
 									customFieldProps.disabled = true;
 								}
 
+								// Untill permanent address1 is not filled disable present address proof
+								if (
+									field.name === CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME &&
+									!formState?.values?.[CONST.PERMANENT_ADDRESS1_FIELD_NAME]
+								) {
+									customFieldProps.disabled = true;
+								}
+
+								// EDIT / VIEW MODE Enable all address fields and disable all doc related fields
 								if (
 									businessAddressIdAid1 &&
 									field?.name?.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
 								) {
 									customFieldProps.disabled = true;
 								} else {
-									customFieldProps.disabled = false;
+									if (isEditOrViewLoan) customFieldProps.disabled = false;
 								}
 
 								return (
 									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${fieldIndex}-${field.name}`}
+										key={`field-${prefix}-${fieldIndex}-${field.name}`}
 										style={customStyle}
 									>
 										{register({

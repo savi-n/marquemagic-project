@@ -598,9 +598,6 @@ const PanUpload = props => {
 					loading={loading}
 					isDisabled={isDisabled}
 					panErrorColorCode={panErrorColorCode}
-					style={{
-						border: `2px dashed red`,
-					}}
 				>
 					<label>Upload{loading ? 'ing...' : null} PAN</label>
 					{loading ? (
