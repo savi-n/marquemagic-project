@@ -729,6 +729,10 @@ const AddressDetails = props => {
 									}
 								}
 
+								// TO overwrite all above condition and disable everything
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${prefix}-${fieldIndex}-${field.name}`}
