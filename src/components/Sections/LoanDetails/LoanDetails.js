@@ -348,8 +348,7 @@ const LoanDetails = () => {
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								const newField = _.cloneDeep(field);
 								const customFieldProps = {};
-								// TODO: varun to be enable after json changes
-								// if (!newField.visibility) return null;
+								if (!newField.visibility) return null;
 								if (newField?.for_type_name) {
 									if (
 										!newField?.for_type.includes(

@@ -216,26 +216,26 @@ const ReferenceDetails = () => {
 										return null;
 								}
 								const customFieldProps = {};
-								// TODO: varun handle following changes in json
 								if (isViewLoan) {
 									customFieldProps.disabled = true;
 								}
-								if (field.name.includes('pincode')) {
-									customFieldProps.type = 'pincode';
-									customFieldProps.value_for_fields = [
-										['city0', 'district'],
-										['state0', 'state'],
-									];
-									customFieldProps.rules = {
-										required: false,
-										length: 6,
-									};
-									customFieldProps.make_api_call = 6;
-									customFieldProps.mask = {
-										number_only: true,
-										character_limit: 6,
-									};
-								}
+								// handle following changes in json // remove below code after verify
+								// if (field.name.includes('pincode')) {
+								// 	customFieldProps.type = 'pincode';
+								// 	customFieldProps.value_for_fields = [
+								// 		['city0', 'district'],
+								// 		['state0', 'state'],
+								// 	];
+								// 	customFieldProps.rules = {
+								// 		required: false,
+								// 		length: 6,
+								// 	};
+								// 	customFieldProps.make_api_call = 6;
+								// 	customFieldProps.mask = {
+								// 		number_only: true,
+								// 		character_limit: 6,
+								// 	};
+								// }
 								return (
 									<>
 										{field.name === 'Name1' && <UI.Divider />}
