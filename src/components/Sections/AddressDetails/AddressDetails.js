@@ -53,6 +53,7 @@ const AddressDetails = props => {
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
+		prevSectionId,
 		isTestMode,
 		clientToken,
 		selectedSection,
@@ -184,7 +185,12 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(false);
 		}
 	};
-
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
+	};
 	const onProceed = async () => {
 		try {
 			if (!isEditOrViewLoan) {
@@ -573,6 +579,7 @@ const AddressDetails = props => {
 												checked={!!isSameAsAboveAddressChecked}
 												disabled={
 													isSectionCompleted ||
+													isViewLoan ||
 													!formState?.values?.[
 														CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS1_FIELD_NAME
 													]
@@ -611,6 +618,9 @@ const AddressDetails = props => {
 
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 								const customStyle = {};
 
 								const isIdProofUploadField =
@@ -745,23 +755,34 @@ const AddressDetails = props => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				<Button
-					fill
-					name={`${isViewLoan ? 'Next' : 'Proceed'}`}
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(onProceed)}
-				/>
-				{!!selectedSection?.is_skip || !!isTestMode ? (
+				{!isViewLoan && (
+					<Button
+						fill
+						name='Proceed'
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(onProceed)}
+					/>
+				)}
+				{isViewLoan && (
+					<>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button name='Next' onClick={naviagteToNextSection} fill />
+					</>
+				)}
+
+				{/* buttons for easy development starts */}
+				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
 				) : null}
-				{isLocalhost && (
+				{!isViewLoan && (isLocalhost && !!isTestMode) && (
 					<Button
 						fill={!!isTestMode}
 						name='Auto Fill'
 						onClick={() => dispatch(toggleTestMode())}
 					/>
 				)}
+				{/* buttons for easy development ends */}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
