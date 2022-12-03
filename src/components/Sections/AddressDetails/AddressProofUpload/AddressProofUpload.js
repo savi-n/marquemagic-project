@@ -872,6 +872,7 @@ const AddressProofUpload = props => {
 									coApplicants?.[selectedDirectorId]?.api?.verifyOtp?.res
 										?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
+									isViewLoan ||
 									verifyingWithOtp ||
 									isEditLoan ||
 									(isApplicant &&
