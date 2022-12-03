@@ -572,9 +572,10 @@ const AddressDetails = props => {
 												id={CONST.CHECKBOX_SAME_AS_ID}
 												checked={!!isSameAsAboveAddressChecked}
 												disabled={
+													isSectionCompleted ||
 													!formState?.values?.[
 														CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS1_FIELD_NAME
-													] || !!businessAddressIdAid1
+													]
 												}
 												onChange={() => {
 													setIsSameAsAboveAddressChecked(
@@ -707,13 +708,15 @@ const AddressDetails = props => {
 								}
 
 								// EDIT / VIEW MODE Enable all address fields and disable all doc related fields
-								if (
-									businessAddressIdAid1 &&
-									field?.name?.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
-								) {
-									customFieldProps.disabled = true;
-								} else {
-									if (isEditOrViewLoan) customFieldProps.disabled = false;
+								if (isSectionCompleted) {
+									if (
+										field?.name?.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
+									) {
+										customFieldProps.disabled = true;
+									} else {
+										// if (isEditOrViewLoan)
+										customFieldProps.disabled = false;
+									}
 								}
 
 								return (
