@@ -60,6 +60,8 @@ const AddressDetails = props => {
 		isLocalhost,
 		isEditLoan,
 		isEditOrViewLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
 	} = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -111,6 +113,11 @@ const AddressDetails = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 		application,
+		isEditOrViewLoan,
+		isEditLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		selectedApplicant,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
@@ -544,7 +551,7 @@ const AddressDetails = props => {
 					isInActiveAddressProofUpload = true;
 				}
 
-				if (isEditOrViewLoan) {
+				if (isViewLoan) {
 					isInActiveAddressProofUpload = true;
 				}
 
@@ -719,13 +726,10 @@ const AddressDetails = props => {
 
 								// EDIT / VIEW MODE Enable all address fields and disable all doc related fields
 								if (isSectionCompleted) {
-									if (
-										field?.name?.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
-									) {
-										customFieldProps.disabled = true;
-									} else {
-										// if (isEditOrViewLoan)
+									if (sub_section?.id?.includes('address_details')) {
 										customFieldProps.disabled = false;
+									} else {
+										customFieldProps.disabled = true;
 									}
 								}
 

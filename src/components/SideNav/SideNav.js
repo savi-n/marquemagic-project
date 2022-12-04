@@ -30,10 +30,10 @@ const SideNav = props => {
 		selectedProduct,
 		selectedSectionId,
 		applicantCoApplicantSectionIds,
-		editLoanData,
 		isEditOrViewLoan,
 		isViewLoan,
-		// nextSectionId,
+		isEditLoan,
+		editLoanDirectors,
 	} = app;
 	const {
 		applicant,
@@ -41,6 +41,10 @@ const SideNav = props => {
 		selectedApplicantCoApplicantId,
 		isApplicant,
 	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const history = useHistory();
 	const [hide, setShowHideSidebar] = useState(true);
@@ -55,36 +59,18 @@ const SideNav = props => {
 		selectedApplicantCoApplicantId,
 		application,
 		isEditOrViewLoan,
+		isEditLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		selectedApplicant,
 	});
-	// selectedProduct?.product_details?.sections?.map(section => {
-	// 	if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
-	// 		completedSections.push(section.id);
-	// 	} else {
-	// 		if (
-	// 			Object.keys(
-	// 				coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
-	// 			).length > 0
-	// 		)
-	// 			completedSections.push(section.id);
-	// 	}
-	// 	if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
-	// 		completedSections.push(section.id);
-	// 	}
-	// 	return null;
-	// });
 
 	// console.log('SideNav-allStates-', {
 	// 	app,
 	// 	selectedProduct,
 	// 	completedSections,
+	// 	selectedApplicant,
 	// });
-
-	// useEffect(() => {
-	// 	if (completedSections?.length > 0) {
-	// 		dispatch(setSelectedSectionId(nextSectionId));
-	// 	}
-	// 	// eslint-disable-next-line
-	// }, []);
 
 	return (
 		<Fragment>
@@ -99,7 +85,7 @@ const SideNav = props => {
 			>
 				<UI.ScrollBox>
 					<UI.HeadingBox onClick={e => {}}>
-						{editLoanData ? null : (
+						{isEditOrViewLoan ? null : (
 							<UI.BackButton
 								src={imgBackArrowCircle}
 								alt='goback'
@@ -108,10 +94,7 @@ const SideNav = props => {
 						)}
 						<UI.ProductName hide={hide}>
 							<span>{selectedProduct?.name}</span>
-							<UI.ApplicationNo>
-								Application No:{' '}
-								{editLoanData?.loan_ref_id || application?.loanRefId}
-							</UI.ApplicationNo>
+							<UI.ApplicationNo>Application No: {loanRefId}</UI.ApplicationNo>
 						</UI.ProductName>
 					</UI.HeadingBox>
 					{selectedProduct?.product_details?.sections?.map(

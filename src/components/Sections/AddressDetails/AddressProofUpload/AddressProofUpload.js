@@ -56,13 +56,7 @@ const AddressProofUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const {
-		selectedProduct,
-		clientToken,
-		isEditLoan,
-		isViewLoan,
-		isEditOrViewLoan,
-	} = app;
+	const { selectedProduct, clientToken, isEditLoan, isViewLoan } = app;
 	const { loanId, businessUserId } = application;
 	const {
 		selectedApplicantCoApplicantId,
@@ -840,7 +834,6 @@ const AddressProofUpload = props => {
 								}}
 								alt='upload'
 								onClick={e => {
-									if (isEditOrViewLoan) return;
 									setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
 								}}
 							/>
@@ -938,17 +931,16 @@ const AddressProofUpload = props => {
 										? doc?.name?.slice(0, 20) + '...'
 										: doc?.name}
 								</UI.FileName>
-								{!fetchingAddress ? (
-									<UI.ImgClose
-										src={imgClose}
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											deleteDocument(doc);
-										}}
-										alt='close'
-									/>
-								) : null}
+								<UI.ImgClose
+									style={{ marginRight: '60px' }}
+									src={imgClose}
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										deleteDocument(doc);
+									}}
+									alt='close'
+								/>
 								{docTypeOptions?.length > 0 && !fetchingAddress && (
 									<Popover
 										isOpen={isPopoverOpen === doc.id}

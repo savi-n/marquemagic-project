@@ -436,6 +436,7 @@ const CategoryFileUpload = props => {
 							</UI.FileName>
 							{isFileUploaded && !uploading ? (
 								<UI.ImgClose
+									style={{ marginRight: 60 }}
 									src={imgClose}
 									onClick={e => {
 										e.preventDefault();
