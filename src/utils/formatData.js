@@ -430,13 +430,37 @@ export const getCompletedSections = data => {
 		selectedApplicantCoApplicantId,
 		application,
 		isEditOrViewLoan,
+		isEditLoan,
+		editLoanDirectors,
+		applicantCoApplicantSectionIds,
+		selectedApplicant,
 	} = data;
 	const completedMenu = [];
 	selectedProduct?.product_details?.sections?.map(section => {
+		// editloan adding new coapplicant
+		if (
+			isEditLoan &&
+			!editLoanDirectors.includes(`${selectedApplicant?.directorId}`) && // new director
+			applicantCoApplicantSectionIds.includes(section?.id)
+		) {
+			if (
+				Object.keys(
+					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
+				).length > 0
+			)
+				completedMenu.push(section.id);
+			return null;
+		}
+		// -- editloan adding new coapplicant
+
+		// editloan or view loan existing applicant-co-applicant and applicaiton sections
 		if (isEditOrViewLoan) {
 			completedMenu.push(section?.id);
 			return null;
 		}
+		// -- editloan or view loan existing applicant-co-applicant and applicaiton sections
+
+		// create mode
 		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
 			completedMenu.push(section.id);
 		} else {
@@ -451,6 +475,7 @@ export const getCompletedSections = data => {
 			completedMenu.push(section.id);
 		}
 		return null;
+		// -- create mode
 	});
 	return completedMenu;
 };

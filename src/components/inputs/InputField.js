@@ -95,11 +95,11 @@ const FieldPostfixIcon = styled.span`
 	position: absolute;
 	right: 0;
 	top: 0;
-	z-index: 999;
 	font-size: 12px;
 	color: grey;
 	line-height: 50px;
 	margin-right: 3%;
+	z-index: 10;
 `;
 
 export default function InputField(props) {
@@ -121,22 +121,7 @@ export default function InputField(props) {
 				</Span>
 				{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
 			</Label>
-			{props.inrupees && (
-				<FieldPostfixIcon
-					style={{
-						position: 'absolute',
-						right: 0,
-						top: 0,
-						zIndex: 999,
-						fontSize: '12px',
-						color: 'grey',
-						lineHeight: '50px',
-						marginRight: '3%',
-					}}
-				>
-					(In ₹)
-				</FieldPostfixIcon>
-			)}
+			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
 		</Div>
 	);
 }

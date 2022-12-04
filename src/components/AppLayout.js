@@ -26,7 +26,7 @@ import {
 	setEditLoanApplicantsData,
 } from 'store/applicantCoApplicantsSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
-import Header from './Header';
+import Header from 'components/Header';
 import Loading from 'components/Loading';
 import useFetch from 'hooks/useFetch';
 
@@ -62,7 +62,10 @@ const HeaderWrapper = styled.div`
 	position: sticky;
 	top: 0px;
 	background:#fff;
-
+	@media (max-width: 700px) {
+		flex-direction: column;
+		justify-content: center;
+	}
 `;
 const Div = styled.div`
 	flex: 1;

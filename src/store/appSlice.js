@@ -58,6 +58,7 @@ const initialState = {
 	isEditOrViewLoan: false,
 	isViewLoan: false,
 	isEditLoan: false,
+	editLoanDirectors: [],
 	// isTestMode: true,
 	isTestMode: false,
 };
@@ -161,10 +162,15 @@ export const appSlice = createSlice({
 			if (isUpdateMode) {
 				state.isUpdateMode = true;
 			} else {
+				const newEditLoanDirectorIds = [];
+				editLoanData?.director_details?.map(d =>
+					newEditLoanDirectorIds.push(`${d?.id}`)
+				);
 				state.isEditOrViewLoan = !!editLoanData;
 				state.isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 				state.isEditLoan = !editLoanData ? false : editLoanData?.isEditLoan;
 				state.isCreateLoan = false;
+				state.editLoanDirectors = newEditLoanDirectorIds;
 			}
 		},
 
