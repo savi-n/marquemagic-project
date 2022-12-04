@@ -107,6 +107,7 @@ const AddressProofUpload = props => {
 			)
 				return {};
 			const reqBody = {
+				business_id: application?.businessId,
 				doc_ref_id: doc_ref_id,
 				doc_type: req_type,
 			};
