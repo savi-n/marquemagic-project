@@ -230,8 +230,8 @@ const AddressDetails = props => {
 					line2: formState?.values?.present_address2 || '',
 					locality: formState?.values?.present_address3 || '',
 					pincode: formState?.values?.present_pin_code || '',
-					city: formState?.values?.permanent_city || '',
-					state: formState?.values?.permanent_state || '',
+					city: formState?.values?.present_city || '',
+					state: formState?.values?.present_state || '',
 					residential_type: formState?.values?.present_property_type || '',
 					residential_stability:
 						formState?.values?.present_property_tenure || '',
