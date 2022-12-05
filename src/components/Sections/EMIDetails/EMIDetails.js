@@ -150,7 +150,13 @@ const EMIDetails = props => {
 			// -- TEST MODE
 
 			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
-				return application?.sections?.[selectedSectionId]?.[field?.name];
+				// special scenario for bank name prefetch
+				if (application?.sections?.[selectedSectionId]?.[field?.name]?.value) {
+					return application?.sections?.[selectedSectionId]?.[field?.name]
+						?.value;
+				} else {
+					return application?.sections?.[selectedSectionId]?.[field?.name];
+				}
 			}
 
 			let editViewLoanValue = '';

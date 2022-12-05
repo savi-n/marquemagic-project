@@ -112,7 +112,7 @@ const CollateralDetails = () => {
 			pin_code: collateralData.pincode,
 			nature_of_ownership: collateralData?.owned_type,
 			property_occupant: collateralData?.current_occupant,
-			address3: collateralData?.locality,
+			address3: collateralData?.name_landmark,
 		};
 		// console.log('predata-', { preData });
 		return preData?.[field?.name];

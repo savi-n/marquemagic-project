@@ -463,13 +463,22 @@ const AddressProofUpload = props => {
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 			setOpeningRemovingDocument(false);
 			setAddressProofError('');
-			Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
-				onChangeFormStateField({
-					name: `${prefix}${key}`,
-					value: '',
-				});
+			if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
 				return null;
-			});
+			} else if (
+				coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
+					?.status === 'ok'
+			) {
+				return null;
+			} else {
+				Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+					onChangeFormStateField({
+						name: `${prefix}${key}`,
+						value: '',
+					});
+					return null;
+				});
+			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
 			setOpeningRemovingDocument(false);

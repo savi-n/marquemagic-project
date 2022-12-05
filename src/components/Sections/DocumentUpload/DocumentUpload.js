@@ -294,8 +294,9 @@ const DocumentUpload = props => {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
 			setLoading(true);
+			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
-				mobile: +selectedApplicant?.basic_details?.mobile_no,
+				mobile: +applicant?.basic_details?.mobile_no,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
@@ -576,7 +577,7 @@ const DocumentUpload = props => {
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
-					setContactNo={selectedApplicant?.basic_details?.mobile_no}
+					setContactNo={applicant?.basic_details?.mobile_no}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
