@@ -25,6 +25,7 @@ const initialState = {
 		? process.env.REACT_APP_QA_WHITELABEL_NAME
 		: window.location.hostname,
 	isLocalhost: window.location.hostname.includes('localhost'),
+	defaultLoader: '',
 	loginCreateUserRes: null,
 	whiteLabelId: '',
 	permission: {},
@@ -187,6 +188,9 @@ export const appSlice = createSlice({
 		setIfscList: (state, action) => {
 			state.ifscList = action.payload;
 		},
+		setDefaultLoader: (state, action) => {
+			state.defaultLoader = action.payload;
+		},
 	},
 });
 
@@ -216,6 +220,8 @@ export const {
 	setIsTestMode,
 	setBankList,
 	setIfscList,
+
+	setDefaultLoader,
 } = appSlice.actions;
 
 export default appSlice.reducer;

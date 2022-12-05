@@ -20,6 +20,7 @@ export default function Loading(props) {
 		if (sessionStorage.getItem('loading_json')) {
 			try {
 				setLoaders(JSON.parse(sessionStorage.getItem('loading_json')));
+				return;
 			} catch (e) {
 				setLoaders(DefaultLogo);
 			}

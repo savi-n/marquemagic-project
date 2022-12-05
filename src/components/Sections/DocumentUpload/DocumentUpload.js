@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import moment from 'moment';
 
 import Button from 'components/Button';
 import CheckBox from 'shared/components/Checkbox/CheckBox';
@@ -23,6 +24,7 @@ import { asyncForEach } from 'utils/helper';
 import {
 	formatSectionReqBody,
 	getDocumentCategoryName,
+	parseJSON,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -155,20 +157,30 @@ const DocumentUpload = props => {
 		}
 	};
 
-	const getCoApplicantDocumentTypes = async coApplicant => {
+	const getCoApplicantDocumentTypes = async data => {
+		const { coApplicant, history } = data;
 		try {
 			// http://3.108.54.252:1337/coApplicantDocList?income_type=1
-			const coApplicantIncomeTypeId =
-				coApplicant?.basic_details?.income_type || coApplicant?.income_type;
-			let coAppDocTypesRes = await axios.get(
-				`${
-					API.CO_APPLICANTS_DOCTYPES_FETCH
-				}?income_type=${coApplicantIncomeTypeId}`
-			);
-			coAppDocTypesRes = coAppDocTypesRes?.data?.data || [];
-			// console.log('coAppDocTypesRes-', coAppDocTypesRes);
-			// coApplicant
-			// const newIncomeTypeDocTypeList = {};
+			const coApplicantIncomeTypeId = `${coApplicant?.basic_details
+				?.income_type || coApplicant?.income_type}`;
+			let coAppDocTypesRes = {};
+			// console.log('before-api-call-', {
+			// 	coApplicantIncomeTypeId,
+			// 	coAppDocTypesRes,
+			// 	history,
+			// });
+			if (history[coApplicantIncomeTypeId]) {
+				coAppDocTypesRes = history[coApplicantIncomeTypeId];
+			} else {
+				coAppDocTypesRes = await axios.get(
+					`${
+						API.CO_APPLICANTS_DOCTYPES_FETCH
+					}?income_type=${coApplicantIncomeTypeId}`
+				);
+				coAppDocTypesRes = coAppDocTypesRes?.data?.data || {};
+				history[coApplicantIncomeTypeId] = coAppDocTypesRes;
+			}
+			// console.log('coAppDocTypesRes-', { coAppDocTypesRes, history });
 			const newDocTypeList = [];
 			for (const key in coAppDocTypesRes) {
 				// console.log('coAppDocTypesRes?.data?.data-', { key });
@@ -230,6 +242,7 @@ const DocumentUpload = props => {
 			// -- APPLICANT
 
 			// CO-APPLICANTS
+			const coApplicantDocTypeResHistory = {};
 			await asyncForEach(Object.keys(coApplicants), async directorId => {
 				const oldCoApplicantDocumentTypes = allDocumentTypes?.filter(
 					docType => `${docType.directorId}` === `${directorId}`
@@ -240,7 +253,10 @@ const DocumentUpload = props => {
 					);
 				} else {
 					const newCoApplicantDocumentTypes = await getCoApplicantDocumentTypes(
-						coApplicants[directorId]
+						{
+							coApplicant: coApplicants[directorId],
+							history: coApplicantDocTypeResHistory,
+						}
 					);
 					newCoApplicantDocumentTypes.map(docType =>
 						newAllDocumentTypes.push({ ...docType })
@@ -269,19 +285,43 @@ const DocumentUpload = props => {
 				// console.log('newDocs-', { newDoc });
 				dispatch(addOrUpdateCacheDocuments({ files: newDoc }));
 			}
-
 			// console.log('allDocumentTypes-', newAllDocumentTypes);
-			// console.log('newAppDocOptions-before-sort-', { newAppDocOptions });
-			// setAllDocumentTypeList(newAppDocOptions.sort((a, b) => a.id - b.id));
-			// console.log('newAppDocOptions-', { newAppDocOptions });
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
 		} finally {
 			setLoading(false);
 		}
 	};
+
+	const initializeCommentForOfficeUse = () => {
+		if (isEditOrViewLoan) {
+			const allRemarks = parseJSON(editLoanData?.remarks);
+			const allCommentsForOfficeUse = [];
+			Object.keys(allRemarks)?.map(key => {
+				if (!!allRemarks[key]?.is_comment_for_office_use) {
+					allCommentsForOfficeUse.push(allRemarks[key]);
+				}
+				return null;
+			});
+			try {
+				allCommentsForOfficeUse.sort(
+					(a, b) => moment(b.datetime) - moment(a.datetime)
+				);
+			} catch (e) {}
+			dispatch(
+				setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
+			);
+			// console.log('allremarks-', {
+			// 	allRemarks,
+			// 	allCommentsForOfficeUse,
+			// 	newcomment: allCommentsForOfficeUse?.[0]?.comment || '',
+			// });
+		}
+	};
+
 	useEffect(() => {
 		initializeDocTypeList();
+		initializeCommentForOfficeUse();
 		// eslint-disable-next-line
 	}, []);
 
@@ -448,6 +488,7 @@ const DocumentUpload = props => {
 
 	const onBlurCommentsForOfficeUse = async () => {
 		try {
+			if (!commentsForOfficeUse) return;
 			setSavingComments(true);
 			const commentReqBody = formatSectionReqBody({
 				app,

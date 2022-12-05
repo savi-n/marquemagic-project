@@ -131,6 +131,7 @@ const MASKS = {
 	MaskValues: (value, options) => {
 		// console.log('inside mask');
 		// start value
+		value = value?.toString();
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
 			.padEnd(

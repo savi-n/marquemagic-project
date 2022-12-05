@@ -99,7 +99,7 @@ const AuthenticationOTPModal = props => {
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const { selectedProduct, userToken } = app;
-	const { businessId } = application;
+	const { businessId, loanId } = application;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
 	const [inputAuthenticationOTP, setInputAuthenticationOTP] = useState('');
@@ -138,6 +138,7 @@ const AuthenticationOTPModal = props => {
 						business_id: businessId || '',
 						otp: Number(inputAuthenticationOTP),
 						product_id: selectedProduct.id,
+						loan_id: loanId || '',
 					},
 					headers: {
 						Authorization: `Bearer ${userToken}`,
