@@ -242,7 +242,7 @@ const LoanDetails = () => {
 		const preData = {
 			loan_amount: editLoanData?.loan_amount,
 			tenure: editLoanData?.applied_tenure,
-			loan_usage_type_id: '', // TODO: pending mapping
+			loan_usage_type_id: editLoanData?.loan_usage_type?.id,
 			loan_source: editLoanData?.loan_origin,
 			connector_name: editLoanData?.connector_user_id,
 			connector_code: editLoanData?.connector_user_id,
