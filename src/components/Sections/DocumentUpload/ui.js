@@ -24,6 +24,11 @@ export const CollapseHeader = styled.div`
 	border-bottom: 1px solid #ddd;
 	/* border: 1px solid #ddd; */
 	height: 60px;
+	@media (max-width: 700px) {
+		flex-direction: column;
+		align-items: flex-start;
+		height: 100px;
+	}
 `;
 
 export const CollapseIcon = styled.img`
@@ -91,6 +96,10 @@ export const CategoryNameHeader = styled.h1`
 	font-size: 1em;
 	font-weight: 600;
 	margin-right: 20px;
+	@media (max-width: 700px) {
+		margin-left: 10px;
+		margin-top: 10px;
+	}
 `;
 
 export const UploadWrapper = styled.div`

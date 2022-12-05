@@ -21,6 +21,7 @@ import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
 import { formatSectionReqBody } from 'utils/formatData';
 import { initialFormState } from '../const';
+import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -94,6 +95,7 @@ const AadhaarOTPModal = props => {
 		aadhaarGenOtpResponse,
 		setIsVerifyWithOtpDisabled,
 		prePopulateAddressDetailsFromVerifyOtpRes,
+		formState,
 	} = props;
 	const { application, app, applicantCoApplicants } = useSelector(
 		state => state
@@ -167,7 +169,14 @@ const AadhaarOTPModal = props => {
 					res: aadhaarVerifyResponse,
 				})
 			);
-			prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
+			if (
+				formState?.values?.[
+					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+				] ===
+				CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
+			) {
+				prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
+			}
 
 			if (aadhaarVerifyResponse.status === 'ok') {
 				setIsAadhaarOtpModalOpen(false);

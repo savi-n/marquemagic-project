@@ -448,12 +448,12 @@ const BasicDetails = props => {
 		}
 	};
 
-	console.log('BasicDetails-', {
-		formState,
-		cacheDocuments,
-		panUploadedFile,
-		profileUploadedFile,
-	});
+	// console.log('BasicDetails-', {
+	// 	formState,
+	// 	cacheDocuments,
+	// 	panUploadedFile,
+	// 	profileUploadedFile,
+	// });
 
 	const isPanNumberExist = !!formState.values.pan_number;
 	let isProfileMandatory = false;

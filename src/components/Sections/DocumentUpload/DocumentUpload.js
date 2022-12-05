@@ -571,15 +571,23 @@ const DocumentUpload = props => {
 		);
 	}
 
-	const totalMandatoryDocumentCount = allDocumentTypes.filter(
-		d => !!d.isMandatory
-	)?.length;
+	const mandatoryDocumentTypeIds = [];
+	allDocumentTypes.map(doc => {
+		const UNIQ_DOC_ID = `${doc?.directorId}${doc?.doc_type_id}`;
+		if (mandatoryDocumentTypeIds.includes(UNIQ_DOC_ID)) return null;
+		if (!!doc?.isMandatory) {
+			mandatoryDocumentTypeIds.push(UNIQ_DOC_ID);
+		}
+		return null;
+	});
+	const totalMandatoryDocumentCount = mandatoryDocumentTypeIds.length;
 
 	const mendatoryDocIdTracker = [];
-	cacheDocuments?.map(d => {
-		if (mendatoryDocIdTracker.includes(d?.doc_type_id)) return null;
-		if (!!d.isMandatory) {
-			mendatoryDocIdTracker.push(d?.doc_type_id);
+	cacheDocuments?.map(doc => {
+		const UNIQ_DOC_ID = `${doc?.directorId}${doc?.doc_type_id}`;
+		if (mendatoryDocIdTracker.includes(UNIQ_DOC_ID)) return null;
+		if (mandatoryDocumentTypeIds.includes(UNIQ_DOC_ID)) {
+			mendatoryDocIdTracker.push(UNIQ_DOC_ID);
 		}
 		return null;
 	});
@@ -590,19 +598,19 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	// console.log('DocumentUpload-allStates-', {
-	// 	app,
-	// 	application,
-	// 	applicantCoApplicants,
-	// 	displayProceedButton,
-	// 	displayUploadedDocCount,
-	// 	selectedApplicant,
-	// 	selectedApplicantIncomeTypeId,
-	// 	directorId,
-	// 	allDocumentTypes,
-	// 	selectedApplicantDocumentTypes,
-	// 	cacheDocuments,
-	// });
+	console.log('DocumentUpload-allStates-', {
+		app,
+		application,
+		applicantCoApplicants,
+		displayProceedButton,
+		displayUploadedDocCount,
+		selectedApplicant,
+		selectedApplicantIncomeTypeId,
+		directorId,
+		allDocumentTypes,
+		selectedApplicantDocumentTypes,
+		cacheDocuments,
+	});
 
 	if (loading) {
 		return (
@@ -625,7 +633,7 @@ const DocumentUpload = props => {
 				/>
 			) : null}
 			{totalMandatoryDocumentCount > 0 ? (
-				<UI.CollapseBody
+				<UI.CollapseHeader
 					style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}
 				>
 					<UI.CategoryNameHeader>
@@ -635,7 +643,7 @@ const DocumentUpload = props => {
 						uploaded: totalMandatoryUploadedDocumentCount,
 						total: totalMandatoryDocumentCount,
 					})}
-				</UI.CollapseBody>
+				</UI.CollapseHeader>
 			) : null}
 			{CONST_SECTIONS.ALL_DOC_CATEGORY.map((category, categoryIndex) => {
 				const selectedDocumentTypes =

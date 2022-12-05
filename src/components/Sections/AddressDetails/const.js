@@ -44,6 +44,8 @@ export const AADHAAR_FIELD_NAME_FOR_OTP = 'permanent_aadhaar';
 export const ADDRESS_PROOF_TYPE_FIELD_NAME = 'address_proof_type';
 export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 	'permanent_address_proof_type';
+export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR =
+	'permanent_aadhar';
 export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 	'present_address_proof_type';
 export const PRESENT_ID_PROOF_UPLOAD_FIELD_NAME = 'present_id_upload';

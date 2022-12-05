@@ -468,6 +468,7 @@ const AddressDetails = props => {
 		<UI_SECTIONS.Wrapper>
 			{isAadhaarOtpModalOpen && (
 				<AadhaarOTPModal
+					formState={formState}
 					isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
 					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
 					aadhaarGenOtpResponse={aadharOtpResponse?.res}
