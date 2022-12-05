@@ -389,13 +389,13 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 };
 
 export const getApplicantCoApplicantSelectOptions = data => {
-	const { applicantCoApplicants, isEditLoan } = data;
+	const { applicantCoApplicants, isEditOrViewLoan } = data;
 	const { applicant, coApplicants } = applicantCoApplicants;
 	const options = [];
 	let applicantName = `${applicant?.basic_details?.first_name} ${
 		applicant?.basic_details?.last_name
 	}`;
-	if (isEditLoan) {
+	if (isEditOrViewLoan) {
 		applicantName = `${applicant?.dfirstname} ${applicant?.dlastname}`;
 	}
 	options.push({
@@ -407,7 +407,7 @@ export const getApplicantCoApplicantSelectOptions = data => {
 			coApplicants?.[directorId]?.basic_details?.first_name
 		} ${coApplicants?.[directorId]?.basic_details?.last_name}`;
 
-		if (isEditLoan) {
+		if (isEditOrViewLoan) {
 			coApplicantName = `${coApplicants?.[directorId]?.dfirstname} ${
 				coApplicants?.[directorId]?.dlastname
 			}`;

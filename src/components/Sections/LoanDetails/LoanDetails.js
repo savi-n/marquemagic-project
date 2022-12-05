@@ -249,6 +249,7 @@ const LoanDetails = () => {
 			...imdDetails,
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
+			imd_paid_by: imdDetails?.imd_paid_by,
 		};
 		return preData?.[field?.name];
 	};
@@ -360,7 +361,7 @@ const LoanDetails = () => {
 								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
 									const newOptions = getApplicantCoApplicantSelectOptions({
 										applicantCoApplicants,
-										isEditLoan,
+										isEditOrViewLoan,
 									});
 									newField.options = [...newOptions, ...newField.options];
 								}
