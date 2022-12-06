@@ -8,7 +8,7 @@ import Button from 'components/Button';
 import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
 import {
 	createIndexKeyObjectFromArrayOfObject,
 	formatSectionReqBody,
@@ -77,18 +77,21 @@ const EMIDetails = props => {
 			});
 
 			emiDetailsReqBody.data.emi_details = newValues;
-			if (emiDetailsFinId) emiDetailsReqBody.fin_id = emiDetailsFinId;
+			if (emiDetailsFinId) emiDetailsReqBody.data.fin_id = emiDetailsFinId;
 
 			// console.log('-emiDetailsRes-', {
 			// 	emiDetailsReqBody,
 			// });
 			// return;
-			// const emiDetailsRes =
 			if (emiDetailsReqBody.data.emi_details?.length > 0) {
-				await axios.post(
+				const emiDetailsRes = await axios.post(
 					`${API_END_POINT}/addBankDetailsNew`,
 					emiDetailsReqBody
 				);
+				if (!emiDetailsFinId)
+					dispatch(
+						setLoanIds({ emiDetailsFinId: emiDetailsRes?.data?.data?.id })
+					);
 			}
 			// console.log('-emiDetailsRes-', {
 			// 	emiDetailsRes,

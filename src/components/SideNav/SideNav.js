@@ -4,8 +4,8 @@ import {
 	useState,
 	// useEffect
 } from 'react';
+import queryString from 'query-string';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	faChevronLeft,
@@ -46,7 +46,6 @@ const SideNav = props => {
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
-	const history = useHistory();
 	const [hide, setShowHideSidebar] = useState(true);
 	const isApplicationSubmitted =
 		selectedSectionId === CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID;
@@ -89,7 +88,14 @@ const SideNav = props => {
 							<UI.BackButton
 								src={imgBackArrowCircle}
 								alt='goback'
-								onClick={() => history.push('/nconboarding/applyloan')}
+								onClick={() => {
+									const params = queryString.parse(window.location.search);
+									let redirectURL = `/nconboarding/applyloan`;
+									if (params?.token) {
+										redirectURL += `?token=${params.token}`;
+									}
+									window.open(redirectURL, '_self');
+								}}
 							/>
 						)}
 						<UI.ProductName hide={hide}>
@@ -102,7 +108,11 @@ const SideNav = props => {
 							const isActive = selectedSectionId === section.id;
 							const isCompleted = completedSections.includes(section.id);
 							const customStyle = { cursor: 'not-allowed', color: 'lightgrey' };
-							if (!isApplicationSubmitted && (isCompleted || isActive)) {
+							if (
+								!isApplicationSubmitted &&
+								(isCompleted || isActive) &&
+								section.id !== CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
+							) {
 								customStyle.cursor = 'pointer';
 								customStyle.color = 'white';
 							}
@@ -114,7 +124,12 @@ const SideNav = props => {
 										<UI.Link
 											style={customStyle}
 											onClick={e => {
-												if (isApplicationSubmitted) return;
+												if (
+													isApplicationSubmitted ||
+													section.id ===
+														CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
+												)
+													return;
 												if (isCompleted || isActive) {
 													dispatch(setSelectedSectionId(section.id));
 												}

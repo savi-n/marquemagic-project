@@ -11,6 +11,7 @@ emiDetailsFinId
 */
 
 const initialState = {
+	borrowerUserId: '',
 	loanRefId: '',
 	loanId: '',
 	businessId: '',
@@ -54,6 +55,7 @@ export const applicantSlice = createSlice({
 				emiDetailsFinId,
 				businessAddressIdAid1,
 				businessAddressIdAid2,
+				borrowerUserId,
 			} = action.payload;
 			if (loanRefId) state.loanRefId = loanRefId;
 			if (loanId) state.loanId = loanId;
@@ -71,6 +73,7 @@ export const applicantSlice = createSlice({
 				state.businessAddressIdAid1 = businessAddressIdAid1;
 			if (businessAddressIdAid2)
 				state.businessAddressIdAid2 = businessAddressIdAid2;
+			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
 		setloanRefId: (state, action) => {
 			state.loanRefId = action.payload;
@@ -229,6 +232,9 @@ export const applicantSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
+		clearAllCacheDocuments: (state, action) => {
+			state.cacheDocuments = [];
+		},
 		// -- CACHE DOCUMENT RELATED ACTIONS
 
 		// API
@@ -272,6 +278,7 @@ export const {
 	updateCacheDocumentPassword,
 	updateCacheDocumentProgress,
 	updateCacheDocumentsFdKey,
+	clearAllCacheDocuments,
 
 	addAllDocumentTypes,
 

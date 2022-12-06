@@ -68,8 +68,8 @@ const BasicDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { cacheDocuments, bankDetailsFinId } = application;
 	const { directorId } = selectedApplicant;
+	const { cacheDocuments, borrowerUserId } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -123,7 +123,8 @@ const BasicDetails = props => {
 
 			// call login api only once
 			// TODO: varun do not call this api when RM is creating loan
-			if (!userToken) {
+			let newBorrowerUserId = '';
+			if (!isEditOrViewLoan && !borrowerUserId) {
 				const loginCreateUserReqBody = {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
@@ -138,22 +139,30 @@ const BasicDetails = props => {
 					loginCreateUserReqBody
 				);
 				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
+				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
 				axios.defaults.headers.Authorization = `Bearer ${
 					newLoginCreateUserRes?.data?.token
 				}`;
+				// console.log('onProceed-loginCreateUserReqRes-', {
+				// 	loginCreateUserReqBody,
+				// 	newLoginCreateUserRes,
+				// });
+				// return;
 			} else {
 				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
 
-			// console.log('onProceed-loginCreateUserReqRes-', {
-			// 	loginCreateUserReqBody,
-			// 	loginCreateUserRes,
-			// });
-			// return;
 			const selectedIncomeType =
 				formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
-			const selectedLoanProductId =
-				selectedProduct?.product_id[selectedIncomeType];
+
+			// loan product is is only applicable for applicant
+			// it should not be overritten when coapplicant is income type is different then applicant
+			let selectedLoanProductId = '';
+			if (isApplicant) {
+				selectedLoanProductId =
+					selectedProduct?.product_id?.[selectedIncomeType];
+			}
+
 			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
@@ -175,11 +184,11 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
-			if (bankDetailsFinId) basicDetailsReqBody.fin_id = bankDetailsFinId;
 
-			// TEST MODE
-			// return dispatch(setSelectedSectionId(nextSectionId));
-			// -- TEST MODE
+			// pass this id in only create mode
+			if (!isEditOrViewLoan && !borrowerUserId) {
+				basicDetailsReqBody.borrower_user_id = newBorrowerUserId;
+			}
 
 			// console.log('onProceed-basicDetailsReq-', {
 			// 	basicDetailsReqBody,
@@ -187,6 +196,7 @@ const BasicDetails = props => {
 			// 	profileUploadedFile,
 			// });
 			// return;
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -307,6 +317,7 @@ const BasicDetails = props => {
 					businessUserId: newBusinessUserId,
 					loanProductId: selectedLoanProductId,
 					createdByUserId: newCreatedByUserId,
+					borrowerUserId: newBorrowerUserId,
 				})
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
@@ -456,8 +467,12 @@ const BasicDetails = props => {
 	// });
 
 	const isPanNumberExist = !!formState.values.pan_number;
-	let isProfileMandatory = false;
-	let isPanUploadMandatory = true;
+	const isProfileMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
+		field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+	)?.[0]?.rules?.required;
+	const isPanUploadMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
+		field => field.name === CONST.PAN_UPLOAD_FIELD_NAME
+	)?.[0]?.rules?.required;
 
 	const ButtonProceed = (
 		<Button
@@ -510,7 +525,6 @@ const BasicDetails = props => {
 									field.type === 'file' &&
 									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 								) {
-									isProfileMandatory = !!field?.rules?.required;
 									prefilledProfileUploadValue = prefilledValues(field);
 									return (
 										<UI_SECTIONS.FieldWrapGrid
@@ -546,7 +560,6 @@ const BasicDetails = props => {
 											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name]) ||
 										'';
-									isPanUploadMandatory = !!field?.rules?.required;
 									// console.log('pancard-error-msg-', {
 									// 	panErrorMessage,
 									// });

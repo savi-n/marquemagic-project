@@ -95,16 +95,15 @@ const AddressProofUpload = props => {
 			// 	data,
 			// 	selectedProduct,
 			// });
-			if (
-				!selectedProduct?.product_details?.kyc_verification ||
-				req_type === CONST_SECTIONS.EXTRACTION_KEY_AADHAAR
-			)
-				return {};
+			if (!selectedProduct?.product_details?.kyc_verification) return {};
 			const reqBody = {
 				business_id: application?.businessId,
 				doc_ref_id: doc_ref_id,
 				doc_type: req_type,
 			};
+			if (req_type === CONST_SECTIONS.EXTRACTION_KEY_AADHAAR) {
+				reqBody.number = extractionData?.Aadhar_number || '';
+			}
 			if (req_type === CONST_SECTIONS.EXTRACTION_KEY_DL) {
 				reqBody.number = extractionData?.dl_no || '';
 				reqBody.dob = extractionData?.dob || extractionData?.DOB || '';

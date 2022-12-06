@@ -37,6 +37,7 @@ export const AID_PERMANENT = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
 export const ADDRESSPROOF = 'addressproof';
 
+export const PERMANENT_ADDRESS_DETAILS_SECTION_ID = 'permanent_address_details';
 export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
 export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
 export const AADHAAR_FIELD_NAME = 'aadhaar';

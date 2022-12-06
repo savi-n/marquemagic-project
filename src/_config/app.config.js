@@ -28,6 +28,7 @@ const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userI
 const DOCS_UPLOAD_URL_LOAN = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userid=${'userId'}`;
 
 const BORROWER_UPLOAD_URL = `${API_END_POINT}/borrowerdoc-upload`;
+const TO_APPLICATION_STAGE_URL = `${API_END_POINT}/toApplicationStage`;
 
 const GENERATE_OTP_URL = `${API_END_POINT}/cub/generateOtp`;
 
@@ -209,4 +210,5 @@ export {
 	UPLOAD_PROFILE_IMAGE,
 	ADD_COMMENTS_FOR_OFFICE_USE,
 	TEST_DOMAINS,
+	TO_APPLICATION_STAGE_URL,
 };

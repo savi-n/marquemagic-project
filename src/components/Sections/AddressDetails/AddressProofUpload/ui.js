@@ -483,6 +483,10 @@ export const DocumentTaggingSectionWrapper = styled.div`
 	transition: all 0.3s ease-in-out;
 	height: ${({ isDocumentTaggingOpen }) =>
 		isDocumentTaggingOpen ? '250px' : '0'};
+	@media (max-width: 768px) {
+		height: ${({ isDocumentTaggingOpen }) =>
+			isDocumentTaggingOpen ? '400px' : '0'};
+	}
 `;
 
 export const DocTypeChangeModalBody = styled.div`

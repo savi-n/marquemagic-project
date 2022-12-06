@@ -127,3 +127,12 @@ export const Divider = styled.div`
 	border: 1px solid #eee;
 	margin: 40px 0;
 `;
+
+export const CommentsForOfficeUserWrapper = styled.div``;
+
+export const CommentsForOfficeUseFieldName = styled.div`
+	color: #0068ff;
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 5px;
+`;
