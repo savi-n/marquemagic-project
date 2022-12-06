@@ -695,6 +695,8 @@ const AddressDetails = props => {
 										.length > 0
 								) {
 									customFieldProps.disabled = false;
+								} else if (selectedAddressProofId?.includes('others')) {
+									customFieldProps.disabled = false;
 								} else {
 									if (
 										!field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
