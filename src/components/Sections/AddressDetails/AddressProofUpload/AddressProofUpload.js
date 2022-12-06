@@ -82,7 +82,6 @@ const AddressProofUpload = props => {
 		false
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
-
 	let refCounter = 0;
 
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
@@ -1175,19 +1174,20 @@ const AddressProofUpload = props => {
 					})}
 				</UI.DocumentUploadListWrapper>
 				<UI.CTAWrapper>
-					{!addressProofError && (
-						<Button
-							fill
-							name='Fetch Address'
-							isLoader={fetchingAddress}
-							disabled={
-								fetchingAddress ||
-								cacheDocumentsTemp.length <= 0 ||
-								addressProofError
-							}
-							onClick={onClickFetchAddress}
-						/>
-					)}
+					{!addressProofError &&
+						!selectedAddressProofId?.includes('others') && (
+							<Button
+								fill
+								name='Fetch Address'
+								isLoader={fetchingAddress}
+								disabled={
+									fetchingAddress ||
+									cacheDocumentsTemp.length <= 0 ||
+									addressProofError
+								}
+								onClick={onClickFetchAddress}
+							/>
+						)}
 				</UI.CTAWrapper>
 			</UI.DocumentTaggingSectionWrapper>
 		</UI.Wrapper>

@@ -10,14 +10,14 @@ export const EXTRACTION_KEY_DL = 'DL';
 export const EXTRACTION_KEY_AADHAAR = 'aadhar';
 export const EXTRACTION_KEY_VOTERID = 'voter';
 export const EXTRACTION_KEY_PASSPORT = 'passport';
-// export const EXTRACTION_KEY_OTHERS = 'others';
+export const EXTRACTION_KEY_OTHERS = 'others';
 
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
 	EXTRACTION_KEY_DL,
 	EXTRACTION_KEY_VOTERID,
 	EXTRACTION_KEY_PASSPORT,
-	// EXTRACTION_KEY_OTHERS,
+	EXTRACTION_KEY_OTHERS,
 ];
 
 export const EXTRACTION_KEYS = [
@@ -130,29 +130,29 @@ export const ADDRESS_PROOF_DOC_TYPE_LIST = {
 			name: 'Passport Front and Back',
 		},
 	],
-	// [EXTRACTION_KEY_OTHERS]: [
-	// 	{
-	// 		typeId: 513,
-	// 		value: 513,
-	// 		doc_type_id: 513,
-	// 		id: 513,
-	// 		name: 'Other Front Part',
-	// 	},
-	// 	{
-	// 		typeId: 514,
-	// 		value: 514,
-	// 		doc_type_id: 514,
-	// 		id: 514,
-	// 		name: 'Other Back Part',
-	// 	},
-	// 	{
-	// 		typeId: 515,
-	// 		value: 515,
-	// 		doc_type_id: 515,
-	// 		id: 515,
-	// 		name: 'Other Front and Back',
-	// 	},
-	// ],
+	[EXTRACTION_KEY_OTHERS]: [
+		{
+			typeId: 513,
+			value: 513,
+			doc_type_id: 513,
+			id: 513,
+			name: 'Other Front Part',
+		},
+		{
+			typeId: 514,
+			value: 514,
+			doc_type_id: 514,
+			id: 514,
+			name: 'Other Back Part',
+		},
+		{
+			typeId: 515,
+			value: 515,
+			doc_type_id: 515,
+			id: 515,
+			name: 'Other Front and Back',
+		},
+	],
 };
 
 export const EXTRACTION_FLAG_SUCCESS = 'Success:';
