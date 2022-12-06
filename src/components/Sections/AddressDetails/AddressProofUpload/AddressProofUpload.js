@@ -905,6 +905,7 @@ const AddressProofUpload = props => {
 			</UI.DropZoneOtpFieldWrapper>
 			<UI.DocumentTaggingSectionWrapper
 				isDocumentTaggingOpen={isDocumentTaggingOpen}
+				isFetchAddressButton={selectedAddressProofId?.includes('others')}
 			>
 				{displayTagMessage ? (
 					<UI.WarningMessage>
