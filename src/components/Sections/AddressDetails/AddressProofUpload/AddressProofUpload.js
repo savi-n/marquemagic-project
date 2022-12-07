@@ -620,6 +620,7 @@ const AddressProofUpload = props => {
 			} else {
 				newCacheDocumentTemp.push(f);
 			}
+			return null;
 		});
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 

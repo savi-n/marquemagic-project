@@ -59,7 +59,6 @@ const AddressDetails = props => {
 		prevSectionId,
 		isTestMode,
 		clientToken,
-		userToken,
 		selectedSection,
 		isLocalhost,
 		isEditLoan,

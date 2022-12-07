@@ -77,7 +77,6 @@ const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
 const CIN_UPDATE = `${API_END_POINT}/cin-update`;
 
 const UPLOAD_CACHE_DOCS = `${ENDPOINT_BANK}/uploadCacheDocuments`;
-const LENDER_DOC_UPLOAD = `${API_END_POINT}/lenderdoc-upload`;
 const AADHAAR_GENERATE_OTP = `${ENDPOINT_BANK}/aadhaar/generateOTP`;
 const AADHAAR_VERIFY_OTP = `${ENDPOINT_BANK}/aadhaar/verifyOTP`;
 const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
@@ -181,7 +180,6 @@ export {
 	KYC_URL,
 	CIN_UPDATE,
 	UPLOAD_CACHE_DOCS,
-	LENDER_DOC_UPLOAD,
 	AADHAAR_GENERATE_OTP,
 	AADHAAR_VERIFY_OTP,
 	AADHAAR_RESEND_OTP,
