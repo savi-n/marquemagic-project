@@ -277,20 +277,18 @@ const AddressDetails = props => {
 				...otherPermanentCacheDocTemp,
 				...otherPresentCacheDocTemp,
 			];
-			console.log('otherdocs', otherdocs);
+
 			const newUploadedDocuments = [];
 			if (otherdocs.length > 0) {
 				const formData = new FormData();
 				const otherDocsBorrowerApi = [];
 				const callLoanDocUpload = async idx => {
-					console.log(idx);
 					formData.append('document', idx.file);
 					let result = await axios.post(
 						`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
 						formData
 					);
 					let leng = result.data.files.length;
-					console.log('api result - ', result.data.files[leng - 1]);
 					let fd = { ...idx, document_key: result.data.files[leng - 1].fd };
 					otherDocsBorrowerApi.push(fd);
 				};
@@ -302,8 +300,6 @@ const AddressDetails = props => {
 					application,
 				});
 
-				console.log('before map function', otherdocs);
-				console.log('before map borr', otherDocsBorrowerApi);
 				otherDocsBorrowerApi?.map(doc => {
 					if (doc?.document_id) return null;
 					newUploadedDocuments.push({
@@ -317,10 +313,8 @@ const AddressDetails = props => {
 					});
 					return null;
 				});
-				console.log('wait');
 				documentUploadReqBody.data.document_upload = newUploadedDocuments;
 
-				console.log('documentUploadReqBody- ', documentUploadReqBody);
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
 			const cacheDocumentsTemp = [
@@ -363,10 +357,6 @@ const AddressDetails = props => {
 								},
 							}
 						);
-						console.log('--------------------------------');
-						console.log('uploadCacheDocumentsTemp', uploadCacheDocumentsTemp);
-						console.log('otherDocsBorrowerApi', newUploadedDocuments);
-						console.log('--------------------------------');
 						dispatch(
 							addCacheDocuments({
 								files: [...uploadCacheDocumentsTemp, ...newUploadedDocuments],

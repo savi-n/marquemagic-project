@@ -602,7 +602,6 @@ const AddressProofUpload = props => {
 
 	const onChange = async event => {
 		let files = [...event.target.files];
-		console.log(files);
 		files = await handleUpload(files);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 
@@ -623,12 +622,7 @@ const AddressProofUpload = props => {
 			}
 		});
 		setCacheDocumentsTemp(newCacheDocumentTemp);
-		console.log(
-			'__',
-			newCacheDocumentTemp,
-			'__',
-			_.cloneDeep(cacheDocumentsTemp)
-		);
+
 		// console.log('FileUpload-onChange-', {
 		// 	pan,
 		// 	disabled,
@@ -728,8 +722,6 @@ const AddressProofUpload = props => {
 		if (!!doc?.isTagged) taggedDocumentCount += 1;
 		return null;
 	});
-
-	console.log(cacheDocumentsTemp, 'cacheDocumentsTemp');
 
 	displayTagMessage = cacheDocumentsTemp.length !== taggedDocumentCount;
 	const addressProofErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
