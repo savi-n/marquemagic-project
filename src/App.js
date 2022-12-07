@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import AppLayout from './components/AppLayout';
 import { AppProvider } from './reducer/appReducer';
 import { ToastProvider } from './components/Toast/ToastProvider';
+import './App.css';
 
 const AppWrapper = styled.div`
 	height: 100%;

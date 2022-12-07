@@ -1,7 +1,6 @@
 /* A generic modal is created here which is used to create other Modals like AadharModal */
 
 import { createPortal } from 'react-dom';
-import { bool } from 'prop-types';
 import styled from 'styled-components';
 
 const Backdrop = styled.div`
@@ -43,17 +42,17 @@ const Modalbody = styled.div`
 	}
 `;
 
-export default function Modal({
-	show,
-	backdrop,
-	bg,
-	children,
-	width,
-	onClose = () => {
-		console.info('close');
-	},
-	customStyle,
-}) {
+const Modal = props => {
+	const {
+		show = false,
+		backdrop = true,
+		children,
+		width,
+		onClose = () => {
+			console.info('close');
+		},
+		customStyle,
+	} = props;
 	const root = document.body;
 	if (!show) return null;
 	return createPortal(
@@ -64,7 +63,8 @@ export default function Modal({
 					width={width}
 					onClick={e => {
 						e.stopPropagation();
-					}}>
+					}}
+				>
 					{children}
 				</Modalbody>
 			</Backdrop>
@@ -72,14 +72,6 @@ export default function Modal({
 		</>,
 		root
 	);
-}
-
-Modal.defaultProps = {
-	show: false,
-	backdrop: true,
 };
 
-Modal.propTypes = {
-	show: bool,
-	// backdrop: oneOf([bool, number])
-};
+export default Modal;

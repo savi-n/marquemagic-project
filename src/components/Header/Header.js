@@ -1,11 +1,11 @@
 /* Header section for the application */
-
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { string } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/Button';
+import * as UI from './ui';
 
 // const Div = styled.div`
 // 	margin-left: auto;
@@ -22,11 +22,22 @@ const Logo = styled.img`
 	}
 `;
 
-export default function Header(props) {
+const Header = props => {
 	const { logo, openAccount, openAccountLink, logoLink } = props;
+	const { app, application } = useSelector(state => state);
+	const { userToken: reduxUserToken } = app;
+	const { loanRefId: reduxLoanRefId } = application;
 	const [corporateName, setCorporateName] = useState('');
 	const [backToDashboard, setBackToDashboard] = useState(false);
 	const [loanRefId, setLoanRefId] = useState('');
+
+	useEffect(() => {
+		if (reduxUserToken) {
+			setBackToDashboard(true);
+			if (!reduxLoanRefId) return;
+			setLoanRefId(reduxLoanRefId);
+		}
+	}, [reduxLoanRefId, reduxUserToken]);
 
 	const redirectDashboard = e => {
 		e.preventDefault();
@@ -39,6 +50,11 @@ export default function Header(props) {
 			window.open(`${window.origin}/newui/main/dashboard`, '_self');
 		}
 	};
+
+	// console.log('header-usereffecto-', {
+	// 	reduxLoanRefId,
+	// 	reduxUserToken,
+	// });
 
 	useEffect(() => {
 		try {
@@ -58,9 +74,12 @@ export default function Header(props) {
 
 	return (
 		<>
-			<a href={logoLink ? logoLink : '/'} {...logoLink && { target: '_blank' }}>
+			<UI.LogoLink
+				href={logoLink ? logoLink : '/'}
+				{...logoLink && { target: '_blank' }}
+			>
 				<Logo src={logo} alt='logo' />
-			</a>
+			</UI.LogoLink>
 			{corporateName && (
 				<div
 					style={{
@@ -75,13 +94,13 @@ export default function Header(props) {
 				</div>
 			)}
 			{backToDashboard && (
-				<div className='px-5' style={{ marginLeft: 'auto', width: 'auto' }}>
+				<UI.ButtonBackToDashboardWrapper>
 					<Button onClick={redirectDashboard} customStyle={{ width: 'auto' }}>
 						<span>
 							{loanRefId ? 'BACK TO LOAN LISTING' : 'BACK TO DASHBOARD'}
 						</span>
 					</Button>
-				</div>
+				</UI.ButtonBackToDashboardWrapper>
 			)}
 
 			{openAccount && (
@@ -94,8 +113,6 @@ export default function Header(props) {
 			)}
 		</>
 	);
-}
-
-Header.propTypes = {
-	logo: string.isRequired,
 };
+
+export default Header;

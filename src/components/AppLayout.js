@@ -1,14 +1,33 @@
 /* App layout like color, theme and logo and routes are defined in this section  */
 
 import { useEffect, useState, useContext, Suspense, lazy } from 'react';
+import { useDispatch } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
+import _ from 'lodash';
 
+import {
+	setEditLoanData,
+	setUserDetails,
+	setWhiteLabelId as appSetWhiteLabelId,
+	setClientToken as appSetClientToken,
+	// reInitializeAppSlice,
+	setUserToken,
+} from 'store/appSlice';
+import {
+	// reInitializeApplicationSlice,
+	setLoanIds,
+	addOrUpdateCacheDocuments,
+} from 'store/applicationSlice';
+import {
+	// reInitializeApplicantCoApplicantSlice,
+	setEditLoanApplicantsData,
+} from 'store/applicantCoApplicantsSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
-import Header from './Header';
-import Loading from './Loading';
+import Header from 'components/Header';
+import Loading from 'components/Loading';
 import useFetch from 'hooks/useFetch';
 
 import {
@@ -21,10 +40,14 @@ import {
 	APP_CLIENT,
 	API_END_POINT,
 	WHITELABEL_ENCRYPTION_API,
+	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 } from '_config/app.config.js';
 import { AppContext } from 'reducer/appReducer';
 import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
+import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
+import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
+import { formatLenderDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -39,7 +62,10 @@ const HeaderWrapper = styled.div`
 	position: sticky;
 	top: 0px;
 	background:#fff;
-
+	@media (max-width: 700px) {
+		flex-direction: column;
+		justify-content: center;
+	}
 `;
 const Div = styled.div`
 	flex: 1;
@@ -51,9 +77,10 @@ const Div = styled.div`
 `;
 
 const ApplyLoanContent = lazy(() => import('./ApplyLoanContent'));
-// const BranchUserContent = lazy(() => import('./BranchUserContent'));
+// const SomethingWentWrong = lazy(() => import('./SomethingWentWrong'));
 
 const AppLayout = () => {
+	const dispatch = useDispatch();
 	const { response, newRequest } = useFetch({
 		url: WHITE_LABEL_URL({ name: APP_CLIENT }),
 	});
@@ -76,7 +103,7 @@ const AppLayout = () => {
 				});
 
 				const clientId = res.data;
-
+				dispatch(appSetClientToken(clientId.token));
 				if (clientId?.statusCode === 200) {
 					const bankToken = await newRequest(
 						BANK_TOKEN_API,
@@ -110,16 +137,16 @@ const AppLayout = () => {
 			let decryptedToken = {};
 			try {
 				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
-				if (params?.token) {
+				if (params?.token && decryptedToken.loan_ref_id) {
 					const loanDetailsRes = await axios.get(
-						`${API_END_POINT}/getDetailsWithLoanRefId?loan_ref_id=${
+						`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${
 							decryptedToken.loan_ref_id
 						}`
 					);
 					const isEditLoan = decryptedToken.edit ? true : false;
 					const newEditLoanData =
 						{
-							...loanDetailsRes?.data?.data,
+							..._.cloneDeep(loanDetailsRes?.data?.data),
 							isEditLoan,
 							token: decryptedToken.token,
 						} || {};
@@ -141,6 +168,56 @@ const AppLayout = () => {
 					}
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
+					dispatch(setUserToken(decryptedToken.token));
+					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
+					dispatch(
+						setEditLoanApplicantsData({ editLoanData: newEditLoanData })
+					);
+					dispatch(
+						setLoanIds({
+							loanRefId: newEditLoanData?.loan_ref_id,
+							loanId: newEditLoanData?.id,
+							businessId: newEditLoanData?.business_id?.id,
+							businessUserId: newEditLoanData?.business_id?.userid,
+							loanProductId: newEditLoanData?.loan_product_id,
+							createdByUserId: newEditLoanData?.createdUserId,
+							loanAssetsId: newEditLoanData?.loan_assets?.[0]?.id,
+							assetsAdditionalId: newEditLoanData?.assets_additional_id,
+							refId1: newEditLoanData?.reference_details?.[0]?.id,
+							refId2: newEditLoanData?.reference_details?.[1]?.id,
+							bankDetailsFinId: newEditLoanData?.bank_details?.filter(
+								bank =>
+									bank?.fin_type === CONST_BANK_DETAILS.FIN_TYPE_BANK_ACCOUNT
+							)?.[0]?.id,
+							emiDetailsFinId: newEditLoanData?.bank_details?.filter(
+								bank =>
+									bank?.fin_type ===
+									CONST_EMI_DETAILS.FIN_TYPE_OUTSTANDING_LOANS
+							)?.[0]?.id,
+							businessAddressIdAid1: newEditLoanData?.business_address?.filter(
+								address => `${address?.aid}` === '1'
+							)?.[0]?.id,
+							businessAddressIdAid2: newEditLoanData?.business_address?.filter(
+								address => `${address?.aid}` === '2'
+							)?.[1]?.id,
+						})
+					);
+					const newDocs = formatLenderDocuments(
+						newEditLoanData?.loan_document || []
+					);
+					// const newDocs = [];
+					// newEditLoanData?.loan_document?.map(doc => {
+					// 	const newDoc = {
+					// 		...(doc?.loan_document_details?.[0] || {}),
+					// 		...doc,
+					// 		document_id: doc?.id,
+					// 		doc_type_id: doc.doctype,
+					// 		name: getDocumentNameFromLoanDocuments(doc),
+					// 	};
+					// 	newDocs.push(newDoc);
+					// 	return null;
+					// });
+					dispatch(addOrUpdateCacheDocuments({ files: newDocs }));
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(
@@ -186,6 +263,7 @@ const AppLayout = () => {
 				}
 			} catch (error) {
 				console.error('error-getDetailsWithLoanRefId-', error);
+				// window.open('/somethingwentwrong', '_self');
 			}
 			try {
 				if (params.cid || params.uid || decryptedToken?.userId) {
@@ -202,6 +280,11 @@ const AppLayout = () => {
 					);
 					const userDetails = userRes?.data?.data;
 					// console.log('userres-data-', userDetails);
+					dispatch(setUserDetails(userDetails));
+					if (decryptedToken?.token) {
+						dispatch(setUserToken(decryptedToken?.token));
+						sessionStorage.setItem('userToken', decryptedToken?.token);
+					}
 					const stringifyUserDetails = JSON.stringify(userDetails);
 					if (params.cid) {
 						sessionStorage.setItem('corporateDetails', stringifyUserDetails);
@@ -216,7 +299,11 @@ const AppLayout = () => {
 			setLoading(false);
 		}
 		if (response) {
+			// dispatch(reInitializeAppSlice());
+			// dispatch(reInitializeApplicantCoApplicantSlice());
+			// dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
+			dispatch(appSetWhiteLabelId(response?.permission?.id));
 
 			sessionStorage.setItem(
 				'permission',
@@ -258,12 +345,12 @@ const AppLayout = () => {
 					<BrowserRouter basename='/nconboarding'>
 						<Suspense fallback={<Loading />}>
 							<Switch>
-								{/* <Route
-									path='/branch'
-									manager={true}
-									component={BranchUserContent}
-								/> */}
 								<Route path='/applyloan' component={ApplyLoanContent} />
+								{/* <Route
+									path='/somethingwentwrong'
+									component={SomethingWentWrong}
+									exact
+								/> */}
 								<Route render={() => <Redirect to='/applyloan' />} />
 							</Switch>
 						</Suspense>

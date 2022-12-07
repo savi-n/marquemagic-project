@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, createContext } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
 
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/BankList';
@@ -130,6 +131,7 @@ const MASKS = {
 	MaskValues: (value, options) => {
 		// console.log('inside mask');
 		// start value
+		value = value?.toString();
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
 			.padEnd(
@@ -147,7 +149,7 @@ const MASKS = {
 
 function revealMask(masks, value) {
 	for (const mask in masks) {
-		if (masks[mask]) {
+		if (masks[mask] && MASKS[mask]) {
 			value = MASKS[mask](value, masks[mask]);
 		}
 	}
@@ -239,7 +241,20 @@ export default function useForm() {
 		updateFormState(uuidv4());
 	};
 
-	const register = newField => {
+	const register = field => {
+		// if (field.name.includes('AccountNumber')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountHolderName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('BankName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountType')) {
+		// 	field.rules = {};
+		// }
+		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
@@ -276,7 +291,7 @@ export default function useForm() {
 		if (!isViewLoan && newField?.mask?.MaskValues) {
 			// console.log(
 			// 	'deleted masking as it is not view loan and field has maskvalues',
-			// 	newField.name
+			// 	{ newField }
 			// );
 			delete newField?.mask?.MaskValues;
 		}
@@ -385,7 +400,7 @@ export default function useForm() {
 			values: valuesRef.current,
 		},
 		clearError,
-		onUseFormFieldChange: onChange,
+		onChangeFormStateField: onChange,
 	};
 }
 

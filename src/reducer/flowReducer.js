@@ -14,6 +14,9 @@ const actionTypes = {
 	CONFIGURE_FLOW: 'CONFIGURE_FLOW',
 	SET_CURRENT_FLOW: 'SET_CURRENT_FLOW',
 	CLEAR_FLOW: 'CLEAR_FLOW',
+	SET_SELECTED_PRODUCT: 'SET_SELECTED_PRODUCT',
+	GET_FLOW_REDUCER: 'GET_FLOW_REDUCER',
+	SET_COMPLETED_SECTION: 'SET_COMPLETED_SECTION',
 };
 
 const INITIAL_STATE = {
@@ -24,6 +27,22 @@ const INITIAL_STATE = {
 	flowMap: null,
 	currentFlow: '',
 	productId: null,
+	selectedProduct: null,
+	applicationData: {
+		applicant: {
+			director_id: 111,
+			basic_details: {
+				isCompleted: true,
+				subsection_id: {},
+			},
+		},
+		coApplicant: [
+			{ id: 1, director_id: '', completedSections: [] },
+			{ id: 2, director_id: '', completedSections: [] },
+			{ id: 3, director_id: '', completedSections: [] },
+		],
+		application: [],
+	},
 };
 
 const useActions = dispatch => {
@@ -98,6 +117,14 @@ const useActions = dispatch => {
 		});
 	};
 
+	const setSelectedProduct = data => {
+		dispatch({ type: actionTypes.SET_SELECTED_PRODUCT, data });
+	};
+
+	const setCompletedSections = data => {
+		dispatch({ type: actionTypes.SET_COMPLETED_SECTION, data });
+	};
+
 	return {
 		setCompleted,
 		setIfscList,
@@ -105,6 +132,8 @@ const useActions = dispatch => {
 		configure,
 		setCurrentFlow,
 		clearFlowDetails,
+		setSelectedProduct,
+		setCompletedSections,
 	};
 };
 
@@ -161,6 +190,22 @@ function reducer(state, action) {
 				...state,
 				basePageUrl: action.basePageUrl,
 				flowMap: action.flowMap,
+			};
+			break;
+		}
+
+		case actionTypes.SET_SELECTED_PRODUCT: {
+			updatedState = {
+				...state,
+				selectedProduct: action.data,
+			};
+			break;
+		}
+
+		case actionTypes.SET_COMPLETED_SECTION: {
+			updatedState = {
+				...state,
+				completedSections: action.data,
 			};
 			break;
 		}

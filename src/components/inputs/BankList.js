@@ -1,7 +1,7 @@
 /* Populate search of bank with list of banks */
 
 import { useState, useEffect, useContext } from 'react';
-
+import { useSelector } from 'react-redux';
 import useFetch from 'hooks/useFetch';
 import SearchSelect from '../SearchSelect';
 import {
@@ -11,9 +11,10 @@ import {
 } from '_config/app.config';
 import { FlowContext } from 'reducer/flowReducer';
 import { FormContext } from 'reducer/formReducer';
-import { UserContext } from 'reducer/userReducer';
-import { BussinesContext } from 'reducer/bussinessReducer';
+// import { UserContext } from 'reducer/userReducer';
+// import { BussinesContext } from 'reducer/bussinessReducer';
 import axios from 'axios';
+// import { API_END_POINT } from '_config/app.config';
 
 // const Input = styled.input`
 // 	height: 50px;
@@ -27,6 +28,9 @@ export default function BankList(props) {
 	const { field, onSelectOptionCallback, value } = props;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+	const { app } = useSelector(state => state);
+
+	const { userToken } = app;
 
 	const {
 		actions: { setIfscList },
@@ -36,31 +40,28 @@ export default function BankList(props) {
 		actions: { setFlowData },
 	} = useContext(FormContext);
 
-	const {
-		state: { userToken },
-	} = useContext(UserContext);
+	// const {
+	// 	state: { userToken },
+	// } = useContext(UserContext);
 
-	const {
-		state: { companyDetail },
-	} = useContext(BussinesContext);
+	// const {
+	// 	state: { companyDetail },
+	// } = useContext(BussinesContext);
 
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
 		headers: {
-			Authorization: `Bearer ${userToken ||
-				companyDetail?.token ||
-				sessionStorage.getItem('userToken')} `,
+			Authorization: `Bearer ${userToken}`,
 		},
 	});
+
 	const getIfscData = async bankId => {
 		if (typeof bankId === 'string' || typeof bankId === 'number') {
 			try {
 				const ifscDataReq = await axios.get(IFSC_LIST_FETCH, {
 					params: { bankId: bankId },
 					headers: {
-						Authorization: `Bearer ${userToken ||
-							companyDetail?.token ||
-							sessionStorage.getItem('userToken')}`,
+						Authorization: `Bearer ${userToken}`,
 					},
 				});
 				if (ifscDataReq.data.status === 'ok') {
@@ -87,12 +88,18 @@ export default function BankList(props) {
 		// eslint-disable-next-line
 	}, [response]);
 
+	// useEffect(() => {
+	// 	console.log(bankToken, '333');
+	// 	console.log(clientToken, '222');
+	// 	console.log(userToken, '111');
+	// }, []);
+
 	// TODO: provide custom label to bank details and emi details section
 	return (
 		<SearchSelect
 			// customLabel='Bank Name'
 			onBlurCallback={() => {
-				if (field.ifscRequired) {
+				if (field.ifsc_required) {
 					getIfscData(value.value);
 				}
 			}}
