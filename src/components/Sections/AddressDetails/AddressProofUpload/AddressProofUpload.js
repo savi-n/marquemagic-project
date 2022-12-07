@@ -602,10 +602,33 @@ const AddressProofUpload = props => {
 
 	const onChange = async event => {
 		let files = [...event.target.files];
+		console.log(files);
 		files = await handleUpload(files);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-		files.map(f => newCacheDocumentTemp.push(f));
+
+		files.map(f => {
+			if (selectedAddressProofId?.includes('others')) {
+				let file = {
+					...f,
+					mainType: 'KYC',
+					type: 'other',
+					upload_doc_name: f.name,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+					directorId: selectedApplicant.directorId,
+					selectedDocTypeId,
+				};
+				newCacheDocumentTemp.push(file);
+			} else {
+				newCacheDocumentTemp.push(f);
+			}
+		});
 		setCacheDocumentsTemp(newCacheDocumentTemp);
+		console.log(
+			'__',
+			newCacheDocumentTemp,
+			'__',
+			_.cloneDeep(cacheDocumentsTemp)
+		);
 		// console.log('FileUpload-onChange-', {
 		// 	pan,
 		// 	disabled,
@@ -705,6 +728,8 @@ const AddressProofUpload = props => {
 		if (!!doc?.isTagged) taggedDocumentCount += 1;
 		return null;
 	});
+
+	console.log(cacheDocumentsTemp, 'cacheDocumentsTemp');
 
 	displayTagMessage = cacheDocumentsTemp.length !== taggedDocumentCount;
 	const addressProofErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
