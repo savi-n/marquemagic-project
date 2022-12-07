@@ -720,7 +720,8 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}
+								{sub_section?.name}{' '}
+								{isCommentRequired && <UI.Asterisk>*</UI.Asterisk>}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {

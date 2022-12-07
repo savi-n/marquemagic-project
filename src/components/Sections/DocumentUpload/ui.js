@@ -16,7 +16,9 @@ export const SubmitWrapper = styled.div`
 	margin: 10px 0;
 	gap: 10px;
 `;
-
+export const Asterisk = styled.span`
+	color: red;
+`;
 export const CollapseHeader = styled.div`
 	display: flex;
 	align-items: center;
