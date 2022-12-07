@@ -13,8 +13,9 @@ import Hint from 'components/Hint';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
-	addCacheDocuments,
 } from 'store/applicantCoApplicantsSlice';
+
+import { addCacheDocuments } from 'store/applicationSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 
 import useForm from 'hooks/useFormIndividual';
