@@ -483,7 +483,7 @@ export const DocumentTaggingSectionWrapper = styled.div`
 	transition: all 0.3s ease-in-out;
 	height: ${({ isDocumentTaggingOpen, isFetchAddressButton }) =>
 		isDocumentTaggingOpen && isFetchAddressButton
-			? '190px'
+			? '238px'
 			: isDocumentTaggingOpen && !isFetchAddressButton
 			? '250px'
 			: '0'};
