@@ -36,6 +36,7 @@ import * as CONST from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
+import { asyncForEach } from 'utils/helper';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -44,6 +45,7 @@ const AddressDetails = props => {
 	const {
 		loanProductId,
 		loanId,
+		businessUserId,
 		createdByUserId,
 		businessAddressIdAid1,
 		businessAddressIdAid2,
@@ -93,6 +95,10 @@ const AddressDetails = props => {
 	const [presentCacheDocumentsTemp, setPresentCacheDocumentsTemp] = useState(
 		[]
 	);
+	const [otherPermanentCacheDocTemp, setOtherPermanentCacheDocTemp] = useState(
+		[]
+	);
+	const [otherPresentCacheDocTemp, setOtherPresentCacheDocTemp] = useState([]);
 	// const [presentAddressProofDocs, setPresentAddressProofDocs] = useState([]);
 	const [presentAddressProofError, setPresentAddressProofError] = useState('');
 	const [permanentAddressProofError, setPermanentAddressProofError] = useState(
@@ -265,10 +271,55 @@ const AddressDetails = props => {
 				`${API.API_END_POINT}/basic_details`,
 				addressDetailsReqBody
 			);
-			// console.log('addressDetailsRes-', { addressDetailsRes });
+			const otherdocs = [
+				...otherPermanentCacheDocTemp,
+				...otherPresentCacheDocTemp,
+			];
+
+			const newUploadedDocuments = [];
+			if (otherdocs.length > 0) {
+				const formData = new FormData();
+				const otherDocsBorrowerApi = [];
+				const callLoanDocUpload = async idx => {
+					formData.append('document', idx.file);
+					let result = await axios.post(
+						`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
+						formData
+					);
+					let leng = result.data.files.length;
+					let fd = { ...idx, document_key: result.data.files[leng - 1].fd };
+					otherDocsBorrowerApi.push(fd);
+				};
+				// call loanDocumentUpload to store the document on cloud
+				await asyncForEach(otherdocs, callLoanDocUpload);
+				const documentUploadReqBody = formatSectionReqBody({
+					app,
+					applicantCoApplicants,
+					application,
+				});
+
+				otherDocsBorrowerApi?.map(doc => {
+					if (doc?.document_id) return null;
+					newUploadedDocuments.push({
+						...doc,
+						file: null,
+						preview: null,
+						id: doc.doc_type_id,
+						loan_id: loanId,
+						doc_type_id: doc.selectedDocTypeId,
+						isDocRemoveAllowed: false,
+					});
+					return null;
+				});
+				documentUploadReqBody.data.document_upload = newUploadedDocuments;
+
+				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
+			}
 			const cacheDocumentsTemp = [
 				...permanentCacheDocumentsTemp,
 				...presentCacheDocumentsTemp,
+				...otherPermanentCacheDocTemp,
+				...otherPresentCacheDocTemp,
 			];
 			if (cacheDocumentsTemp.length > 0) {
 				try {
@@ -282,6 +333,7 @@ const AddressDetails = props => {
 							is_delete_not_allowed: true,
 							director_id: directorId,
 							file: null,
+							isDocRemoveAllowed: false,
 						});
 						return null;
 					});
@@ -305,7 +357,7 @@ const AddressDetails = props => {
 						);
 						dispatch(
 							addCacheDocuments({
-								files: uploadCacheDocumentsTemp,
+								files: [...uploadCacheDocumentsTemp, ...newUploadedDocuments],
 							})
 						);
 					}
@@ -508,7 +560,11 @@ const AddressDetails = props => {
 				}
 
 				const cacheDocumentsTemp = isPermanent
-					? permanentCacheDocumentsTemp
+					? selectedAddressProofId?.includes('others')
+						? otherPermanentCacheDocTemp
+						: permanentCacheDocumentsTemp
+					: selectedAddressProofId?.includes('others')
+					? otherPresentCacheDocTemp
 					: presentCacheDocumentsTemp;
 
 				if (selectedAddressProofId) {
@@ -679,7 +735,11 @@ const AddressDetails = props => {
 												cacheDocumentsTemp={cacheDocumentsTemp}
 												setCacheDocumentsTemp={
 													isPermanent
-														? setPermanentCacheDocumentsTemp
+														? selectedAddressProofId?.includes('others')
+															? setOtherPermanentCacheDocTemp
+															: setPermanentCacheDocumentsTemp
+														: selectedAddressProofId?.includes('others')
+														? setOtherPresentCacheDocTemp
 														: setPresentCacheDocumentsTemp
 												}
 												selectedDocTypeId={selectedDocTypeId}
@@ -697,6 +757,8 @@ const AddressDetails = props => {
 									cacheDocumentsTemp?.filter(doc => !!doc?.extractionRes)
 										.length > 0
 								) {
+									customFieldProps.disabled = false;
+								} else if (selectedAddressProofId?.includes('others')) {
 									customFieldProps.disabled = false;
 								} else {
 									if (

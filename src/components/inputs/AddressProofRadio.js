@@ -11,9 +11,10 @@ const RadioButtonWrapper = styled.div`
 const CardRadioButton = styled.div`
 	/* box-shadow: 0 4px 9px 0 #bdd2ef; */
 	box-shadow: rgb(11 92 255 / 16%) 0px 2px 5px 1px;
-	width: 180px;
+	width: 155px;
 	height: 45px;
 	line-height: 45px;
+	margin-top: 5px;
 	margin-right: 20px;
 	padding-left: 20px;
 	border-radius: 6px;

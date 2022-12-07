@@ -638,7 +638,6 @@ const DocumentUpload = props => {
 			</UI.LoaderWrapper>
 		);
 	}
-
 	return (
 		<UI.Wrapper>
 			{isAuthenticationOtpModalOpen ? (
@@ -673,11 +672,6 @@ const DocumentUpload = props => {
 				const selectedDocuments = selectedApplicantDocuments?.filter(
 					doc => doc?.category === category
 				);
-
-				// console.log('selectedDocumentTypes-', {
-				// 	category,
-				// 	selectedDocumentTypes,
-				// });
 
 				return (
 					<div key={`data-${category}-{${directorId}}`}>

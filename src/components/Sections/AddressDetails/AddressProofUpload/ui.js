@@ -481,8 +481,12 @@ export const CTAWrapper = styled.div`
 export const DocumentTaggingSectionWrapper = styled.div`
 	overflow: hidden;
 	transition: all 0.3s ease-in-out;
-	height: ${({ isDocumentTaggingOpen }) =>
-		isDocumentTaggingOpen ? '250px' : '0'};
+	height: ${({ isDocumentTaggingOpen, isFetchAddressButton }) =>
+		isDocumentTaggingOpen && isFetchAddressButton
+			? '238px'
+			: isDocumentTaggingOpen && !isFetchAddressButton
+			? '250px'
+			: '0'};
 	@media (max-width: 768px) {
 		height: ${({ isDocumentTaggingOpen }) =>
 			isDocumentTaggingOpen ? '400px' : '0'};
