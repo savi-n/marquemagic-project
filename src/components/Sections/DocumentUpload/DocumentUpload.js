@@ -618,18 +618,18 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	console.log('DocumentUpload-allStates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		displayProceedButton,
-		displayUploadedDocCount,
-		selectedApplicant,
-		directorId,
-		allDocumentTypes,
-		selectedApplicantDocumentTypes,
-		cacheDocuments,
-	});
+	// console.log('DocumentUpload-allStates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	displayProceedButton,
+	// 	displayUploadedDocCount,
+	// 	selectedApplicant,
+	// 	directorId,
+	// 	allDocumentTypes,
+	// 	selectedApplicantDocumentTypes,
+	// 	cacheDocuments,
+	// });
 
 	if (loading) {
 		return (
@@ -720,7 +720,8 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}
+								{sub_section?.name}{' '}
+								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
