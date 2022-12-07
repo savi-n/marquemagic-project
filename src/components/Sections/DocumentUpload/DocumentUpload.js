@@ -619,7 +619,7 @@ const DocumentUpload = props => {
 			</UI.LoaderWrapper>
 		);
 	}
-
+	console.log(cacheDocuments, '**yay');
 	return (
 		<UI.Wrapper>
 			{isAuthenticationOtpModalOpen ? (
@@ -655,10 +655,11 @@ const DocumentUpload = props => {
 					doc => doc?.category === category
 				);
 
-				// console.log('selectedDocumentTypes-', {
-				// 	category,
-				// 	selectedDocumentTypes,
-				// });
+				console.log('selectedDocumentTypes-', {
+					category,
+					selectedDocumentTypes,
+				});
+				console.log('selecetd doc', selectedDocuments);
 
 				return (
 					<div key={`data-${category}-{${directorId}}`}>
@@ -682,6 +683,7 @@ const DocumentUpload = props => {
 							/>
 						</UI.CollapseHeader>
 						<UI.CollapseBody open={openSection.includes(category)}>
+							{console.log(selectedDocuments, '*******')}
 							<UI.UploadWrapper open={openSection.includes(category)}>
 								<CategoryFileUpload
 									documents={selectedDocuments}

@@ -278,10 +278,10 @@ const AddressDetails = props => {
 				...otherPresentCacheDocTemp,
 			];
 			console.log('otherdocs', otherdocs);
+			const newUploadedDocuments = [];
 			if (otherdocs.length > 0) {
 				const formData = new FormData();
 				const otherDocsBorrowerApi = [];
-
 				const callLoanDocUpload = async idx => {
 					console.log(idx);
 					formData.append('document', idx.file);
@@ -301,7 +301,7 @@ const AddressDetails = props => {
 					applicantCoApplicants,
 					application,
 				});
-				const newUploadedDocuments = [];
+
 				console.log('before map function', otherdocs);
 				console.log('before map borr', otherDocsBorrowerApi);
 				otherDocsBorrowerApi?.map(doc => {
@@ -313,6 +313,7 @@ const AddressDetails = props => {
 						id: doc.doc_type_id,
 						loan_id: loanId,
 						doc_type_id: doc.selectedDocTypeId,
+						isDocRemoveAllowed: false,
 					});
 					return null;
 				});
@@ -340,6 +341,7 @@ const AddressDetails = props => {
 							is_delete_not_allowed: true,
 							director_id: directorId,
 							file: null,
+							isDocRemoveAllowed: false,
 						});
 						return null;
 					});
@@ -361,9 +363,13 @@ const AddressDetails = props => {
 								},
 							}
 						);
+						console.log('--------------------------------');
+						console.log('uploadCacheDocumentsTemp', uploadCacheDocumentsTemp);
+						console.log('otherDocsBorrowerApi', newUploadedDocuments);
+						console.log('--------------------------------');
 						dispatch(
 							addCacheDocuments({
-								files: [...uploadCacheDocumentsTemp],
+								files: [...uploadCacheDocumentsTemp, ...newUploadedDocuments],
 							})
 						);
 					}
