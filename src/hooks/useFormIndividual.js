@@ -535,6 +535,7 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					disabled={field.disabled}
 					rules={field.rules}
 					defaultValue={value}
+					options={field?.options}
 					field={{ ...field, ...fieldProps }}
 				/>
 			);
