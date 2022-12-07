@@ -238,7 +238,7 @@ const ReferenceDetails = () => {
 								// }
 								return (
 									<>
-										{field.name === 'Name1' && <UI.Divider />}
+										{field.name === 'Name1' ? <UI.Divider /> : null}
 										<UI_SECTIONS.FieldWrapGrid
 											key={`field-${fieldIndex}-${field.name}`}
 										>

@@ -4,7 +4,7 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
@@ -29,6 +29,7 @@ const BankDetails = () => {
 		editLoanData,
 		isEditLoan,
 	} = app;
+	const { bankDetailsFinId } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
@@ -44,11 +45,15 @@ const BankDetails = () => {
 			});
 			bankDetailsReqBody.data.bank_details.bank_id =
 				bankDetailsReqBody.data.bank_details.bank_id.value;
-			// const bankDetailsRes =
-			await axios.post(
+			if (bankDetailsFinId) bankDetailsReqBody.data.fin_id = bankDetailsFinId;
+			const bankDetailsRes = await axios.post(
 				`${API_END_POINT}/addBankDetailsNew`,
 				bankDetailsReqBody
 			);
+			if (!bankDetailsFinId)
+				dispatch(
+					setLoanIds({ bankDetailsFinId: bankDetailsRes?.data?.data?.id })
+				);
 			// console.log('-bankDetailsRes-', {
 			// 	bankDetailsReqBody,
 			// 	bankDetailsRes,
@@ -99,7 +104,10 @@ const BankDetails = () => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		const bankData = editLoanData?.bank_details?.[0] || {};
+		const bankData =
+			editLoanData?.bank_details?.filter(
+				data => data.fin_type === CONST.FIN_TYPE_BANK_ACCOUNT
+			)?.[0] || {};
 		const preData = {
 			bank_name: bankData?.bank_id,
 			account_number: bankData?.account_number,

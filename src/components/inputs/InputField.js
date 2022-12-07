@@ -16,6 +16,13 @@ const Input = styled.input`
 		-moz-appearance: textfield;
 		margin: 0;
 	}
+	@media (max-width: 700px) {
+		:focus {
+			::placeholder {
+				color: white;
+			}
+		}
+	}
 `;
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}
@@ -35,13 +42,13 @@ const Label = styled.label`
 	background: white;
 	overflow: hidden;
 	transition: 0.2s;
-	@media (max-width: 700px) {
+	/* @media (max-width: 700px) {
 		${({ isLargeTextLable }) =>
 			isLargeTextLable &&
 			`
     width:150%;
   `}
-	}
+	} */
 	${Input}:focus ~ & {
 		top: -15%;
 		left: 2%;
@@ -118,8 +125,9 @@ export default function InputField(props) {
 					{props?.rules?.minValue && `min ${props?.rules?.minValue}`}
 					{props?.rules?.minValue && props?.rules?.maxValue ? ' - ' : ' '}
 					{props?.rules?.maxValue && `max ${props?.rules?.maxValue}`}
+					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
 				</Span>
-				{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
+				{/* {props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>} */}
 			</Label>
 			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
 		</Div>

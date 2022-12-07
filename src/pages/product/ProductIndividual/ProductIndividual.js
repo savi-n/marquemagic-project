@@ -23,9 +23,11 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 
 const ProductIndividual = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
+	const {
+		app,
+		applicantCoApplicants,
+		// application
+	} = useSelector(state => state);
 	const {
 		selectedSectionId,
 		applicantCoApplicantSectionIds,
@@ -61,13 +63,13 @@ const ProductIndividual = props => {
 		});
 	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
 
-	useEffect(() => {
-		console.log('ProductIndividual-allStates-', {
-			app,
-			application,
-			applicantCoApplicants,
-		});
-	}, [app, application, applicantCoApplicants]);
+	// useEffect(() => {
+	// 	console.log('ProductIndividual-allStates-', {
+	// 		app,
+	// 		application,
+	// 		applicantCoApplicants,
+	// 	});
+	// }, [app, application, applicantCoApplicants]);
 
 	const getBankList = () => {
 		try {

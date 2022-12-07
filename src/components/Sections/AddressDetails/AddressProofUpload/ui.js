@@ -487,6 +487,10 @@ export const DocumentTaggingSectionWrapper = styled.div`
 			: isDocumentTaggingOpen && !isFetchAddressButton
 			? '250px'
 			: '0'};
+	@media (max-width: 768px) {
+		height: ${({ isDocumentTaggingOpen }) =>
+			isDocumentTaggingOpen ? '400px' : '0'};
+	}
 `;
 
 export const DocTypeChangeModalBody = styled.div`

@@ -7,4 +7,7 @@ export const Divider = styled.div`
 	height: 10px;
 	grid-column: span 2;
 	height: 25px;
+	@media (max-width: 700px) {
+		grid-column: span 1;
+	}
 `;

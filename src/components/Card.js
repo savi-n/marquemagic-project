@@ -2,6 +2,7 @@
 This card is designed and defined here */
 
 import { useHistory } from 'react-router-dom';
+import queryString from 'query-string';
 import styled from 'styled-components';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
 import { resetAllApplicationState } from 'utils/localStore';
@@ -124,10 +125,14 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							}
 							e.preventDefault();
 							sessionStorage.clear();
-							window.open(
-								`/nconboarding/applyloan/product/${btoa(product.id)}`,
-								'_self'
-							);
+							const params = queryString.parse(window.location.search);
+							let redirectURL = `/nconboarding/applyloan/product/${btoa(
+								product.id
+							)}`;
+							if (params?.token) {
+								redirectURL += `?token=${params.token}`;
+							}
+							window.open(redirectURL, '_self');
 							return;
 						}
 						resetAllApplicationState();

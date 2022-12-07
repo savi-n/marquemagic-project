@@ -14,7 +14,6 @@ import {
 	updateApplicantSection,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-
 import { addCacheDocuments } from 'store/applicationSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 
@@ -749,7 +748,10 @@ const AddressDetails = props => {
 									);
 								}
 
-								if (!!selectedApplicant?.api?.verifyOtp?.res) {
+								if (
+									!!selectedApplicant?.api?.verifyOtp?.res &&
+									sub_section?.id === CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID
+								) {
 									customFieldProps.disabled = false;
 								} else if (
 									cacheDocumentsTemp?.filter(doc => !!doc?.extractionRes)

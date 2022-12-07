@@ -137,7 +137,7 @@ const AppLayout = () => {
 			let decryptedToken = {};
 			try {
 				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
-				if (params?.token) {
+				if (params?.token && decryptedToken.loan_ref_id) {
 					const loanDetailsRes = await axios.get(
 						`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${
 							decryptedToken.loan_ref_id
@@ -281,6 +281,10 @@ const AppLayout = () => {
 					const userDetails = userRes?.data?.data;
 					// console.log('userres-data-', userDetails);
 					dispatch(setUserDetails(userDetails));
+					if (decryptedToken?.token) {
+						dispatch(setUserToken(decryptedToken?.token));
+						sessionStorage.setItem('userToken', decryptedToken?.token);
+					}
 					const stringifyUserDetails = JSON.stringify(userDetails);
 					if (params.cid) {
 						sessionStorage.setItem('corporateDetails', stringifyUserDetails);

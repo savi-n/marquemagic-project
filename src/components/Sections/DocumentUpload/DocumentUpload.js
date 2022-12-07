@@ -17,6 +17,7 @@ import {
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
 	addOrUpdateCacheDocuments,
+	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -46,6 +47,7 @@ const DocumentUpload = props => {
 		nextSectionId,
 		selectedSectionId,
 		isEditOrViewLoan,
+		selectedSection,
 	} = app;
 	const {
 		isApplicant,
@@ -65,9 +67,6 @@ const DocumentUpload = props => {
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
-	let selectedApplicantIncomeTypeId =
-		selectedApplicant?.basic_details?.income_type ||
-		selectedApplicant?.income_type;
 	const selectedApplicantDocumentTypes = allDocumentTypes?.filter(
 		docType => `${docType.directorId}` === `${directorId}`
 	);
@@ -77,6 +76,9 @@ const DocumentUpload = props => {
 	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
+	const isCommentRequired = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
+		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
+	)?.[0]?.rules?.required;
 	// TODO: visibility of documents
 	// selectedApplicant?.cacheDocuments.map(doc =>
 	// 	selectedApplicantDocuments.push(doc)
@@ -128,7 +130,8 @@ const DocumentUpload = props => {
 	const getApplicantDocumentTypes = async () => {
 		try {
 			const reqBody = {
-				business_type: selectedApplicantIncomeTypeId,
+				business_type:
+					applicant?.basic_details?.income_type || applicant?.income_type,
 				loan_product: loanProductId,
 			};
 			// console.log('applicantDocReqBody-', { reqBody });
@@ -294,11 +297,11 @@ const DocumentUpload = props => {
 	};
 
 	const initializeCommentForOfficeUse = () => {
-		if (isEditOrViewLoan) {
+		if (isEditOrViewLoan && editLoanData?.remarks) {
 			const allRemarks = parseJSON(editLoanData?.remarks);
 			const allCommentsForOfficeUse = [];
 			Object.keys(allRemarks)?.map(key => {
-				if (!!allRemarks[key]?.is_comment_for_office_use) {
+				if (!!allRemarks?.[key]?.is_comment_for_office_use) {
 					allCommentsForOfficeUse.push(allRemarks[key]);
 				}
 				return null;
@@ -406,7 +409,14 @@ const DocumentUpload = props => {
 		if (manadatoryError) {
 			addToast({
 				message:
-					'Please upload all the required documents to submit the application',
+					'Please upload all the mandatory documents to submit the application',
+				type: 'error',
+			});
+			return false;
+		}
+		if (!commentsForOfficeUse && isCommentRequired) {
+			addToast({
+				message: 'Comments are mandatory. Please enter the comments',
 				type: 'error',
 			});
 			return false;
@@ -421,6 +431,10 @@ const DocumentUpload = props => {
 				isSkip: true,
 			},
 		};
+
+		// TODO: varun combine all redux cache dispatch here before moving to application submited section
+		dispatch(clearAllCacheDocuments());
+
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -448,20 +462,26 @@ const DocumentUpload = props => {
 				return null;
 			});
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
-			if (isDocumentUploadMandatory) {
-				documentUploadReqBody.is_mandatory_documents_uploaded = true;
-			}
 			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
 			// 	documentUploadReqBody,
 			// });
 			// return;
 			// const documentUploadRes =
-			if (
-				documentUploadReqBody.is_mandatory_documents_uploaded ||
-				documentUploadReqBody.data.document_upload.length > 0
-			) {
+			if (documentUploadReqBody.data.document_upload.length > 0) {
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
+			const applicationStageReqBody = {
+				loan_id: documentUploadReqBody.loan_id,
+			};
+
+			if (isDocumentUploadMandatory) {
+				applicationStageReqBody.is_mandatory_documents_uploaded = true;
+			}
+
+			await axios.post(
+				`${API.TO_APPLICATION_STAGE_URL}`,
+				applicationStageReqBody
+			);
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
@@ -605,7 +625,6 @@ const DocumentUpload = props => {
 	// 	displayProceedButton,
 	// 	displayUploadedDocCount,
 	// 	selectedApplicant,
-	// 	selectedApplicantIncomeTypeId,
 	// 	directorId,
 	// 	allDocumentTypes,
 	// 	selectedApplicantDocumentTypes,
@@ -690,19 +709,37 @@ const DocumentUpload = props => {
 			})}
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
-				<UI.Divider />
-				<UI.CategoryNameHeader>Comments for Office Use</UI.CategoryNameHeader>
-				<Textarea
-					{...CONST.commentsForOfficeUseField}
-					value={commentsForOfficeUse}
-					onChange={e => {
-						dispatch(setCommentsForOfficeUse(e.target.value));
-					}}
-					loading={savingComments}
-					disabled={savingComments || isViewLoan}
-					onBlur={onBlurCommentsForOfficeUse}
-				/>
-				<UI.Divider />
+				{selectedSection?.sub_sections?.map(sub_section => {
+					return (
+						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
+							<UI.Divider />
+							<UI.CommentsForOfficeUseFieldName>
+								{sub_section?.name}{' '}
+								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
+							</UI.CommentsForOfficeUseFieldName>
+							{sub_section?.fields?.map(field => {
+								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
+								if (!field?.visibility) return null;
+								return (
+									<Textarea
+										key={`field-${field.name}`}
+										{...field}
+										value={commentsForOfficeUse}
+										onChange={e => {
+											dispatch(setCommentsForOfficeUse(e.target.value));
+										}}
+										loading={savingComments}
+										disabled={savingComments || isViewLoan}
+										onBlur={onBlurCommentsForOfficeUse}
+										floatingLabel={false}
+									/>
+								);
+							})}
+							<UI.Divider />
+						</UI.CommentsForOfficeUserWrapper>
+					);
+				})}
+
 				{!isViewLoan && (
 					<Button
 						name='Get Other Bank Statements'
