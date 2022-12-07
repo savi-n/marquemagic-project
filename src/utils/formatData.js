@@ -316,30 +316,30 @@ export const formatAddressProofDocTypeList = data => {
 					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
-		// case CONST_SECTIONS.EXTRACTION_KEY_OTHERS:
-		// 	return [
-		// 		{
-		// 			typeId: `${prefix}513`,
-		// 			value: `${prefix}513`,
-		// 			doc_type_id: `${prefix}513`,
-		// 			id: `${prefix}513`,
-		// 			name: 'Other Front Part',
-		// 		},
-		// 		{
-		// 			typeId: `${prefix}514`,
-		// 			value: `${prefix}514`,
-		// 			doc_type_id: `${prefix}514`,
-		// 			id: `${prefix}514`,
-		// 			name: 'Other Back Part',
-		// 		},
-		// 		{
-		// 			typeId: `${prefix}515`,
-		// 			value: `${prefix}515`,
-		// 			doc_type_id: `${prefix}515`,
-		// 			id: `${prefix}515`,
-		// 			name: 'Other Front and Back',
-		// 		},
-		// 	];
+		case CONST_SECTIONS.EXTRACTION_KEY_OTHERS:
+			return [
+				{
+					typeId: `${prefix}513`,
+					value: `${prefix}513`,
+					doc_type_id: `${prefix}513`,
+					id: `${prefix}513`,
+					name: 'Other Front Part',
+				},
+				{
+					typeId: `${prefix}514`,
+					value: `${prefix}514`,
+					doc_type_id: `${prefix}514`,
+					id: `${prefix}514`,
+					name: 'Other Back Part',
+				},
+				{
+					typeId: `${prefix}515`,
+					value: `${prefix}515`,
+					doc_type_id: `${prefix}515`,
+					id: `${prefix}515`,
+					name: 'Other Front and Back',
+				},
+			];
 		default:
 			return [];
 	}

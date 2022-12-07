@@ -618,18 +618,18 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	console.log('DocumentUpload-allStates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		displayProceedButton,
-		displayUploadedDocCount,
-		selectedApplicant,
-		directorId,
-		allDocumentTypes,
-		selectedApplicantDocumentTypes,
-		cacheDocuments,
-	});
+	// console.log('DocumentUpload-allStates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	displayProceedButton,
+	// 	displayUploadedDocCount,
+	// 	selectedApplicant,
+	// 	directorId,
+	// 	allDocumentTypes,
+	// 	selectedApplicantDocumentTypes,
+	// 	cacheDocuments,
+	// });
 
 	if (loading) {
 		return (
@@ -638,7 +638,6 @@ const DocumentUpload = props => {
 			</UI.LoaderWrapper>
 		);
 	}
-
 	return (
 		<UI.Wrapper>
 			{isAuthenticationOtpModalOpen ? (
@@ -673,11 +672,6 @@ const DocumentUpload = props => {
 				const selectedDocuments = selectedApplicantDocuments?.filter(
 					doc => doc?.category === category
 				);
-
-				// console.log('selectedDocumentTypes-', {
-				// 	category,
-				// 	selectedDocumentTypes,
-				// });
 
 				return (
 					<div key={`data-${category}-{${directorId}}`}>
@@ -721,7 +715,7 @@ const DocumentUpload = props => {
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
 								{sub_section?.name}{' '}
-								{isCommentRequired && <UI.Asterisk>*</UI.Asterisk>}
+								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {

@@ -82,7 +82,6 @@ const AddressProofUpload = props => {
 		false
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
-
 	let refCounter = 0;
 
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
@@ -604,8 +603,26 @@ const AddressProofUpload = props => {
 		let files = [...event.target.files];
 		files = await handleUpload(files);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-		files.map(f => newCacheDocumentTemp.push(f));
+
+		files.map(f => {
+			if (selectedAddressProofId?.includes('others')) {
+				let file = {
+					...f,
+					mainType: 'KYC',
+					type: 'other',
+					upload_doc_name: f.name,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+					directorId: selectedApplicant.directorId,
+					selectedDocTypeId,
+				};
+				newCacheDocumentTemp.push(file);
+			} else {
+				newCacheDocumentTemp.push(f);
+			}
+			return null;
+		});
 		setCacheDocumentsTemp(newCacheDocumentTemp);
+
 		// console.log('FileUpload-onChange-', {
 		// 	pan,
 		// 	disabled,
@@ -905,6 +922,7 @@ const AddressProofUpload = props => {
 			</UI.DropZoneOtpFieldWrapper>
 			<UI.DocumentTaggingSectionWrapper
 				isDocumentTaggingOpen={isDocumentTaggingOpen}
+				isFetchAddressButton={selectedAddressProofId?.includes('others')}
 			>
 				{displayTagMessage ? (
 					<UI.WarningMessage>
@@ -1174,19 +1192,20 @@ const AddressProofUpload = props => {
 					})}
 				</UI.DocumentUploadListWrapper>
 				<UI.CTAWrapper>
-					{!addressProofError && (
-						<Button
-							fill
-							name='Fetch Address'
-							isLoader={fetchingAddress}
-							disabled={
-								fetchingAddress ||
-								cacheDocumentsTemp.length <= 0 ||
-								addressProofError
-							}
-							onClick={onClickFetchAddress}
-						/>
-					)}
+					{!addressProofError &&
+						!selectedAddressProofId?.includes('others') && (
+							<Button
+								fill
+								name='Fetch Address'
+								isLoader={fetchingAddress}
+								disabled={
+									fetchingAddress ||
+									cacheDocumentsTemp.length <= 0 ||
+									addressProofError
+								}
+								onClick={onClickFetchAddress}
+							/>
+						)}
 				</UI.CTAWrapper>
 			</UI.DocumentTaggingSectionWrapper>
 		</UI.Wrapper>

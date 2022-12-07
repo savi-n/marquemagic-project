@@ -75,15 +75,6 @@ export const applicantSlice = createSlice({
 				state.businessAddressIdAid2 = businessAddressIdAid2;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
-		setloanRefId: (state, action) => {
-			state.loanRefId = action.payload;
-		},
-		setLoanId: (state, action) => {
-			state.loanId = action.payload;
-		},
-		setBusinessId: (state, action) => {
-			state.businessId = action.payload;
-		},
 		updateApplicationSection: (state, action) => {
 			const {
 				sectionId,
@@ -264,9 +255,6 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
-	setloanRefId,
-	setLoanId,
-	setBusinessId,
 	updateApplicationSection,
 
 	addCacheDocument,

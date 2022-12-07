@@ -6,6 +6,7 @@ import axios from 'axios';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
+import { useToasts } from '../../../Toast/ToastProvider';
 import { removeCacheDocument } from 'store/applicationSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
@@ -36,6 +37,7 @@ const ProfileUpload = props => {
 		// applicantCoApplicants
 	} = useSelector(state => state);
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	// const {
@@ -99,7 +101,9 @@ const ProfileUpload = props => {
 
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
-			'*': [],
+			'image/png': ['.png'],
+			'image/jpeg': ['.jpeg'],
+			'image/jpg': ['.jpg'],
 		},
 		onDrop: async acceptedFiles => {
 			try {
@@ -124,6 +128,10 @@ const ProfileUpload = props => {
 				// );
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
+				addToast({
+					message: error?.message || 'File format is not supported',
+					type: 'error',
+				});
 			} finally {
 				setLoading(false);
 			}
