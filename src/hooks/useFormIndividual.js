@@ -14,7 +14,7 @@ import AddressProofRadio from 'components/inputs/AddressProofRadio';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
 function required(value) {
-	return !value?.trim();
+	return typeof value === 'string' ? !value?.trim() : !value;
 }
 
 function numberOnly(value) {
