@@ -256,6 +256,13 @@ const AddressDetails = props => {
 						formState?.values?.permanent_property_tenure || '',
 				},
 			];
+			const cacheDocumentsTemp = [
+				...permanentCacheDocumentsTemp,
+				...presentCacheDocumentsTemp,
+				...otherPermanentCacheDocTemp,
+				...otherPresentCacheDocTemp,
+			];
+
 			const addressDetailsReqBody = formatSectionReqBody({
 				app,
 				applicantCoApplicants,
@@ -264,13 +271,29 @@ const AddressDetails = props => {
 			});
 
 			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
+
+			// KYC VERIFICATION RELATED CHANGES CR
+			addressDetailsReqBody.data.verify_kyc_data = cacheDocumentsTemp;
+			// permanent_address_proof_upload
+			// present_address_proof_upload
+			addressDetailsReqBody.data.permanent_address_proof_upload.doc_ref_id = permanentCacheDocumentsTemp?.filter(
+				doc => !!doc?.doc_ref_id
+			)?.[0]?.doc_ref_id;
+			addressDetailsReqBody.data.present_address_proof_upload.doc_ref_id = presentCacheDocumentsTemp?.filter(
+				doc => !!doc?.doc_ref_id
+			)?.[0]?.doc_ref_id;
+			// -- KYC VERIFICATION RELATED CHANGES CR
+
 			// console.log('addressDetailsReqBody-', {
 			// 	addressDetailsReqBody,
 			// });
+			// return;
+
 			const addressDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				addressDetailsReqBody
 			);
+
 			const otherdocs = [
 				...otherPermanentCacheDocTemp,
 				...otherPresentCacheDocTemp,
@@ -315,12 +338,6 @@ const AddressDetails = props => {
 
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
-			const cacheDocumentsTemp = [
-				...permanentCacheDocumentsTemp,
-				...presentCacheDocumentsTemp,
-				...otherPermanentCacheDocTemp,
-				...otherPresentCacheDocTemp,
-			];
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
