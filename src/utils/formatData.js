@@ -62,7 +62,10 @@ export const formatSectionReqBody = data => {
 			sub_section.fields.map(field => {
 				if (!field.db_key || !field.name || values?.[field.name] === undefined)
 					return null;
-				sectionBody[field.db_key] = values[field.name];
+				sectionBody[field.db_key] =
+					typeof values[field.name] === 'string'
+						? values[field.name]?.trim()
+						: values[field.name];
 				return null;
 			});
 			subSectionsData[sub_section.id] = sectionBody;
@@ -610,6 +613,7 @@ export const formatAadhaarOtpResponse = aadhaarOtpRes => {
 		newPrefillValues.pincode = aadhaarOtpRes?.data?.address?.pc || '';
 		newPrefillValues.city = aadhaarOtpRes?.data?.address?.dist || '';
 		newPrefillValues.state = aadhaarOtpRes?.data?.address?.state || '';
+		newPrefillValues.aadhaar = aadhaarOtpRes?.data?.adharNumber || '';
 	}
 	return newPrefillValues;
 };
