@@ -132,9 +132,10 @@ const LoanDetails = () => {
 				values: formState.values,
 			});
 
-			const cloneSelectedValue = _.cloneDeep(
-				formState.values[CONST.CONNECTOR_NAME_FIELD_NAME].value
-			);
+			const cloneSelectedValue =
+				_.cloneDeep(
+					formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME]?.value
+				) || '';
 
 			formState.values[CONST.CONNECTOR_NAME_FIELD_NAME] = cloneSelectedValue;
 
@@ -143,6 +144,7 @@ const LoanDetails = () => {
 			loanDetailsReqBody.data.source_details.businessname = cloneSelectedValue;
 
 			loanDetailsReqBody.data.source_details.connector_user_id = +cloneSelectedValue;
+
 			let imd_Details_doc_id = '';
 			if (cacheDocumentsTemp.length > 0) {
 				try {
