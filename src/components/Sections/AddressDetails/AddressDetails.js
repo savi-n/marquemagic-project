@@ -1,7 +1,7 @@
 //aid:1 = present address
 //aid:2 = permanent address
 
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
@@ -109,7 +109,6 @@ const AddressDetails = props => {
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
-	const [isVerifyWithOtpDisabled, setIsVerifyWithOtpDisabled] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
 	const completedSections = getCompletedSections({
@@ -178,7 +177,6 @@ const AddressDetails = props => {
 						type: 'success',
 					});
 					setIsAadhaarOtpModalOpen(true);
-					setIsVerifyWithOtpDisabled(true);
 				}
 			} catch (error) {
 				console.error('error-generate-aadhaar-otp-', error);
@@ -439,6 +437,9 @@ const AddressDetails = props => {
 	};
 
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
+		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
+		// 	aadhaarOtpRes,
+		// });
 		const formatedData = formatAadhaarOtpResponse(aadhaarOtpRes);
 		Object.keys(formatedData || {}).map(key => {
 			onChangeFormStateField({
@@ -525,6 +526,15 @@ const AddressDetails = props => {
 		}
 	};
 
+	useEffect(() => {
+		if (selectedApplicant?.api?.verifyOtp?.res?.status === 'ok') {
+			prePopulateAddressDetailsFromVerifyOtpRes(
+				selectedApplicant?.api?.verifyOtp?.res
+			);
+		}
+		// eslint-disable-next-line
+	}, []);
+
 	// console.log('AddressDetails-allProps-', {
 	// 	applicant,
 	// 	coApplicants,
@@ -541,7 +551,6 @@ const AddressDetails = props => {
 					isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
 					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
 					aadhaarGenOtpResponse={aadharOtpResponse?.res}
-					setIsVerifyWithOtpDisabled={isVerifyWithOtpDisabled}
 					prePopulateAddressDetailsFromVerifyOtpRes={
 						prePopulateAddressDetailsFromVerifyOtpRes
 					}

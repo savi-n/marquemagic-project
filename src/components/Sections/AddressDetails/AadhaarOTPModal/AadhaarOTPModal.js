@@ -93,7 +93,6 @@ const AadhaarOTPModal = props => {
 		isAadhaarOtpModalOpen,
 		setIsAadhaarOtpModalOpen,
 		aadhaarGenOtpResponse,
-		setIsVerifyWithOtpDisabled,
 		prePopulateAddressDetailsFromVerifyOtpRes,
 		formState,
 	} = props;
@@ -188,7 +187,6 @@ const AadhaarOTPModal = props => {
 					'aadhaar_otp_res',
 					JSON.stringify(aadhaarVerifyResponse)
 				);
-				setIsVerifyWithOtpDisabled(true);
 			} else {
 				setIsAadhaarOtpModalOpen(false);
 				addToast({
