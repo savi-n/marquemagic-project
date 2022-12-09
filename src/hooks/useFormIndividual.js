@@ -608,7 +608,20 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 			);
 		}
 		case 'date': {
-			return <DateField {...{ ...field, ...fieldProps }} />;
+			return (
+				<DateField
+					{...{ ...field, ...fieldProps }}
+					max={fieldProps?.max || '9999-12-31'}
+				/>
+			);
+		}
+		case 'month': {
+			return (
+				<DateField
+					{...{ ...field, ...fieldProps }}
+					max={fieldProps?.max || '9999-12'}
+				/>
+			);
 		}
 		default: {
 			return (
