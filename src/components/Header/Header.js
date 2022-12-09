@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/Button';
+import queryString from 'query-string';
 import * as UI from './ui';
 
 // const Div = styled.div`
@@ -32,10 +33,13 @@ const Header = props => {
 	const [loanRefId, setLoanRefId] = useState('');
 
 	useEffect(() => {
-		if (reduxUserToken) {
-			setBackToDashboard(true);
-			if (!reduxLoanRefId) return;
-			setLoanRefId(reduxLoanRefId);
+		const params = queryString.parse(window.location.search);
+		if (params.token) {
+			if (reduxUserToken) {
+				setBackToDashboard(true);
+				if (!reduxLoanRefId) return;
+				setLoanRefId(reduxLoanRefId);
+			}
 		}
 	}, [reduxLoanRefId, reduxUserToken]);
 

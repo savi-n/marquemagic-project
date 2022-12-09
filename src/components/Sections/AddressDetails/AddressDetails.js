@@ -733,12 +733,14 @@ const AddressDetails = props => {
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											<AddressProofUpload
-												prefix={prefix}
-												isPermanent={isPermanent}
-												disabled={!selectedAddressProofId}
 												field={field}
 												register={register}
 												formState={formState}
+												onChangeFormStateField={onChangeFormStateField}
+												prefilledValues={prefilledValues}
+												prefix={prefix}
+												isPermanent={isPermanent}
+												disabled={!selectedAddressProofId}
 												isInActive={isInActiveAddressProofUpload}
 												isSectionCompleted={isSectionCompleted}
 												selectedAddressProofId={selectedAddressProofId}
@@ -748,8 +750,6 @@ const AddressDetails = props => {
 												docTypeOptions={selectedDocumentTypes}
 												addressProofUploadSection={sub_section}
 												selectedApplicant={selectedApplicant}
-												onChangeFormStateField={onChangeFormStateField}
-												prefilledValues={prefilledValues}
 												addressProofError={
 													isPermanent
 														? permanentAddressProofError
