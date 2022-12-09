@@ -11,6 +11,7 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
+import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -527,7 +528,10 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				<SearchSelect
 					name={field.name}
 					placeholder={field.placeholder || ''}
-					onSelectOptionCallback={onChange}
+					onSelectOptionCallback={
+						field.name !== CONST_LOAN_DETAILS.CONNECTOR_NAME_FIELD_NAME &&
+						onChange
+					}
 					onBlurCallback={onChange}
 					fetchOptionsFunc={field.fetchOptionsFunc}
 					searchOptionCallback={field.searchOptionCallback}
