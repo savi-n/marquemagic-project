@@ -104,7 +104,10 @@ const LoanDetails = () => {
 			// console.log('connectorRes-', { connectorRes });
 			const newConnectorOptions = [];
 			connectorRes?.data?.data?.map(connector => {
-				newConnectorOptions.push({ ...connector, value: `${connector?.id}` });
+				newConnectorOptions.push({
+					...connector,
+					value: `${connector?.user_reference_no}`,
+				});
 				return null;
 			});
 			setConnectorOptions(newConnectorOptions);
@@ -320,7 +323,7 @@ const LoanDetails = () => {
 			// });
 			onChangeFormStateField({
 				name: CONST.CONNECTOR_CODE_FIELD_NAME,
-				value: selectedConnector?.id,
+				value: selectedConnector?.user_reference_no,
 			});
 			prevSelectedConnectorId.current = selectedConnectorId;
 		}
@@ -336,7 +339,7 @@ const LoanDetails = () => {
 	// 		)?.[0];
 	// 		onChangeFormStateField({
 	// 			name: CONST.CONNECTOR_CODE_FIELD_NAME,
-	// 			value: selectedConnector?.id,
+	// 			value: selectedConnector?.user_reference_no,
 	// 		});
 	// 	}
 	// 	// eslint-disable-next-line
