@@ -71,7 +71,10 @@ export const appSlice = createSlice({
 		reInitializeAppSlice: () => _.cloneDeep(initialState),
 		setLoginCreateUserRes: (state, action) => {
 			state.loginCreateUserRes = action.payload;
-			state.userToken = action.payload.token;
+			// if ui-ux token doesnt exist set it to borrower token
+			if (!state.userToken) {
+				state.userToken = action.payload.token;
+			}
 		},
 		setWhiteLabelId: (state, action) => {
 			state.whiteLabelId = action.payload;

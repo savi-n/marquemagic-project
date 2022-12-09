@@ -498,6 +498,7 @@ const AddressProofUpload = props => {
 				status: 'progress',
 				// cancelToken: source,
 				selectedAddressProofId,
+				prefix,
 			});
 		}
 		// const newUploadingFiles = _.cloneDeep(selectedFiles.current);

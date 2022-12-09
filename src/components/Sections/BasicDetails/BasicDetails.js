@@ -140,9 +140,10 @@ const BasicDetails = props => {
 				);
 				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
 				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
-				axios.defaults.headers.Authorization = `Bearer ${
-					newLoginCreateUserRes?.data?.token
-				}`;
+				// first priority is to set existing user token which is comming from ui-ux
+				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
+				axios.defaults.headers.Authorization = `Bearer ${userToken ||
+					newLoginCreateUserRes?.data?.token}`;
 				// console.log('onProceed-loginCreateUserReqRes-', {
 				// 	loginCreateUserReqBody,
 				// 	newLoginCreateUserRes,
@@ -388,6 +389,7 @@ const BasicDetails = props => {
 			mother_name: selectedApplicant?.mother_name,
 			upi_id: selectedApplicant?.upi_id,
 			profile_upload: selectedApplicant?.customer_picture,
+			relationship_with_applicant: selectedApplicant?.applicant_relationship,
 		};
 		return preData?.[field?.name];
 	};

@@ -329,11 +329,16 @@ const AddressDetails = props => {
 						loan_id: loanId,
 						doc_type_id: doc.selectedDocTypeId,
 						isDocRemoveAllowed: false,
+						original_doc_name:
+							formState?.values?.[
+								`${doc?.prefix}${CONST.OTHERS_DOC_NAME_FIELD_NAME}`
+							],
 					});
 					return null;
 				});
 				documentUploadReqBody.data.document_upload = newUploadedDocuments;
-
+				// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
+				// return;
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
 			if (cacheDocumentsTemp.length > 0) {
