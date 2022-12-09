@@ -678,6 +678,17 @@ const AddressProofUpload = props => {
 				return !doc?.doc_type_id?.includes(prefix);
 			})
 		);
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+			onChangeFormStateField({
+				name: `${prefix}${key}`,
+				value: '',
+			});
+			return null;
+		});
+		// console.log('resetAllStates-', {
+		// 	cacheDocumentsTemp,
+		// 	newCacheDocumentTemp,
+		// });
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 

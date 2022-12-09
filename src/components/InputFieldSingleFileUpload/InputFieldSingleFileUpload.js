@@ -24,6 +24,7 @@ const InputFieldSingleFileUpload = props => {
 		errorColorCode,
 		isFormSubmited,
 		isDisabled,
+		category,
 	} = props;
 	const { application } = useSelector(state => state);
 	const { loanId, businessUserId, businessId, userId } = application;
@@ -109,6 +110,7 @@ const InputFieldSingleFileUpload = props => {
 				size: resFile.size,
 				loan_id: loanId,
 				doc_type_id: selectedDocTypeId,
+				category,
 			};
 		} catch (error) {
 			console.error('error-inputfieldsinglefileupload-', error);
