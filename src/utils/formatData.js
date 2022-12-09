@@ -532,14 +532,18 @@ export const parseJSON = data => {
 };
 
 export const createIndexKeyObjectFromArrayOfObject = data => {
-	const { arrayOfObject, isEmiDetails } = data;
+	const { arrayOfObject, isEmiDetails, isEditOrViewLoan } = data;
 	const keysOfObject = {};
 	arrayOfObject?.map((item, itemIndex) => {
 		Object.keys(item || {}).map(itemKey => {
 			if (isEmiDetails && itemKey === 'bank_name') {
-				keysOfObject[`${itemKey}_${itemIndex}`] = item?.bank_data;
+				keysOfObject[`${itemKey}_${itemIndex}`] = item?.[itemKey]?.value;
 			} else {
 				keysOfObject[`${itemKey}_${itemIndex}`] = item?.[itemKey];
+			}
+			// edit loan overwrite bank name value with bank id
+			if (isEditOrViewLoan && itemKey === 'bank_name') {
+				keysOfObject[`${itemKey}_${itemIndex}`] = item?.bank_id;
 			}
 			return null;
 		});
