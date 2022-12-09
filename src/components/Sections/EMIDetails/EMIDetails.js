@@ -63,8 +63,13 @@ const EMIDetails = props => {
 			}
 			const newValues = [];
 			finalData.map(data => {
-				if (data.emi_amount && data.bank_name) {
-					newValues.push(data);
+				if (data.emi_amount && data.bank_name && !isEditLoan) {
+					newValues.push({
+						emi_amount: data?.emi_amount,
+						bank_name: data?.bank_name?.name,
+						bank_id: data?.bank_name?.value,
+						bank_data: data.bank_name,
+					});
 				}
 				return null;
 			});
@@ -125,6 +130,7 @@ const EMIDetails = props => {
 		const emiDetails = parseJSON(
 			editLoanData?.bank_details?.[0]?.emi_details || {}
 		);
+		console.log(emiDetails, '3334444', editLoanData.bank_details);
 		const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
 			arrayOfObject: emiDetails,
 			isEmiDetails: true,

@@ -537,7 +537,7 @@ export const createIndexKeyObjectFromArrayOfObject = data => {
 	arrayOfObject?.map((item, itemIndex) => {
 		Object.keys(item || {}).map(itemKey => {
 			if (isEmiDetails && itemKey === 'bank_name') {
-				keysOfObject[`${itemKey}_${itemIndex}`] = item?.[itemKey]?.value;
+				keysOfObject[`${itemKey}_${itemIndex}`] = item?.bank_data;
 			} else {
 				keysOfObject[`${itemKey}_${itemIndex}`] = item?.[itemKey];
 			}
