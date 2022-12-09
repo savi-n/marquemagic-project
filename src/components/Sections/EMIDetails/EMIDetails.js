@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Fragment, useState } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
@@ -33,6 +33,8 @@ const EMIDetails = props => {
 		isTestMode,
 		editLoanData,
 		isEditLoan,
+		isEditOrViewLoan,
+		bankList,
 	} = app;
 	const { emiDetailsFinId } = application;
 	const dispatch = useDispatch();
@@ -64,7 +66,17 @@ const EMIDetails = props => {
 			const newValues = [];
 			finalData.map(data => {
 				if (data.emi_amount && data.bank_name) {
-					newValues.push(data);
+					let selectedBank = data?.bank_name;
+					if (typeof selectedBank === 'string') {
+						selectedBank = bankList.filter(
+							bank => `${bank?.value}` === selectedBank
+						)?.[0];
+					}
+					newValues.push({
+						emi_amount: data?.emi_amount,
+						bank_name: selectedBank?.name,
+						bank_id: selectedBank?.value,
+					});
 				}
 				return null;
 			});
@@ -123,11 +135,14 @@ const EMIDetails = props => {
 
 	const prefilledEditOrViewLoanValues = field => {
 		const emiDetails = parseJSON(
-			editLoanData?.bank_details?.[0]?.emi_details || {}
+			editLoanData?.bank_details?.filter(
+				bank => `${bank.id}` === `${emiDetailsFinId}`
+			)?.[0]?.emi_details || {}
 		);
 		const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
 			arrayOfObject: emiDetails,
 			isEmiDetails: true,
+			isEditOrViewLoan,
 		});
 		const preData = {
 			...emiDetailsIndex,
@@ -239,7 +254,22 @@ const EMIDetails = props => {
 			);
 		});
 
+	useEffect(() => {
+		if (isEditOrViewLoan) {
+			const emiDetails = parseJSON(
+				editLoanData?.bank_details?.filter(
+					bank => `${bank?.id}` === `${emiDetailsFinId}`
+				)?.[0]?.emi_details || {}
+			);
+			if (emiDetails.length > 3) {
+				setCount(emiDetails.length);
+			}
+		}
+		// eslint-disable-next-line
+	}, []);
+
 	// console.log('EMIDetails-allstates-', {
+	// 	app,
 	// 	selectedSection,
 	// 	selectedEmiDetailsSubSection,
 	// });
