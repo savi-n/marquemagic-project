@@ -129,7 +129,8 @@ const ProfileUpload = props => {
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 				addToast({
-					message: error?.message || 'File format is not supported',
+					message:
+						'File format is not supported. Please upload jpg, jpeg or png',
 					type: 'error',
 				});
 			} finally {
