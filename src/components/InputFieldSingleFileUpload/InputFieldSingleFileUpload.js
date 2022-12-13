@@ -23,11 +23,22 @@ const InputFieldSingleFileUpload = props => {
 		removeCacheDocumentTemp,
 		errorColorCode,
 		isFormSubmited,
-		isDisabled,
 		category,
 	} = props;
-	const { application } = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
+	const { isViewLoan } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
+	const {
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
@@ -111,6 +122,7 @@ const InputFieldSingleFileUpload = props => {
 				loan_id: loanId,
 				doc_type_id: selectedDocTypeId,
 				category,
+				directorId: selectedApplicant?.directorId,
 			};
 		} catch (error) {
 			console.error('error-inputfieldsinglefileupload-', error);
@@ -190,16 +202,18 @@ const InputFieldSingleFileUpload = props => {
 							<UI.UploadIconWrapper
 								{...getRootProps({ className: 'dropzone' })}
 							>
-								<UI.IconDelete
-									src={iconDelete}
-									alt='delete'
-									onClick={e => {
-										e.preventDefault();
-										e.stopPropagation();
-										deleteDocument(uploadedFile);
-										clearErrorFormState();
-									}}
-								/>
+								{!isViewLoan && (
+									<UI.IconDelete
+										src={iconDelete}
+										alt='delete'
+										onClick={e => {
+											e.preventDefault();
+											e.stopPropagation();
+											deleteDocument(uploadedFile);
+											clearErrorFormState();
+										}}
+									/>
+								)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>
@@ -207,7 +221,7 @@ const InputFieldSingleFileUpload = props => {
 			) : (
 				<UI.Container
 					loading={loading}
-					isDisabled={isDisabled}
+					isDisabled={isViewLoan}
 					errorColorCode={errorColorCode}
 					isError={isMandatory && isFormSubmited && !isPreview}
 				>

@@ -186,7 +186,6 @@ const LoanDetails = () => {
 							const newDoc = {
 								...resDoc,
 								...cacheDoc,
-								directorId: applicant?.directorId,
 								isDocRemoveAllowed: false,
 								document_id: resDoc?.id,
 							};
@@ -349,12 +348,12 @@ const LoanDetails = () => {
 		getConnectors();
 	}, []);
 
-	// console.log('loan-details-allstates-', {
-	// 	app,
-	// 	application,
-	// 	applicantCoApplicants,
-	// 	formState,
-	// });
+	console.log('loan-details-allstates-', {
+		app,
+		application,
+		applicantCoApplicants,
+		formState,
+	});
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -426,7 +425,6 @@ const LoanDetails = () => {
 												removeCacheDocumentTemp={removeCacheDocumentTemp}
 												errorColorCode={errorMessage ? 'red' : ''}
 												isFormSubmited={!!formState?.submit?.isSubmited}
-												isDisabled={isViewLoan}
 												category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
 											/>
 											{errorMessage && (

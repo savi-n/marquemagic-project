@@ -103,29 +103,32 @@ const DocumentUpload = props => {
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 
 	// EVAL DOCUMENTS
-	// const initializeExternalUserDocCheckList = async () => {
-	// 	try {
-	// 		const evalData = await axios.get(
-	// 			`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
-	// 		);
-	// 		const selectedEvalData = evalData?.data?.data?.filter(
-	// 			d => d.assign_userid === userDetails.id
-	// 		)[0];
-	// 		const newSelectedDocCheckList = selectedEvalData
-	// 			? selectedEvalData?.assigned_document_list
-	// 				? JSON.parse(selectedEvalData?.assigned_document_list)
-	// 				: []
-	// 			: [];
-	// 		// setSelectedDocCheckList(newSelectedDocCheckList);
-	// 		// console.log('initializeExternalUserDocCheckList-evalData-', {
-	// 		// 	evalData,
-	// 		// 	selectedEvalData,
-	// 		// });
-	// 		return newSelectedDocCheckList;
-	// 	} catch (error) {
-	// 		console.error('error-initializeExternalUserDocCheckList-', error);
-	// 	}
-	// };
+	const initializeExternalUserDocCheckList = async () => {
+		try {
+			const evalData = await axios.get(
+				`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
+			);
+			const selectedEvalData = evalData?.data?.data?.filter(
+				d => `${d?.assign_userid}` === `${userDetails?.id}`
+			)?.[0];
+			const newSelectedDocCheckList = selectedEvalData
+				? selectedEvalData?.assigned_document_list
+					? JSON.parse(selectedEvalData?.assigned_document_list)
+					: []
+				: [];
+			// setSelectedDocCheckList(newSelectedDocCheckList);
+			// console.log('initializeExternalUserDocCheckList-evalData-', {
+			// 	userDetails,
+			// 	evalData,
+			// 	selectedEvalData,
+			// 	newSelectedDocCheckList,
+			// 	editLoanData,
+			// });
+			return newSelectedDocCheckList;
+		} catch (error) {
+			console.error('error-initializeExternalUserDocCheckList-', error);
+		}
+	};
 
 	const getApplicantDocumentTypes = async () => {
 		try {
@@ -219,12 +222,17 @@ const DocumentUpload = props => {
 			const newAllDocumentTypes = [];
 
 			// EXTERNAL / OTHER USER
-			// TODO: shreyas viewloan external evaluation
-			// let externalUserSelectedDocTypeList = [];
-			// if (isViewLoan) {
-			// 	externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
-			// }
-			// get applicant document list
+			let externalUserSelectedDocTypeList = [];
+			const externalUserSelectedDocTypeIds = [];
+			if (isViewLoan) {
+				externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
+				externalUserSelectedDocTypeList.map(doc => {
+					externalUserSelectedDocTypeIds.push(
+						`${doc?.director_id}${doc?.doc_type_id}`
+					);
+					return null;
+				});
+			}
 			// -- EXTERNAL / OTHER USER
 
 			// APPLICANT
@@ -268,8 +276,106 @@ const DocumentUpload = props => {
 			});
 			// -- CO-APPLICANTS
 
+			if (isViewLoan) {
+				const preFillLenderDocsTag = [];
+				const preFillEvalDocsTag = [];
+				editLoanData?.lender_document?.map(lenderDoc => {
+					const docListItem = lenderDoc?.doc_type;
+					const priority = docListItem?.priority;
+					const doctype = docListItem?.id;
+					const name =
+						lenderDoc?.uploaded_doc_name ||
+						lenderDoc?.original_doc_name ||
+						lenderDoc?.doc_name;
+					const document_key = lenderDoc?.doc_name;
+					let displayEvalDoc = false;
+					if (userDetails.is_other) {
+						if (lenderDoc.uploaded_by === userDetails.id) displayEvalDoc = true;
+					} else {
+						displayEvalDoc = true;
+					}
+					if (displayEvalDoc) {
+						if (priority === '300') {
+							const doc_type_id = doctype;
+							const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
+							if (
+								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
+									?.length <= 0
+							) {
+								newAllDocumentTypes.push({
+									...docListItem,
+									doc_type_id,
+									category,
+									directorId: applicant?.directorId,
+								});
+							}
+							preFillLenderDocsTag.push({
+								...lenderDoc,
+								doctype,
+								doc_type_id,
+								category,
+								name,
+								document_key,
+								directorId: applicant?.directorId,
+								document_id: lenderDoc?.id,
+							});
+							return null;
+						}
+						if (priority === '3') {
+							const doc_type_id = doctype;
+							const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
+							if (
+								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
+									?.length <= 0
+							) {
+								newAllDocumentTypes.push({
+									...docListItem,
+									doc_type_id,
+									category,
+									directorId: applicant?.directorId,
+								});
+							}
+							preFillEvalDocsTag.push({
+								...lenderDoc,
+								doctype,
+								doc_type_id,
+								category,
+								name,
+								document_key,
+								directorId: applicant?.directorId,
+								document_id: lenderDoc?.id,
+							});
+							return null;
+						}
+					}
+					return null;
+				});
+				// console.log('1111111-', {
+				// 	files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
+				// 	newAllDocumentTypes,
+				// });
+				dispatch(
+					addOrUpdateCacheDocuments({
+						files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
+					})
+				);
+			}
+
 			newAllDocumentTypes.sort((a, b) => a.id - b.id);
-			dispatch(addAllDocumentTypes(newAllDocumentTypes));
+			if (externalUserSelectedDocTypeIds.length > 0) {
+				// only show document types which is assign to external user
+				dispatch(
+					addAllDocumentTypes(
+						newAllDocumentTypes.filter(doc =>
+							externalUserSelectedDocTypeIds.includes(
+								`${doc?.directorId}${doc?.doc_type_id}`
+							)
+						)
+					)
+				);
+			} else {
+				dispatch(addAllDocumentTypes(newAllDocumentTypes));
+			}
 
 			if (isEditOrViewLoan) {
 				const newDoc = [];
@@ -629,6 +735,8 @@ const DocumentUpload = props => {
 	// 	allDocumentTypes,
 	// 	selectedApplicantDocumentTypes,
 	// 	cacheDocuments,
+	// 	editLoanData,
+	// 	selectedApplicantDocuments,
 	// });
 
 	if (loading) {
@@ -707,6 +815,7 @@ const DocumentUpload = props => {
 					</div>
 				);
 			})}
+
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
 				{selectedSection?.sub_sections?.map(sub_section => {
@@ -747,48 +856,46 @@ const DocumentUpload = props => {
 						customStyle={{ width: 'auto', height: '45px' }}
 					/>
 				)}
-				{!isViewLoan && (
-					<UI.CheckboxWrapper>
-						<CheckBox
-							name={
-								isCorporate ? (
-									<span>
-										{CONST.textForCheckbox.grantCibilAcces.replace(
-											'CIBIL',
-											'Bureau'
-										)}
-									</span>
-								) : (
-									<span>{CONST.textForCheckbox.grantCibilAcces}</span>
-								)
-							}
-							checked={cibilCheckbox}
-							disabled={cibilCheckbox || isViewLoan}
-							onChange={() => {
-								setCibilCheckbox(!cibilCheckbox);
-								//setCibilCheckModal(true);
-							}}
-							bg='blue'
-						/>
-						<CheckBox
-							name={
-								selectedProduct?.product_details?.termsandconditionsurl ? (
-									<>
-										<span>{CONST.textForCheckbox.declaration}</span>
-										<span>{CONST.getATag(selectedProduct)}</span>
-										<span>{CONST.textForCheckbox.declaration2}</span>
-									</>
-								) : (
-									<span>{CONST.textForCheckbox.defaultDeclaration}</span>
-								)
-							}
-							checked={declareCheck}
-							disabled={isViewLoan}
-							onChange={() => setDeclareCheck(!declareCheck)}
-							bg='blue'
-						/>
-					</UI.CheckboxWrapper>
-				)}
+				<UI.CheckboxWrapper>
+					<CheckBox
+						name={
+							isCorporate ? (
+								<span>
+									{CONST.textForCheckbox.grantCibilAcces.replace(
+										'CIBIL',
+										'Bureau'
+									)}
+								</span>
+							) : (
+								<span>{CONST.textForCheckbox.grantCibilAcces}</span>
+							)
+						}
+						checked={cibilCheckbox}
+						disabled={cibilCheckbox || isViewLoan}
+						onChange={() => {
+							setCibilCheckbox(!cibilCheckbox);
+							//setCibilCheckModal(true);
+						}}
+						bg='blue'
+					/>
+					<CheckBox
+						name={
+							selectedProduct?.product_details?.termsandconditionsurl ? (
+								<>
+									<span>{CONST.textForCheckbox.declaration}</span>
+									<span>{CONST.getATag(selectedProduct)}</span>
+									<span>{CONST.textForCheckbox.declaration2}</span>
+								</>
+							) : (
+								<span>{CONST.textForCheckbox.defaultDeclaration}</span>
+							)
+						}
+						checked={declareCheck}
+						disabled={isViewLoan}
+						onChange={() => setDeclareCheck(!declareCheck)}
+						bg='blue'
+					/>
+				</UI.CheckboxWrapper>
 				<UI.SubmitWrapper>
 					{!isViewLoan && displayProceedButton}
 				</UI.SubmitWrapper>

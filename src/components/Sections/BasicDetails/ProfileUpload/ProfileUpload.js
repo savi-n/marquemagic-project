@@ -111,13 +111,21 @@ const ProfileUpload = props => {
 				const formData = new FormData();
 				formData.append('white_label_id', whiteLabelId);
 				formData.append('document', acceptedFiles[0]);
-				const profileRes = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-				const newFile = {
-					field,
-					...profileRes?.data,
-					preview: profileRes?.data?.presignedUrl,
-				};
-				addCacheDocumentTemp(newFile);
+				if (acceptedFiles.length > 0) {
+					const profileRes = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+					const newFile = {
+						field,
+						...profileRes?.data,
+						preview: profileRes?.data?.presignedUrl,
+					};
+					addCacheDocumentTemp(newFile);
+				} else {
+					addToast({
+						message:
+							'File format is not supported. Please upload jpg, jpeg or png',
+						type: 'error',
+					});
+				}
 				// setProfileImageResTemp(profileRes?.data);
 				// setFiles(
 				// 	acceptedFiles.map(file =>
@@ -129,7 +137,7 @@ const ProfileUpload = props => {
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 				addToast({
-					message: error?.message || 'File format is not supported',
+					message: error?.message || 'File format is not supported.',
 					type: 'error',
 				});
 			} finally {
