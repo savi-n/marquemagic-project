@@ -747,48 +747,46 @@ const DocumentUpload = props => {
 						customStyle={{ width: 'auto', height: '45px' }}
 					/>
 				)}
-				{!isViewLoan && (
-					<UI.CheckboxWrapper>
-						<CheckBox
-							name={
-								isCorporate ? (
-									<span>
-										{CONST.textForCheckbox.grantCibilAcces.replace(
-											'CIBIL',
-											'Bureau'
-										)}
-									</span>
-								) : (
-									<span>{CONST.textForCheckbox.grantCibilAcces}</span>
-								)
-							}
-							checked={cibilCheckbox}
-							disabled={cibilCheckbox || isViewLoan}
-							onChange={() => {
-								setCibilCheckbox(!cibilCheckbox);
-								//setCibilCheckModal(true);
-							}}
-							bg='blue'
-						/>
-						<CheckBox
-							name={
-								selectedProduct?.product_details?.termsandconditionsurl ? (
-									<>
-										<span>{CONST.textForCheckbox.declaration}</span>
-										<span>{CONST.getATag(selectedProduct)}</span>
-										<span>{CONST.textForCheckbox.declaration2}</span>
-									</>
-								) : (
-									<span>{CONST.textForCheckbox.defaultDeclaration}</span>
-								)
-							}
-							checked={declareCheck}
-							disabled={isViewLoan}
-							onChange={() => setDeclareCheck(!declareCheck)}
-							bg='blue'
-						/>
-					</UI.CheckboxWrapper>
-				)}
+				<UI.CheckboxWrapper>
+					<CheckBox
+						name={
+							isCorporate ? (
+								<span>
+									{CONST.textForCheckbox.grantCibilAcces.replace(
+										'CIBIL',
+										'Bureau'
+									)}
+								</span>
+							) : (
+								<span>{CONST.textForCheckbox.grantCibilAcces}</span>
+							)
+						}
+						checked={cibilCheckbox}
+						disabled={cibilCheckbox || isViewLoan}
+						onChange={() => {
+							setCibilCheckbox(!cibilCheckbox);
+							//setCibilCheckModal(true);
+						}}
+						bg='blue'
+					/>
+					<CheckBox
+						name={
+							selectedProduct?.product_details?.termsandconditionsurl ? (
+								<>
+									<span>{CONST.textForCheckbox.declaration}</span>
+									<span>{CONST.getATag(selectedProduct)}</span>
+									<span>{CONST.textForCheckbox.declaration2}</span>
+								</>
+							) : (
+								<span>{CONST.textForCheckbox.defaultDeclaration}</span>
+							)
+						}
+						checked={declareCheck}
+						disabled={isViewLoan}
+						onChange={() => setDeclareCheck(!declareCheck)}
+						bg='blue'
+					/>
+				</UI.CheckboxWrapper>
 				<UI.SubmitWrapper>
 					{!isViewLoan && displayProceedButton}
 				</UI.SubmitWrapper>
