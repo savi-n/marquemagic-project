@@ -132,7 +132,7 @@ export default function Pincode(props) {
 					setFlowData(newPincodeData, PINCODE_RESPONSE);
 				}
 				// const pincodeData = pincodeResponse.data;
-				//console.log(response);
+				// console.log(response);
 				for (const [k, v] of props.value_for_fields) {
 					const target = {
 						name: showCityState(props, k),

@@ -47,7 +47,7 @@ import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
 import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
 import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
-import { formatLenderDocuments } from 'utils/formatData';
+import { formatLoanDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -202,9 +202,12 @@ const AppLayout = () => {
 							)?.[1]?.id,
 						})
 					);
-					const newDocs = formatLenderDocuments(
+					const newDocs = formatLoanDocuments(
 						newEditLoanData?.loan_document || []
 					);
+					// const newLenderDocs = formatLenderDocs(
+					// 	newEditLoanData?.lender_document || []
+					// );
 					// const newDocs = [];
 					// newEditLoanData?.loan_document?.map(doc => {
 					// 	const newDoc = {

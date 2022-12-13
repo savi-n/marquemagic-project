@@ -181,11 +181,13 @@ const EmploymentDetails = () => {
 			...selectedEmploymentData,
 			years_in_company: selectedEmploymentData?.year_in_company,
 			pin_code: selectedEmploymentData?.pincode,
+			organization_type_salaried_self_employed:
+				selectedEmploymentData?.organization_type,
 			organization_type_salaried: selectedEmploymentData?.organization_type,
 			organization_type_business: selectedEmploymentData?.organization_type,
 			organization_type_professional: selectedEmploymentData?.organization_type,
-			company_name: selectedEmploymentData?.organization_type,
 			organization_type_others: selectedEmploymentData?.organization_type,
+			company_name: selectedEmploymentData?.company_name,
 			...selectedEmploymentIncomeData,
 		};
 		return preData?.[field?.name];

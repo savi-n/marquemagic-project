@@ -29,29 +29,36 @@ const ApplicantCoApplicantHeader = props => {
 		setIsDeleteCoApplicantModalOpen,
 	] = useState(false);
 	const refListWrapper = useRef(null);
+	const isDocumentUploadMandatory = !!selectedProduct?.product_details
+		?.document_mandatory;
 
 	let isApplicantMandatoryDocumentSubmited = true;
-	if (selectedProduct?.product_details?.document_mandatory) {
+	if (isDocumentUploadMandatory) {
 		const applicantMandatoryDocumentIds = [];
-		cacheDocuments?.map(doc => {
-			if (
-				`${doc?.directorId}` === `${applicant.directorId}` &&
-				!!doc?.isMandatory
-			) {
-				applicantMandatoryDocumentIds.push(doc?.doc_type_id);
-			}
-			return null;
-		});
-		allDocumentTypes?.map(docType => {
-			if (
+		allDocumentTypes?.map(
+			docType =>
 				`${docType?.directorId}` === `${applicant.directorId}` &&
-				!!docType?.isMandatory &&
-				!applicantMandatoryDocumentIds.includes(docType?.doc_type_id)
-			) {
+				docType?.isMandatory &&
+				applicantMandatoryDocumentIds.push(
+					`${applicant.directorId}${docType?.doc_type_id}`
+				)
+		);
+		const applicantUploadedDocumetnIds = [];
+		cacheDocuments?.map(d =>
+			applicantUploadedDocumetnIds.push(`${d?.directorId}${d?.doc_type_id}`)
+		);
+		applicantMandatoryDocumentIds?.map(docId => {
+			if (!applicantUploadedDocumetnIds.includes(docId)) {
 				isApplicantMandatoryDocumentSubmited = false;
 			}
 			return null;
 		});
+		// console.log('applicant-doc-mandatory-', {
+		// 	isApplicantMandatoryDocumentSubmited,
+		// 	isDocumentUploadMandatory,
+		// 	applicantMandatoryDocumentIds,
+		// 	applicantUploadedDocumetnIds,
+		// });
 	}
 
 	// console.log('ApplicantCoApplicantHeader-allstates-', {
@@ -103,23 +110,24 @@ const ApplicantCoApplicantHeader = props => {
 				</UI.LI>
 				{Object.keys(coApplicants).map((directorId, directorIndex) => {
 					let isCoApplicantMandatoryDocumentSubmited = true;
-					if (selectedProduct?.product_details?.document_mandatory) {
+					if (isDocumentUploadMandatory) {
 						const coApplicantMandatoryDocumentIds = [];
-						cacheDocuments?.map(doc => {
-							if (
-								`${doc?.directorId}` === `${directorId}` &&
-								!!doc?.isMandatory
-							) {
-								coApplicantMandatoryDocumentIds.push(doc?.doc_type_id);
-							}
-							return null;
-						});
-						allDocumentTypes?.map(docType => {
-							if (
+						allDocumentTypes?.map(
+							docType =>
 								`${docType?.directorId}` === `${directorId}` &&
-								!!docType?.isMandatory &&
-								!coApplicantMandatoryDocumentIds.includes(docType?.doc_type_id)
-							) {
+								docType?.isMandatory &&
+								coApplicantMandatoryDocumentIds.push(
+									`${directorId}${docType?.doc_type_id}`
+								)
+						);
+						const coApplicantUploadedDocumetnIds = [];
+						cacheDocuments?.map(d =>
+							coApplicantUploadedDocumetnIds.push(
+								`${d?.directorId}${d?.doc_type_id}`
+							)
+						);
+						coApplicantMandatoryDocumentIds?.map(docId => {
+							if (!coApplicantUploadedDocumetnIds.includes(docId)) {
 								isCoApplicantMandatoryDocumentSubmited = false;
 							}
 							return null;
