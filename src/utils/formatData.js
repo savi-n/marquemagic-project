@@ -326,21 +326,21 @@ export const formatAddressProofDocTypeList = data => {
 					value: `${prefix}513`,
 					doc_type_id: `${prefix}513`,
 					id: `${prefix}513`,
-					name: 'Other Front Part',
+					name: 'Address Proof Document Front',
 				},
 				{
 					typeId: `${prefix}514`,
 					value: `${prefix}514`,
 					doc_type_id: `${prefix}514`,
 					id: `${prefix}514`,
-					name: 'Other Back Part',
+					name: 'Address Proof Document Back',
 				},
 				{
 					typeId: `${prefix}515`,
 					value: `${prefix}515`,
 					doc_type_id: `${prefix}515`,
 					id: `${prefix}515`,
-					name: 'Other Front and Back',
+					name: 'Address Proof Document Front and Back',
 				},
 			];
 		default:
@@ -628,7 +628,7 @@ export const getDocumentNameFromLoanDocuments = doc => {
 	);
 };
 
-export const formatLenderDocuments = docs => {
+export const formatLoanDocuments = docs => {
 	const newDocs = [];
 	docs?.map(doc => {
 		const newDoc = {
@@ -641,5 +641,12 @@ export const formatLenderDocuments = docs => {
 		newDocs.push(newDoc);
 		return null;
 	});
+	return newDocs;
+};
+
+// TODO: remove lender documents logics from document upload page
+// and add it to app layout along with formatloandocument
+export const formatLenderDocs = docs => {
+	const newDocs = [];
 	return newDocs;
 };
