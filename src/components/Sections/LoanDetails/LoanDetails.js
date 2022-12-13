@@ -425,7 +425,6 @@ const LoanDetails = () => {
 												removeCacheDocumentTemp={removeCacheDocumentTemp}
 												errorColorCode={errorMessage ? 'red' : ''}
 												isFormSubmited={!!formState?.submit?.isSubmited}
-												isDisabled={isViewLoan}
 												category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
 											/>
 											{errorMessage && (
