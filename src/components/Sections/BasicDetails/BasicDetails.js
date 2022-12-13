@@ -374,7 +374,7 @@ const BasicDetails = props => {
 		const preData = {
 			existing_customer: selectedApplicant?.existing_customer,
 			pan_number: selectedApplicant?.dpancard,
-			income_type: selectedApplicant?.income_type.toString(),
+			income_type: `${selectedApplicant?.income_type}`,
 			first_name: selectedApplicant?.dfirstname,
 			last_name: selectedApplicant?.dlastname,
 			dob: selectedApplicant?.ddob,
