@@ -23,10 +23,10 @@ const InputFieldSingleFileUpload = props => {
 		removeCacheDocumentTemp,
 		errorColorCode,
 		isFormSubmited,
-		isDisabled,
 		category,
 	} = props;
-	const { application } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
+	const { isViewLoan } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
@@ -190,7 +190,7 @@ const InputFieldSingleFileUpload = props => {
 							<UI.UploadIconWrapper
 								{...getRootProps({ className: 'dropzone' })}
 							>
-								{!isDisabled && (
+								{!isViewLoan && (
 									<UI.IconDelete
 										src={iconDelete}
 										alt='delete'
@@ -209,7 +209,7 @@ const InputFieldSingleFileUpload = props => {
 			) : (
 				<UI.Container
 					loading={loading}
-					isDisabled={isDisabled}
+					isDisabled={isViewLoan}
 					errorColorCode={errorColorCode}
 					isError={isMandatory && isFormSubmited && !isPreview}
 				>
