@@ -92,6 +92,7 @@ const DocumentUpload = props => {
 	const [submitting, setSubmitting] = useState(false);
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [declareCheck, setDeclareCheck] = useState(false);
+	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -311,6 +312,7 @@ const DocumentUpload = props => {
 					(a, b) => moment(b.datetime) - moment(a.datetime)
 				);
 			} catch (e) {}
+			setCommentsFromEditLoanData(allCommentsForOfficeUse?.[0]?.comment);
 			dispatch(
 				setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
 			);
@@ -333,7 +335,6 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitOtpAuthentication = async () => {
-		await onBlurCommentsForOfficeUse();
 		try {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
@@ -441,12 +442,12 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitCompleteApplication = async () => {
-		if (isEditLoan) {
-			await onBlurCommentsForOfficeUse();
-		}
 		if (buttonDisabledStatus()) return;
 		if (!isFormValid()) return;
 		try {
+			if (commentsForOfficeUse !== commentsFromEditLOanData) {
+				await submitCommentsForOfficeUse();
+			}
 			setSubmitting(true);
 			const documentUploadReqBody = formatSectionReqBody({
 				app,
@@ -510,7 +511,7 @@ const DocumentUpload = props => {
 		setLoading(false);
 	};
 
-	const onBlurCommentsForOfficeUse = async () => {
+	const submitCommentsForOfficeUse = async () => {
 		try {
 			if (!commentsForOfficeUse) return;
 			setSavingComments(true);
@@ -523,7 +524,7 @@ const DocumentUpload = props => {
 			commentReqBody.comments_for_office_use = commentsForOfficeUse;
 			await axios.post(`${API.ADD_COMMENTS_FOR_OFFICE_USE}`, commentReqBody);
 		} catch (error) {
-			console.error('error-onBlurCommentsForOfficeUse-', error);
+			console.error('error-submitCommentsForOfficeUse-', error);
 		} finally {
 			setSavingComments(false);
 		}
