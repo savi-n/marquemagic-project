@@ -97,7 +97,8 @@ const CategoryFileUpload = props => {
 			// console.log('reqBody-', reqBody);
 			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
-			// dispatch(removeCacheDocument({fileId: file.id})); // TODO: only if user navigate back and deletes
+			dispatch(removeCacheDocument({ fileId: file.id }));
+			// TODO: only if user navigate back and deletes
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
 		} finally {

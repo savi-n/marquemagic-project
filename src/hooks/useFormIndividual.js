@@ -301,6 +301,7 @@ export default function useForm() {
 				delete newField.mask.character_limit;
 				delete newField.mask.alpha_char_only;
 				delete newField.mask.alphaNumeric_only;
+				delete newField.type;
 			}
 		}
 

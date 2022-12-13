@@ -25,9 +25,20 @@ const InputFieldSingleFileUpload = props => {
 		isFormSubmited,
 		category,
 	} = props;
-	const { app, application } = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
 	const { isViewLoan } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
+	const {
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
@@ -111,6 +122,7 @@ const InputFieldSingleFileUpload = props => {
 				loan_id: loanId,
 				doc_type_id: selectedDocTypeId,
 				category,
+				directorId: selectedApplicant?.directorId,
 			};
 		} catch (error) {
 			console.error('error-inputfieldsinglefileupload-', error);
