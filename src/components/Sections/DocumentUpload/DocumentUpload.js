@@ -333,6 +333,7 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitOtpAuthentication = async () => {
+		await onBlurCommentsForOfficeUse();
 		try {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
@@ -440,6 +441,9 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitCompleteApplication = async () => {
+		if (isEditLoan) {
+			await onBlurCommentsForOfficeUse();
+		}
 		if (buttonDisabledStatus()) return;
 		if (!isFormValid()) return;
 		try {
@@ -730,7 +734,6 @@ const DocumentUpload = props => {
 										}}
 										loading={savingComments}
 										disabled={savingComments || isViewLoan}
-										onBlur={onBlurCommentsForOfficeUse}
 										floatingLabel={false}
 									/>
 								);
