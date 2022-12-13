@@ -14,7 +14,7 @@ import {
 	updateApplicantSection,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-import { addCacheDocuments } from 'store/applicationSlice';
+import { addOrUpdateCacheDocuments } from 'store/applicationSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 
 import useForm from 'hooks/useFormIndividual';
@@ -222,9 +222,49 @@ const AddressDetails = props => {
 						});
 						return;
 					}
-				}
-			}
 
+					// if document is (voter-dl-passport), it should be uploaded and extracted
+					const isPermanentSelectedAddressProofTypeOthers = formState?.values?.[
+						CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+					]?.includes(CONST_SECTIONS.EXTRACTION_KEY_OTHERS);
+					if (!isPermanentSelectedAddressProofTypeOthers) {
+						let isFetchAddressPressed = false;
+						permanentCacheDocumentsTemp.map(doc => {
+							if (!!doc?.extractionRes) isFetchAddressPressed = true;
+							return null;
+						});
+						if (!isFetchAddressPressed) {
+							addToast({
+								message: 'Please upload address proof documents',
+								type: 'error',
+							});
+							return;
+						}
+					}
+				}
+
+				// TODO: validate only for other documents
+				// if (
+				// 	!isPermanentSelectedAddressProofTypeAadhaar &&
+				// 	permanentCacheDocumentsTemp.length === 0
+				// ) {
+				// 	addToast({
+				// 		message: 'Please upload permanent address proof documents',
+				// 		type: 'error',
+				// 	});
+				// 	return;
+				// }
+				// if (
+				// 	!isSameAsAboveAddressChecked &&
+				// 	presentCacheDocumentsTemp.length === 0
+				// ) {
+				// 	addToast({
+				// 		message: 'Please upload present address proof documents',
+				// 		type: 'error',
+				// 	});
+				// 	return;
+				// }
+			}
 			setLoading(true);
 			const newLoanAddressDetails = [
 				{
@@ -297,7 +337,7 @@ const AddressDetails = props => {
 				...otherPresentCacheDocTemp,
 			];
 
-			const newUploadedDocuments = [];
+			const newOtherUploadedDocuments = [];
 			if (otherdocs.length > 0) {
 				const formData = new FormData();
 				const otherDocsBorrowerApi = [];
@@ -321,46 +361,54 @@ const AddressDetails = props => {
 
 				otherDocsBorrowerApi?.map(doc => {
 					if (doc?.document_id) return null;
-					newUploadedDocuments.push({
+					newOtherUploadedDocuments.push({
 						...doc,
 						file: null,
 						preview: null,
 						id: doc.doc_type_id,
 						loan_id: loanId,
 						doc_type_id: doc.selectedDocTypeId,
+						is_delete_not_allowed: true,
 						isDocRemoveAllowed: false,
 						original_doc_name:
 							formState?.values?.[
 								`${doc?.prefix}${CONST.OTHERS_DOC_NAME_FIELD_NAME}`
 							],
+						document_id: 'placeholder',
+						// document is is required so in document upload page we do not resubmit this documents
+						// due to this user won't be able to view document
 					});
 					return null;
 				});
-				documentUploadReqBody.data.document_upload = newUploadedDocuments;
+				documentUploadReqBody.data.document_upload = newOtherUploadedDocuments;
 				// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
 				// return;
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
+
+			const newKycUploadCacheDocumentsTemp = [];
 			if (cacheDocumentsTemp.length > 0) {
 				try {
-					const uploadCacheDocumentsTemp = [];
 					cacheDocumentsTemp.map(doc => {
 						if (!doc?.requestId) return null;
-						uploadCacheDocumentsTemp.push({
+						newKycUploadCacheDocumentsTemp.push({
 							...doc,
+							file: null,
 							request_id: doc.requestId,
 							doc_type_id: doc.selectedDocTypeId,
 							is_delete_not_allowed: true,
 							director_id: directorId,
-							file: null,
 							isDocRemoveAllowed: false,
+							document_id: 'placeholder',
+							// document is is required so in document upload page we do not resubmit this documents
+							// due to this user won't be able to view document
 						});
 						return null;
 					});
-					if (uploadCacheDocumentsTemp.length) {
+					if (newKycUploadCacheDocumentsTemp.length) {
 						const uploadCacheDocumentsTempReqBody = {
 							loan_id: loanId,
-							request_ids_obj: uploadCacheDocumentsTemp,
+							request_ids_obj: newKycUploadCacheDocumentsTemp,
 							user_id: createdByUserId,
 						};
 						// console.log('uploadCacheDocumentsTempReqBody-', {
@@ -375,15 +423,22 @@ const AddressDetails = props => {
 								},
 							}
 						);
-						dispatch(
-							addCacheDocuments({
-								files: [...uploadCacheDocumentsTemp, ...newUploadedDocuments],
-							})
-						);
 					}
 				} catch (error) {
 					console.error('error-', error);
 				}
+			}
+
+			// add all uploaded cache document to redux
+			if (!businessAddressIdAid1) {
+				dispatch(
+					addOrUpdateCacheDocuments({
+						files: [
+							...newKycUploadCacheDocumentsTemp,
+							...newOtherUploadedDocuments,
+						],
+					})
+				);
 			}
 			const newAddressDetails = {
 				sectionId: selectedSectionId,

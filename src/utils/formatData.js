@@ -628,7 +628,7 @@ export const getDocumentNameFromLoanDocuments = doc => {
 	);
 };
 
-export const formatLenderDocuments = docs => {
+export const formatLoanDocuments = docs => {
 	const newDocs = [];
 	docs?.map(doc => {
 		const newDoc = {
@@ -641,5 +641,12 @@ export const formatLenderDocuments = docs => {
 		newDocs.push(newDoc);
 		return null;
 	});
+	return newDocs;
+};
+
+// TODO: remove lender documents logics from document upload page
+// and add it to app layout along with formatloandocument
+export const formatLenderDocs = docs => {
+	const newDocs = [];
 	return newDocs;
 };
