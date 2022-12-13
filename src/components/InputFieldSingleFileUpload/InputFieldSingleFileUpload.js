@@ -190,16 +190,18 @@ const InputFieldSingleFileUpload = props => {
 							<UI.UploadIconWrapper
 								{...getRootProps({ className: 'dropzone' })}
 							>
-								<UI.IconDelete
-									src={iconDelete}
-									alt='delete'
-									onClick={e => {
-										e.preventDefault();
-										e.stopPropagation();
-										deleteDocument(uploadedFile);
-										clearErrorFormState();
-									}}
-								/>
+								{!isDisabled && (
+									<UI.IconDelete
+										src={iconDelete}
+										alt='delete'
+										onClick={e => {
+											e.preventDefault();
+											e.stopPropagation();
+											deleteDocument(uploadedFile);
+											clearErrorFormState();
+										}}
+									/>
+								)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>
