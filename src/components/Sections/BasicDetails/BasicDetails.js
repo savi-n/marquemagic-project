@@ -371,7 +371,6 @@ const BasicDetails = props => {
 			// console.log('all-pan-files-', panFile);
 			return panFile[0];
 		}
-		console.log(selectedApplicant, '333');
 		const preData = {
 			existing_customer: selectedApplicant?.existing_customer,
 			pan_number: selectedApplicant?.dpancard,
