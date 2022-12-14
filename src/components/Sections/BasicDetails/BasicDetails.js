@@ -69,7 +69,7 @@ const BasicDetails = props => {
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
-	const { cacheDocuments, borrowerUserId } = application;
+	const { cacheDocuments, borrowerUserId, businessUserId } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -186,10 +186,9 @@ const BasicDetails = props => {
 				selectedLoanProductId,
 			});
 
-			// pass this id in only create mode
-			if (!isEditOrViewLoan && !borrowerUserId) {
-				basicDetailsReqBody.borrower_user_id = newBorrowerUserId;
-			}
+			// always pass borrower user id from login api for create case / from edit loan data
+			basicDetailsReqBody.borrower_user_id =
+				newBorrowerUserId || businessUserId;
 
 			// console.log('onProceed-basicDetailsReq-', {
 			// 	basicDetailsReqBody,
@@ -374,7 +373,7 @@ const BasicDetails = props => {
 		const preData = {
 			existing_customer: selectedApplicant?.existing_customer,
 			pan_number: selectedApplicant?.dpancard,
-			income_type: selectedApplicant?.income_type,
+			income_type: `${selectedApplicant?.income_type}`,
 			first_name: selectedApplicant?.dfirstname,
 			last_name: selectedApplicant?.dlastname,
 			dob: selectedApplicant?.ddob,
