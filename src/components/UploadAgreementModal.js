@@ -5,7 +5,7 @@ import { useContext, useState } from 'react';
 import styled from 'styled-components';
 
 import { DOCS_UPLOAD_URL } from '_config/app.config';
-import Modal from './Modal';
+import Modal from 'components/Modal';
 import Button from './Button';
 import { UserContext } from 'reducer/userReducer';
 import FileUpload from 'shared/components/FileUpload/FileUpload';

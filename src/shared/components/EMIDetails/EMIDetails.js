@@ -103,10 +103,10 @@ export default function EMIDetails({
 			<FormWrap>
 				{jsonData &&
 					jsonData.map(field => {
-						const customFields = {};
+						const customFieldProps = {};
 						if (isViewLoan) {
-							customFields.readonly = true;
-							customFields.disabled = true;
+							customFieldProps.readonly = true;
+							customFieldProps.disabled = true;
 						}
 						return (
 							field.visibility && (
@@ -116,7 +116,7 @@ export default function EMIDetails({
 											...field,
 											// value: formState?.values?.[field.name],
 											value: populateValue(field),
-											...customFields,
+											...customFieldProps,
 											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||

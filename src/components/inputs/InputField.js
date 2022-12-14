@@ -9,7 +9,24 @@ const Input = styled.input`
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
+	/* Chrome, Safari, Edge, Opera */
+	::-webkit-outer-spin-button,
+	::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		-moz-appearance: textfield;
+		margin: 0;
+	}
+	@media (max-width: 700px) {
+		:focus {
+			::placeholder {
+				color: white;
+			}
+		}
+	}
 `;
+//  ${({ error }) =>
+// 		error ? `border: 1px solid red; outline-color: red;` : ``}
+// TODO: handler error
 
 const Div = styled.div`
 	position: relative;
@@ -25,38 +42,40 @@ const Label = styled.label`
 	background: white;
 	overflow: hidden;
 	transition: 0.2s;
-
-	@media (max-width: 700px) {
+	/* @media (max-width: 700px) {
 		${({ isLargeTextLable }) =>
 			isLargeTextLable &&
 			`
     width:150%;
   `}
-	}
+	} */
 	${Input}:focus ~ & {
-		top: -14%;
+		top: -15%;
 		left: 2%;
 		font-size: 10px;
 		color: black;
-		height: auto;
-		padding: 0 2px;
+		height: 20px;
+		padding: 0 5px;
 		line-height: 1;
 		width: fit-content;
+		/* border: 1px solid red; */
 	}
 	${({ value }) =>
 		value
 			? `
-      top: -14%;
+      top: -15%;
       left: 2%;
-      font-size:10px;
-      color:black;
-      /* height: 20%; */
-      padding:0 2px;
+      font-size: 10px;
+      color: black;
+      height: 20px;
+      padding: 0 5px;
+			line-height: 1;
+			width: fit-content;
   `
 			: `
-      top: 3%;
+      top: 4%;
       left: 1%;
-      height: 90%;
+      height: 45px;
       width: 98%;
       color: lightgray;
       padding: 0 10px;
@@ -79,6 +98,17 @@ const Span = styled.span`
 	max-height: 100%;
 `;
 
+const FieldPostfixIcon = styled.span`
+	position: absolute;
+	right: 0;
+	top: 0;
+	font-size: 12px;
+	color: grey;
+	line-height: 50px;
+	margin-right: 3%;
+	z-index: 10;
+`;
+
 export default function InputField(props) {
 	const isLargeTextLable = props.name.length > 15;
 	return (
@@ -88,15 +118,18 @@ export default function InputField(props) {
 				isLargeTextLable={isLargeTextLable}
 				value={props.value}
 				htmlFor={props.name}
-				disabled={props.disabled}>
+				disabled={props.disabled}
+			>
 				<Span>
 					{props.placeholder}{' '}
 					{props?.rules?.minValue && `min ${props?.rules?.minValue}`}
 					{props?.rules?.minValue && props?.rules?.maxValue ? ' - ' : ' '}
 					{props?.rules?.maxValue && `max ${props?.rules?.maxValue}`}
+					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
 				</Span>
-				{props.rules?.required && <Asteris>*</Asteris>}
+				{/* {props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>} */}
 			</Label>
+			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
 		</Div>
 	);
 }

@@ -162,10 +162,10 @@ const AddressDetails = props => {
 					{!isBusiness && <Caption>Permanent Address</Caption>}
 					{jsonData &&
 						jsonData.map(field => {
-							const customFields = {};
+							const customFieldProps = {};
 							if (isViewLoan) {
-								customFields.readonly = true;
-								customFields.disabled = true;
+								customFieldProps.readonly = true;
+								customFieldProps.disabled = true;
 							}
 							const fieldName = `${PREFIX_PERMANENT}${field.name}`;
 							return (
@@ -176,15 +176,15 @@ const AddressDetails = props => {
 											name: fieldName,
 											value: populateValue(field),
 											disabled: false,
-											...(field.valueForFields
+											...(field.value_for_fields
 												? {
-														valueForFields: field.valueForFields.map(f => [
+														value_for_fields: field.value_for_fields.map(f => [
 															`permanent_${f[0]}`,
 															f[1],
 														]),
 												  }
 												: {}),
-											...customFields,
+											...customFieldProps,
 											visibility: 'visible',
 										})}
 										{(formState?.submit?.isSubmited ||
@@ -219,13 +219,13 @@ const AddressDetails = props => {
 						</Caption>
 						{jsonData &&
 							jsonData.map(field => {
-								const customFields = {};
+								const customFieldProps = {};
 								if (isViewLoan) {
-									customFields.readonly = true;
-									customFields.disabled = true;
+									customFieldProps.readonly = true;
+									customFieldProps.disabled = true;
 								}
 								if (match) {
-									customFields.disabled = true;
+									customFieldProps.disabled = true;
 								}
 								const fieldName = `${PREFIX_PRESENT}${field.name}`;
 								return (
@@ -238,15 +238,14 @@ const AddressDetails = props => {
 													? formState?.values?.[`permanent_${field.name}`]
 													: populatePresentValue(field, match),
 												noActionTrigger: match,
-												...(field.valueForFields
+												...(field.value_for_fields
 													? {
-															valueForFields: field.valueForFields.map(f => [
-																`present_${f[0]}`,
-																f[1],
-															]),
+															value_for_fields: field.value_for_fields.map(
+																f => [`present_${f[0]}`, f[1]]
+															),
 													  }
 													: {}),
-												...customFields,
+												...customFieldProps,
 												visibility: 'visible',
 											})}
 											{(formState?.submit?.isSubmited ||

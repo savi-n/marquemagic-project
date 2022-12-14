@@ -28,6 +28,7 @@ const DOCS_UPLOAD_URL = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userI
 const DOCS_UPLOAD_URL_LOAN = taggedTemplate`${API_END_POINT}/loanDocumentUpload?userid=${'userId'}`;
 
 const BORROWER_UPLOAD_URL = `${API_END_POINT}/borrowerdoc-upload`;
+const TO_APPLICATION_STAGE_URL = `${API_END_POINT}/toApplicationStage`;
 
 const GENERATE_OTP_URL = `${API_END_POINT}/cub/generateOtp`;
 
@@ -86,6 +87,10 @@ const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
 const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
 
+const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
+const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
+const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
+
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
@@ -125,6 +130,9 @@ const CO_APP_DETAILS = 'co-applicant-details';
 const CO_APP_CREATE_REQ_BODY = 'co_app-create-reqbody';
 const CO_APP_CREATE_RESPONSE = 'co_app-create-response';
 const PINCODE_RESPONSE = 'pincode-response';
+
+const ORIGIN = 'nconboarding';
+const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
 
 export {
 	API_END_POINT,
@@ -197,4 +205,10 @@ export {
 	CO_APP_CREATE_RESPONSE,
 	PINCODE_RESPONSE,
 	FETCH_EVAL_DETAILS,
+	ORIGIN,
+	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
+	UPLOAD_PROFILE_IMAGE,
+	ADD_COMMENTS_FOR_OFFICE_USE,
+	TEST_DOMAINS,
+	TO_APPLICATION_STAGE_URL,
 };

@@ -2,8 +2,8 @@
 This card is designed and defined here */
 
 import { useHistory } from 'react-router-dom';
+import queryString from 'query-string';
 import styled from 'styled-components';
-import { shape, string, number } from 'prop-types';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
 import { resetAllApplicationState } from 'utils/localStore';
 import { FlowContext } from 'reducer/flowReducer';
@@ -117,6 +117,24 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				<Link
 					href={!add && `/applyloan/product/${btoa(product.id)}`}
 					onClick={e => {
+						if (product.loan_request_type === 2) {
+							if (add) {
+								setAddedProduct(product);
+								setAddProduct(false);
+								return;
+							}
+							e.preventDefault();
+							sessionStorage.clear();
+							const params = queryString.parse(window.location.search);
+							let redirectURL = `/nconboarding/applyloan/product/${btoa(
+								product.id
+							)}`;
+							if (params?.token) {
+								redirectURL += `?token=${params.token}`;
+							}
+							window.open(redirectURL, '_self');
+							return;
+						}
 						resetAllApplicationState();
 						clearFlowDetails(basePageUrl);
 						clearFormData();
@@ -133,13 +151,3 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		</Wrapper>
 	);
 }
-
-Card.propTypes = {
-	product: shape({
-		name: string.isRequired,
-		url: string.isRequired,
-		description: string.isRequired,
-		id: number.isRequired,
-		product_id: number.isRequired,
-	}),
-};

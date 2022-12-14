@@ -12,6 +12,9 @@ const Input = styled.input`
 		padding: 2px;
 	}
 `;
+//  ${({ error }) =>
+// 		error ? `border: 1px solid red; outline-color: red;` : ``}
+// TODO: handler error
 
 const Div = styled.div`
 	position: relative;
@@ -30,7 +33,7 @@ const Label = styled.label`
 		left: 2%;
 		font-size: 10px;
 		color: black;
-		height: 20%;
+		height: 20px;
 		padding: 0 5px;
 		width: inherit;
 	}
@@ -41,13 +44,13 @@ const Label = styled.label`
       left: 2%;
       font-size:10px;
       color:black;
-      height: 20%;
+      height: 20px;
       padding:0 5px;
   `
 			: `
       top: 3%;
       left: 1%;
-      height: 90%;
+      height: 45px;
       width: 90%;
       color: lightgray;
       padding: 0 10px;

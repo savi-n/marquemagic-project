@@ -1,6 +1,5 @@
 /* Input field which is used to search if valid pincode is entered and
 based on this search city and state is identified */
-
 import { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 
@@ -59,6 +58,17 @@ const Label = styled.label`
 	}
 `;
 
+const showCityState = (props, k) => {
+	if (
+		props?.name.split('_')[0].includes('permanent') ||
+		props?.name.split('_')[0].includes('present')
+	) {
+		return `${props.name.split('_')[0]}_${k}`;
+	} else {
+		return k;
+	}
+};
+
 export default function Pincode(props) {
 	const { newRequest } = useFetch();
 	const { addToast } = useToasts();
@@ -90,7 +100,10 @@ export default function Pincode(props) {
 			return;
 		}
 
-		if (value.length === props.makeApiCall) {
+		if (
+			value.length === props.makeApiCall ||
+			value.length === props.make_api_call
+		) {
 			if (isViewLoan) return;
 			setProcessing(true);
 			try {
@@ -109,6 +122,7 @@ export default function Pincode(props) {
 					);
 
 					if (pincodeRes.status === 'nok' || !pincodeRes) {
+						await addToast({ message: 'Invalid Pincode', type: 'error' });
 						setProcessing(false);
 						return;
 					}
@@ -118,10 +132,12 @@ export default function Pincode(props) {
 					setFlowData(newPincodeData, PINCODE_RESPONSE);
 				}
 				// const pincodeData = pincodeResponse.data;
-				//console.log(response);
-
-				for (const [k, v] of props.valueForFields) {
-					const target = { name: k, value: selectedPincodeRes?.[v]?.[0] || '' };
+				// console.log(response);
+				for (const [k, v] of props.value_for_fields) {
+					const target = {
+						name: showCityState(props, k),
+						value: selectedPincodeRes?.[v]?.[0] || '',
+					};
 					props.onChange({ target });
 				}
 			} catch (err) {

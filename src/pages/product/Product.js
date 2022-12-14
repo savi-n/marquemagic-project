@@ -1,6 +1,10 @@
 /* This file defines the side menu that is seen in loan application creation journey */
 
 import { useContext, useEffect, Fragment, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import _ from 'lodash';
+
+import { setSelectedProduct, setSelectedSectionId } from 'store/appSlice';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
@@ -11,6 +15,8 @@ import { FlowContext } from 'reducer/flowReducer';
 import { FormContext } from 'reducer/formReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import ContinueModal from 'components/modals/ContinueModal';
+import ProductIndividual from 'pages/product/ProductIndividual';
+
 import Router from './Router';
 import { UserContext } from 'reducer/userReducer';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -25,6 +31,7 @@ import {
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/Button';
+
 const Wrapper = styled.div`
 	width: 100%;
 	min-height: 100%;
@@ -171,10 +178,12 @@ const editLoanRestrictedSections = [
 ];
 export default function Product(props) {
 	const { product } = props;
-	// console.log('Product-allStates-', { props });
+	const dispatch = useDispatch();
 	const history = useHistory();
 	const productIdPage = atob(product);
 	const { addToast } = useToasts();
+	const { app } = useSelector(state => state);
+	const { userDetails } = app;
 	const {
 		state: { whiteLabelId },
 	} = useContext(AppContext);
@@ -228,21 +237,59 @@ export default function Product(props) {
 
 	useEffect(() => {
 		if (response) {
+			if (response?.data?.loan_request_type === 2) {
+				const selectedProductRes = _.cloneDeep(response.data);
+				// New Individual loan changes for displaying sections based on the config - starts
+				if (isViewLoan) {
+					let tempSections = _.cloneDeep(
+						selectedProductRes?.product_details?.sections
+					);
+
+					let flowData = tempSections?.filter(section => {
+						if (section?.hide_section_usertype) {
+							return (
+								!section?.hide_section_usertype?.includes(
+									userDetails?.usertype
+									// 'Sales' - for reference
+								) &&
+								!section?.hide_section_usertype?.includes(
+									userDetails?.user_sub_type
+									// 'RCU' - for reference
+								)
+							);
+						} else {
+							return tempSections;
+						}
+					});
+					selectedProductRes.product_details.sections = flowData;
+				}
+				// New Individual loan changes for displaying sections based on the config - ends
+
+				dispatch(setSelectedProduct(selectedProductRes));
+				dispatch(
+					setSelectedSectionId(
+						selectedProductRes?.product_details?.sections[0]?.id
+					)
+				);
+				return;
+			}
 			if (response?.data?.loan_request_type) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;
 			}
 			// displaying the sections based on the config data starts
 			if (isViewLoan) {
-				const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+				const sessionUserDetails = JSON.parse(
+					sessionStorage.getItem('userDetails')
+				);
 				let flowData = response?.data?.product_details?.flow.filter(section => {
 					if (section?.hide_section_usertype) {
 						return (
 							!section?.hide_section_usertype?.includes(
-								userDetails?.usertype
+								sessionUserDetails?.usertype
 							) &&
 							!section?.hide_section_usertype?.includes(
-								userDetails?.user_sub_type
+								sessionUserDetails?.user_sub_type
 							)
 						);
 					} else {
@@ -253,8 +300,7 @@ export default function Product(props) {
 					response.data.product_details.flow = flowData;
 				}
 			}
-			configure(response.data?.product_details?.flow);
-			// displaying the sections based on the config data ends
+			configure(response?.data?.product_details?.flow);
 			sessionStorage.setItem('productId', atob(product));
 			if (response?.data?.otp_configuration?.otp_duration_in_seconds) {
 				sessionStorage.setItem(
@@ -262,6 +308,7 @@ export default function Product(props) {
 					response?.data?.otp_configuration?.otp_duration_in_seconds
 				);
 			}
+			// displaying the sections based on the config data ends
 		}
 		// eslint-disable-next-line
 	}, [response]);
@@ -291,9 +338,9 @@ export default function Product(props) {
 			}
 			completedMenu?.length > 0 && setIndex(completedMenu.length);
 
-			const userDetails = sessionStorage.getItem('userDetails');
+			const sessionUserDetails = sessionStorage.getItem('userDetails');
 			const editLoan = sessionStorage.getItem('editLoan');
-			if (userDetails || editLoan) setDisableBackCTA(true);
+			if (sessionUserDetails || editLoan) setDisableBackCTA(true);
 		} catch (error) {
 			console.error('error-Header-useEffect-', error);
 		}
@@ -346,6 +393,10 @@ export default function Product(props) {
 	// 	flow,
 	// 	subFlowMenu,
 	// });
+
+	if (response && response.data && response.data.loan_request_type === 2) {
+		return <ProductIndividual />;
+	}
 
 	return (
 		response &&

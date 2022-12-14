@@ -10,7 +10,7 @@ import {
 } from '_config/app.config';
 import { AppContext } from 'reducer/appReducer';
 import useFetch from 'hooks/useFetch';
-import Modal from './Modal';
+import Modal from 'components/Modal';
 
 export default function GetCIBILScoreModal({ onClose, userData }) {
 	const bankTokenRef = useRef();
