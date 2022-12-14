@@ -8,8 +8,8 @@ import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 
-import { sleep } from 'utils/helper';
-import { formatSectionReqBody } from 'utils/formatData';
+import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import { useToasts } from 'components/Toast/ToastProvider';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
@@ -33,9 +33,19 @@ const BankDetails = () => {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
-	const submitBankDetails = async () => {
+	const { addToast } = useToasts();
+
+	const naviagteToNextSection = () => {
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
+
+	const naviagteToPreviousSection = () => {
+		dispatch(setSelectedSectionId(prevSectionId));
+	};
+
+	const onProceed = async () => {
 		try {
-			// console.log('submitBankDetails-', { formState, '111': '111' });
+			setLoading(true);
 			const bankDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: formState.values,
@@ -43,17 +53,28 @@ const BankDetails = () => {
 				applicantCoApplicants,
 				application,
 			});
-			bankDetailsReqBody.data.bank_details.bank_id =
-				bankDetailsReqBody.data.bank_details.bank_id.value;
+			let newBankId = bankDetailsReqBody.data.bank_details.bank_id;
+			// console.log('bankDetailsReqBody-before-', { newBankId });
+			if (typeof newBankId !== 'string' && typeof newBankId !== 'number') {
+				newBankId = newBankId?.value;
+			}
+			newBankId = `${newBankId}`;
+			bankDetailsReqBody.data.bank_details.bank_id = newBankId;
 			if (bankDetailsFinId) bankDetailsReqBody.data.fin_id = bankDetailsFinId;
+			// console.log('bankDetailsReqBody-after', {
+			// 	bankDetailsReqBody,
+			// 	newBankId,
+			// });
+			// return;
 			const bankDetailsRes = await axios.post(
 				`${API_END_POINT}/addBankDetailsNew`,
 				bankDetailsReqBody
 			);
-			if (!bankDetailsFinId)
+			if (!bankDetailsFinId) {
 				dispatch(
 					setLoanIds({ bankDetailsFinId: bankDetailsRes?.data?.data?.id })
 				);
+			}
 			// console.log('-bankDetailsRes-', {
 			// 	bankDetailsReqBody,
 			// 	bankDetailsRes,
@@ -62,30 +83,22 @@ const BankDetails = () => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState?.values,
-					bank_name: formState?.values?.bank_name?.value,
+					bank_name: newBankId,
 				},
 			};
 			dispatch(updateApplicationSection(newBankDetails));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-submitBankDetails-', error);
-		}
-	};
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-	const onProceed = async () => {
-		try {
-			if (Object.keys(formState.values).length === 0) return onSkip();
-			setLoading(true);
-			await sleep(100);
-			await submitBankDetails();
-			dispatch(setSelectedSectionId(nextSectionId));
-		} catch (error) {
-			console.error('error-BankDetails-onProceed-', error);
+			console.error('error-BankDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -155,7 +168,8 @@ const BankDetails = () => {
 			return {};
 		}
 	};
-	// console.log('employment-details-', { coApplicants, app });
+
+	// console.log('bank-details-', { app, application });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
