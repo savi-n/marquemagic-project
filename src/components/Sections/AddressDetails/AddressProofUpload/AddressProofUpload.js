@@ -913,7 +913,7 @@ const AddressProofUpload = props => {
 									isViewLoan ||
 									verifyingWithOtp ||
 									(directorDetails?.filter(
-										director => director.id === selectedApplicant?.directorId
+										director => director?.id === selectedApplicant?.directorId
 									).length > 0 &&
 										isEditLoan) ||
 									(isApplicant &&
