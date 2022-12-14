@@ -1,7 +1,6 @@
 /* Header section for the application */
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/Button';
@@ -11,17 +10,6 @@ import * as UI from './ui';
 // const Div = styled.div`
 // 	margin-left: auto;
 // `;
-
-const Logo = styled.img`
-	width: 200px;
-	height: calc(100% - 40px);
-	object-fit: scale-down;
-	object-position: left;
-	@media (max-width: 700px) {
-		padding: 0px 50px;
-		width: 100%;
-	}
-`;
 
 const Header = props => {
 	const { logo, openAccount, openAccountLink, logoLink } = props;
@@ -77,12 +65,13 @@ const Header = props => {
 	}, []);
 
 	return (
-		<>
+		<UI.Wrapper>
 			<UI.LogoLink
+				backToDashboard={backToDashboard}
 				href={logoLink ? logoLink : '/'}
 				{...logoLink && { target: '_blank' }}
 			>
-				<Logo src={logo} alt='logo' />
+				<UI.Logo src={logo} alt='logo' />
 			</UI.LogoLink>
 			{corporateName && (
 				<div
@@ -115,7 +104,7 @@ const Header = props => {
 					</Button>
 				</div>
 			)}
-		</>
+		</UI.Wrapper>
 	);
 };
 
