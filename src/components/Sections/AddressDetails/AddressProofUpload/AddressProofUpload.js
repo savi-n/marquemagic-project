@@ -56,7 +56,13 @@ const AddressProofUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { selectedProduct, clientToken, isEditLoan, isViewLoan } = app;
+	const {
+		selectedProduct,
+		clientToken,
+		editLoanData,
+		isEditLoan,
+		isViewLoan,
+	} = app;
 	const { loanId, businessUserId } = application;
 	const {
 		selectedApplicantCoApplicantId,
@@ -68,6 +74,7 @@ const AddressProofUpload = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
+	const directorDetails = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
 	const prevSelectedAddressProofId = useRef(null);
 	const refPopup = useRef(null);
@@ -905,6 +912,10 @@ const AddressProofUpload = props => {
 									!formState.values[aadhaarProofOTPField.name] ||
 									isViewLoan ||
 									verifyingWithOtp ||
+									(directorDetails?.filter(
+										director => director.id === selectedApplicant?.directorId
+									).length > 0 &&
+										isEditLoan) ||
 									(isApplicant &&
 										applicant?.api?.verifyOtp?.res?.status === 'ok')
 

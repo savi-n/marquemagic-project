@@ -586,14 +586,14 @@ const AddressDetails = props => {
 		}
 	};
 
-	useEffect(() => {
-		if (selectedApplicant?.api?.verifyOtp?.res?.status === 'ok') {
-			prePopulateAddressDetailsFromVerifyOtpRes(
-				selectedApplicant?.api?.verifyOtp?.res
-			);
-		}
-		// eslint-disable-next-line
-	}, []);
+	// useEffect(() => {
+	// 	if (selectedApplicant?.api?.verifyOtp?.res?.status === 'ok') {
+	// 		prePopulateAddressDetailsFromVerifyOtpRes(
+	// 			selectedApplicant?.api?.verifyOtp?.res
+	// 		);
+	// 	}
+	// 	// eslint-disable-next-line
+	// }, []);
 
 	// console.log('AddressDetails-allProps-', {
 	// 	applicant,
