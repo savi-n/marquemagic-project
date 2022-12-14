@@ -55,17 +55,17 @@ const HeaderWrapper = styled.div`
   /* background: ${({ theme }) => theme.themeColor1}; */
   /* box-shadow: 0px 2px 5px 1px rgb(11 92 255 / 20%); */
 	box-shadow: rgba(11, 92, 255, 0.16) 0px 2px 5px 1px;
-  display: flex;
-  align-items: center;
-  padding: 0 50px;
+  /* display: flex; */
+  /* align-items: center; */
+  /* padding: 0 50px; */
   z-index: 101;
 	position: sticky;
 	top: 0px;
 	background:#fff;
-	@media (max-width: 700px) {
+	/* @media (max-width: 700px) {
 		flex-direction: column;
 		justify-content: center;
-	}
+	} */
 `;
 const Div = styled.div`
 	flex: 1;
