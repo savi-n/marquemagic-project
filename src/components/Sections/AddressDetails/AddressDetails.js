@@ -337,7 +337,7 @@ const AddressDetails = props => {
 				...otherPresentCacheDocTemp,
 			];
 
-			const newOtherUploadedDocuments = [];
+			const newOtherUploadedDocumentsTemp = [];
 			if (otherdocs.length > 0) {
 				const formData = new FormData();
 				const otherDocsBorrowerApi = [];
@@ -361,7 +361,7 @@ const AddressDetails = props => {
 
 				otherDocsBorrowerApi?.map(doc => {
 					if (doc?.document_id) return null;
-					newOtherUploadedDocuments.push({
+					newOtherUploadedDocumentsTemp.push({
 						...doc,
 						file: null,
 						preview: null,
@@ -380,7 +380,7 @@ const AddressDetails = props => {
 					});
 					return null;
 				});
-				documentUploadReqBody.data.document_upload = newOtherUploadedDocuments;
+				documentUploadReqBody.data.document_upload = newOtherUploadedDocumentsTemp;
 				// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
 				// return;
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
@@ -430,16 +430,14 @@ const AddressDetails = props => {
 			}
 
 			// add all uploaded cache document to redux
-			if (!businessAddressIdAid1) {
-				dispatch(
-					addOrUpdateCacheDocuments({
-						files: [
-							...newKycUploadCacheDocumentsTemp,
-							...newOtherUploadedDocuments,
-						],
-					})
-				);
-			}
+			dispatch(
+				addOrUpdateCacheDocuments({
+					files: [
+						...newKycUploadCacheDocumentsTemp,
+						...newOtherUploadedDocumentsTemp,
+					],
+				})
+			);
 			const newAddressDetails = {
 				sectionId: selectedSectionId,
 				sectionValues: formState.values,
