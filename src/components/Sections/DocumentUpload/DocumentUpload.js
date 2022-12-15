@@ -551,10 +551,10 @@ const DocumentUpload = props => {
 		if (buttonDisabledStatus()) return;
 		if (!isFormValid()) return;
 		try {
+			setSubmitting(true);
 			if (commentsForOfficeUse !== commentsFromEditLOanData) {
 				await submitCommentsForOfficeUse();
 			}
-			setSubmitting(true);
 			const documentUploadReqBody = formatSectionReqBody({
 				app,
 				applicantCoApplicants,
