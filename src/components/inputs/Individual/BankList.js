@@ -58,6 +58,7 @@ export default function BankList(props) {
 			onSelectOptionCallback={onSelectOptionCallback}
 			defaultValue={value}
 			disabled={field.disabled}
+			rules={field.rules}
 		/>
 	);
 }

@@ -51,6 +51,7 @@ const AddressProofUpload = props => {
 		selectedDocTypeId,
 		onChangeFormStateField,
 		isSectionCompleted,
+		selectedVerifyOtp,
 	} = props;
 	let { addressProofError } = props;
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -70,7 +71,7 @@ const AddressProofUpload = props => {
 		coApplicants,
 		isApplicant,
 	} = applicantCoApplicants;
-	const selectedDirectorId = selectedApplicantCoApplicantId;
+	// const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
@@ -89,6 +90,7 @@ const AddressProofUpload = props => {
 		false
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
+	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
 
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
@@ -263,12 +265,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontForensicFlag === 'warning') {
-					setAddressProofError(
-						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
-					);
-					// CONTINUE EXECUTION
-				}
+				// if (frontForensicFlag === 'warning') {
+				// 	setAddressProofError(
+				// 		`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+				// 	);
+				// 	// CONTINUE EXECUTION
+				// }
 
 				const frontFile = {
 					...selectedAddressProofFiles[0],
@@ -317,7 +319,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (backForensicFlag === 'warning') {
+				if (frontForensicFlag === 'warning') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				} else if (backForensicFlag === 'warning') {
 					setAddressProofError(
 						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${backForensicFlagMsg}`
 					);
@@ -468,12 +475,7 @@ const AddressProofUpload = props => {
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 			setOpeningRemovingDocument(false);
 			setAddressProofError('');
-			if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
-				return null;
-			} else if (
-				coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-					?.status === 'ok'
-			) {
+			if (selectedVerifyOtp.res?.status === 'ok') {
 				return null;
 			} else {
 				Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
@@ -765,13 +767,7 @@ const AddressProofUpload = props => {
 		: addressProofError;
 
 	const customFieldProps = {};
-	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
-		customFieldProps.disabled = true;
-	}
-	if (
-		coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-			?.status === 'ok'
-	) {
+	if (selectedVerifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
 	}
 	if (disabled) {
@@ -894,12 +890,7 @@ const AddressProofUpload = props => {
 								visibility: 'visible',
 								...customFieldProps,
 							})}
-							{isApplicant &&
-								applicant?.api?.verifyOtp?.res?.status === 'ok' && (
-									<UI.GreenTickImage src={GreenTick} alt='green tick' />
-								)}
-							{coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp
-								?.res?.status === 'ok' && (
+							{selectedVerifyOtp?.res?.status === 'ok' && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
@@ -907,20 +898,14 @@ const AddressProofUpload = props => {
 								name='Verify with OTP'
 								isLoader={verifyingWithOtp}
 								disabled={
-									coApplicants?.[selectedDirectorId]?.api?.verifyOtp?.res
-										?.status === 'ok' ||
+									selectedVerifyOtp?.res?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
 									isViewLoan ||
 									verifyingWithOtp ||
 									(directorDetails?.filter(
 										director => director?.id === selectedApplicant?.directorId
 									).length > 0 &&
-										isEditLoan) ||
-									(isApplicant &&
-										applicant?.api?.verifyOtp?.res?.status === 'ok')
-
-									// ||
-									// applicant?.api?.verifyOtp?.res?.status === 'ok'
+										isEditLoan)
 								}
 								type='submit'
 								customStyle={{
@@ -1108,7 +1093,18 @@ const AddressProofUpload = props => {
 										src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 										alt='check'
 									/>
-									<UI.DocumentUploadName isSelected={mappedDocFiles.length}>
+									{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+										<UI.DocumentUploadNameToolTip>
+											{docType.name}
+										</UI.DocumentUploadNameToolTip>
+									)}
+									<UI.DocumentUploadName
+										onMouseOver={() =>
+											setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+										}
+										onMouseOut={() => setDocTypeNameToolTip(-1)}
+										isSelected={mappedDocFiles.length}
+									>
 										{docType.isMandatory && (
 											<span
 												style={{
