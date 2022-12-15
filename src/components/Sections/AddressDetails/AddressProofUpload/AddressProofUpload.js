@@ -89,6 +89,7 @@ const AddressProofUpload = props => {
 		false
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
+	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
 
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
@@ -1113,7 +1114,18 @@ const AddressProofUpload = props => {
 										src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 										alt='check'
 									/>
-									<UI.DocumentUploadName isSelected={mappedDocFiles.length}>
+									{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+										<UI.DocumentUploadNameToolTip>
+											{docType.name}
+										</UI.DocumentUploadNameToolTip>
+									)}
+									<UI.DocumentUploadName
+										onMouseOver={() =>
+											setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+										}
+										onMouseOut={() => setDocTypeNameToolTip(-1)}
+										isSelected={mappedDocFiles.length}
+									>
 										{docType.isMandatory && (
 											<span
 												style={{
