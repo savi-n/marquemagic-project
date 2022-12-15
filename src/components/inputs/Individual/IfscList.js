@@ -62,6 +62,7 @@ export default function IfscList(props) {
 			defaultValue={value}
 			disabled={isViewLoan}
 			onIfscChange={onIfscChange}
+			rules={field.rules}
 		/>
 	);
 }
