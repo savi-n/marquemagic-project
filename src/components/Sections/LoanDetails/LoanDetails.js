@@ -348,12 +348,12 @@ const LoanDetails = () => {
 		getConnectors();
 	}, []);
 
-	console.log('loan-details-allstates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		formState,
-	});
+	// console.log('loan-details-allstates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	formState,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
