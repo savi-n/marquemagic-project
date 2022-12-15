@@ -90,6 +90,7 @@ const AddressProofUpload = props => {
 		false
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
+	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
 
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
@@ -264,12 +265,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontForensicFlag === 'warning') {
-					setAddressProofError(
-						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
-					);
-					// CONTINUE EXECUTION
-				}
+				// if (frontForensicFlag === 'warning') {
+				// 	setAddressProofError(
+				// 		`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+				// 	);
+				// 	// CONTINUE EXECUTION
+				// }
 
 				const frontFile = {
 					...selectedAddressProofFiles[0],
@@ -318,7 +319,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (backForensicFlag === 'warning') {
+				if (frontForensicFlag === 'warning') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				} else if (backForensicFlag === 'warning') {
 					setAddressProofError(
 						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${backForensicFlagMsg}`
 					);
@@ -1087,7 +1093,18 @@ const AddressProofUpload = props => {
 										src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
 										alt='check'
 									/>
-									<UI.DocumentUploadName isSelected={mappedDocFiles.length}>
+									{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+										<UI.DocumentUploadNameToolTip>
+											{docType.name}
+										</UI.DocumentUploadNameToolTip>
+									)}
+									<UI.DocumentUploadName
+										onMouseOver={() =>
+											setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+										}
+										onMouseOut={() => setDocTypeNameToolTip(-1)}
+										isSelected={mappedDocFiles.length}
+									>
 										{docType.isMandatory && (
 											<span
 												style={{
