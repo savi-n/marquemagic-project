@@ -1,7 +1,7 @@
 //aid:1 = present address
 //aid:2 = permanent address
 
-import React, { useState, Fragment, useEffect } from 'react';
+import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
@@ -13,6 +13,7 @@ import Hint from 'components/Hint';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
+	setVerifyOtpResponse,
 } from 'store/applicantCoApplicantsSlice';
 import { addOrUpdateCacheDocuments } from 'store/applicationSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
@@ -126,6 +127,10 @@ const AddressDetails = props => {
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
+	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
+	const selectedVerifyOtp =
+		verifyOtpResponseTemp || selectedApplicant?.api?.verifyOtp || null;
+
 	const onClickVerifyWithOtp = async () => {
 		try {
 			const aadhaarErrorMessage = isInvalidAadhaar(
@@ -214,7 +219,7 @@ const AddressDetails = props => {
 				// 		formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME],
 				// });
 				if (!isPermanentSelectedAddressProofTypeAadhaar) {
-					if (selectedApplicant?.api?.verifyOtp?.res?.status !== 'ok') {
+					if (selectedVerifyOtp?.res?.status !== 'ok') {
 						addToast({
 							message:
 								'Aadhaar otp authentication is mandatory. Please verify Aadhaar number with otp',
@@ -460,6 +465,9 @@ const AddressDetails = props => {
 			} else {
 				dispatch(updateCoApplicantSection(newAddressDetails));
 			}
+			if (verifyOtpResponseTemp) {
+				dispatch(setVerifyOtpResponse(verifyOtpResponseTemp));
+			}
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
@@ -586,15 +594,6 @@ const AddressDetails = props => {
 		}
 	};
 
-	// useEffect(() => {
-	// 	if (selectedApplicant?.api?.verifyOtp?.res?.status === 'ok') {
-	// 		prePopulateAddressDetailsFromVerifyOtpRes(
-	// 			selectedApplicant?.api?.verifyOtp?.res
-	// 		);
-	// 	}
-	// 	// eslint-disable-next-line
-	// }, []);
-
 	// console.log('AddressDetails-allProps-', {
 	// 	applicant,
 	// 	coApplicants,
@@ -614,6 +613,7 @@ const AddressDetails = props => {
 					prePopulateAddressDetailsFromVerifyOtpRes={
 						prePopulateAddressDetailsFromVerifyOtpRes
 					}
+					setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
 				/>
 			)}
 			{selectedSection?.sub_sections?.map((sub_section, subSectionIndex) => {
@@ -829,13 +829,14 @@ const AddressDetails = props => {
 														: setPresentCacheDocumentsTemp
 												}
 												selectedDocTypeId={selectedDocTypeId}
+												selectedVerifyOtp={selectedVerifyOtp}
 											/>
 										</UI_SECTIONS.FieldWrapGrid>
 									);
 								}
 
 								if (
-									!!selectedApplicant?.api?.verifyOtp?.res &&
+									!!selectedVerifyOtp?.res &&
 									sub_section?.id === CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID
 								) {
 									customFieldProps.disabled = false;

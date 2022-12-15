@@ -2,7 +2,7 @@
   This section also contains resend otp option */
 
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
@@ -15,7 +15,7 @@ import {
 	AADHAAR_RESEND_OTP,
 	RESEND_OTP_TIMER,
 } from '_config/app.config';
-import { setVerifyOtpResponse } from 'store/applicantCoApplicantsSlice';
+// import { setVerifyOtpResponse } from 'store/applicantCoApplicantsSlice';
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
@@ -88,13 +88,14 @@ const ImgStyle = styled.img`
 // const DEFAULT_TIME_RESEND_OTP = 60;
 
 const AadhaarOTPModal = props => {
-	const dispatch = useDispatch();
+	// const dispatch = useDispatch();
 	const {
 		isAadhaarOtpModalOpen,
 		setIsAadhaarOtpModalOpen,
 		aadhaarGenOtpResponse,
 		prePopulateAddressDetailsFromVerifyOtpRes,
 		formState,
+		setVerifyOtpResponseTemp,
 	} = props;
 	const { application, app, applicantCoApplicants } = useSelector(
 		state => state
@@ -154,20 +155,32 @@ const AadhaarOTPModal = props => {
 				},
 			});
 			const aadhaarVerifyResponse = aadharVerifyReq.data;
-			dispatch(
-				setVerifyOtpResponse({
-					req: {
-						...otpReqBody,
-						transactionId: aadhaarGenOtpResponse.data.transactionId,
-						otp: inputAadhaarOTP,
-						codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
-						fwdp: aadhaarGenOtpResponse.data.fwdp,
-						aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-						product_id: loanProductId,
-					},
-					res: aadhaarVerifyResponse,
-				})
-			);
+			setVerifyOtpResponseTemp({
+				req: {
+					...otpReqBody,
+					transactionId: aadhaarGenOtpResponse.data.transactionId,
+					otp: inputAadhaarOTP,
+					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
+					fwdp: aadhaarGenOtpResponse.data.fwdp,
+					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
+					product_id: loanProductId,
+				},
+				res: aadhaarVerifyResponse,
+			});
+			// dispatch(
+			// 	setVerifyOtpResponse({
+			// 		req: {
+			// 			...otpReqBody,
+			// 			transactionId: aadhaarGenOtpResponse.data.transactionId,
+			// 			otp: inputAadhaarOTP,
+			// 			codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
+			// 			fwdp: aadhaarGenOtpResponse.data.fwdp,
+			// 			aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
+			// 			product_id: loanProductId,
+			// 		},
+			// 		res: aadhaarVerifyResponse,
+			// 	})
+			// );
 			if (
 				formState?.values?.[
 					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
