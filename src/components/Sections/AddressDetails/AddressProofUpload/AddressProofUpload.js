@@ -51,6 +51,7 @@ const AddressProofUpload = props => {
 		selectedDocTypeId,
 		onChangeFormStateField,
 		isSectionCompleted,
+		selectedVerifyOtp,
 	} = props;
 	let { addressProofError } = props;
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -70,7 +71,7 @@ const AddressProofUpload = props => {
 		coApplicants,
 		isApplicant,
 	} = applicantCoApplicants;
-	const selectedDirectorId = selectedApplicantCoApplicantId;
+	// const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
@@ -468,12 +469,7 @@ const AddressProofUpload = props => {
 			setCacheDocumentsTemp(newCacheDocumentTemp);
 			setOpeningRemovingDocument(false);
 			setAddressProofError('');
-			if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
-				return null;
-			} else if (
-				coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-					?.status === 'ok'
-			) {
+			if (selectedVerifyOtp.res?.status === 'ok') {
 				return null;
 			} else {
 				Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
@@ -765,13 +761,7 @@ const AddressProofUpload = props => {
 		: addressProofError;
 
 	const customFieldProps = {};
-	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
-		customFieldProps.disabled = true;
-	}
-	if (
-		coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-			?.status === 'ok'
-	) {
+	if (selectedVerifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
 	}
 	if (disabled) {
@@ -894,12 +884,7 @@ const AddressProofUpload = props => {
 								visibility: 'visible',
 								...customFieldProps,
 							})}
-							{isApplicant &&
-								applicant?.api?.verifyOtp?.res?.status === 'ok' && (
-									<UI.GreenTickImage src={GreenTick} alt='green tick' />
-								)}
-							{coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp
-								?.res?.status === 'ok' && (
+							{selectedVerifyOtp?.res?.status === 'ok' && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
@@ -907,20 +892,14 @@ const AddressProofUpload = props => {
 								name='Verify with OTP'
 								isLoader={verifyingWithOtp}
 								disabled={
-									coApplicants?.[selectedDirectorId]?.api?.verifyOtp?.res
-										?.status === 'ok' ||
+									selectedVerifyOtp?.res?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
 									isViewLoan ||
 									verifyingWithOtp ||
 									(directorDetails?.filter(
 										director => director?.id === selectedApplicant?.directorId
 									).length > 0 &&
-										isEditLoan) ||
-									(isApplicant &&
-										applicant?.api?.verifyOtp?.res?.status === 'ok')
-
-									// ||
-									// applicant?.api?.verifyOtp?.res?.status === 'ok'
+										isEditLoan)
 								}
 								type='submit'
 								customStyle={{
