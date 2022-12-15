@@ -452,7 +452,10 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 	}, []);
 
 	useEffect(() => {
-		onChange({ name: field.name, value: value || '' });
+		// console.log('useform-useeffect-value-', { name: field.name, value });
+		if (typeof value !== 'object') {
+			onChange({ name: field.name, value: value || '' });
+		}
 		// eslint-disable-next-line
 	}, [value]);
 
