@@ -263,12 +263,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontForensicFlag === 'warning') {
-					setAddressProofError(
-						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
-					);
-					// CONTINUE EXECUTION
-				}
+				// if (frontForensicFlag === 'warning') {
+				// 	setAddressProofError(
+				// 		`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+				// 	);
+				// 	// CONTINUE EXECUTION
+				// }
 
 				const frontFile = {
 					...selectedAddressProofFiles[0],
@@ -317,7 +317,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (backForensicFlag === 'warning') {
+				if (frontForensicFlag === 'warning') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				} else if (backForensicFlag === 'warning') {
 					setAddressProofError(
 						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${backForensicFlagMsg}`
 					);
