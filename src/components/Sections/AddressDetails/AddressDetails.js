@@ -218,7 +218,24 @@ const AddressDetails = props => {
 				// 	selectedIncomeType:
 				// 		formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME],
 				// });
-				if (!isPermanentSelectedAddressProofTypeAadhaar) {
+				const permanentSectionFields = selectedSection?.sub_sections[0]?.fields;
+				const isVeriftOtpRules = permanentSectionFields?.filter(field => {
+					if (field.name == CONST.AADHAAR_FIELD_NAME_FOR_OTP) {
+						return field;
+					}
+				})?.[0]?.['sub_fields']?.[0]?.['rules'];
+				let isVerifyOtpReq = false;
+				if (
+					Object.keys(isVeriftOtpRules).length === 0 &&
+					isVeriftOtpRules.constructor === Object
+				) {
+					isVerifyOtpReq = false;
+				} else {
+					isVerifyOtpReq = isVeriftOtpRules.required;
+				}
+
+				// console.log(isVeriftOtpRules, '-3');
+				if (!isPermanentSelectedAddressProofTypeAadhaar && isVerifyOtpReq) {
 					if (selectedVerifyOtp?.res?.status !== 'ok') {
 						addToast({
 							message:
