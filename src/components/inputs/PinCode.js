@@ -133,7 +133,7 @@ export default function Pincode(props) {
 				}
 				// const pincodeData = pincodeResponse.data;
 				// console.log(response);
-				for (const [k, v] of props.value_for_fields) {
+				for (const [k, v] of props.valueForFields) {
 					const target = {
 						name: showCityState(props, k),
 						value: selectedPincodeRes?.[v]?.[0] || '',
