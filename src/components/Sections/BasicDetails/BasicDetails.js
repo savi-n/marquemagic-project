@@ -32,6 +32,7 @@ import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getEditLoanLoanDocuments,
+	getSelectedField,
 } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -108,6 +109,19 @@ const BasicDetails = props => {
 					`${directorId}`
 		)?.[0] ||
 		null;
+	const isPanNumberExist = !!formState.values.pan_number;
+	const selectedProfileField = getSelectedField({
+		fieldName: CONST.PROFILE_UPLOAD_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const isProfileMandatory = !!selectedProfileField?.rules?.required;
+	const selectedPanUploadField = getSelectedField({
+		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
 	let prefilledProfileUploadValue = '';
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -460,20 +474,13 @@ const BasicDetails = props => {
 		}
 	};
 
-	// console.log('BasicDetails-', {
-	// 	formState,
-	// 	cacheDocuments,
-	// 	panUploadedFile,
-	// 	profileUploadedFile,
+	// console.log('BasicDetails-666', {
+	// 	isPanNumberExist,
+	// 	selectedProfileField,
+	// 	isProfileMandatory,
+	// 	selectedPanUploadField,
+	// 	isPanUploadMandatory,
 	// });
-
-	const isPanNumberExist = !!formState.values.pan_number;
-	const isProfileMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
-		field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-	)?.[0]?.rules?.required;
-	const isPanUploadMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
-		field => field.name === CONST.PAN_UPLOAD_FIELD_NAME
-	)?.[0]?.rules?.required;
 
 	const ButtonProceed = (
 		<Button
