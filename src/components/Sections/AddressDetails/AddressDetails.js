@@ -223,28 +223,19 @@ const AddressDetails = props => {
 
 				// Below code is for Aadhar - Verify with OTP button making it mandatory
 				// based on rules passed to it
-				const permanentSectionFields = getSelectedField({
+				const selectedPermanentAadhaarField = getSelectedField({
 					fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
 					selectedSection,
 					isApplicant,
 				});
 
-				const isVeriftOtpRules = getSelectedSubField({
-					fields: permanentSectionFields.sub_fields,
+				const isVerifyWithOtpRequired = !!getSelectedSubField({
+					fields: selectedPermanentAadhaarField?.sub_fields || [],
 					isApplicant,
-				})?.['rules'];
-				let isVerifyOtpReq = false;
-				if (
-					Object.keys(isVeriftOtpRules).length === 0 &&
-					isVeriftOtpRules.constructor === Object
-				) {
-					isVerifyOtpReq = false;
-				} else {
-					isVerifyOtpReq = isVeriftOtpRules.required;
-				}
+				})?.rules?.required;
 
 				// Aadhaar number Validations only if verify with OTP was not mandatory
-				if (!isVerifyOtpReq) {
+				if (!isVerifyWithOtpRequired) {
 					const aadhaarErrorMessage = isInvalidAadhaar(
 						formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
 					);
@@ -257,7 +248,10 @@ const AddressDetails = props => {
 				}
 
 				// console.log(isVeriftOtpRules, '-3');
-				if (!isPermanentSelectedAddressProofTypeAadhaar && isVerifyOtpReq) {
+				if (
+					!isPermanentSelectedAddressProofTypeAadhaar &&
+					isVerifyWithOtpRequired
+				) {
 					if (selectedVerifyOtp?.res?.status !== 'ok') {
 						addToast({
 							message:
