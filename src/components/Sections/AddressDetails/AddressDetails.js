@@ -218,6 +218,9 @@ const AddressDetails = props => {
 				// 	selectedIncomeType:
 				// 		formState?.values?.[CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME],
 				// });
+
+				// Below code is for Aadhar - Verify with OTP button making it mandatory
+				// based on rules passed to it
 				const permanentSectionFields = selectedSection?.sub_sections[0]?.fields;
 				const isVeriftOtpRules = permanentSectionFields?.filter(field => {
 					if (field.name == CONST.AADHAAR_FIELD_NAME_FOR_OTP) {
@@ -232,6 +235,19 @@ const AddressDetails = props => {
 					isVerifyOtpReq = false;
 				} else {
 					isVerifyOtpReq = isVeriftOtpRules.required;
+				}
+
+				// Aadhaar number Validations only if verify with OTP was not mandatory
+				if (!isVerifyOtpReq) {
+					const aadhaarErrorMessage = isInvalidAadhaar(
+						formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
+					);
+					if (aadhaarErrorMessage) {
+						return addToast({
+							message: aadhaarErrorMessage,
+							type: 'error',
+						});
+					}
 				}
 
 				// console.log(isVeriftOtpRules, '-3');
