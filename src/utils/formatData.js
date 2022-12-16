@@ -36,6 +36,52 @@ export const formatLoanData = (formData, fields) => {
 	}));
 };
 
+export const getSelectedField = data => {
+	const { fieldName, selectedSection, isApplicant } = data;
+	const selectedSubSectionFields = [];
+	selectedSection?.sub_sections?.map(subSection => {
+		subSection?.fields?.map(field => {
+			if (field?.name === fieldName) {
+				selectedSubSectionFields.push(field);
+			}
+			return null;
+		});
+		return null;
+	});
+	if (selectedSubSectionFields.length === 0) return null;
+	if (selectedSubSectionFields.length === 1) return selectedSubSectionFields[0];
+	if (selectedSubSectionFields.length > 1) {
+		let filterField = selectedSubSectionFields[0];
+		selectedSubSectionFields?.map(field => {
+			if (isApplicant && field?.is_co_applicant === false) {
+				filterField = field;
+			} else if (field?.is_applicant === false && isApplicant === false) {
+				filterField = field;
+			}
+			return null;
+		});
+		return filterField;
+	}
+};
+
+export const getSelectedSubField = data => {
+	const { fields, isApplicant } = data;
+	if (fields?.length === 0) return null;
+	if (fields?.length === 1) return fields?.[0];
+	if (fields?.length > 1) {
+		let filterField = fields[0];
+		fields?.map(field => {
+			if (isApplicant && field?.is_co_applicant === false) {
+				filterField = field;
+			} else if (field?.is_applicant === false && isApplicant === false) {
+				filterField = field;
+			}
+			return null;
+		});
+		return filterField;
+	}
+};
+
 export const formatSectionReqBody = data => {
 	try {
 		const {
