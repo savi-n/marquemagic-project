@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, createContext } from 'react';
-import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
@@ -420,19 +419,19 @@ export default function useForm() {
 //   return value;
 // }
 
-const Currency = styled.div`
-	/* position: absolute; */
-	margin-left: 100%;
-	padding-left: 10px;
-	padding-bottom: 15px;
-	margin-top: -35px;
-	width: 50px;
-	font-size: 13px;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	top: 0;
-`;
+// const Currency = styled.div`
+// 	/* position: absolute; */
+// 	margin-left: 100%;
+// 	padding-left: 10px;
+// 	padding-bottom: 15px;
+// 	margin-top: -35px;
+// 	width: 50px;
+// 	font-size: 13px;
+// 	font-weight: 500;
+// 	display: flex;
+// 	align-items: center;
+// 	top: 0;
+// `;
 
 // const InputFieldWrapper = styled.div`
 // 	/* display: flex; */
@@ -581,9 +580,9 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 						{...{ ...field, ...fieldProps }}
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
-					{field?.inrupees && (
+					{/* {field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
-					)}
+					)} */}
 				</>
 			);
 		}
