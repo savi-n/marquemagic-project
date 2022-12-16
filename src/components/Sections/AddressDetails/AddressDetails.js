@@ -27,6 +27,8 @@ import {
 	getApiErrorMessage,
 	getCompletedSections,
 	isFieldValid,
+	getSelectedField,
+	getSelectedSubField,
 } from 'utils/formatData';
 import { isInvalidAadhaar } from 'utils/validation';
 import { setLoanIds } from 'store/applicationSlice';
@@ -221,12 +223,16 @@ const AddressDetails = props => {
 
 				// Below code is for Aadhar - Verify with OTP button making it mandatory
 				// based on rules passed to it
-				const permanentSectionFields = selectedSection?.sub_sections[0]?.fields;
-				const isVeriftOtpRules = permanentSectionFields?.filter(field => {
-					if (field.name == CONST.AADHAAR_FIELD_NAME_FOR_OTP) {
-						return field;
-					}
-				})?.[0]?.['sub_fields']?.[0]?.['rules'];
+				const permanentSectionFields = getSelectedField({
+					fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
+					selectedSection,
+					isApplicant,
+				});
+
+				const isVeriftOtpRules = getSelectedSubField({
+					fields: permanentSectionFields.sub_fields,
+					isApplicant,
+				})?.['rules'];
 				let isVerifyOtpReq = false;
 				if (
 					Object.keys(isVeriftOtpRules).length === 0 &&
