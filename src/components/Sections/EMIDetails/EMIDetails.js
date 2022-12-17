@@ -167,7 +167,9 @@ const EMIDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+			) {
 				// special scenario for bank name prefetch
 				if (application?.sections?.[selectedSectionId]?.[field?.name]?.value) {
 					return application?.sections?.[selectedSectionId]?.[field?.name]
