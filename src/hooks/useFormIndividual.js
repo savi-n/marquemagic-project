@@ -124,7 +124,10 @@ const VALIDATION_RULES = {
 function validate(rules, value) {
 	if (!rules) return false;
 	// all rules will be applied only if required: true and value exists in the field
-	if (rules?.required !== true && !value) {
+	if (
+		(rules?.required !== true || !rules?.hasOwnProperty('required')) &&
+		!value
+	) {
 		return false;
 	}
 	for (const rule in rules) {
