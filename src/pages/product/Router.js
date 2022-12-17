@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import { func, object, oneOfType, string } from 'prop-types';
 
 import userType from '../../_hoc/userType';
-import Loading from '../../components/Loading';
+import Loading from 'components/Loading';
 
 const ProductDetails = lazy(() => import('./productDetails/ProductDetails'));
 // const IdentityVerification = lazy(() =>

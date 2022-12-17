@@ -6,7 +6,7 @@
 import { useContext } from 'react';
 import styled from 'styled-components';
 
-import Modal from './Modal';
+import Modal from 'components/Modal';
 import Button from './Button';
 import { BussinesContext } from 'reducer/bussinessReducer';
 

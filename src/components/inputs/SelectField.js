@@ -10,9 +10,20 @@ const Select = styled.select`
 	border-radius: 6px;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
 `;
+//  ${({ error }) =>
+// 		error ? `border: 1px solid red; outline-color: red;` : ``}
+// TODO: handler error
 
 const Div = styled.div`
 	position: relative;
+	/* ::after {
+		content: '▼';
+		font-size: 12px;
+		right: 3%;
+		line-height: 50px;
+		position: absolute;
+		color: grey;
+	} */
 `;
 
 const Label = styled.label`
@@ -53,12 +64,12 @@ const Span = styled.span`
 export default function SelectField(props) {
 	return (
 		<Div>
-			<Select {...props} title={props.placeholder}>
+			<Select title={props.placeholder} {...props}>
 				<option disabled value=''>
 					{props.placeholder}
 				</option>
 				{props.options?.map(({ value, name }) => (
-					<option key={value} value={value.toString().trim()}>
+					<option key={value} value={value?.toString().trim()}>
 						{name}
 					</option>
 				))}

@@ -519,18 +519,15 @@ export default function Products() {
 						<DivAdd>
 							{products &&
 								products.data.map((product, idx) => {
+									if (idx < 2) return null;
 									return (
-										<>
-											{idx > 2 && (
-												<Card
-													add={true}
-													setAddedProduct={setAddedProduct}
-													product={product}
-													key={`product__${product.id}`}
-													setAddProduct={setAddProduct}
-												/>
-											)}
-										</>
+										<Card
+											add={true}
+											setAddedProduct={setAddedProduct}
+											product={product}
+											key={`product__${product.id}`}
+											setAddProduct={setAddProduct}
+										/>
 									);
 								})}
 						</DivAdd>

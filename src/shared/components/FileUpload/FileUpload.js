@@ -502,7 +502,7 @@ export default function FileUpload(props) {
 			setOpeningRemovingDocument(false);
 		} catch (error) {
 			setOpeningRemovingDocument(false);
-			console.error('Unable to open file, try after sometimes');
+			console.error('Unable to open file, try after sometime');
 		}
 	};
 
@@ -940,7 +940,7 @@ export default function FileUpload(props) {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 										isViewDocAllowed = false;
 									}
-									if (isEditLoan && doc?.document_delete === 'true') {
+									if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
 										isDocRemoveAllowed = false;
 									}
 									return (

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, createContext } from 'react';
-import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
 
 import SearchSelect from 'components/SearchSelect';
 import BankList from 'components/inputs/BankList';
@@ -130,6 +130,7 @@ const MASKS = {
 	MaskValues: (value, options) => {
 		// console.log('inside mask');
 		// start value
+		value = value?.toString();
 		let startingValuesOfMask = value
 			?.slice(0, +options.charactersNotTobeMasked.fromStarting)
 			.padEnd(
@@ -147,7 +148,7 @@ const MASKS = {
 
 function revealMask(masks, value) {
 	for (const mask in masks) {
-		if (masks[mask]) {
+		if (masks[mask] && MASKS[mask]) {
 			value = MASKS[mask](value, masks[mask]);
 		}
 	}
@@ -239,7 +240,20 @@ export default function useForm() {
 		updateFormState(uuidv4());
 	};
 
-	const register = newField => {
+	const register = field => {
+		// if (field.name.includes('AccountNumber')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountHolderName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('BankName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountType')) {
+		// 	field.rules = {};
+		// }
+		let newField = _.cloneDeep(field);
 		// Masking the values for view loan based on the configuration (Masking starts)
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
@@ -276,7 +290,7 @@ export default function useForm() {
 		if (!isViewLoan && newField?.mask?.MaskValues) {
 			// console.log(
 			// 	'deleted masking as it is not view loan and field has maskvalues',
-			// 	newField.name
+			// 	{ newField }
 			// );
 			delete newField?.mask?.MaskValues;
 		}
@@ -385,7 +399,7 @@ export default function useForm() {
 			values: valuesRef.current,
 		},
 		clearError,
-		onUseFormFieldChange: onChange,
+		onChangeFormStateField: onChange,
 	};
 }
 
@@ -405,19 +419,19 @@ export default function useForm() {
 //   return value;
 // }
 
-const Currency = styled.div`
-	/* position: absolute; */
-	margin-left: 100%;
-	padding-left: 10px;
-	padding-bottom: 15px;
-	margin-top: -35px;
-	width: 50px;
-	font-size: 13px;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	top: 0;
-`;
+// const Currency = styled.div`
+// 	/* position: absolute; */
+// 	margin-left: 100%;
+// 	padding-left: 10px;
+// 	padding-bottom: 15px;
+// 	margin-top: -35px;
+// 	width: 50px;
+// 	font-size: 13px;
+// 	font-weight: 500;
+// 	display: flex;
+// 	align-items: center;
+// 	top: 0;
+// `;
 
 // const InputFieldWrapper = styled.div`
 // 	/* display: flex; */
@@ -437,7 +451,10 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 	}, []);
 
 	useEffect(() => {
-		onChange({ name: field.name, value: value || '' });
+		// console.log('useform-useeffect-value-', { name: field.name, value });
+		if (typeof value !== 'object') {
+			onChange({ name: field.name, value: value || '' });
+		}
 		// eslint-disable-next-line
 	}, [value]);
 
@@ -563,9 +580,9 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 						{...{ ...field, ...fieldProps }}
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
-					{field?.inrupees && (
+					{/* {field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
-					)}
+					)} */}
 				</>
 			);
 		}

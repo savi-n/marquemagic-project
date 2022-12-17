@@ -1,0 +1,289 @@
+{
+	"name": "Reference Details",
+	"id": "reference_details",
+	"hide_section_usertype": ["Legal", "Technical"],
+	"sub_sections": [
+		{
+			"id": "reference_details",
+			"name": "Reference Details",
+			"fields": [
+				{
+					"name": "Name0",
+					"placeholder": "Name",
+					"db_key": "ref_name",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "reference_email0",
+					"placeholder": "Email",
+					"db_key": "ref_email",
+					"rules": {},
+					"mask": {
+						"mask_values": {
+							"mask_pattern": "*",
+							"characters_not_to_be_masked": {
+								"from_starting": 1,
+								"from_ending": 4
+							}
+						}
+					},
+					"type": "text",
+					"is_masked": true,
+					"user_types_allowed": "['*']",
+					"visibility": true
+				},
+				{
+					"name": "contact_number0",
+					"placeholder": "Contact number",
+					"db_key": "ref_contact",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "ref_type0",
+					"placeholder": " Reference Type",
+					"db_key": "ref_type",
+					"rules": {
+						"required": true
+					},
+					"type": "select",
+					"options": [
+						{
+							"name": "Relative",
+							"value": "Relative"
+						},
+						{
+							"name": "Friend",
+							"value": "Friend"
+						},
+						{
+							"name": "Business",
+							"value": "Business"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "address_line10",
+					"placeholder": "Address Line 1",
+					"db_key": "address1",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "address_line20",
+					"placeholder": "Address Line 2",
+					"db_key": "address2",
+					"rules": {},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "landmark0",
+					"placeholder": "Landmark",
+					"db_key": "landmark",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "pincode0",
+					"placeholder": "Pincode",
+					"db_key": "ref_pincode",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 6
+					},
+					"type": "number",
+					"length": 6,
+					"visibility": true
+				},
+				{
+					"name": "city0",
+					"placeholder": "City",
+					"db_key": "ref_city",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "state0",
+					"placeholder": "State",
+					"db_key": "ref_state",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "Name1",
+					"placeholder": "Name",
+					"db_key": "ref_name",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "reference_email1",
+					"placeholder": "Email",
+					"db_key": "ref_email",
+					"rules": {},
+					"mask": {
+						"mask_values": {
+							"mask_pattern": "*",
+							"characters_not_to_be_masked": {
+								"from_starting": 1,
+								"from_ending": 4
+							}
+						}
+					},
+					"type": "text",
+					"is_masked": true,
+					"user_types_allowed": "['*']",
+					"visibility": true
+				},
+				{
+					"name": "contact_number1",
+					"placeholder": "Contact number",
+					"db_key": "ref_contact",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "ref_type1",
+					"placeholder": " Reference Type",
+					"db_key": "ref_type",
+					"rules": {
+						"required": true
+					},
+					"type": "select",
+					"options": [
+						{
+							"name": "Business",
+							"value": "Business"
+						},
+						{
+							"name": "Friend",
+							"value": "Friend"
+						},
+						{
+							"name": "Relative",
+							"value": "Relative"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "address_line11",
+					"placeholder": "Address Line 1",
+					"db_key": "address1",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "address_line21",
+					"placeholder": "Address Line 2",
+					"db_key": "address2",
+					"rules": {},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "landmark1",
+					"placeholder": "Landmark",
+					"db_key": "landmark",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "pincode1",
+					"placeholder": "Pincode",
+					"db_key": "ref_pincode",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 6
+					},
+					"type": "number",
+					"length": 6,
+					"visibility": true
+				},
+				{
+					"name": "city1",
+					"placeholder": "City",
+					"db_key": "ref_city",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "state1",
+					"placeholder": "State",
+					"db_key": "ref_state",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "text",
+					"visibility": true
+				}
+			]
+		}
+	]
+}

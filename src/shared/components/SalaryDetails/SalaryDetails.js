@@ -71,10 +71,10 @@ export default function SalaryDetails(props) {
 			<FormWrap>
 				{jsonData &&
 					jsonData.map(field => {
-						const customFields = {};
+						const customFieldProps = {};
 						if (isViewLoan) {
-							customFields.readonly = true;
-							customFields.disabled = true;
+							customFieldProps.readonly = true;
+							customFieldProps.disabled = true;
 						}
 						return (
 							field.visibility &&
@@ -84,7 +84,7 @@ export default function SalaryDetails(props) {
 										...field,
 										// value: formState?.values?.[field.name],
 										value: populateValue(field),
-										...customFields,
+										...customFieldProps,
 										visibility: 'visible',
 									})}
 									{(formState?.submit?.isSubmited ||
