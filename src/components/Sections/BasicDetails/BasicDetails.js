@@ -32,6 +32,7 @@ import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getEditLoanLoanDocuments,
+	getSelectedField,
 } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -86,6 +87,7 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
@@ -96,18 +98,47 @@ const BasicDetails = props => {
 				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
+	// TODO Shreyas - Enable this in 1.4
+	// const panUploadedFile =
+	// 	cacheDocumentsTemp?.filter(
+	// 		doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
+	// 	)?.[0] ||
+	// 	cacheDocuments?.filter(
+	// 		doc =>
+	// 			doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
+	// 			(doc?.classification_sub_type ===
+	// 				CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
+	// 				`${directorId}`
+	// 	)?.[0] ||
+	// 	null;
+
+	const selectedPanUploadField = getSelectedField({
+		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
+
 	const panUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		cacheDocuments?.filter(
 			doc =>
-				doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
-				(doc?.classification_sub_type ===
-					CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
-					`${directorId}`
+				`${doc?.directorId}` === `${directorId}` &&
+				(doc?.is_delete_not_allowed === 'true' ||
+					doc?.is_delete_not_allowed === true) &&
+				doc?.doc_type_id ===
+					selectedPanUploadField?.doc_type?.[selectedIncomeType]
 		)?.[0] ||
 		null;
+	const isPanNumberExist = !!formState.values.pan_number;
+	const selectedProfileField = getSelectedField({
+		fieldName: CONST.PROFILE_UPLOAD_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const isProfileMandatory = !!selectedProfileField?.rules?.required;
 	let prefilledProfileUploadValue = '';
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -152,9 +183,6 @@ const BasicDetails = props => {
 			} else {
 				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
-
-			const selectedIncomeType =
-				formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 
 			// loan product is is only applicable for applicant
 			// it should not be overritten when coapplicant is income type is different then applicant
@@ -460,20 +488,14 @@ const BasicDetails = props => {
 		}
 	};
 
-	// console.log('BasicDetails-', {
-	// 	formState,
-	// 	cacheDocuments,
+	// console.log('BasicDetails-666', {
+	// 	isPanNumberExist,
+	// 	selectedProfileField,
+	// 	isProfileMandatory,
+	// 	selectedPanUploadField,
+	// 	isPanUploadMandatory,
 	// 	panUploadedFile,
-	// 	profileUploadedFile,
 	// });
-
-	const isPanNumberExist = !!formState.values.pan_number;
-	const isProfileMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
-		field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-	)?.[0]?.rules?.required;
-	const isPanUploadMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
-		field => field.name === CONST.PAN_UPLOAD_FIELD_NAME
-	)?.[0]?.rules?.required;
 
 	const ButtonProceed = (
 		<Button
@@ -670,7 +692,7 @@ const BasicDetails = props => {
 						fill
 						name='Proceed'
 						isLoader={loading}
-						disabled={loading || !isPanNumberExist}
+						disabled={loading}
 						onClick={handleSubmit(() => {
 							// console.log({
 							// 	isProfileMandatory,
