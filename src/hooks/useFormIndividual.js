@@ -122,14 +122,13 @@ const VALIDATION_RULES = {
 	},
 };
 function validate(rules, value) {
-	if (!rules) return false;
-	// all rules will be applied only if required: true and value exists in the field
-	if (rules?.required !== true && !value) {
-		return false;
-	}
-	for (const rule in rules) {
-		if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
-			return VALIDATION_RULES[rule].message;
+	if (!rules || Object.keys(rules || {}).length === 0) return false;
+	// all rules will be applied only if required: true or value exists in the field
+	if (rules?.required || value) {
+		for (const rule in rules) {
+			if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
+				return VALIDATION_RULES[rule].message;
+			}
 		}
 	}
 }
