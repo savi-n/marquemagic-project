@@ -692,7 +692,7 @@ const BasicDetails = props => {
 						fill
 						name='Proceed'
 						isLoader={loading}
-						disabled={loading || !isPanNumberExist}
+						disabled={loading}
 						onClick={handleSubmit(() => {
 							// console.log({
 							// 	isProfileMandatory,
