@@ -210,7 +210,9 @@ const EmploymentDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
+			) {
 				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
 

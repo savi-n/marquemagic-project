@@ -460,7 +460,9 @@ const BasicDetails = props => {
 			// this is to prefill value when user navigates backs
 			// once user press proceed and submit api success
 			// value is stored to redux and the same we can use to prepopulate
-			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
+			) {
 				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
 
@@ -495,6 +497,10 @@ const BasicDetails = props => {
 	// 	selectedPanUploadField,
 	// 	isPanUploadMandatory,
 	// 	panUploadedFile,
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	selectedApplicant,
 	// });
 
 	const ButtonProceed = (
