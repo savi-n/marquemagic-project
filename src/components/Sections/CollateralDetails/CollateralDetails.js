@@ -113,6 +113,9 @@ const CollateralDetails = () => {
 			nature_of_ownership: collateralData?.owned_type,
 			property_occupant: collateralData?.current_occupant,
 			address3: collateralData?.name_landmark,
+			vehicle: collateralData?.brand_name,
+			loan_type: collateralData?.loan_type,
+			vehicle_value: collateralData?.value_Vehicle,
 		};
 		// console.log('predata-', { preData });
 		return preData?.[field?.name];
