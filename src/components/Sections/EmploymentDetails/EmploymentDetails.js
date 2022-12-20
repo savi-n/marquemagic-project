@@ -48,7 +48,6 @@ const EmploymentDetails = () => {
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
-
 	const submitEmploymentDetails = async () => {
 		try {
 			setLoading(true);
@@ -321,15 +320,16 @@ const EmploymentDetails = () => {
 						onClick={handleSubmit(onProceed)}
 					/>
 				)}
-				{!isViewLoan && (
-					<Button
-						fill
-						name='Add Co-Applicant'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onAddCoApplicant)}
-					/>
-				)}
+				{selectedSection?.add_co_applicant_visibility !== false &&
+					!isViewLoan && (
+						<Button
+							fill
+							name='Add Co-Applicant'
+							isLoader={loading}
+							disabled={loading}
+							onClick={handleSubmit(onAddCoApplicant)}
+						/>
+					)}
 				{isViewLoan && (
 					<>
 						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
