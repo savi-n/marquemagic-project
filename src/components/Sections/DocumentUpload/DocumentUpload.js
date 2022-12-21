@@ -599,7 +599,10 @@ const DocumentUpload = props => {
 			onSkip();
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
-			// TODO: shreyas alert approprepate error from api
+			addToast({
+				message: error.message || 'Server down. Please try after sometime',
+				type: 'error',
+			});
 		} finally {
 			// TODO: move this logic to try balock
 			setSubmitting(false);
