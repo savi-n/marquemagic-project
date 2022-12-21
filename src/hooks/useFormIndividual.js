@@ -328,12 +328,15 @@ export default function useForm() {
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[newField.name] = newField;
 
-		// old
-		// setValue(newField.name, newField.value || '');
-		// new changes by akash cloud stoke nov-30
-		newField.value &&
-			!valuesRef.current[newField.name] &&
+		if (newField?.name?.includes('bank_name')) {
+			// new changes by akash cloud stoke nov-30
+			newField.value &&
+				!valuesRef.current[newField.name] &&
+				setValue(newField.name, newField.value || '');
+		} else {
+			// old
 			setValue(newField.name, newField.value || '');
+		}
 
 		checkValidity(newField.name);
 
