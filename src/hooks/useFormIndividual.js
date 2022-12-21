@@ -329,7 +329,7 @@ export default function useForm() {
 		fieldsRef.current[newField.name] = newField;
 
 		if (newField?.name?.includes('bank_name')) {
-			// new changes by akash cloud stoke nov-30
+			// new changes by akash cloud stock nov-30
 			newField.value &&
 				!valuesRef.current[newField.name] &&
 				setValue(newField.name, newField.value || '');
