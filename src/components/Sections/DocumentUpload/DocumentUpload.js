@@ -26,6 +26,7 @@ import {
 	formatSectionReqBody,
 	getDocumentCategoryName,
 	parseJSON,
+	getApiErrorMessage,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -600,7 +601,8 @@ const DocumentUpload = props => {
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
-				message: error.message || 'Server down. Please try after sometime',
+				message:
+					getApiErrorMessage(error) || 'Server down. Please try after sometime',
 				type: 'error',
 			});
 		} finally {
