@@ -1,7 +1,19 @@
 /* This util file is used to make api calls */
 
 import axios from 'axios';
-import { ENDPOINT_BANK } from '../_config/app.config';
+import { ENDPOINT_BANK, VERIFY_TOKEN } from '../_config/app.config';
+
+export const verifyUiUxToken = async token => {
+	try {
+		const tokenRes = await axios.get(VERIFY_TOKEN, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
+		if (tokenRes?.data?.id) return true;
+		return false;
+	} catch (error) {
+		return false;
+	}
+};
 
 export const getKYCData = async (formData, token) => {
 	try {

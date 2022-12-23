@@ -564,6 +564,12 @@ const DocumentUpload = props => {
 			const newUploadedDocuments = [];
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
+
+				// all network error related document will be filtered here
+				// TODO: temporory solution these kind of document should be highlighted
+				// and this should be hanled each individual document upload or taging phase
+				if (!doc?.document_key) return null;
+
 				newUploadedDocuments.push({
 					...doc,
 					file: null,
