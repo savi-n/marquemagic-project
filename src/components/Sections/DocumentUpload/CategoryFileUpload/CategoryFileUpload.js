@@ -194,6 +194,10 @@ const CategoryFileUpload = props => {
 					})
 					.catch(err => {
 						console.error(err);
+						// TODO: aditi we need to hanle this scenario
+						// for some reason document upload failed then we need to
+						// remove these documents from redux cache memory so that
+						// we do not push them in to database
 						if (err.message === CONST.USER_CANCELED) {
 							// onCancel(file, 'cancelled');
 						} else {
