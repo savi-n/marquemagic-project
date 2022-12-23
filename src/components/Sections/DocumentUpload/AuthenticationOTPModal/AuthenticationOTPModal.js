@@ -91,7 +91,7 @@ const AuthenticationOTPModal = props => {
 		setIsAuthenticationOtpModalOpen,
 		setContactNo,
 		setIsVerifyWithOtpDisabled,
-		onSubmitCompleteApplication,
+		onSkip,
 		generateOtpTimer,
 		// toggle,
 		// ButtonProceed,
@@ -158,7 +158,7 @@ const AuthenticationOTPModal = props => {
 					JSON.stringify(authenticationVerifyResponse.data)
 				);
 				setIsVerifyWithOtpDisabled(true);
-				onSubmitCompleteApplication();
+				onSkip();
 			} else {
 				setIsAuthenticationOtpModalOpen(false);
 				addToast({
@@ -281,7 +281,7 @@ const AuthenticationOTPModal = props => {
 			<ModalBody>
 				<OtpMobileMessage>
 					{/* To{isResentOtp ? 'resent' : 'sent'} to your number
-					please verify it below */}
+						please verify it below */}
 					To authenticate your application please enter the OTP sent to
 					{/* XXXXX99999{maskedContactNo} */}
 					{' ' + maskedContactNo}

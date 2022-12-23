@@ -446,6 +446,7 @@ const DocumentUpload = props => {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
 			setLoading(true);
+			await onSubmitCompleteApplication();
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
 				mobile: +applicant?.basic_details?.mobile_no,
@@ -553,6 +554,7 @@ const DocumentUpload = props => {
 		if (!isFormValid()) return;
 		try {
 			setSubmitting(true);
+			// --api-1
 			if (commentsForOfficeUse !== commentsFromEditLOanData) {
 				await submitCommentsForOfficeUse();
 			}
@@ -585,6 +587,7 @@ const DocumentUpload = props => {
 			// });
 			// return;
 			// const documentUploadRes =
+			// --api 2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
@@ -595,6 +598,7 @@ const DocumentUpload = props => {
 			if (isDocumentUploadMandatory) {
 				applicationStageReqBody.is_mandatory_documents_uploaded = true;
 			}
+			// --api 3 - application stage
 
 			await axios.post(
 				`${API.TO_APPLICATION_STAGE_URL}`,
@@ -603,7 +607,6 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			onSkip();
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
@@ -708,6 +711,7 @@ const DocumentUpload = props => {
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication();
+					onSkip();
 				}}
 			/>
 		);
@@ -769,9 +773,9 @@ const DocumentUpload = props => {
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
 					setContactNo={applicant?.basic_details?.mobile_no}
-					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
+					onSkip={onSkip}
 				/>
 			) : null}
 			{totalMandatoryDocumentCount > 0 ? (
