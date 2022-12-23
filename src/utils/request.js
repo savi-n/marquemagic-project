@@ -1,7 +1,7 @@
 /* This util file is used to make api calls */
 
 import axios from 'axios';
-import { ENDPOINT_BANK, VERIFY_TOKEN } from '../_config/app.config';
+import { ENDPOINT_BANK, VERIFY_TOKEN } from '_config/app.config';
 
 export const verifyUiUxToken = async token => {
 	try {
@@ -11,6 +11,7 @@ export const verifyUiUxToken = async token => {
 		if (tokenRes?.data?.id) return true;
 		return false;
 	} catch (error) {
+		console.error('error-request-verifyUiUxToken-', error);
 		return false;
 	}
 };
