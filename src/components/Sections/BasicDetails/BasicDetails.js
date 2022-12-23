@@ -500,25 +500,24 @@ const BasicDetails = props => {
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);
-			let decryptedToken = '';
 			if (params?.token) {
-				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 				// console.log('validateToken-', {
 				// 	decryptedToken,
 				// 	type: typeof decryptedToken,
 				// 	isError: !!decryptedToken?.stack?.includes('SyntaxError'),
 				// });
-			}
-			if (decryptedToken?.token) {
-				const isValidToken = await verifyUiUxToken(decryptedToken?.token);
-				if (!isValidToken) {
+				if (decryptedToken?.token) {
+					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
+					if (!isValidToken) {
+						setIsTokenValid(false);
+						return false;
+					}
+				} else {
+					// if token coud not parse from url
 					setIsTokenValid(false);
 					return false;
 				}
-			} else {
-				// if token coud not parse from url
-				setIsTokenValid(false);
-				return false;
 			}
 		} catch (error) {
 			console.error('error-validatetoken-', error);
