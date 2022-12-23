@@ -87,6 +87,11 @@ const DocumentUpload = props => {
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
+	const isDraftStage =
+		editLoanData?.loan_status_id === 1 &&
+		editLoanData?.loan_sub_status_id === 1;
+	const applicantMobileNumber =
+		applicant?.basic_details?.mobile_no || applicant?.dcontact;
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [savingComments, setSavingComments] = useState(false);
@@ -448,7 +453,7 @@ const DocumentUpload = props => {
 			setLoading(true);
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
-				mobile: +applicant?.basic_details?.mobile_no,
+				mobile: +applicantMobileNumber,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
@@ -671,7 +676,10 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	if (selectedProduct.product_details.otp_authentication && !isEditLoan) {
+	if (
+		selectedProduct.product_details.otp_authentication &&
+		(isDraftStage || !isEditLoan)
+	) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
@@ -762,7 +770,7 @@ const DocumentUpload = props => {
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
-					setContactNo={applicant?.basic_details?.mobile_no}
+					setContactNo={applicantMobileNumber}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
