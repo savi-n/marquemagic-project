@@ -10,13 +10,13 @@ const ModalBody = styled.div`
 	justify-content: center;
 	height: 100px;
 	padding: 0 40px;
+	gap: 20px;
 `;
 
 const ModalFooter = styled.div`
 	display: flex;
 	justify-content: center;
-	margin-bottom: 40px;
-	gap: 40px;
+	padding: 20px 0;
 `;
 
 const SessionExpired = props => {
@@ -39,10 +39,12 @@ const SessionExpired = props => {
 	return (
 		<Modal show={show} width='30%' customStyle={{ minHeight: '200px' }}>
 			<ModalBody>
-				<h4>Your session has expired, Please login again</h4>
-				<br />
+				<h1 style={{ fontSize: 18 }}>
+					Your session has expired, Please login again
+				</h1>
 				<small>
-					You'll be Auto redirect to login page in {timer > -1 ? timer : 0}
+					You’ll be auto-redirected to login page in {timer > -1 ? timer : 0}{' '}
+					seconds
 				</small>
 			</ModalBody>
 			<ModalFooter>
