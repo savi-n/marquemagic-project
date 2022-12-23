@@ -503,6 +503,11 @@ const BasicDetails = props => {
 			let decryptedToken = '';
 			if (params?.token) {
 				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				// console.log('validateToken-', {
+				// 	decryptedToken,
+				// 	type: typeof decryptedToken,
+				// 	isError: !!decryptedToken?.stack?.includes('SyntaxError'),
+				// });
 			}
 			if (decryptedToken?.token) {
 				const isValidToken = await verifyUiUxToken(decryptedToken?.token);
@@ -510,6 +515,10 @@ const BasicDetails = props => {
 					setIsTokenValid(false);
 					return false;
 				}
+			} else {
+				// if token coud not parse from url
+				setIsTokenValid(false);
+				return false;
 			}
 		} catch (error) {
 			console.error('error-validatetoken-', error);
