@@ -187,6 +187,7 @@ export const DOC_CATEGORY_FINANCIAL = 'financial';
 export const DOC_CATEGORY_OTHER = 'other';
 export const DOC_CATEGORY_LENDER = 'lender';
 export const DOC_CATEGORY_EVAL = 'eval';
+export const DOC_CATEGORY_EVAL_NAME = 'EVALUATION';
 
 export const ALL_DOC_CATEGORY = [
 	DOC_CATEGORY_KYC,

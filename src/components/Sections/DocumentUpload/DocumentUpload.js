@@ -801,7 +801,9 @@ const DocumentUpload = props => {
 					<div key={`data-${category}-{${directorId}}`}>
 						<UI.CollapseHeader onClick={() => toggleOpenSection(category)}>
 							<UI.CategoryNameHeader>
-								{category.toLocaleUpperCase()}{' '}
+								{category === CONST_SECTIONS.DOC_CATEGORY_EVAL
+									? CONST_SECTIONS.DOC_CATEGORY_EVAL_NAME
+									: category.toLocaleUpperCase()}{' '}
 							</UI.CategoryNameHeader>
 							{renderDocUploadedCount({
 								uploaded: selectedDocuments?.length,
