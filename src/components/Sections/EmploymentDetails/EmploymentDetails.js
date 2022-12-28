@@ -15,7 +15,11 @@ import {
 	setSelectedApplicantCoApplicantId,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import {
+	formatSectionReqBody,
+	getApiErrorMessage,
+	validateEmploymentDetails,
+} from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 
 const EmploymentDetails = () => {
@@ -51,6 +55,22 @@ const EmploymentDetails = () => {
 	const submitEmploymentDetails = async () => {
 		try {
 			setLoading(true);
+			const isValid = validateEmploymentDetails({
+				coApplicants,
+				isApplicant,
+			});
+			if (
+				isValid === false &&
+				selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
+			) {
+				addToast({
+					message:
+						'Please fill all the details in Co-Applicant-' +
+						Object.keys(coApplicants)?.length,
+					type: 'error',
+				});
+				return;
+			}
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
 				app,
@@ -321,16 +341,16 @@ const EmploymentDetails = () => {
 					/>
 				)}
 				{/* visibility of add co-applicant based on the config */}
-				{selectedSection?.add_co_applicant_visibility === false ||
-				isViewLoan ? null : (
-					<Button
-						fill
-						name='Add Co-Applicant'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onAddCoApplicant)}
-					/>
-				)}
+				{/* {selectedSection?.add_co_applicant_visibility === false ||
+				isViewLoan ? null : ( */}
+				<Button
+					fill
+					name='Add Co-Applicant'
+					isLoader={loading}
+					disabled={loading}
+					onClick={handleSubmit(onAddCoApplicant)}
+				/>
+				{/* )} */}
 				{isViewLoan && (
 					<>
 						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
