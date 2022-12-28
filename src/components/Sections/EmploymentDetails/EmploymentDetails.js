@@ -341,16 +341,16 @@ const EmploymentDetails = () => {
 					/>
 				)}
 				{/* visibility of add co-applicant based on the config */}
-				{/* {selectedSection?.add_co_applicant_visibility === false ||
-				isViewLoan ? null : ( */}
-				<Button
-					fill
-					name='Add Co-Applicant'
-					isLoader={loading}
-					disabled={loading}
-					onClick={handleSubmit(onAddCoApplicant)}
-				/>
-				{/* )} */}
+				{selectedSection?.add_co_applicant_visibility === false ||
+				isViewLoan ? null : (
+					<Button
+						fill
+						name='Add Co-Applicant'
+						isLoader={loading}
+						disabled={loading}
+						onClick={handleSubmit(onAddCoApplicant)}
+					/>
+				)}
 				{isViewLoan && (
 					<>
 						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
