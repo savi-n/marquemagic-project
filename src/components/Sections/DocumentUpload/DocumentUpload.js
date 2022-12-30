@@ -459,6 +459,7 @@ const DocumentUpload = props => {
 				product_id: selectedProduct.id,
 			};
 			// let authenticateOtp =
+			// -- api-3 - generate otp
 			await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
@@ -590,25 +591,12 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
 			// 	documentUploadReqBody,
 			// });
-			// return;
-			// const documentUploadRes =
-			// --api 2 - borrower doc api
+
+			// --api-2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
 				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
 			}
-			const applicationStageReqBody = {
-				loan_id: documentUploadReqBody.loan_id,
-			};
 
-			if (isDocumentUploadMandatory) {
-				applicationStageReqBody.is_mandatory_documents_uploaded = true;
-			}
-			// --api 3 - application stage
-
-			await axios.post(
-				`${API.TO_APPLICATION_STAGE_URL}`,
-				applicationStageReqBody
-			);
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
@@ -785,6 +773,7 @@ const DocumentUpload = props => {
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
 					onSkip={onSkip}
+					isDocumentUploadMandatory={isDocumentUploadMandatory}
 				/>
 			) : null}
 			{totalMandatoryDocumentCount > 0 ? (
