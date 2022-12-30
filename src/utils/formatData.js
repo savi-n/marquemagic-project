@@ -702,3 +702,24 @@ export const formatLenderDocs = docs => {
 	const newDocs = [];
 	return newDocs;
 };
+
+// validating employment details section for onProceed or add-coapplicant
+export const validateEmploymentDetails = data => {
+	const { coApplicants, isApplicant } = data;
+	let allowProceed = false;
+	let filteredCoApplicant = [];
+	if (Object.keys(coApplicants)?.length > 0) {
+		filteredCoApplicant = Object.values(coApplicants)?.filter(coApplicant => {
+			return !coApplicant?.employmentId;
+		});
+	}
+	if (filteredCoApplicant.length === 0) {
+		allowProceed = true;
+	} else {
+		allowProceed = false;
+	}
+	if (isApplicant && Object.keys(coApplicants)?.length === 0) {
+		allowProceed = true;
+	}
+	return allowProceed;
+};

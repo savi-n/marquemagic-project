@@ -270,6 +270,12 @@ export const generateCaseCreationReqBody = (
 						return { ...ele, addressType: 'present', aid: 1 };
 				  })
 				: addressArrayUni;
+
+		// for edit loan must pass id for updating address
+		// all the address should have id otherwise do not pass the address object
+		if (editLoan) {
+			addressArrayUni = addressArrayUni.filter(ele => !!ele.id);
+		}
 		// console.log('-----------temp6-------------');
 		const { loanAmount, tenure, ...restLoanData } = loanData;
 		let business_income_type_id =
