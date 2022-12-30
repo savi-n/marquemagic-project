@@ -11,7 +11,6 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 import { setSelectedSectionId } from 'store/appSlice';
-import * as CONST from './const';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -72,8 +71,8 @@ const ApplicantCoApplicantHeader = props => {
 		// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 		// 	return setIsDeleteCoApplicantModalOpen(id);
 		// }
-		if (selectedSectionId !== CONST.DOCUMENT_UPLOAD_SECTION_ID) {
-			dispatch(setSelectedSectionId(CONST.BASIC_DETAILS_SECTION_ID));
+		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
 		dispatch(setSelectedApplicantCoApplicantId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));

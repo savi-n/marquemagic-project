@@ -326,19 +326,19 @@ export default function useForm() {
 		}
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
-		fieldsRef.current[newField.name] = newField;
+		fieldsRef.current[(newField?.name)] = newField;
 
 		if (newField?.name?.includes('bank_name')) {
 			// new changes by akash cloud stock nov-30
-			newField.value &&
-				!valuesRef.current[newField.name] &&
-				setValue(newField.name, newField.value || '');
+			newField?.value &&
+				!valuesRef?.current?.[newField?.name] &&
+				setValue(newField?.name, newField?.value || '');
 		} else {
 			// old
-			setValue(newField.name, newField.value || '');
+			setValue(newField?.name, newField?.value || '');
 		}
 
-		checkValidity(newField.name);
+		checkValidity(newField?.name);
 
 		return (
 			<InputFieldRender

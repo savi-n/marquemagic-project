@@ -677,13 +677,13 @@ const AddressDetails = props => {
 					]
 				}`;
 			}
-			console.log('addressdetails-useeffect-edit-', {
-				cacheDocuments,
-				filterPresentDocs,
-				filterPermanentDocs,
-				selectedAddressProofPermanentValue,
-				selectedAddressProofPresentValue,
-			});
+			// console.log('addressdetails-useeffect-edit-', {
+			// 	cacheDocuments,
+			// 	filterPresentDocs,
+			// 	filterPermanentDocs,
+			// 	selectedAddressProofPermanentValue,
+			// 	selectedAddressProofPresentValue,
+			// });
 			if (selectedAddressProofPermanentValue) {
 				onChangeFormStateField({
 					name: CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
