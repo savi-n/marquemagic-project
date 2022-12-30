@@ -15,7 +15,11 @@ import {
 	setSelectedApplicantCoApplicantId,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import {
+	formatSectionReqBody,
+	getApiErrorMessage,
+	validateEmploymentDetails,
+} from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 
 const EmploymentDetails = () => {
@@ -51,6 +55,22 @@ const EmploymentDetails = () => {
 	const submitEmploymentDetails = async () => {
 		try {
 			setLoading(true);
+			const isValid = validateEmploymentDetails({
+				coApplicants,
+				isApplicant,
+			});
+			if (
+				isValid === false &&
+				selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
+			) {
+				addToast({
+					message:
+						'Please fill all the details in Co-Applicant-' +
+						Object.keys(coApplicants)?.length,
+					type: 'error',
+				});
+				return;
+			}
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
 				app,
