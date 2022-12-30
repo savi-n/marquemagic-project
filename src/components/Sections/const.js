@@ -12,6 +12,9 @@ export const EXTRACTION_KEY_VOTERID = 'voter';
 export const EXTRACTION_KEY_PASSPORT = 'passport';
 export const EXTRACTION_KEY_OTHERS = 'others';
 
+export const BASIC_DETAILS_SECTION_ID = 'basic_details';
+export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
+
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
 	EXTRACTION_KEY_DL,
