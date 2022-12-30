@@ -798,7 +798,13 @@ const DocumentUpload = props => {
 				const selectedDocuments = selectedApplicantDocuments?.filter(
 					doc => doc?.category === category
 				);
-
+				if (
+					isEditLoan &&
+					(category === CONST_SECTIONS.DOC_CATEGORY_LENDER ||
+						category === CONST_SECTIONS.DOC_CATEGORY_EVAL)
+				) {
+					return null;
+				}
 				return (
 					<div key={`data-${category}-{${directorId}}`}>
 						<UI.CollapseHeader onClick={() => toggleOpenSection(category)}>
