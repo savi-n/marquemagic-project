@@ -290,8 +290,8 @@ const BasicDetails = props => {
 							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
-							classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
-							classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
+							// classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
+							// classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 							document_id: doc?.requestId, // temp doc id as this doc is non deletable
 						});
 						return null;
