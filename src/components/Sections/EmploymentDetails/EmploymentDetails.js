@@ -334,7 +334,7 @@ const EmploymentDetails = () => {
 				{displayProceedCTA && !isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}
