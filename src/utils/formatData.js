@@ -373,6 +373,8 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}513`,
 					id: `${prefix}513`,
 					name: 'Address Proof Document Front',
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_OTHERS,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 				},
 				{
 					typeId: `${prefix}514`,
@@ -380,6 +382,8 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}514`,
 					id: `${prefix}514`,
 					name: 'Address Proof Document Back',
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_OTHERS,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_B,
 				},
 				{
 					typeId: `${prefix}515`,
@@ -387,6 +391,8 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}515`,
 					id: `${prefix}515`,
 					name: 'Address Proof Document Front and Back',
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_OTHERS,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
 		default:
