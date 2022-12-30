@@ -244,7 +244,7 @@ const BankDetails = () => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}

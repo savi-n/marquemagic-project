@@ -738,7 +738,7 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(() => {
