@@ -136,7 +136,8 @@ export default function PersonalDetailsPage({
 				return err;
 			}
 		}
-
+		// console.log('personaldetails-onSave-', { reqBody });
+		// return;
 		const oldReqBody = await getFlowData(LOGIN_CREATEUSER_REQ_BODY);
 		// const applicationState = JSON.parse(sessionStorage.getItem(HOSTNAME));
 		// const userReducer = applicationState?.userReducer;

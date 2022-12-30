@@ -569,6 +569,12 @@ const DocumentUpload = props => {
 			const newUploadedDocuments = [];
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
+
+				// all network error related document will be filtered here
+				// TODO: temporory solution these kind of document should be highlighted
+				// and this should be hanled each individual document upload or taging phase
+				if (!doc?.document_key) return null;
+
 				newUploadedDocuments.push({
 					...doc,
 					file: null,
@@ -803,7 +809,9 @@ const DocumentUpload = props => {
 					<div key={`data-${category}-{${directorId}}`}>
 						<UI.CollapseHeader onClick={() => toggleOpenSection(category)}>
 							<UI.CategoryNameHeader>
-								{category.toLocaleUpperCase()}{' '}
+								{category === CONST_SECTIONS.DOC_CATEGORY_EVAL
+									? CONST_SECTIONS.DOC_CATEGORY_EVAL_NAME
+									: category.toLocaleUpperCase()}{' '}
 							</UI.CategoryNameHeader>
 							{renderDocUploadedCount({
 								uploaded: selectedDocuments?.length,

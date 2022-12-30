@@ -199,6 +199,8 @@ export default function FormController({
 				name: formState?.values?.BusinessName,
 				mobileNo: formState?.values?.mobileNo,
 			};
+			// console.log('formcontroller-onProceed-', { reqBody });
+			// return;
 			if (sessionStorage.getItem('userDetails')) {
 				try {
 					reqBody.user_id =
@@ -300,7 +302,7 @@ export default function FormController({
 							bankId: userDetailsRes.bankId,
 							branchId: userDetailsRes.branchId,
 						});
-
+						sessionStorage.setItem('branchId', userDetailsRes.branchId);
 						// console.log('before-setting-company-details-', {
 						// 	status: encryptWhiteLabelRes.status === NC_STATUS_CODE.OK,
 						// 	object: {

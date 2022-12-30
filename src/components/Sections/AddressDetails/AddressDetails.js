@@ -40,6 +40,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach } from 'utils/helper';
+import { useEffect } from 'react';
 
 const AddressDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -52,6 +53,7 @@ const AddressDetails = props => {
 		createdByUserId,
 		businessAddressIdAid1,
 		businessAddressIdAid2,
+		cacheDocuments,
 	} = application;
 	const {
 		isViewLoan,
@@ -77,7 +79,7 @@ const AddressDetails = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId, cacheDocuments } = selectedApplicant;
+	const { directorId } = selectedApplicant;
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
@@ -410,6 +412,13 @@ const AddressDetails = props => {
 						doc_type_id: doc.selectedDocTypeId,
 						is_delete_not_allowed: true,
 						isDocRemoveAllowed: false,
+						classification_type: doc?.isTagged?.classification_type,
+						classification_sub_type: doc?.isTagged?.classification_sub_type,
+						aid: doc?.isTagged?.id?.includes(
+							CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
+						)
+							? CONST_ADDRESS_DETAILS.AID_PERMANENT
+							: CONST_ADDRESS_DETAILS.AID_PRESENT,
 						original_doc_name:
 							formState?.values?.[
 								`${doc?.prefix}${CONST.OTHERS_DOC_NAME_FIELD_NAME}`
@@ -427,9 +436,9 @@ const AddressDetails = props => {
 			}
 
 			const newKycUploadCacheDocumentsTemp = [];
-			if (cacheDocumentsTemp.length > 0) {
+			if (cacheDocumentsTemp?.length > 0) {
 				try {
-					cacheDocumentsTemp.map(doc => {
+					cacheDocumentsTemp?.map(doc => {
 						if (!doc?.requestId) return null;
 						newKycUploadCacheDocumentsTemp.push({
 							...doc,
@@ -440,7 +449,10 @@ const AddressDetails = props => {
 							director_id: directorId,
 							isDocRemoveAllowed: false,
 							document_id: 'placeholder',
-							// document is is required so in document upload page we do not resubmit this documents
+							classification_type: doc?.isTagged?.classification_type,
+							classification_sub_type: doc?.isTagged?.classification_sub_type,
+							aid: doc?.isTagged?.aid,
+							// document is required so in document upload page we do not resubmit this documents
 							// due to this user won't be able to view document
 						});
 						return null;
@@ -554,7 +566,7 @@ const AddressDetails = props => {
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
 			permanent_aadhaar: selectedApplicant?.daadhaar,
-			permanent_address_proof_id: '', // others for future
+			permanent_address_proof_id_others: selectedApplicant?.permanent_ddocname,
 			permanent_address_proof_id_passport: selectedApplicant?.dpassport,
 			permanent_address_proof_id_dl: selectedApplicant?.ddlNumber,
 			permanent_address_proof_id_voter: selectedApplicant?.dvoterid,
@@ -569,7 +581,7 @@ const AddressDetails = props => {
 				selectedApplicant?.permanent_residential_stability,
 
 			present_aadhaar: selectedApplicant?.daadhaar,
-			present_address_proof_id: '', // others for future
+			present_address_proof_id_others: selectedApplicant?.ddocname,
 			present_address_proof_id_passport: selectedApplicant?.dpassport,
 			present_address_proof_id_dl: selectedApplicant?.ddlNumber,
 			present_address_proof_id_voter: selectedApplicant?.dvoterid,
@@ -629,6 +641,65 @@ const AddressDetails = props => {
 		}
 	};
 
+	useEffect(() => {
+		if (isEditOrViewLoan) {
+			let selectedAddressProofPermanentValue = '';
+			let selectedAddressProofPresentValue = '';
+			const filterPermanentDocs = cacheDocuments.filter(
+				doc =>
+					`${doc?.aid}` === CONST.AID_PERMANENT &&
+					`${selectedApplicant?.directorId}` === `${doc?.directorId}` &&
+					CONST_SECTIONS.ADDRESS_PROOF_CLASSIFICATION_KEYS.includes(
+						doc?.classification_type
+					)
+			);
+			const filterPresentDocs = cacheDocuments.filter(
+				doc =>
+					`${doc?.aid}` === CONST.AID_PRESENT &&
+					`${selectedApplicant?.directorId}` === `${doc?.directorId}` &&
+					CONST_SECTIONS.ADDRESS_PROOF_CLASSIFICATION_KEYS.includes(
+						doc?.classification_type
+					)
+			);
+			if (filterPermanentDocs?.length > 0) {
+				selectedAddressProofPermanentValue = `${CONST.PREFIX_PERMANENT}${
+					CONST_SECTIONS
+						.GET_CLASSIFICATION_KEYS_FROM_ADDRESS_PROOF_KEYS_MAPPING[
+						(filterPermanentDocs?.[0]?.classification_type)
+					]
+				}`;
+			}
+			if (filterPresentDocs?.length > 0) {
+				selectedAddressProofPresentValue = `${CONST.PREFIX_PRESENT}${
+					CONST_SECTIONS
+						.GET_CLASSIFICATION_KEYS_FROM_ADDRESS_PROOF_KEYS_MAPPING[
+						(filterPresentDocs?.[0]?.classification_type)
+					]
+				}`;
+			}
+			console.log('addressdetails-useeffect-edit-', {
+				cacheDocuments,
+				filterPresentDocs,
+				filterPermanentDocs,
+				selectedAddressProofPermanentValue,
+				selectedAddressProofPresentValue,
+			});
+			if (selectedAddressProofPermanentValue) {
+				onChangeFormStateField({
+					name: CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
+					value: selectedAddressProofPermanentValue,
+				});
+			}
+			if (selectedAddressProofPresentValue) {
+				onChangeFormStateField({
+					name: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
+					value: selectedAddressProofPresentValue,
+				});
+			}
+		}
+		// eslint-disable-next-line
+	}, []);
+
 	// console.log('AddressDetails-allProps-', {
 	// 	applicant,
 	// 	coApplicants,
@@ -680,14 +751,54 @@ const AddressDetails = props => {
 					isInActiveAddressProofUpload = true;
 				}
 
-				const cacheDocumentsTemp = isPermanent
-					? selectedAddressProofId?.includes('others')
+				let selectedCacheDocumentsTemp = [];
+				selectedCacheDocumentsTemp = [
+					...cacheDocuments.filter(
+						doc =>
+							`${doc?.directorId}` === `${selectedApplicant?.directorId}` &&
+							`${doc?.aid}` === `${sub_section?.aid}` &&
+							!!doc?.classification_type &&
+							!!doc?.classification_sub_type
+					),
+					...(isPermanent
+						? permanentCacheDocumentsTemp
+						: presentCacheDocumentsTemp),
+					...(isPermanent
 						? otherPermanentCacheDocTemp
-						: permanentCacheDocumentsTemp
-					: selectedAddressProofId?.includes('others')
-					? otherPresentCacheDocTemp
-					: presentCacheDocumentsTemp;
+						: otherPresentCacheDocTemp),
+				];
+				// console.log('address-details-step1-merge-all-docs-', {
+				// 	selectedAddressProofId,
+				// 	selectedApplicant,
+				// 	cacheDocuments,
+				// 	otherPermanentCacheDocTemp,
+				// 	permanentCacheDocumentsTemp,
+				// 	otherPresentCacheDocTemp,
+				// 	presentCacheDocumentsTemp,
+				// 	selectedCacheDocumentsTemp,
+				// });
 
+				// remove after verifying above code
+				const cacheDocumentsTemp = [];
+				selectedCacheDocumentsTemp?.map(doc => {
+					const selectedDocumentType = selectedDocumentTypes?.filter(
+						docType =>
+							docType?.classification_type === doc?.classification_type &&
+							docType?.classification_sub_type === doc?.classification_sub_type
+					);
+					const newDoc = { ...doc };
+					if (selectedDocumentType?.length > 0) {
+						newDoc.isTagged = selectedDocumentType?.[0] || {};
+					}
+					cacheDocumentsTemp.push(newDoc);
+					return null;
+				});
+
+				// console.log('address-details-step2-filter-by-aid-and-classification-', {
+				// 	selectedAddressProofId,
+				// 	selectedCacheDocumentsTemp,
+				// 	cacheDocumentsTemp,
+				// });
 				if (selectedAddressProofId) {
 					const isFrontTagged =
 						cacheDocumentsTemp?.filter(
@@ -719,7 +830,7 @@ const AddressDetails = props => {
 						isInActiveAddressProofUpload = true;
 						// isProceedDisabledAddressProof = true;
 					}
-					if (cacheDocumentsTemp.filter(f => !f?.isTagged?.id).length > 0) {
+					if (cacheDocumentsTemp?.filter(f => !f?.isTagged?.id).length > 0) {
 						isInActiveAddressProofUpload = true;
 						// isProceedDisabledAddressProof = true;
 					}
@@ -852,7 +963,6 @@ const AddressDetails = props => {
 												}
 												onClickVerifyWithOtp={onClickVerifyWithOtp}
 												verifyingWithOtp={verifyingWithOtp}
-												prefilledDocs={cacheDocuments}
 												cacheDocumentsTemp={cacheDocumentsTemp}
 												setCacheDocumentsTemp={
 													isPermanent
@@ -954,7 +1064,7 @@ const AddressDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}

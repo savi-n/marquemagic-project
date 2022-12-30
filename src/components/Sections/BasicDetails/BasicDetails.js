@@ -1,6 +1,7 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import queryString from 'query-string';
 import _ from 'lodash';
 
 import useForm from 'hooks/useFormIndividual';
@@ -9,6 +10,8 @@ import ProfileUpload from './ProfileUpload';
 import PanUpload from './PanUpload';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
+import { decryptRes } from 'utils/encrypt';
+import { verifyUiUxToken } from 'utils/request';
 
 import {
 	setLoginCreateUserRes,
@@ -34,6 +37,7 @@ import {
 	getEditLoanLoanDocuments,
 	getSelectedField,
 } from 'utils/formatData';
+import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -87,6 +91,7 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+	const [isTokenValid, setIsTokenValid] = useState(true);
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
@@ -146,6 +151,8 @@ const BasicDetails = props => {
 	const onProceed = async () => {
 		try {
 			setLoading(true);
+			const isTokenValid = await validateToken();
+			if (isTokenValid === false) return;
 			// console.log('nextSectionId-', {
 			// 	nextSectionId,
 			// 	selectedApplicantCoApplicantId,
@@ -283,8 +290,8 @@ const BasicDetails = props => {
 							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
-							classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
-							classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
+							// classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
+							// classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 							document_id: doc?.requestId, // temp doc id as this doc is non deletable
 						});
 						return null;
@@ -490,6 +497,40 @@ const BasicDetails = props => {
 		}
 	};
 
+	const validateToken = async () => {
+		try {
+			const params = queryString.parse(window.location.search);
+			if (params?.token) {
+				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				// console.log('validateToken-', {
+				// 	decryptedToken,
+				// 	type: typeof decryptedToken,
+				// 	isError: !!decryptedToken?.stack?.includes('SyntaxError'),
+				// });
+				if (decryptedToken?.token) {
+					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
+					if (!isValidToken) {
+						setIsTokenValid(false);
+						return false;
+					}
+				} else {
+					// if token coud not parse from url
+					setIsTokenValid(false);
+					return false;
+				}
+			}
+		} catch (error) {
+			console.error('error-validatetoken-', error);
+			setIsTokenValid(false);
+			return false;
+		}
+	};
+
+	useEffect(() => {
+		validateToken();
+		// eslint-disable-next-line
+	}, []);
+
 	// console.log('BasicDetails-666', {
 	// 	isPanNumberExist,
 	// 	selectedProfileField,
@@ -524,6 +565,7 @@ const BasicDetails = props => {
 				onClose={setIsIncomeTypeConfirmModalOpen}
 				ButtonProceed={ButtonProceed}
 			/>
+			{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -696,7 +738,7 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(() => {
