@@ -265,6 +265,8 @@ const LoanDetails = () => {
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
+			branch_id: editLoanData?.branch_id,
+			loan_type: editLoanData?.loan_usage_type?.id,
 		};
 		return preData?.[field?.name];
 	};

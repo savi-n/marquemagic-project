@@ -48,7 +48,6 @@ const EmploymentDetails = () => {
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
-
 	const submitEmploymentDetails = async () => {
 		try {
 			setLoading(true);
@@ -321,7 +320,9 @@ const EmploymentDetails = () => {
 						onClick={handleSubmit(onProceed)}
 					/>
 				)}
-				{!isViewLoan && (
+				{/* visibility of add co-applicant based on the config */}
+				{selectedSection?.add_co_applicant_visibility === false ||
+				isViewLoan ? null : (
 					<Button
 						fill
 						name='Add Co-Applicant'
