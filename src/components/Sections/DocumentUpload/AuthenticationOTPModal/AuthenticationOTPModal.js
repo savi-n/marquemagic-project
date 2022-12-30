@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
+import axios from 'axios';
 import Button from 'components/Button';
 import AuthenticationOTPInput from './AuthenticationOtpInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -17,6 +18,7 @@ import {
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
+import * as API from '_config/app.config';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -93,6 +95,7 @@ const AuthenticationOTPModal = props => {
 		setIsVerifyWithOtpDisabled,
 		onSkip,
 		generateOtpTimer,
+		isDocumentUploadMandatory,
 		// toggle,
 		// ButtonProceed,
 		// type = 'income',
@@ -129,6 +132,7 @@ const AuthenticationOTPModal = props => {
 		}
 		try {
 			setVerifyingOtp(true);
+			// --api-4 Verify otp
 			const authenticationVerifyReq = await newRequest(
 				AUTHENTICATION_VERIFY_OTP,
 				{
@@ -158,6 +162,18 @@ const AuthenticationOTPModal = props => {
 					JSON.stringify(authenticationVerifyResponse.data)
 				);
 				setIsVerifyWithOtpDisabled(true);
+				// --api 5 - application stage
+				const applicationStageReqBody = {
+					loan_id: loanId,
+				};
+
+				if (isDocumentUploadMandatory) {
+					applicationStageReqBody.is_mandatory_documents_uploaded = true;
+				}
+				await axios.post(
+					`${API.TO_APPLICATION_STAGE_URL}`,
+					applicationStageReqBody
+				);
 				onSkip();
 			} else {
 				setIsAuthenticationOtpModalOpen(false);
