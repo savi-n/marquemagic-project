@@ -26,6 +26,7 @@ import {
 	formatSectionReqBody,
 	getDocumentCategoryName,
 	parseJSON,
+	getApiErrorMessage,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -563,6 +564,12 @@ const DocumentUpload = props => {
 			const newUploadedDocuments = [];
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
+
+				// all network error related document will be filtered here
+				// TODO: temporory solution these kind of document should be highlighted
+				// and this should be hanled each individual document upload or taging phase
+				if (!doc?.document_key) return null;
+
 				newUploadedDocuments.push({
 					...doc,
 					file: null,
@@ -599,7 +606,11 @@ const DocumentUpload = props => {
 			onSkip();
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
-			// TODO: shreyas alert approprepate error from api
+			addToast({
+				message:
+					getApiErrorMessage(error) || 'Server down. Please try after sometime',
+				type: 'error',
+			});
 		} finally {
 			// TODO: move this logic to try balock
 			setSubmitting(false);
@@ -790,7 +801,9 @@ const DocumentUpload = props => {
 					<div key={`data-${category}-{${directorId}}`}>
 						<UI.CollapseHeader onClick={() => toggleOpenSection(category)}>
 							<UI.CategoryNameHeader>
-								{category.toLocaleUpperCase()}{' '}
+								{category === CONST_SECTIONS.DOC_CATEGORY_EVAL
+									? CONST_SECTIONS.DOC_CATEGORY_EVAL_NAME
+									: category.toLocaleUpperCase()}{' '}
 							</UI.CategoryNameHeader>
 							{renderDocUploadedCount({
 								uploaded: selectedDocuments?.length,
