@@ -599,9 +599,9 @@ const AddressDetails = props => {
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
+			// if (isViewLoan) {
+			// 	editViewLoanValue = prefilledEditOrViewLoanValues(field) || '';
+			// }
 
 			// custom prefill only for this section
 			if (isSameAsAboveAddressChecked) {
@@ -629,7 +629,7 @@ const AddressDetails = props => {
 
 			let editViewLoanValue = '';
 
-			if (isEditLoan) {
+			if (isEditOrViewLoan) {
 				editViewLoanValue = prefilledEditOrViewLoanValues(field);
 			}
 
