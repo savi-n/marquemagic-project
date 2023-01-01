@@ -71,6 +71,7 @@ const AddressProofUpload = props => {
 		editLoanData,
 		isEditLoan,
 		isViewLoan,
+		isEditOrViewLoan,
 	} = app;
 	const { loanId, businessUserId } = application;
 	const {
@@ -838,60 +839,60 @@ const AddressProofUpload = props => {
 				</UI.DocTypeChangeModalBody>
 			</Modal>
 			<UI.DropZoneOtpFieldWrapper>
-				{!isViewLoan && (
-					<UI.Dropzone
-						isInActive={isInActive || isSectionCompleted}
-						ref={ref}
-						dragging={dragging}
-						// bg={bg}
+				{/* {!isViewLoan && ( */}
+				<UI.Dropzone
+					isInActive={isInActive || isSectionCompleted}
+					ref={ref}
+					dragging={dragging}
+					// bg={bg}
+					disabled={disabled}
+					uploading={fetchingAddress}
+				>
+					<UI.Caption>Upload Address Proof</UI.Caption>
+					<UI.UploadButton
+						type='file'
+						id={id}
+						onChange={onChange}
+						onClick={e => {
+							if (isInActive) {
+								e.preventDefault();
+								e.stopPropagation();
+							}
+							e.target.value = '';
+						}}
 						disabled={disabled}
-						uploading={fetchingAddress}
-					>
-						<UI.Caption>Upload Address Proof</UI.Caption>
-						<UI.UploadButton
-							type='file'
-							id={id}
-							onChange={onChange}
-							onClick={e => {
-								if (isInActive) {
-									e.preventDefault();
-									e.stopPropagation();
-								}
-								e.target.value = '';
-							}}
-							disabled={disabled}
-							multiple={false}
-						/>
-						<UI.IconWrapper>
-							<UI.IconUpload htmlFor={id}>
-								<img
-									draggable={false}
-									src={uploadCircleIcon}
-									width={30}
-									style={{
-										maxWidth: 'none',
-										filter: isInActive ? 'grayscale(200%)' : 'none',
-									}}
-									alt='upload'
-								/>
-							</UI.IconUpload>
-							<UI.IconCollapse
+						multiple={false}
+					/>
+					<UI.IconWrapper>
+						<UI.IconUpload htmlFor={id}>
+							<img
 								draggable={false}
-								isDocumentTaggingOpen={isDocumentTaggingOpen}
-								src={imgArrowDownCircle}
+								src={uploadCircleIcon}
 								width={30}
 								style={{
 									maxWidth: 'none',
 									filter: isInActive ? 'grayscale(200%)' : 'none',
 								}}
 								alt='upload'
-								onClick={e => {
-									setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
-								}}
 							/>
-						</UI.IconWrapper>
-					</UI.Dropzone>
-				)}
+						</UI.IconUpload>
+						<UI.IconCollapse
+							draggable={false}
+							isDocumentTaggingOpen={isDocumentTaggingOpen}
+							src={imgArrowDownCircle}
+							width={30}
+							style={{
+								maxWidth: 'none',
+								filter: isInActive ? 'grayscale(200%)' : 'none',
+							}}
+							alt='upload'
+							onClick={e => {
+								setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
+							}}
+						/>
+					</UI.IconWrapper>
+				</UI.Dropzone>
+				{/* )} */}
 				{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
 					<>
 						{selectedAddressProofId === 'permanent_aadhar' && <UI.OR>or</UI.OR>}
@@ -1154,7 +1155,10 @@ const AddressProofUpload = props => {
 											isDocRemoveAllowed = false;
 											doNotHideFetchAddress = false;
 										}
-										if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
+										if (
+											isEditOrViewLoan &&
+											doc?.is_delete_not_allowed === 'true'
+										) {
 											isDocRemoveAllowed = false;
 											doNotHideFetchAddress = false;
 										}
