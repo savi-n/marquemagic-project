@@ -11,6 +11,7 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
+import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
 import { validateEmploymentDetails } from 'utils/formatData';
@@ -131,6 +132,18 @@ const SideNav = props => {
 												// 	length: Object.keys(coApplicants)?.length === 0,
 												// 	empId: !!!selectedApplicant?.employmentId,
 												// });
+												if (
+													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+														section?.id
+													)
+												) {
+													dispatch(
+														setSelectedApplicantCoApplicantId(
+															CONST_SECTIONS.APPLICANT
+														)
+													);
+												}
+
 												if (
 													isEditLoan &&
 													isApplicant &&
