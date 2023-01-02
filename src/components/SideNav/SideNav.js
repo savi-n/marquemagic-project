@@ -125,6 +125,25 @@ const SideNav = props => {
 										<UI.Link
 											style={customStyle}
 											onClick={e => {
+												// console.log({
+												// 	isEditLoan,
+												// 	isApplicant,
+												// 	length: Object.keys(coApplicants)?.length === 0,
+												// 	empId: !!!selectedApplicant?.employmentId,
+												// });
+												if (
+													isEditLoan &&
+													isApplicant &&
+													Object.keys(coApplicants)?.length === 0 &&
+													!!!selectedApplicant?.employmentId
+												) {
+													addToast({
+														message:
+															'Please fill all the details in the Applicant',
+														type: 'error',
+													});
+													return;
+												}
 												let isValid;
 												if (
 													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
