@@ -148,7 +148,11 @@ const SideNav = props => {
 													isEditLoan &&
 													isApplicant &&
 													Object.keys(coApplicants)?.length === 0 &&
-													!!!selectedApplicant?.employmentId
+													!!!selectedApplicant?.employmentId &&
+													![
+														CONST_SECTIONS.BASIC_DETAILS_SECTION_ID,
+														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID,
+													].includes(section?.id)
 												) {
 													addToast({
 														message:
