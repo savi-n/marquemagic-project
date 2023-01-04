@@ -42,12 +42,13 @@ const DocumentUpload = props => {
 		selectedProduct,
 		isViewLoan,
 		isEditLoan,
+		isEditOrViewLoan,
+		isDraftLoan,
 		editLoanData,
 		userDetails,
 		isCorporate,
 		nextSectionId,
 		selectedSectionId,
-		isEditOrViewLoan,
 		selectedSection,
 	} = app;
 	const {
@@ -87,9 +88,6 @@ const DocumentUpload = props => {
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
-	const isDraftStage =
-		editLoanData?.loan_status_id === 1 &&
-		editLoanData?.loan_sub_status_id === 1;
 	const applicantMobileNumber =
 		applicant?.basic_details?.mobile_no || applicant?.dcontact;
 	const { addToast } = useToasts();
@@ -675,7 +673,7 @@ const DocumentUpload = props => {
 	let displayProceedButton = null;
 	if (
 		selectedProduct.product_details.otp_authentication &&
-		(isDraftStage || !isEditLoan)
+		(isDraftLoan || !isEditLoan)
 	) {
 		displayProceedButton = (
 			<Button

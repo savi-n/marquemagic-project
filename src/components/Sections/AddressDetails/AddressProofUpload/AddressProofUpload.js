@@ -52,6 +52,9 @@ const AddressProofUpload = props => {
 		onChangeFormStateField,
 		isSectionCompleted,
 		selectedVerifyOtp,
+		isEditLoan,
+		isViewLoan,
+		isEditOrViewLoan,
 	} = props;
 
 	// console.log(
@@ -65,14 +68,7 @@ const AddressProofUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const {
-		selectedProduct,
-		clientToken,
-		editLoanData,
-		isEditLoan,
-		isViewLoan,
-		isEditOrViewLoan,
-	} = app;
+	const { selectedProduct, clientToken, editLoanData } = app;
 	const { loanId, businessUserId } = application;
 	const {
 		selectedApplicantCoApplicantId,

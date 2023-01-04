@@ -56,7 +56,11 @@ const AddressDetails = props => {
 		cacheDocuments,
 	} = application;
 	const {
-		isViewLoan,
+		isDraftLoan,
+		// isViewLoan,
+		// isEditLoan,
+		// isEditOrViewLoan,
+		// editLoanData,
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
@@ -65,11 +69,10 @@ const AddressDetails = props => {
 		clientToken,
 		selectedSection,
 		isLocalhost,
-		isEditLoan,
-		isEditOrViewLoan,
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 	} = app;
+	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
 	const {
 		selectedApplicantCoApplicantId,
 		applicant,
@@ -84,6 +87,11 @@ const AddressDetails = props => {
 		selectedApplicant?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
 		] || selectedApplicant?.income_type;
+	if (isDraftLoan && !selectedApplicant?.permanent_address1) {
+		isViewLoan = false;
+		isEditLoan = false;
+		isEditOrViewLoan = false;
+	}
 	const dispatch = useDispatch();
 	const {
 		handleSubmit,
@@ -212,6 +220,8 @@ const AddressDetails = props => {
 		dispatch(setSelectedSectionId(prevSectionId));
 	};
 	const onProceed = async () => {
+		// onSkip();
+		// return;
 		try {
 			if (!isEditOrViewLoan) {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
@@ -701,8 +711,10 @@ const AddressDetails = props => {
 	}, []);
 
 	// console.log('AddressDetails-allProps-', {
+	// 	app,
 	// 	applicant,
 	// 	coApplicants,
+	// 	application,
 	// 	selectedApplicant,
 	// 	isSameAsAboveAddressChecked,
 	// 	formState,
@@ -975,6 +987,9 @@ const AddressDetails = props => {
 												}
 												selectedDocTypeId={selectedDocTypeId}
 												selectedVerifyOtp={selectedVerifyOtp}
+												isEditLoan={isEditLoan}
+												isViewLoan={isViewLoan}
+												isEditOrViewLoan={isEditOrViewLoan}
 											/>
 										</UI_SECTIONS.FieldWrapGrid>
 									);
