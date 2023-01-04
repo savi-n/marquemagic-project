@@ -145,32 +145,35 @@ const SideNav = props => {
 														)
 													);
 												}
-												let isValid;
-												if (
-													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-														section?.id
-													)
-												) {
-													isValid = validateEmploymentDetails({
-														coApplicants,
-														isApplicant,
-													});
+
+												if (!isViewLoan) {
+													let isValid;
+													if (
+														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+															section?.id
+														)
+													) {
+														isValid = validateEmploymentDetails({
+															coApplicants,
+															isApplicant,
+														});
+													}
+													if (
+														isValid === false &&
+														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+															section?.id
+														)
+													) {
+														addToast({
+															message:
+																'Please fill all the details in Co-Applicant-' +
+																Object.keys(coApplicants)?.length,
+															type: 'error',
+														});
+														return;
+													}
 												}
 
-												if (
-													isValid === false &&
-													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-														section?.id
-													)
-												) {
-													addToast({
-														message:
-															'Please fill all the details in Co-Applicant-' +
-															Object.keys(coApplicants)?.length,
-														type: 'error',
-													});
-													return;
-												}
 												if (
 													isApplicationSubmitted ||
 													section.id ===
