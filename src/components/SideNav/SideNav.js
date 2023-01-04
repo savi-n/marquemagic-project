@@ -145,24 +145,6 @@ const SideNav = props => {
 														)
 													);
 												}
-
-												if (
-													isEditLoan &&
-													isApplicant &&
-													Object.keys(coApplicants)?.length === 0 &&
-													!!!selectedApplicant?.employmentId &&
-													![
-														CONST_SECTIONS.BASIC_DETAILS_SECTION_ID,
-														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID,
-													].includes(section?.id)
-												) {
-													addToast({
-														message:
-															'Please fill all the details in the Applicant',
-														type: 'error',
-													});
-													return;
-												}
 												let isValid;
 												if (
 													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
