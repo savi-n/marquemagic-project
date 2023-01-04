@@ -489,8 +489,10 @@ export const getCompletedSections = data => {
 		editLoanDirectors,
 		applicantCoApplicantSectionIds,
 		selectedApplicant,
+		isDraftLoan,
 	} = data;
 	const completedMenu = [];
+	const reduxCompletedMenu = [];
 	selectedProduct?.product_details?.sections?.map(section => {
 		// editloan adding new coapplicant
 		if (
@@ -502,14 +504,16 @@ export const getCompletedSections = data => {
 				Object.keys(
 					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
 				).length > 0
-			)
+			) {
 				completedMenu.push(section.id);
+				reduxCompletedMenu.push(section.id);
+			}
 			return null;
 		}
 		// -- editloan adding new coapplicant
 
 		// editloan or view loan existing applicant-co-applicant and applicaiton sections
-		if (isEditOrViewLoan) {
+		if (isEditOrViewLoan && !isDraftLoan) {
 			completedMenu.push(section?.id);
 			return null;
 		}
@@ -518,20 +522,29 @@ export const getCompletedSections = data => {
 		// create mode
 		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
 			completedMenu.push(section.id);
+			reduxCompletedMenu.push(section.id);
 		} else {
 			if (
 				Object.keys(
 					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
 				).length > 0
-			)
+			) {
 				completedMenu.push(section.id);
+				reduxCompletedMenu.push(section.id);
+			}
 		}
 		if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
 			completedMenu.push(section.id);
+			reduxCompletedMenu.push(section.id);
 		}
 		return null;
 		// -- create mode
 	});
+
+	// draft mode remove all sections which are not exist in redux store
+	if (isDraftLoan) {
+		return reduxCompletedMenu;
+	}
 	return completedMenu;
 };
 

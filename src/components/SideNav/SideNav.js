@@ -34,6 +34,7 @@ const SideNav = props => {
 		isEditOrViewLoan,
 		isViewLoan,
 		isEditLoan,
+		isDraftLoan,
 		editLoanDirectors,
 	} = app;
 	const {
@@ -61,6 +62,7 @@ const SideNav = props => {
 		application,
 		isEditOrViewLoan,
 		isEditLoan,
+		isDraftLoan,
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		selectedApplicant,
