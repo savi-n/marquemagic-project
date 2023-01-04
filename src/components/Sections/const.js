@@ -13,7 +13,15 @@ export const EXTRACTION_KEY_PASSPORT = 'passport';
 export const EXTRACTION_KEY_OTHERS = 'others';
 
 export const BASIC_DETAILS_SECTION_ID = 'basic_details';
+export const ADDRESS_DETAILS_SECTION_ID = 'loan_address_details';
+export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
+
+export const INITIAL_SECTION_IDS = [
+	BASIC_DETAILS_SECTION_ID,
+	ADDRESS_DETAILS_SECTION_ID,
+	EMPLOYMENT_DETAILS_SECTION_ID,
+];
 
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,

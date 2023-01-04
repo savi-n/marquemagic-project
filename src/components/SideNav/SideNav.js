@@ -11,9 +11,10 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-
+import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
+import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
-
+import { validateEmploymentDetails } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
@@ -45,6 +46,7 @@ const SideNav = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	const { addToast } = useToasts();
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
@@ -126,6 +128,49 @@ const SideNav = props => {
 										<UI.Link
 											style={customStyle}
 											onClick={e => {
+												// console.log({
+												// 	isEditLoan,
+												// 	isApplicant,
+												// 	length: Object.keys(coApplicants)?.length === 0,
+												// 	empId: !!!selectedApplicant?.employmentId,
+												// });
+												if (
+													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+														section?.id
+													)
+												) {
+													dispatch(
+														setSelectedApplicantCoApplicantId(
+															CONST_SECTIONS.APPLICANT
+														)
+													);
+												}
+												let isValid;
+												if (
+													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+														section?.id
+													)
+												) {
+													isValid = validateEmploymentDetails({
+														coApplicants,
+														isApplicant,
+													});
+												}
+
+												if (
+													isValid === false &&
+													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+														section?.id
+													)
+												) {
+													addToast({
+														message:
+															'Please fill all the details in Co-Applicant-' +
+															Object.keys(coApplicants)?.length,
+														type: 'error',
+													});
+													return;
+												}
 												if (
 													isApplicationSubmitted ||
 													section.id ===
