@@ -775,6 +775,7 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
+	// FOR AADHAAR FIELD
 	const customFieldProps = {};
 	if (selectedVerifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
@@ -782,6 +783,11 @@ const AddressProofUpload = props => {
 	if (disabled) {
 		customFieldProps.disabled = disabled;
 	}
+	if (isSectionCompleted) {
+		customFieldProps.disabled = true;
+	}
+
+	// console.log('addressproofupload-', { props });
 
 	return (
 		<UI.Wrapper>
@@ -907,6 +913,7 @@ const AddressProofUpload = props => {
 								name='Verify with OTP'
 								isLoader={verifyingWithOtp}
 								disabled={
+									isSectionCompleted ||
 									selectedVerifyOtp?.res?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
 									isViewLoan ||
