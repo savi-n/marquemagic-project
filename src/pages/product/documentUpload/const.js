@@ -137,6 +137,13 @@ export const generateCaseCreationReqBody = (
 					? JSON.parse(sessionStorage.getItem('formstate'))
 					: {};
 
+				let businessDataFormState = {};
+				if (sessionStorage.getItem('businessFormstate')) {
+					businessDataFormState = JSON.parse(
+						sessionStorage.getItem('businessFormstate')
+					);
+				}
+
 				// console.log('corportae Details', corporateDetails);
 				const newBusinessDetails = {
 					first_name: applicantData?.firstName || '',
@@ -145,6 +152,7 @@ export const generateCaseCreationReqBody = (
 					business_name:
 						applicantData?.firstName ||
 						sessionStorage.getItem('BusinessName') ||
+						businessDataFormState?.BusinessName ||
 						companyData?.BusinessName,
 					business_type:
 						applicantData?.incomeType ||
@@ -160,14 +168,22 @@ export const generateCaseCreationReqBody = (
 
 					business_email:
 						applicantData?.email ||
+						businessDataFormState?.Email ||
 						companyData?.email ||
 						companyData?.Email ||
 						formReducer?.user['business-details']?.Email ||
 						'', // business_industry_type: 20,
-					contact: applicantData?.mobileNo || companyData?.mobileNo || '',
+					contact:
+						applicantData?.mobileNo ||
+						businessDataFormState?.mobileNo ||
+						companyData?.mobileNo ||
+						'',
 
 					businesspancardnumber:
-						applicantData?.panNumber || companyData?.panNumber || '',
+						applicantData?.panNumber ||
+						businessDataFormState?.panNumber ||
+						companyData?.panNumber ||
+						'',
 					// // crime_check: "Yes",
 					gstin:
 						data['business-details']?.GSTVerification ||
