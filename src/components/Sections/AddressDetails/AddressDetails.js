@@ -223,6 +223,18 @@ const AddressDetails = props => {
 		// onSkip();
 		// return;
 		try {
+			if (
+				!formState?.values?.present_city ||
+				!formState?.values?.present_state ||
+				!formState?.values?.permanent_city ||
+				!formState?.values?.permanent_state
+			) {
+				return addToast({
+					message: 'Please enter valid pincode to get city and state',
+					type: 'error',
+				});
+			}
+
 			if (!isEditOrViewLoan) {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
@@ -1025,6 +1037,13 @@ const AddressDetails = props => {
 								if (
 									isSameAsAboveAddressChecked &&
 									field.name.includes(CONST.PREFIX_PRESENT)
+								) {
+									customFieldProps.disabled = true;
+								}
+
+								if (
+									field.name.includes('city') ||
+									field.name.includes('state')
 								) {
 									customFieldProps.disabled = true;
 								}
