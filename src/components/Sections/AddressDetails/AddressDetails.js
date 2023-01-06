@@ -1041,13 +1041,6 @@ const AddressDetails = props => {
 									customFieldProps.disabled = true;
 								}
 
-								if (
-									field.name.includes('city') ||
-									field.name.includes('state')
-								) {
-									customFieldProps.disabled = true;
-								}
-
 								// Untill permanent address1 is not filled disable present address proof
 								if (
 									field.name === CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME &&
@@ -1069,6 +1062,15 @@ const AddressDetails = props => {
 								if (isViewLoan) {
 									customFieldProps.disabled = true;
 								}
+
+								// in all the scenario this fields will be always disabled
+								if (
+									field.name.includes('city') ||
+									field.name.includes('state')
+								) {
+									customFieldProps.disabled = true;
+								}
+
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${prefix}-${fieldIndex}-${field.name}`}
