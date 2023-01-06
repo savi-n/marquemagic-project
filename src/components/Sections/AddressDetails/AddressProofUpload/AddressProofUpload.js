@@ -905,7 +905,8 @@ const AddressProofUpload = props => {
 								visibility: 'visible',
 								...customFieldProps,
 							})}
-							{selectedVerifyOtp?.res?.status === 'ok' && (
+							{(selectedVerifyOtp?.res?.status === 'ok' ||
+								selectedApplicant?.is_aadhaar_otp_verified === true) && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
