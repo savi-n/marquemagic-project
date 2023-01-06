@@ -128,16 +128,19 @@ const SideNav = props => {
 										<UI.Link
 											style={customStyle}
 											onClick={e => {
-												// console.log({
-												// 	isEditLoan,
-												// 	isApplicant,
-												// 	length: Object.keys(coApplicants)?.length === 0,
-												// 	empId: !!!selectedApplicant?.employmentId,
-												// });
+												// console.log(
+												// 	!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+												// 		section?.id
+												// 	),
+												// 	typeof selectedApplicant?.directorId !== 'number',
+												// 	selectedApplicant
+												// );
 												if (
 													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
 														section?.id
-													)
+													) &&
+													typeof selectedApplicant?.directorId !== 'number' &&
+													!isDraftLoan
 												) {
 													dispatch(
 														setSelectedApplicantCoApplicantId(
