@@ -120,13 +120,20 @@ export default function Pincode(props) {
 				for (const [k, v] of props.value_for_fields) {
 					const target = {
 						name: showCityState(props, k),
-						value: selectedPincodeRes?.[v]?.[0] || '',
+						value: selectedPincodeRes?.[v]?.[0] || 'NA',
 					};
 					props.onChange({ target });
 				}
 			} catch (error) {
 				setProcessing(false);
 				console.error('error-pincodefetch-', error);
+				for (const [k] of props.value_for_fields) {
+					const target = {
+						name: showCityState(props, k),
+						value: 'NA',
+					};
+					props.onChange({ target });
+				}
 				// addToast({
 				// 	message:
 				// 		'Could not fetch the data for entered pincode' || err.message,
