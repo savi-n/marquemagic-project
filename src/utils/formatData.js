@@ -540,7 +540,11 @@ export const getCompletedSections = data => {
 		return null;
 		// -- create mode
 	});
-
+	// console.log('formatData-getCompletedSections-', {
+	// 	data,
+	// 	completedMenu,
+	// 	reduxCompletedMenu,
+	// });
 	// draft mode remove all sections which are not exist in redux store
 	if (isDraftLoan) {
 		return reduxCompletedMenu;
