@@ -70,7 +70,8 @@ const EmploymentDetails = () => {
 		if (
 			isValid === false &&
 			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop() &&
-			nextDirectorId
+			// Special condition only for draft mode
+			(isDraftLoan ? nextDirectorId : true)
 		) {
 			addToast({
 				message:
