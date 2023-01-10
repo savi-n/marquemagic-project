@@ -581,7 +581,7 @@ export const getApiErrorMessage = error => {
 	} else if (typeof error?.response?.data?.cause?.details === 'string') {
 		errorMessage = error?.response?.data?.cause?.details;
 	} else {
-		errorMessage = 'Something went wrong, Try after sometimes!';
+		errorMessage = 'Something went wrong, Try after sometime!';
 	}
 	return errorMessage;
 };
