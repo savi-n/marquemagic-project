@@ -39,6 +39,7 @@ import {
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
+import { getCompletedSections } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -63,6 +64,9 @@ const BasicDetails = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		editLoanData,
+		isDraftLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
 	} = app;
 	const {
 		isApplicant,
@@ -103,6 +107,20 @@ const BasicDetails = props => {
 				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
+	const completedSections = getCompletedSections({
+		selectedProduct,
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+		application,
+		isEditOrViewLoan,
+		isEditLoan,
+		isDraftLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		selectedApplicant,
+	});
 	// TODO Shreyas - Enable this in 1.4
 	// const panUploadedFile =
 	// 	cacheDocumentsTemp?.filter(
@@ -534,6 +552,15 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
+		if (
+			!isEditLoan &&
+			!isViewLoan &&
+			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
+		) {
+			dispatch(
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
+			);
+		}
 		// eslint-disable-next-line
 	}, []);
 
