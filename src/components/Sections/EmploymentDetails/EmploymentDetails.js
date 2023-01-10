@@ -17,6 +17,7 @@ import {
 } from 'store/applicantCoApplicantsSlice';
 import {
 	formatSectionReqBody,
+	getApplicantNavigationDetails,
 	getApiErrorMessage,
 	validateEmploymentDetails,
 } from 'utils/formatData';
@@ -54,24 +55,24 @@ const EmploymentDetails = () => {
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 
+	const {
+		nextApplicantDirectorId,
+		// lastDirectorId,
+		isLastApplicantIsSelected,
+	} = getApplicantNavigationDetails({
+		applicant,
+		coApplicants,
+		selectedApplicant,
+	});
+
 	const validateNavigation = () => {
 		const isValid = validateEmploymentDetails({
 			coApplicants,
 			isApplicant,
 		});
-		let isNavigationValid = true;
-		let nextDirectorId = '';
-		if (
-			isDraftLoan &&
-			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
-		) {
-			nextDirectorId = Object.keys(coApplicants).pop();
-		}
 		if (
 			isValid === false &&
-			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop() &&
-			// Special condition only for draft mode
-			(isDraftLoan ? nextDirectorId : true)
+			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
 		) {
 			addToast({
 				message:
@@ -79,10 +80,9 @@ const EmploymentDetails = () => {
 					Object.keys(coApplicants)?.length,
 				type: 'error',
 			});
-			isNavigationValid = false;
-			return { isNavigationValid, nextDirectorId };
+			return false;
 		}
-		return { isNavigationValid, nextDirectorId };
+		return true;
 	};
 
 	const submitEmploymentDetails = async () => {
@@ -150,8 +150,10 @@ const EmploymentDetails = () => {
 	};
 
 	const onAddCoApplicant = async () => {
-		const { isNavigationValid } = validateNavigation();
-		if (!isNavigationValid) return;
+		if (!isDraftLoan && !validateNavigation()) {
+			return;
+		}
+
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
@@ -167,19 +169,29 @@ const EmploymentDetails = () => {
 
 	const onProceed = async () => {
 		try {
-			const { isNavigationValid, nextDirectorId } = validateNavigation();
-			if (!isDraftLoan && !isNavigationValid) return;
+			if (!isDraftLoan && !validateNavigation()) {
+				return;
+			}
+
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
-			if (nextDirectorId && !isNavigationValid) {
-				// move to next director
-				dispatch(setSelectedApplicantCoApplicantId(nextDirectorId));
+
+			// draft stage next applicant exist
+			if (isDraftLoan && !isLastApplicantIsSelected) {
+				dispatch(setSelectedApplicantCoApplicantId(nextApplicantDirectorId));
 				dispatch(setSelectedSectionId(firstSectionId));
-			} else {
-				// move to next section
+				return;
+			}
+
+			// draft stage last applicant
+			if (isDraftLoan && isLastApplicantIsSelected) {
 				dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
 				dispatch(setSelectedSectionId(nextSectionId));
+				return;
 			}
+
+			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
+			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onProceed-', error);
 		}
@@ -228,6 +240,7 @@ const EmploymentDetails = () => {
 			...selectedEmploymentData,
 			years_in_company: selectedEmploymentData?.year_in_company,
 			pin_code: selectedEmploymentData?.pincode,
+			organization_type: selectedEmploymentData?.organization_type,
 			organization_type_salaried_self_employed:
 				selectedEmploymentData?.organization_type,
 			organization_type_salaried: selectedEmploymentData?.organization_type,
@@ -278,13 +291,21 @@ const EmploymentDetails = () => {
 	};
 
 	let displayProceedCTA = true;
+	let displayAddCoApplicantCTA = true;
 	if (
-		selectedProduct?.product_details?.is_coapplicant_mandatory &&
-		Object.keys(coApplicants || {})?.length <= 0
+		isViewLoan ||
+		(selectedProduct?.product_details?.is_coapplicant_mandatory &&
+			Object.keys(coApplicants || {})?.length <= 0)
 	) {
 		displayProceedCTA = false;
 	}
 
+	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
+		displayAddCoApplicantCTA = false;
+	}
+	if (isDraftLoan && !isLastApplicantIsSelected) {
+		displayAddCoApplicantCTA = false;
+	}
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
@@ -359,7 +380,7 @@ const EmploymentDetails = () => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				{displayProceedCTA && !isViewLoan && (
+				{displayProceedCTA && (
 					<Button
 						fill
 						name='Save and Proceed'
@@ -369,8 +390,7 @@ const EmploymentDetails = () => {
 					/>
 				)}
 				{/* visibility of add co-applicant based on the config */}
-				{selectedSection?.add_co_applicant_visibility === false ||
-				isViewLoan ? null : (
+				{displayAddCoApplicantCTA && (
 					<Button
 						fill
 						name='Add Co-Applicant'

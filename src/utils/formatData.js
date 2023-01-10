@@ -763,3 +763,65 @@ export const validateEmploymentDetails = data => {
 	}
 	return allowProceed;
 };
+
+export const getApplicantNavigationDetails = data => {
+	const { applicant, coApplicants, selectedApplicant } = data;
+
+	const allApplicants = [`${applicant?.directorId}`];
+	const allApplicantsObject = [applicant];
+
+	const lastDirectorId =
+		Object.keys(coApplicants || {})?.pop() || applicant?.directorId || '';
+
+	const isLastApplicantIsSelected =
+		`${lastDirectorId}` === `${selectedApplicant?.directorId}`;
+
+	Object.keys(coApplicants || {})?.map(directorId => {
+		allApplicants.push(directorId);
+		allApplicantsObject.push(coApplicants[directorId]);
+		return null;
+	});
+	let nextApplicantDirectorId = '';
+	if (!isLastApplicantIsSelected) {
+		const selectedApplicantIndex = allApplicants.findIndex(
+			directorId => `${directorId}` === `${selectedApplicant?.directorId}`
+		);
+		nextApplicantDirectorId = allApplicants[selectedApplicantIndex + 1] || '';
+	}
+
+	let isEmploymentDetailsSubmited = false;
+	if (
+		Object.keys(
+			selectedApplicant?.[CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID] || {}
+		)?.length > 0
+	) {
+		isEmploymentDetailsSubmited = true;
+	}
+
+	let lastIncompleteDirectorId = '';
+	let lastIncompleteDirectorIndex = 0;
+	allApplicantsObject.map((applicantObject, applicantObjectIndex) => {
+		if (
+			Object.keys(
+				applicantObject?.[CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID] || {}
+			)?.length === 0 &&
+			!lastIncompleteDirectorId
+		) {
+			lastIncompleteDirectorId = `${applicantObject?.directorId}`;
+			lastIncompleteDirectorIndex = applicantObjectIndex;
+		}
+		return null;
+	});
+
+	const returnData = {
+		allApplicants,
+		nextApplicantDirectorId,
+		lastDirectorId,
+		isLastApplicantIsSelected,
+		isEmploymentDetailsSubmited,
+		lastIncompleteDirectorId,
+		lastIncompleteDirectorIndex,
+	};
+	// console.log('getApplicantNavigationDetails-', { returnData });
+	return returnData;
+};

@@ -12,12 +12,19 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 import { setSelectedSectionId } from 'store/appSlice';
+import { getApplicantNavigationDetails } from 'utils/formatData';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { selectedSectionId, selectedProduct, isLocalhost, isDraftLoan } = app;
+	const {
+		selectedSectionId,
+		selectedProduct,
+		isLocalhost,
+		isDraftLoan,
+		firstSectionId,
+	} = app;
 	const {
 		coApplicants,
 		selectedApplicantCoApplicantId,
@@ -76,24 +83,64 @@ const ApplicantCoApplicantHeader = props => {
 		// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 		// 	return setIsDeleteCoApplicantModalOpen(id);
 		// }
+		if (selectedApplicantCoApplicantId === `${id}`) {
+			return;
+		}
+
 		if (isDraftLoan) {
+			const {
+				nextApplicantDirectorId,
+				isEmploymentDetailsSubmited,
+				lastIncompleteDirectorId,
+				lastIncompleteDirectorIndex,
+			} = getApplicantNavigationDetails({
+				applicant,
+				coApplicants,
+				selectedApplicant,
+			});
+
 			if (
-				!(
-					Object.keys(
-						selectedApplicant?.[CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID] ||
-							{}
-					)?.length > 0
-				)
+				isEmploymentDetailsSubmited &&
+				`${nextApplicantDirectorId}` === `${id}`
 			) {
-				return addToast({
-					message: 'Please fill all the details of selected applicant',
-					type: 'error',
-				});
+				// allowed to move
+			} else {
+				const tempSelectedApplicant =
+					id === CONST_SECTIONS.APPLICANT ? applicant : coApplicants[id];
+				if (
+					!(
+						Object.keys(
+							tempSelectedApplicant?.[
+								CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID
+							] || {}
+						)?.length > 0
+					)
+				) {
+					// if last director is applicant
+					dispatch(setSelectedSectionId(firstSectionId));
+					if (`${lastIncompleteDirectorId}` === `${applicant?.directorId}`) {
+						dispatch(
+							setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT)
+						);
+					} else {
+						dispatch(
+							setSelectedApplicantCoApplicantId(lastIncompleteDirectorId)
+						);
+					}
+					return addToast({
+						message: `Please fill all the details of ${
+							lastIncompleteDirectorIndex === 0
+								? 'applicant'
+								: `co-applicant ${lastIncompleteDirectorIndex}`
+						}`,
+						type: 'error',
+					});
+				}
 			}
 		}
 
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
-			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+			dispatch(setSelectedSectionId(firstSectionId));
 		}
 		dispatch(setSelectedApplicantCoApplicantId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));

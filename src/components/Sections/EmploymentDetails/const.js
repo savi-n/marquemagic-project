@@ -1,6 +1,7 @@
 export const initialFormState = {
 	employment_category: 'Salaried',
 	organization_type: 'Private Limited',
+	organization_type_salaried: 'Partnership',
 	company_name: 'NC',
 	current_designation: 'SDE',
 	years_in_company: '2015',
