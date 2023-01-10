@@ -76,7 +76,7 @@ const VALIDATION_RULES = {
 	},
 	is_zero_not_allowed_for_first_digit: {
 		func: validatePattern(/^[1-9][0-9]*$/),
-		message: 'Invalid Phone Number',
+		message: 'Number cannot start with 0',
 	},
 	past_dates: {
 		func: pastDatesOnly,
