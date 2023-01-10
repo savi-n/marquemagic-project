@@ -101,7 +101,7 @@ const AuthenticationOTPModal = props => {
 		// type = 'income',
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, userToken } = app;
+	const { selectedProduct, userToken, editLoanData } = app;
 	const { businessId, loanId } = application;
 	const { addToast } = useToasts();
 	const { newRequest } = useFetch();
@@ -174,6 +174,14 @@ const AuthenticationOTPModal = props => {
 					`${API.TO_APPLICATION_STAGE_URL}`,
 					applicationStageReqBody
 				);
+				if (editLoanData && editLoanData?.loan_ref_id) {
+					setTimeout(() => {
+						addToast({
+							message: 'Your application has been updated',
+							type: 'success',
+						});
+					}, 1000);
+				}
 				onSkip();
 			} else {
 				setIsAuthenticationOtpModalOpen(false);

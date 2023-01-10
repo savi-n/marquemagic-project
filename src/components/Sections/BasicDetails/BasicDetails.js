@@ -203,12 +203,16 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			const preSignedProfileUrl =
+				profileUploadedFile?.presignedUrl ||
+				selectedApplicant?.customer_picture ||
+				'';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
 						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
 				  }
-				: profileUploadedFile?.presignedUrl;
+				: preSignedProfileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -229,6 +233,8 @@ const BasicDetails = props => {
 			// 	basicDetailsReqBody,
 			// 	profileKey: CONST.PROFILE_UPLOAD_FIELD_DB_KEY,
 			// 	profileUploadedFile,
+			// 	isNewProfileUploaded,
+			// 	profileFieldValue,
 			// });
 			// return;
 
@@ -328,8 +334,8 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]:
-						profileUploadedFile?.presignedUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
 				},
 			};
 			// console.log('onProceed-', {
@@ -538,10 +544,13 @@ const BasicDetails = props => {
 	// 	selectedPanUploadField,
 	// 	isPanUploadMandatory,
 	// 	panUploadedFile,
+	// 	profileUploadedFile,
 	// 	app,
 	// 	application,
 	// 	applicantCoApplicants,
 	// 	selectedApplicant,
+	// 	cacheDocumentsTemp,
+	// 	cacheDocuments,
 	// });
 
 	const ButtonProceed = (
@@ -597,6 +606,10 @@ const BasicDetails = props => {
 									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 								) {
 									prefilledProfileUploadValue = prefilledValues(field);
+									// console.log('prefilledProfileUploadValue-', {
+									// 	prefilledProfileUploadValue,
+									// 	selectedApplicant,
+									// });
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
@@ -690,6 +703,12 @@ const BasicDetails = props => {
 									return null;
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
+								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+									customFieldProps.rules = {
+										...field.rules,
+										is_zero_not_allowed_for_first_digit: true,
+									};
+								}
 								if (
 									isPanUploadMandatory &&
 									!isPanNumberExist &&

@@ -358,12 +358,12 @@ export default function Products() {
 		} catch (error) {
 			addToast({
 				message:
-					error?.response?.data?.message || 'Server down, Try after sometimes',
+					error?.response?.data?.message || 'Server down, Try after sometime',
 				type: 'error',
 			});
 			setLoanList([]);
 			setSearching(false);
-			// alert('Server down, Try after sometimes.!');
+			// alert('Server down, Try after sometime.!');
 			console.error('error-PersonalDetails-getStatusCustomer-', error);
 			// alert(error.response.data.message);
 		}
@@ -438,7 +438,7 @@ export default function Products() {
 				});
 			} else {
 				addToast({
-					message: otpRes.data.message || 'Server down, Try after sometimes',
+					message: otpRes.data.message || 'Server down, Try after sometime',
 					type: 'error',
 				});
 			}
@@ -446,7 +446,7 @@ export default function Products() {
 			console.error('err-generateOTP-', err);
 			setLoadingOTP(false);
 			addToast({
-				message: 'Server down, Try after sometimes',
+				message: 'Server down, Try after sometime',
 				type: 'error',
 			});
 		}
