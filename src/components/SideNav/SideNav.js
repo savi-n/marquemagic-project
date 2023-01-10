@@ -128,27 +128,14 @@ const SideNav = props => {
 										<UI.Link
 											style={customStyle}
 											onClick={e => {
-												// console.log(
-												// 	!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-												// 		section?.id
-												// 	),
-												// 	typeof selectedApplicant?.directorId !== 'number',
-												// 	selectedApplicant
-												// );
 												if (
-													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-														section?.id
-													) &&
-													typeof selectedApplicant?.directorId !== 'number'
-												) {
-													dispatch(
-														setSelectedApplicantCoApplicantId(
-															CONST_SECTIONS.APPLICANT
-														)
-													);
-												}
+													isApplicationSubmitted ||
+													section.id ===
+														CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
+												)
+													return;
 
-												if (!isViewLoan) {
+												if (!isViewLoan && isCompleted) {
 													let isValid;
 													if (
 														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
@@ -176,14 +163,20 @@ const SideNav = props => {
 													}
 												}
 
-												if (
-													isApplicationSubmitted ||
-													section.id ===
-														CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
-												)
-													return;
 												if (isCompleted || isActive) {
 													dispatch(setSelectedSectionId(section.id));
+													if (
+														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+															section?.id
+														)
+														// && typeof selectedApplicant?.directorId !== 'number'
+													) {
+														dispatch(
+															setSelectedApplicantCoApplicantId(
+																CONST_SECTIONS.APPLICANT
+															)
+														);
+													}
 												}
 											}}
 										>
