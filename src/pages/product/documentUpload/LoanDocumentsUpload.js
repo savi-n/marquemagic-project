@@ -811,7 +811,7 @@ const DocumentUpload = props => {
 			console.error(error);
 			addToast({
 				message:
-					error?.response?.data?.message || 'Server down, try after sometimes',
+					error?.response?.data?.message || 'Server down, Try after sometime',
 				type: 'error',
 			});
 		}
