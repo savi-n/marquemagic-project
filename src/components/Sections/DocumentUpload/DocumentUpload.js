@@ -473,7 +473,7 @@ const DocumentUpload = props => {
 			console.error(error);
 			addToast({
 				message:
-					error?.response?.data?.message || 'Server down, try after sometimes',
+					error?.response?.data?.message || 'Server down, try after sometime',
 				type: 'error',
 			});
 		}
@@ -608,15 +608,6 @@ const DocumentUpload = props => {
 		} finally {
 			// TODO: move this logic to try balock
 			setSubmitting(false);
-		}
-		// /borrowerdoc-upload
-		if (editLoanData && editLoanData?.loan_ref_id) {
-			setTimeout(() => {
-				addToast({
-					message: 'Your application has been updated',
-					type: 'success',
-				});
-			}, 1000);
 		}
 		// TODO: dispatch action for final submission
 		setLoading(false);
