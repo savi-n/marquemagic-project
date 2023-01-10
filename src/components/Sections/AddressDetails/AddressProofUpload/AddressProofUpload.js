@@ -1144,6 +1144,7 @@ const AddressProofUpload = props => {
 								</UI.DocumentUploadListRow1>
 								<UI.DocumentUploadListRow2>
 									{mappedDocFiles?.map((doc, index) => {
+										if (index > 0) return null;
 										const isViewMoreClicked = viewMore.includes(
 											docType.doc_type_id
 										);
