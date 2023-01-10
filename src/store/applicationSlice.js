@@ -248,6 +248,10 @@ export const applicantSlice = createSlice({
 		setCommentsForOfficeUse: (state, action) => {
 			state.commentsForOfficeUse = action.payload;
 		},
+
+		clearCacheDraftModeSectionsData: (state, action) => {
+			state.sections = {};
+		},
 	},
 });
 
@@ -273,6 +277,8 @@ export const {
 	setCommentsForOfficeUse,
 
 	addCacheAPIReqRes,
+
+	clearCacheDraftModeSectionsData,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;

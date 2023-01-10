@@ -37,6 +37,7 @@ const EmploymentDetails = () => {
 		isLocalhost,
 		selectedSection,
 		isEditLoan,
+		isDraftLoan,
 	} = app;
 	const {
 		applicant,
@@ -52,25 +53,40 @@ const EmploymentDetails = () => {
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
+
+	const validateNavigation = () => {
+		const isValid = validateEmploymentDetails({
+			coApplicants,
+			isApplicant,
+		});
+		let isNavigationValid = true;
+		let nextDirectorId = '';
+		if (
+			isDraftLoan &&
+			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
+		) {
+			nextDirectorId = Object.keys(coApplicants).pop();
+		}
+		if (
+			isValid === false &&
+			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop() &&
+			nextDirectorId
+		) {
+			addToast({
+				message:
+					'Please fill all the details in Co-Applicant-' +
+					Object.keys(coApplicants)?.length,
+				type: 'error',
+			});
+			isNavigationValid = false;
+			return { isNavigationValid, nextDirectorId };
+		}
+		return { isNavigationValid, nextDirectorId };
+	};
+
 	const submitEmploymentDetails = async () => {
 		try {
 			setLoading(true);
-			const isValid = validateEmploymentDetails({
-				coApplicants,
-				isApplicant,
-			});
-			if (
-				isValid === false &&
-				selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
-			) {
-				addToast({
-					message:
-						'Please fill all the details in Co-Applicant-' +
-						Object.keys(coApplicants)?.length,
-					type: 'error',
-				});
-				return;
-			}
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
 				app,
@@ -133,6 +149,8 @@ const EmploymentDetails = () => {
 	};
 
 	const onAddCoApplicant = async () => {
+		const { isNavigationValid } = validateNavigation();
+		if (!isNavigationValid) return;
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
@@ -148,10 +166,19 @@ const EmploymentDetails = () => {
 
 	const onProceed = async () => {
 		try {
+			const { isNavigationValid, nextDirectorId } = validateNavigation();
+			if (!isDraftLoan && !isNavigationValid) return;
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
-			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
-			dispatch(setSelectedSectionId(nextSectionId));
+			if (nextDirectorId && !isNavigationValid) {
+				// move to next director
+				dispatch(setSelectedApplicantCoApplicantId(nextDirectorId));
+				dispatch(setSelectedSectionId(firstSectionId));
+			} else {
+				// move to next section
+				dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
+				dispatch(setSelectedSectionId(nextSectionId));
+			}
 		} catch (error) {
 			console.error('error-EmploymentDetails-onProceed-', error);
 		}
