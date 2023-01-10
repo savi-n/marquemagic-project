@@ -139,8 +139,7 @@ const SideNav = props => {
 													!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
 														section?.id
 													) &&
-													typeof selectedApplicant?.directorId !== 'number' &&
-													!isDraftLoan
+													typeof selectedApplicant?.directorId !== 'number'
 												) {
 													dispatch(
 														setSelectedApplicantCoApplicantId(
