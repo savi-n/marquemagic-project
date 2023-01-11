@@ -9,7 +9,7 @@ import Button from 'components/Button';
 import AadhaarOTPModal from './AadhaarOTPModal';
 import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
-
+import moment from 'moment';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
@@ -599,8 +599,9 @@ const AddressDetails = props => {
 			permanent_city: selectedApplicant?.permanent_city,
 			permanent_state: selectedApplicant?.permanent_state,
 			permanent_property_type: selectedApplicant?.permanent_residential_type,
-			permanent_property_tenure:
-				selectedApplicant?.permanent_residential_stability,
+			permanent_property_tenure: moment(
+				selectedApplicant?.permanent_residential_stability
+			).format('YYYY-MM'),
 
 			present_aadhaar: selectedApplicant?.daadhaar,
 			present_address_proof_id_others: selectedApplicant?.ddocname,
@@ -614,7 +615,9 @@ const AddressDetails = props => {
 			present_city: selectedApplicant?.city,
 			present_state: selectedApplicant?.state,
 			present_property_type: selectedApplicant?.residential_type,
-			present_property_tenure: selectedApplicant?.residential_stability,
+			present_property_tenure: moment(
+				selectedApplicant?.residential_stability
+			).format('YYYY-MM'),
 		};
 		return preData?.[field?.name];
 	};
