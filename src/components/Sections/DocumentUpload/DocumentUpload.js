@@ -17,6 +17,7 @@ import {
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
 	addOrUpdateCacheDocuments,
+	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -614,7 +615,7 @@ const DocumentUpload = props => {
 				// 	updateDocumentIdToCacheDocuments,
 				// });
 				dispatch(
-					addOrUpdateCacheDocuments({
+					addOrUpdateCacheDocumentsDocUploadPage({
 						files: updateDocumentIdToCacheDocuments,
 					})
 				);
