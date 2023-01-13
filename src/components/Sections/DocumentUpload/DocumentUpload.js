@@ -586,9 +586,9 @@ const DocumentUpload = props => {
 				return null;
 			});
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
-			console.log('onSubmitCompleteApplication-documentUploadReqBody', {
-				documentUploadReqBody,
-			});
+			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
+			// 	documentUploadReqBody,
+			// });
 
 			// --api-2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
@@ -610,9 +610,9 @@ const DocumentUpload = props => {
 					updateDocumentIdToCacheDocuments.push(newDoc);
 					return null;
 				});
-				console.log('updateDocumentIdToCacheDocuments-', {
-					updateDocumentIdToCacheDocuments,
-				});
+				// console.log('updateDocumentIdToCacheDocuments-', {
+				// 	updateDocumentIdToCacheDocuments,
+				// });
 				dispatch(
 					addOrUpdateCacheDocuments({
 						files: updateDocumentIdToCacheDocuments,
@@ -754,20 +754,20 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	console.log('DocumentUpload-allStates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		displayProceedButton,
-		displayUploadedDocCount,
-		selectedApplicant,
-		directorId,
-		allDocumentTypes,
-		selectedApplicantDocumentTypes,
-		cacheDocuments,
-		editLoanData,
-		selectedApplicantDocuments,
-	});
+	// console.log('DocumentUpload-allStates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	displayProceedButton,
+	// 	displayUploadedDocCount,
+	// 	selectedApplicant,
+	// 	directorId,
+	// 	allDocumentTypes,
+	// 	selectedApplicantDocumentTypes,
+	// 	cacheDocuments,
+	// 	editLoanData,
+	// 	selectedApplicantDocuments,
+	// });
 
 	if (loading) {
 		return (

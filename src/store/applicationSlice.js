@@ -115,9 +115,9 @@ export const applicantSlice = createSlice({
 		},
 		addOrUpdateCacheDocuments: (state, action) => {
 			const { files } = action.payload;
-			console.log('redux-applicationSlice-addOrUpdateCacheDocuments-', {
-				files,
-			});
+			// console.log('redux-applicationSlice-addOrUpdateCacheDocuments-', {
+			// 	files,
+			// });
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			files?.map?.(newFile => {
 				// doc =>
@@ -131,37 +131,37 @@ export const applicantSlice = createSlice({
 						`${doc?.id}` === `${newFile?.document_id}`
 					) {
 						isExist = true;
-						console.log('isExist1');
+						// console.log('isExist1');
 					} else if (
 						doc?.id &&
 						newFile?.id &&
 						`${doc?.id}` === `${newFile?.id}`
 					) {
 						isExist = true;
-						console.log('isExist2');
+						// console.log('isExist2');
 					} else if (
 						doc?.document_key &&
 						newFile?.document_key &&
 						`${doc?.document_key}` === `${newFile?.document_key}`
 					) {
 						isExist = true;
-						console.log('isExist3');
+						// console.log('isExist3');
 					} else if (
 						doc?.document_key &&
 						newFile?.doc_name &&
 						`${doc?.document_key}` === `${newFile?.doc_name}`
 					) {
 						isExist = true;
-						console.log('isExist4');
+						// console.log('isExist4');
 					} else if (
 						doc?.doc_name &&
 						newFile?.doc_name &&
 						`${doc?.doc_name}` === `${newFile?.doc_name}`
 					) {
 						isExist = true;
-						console.log('isExist5');
+						// console.log('isExist5');
 					}
-					console.log('compare-2-files-', { doc, newFile, isExist });
+					// console.log('compare-2-files-', { doc, newFile, isExist });
 					return isExist;
 				});
 				if (isExistIndex >= 0) {
