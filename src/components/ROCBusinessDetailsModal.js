@@ -142,23 +142,21 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					</Colm2>
 				</Row>
 
-				{companyDetail?.directorsForShow?.length > 0 ||
-					(JSON.parse(sessionStorage.getItem('companyData'))?.DirectorDetails
-						?.length > 0 ? (
-						<>
-							<Header>Directors/Partners</Header>
-							<Row>
-								<Colm1>Name</Colm1>
-								<Colm2>Din</Colm2>
+				{companyDetail?.directorsForShow?.length > 0 ? (
+					<>
+						<Header>Directors/Partners</Header>
+						<Row>
+							<Colm1>Name</Colm1>
+							<Colm2>Din</Colm2>
+						</Row>
+						{companyDetail?.directorsForShow?.map((dir, index) => (
+							<Row key={index}>
+								<Colm1>{dir?.Name}</Colm1>
+								<Colm2>{dir?.Din}</Colm2>
 							</Row>
-							{companyDetail?.directorsForShow?.map((dir, index) => (
-								<Row key={index}>
-									<Colm1>{dir?.Name}</Colm1>
-									<Colm2>{dir?.Din}</Colm2>
-								</Row>
-							))}
-						</>
-					) : null)}
+						))}
+					</>
+				) : null}
 			</Div>
 			<Button name='Close' onClick={onClose} />
 		</Modal>

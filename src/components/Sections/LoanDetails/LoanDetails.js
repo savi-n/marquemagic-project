@@ -56,6 +56,10 @@ const LoanDetails = () => {
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
+	const [
+		applicantAndCoapplicantOptions,
+		setApplicantAndCoapplicantOptions,
+	] = useState([]);
 	const {
 		handleSubmit,
 		register,
@@ -359,6 +363,21 @@ const LoanDetails = () => {
 	// 	formState,
 	// });
 
+	useEffect(() => {
+		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
+			{
+				applicantCoApplicants,
+				isEditOrViewLoan,
+			}
+		);
+		// console.log(
+		// 	newApplicantAndCoapplicantOptions,
+		// 	'newApplicantAndCoapplicantOptions-loan-details'
+		// );
+		setApplicantAndCoapplicantOptions(newApplicantAndCoapplicantOptions);
+		// eslint-disable-next-line
+	}, [applicantCoApplicants]);
+
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
@@ -383,11 +402,14 @@ const LoanDetails = () => {
 										return null;
 								}
 								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-									const newOptions = getApplicantCoApplicantSelectOptions({
-										applicantCoApplicants,
-										isEditOrViewLoan,
-									});
-									newField.options = [...newOptions, ...newField.options];
+									// const newOptions = getApplicantCoApplicantSelectOptions({
+									// 	applicantCoApplicants,
+									// 	isEditOrViewLoan,
+									// });
+									newField.options = [
+										...applicantAndCoapplicantOptions,
+										...newField.options,
+									];
 								}
 								if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
 									newField.options = connectorOptions;
@@ -470,7 +492,7 @@ const LoanDetails = () => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(() => {

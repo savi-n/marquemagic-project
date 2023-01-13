@@ -7,23 +7,36 @@ import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSl
 import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
+import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
+import { setSelectedSectionId } from 'store/appSlice';
+import { getApplicantNavigationDetails } from 'utils/formatData';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { selectedSectionId, selectedProduct, isLocalhost } = app;
+	const {
+		selectedSectionId,
+		selectedProduct,
+		isLocalhost,
+		isDraftLoan,
+		firstSectionId,
+	} = app;
 	const {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 		isApplicant,
 		applicant,
 	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { cacheDocuments, allDocumentTypes } = application;
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 	const [
 		isDeleteCoApplicantModalOpen,
 		setIsDeleteCoApplicantModalOpen,
@@ -70,6 +83,65 @@ const ApplicantCoApplicantHeader = props => {
 		// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
 		// 	return setIsDeleteCoApplicantModalOpen(id);
 		// }
+		if (selectedApplicantCoApplicantId === `${id}`) {
+			return;
+		}
+
+		if (isDraftLoan) {
+			const {
+				nextApplicantDirectorId,
+				isEmploymentDetailsSubmited,
+				lastIncompleteDirectorId,
+				lastIncompleteDirectorIndex,
+			} = getApplicantNavigationDetails({
+				applicant,
+				coApplicants,
+				selectedApplicant,
+			});
+
+			if (
+				isEmploymentDetailsSubmited &&
+				`${nextApplicantDirectorId}` === `${id}`
+			) {
+				// allowed to move
+			} else {
+				const tempSelectedApplicant =
+					id === CONST_SECTIONS.APPLICANT ? applicant : coApplicants[id];
+				if (
+					!(
+						Object.keys(
+							tempSelectedApplicant?.[
+								CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID
+							] || {}
+						)?.length > 0
+					)
+				) {
+					// if last director is applicant
+					dispatch(setSelectedSectionId(firstSectionId));
+					if (`${lastIncompleteDirectorId}` === `${applicant?.directorId}`) {
+						dispatch(
+							setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT)
+						);
+					} else {
+						dispatch(
+							setSelectedApplicantCoApplicantId(lastIncompleteDirectorId)
+						);
+					}
+					return addToast({
+						message: `Please fill all the details of ${
+							lastIncompleteDirectorIndex === 0
+								? 'applicant'
+								: `co-applicant ${lastIncompleteDirectorIndex}`
+						}`,
+						type: 'error',
+					});
+				}
+			}
+		}
+
+		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
+			dispatch(setSelectedSectionId(firstSectionId));
+		}
 		dispatch(setSelectedApplicantCoApplicantId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};

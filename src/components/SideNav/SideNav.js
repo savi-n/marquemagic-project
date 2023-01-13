@@ -11,9 +11,10 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-
+import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
+import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
-
+import { validateEmploymentDetails } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
@@ -33,6 +34,7 @@ const SideNav = props => {
 		isEditOrViewLoan,
 		isViewLoan,
 		isEditLoan,
+		isDraftLoan,
 		editLoanDirectors,
 	} = app;
 	const {
@@ -44,6 +46,7 @@ const SideNav = props => {
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	const { addToast } = useToasts();
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
@@ -59,6 +62,7 @@ const SideNav = props => {
 		application,
 		isEditOrViewLoan,
 		isEditLoan,
+		isDraftLoan,
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		selectedApplicant,
@@ -130,8 +134,49 @@ const SideNav = props => {
 														CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
 												)
 													return;
+
+												if (!isViewLoan && isCompleted) {
+													let isValid;
+													if (
+														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+															section?.id
+														)
+													) {
+														isValid = validateEmploymentDetails({
+															coApplicants,
+															isApplicant,
+														});
+													}
+													if (
+														isValid === false &&
+														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+															section?.id
+														)
+													) {
+														addToast({
+															message:
+																'Please fill all the details in Co-Applicant-' +
+																Object.keys(coApplicants)?.length,
+															type: 'error',
+														});
+														return;
+													}
+												}
+
 												if (isCompleted || isActive) {
 													dispatch(setSelectedSectionId(section.id));
+													if (
+														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+															section?.id
+														)
+														// && typeof selectedApplicant?.directorId !== 'number'
+													) {
+														dispatch(
+															setSelectedApplicantCoApplicantId(
+																CONST_SECTIONS.APPLICANT
+															)
+														);
+													}
 												}
 											}}
 										>
