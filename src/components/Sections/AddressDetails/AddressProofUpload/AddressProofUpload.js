@@ -39,7 +39,7 @@ const AddressProofUpload = props => {
 		selectedAddressProofFieldName = '',
 		selectedAddressProofId = '',
 		isInActive = false,
-		prefilledDocs = [],
+		// prefilledDocs = [],
 		addressProofUploadSection,
 		register,
 		prefilledValues,
@@ -51,18 +51,24 @@ const AddressProofUpload = props => {
 		selectedDocTypeId,
 		onChangeFormStateField,
 		isSectionCompleted,
+		selectedVerifyOtp,
+		isEditLoan,
+		isViewLoan,
+		isEditOrViewLoan,
 	} = props;
+
+	// console.log(
+	// 	cacheDocumentsTemp,
+	// 	'< cachedocstemp -- 888 addressproofupload > prefilleddocs',
+	// 	prefilledDocs,
+	// 	'docTypeOptions',
+	// 	docTypeOptions
+	// );
 	let { addressProofError } = props;
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const {
-		selectedProduct,
-		clientToken,
-		editLoanData,
-		isEditLoan,
-		isViewLoan,
-	} = app;
+	const { selectedProduct, clientToken, editLoanData } = app;
 	const { loanId, businessUserId } = application;
 	const {
 		selectedApplicantCoApplicantId,
@@ -70,7 +76,7 @@ const AddressProofUpload = props => {
 		coApplicants,
 		isApplicant,
 	} = applicantCoApplicants;
-	const selectedDirectorId = selectedApplicantCoApplicantId;
+	// const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
@@ -89,8 +95,8 @@ const AddressProofUpload = props => {
 		false
 	);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
+	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
-
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
 
 	const verifyKycAddressProof = async data => {
@@ -263,12 +269,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (frontForensicFlag === 'warning') {
-					setAddressProofError(
-						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
-					);
-					// CONTINUE EXECUTION
-				}
+				// if (frontForensicFlag === 'warning') {
+				// 	setAddressProofError(
+				// 		`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+				// 	);
+				// 	// CONTINUE EXECUTION
+				// }
 
 				const frontFile = {
 					...selectedAddressProofFiles[0],
@@ -317,7 +323,12 @@ const AddressProofUpload = props => {
 					);
 					return; // STOP FURTHER EXECUTION
 				}
-				if (backForensicFlag === 'warning') {
+				if (frontForensicFlag === 'warning') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				} else if (backForensicFlag === 'warning') {
 					setAddressProofError(
 						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${backForensicFlagMsg}`
 					);
@@ -347,7 +358,7 @@ const AddressProofUpload = props => {
 				// });
 
 				const newCacheDocumentTemp = [];
-				cacheDocumentsTemp.map(doc => {
+				cacheDocumentsTemp?.map(doc => {
 					if (doc.id === frontFile.id) {
 						newCacheDocumentTemp.push(_.cloneDeep(frontFile));
 					} else if (doc.id === backFile.id) {
@@ -432,7 +443,7 @@ const AddressProofUpload = props => {
 			};
 
 			const newCacheDocumentTemp = [];
-			cacheDocumentsTemp.map(doc => {
+			cacheDocumentsTemp?.map(doc => {
 				if (doc.id === frontOnlyFile.id) {
 					newCacheDocumentTemp.push(_.cloneDeep(frontOnlyFile));
 				} else {
@@ -461,19 +472,16 @@ const AddressProofUpload = props => {
 
 	const deleteDocument = async file => {
 		try {
-			setOpeningRemovingDocument(file.document_key || file.doc_type_id);
+			setOpeningRemovingDocument(file?.document_key || file?.doc_type_id);
+			// console.log('before-delete-', cacheDocumentsTemp);
 			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp).filter(
 				doc => doc.id !== file.id
 			);
+			// console.log('after-delete-', newCacheDocumentTemp);
+			// return;
 			setCacheDocumentsTemp(newCacheDocumentTemp);
-			setOpeningRemovingDocument(false);
 			setAddressProofError('');
-			if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
-				return null;
-			} else if (
-				coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-					?.status === 'ok'
-			) {
+			if (selectedVerifyOtp?.res?.status === 'ok') {
 				return null;
 			} else {
 				Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
@@ -486,6 +494,7 @@ const AddressProofUpload = props => {
 			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
+		} finally {
 			setOpeningRemovingDocument(false);
 		}
 	};
@@ -644,7 +653,7 @@ const AddressProofUpload = props => {
 	const onDocTypeChange = (file, docType) => {
 		const selectedDocType = docTypeOptions.find(d => d.value === docType.value);
 		const newCacheDocumentTemp = [];
-		cacheDocumentsTemp.map(doc => {
+		cacheDocumentsTemp?.map(doc => {
 			const newDoc = _.cloneDeep(doc);
 			if (doc.id === file.id) {
 				newDoc.isTagged = selectedDocType;
@@ -680,9 +689,10 @@ const AddressProofUpload = props => {
 		setIsDocumentTaggingOpen(false);
 		setAddressProofError('');
 		const newCacheDocumentTemp = _.cloneDeep(
-			cacheDocumentsTemp.filter(doc => {
-				if (!doc?.doc_type_id) return false;
-				return !doc?.doc_type_id?.includes(prefix);
+			cacheDocumentsTemp?.filter(doc => {
+				const doc_type_id = `${doc?.doc_type_id}`;
+				if (!doc_type_id) return false;
+				return !doc_type_id?.includes(prefix);
 			})
 		);
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
@@ -725,7 +735,7 @@ const AddressProofUpload = props => {
 			return (prevSelectedAddressProofId.current = selectedAddressProofId);
 		}
 		if (prevSelectedAddressProofId?.current !== selectedAddressProofId) {
-			if (cacheDocumentsTemp.filter(doc => !!doc.isTagged).length > 0) {
+			if (cacheDocumentsTemp?.filter(doc => !!doc.isTagged).length > 0) {
 				setIsDocTypeChangeModalOpen(true);
 			} else {
 				prevSelectedAddressProofId.current = selectedAddressProofId;
@@ -734,15 +744,16 @@ const AddressProofUpload = props => {
 		// eslint-disable-next-line
 	}, [selectedAddressProofId]);
 
+	let doNotHideFetchAddress = true;
 	let taggedDocumentCount = 0;
 	let displayTagMessage = 0;
 
-	cacheDocumentsTemp.map(doc => {
+	cacheDocumentsTemp?.map(doc => {
 		if (!!doc?.isTagged) taggedDocumentCount += 1;
 		return null;
 	});
 
-	displayTagMessage = cacheDocumentsTemp.length !== taggedDocumentCount;
+	displayTagMessage = cacheDocumentsTemp?.length !== taggedDocumentCount;
 	const addressProofErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
 		addressProofError
 	);
@@ -764,19 +775,19 @@ const AddressProofUpload = props => {
 		? ''
 		: addressProofError;
 
+	// FOR AADHAAR FIELD
 	const customFieldProps = {};
-	if (isApplicant && applicant?.api?.verifyOtp?.res?.status === 'ok') {
-		customFieldProps.disabled = true;
-	}
-	if (
-		coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp?.res
-			?.status === 'ok'
-	) {
+	if (selectedVerifyOtp?.res?.status === 'ok') {
 		customFieldProps.disabled = true;
 	}
 	if (disabled) {
 		customFieldProps.disabled = disabled;
 	}
+	if (isSectionCompleted) {
+		customFieldProps.disabled = true;
+	}
+
+	// console.log('addressproofupload-', { props });
 
 	return (
 		<UI.Wrapper>
@@ -830,60 +841,60 @@ const AddressProofUpload = props => {
 				</UI.DocTypeChangeModalBody>
 			</Modal>
 			<UI.DropZoneOtpFieldWrapper>
-				{!isViewLoan && (
-					<UI.Dropzone
-						isInActive={isInActive || isSectionCompleted}
-						ref={ref}
-						dragging={dragging}
-						// bg={bg}
+				{/* {!isViewLoan && ( */}
+				<UI.Dropzone
+					isInActive={isInActive || isSectionCompleted}
+					ref={ref}
+					dragging={dragging}
+					// bg={bg}
+					disabled={disabled}
+					uploading={fetchingAddress}
+				>
+					<UI.Caption>Upload Address Proof</UI.Caption>
+					<UI.UploadButton
+						type='file'
+						id={id}
+						onChange={onChange}
+						onClick={e => {
+							if (isInActive) {
+								e.preventDefault();
+								e.stopPropagation();
+							}
+							e.target.value = '';
+						}}
 						disabled={disabled}
-						uploading={fetchingAddress}
-					>
-						<UI.Caption>Upload Address Proof</UI.Caption>
-						<UI.UploadButton
-							type='file'
-							id={id}
-							onChange={onChange}
-							onClick={e => {
-								if (isInActive) {
-									e.preventDefault();
-									e.stopPropagation();
-								}
-								e.target.value = '';
-							}}
-							disabled={disabled}
-							multiple={false}
-						/>
-						<UI.IconWrapper>
-							<UI.IconUpload htmlFor={id}>
-								<img
-									draggable={false}
-									src={uploadCircleIcon}
-									width={30}
-									style={{
-										maxWidth: 'none',
-										filter: isInActive ? 'grayscale(200%)' : 'none',
-									}}
-									alt='upload'
-								/>
-							</UI.IconUpload>
-							<UI.IconCollapse
+						multiple={false}
+					/>
+					<UI.IconWrapper>
+						<UI.IconUpload htmlFor={id}>
+							<img
 								draggable={false}
-								isDocumentTaggingOpen={isDocumentTaggingOpen}
-								src={imgArrowDownCircle}
+								src={uploadCircleIcon}
 								width={30}
 								style={{
 									maxWidth: 'none',
 									filter: isInActive ? 'grayscale(200%)' : 'none',
 								}}
 								alt='upload'
-								onClick={e => {
-									setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
-								}}
 							/>
-						</UI.IconWrapper>
-					</UI.Dropzone>
-				)}
+						</UI.IconUpload>
+						<UI.IconCollapse
+							draggable={false}
+							isDocumentTaggingOpen={isDocumentTaggingOpen}
+							src={imgArrowDownCircle}
+							width={30}
+							style={{
+								maxWidth: 'none',
+								filter: isInActive ? 'grayscale(200%)' : 'none',
+							}}
+							alt='upload'
+							onClick={e => {
+								setIsDocumentTaggingOpen(!isDocumentTaggingOpen);
+							}}
+						/>
+					</UI.IconWrapper>
+				</UI.Dropzone>
+				{/* )} */}
 				{field.name.includes(CONST_ADDRESS_DETAILS.PREFIX_PRESENT) ? null : (
 					<>
 						{selectedAddressProofId === 'permanent_aadhar' && <UI.OR>or</UI.OR>}
@@ -894,12 +905,8 @@ const AddressProofUpload = props => {
 								visibility: 'visible',
 								...customFieldProps,
 							})}
-							{isApplicant &&
-								applicant?.api?.verifyOtp?.res?.status === 'ok' && (
-									<UI.GreenTickImage src={GreenTick} alt='green tick' />
-								)}
-							{coApplicants?.[selectedApplicantCoApplicantId]?.api?.verifyOtp
-								?.res?.status === 'ok' && (
+							{(selectedVerifyOtp?.res?.status === 'ok' ||
+								selectedApplicant?.is_aadhaar_otp_verified === true) && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
@@ -907,20 +914,15 @@ const AddressProofUpload = props => {
 								name='Verify with OTP'
 								isLoader={verifyingWithOtp}
 								disabled={
-									coApplicants?.[selectedDirectorId]?.api?.verifyOtp?.res
-										?.status === 'ok' ||
+									isSectionCompleted ||
+									selectedVerifyOtp?.res?.status === 'ok' ||
 									!formState.values[aadhaarProofOTPField.name] ||
 									isViewLoan ||
 									verifyingWithOtp ||
 									(directorDetails?.filter(
 										director => director?.id === selectedApplicant?.directorId
 									).length > 0 &&
-										isEditLoan) ||
-									(isApplicant &&
-										applicant?.api?.verifyOtp?.res?.status === 'ok')
-
-									// ||
-									// applicant?.api?.verifyOtp?.res?.status === 'ok'
+										isEditLoan)
 								}
 								type='submit'
 								customStyle={{
@@ -963,7 +965,7 @@ const AddressProofUpload = props => {
 					</UI.AddressProofErrorMessage>
 				)}
 				<UI.UnTaggedFileListWrap>
-					{cacheDocumentsTemp.map((doc, upidx) => {
+					{cacheDocumentsTemp?.map((doc, upidx) => {
 						if (!!doc?.isTagged) return null;
 						doc.name = doc.name || doc.upload_doc_name || '';
 						return (
@@ -1003,15 +1005,15 @@ const AddressProofUpload = props => {
 											const backDocTypeId = `${docTypeOptions[1]?.id}`;
 											const frontBackDocTypeId = `${docTypeOptions[2]?.id}`;
 											const isFrontTagged =
-												cacheDocumentsTemp.filter(
+												cacheDocumentsTemp?.filter(
 													doc => doc.doc_type_id === fontDocTypeId
 												).length > 0;
 											const isBackTagged =
-												cacheDocumentsTemp.filter(
+												cacheDocumentsTemp?.filter(
 													doc => doc.doc_type_id === backDocTypeId
 												).length > 0;
 											const isFrontBackTagged =
-												cacheDocumentsTemp.filter(
+												cacheDocumentsTemp?.filter(
 													doc => doc.doc_type_id === frontBackDocTypeId
 												).length > 0;
 											return (
@@ -1090,25 +1092,39 @@ const AddressProofUpload = props => {
 				</UI.UnTaggedFileListWrap>
 				<UI.DocumentUploadListWrapper>
 					{docTypeOptions.map((docType, doctypeidx) => {
-						const mappedDocFiles = cacheDocumentsTemp.filter(
-							d => d?.doc_type_id === docType?.doc_type_id
+						const mappedDocFiles = cacheDocumentsTemp?.filter(
+							doc =>
+								doc?.doc_type_id === docType?.doc_type_id ||
+								doc?.isTagged?.doc_type_id === docType?.doc_type_id
 						);
 
 						// TODO: discuss with PM not possible
-						const uploadedDocuments = prefilledDocs.filter(
-							doc => doc?.isTagged?.doc_type_id === docType?.doc_type_id
-						);
-						uploadedDocuments.map(doc => mappedDocFiles.push(doc));
+						// const uploadedDocuments = prefilledDocs.filter(
+						// 	doc => doc?.isTagged?.doc_type_id === docType?.doc_type_id
+						// );
+						// uploadedDocuments.map(doc => mappedDocFiles?.push(doc));
+
 						return (
 							<UI.DocumentUploadList
 								key={`${docType.id}-${doctypeidx}-${docType.doc_type_id}`}
 							>
 								<UI.DocumentUploadListRow1>
 									<UI.DocumentUploadCheck
-										src={mappedDocFiles.length ? imgGreenCheck : imgGreyCheck}
+										src={mappedDocFiles?.length ? imgGreenCheck : imgGreyCheck}
 										alt='check'
 									/>
-									<UI.DocumentUploadName isSelected={mappedDocFiles.length}>
+									{docTypeNameToolTip === `${docType.id}-${doctypeidx}` && (
+										<UI.DocumentUploadNameToolTip>
+											{docType.name}
+										</UI.DocumentUploadNameToolTip>
+									)}
+									<UI.DocumentUploadName
+										onMouseOver={() =>
+											setDocTypeNameToolTip(`${docType.id}-${doctypeidx}`)
+										}
+										onMouseOut={() => setDocTypeNameToolTip(-1)}
+										isSelected={mappedDocFiles?.length}
+									>
 										{docType.isMandatory && (
 											<span
 												style={{
@@ -1127,7 +1143,8 @@ const AddressProofUpload = props => {
 									</UI.DocumentUploadName>
 								</UI.DocumentUploadListRow1>
 								<UI.DocumentUploadListRow2>
-									{mappedDocFiles.map((doc, index) => {
+									{mappedDocFiles?.map((doc, index) => {
+										if (index > 0) return null;
 										const isViewMoreClicked = viewMore.includes(
 											docType.doc_type_id
 										);
@@ -1138,13 +1155,17 @@ const AddressProofUpload = props => {
 										let isViewDocAllowed = true;
 										if ('isDocRemoveAllowed' in doc) {
 											isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
-											isViewDocAllowed = false;
 										}
 										if (doc?.is_delete_not_allowed === true) {
 											isDocRemoveAllowed = false;
+											doNotHideFetchAddress = false;
 										}
-										if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
+										if (
+											isEditOrViewLoan &&
+											doc?.is_delete_not_allowed === 'true'
+										) {
 											isDocRemoveAllowed = false;
+											doNotHideFetchAddress = false;
 										}
 										return (
 											<UI.File
@@ -1180,7 +1201,7 @@ const AddressProofUpload = props => {
 													}}
 												>
 													{isViewMore
-														? `View ${mappedDocFiles.length - 2} more`
+														? `View ${mappedDocFiles?.length - 2} more`
 														: doc?.name?.length > 20
 														? doc?.name?.slice(0, 20) + '...'
 														: doc?.name}
@@ -1215,14 +1236,15 @@ const AddressProofUpload = props => {
 				</UI.DocumentUploadListWrapper>
 				<UI.CTAWrapper>
 					{!addressProofError &&
-						!selectedAddressProofId?.includes('others') && (
+						!selectedAddressProofId?.includes('others') &&
+						doNotHideFetchAddress && (
 							<Button
 								fill
 								name='Fetch Address'
 								isLoader={fetchingAddress}
 								disabled={
 									fetchingAddress ||
-									cacheDocumentsTemp.length <= 0 ||
+									cacheDocumentsTemp?.length <= 0 ||
 									addressProofError
 								}
 								onClick={onClickFetchAddress}

@@ -20,10 +20,12 @@ import {
 	// reInitializeApplicationSlice,
 	setLoanIds,
 	addOrUpdateCacheDocuments,
+	clearCacheDraftModeSectionsData,
 } from 'store/applicationSlice';
 import {
 	// reInitializeApplicantCoApplicantSlice,
 	setEditLoanApplicantsData,
+	setSelectedApplicantCoApplicantId,
 } from 'store/applicantCoApplicantsSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from 'components/Header';
@@ -47,6 +49,7 @@ import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
 import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
 import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
+import * as CONST_SECTIONS from 'components/Sections/const';
 import { formatLoanDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
@@ -173,6 +176,17 @@ const AppLayout = () => {
 					dispatch(
 						setEditLoanApplicantsData({ editLoanData: newEditLoanData })
 					);
+					// TODO: to be removed in M1.5
+					const isDraftLoan =
+						newEditLoanData?.loan_status_id === 1 &&
+						newEditLoanData?.loan_sub_status_id === 1;
+					if (isDraftLoan) {
+						dispatch(clearCacheDraftModeSectionsData());
+						dispatch(
+							setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT)
+						);
+					}
+					// TODO: -- to be removed in M1.5
 					dispatch(
 						setLoanIds({
 							loanRefId: newEditLoanData?.loan_ref_id,

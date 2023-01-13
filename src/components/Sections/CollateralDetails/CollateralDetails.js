@@ -134,6 +134,9 @@ const CollateralDetails = () => {
 			nature_of_ownership: collateralData?.owned_type,
 			property_occupant: collateralData?.current_occupant,
 			address3: collateralData?.name_landmark,
+			vehicle: collateralData?.brand_name,
+			loan_type: collateralData?.loan_type,
+			vehicle_value: collateralData?.value_Vehicle,
 		};
 		// console.log('predata-', { preData });
 		return preData?.[field?.name];
@@ -156,7 +159,9 @@ const CollateralDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+			) {
 				return application?.sections?.[selectedSectionId]?.[field?.name];
 			}
 
@@ -234,7 +239,7 @@ const CollateralDetails = () => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}

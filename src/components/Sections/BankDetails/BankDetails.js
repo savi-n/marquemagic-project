@@ -151,7 +151,9 @@ const BankDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+			) {
 				return application?.sections?.[selectedSectionId]?.[field?.name];
 			}
 
@@ -242,7 +244,7 @@ const BankDetails = () => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name={`${isViewLoan ? 'Next' : 'Proceed'}`}
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}

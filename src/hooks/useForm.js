@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, createContext } from 'react';
-import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
@@ -298,14 +297,14 @@ export default function useForm() {
 		// Masking ends
 
 		// condition to check whether the ifsc field should be validated or not
-		if (newField.name.includes('ifsc')) {
+		if (newField?.name?.includes('ifsc')) {
 			// newField.mask = { CharacterLimit: 11 };
-			if (newField.value.length === 0) {
+			if (newField?.value?.length === 0) {
 				newField.rules = {};
 			}
 		}
 		// newField.name = newField.name.replaceAll(" ", "");
-		newField.name = newField.name.split(' ').join('');
+		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[newField.name] = newField;
 		setValue(newField.name, newField.value || '');
 		checkValidity(newField.name);
@@ -420,19 +419,19 @@ export default function useForm() {
 //   return value;
 // }
 
-const Currency = styled.div`
-	/* position: absolute; */
-	margin-left: 100%;
-	padding-left: 10px;
-	padding-bottom: 15px;
-	margin-top: -35px;
-	width: 50px;
-	font-size: 13px;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	top: 0;
-`;
+// const Currency = styled.div`
+// 	/* position: absolute; */
+// 	margin-left: 100%;
+// 	padding-left: 10px;
+// 	padding-bottom: 15px;
+// 	margin-top: -35px;
+// 	width: 50px;
+// 	font-size: 13px;
+// 	font-weight: 500;
+// 	display: flex;
+// 	align-items: center;
+// 	top: 0;
+// `;
 
 // const InputFieldWrapper = styled.div`
 // 	/* display: flex; */
@@ -452,7 +451,10 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 	}, []);
 
 	useEffect(() => {
-		onChange({ name: field.name, value: value || '' });
+		// console.log('useform-useeffect-value-', { name: field.name, value });
+		if (typeof value !== 'object') {
+			onChange({ name: field.name, value: value || '' });
+		}
 		// eslint-disable-next-line
 	}, [value]);
 
@@ -578,9 +580,9 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 						{...{ ...field, ...fieldProps }}
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
-					{field?.inrupees && (
+					{/* {field?.inrupees && (
 						<Currency>{field.inrupees ? '(In  ₹ )' : ''}</Currency>
-					)}
+					)} */}
 				</>
 			);
 		}

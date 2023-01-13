@@ -59,6 +59,19 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 		state: { companyDetail },
 	} = useContext(BussinesContext);
 	const isUdhyog = sessionStorage.getItem('product') === 'udhyog';
+	const businessAddress = [];
+	if (companyDetail?.Address?.bno)
+		businessAddress.push(companyDetail?.Address?.bno);
+	if (companyDetail?.Address?.st)
+		businessAddress.push(companyDetail?.Address?.st);
+	if (companyDetail?.Address?.loc)
+		businessAddress.push(companyDetail?.Address?.loc);
+	if (companyDetail?.Address?.dst)
+		businessAddress.push(companyDetail?.Address?.dst);
+	if (companyDetail?.Address?.pncd)
+		businessAddress.push(companyDetail?.Address?.pncd);
+	if (companyDetail?.Address?.stcd)
+		businessAddress.push(companyDetail?.Address?.stcd);
 	return (
 		<Modal show={true} onClose={onClose} width='50%'>
 			<Div>
@@ -89,19 +102,7 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					)}
 					{isUdhyog && (
 						<Colm2 className='flex flex-col items-start'>
-							<span>
-								{companyDetail?.Address?.bno +
-									' ' +
-									companyDetail?.Address?.st +
-									' ' +
-									companyDetail?.Address?.loc +
-									' ' +
-									companyDetail?.Address?.dst +
-									' ' +
-									companyDetail?.Address?.pncd +
-									' ' +
-									companyDetail?.Address?.stcd}
-							</span>
+							<span>{businessAddress.join(' ')}</span>
 						</Colm2>
 					)}
 				</Row>
@@ -141,23 +142,21 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					</Colm2>
 				</Row>
 
-				{companyDetail?.directorsForShow?.length > 0 ||
-					(JSON.parse(sessionStorage.getItem('companyData'))?.DirectorDetails
-						?.length > 0 ? (
-						<>
-							<Header>Directors/Partners</Header>
-							<Row>
-								<Colm1>Name</Colm1>
-								<Colm2>Din</Colm2>
+				{companyDetail?.directorsForShow?.length > 0 ? (
+					<>
+						<Header>Directors/Partners</Header>
+						<Row>
+							<Colm1>Name</Colm1>
+							<Colm2>Din</Colm2>
+						</Row>
+						{companyDetail?.directorsForShow?.map((dir, index) => (
+							<Row key={index}>
+								<Colm1>{dir?.Name}</Colm1>
+								<Colm2>{dir?.Din}</Colm2>
 							</Row>
-							{companyDetail?.directorsForShow?.map((dir, index) => (
-								<Row key={index}>
-									<Colm1>{dir?.Name}</Colm1>
-									<Colm2>{dir?.Din}</Colm2>
-								</Row>
-							))}
-						</>
-					) : null)}
+						))}
+					</>
+				) : null}
 			</Div>
 			<Button name='Close' onClick={onClose} />
 		</Modal>

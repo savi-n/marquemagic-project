@@ -187,7 +187,7 @@ const AddressDetailsPage = props => {
 					companyData?.email ||
 					businessDataFormState?.Email ||
 					companyData?.Email ||
-					formReducer?.user['business-details']?.Email ||
+					formReducer?.user?.['business-details']?.Email ||
 					'',
 				contactNo:
 					personalDataFormState?.mobileNo ||
@@ -196,7 +196,10 @@ const AddressDetailsPage = props => {
 					companyData?.mobileNo ||
 					'',
 				gstin:
-					applicantData?.GSTVerification || companyData?.GSTVerification || '',
+					applicantData?.GSTVerification ||
+					companyData?.GSTVerification ||
+					formReducer?.user?.['business-details']?.GSTVerification ||
+					'',
 				businessStartDate: '4/8/90',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
 				Line1:
@@ -225,7 +228,8 @@ const AddressDetailsPage = props => {
 				reqBody.baid = editLoanData?.business_address?.[0]?.id;
 			}
 			const oldReqBody = getFlowData(BUSINESS_PROFILE_REQ_BODY) || {};
-			// console.log(oldReqBody, '999', reqBody);
+			// console.log('loanaddressdetails-', { oldReqBody, reqBody });
+			// return;
 			if (
 				!_.isEqual(
 					{
@@ -284,7 +288,7 @@ const AddressDetailsPage = props => {
 		if (!isBusinessProfileUpdated) {
 			setLoading(false);
 			addToast({
-				message: 'Server down, try after sometimes',
+				message: 'Server down, Try after sometime',
 				type: 'error',
 			});
 			return;

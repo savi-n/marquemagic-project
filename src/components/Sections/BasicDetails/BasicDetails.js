@@ -1,6 +1,7 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import queryString from 'query-string';
 import _ from 'lodash';
 
 import useForm from 'hooks/useFormIndividual';
@@ -9,6 +10,8 @@ import ProfileUpload from './ProfileUpload';
 import PanUpload from './PanUpload';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
+import { decryptRes } from 'utils/encrypt';
+import { verifyUiUxToken } from 'utils/request';
 
 import {
 	setLoginCreateUserRes,
@@ -32,8 +35,11 @@ import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getEditLoanLoanDocuments,
+	getSelectedField,
 } from 'utils/formatData';
+import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
+import { getCompletedSections } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -58,6 +64,10 @@ const BasicDetails = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		editLoanData,
+		isDraftLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		userDetails,
 	} = app;
 	const {
 		isApplicant,
@@ -86,6 +96,8 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+	const [isTokenValid, setIsTokenValid] = useState(true);
+	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
@@ -96,18 +108,61 @@ const BasicDetails = props => {
 				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
+	const completedSections = getCompletedSections({
+		selectedProduct,
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+		application,
+		isEditOrViewLoan,
+		isEditLoan,
+		isDraftLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		selectedApplicant,
+	});
+	// TODO Shreyas - Enable this in 1.4
+	// const panUploadedFile =
+	// 	cacheDocumentsTemp?.filter(
+	// 		doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
+	// 	)?.[0] ||
+	// 	cacheDocuments?.filter(
+	// 		doc =>
+	// 			doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
+	// 			(doc?.classification_sub_type ===
+	// 				CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
+	// 				`${directorId}`
+	// 	)?.[0] ||
+	// 	null;
+
+	const selectedPanUploadField = getSelectedField({
+		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
+
 	const panUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] ||
 		cacheDocuments?.filter(
 			doc =>
-				doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
-				(doc?.classification_sub_type ===
-					CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
-					`${directorId}`
+				`${doc?.directorId}` === `${directorId}` &&
+				(doc?.is_delete_not_allowed === 'true' ||
+					doc?.is_delete_not_allowed === true) &&
+				doc?.doc_type_id ===
+					selectedPanUploadField?.doc_type?.[selectedIncomeType]
 		)?.[0] ||
 		null;
+	const isPanNumberExist = !!formState.values.pan_number;
+	const selectedProfileField = getSelectedField({
+		fieldName: CONST.PROFILE_UPLOAD_FIELD_NAME,
+		selectedSection,
+		isApplicant,
+	});
+	const isProfileMandatory = !!selectedProfileField?.rules?.required;
 	let prefilledProfileUploadValue = '';
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -115,6 +170,8 @@ const BasicDetails = props => {
 	const onProceed = async () => {
 		try {
 			setLoading(true);
+			const isTokenValid = await validateToken();
+			if (isTokenValid === false) return;
 			// console.log('nextSectionId-', {
 			// 	nextSectionId,
 			// 	selectedApplicantCoApplicantId,
@@ -134,6 +191,9 @@ const BasicDetails = props => {
 					addrr1: '',
 					addrr2: '',
 				};
+				if (!!userDetails?.id) {
+					loginCreateUserReqBody.user_id = userDetails?.id;
+				}
 				const newLoginCreateUserRes = await axios.post(
 					`${API.LOGIN_CREATEUSER}`,
 					loginCreateUserReqBody
@@ -153,9 +213,6 @@ const BasicDetails = props => {
 				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
 
-			const selectedIncomeType =
-				formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
-
 			// loan product is is only applicable for applicant
 			// it should not be overritten when coapplicant is income type is different then applicant
 			let selectedLoanProductId = '';
@@ -168,12 +225,16 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			const preSignedProfileUrl =
+				profileUploadedFile?.presignedUrl ||
+				selectedApplicant?.customer_picture ||
+				'';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
 						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
 				  }
-				: profileUploadedFile?.presignedUrl;
+				: preSignedProfileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -194,6 +255,8 @@ const BasicDetails = props => {
 			// 	basicDetailsReqBody,
 			// 	profileKey: CONST.PROFILE_UPLOAD_FIELD_DB_KEY,
 			// 	profileUploadedFile,
+			// 	isNewProfileUploaded,
+			// 	profileFieldValue,
 			// });
 			// return;
 
@@ -255,8 +318,8 @@ const BasicDetails = props => {
 							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
-							classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
-							classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
+							// classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
+							// classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 							document_id: doc?.requestId, // temp doc id as this doc is non deletable
 						});
 						return null;
@@ -293,8 +356,8 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]:
-						profileUploadedFile?.presignedUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
 				},
 			};
 			// console.log('onProceed-', {
@@ -432,7 +495,9 @@ const BasicDetails = props => {
 			// this is to prefill value when user navigates backs
 			// once user press proceed and submit api success
 			// value is stored to redux and the same we can use to prepopulate
-			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
+			) {
 				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
 
@@ -460,20 +525,64 @@ const BasicDetails = props => {
 		}
 	};
 
-	// console.log('BasicDetails-', {
-	// 	formState,
-	// 	cacheDocuments,
+	const validateToken = async () => {
+		try {
+			const params = queryString.parse(window.location.search);
+			if (params?.token) {
+				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				// console.log('validateToken-', {
+				// 	decryptedToken,
+				// 	type: typeof decryptedToken,
+				// 	isError: !!decryptedToken?.stack?.includes('SyntaxError'),
+				// });
+				if (decryptedToken?.token) {
+					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
+					if (!isValidToken) {
+						setIsTokenValid(false);
+						return false;
+					}
+				} else {
+					// if token coud not parse from url
+					setIsTokenValid(false);
+					return false;
+				}
+			}
+		} catch (error) {
+			console.error('error-validatetoken-', error);
+			setIsTokenValid(false);
+			return false;
+		}
+	};
+
+	useEffect(() => {
+		validateToken();
+		if (
+			!isEditLoan &&
+			!isViewLoan &&
+			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
+		) {
+			dispatch(
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
+			);
+		}
+		// eslint-disable-next-line
+	}, []);
+
+	// console.log('BasicDetails-666', {
+	// 	isPanNumberExist,
+	// 	selectedProfileField,
+	// 	isProfileMandatory,
+	// 	selectedPanUploadField,
+	// 	isPanUploadMandatory,
 	// 	panUploadedFile,
 	// 	profileUploadedFile,
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	selectedApplicant,
+	// 	cacheDocumentsTemp,
+	// 	cacheDocuments,
 	// });
-
-	const isPanNumberExist = !!formState.values.pan_number;
-	const isProfileMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
-		field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-	)?.[0]?.rules?.required;
-	const isPanUploadMandatory = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
-		field => field.name === CONST.PAN_UPLOAD_FIELD_NAME
-	)?.[0]?.rules?.required;
 
 	const ButtonProceed = (
 		<Button
@@ -496,6 +605,7 @@ const BasicDetails = props => {
 				onClose={setIsIncomeTypeConfirmModalOpen}
 				ButtonProceed={ButtonProceed}
 			/>
+			{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -527,6 +637,10 @@ const BasicDetails = props => {
 									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 								) {
 									prefilledProfileUploadValue = prefilledValues(field);
+									// console.log('prefilledProfileUploadValue-', {
+									// 	prefilledProfileUploadValue,
+									// 	selectedApplicant,
+									// });
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
@@ -620,6 +734,12 @@ const BasicDetails = props => {
 									return null;
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
+								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+									customFieldProps.rules = {
+										...field.rules,
+										is_zero_not_allowed_for_first_digit: true,
+									};
+								}
 								if (
 									isPanUploadMandatory &&
 									!isPanNumberExist &&
@@ -668,9 +788,9 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
-						disabled={loading || !isPanNumberExist}
+						disabled={loading}
 						onClick={handleSubmit(() => {
 							// console.log({
 							// 	isProfileMandatory,

@@ -1,7 +1,6 @@
 /* Populate search of bank with list of banks */
 
 import { useState, useEffect, useContext } from 'react';
-import { useSelector } from 'react-redux';
 import useFetch from 'hooks/useFetch';
 import SearchSelect from '../SearchSelect';
 import {
@@ -28,9 +27,7 @@ export default function BankList(props) {
 	const { field, onSelectOptionCallback, value } = props;
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
-	const { app } = useSelector(state => state);
-
-	const { userToken } = app;
+	const [options, setOptions] = useState([]);
 
 	const {
 		actions: { setIfscList },
@@ -51,7 +48,7 @@ export default function BankList(props) {
 	const { response } = useFetch({
 		url: BANK_LIST_FETCH,
 		headers: {
-			Authorization: `Bearer ${userToken}`,
+			Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
 		},
 	});
 
@@ -61,7 +58,7 @@ export default function BankList(props) {
 				const ifscDataReq = await axios.get(IFSC_LIST_FETCH, {
 					params: { bankId: bankId },
 					headers: {
-						Authorization: `Bearer ${userToken}`,
+						Authorization: `Bearer ${sessionStorage.getItem('userToken')}`,
 					},
 				});
 				if (ifscDataReq.data.status === 'ok') {
@@ -73,17 +70,18 @@ export default function BankList(props) {
 			}
 		}
 	};
-	const [options, setOptions] = useState([]);
 
 	useEffect(() => {
 		if (response) {
-			setOptions(
-				response.map(bank => ({
-					value: bank.id.toString(),
-					name: bank.bankname,
-				}))
-			);
-			setFlowData(response, BANK_LIST_FETCH_RESPONSE);
+			if (options.length === 0) {
+				setOptions(
+					response.map(bank => ({
+						value: bank.id.toString(),
+						name: bank.bankname,
+					}))
+				);
+				setFlowData(response, BANK_LIST_FETCH_RESPONSE);
+			}
 		}
 		// eslint-disable-next-line
 	}, [response]);

@@ -22,12 +22,12 @@ import ErrorIcon from 'assets/icons/Red_error_icon.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import Hint from 'components/Hint';
 import {
+	// LOGIN_CREATEUSER,
+	// WHITELABEL_ENCRYPTION_API,
+	// APP_CLIENT,
 	ROC_DATA_FETCH,
-	LOGIN_CREATEUSER,
-	WHITELABEL_ENCRYPTION_API,
 	SEARCH_COMPANY_NAME,
 	NC_STATUS_CODE,
-	APP_CLIENT,
 	HOSTNAME,
 } from '../../../_config/app.config';
 import {
@@ -51,7 +51,10 @@ const PanVerification = props => {
 	const isSalariedProductType = !isBusinessProductType; // 'salaried'
 	const isVerifyKycData = productDetails?.kyc_verification;
 	const {
-		state: { whiteLabelId, clientToken },
+		state: {
+			// whiteLabelId,
+			clientToken,
+		},
 	} = useContext(AppContext);
 
 	const {
@@ -250,69 +253,82 @@ const PanVerification = props => {
 				{ authorization: clientToken }
 			);
 			const companyData = cinNumberResponse.data;
-			const reqBody = {
-				email: companyData?.data?.company_master_data?.email_id || '',
-				white_label_id: whiteLabelId,
-				source: APP_CLIENT,
-				name: companyData?.data?.company_master_data?.company_name || '',
-				mobileNo: '9999999999',
-				addrr1: '',
-				addrr2: '',
-			};
-			if (sessionStorage.getItem('userDetails')) {
-				try {
-					reqBody.user_id =
-						JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
-				} catch (err) {
-					return err;
-				}
-			}
+			setCompanyDetails({
+				// token: userDetailsRes.token,
+				// userId: userDetailsRes.userId,
+				// branchId: userDetailsRes.branchId,
+				// encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
+				encryptedWhitelabel: sessionStorage.getItem('encryptWhiteLabel'),
+				...CONST.formatCompanyData(
+					companyData.data,
+					extractionDataRes.panNumber
+				),
+			});
+			proceedToNextSection();
+			return;
+			// Unwanted code delete this after verifying
+			// const reqBody = {
+			// 	email: companyData?.data?.company_master_data?.email_id || '',
+			// 	white_label_id: whiteLabelId,
+			// 	source: APP_CLIENT,
+			// 	name: companyData?.data?.company_master_data?.company_name || '',
+			// 	mobileNo: '9999999999',
+			// 	addrr1: '',
+			// 	addrr2: '',
+			// };
+			// if (sessionStorage.getItem('userDetails')) {
+			// 	try {
+			// 		reqBody.user_id =
+			// 			JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			// 	} catch (err) {
+			// 		return err;
+			// 	}
+			// }
 
-			if (companyData.status === NC_STATUS_CODE.OK) {
-				const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-					method: 'POST',
-					data: reqBody,
-				});
+			// if (companyData.status === NC_STATUS_CODE.OK) {
+			// 	const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+			// 		method: 'POST',
+			// 		data: reqBody,
+			// 	});
 
-				const userDetailsRes = userDetailsReq.data;
+			// 	const userDetailsRes = userDetailsReq.data;
 
-				sessionStorage.setItem('branchId', userDetailsRes.branchId);
+			// 	sessionStorage.setItem('branchId', userDetailsRes.branchId);
 
-				if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
-					sessionStorage.setItem('userToken', userDetailsRes.token);
+			// 	if (userDetailsRes.statusCode === NC_STATUS_CODE.NC200) {
+			// 		sessionStorage.setItem('userToken', userDetailsRes.token);
 
-					if (!sessionStorage.getItem('encryptWhiteLabel')) {
-						const encryptWhiteLabelReq = await newRequest(
-							WHITELABEL_ENCRYPTION_API,
-							{
-								method: 'GET',
-							},
-							{ Authorization: `Bearer ${userDetailsRes.token}` }
-						);
+			// 		if (!sessionStorage.getItem('encryptWhiteLabel')) {
+			// 			const encryptWhiteLabelReq = await newRequest(
+			// 				WHITELABEL_ENCRYPTION_API,
+			// 				{
+			// 					method: 'GET',
+			// 				},
+			// 				{ Authorization: `Bearer ${userDetailsRes.token}` }
+			// 			);
 
-						const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+			// 			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
 
-						sessionStorage.setItem(
-							'encryptWhiteLabel',
-							encryptWhiteLabelRes.encrypted_whitelabel[0]
-						);
-					}
-					// if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-					setCompanyDetails({
-						token: userDetailsRes.token,
-						userId: userDetailsRes.userId,
-						branchId: userDetailsRes.branchId,
-						// encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
-						encryptedWhitelabel: sessionStorage.getItem('encryptWhiteLabel'),
-						...CONST.formatCompanyData(
-							companyData.data,
-							extractionDataRes.panNumber
-						),
-					});
-					proceedToNextSection();
-					return;
-				}
-			}
+			// 			sessionStorage.setItem(
+			// 				'encryptWhiteLabel',
+			// 				encryptWhiteLabelRes.encrypted_whitelabel[0]
+			// 			);
+			// 		}
+			// 		// if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
+			// 		setCompanyDetails({
+			// 			token: userDetailsRes.token,
+			// 			userId: userDetailsRes.userId,
+			// 			branchId: userDetailsRes.branchId,
+			// 			encryptedWhitelabel: sessionStorage.getItem('encryptWhiteLabel'),
+			// 			...CONST.formatCompanyData(
+			// 				companyData.data,
+			// 				extractionDataRes.panNumber
+			// 			),
+			// 		});
+			// 		proceedToNextSection();
+			// 		return;
+			// 	}
+			// }
 		} catch (error) {
 			setLoading(false);
 			addToast({

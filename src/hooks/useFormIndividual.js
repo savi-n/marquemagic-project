@@ -74,6 +74,10 @@ const VALIDATION_RULES = {
 		func: validatePattern(/^$|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
+	is_zero_not_allowed_for_first_digit: {
+		func: validatePattern(/^[1-9][0-9]*$/),
+		message: 'Number cannot start with 0',
+	},
 	past_dates: {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
@@ -122,10 +126,13 @@ const VALIDATION_RULES = {
 	},
 };
 function validate(rules, value) {
-	if (!rules) return false;
-	for (const rule in rules) {
-		if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
-			return VALIDATION_RULES[rule].message;
+	if (!rules || Object.keys(rules || {}).length === 0) return false;
+	// all rules will be applied only if required: true or value exists in the field
+	if (rules?.required || value) {
+		for (const rule in rules) {
+			if (VALIDATION_RULES[rule]?.func(value, rules[rule])) {
+				return VALIDATION_RULES[rule].message;
+			}
 		}
 	}
 }
@@ -315,24 +322,27 @@ export default function useForm() {
 		// Masking ends
 
 		// condition to check whether the ifsc field should be validated or not
-		if (newField.name.includes('ifsc')) {
+		if (newField?.name?.includes('ifsc')) {
 			// newField.mask = { character_limit: 11 };
-			if (newField.value.length === 0) {
+			if (newField?.value?.length === 0) {
 				newField.rules = {};
 			}
 		}
 		// newField.name = newField.name.replaceAll(" ", "");
-		newField.name = newField.name.split(' ').join('');
-		fieldsRef.current[newField.name] = newField;
+		newField.name = newField?.name?.split(' ')?.join('');
+		fieldsRef.current[(newField?.name)] = newField;
 
-		// old
-		// setValue(newField.name, newField.value || '');
-		// new changes by akash cloud stoke nov-30
-		newField.value &&
-			!valuesRef.current[newField.name] &&
-			setValue(newField.name, newField.value || '');
+		if (newField?.name?.includes('bank_name')) {
+			// new changes by akash cloud stock nov-30
+			newField?.value &&
+				!valuesRef?.current?.[newField?.name] &&
+				setValue(newField?.name, newField?.value || '');
+		} else {
+			// old
+			setValue(newField?.name, newField?.value || '');
+		}
 
-		checkValidity(newField.name);
+		checkValidity(newField?.name);
 
 		return (
 			<InputFieldRender

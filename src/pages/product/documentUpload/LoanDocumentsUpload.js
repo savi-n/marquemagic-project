@@ -186,6 +186,7 @@ const DocumentUpload = props => {
 		const editApplicant =
 			editLoanData?.director_details?.filter(d => d?.isApplicant)?.[0] || {};
 		applicantData = {
+			...editApplicant,
 			...applicantData,
 			incomeType: editApplicant?.income_type || '',
 			mobileNo: editApplicant?.dcontact || '',
@@ -810,7 +811,7 @@ const DocumentUpload = props => {
 			console.error(error);
 			addToast({
 				message:
-					error?.response?.data?.message || 'Server down, try after sometimes',
+					error?.response?.data?.message || 'Server down, Try after sometime',
 				type: 'error',
 			});
 		}
@@ -1053,8 +1054,9 @@ const DocumentUpload = props => {
 				const newPrefilledDos = [];
 				editLoanData?.loan_document?.map(editDoc => {
 					if (editDoc.status !== 'active') return null;
-
-					const isApplicant = !editDoc.directorId;
+					const isApplicant =
+						!editDoc?.directorId ||
+						`${editDoc?.directorId}` === `${applicantData?.id}`;
 					const editCoApplicant = editLoanData?.director_details?.filter(
 						d => d?.id === editDoc.directorId
 					)?.[0];
@@ -1085,6 +1087,15 @@ const DocumentUpload = props => {
 					)
 						CATEGORY = CONST.CATEGORY_OTHER;
 
+					// console.log('initializeDocTypeList111-data-', {
+					// 	editDoc,
+					// 	applicantData,
+					// 	isApplicant,
+					// 	editCoApplicant,
+					// 	selectedDocType,
+					// 	CATEGORY,
+					// 	editLoanData,
+					// });
 					// app_[business_income_type_id]_[category]_[doc_type_id]
 					// co_[director_id]_[coapp_income_type]_[category]_[doc_type_id]
 					let doc_type_id = isApplicant

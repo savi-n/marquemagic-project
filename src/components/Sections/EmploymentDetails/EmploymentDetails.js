@@ -15,7 +15,12 @@ import {
 	setSelectedApplicantCoApplicantId,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
-import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import {
+	formatSectionReqBody,
+	getApplicantNavigationDetails,
+	getApiErrorMessage,
+	validateEmploymentDetails,
+} from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 
 const EmploymentDetails = () => {
@@ -33,6 +38,7 @@ const EmploymentDetails = () => {
 		isLocalhost,
 		selectedSection,
 		isEditLoan,
+		isDraftLoan,
 	} = app;
 	const {
 		applicant,
@@ -48,6 +54,36 @@ const EmploymentDetails = () => {
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
+
+	const {
+		nextApplicantDirectorId,
+		// lastDirectorId,
+		isLastApplicantIsSelected,
+	} = getApplicantNavigationDetails({
+		applicant,
+		coApplicants,
+		selectedApplicant,
+	});
+
+	const validateNavigation = () => {
+		const isValid = validateEmploymentDetails({
+			coApplicants,
+			isApplicant,
+		});
+		if (
+			isValid === false &&
+			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
+		) {
+			addToast({
+				message:
+					'Please fill all the details in Co-Applicant-' +
+					Object.keys(coApplicants)?.length,
+				type: 'error',
+			});
+			return false;
+		}
+		return true;
+	};
 
 	const submitEmploymentDetails = async () => {
 		try {
@@ -114,6 +150,10 @@ const EmploymentDetails = () => {
 	};
 
 	const onAddCoApplicant = async () => {
+		if (!isDraftLoan && !validateNavigation()) {
+			return;
+		}
+
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
@@ -129,8 +169,27 @@ const EmploymentDetails = () => {
 
 	const onProceed = async () => {
 		try {
+			if (!isDraftLoan && !validateNavigation()) {
+				return;
+			}
+
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
+
+			// draft stage next applicant exist
+			if (isDraftLoan && !isLastApplicantIsSelected) {
+				dispatch(setSelectedApplicantCoApplicantId(nextApplicantDirectorId));
+				dispatch(setSelectedSectionId(firstSectionId));
+				return;
+			}
+
+			// draft stage last applicant
+			if (isDraftLoan && isLastApplicantIsSelected) {
+				dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
+				dispatch(setSelectedSectionId(nextSectionId));
+				return;
+			}
+
 			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
@@ -181,6 +240,7 @@ const EmploymentDetails = () => {
 			...selectedEmploymentData,
 			years_in_company: selectedEmploymentData?.year_in_company,
 			pin_code: selectedEmploymentData?.pincode,
+			organization_type: selectedEmploymentData?.organization_type,
 			organization_type_salaried_self_employed:
 				selectedEmploymentData?.organization_type,
 			organization_type_salaried: selectedEmploymentData?.organization_type,
@@ -210,7 +270,9 @@ const EmploymentDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (selectedApplicant?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
+			) {
 				return selectedApplicant?.[selectedSectionId]?.[field?.name];
 			}
 
@@ -229,13 +291,21 @@ const EmploymentDetails = () => {
 	};
 
 	let displayProceedCTA = true;
+	let displayAddCoApplicantCTA = true;
 	if (
-		selectedProduct?.product_details?.is_coapplicant_mandatory &&
-		Object.keys(coApplicants || {})?.length <= 0
+		isViewLoan ||
+		(selectedProduct?.product_details?.is_coapplicant_mandatory &&
+			Object.keys(coApplicants || {})?.length <= 0)
 	) {
 		displayProceedCTA = false;
 	}
 
+	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
+		displayAddCoApplicantCTA = false;
+	}
+	if (isDraftLoan && !isLastApplicantIsSelected) {
+		displayAddCoApplicantCTA = false;
+	}
 	// console.log('employment-details-', { coApplicants, app });
 
 	return (
@@ -310,16 +380,17 @@ const EmploymentDetails = () => {
 				);
 			})}
 			<UI_SECTIONS.Footer>
-				{displayProceedCTA && !isViewLoan && (
+				{displayProceedCTA && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(onProceed)}
 					/>
 				)}
-				{!isViewLoan && (
+				{/* visibility of add co-applicant based on the config */}
+				{displayAddCoApplicantCTA && (
 					<Button
 						fill
 						name='Add Co-Applicant'

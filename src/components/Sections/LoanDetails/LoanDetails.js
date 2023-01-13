@@ -56,6 +56,10 @@ const LoanDetails = () => {
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
+	const [
+		applicantAndCoapplicantOptions,
+		setApplicantAndCoapplicantOptions,
+	] = useState([]);
 	const {
 		handleSubmit,
 		register,
@@ -265,6 +269,8 @@ const LoanDetails = () => {
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
+			branch_id: editLoanData?.branch_id,
+			loan_type: editLoanData?.loan_usage_type?.id,
 		};
 		return preData?.[field?.name];
 	};
@@ -286,7 +292,9 @@ const LoanDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (application?.sections?.[selectedSectionId]?.[field?.name]) {
+			if (
+				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+			) {
 				return application?.sections?.[selectedSectionId]?.[field?.name];
 			}
 
@@ -348,12 +356,27 @@ const LoanDetails = () => {
 		getConnectors();
 	}, []);
 
-	console.log('loan-details-allstates-', {
-		app,
-		application,
-		applicantCoApplicants,
-		formState,
-	});
+	// console.log('loan-details-allstates-', {
+	// 	app,
+	// 	application,
+	// 	applicantCoApplicants,
+	// 	formState,
+	// });
+
+	useEffect(() => {
+		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
+			{
+				applicantCoApplicants,
+				isEditOrViewLoan,
+			}
+		);
+		// console.log(
+		// 	newApplicantAndCoapplicantOptions,
+		// 	'newApplicantAndCoapplicantOptions-loan-details'
+		// );
+		setApplicantAndCoapplicantOptions(newApplicantAndCoapplicantOptions);
+		// eslint-disable-next-line
+	}, [applicantCoApplicants]);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -379,11 +402,14 @@ const LoanDetails = () => {
 										return null;
 								}
 								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-									const newOptions = getApplicantCoApplicantSelectOptions({
-										applicantCoApplicants,
-										isEditOrViewLoan,
-									});
-									newField.options = [...newOptions, ...newField.options];
+									// const newOptions = getApplicantCoApplicantSelectOptions({
+									// 	applicantCoApplicants,
+									// 	isEditOrViewLoan,
+									// });
+									newField.options = [
+										...applicantAndCoapplicantOptions,
+										...newField.options,
+									];
 								}
 								if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
 									newField.options = connectorOptions;
@@ -466,7 +492,7 @@ const LoanDetails = () => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(() => {

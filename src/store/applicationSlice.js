@@ -115,24 +115,63 @@ export const applicantSlice = createSlice({
 		},
 		addOrUpdateCacheDocuments: (state, action) => {
 			const { files } = action.payload;
-			const newDocuments = _.cloneDeep(state.cacheDocuments);
+			// console.log('redux-applicationSlice-addOrUpdateCacheDocuments-', {
+			// 	files,
+			// });
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			files?.map?.(newFile => {
 				// doc =>
 				// 	`${doc?.directorId}` === `${newFile?.directorId}` &&
 				// 	`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
-				const isExistIndex = newDocuments?.findIndex(
-					doc =>
-						`${doc?.id}` === `${newFile?.document_id}` ||
+				const isExistIndex = oldDocuments?.findIndex(doc => {
+					let isExist = false;
+					if (
+						doc?.id &&
+						newFile?.document_id &&
+						`${doc?.id}` === `${newFile?.document_id}`
+					) {
+						isExist = true;
+						// console.log('isExist1');
+					} else if (
+						doc?.id &&
+						newFile?.id &&
 						`${doc?.id}` === `${newFile?.id}`
-				);
+					) {
+						isExist = true;
+						// console.log('isExist2');
+					} else if (
+						doc?.document_key &&
+						newFile?.document_key &&
+						`${doc?.document_key}` === `${newFile?.document_key}`
+					) {
+						isExist = true;
+						// console.log('isExist3');
+					} else if (
+						doc?.document_key &&
+						newFile?.doc_name &&
+						`${doc?.document_key}` === `${newFile?.doc_name}`
+					) {
+						isExist = true;
+						// console.log('isExist4');
+					} else if (
+						doc?.doc_name &&
+						newFile?.doc_name &&
+						`${doc?.doc_name}` === `${newFile?.doc_name}`
+					) {
+						isExist = true;
+						// console.log('isExist5');
+					}
+					// console.log('compare-2-files-', { doc, newFile, isExist });
+					return isExist;
+				});
 				if (isExistIndex >= 0) {
-					newDocuments[isExistIndex] = newFile;
+					oldDocuments[isExistIndex] = newFile;
 				} else {
-					newDocuments.push(newFile);
+					oldDocuments.push(newFile);
 				}
 				return null;
 			});
-			state.cacheDocuments = newDocuments;
+			state.cacheDocuments = oldDocuments;
 		},
 		addCacheDocuments: (state, action) => {
 			const { files } = action.payload;
@@ -248,6 +287,10 @@ export const applicantSlice = createSlice({
 		setCommentsForOfficeUse: (state, action) => {
 			state.commentsForOfficeUse = action.payload;
 		},
+
+		clearCacheDraftModeSectionsData: (state, action) => {
+			state.sections = {};
+		},
 	},
 });
 
@@ -273,6 +316,8 @@ export const {
 	setCommentsForOfficeUse,
 
 	addCacheAPIReqRes,
+
+	clearCacheDraftModeSectionsData,
 } = applicantSlice.actions;
 
 export default applicantSlice.reducer;
