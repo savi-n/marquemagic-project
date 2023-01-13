@@ -448,7 +448,7 @@ const DocumentUpload = props => {
 		try {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
-			setLoading(true);
+			setSubmitting(true);
 			await onSubmitCompleteApplication();
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
@@ -463,9 +463,7 @@ const DocumentUpload = props => {
 				authenticationOtpReqBody
 			);
 			setIsAuthenticationOtpModalOpen(true);
-			setLoading(false);
 		} catch (error) {
-			setLoading(false);
 			if (error?.response?.data?.timer) {
 				setIsAuthenticationOtpModalOpen(true);
 				setGenerateOtpTimer(error?.response?.data?.timer || 0);
@@ -476,6 +474,8 @@ const DocumentUpload = props => {
 					error?.response?.data?.message || 'Server down, try after sometime',
 				type: 'error',
 			});
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
@@ -586,13 +586,38 @@ const DocumentUpload = props => {
 				return null;
 			});
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
-			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
-			// 	documentUploadReqBody,
-			// });
+			console.log('onSubmitCompleteApplication-documentUploadReqBody', {
+				documentUploadReqBody,
+			});
 
 			// --api-2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
-				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
+				const borrowerDocUploadRes = await axios.post(
+					`${API.BORROWER_UPLOAD_URL}`,
+					documentUploadReqBody
+				);
+				const updateDocumentIdToCacheDocuments = [];
+				newUploadedDocuments.map(cacheDoc => {
+					const resDoc =
+						borrowerDocUploadRes?.data?.data?.filter(
+							resDoc => resDoc?.doc_name === cacheDoc?.document_key
+						)?.[0] || {};
+					const newDoc = {
+						...resDoc,
+						...cacheDoc,
+						document_id: resDoc?.id,
+					};
+					updateDocumentIdToCacheDocuments.push(newDoc);
+					return null;
+				});
+				console.log('updateDocumentIdToCacheDocuments-', {
+					updateDocumentIdToCacheDocuments,
+				});
+				dispatch(
+					addOrUpdateCacheDocuments({
+						files: updateDocumentIdToCacheDocuments,
+					})
+				);
 			}
 
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
@@ -729,20 +754,20 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
-	// console.log('DocumentUpload-allStates-', {
-	// 	app,
-	// 	application,
-	// 	applicantCoApplicants,
-	// 	displayProceedButton,
-	// 	displayUploadedDocCount,
-	// 	selectedApplicant,
-	// 	directorId,
-	// 	allDocumentTypes,
-	// 	selectedApplicantDocumentTypes,
-	// 	cacheDocuments,
-	// 	editLoanData,
-	// 	selectedApplicantDocuments,
-	// });
+	console.log('DocumentUpload-allStates-', {
+		app,
+		application,
+		applicantCoApplicants,
+		displayProceedButton,
+		displayUploadedDocCount,
+		selectedApplicant,
+		directorId,
+		allDocumentTypes,
+		selectedApplicantDocumentTypes,
+		cacheDocuments,
+		editLoanData,
+		selectedApplicantDocuments,
+	});
 
 	if (loading) {
 		return (
