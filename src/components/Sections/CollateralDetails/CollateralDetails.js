@@ -104,7 +104,9 @@ const CollateralDetails = () => {
 
 	const prefilledEditOrViewLoanValues = field => {
 		const collateralData = editLoanData?.loan_assets?.[0] || {};
-		const collateralDetailsSection = collateralData?.loan_json?.[0] || {};
+		const collateralDetailsSection = Array.isArray(collateralData?.loan_json)
+			? collateralData?.loan_json?.[0]
+			: collateralData?.loan_json || {};
 		const preData = {
 			...collateralData,
 			collateral_type: collateralDetailsSection?.Collateraltype,
