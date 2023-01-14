@@ -383,6 +383,7 @@ export const applicantCoApplicantsSlice = createSlice({
 			const newApplicantData = {
 				..._.cloneDeep(initializeApplicantCoApplicant),
 				directorId: applicant?.id,
+				employmentId: applicant?.employment_data?.[0]?.id,
 				...applicant,
 			};
 			state.applicant = newApplicantData;
@@ -391,6 +392,7 @@ export const applicantCoApplicantsSlice = createSlice({
 				const newCoApplicantData = {
 					..._.cloneDeep(initializeApplicantCoApplicant),
 					directorId: coApplicant?.id,
+					employmentId: coApplicant?.employment_data?.[0]?.id,
 					...coApplicant,
 				};
 				newCoApplicants[coApplicant.id] = newCoApplicantData;

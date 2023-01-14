@@ -288,7 +288,7 @@ const AddressDetailsPage = props => {
 		if (!isBusinessProfileUpdated) {
 			setLoading(false);
 			addToast({
-				message: 'Server down, try after sometimes',
+				message: 'Server down, Try after sometime',
 				type: 'error',
 			});
 			return;

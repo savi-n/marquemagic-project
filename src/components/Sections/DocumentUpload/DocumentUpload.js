@@ -17,6 +17,7 @@ import {
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
 	addOrUpdateCacheDocuments,
+	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -42,12 +43,13 @@ const DocumentUpload = props => {
 		selectedProduct,
 		isViewLoan,
 		isEditLoan,
+		isEditOrViewLoan,
+		isDraftLoan,
 		editLoanData,
 		userDetails,
 		isCorporate,
 		nextSectionId,
 		selectedSectionId,
-		isEditOrViewLoan,
 		selectedSection,
 	} = app;
 	const {
@@ -87,6 +89,8 @@ const DocumentUpload = props => {
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
+	const applicantMobileNumber =
+		applicant?.basic_details?.mobile_no || applicant?.dcontact;
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [savingComments, setSavingComments] = useState(false);
@@ -445,22 +449,22 @@ const DocumentUpload = props => {
 		try {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
-			setLoading(true);
+			setSubmitting(true);
+			await onSubmitCompleteApplication();
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
-				mobile: +applicant?.basic_details?.mobile_no,
+				mobile: +applicantMobileNumber,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
 			// let authenticateOtp =
+			// -- api-3 - generate otp
 			await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
 			);
 			setIsAuthenticationOtpModalOpen(true);
-			setLoading(false);
 		} catch (error) {
-			setLoading(false);
 			if (error?.response?.data?.timer) {
 				setIsAuthenticationOtpModalOpen(true);
 				setGenerateOtpTimer(error?.response?.data?.timer || 0);
@@ -468,9 +472,11 @@ const DocumentUpload = props => {
 			console.error(error);
 			addToast({
 				message:
-					error?.response?.data?.message || 'Server down, try after sometimes',
+					error?.response?.data?.message || 'Server down, try after sometime',
 				type: 'error',
 			});
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
@@ -553,6 +559,7 @@ const DocumentUpload = props => {
 		if (!isFormValid()) return;
 		try {
 			setSubmitting(true);
+			// --api-1
 			if (commentsForOfficeUse !== commentsFromEditLOanData) {
 				await submitCommentsForOfficeUse();
 			}
@@ -583,27 +590,40 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
 			// 	documentUploadReqBody,
 			// });
-			// return;
-			// const documentUploadRes =
+
+			// --api-2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
-				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
+				const borrowerDocUploadRes = await axios.post(
+					`${API.BORROWER_UPLOAD_URL}`,
+					documentUploadReqBody
+				);
+				const updateDocumentIdToCacheDocuments = [];
+				newUploadedDocuments.map(cacheDoc => {
+					const resDoc =
+						borrowerDocUploadRes?.data?.data?.filter(
+							resDoc => resDoc?.doc_name === cacheDoc?.document_key
+						)?.[0] || {};
+					const newDoc = {
+						...resDoc,
+						...cacheDoc,
+						document_id: resDoc?.id,
+					};
+					updateDocumentIdToCacheDocuments.push(newDoc);
+					return null;
+				});
+				// console.log('updateDocumentIdToCacheDocuments-', {
+				// 	updateDocumentIdToCacheDocuments,
+				// });
+				dispatch(
+					addOrUpdateCacheDocumentsDocUploadPage({
+						files: updateDocumentIdToCacheDocuments,
+					})
+				);
 			}
-			const applicationStageReqBody = {
-				loan_id: documentUploadReqBody.loan_id,
-			};
 
-			if (isDocumentUploadMandatory) {
-				applicationStageReqBody.is_mandatory_documents_uploaded = true;
-			}
-
-			await axios.post(
-				`${API.TO_APPLICATION_STAGE_URL}`,
-				applicationStageReqBody
-			);
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			onSkip();
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
@@ -614,15 +634,6 @@ const DocumentUpload = props => {
 		} finally {
 			// TODO: move this logic to try balock
 			setSubmitting(false);
-		}
-		// /borrowerdoc-upload
-		if (editLoanData && editLoanData?.loan_ref_id) {
-			setTimeout(() => {
-				addToast({
-					message: 'Your application has been updated',
-					type: 'success',
-				});
-			}, 1000);
 		}
 		// TODO: dispatch action for final submission
 		setLoading(false);
@@ -677,7 +688,10 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	if (selectedProduct.product_details.otp_authentication && !isEditLoan) {
+	if (
+		selectedProduct.product_details.otp_authentication &&
+		(isDraftLoan || !isEditLoan)
+	) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
@@ -708,6 +722,7 @@ const DocumentUpload = props => {
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication();
+					onSkip();
 				}}
 			/>
 		);
@@ -768,10 +783,12 @@ const DocumentUpload = props => {
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
-					setContactNo={applicant?.basic_details?.mobile_no}
+					setContactNo={applicantMobileNumber}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
+					onSkip={onSkip}
+					isDocumentUploadMandatory={isDocumentUploadMandatory}
 				/>
 			) : null}
 			{totalMandatoryDocumentCount > 0 ? (
@@ -796,7 +813,13 @@ const DocumentUpload = props => {
 				const selectedDocuments = selectedApplicantDocuments?.filter(
 					doc => doc?.category === category
 				);
-
+				if (
+					isEditLoan &&
+					(category === CONST_SECTIONS.DOC_CATEGORY_LENDER ||
+						category === CONST_SECTIONS.DOC_CATEGORY_EVAL)
+				) {
+					return null;
+				}
 				return (
 					<div key={`data-${category}-{${directorId}}`}>
 						<UI.CollapseHeader onClick={() => toggleOpenSection(category)}>

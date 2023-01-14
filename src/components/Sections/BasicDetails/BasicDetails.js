@@ -39,6 +39,7 @@ import {
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
+import { getCompletedSections } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -63,6 +64,10 @@ const BasicDetails = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		editLoanData,
+		isDraftLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		userDetails,
 	} = app;
 	const {
 		isApplicant,
@@ -103,6 +108,20 @@ const BasicDetails = props => {
 				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
+	const completedSections = getCompletedSections({
+		selectedProduct,
+		isApplicant,
+		applicant,
+		coApplicants,
+		selectedApplicantCoApplicantId,
+		application,
+		isEditOrViewLoan,
+		isEditLoan,
+		isDraftLoan,
+		applicantCoApplicantSectionIds,
+		editLoanDirectors,
+		selectedApplicant,
+	});
 	// TODO Shreyas - Enable this in 1.4
 	// const panUploadedFile =
 	// 	cacheDocumentsTemp?.filter(
@@ -172,6 +191,9 @@ const BasicDetails = props => {
 					addrr1: '',
 					addrr2: '',
 				};
+				if (!!userDetails?.id) {
+					loginCreateUserReqBody.user_id = userDetails?.id;
+				}
 				const newLoginCreateUserRes = await axios.post(
 					`${API.LOGIN_CREATEUSER}`,
 					loginCreateUserReqBody
@@ -203,12 +225,16 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			const preSignedProfileUrl =
+				profileUploadedFile?.presignedUrl ||
+				selectedApplicant?.customer_picture ||
+				'';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
 						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
 				  }
-				: profileUploadedFile?.presignedUrl;
+				: preSignedProfileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -229,6 +255,8 @@ const BasicDetails = props => {
 			// 	basicDetailsReqBody,
 			// 	profileKey: CONST.PROFILE_UPLOAD_FIELD_DB_KEY,
 			// 	profileUploadedFile,
+			// 	isNewProfileUploaded,
+			// 	profileFieldValue,
 			// });
 			// return;
 
@@ -290,8 +318,8 @@ const BasicDetails = props => {
 							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
-							classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
-							classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
+							// classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
+							// classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 							document_id: doc?.requestId, // temp doc id as this doc is non deletable
 						});
 						return null;
@@ -328,8 +356,8 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]:
-						profileUploadedFile?.presignedUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
 				},
 			};
 			// console.log('onProceed-', {
@@ -528,6 +556,15 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
+		if (
+			!isEditLoan &&
+			!isViewLoan &&
+			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
+		) {
+			dispatch(
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
+			);
+		}
 		// eslint-disable-next-line
 	}, []);
 
@@ -538,10 +575,13 @@ const BasicDetails = props => {
 	// 	selectedPanUploadField,
 	// 	isPanUploadMandatory,
 	// 	panUploadedFile,
+	// 	profileUploadedFile,
 	// 	app,
 	// 	application,
 	// 	applicantCoApplicants,
 	// 	selectedApplicant,
+	// 	cacheDocumentsTemp,
+	// 	cacheDocuments,
 	// });
 
 	const ButtonProceed = (
@@ -597,6 +637,10 @@ const BasicDetails = props => {
 									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 								) {
 									prefilledProfileUploadValue = prefilledValues(field);
+									// console.log('prefilledProfileUploadValue-', {
+									// 	prefilledProfileUploadValue,
+									// 	selectedApplicant,
+									// });
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
@@ -690,6 +734,12 @@ const BasicDetails = props => {
 									return null;
 								const newValue = prefilledValues(field);
 								const customFieldProps = {};
+								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+									customFieldProps.rules = {
+										...field.rules,
+										is_zero_not_allowed_for_first_digit: true,
+									};
+								}
 								if (
 									isPanUploadMandatory &&
 									!isPanNumberExist &&
@@ -738,7 +788,7 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Proceed'
+						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
 						onClick={handleSubmit(() => {

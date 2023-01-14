@@ -74,6 +74,10 @@ const VALIDATION_RULES = {
 		func: validatePattern(/^$|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
+	is_zero_not_allowed_for_first_digit: {
+		func: validatePattern(/^[1-9][0-9]*$/),
+		message: 'Number cannot start with 0',
+	},
 	past_dates: {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
@@ -326,16 +330,19 @@ export default function useForm() {
 		}
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
-		fieldsRef.current[newField.name] = newField;
+		fieldsRef.current[(newField?.name)] = newField;
 
-		// old
-		// setValue(newField.name, newField.value || '');
-		// new changes by akash cloud stoke nov-30
-		newField.value &&
-			!valuesRef.current[newField.name] &&
-			setValue(newField.name, newField.value || '');
+		if (newField?.name?.includes('bank_name')) {
+			// new changes by akash cloud stock nov-30
+			newField?.value &&
+				!valuesRef?.current?.[newField?.name] &&
+				setValue(newField?.name, newField?.value || '');
+		} else {
+			// old
+			setValue(newField?.name, newField?.value || '');
+		}
 
-		checkValidity(newField.name);
+		checkValidity(newField?.name);
 
 		return (
 			<InputFieldRender

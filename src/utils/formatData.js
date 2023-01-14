@@ -373,6 +373,8 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}513`,
 					id: `${prefix}513`,
 					name: 'Address Proof Document Front',
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_OTHERS,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 				},
 				{
 					typeId: `${prefix}514`,
@@ -380,6 +382,8 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}514`,
 					id: `${prefix}514`,
 					name: 'Address Proof Document Back',
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_OTHERS,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_B,
 				},
 				{
 					typeId: `${prefix}515`,
@@ -387,6 +391,8 @@ export const formatAddressProofDocTypeList = data => {
 					doc_type_id: `${prefix}515`,
 					id: `${prefix}515`,
 					name: 'Address Proof Document Front and Back',
+					classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_OTHERS,
+					classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_FB,
 				},
 			];
 		default:
@@ -438,29 +444,34 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 };
 
 export const getApplicantCoApplicantSelectOptions = data => {
-	const { applicantCoApplicants, isEditOrViewLoan } = data;
+	const { applicantCoApplicants } = data;
 	const { applicant, coApplicants } = applicantCoApplicants;
 	const options = [];
-	let applicantName = `${applicant?.basic_details?.first_name} ${
-		applicant?.basic_details?.last_name
-	}`;
-	if (isEditOrViewLoan) {
-		applicantName = `${applicant?.dfirstname} ${applicant?.dlastname}`;
-	}
+
+	const applicantFirstName =
+		applicant?.basic_details?.first_name || applicant?.dfirstname || '';
+	const applicantLastName =
+		applicant?.basic_details?.last_name || applicant?.dlastname || '';
+	const applicantName = [applicantFirstName, applicantLastName].join(' ');
+
 	options.push({
 		name: applicantName,
 		value: applicant?.directorId,
 	});
 	Object.keys(coApplicants).map(directorId => {
-		let coApplicantName = `${
-			coApplicants?.[directorId]?.basic_details?.first_name
-		} ${coApplicants?.[directorId]?.basic_details?.last_name}`;
+		const coApplicantFirstName =
+			coApplicants?.[directorId]?.basic_details?.first_name ||
+			coApplicants?.[directorId]?.dfirstname ||
+			'';
+		const coApplicantLastName =
+			coApplicants?.[directorId]?.basic_details?.last_name ||
+			coApplicants?.[directorId]?.dlastname ||
+			'';
 
-		if (isEditOrViewLoan) {
-			coApplicantName = `${coApplicants?.[directorId]?.dfirstname} ${
-				coApplicants?.[directorId]?.dlastname
-			}`;
-		}
+		const coApplicantName = [coApplicantFirstName, coApplicantLastName].join(
+			' '
+		);
+
 		options.push({
 			name: coApplicantName,
 			value: directorId,
@@ -483,49 +494,84 @@ export const getCompletedSections = data => {
 		editLoanDirectors,
 		applicantCoApplicantSectionIds,
 		selectedApplicant,
+		isDraftLoan,
 	} = data;
 	const completedMenu = [];
-	selectedProduct?.product_details?.sections?.map(section => {
-		// editloan adding new coapplicant
-		if (
-			isEditLoan &&
-			!editLoanDirectors.includes(`${selectedApplicant?.directorId}`) && // new director
-			applicantCoApplicantSectionIds.includes(section?.id)
-		) {
+	const reduxCompletedMenu = [];
+	!isDraftLoan &&
+		selectedProduct?.product_details?.sections?.map(section => {
+			// editloan adding new coapplicant
 			if (
-				Object.keys(
-					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
-				).length > 0
-			)
-				completedMenu.push(section.id);
-			return null;
-		}
-		// -- editloan adding new coapplicant
+				isEditLoan &&
+				!editLoanDirectors.includes(`${selectedApplicant?.directorId}`) && // new director
+				applicantCoApplicantSectionIds.includes(section?.id)
+			) {
+				if (
+					Object.keys(
+						coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
+					).length > 0
+				) {
+					completedMenu.push(section.id);
+					reduxCompletedMenu.push(section.id);
+				}
+				return null;
+			}
+			// -- editloan adding new coapplicant
 
-		// editloan or view loan existing applicant-co-applicant and applicaiton sections
-		if (isEditOrViewLoan) {
-			completedMenu.push(section?.id);
-			return null;
-		}
-		// -- editloan or view loan existing applicant-co-applicant and applicaiton sections
+			// editloan or view loan existing applicant-co-applicant and applicaiton sections
+			if (isEditOrViewLoan) {
+				completedMenu.push(section?.id);
+				return null;
+			}
+			// -- editloan or view loan existing applicant-co-applicant and applicaiton sections
 
-		// create mode
-		if (isApplicant && Object.keys(applicant?.[section?.id] || {}).length > 0) {
-			completedMenu.push(section.id);
-		} else {
+			// create mode
 			if (
-				Object.keys(
-					coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
-				).length > 0
-			)
+				isApplicant &&
+				Object.keys(applicant?.[section?.id] || {}).length > 0
+			) {
 				completedMenu.push(section.id);
-		}
-		if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
-			completedMenu.push(section.id);
-		}
-		return null;
-		// -- create mode
-	});
+				reduxCompletedMenu.push(section.id);
+			} else {
+				if (
+					Object.keys(
+						coApplicants?.[selectedApplicantCoApplicantId]?.[section?.id] || {}
+					).length > 0
+				) {
+					completedMenu.push(section.id);
+					reduxCompletedMenu.push(section.id);
+				}
+			}
+			if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
+				completedMenu.push(section.id);
+				reduxCompletedMenu.push(section.id);
+			}
+			return null;
+			// -- create mode
+		});
+
+	isDraftLoan &&
+		selectedProduct?.product_details?.sections?.map(section => {
+			if (Object.keys(selectedApplicant?.[section.id] || {}).length > 0) {
+				reduxCompletedMenu.push(section.id);
+			}
+			if (Object.keys(application?.sections?.[section.id] || {}).length > 0) {
+				reduxCompletedMenu.push(section.id);
+			}
+			return null;
+		});
+
+	// console.log('formatData-getCompletedSections-', {
+	// 	data,
+	// 	completedMenu,
+	// 	reduxCompletedMenu,
+	// 	selectedApplicant,
+	// });
+
+	// draft mode remove all sections which are not exist in redux store
+	if (isDraftLoan) {
+		return reduxCompletedMenu;
+	}
 	return completedMenu;
 };
 
@@ -540,7 +586,7 @@ export const getApiErrorMessage = error => {
 	} else if (typeof error?.response?.data?.cause?.details === 'string') {
 		errorMessage = error?.response?.data?.cause?.details;
 	} else {
-		errorMessage = 'Something went wrong, Try after sometimes!';
+		errorMessage = 'Something went wrong, Try after sometime!';
 	}
 	return errorMessage;
 };
@@ -695,4 +741,87 @@ export const formatLoanDocuments = docs => {
 export const formatLenderDocs = docs => {
 	const newDocs = [];
 	return newDocs;
+};
+
+// validating employment details section for onProceed or add-coapplicant
+export const validateEmploymentDetails = data => {
+	const { coApplicants, isApplicant } = data;
+	let allowProceed = false;
+	let filteredCoApplicant = [];
+	if (Object.keys(coApplicants)?.length > 0) {
+		filteredCoApplicant = Object.values(coApplicants)?.filter(coApplicant => {
+			return !coApplicant?.employmentId;
+		});
+	}
+	if (filteredCoApplicant.length === 0) {
+		allowProceed = true;
+	} else {
+		allowProceed = false;
+	}
+	if (isApplicant && Object.keys(coApplicants)?.length === 0) {
+		allowProceed = true;
+	}
+	return allowProceed;
+};
+
+export const getApplicantNavigationDetails = data => {
+	const { applicant, coApplicants, selectedApplicant } = data;
+
+	const allApplicants = [`${applicant?.directorId}`];
+	const allApplicantsObject = [applicant];
+
+	const lastDirectorId =
+		Object.keys(coApplicants || {})?.pop() || applicant?.directorId || '';
+
+	const isLastApplicantIsSelected =
+		`${lastDirectorId}` === `${selectedApplicant?.directorId}`;
+
+	Object.keys(coApplicants || {})?.map(directorId => {
+		allApplicants.push(directorId);
+		allApplicantsObject.push(coApplicants[directorId]);
+		return null;
+	});
+	let nextApplicantDirectorId = '';
+	if (!isLastApplicantIsSelected) {
+		const selectedApplicantIndex = allApplicants.findIndex(
+			directorId => `${directorId}` === `${selectedApplicant?.directorId}`
+		);
+		nextApplicantDirectorId = allApplicants[selectedApplicantIndex + 1] || '';
+	}
+
+	let isEmploymentDetailsSubmited = false;
+	if (
+		Object.keys(
+			selectedApplicant?.[CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID] || {}
+		)?.length > 0
+	) {
+		isEmploymentDetailsSubmited = true;
+	}
+
+	let lastIncompleteDirectorId = '';
+	let lastIncompleteDirectorIndex = 0;
+	allApplicantsObject.map((applicantObject, applicantObjectIndex) => {
+		if (
+			Object.keys(
+				applicantObject?.[CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID] || {}
+			)?.length === 0 &&
+			!lastIncompleteDirectorId
+		) {
+			lastIncompleteDirectorId = `${applicantObject?.directorId}`;
+			lastIncompleteDirectorIndex = applicantObjectIndex;
+		}
+		return null;
+	});
+
+	const returnData = {
+		allApplicants,
+		nextApplicantDirectorId,
+		lastDirectorId,
+		isLastApplicantIsSelected,
+		isEmploymentDetailsSubmited,
+		lastIncompleteDirectorId,
+		lastIncompleteDirectorIndex,
+	};
+	// console.log('getApplicantNavigationDetails-', { returnData });
+	return returnData;
 };

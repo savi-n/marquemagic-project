@@ -33,6 +33,7 @@ const Header = props => {
 
 	const redirectDashboard = e => {
 		e.preventDefault();
+		sessionStorage.clear();
 		if (loanRefId) {
 			window.open(
 				`${window.origin}/newui/main/loanlist?id=${loanRefId}`,
