@@ -115,38 +115,35 @@ export const applicantSlice = createSlice({
 		},
 		addOrUpdateCacheDocuments: (state, action) => {
 			const { files } = action.payload;
+			const newDocuments = _.cloneDeep(state.cacheDocuments);
+			files?.map?.(newFile => {
+				// doc =>
+				// 	`${doc?.directorId}` === `${newFile?.directorId}` &&
+				// 	`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
+				const isExistIndex = newDocuments?.findIndex(
+					doc =>
+						`${doc?.id}` === `${newFile?.document_id}` ||
+						`${doc?.id}` === `${newFile?.id}`
+				);
+				if (isExistIndex >= 0) {
+					newDocuments[isExistIndex] = newFile;
+				} else {
+					newDocuments.push(newFile);
+				}
+				return null;
+			});
+			state.cacheDocuments = newDocuments;
+		},
+		addOrUpdateCacheDocumentsDocUploadPage: (state, action) => {
+			const { files } = action.payload;
 			// console.log('redux-applicationSlice-addOrUpdateCacheDocuments-', {
 			// 	files,
 			// });
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			files?.map?.(newFile => {
-				// doc =>
-				// 	`${doc?.directorId}` === `${newFile?.directorId}` &&
-				// 	`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
 				const isExistIndex = oldDocuments?.findIndex(doc => {
 					let isExist = false;
 					if (
-						doc?.id &&
-						newFile?.document_id &&
-						`${doc?.id}` === `${newFile?.document_id}`
-					) {
-						isExist = true;
-						// console.log('isExist1');
-					} else if (
-						doc?.id &&
-						newFile?.id &&
-						`${doc?.id}` === `${newFile?.id}`
-					) {
-						isExist = true;
-						// console.log('isExist2');
-					} else if (
-						doc?.document_key &&
-						newFile?.document_key &&
-						`${doc?.document_key}` === `${newFile?.document_key}`
-					) {
-						isExist = true;
-						// console.log('isExist3');
-					} else if (
 						doc?.document_key &&
 						newFile?.doc_name &&
 						`${doc?.document_key}` === `${newFile?.doc_name}`
@@ -303,6 +300,7 @@ export const {
 	addCacheDocument,
 	addOrUpdateCacheDocument,
 	addOrUpdateCacheDocuments,
+	addOrUpdateCacheDocumentsDocUploadPage,
 	addCacheDocuments,
 	removeCacheDocument,
 	updateCacheDocumentTypeId,
