@@ -17,6 +17,7 @@ import {
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
 	addOrUpdateCacheDocuments,
+	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -448,7 +449,7 @@ const DocumentUpload = props => {
 		try {
 			if (buttonDisabledStatus()) return;
 			if (!isFormValid()) return;
-			setLoading(true);
+			setSubmitting(true);
 			await onSubmitCompleteApplication();
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
@@ -463,9 +464,7 @@ const DocumentUpload = props => {
 				authenticationOtpReqBody
 			);
 			setIsAuthenticationOtpModalOpen(true);
-			setLoading(false);
 		} catch (error) {
-			setLoading(false);
 			if (error?.response?.data?.timer) {
 				setIsAuthenticationOtpModalOpen(true);
 				setGenerateOtpTimer(error?.response?.data?.timer || 0);
@@ -476,6 +475,8 @@ const DocumentUpload = props => {
 					error?.response?.data?.message || 'Server down, try after sometime',
 				type: 'error',
 			});
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
@@ -592,7 +593,32 @@ const DocumentUpload = props => {
 
 			// --api-2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
-				await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
+				const borrowerDocUploadRes = await axios.post(
+					`${API.BORROWER_UPLOAD_URL}`,
+					documentUploadReqBody
+				);
+				const updateDocumentIdToCacheDocuments = [];
+				newUploadedDocuments.map(cacheDoc => {
+					const resDoc =
+						borrowerDocUploadRes?.data?.data?.filter(
+							resDoc => resDoc?.doc_name === cacheDoc?.document_key
+						)?.[0] || {};
+					const newDoc = {
+						...resDoc,
+						...cacheDoc,
+						document_id: resDoc?.id,
+					};
+					updateDocumentIdToCacheDocuments.push(newDoc);
+					return null;
+				});
+				// console.log('updateDocumentIdToCacheDocuments-', {
+				// 	updateDocumentIdToCacheDocuments,
+				// });
+				dispatch(
+					addOrUpdateCacheDocumentsDocUploadPage({
+						files: updateDocumentIdToCacheDocuments,
+					})
+				);
 			}
 
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {

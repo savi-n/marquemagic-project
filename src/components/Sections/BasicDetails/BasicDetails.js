@@ -67,6 +67,7 @@ const BasicDetails = props => {
 		isDraftLoan,
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
+		userDetails,
 	} = app;
 	const {
 		isApplicant,
@@ -190,6 +191,9 @@ const BasicDetails = props => {
 					addrr1: '',
 					addrr2: '',
 				};
+				if (!!userDetails?.id) {
+					loginCreateUserReqBody.user_id = userDetails?.id;
+				}
 				const newLoginCreateUserRes = await axios.post(
 					`${API.LOGIN_CREATEUSER}`,
 					loginCreateUserReqBody
