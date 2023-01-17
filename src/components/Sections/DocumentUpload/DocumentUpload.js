@@ -16,7 +16,7 @@ import {
 	updateApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
-	addOrUpdateCacheDocuments,
+	// addOrUpdateCacheDocuments,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
@@ -361,7 +361,7 @@ const DocumentUpload = props => {
 				// 	newAllDocumentTypes,
 				// });
 				dispatch(
-					addOrUpdateCacheDocuments({
+					addOrUpdateCacheDocumentsDocUploadPage({
 						files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
 					})
 				);
@@ -403,7 +403,7 @@ const DocumentUpload = props => {
 					return null;
 				});
 				// console.log('newDocs-', { newDoc, newAllDocumentTypes });
-				dispatch(addOrUpdateCacheDocuments({ files: newDoc }));
+				dispatch(addOrUpdateCacheDocumentsDocUploadPage({ files: newDoc }));
 			}
 			// console.log('allDocumentTypes-', newAllDocumentTypes);
 		} catch (error) {

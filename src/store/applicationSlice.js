@@ -146,6 +146,8 @@ export const applicantSlice = createSlice({
 					let isExist = false;
 					if (`${doc?.document_id}` === `${newFile?.document_id}`) {
 						isExist = true;
+					} else if (`${doc?.document_key}` === `${newFile?.document_key}`) {
+						isExist = true;
 					} else if (
 						(`${doc?.document_key}` === `${newFile?.doc_name}` ||
 							`${doc?.document_key}` === `${newFile?.document_key}`) &&
