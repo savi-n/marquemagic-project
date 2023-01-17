@@ -382,12 +382,17 @@ const DocumentUpload = props => {
 			} else {
 				dispatch(addAllDocumentTypes(newAllDocumentTypes));
 			}
-
+			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
 				cacheDocuments?.map(doc => {
+					// if (doc?.document_id) return null;
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
+							// console.log(
+							// 	'compare-',
+							// 	`${docType.doc_type_id} === ${doc.doctype}`
+							// );
 							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
 							return false;
 						})?.[0] || {};
@@ -397,7 +402,7 @@ const DocumentUpload = props => {
 					});
 					return null;
 				});
-				// console.log('newDocs-', { newDoc });
+				// console.log('newDocs-', { newDoc, newAllDocumentTypes });
 				dispatch(addOrUpdateCacheDocuments({ files: newDoc }));
 			}
 			// console.log('allDocumentTypes-', newAllDocumentTypes);

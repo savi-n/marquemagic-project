@@ -122,8 +122,9 @@ export const applicantSlice = createSlice({
 				// 	`${doc?.doc_type_id}` === `${newFile?.doc_type_id}`
 				const isExistIndex = newDocuments?.findIndex(
 					doc =>
-						`${doc?.id}` === `${newFile?.document_id}` ||
-						`${doc?.id}` === `${newFile?.id}`
+						`${doc?.directorId}` === `${newFile?.directorId}` &&
+						(`${doc?.id}` === `${newFile?.document_id}` ||
+							`${doc?.id}` === `${newFile?.id}`)
 				);
 				if (isExistIndex >= 0) {
 					newDocuments[isExistIndex] = newFile;
@@ -143,20 +144,15 @@ export const applicantSlice = createSlice({
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
 					let isExist = false;
-					if (
-						doc?.document_key &&
-						newFile?.doc_name &&
-						`${doc?.document_key}` === `${newFile?.doc_name}`
+					if (`${doc?.document_id}` === `${newFile?.document_id}`) {
+						isExist = true;
+					} else if (
+						(`${doc?.document_key}` === `${newFile?.doc_name}` ||
+							`${doc?.document_key}` === `${newFile?.document_key}`) &&
+						`${doc?.directorId}` === `${newFile?.directorId}`
 					) {
 						isExist = true;
 						// console.log('isExist4');
-					} else if (
-						doc?.doc_name &&
-						newFile?.doc_name &&
-						`${doc?.doc_name}` === `${newFile?.doc_name}`
-					) {
-						isExist = true;
-						// console.log('isExist5');
 					}
 					// console.log('compare-2-files-', { doc, newFile, isExist });
 					return isExist;
