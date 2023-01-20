@@ -1,7 +1,7 @@
 export const getATag = selectedProduct => {
 	return (
 		<a
-			href={selectedProduct?.product_details?.termsandconditionsurl}
+			href={selectedProduct?.product_details?.terms_and_conditions_url}
 			rel='noreferrer'
 			target={'_blank'}
 			style={{ color: 'blue' }}
