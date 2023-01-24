@@ -252,47 +252,49 @@ export const generateCaseCreationReqBody = (
 				JSON.parse(sessionStorage.getItem('companyData'));
 		}
 
-		const addressArrayMulti =
-			(applicantData &&
-				applicantData?.address &&
-				applicantData?.address.length > 0 &&
-				applicantData?.address.map(ele => {
-					const newAdd = {
-						line1: ele.address1,
-						line2: ele.address2,
-						locality: ele?.address3 || ele?.city,
-						city: ele.city,
-						state: ele.state,
-						pincode: ele.pinCode,
-						addressType: ele.addressType,
-						aid: ele.aid,
-					};
-					// for edit loan must pass id for updating address
-					if (editLoan) {
-						const editAdd =
-							editLoan?.business_address?.filter(a => a.aid === ele.aid)?.[0] ||
-							{};
-						if (editAdd.id) newAdd.id = editAdd.id;
-					}
-					return newAdd;
-				})) ||
-			[];
+		// const addressArrayMulti =
+		// 	(applicantData &&
+		// 		applicantData?.address &&
+		// 		applicantData?.address.length > 0 &&
+		// 		applicantData?.address.map(ele => {
+		// 			const newAdd = {
+		// 				...ele,
+		// 				line1: ele.address1,
+		// 				line2: ele.address2,
+		// 				locality: ele?.address3 || ele?.city,
+		// 				city: ele.city,
+		// 				state: ele.state,
+		// 				pincode: ele.pinCode,
+		// 				addressType: ele.addressType,
+		// 				aid: ele.aid,
+		// 			};
+		// 			// for edit loan must pass id for updating address
+		// 			if (editLoan) {
+		// 				const editAdd =
+		// 					editLoan?.business_address?.filter(a => a.aid === ele.aid)?.[0] ||
+		// 					{};
+		// 				if (editAdd.id) newAdd.id = editAdd.id;
+		// 			}
+		// 			return newAdd;
+		// 		})) ||
+		// 	[];
 		// console.log('-----------temp5-------------');
-		let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
+		// let addressArrayUni = addressArrayMulti.filter(ele => ele.pincode); //only pincode addressfiltering
 
-		addressArrayUni =
-			addressArrayUni.length === 1
-				? addressArrayUni.map(ele => {
-						return { ...ele, addressType: 'present', aid: 1 };
-				  })
-				: addressArrayUni;
+		// addressArrayUni =
+		// 	addressArrayUni.length === 1
+		// 		? addressArrayUni.map(ele => {
+		// 				return { ...ele, addressType: 'present', aid: 1 };
+		// 		  })
+		// 		: addressArrayUni;
 
 		// for edit loan must pass id for updating address
 		// all the address should have id otherwise do not pass the address object
-		if (editLoan) {
-			addressArrayUni = addressArrayUni.filter(ele => !!ele.id);
-		}
+		// if (editLoan) {
+		// 	addressArrayUni = addressArrayUni.filter(ele => !!ele.id);
+		// }
 		// console.log('-----------temp6-------------');
+
 		const { loanAmount, tenure, ...restLoanData } = loanData;
 		let business_income_type_id =
 			applicantData?.incomeType || companyData?.BusinessType;
@@ -310,7 +312,11 @@ export const generateCaseCreationReqBody = (
 		// console.log('-----------temp7-------------');
 		const formatedData = {
 			Business_details: businessDetails() || null,
-			businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
+			// businessaddress: addressArrayUni.length > 0 ? addressArrayUni : [],
+			businessaddress: [],
+			// DOS-2468 disabled since it's applicable for business loan
+			// business loan address is being updated in address details page only in profile api
+
 			// busniess && busniess.Address
 			// 	? {
 			// 			city: busniess && busniess.Address.city,
