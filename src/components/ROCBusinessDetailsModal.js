@@ -72,6 +72,11 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 		businessAddress.push(companyDetail?.Address?.pncd);
 	if (companyDetail?.Address?.stcd)
 		businessAddress.push(companyDetail?.Address?.stcd);
+
+	const companyDirectorsForShow =
+		companyDetail?.directorsForShow ||
+		JSON.parse(sessionStorage.getItem('companyData'))?.directorsForShow ||
+		[];
 	return (
 		<Modal show={true} onClose={onClose} width='50%'>
 			<Div>
@@ -142,14 +147,14 @@ export default function ROCBusinessDetailsModal({ onClose }) {
 					</Colm2>
 				</Row>
 
-				{companyDetail?.directorsForShow?.length > 0 ? (
+				{companyDirectorsForShow?.length > 0 ? (
 					<>
 						<Header>Directors/Partners</Header>
 						<Row>
 							<Colm1>Name</Colm1>
 							<Colm2>Din</Colm2>
 						</Row>
-						{companyDetail?.directorsForShow?.map((dir, index) => (
+						{companyDirectorsForShow?.map((dir, index) => (
 							<Row key={index}>
 								<Colm1>{dir?.Name}</Colm1>
 								<Colm2>{dir?.Din}</Colm2>
