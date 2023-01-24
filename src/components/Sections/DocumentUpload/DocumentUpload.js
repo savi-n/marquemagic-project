@@ -296,7 +296,9 @@ const DocumentUpload = props => {
 					const document_key = lenderDoc?.doc_name;
 					let displayEvalDoc = false;
 					if (userDetails.is_other) {
-						if (lenderDoc.uploaded_by === userDetails.id) displayEvalDoc = true;
+						if (lenderDoc.uploaded_by === userDetails.id) {
+							displayEvalDoc = true;
+						}
 					} else {
 						displayEvalDoc = true;
 					}
@@ -341,6 +343,18 @@ const DocumentUpload = props => {
 									directorId: applicant?.directorId,
 								});
 							}
+							// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
+							// this is to overwrite assignment document checklist
+							// DOS-3031
+							if (
+								userDetails.is_other &&
+								lenderDoc.uploaded_by === userDetails.id
+							) {
+								externalUserSelectedDocTypeIds.push(
+									`${applicant?.directorId}${doc_type_id}`
+								);
+							}
+
 							preFillEvalDocsTag.push({
 								...lenderDoc,
 								doctype,
@@ -367,6 +381,15 @@ const DocumentUpload = props => {
 				);
 			}
 
+			// console.log('newAllDocumentTypes-', {
+			// 	newAllDocumentTypes,
+			// 	externalUserSelectedDocTypeIds,
+			// 	filter: newAllDocumentTypes.filter(doc =>
+			// 		externalUserSelectedDocTypeIds.includes(
+			// 			`${doc?.directorId}${doc?.doc_type_id}`
+			// 		)
+			// 	),
+			// });
 			newAllDocumentTypes.sort((a, b) => a.id - b.id);
 			if (externalUserSelectedDocTypeIds.length > 0) {
 				// only show document types which is assign to external user
