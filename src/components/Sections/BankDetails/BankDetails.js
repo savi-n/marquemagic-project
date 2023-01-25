@@ -108,7 +108,7 @@ const BankDetails = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
+				...(application?.sections?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
@@ -152,7 +152,9 @@ const BankDetails = () => {
 			// -- TEST MODE
 
 			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+				Object.keys(application?.sections?.[selectedSectionId] || {}).length >
+					0 &&
+				!application?.sections?.[selectedSectionId]?.hasOwnProperty('isSkip')
 			) {
 				return application?.sections?.[selectedSectionId]?.[field?.name];
 			}
