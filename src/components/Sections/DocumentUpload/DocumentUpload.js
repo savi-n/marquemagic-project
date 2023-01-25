@@ -447,9 +447,11 @@ const DocumentUpload = props => {
 				);
 			} catch (e) {}
 			setCommentsFromEditLoanData(allCommentsForOfficeUse?.[0]?.comment);
-			dispatch(
-				setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
-			);
+			if (allCommentsForOfficeUse?.length > 0) {
+				dispatch(
+					setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
+				);
+			}
 			// console.log('allremarks-', {
 			// 	allRemarks,
 			// 	allCommentsForOfficeUse,
