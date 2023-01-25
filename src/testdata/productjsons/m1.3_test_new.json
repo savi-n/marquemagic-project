@@ -14,7 +14,7 @@
 		"loanType": "Housing Loan Individual",
 		"productDetailsImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
 		"applicationSubmittedImage": "https://d3nn873nee648n.cloudfront.net/900x600/19178/220-SM903336.jpg",
-		"termsandconditionsurl": "https://testbank-nc.s3.ap-southeast-1.amazonaws.com/condition/Muthoot_T_C_V2.pdf",
+		"terms_and_conditions_url": "https://testbank-nc.s3.ap-southeast-1.amazonaws.com/condition/Muthoot_T_C_V2.pdf",
 		"kyc_verification": true,
 		"otp_authentication": true,
 		"document_mandatory": true,
