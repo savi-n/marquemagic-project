@@ -316,6 +316,7 @@ export default function Products() {
 	const [errOTP, setErrOTP] = useState('');
 	const [addProduct, setAddProduct] = useState(false);
 	const [loadingOTP, setLoadingOTP] = useState(false);
+	const initialLoanProductCount = 3;
 
 	const getStatusCustomer = async () => {
 		try {
@@ -476,9 +477,9 @@ export default function Products() {
 			<ImgDotElementLeft src={imgDotElement} alt='dot' />
 			<ProductsBox>
 				{products &&
-					products.data.map(
+					products?.data?.map(
 						(product, idx) =>
-							idx < 3 && (
+							idx < initialLoanProductCount && (
 								<Card product={product} key={`product__${product.id}`} />
 							)
 					)}
@@ -518,8 +519,8 @@ export default function Products() {
 						</section>
 						<DivAdd>
 							{products &&
-								products.data.map((product, idx) => {
-									if (idx < 2) return null;
+								products?.data?.map((product, idx) => {
+									if (idx < initialLoanProductCount) return null;
 									return (
 										<Card
 											add={true}
