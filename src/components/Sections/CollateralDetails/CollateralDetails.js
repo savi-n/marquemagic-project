@@ -109,7 +109,9 @@ const CollateralDetails = () => {
 			: collateralData?.loan_json || {};
 		const preData = {
 			...collateralData,
+			...collateralDetailsSection,
 
+			// TODO: shreyas - remove individual mapping for fields which works properly from the above spread operator
 			collateral_sub_type: collateralDetailsSection?.collateral_sub_type,
 			current_market_value: collateralDetailsSection?.CurrentMarketValue,
 
