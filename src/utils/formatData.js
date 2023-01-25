@@ -726,6 +726,7 @@ export const formatLoanDocuments = docs => {
 		const newDoc = {
 			...(doc?.loan_document_details?.[0] || {}),
 			...doc,
+			document_key: doc?.document_key || doc?.doc_name,
 			document_id: doc?.id,
 			doc_type_id: doc.doctype,
 			name: getDocumentNameFromLoanDocuments(doc),

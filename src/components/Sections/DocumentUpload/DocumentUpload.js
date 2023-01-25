@@ -16,7 +16,7 @@ import {
 	updateApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
-	addOrUpdateCacheDocuments,
+	// addOrUpdateCacheDocuments,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
@@ -375,7 +375,7 @@ const DocumentUpload = props => {
 				// 	newAllDocumentTypes,
 				// });
 				dispatch(
-					addOrUpdateCacheDocuments({
+					addOrUpdateCacheDocumentsDocUploadPage({
 						files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
 					})
 				);
@@ -405,12 +405,17 @@ const DocumentUpload = props => {
 			} else {
 				dispatch(addAllDocumentTypes(newAllDocumentTypes));
 			}
-
+			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
 				cacheDocuments?.map(doc => {
+					// if (doc?.document_id) return null;
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
+							// console.log(
+							// 	'compare-',
+							// 	`${docType.doc_type_id} === ${doc.doctype}`
+							// );
 							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
 							return false;
 						})?.[0] || {};
@@ -420,8 +425,8 @@ const DocumentUpload = props => {
 					});
 					return null;
 				});
-				// console.log('newDocs-', { newDoc });
-				dispatch(addOrUpdateCacheDocuments({ files: newDoc }));
+				// console.log('newDocs-', { newDoc, newAllDocumentTypes });
+				dispatch(addOrUpdateCacheDocumentsDocUploadPage({ files: newDoc }));
 			}
 			// console.log('allDocumentTypes-', newAllDocumentTypes);
 		} catch (error) {
