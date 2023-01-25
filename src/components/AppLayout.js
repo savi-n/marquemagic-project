@@ -147,6 +147,7 @@ const AppLayout = () => {
 						}`
 					);
 					const isEditLoan = decryptedToken.edit ? true : false;
+					const isViewLoan = !isEditLoan;
 					const newEditLoanData =
 						{
 							..._.cloneDeep(loanDetailsRes?.data?.data),
@@ -155,7 +156,10 @@ const AppLayout = () => {
 						} || {};
 
 					// Request URL: http://3.108.54.252:1337/viewloanlisting?skip=0&limit=5&search=COIT00246086
-					if (loanDetailsRes?.data?.data?.lender_document?.length > 0) {
+					if (
+						isViewLoan &&
+						loanDetailsRes?.data?.data?.lender_document?.length > 0
+					) {
 						const viewLoanDetailsRes = await axios.get(
 							`${API_END_POINT}/viewloanlisting?skip=0&limit=5&search=${
 								decryptedToken.loan_ref_id
