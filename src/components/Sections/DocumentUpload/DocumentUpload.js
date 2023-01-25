@@ -945,7 +945,7 @@ const DocumentUpload = props => {
 					/>
 					<CheckBox
 						name={
-							selectedProduct?.product_details?.termsandconditionsurl ? (
+							selectedProduct?.product_details?.terms_and_conditions_url ? (
 								<>
 									<span>{CONST.textForCheckbox.declaration}</span>
 									<span>{CONST.getATag(selectedProduct)}</span>

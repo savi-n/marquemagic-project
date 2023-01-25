@@ -61,7 +61,7 @@ const DocumentUpload = props => {
 	//console.log('productDetails from document upload', props);
 	const aTag = (
 		<a
-			href={productDetails?.termsandconditionsurl}
+			href={productDetails?.terms_and_conditions_url}
 			rel='noreferrer'
 			target={'_blank'}
 			style={{ color: 'blue' }}
@@ -2021,7 +2021,7 @@ const DocumentUpload = props => {
 					/>
 					<CheckBox
 						name={
-							productDetails.termsandconditionsurl ? (
+							productDetails.terms_and_conditions_url ? (
 								<>
 									<span>{textForCheckbox.declaration}</span>
 									<span>{aTag}</span>
