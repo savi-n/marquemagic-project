@@ -787,8 +787,19 @@ const AddressProofUpload = props => {
 	if (isSectionCompleted) {
 		customFieldProps.disabled = true;
 	}
+	if (
+		Object.keys(
+			cacheDocumentsTemp?.filter(doc =>
+				doc?.selectedAddressProofId?.includes(
+					CONST_SECTIONS.EXTRACTION_KEY_AADHAAR
+				)
+			)?.[0]?.extractionRes || {}
+		).length > 0
+	) {
+		customFieldProps.disabled = true;
+	}
 
-	// console.log('addressproofupload-', { props });
+	console.log('addressproofupload-', { props });
 
 	return (
 		<UI.Wrapper>
