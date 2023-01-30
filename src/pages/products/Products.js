@@ -194,24 +194,34 @@ const AppStatusLine1 = styled.div`
 
 const AppNumber = styled.div`
 	padding-left: 65px;
+	@media (min-width: 767px) {
+		width: 33.33%;
+	}
+
 	@media (max-width: 700px) {
-		padding-left: 40px;
+		padding-left: 20px;
 		font-size: 13px;
 		text-align: left;
 	}
 `;
 const AppStatus = styled.div`
 	padding-left: 65px;
+	@media (min-width: 767px) {
+		width: 33.33%;
+	}
 	@media (max-width: 700px) {
-		padding-left: 40px;
+		padding-left: 20px;
 		/* margin-top: 35px; */
 		font-size: 14px;
 	}
 `;
 const ApplicantName = styled.div`
 	padding-left: 65px;
+	@media (min-width: 767px) {
+		width: 33.33%;
+	}
 	@media (max-width: 700px) {
-		padding-left: 40px;
+		padding-left: 20px;
 		font-size: 13px;
 		text-align: left;
 	}
