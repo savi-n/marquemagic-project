@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-
+import locationPinIcon from 'assets/icons/edit-icon.png';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
@@ -16,6 +16,8 @@ import { decryptViewDocumentUrl } from 'utils/encrypt';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
+import * as CONST from './const';
+import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 
 const ProfileUpload = props => {
 	const {
@@ -52,6 +54,7 @@ const ProfileUpload = props => {
 	// const { cacheDocuments } = selectedApplicant;
 	// const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [showImageInfo, setShowImageInfo] = useState(false);
 	// const profileUploadedFile =
 	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
@@ -190,28 +193,29 @@ const ProfileUpload = props => {
 						<LoadingIcon />
 					</UI.CameraIconWrapper>
 				) : (
-					<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
-						{!isDisabled && (
-							<UI.IconCamera
-								src={iconDelete}
-								alt='delete'
-								onClick={e => {
-									e.preventDefault();
-									e.stopPropagation();
-									if (value) {
-										onChangeFormStateField({
-											name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
-											value: '',
-										});
-										return;
-									}
-									deleteDocument(uploadedFile);
-									// setProfileImageResTemp(null);
-								}}
-							/>
-						)}
-						{/* TODO: verify requirement and push back re-upload before delete */}
-						{/* <UI.IconDelete
+					<>
+						<UI.CameraIconWrapper {...getRootProps({ className: 'dropzone' })}>
+							{!isDisabled && (
+								<UI.IconCamera
+									src={iconDelete}
+									alt='delete'
+									onClick={e => {
+										e.preventDefault();
+										e.stopPropagation();
+										if (value) {
+											onChangeFormStateField({
+												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
+												value: '',
+											});
+											return;
+										}
+										deleteDocument(uploadedFile);
+										// setProfileImageResTemp(null);
+									}}
+								/>
+							)}
+							{/* TODO: verify requirement and push back re-upload before delete */}
+							{/* <UI.IconDelete
 							src={iconDelete}
 							alt='delete'
 							onClick={e => {
@@ -227,7 +231,30 @@ const ProfileUpload = props => {
 							alt='camera'
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
-					</UI.CameraIconWrapper>
+						</UI.CameraIconWrapper>
+						<UI.PinIconWrapper>
+							<UI.IconCamera
+								onClick={() => {
+									setShowImageInfo(!showImageInfo);
+								}}
+								src={locationPinIcon}
+								alt='pin-location'
+							/>
+						</UI.PinIconWrapper>
+						{showImageInfo && (
+							<AddressDetailsCard
+								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
+								setShowImageInfo={setShowImageInfo}
+								city={CONST.address.city} //change and assign these props once the proper data is obtained
+								state={CONST.address.state} //change and assign these props once the proper data is obtained
+								pincode={CONST.address.pincode} //change and assign these props once the proper data is obtained
+								address1={CONST.address.address1} //change and assign these props once the proper data is obtained
+								address2={CONST.address.address2} //change and assign these props once the proper data is obtained
+								coordinates={CONST.address.coordinates} //change and assign these props once the proper data is obtained
+								// showCloseIcon={false}
+							/>
+						)}
+					</>
 				)}
 			</UI.ContainerPreview>
 		);
