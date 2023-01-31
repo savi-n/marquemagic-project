@@ -25,7 +25,7 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	justify-content: center;
 	border-radius: 40px;
-	 @media (max-width: 700px) {
+@media (max-width: 700px) {
 		padding: 10px;
 		border-radius: 0px;
 		border: 2px solid #1414ad;
@@ -83,6 +83,7 @@ export default function Button({
 	loading,
 	customStyle = {},
 	type,
+	currentPage,
 }) {
 	return (
 		<StyledButton

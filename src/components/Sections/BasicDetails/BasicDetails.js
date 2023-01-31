@@ -80,7 +80,12 @@ const BasicDetails = props => {
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
-	const { cacheDocuments, borrowerUserId, businessUserId } = application;
+	const {
+		cacheDocuments,
+		borrowerUserId,
+		businessUserId,
+		// geoLocation,
+	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -557,6 +562,7 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
+		// console.log(geoLocation);
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
