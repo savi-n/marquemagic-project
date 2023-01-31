@@ -45,6 +45,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+// import SelfieAlertModal from 'components/modals/SelfieAlertModal';
 
 const BasicDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -596,9 +597,13 @@ const BasicDetails = props => {
 			})}
 		/>
 	);
-
+	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
+			{/* <SelfieAlertModal
+				show={isSelfieAlertModalOpen}
+				onClose={setIsSelfieAlertModalOpen}
+			/> */}
 			<ConfirmModal
 				type='Income'
 				show={isIncomeTypeConfirmModalOpen}
