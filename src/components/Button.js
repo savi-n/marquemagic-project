@@ -16,7 +16,7 @@ const StyledButton = styled.button`
 	background: ${({ theme, fillColor }) =>
 		fillColor && (typeof fillColor === 'string' ? '' : '#1414ad')};
 
-	align-items: flex-start;
+align-items: flex-start;
 	/* min-width: ${({ width }) => (width ? width : '200px')}; */
 	width: 200px;
 	font-size: 0.9em;
@@ -25,11 +25,11 @@ const StyledButton = styled.button`
 	transition: 0.2s;
 	justify-content: center;
 	border-radius: 40px;
-@media (max-width: 700px) {
+	@media (max-width: 700px) {
 		padding: 10px;
-		border-radius: 0px;
+		border-radius: ${({ roundCorner }) => (roundCorner ? '40px' : '0')};
 		border: 2px solid #1414ad;
-		width: auto;
+		width: ${({ roundCorner }) => (roundCorner ? '200px' : 'auto')};
 	}
 
 	&:hover {
@@ -83,7 +83,6 @@ export default function Button({
 	loading,
 	customStyle = {},
 	type,
-	currentPage,
 }) {
 	return (
 		<StyledButton

@@ -17,6 +17,7 @@ import axios from 'axios';
 import * as API from '_config/app.config';
 import Button from './Button';
 import { useState } from 'react';
+import { useToasts } from './Toast/ToastProvider';
 
 const Wrapper = styled.div`
 
@@ -107,6 +108,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		actions: { removeAllLoanDocuments },
 	} = useContext(LoanFormContext);
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 
 	const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
@@ -130,7 +132,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			{/* <ButtonBox> */}
 			<ButtonWrapper>
 				<Button
-					currentPage={'productListingPage'}
+					roundCorner={true}
 					loading={gettingGeoLocation}
 					fill
 					customStyle={{
@@ -150,7 +152,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									lat: coordinates?.latitude,
 									long: coordinates?.longitude,
 								};
-								console.log(userToken);
+								// console.log(userToken);
 								const geoLocationRes = await axios.post(
 									`${API.API_END_POINT}/geoLocation`,
 									reqBody,
@@ -160,9 +162,24 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 										},
 									}
 								);
+								if (geoLocationRes?.data?.status !== 'ok') {
+									addToast({
+										message:
+											'Geo Location failed! Please enable your location and try again.',
+										type: 'error',
+									});
+									return;
+								}
 								dispatch(setGeoLocation(geoLocationRes));
 							} catch (e) {
 								console.error(e);
+								addToast({
+									message:
+										e.message ||
+										'Geo Location failed! Please enable your location and try again.',
+									type: 'error',
+								});
+								return;
 							} finally {
 								setGettingGeoLocation(false);
 							}

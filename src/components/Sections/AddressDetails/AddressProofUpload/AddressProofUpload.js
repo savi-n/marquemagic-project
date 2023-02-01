@@ -799,7 +799,7 @@ const AddressProofUpload = props => {
 		customFieldProps.disabled = true;
 	}
 
-	console.log('addressproofupload-', { props });
+	// console.log('addressproofupload-', { props });
 
 	return (
 		<UI.Wrapper>
