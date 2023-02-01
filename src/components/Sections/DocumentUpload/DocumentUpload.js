@@ -16,7 +16,7 @@ import {
 	updateApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
-	addOrUpdateCacheDocuments,
+	// addOrUpdateCacheDocuments,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
@@ -296,7 +296,9 @@ const DocumentUpload = props => {
 					const document_key = lenderDoc?.doc_name;
 					let displayEvalDoc = false;
 					if (userDetails.is_other) {
-						if (lenderDoc.uploaded_by === userDetails.id) displayEvalDoc = true;
+						if (lenderDoc.uploaded_by === userDetails.id) {
+							displayEvalDoc = true;
+						}
 					} else {
 						displayEvalDoc = true;
 					}
@@ -341,6 +343,18 @@ const DocumentUpload = props => {
 									directorId: applicant?.directorId,
 								});
 							}
+							// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
+							// this is to overwrite assignment document checklist
+							// DOS-3031
+							if (
+								userDetails.is_other &&
+								lenderDoc.uploaded_by === userDetails.id
+							) {
+								externalUserSelectedDocTypeIds.push(
+									`${applicant?.directorId}${doc_type_id}`
+								);
+							}
+
 							preFillEvalDocsTag.push({
 								...lenderDoc,
 								doctype,
@@ -361,12 +375,21 @@ const DocumentUpload = props => {
 				// 	newAllDocumentTypes,
 				// });
 				dispatch(
-					addOrUpdateCacheDocuments({
+					addOrUpdateCacheDocumentsDocUploadPage({
 						files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
 					})
 				);
 			}
 
+			// console.log('newAllDocumentTypes-', {
+			// 	newAllDocumentTypes,
+			// 	externalUserSelectedDocTypeIds,
+			// 	filter: newAllDocumentTypes.filter(doc =>
+			// 		externalUserSelectedDocTypeIds.includes(
+			// 			`${doc?.directorId}${doc?.doc_type_id}`
+			// 		)
+			// 	),
+			// });
 			newAllDocumentTypes.sort((a, b) => a.id - b.id);
 			if (externalUserSelectedDocTypeIds.length > 0) {
 				// only show document types which is assign to external user
@@ -382,12 +405,17 @@ const DocumentUpload = props => {
 			} else {
 				dispatch(addAllDocumentTypes(newAllDocumentTypes));
 			}
-
+			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
 				cacheDocuments?.map(doc => {
+					// if (doc?.document_id) return null;
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
+							// console.log(
+							// 	'compare-',
+							// 	`${docType.doc_type_id} === ${doc.doctype}`
+							// );
 							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
 							return false;
 						})?.[0] || {};
@@ -397,8 +425,8 @@ const DocumentUpload = props => {
 					});
 					return null;
 				});
-				// console.log('newDocs-', { newDoc });
-				dispatch(addOrUpdateCacheDocuments({ files: newDoc }));
+				// console.log('newDocs-', { newDoc, newAllDocumentTypes });
+				dispatch(addOrUpdateCacheDocumentsDocUploadPage({ files: newDoc }));
 			}
 			// console.log('allDocumentTypes-', newAllDocumentTypes);
 		} catch (error) {
@@ -424,9 +452,11 @@ const DocumentUpload = props => {
 				);
 			} catch (e) {}
 			setCommentsFromEditLoanData(allCommentsForOfficeUse?.[0]?.comment);
-			dispatch(
-				setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
-			);
+			if (allCommentsForOfficeUse?.length > 0) {
+				dispatch(
+					setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
+				);
+			}
 			// console.log('allremarks-', {
 			// 	allRemarks,
 			// 	allCommentsForOfficeUse,
@@ -920,7 +950,7 @@ const DocumentUpload = props => {
 					/>
 					<CheckBox
 						name={
-							selectedProduct?.product_details?.termsandconditionsurl ? (
+							selectedProduct?.product_details?.terms_and_conditions_url ? (
 								<>
 									<span>{CONST.textForCheckbox.declaration}</span>
 									<span>{CONST.getATag(selectedProduct)}</span>

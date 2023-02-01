@@ -125,7 +125,7 @@ const EMIDetails = props => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
+				...(application?.sections?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
@@ -166,7 +166,6 @@ const EMIDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-
 			if (
 				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
 			) {
@@ -175,7 +174,13 @@ const EMIDetails = props => {
 					return application?.sections?.[selectedSectionId]?.[field?.name]
 						?.value;
 				} else {
-					return application?.sections?.[selectedSectionId]?.[field?.name];
+					if (
+						!application?.sections?.[selectedSectionId]?.hasOwnProperty(
+							'isSkip'
+						)
+					) {
+						return application?.sections?.[selectedSectionId]?.[field?.name];
+					}
 				}
 			}
 
