@@ -233,6 +233,8 @@ const BasicDetails = props => {
 				? {
 						...profileUploadedFile?.file,
 						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
 				: preSignedProfileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
@@ -259,7 +261,6 @@ const BasicDetails = props => {
 			// 	profileFieldValue,
 			// });
 			// return;
-
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody

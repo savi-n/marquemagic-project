@@ -161,6 +161,8 @@ const LoanDetails = () => {
 							...doc,
 							loan_id: loanId,
 							preview: null,
+							is_delete_not_allowed:
+								doc?.field?.is_delete_not_allowed === true ? true : false,
 						});
 						return null;
 					});
