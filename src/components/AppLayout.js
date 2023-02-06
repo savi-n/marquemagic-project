@@ -217,7 +217,7 @@ const AppLayout = () => {
 							)?.[0]?.id,
 							businessAddressIdAid2: newEditLoanData?.business_address?.filter(
 								address => `${address?.aid}` === '2'
-							)?.[1]?.id,
+							)?.[0]?.id,
 						})
 					);
 					const newDocs = formatLoanDocuments(
