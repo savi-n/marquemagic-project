@@ -129,6 +129,12 @@ const EMIDetails = props => {
 				isSkip: true,
 			},
 		};
+		if (
+			isEditLoan &&
+			!application?.sections?.hasOwnProperty(selectedSectionId)
+		) {
+			skipSectionData.sectionValues = { ...formState.values };
+		}
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -174,13 +180,13 @@ const EMIDetails = props => {
 					return application?.sections?.[selectedSectionId]?.[field?.name]
 						?.value;
 				} else {
-					if (
-						!application?.sections?.[selectedSectionId]?.hasOwnProperty(
-							'isSkip'
-						)
-					) {
-						return application?.sections?.[selectedSectionId]?.[field?.name];
-					}
+					// if (
+					// 	!application?.sections?.[selectedSectionId]?.hasOwnProperty(
+					// 		'isSkip'
+					// 	)
+					// ) {
+					return application?.sections?.[selectedSectionId]?.[field?.name];
+					// }
 				}
 			}
 
