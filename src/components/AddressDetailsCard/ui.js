@@ -1,20 +1,27 @@
 import styled from 'styled-components';
 
 export const ImageContent = styled.div`
+	z-index: 999999;
 	display: flex;
 	background: #fff;
-	width: 100%;
+	/* width: 100%; */
 	height: fit-content;
 	max-height: 60%;
 	padding: 5px 2px 5px 2px;
 	border-radius: 10px;
-	position: absolute;
+	/* position: absolute; */
 	bottom: 0;
+	position: ${({ embedInImageUpload }) => embedInImageUpload && 'absolute'};
+	width: ${({ embedInImageUpload }) => (embedInImageUpload ? '100%' : '45%')};
+	box-shadow: 1px 1px 1px 1px silver;
+	@media (max-width: 768px) {
+		width: 100% !important;
+	}
 `;
 
 export const TextIcon = styled.img`
 	height: 90px;
-	width: 20%;
+	width: 170px;
 `;
 
 export const ImageText = styled.p`

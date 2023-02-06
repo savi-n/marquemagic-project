@@ -251,6 +251,7 @@ const ProfileUpload = props => {
 								address1={CONST.address.address1} //change and assign these props once the proper data is obtained
 								address2={CONST.address.address2} //change and assign these props once the proper data is obtained
 								coordinates={CONST.address.coordinates} //change and assign these props once the proper data is obtained
+								embedInImageUpload={true}
 								// showCloseIcon={false}
 							/>
 						)}

@@ -55,8 +55,8 @@ const LoaderCircle = styled.label`
 		border: 4px solid #e2e1e1;
 		border-bottom-color: #4750cf;
 		border-radius: 50%;
-		width: 25px;
-		height: 25px;
+		width: 20px;
+		height: 20px;
 		animation: rotating 2s linear infinite;
 	}
 

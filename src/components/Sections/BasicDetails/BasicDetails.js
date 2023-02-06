@@ -12,6 +12,8 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
+import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
+// import * as CONST_PROFILE_UPLOAD from './ProfileUpload/const';
 
 import {
 	setLoginCreateUserRes,
@@ -84,7 +86,7 @@ const BasicDetails = props => {
 		cacheDocuments,
 		borrowerUserId,
 		businessUserId,
-		// geoLocation,
+		geoLocation,
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -94,6 +96,7 @@ const BasicDetails = props => {
 		setIsIncomeTypeConfirmModalOpen,
 	] = useState(false);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
+	const geoLocationData = geoLocation?.data?.data;
 	const {
 		handleSubmit,
 		register,
@@ -562,7 +565,7 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
-		// console.log(geoLocation);
+		console.log(geoLocation, 'geoLocation--');
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
@@ -795,6 +798,22 @@ const BasicDetails = props => {
 					</Fragment>
 				);
 			})}
+			<AddressDetailsCard
+				// 	imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
+				// setShowImageInfo={setShowImageInfo}
+				// city={CONST_PROFILE_UPLOAD.address.city} //change and assign these props once the proper data is obtained
+				// state={CONST_PROFILE_UPLOAD.address.state} //change and assign these props once the proper data is obtained
+				// pincode={CONST_PROFILE_UPLOAD.address.pincode} //change and assign these props once the proper data is obtained
+				address1={geoLocationData?.address} //change and assign these props once the proper data is obtained
+				// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+				coordinates={{
+					lat: geoLocationData?.Lat,
+					long: geoLocationData?.Long,
+					timestamp: geoLocationData?.timestamp,
+				}} //change and assign these props once the proper data is obtained
+				showCloseIcon={false}
+				customStyle={{ marginBottom: '10px' }}
+			/>
 			<UI_SECTIONS.Footer>
 				{!isViewLoan && (
 					<Button
