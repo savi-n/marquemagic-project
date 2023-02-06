@@ -141,31 +141,45 @@ export const applicantSlice = createSlice({
 			// 	files,
 			// });
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+			// files?.map?.(newFile => {
+			// 	const isExistIndex = oldDocuments?.findIndex(doc => {
+			// 		let isExist = false;
+			// 		if (`${doc?.document_id}` === `${newFile?.document_id}`) {
+			// 			isExist = true;
+			// 		} else if (`${doc?.document_key}` === `${newFile?.document_key}`) {
+			// 			isExist = true;
+			// 		} else if (
+			// 			(`${doc?.document_key}` === `${newFile?.doc_name}` ||
+			// 				`${doc?.document_key}` === `${newFile?.document_key}`) &&
+			// 			`${doc?.directorId}` === `${newFile?.directorId}`
+			// 		) {
+			// 			isExist = true;
+			// 			// console.log('isExist4');
+			// 		}
+			// 		console.log('compare-2-files-', { doc, newFile, isExist });
+			// 		return isExist;
+			// 	});
+			// 	console.log('isIndex', isExistIndex);
+			// 	if (isExistIndex >= 0) {
+			// 		oldDocuments[isExistIndex] = newFile;
+			// 	} else {
+			// 		oldDocuments.push(newFile);
+			// 	}
+			// 	return null;
+			// });
+
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
-					let isExist = false;
-					if (`${doc?.document_id}` === `${newFile?.document_id}`) {
-						isExist = true;
-					} else if (`${doc?.document_key}` === `${newFile?.document_key}`) {
-						isExist = true;
-					} else if (
-						(`${doc?.document_key}` === `${newFile?.doc_name}` ||
-							`${doc?.document_key}` === `${newFile?.document_key}`) &&
-						`${doc?.directorId}` === `${newFile?.directorId}`
-					) {
-						isExist = true;
-						// console.log('isExist4');
-					}
-					// console.log('compare-2-files-', { doc, newFile, isExist });
-					return isExist;
+					return `${doc?.document_key}` === `${newFile?.document_key}`;
 				});
 				if (isExistIndex >= 0) {
 					oldDocuments[isExistIndex] = newFile;
 				} else {
 					oldDocuments.push(newFile);
 				}
-				return null;
 			});
+			// console.log('old documents', oldDocuments);
+			// console.log('files', files);
 			state.cacheDocuments = oldDocuments;
 		},
 		addCacheDocuments: (state, action) => {

@@ -416,9 +416,14 @@ const DocumentUpload = props => {
 							// 	'compare-',
 							// 	`${docType.doc_type_id} === ${doc.doctype}`
 							// );
-							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
+							if (
+								`${docType.doc_type_id}` === `${doc.doctype}` ||
+								`${docType.doc_type_id}` === `${doc.doc_type_id}`
+							)
+								return true;
 							return false;
 						})?.[0] || {};
+
 					newDoc.push({
 						...selectedDocType,
 						...doc,
