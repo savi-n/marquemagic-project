@@ -1,3 +1,4 @@
+//is_in_section_delete_not_allowed can be sent from json-configuration(field) and can be set if the document is allowed to delete or not
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
@@ -202,18 +203,20 @@ const InputFieldSingleFileUpload = props => {
 							<UI.UploadIconWrapper
 								{...getRootProps({ className: 'dropzone' })}
 							>
-								{!isViewLoan && (
-									<UI.IconDelete
-										src={iconDelete}
-										alt='delete'
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											deleteDocument(uploadedFile);
-											clearErrorFormState();
-										}}
-									/>
-								)}
+								{/*  is_in_section_delete_not_allowed can be sent from json-configuration(field) and can be set if the document is allowed to delete or not*/}
+								{!isViewLoan &&
+									field?.is_in_section_delete_not_allowed !== true && (
+										<UI.IconDelete
+											src={iconDelete}
+											alt='delete'
+											onClick={e => {
+												e.preventDefault();
+												e.stopPropagation();
+												deleteDocument(uploadedFile);
+												clearErrorFormState();
+											}}
+										/>
+									)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>
