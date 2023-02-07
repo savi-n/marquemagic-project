@@ -314,18 +314,33 @@ export default function FormController({
 						// 	},
 						// });
 						// if (encryptWhiteLabelRes.status === NC_STATUS_CODE.OK)
-						setCompanyDetails({
-							...companyDetail,
-							...formState?.values,
-							token: userDetailsRes.token,
-							userId: userDetailsRes.userId,
-							branchId: userDetailsRes.branchId,
-							encryptedWhitelabel: sessionStorage.getItem('encryptWhiteLabel'),
-							// formEmail: formState?.values?.Email,
-							// formMobile: formState?.values?.mobileNo,
-							Email: formState?.values?.Email,
-							mobileNo: formState?.values?.mobileNo,
-						});
+						if (!companyDetail) {
+							setCompanyDetails({
+								...JSON.parse(sessionStorage.getItem('companyData')),
+								...formState?.values,
+								token: userDetailsRes.token,
+								userId: userDetailsRes.userId,
+								branchId: userDetailsRes.branchId,
+								encryptedWhitelabel: sessionStorage.getItem(
+									'encryptWhiteLabel'
+								),
+								Email: formState?.values?.Email,
+								mobileNo: formState?.values?.mobileNo,
+							});
+						} else {
+							setCompanyDetails({
+								...companyDetail,
+								...formState?.values,
+								token: userDetailsRes.token,
+								userId: userDetailsRes.userId,
+								branchId: userDetailsRes.branchId,
+								encryptedWhitelabel: sessionStorage.getItem(
+									'encryptWhiteLabel'
+								),
+								Email: formState?.values?.Email,
+								mobileNo: formState?.values?.mobileNo,
+							});
+						}
 					}
 				}
 			}
