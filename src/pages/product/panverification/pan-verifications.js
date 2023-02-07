@@ -58,6 +58,7 @@ const PanVerification = props => {
 	} = useContext(AppContext);
 
 	const {
+		state: { companyDetail },
 		actions: { setCompanyDetails },
 	} = useContext(BussinesContext);
 
@@ -259,6 +260,7 @@ const PanVerification = props => {
 				// branchId: userDetailsRes.branchId,
 				// encryptedWhitelabel: encryptWhiteLabelRes.encrypted_whitelabel[0],
 				encryptedWhitelabel: sessionStorage.getItem('encryptWhiteLabel'),
+				...companyDetail,
 				...CONST.formatCompanyData(
 					companyData.data,
 					extractionDataRes.panNumber
