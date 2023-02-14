@@ -32,6 +32,7 @@ const initialState = {
 	allDocumentTypes: [],
 	api: {},
 	commentsForOfficeUse: '',
+	geoLocation: {},
 };
 
 export const applicantSlice = createSlice({
@@ -300,6 +301,11 @@ export const applicantSlice = createSlice({
 		clearCacheDraftModeSectionsData: (state, action) => {
 			state.sections = {};
 		},
+
+		setGeoLocation: (state, action) => {
+			// console.log(action.payload, 'slice-geolocation');
+			state.geoLocation = action.payload;
+		},
 	},
 });
 
@@ -326,7 +332,7 @@ export const {
 	setCommentsForOfficeUse,
 
 	addCacheAPIReqRes,
-
+	setGeoLocation,
 	clearCacheDraftModeSectionsData,
 } = applicantSlice.actions;
 
