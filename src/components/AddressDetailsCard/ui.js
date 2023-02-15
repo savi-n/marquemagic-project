@@ -10,7 +10,6 @@ export const ImageContent = styled.div`
 	max-height: ${({ displayCompleteAddress }) =>
 		displayCompleteAddress ? '100%' : '65%'};
 
-	/* max-height: 60%; */
 	padding: 5px 2px 5px 2px;
 	border-radius: 10px;
 	/* position: absolute; */
