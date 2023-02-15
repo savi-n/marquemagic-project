@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-import locationPinIcon from 'assets/icons/edit-icon.png';
+import locationPinIcon from 'assets/icons/Geo_icon_2.png';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
@@ -249,7 +249,7 @@ const ProfileUpload = props => {
 								state={CONST.address.state} //change and assign these props once the proper data is obtained
 								pincode={CONST.address.pincode} //change and assign these props once the proper data is obtained
 								address1={CONST.address.address1} //change and assign these props once the proper data is obtained
-								address2={CONST.address.address2} //change and assign these props once the proper data is obtained
+								// address2={CONST.address.address2} //change and assign these props once the proper data is obtained
 								coordinates={CONST.address.coordinates} //change and assign these props once the proper data is obtained
 								embedInImageUpload={true}
 								// showCloseIcon={false}

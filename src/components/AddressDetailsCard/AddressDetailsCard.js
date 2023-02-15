@@ -1,14 +1,14 @@
 import React from 'react';
 import closeIcon from 'assets/icons/close_icon_grey.png';
 import * as UI from './ui';
-import locationPinIcon from 'assets/icons/edit-icon.png';
+import locationPinIcon from 'assets/icons/Geo_icon_5.png';
+import { useState } from 'react';
 
 function AddressDetailsCard(props) {
 	const {
 		setShowImageInfo,
 		city,
 		address1,
-		address2,
 		state,
 		pincode,
 		// imageSrc,
@@ -18,31 +18,36 @@ function AddressDetailsCard(props) {
 		customStyle,
 	} = props;
 	const stringLength = window.screen.width < 768 ? 25 : 75;
+	const [displayCompleteAddress, setDisplayCompleteAddress] = useState(false);
 	return (
 		<UI.ImageContent
 			style={customStyle}
 			embedInImageUpload={embedInImageUpload}
+			displayCompleteAddress={displayCompleteAddress}
 		>
 			<UI.TextIcon src={locationPinIcon} />
 			<UI.ImageText>
-				{/* {imageTextContent?.length > 130
-					? imageTextContent?.slice(0, 130) + '...'
-					: imageTextCont	ent} */}
 				<UI.TextHeader>{city}</UI.TextHeader>
 				<UI.TextContent1>
-					{/* {address1?.length > stringLength
-						? address1?.slice(0, stringLength) + '...'
-						: address1} */}
-					{address1}
+					{/*since we will be receiving address in a signle string*/}
+					{address1?.length > stringLength && !displayCompleteAddress ? (
+						<p>
+							{address1?.slice(0, stringLength)}
+							<UI.FullAddress
+								onClick={() => {
+									setDisplayCompleteAddress(true);
+								}}
+							>
+								...
+							</UI.FullAddress>
+						</p>
+					) : (
+						address1
+					)}
 				</UI.TextContent1>
 				<UI.TextContent2>
-					{address2?.length > stringLength
-						? address2?.slice(0, stringLength) + '...'
-						: address2}
-				</UI.TextContent2>
-				<UI.TextContent3>
 					{state} {city} {pincode}
-				</UI.TextContent3>
+				</UI.TextContent2>
 				<UI.LatLongTimestamp>
 					{coordinates?.lat} {coordinates?.long} {coordinates?.timestamp}
 				</UI.LatLongTimestamp>

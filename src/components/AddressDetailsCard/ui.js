@@ -1,18 +1,23 @@
 import styled from 'styled-components';
 
 export const ImageContent = styled.div`
-	z-index: 999999;
+	/* z-index: 999999; */
+	z-index: 1;
 	display: flex;
 	background: #fff;
 	/* width: 100%; */
 	height: fit-content;
-	max-height: 60%;
+	max-height: ${({ displayCompleteAddress }) =>
+		displayCompleteAddress ? '100%' : '65%'};
+
+	/* max-height: 60%; */
 	padding: 5px 2px 5px 2px;
 	border-radius: 10px;
 	/* position: absolute; */
 	bottom: 0;
 	position: ${({ embedInImageUpload }) => embedInImageUpload && 'absolute'};
 	width: ${({ embedInImageUpload }) => (embedInImageUpload ? '100%' : '45%')};
+
 	box-shadow: 1px 1px 1px 1px silver;
 	@media (max-width: 768px) {
 		width: 100% !important;
@@ -21,7 +26,12 @@ export const ImageContent = styled.div`
 
 export const TextIcon = styled.img`
 	height: 90px;
-	width: 170px;
+	/* width: 170px; */
+	object-fit: contain;
+	@media (max-width: 767px) {
+		height: 30px;
+		object-fit: contain;
+	}
 `;
 
 export const ImageText = styled.p`
@@ -41,6 +51,10 @@ export const CloseIcon = styled.img`
 	cursor: pointer;
 `;
 
+export const FullAddress = styled.span`
+	cursor: pointer;
+`;
+
 export const TextHeader = styled.h2`
 	font-weight: bold;
 	font-size: 12px;
@@ -49,9 +63,6 @@ export const TextContent1 = styled.p`
 	font-size: 12px;
 `;
 export const TextContent2 = styled.p`
-	font-size: 12px;
-`;
-export const TextContent3 = styled.p`
 	font-size: 12px;
 `;
 export const LatLongTimestamp = styled.p`
