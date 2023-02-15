@@ -1,12 +1,14 @@
 import styled from 'styled-components';
 
 export const ImageContent = styled.div`
-	z-index: 999999;
+	/* z-index: 999999; */
+	z-index: 1;
 	display: flex;
 	background: #fff;
 	/* width: 100%; */
 	height: fit-content;
-	max-height: 60%;
+	max-height: ${({ displayCompleteAddress }) =>
+		displayCompleteAddress ? '100%' : '65%'};
 	min-height: 85px;
 	padding: 5px 2px 5px 2px;
 	border-radius: 10px;
@@ -19,10 +21,15 @@ export const ImageContent = styled.div`
 
 export const TextIcon = styled.img`
 	height: 90px;
-	width: 90px;
+	/* width: 170px; */
+	object-fit: contain;
 	@media (max-width: 1100px) {
 		height: 60px;
 		width: 60px;
+	}
+	@media (max-width: 767px) {
+		height: 30px;
+		object-fit: contain;
 	}
 `;
 
@@ -40,6 +47,10 @@ export const CloseIcon = styled.img`
 	width: 18px;
 	height: 18px;
 	margin: 0 5px 0 5px;
+	cursor: pointer;
+`;
+
+export const FullAddress = styled.span`
 	cursor: pointer;
 `;
 

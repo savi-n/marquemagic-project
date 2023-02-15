@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-import locationPinIcon from 'assets/icons/edit-icon.png';
+import locationPinIcon from 'assets/icons/Geo_icon_2.png';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
