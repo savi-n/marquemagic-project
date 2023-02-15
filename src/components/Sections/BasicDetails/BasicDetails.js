@@ -48,6 +48,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 // import SelfieAlertModal from 'components/modals/SelfieAlertModal';
+import { getGeoLocation } from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -96,6 +97,7 @@ const BasicDetails = props => {
 		setIsIncomeTypeConfirmModalOpen,
 	] = useState(false);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
+	const [profilePicGeolocation, setProfilePicGeolocation] = useState('');
 	const geoLocationData = geoLocation?.data?.data;
 	const {
 		handleSubmit,
@@ -411,9 +413,25 @@ const BasicDetails = props => {
 		}
 	};
 
-	const addCacheDocumentTemp = file => {
+	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
+		const coordinates = await getGeoLocation();
+		const reqBody = {
+			lat: coordinates?.latitude,
+			long: coordinates?.longitude,
+		};
+		// console.log(userToken);
+		const geoLocationRes = await axios.post(
+			`${API.API_END_POINT}/geoLocation`,
+			reqBody,
+			{
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			}
+		);
+		setProfilePicGeolocation(geoLocationRes.data.data);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
@@ -675,6 +693,8 @@ const BasicDetails = props => {
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													onChangeFormStateField={onChangeFormStateField}
 													isDisabled={isViewLoan}
+													isTag={true}
+													address={profilePicGeolocation}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
@@ -805,7 +825,7 @@ const BasicDetails = props => {
 				// city={CONST_PROFILE_UPLOAD.address.city} //change and assign these props once the proper data is obtained
 				// state={CONST_PROFILE_UPLOAD.address.state} //change and assign these props once the proper data is obtained
 				// pincode={CONST_PROFILE_UPLOAD.address.pincode} //change and assign these props once the proper data is obtained
-				address1={geoLocationData?.address} //change and assign these props once the proper data is obtained
+				address={geoLocationData?.address} //change and assign these props once the proper data is obtained
 				// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
 				coordinates={{
 					lat: geoLocationData?.Lat,

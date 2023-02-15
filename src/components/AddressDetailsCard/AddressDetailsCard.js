@@ -7,13 +7,11 @@ function AddressDetailsCard(props) {
 	const {
 		setShowImageInfo,
 		city,
-		address1,
-		address2,
-		state,
-		pincode,
-		// imageSrc,
+		address,
 		showCloseIcon = true,
-		coordinates,
+		latitude,
+		longitude,
+		timestamp,
 		embedInImageUpload = false,
 		customStyle,
 	} = props;
@@ -29,23 +27,14 @@ function AddressDetailsCard(props) {
 					? imageTextContent?.slice(0, 130) + '...'
 					: imageTextCont	ent} */}
 				<UI.TextHeader>{city}</UI.TextHeader>
-				<UI.TextContent1>
-					{/* {address1?.length > stringLength
-						? address1?.slice(0, stringLength) + '...'
-						: address1} */}
-					{address1}
-				</UI.TextContent1>
-				<UI.TextContent2>
-					{address2?.length > stringLength
-						? address2?.slice(0, stringLength) + '...'
-						: address2}
-				</UI.TextContent2>
-				<UI.TextContent3>
-					{state} {city} {pincode}
-				</UI.TextContent3>
-				<UI.LatLongTimestamp>
-					{coordinates?.lat} {coordinates?.long} {coordinates?.timestamp}
-				</UI.LatLongTimestamp>
+				<UI.TextContent>{address}</UI.TextContent>
+
+				{latitude && (
+					<UI.TextContent>
+						Lat: {latitude} Long: {longitude}{' '}
+					</UI.TextContent>
+				)}
+				<UI.TextContent>{timestamp}</UI.TextContent>
 			</UI.ImageText>
 			{showCloseIcon && (
 				<UI.CloseIcon
