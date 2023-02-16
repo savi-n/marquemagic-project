@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import moment from 'moment';
-
+import _ from 'lodash';
 import Button from 'components/Button';
 import CheckBox from 'shared/components/Checkbox/CheckBox';
 import AuthenticationOtpModal from './AuthenticationOTPModal';
@@ -10,6 +10,7 @@ import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
+import { getGeoLocation } from 'utils/helper';
 
 import * as API from '_config/app.config';
 import {
@@ -20,6 +21,7 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
+import { removeCacheDocument } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -33,12 +35,17 @@ import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
 import * as CONST from './const';
+import ProfileUpload from '../BasicDetails/ProfileUpload';
+import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDetailsCard';
+import useForm from 'hooks/useFormIndividual';
 
 const DocumentUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
+	const { userToken } = app;
 	const dispatch = useDispatch();
+	const { onChangeFormStateField } = useForm();
 	const {
 		selectedProduct,
 		isViewLoan,
@@ -107,6 +114,9 @@ const DocumentUpload = props => {
 		setIsAuthenticationOtpModalOpen,
 	] = useState(false);
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
+	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
+	const [geoLocationData, setGeoLocationData] = useState('');
+	let prefilledProfileUploadValue = '';
 
 	// EVAL DOCUMENTS
 	const initializeExternalUserDocCheckList = async () => {
@@ -416,9 +426,14 @@ const DocumentUpload = props => {
 							// 	'compare-',
 							// 	`${docType.doc_type_id} === ${doc.doctype}`
 							// );
-							if (`${docType.doc_type_id}` === `${doc.doctype}`) return true;
+							if (
+								`${docType.doc_type_id}` === `${doc.doctype}` ||
+								`${docType.doc_type_id}` === `${doc.doc_type_id}`
+							)
+								return true;
 							return false;
 						})?.[0] || {};
+
 					newDoc.push({
 						...selectedDocType,
 						...doc,
@@ -785,6 +800,58 @@ const DocumentUpload = props => {
 		displayUploadedDocCount = false;
 	}
 
+	const addCacheDocumentTemp = async file => {
+		// userToken
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		newCacheDocumentTemp.push(file);
+		// setGettingGeoLocation(true);
+		const coordinates = await getGeoLocation();
+		const reqBody = {
+			lat: coordinates?.latitude,
+			long: coordinates?.longitude,
+		};
+		// console.log(userToken);
+		const geoLocationRes = await axios.post(
+			`${API.API_END_POINT}/geoLocation`,
+			reqBody,
+			{
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			}
+		);
+		setGeoLocationData(geoLocationRes.data.data);
+		setCacheDocumentsTemp(newCacheDocumentTemp);
+	};
+
+	const profileUploadedFile =
+		cacheDocumentsTemp?.[0] ||
+		// cacheDocumentsTemp?.filter(
+		// 	doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		// )?.[0] ||
+		// cacheDocuments?.filter(
+		// 	doc =>
+		// 		doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME &&
+		// 		`${doc?.directorId}` === `${directorId}`
+		// )?.[0] ||
+		null;
+
+	const removeCacheDocumentTemp = fieldName => {
+		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
+		setGeoLocationData('');
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		if (
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
+			0
+		) {
+			setCacheDocumentsTemp(
+				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
+			);
+		} else {
+			dispatch(removeCacheDocument({ fieldName }));
+		}
+	};
+
 	// console.log('DocumentUpload-allStates-', {
 	// 	app,
 	// 	application,
@@ -886,6 +953,35 @@ const DocumentUpload = props => {
 					</div>
 				);
 			})}
+			<UI.VerificationSectionWrapper>
+				<UI.VerificationSection isLocation={!!geoLocationData}>
+					<ProfileUpload
+						onChangeFormStateField={onChangeFormStateField}
+						value={prefilledProfileUploadValue}
+						uploadedFile={profileUploadedFile}
+						cacheDocumentsTemp={cacheDocumentsTemp}
+						addCacheDocumentTemp={addCacheDocumentTemp}
+						removeCacheDocumentTemp={() =>
+							removeCacheDocumentTemp('profile_upload')
+						}
+					/>
+				</UI.VerificationSection>
+
+				{geoLocationData && (
+					<UI.VerificationSection isLocation={!!geoLocationData}>
+						<AddressDetailsCard
+							address={geoLocationData?.address} //change and assign these props once the proper data is obtained
+							// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+							latitude={geoLocationData?.Lat}
+							longitude={geoLocationData?.Long}
+							timestamp={geoLocationData?.timestamp}
+							//change and assign these props once the proper data is obtained
+							showCloseIcon={false}
+							customStyle={{ bottom: '0px' }}
+						/>
+					</UI.VerificationSection>
+				)}
+			</UI.VerificationSectionWrapper>
 
 			<UI.Footer>
 				{/* TODO: comment for office use  */}

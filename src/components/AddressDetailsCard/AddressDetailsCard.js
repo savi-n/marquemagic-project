@@ -8,12 +8,11 @@ function AddressDetailsCard(props) {
 	const {
 		setShowImageInfo,
 		city,
-		address1,
-		state,
-		pincode,
-		// imageSrc,
+		address,
 		showCloseIcon = true,
-		coordinates,
+		latitude,
+		longitude,
+		timestamp,
 		embedInImageUpload = false,
 		customStyle,
 	} = props;
@@ -28,11 +27,11 @@ function AddressDetailsCard(props) {
 			<UI.TextIcon src={locationPinIcon} />
 			<UI.ImageText>
 				<UI.TextHeader>{city}</UI.TextHeader>
-				<UI.TextContent1>
+				<UI.TextContent embedInImageUpload={embedInImageUpload}>
 					{/*since we will be receiving address in a signle string*/}
-					{address1?.length > stringLength && !displayCompleteAddress ? (
+					{address?.length > stringLength && !displayCompleteAddress ? (
 						<p>
-							{address1?.slice(0, stringLength)}
+							{address?.slice(0, stringLength)}
 							<UI.FullAddress
 								onClick={() => {
 									setDisplayCompleteAddress(true);
@@ -42,15 +41,21 @@ function AddressDetailsCard(props) {
 							</UI.FullAddress>
 						</p>
 					) : (
-						address1
+						address
 					)}
-				</UI.TextContent1>
-				<UI.TextContent2>
-					{state} {city} {pincode}
-				</UI.TextContent2>
-				<UI.LatLongTimestamp>
-					{coordinates?.lat} {coordinates?.long} {coordinates?.timestamp}
-				</UI.LatLongTimestamp>
+				</UI.TextContent>
+				<UI.TextContent embedInImageUpload={embedInImageUpload}>
+					{/*state*/} {city} {/*pincode*/}
+				</UI.TextContent>
+
+				{latitude && (
+					<UI.TextContent embedInImageUpload={embedInImageUpload}>
+						Lat: {latitude} Long: {longitude}
+					</UI.TextContent>
+				)}
+				<UI.TextContent embedInImageUpload={embedInImageUpload}>
+					{timestamp}
+				</UI.TextContent>
 			</UI.ImageText>
 			{showCloseIcon && (
 				<UI.CloseIcon

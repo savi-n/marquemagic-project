@@ -16,7 +16,7 @@ import { decryptViewDocumentUrl } from 'utils/encrypt';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
-import * as CONST from './const';
+// import * as CONST from './const';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 
 const ProfileUpload = props => {
@@ -32,6 +32,8 @@ const ProfileUpload = props => {
 		removeCacheDocumentTemp,
 		onChangeFormStateField,
 		isDisabled,
+		isTag = false,
+		address,
 	} = props;
 	const {
 		app,
@@ -60,6 +62,7 @@ const ProfileUpload = props => {
 	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	null;
 
+	console.log(address, 'address heer');
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -232,26 +235,26 @@ const ProfileUpload = props => {
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
 						</UI.CameraIconWrapper>
-						<UI.PinIconWrapper>
-							<UI.IconCamera
-								onClick={() => {
-									setShowImageInfo(!showImageInfo);
-								}}
-								src={locationPinIcon}
-								alt='pin-location'
-							/>
-						</UI.PinIconWrapper>
+						{isTag && (
+							<UI.PinIconWrapper>
+								<UI.IconCamera
+									onClick={() => {
+										setShowImageInfo(!showImageInfo);
+									}}
+									src={locationPinIcon}
+									alt='pin-location'
+								/>
+							</UI.PinIconWrapper>
+						)}
 						{showImageInfo && (
 							<AddressDetailsCard
 								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
 								setShowImageInfo={setShowImageInfo}
-								city={CONST.address.city} //change and assign these props once the proper data is obtained
-								state={CONST.address.state} //change and assign these props once the proper data is obtained
-								pincode={CONST.address.pincode} //change and assign these props once the proper data is obtained
-								address1={CONST.address.address1} //change and assign these props once the proper data is obtained
-								// address2={CONST.address.address2} //change and assign these props once the proper data is obtained
-								coordinates={CONST.address.coordinates} //change and assign these props once the proper data is obtained
+								latitude={address.Lat} //change and assign these props once the proper data is obtained
+								longitude={address.Long}
+								timestamp={address.timestamp}
 								embedInImageUpload={true}
+								address={address.address}
 								// showCloseIcon={false}
 							/>
 						)}
