@@ -19,6 +19,7 @@ const initializeApplicantCoApplicant = {
 	documentTypes: [],
 	cacheDocuments: [],
 	api: {},
+	profileGeoLocation: {},
 };
 
 const initialState = {
@@ -401,6 +402,18 @@ export const applicantCoApplicantsSlice = createSlice({
 			state.coApplicants = newCoApplicants;
 		},
 		// -- EDIT LOAN
+
+		// SET GEOLOCATION FOR PROFILE PICTURE
+		setProfileGeoLocation: (state, action) => {
+			const { address, lat, long, timestamp } = action.payload;
+			let geoLocation = { address, lat, long, timestamp };
+			const selectedDirectorId = state.selectedApplicantCoApplicantId;
+			if (state.isApplicant) {
+				state.applicant.profileGeoLocation = geoLocation;
+			} else {
+				state.coApplicants[selectedDirectorId].profileGeoLocation = geoLocation;
+			}
+		},
 	},
 });
 export const {
@@ -432,7 +445,7 @@ export const {
 
 	addApplicantDocumentTypes,
 	addCoApplicantDocumentTypes,
-
+	setProfileGeoLocation,
 	setEditLoanApplicantsData,
 } = applicantCoApplicantsSlice.actions;
 

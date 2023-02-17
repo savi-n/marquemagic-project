@@ -614,6 +614,7 @@ const DocumentUpload = props => {
 				application,
 			});
 			const newUploadedDocuments = [];
+			// console.log('cache docs', cacheDocuments);
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
 
@@ -631,6 +632,7 @@ const DocumentUpload = props => {
 				});
 				return null;
 			});
+			// console.log('newUploadedDocuments', newUploadedDocuments);
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
 			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
 			// 	documentUploadReqBody,

@@ -45,7 +45,7 @@ function AddressDetailsCard(props) {
 				</UI.TextContent>
 				{latitude && (
 					<UI.TextContent>
-						Lat: {latitude} Long: {longitude}{' '}
+						Lat: {latitude} Long: {longitude} {timestamp}
 					</UI.TextContent>
 				)}
 			</UI.ImageText>

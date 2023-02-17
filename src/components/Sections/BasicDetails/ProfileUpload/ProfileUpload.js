@@ -4,10 +4,11 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import locationPinIcon from 'assets/icons/Geo_icon_2.png';
 import LoadingIcon from 'components/Loading/LoadingIcon';
-
+import { getGeoLocation } from 'utils/helper';
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
 import { useToasts } from '../../../Toast/ToastProvider';
 import { removeCacheDocument } from 'store/applicationSlice';
+import { setProfileGeoLocation } from 'store/applicantCoApplicantsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
@@ -33,17 +34,15 @@ const ProfileUpload = props => {
 		onChangeFormStateField,
 		isDisabled,
 		isTag = false,
-		address,
+		geoLocationAddress = {},
 	} = props;
-	const {
-		app,
-		application,
-		// applicantCoApplicants
-	} = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
+
+	const [picAddress, setPicAddress] = useState({});
 	// const {
 	// 	isApplicant,
 	// 	applicant,
@@ -62,7 +61,6 @@ const ProfileUpload = props => {
 	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	null;
 
-	console.log(address, 'address heer');
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -113,25 +111,34 @@ const ProfileUpload = props => {
 		},
 		onDrop: async acceptedFiles => {
 			try {
-				setLoading(true);
 				const formData = new FormData();
-				formData.append('white_label_id', whiteLabelId);
-				formData.append('document', acceptedFiles[0]);
-				if (acceptedFiles.length > 0) {
-					const profileRes = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-					const newFile = {
-						field,
-						...profileRes?.data,
-						preview: profileRes?.data?.presignedUrl,
-					};
-					addCacheDocumentTemp(newFile);
-				} else {
-					addToast({
-						message:
-							'File format is not supported. Please upload jpg, jpeg or png',
-						type: 'error',
-					});
-				}
+				setLoading(true);
+				// profilePicUpload API needs Lat and long, hence call geoLocation API from helper
+				getGeoLocation().then(res => {
+					formData.append('white_label_id', whiteLabelId);
+					formData.append('lat', res?.latitude || null);
+					formData.append('long', res?.longitude || null);
+					formData.append('document', acceptedFiles[0]);
+					if (acceptedFiles.length > 0) {
+						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
+							const newFile = {
+								field,
+								...resp?.data,
+								preview: resp?.data?.presignedUrl,
+							};
+							setPicAddress(resp?.data?.file);
+							dispatch(setProfileGeoLocation(resp?.data?.file));
+							addCacheDocumentTemp(newFile);
+						});
+					} else {
+						addToast({
+							message:
+								'File format is not supported. Please upload jpg, jpeg or png',
+							type: 'error',
+						});
+					}
+				});
+
 				// setProfileImageResTemp(profileRes?.data);
 				// setFiles(
 				// 	acceptedFiles.map(file =>
@@ -250,12 +257,27 @@ const ProfileUpload = props => {
 							<AddressDetailsCard
 								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
 								setShowImageInfo={setShowImageInfo}
-								latitude={address.Lat} //change and assign these props once the proper data is obtained
-								longitude={address.Long}
-								timestamp={address.timestamp}
+								latitude={
+									picAddress?.lat ||
+									uploadedFile?.lat ||
+									geoLocationAddress?.lat
+								} //change and assign these props once the proper data is obtained
+								longitude={
+									picAddress?.long ||
+									uploadedFile?.long ||
+									geoLocationAddress?.long
+								}
+								timestamp={
+									picAddress?.timestamp ||
+									uploadedFile?.timestamp ||
+									geoLocationAddress?.timestamp
+								}
 								embedInImageUpload={true}
-								address={address.address}
-								// showCloseIcon={false}
+								address={
+									picAddress?.address ||
+									uploadedFile?.address ||
+									geoLocationAddress?.address
+								}
 							/>
 						)}
 					</>
