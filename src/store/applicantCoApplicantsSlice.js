@@ -67,6 +67,7 @@ export const applicantCoApplicantsSlice = createSlice({
 				incomeDataId,
 				businessAddressIdAid1,
 				businessAddressIdAid2,
+				profileGeoLocation,
 			} = action.payload;
 			const newCoApplicants = _.cloneDeep(state.coApplicants);
 			if (Object.keys(newCoApplicants?.[directorId] || {}).length <= 0) {
@@ -78,8 +79,11 @@ export const applicantCoApplicantsSlice = createSlice({
 				? _.cloneDeep(newCoApplicants[directorId])
 				: _.cloneDeep(initializeApplicantCoApplicant);
 			newCoApplicantValues[sectionId] = sectionValues;
+
 			if (directorId) newCoApplicantValues.directorId = directorId;
 			if (employmentId) newCoApplicantValues.employmentId = employmentId;
+			if (profileGeoLocation)
+				newCoApplicantValues.profileGeoLocation = profileGeoLocation;
 			if (incomeDataId) newCoApplicantValues.incomeDataId = incomeDataId;
 			if (businessAddressIdAid1)
 				newCoApplicantValues.businessAddressIdAid1 = businessAddressIdAid1;
@@ -373,6 +377,7 @@ export const applicantCoApplicantsSlice = createSlice({
 		// EDIT LOAN
 		setEditLoanApplicantsData: (state, action) => {
 			const { editLoanData } = action.payload;
+			// console.log(editLoanData, 'in slice');
 			const applicant =
 				editLoanData?.director_details?.filter(d => d?.isApplicant)?.[0] || {};
 			const coApplicants =
@@ -407,11 +412,13 @@ export const applicantCoApplicantsSlice = createSlice({
 		setProfileGeoLocation: (state, action) => {
 			const { address, lat, long, timestamp } = action.payload;
 			let geoLocation = { address, lat, long, timestamp };
-			const selectedDirectorId = state.selectedApplicantCoApplicantId;
+			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
 			if (state.isApplicant) {
 				state.applicant.profileGeoLocation = geoLocation;
 			} else {
-				state.coApplicants[selectedDirectorId].profileGeoLocation = geoLocation;
+				// state.coApplicants[
+				// 	state.selectedApplicantCoApplicantId
+				// ].profileGeoLocation = geoLocation;
 			}
 		},
 	},

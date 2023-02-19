@@ -384,6 +384,12 @@ const BasicDetails = props => {
 			// TODO: varun update cin properly peding discussion with savita
 			newBasicDetails.directorId = newDirectorId;
 			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			newBasicDetails.profileGeoLocation = profilePicGeolocation || {
+				address: selectedApplicant?.address,
+				lat: selectedApplicant?.lat,
+				long: selectedApplicant?.long,
+				timestamp: selectedApplicant?.timestamp,
+			};
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else {
@@ -833,11 +839,24 @@ const BasicDetails = props => {
 					</Fragment>
 				);
 			})}
+			{/* {console.log('----', geoLocationData)} */}
 			<AddressDetailsCard
-				address={geoLocationData?.address || selectedApplicant?.address} //change and assign these props once the proper data is obtained
-				latitude={geoLocationData?.Lat || selectedApplicant?.lat} //change and assign these props once the proper data is obtained
-				longitude={geoLocationData?.Long || selectedApplicant?.long}
-				timestamp={geoLocationData?.timestamp || selectedApplicant?.timestamp}
+				address={
+					geoLocationData?.address ||
+					geoLocation?.address ||
+					selectedApplicant?.address
+				} //change and assign these props once the proper data is obtained
+				latitude={
+					geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
+				} //change and assign these props once the proper data is obtained
+				longitude={
+					geoLocationData?.Long || geoLocation?.long || selectedApplicant?.long
+				}
+				timestamp={
+					geoLocationData?.timestamp ||
+					geoLocation?.timestamp ||
+					selectedApplicant?.timestamp
+				}
 				showCloseIcon={false}
 				customStyle={{ marginBottom: '10px' }}
 			/>
