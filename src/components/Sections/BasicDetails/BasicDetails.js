@@ -107,6 +107,7 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
@@ -252,6 +253,11 @@ const BasicDetails = props => {
 				section: selectedSection,
 				values: {
 					...formState.values,
+					app_coordinates: {
+						lat: geoLocationData?.Lat,
+						long: geoLocationData?.Long,
+						timestamp: geoLocationData?.timestamp,
+					},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
@@ -378,6 +384,12 @@ const BasicDetails = props => {
 			// TODO: varun update cin properly peding discussion with savita
 			newBasicDetails.directorId = newDirectorId;
 			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			newBasicDetails.profileGeoLocation = profilePicGeolocation || {
+				address: selectedApplicant?.address,
+				lat: selectedApplicant?.lat,
+				long: selectedApplicant?.long,
+				timestamp: selectedApplicant?.timestamp,
+			};
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else {
@@ -479,6 +491,7 @@ const BasicDetails = props => {
 			mother_name: selectedApplicant?.mother_name,
 			upi_id: selectedApplicant?.upi_id,
 			profile_upload: selectedApplicant?.customer_picture,
+
 			relationship_with_applicant: selectedApplicant?.applicant_relationship,
 		};
 		return preData?.[field?.name];
@@ -694,7 +707,14 @@ const BasicDetails = props => {
 													onChangeFormStateField={onChangeFormStateField}
 													isDisabled={isViewLoan}
 													isTag={true}
-													address={profilePicGeolocation}
+													geoLocationAddress={
+														profilePicGeolocation || {
+															address: selectedApplicant?.address,
+															lat: selectedApplicant?.lat,
+															long: selectedApplicant?.long,
+															timestamp: selectedApplicant?.timestamp,
+														}
+													}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
@@ -819,19 +839,24 @@ const BasicDetails = props => {
 					</Fragment>
 				);
 			})}
+			{/* {console.log('----', geoLocationData)} */}
 			<AddressDetailsCard
-				// 	imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
-				// setShowImageInfo={setShowImageInfo}
-				// city={CONST_PROFILE_UPLOAD.address.city} //change and assign these props once the proper data is obtained
-				// state={CONST_PROFILE_UPLOAD.address.state} //change and assign these props once the proper data is obtained
-				// pincode={CONST_PROFILE_UPLOAD.address.pincode} //change and assign these props once the proper data is obtained
-				address={geoLocationData?.address} //change and assign these props once the proper data is obtained
-				// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
-				coordinates={{
-					lat: geoLocationData?.Lat,
-					long: geoLocationData?.Long,
-					timestamp: geoLocationData?.timestamp,
-				}} //change and assign these props once the proper data is obtained
+				address={
+					geoLocationData?.address ||
+					geoLocation?.address ||
+					selectedApplicant?.address
+				} //change and assign these props once the proper data is obtained
+				latitude={
+					geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
+				} //change and assign these props once the proper data is obtained
+				longitude={
+					geoLocationData?.Long || geoLocation?.long || selectedApplicant?.long
+				}
+				timestamp={
+					geoLocationData?.timestamp ||
+					geoLocation?.timestamp ||
+					selectedApplicant?.timestamp
+				}
 				showCloseIcon={false}
 				customStyle={{
 					marginBottom: '10px',

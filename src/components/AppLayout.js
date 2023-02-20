@@ -18,6 +18,7 @@ import {
 } from 'store/appSlice';
 import {
 	// reInitializeApplicationSlice,
+	setGeoLocation,
 	setLoanIds,
 	addOrUpdateCacheDocuments,
 	clearCacheDraftModeSectionsData,
@@ -146,6 +147,8 @@ const AppLayout = () => {
 							decryptedToken.loan_ref_id
 						}`
 					);
+					// console.log(loanDetailsRes?.data?.data, 'data resp');
+
 					const isEditLoan = decryptedToken.edit ? true : false;
 					const isViewLoan = !isEditLoan;
 					const newEditLoanData =
@@ -173,10 +176,13 @@ const AppLayout = () => {
 						newEditLoanData.lender_document =
 							viewLoanDetailsRes?.data?.loan_details?.[0]?.lender_document;
 					}
+					// console.log(newEditLoanData, 'newEditLoanData');
+					// console.log('isEdit', isEditLoan, 'isViewLoan', isViewLoan);
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
 					dispatch(setUserToken(decryptedToken.token));
 					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
+					dispatch(setGeoLocation(newEditLoanData.app_coordinates));
 					dispatch(
 						setEditLoanApplicantsData({ editLoanData: newEditLoanData })
 					);
