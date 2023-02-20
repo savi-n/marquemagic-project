@@ -114,30 +114,54 @@ const ProfileUpload = props => {
 				const formData = new FormData();
 				setLoading(true);
 				// profilePicUpload API needs Lat and long, hence call geoLocation API from helper
-				getGeoLocation().then(res => {
-					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', res?.latitude || null);
-					formData.append('long', res?.longitude || null);
-					formData.append('document', acceptedFiles[0]);
-					if (acceptedFiles.length > 0) {
-						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
-							const newFile = {
-								field,
-								...resp?.data,
-								preview: resp?.data?.presignedUrl,
-							};
-							setPicAddress(resp?.data?.file);
-							dispatch(setProfileGeoLocation(resp?.data?.file));
-							addCacheDocumentTemp(newFile);
-						});
-					} else {
-						addToast({
-							message:
-								'File format is not supported. Please upload jpg, jpeg or png',
-							type: 'error',
-						});
-					}
-				});
+				// await getGeoLocation().then(async res => {
+				// 	formData.append('white_label_id', whiteLabelId);
+				// 	formData.append('lat', res?.latitude || null);
+				// 	formData.append('long', res?.longitude || null);
+				// 	formData.append('document', acceptedFiles[0]);
+				// 	if (acceptedFiles.length > 0) {
+				// 		await axios
+				// 			.post(UPLOAD_PROFILE_IMAGE, formData)
+				// 			.then(async resp => {
+				// 				const newFile = {
+				// 					field,
+				// 					...resp?.data,
+				// 					preview: resp?.data?.presignedUrl,
+				// 				};
+				// 				setPicAddress(resp?.data?.file);
+				// 				dispatch(setProfileGeoLocation(resp?.data?.file));
+				// 				addCacheDocumentTemp(newFile);
+				// 			});
+				// 	} else {
+				// 		addToast({
+				// 			message:
+				// 				'File format is not supported. Please upload jpg, jpeg or png',
+				// 			type: 'error',
+				// 		});
+				// 	}
+				// });
+				const res = await getGeoLocation();
+				formData.append('white_label_id', whiteLabelId);
+				formData.append('lat', res?.latitude || null);
+				formData.append('long', res?.longitude || null);
+				formData.append('document', acceptedFiles[0]);
+				if (acceptedFiles.length > 0) {
+					const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+					const newFile = {
+						field,
+						...resp?.data,
+						preview: resp?.data?.presignedUrl,
+					};
+					setPicAddress(resp?.data?.file);
+					dispatch(setProfileGeoLocation(resp?.data?.file));
+					addCacheDocumentTemp(newFile);
+				} else {
+					addToast({
+						message:
+							'File format is not supported. Please upload jpg, jpeg or png',
+						type: 'error',
+					});
+				}
 
 				// setProfileImageResTemp(profileRes?.data);
 				// setFiles(
@@ -253,6 +277,7 @@ const ProfileUpload = props => {
 								/>
 							</UI.PinIconWrapper>
 						)}
+
 						{showImageInfo && (
 							<AddressDetailsCard
 								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained

@@ -428,22 +428,14 @@ const BasicDetails = props => {
 	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
-		const coordinates = await getGeoLocation();
-		const reqBody = {
-			lat: coordinates?.latitude,
-			long: coordinates?.longitude,
+		const geoLocationTag = {
+			lat: file?.lat,
+			long: file?.long,
+			address: file?.address,
+			timestamp: file?.timestamp,
 		};
-		// console.log(userToken);
-		const geoLocationRes = await axios.post(
-			`${API.API_END_POINT}/geoLocation`,
-			reqBody,
-			{
-				headers: {
-					Authorization: `Bearer ${userToken}`,
-				},
-			}
-		);
-		setProfilePicGeolocation(geoLocationRes.data.data);
+
+		setProfilePicGeolocation(geoLocationTag);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
