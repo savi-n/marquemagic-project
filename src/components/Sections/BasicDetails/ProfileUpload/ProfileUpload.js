@@ -17,7 +17,7 @@ import { decryptViewDocumentUrl } from 'utils/encrypt';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
-import * as CONST from './const';
+// import * as CONST from './const';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 
 const ProfileUpload = props => {

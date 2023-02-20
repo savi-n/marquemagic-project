@@ -26,8 +26,9 @@ function AddressDetailsCard(props) {
 		>
 			<UI.TextIcon src={locationPinIcon} />
 			<UI.ImageText>
-				<UI.TextContent>
-					{/*since we will be receiving address in a signle string*/}
+				<UI.TextHeader>{city}</UI.TextHeader>
+				<UI.TextContent embedInImageUpload={embedInImageUpload}>
+					{/*since we will be receiving address in a single string*/}
 					{address?.length > stringLength && !displayCompleteAddress ? (
 						<p>
 							{address?.slice(0, stringLength)}
@@ -44,7 +45,7 @@ function AddressDetailsCard(props) {
 					)}
 				</UI.TextContent>
 				{latitude && (
-					<UI.TextContent>
+					<UI.TextContent embedInImageUpload={embedInImageUpload}>
 						Lat: {latitude} Long: {longitude} {timestamp}
 					</UI.TextContent>
 				)}

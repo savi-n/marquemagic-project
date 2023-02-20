@@ -858,7 +858,10 @@ const BasicDetails = props => {
 					selectedApplicant?.timestamp
 				}
 				showCloseIcon={false}
-				customStyle={{ marginBottom: '10px' }}
+				customStyle={{
+					marginBottom: '10px',
+				}}
+				embedInImageUpload={false}
 			/>
 			<UI_SECTIONS.Footer>
 				{!isViewLoan && (
