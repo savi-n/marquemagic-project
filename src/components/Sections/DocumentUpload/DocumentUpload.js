@@ -955,7 +955,7 @@ const DocumentUpload = props => {
 					</div>
 				);
 			})}
-			<UI.VerificationSectionWrapper>
+			{/* <UI.VerificationSectionWrapper>
 				<UI.VerificationSection isLocation={!!geoLocationData}>
 					<ProfileUpload
 						onChangeFormStateField={onChangeFormStateField}
@@ -983,7 +983,7 @@ const DocumentUpload = props => {
 						/>
 					</UI.VerificationSection>
 				)}
-			</UI.VerificationSectionWrapper>
+			</UI.VerificationSectionWrapper> */}
 
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
@@ -992,25 +992,79 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}{' '}
+								{sub_section?.name}
+
 								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
 								if (!field?.visibility) return null;
-								return (
-									<Textarea
-										key={`field-${field.name}`}
-										{...field}
-										value={commentsForOfficeUse}
-										onChange={e => {
-											dispatch(setCommentsForOfficeUse(e.target.value));
-										}}
-										loading={savingComments}
-										disabled={savingComments || isViewLoan}
-										floatingLabel={false}
-									/>
-								);
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
+								if (
+									field.type === 'file' &&
+									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
+								) {
+									// prefilledProfileUploadValue = prefilledValues(field);
+									// console.log('prefilledProfileUploadValue-', {
+									// 	prefilledProfileUploadValue,
+									// 	selectedApplicant,
+									// });
+									return (
+										<UI.VerificationSectionWrapper>
+											<UI.VerificationSection isLocation={!!geoLocationData}>
+												<ProfileUpload
+													onChangeFormStateField={onChangeFormStateField}
+													value={prefilledProfileUploadValue}
+													uploadedFile={profileUploadedFile}
+													cacheDocumentsTemp={cacheDocumentsTemp}
+													addCacheDocumentTemp={addCacheDocumentTemp}
+													removeCacheDocumentTemp={() =>
+														removeCacheDocumentTemp('profile_upload')
+													}
+													section={'documentUpload'}
+												/>
+											</UI.VerificationSection>
+											{geoLocationData && (
+												<UI.VerificationSection isLocation={!!geoLocationData}>
+													<AddressDetailsCard
+														address={geoLocationData?.address} //change and assign these props once the proper data is obtained
+														// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+														latitude={geoLocationData?.Lat}
+														longitude={geoLocationData?.Long}
+														timestamp={geoLocationData?.timestamp}
+														//change and assign these props once the proper data is obtained
+														showCloseIcon={false}
+														customStyle={{ bottom: '0px' }}
+													/>
+												</UI.VerificationSection>
+											)}
+										</UI.VerificationSectionWrapper>
+									);
+								}
+								if (field.type === 'textarea') {
+									return (
+										<Textarea
+											key={`field-${field.name}`}
+											{...field}
+											value={commentsForOfficeUse}
+											onChange={e => {
+												dispatch(setCommentsForOfficeUse(e.target.value));
+											}}
+											loading={savingComments}
+											disabled={savingComments || isViewLoan}
+											floatingLabel={false}
+										/>
+									);
+								}
 							})}
 							<UI.Divider />
 						</UI.CommentsForOfficeUserWrapper>

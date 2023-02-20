@@ -35,6 +35,7 @@ const ProfileUpload = props => {
 		isDisabled,
 		isTag = false,
 		geoLocationAddress = {},
+		section = 'basicDetails',
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
