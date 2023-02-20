@@ -66,7 +66,7 @@ export const TextHeader = styled.h2`
 `;
 export const TextContent = styled.p`
 	height: fit-content;
-	flex-wrap: wrap;
+	word-break: break-all;
 	font-size: ${({ embedInImageUpload }) =>
 		embedInImageUpload ? '12px' : '15.5px'};
 	@media (max-width: 1100px) {

@@ -977,7 +977,13 @@ const DocumentUpload = props => {
 							timestamp={geoLocationData?.timestamp}
 							//change and assign these props once the proper data is obtained
 							showCloseIcon={false}
-							customStyle={{ bottom: '0px' }}
+							customStyle={{
+								width: 'fit-content',
+								position: 'relative',
+								bottom: '-45%',
+								heigth: 'fit-content',
+								maxHeight: 'fit-content',
+							}}
 						/>
 					</UI.VerificationSection>
 				)}
