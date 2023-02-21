@@ -72,16 +72,17 @@ const DocumentUpload = props => {
 		allDocumentTypes,
 		cacheDocuments,
 		commentsForOfficeUse,
+		userId,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
 	const selectedApplicantDocumentTypes = allDocumentTypes?.filter(
-		docType => `${docType.directorId}` === `${directorId}`
+		docType => `${docType?.directorId}` === `${directorId}`
 	);
 	const selectedApplicantDocuments = cacheDocuments.filter(
-		doc => `${doc.directorId}` === `${directorId}`
+		doc => `${doc?.directorId}` === `${directorId}`
 	);
 	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
@@ -484,6 +485,8 @@ const DocumentUpload = props => {
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
 		// eslint-disable-next-line
+
+		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
 	}, []);
 
 	const buttonDisabledStatus = () => {
@@ -807,51 +810,50 @@ const DocumentUpload = props => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
 		// setGettingGeoLocation(true);
-		const coordinates = await getGeoLocation();
-		const reqBody = {
-			lat: coordinates?.latitude,
-			long: coordinates?.longitude,
+		// const coordinates = await getGeoLocation();
+		const geoLocationTag = {
+			lat: file?.latitude,
+			long: file?.longitude,
+			timestamp: file?.timestamp,
 		};
-		// console.log(userToken);
-		const geoLocationRes = await axios.post(
-			`${API.API_END_POINT}/geoLocation`,
-			reqBody,
-			{
-				headers: {
-					Authorization: `Bearer ${userToken}`,
-				},
-			}
-		);
-		setGeoLocationData(geoLocationRes.data.data);
+
+		setGeoLocationData(geoLocationTag);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	const profileUploadedFile =
 		cacheDocumentsTemp?.[0] ||
-		// cacheDocumentsTemp?.filter(
-		// 	doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-		// )?.[0] ||
-		// cacheDocuments?.filter(
-		// 	doc =>
-		// 		doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME &&
-		// 		`${doc?.directorId}` === `${directorId}`
-		// )?.[0] ||
+		cacheDocumentsTemp?.filter(
+			doc => doc?.field?.name === CONST.SELFIE_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		cacheDocuments?.filter(
+			doc =>
+				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
+				`${doc?.directorId}` === `${directorId}`
+		)?.[0] ||
 		null;
 
-	const removeCacheDocumentTemp = fieldName => {
+	const removeCacheDocumentTemp = async file => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
-		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
-			0
-		) {
-			setCacheDocumentsTemp(
-				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
-			);
-		} else {
-			dispatch(removeCacheDocument({ fieldName }));
-		}
+		// const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		// if (
+		// 	cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
+		// 	0
+		// ) {
+		// 	setCacheDocumentsTemp(
+		// 		newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
+		// 	);
+		// } else {
+		// 	dispatch(removeCacheDocument({ fieldName }));
+		// }
+		const reqBody = {
+			loan_doc_id: file?.document_id || '',
+			business_id: businessId,
+			loan_id: loanId,
+			userid: userId,
+		};
+		await axios.post(API.DELETE_DOCUMENT, reqBody);
 	};
 
 	// console.log('DocumentUpload-allStates-', {
@@ -1024,10 +1026,12 @@ const DocumentUpload = props => {
 									// 	prefilledProfileUploadValue,
 									// 	selectedApplicant,
 									// });
+
 									return (
 										<UI.VerificationSectionWrapper>
 											<UI.VerificationSection isLocation={!!geoLocationData}>
 												<ProfileUpload
+													field={field}
 													onChangeFormStateField={onChangeFormStateField}
 													value={prefilledProfileUploadValue}
 													uploadedFile={profileUploadedFile}
@@ -1036,16 +1040,18 @@ const DocumentUpload = props => {
 													removeCacheDocumentTemp={() =>
 														removeCacheDocumentTemp('profile_upload')
 													}
+													selectedApplicant={selectedApplicant}
 													section={'documentUpload'}
 												/>
 											</UI.VerificationSection>
-											{geoLocationData && (
+
+											{Object.keys(geoLocationData).length > 0 && (
 												<UI.VerificationSection isLocation={!!geoLocationData}>
 													<AddressDetailsCard
 														address={geoLocationData?.address} //change and assign these props once the proper data is obtained
 														// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
-														latitude={geoLocationData?.Lat}
-														longitude={geoLocationData?.Long}
+														latitude={geoLocationData?.lat}
+														longitude={geoLocationData?.long}
 														timestamp={geoLocationData?.timestamp}
 														//change and assign these props once the proper data is obtained
 														showCloseIcon={false}
