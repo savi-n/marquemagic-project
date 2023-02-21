@@ -1,5 +1,6 @@
 /* Input field for Input type */
 
+import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Input = styled.input`
@@ -110,10 +111,25 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function InputField(props) {
+	const quantityInputRef = useRef(null);
+
+	useEffect(() => {
+		const ignoreScroll = e => {
+			e.preventDefault();
+		};
+		quantityInputRef.current &&
+			quantityInputRef.current.addEventListener('wheel', ignoreScroll);
+	}, [quantityInputRef]);
+
 	const isLargeTextLable = props.name.length > 15;
 	return (
 		<Div>
-			<Input id={props.name} type={props.type} {...props} />
+			<Input
+				id={props.name}
+				type={props.type}
+				{...props}
+				ref={quantityInputRef}
+			/>
 			<Label
 				isLargeTextLable={isLargeTextLable}
 				value={props.value}
