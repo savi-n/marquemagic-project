@@ -21,7 +21,10 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
-import { removeCacheDocument } from 'store/applicantCoApplicantsSlice';
+import {
+	removeCacheDocument,
+	setDocumentSelfieGeoLocation,
+} from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -821,6 +824,7 @@ const DocumentUpload = props => {
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
+	// console.log('profile', cacheDocuments);
 	const profileUploadedFile =
 		cacheDocumentsTemp?.[0] ||
 		cacheDocumentsTemp?.filter(
@@ -833,27 +837,32 @@ const DocumentUpload = props => {
 		)?.[0] ||
 		null;
 
-	const removeCacheDocumentTemp = async file => {
+	const removeCacheDocumentTemp = fieldName => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
-		// const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-		// if (
-		// 	cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
-		// 	0
-		// ) {
-		// 	setCacheDocumentsTemp(
-		// 		newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
-		// 	);
-		// } else {
+		// console.log('cacheDocumentsTemp', cacheDocumentsTemp, fieldName);
+
+		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		let docsTemp = cacheDocumentsTemp.filter(
+			doc => doc?.field?.name === fieldName
+		);
+		if (docsTemp?.length > 0) {
+			let temp = newCacheDocumentTemp.filter(
+				doc => doc?.field?.name !== fieldName
+			);
+			setCacheDocumentsTemp(temp);
+			dispatch(setDocumentSelfieGeoLocation({}));
+		}
+		// else {
 		// 	dispatch(removeCacheDocument({ fieldName }));
 		// }
-		const reqBody = {
-			loan_doc_id: file?.document_id || '',
-			business_id: businessId,
-			loan_id: loanId,
-			userid: userId,
-		};
-		await axios.post(API.DELETE_DOCUMENT, reqBody);
+		// const reqBody = {
+		// 	loan_doc_id: file?.document_id || '',
+		// 	business_id: businessId,
+		// 	loan_id: loanId,
+		// 	userid: userId,
+		// };
+		// await axios.post(API.DELETE_DOCUMENT, reqBody);
 	};
 
 	// console.log('DocumentUpload-allStates-', {
@@ -957,41 +966,6 @@ const DocumentUpload = props => {
 					</div>
 				);
 			})}
-			{/* <UI.VerificationSectionWrapper>
-				<UI.VerificationSection isLocation={!!geoLocationData}>
-					<ProfileUpload
-						onChangeFormStateField={onChangeFormStateField}
-						value={prefilledProfileUploadValue}
-						uploadedFile={profileUploadedFile}
-						cacheDocumentsTemp={cacheDocumentsTemp}
-						addCacheDocumentTemp={addCacheDocumentTemp}
-						removeCacheDocumentTemp={() =>
-							removeCacheDocumentTemp('profile_upload')
-						}
-					/>
-				</UI.VerificationSection>
-
-				{geoLocationData && (
-					<UI.VerificationSection isLocation={!!geoLocationData}>
-						<AddressDetailsCard
-							address={geoLocationData?.address} //change and assign these props once the proper data is obtained
-							// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
-							latitude={geoLocationData?.Lat}
-							longitude={geoLocationData?.Long}
-							timestamp={geoLocationData?.timestamp}
-							//change and assign these props once the proper data is obtained
-							showCloseIcon={false}
-							customStyle={{
-								width: 'fit-content',
-								position: 'relative',
-								bottom: '-45%',
-								heigth: 'fit-content',
-								maxHeight: 'fit-content',
-							}}
-						/>
-					</UI.VerificationSection>
-				)}
-			</UI.VerificationSectionWrapper> */}
 
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
@@ -1037,9 +1011,7 @@ const DocumentUpload = props => {
 													uploadedFile={profileUploadedFile}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={() =>
-														removeCacheDocumentTemp('profile_upload')
-													}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													selectedApplicant={selectedApplicant}
 													section={'documentUpload'}
 												/>

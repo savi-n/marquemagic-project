@@ -101,13 +101,15 @@ const ProfileUpload = props => {
 
 	const deleteDocument = async file => {
 		try {
+			// console.log('delete file ', file);
+
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
 			setLoading(true);
 			const reqBody = {
 				loan_doc_id: file?.document_id || '',
 				business_id: businessId,
 				loan_id: loanId,
-				userid: userId,
+				userid: createdByUserId,
 			};
 			// console.log('reqBody-', reqBody);
 			// return;
@@ -161,9 +163,15 @@ const ProfileUpload = props => {
 								.post(UPLOAD_SELFIE_APPLICANT_COAPPLICANT, formData)
 								.then(resp => {
 									const newFile = {
+										id: resp?.data?.document_details_data?.doc_id,
+										document_id: resp?.data?.document_details_data?.doc_id,
+										fileId: resp?.data?.document_details_data?.doc_id,
+										doc_type_id: field?.doc_type?.[selectedIncomeType],
+										directorId: selectedApplicant.directorId,
 										field,
 										...res,
 										preview: resp?.data?.presignedUrl,
+										...resp?.data?.uploaded_data,
 									};
 									setPicAddress(newFile);
 									dispatch(
