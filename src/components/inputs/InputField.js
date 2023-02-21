@@ -1,6 +1,6 @@
 /* Input field for Input type */
 
-import { useRef, useEffect } from 'react';
+// import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Input = styled.input`

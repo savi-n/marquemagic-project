@@ -21,3 +21,4 @@ export const COMMENT_FOR_OFFICE_USE_FIELD_NAME = 'comment_for_office_use';
 
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 export const PROFILE_UPLOAD_FIELD_NAME = 'profile_upload';
+export const SELFIE_UPLOAD_FIELD_NAME = 'on_site_selfie';

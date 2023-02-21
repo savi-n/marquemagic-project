@@ -7,12 +7,21 @@ import LoadingIcon from 'components/Loading/LoadingIcon';
 import { getGeoLocation } from 'utils/helper';
 // import iconCameraBlue from 'assets/icons/camera_blue.png';
 import { useToasts } from '../../../Toast/ToastProvider';
-import { removeCacheDocument } from 'store/applicationSlice';
-import { setProfileGeoLocation } from 'store/applicantCoApplicantsSlice';
+import {
+	removeCacheDocument,
+	addOrUpdateCacheDocument,
+} from 'store/applicationSlice';
+import {
+	setProfileGeoLocation,
+	setDocumentSelfieGeoLocation,
+} from 'store/applicantCoApplicantsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
-import { UPLOAD_PROFILE_IMAGE } from '_config/app.config';
+import {
+	UPLOAD_PROFILE_IMAGE,
+	UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
+} from '_config/app.config';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
@@ -35,12 +44,21 @@ const ProfileUpload = props => {
 		isDisabled,
 		isTag = false,
 		geoLocationAddress = {},
+		section = 'basicDetails',
+		selectedApplicant,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
-	const { loanId, businessUserId, businessId, userId } = application;
+	const {
+		loanId,
+		loanRefId,
+		createdByUserId,
+		businessUserId,
+		businessId,
+		userId,
+	} = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	// const {
@@ -83,13 +101,15 @@ const ProfileUpload = props => {
 
 	const deleteDocument = async file => {
 		try {
+			// console.log('delete file ', file);
+
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
 			setLoading(true);
 			const reqBody = {
 				loan_doc_id: file?.document_id || '',
 				business_id: businessId,
 				loan_id: loanId,
-				userid: userId,
+				userid: createdByUserId,
 			};
 			// console.log('reqBody-', reqBody);
 			// return;
@@ -111,58 +131,120 @@ const ProfileUpload = props => {
 		},
 		onDrop: async acceptedFiles => {
 			try {
+				console.log(props, 'profileUpload Props');
 				const formData = new FormData();
+				// const newFile = {};
 				setLoading(true);
-				// profilePicUpload API needs Lat and long, hence call geoLocation API from helper
-				// await getGeoLocation().then(async res => {
-				// 	formData.append('white_label_id', whiteLabelId);
-				// 	formData.append('lat', res?.latitude || null);
-				// 	formData.append('long', res?.longitude || null);
-				// 	formData.append('document', acceptedFiles[0]);
-				// 	if (acceptedFiles.length > 0) {
-				// 		await axios
-				// 			.post(UPLOAD_PROFILE_IMAGE, formData)
-				// 			.then(async resp => {
-				// 				const newFile = {
-				// 					field,
-				// 					...resp?.data,
-				// 					preview: resp?.data?.presignedUrl,
-				// 				};
-				// 				setPicAddress(resp?.data?.file);
-				// 				dispatch(setProfileGeoLocation(resp?.data?.file));
-				// 				addCacheDocumentTemp(newFile);
-				// 			});
-				// 	} else {
-				// 		addToast({
-				// 			message:
-				// 				'File format is not supported. Please upload jpg, jpeg or png',
-				// 			type: 'error',
-				// 		});
-				// 	}
-				// });
-				const res = await getGeoLocation();
-				formData.append('white_label_id', whiteLabelId);
-				formData.append('lat', res?.latitude || null);
-				formData.append('long', res?.longitude || null);
-				formData.append('document', acceptedFiles[0]);
-				if (acceptedFiles.length > 0) {
-					const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-					const newFile = {
-						field,
-						...resp?.data,
-						preview: resp?.data?.presignedUrl,
-					};
-					setPicAddress(resp?.data?.file);
-					dispatch(setProfileGeoLocation(resp?.data?.file));
-					addCacheDocumentTemp(newFile);
-				} else {
-					addToast({
-						message:
-							'File format is not supported. Please upload jpg, jpeg or png',
-						type: 'error',
-					});
-				}
 
+				// const res = await getGeoLocation();
+				// formData.append('white_label_id', whiteLabelId);
+				// formData.append('lat', res?.latitude || null);
+				// formData.append('long', res?.longitude || null);
+				// formData.append('document', acceptedFiles[0]);
+				// if (acceptedFiles.length > 0) {
+				// 	const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+				// 	const newFile = {
+				// 		field,
+				// 		...resp?.data,
+				// 		preview: resp?.data?.presignedUrl,
+				// 	};
+				// 	setPicAddress(resp?.data?.file);
+				// 	dispatch(setProfileGeoLocation(resp?.data?.file));
+				// 	addCacheDocumentTemp(newFile);
+				// } else {
+				// 	addToast({
+				// 		message:
+				// 			'File format is not supported. Please upload jpg, jpeg or png',
+				// 		type: 'error',
+				// 	});
+				// }
+
+				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
+				getGeoLocation().then(res => {
+					// Document Upload Selfie Upload section
+
+					if (section === 'documentUpload') {
+						const selectedIncomeType =
+							selectedApplicant?.basic_details?.[
+								CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
+							] || selectedApplicant?.income_type;
+
+						formData.append('white_label_id', whiteLabelId);
+						formData.append('lat', res?.latitude || null);
+						formData.append('long', res?.longitude || null);
+						formData.append('timestamp', res?.timestamp || null);
+						formData.append('loan_ref_id', loanRefId || null);
+						formData.append('loan_id', loanId || null);
+						formData.append('director_id', selectedApplicant.directorId);
+						formData.append('user_id', createdByUserId || null);
+						formData.append(
+							'doc_type_id',
+							field?.doc_type?.[selectedIncomeType] || null
+						);
+						formData.append('document', acceptedFiles[0]);
+						if (acceptedFiles.length > 0) {
+							axios
+								.post(UPLOAD_SELFIE_APPLICANT_COAPPLICANT, formData)
+								.then(resp => {
+									const newFile = {
+										id: resp?.data?.document_details_data?.doc_id,
+										document_id: resp?.data?.document_details_data?.doc_id,
+										fileId: resp?.data?.document_details_data?.doc_id,
+										doc_type_id: field?.doc_type?.[selectedIncomeType],
+										directorId: selectedApplicant.directorId,
+										field,
+										...res,
+										preview: resp?.data?.presignedUrl,
+										...resp?.data?.uploaded_data,
+									};
+									setPicAddress(newFile);
+									dispatch(
+										setDocumentSelfieGeoLocation(resp?.data?.uploaded_data)
+									);
+									addCacheDocumentTemp(newFile);
+									dispatch(
+										addOrUpdateCacheDocument({
+											file: {
+												...newFile,
+												directorId: selectedApplicant.directorId,
+												doc_type_id: field?.doc_type?.[selectedIncomeType],
+											},
+										})
+									);
+								});
+						} else {
+							addToast({
+								message:
+									'File format is not supported. Please upload jpg, jpeg or png',
+								type: 'error',
+							});
+						}
+					} else {
+						// Basic details Profile Pic Upload section
+						formData.append('white_label_id', whiteLabelId);
+						formData.append('lat', res?.latitude || null);
+						formData.append('long', res?.longitude || null);
+						formData.append('document', acceptedFiles[0]);
+						if (acceptedFiles.length > 0) {
+							axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
+								const newFile = {
+									field,
+									...resp?.data,
+									preview: resp?.data?.presignedUrl,
+								};
+								setPicAddress(resp?.data?.file);
+								dispatch(setProfileGeoLocation(resp?.data?.file));
+								addCacheDocumentTemp(newFile);
+							});
+						} else {
+							addToast({
+								message:
+									'File format is not supported. Please upload jpg, jpeg or png',
+								type: 'error',
+							});
+						}
+					}
+				});
 				// setProfileImageResTemp(profileRes?.data);
 				// setFiles(
 				// 	acceptedFiles.map(file =>

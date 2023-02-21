@@ -21,7 +21,10 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
-import { removeCacheDocument } from 'store/applicantCoApplicantsSlice';
+import {
+	removeCacheDocument,
+	setDocumentSelfieGeoLocation,
+} from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -72,16 +75,17 @@ const DocumentUpload = props => {
 		allDocumentTypes,
 		cacheDocuments,
 		commentsForOfficeUse,
+		userId,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
 	const selectedApplicantDocumentTypes = allDocumentTypes?.filter(
-		docType => `${docType.directorId}` === `${directorId}`
+		docType => `${docType?.directorId}` === `${directorId}`
 	);
 	const selectedApplicantDocuments = cacheDocuments.filter(
-		doc => `${doc.directorId}` === `${directorId}`
+		doc => `${doc?.directorId}` === `${directorId}`
 	);
 	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
@@ -484,6 +488,8 @@ const DocumentUpload = props => {
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
 		// eslint-disable-next-line
+
+		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
 	}, []);
 
 	const buttonDisabledStatus = () => {
@@ -807,51 +813,56 @@ const DocumentUpload = props => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
 		// setGettingGeoLocation(true);
-		const coordinates = await getGeoLocation();
-		const reqBody = {
-			lat: coordinates?.latitude,
-			long: coordinates?.longitude,
+		// const coordinates = await getGeoLocation();
+		const geoLocationTag = {
+			lat: file?.latitude,
+			long: file?.longitude,
+			timestamp: file?.timestamp,
 		};
-		// console.log(userToken);
-		const geoLocationRes = await axios.post(
-			`${API.API_END_POINT}/geoLocation`,
-			reqBody,
-			{
-				headers: {
-					Authorization: `Bearer ${userToken}`,
-				},
-			}
-		);
-		setGeoLocationData(geoLocationRes.data.data);
+
+		setGeoLocationData(geoLocationTag);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
+	// console.log('profile', cacheDocuments);
 	const profileUploadedFile =
 		cacheDocumentsTemp?.[0] ||
-		// cacheDocumentsTemp?.filter(
-		// 	doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-		// )?.[0] ||
-		// cacheDocuments?.filter(
-		// 	doc =>
-		// 		doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME &&
-		// 		`${doc?.directorId}` === `${directorId}`
-		// )?.[0] ||
+		cacheDocumentsTemp?.filter(
+			doc => doc?.field?.name === CONST.SELFIE_UPLOAD_FIELD_NAME
+		)?.[0] ||
+		cacheDocuments?.filter(
+			doc =>
+				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
+				`${doc?.directorId}` === `${directorId}`
+		)?.[0] ||
 		null;
 
 	const removeCacheDocumentTemp = fieldName => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
+		// console.log('cacheDocumentsTemp', cacheDocumentsTemp, fieldName);
+
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
-			0
-		) {
-			setCacheDocumentsTemp(
-				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
+		let docsTemp = cacheDocumentsTemp.filter(
+			doc => doc?.field?.name === fieldName
+		);
+		if (docsTemp?.length > 0) {
+			let temp = newCacheDocumentTemp.filter(
+				doc => doc?.field?.name !== fieldName
 			);
-		} else {
-			dispatch(removeCacheDocument({ fieldName }));
+			setCacheDocumentsTemp(temp);
+			dispatch(setDocumentSelfieGeoLocation({}));
 		}
+		// else {
+		// 	dispatch(removeCacheDocument({ fieldName }));
+		// }
+		// const reqBody = {
+		// 	loan_doc_id: file?.document_id || '',
+		// 	business_id: businessId,
+		// 	loan_id: loanId,
+		// 	userid: userId,
+		// };
+		// await axios.post(API.DELETE_DOCUMENT, reqBody);
 	};
 
 	// console.log('DocumentUpload-allStates-', {
@@ -955,41 +966,6 @@ const DocumentUpload = props => {
 					</div>
 				);
 			})}
-			<UI.VerificationSectionWrapper>
-				<UI.VerificationSection isLocation={!!geoLocationData}>
-					<ProfileUpload
-						onChangeFormStateField={onChangeFormStateField}
-						value={prefilledProfileUploadValue}
-						uploadedFile={profileUploadedFile}
-						cacheDocumentsTemp={cacheDocumentsTemp}
-						addCacheDocumentTemp={addCacheDocumentTemp}
-						removeCacheDocumentTemp={() =>
-							removeCacheDocumentTemp('profile_upload')
-						}
-					/>
-				</UI.VerificationSection>
-
-				{geoLocationData && (
-					<UI.VerificationSection isLocation={!!geoLocationData}>
-						<AddressDetailsCard
-							address={geoLocationData?.address} //change and assign these props once the proper data is obtained
-							// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
-							latitude={geoLocationData?.Lat}
-							longitude={geoLocationData?.Long}
-							timestamp={geoLocationData?.timestamp}
-							//change and assign these props once the proper data is obtained
-							showCloseIcon={false}
-							customStyle={{
-								width: 'fit-content',
-								position: 'relative',
-								bottom: '-45%',
-								heigth: 'fit-content',
-								maxHeight: 'fit-content',
-							}}
-						/>
-					</UI.VerificationSection>
-				)}
-			</UI.VerificationSectionWrapper>
 
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
@@ -998,25 +974,81 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}{' '}
+								{sub_section?.name}
+
 								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
 								if (!field?.visibility) return null;
-								return (
-									<Textarea
-										key={`field-${field.name}`}
-										{...field}
-										value={commentsForOfficeUse}
-										onChange={e => {
-											dispatch(setCommentsForOfficeUse(e.target.value));
-										}}
-										loading={savingComments}
-										disabled={savingComments || isViewLoan}
-										floatingLabel={false}
-									/>
-								);
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
+								if (
+									field.type === 'file' &&
+									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
+								) {
+									// prefilledProfileUploadValue = prefilledValues(field);
+									// console.log('prefilledProfileUploadValue-', {
+									// 	prefilledProfileUploadValue,
+									// 	selectedApplicant,
+									// });
+
+									return (
+										<UI.VerificationSectionWrapper>
+											<UI.VerificationSection isLocation={!!geoLocationData}>
+												<ProfileUpload
+													field={field}
+													onChangeFormStateField={onChangeFormStateField}
+													value={prefilledProfileUploadValue}
+													uploadedFile={profileUploadedFile}
+													cacheDocumentsTemp={cacheDocumentsTemp}
+													addCacheDocumentTemp={addCacheDocumentTemp}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
+													selectedApplicant={selectedApplicant}
+													section={'documentUpload'}
+												/>
+											</UI.VerificationSection>
+
+											{Object.keys(geoLocationData).length > 0 && (
+												<UI.VerificationSection isLocation={!!geoLocationData}>
+													<AddressDetailsCard
+														address={geoLocationData?.address} //change and assign these props once the proper data is obtained
+														// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+														latitude={geoLocationData?.lat}
+														longitude={geoLocationData?.long}
+														timestamp={geoLocationData?.timestamp}
+														//change and assign these props once the proper data is obtained
+														showCloseIcon={false}
+														customStyle={{ bottom: '0px' }}
+													/>
+												</UI.VerificationSection>
+											)}
+										</UI.VerificationSectionWrapper>
+									);
+								}
+								if (field.type === 'textarea') {
+									return (
+										<Textarea
+											key={`field-${field.name}`}
+											{...field}
+											value={commentsForOfficeUse}
+											onChange={e => {
+												dispatch(setCommentsForOfficeUse(e.target.value));
+											}}
+											loading={savingComments}
+											disabled={savingComments || isViewLoan}
+											floatingLabel={false}
+										/>
+									);
+								}
 							})}
 							<UI.Divider />
 						</UI.CommentsForOfficeUserWrapper>
