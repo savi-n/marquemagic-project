@@ -111,16 +111,6 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function InputField(props) {
-	const quantityInputRef = useRef(null);
-
-	useEffect(() => {
-		const ignoreScroll = e => {
-			e.preventDefault();
-		};
-		quantityInputRef.current &&
-			quantityInputRef.current.addEventListener('wheel', ignoreScroll);
-	}, [quantityInputRef]);
-
 	const isLargeTextLable = props.name.length > 15;
 	return (
 		<Div>
@@ -128,7 +118,7 @@ export default function InputField(props) {
 				id={props.name}
 				type={props.type}
 				{...props}
-				ref={quantityInputRef}
+				onWheel={() => document.activeElement.blur()}
 			/>
 			<Label
 				isLargeTextLable={isLargeTextLable}
