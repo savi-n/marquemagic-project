@@ -5,7 +5,6 @@ import axios from 'axios';
 import locationPinIcon from 'assets/icons/Geo_icon_2.png';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import { getGeoLocation } from 'utils/helper';
-// import iconCameraBlue from 'assets/icons/camera_blue.png';
 import { useToasts } from '../../../Toast/ToastProvider';
 import {
 	removeCacheDocument,
@@ -27,7 +26,6 @@ import { decryptViewDocumentUrl } from 'utils/encrypt';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
-// import * as CONST from './const';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 
 const ProfileUpload = props => {
@@ -51,15 +49,8 @@ const ProfileUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { userToken, whiteLabelId } = app;
-	const {
-		loanId,
-		loanRefId,
-		createdByUserId,
-		businessUserId,
-		businessId,
-		userId,
-	} = application;
+	const { whiteLabelId } = app;
+	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	// const {

@@ -21,11 +21,11 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
-import {
-	removeCacheDocument,
-	setDocumentSelfieGeoLocation,
-	removeDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+// import {
+// 	removeCacheDocument,
+// 	setDocumentSelfieGeoLocation,
+// 	removeDocumentSelfieGeoLocation,
+// } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -76,7 +76,6 @@ const DocumentUpload = props => {
 		allDocumentTypes,
 		cacheDocuments,
 		commentsForOfficeUse,
-		userId,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant

@@ -38,7 +38,7 @@ export const TextIcon = styled.img`
 	}
 `;
 
-export const ImageText = styled.p`
+export const ImageText = styled.div`
 	@media (max-width: 767px) {
 		font-size: 11px;
 	}
@@ -64,7 +64,7 @@ export const TextHeader = styled.h2`
 	font-weight: bold;
 	font-size: 12px;
 `;
-export const TextContent = styled.p`
+export const TextContent = styled.span`
 	height: fit-content;
 	word-break: break-all;
 	font-size: ${({ embedInImageUpload }) =>
