@@ -252,10 +252,11 @@ const ProfileUpload = props => {
 				if (
 					section === 'documentUpload' &&
 					uploadedFile &&
-					!uploadedFile?.previewFile &&
+					!uploadedFile?.preview &&
 					Object.keys(uploadedFile).length > 0
 				) {
 					//
+					console.log(selectedApplicant, '--selecetdapp');
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||
