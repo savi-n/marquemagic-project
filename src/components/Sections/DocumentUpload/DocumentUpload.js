@@ -523,7 +523,7 @@ const DocumentUpload = props => {
 				let file = cacheDocuments?.filter(doc => {
 					if (
 						`${doc?.directorId}` === `${directorId}` &&
-						doc?.doctype == selectedField?.doc_type?.[selectedIncomeType]
+						doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
 					) {
 						// console.log(
 						// 	doc?.directorId,
