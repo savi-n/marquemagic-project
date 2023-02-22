@@ -24,6 +24,7 @@ import {
 import {
 	removeCacheDocument,
 	setDocumentSelfieGeoLocation,
+	removeDocumentSelfieGeoLocation,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -46,7 +47,7 @@ const DocumentUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { userToken } = app;
+	const { userToken, whiteLabelId } = app;
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -97,6 +98,13 @@ const DocumentUpload = props => {
 	// selectedApplicant?.cacheDocuments.map(doc =>
 	// 	selectedApplicantDocuments.push(doc)
 	// );
+
+	const [cacheFile, setCacheFile] = useState();
+
+	const selectedIncomeType =
+		selectedApplicant?.basic_details?.['income_type'] ||
+		selectedApplicant?.income_type;
+
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
@@ -490,6 +498,65 @@ const DocumentUpload = props => {
 		// eslint-disable-next-line
 
 		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
+		async function fetchSelfieData() {
+			let section = selectedSection?.sub_sections?.filter(
+				section => section.id === 'on_site_selfie_with_applicant'
+			)?.[0];
+			let selectedField = section?.fields?.filter(field => {
+				// console.log(field, '--field');
+				if (field?.hasOwnProperty('is_applicant')) {
+					if (field.is_applicant === false && isApplicant) {
+						return null;
+					} else {
+						return field;
+					}
+				}
+				if (field?.hasOwnProperty('is_co_applicant')) {
+					if (field.is_co_applicant === false && !isApplicant) {
+						return null;
+					} else {
+						return field;
+					}
+				}
+			})?.[0];
+			// console.log(selectedField);
+			if (selectedField) {
+				let file = cacheDocuments?.filter(doc => {
+					if (
+						`${doc?.directorId}` === `${directorId}` &&
+						doc?.doctype == selectedField?.doc_type?.[selectedIncomeType]
+					) {
+						// console.log(
+						// 	doc?.directorId,
+						// 	directorId,
+						// 	doc?.doctype,
+						// 	selectedField?.doc_type?.[selectedIncomeType],
+						// 	'------'
+						// );
+						return doc;
+					}
+				})?.[0];
+				if (file && Object.keys(file).length > 0) {
+					setCacheFile(file);
+					const reqBody = {
+						lat: file?.loan_document_details?.[0]?.lat,
+						long: file?.loan_document_details?.[0]?.long,
+					};
+					const geoLocationRes = await axios.post(
+						`${API.API_END_POINT}/geoLocation`,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+					// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
+					setGeoLocationData(geoLocationRes?.data?.data);
+				}
+			}
+		}
+		fetchSelfieData();
 	}, []);
 
 	const buttonDisabledStatus = () => {
@@ -814,7 +881,9 @@ const DocumentUpload = props => {
 		newCacheDocumentTemp.push(file);
 		// setGettingGeoLocation(true);
 		// const coordinates = await getGeoLocation();
+		// console.log(file, 'Doc upload - addCacheDocumentTemp');
 		const geoLocationTag = {
+			address: file?.address,
 			lat: file?.latitude,
 			long: file?.longitude,
 			timestamp: file?.timestamp,
@@ -841,7 +910,7 @@ const DocumentUpload = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
 		// console.log('cacheDocumentsTemp', cacheDocumentsTemp, fieldName);
-
+		setCacheFile(null);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		let docsTemp = cacheDocumentsTemp.filter(
 			doc => doc?.field?.name === fieldName
@@ -851,7 +920,6 @@ const DocumentUpload = props => {
 				doc => doc?.field?.name !== fieldName
 			);
 			setCacheDocumentsTemp(temp);
-			dispatch(setDocumentSelfieGeoLocation({}));
 		}
 		// else {
 		// 	dispatch(removeCacheDocument({ fieldName }));
@@ -1008,7 +1076,7 @@ const DocumentUpload = props => {
 													field={field}
 													onChangeFormStateField={onChangeFormStateField}
 													value={prefilledProfileUploadValue}
-													uploadedFile={profileUploadedFile}
+													uploadedFile={profileUploadedFile || cacheFile}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
