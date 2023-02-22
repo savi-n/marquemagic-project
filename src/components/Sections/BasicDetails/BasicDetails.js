@@ -48,7 +48,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 // import SelfieAlertModal from 'components/modals/SelfieAlertModal';
-import { getGeoLocation } from 'utils/helper';
+// import { getGeoLocation } from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(

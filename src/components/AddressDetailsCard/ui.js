@@ -38,7 +38,7 @@ export const TextIcon = styled.img`
 	}
 `;
 
-export const ImageText = styled.p`
+export const ImageText = styled.h6`
 	@media (max-width: 767px) {
 		font-size: 11px;
 	}

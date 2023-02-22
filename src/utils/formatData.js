@@ -115,7 +115,7 @@ export const formatSectionReqBody = data => {
 				return null;
 			});
 			// console.log(values, selectedSection, sectionBody);
-			if (selectedSection.id == 'basic_details') {
+			if (selectedSection.id === 'basic_details') {
 				sectionBody = {
 					...sectionBody,
 					app_coordinates: values['app_coordinates'],

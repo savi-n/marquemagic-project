@@ -10,7 +10,7 @@ import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
-import { getGeoLocation } from 'utils/helper';
+// import { getGeoLocation } from 'utils/helper';
 
 import * as API from '_config/app.config';
 import {
@@ -22,7 +22,7 @@ import {
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import {
-	removeCacheDocument,
+	// removeCacheDocument,
 	setDocumentSelfieGeoLocation,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -46,7 +46,7 @@ const DocumentUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { userToken } = app;
+	// const { userToken } = app;
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -75,7 +75,7 @@ const DocumentUpload = props => {
 		allDocumentTypes,
 		cacheDocuments,
 		commentsForOfficeUse,
-		userId,
+		// userId,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -1002,7 +1002,7 @@ const DocumentUpload = props => {
 									// });
 
 									return (
-										<UI.VerificationSectionWrapper>
+										<UI.VerificationSectionWrapper key={field.id}>
 											<UI.VerificationSection isLocation={!!geoLocationData}>
 												<ProfileUpload
 													field={field}
@@ -1016,7 +1016,6 @@ const DocumentUpload = props => {
 													section={'documentUpload'}
 												/>
 											</UI.VerificationSection>
-
 											{Object.keys(geoLocationData).length > 0 && (
 												<UI.VerificationSection isLocation={!!geoLocationData}>
 													<AddressDetailsCard
@@ -1027,7 +1026,13 @@ const DocumentUpload = props => {
 														timestamp={geoLocationData?.timestamp}
 														//change and assign these props once the proper data is obtained
 														showCloseIcon={false}
-														customStyle={{ bottom: '0px' }}
+														customStyle={{
+															width: 'fit-content',
+															position: 'relative',
+															bottom: '-45%',
+															heigth: 'fit-content',
+															maxHeight: 'fit-content',
+														}}
 													/>
 												</UI.VerificationSection>
 											)}

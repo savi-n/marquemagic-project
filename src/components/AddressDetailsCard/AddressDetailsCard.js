@@ -26,11 +26,11 @@ function AddressDetailsCard(props) {
 		>
 			<UI.TextIcon src={locationPinIcon} />
 			<UI.ImageText>
-				<UI.TextHeader>{city}</UI.TextHeader>
+				{/*<UI.TextHeader>{city}</UI.TextHeader>*/}
 				<UI.TextContent embedInImageUpload={embedInImageUpload}>
 					{/*since we will be receiving address in a single string*/}
 					{address?.length > stringLength && !displayCompleteAddress ? (
-						<p>
+						<span>
 							{address?.slice(0, stringLength)}
 							<UI.FullAddress
 								onClick={() => {
@@ -39,7 +39,7 @@ function AddressDetailsCard(props) {
 							>
 								...
 							</UI.FullAddress>
-						</p>
+						</span>
 					) : (
 						address
 					)}
