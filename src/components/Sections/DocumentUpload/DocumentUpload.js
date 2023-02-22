@@ -10,7 +10,7 @@ import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
-import { getGeoLocation } from 'utils/helper';
+// import { getGeoLocation } from 'utils/helper';
 
 import * as API from '_config/app.config';
 import {
@@ -47,7 +47,7 @@ const DocumentUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	const { userToken, whiteLabelId } = app;
+	const { userToken } = app;
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {

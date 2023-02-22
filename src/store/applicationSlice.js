@@ -178,6 +178,7 @@ export const applicantSlice = createSlice({
 				} else {
 					oldDocuments.push(newFile);
 				}
+				return newFile;
 			});
 			// console.log('old documents', oldDocuments);
 			// console.log('files', files);

@@ -587,7 +587,7 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
-		console.log(geoLocation, 'geoLocation--');
+		// console.log(geoLocation, 'geoLocation--');
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
