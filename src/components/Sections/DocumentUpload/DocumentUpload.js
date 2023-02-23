@@ -21,10 +21,11 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
-import {
-	// removeCacheDocument,
-	setDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+// import {
+// 	removeCacheDocument,
+// 	setDocumentSelfieGeoLocation,
+// 	removeDocumentSelfieGeoLocation,
+// } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -61,6 +62,7 @@ const DocumentUpload = props => {
 		nextSectionId,
 		selectedSectionId,
 		selectedSection,
+		userToken,
 	} = app;
 	const {
 		isApplicant,
@@ -75,7 +77,6 @@ const DocumentUpload = props => {
 		allDocumentTypes,
 		cacheDocuments,
 		commentsForOfficeUse,
-		// userId,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -97,6 +98,13 @@ const DocumentUpload = props => {
 	// selectedApplicant?.cacheDocuments.map(doc =>
 	// 	selectedApplicantDocuments.push(doc)
 	// );
+
+	const [cacheFile, setCacheFile] = useState();
+
+	const selectedIncomeType =
+		selectedApplicant?.basic_details?.['income_type'] ||
+		selectedApplicant?.income_type;
+
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
@@ -488,7 +496,66 @@ const DocumentUpload = props => {
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
 		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
-		// eslint-disable-next-line
+		async function fetchSelfieData() {
+			let section = selectedSection?.sub_sections?.filter(
+				section => section.id === 'on_site_selfie_with_applicant'
+			)?.[0];
+			let selectedField = section?.fields?.filter(field => {
+				// console.log(field, '--field');
+				if (field?.hasOwnProperty('is_applicant')) {
+					if (field.is_applicant === false && isApplicant) {
+						return null;
+					} else {
+						return field;
+					}
+				}
+				if (field?.hasOwnProperty('is_co_applicant')) {
+					if (field.is_co_applicant === false && !isApplicant) {
+						return null;
+					} else {
+						return field;
+					}
+				}
+			})?.[0];
+			// console.log(selectedField);
+			if (selectedField) {
+				let file = cacheDocuments?.filter(doc => {
+					if (
+						`${doc?.directorId}` === `${directorId}` &&
+						doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
+					) {
+						// console.log(
+						// 	doc?.directorId,
+						// 	directorId,
+						// 	doc?.doctype,
+						// 	selectedField?.doc_type?.[selectedIncomeType],
+						// 	'------'
+						// );
+						return doc;
+					}
+				})?.[0];
+				if (file && Object.keys(file).length > 0) {
+					setCacheFile(file);
+					const reqBody = {
+						lat: file?.loan_document_details?.[0]?.lat,
+						long: file?.loan_document_details?.[0]?.long,
+					};
+					const geoLocationRes = await axios.post(
+						`${API.API_END_POINT}/geoLocation`,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+					// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
+					setGeoLocationData(geoLocationRes?.data?.data);
+				}
+			}
+		}
+		fetchSelfieData();
+		// eslint
 	}, []);
 
 	const buttonDisabledStatus = () => {
@@ -813,7 +880,9 @@ const DocumentUpload = props => {
 		newCacheDocumentTemp.push(file);
 		// setGettingGeoLocation(true);
 		// const coordinates = await getGeoLocation();
+		// console.log(file, 'Doc upload - addCacheDocumentTemp');
 		const geoLocationTag = {
+			address: file?.address,
 			lat: file?.latitude,
 			long: file?.longitude,
 			timestamp: file?.timestamp,
@@ -840,7 +909,7 @@ const DocumentUpload = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
 		// console.log('cacheDocumentsTemp', cacheDocumentsTemp, fieldName);
-
+		setCacheFile(null);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		let docsTemp = cacheDocumentsTemp.filter(
 			doc => doc?.field?.name === fieldName
@@ -850,7 +919,6 @@ const DocumentUpload = props => {
 				doc => doc?.field?.name !== fieldName
 			);
 			setCacheDocumentsTemp(temp);
-			dispatch(setDocumentSelfieGeoLocation({}));
 		}
 		// else {
 		// 	dispatch(removeCacheDocument({ fieldName }));
@@ -1007,35 +1075,32 @@ const DocumentUpload = props => {
 													field={field}
 													onChangeFormStateField={onChangeFormStateField}
 													value={prefilledProfileUploadValue}
-													uploadedFile={profileUploadedFile}
+													uploadedFile={profileUploadedFile || cacheFile}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													selectedApplicant={selectedApplicant}
 													section={'documentUpload'}
-													isDisabled={isViewLoan}
 												/>
 											</UI.VerificationSection>
 											{Object.keys(geoLocationData).length > 0 && (
 												<UI.VerificationSection isLocation={!!geoLocationData}>
-													{!!geoLocationData && (
-														<AddressDetailsCard
-															address={geoLocationData?.address} //change and assign these props once the proper data is obtained
-															// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
-															latitude={geoLocationData?.lat}
-															longitude={geoLocationData?.long}
-															timestamp={geoLocationData?.timestamp}
-															//change and assign these props once the proper data is obtained
-															showCloseIcon={false}
-															customStyle={{
-																width: 'fit-content',
-																position: 'relative',
-																bottom: '-45%',
-																heigth: 'fit-content',
-																maxHeight: 'fit-content',
-															}}
-														/>
-													)}
+													<AddressDetailsCard
+														address={geoLocationData?.address} //change and assign these props once the proper data is obtained
+														// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+														latitude={geoLocationData?.lat}
+														longitude={geoLocationData?.long}
+														timestamp={geoLocationData?.timestamp}
+														//change and assign these props once the proper data is obtained
+														showCloseIcon={false}
+														customStyle={{
+															width: 'fit-content',
+															position: 'relative',
+															bottom: '-45%',
+															heigth: 'fit-content',
+															maxHeight: 'fit-content',
+														}}
+													/>
 												</UI.VerificationSection>
 											)}
 										</UI.VerificationSectionWrapper>

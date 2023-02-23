@@ -47,8 +47,6 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
-// import SelfieAlertModal from 'components/modals/SelfieAlertModal';
-// import { getGeoLocation } from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -589,7 +587,7 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
-		console.log(geoLocation, 'geoLocation--');
+		// console.log(geoLocation, 'geoLocation--');
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
@@ -832,33 +830,29 @@ const BasicDetails = props => {
 				);
 			})}
 			{/* {console.log('----', geoLocationData)} */}
-			{!!geoLocation && (
-				<AddressDetailsCard
-					address={
-						geoLocationData?.address ||
-						geoLocation?.address ||
-						selectedApplicant?.address
-					} //change and assign these props once the proper data is obtained
-					latitude={
-						geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
-					} //change and assign these props once the proper data is obtained
-					longitude={
-						geoLocationData?.Long ||
-						geoLocation?.long ||
-						selectedApplicant?.long
-					}
-					timestamp={
-						geoLocationData?.timestamp ||
-						geoLocation?.timestamp ||
-						selectedApplicant?.timestamp
-					}
-					showCloseIcon={false}
-					customStyle={{
-						marginBottom: '10px',
-					}}
-					embedInImageUpload={false}
-				/>
-			)}
+			<AddressDetailsCard
+				address={
+					geoLocationData?.address ||
+					geoLocation?.address ||
+					selectedApplicant?.address
+				} //change and assign these props once the proper data is obtained
+				latitude={
+					geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
+				} //change and assign these props once the proper data is obtained
+				longitude={
+					geoLocationData?.Long || geoLocation?.long || selectedApplicant?.long
+				}
+				timestamp={
+					geoLocationData?.timestamp ||
+					geoLocation?.timestamp ||
+					selectedApplicant?.timestamp
+				}
+				showCloseIcon={false}
+				customStyle={{
+					marginBottom: '10px',
+				}}
+				embedInImageUpload={false}
+			/>
 			<UI_SECTIONS.Footer>
 				{!isViewLoan && (
 					<Button

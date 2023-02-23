@@ -5,7 +5,6 @@ import axios from 'axios';
 import locationPinIcon from 'assets/icons/Geo_icon_2.png';
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import { getGeoLocation } from 'utils/helper';
-// import iconCameraBlue from 'assets/icons/camera_blue.png';
 import { useToasts } from '../../../Toast/ToastProvider';
 import {
 	removeCacheDocument,
@@ -14,6 +13,7 @@ import {
 import {
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
+	removeDocumentSelfieGeoLocation,
 } from 'store/applicantCoApplicantsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
@@ -26,7 +26,6 @@ import { decryptViewDocumentUrl } from 'utils/encrypt';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
-// import * as CONST from './const';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 
 const ProfileUpload = props => {
@@ -51,14 +50,7 @@ const ProfileUpload = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
-	const {
-		loanId,
-		loanRefId,
-		createdByUserId,
-		businessUserId,
-		businessId,
-		// userId,
-	} = application;
+	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	// const {
@@ -74,11 +66,13 @@ const ProfileUpload = props => {
 	// const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
+	const [selfiePreview, setSelfiePreview] = useState({});
 	// const profileUploadedFile =
 	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	null;
 
+	// console.log(uploadedFile, 'uploadedFile');
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -109,13 +103,14 @@ const ProfileUpload = props => {
 				loan_doc_id: file?.document_id || '',
 				business_id: businessId,
 				loan_id: loanId,
-				userid: createdByUserId,
+				userid: businessUserId,
 			};
 			// console.log('reqBody-', reqBody);
 			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
+			dispatch(removeDocumentSelfieGeoLocation());
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
 		} finally {
@@ -160,23 +155,24 @@ const ProfileUpload = props => {
 				// }
 
 				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
-				const res = await getGeoLocation();
+				const coordinates = await getGeoLocation();
+
 				// Document Upload Selfie Upload section
 
-				if (section === 'documentUpload') {
+				if (coordinates && section === 'documentUpload') {
 					const selectedIncomeType =
 						selectedApplicant?.basic_details?.[
 							CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
 						] || selectedApplicant?.income_type;
 
 					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', res?.latitude || null);
-					formData.append('long', res?.longitude || null);
-					formData.append('timestamp', res?.timestamp || null);
+					formData.append('lat', coordinates?.latitude || null);
+					formData.append('long', coordinates?.longitude || null);
+					formData.append('timestamp', coordinates?.timestamp || null);
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
 					formData.append('director_id', selectedApplicant.directorId);
-					formData.append('user_id', createdByUserId || null);
+					formData.append('user_id', businessUserId || null);
 					formData.append(
 						'doc_type_id',
 						field?.doc_type?.[selectedIncomeType] || null
@@ -194,7 +190,7 @@ const ProfileUpload = props => {
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
 							field,
-							...res,
+							...coordinates,
 							preview: resp?.data?.presignedUrl,
 							...resp?.data?.uploaded_data,
 						};
@@ -220,19 +216,20 @@ const ProfileUpload = props => {
 				} else {
 					// Basic details Profile Pic Upload section
 					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', res?.latitude || null);
-					formData.append('long', res?.longitude || null);
+					formData.append('lat', coordinates?.latitude || null);
+					formData.append('long', coordinates?.longitude || null);
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-						const newFile = {
-							field,
-							...resp?.data,
-							preview: resp?.data?.presignedUrl,
-						};
-						setPicAddress(resp?.data?.file);
-						dispatch(setProfileGeoLocation(resp?.data?.file));
-						addCacheDocumentTemp(newFile);
+						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
+							const newFile = {
+								field,
+								...resp?.data,
+								preview: resp?.data?.presignedUrl,
+							};
+							setPicAddress(resp?.data?.file);
+							dispatch(setProfileGeoLocation(resp?.data?.file));
+							addCacheDocumentTemp(newFile);
+						});
 					} else {
 						addToast({
 							message:
@@ -262,6 +259,40 @@ const ProfileUpload = props => {
 	});
 
 	useEffect(() => {
+		(async () => {
+			try {
+				// console.log(uploadedFile, 'useEffect');
+				if (
+					section === 'documentUpload' &&
+					uploadedFile &&
+					!uploadedFile?.preview &&
+					Object.keys(uploadedFile).length > 0
+				) {
+					//
+					console.log(selectedApplicant, '--selecetdapp');
+					const reqBody = {
+						filename:
+							uploadedFile.doc_name ||
+							uploadedFile?.document_key ||
+							uploadedFile?.fd ||
+							'',
+						loan_id: loanId,
+						userid: businessUserId,
+					};
+
+					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
+					let previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
+					setSelfiePreview({
+						...uploadedFile,
+						preview: previewFile,
+						presignedUrl: previewFile,
+					});
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		})();
+
 		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
 		return () =>
 			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
@@ -280,10 +311,21 @@ const ProfileUpload = props => {
 	// });
 
 	if (isPreview) {
+		// console.log(isPreview);
+
+		// console.log(selfiePreview);
+		// console.log(uploadedFile);
 		return (
 			<UI.ContainerPreview isPrevie={isPreview}>
 				<UI.ImgProfilePreview
-					src={uploadedFile?.preview || uploadedFile?.presignedUrl || value}
+					src={
+						section === 'documentUpload'
+							? selfiePreview?.preview ||
+							  selfiePreview?.presignedUrl ||
+							  uploadedFile?.preview ||
+							  uploadedFile?.presignedUrl
+							: uploadedFile?.preview || uploadedFile?.presignedUrl || value
+					}
 					alt='profile'
 					onClick={e => {
 						e.preventDefault();
@@ -292,8 +334,14 @@ const ProfileUpload = props => {
 							window.open(value, '_blank');
 							return;
 						}
-						if (!uploadedFile?.document_id && uploadedFile?.preview) {
-							window.open(uploadedFile?.preview, '_blank');
+						if (
+							!uploadedFile?.document_id &&
+							(uploadedFile?.preview || selfiePreview?.preview)
+						) {
+							window.open(
+								uploadedFile?.preview || selfiePreview?.preview,
+								'_blank'
+							);
 							return;
 						}
 						openDocument(uploadedFile);

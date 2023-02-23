@@ -435,6 +435,17 @@ export const applicantCoApplicantsSlice = createSlice({
 				].documentSelfieGeolocation = geoLocation;
 			}
 		},
+
+		removeDocumentSelfieGeoLocation: (state, action) => {
+			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
+			if (state.isApplicant) {
+				state.applicant.documentSelfieGeolocation = {};
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].documentSelfieGeolocation = {};
+			}
+		},
 	},
 });
 export const {
@@ -468,6 +479,7 @@ export const {
 	addCoApplicantDocumentTypes,
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
+	removeDocumentSelfieGeoLocation,
 	setEditLoanApplicantsData,
 } = applicantCoApplicantsSlice.actions;
 
