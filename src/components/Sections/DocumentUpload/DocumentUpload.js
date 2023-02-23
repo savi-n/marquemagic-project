@@ -887,7 +887,7 @@ const DocumentUpload = props => {
 			long: file?.longitude,
 			timestamp: file?.timestamp,
 		};
-
+		setCacheFile(file);
 		setGeoLocationData(geoLocationTag);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
