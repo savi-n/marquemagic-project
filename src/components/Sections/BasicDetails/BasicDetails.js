@@ -832,29 +832,33 @@ const BasicDetails = props => {
 				);
 			})}
 			{/* {console.log('----', geoLocationData)} */}
-			<AddressDetailsCard
-				address={
-					geoLocationData?.address ||
-					geoLocation?.address ||
-					selectedApplicant?.address
-				} //change and assign these props once the proper data is obtained
-				latitude={
-					geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
-				} //change and assign these props once the proper data is obtained
-				longitude={
-					geoLocationData?.Long || geoLocation?.long || selectedApplicant?.long
-				}
-				timestamp={
-					geoLocationData?.timestamp ||
-					geoLocation?.timestamp ||
-					selectedApplicant?.timestamp
-				}
-				showCloseIcon={false}
-				customStyle={{
-					marginBottom: '10px',
-				}}
-				embedInImageUpload={false}
-			/>
+			{!!geoLocation && (
+				<AddressDetailsCard
+					address={
+						geoLocationData?.address ||
+						geoLocation?.address ||
+						selectedApplicant?.address
+					} //change and assign these props once the proper data is obtained
+					latitude={
+						geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
+					} //change and assign these props once the proper data is obtained
+					longitude={
+						geoLocationData?.Long ||
+						geoLocation?.long ||
+						selectedApplicant?.long
+					}
+					timestamp={
+						geoLocationData?.timestamp ||
+						geoLocation?.timestamp ||
+						selectedApplicant?.timestamp
+					}
+					showCloseIcon={false}
+					customStyle={{
+						marginBottom: '10px',
+					}}
+					embedInImageUpload={false}
+				/>
+			)}
 			<UI_SECTIONS.Footer>
 				{!isViewLoan && (
 					<Button

@@ -487,9 +487,8 @@ const DocumentUpload = props => {
 	useEffect(() => {
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
-		// eslint-disable-next-line
-
 		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
+		// eslint-disable-next-line
 	}, []);
 
 	const buttonDisabledStatus = () => {
@@ -1014,26 +1013,29 @@ const DocumentUpload = props => {
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													selectedApplicant={selectedApplicant}
 													section={'documentUpload'}
+													isDisabled={isViewLoan}
 												/>
 											</UI.VerificationSection>
 											{Object.keys(geoLocationData).length > 0 && (
 												<UI.VerificationSection isLocation={!!geoLocationData}>
-													<AddressDetailsCard
-														address={geoLocationData?.address} //change and assign these props once the proper data is obtained
-														// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
-														latitude={geoLocationData?.lat}
-														longitude={geoLocationData?.long}
-														timestamp={geoLocationData?.timestamp}
-														//change and assign these props once the proper data is obtained
-														showCloseIcon={false}
-														customStyle={{
-															width: 'fit-content',
-															position: 'relative',
-															bottom: '-45%',
-															heigth: 'fit-content',
-															maxHeight: 'fit-content',
-														}}
-													/>
+													{!!geoLocationData && (
+														<AddressDetailsCard
+															address={geoLocationData?.address} //change and assign these props once the proper data is obtained
+															// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+															latitude={geoLocationData?.lat}
+															longitude={geoLocationData?.long}
+															timestamp={geoLocationData?.timestamp}
+															//change and assign these props once the proper data is obtained
+															showCloseIcon={false}
+															customStyle={{
+																width: 'fit-content',
+																position: 'relative',
+																bottom: '-45%',
+																heigth: 'fit-content',
+																maxHeight: 'fit-content',
+															}}
+														/>
+													)}
 												</UI.VerificationSection>
 											)}
 										</UI.VerificationSectionWrapper>
