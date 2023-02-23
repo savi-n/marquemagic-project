@@ -555,7 +555,7 @@ const DocumentUpload = props => {
 			}
 		}
 		fetchSelfieData();
-		// eslint
+		// eslint-disable-next-line
 	}, []);
 
 	const buttonDisabledStatus = () => {
