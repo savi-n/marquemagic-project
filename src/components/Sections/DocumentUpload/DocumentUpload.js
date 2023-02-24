@@ -10,22 +10,21 @@ import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
-// import { getGeoLocation } from 'utils/helper';
 
 import * as API from '_config/app.config';
 import {
 	updateApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
-	// addOrUpdateCacheDocuments,
+	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	clearAllCacheDocuments,
 } from 'store/applicationSlice';
-// import {
-// 	removeCacheDocument,
-// 	setDocumentSelfieGeoLocation,
-// 	removeDocumentSelfieGeoLocation,
-// } from 'store/applicantCoApplicantsSlice';
+import {
+	// 	removeCacheDocument,
+	setDocumentSelfieGeoLocation,
+	// 	removeDocumentSelfieGeoLocation,
+} from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -34,6 +33,7 @@ import {
 	getDocumentCategoryName,
 	parseJSON,
 	getApiErrorMessage,
+	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -42,6 +42,8 @@ import * as CONST from './const';
 import ProfileUpload from '../BasicDetails/ProfileUpload';
 import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDetailsCard';
 import useForm from 'hooks/useFormIndividual';
+import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
+import MandatoryOnsiteVerificationErrModal from 'components/modals/MandatoryOnsiteVerificationErrModal';
 
 const DocumentUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -77,6 +79,7 @@ const DocumentUpload = props => {
 		allDocumentTypes,
 		cacheDocuments,
 		commentsForOfficeUse,
+		prompted,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -100,6 +103,8 @@ const DocumentUpload = props => {
 	// );
 
 	const [cacheFile, setCacheFile] = useState();
+	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
+	const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.['income_type'] ||
@@ -493,6 +498,11 @@ const DocumentUpload = props => {
 	};
 
 	useEffect(() => {
+		// console.log(
+		// 	'useeffect- doc upload',
+		// 	selectedApplicantCoApplicantId,
+		// 	typeof selectedApplicantCoApplicantId
+		// );
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
 		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
@@ -551,6 +561,7 @@ const DocumentUpload = props => {
 					);
 					// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
 					setGeoLocationData(geoLocationRes?.data?.data);
+					dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
 				}
 			}
 		}
@@ -565,6 +576,14 @@ const DocumentUpload = props => {
 	const onSubmitOtpAuthentication = async () => {
 		try {
 			if (buttonDisabledStatus()) return;
+			// change permission here
+			if (
+				selectedProduct?.product_details?.kyc_verification &&
+				!isAppCoAppVerificationComplete()
+			) {
+				setOnsiteVerificationErr(true);
+				return;
+			}
 			if (!isFormValid()) return;
 			setSubmitting(true);
 			await onSubmitCompleteApplication();
@@ -673,6 +692,7 @@ const DocumentUpload = props => {
 
 	const onSubmitCompleteApplication = async () => {
 		if (buttonDisabledStatus()) return;
+
 		if (!isFormValid()) return;
 		try {
 			setSubmitting(true);
@@ -704,7 +724,7 @@ const DocumentUpload = props => {
 				});
 				return null;
 			});
-			// console.log('newUploadedDocuments', newUploadedDocuments);
+
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
 			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
 			// 	documentUploadReqBody,
@@ -887,8 +907,9 @@ const DocumentUpload = props => {
 			long: file?.longitude,
 			timestamp: file?.timestamp,
 		};
-
+		setCacheFile(file);
 		setGeoLocationData(geoLocationTag);
+		dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
@@ -904,6 +925,40 @@ const DocumentUpload = props => {
 				`${doc?.directorId}` === `${directorId}`
 		)?.[0] ||
 		null;
+
+	const closeVerificationMsgModal = () => {
+		dispatch(setIsPrompted(true));
+		setOnsiteVerificationMsg(false);
+	};
+
+	const closeVerificationErrModal = () => {
+		setOnsiteVerificationErr(false);
+	};
+
+	const isAppCoAppVerificationComplete = () => {
+		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
+			{
+				applicantCoApplicants,
+				isEditOrViewLoan,
+			}
+		);
+		let result = true;
+		newApplicantAndCoapplicantOptions.map(director => {
+			if (Number(applicant.directorId) === Number(director.value)) {
+				if (Object.keys(applicant.documentSelfieGeolocation).length <= 0) {
+					result = false;
+				}
+			} else {
+				if (
+					Object.keys(coApplicants?.[director.value]?.documentSelfieGeolocation)
+						.length <= 0
+				) {
+					result = false;
+				}
+			}
+		});
+		return result;
+	};
 
 	const removeCacheDocumentTemp = fieldName => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
@@ -933,6 +988,7 @@ const DocumentUpload = props => {
 	};
 
 	// console.log('DocumentUpload-allStates-', {
+	// 	testkey: sessionStorage.getItem('testkey'),
 	// 	app,
 	// 	application,
 	// 	applicantCoApplicants,
@@ -966,6 +1022,20 @@ const DocumentUpload = props => {
 					generateOtpTimer={generateOtpTimer}
 					onSkip={onSkip}
 					isDocumentUploadMandatory={isDocumentUploadMandatory}
+				/>
+			) : null}
+			{/* {console.log(isAppCoAppVerificationComplete(), '--api called here')} */}
+			{cibilCheckbox &&
+			declareCheck &&
+			onsiteVerificationMsg &&
+			!prompted &&
+			!isAppCoAppVerificationComplete() ? (
+				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
+			) : null}
+
+			{onsiteVerificationErr ? (
+				<MandatoryOnsiteVerificationErrModal
+					onYes={closeVerificationErrModal}
 				/>
 			) : null}
 			{totalMandatoryDocumentCount > 0 ? (
@@ -1086,12 +1156,10 @@ const DocumentUpload = props => {
 											{Object.keys(geoLocationData).length > 0 && (
 												<UI.VerificationSection isLocation={!!geoLocationData}>
 													<AddressDetailsCard
-														address={geoLocationData?.address} //change and assign these props once the proper data is obtained
-														// address2={CONST_PROFILE_UPLOAD.address.address2} //change and assign these props once the proper data is obtained
+														address={geoLocationData?.address}
 														latitude={geoLocationData?.lat}
 														longitude={geoLocationData?.long}
 														timestamp={geoLocationData?.timestamp}
-														//change and assign these props once the proper data is obtained
 														showCloseIcon={false}
 														customStyle={{
 															width: 'fit-content',
@@ -1170,7 +1238,10 @@ const DocumentUpload = props => {
 						}
 						checked={declareCheck}
 						disabled={isViewLoan}
-						onChange={() => setDeclareCheck(!declareCheck)}
+						onChange={() => {
+							setDeclareCheck(!declareCheck);
+							setOnsiteVerificationMsg(true);
+						}}
 						bg='blue'
 					/>
 				</UI.CheckboxWrapper>

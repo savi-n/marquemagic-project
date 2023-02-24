@@ -33,6 +33,7 @@ const initialState = {
 	api: {},
 	commentsForOfficeUse: '',
 	geoLocation: {},
+	prompted: false,
 };
 
 export const applicantSlice = createSlice({
@@ -307,6 +308,11 @@ export const applicantSlice = createSlice({
 			// console.log(action.payload, 'slice-geolocation');
 			state.geoLocation = action.payload;
 		},
+
+		setIsPrompted: (state, action) => {
+			// console.log(action.payload, 'slice-geolocation');
+			state.prompted = action.payload;
+		},
 	},
 });
 
@@ -331,7 +337,7 @@ export const {
 	addAllDocumentTypes,
 
 	setCommentsForOfficeUse,
-
+	setIsPrompted,
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,

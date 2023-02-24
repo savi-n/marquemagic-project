@@ -269,7 +269,7 @@ const ProfileUpload = props => {
 					Object.keys(uploadedFile).length > 0
 				) {
 					//
-					console.log(selectedApplicant, '--selecetdapp');
+					// console.log(selectedApplicant, '--selecetdapp');
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||
