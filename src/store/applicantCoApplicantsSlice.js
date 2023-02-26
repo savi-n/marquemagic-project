@@ -412,14 +412,15 @@ export const applicantCoApplicantsSlice = createSlice({
 		// SET GEOLOCATION FOR PROFILE PICTURE
 		setProfileGeoLocation: (state, action) => {
 			const { address, lat, long, timestamp } = action.payload;
+			// console.log(' here in slice');
 			let geoLocation = { address, lat, long, timestamp };
 			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
 			if (state.isApplicant) {
 				state.applicant.profileGeoLocation = geoLocation;
 			} else {
-				// state.coApplicants[
-				// 	state.selectedApplicantCoApplicantId
-				// ].profileGeoLocation = geoLocation;
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].profileGeoLocation = geoLocation;
 			}
 		},
 

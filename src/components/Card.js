@@ -170,7 +170,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									});
 									return;
 								}
-								dispatch(setGeoLocation(geoLocationRes));
+								dispatch(setGeoLocation(geoLocationRes?.data?.data));
 							} catch (e) {
 								console.error(e);
 								addToast({

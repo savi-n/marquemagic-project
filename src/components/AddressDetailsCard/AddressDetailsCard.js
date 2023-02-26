@@ -3,12 +3,12 @@ import closeIcon from 'assets/icons/close_icon_grey.png';
 import * as UI from './ui';
 import locationPinIcon from 'assets/icons/Geo_icon_5.png';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 function AddressDetailsCard(props) {
 	const {
 		setShowImageInfo,
-		city,
-		address,
+		address = '',
 		showCloseIcon = true,
 		latitude,
 		longitude,
@@ -18,6 +18,7 @@ function AddressDetailsCard(props) {
 	} = props;
 	const stringLength = window.screen.width < 768 ? 25 : 75;
 	const [displayCompleteAddress, setDisplayCompleteAddress] = useState(false);
+
 	return (
 		<UI.ImageContent
 			style={customStyle}

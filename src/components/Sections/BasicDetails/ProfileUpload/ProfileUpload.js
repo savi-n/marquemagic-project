@@ -46,7 +46,9 @@ const ProfileUpload = props => {
 		section = 'basicDetails',
 		selectedApplicant,
 	} = props;
-	const { app, application } = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
@@ -59,12 +61,12 @@ const ProfileUpload = props => {
 	} = application;
 
 	const [picAddress, setPicAddress] = useState({});
-	// const {
-	// 	isApplicant,
-	// 	applicant,
-	// 	coApplicants,
-	// 	selectedApplicantCoApplicantId,
-	// } = applicantCoApplicants;
+	const {
+		isApplicant,
+		// applicant,
+		// coApplicants,
+		// selectedApplicantCoApplicantId,
+	} = applicantCoApplicants;
 	// const selectedApplicant = isApplicant
 	// 	? applicant
 	// 	: coApplicants[selectedApplicantCoApplicantId] || {};
@@ -236,7 +238,9 @@ const ProfileUpload = props => {
 								preview: resp?.data?.presignedUrl,
 							};
 							setPicAddress(resp?.data?.file);
-							dispatch(setProfileGeoLocation(resp?.data?.file));
+							if (isApplicant) {
+								dispatch(setProfileGeoLocation(resp?.data?.file));
+							}
 							addCacheDocumentTemp(newFile);
 						});
 					} else {
