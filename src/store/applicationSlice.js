@@ -177,22 +177,26 @@ export const applicantSlice = createSlice({
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
 					if (
-						`${doc?.document_key}` === `${newFile?.document_key}` ||
+						// `${doc?.document_key}` === `${newFile?.document_key}` ||
 						`${doc?.document_id}` === `${newFile?.document_id}`
 					) {
-						console.log(
-							'doc key',
-							`${doc?.document_key}` === `${newFile?.document_key}`
-						);
-						console.log(
-							'doc id',
-							`${doc?.document_id}` === `${newFile?.document_id}`
-						);
-						console.log(
-							'both result',
-							`${doc?.document_key}` === `${newFile?.document_key}` ||
-								`${doc?.document_id}` === `${newFile?.document_id}`
-						);
+						// console.log(
+						// 	'doc key',
+						// 	`${doc?.document_key}`,
+						// 	`${newFile?.document_key}`,
+						// 	`${doc?.document_key}` === `${newFile?.document_key}`
+						// );
+						// console.log(
+						// 	'doc id',
+						// 	`${doc?.document_id}`,
+						// 	`${newFile?.document_id}`,
+						// 	`${doc?.document_id}` === `${newFile?.document_id}`
+						// );
+						// console.log(
+						// 	'both result',
+						// 	`${doc?.document_key}` === `${newFile?.document_key}` ||
+						// 		`${doc?.document_id}` === `${newFile?.document_id}`
+						// );
 						return doc;
 					}
 				});
