@@ -50,7 +50,13 @@ const ProfileUpload = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
-	const { loanId, loanRefId, businessUserId, businessId } = application;
+	const {
+		loanId,
+		loanRefId,
+		businessUserId,
+		businessId,
+		cacheDocuments,
+	} = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	// const {
@@ -195,8 +201,10 @@ const ProfileUpload = props => {
 							...resp?.data?.uploaded_data,
 						};
 						setPicAddress(newFile);
+						console.log('--profile upload after ondrop', cacheDocuments);
+
 						dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-						addCacheDocumentTemp(newFile);
+
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -206,6 +214,7 @@ const ProfileUpload = props => {
 								},
 							})
 						);
+						addCacheDocumentTemp(newFile);
 					} else {
 						addToast({
 							message:

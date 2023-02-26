@@ -896,6 +896,7 @@ const DocumentUpload = props => {
 
 	const addCacheDocumentTemp = async file => {
 		// userToken
+		console.log('--in doc upload upload after ondrop', cacheDocuments);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
 		// setGettingGeoLocation(true);
