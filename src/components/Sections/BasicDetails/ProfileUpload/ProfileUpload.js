@@ -113,7 +113,7 @@ const ProfileUpload = props => {
 				loan_id: loanId,
 				userid: businessUserId,
 			};
-			// console.log('reqBody-', reqBody);
+			// console.log('reqBody-', file);
 			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
@@ -197,6 +197,7 @@ const ProfileUpload = props => {
 							fileId: resp?.data?.document_details_data?.doc_id,
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
+
 							field,
 							...coordinates,
 							preview: resp?.data?.presignedUrl,
@@ -231,6 +232,16 @@ const ProfileUpload = props => {
 					formData.append('long', coordinates?.longitude || null);
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
+						// const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+						// const newFile = {
+						// 	field,
+						// 	...resp?.data,
+						// 	preview: resp?.data?.presignedUrl,
+						// };
+						// setPicAddress(resp?.data?.file);
+						// dispatch(setProfileGeoLocation(resp?.data?.file));
+						// addCacheDocumentTemp(newFile);
+
 						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
 							const newFile = {
 								field,
@@ -324,19 +335,19 @@ const ProfileUpload = props => {
 	// });
 
 	if (isPreview) {
-		// console.log(isPreview);
+		// console.log(isPreview, isPreview);
 
-		// console.log(selfiePreview);
-		// console.log(uploadedFile);
+		// console.log(selfiePreview, 'selfie');
+		// console.log(uploadedFile, 'uplodd');
 		return (
 			<UI.ContainerPreview isPrevie={isPreview}>
 				<UI.ImgProfilePreview
 					src={
 						section === 'documentUpload'
-							? selfiePreview?.preview ||
-							  selfiePreview?.presignedUrl ||
-							  uploadedFile?.preview ||
-							  uploadedFile?.presignedUrl
+							? uploadedFile?.preview ||
+							  uploadedFile?.presignedUrl ||
+							  selfiePreview?.preview ||
+							  selfiePreview?.presignedUrl
 							: uploadedFile?.preview || uploadedFile?.presignedUrl || value
 					}
 					alt='profile'
