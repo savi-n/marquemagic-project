@@ -46,19 +46,27 @@ const ProfileUpload = props => {
 		section = 'basicDetails',
 		selectedApplicant,
 	} = props;
-	const { app, application } = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
-	const { loanId, loanRefId, businessUserId, businessId } = application;
+	const {
+		loanId,
+		loanRefId,
+		businessUserId,
+		businessId,
+		cacheDocuments,
+	} = application;
 
 	const [picAddress, setPicAddress] = useState({});
-	// const {
-	// 	isApplicant,
-	// 	applicant,
-	// 	coApplicants,
-	// 	selectedApplicantCoApplicantId,
-	// } = applicantCoApplicants;
+	const {
+		isApplicant,
+		// applicant,
+		// coApplicants,
+		// selectedApplicantCoApplicantId,
+	} = applicantCoApplicants;
 	// const selectedApplicant = isApplicant
 	// 	? applicant
 	// 	: coApplicants[selectedApplicantCoApplicantId] || {};
@@ -196,8 +204,10 @@ const ProfileUpload = props => {
 							...resp?.data?.uploaded_data,
 						};
 						setPicAddress(newFile);
+						console.log('--profile upload after ondrop', cacheDocuments);
+
 						dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-						addCacheDocumentTemp(newFile);
+
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -207,6 +217,7 @@ const ProfileUpload = props => {
 								},
 							})
 						);
+						addCacheDocumentTemp(newFile);
 					} else {
 						addToast({
 							message:
@@ -221,15 +232,28 @@ const ProfileUpload = props => {
 					formData.append('long', coordinates?.longitude || null);
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-						const newFile = {
-							field,
-							...resp?.data,
-							preview: resp?.data?.presignedUrl,
-						};
-						setPicAddress(resp?.data?.file);
-						dispatch(setProfileGeoLocation(resp?.data?.file));
-						addCacheDocumentTemp(newFile);
+						// const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+						// const newFile = {
+						// 	field,
+						// 	...resp?.data,
+						// 	preview: resp?.data?.presignedUrl,
+						// };
+						// setPicAddress(resp?.data?.file);
+						// dispatch(setProfileGeoLocation(resp?.data?.file));
+						// addCacheDocumentTemp(newFile);
+
+						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
+							const newFile = {
+								field,
+								...resp?.data,
+								preview: resp?.data?.presignedUrl,
+							};
+							setPicAddress(resp?.data?.file);
+							if (isApplicant) {
+								dispatch(setProfileGeoLocation(resp?.data?.file));
+							}
+							addCacheDocumentTemp(newFile);
+						});
 					} else {
 						addToast({
 							message:
@@ -269,7 +293,7 @@ const ProfileUpload = props => {
 					Object.keys(uploadedFile).length > 0
 				) {
 					//
-					console.log(selectedApplicant, '--selecetdapp');
+					// console.log(selectedApplicant, '--selecetdapp');
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||

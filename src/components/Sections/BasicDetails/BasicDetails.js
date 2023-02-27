@@ -26,12 +26,14 @@ import {
 	// addCacheDocuments,
 	removeCacheDocument,
 	setSelectedApplicantCoApplicantId,
+	setProfileGeoLocation,
 	// addCacheDocument,
 } from 'store/applicantCoApplicantsSlice';
 import {
 	addOrUpdateCacheDocument,
 	addCacheDocuments,
 	setLoanIds,
+	setGeoLocation,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -96,7 +98,7 @@ const BasicDetails = props => {
 	] = useState(false);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [profilePicGeolocation, setProfilePicGeolocation] = useState('');
-	const geoLocationData = geoLocation?.data?.data;
+	const [geoLocationData, setGeoLocationData] = useState(geoLocation);
 	const {
 		handleSubmit,
 		register,
@@ -597,6 +599,108 @@ const BasicDetails = props => {
 				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
 		}
+		async function fetchGeoLocationData() {
+			// console.log('fetching...', geoLocationData);
+			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+				const reqBody = {
+					lat: geoLocation.lat,
+					long: geoLocation.long,
+				};
+				// console.log(userToken);
+				const geoLocationRes = await axios.post(
+					`${API.API_END_POINT}/geoLocation`,
+					reqBody,
+					{
+						headers: {
+							Authorization: `Bearer ${userToken}`,
+						},
+					}
+				);
+				// console.log('res is here ', geoLocationRes);
+				if (geoLocationRes?.data?.status !== 'ok') {
+					addToast({
+						message:
+							'Geo Location failed! Please enable your location and try again.',
+						type: 'error',
+					});
+					return;
+				}
+				dispatch(
+					setGeoLocation({
+						lat: geoLocation.lat,
+						long: geoLocation.long,
+						timestamp: geoLocation?.lat_long_timestamp,
+						address: geoLocationRes?.data?.data?.address,
+					})
+				);
+				setGeoLocationData({
+					lat: geoLocation.lat,
+					long: geoLocation.long,
+					timestamp: geoLocation?.lat_long_timestamp,
+					address: geoLocationRes?.data?.data?.address,
+				});
+				// console.log('fetched', {
+				// 	lat: geoLocation.lat,
+				// 	long: geoLocation.long,
+				// 	timestamp: geoLocation?.lat_long_timestamp,
+				// 	address: geoLocationRes?.data?.data?.address,
+				// });
+			}
+		}
+		fetchGeoLocationData();
+		// console.log('selected app', selectedApplicant);
+		async function fetchProfilePicGeoLocationData() {
+			// console.log('fetching...', geoLocationData);
+			if (
+				Object.keys(selectedApplicant.profileGeoLocation).length <= 0 &&
+				!selectedApplicant?.profileGeoLocation?.address
+			) {
+				const reqBody = {
+					lat: selectedApplicant?.lat,
+					long: selectedApplicant?.long,
+				};
+				// console.log('Fectchedd...');
+				const geoPicLocationRes = await axios.post(
+					`${API.API_END_POINT}/geoLocation`,
+					reqBody,
+					{
+						headers: {
+							Authorization: `Bearer ${userToken}`,
+						},
+					}
+				);
+				// console.log('res is here ', geoPicLocationRes);
+				if (geoPicLocationRes?.data?.status !== 'ok') {
+					addToast({
+						message:
+							'Geo Location failed! Please enable your location and try again.',
+						type: 'error',
+					});
+					return;
+				}
+				dispatch(
+					setProfileGeoLocation({
+						lat: selectedApplicant?.lat,
+						long: selectedApplicant?.long,
+						timestamp: selectedApplicant?.timestamp,
+						address: geoPicLocationRes?.data?.data?.address,
+					})
+				);
+				setProfilePicGeolocation({
+					lat: geoLocation.lat,
+					long: geoLocation.long,
+					timestamp: geoLocation?.lat_long_timestamp,
+					address: geoPicLocationRes?.data?.data?.address,
+				});
+				// console.log('fetched...', {
+				// 	lat: geoLocation.lat,
+				// 	long: geoLocation.long,
+				// 	timestamp: geoLocation?.lat_long_timestamp,
+				// 	address: geoPicLocationRes?.data?.data?.address,
+				// });
+			}
+		}
+		fetchProfilePicGeoLocationData();
 		// eslint-disable-next-line
 	}, []);
 
@@ -699,7 +803,8 @@ const BasicDetails = props => {
 													isTag={true}
 													geoLocationAddress={
 														profilePicGeolocation || {
-															address: selectedApplicant?.address,
+															address:
+																selectedApplicant?.profileGeoLocation?.address,
 															lat: selectedApplicant?.lat,
 															long: selectedApplicant?.long,
 															timestamp: selectedApplicant?.timestamp,
@@ -831,22 +936,10 @@ const BasicDetails = props => {
 			})}
 			{/* {console.log('----', geoLocationData)} */}
 			<AddressDetailsCard
-				address={
-					geoLocationData?.address ||
-					geoLocation?.address ||
-					selectedApplicant?.address
-				} //change and assign these props once the proper data is obtained
-				latitude={
-					geoLocationData?.Lat || geoLocation?.lat || selectedApplicant?.lat
-				} //change and assign these props once the proper data is obtained
-				longitude={
-					geoLocationData?.Long || geoLocation?.long || selectedApplicant?.long
-				}
-				timestamp={
-					geoLocationData?.timestamp ||
-					geoLocation?.timestamp ||
-					selectedApplicant?.timestamp
-				}
+				address={geoLocationData?.address || geoLocation?.address}
+				latitude={geoLocationData?.lat || geoLocation?.lat}
+				longitude={geoLocationData?.long || geoLocation?.long}
+				timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
 				showCloseIcon={false}
 				customStyle={{
 					marginBottom: '10px',

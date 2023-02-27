@@ -33,6 +33,7 @@ const initialState = {
 	api: {},
 	commentsForOfficeUse: '',
 	geoLocation: {},
+	prompted: false,
 };
 
 export const applicantSlice = createSlice({
@@ -102,16 +103,20 @@ export const applicantSlice = createSlice({
 			// pass only single file object
 			const { file } = action.payload;
 			const newDocuments = _.cloneDeep(state.cacheDocuments);
+			console.log(newDocuments, 'cache documents before adding in redux store');
 			const isExistIndex = newDocuments?.findIndex(
 				doc =>
 					`${doc?.directorId}` === `${file?.directorId}` &&
 					`${doc?.doc_type_id}` === `${file?.doc_type_id}`
 			);
+			console.log(isExistIndex, 'is exist inx');
 			if (isExistIndex >= 0) {
 				newDocuments[isExistIndex] = file;
 			} else {
 				newDocuments.push(file);
 			}
+
+			console.log(newDocuments, 'cache documents after adding in redux store');
 			state.cacheDocuments = newDocuments;
 		},
 		addOrUpdateCacheDocuments: (state, action) => {
@@ -171,8 +176,27 @@ export const applicantSlice = createSlice({
 
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
-					return `${doc?.document_key}` === `${newFile?.document_key}`;
+					if (
+						`${doc?.document_key}` === `${newFile?.document_key}` ||
+						`${doc?.document_id}` === `${newFile?.document_id}`
+					) {
+						console.log(
+							'doc key',
+							`${doc?.document_key}` === `${newFile?.document_key}`
+						);
+						console.log(
+							'doc id',
+							`${doc?.document_id}` === `${newFile?.document_id}`
+						);
+						console.log(
+							'both result',
+							`${doc?.document_key}` === `${newFile?.document_key}` ||
+								`${doc?.document_id}` === `${newFile?.document_id}`
+						);
+						return doc;
+					}
 				});
+				console.log(isExistIndex, 'isExistIndex');
 				if (isExistIndex >= 0) {
 					oldDocuments[isExistIndex] = newFile;
 				} else {
@@ -307,6 +331,11 @@ export const applicantSlice = createSlice({
 			// console.log(action.payload, 'slice-geolocation');
 			state.geoLocation = action.payload;
 		},
+
+		setIsPrompted: (state, action) => {
+			// console.log(action.payload, 'slice-geolocation');
+			state.prompted = action.payload;
+		},
 	},
 });
 
@@ -331,7 +360,7 @@ export const {
 	addAllDocumentTypes,
 
 	setCommentsForOfficeUse,
-
+	setIsPrompted,
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
