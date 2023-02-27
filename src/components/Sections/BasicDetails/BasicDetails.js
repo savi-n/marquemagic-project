@@ -416,8 +416,8 @@ const BasicDetails = props => {
 			dispatch(setSelectedSectionId(nextSectionId));
 			if (true) {
 				console.log('yess, mandatory');
-				selectedApplicant.geotaggingMandatory.length > 0 &&
-					selectedApplicant.geotaggingMandatory.map(item => {
+				mandatoryGeoTag.length > 0 &&
+					mandatoryGeoTag.map(item => {
 						if (
 							item.reduxKey === 'profileGeoLocation' &&
 							!selectedApplicant.profileGeoLocation?.address
@@ -703,7 +703,7 @@ const BasicDetails = props => {
 				// });
 			}
 		}
-		
+
 		fetchGeoLocationData();
 		// console.log('selected app', selectedApplicant);
 
@@ -711,7 +711,7 @@ const BasicDetails = props => {
 		async function fetchProfilePicGeoLocationData() {
 			// console.log('fetching...', geoLocationData);
 			if (
-				Object.keys(selectedApplicant.profileGeoLocation).length <= 0 &&
+				Object.keys(selectedApplicant?.profileGeoLocation).length <= 0 &&
 				!selectedApplicant?.profileGeoLocation?.address
 			) {
 				const reqBody = {
@@ -781,7 +781,7 @@ const BasicDetails = props => {
 					}
 				});
 			});
-			// console.log(arr, 'arr');
+			console.log(arr, 'arr');
 			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
 		}
 
