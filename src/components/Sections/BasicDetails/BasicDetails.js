@@ -745,8 +745,6 @@ const BasicDetails = props => {
 						let reduxStoreKey = '';
 						if (field?.db_key === 'customer_picture') {
 							reduxStoreKey = 'profileGeoLocation';
-						} else if (field?.db_key === 'on_site_selfie') {
-							reduxStoreKey = 'documentSelfieGeolocation';
 						}
 						let mandatoryGeoField = {
 							isApplicant,
