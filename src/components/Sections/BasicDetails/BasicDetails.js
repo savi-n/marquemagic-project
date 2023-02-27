@@ -413,6 +413,28 @@ const BasicDetails = props => {
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setSelectedSectionId(nextSectionId));
+			if (true) {
+				console.log('yess, mandatory');
+				selectedApplicant.geotaggingMandatory.length > 0 &&
+					selectedApplicant.geotaggingMandatory.map(item => {
+						if (
+							item.reduxKey === 'profileGeoLocation' &&
+							!selectedApplicant.profileGeoLocation?.address
+						) {
+							addToast({
+								message: 'Mandatory GeoLocation not captured',
+								type: 'error',
+							});
+						}
+					});
+
+				if (!geoLocation?.address) {
+					addToast({
+						message: 'Mandatory GeoLocation not captured',
+						type: 'error',
+					});
+				}
+			}
 		} catch (error) {
 			console.error('error-BasicDetails-onProceed-', {
 				error: error,
