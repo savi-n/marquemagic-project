@@ -28,6 +28,7 @@ const initialState = {
 	defaultLoader: '',
 	loginCreateUserRes: null,
 	whiteLabelId: '',
+	geoTaggingPermission: false,
 	permission: {},
 	userDetails: {},
 	isCorporate: false, // TODO: dynamically update flag based on corporate user
@@ -79,6 +80,9 @@ export const appSlice = createSlice({
 		},
 		setWhiteLabelId: (state, action) => {
 			state.whiteLabelId = action.payload;
+		},
+		setGeoTagging: (state, action) => {
+			state.geoTaggingPermission = action.payload;
 		},
 		setPermission: (state, action) => {
 			// Redux Toolkit allows us to write "mutating" logic in reducers. It
@@ -216,6 +220,7 @@ export const {
 	setClientToken,
 	setBankToken,
 	setProductList,
+	setGeoTagging,
 
 	setSelectedProduct,
 	setSelectedSectionId,
