@@ -648,7 +648,8 @@ const BasicDetails = props => {
 
 		async function fetchGeoLocationData() {
 			try {
-				// console.log('fetching...', geoLocationData);
+				console.log('fetching...', fetchGeoLocationData);
+				console.log(geoLocation, 'geoloaction');
 				// if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
 				const reqBody = {
 					lat: geoLocation.lat,
@@ -719,16 +720,16 @@ const BasicDetails = props => {
 
 		async function fetchProfilePicGeoLocationData() {
 			try {
-				// console.log('fetching...', geoLocationData);
+				console.log('fetching...', fetchProfilePicGeoLocationData);
 				// if (
 				// 	Object.keys(selectedApplicant.profileGeoLocation).length <= 0 &&
 				// 	!selectedApplicant?.profileGeoLocation?.address
 				// ) {
 				const reqBody = {
-					lat: selectedApplicant?.lat,
-					long: selectedApplicant?.long,
+					lat: selectedApplicant?.profileGeoLocation?.lat,
+					long: selectedApplicant?.profileGeoLocation?.long,
 				};
-				// console.log('Fectchedd...');
+				console.log('Fectchedd...', selectedApplicant);
 
 				const geoPicLocationRes = await axios.post(
 					`${API.API_END_POINT}/geoLocation`,
@@ -741,9 +742,9 @@ const BasicDetails = props => {
 				);
 				dispatch(
 					setProfileGeoLocation({
-						lat: selectedApplicant?.lat,
-						long: selectedApplicant?.long,
-						timestamp: selectedApplicant?.timestamp,
+						lat: selectedApplicant?.profileGeoLocation?.lat,
+						long: selectedApplicant?.profileGeoLocation?.long,
+						timestamp: selectedApplicant?.profileGeoLocation?.timestamp,
 						address: geoPicLocationRes?.data?.data?.address,
 					})
 				);
@@ -766,8 +767,21 @@ const BasicDetails = props => {
 				// console.log('Ont this line------------');
 				fetchGeoLocationData();
 			}
+			console.log(
+				selectedApplicant?.profileGeoLocation,
+				'--',
+				!selectedApplicant?.profileGeoLocation?.address
+			);
 
+			console.log(
+				selectedApplicant?.customer_picture,
+				'--',
+				Object.keys(selectedApplicant?.profileGeoLocation).length > 0,
+				'--',
+				!selectedApplicant?.profileGeoLocation?.address
+			);
 			if (
+				selectedApplicant?.customer_picture &&
 				Object.keys(selectedApplicant?.profileGeoLocation).length > 0 &&
 				!selectedApplicant?.profileGeoLocation?.address
 			) {
