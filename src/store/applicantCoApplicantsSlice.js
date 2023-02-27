@@ -21,6 +21,7 @@ const initializeApplicantCoApplicant = {
 	api: {},
 	profileGeoLocation: {},
 	documentSelfieGeolocation: {},
+	geotaggingMandatory: [],
 };
 
 const initialState = {
@@ -49,6 +50,8 @@ export const applicantCoApplicantsSlice = createSlice({
 				incomeDataId,
 				businessAddressIdAid1,
 				businessAddressIdAid2,
+				profileGeoLocation,
+				geotaggingMandatory,
 			} = action.payload;
 			state.applicant[sectionId] = sectionValues;
 			if (directorId) state.applicant.directorId = directorId;
@@ -58,6 +61,10 @@ export const applicantCoApplicantsSlice = createSlice({
 				state.applicant.businessAddressIdAid1 = businessAddressIdAid1;
 			if (businessAddressIdAid2)
 				state.applicant.businessAddressIdAid2 = businessAddressIdAid2;
+			if (profileGeoLocation)
+				state.applicant.profileGeoLocation = profileGeoLocation;
+			if (geotaggingMandatory)
+				state.applicant.geotaggingMandatory = geotaggingMandatory;
 		},
 		updateCoApplicantSection: (state, action) => {
 			const {
@@ -69,6 +76,7 @@ export const applicantCoApplicantsSlice = createSlice({
 				businessAddressIdAid1,
 				businessAddressIdAid2,
 				profileGeoLocation,
+				geotaggingMandatory,
 			} = action.payload;
 			const newCoApplicants = _.cloneDeep(state.coApplicants);
 			if (Object.keys(newCoApplicants?.[directorId] || {}).length <= 0) {
@@ -85,6 +93,8 @@ export const applicantCoApplicantsSlice = createSlice({
 			if (employmentId) newCoApplicantValues.employmentId = employmentId;
 			if (profileGeoLocation)
 				newCoApplicantValues.profileGeoLocation = profileGeoLocation;
+			if (geotaggingMandatory)
+				newCoApplicantValues.geotaggingMandatory = geotaggingMandatory;
 			if (incomeDataId) newCoApplicantValues.incomeDataId = incomeDataId;
 			if (businessAddressIdAid1)
 				newCoApplicantValues.businessAddressIdAid1 = businessAddressIdAid1;
@@ -447,6 +457,17 @@ export const applicantCoApplicantsSlice = createSlice({
 				].documentSelfieGeolocation = {};
 			}
 		},
+
+		setGeotaggingMandatoryFields: (state, action) => {
+			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
+			if (state.isApplicant) {
+				state.applicant.geotaggingMandatory.push(action.payload);
+			} else {
+				state.coApplicants[
+					state.selectedApplicantCoApplicantId
+				].geotaggingMandatory.push(action.payload);
+			}
+		},
 	},
 });
 export const {
@@ -482,6 +503,7 @@ export const {
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
 	setEditLoanApplicantsData,
+	setGeotaggingMandatoryFields,
 } = applicantCoApplicantsSlice.actions;
 
 export default applicantCoApplicantsSlice.reducer;

@@ -22,6 +22,7 @@ import {
 } from 'store/applicationSlice';
 import {
 	// 	removeCacheDocument,
+	setGeotaggingMandatoryFields,
 	setDocumentSelfieGeoLocation,
 	// 	removeDocumentSelfieGeoLocation,
 } from 'store/applicantCoApplicantsSlice';
@@ -503,6 +504,8 @@ const DocumentUpload = props => {
 		// 	selectedApplicantCoApplicantId,
 		// 	typeof selectedApplicantCoApplicantId
 		// );
+
+		// console.log(selectedApplicant, 'doc upld selected app');
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
 		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
