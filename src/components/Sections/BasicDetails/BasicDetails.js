@@ -690,11 +690,6 @@ const BasicDetails = props => {
 			}
 		}
 
-		if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
-			console.log('Ont this line------------');
-			fetchGeoLocationData();
-		}
-
 		// console.log('selected app', selectedApplicant);
 
 		// capture Geolocation of the applicant profile photo
@@ -760,12 +755,19 @@ const BasicDetails = props => {
 			}
 		}
 
-		if (
-			Object.keys(selectedApplicant.profileGeoLocation).length > 0 &&
-			!selectedApplicant?.profileGeoLocation?.address
-		) {
-			console.log('on this line again-----------');
-			fetchProfilePicGeoLocationData();
+		if (Object.keys(selectedApplicant).length > 0 && isEditOrViewLoan) {
+			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+				// console.log('Ont this line------------');
+				fetchGeoLocationData();
+			}
+
+			if (
+				Object.keys(selectedApplicant?.profileGeoLocation).length > 0 &&
+				!selectedApplicant?.profileGeoLocation?.address
+			) {
+				// console.log('on this line again-----------');
+				fetchProfilePicGeoLocationData();
+			}
 		}
 
 		function saveMandatoryGeoLocation() {
