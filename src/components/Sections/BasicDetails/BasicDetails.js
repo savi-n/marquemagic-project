@@ -610,7 +610,7 @@ const BasicDetails = props => {
 	useEffect(() => {
 		console.log('section', selectedSection);
 		validateToken();
-		// console.log(geoLocation, 'geoLocation--');
+		console.log(geoLocation, 'geoLocation--');
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
@@ -622,33 +622,35 @@ const BasicDetails = props => {
 		}
 
 		// capture Geolocation of the application
+
 		async function fetchGeoLocationData() {
-			// console.log('fetching...', geoLocationData);
-			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+			try {
+				// console.log('fetching...', geoLocationData);
+				// if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
 				const reqBody = {
 					lat: geoLocation.lat,
 					long: geoLocation.long,
 				};
-				// console.log(userToken);
-				// const geoLocationRes = await axios.post(
-				// 	`${API.API_END_POINT}/geoLocation`,
-				// 	reqBody,
-				// 	{
-				// 		headers: {
-				// 			Authorization: `Bearer ${userToken}`,
-				// 		},
-				// 	}
-				// );
-				const geoLocationRes = {
-					data: {
-						data: {
-							address: 'sec12/3 abc, jspeph rd, jb nagar, bengaluru 578809',
-							lat: 12.55,
-							long: 77.89,
-							timestamp: '12/3/2002',
+				console.log(userToken);
+				const geoLocationRes = await axios.post(
+					`${API.API_END_POINT}/geoLocation`,
+					reqBody,
+					{
+						headers: {
+							Authorization: `Bearer ${userToken}`,
 						},
-					},
-				};
+					}
+				);
+				// const geoLocationRes = {
+				// 	data: {
+				// 		data: {
+				// 			address: 'sec12/3 abc, jspeph rd, jb nagar, bengaluru 578809',
+				// 			lat: 12.55,
+				// 			long: 77.89,
+				// 			timestamp: '12/3/2002',
+				// 		},
+				// 	},
+				// };
 				// console.log('res is here ', geoLocation);
 				// if (geoLocationRes?.data?.status !== 'ok') {
 				// 	addToast({
@@ -672,29 +674,44 @@ const BasicDetails = props => {
 					timestamp: geoLocation?.lat_long_timestamp,
 					address: geoLocationRes?.data?.data?.address,
 				});
+
 				// console.log('fetched', {
 				// 	lat: geoLocation.lat,
 				// 	long: geoLocation.long,
 				// 	timestamp: geoLocation?.lat_long_timestamp,
 				// 	address: geoLocationRes?.data?.data?.address,
 				// });
+				// }
+			} catch (error) {
+				console.log(
+					'🚀 ~ file: BasicDetails.js:686 ~ fetchGeoLocationData ~ error:',
+					error
+				);
 			}
 		}
-		fetchGeoLocationData();
+
+		if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+			console.log('Ont this line------------');
+			fetchGeoLocationData();
+		}
+
 		// console.log('selected app', selectedApplicant);
 
 		// capture Geolocation of the applicant profile photo
+
 		async function fetchProfilePicGeoLocationData() {
-			// console.log('fetching...', geoLocationData);
-			if (
-				Object.keys(selectedApplicant.profileGeoLocation).length <= 0 &&
-				!selectedApplicant?.profileGeoLocation?.address
-			) {
+			try {
+				// console.log('fetching...', geoLocationData);
+				// if (
+				// 	Object.keys(selectedApplicant.profileGeoLocation).length <= 0 &&
+				// 	!selectedApplicant?.profileGeoLocation?.address
+				// ) {
 				const reqBody = {
 					lat: selectedApplicant?.lat,
 					long: selectedApplicant?.long,
 				};
 				// console.log('Fectchedd...');
+
 				const geoPicLocationRes = await axios.post(
 					`${API.API_END_POINT}/geoLocation`,
 					reqBody,
@@ -727,15 +744,29 @@ const BasicDetails = props => {
 					timestamp: geoLocation?.lat_long_timestamp,
 					address: geoPicLocationRes?.data?.data?.address,
 				});
+
 				// console.log('fetched...', {
 				// 	lat: geoLocation.lat,
 				// 	long: geoLocation.long,
 				// 	timestamp: geoLocation?.lat_long_timestamp,
 				// 	address: geoPicLocationRes?.data?.data?.address,
 				// });
+				// }
+			} catch (error) {
+				console.log(
+					'🚀 ~ file: BasicDetails.js:756 ~ fetchProfilePicGeoLocationData ~ error:',
+					error
+				);
 			}
 		}
-		fetchProfilePicGeoLocationData();
+
+		if (
+			Object.keys(selectedApplicant.profileGeoLocation).length > 0 &&
+			!selectedApplicant?.profileGeoLocation?.address
+		) {
+			console.log('on this line again-----------');
+			fetchProfilePicGeoLocationData();
+		}
 
 		function saveMandatoryGeoLocation() {
 			let arr = [];
