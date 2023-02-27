@@ -140,10 +140,11 @@ const EMIDetails = props => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
+		// console.log('emi details', editLoanData);
 		const emiDetails = parseJSON(
 			editLoanData?.bank_details?.filter(
 				bank => `${bank.id}` === `${emiDetailsFinId}`
-			)?.[0]?.emi_details || {}
+			)?.[0]?.emi_details || '{}'
 		);
 		const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
 			arrayOfObject: emiDetails,
@@ -269,10 +270,11 @@ const EMIDetails = props => {
 
 	useEffect(() => {
 		if (isEditOrViewLoan) {
+			console.log('emi details - useeffect', editLoanData);
 			const emiDetails = parseJSON(
 				editLoanData?.bank_details?.filter(
 					bank => `${bank?.id}` === `${emiDetailsFinId}`
-				)?.[0]?.emi_details || {}
+				)?.[0]?.emi_details || '{}'
 			);
 			if (emiDetails.length > 3) {
 				setCount(emiDetails.length);

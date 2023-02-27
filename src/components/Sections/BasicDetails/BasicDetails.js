@@ -73,6 +73,7 @@ const BasicDetails = props => {
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		userDetails,
+		geoTaggingPermission,
 	} = app;
 	const {
 		isApplicant,
@@ -413,6 +414,28 @@ const BasicDetails = props => {
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setSelectedSectionId(nextSectionId));
+			if (true) {
+				console.log('yess, mandatory');
+				mandatoryGeoTag.length > 0 &&
+					mandatoryGeoTag.map(item => {
+						if (
+							item.reduxKey === 'profileGeoLocation' &&
+							!selectedApplicant.profileGeoLocation?.address
+						) {
+							addToast({
+								message: 'Mandatory GeoLocation not captured',
+								type: 'error',
+							});
+						}
+					});
+
+				if (!geoLocation?.address) {
+					addToast({
+						message: 'Mandatory GeoLocation not captured',
+						type: 'error',
+					});
+				}
+			}
 		} catch (error) {
 			console.error('error-BasicDetails-onProceed-', {
 				error: error,
@@ -716,15 +739,6 @@ const BasicDetails = props => {
 						},
 					}
 				);
-				// console.log('res is here ', geoPicLocationRes);
-				if (geoPicLocationRes?.data?.status !== 'ok') {
-					addToast({
-						message:
-							'Geo Location failed! Please enable your location and try again.',
-						type: 'error',
-					});
-					return;
-				}
 				dispatch(
 					setProfileGeoLocation({
 						lat: selectedApplicant?.lat,
@@ -739,14 +753,6 @@ const BasicDetails = props => {
 					timestamp: geoLocation?.lat_long_timestamp,
 					address: geoPicLocationRes?.data?.data?.address,
 				});
-
-				// console.log('fetched...', {
-				// 	lat: geoLocation.lat,
-				// 	long: geoLocation.long,
-				// 	timestamp: geoLocation?.lat_long_timestamp,
-				// 	address: geoPicLocationRes?.data?.data?.address,
-				// });
-				// }
 			} catch (error) {
 				console.log(
 					'🚀 ~ file: BasicDetails.js:756 ~ fetchProfilePicGeoLocationData ~ error:',
@@ -778,8 +784,6 @@ const BasicDetails = props => {
 						let reduxStoreKey = '';
 						if (field?.db_key === 'customer_picture') {
 							reduxStoreKey = 'profileGeoLocation';
-						} else if (field?.db_key === 'on_site_selfie') {
-							reduxStoreKey = 'documentSelfieGeolocation';
 						}
 						let mandatoryGeoField = {
 							isApplicant,
@@ -790,7 +794,7 @@ const BasicDetails = props => {
 					}
 				});
 			});
-			// console.log(arr, 'arr');
+			console.log(arr, 'arr');
 			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
 		}
 

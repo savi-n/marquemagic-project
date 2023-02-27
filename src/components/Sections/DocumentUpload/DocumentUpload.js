@@ -66,6 +66,7 @@ const DocumentUpload = props => {
 		selectedSectionId,
 		selectedSection,
 		userToken,
+		geoTaggingPermission,
 	} = app;
 	const {
 		isApplicant,
@@ -532,6 +533,15 @@ const DocumentUpload = props => {
 			})?.[0];
 			// console.log(selectedField);
 			if (selectedField) {
+				if (selectedField?.geo_tagging) {
+					dispatch(
+						setGeotaggingMandatoryFields({
+							isApplicant,
+							applicantId: selectedApplicant.directorId,
+							reduxKey: 'documentSelfieGeolocation',
+						})
+					);
+				}
 				let file = cacheDocuments?.filter(doc => {
 					if (
 						`${doc?.directorId}` === `${directorId}` &&
@@ -553,22 +563,25 @@ const DocumentUpload = props => {
 						lat: file?.loan_document_details?.[0]?.lat,
 						long: file?.loan_document_details?.[0]?.long,
 					};
-					const geoLocationRes = await axios.post(
-						`${API.API_END_POINT}/geoLocation`,
-						reqBody,
-						{
-							headers: {
-								Authorization: `Bearer ${userToken}`,
-							},
-						}
-					);
-					// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
-					setGeoLocationData(geoLocationRes?.data?.data);
-					dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
+					if (geoTaggingPermission) {
+						const geoLocationRes = await axios.post(
+							`${API.API_END_POINT}/geoLocation`,
+							reqBody,
+							{
+								headers: {
+									Authorization: `Bearer ${userToken}`,
+								},
+							}
+						);
+						// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
+						setGeoLocationData(geoLocationRes?.data?.data);
+						dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
+					}
 				}
 			}
 		}
 		fetchSelfieData();
+
 		// eslint-disable-next-line
 	}, []);
 
@@ -964,6 +977,51 @@ const DocumentUpload = props => {
 		return result;
 	};
 
+	const isMandatoryGeoVerificationComplete = () => {
+		const appCoappsList = getApplicantCoApplicantSelectOptions({
+			applicantCoApplicants,
+			isEditOrViewLoan,
+		});
+		let result = true;
+		appCoappsList.map(director => {
+			if (Number(applicant.directorId) === Number(director.value)) {
+				if (applicant.geotaggingMandatory.length > 0) {
+					applicant.geotaggingMandatory.map(item => {
+						if (
+							item.reduxKey === 'profileGeoLocation' &&
+							!applicant.profileGeoLocation?.address
+						) {
+							result = false;
+						} else if (
+							item.reduxKey === 'documentSelfieGeolocation' &&
+							!applicant.documentSelfieGeolocation?.address
+						) {
+							result = false;
+						}
+					});
+				}
+			} else {
+				if (coApplicants?.[director.value]?.geotaggingMandatory.length > 0) {
+					coApplicants?.[director.value]?.geotaggingMandatory.map(item => {
+						if (
+							item.reduxKey === 'profileGeoLocation' &&
+							!coApplicants?.[director.value]?.profileGeoLocation?.address
+						) {
+							result = false;
+						} else if (
+							item.reduxKey === 'documentSelfieGeolocation' &&
+							!coApplicants?.[director.value]?.documentSelfieGeolocation
+								?.address
+						) {
+							result = false;
+						}
+					});
+				}
+			}
+		});
+		return result;
+	};
+
 	const removeCacheDocumentTemp = fieldName => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
@@ -1037,7 +1095,7 @@ const DocumentUpload = props => {
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}
 
-			{onsiteVerificationErr ? (
+			{onsiteVerificationErr && isMandatoryGeoVerificationComplete ? (
 				<MandatoryOnsiteVerificationErrModal
 					onYes={closeVerificationErrModal}
 				/>
