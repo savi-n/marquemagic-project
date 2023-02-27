@@ -28,6 +28,7 @@ import {
 	setSelectedApplicantCoApplicantId,
 	setProfileGeoLocation,
 	// addCacheDocument,
+	setGeotaggingMandatoryFields,
 } from 'store/applicantCoApplicantsSlice';
 import {
 	addOrUpdateCacheDocument,
@@ -99,6 +100,7 @@ const BasicDetails = props => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [profilePicGeolocation, setProfilePicGeolocation] = useState('');
 	const [geoLocationData, setGeoLocationData] = useState(geoLocation);
+	const [mandatoryGeoTag, setMandatoryGeoTag] = useState([]);
 	const {
 		handleSubmit,
 		register,
@@ -254,8 +256,8 @@ const BasicDetails = props => {
 				values: {
 					...formState.values,
 					app_coordinates: {
-						lat: geoLocationData?.Lat,
-						long: geoLocationData?.Long,
+						lat: geoLocationData?.lat,
+						long: geoLocationData?.long,
 						timestamp: geoLocationData?.timestamp,
 					},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
@@ -390,6 +392,8 @@ const BasicDetails = props => {
 				long: selectedApplicant?.long,
 				timestamp: selectedApplicant?.timestamp,
 			};
+			// console.log('Mandatory GeoTag', mandatoryGeoTag);
+			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else {
@@ -587,7 +591,24 @@ const BasicDetails = props => {
 		}
 	};
 
+	// const saveMandatoryGeoLocation = field => {
+	// 	let reduxStoreKey = '';
+	// 	if (field?.db_key === 'customer_picture') {
+	// 		reduxStoreKey = 'profileGeoLocation';
+	// 	} else if (field?.db_key === 'on_site_selfie') {
+	// 		reduxStoreKey = 'documentSelfieGeolocation';
+	// 	}
+	// 	let mandatoryGeoField = {
+	// 		isApplicant,
+	// 		applicantId: selectedApplicant.directorId,
+	// 		reduxKey: reduxStoreKey,
+	// 	};
+	// 	setMandatoryGeoTag(oldArray => [...oldArray, mandatoryGeoField]);
+	// 	// dispatch(setGeotaggingMandatoryFields(mandatoryGeoField));
+	// };
+
 	useEffect(() => {
+		console.log('section', selectedSection);
 		validateToken();
 		// console.log(geoLocation, 'geoLocation--');
 		if (
@@ -599,6 +620,8 @@ const BasicDetails = props => {
 				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
 		}
+
+		// capture Geolocation of the application
 		async function fetchGeoLocationData() {
 			// console.log('fetching...', geoLocationData);
 			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
@@ -607,24 +630,34 @@ const BasicDetails = props => {
 					long: geoLocation.long,
 				};
 				// console.log(userToken);
-				const geoLocationRes = await axios.post(
-					`${API.API_END_POINT}/geoLocation`,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
+				// const geoLocationRes = await axios.post(
+				// 	`${API.API_END_POINT}/geoLocation`,
+				// 	reqBody,
+				// 	{
+				// 		headers: {
+				// 			Authorization: `Bearer ${userToken}`,
+				// 		},
+				// 	}
+				// );
+				const geoLocationRes = {
+					data: {
+						data: {
+							address: 'sec12/3 abc, jspeph rd, jb nagar, bengaluru 578809',
+							lat: 12.55,
+							long: 77.89,
+							timestamp: '12/3/2002',
 						},
-					}
-				);
-				// console.log('res is here ', geoLocationRes);
-				if (geoLocationRes?.data?.status !== 'ok') {
-					addToast({
-						message:
-							'Geo Location failed! Please enable your location and try again.',
-						type: 'error',
-					});
-					return;
-				}
+					},
+				};
+				// console.log('res is here ', geoLocation);
+				// if (geoLocationRes?.data?.status !== 'ok') {
+				// 	addToast({
+				// 		message:
+				// 			'Geo Location failed! Please enable your location and try again.',
+				// 		type: 'error',
+				// 	});
+				// 	return;
+				// }
 				dispatch(
 					setGeoLocation({
 						lat: geoLocation.lat,
@@ -649,6 +682,8 @@ const BasicDetails = props => {
 		}
 		fetchGeoLocationData();
 		// console.log('selected app', selectedApplicant);
+
+		// capture Geolocation of the applicant profile photo
 		async function fetchProfilePicGeoLocationData() {
 			// console.log('fetching...', geoLocationData);
 			if (
@@ -701,6 +736,32 @@ const BasicDetails = props => {
 			}
 		}
 		fetchProfilePicGeoLocationData();
+
+		function saveMandatoryGeoLocation() {
+			let arr = [];
+			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				sub_section?.fields?.map((field, fieldIndex) => {
+					if (field?.geo_tagging) {
+						let reduxStoreKey = '';
+						if (field?.db_key === 'customer_picture') {
+							reduxStoreKey = 'profileGeoLocation';
+						} else if (field?.db_key === 'on_site_selfie') {
+							reduxStoreKey = 'documentSelfieGeolocation';
+						}
+						let mandatoryGeoField = {
+							isApplicant,
+							applicantId: selectedApplicant.directorId,
+							reduxKey: reduxStoreKey,
+						};
+						arr.push(mandatoryGeoField);
+					}
+				});
+			});
+			// console.log(arr, 'arr');
+			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
+		}
+
+		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
 	}, []);
 
@@ -781,6 +842,7 @@ const BasicDetails = props => {
 									// 	prefilledProfileUploadValue,
 									// 	selectedApplicant,
 									// });
+
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
