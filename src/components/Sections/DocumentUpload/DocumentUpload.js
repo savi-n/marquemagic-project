@@ -1191,6 +1191,7 @@ const DocumentUpload = props => {
 									}
 								}
 								if (
+									geoTaggingPermission &&
 									field.type === 'file' &&
 									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
 								) {
