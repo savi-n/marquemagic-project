@@ -66,6 +66,7 @@ const DocumentUpload = props => {
 		selectedSectionId,
 		selectedSection,
 		userToken,
+		geoTaggingPermission,
 	} = app;
 	const {
 		isApplicant,
@@ -553,18 +554,20 @@ const DocumentUpload = props => {
 						lat: file?.loan_document_details?.[0]?.lat,
 						long: file?.loan_document_details?.[0]?.long,
 					};
-					const geoLocationRes = await axios.post(
-						`${API.API_END_POINT}/geoLocation`,
-						reqBody,
-						{
-							headers: {
-								Authorization: `Bearer ${userToken}`,
-							},
-						}
-					);
-					// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
-					setGeoLocationData(geoLocationRes?.data?.data);
-					dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
+					if (geoTaggingPermission) {
+						const geoLocationRes = await axios.post(
+							`${API.API_END_POINT}/geoLocation`,
+							reqBody,
+							{
+								headers: {
+									Authorization: `Bearer ${userToken}`,
+								},
+							}
+						);
+						// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
+						setGeoLocationData(geoLocationRes?.data?.data);
+						dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
+					}
 				}
 			}
 		}

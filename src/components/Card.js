@@ -103,6 +103,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
 	const { app } = useSelector(state => state);
+	const { geoTaggingPermission } = app;
 	const { userToken } = app;
 	const {
 		actions: { removeAllLoanDocuments },
@@ -153,24 +154,26 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									long: coordinates?.longitude,
 								};
 								// console.log(userToken);
-								const geoLocationRes = await axios.post(
-									`${API.API_END_POINT}/geoLocation`,
-									reqBody,
-									{
-										headers: {
-											Authorization: `Bearer ${userToken}`,
-										},
+								if (geoTaggingPermission) {
+									const geoLocationRes = await axios.post(
+										`${API.API_END_POINT}/geoLocation`,
+										reqBody,
+										{
+											headers: {
+												Authorization: `Bearer ${userToken}`,
+											},
+										}
+									);
+									if (geoLocationRes?.data?.status !== 'ok') {
+										addToast({
+											message:
+												'Geo Location failed! Please enable your location and try again.',
+											type: 'error',
+										});
+										return;
 									}
-								);
-								if (geoLocationRes?.data?.status !== 'ok') {
-									addToast({
-										message:
-											'Geo Location failed! Please enable your location and try again.',
-										type: 'error',
-									});
-									return;
+									dispatch(setGeoLocation(geoLocationRes?.data?.data));
 								}
-								dispatch(setGeoLocation(geoLocationRes?.data?.data));
 							} catch (e) {
 								console.error(e);
 								addToast({

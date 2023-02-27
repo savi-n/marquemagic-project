@@ -13,6 +13,7 @@ import {
 	setUserDetails,
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
+	setGeoTagging as appSetGeoTagging,
 	// reInitializeAppSlice,
 	setUserToken,
 } from 'store/appSlice';
@@ -331,6 +332,7 @@ const AppLayout = () => {
 			// dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
+			dispatch(appSetGeoTagging(response?.permission?.geo_tagging?.geo_tagging));
 
 			sessionStorage.setItem(
 				'permission',

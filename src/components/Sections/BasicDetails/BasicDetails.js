@@ -73,6 +73,7 @@ const BasicDetails = props => {
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		userDetails,
+		geoTaggingPermission,
 	} = app;
 	const {
 		isApplicant,
@@ -680,6 +681,7 @@ const BasicDetails = props => {
 				// });
 			}
 		}
+		
 		fetchGeoLocationData();
 		// console.log('selected app', selectedApplicant);
 
@@ -695,38 +697,40 @@ const BasicDetails = props => {
 					long: selectedApplicant?.long,
 				};
 				// console.log('Fectchedd...');
-				const geoPicLocationRes = await axios.post(
-					`${API.API_END_POINT}/geoLocation`,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
+				if (geoTaggingPermission) {
+					const geoPicLocationRes = await axios.post(
+						`${API.API_END_POINT}/geoLocation`,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+					// console.log('res is here ', geoPicLocationRes);
+					if (geoPicLocationRes?.data?.status !== 'ok') {
+						addToast({
+							message:
+								'Geo Location failed! Please enable your location and try again.',
+							type: 'error',
+						});
+						return;
 					}
-				);
-				// console.log('res is here ', geoPicLocationRes);
-				if (geoPicLocationRes?.data?.status !== 'ok') {
-					addToast({
-						message:
-							'Geo Location failed! Please enable your location and try again.',
-						type: 'error',
-					});
-					return;
-				}
-				dispatch(
-					setProfileGeoLocation({
-						lat: selectedApplicant?.lat,
-						long: selectedApplicant?.long,
-						timestamp: selectedApplicant?.timestamp,
+					dispatch(
+						setProfileGeoLocation({
+							lat: selectedApplicant?.lat,
+							long: selectedApplicant?.long,
+							timestamp: selectedApplicant?.timestamp,
+							address: geoPicLocationRes?.data?.data?.address,
+						})
+					);
+					setProfilePicGeolocation({
+						lat: geoLocation.lat,
+						long: geoLocation.long,
+						timestamp: geoLocation?.lat_long_timestamp,
 						address: geoPicLocationRes?.data?.data?.address,
-					})
-				);
-				setProfilePicGeolocation({
-					lat: geoLocation.lat,
-					long: geoLocation.long,
-					timestamp: geoLocation?.lat_long_timestamp,
-					address: geoPicLocationRes?.data?.data?.address,
-				});
+					});
+				}
 				// console.log('fetched...', {
 				// 	lat: geoLocation.lat,
 				// 	long: geoLocation.long,
