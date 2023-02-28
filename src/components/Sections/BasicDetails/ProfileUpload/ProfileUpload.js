@@ -84,7 +84,7 @@ const ProfileUpload = props => {
 	const openDocument = async file => {
 		try {
 			setLoading(true);
-			// console.log('open-doc-', { file, loanId, businessUserId });
+			console.log('open-doc-', { file, loanId, businessUserId });
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
@@ -191,12 +191,15 @@ const ProfileUpload = props => {
 							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
 							formData
 						);
+
+						console.log(resp, 'respp');
 						const newFile = {
 							id: resp?.data?.document_details_data?.doc_id,
 							document_id: resp?.data?.document_details_data?.doc_id,
 							fileId: resp?.data?.document_details_data?.doc_id,
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
+							doc_name: resp?.data?.loan_document_data?.doc_name,
 
 							field,
 							...coordinates,
@@ -212,8 +215,8 @@ const ProfileUpload = props => {
 							addOrUpdateCacheDocument({
 								file: {
 									...newFile,
-									directorId: selectedApplicant.directorId,
-									doc_type_id: field?.doc_type?.[selectedIncomeType],
+									// directorId: selectedApplicant.directorId,
+									// doc_type_id: field?.doc_type?.[selectedIncomeType],
 								},
 							})
 						);
@@ -303,7 +306,7 @@ const ProfileUpload = props => {
 						loan_id: loanId,
 						userid: businessUserId,
 					};
-
+					console.log(uploadedFile, '---profile upload ');
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 					let previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
 					setSelfiePreview({

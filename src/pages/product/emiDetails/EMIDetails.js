@@ -133,7 +133,7 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 				sessionStorage.getItem('userToken')}`,
 		},
 	});
-
+	console.log('is it here 2');
 	const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 	const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
 
@@ -225,8 +225,10 @@ export default function EMIDetailsPage({ id, onFlowChange, map }) {
 			return null;
 		});
 	} else {
+		console.log('is it here 1');
 		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
 		if (editLoanData && editLoanData?.emi_details[0]?.emi_details.length > 0) {
+			console.log('or is it here 3');
 			const emaiDetails = JSON.parse(editLoanData?.emi_details[0]?.emi_details);
 			if (emaiDetails.length > 0) {
 				emaiDetails.map((ele, i) => {

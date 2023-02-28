@@ -1168,7 +1168,7 @@ const DocumentUpload = props => {
 
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
-				{selectedSection?.sub_sections?.map(sub_section => {
+				{selectedSection?.sub_sections?.map((sub_section, idx) => {
 					return (
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
