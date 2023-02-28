@@ -75,16 +75,10 @@ const ProfileUpload = props => {
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
-	// const profileUploadedFile =
-	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	null;
 
-	// console.log(uploadedFile, 'uploadedFile');
 	const openDocument = async file => {
 		try {
 			setLoading(true);
-			console.log('open-doc-', { file, loanId, businessUserId });
 			const reqBody = {
 				filename: file?.doc_name || file?.document_key || file?.fd || '',
 			};
@@ -101,10 +95,9 @@ const ProfileUpload = props => {
 		}
 	};
 
+	// CALLED FOR SELFIE DOC UPLOAD
 	const deleteDocument = async file => {
 		try {
-			// console.log('delete file ', file);
-
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
 			setLoading(true);
 			const reqBody = {
@@ -113,8 +106,6 @@ const ProfileUpload = props => {
 				loan_id: loanId,
 				userid: businessUserId,
 			};
-			// console.log('reqBody-', file);
-			// return;
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
@@ -134,39 +125,14 @@ const ProfileUpload = props => {
 		},
 		onDrop: async acceptedFiles => {
 			try {
-				console.log(props, 'profileUpload Props');
 				const formData = new FormData();
 				// const newFile = {};
 				setLoading(true);
 
-				// const res = await getGeoLocation();
-				// formData.append('white_label_id', whiteLabelId);
-				// formData.append('lat', res?.latitude || null);
-				// formData.append('long', res?.longitude || null);
-				// formData.append('document', acceptedFiles[0]);
-				// if (acceptedFiles.length > 0) {
-				// 	const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-				// 	const newFile = {
-				// 		field,
-				// 		...resp?.data,
-				// 		preview: resp?.data?.presignedUrl,
-				// 	};
-				// 	setPicAddress(resp?.data?.file);
-				// 	dispatch(setProfileGeoLocation(resp?.data?.file));
-				// 	addCacheDocumentTemp(newFile);
-				// } else {
-				// 	addToast({
-				// 		message:
-				// 			'File format is not supported. Please upload jpg, jpeg or png',
-				// 		type: 'error',
-				// 	});
-				// }
-
 				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
 				const coordinates = await getGeoLocation();
 
-				// Document Upload Selfie Upload section
-
+				// SELFIE DOC UPLOAD SECTION
 				if (coordinates && section === 'documentUpload') {
 					const selectedIncomeType =
 						selectedApplicant?.basic_details?.[
@@ -191,8 +157,6 @@ const ProfileUpload = props => {
 							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
 							formData
 						);
-
-						console.log(resp, 'respp');
 						const newFile = {
 							id: resp?.data?.document_details_data?.doc_id,
 							document_id: resp?.data?.document_details_data?.doc_id,
@@ -207,16 +171,11 @@ const ProfileUpload = props => {
 							...resp?.data?.uploaded_data,
 						};
 						setPicAddress(newFile);
-						console.log('--profile upload after ondrop', cacheDocuments);
-
 						dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
 									...newFile,
-									// directorId: selectedApplicant.directorId,
-									// doc_type_id: field?.doc_type?.[selectedIncomeType],
 								},
 							})
 						);
@@ -235,16 +194,6 @@ const ProfileUpload = props => {
 					formData.append('long', coordinates?.longitude || null);
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						// const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-						// const newFile = {
-						// 	field,
-						// 	...resp?.data,
-						// 	preview: resp?.data?.presignedUrl,
-						// };
-						// setPicAddress(resp?.data?.file);
-						// dispatch(setProfileGeoLocation(resp?.data?.file));
-						// addCacheDocumentTemp(newFile);
-
 						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
 							const newFile = {
 								field,
@@ -265,14 +214,6 @@ const ProfileUpload = props => {
 						});
 					}
 				}
-				// setProfileImageResTemp(profileRes?.data);
-				// setFiles(
-				// 	acceptedFiles.map(file =>
-				// 		Object.assign(file, {
-				// 			preview: URL.createObjectURL(file),
-				// 		})
-				// 	)
-				// );
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 				addToast({
@@ -288,15 +229,14 @@ const ProfileUpload = props => {
 	useEffect(() => {
 		(async () => {
 			try {
-				// console.log(uploadedFile, 'useEffect');
+				// WHEN ONLY FD KEY IS RECEIVED, NEED TO CALL VIEWDOCUMENT API
+				// AND DECRYPT THE RESPONSE TO FETCH PRESIGNED URL
 				if (
 					section === 'documentUpload' &&
 					uploadedFile &&
 					!uploadedFile?.preview &&
 					Object.keys(uploadedFile).length > 0
 				) {
-					//
-					// console.log(selectedApplicant, '--selecetdapp');
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||
@@ -306,9 +246,10 @@ const ProfileUpload = props => {
 						loan_id: loanId,
 						userid: businessUserId,
 					};
-					console.log(uploadedFile, '---profile upload ');
+
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 					let previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
+
 					setSelfiePreview({
 						...uploadedFile,
 						preview: previewFile,
@@ -316,7 +257,7 @@ const ProfileUpload = props => {
 					});
 				}
 			} catch (err) {
-				console.log(err);
+				console.error(err);
 			}
 		})();
 
@@ -338,10 +279,6 @@ const ProfileUpload = props => {
 	// });
 
 	if (isPreview) {
-		// console.log(isPreview, isPreview);
-
-		// console.log(selfiePreview, 'selfie');
-		// console.log(uploadedFile, 'uplodd');
 		return (
 			<UI.ContainerPreview isPrevie={isPreview}>
 				<UI.ImgProfilePreview
@@ -361,10 +298,7 @@ const ProfileUpload = props => {
 							window.open(value, '_blank');
 							return;
 						}
-						if (
-							!uploadedFile?.document_id &&
-							(uploadedFile?.preview || selfiePreview?.preview)
-						) {
+						if (uploadedFile?.preview || selfiePreview?.preview) {
 							window.open(
 								uploadedFile?.preview || selfiePreview?.preview,
 								'_blank'
@@ -372,7 +306,6 @@ const ProfileUpload = props => {
 							return;
 						}
 						openDocument(uploadedFile);
-						// window.open('https://www.google.com', '_blank');
 					}}
 				/>
 				{loading ? (

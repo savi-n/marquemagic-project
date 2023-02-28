@@ -123,7 +123,6 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		setSelectedPresentAddressProofId: (state, action) => {
-			// console.log('setSelectedPresentAddressProofId-', { action });
 			if (state.isApplicant) {
 				state.applicant.selectedPresentAddressProofId = action.payload;
 				state.applicant.selectedPresentDocumentTypes =
@@ -245,7 +244,6 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 		updateSelectedDocumentTypeId: (state, action) => {
-			// console.log('updateSelectedDocumentTypeId-', { action });
 			const { fileId, docType } = action.payload;
 			const oldDocuments = _.cloneDeep(
 				state.isApplicant
@@ -264,10 +262,7 @@ export const applicantCoApplicantsSlice = createSlice({
 					  }
 					: doc
 			);
-			// console.log('updateSelectedDocumentTypeId-', {
-			// 	oldDocuments,
-			// 	newDocuments,
-			// });
+
 			if (state.isApplicant) {
 				state.applicant.documents = newDocuments;
 			} else {
@@ -275,7 +270,6 @@ export const applicantCoApplicantsSlice = createSlice({
 					state.selectedApplicantCoApplicantId
 				].documents = newDocuments;
 			}
-			// console.log('updateSelectedDocumentTypeId-', { oldDocuments });
 		},
 		// -- DOCUMENT RELATED ACTIONS
 
@@ -388,7 +382,6 @@ export const applicantCoApplicantsSlice = createSlice({
 		// EDIT LOAN
 		setEditLoanApplicantsData: (state, action) => {
 			const { editLoanData } = action.payload;
-			// console.log(editLoanData, 'in slice');
 			const applicant =
 				editLoanData?.director_details?.filter(d => d?.isApplicant)?.[0] || {};
 			const coApplicants =
@@ -422,9 +415,7 @@ export const applicantCoApplicantsSlice = createSlice({
 		// SET GEOLOCATION FOR PROFILE PICTURE
 		setProfileGeoLocation: (state, action) => {
 			const { address, lat, long, timestamp } = action.payload;
-			// console.log(' here in slice');
 			let geoLocation = { address, lat, long, timestamp };
-			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
 			if (state.isApplicant) {
 				state.applicant.profileGeoLocation = geoLocation;
 			} else {
@@ -434,6 +425,7 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 
+		// SET SELFIE DOC GEOLOCATION
 		setDocumentSelfieGeoLocation: (state, action) => {
 			const { address, lat, long, timestamp } = action.payload;
 			let geoLocation = { address, lat, long, timestamp };
@@ -447,8 +439,8 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 
+		// REMOVE GEOLOCATION DETAILS ON DELETE OF SELFIE DOC
 		removeDocumentSelfieGeoLocation: (state, action) => {
-			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
 			if (state.isApplicant) {
 				state.applicant.documentSelfieGeolocation = {};
 			} else {
@@ -458,14 +450,26 @@ export const applicantCoApplicantsSlice = createSlice({
 			}
 		},
 
+		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
 		setGeotaggingMandatoryFields: (state, action) => {
-			// const selectedDirectorId = state.selectedApplicantCoApplicantId;
-			if (state.isApplicant) {
-				state.applicant.geotaggingMandatory.push(action.payload);
+			const { directorId } = action.payload;
+
+			if (Number(state.applicant.directorId) === Number(directorId)) {
+				if (
+					!state.applicant.geotaggingMandatory.includes(action.payload.field)
+				) {
+					state.applicant.geotaggingMandatory.push(action.payload.field);
+				}
 			} else {
-				state.coApplicants[
-					state.selectedApplicantCoApplicantId
-				].geotaggingMandatory.push(action.payload);
+				if (
+					!state.coApplicants[directorId].geotaggingMandatory.includes(
+						action.payload.field
+					)
+				) {
+					state.coApplicants[directorId].geotaggingMandatory.push(
+						action.payload.field
+					);
+				}
 			}
 		},
 	},

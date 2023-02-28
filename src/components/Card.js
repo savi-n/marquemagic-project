@@ -147,14 +147,15 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					onClick={async e => {
 						if (!add) {
 							try {
-								setGettingGeoLocation(true);
-								const coordinates = await getGeoLocation();
-								const reqBody = {
-									lat: coordinates?.latitude,
-									long: coordinates?.longitude,
-								};
-								// console.log(userToken);
 								if (geoTaggingPermission) {
+									setGettingGeoLocation(true);
+									const coordinates = await getGeoLocation();
+									const reqBody = {
+										lat: coordinates?.latitude,
+										long: coordinates?.longitude,
+									};
+									// console.log(userToken);
+
 									const geoLocationRes = await axios.post(
 										`${API.API_END_POINT}/geoLocation`,
 										reqBody,

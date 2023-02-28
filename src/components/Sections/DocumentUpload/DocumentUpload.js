@@ -441,10 +441,6 @@ const DocumentUpload = props => {
 					// if (doc?.document_id) return null;
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
-							// console.log(
-							// 	'compare-',
-							// 	`${docType.doc_type_id} === ${doc.doctype}`
-							// );
 							if (
 								`${docType.doc_type_id}` === `${doc.doctype}` ||
 								`${docType.doc_type_id}` === `${doc.doc_type_id}`
@@ -459,10 +455,8 @@ const DocumentUpload = props => {
 					});
 					return null;
 				});
-				// console.log('newDocs-', { newDoc, newAllDocumentTypes });
 				dispatch(addOrUpdateCacheDocumentsDocUploadPage({ files: newDoc }));
 			}
-			// console.log('allDocumentTypes-', newAllDocumentTypes);
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
 		} finally {
@@ -500,22 +494,17 @@ const DocumentUpload = props => {
 	};
 
 	useEffect(() => {
-		// console.log(
-		// 	'useeffect- doc upload',
-		// 	selectedApplicantCoApplicantId,
-		// 	typeof selectedApplicantCoApplicantId
-		// );
-
-		// console.log(selectedApplicant, 'doc upld selected app');
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
-		setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
+		if (geoTaggingPermission) {
+			setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
+		}
+		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 		async function fetchSelfieData() {
 			let section = selectedSection?.sub_sections?.filter(
 				section => section.id === 'on_site_selfie_with_applicant'
 			)?.[0];
 			let selectedField = section?.fields?.filter(field => {
-				// console.log(field, '--field');
 				if (field?.hasOwnProperty('is_applicant')) {
 					if (field.is_applicant === false && isApplicant) {
 						return null;
@@ -531,39 +520,22 @@ const DocumentUpload = props => {
 					}
 				}
 			})?.[0];
-			// console.log(selectedField);
 			if (selectedField) {
-				if (selectedField?.geo_tagging) {
-					dispatch(
-						setGeotaggingMandatoryFields({
-							isApplicant,
-							applicantId: selectedApplicant.directorId,
-							reduxKey: 'documentSelfieGeolocation',
-						})
-					);
-				}
 				let file = cacheDocuments?.filter(doc => {
 					if (
 						`${doc?.directorId}` === `${directorId}` &&
 						doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
 					) {
-						// console.log(
-						// 	doc?.directorId,
-						// 	directorId,
-						// 	doc?.doctype,
-						// 	selectedField?.doc_type?.[selectedIncomeType],
-						// 	'------'
-						// );
 						return doc;
 					}
 				})?.[0];
 				if (file && Object.keys(file).length > 0) {
 					setCacheFile(file);
-					const reqBody = {
-						lat: file?.loan_document_details?.[0]?.lat,
-						long: file?.loan_document_details?.[0]?.long,
-					};
 					if (geoTaggingPermission) {
+						const reqBody = {
+							lat: file?.loan_document_details?.[0]?.lat,
+							long: file?.loan_document_details?.[0]?.long,
+						};
 						const geoLocationRes = await axios.post(
 							`${API.API_END_POINT}/geoLocation`,
 							reqBody,
@@ -573,7 +545,6 @@ const DocumentUpload = props => {
 								},
 							}
 						);
-						// console.log(geoLocationRes?.data?.data, 'geoLocationRes');
 						setGeoLocationData(geoLocationRes?.data?.data);
 						dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
 					}
@@ -582,6 +553,51 @@ const DocumentUpload = props => {
 		}
 		fetchSelfieData();
 
+		// SET MANDATORY FIELDS IN DOC UPLOAD SECTION TO APPLICANT/COAPPLICANT
+		function saveMandatoryGeoLocation() {
+			const coApplicantList = getApplicantCoApplicantSelectOptions({
+				applicantCoApplicants,
+				isEditOrViewLoan,
+			}).filter(
+				director => Number(director.value) !== Number(applicant.directorId)
+			);
+
+			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				sub_section?.fields?.map((field, fieldIndex) => {
+					if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
+						if (field?.db_key === 'on_site_selfie') {
+							let reduxStoreKey = 'documentSelfieGeolocation';
+							if (
+								field?.hasOwnProperty('is_applicant') &&
+								field.is_applicant === false
+							) {
+								coApplicantList.map(dir => {
+									dispatch(
+										setGeotaggingMandatoryFields({
+											directorId: dir.value,
+											field: reduxStoreKey,
+										})
+									);
+								});
+							}
+							if (field?.hasOwnProperty('is_co_applicant')) {
+								if (field.is_co_applicant === false && isApplicant) {
+									dispatch(
+										setGeotaggingMandatoryFields({
+											directorId: applicant.directorId,
+											field: reduxStoreKey,
+										})
+									);
+								}
+							}
+						}
+					}
+				});
+			});
+		}
+		if (geoTaggingPermission) {
+			saveMandatoryGeoLocation();
+		}
 		// eslint-disable-next-line
 	}, []);
 
@@ -722,7 +738,6 @@ const DocumentUpload = props => {
 				application,
 			});
 			const newUploadedDocuments = [];
-			// console.log('cache docs', cacheDocuments);
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
 
@@ -742,9 +757,6 @@ const DocumentUpload = props => {
 			});
 
 			documentUploadReqBody.data.document_upload = newUploadedDocuments;
-			// console.log('onSubmitCompleteApplication-documentUploadReqBody', {
-			// 	documentUploadReqBody,
-			// });
 
 			// --api-2 - borrower doc api
 			if (documentUploadReqBody.data.document_upload.length > 0) {
@@ -766,9 +778,7 @@ const DocumentUpload = props => {
 					updateDocumentIdToCacheDocuments.push(newDoc);
 					return null;
 				});
-				// console.log('updateDocumentIdToCacheDocuments-', {
-				// 	updateDocumentIdToCacheDocuments,
-				// });
+
 				dispatch(
 					addOrUpdateCacheDocumentsDocUploadPage({
 						files: updateDocumentIdToCacheDocuments,
@@ -814,7 +824,6 @@ const DocumentUpload = props => {
 	};
 
 	const toggleOpenSection = sectionId => {
-		// console.log('toggleOpenSection-', sectionId);
 		if (openSection.includes(sectionId)) {
 			setOpenSection(openSection.filter(s => s !== sectionId));
 			return;
@@ -911,13 +920,9 @@ const DocumentUpload = props => {
 	}
 
 	const addCacheDocumentTemp = async file => {
-		// userToken
-		console.log('--in doc upload upload after ondrop', cacheDocuments);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
-		// setGettingGeoLocation(true);
-		// const coordinates = await getGeoLocation();
-		// console.log(file, 'Doc upload - addCacheDocumentTemp');
+
 		const geoLocationTag = {
 			address: file?.address,
 			lat: file?.latitude,
@@ -930,7 +935,6 @@ const DocumentUpload = props => {
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
-	// console.log('profile', cacheDocuments);
 	const profileUploadedFile =
 		cacheDocumentsTemp?.[0] ||
 		cacheDocumentsTemp?.filter(
@@ -952,6 +956,7 @@ const DocumentUpload = props => {
 		setOnsiteVerificationErr(false);
 	};
 
+	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
 	const isAppCoAppVerificationComplete = () => {
 		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
 			{
@@ -977,6 +982,7 @@ const DocumentUpload = props => {
 		return result;
 	};
 
+	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
 	const isMandatoryGeoVerificationComplete = () => {
 		const appCoappsList = getApplicantCoApplicantSelectOptions({
 			applicantCoApplicants,
@@ -985,37 +991,44 @@ const DocumentUpload = props => {
 		let result = true;
 		appCoappsList.map(director => {
 			if (Number(applicant.directorId) === Number(director.value)) {
-				if (applicant.geotaggingMandatory.length > 0) {
-					applicant.geotaggingMandatory.map(item => {
-						if (
-							item.reduxKey === 'profileGeoLocation' &&
-							!applicant.profileGeoLocation?.address
-						) {
-							result = false;
-						} else if (
-							item.reduxKey === 'documentSelfieGeolocation' &&
-							!applicant.documentSelfieGeolocation?.address
-						) {
-							result = false;
-						}
-					});
+				if (
+					applicant.geotaggingMandatory.length > 0 &&
+					applicant.geotaggingMandatory.includes('profileGeoLocation')
+				) {
+					if (!applicant.profileGeoLocation?.address) {
+						result = false;
+					}
+				}
+				if (
+					applicant.geotaggingMandatory.length > 0 &&
+					applicant.geotaggingMandatory.includes('documentSelfieGeolocation')
+				) {
+					if (!applicant.documentSelfieGeolocation?.address) {
+						result = false;
+					}
 				}
 			} else {
-				if (coApplicants?.[director.value]?.geotaggingMandatory.length > 0) {
-					coApplicants?.[director.value]?.geotaggingMandatory.map(item => {
-						if (
-							item.reduxKey === 'profileGeoLocation' &&
-							!coApplicants?.[director.value]?.profileGeoLocation?.address
-						) {
-							result = false;
-						} else if (
-							item.reduxKey === 'documentSelfieGeolocation' &&
-							!coApplicants?.[director.value]?.documentSelfieGeolocation
-								?.address
-						) {
-							result = false;
-						}
-					});
+				if (
+					coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
+					coApplicants?.[director.value]?.geotaggingMandatory.includes(
+						'profileGeoLocation'
+					)
+				) {
+					if (!coApplicants?.[director.value]?.profileGeoLocation?.address) {
+						result = false;
+					}
+				}
+				if (
+					coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
+					coApplicants?.[director.value]?.geotaggingMandatory.includes(
+						'documentSelfieGeolocation'
+					)
+				) {
+					if (
+						!coApplicants?.[director.value]?.documentSelfieGeolocation?.address
+					) {
+						result = false;
+					}
 				}
 			}
 		});
@@ -1023,9 +1036,7 @@ const DocumentUpload = props => {
 	};
 
 	const removeCacheDocumentTemp = fieldName => {
-		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		setGeoLocationData('');
-		// console.log('cacheDocumentsTemp', cacheDocumentsTemp, fieldName);
 		setCacheFile(null);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		let docsTemp = cacheDocumentsTemp.filter(
@@ -1037,33 +1048,7 @@ const DocumentUpload = props => {
 			);
 			setCacheDocumentsTemp(temp);
 		}
-		// else {
-		// 	dispatch(removeCacheDocument({ fieldName }));
-		// }
-		// const reqBody = {
-		// 	loan_doc_id: file?.document_id || '',
-		// 	business_id: businessId,
-		// 	loan_id: loanId,
-		// 	userid: userId,
-		// };
-		// await axios.post(API.DELETE_DOCUMENT, reqBody);
 	};
-
-	// console.log('DocumentUpload-allStates-', {
-	// 	testkey: sessionStorage.getItem('testkey'),
-	// 	app,
-	// 	application,
-	// 	applicantCoApplicants,
-	// 	displayProceedButton,
-	// 	displayUploadedDocCount,
-	// 	selectedApplicant,
-	// 	directorId,
-	// 	allDocumentTypes,
-	// 	selectedApplicantDocumentTypes,
-	// 	cacheDocuments,
-	// 	editLoanData,
-	// 	selectedApplicantDocuments,
-	// });
 
 	if (loading) {
 		return (
@@ -1086,7 +1071,7 @@ const DocumentUpload = props => {
 					isDocumentUploadMandatory={isDocumentUploadMandatory}
 				/>
 			) : null}
-			{/* {console.log(isAppCoAppVerificationComplete(), '--api called here')} */}
+
 			{cibilCheckbox &&
 			declareCheck &&
 			onsiteVerificationMsg &&
@@ -1195,12 +1180,6 @@ const DocumentUpload = props => {
 									field.type === 'file' &&
 									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
 								) {
-									// prefilledProfileUploadValue = prefilledValues(field);
-									// console.log('prefilledProfileUploadValue-', {
-									// 	prefilledProfileUploadValue,
-									// 	selectedApplicant,
-									// });
-
 									return (
 										<UI.VerificationSectionWrapper key={field.id}>
 											<UI.VerificationSection isLocation={!!geoLocationData}>

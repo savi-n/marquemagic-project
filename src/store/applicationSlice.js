@@ -103,20 +103,17 @@ export const applicantSlice = createSlice({
 			// pass only single file object
 			const { file } = action.payload;
 			const newDocuments = _.cloneDeep(state.cacheDocuments);
-			console.log(newDocuments, 'cache documents before adding in redux store');
 			const isExistIndex = newDocuments?.findIndex(
 				doc =>
 					`${doc?.directorId}` === `${file?.directorId}` &&
 					`${doc?.doc_type_id}` === `${file?.doc_type_id}`
 			);
-			console.log(isExistIndex, 'is exist inx');
 			if (isExistIndex >= 0) {
 				newDocuments[isExistIndex] = file;
 			} else {
 				newDocuments.push(file);
 			}
 
-			console.log(newDocuments, 'cache documents after adding in redux store');
 			state.cacheDocuments = newDocuments;
 		},
 		addOrUpdateCacheDocuments: (state, action) => {
@@ -143,64 +140,14 @@ export const applicantSlice = createSlice({
 		},
 		addOrUpdateCacheDocumentsDocUploadPage: (state, action) => {
 			const { files } = action.payload;
-			// console.log('redux-applicationSlice-addOrUpdateCacheDocuments-', {
-			// 	files,
-			// });
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
-			// files?.map?.(newFile => {
-			// 	const isExistIndex = oldDocuments?.findIndex(doc => {
-			// 		let isExist = false;
-			// 		if (`${doc?.document_id}` === `${newFile?.document_id}`) {
-			// 			isExist = true;
-			// 		} else if (`${doc?.document_key}` === `${newFile?.document_key}`) {
-			// 			isExist = true;
-			// 		} else if (
-			// 			(`${doc?.document_key}` === `${newFile?.doc_name}` ||
-			// 				`${doc?.document_key}` === `${newFile?.document_key}`) &&
-			// 			`${doc?.directorId}` === `${newFile?.directorId}`
-			// 		) {
-			// 			isExist = true;
-			// 			// console.log('isExist4');
-			// 		}
-			// 		console.log('compare-2-files-', { doc, newFile, isExist });
-			// 		return isExist;
-			// 	});
-			// 	console.log('isIndex', isExistIndex);
-			// 	if (isExistIndex >= 0) {
-			// 		oldDocuments[isExistIndex] = newFile;
-			// 	} else {
-			// 		oldDocuments.push(newFile);
-			// 	}
-			// 	return null;
-			// });
 
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
-					if (
-						// `${doc?.document_key}` === `${newFile?.document_key}` ||
-						`${doc?.document_id}` === `${newFile?.document_id}`
-					) {
-						// console.log(
-						// 	'doc key',
-						// 	`${doc?.document_key}`,
-						// 	`${newFile?.document_key}`,
-						// 	`${doc?.document_key}` === `${newFile?.document_key}`
-						// );
-						// console.log(
-						// 	'doc id',
-						// 	`${doc?.document_id}`,
-						// 	`${newFile?.document_id}`,
-						// 	`${doc?.document_id}` === `${newFile?.document_id}`
-						// );
-						// console.log(
-						// 	'both result',
-						// 	`${doc?.document_key}` === `${newFile?.document_key}` ||
-						// 		`${doc?.document_id}` === `${newFile?.document_id}`
-						// );
+					if (`${doc?.document_id}` === `${newFile?.document_id}`) {
 						return doc;
 					}
 				});
-				console.log(isExistIndex, 'isExistIndex');
 				if (isExistIndex >= 0) {
 					oldDocuments[isExistIndex] = newFile;
 				} else {
@@ -208,10 +155,9 @@ export const applicantSlice = createSlice({
 				}
 				return newFile;
 			});
-			// console.log('old documents', oldDocuments);
-			// console.log('files', files);
 			state.cacheDocuments = oldDocuments;
 		},
+
 		addCacheDocuments: (state, action) => {
 			const { files } = action.payload;
 			const newDocuments = _.cloneDeep(state.cacheDocuments);
@@ -221,6 +167,7 @@ export const applicantSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
+
 		removeCacheDocument: (state, action) => {
 			const { doc_type_id, directorId, fileId } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
@@ -236,6 +183,7 @@ export const applicantSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
+
 		updateCacheDocumentTypeId: (state, action) => {
 			// console.log('updateSelectedDocumentTypeId-', { action });
 			const { fileId, docType } = action.payload;
@@ -254,6 +202,7 @@ export const applicantSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
+
 		updateCacheDocumentPassword: (state, action) => {
 			// console.log('updateSelectedDocumentTypeId-', { action });
 			const { fileId, password } = action.payload;
@@ -331,13 +280,14 @@ export const applicantSlice = createSlice({
 			state.sections = {};
 		},
 
+		// SET APPLICATION GEOLOCATION
 		setGeoLocation: (state, action) => {
-			// console.log(action.payload, 'slice-geolocation');
 			state.geoLocation = action.payload;
 		},
 
+		// SET PROMPT (ONCE PER APPLICATION SESSION) TO MOTIVATE USER TO
+		// COMPLETE ONSITE VERIFICATION
 		setIsPrompted: (state, action) => {
-			// console.log(action.payload, 'slice-geolocation');
 			state.prompted = action.payload;
 		},
 	},

@@ -270,7 +270,6 @@ const EMIDetails = props => {
 
 	useEffect(() => {
 		if (isEditOrViewLoan) {
-			console.log('emi details - useeffect', editLoanData);
 			const emiDetails = parseJSON(
 				editLoanData?.bank_details?.filter(
 					bank => `${bank?.id}` === `${emiDetailsFinId}`
