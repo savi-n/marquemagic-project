@@ -940,18 +940,20 @@ const BasicDetails = props => {
 					</Fragment>
 				);
 			})}
+			{geoTaggingPermission && (
+				<AddressDetailsCard
+					address={geoLocationData?.address || geoLocation?.address}
+					latitude={geoLocationData?.lat || geoLocation?.lat}
+					longitude={geoLocationData?.long || geoLocation?.long}
+					timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
+					showCloseIcon={false}
+					customStyle={{
+						marginBottom: '10px',
+					}}
+					embedInImageUpload={false}
+				/>
+			)}
 
-			<AddressDetailsCard
-				address={geoLocationData?.address || geoLocation?.address}
-				latitude={geoLocationData?.lat || geoLocation?.lat}
-				longitude={geoLocationData?.long || geoLocation?.long}
-				timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
-				showCloseIcon={false}
-				customStyle={{
-					marginBottom: '10px',
-				}}
-				embedInImageUpload={false}
-			/>
 			<UI_SECTIONS.Footer>
 				{!isViewLoan && (
 					<Button
