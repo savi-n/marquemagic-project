@@ -165,21 +165,21 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 											},
 										}
 									);
-									if (geoLocationRes?.data?.status !== 'ok') {
-										addToast({
-											message:
-												'Geo Location failed! Please enable your location and try again.',
-											type: 'error',
-										});
-										return;
-									}
+									// if (geoLocationRes?.data?.status !== 'ok') {
+									// 	addToast({
+									// 		message:
+									// 			'Geo Location failed! Please enable your location and try again.',
+									// 		type: 'error',
+									// 	});
+									// 	return;
+									// }
 									dispatch(setGeoLocation(geoLocationRes?.data?.data));
 								}
 							} catch (e) {
-								console.error(e);
+								console.error(e.response.data.message, e.message);
 								addToast({
 									message:
-										e.message ||
+										e.response.data.message ||
 										'Geo Location failed! Please enable your location and try again.',
 									type: 'error',
 								});
