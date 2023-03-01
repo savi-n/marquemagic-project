@@ -165,14 +165,6 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 											},
 										}
 									);
-									// if (geoLocationRes?.data?.status !== 'ok') {
-									// 	addToast({
-									// 		message:
-									// 			'Geo Location failed! Please enable your location and try again.',
-									// 		type: 'error',
-									// 	});
-									// 	return;
-									// }
 									dispatch(setGeoLocation(geoLocationRes?.data?.data));
 								}
 							} catch (e) {

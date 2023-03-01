@@ -194,18 +194,17 @@ const ProfileUpload = props => {
 					formData.append('long', coordinates?.longitude || null);
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
-							const newFile = {
-								field,
-								...resp?.data,
-								preview: resp?.data?.presignedUrl,
-							};
-							setPicAddress(resp?.data?.file);
-							if (isApplicant) {
-								dispatch(setProfileGeoLocation(resp?.data?.file));
-							}
-							addCacheDocumentTemp(newFile);
-						});
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+						const newFile = {
+							field,
+							...resp?.data,
+							preview: resp?.data?.presignedUrl,
+						};
+						setPicAddress(resp?.data?.file);
+						if (isApplicant) {
+							dispatch(setProfileGeoLocation(resp?.data?.file));
+						}
+						addCacheDocumentTemp(newFile);
 					} else {
 						addToast({
 							message:
