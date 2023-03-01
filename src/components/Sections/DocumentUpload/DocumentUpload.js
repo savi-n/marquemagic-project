@@ -1185,6 +1185,7 @@ const DocumentUpload = props => {
 											<UI.VerificationSection isLocation={!!geoLocationData}>
 												<ProfileUpload
 													field={field}
+													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
 													value={prefilledProfileUploadValue}
 													uploadedFile={profileUploadedFile || cacheFile}
