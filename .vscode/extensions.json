@@ -7,6 +7,9 @@
 		"dsznajder.es7-react-js-snippets",
 		"mikestead.dotenv",
 		"styled-components.vscode-styled-components",
-		"Gruntfuggly.todo-tree"
+		"Gruntfuggly.todo-tree",
+		"waderyan.gitblame",
+		"donjayamanne.githistory",
+		"simonsiefke.svg-preview"
 	]
 }
