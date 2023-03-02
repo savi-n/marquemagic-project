@@ -206,6 +206,7 @@ const ProfileUpload = props => {
 						const newFile = {
 							field,
 							...resp?.data,
+							type: 'profilePic',
 							preview: resp?.data?.presignedUrl,
 						};
 						setPicAddress(resp?.data?.file);
