@@ -386,6 +386,7 @@ const BasicDetails = props => {
 				})
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
+
 			dispatch(setSelectedSectionId(nextSectionId));
 			if (isGeoTaggingEnabled) {
 				if (
@@ -395,9 +396,12 @@ const BasicDetails = props => {
 					// ITERATING OVER THE MANDATORY FIELDS AND
 					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
 					// BUT ALLOW USER TO MOVE TO NEXT SECTION
-					if (!selectedApplicant.profileGeoLocation?.address) {
+					if (
+						(isApplicant && !selectedApplicant.profileGeoLocation?.address) ||
+						(!isApplicant && !profilePicGeolocation?.address)
+					) {
 						addToast({
-							message: 'Mandatory GeoLocation not captured',
+							message: 'Mandatory Profile GeoLocation not captured',
 							type: 'error',
 						});
 					}
@@ -431,7 +435,7 @@ const BasicDetails = props => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
 
-		if (isGeoTaggingEnabled) {
+		if (isGeoTaggingEnabled && file?.type === 'profilePic') {
 			const geoLocationTag = {
 				lat: file?.file?.lat,
 				long: file?.file?.long,
@@ -597,6 +601,13 @@ const BasicDetails = props => {
 			);
 		}
 
+		if (
+			isGeoTaggingEnabled &&
+			Object.keys(selectedApplicant.profileGeoLocation).length > 0
+		) {
+			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
+		}
+
 		async function fetchGeoLocationData() {
 			try {
 				// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
@@ -631,6 +642,13 @@ const BasicDetails = props => {
 				});
 			} catch (error) {
 				console.error('fetchGeoLocationData ~ error:', error);
+				addToast({
+					message:
+						error?.response?.data?.message ||
+						error?.message ||
+						'Could not fetch the current location',
+					type: 'error',
+				});
 			}
 		}
 

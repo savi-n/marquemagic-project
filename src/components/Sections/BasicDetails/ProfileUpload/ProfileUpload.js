@@ -84,6 +84,13 @@ const ProfileUpload = props => {
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
+			addToast({
+				message:
+					error?.response?.data?.message ||
+					error?.message ||
+					'Unable to open file, try after sometime',
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -106,6 +113,13 @@ const ProfileUpload = props => {
 			dispatch(removeDocumentSelfieGeoLocation());
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
+			addToast({
+				message:
+					error?.response?.data?.message ||
+					error.message ||
+					'Unable to delete file, try after sometime',
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -192,6 +206,7 @@ const ProfileUpload = props => {
 						const newFile = {
 							field,
 							...resp?.data,
+							type: 'profilePic',
 							preview: resp?.data?.presignedUrl,
 						};
 						setPicAddress(resp?.data?.file);
@@ -210,7 +225,10 @@ const ProfileUpload = props => {
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 				addToast({
-					message: error?.message || 'File format is not supported.',
+					message:
+						error?.response?.data?.message ||
+						error?.message ||
+						'File format is not supported.',
 					type: 'error',
 				});
 			} finally {
@@ -253,6 +271,10 @@ const ProfileUpload = props => {
 				}
 			} catch (err) {
 				console.error(err);
+				addToast({
+					message: err?.message || 'Network Error',
+					type: 'error',
+				});
 			}
 		})();
 
