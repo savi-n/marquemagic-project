@@ -631,6 +631,13 @@ const BasicDetails = props => {
 				});
 			} catch (error) {
 				console.error('fetchGeoLocationData ~ error:', error);
+				addToast({
+					message:
+						error?.response?.data?.message ||
+						error?.message ||
+						'Could not fetch the current location',
+					type: 'error',
+				});
 			}
 		}
 

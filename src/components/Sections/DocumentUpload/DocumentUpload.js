@@ -501,56 +501,68 @@ const DocumentUpload = props => {
 		}
 		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 		async function fetchSelfieData() {
-			let section = selectedSection?.sub_sections?.filter(
-				section => section.id === 'on_site_selfie_with_applicant'
-			)?.[0];
-			let selectedField = section?.fields?.filter(field => {
-				if (field?.hasOwnProperty('is_applicant')) {
-					if (field.is_applicant === false && isApplicant) {
-						return null;
-					} else {
-						return field;
+			try {
+				let section = selectedSection?.sub_sections?.filter(
+					section => section.id === 'on_site_selfie_with_applicant'
+				)?.[0];
+				let selectedField = section?.fields?.filter(field => {
+					if (field?.hasOwnProperty('is_applicant')) {
+						if (field.is_applicant === false && isApplicant) {
+							return null;
+						} else {
+							return field;
+						}
 					}
-				}
-				if (field?.hasOwnProperty('is_co_applicant')) {
-					if (field.is_co_applicant === false && !isApplicant) {
-						return null;
-					} else {
-						return field;
-					}
-				}
-				return null;
-			})?.[0];
-			if (selectedField) {
-				let file = cacheDocuments?.filter(doc => {
-					if (
-						`${doc?.directorId}` === `${directorId}` &&
-						doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
-					) {
-						return doc;
+					if (field?.hasOwnProperty('is_co_applicant')) {
+						if (field.is_co_applicant === false && !isApplicant) {
+							return null;
+						} else {
+							return field;
+						}
 					}
 					return null;
 				})?.[0];
-				if (file && Object.keys(file).length > 0) {
-					setCacheFile(file);
-					if (isGeoTaggingEnabled) {
-						const reqBody = {
-							lat: file?.loan_document_details?.[0]?.lat,
-							long: file?.loan_document_details?.[0]?.long,
-						};
-						const geoLocationRes = await axios.post(
-							`${API.API_END_POINT}/geoLocation`,
-							reqBody,
-							{
-								headers: {
-									Authorization: `Bearer ${userToken}`,
-								},
-							}
-						);
-						setGeoLocationData(geoLocationRes?.data?.data);
-						dispatch(setDocumentSelfieGeoLocation(geoLocationRes?.data?.data));
+				if (selectedField) {
+					let file = cacheDocuments?.filter(doc => {
+						if (
+							`${doc?.directorId}` === `${directorId}` &&
+							doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
+						) {
+							return doc;
+						}
+						return null;
+					})?.[0];
+					if (file && Object.keys(file).length > 0) {
+						setCacheFile(file);
+						if (isGeoTaggingEnabled) {
+							const reqBody = {
+								lat: file?.loan_document_details?.[0]?.lat,
+								long: file?.loan_document_details?.[0]?.long,
+							};
+							const geoLocationRes = await axios.post(
+								`${API.API_END_POINT}/geoLocation`,
+								reqBody,
+								{
+									headers: {
+										Authorization: `Bearer ${userToken}`,
+									},
+								}
+							);
+							setGeoLocationData(geoLocationRes?.data?.data);
+							dispatch(
+								setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
+							);
+						}
 					}
 				}
+			} catch (err) {
+				addToast({
+					message:
+						err?.response?.data?.message ||
+						err?.message ||
+						'Oops! Something went wrong',
+					type: 'error',
+				});
 			}
 		}
 		fetchSelfieData();
