@@ -703,7 +703,9 @@ const BasicDetails = props => {
 						}
 						arr.push(reduxStoreKey);
 					}
+					return null;
 				});
+				return null;
 			});
 			// console.log(arr, 'arr');
 			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);

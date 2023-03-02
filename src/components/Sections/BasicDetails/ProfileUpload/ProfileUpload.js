@@ -52,13 +52,7 @@ const ProfileUpload = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
-	const {
-		loanId,
-		loanRefId,
-		businessUserId,
-		businessId,
-		cacheDocuments,
-	} = application;
+	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	const {

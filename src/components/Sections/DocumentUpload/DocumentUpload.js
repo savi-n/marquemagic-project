@@ -519,6 +519,7 @@ const DocumentUpload = props => {
 						return field;
 					}
 				}
+				return null;
 			})?.[0];
 			if (selectedField) {
 				let file = cacheDocuments?.filter(doc => {
@@ -528,6 +529,7 @@ const DocumentUpload = props => {
 					) {
 						return doc;
 					}
+					return null;
 				})?.[0];
 				if (file && Object.keys(file).length > 0) {
 					setCacheFile(file);
@@ -578,6 +580,7 @@ const DocumentUpload = props => {
 											field: reduxStoreKey,
 										})
 									);
+									return null;
 								});
 							}
 							if (field?.hasOwnProperty('is_co_applicant')) {
@@ -592,7 +595,9 @@ const DocumentUpload = props => {
 							}
 						}
 					}
+					return null;
 				});
+				return null;
 			});
 		}
 		if (geoTaggingPermission) {
@@ -978,6 +983,7 @@ const DocumentUpload = props => {
 					result = false;
 				}
 			}
+			return null;
 		});
 		return result;
 	};
@@ -1031,6 +1037,7 @@ const DocumentUpload = props => {
 					}
 				}
 			}
+			return null;
 		});
 		return result;
 	};
@@ -1232,6 +1239,7 @@ const DocumentUpload = props => {
 										/>
 									);
 								}
+								return null;
 							})}
 							<UI.Divider />
 						</UI.CommentsForOfficeUserWrapper>

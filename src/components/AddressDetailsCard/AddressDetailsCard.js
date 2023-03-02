@@ -3,7 +3,6 @@ import closeIcon from 'assets/icons/close_icon_grey.png';
 import * as UI from './ui';
 import locationPinIcon from 'assets/icons/Geo_icon_5.png';
 import { useState } from 'react';
-import { useEffect } from 'react';
 
 function AddressDetailsCard(props) {
 	const {
