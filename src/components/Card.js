@@ -103,7 +103,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
 	const { app } = useSelector(state => state);
-	const { geoTaggingPermission } = app;
+	const { isGeoTaggingEnabled } = app;
 	const { userToken } = app;
 	const {
 		actions: { removeAllLoanDocuments },
@@ -147,7 +147,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					onClick={async e => {
 						if (!add) {
 							try {
-								if (geoTaggingPermission) {
+								if (isGeoTaggingEnabled) {
 									setGettingGeoLocation(true);
 									const coordinates = await getGeoLocation();
 									const reqBody = {
