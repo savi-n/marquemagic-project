@@ -70,7 +70,7 @@ const BasicDetails = props => {
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		userDetails,
-		geoTaggingPermission,
+		isGeoTaggingEnabled,
 	} = app;
 	const {
 		isApplicant,
@@ -387,7 +387,7 @@ const BasicDetails = props => {
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setSelectedSectionId(nextSectionId));
-			if (geoTaggingPermission) {
+			if (isGeoTaggingEnabled) {
 				if (
 					mandatoryGeoTag.length > 0 &&
 					mandatoryGeoTag.includes('profileGeoLocation')
@@ -431,7 +431,7 @@ const BasicDetails = props => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
 
-		if (geoTaggingPermission) {
+		if (isGeoTaggingEnabled) {
 			const geoLocationTag = {
 				lat: file?.file?.lat,
 				long: file?.file?.long,
@@ -673,7 +673,7 @@ const BasicDetails = props => {
 
 		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
 		if (
-			geoTaggingPermission &&
+			isGeoTaggingEnabled &&
 			Object.keys(selectedApplicant).length > 0 &&
 			isEditOrViewLoan
 		) {
@@ -942,7 +942,7 @@ const BasicDetails = props => {
 					</Fragment>
 				);
 			})}
-			{geoTaggingPermission && (
+			{isGeoTaggingEnabled && (
 				<AddressDetailsCard
 					address={geoLocationData?.address || geoLocation?.address}
 					latitude={geoLocationData?.lat || geoLocation?.lat}
@@ -950,7 +950,7 @@ const BasicDetails = props => {
 					timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
 					showCloseIcon={false}
 					customStyle={{
-						marginBottom: '25px',
+						marginBottom: '30px',
 					}}
 					embedInImageUpload={false}
 				/>

@@ -66,7 +66,7 @@ const DocumentUpload = props => {
 		selectedSectionId,
 		selectedSection,
 		userToken,
-		geoTaggingPermission,
+		isGeoTaggingEnabled,
 	} = app;
 	const {
 		isApplicant,
@@ -496,7 +496,7 @@ const DocumentUpload = props => {
 	useEffect(() => {
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
-		if (geoTaggingPermission) {
+		if (isGeoTaggingEnabled) {
 			setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
 		}
 		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
@@ -533,7 +533,7 @@ const DocumentUpload = props => {
 				})?.[0];
 				if (file && Object.keys(file).length > 0) {
 					setCacheFile(file);
-					if (geoTaggingPermission) {
+					if (isGeoTaggingEnabled) {
 						const reqBody = {
 							lat: file?.loan_document_details?.[0]?.lat,
 							long: file?.loan_document_details?.[0]?.long,
@@ -600,7 +600,7 @@ const DocumentUpload = props => {
 				return null;
 			});
 		}
-		if (geoTaggingPermission) {
+		if (isGeoTaggingEnabled) {
 			saveMandatoryGeoLocation();
 		}
 		// eslint-disable-next-line
@@ -1183,7 +1183,7 @@ const DocumentUpload = props => {
 									}
 								}
 								if (
-									geoTaggingPermission &&
+									isGeoTaggingEnabled &&
 									field.type === 'file' &&
 									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
 								) {

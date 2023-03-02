@@ -1,8 +1,7 @@
-import React from 'react';
-import closeIcon from 'assets/icons/close_icon_grey.png';
-import * as UI from './ui';
-import locationPinIcon from 'assets/icons/Geo_icon_5.png';
 import { useState } from 'react';
+import closeIcon from 'assets/icons/close_icon_grey.png';
+import locationPinIcon from 'assets/icons/Geo_icon_5.png';
+import * as UI from './ui';
 
 function AddressDetailsCard(props) {
 	const {
@@ -15,6 +14,7 @@ function AddressDetailsCard(props) {
 		embedInImageUpload = false,
 		customStyle,
 	} = props;
+
 	const stringLength = window.screen.width < 768 ? 25 : 75;
 	const [displayCompleteAddress, setDisplayCompleteAddress] = useState(false);
 
