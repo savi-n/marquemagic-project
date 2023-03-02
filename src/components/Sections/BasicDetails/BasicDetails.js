@@ -950,7 +950,7 @@ const BasicDetails = props => {
 					timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
 					showCloseIcon={false}
 					customStyle={{
-						marginBottom: '10px',
+						marginBottom: '25px',
 					}}
 					embedInImageUpload={false}
 				/>
