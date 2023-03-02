@@ -603,7 +603,8 @@ const BasicDetails = props => {
 
 		if (
 			isGeoTaggingEnabled &&
-			Object.keys(selectedApplicant.profileGeoLocation).length > 0
+			selectedApplicant?.profileGeoLocation &&
+			Object.keys(selectedApplicant?.profileGeoLocation).length > 0
 		) {
 			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
 		}
