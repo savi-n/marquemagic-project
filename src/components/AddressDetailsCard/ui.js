@@ -10,8 +10,8 @@ export const ImageContent = styled.div`
 	height: fit-content;
 	max-height: ${({ displayCompleteAddress }) =>
 		displayCompleteAddress ? '100%' : '65%'};
-	min-height: 85px;
-	padding: 5px 2px 5px 2px;
+	min-height: 100px;
+	padding: 5px 5px 5px 5px;
 	border-radius: 10px;
 	/* position: absolute; */
 	bottom: 0;
@@ -28,7 +28,7 @@ export const TextIcon = styled.img`
 	border-radius: 10px;
 	background-color: #f1f5ff;
 	padding: 10px 5px 20px 5px;
-	height: 70px;
+	height: 90px;
 	margin-left: 5px;
 	object-fit: contain;
 	@media (max-width: 767px) {
@@ -43,7 +43,7 @@ export const ImageText = styled.div`
 		font-size: 11px;
 	}
 	font-size: 14px;
-	color: black;
+	color: #5a5a5a;
 	padding: 0 10px 0 10px;
 	width: 80%;
 `;
@@ -63,12 +63,14 @@ export const FullAddress = styled.span`
 export const TextHeader = styled.h2`
 	font-weight: bold;
 	font-size: 12px;
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+		monospace;
 `;
 export const TextContent = styled.span`
 	height: fit-content;
 	word-break: break-all;
 	font-size: ${({ embedInImageUpload }) =>
-		embedInImageUpload ? '12px' : '15.5px'};
+		embedInImageUpload ? '12px' : '14px'};
 	@media (max-width: 1100px) {
 		font-size: 10px;
 	}
