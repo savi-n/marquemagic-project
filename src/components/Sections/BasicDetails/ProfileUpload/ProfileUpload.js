@@ -52,13 +52,7 @@ const ProfileUpload = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { whiteLabelId } = app;
-	const {
-		loanId,
-		loanRefId,
-		businessUserId,
-		businessId,
-		cacheDocuments,
-	} = application;
+	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	const {
@@ -194,18 +188,17 @@ const ProfileUpload = props => {
 					formData.append('long', coordinates?.longitude || null);
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
-						axios.post(UPLOAD_PROFILE_IMAGE, formData).then(resp => {
-							const newFile = {
-								field,
-								...resp?.data,
-								preview: resp?.data?.presignedUrl,
-							};
-							setPicAddress(resp?.data?.file);
-							if (isApplicant) {
-								dispatch(setProfileGeoLocation(resp?.data?.file));
-							}
-							addCacheDocumentTemp(newFile);
-						});
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+						const newFile = {
+							field,
+							...resp?.data,
+							preview: resp?.data?.presignedUrl,
+						};
+						setPicAddress(resp?.data?.file);
+						if (isApplicant) {
+							dispatch(setProfileGeoLocation(resp?.data?.file));
+						}
+						addCacheDocumentTemp(newFile);
 					} else {
 						addToast({
 							message:
@@ -237,6 +230,7 @@ const ProfileUpload = props => {
 					!uploadedFile?.preview &&
 					Object.keys(uploadedFile).length > 0
 				) {
+					setLoading(true);
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||
@@ -255,6 +249,7 @@ const ProfileUpload = props => {
 						preview: previewFile,
 						presignedUrl: previewFile,
 					});
+					setLoading(false);
 				}
 			} catch (err) {
 				console.error(err);
@@ -283,14 +278,16 @@ const ProfileUpload = props => {
 			<UI.ContainerPreview isPrevie={isPreview}>
 				<UI.ImgProfilePreview
 					src={
-						section === 'documentUpload'
+						loading
+							? imageBgProfile
+							: section === 'documentUpload'
 							? uploadedFile?.preview ||
 							  uploadedFile?.presignedUrl ||
 							  selfiePreview?.preview ||
 							  selfiePreview?.presignedUrl
 							: uploadedFile?.preview || uploadedFile?.presignedUrl || value
 					}
-					alt='profile'
+					alt='Loading File...'
 					onClick={e => {
 						e.preventDefault();
 						e.stopPropagation();
