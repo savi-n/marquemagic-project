@@ -22,3 +22,21 @@ export const isBusinessPan = companyName => {
 		companyName?.toLowerCase()?.includes('private')
 	);
 };
+
+export const getGeoLocation = () => {
+	return new Promise((resolve, reject) => {
+		try {
+			const getPosition = position =>
+				resolve({
+					latitude: position?.coords?.latitude,
+					longitude: position?.coords?.longitude,
+					timestamp: position?.timestamp,
+					// timestamp: moment(position?.timestamp).format('MM/DD/YYYY HH:mm:ss'),
+				});
+			const gotError = error => reject(false);
+			navigator?.geolocation?.getCurrentPosition(getPosition, gotError);
+		} catch (error) {
+			reject(false);
+		}
+	});
+};

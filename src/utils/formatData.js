@@ -104,7 +104,7 @@ export const formatSectionReqBody = data => {
 			: coApplicants[selectedApplicantCoApplicantId] || {};
 		const subSectionsData = {};
 		selectedSection?.sub_sections?.map(sub_section => {
-			const sectionBody = {};
+			let sectionBody = {};
 			sub_section.fields.map(field => {
 				if (!field.db_key || !field.name || values?.[field.name] === undefined)
 					return null;
@@ -114,6 +114,15 @@ export const formatSectionReqBody = data => {
 						: values[field.name];
 				return null;
 			});
+			// console.log(values, selectedSection, sectionBody);
+			if (selectedSection.id === 'basic_details') {
+				sectionBody = {
+					...sectionBody,
+					app_coordinates: values['app_coordinates'],
+				};
+			}
+
+			// console.log(values, selectedSection, sectionBody);
 			subSectionsData[sub_section.id] = sectionBody;
 			return null;
 		});

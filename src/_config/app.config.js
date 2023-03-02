@@ -87,6 +87,7 @@ const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
 const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
 const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
+const UPLOAD_SELFIE_APPLICANT_COAPPLICANT = `${API_END_POINT}/geo/upload_img`;
 
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
@@ -213,4 +214,5 @@ export {
 	TEST_DOMAINS,
 	TO_APPLICATION_STAGE_URL,
 	VERIFY_TOKEN,
+	UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
 };
