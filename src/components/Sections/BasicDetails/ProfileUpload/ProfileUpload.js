@@ -51,7 +51,7 @@ const ProfileUpload = props => {
 	);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { whiteLabelId } = app;
+	const { whiteLabelId, isGeoTaggingEnabled } = app;
 	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
@@ -110,7 +110,9 @@ const ProfileUpload = props => {
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
-			dispatch(removeDocumentSelfieGeoLocation());
+			if (isGeoTaggingEnabled) {
+				dispatch(removeDocumentSelfieGeoLocation());
+			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
 			addToast({
@@ -178,8 +180,10 @@ const ProfileUpload = props => {
 							preview: resp?.data?.presignedUrl,
 							...resp?.data?.uploaded_data,
 						};
-						setPicAddress(newFile);
-						dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+						if (isGeoTaggingEnabled) {
+							setPicAddress(newFile);
+							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+						}
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -209,9 +213,11 @@ const ProfileUpload = props => {
 							type: 'profilePic',
 							preview: resp?.data?.presignedUrl,
 						};
-						setPicAddress(resp?.data?.file);
-						if (isApplicant) {
-							dispatch(setProfileGeoLocation(resp?.data?.file));
+						if (isGeoTaggingEnabled) {
+							setPicAddress(resp?.data?.file);
+							if (isApplicant) {
+								dispatch(setProfileGeoLocation(resp?.data?.file));
+							}
 						}
 						addCacheDocumentTemp(newFile);
 					} else {
@@ -383,7 +389,7 @@ const ProfileUpload = props => {
 							</UI.PinIconWrapper>
 						)}
 
-						{showImageInfo && (
+						{isGeoTaggingEnabled && showImageInfo && (
 							<AddressDetailsCard
 								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
 								setShowImageInfo={setShowImageInfo}
