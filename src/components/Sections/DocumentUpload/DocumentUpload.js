@@ -940,15 +940,17 @@ const DocumentUpload = props => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
 
-		const geoLocationTag = {
-			address: file?.address,
-			lat: file?.latitude,
-			long: file?.longitude,
-			timestamp: file?.timestamp,
-		};
+		if (isGeoTaggingEnabled) {
+			const geoLocationTag = {
+				address: file?.address,
+				lat: file?.latitude,
+				long: file?.longitude,
+				timestamp: file?.timestamp,
+			};
+			setGeoLocationData(geoLocationTag);
+			dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+		}
 		setCacheFile(file);
-		setGeoLocationData(geoLocationTag);
-		dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
@@ -1091,7 +1093,8 @@ const DocumentUpload = props => {
 				/>
 			) : null}
 
-			{cibilCheckbox &&
+			{isGeoTaggingEnabled &&
+			cibilCheckbox &&
 			declareCheck &&
 			onsiteVerificationMsg &&
 			!prompted &&
@@ -1099,7 +1102,9 @@ const DocumentUpload = props => {
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}
 
-			{onsiteVerificationErr && isMandatoryGeoVerificationComplete ? (
+			{isGeoTaggingEnabled &&
+			onsiteVerificationErr &&
+			isMandatoryGeoVerificationComplete ? (
 				<MandatoryOnsiteVerificationErrModal
 					onYes={closeVerificationErrModal}
 				/>
