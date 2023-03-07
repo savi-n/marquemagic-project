@@ -51,7 +51,7 @@ const ProfileUpload = props => {
 	);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { whiteLabelId } = app;
+	const { whiteLabelId, isGeoTaggingEnabled } = app;
 	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
@@ -84,6 +84,13 @@ const ProfileUpload = props => {
 			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
 		} catch (error) {
 			console.error('Unable to open file, try after sometime', error);
+			addToast({
+				message:
+					error?.response?.data?.message ||
+					error?.message ||
+					'Unable to open file, try after sometime',
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -103,9 +110,18 @@ const ProfileUpload = props => {
 			await axios.post(API.DELETE_DOCUMENT, reqBody);
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
-			dispatch(removeDocumentSelfieGeoLocation());
+			if (isGeoTaggingEnabled) {
+				dispatch(removeDocumentSelfieGeoLocation());
+			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
+			addToast({
+				message:
+					error?.response?.data?.message ||
+					error.message ||
+					'Unable to delete file, try after sometime',
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -164,8 +180,10 @@ const ProfileUpload = props => {
 							preview: resp?.data?.presignedUrl,
 							...resp?.data?.uploaded_data,
 						};
-						setPicAddress(newFile);
-						dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+						if (isGeoTaggingEnabled) {
+							setPicAddress(newFile);
+							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+						}
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -192,11 +210,14 @@ const ProfileUpload = props => {
 						const newFile = {
 							field,
 							...resp?.data,
+							type: 'profilePic',
 							preview: resp?.data?.presignedUrl,
 						};
-						setPicAddress(resp?.data?.file);
-						if (isApplicant) {
-							dispatch(setProfileGeoLocation(resp?.data?.file));
+						if (isGeoTaggingEnabled) {
+							setPicAddress(resp?.data?.file);
+							if (isApplicant) {
+								dispatch(setProfileGeoLocation(resp?.data?.file));
+							}
 						}
 						addCacheDocumentTemp(newFile);
 					} else {
@@ -210,7 +231,10 @@ const ProfileUpload = props => {
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 				addToast({
-					message: error?.message || 'File format is not supported.',
+					message:
+						error?.response?.data?.message ||
+						error?.message ||
+						'File format is not supported.',
 					type: 'error',
 				});
 			} finally {
@@ -253,6 +277,10 @@ const ProfileUpload = props => {
 				}
 			} catch (err) {
 				console.error(err);
+				addToast({
+					message: err?.message || 'Network Error',
+					type: 'error',
+				});
 			}
 		})();
 
@@ -361,7 +389,7 @@ const ProfileUpload = props => {
 							</UI.PinIconWrapper>
 						)}
 
-						{showImageInfo && (
+						{isGeoTaggingEnabled && showImageInfo && (
 							<AddressDetailsCard
 								imageSrc={locationPinIcon} //change and assign these props once the proper data is obtained
 								setShowImageInfo={setShowImageInfo}
