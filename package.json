@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"start": "craco start",
+		"start": "env-cmd -f ./env/.env.dev craco start",
 		"start:dev": "env-cmd -f ./env/.env.dev craco start",
 		"start:uat": "env-cmd -f ./env/.env.uat craco start",
 		"start:dev:aws": "env-cmd -f ./env/.env.aws.dev craco start",
@@ -13,6 +13,8 @@
 		"build:heap": "node --max_old_space_size=8048 craco build",
 		"build:uat": "env-cmd -f ./env/.env.uat craco build",
 		"build:prod": "env-cmd -f ./env/.env.prod craco build",
+		"build:azure:uat": "env-cmd -f ./env/.env.azure.uat craco build",
+		"build:azure:prod": "env-cmd -f ./env/.env.azure.prod craco build",
 		"test": "craco test",
 		"eject": "react-scripts eject"
 	},

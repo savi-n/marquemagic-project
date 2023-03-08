@@ -68,16 +68,24 @@ export const IconDelete = styled.img`
 	cursor: pointer;
 `;
 
+// export const CameraIconWrapper = styled.div`
+// 	/* border: 1px solid red; */
+// 	position: absolute;
+// 	right: 0;
+// 	bottom: 0;
+// 	margin-right: 20px;
+// 	margin-bottom: 20px;
+// 	cursor: pointer;
+// `;
 export const CameraIconWrapper = styled.div`
 	/* border: 1px solid red; */
 	position: absolute;
+	top: 0;
 	right: 0;
-	bottom: 0;
-	margin-right: 20px;
-	margin-bottom: 20px;
+	margin-right: 12px;
+	margin-top: 15px;
 	cursor: pointer;
 `;
-
 export const IconCamera = styled.img`
 	height: 40px;
 	width: 40px;
@@ -95,4 +103,13 @@ export const ImgProfilePreview = styled.img`
 
 export const ImageBgProfile = styled.img`
 	height: 200px;
+`;
+
+export const PinIconWrapper = styled.div`
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin-right: 12px;
+	margin-top: 60px;
+	cursor: pointer;
 `;

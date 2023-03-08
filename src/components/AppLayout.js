@@ -13,11 +13,13 @@ import {
 	setUserDetails,
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
+	setPermission,
 	// reInitializeAppSlice,
 	setUserToken,
 } from 'store/appSlice';
 import {
 	// reInitializeApplicationSlice,
+	setGeoLocation,
 	setLoanIds,
 	addOrUpdateCacheDocuments,
 	clearCacheDraftModeSectionsData,
@@ -146,7 +148,10 @@ const AppLayout = () => {
 							decryptedToken.loan_ref_id
 						}`
 					);
+					// console.log(loanDetailsRes?.data?.data, 'data resp');
+
 					const isEditLoan = decryptedToken.edit ? true : false;
+					const isViewLoan = !isEditLoan;
 					const newEditLoanData =
 						{
 							..._.cloneDeep(loanDetailsRes?.data?.data),
@@ -155,7 +160,10 @@ const AppLayout = () => {
 						} || {};
 
 					// Request URL: http://3.108.54.252:1337/viewloanlisting?skip=0&limit=5&search=COIT00246086
-					if (loanDetailsRes?.data?.data?.lender_document?.length > 0) {
+					if (
+						isViewLoan &&
+						loanDetailsRes?.data?.data?.lender_document?.length > 0
+					) {
 						const viewLoanDetailsRes = await axios.get(
 							`${API_END_POINT}/viewloanlisting?skip=0&limit=5&search=${
 								decryptedToken.loan_ref_id
@@ -169,10 +177,13 @@ const AppLayout = () => {
 						newEditLoanData.lender_document =
 							viewLoanDetailsRes?.data?.loan_details?.[0]?.lender_document;
 					}
+					// console.log(newEditLoanData, 'newEditLoanData');
+					// console.log('isEdit', isEditLoan, 'isViewLoan', isViewLoan);
 					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
 					sessionStorage.setItem('userToken', decryptedToken.token);
 					dispatch(setUserToken(decryptedToken.token));
 					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
+					dispatch(setGeoLocation(newEditLoanData.app_coordinates));
 					dispatch(
 						setEditLoanApplicantsData({ editLoanData: newEditLoanData })
 					);
@@ -213,7 +224,7 @@ const AppLayout = () => {
 							)?.[0]?.id,
 							businessAddressIdAid2: newEditLoanData?.business_address?.filter(
 								address => `${address?.aid}` === '2'
-							)?.[1]?.id,
+							)?.[0]?.id,
 						})
 					);
 					const newDocs = formatLoanDocuments(
@@ -321,6 +332,7 @@ const AppLayout = () => {
 			// dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
+			dispatch(setPermission(response?.permission || {}));
 
 			sessionStorage.setItem(
 				'permission',

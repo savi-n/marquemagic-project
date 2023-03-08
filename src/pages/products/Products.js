@@ -20,11 +20,12 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'components/Modal';
 import Button from 'components/Button';
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
-import imgEditIcon from 'assets/icons/edit-icon.png';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+// import imgEditIcon from 'assets/icons/edit-icon.png';
+// import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useToasts } from 'components/Toast/ToastProvider';
 import Loading from 'components/Loading';
+import searchIcon from 'assets/icons/search-icon.png';
 
 const Wrapper = styled.div`
 	padding: 30px 80px 50px 80px;
@@ -167,17 +168,17 @@ const AppStatusList = styled.li`
 	}
 `;
 
-const AppEditIcon = styled.img`
-	position: absolute;
-	margin-top: 25px;
-	height: 40px;
-	/* margin-top: 20px; */
-	cursor: pointer;
-	@media (max-width: 700px) {
-		margin-top: 15px;
-		height: 30px;
-	}
-`;
+// const AppEditIcon = styled.img`
+// 	position: absolute;
+// 	margin-top: 25px;
+// 	height: 40px;
+// 	/* margin-top: 20px; */
+// 	cursor: pointer;
+// 	@media (max-width: 700px) {
+// 		margin-top: 15px;
+// 		height: 30px;
+// 	}
+// `;
 
 const AppStatusLine1 = styled.div`
 	/* border: 1px solid red; */
@@ -193,65 +194,83 @@ const AppStatusLine1 = styled.div`
 
 const AppNumber = styled.div`
 	padding-left: 65px;
+	@media (min-width: 767px) {
+		width: 33.33%;
+	}
+
 	@media (max-width: 700px) {
-		padding-left: 40px;
+		padding-left: 20px;
 		font-size: 13px;
 		text-align: left;
 	}
 `;
 const AppStatus = styled.div`
 	padding-left: 65px;
+	@media (min-width: 767px) {
+		width: 33.33%;
+	}
 	@media (max-width: 700px) {
-		padding-left: 40px;
+		padding-left: 20px;
 		/* margin-top: 35px; */
 		font-size: 14px;
 	}
 `;
-
-const AppStatusLine2 = styled.div`
-	/* border: 1px solid red; */
-	/* margin-left: auto; */
-	margin-top: 10px;
-	padding: 0 50px;
-	/* margin: 0 auto; */
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	text-align: center;
-	align-items: center;
+const ApplicantName = styled.div`
+	padding-left: 65px;
+	@media (min-width: 767px) {
+		width: 33.33%;
+	}
 	@media (max-width: 700px) {
-		padding: 0 0px;
+		padding-left: 20px;
+		font-size: 13px;
+		text-align: left;
 	}
 `;
 
-const AppStatusDotLine = styled.div`
-	background: lightgrey;
-	z-index: -1;
-	height: 1px;
-	/* border: 1px solid green; */
-	width: 85%;
-	margin-left: 20px;
-	position: absolute;
-	/* width: 500px; */
-	/* position: absolute; */
-	@media (max-width: 700px) {
-		margin-left: 0;
-		width: 100%;
-	}
-`;
+// const AppStatusLine2 = styled.div`
+// 	/* border: 1px solid red; */
+// 	/* margin-left: auto; */
+// 	margin-top: 10px;
+// 	padding: 0 50px;
+// 	/* margin: 0 auto; */
+// 	width: 100%;
+// 	display: flex;
+// 	justify-content: space-between;
+// 	text-align: center;
+// 	align-items: center;
+// 	@media (max-width: 700px) {
+// 		padding: 0 0px;
+// 	}
+// `;
 
-const AppStatusDots = styled.div`
-	/* border: 1px solid yellow; */
-	height: 10px;
-	width: 10px;
-	margin: 0 15px;
-	/* background: green; */
-	background: ${({ active }) => (active ? '#00D884' : 'lightgrey')};
-	border-radius: 50%;
-	@media (max-width: 700px) {
-		margin: 0;
-	}
-`;
+// const AppStatusDotLine = styled.div`
+// 	background: lightgrey;
+// 	z-index: -1;
+// 	height: 1px;
+// 	/* border: 1px solid green; */
+// 	width: 85%;
+// 	margin-left: 20px;
+// 	position: absolute;
+// 	/* width: 500px; */
+// 	/* position: absolute; */
+// 	@media (max-width: 700px) {
+// 		margin-left: 0;
+// 		width: 100%;
+// 	}
+// `;
+
+// const AppStatusDots = styled.div`
+// 	/* border: 1px solid yellow; */
+// 	height: 10px;
+// 	width: 10px;
+// 	margin: 0 15px;
+// 	/* background: green; */
+// 	background: ${({ active }) => (active ? '#00D884' : 'lightgrey')};
+// 	border-radius: 50%;
+// 	@media (max-width: 700px) {
+// 		margin: 0;
+// 	}
+// `;
 
 const ModalOTPHeader = styled.h2`
 	color: #525252;
@@ -308,7 +327,7 @@ export default function Products() {
 	const [refstatus, setRefstatus] = useState('');
 	const { addToast } = useToasts();
 	const [loanList, setLoanList] = useState([]);
-	const [primaryStatusList, setPrimaryStatusList] = useState([]);
+	const [, setPrimaryStatusList] = useState([]);
 	const [modalOTP, setModalOTP] = useState(false);
 	const [modalOTPData, setModalOTPData] = useState({});
 	const [OTP, setOTP] = useState('');
@@ -316,6 +335,8 @@ export default function Products() {
 	const [errOTP, setErrOTP] = useState('');
 	const [addProduct, setAddProduct] = useState(false);
 	const [loadingOTP, setLoadingOTP] = useState(false);
+	const initialLoanProductCount = 3;
+	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
 
 	const getStatusCustomer = async () => {
 		try {
@@ -461,8 +482,10 @@ export default function Products() {
 		sessionStorage.removeItem(HOSTNAME);
 		const wt_lbl = sessionStorage.getItem('wt_lbl');
 		const userDetails = sessionStorage.getItem('userDetails');
+		const permissionTemp = sessionStorage.getItem('permission');
 		sessionStorage.clear();
 		sessionStorage.setItem('wt_lbl', wt_lbl);
+		sessionStorage.setItem('permission', permissionTemp);
 		userDetails && sessionStorage.setItem('userDetails', userDetails);
 	}, []);
 
@@ -476,9 +499,9 @@ export default function Products() {
 			<ImgDotElementLeft src={imgDotElement} alt='dot' />
 			<ProductsBox>
 				{products &&
-					products.data.map(
+					products?.data?.map(
 						(product, idx) =>
-							idx < 3 && (
+							idx < initialLoanProductCount && (
 								<Card product={product} key={`product__${product.id}`} />
 							)
 					)}
@@ -518,8 +541,8 @@ export default function Products() {
 						</section>
 						<DivAdd>
 							{products &&
-								products.data.map((product, idx) => {
-									if (idx < 2) return null;
+								products?.data?.map((product, idx) => {
+									if (idx < initialLoanProductCount) return null;
 									return (
 										<Card
 											add={true}
@@ -572,7 +595,7 @@ export default function Products() {
 				</ModalOTPFooter>
 			</Modal>
 			{/* disabled in muthooth phase-1 vew & edit requirement */}
-			{false && (
+			{permission?.color_theme_react?.check_application_status === true && (
 				<StatusBox>
 					<ProductName>
 						Here, you can check your application status by entering the Loan
@@ -588,10 +611,16 @@ export default function Products() {
 								placeholder='Enter Loan Reference ID, Phone No or PAN No'
 								onChange={e => setRefstatus(e.target.value)}
 							/>
-							<FontAwesomeIcon
+							{/* <FontAwesomeIcon
 								className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2 my-2'
 								icon={faSearch}
 								onClick={() => getStatusCustomer()}
+							/> */}
+							<img
+								className='h-12 rounded-r-full cursor-pointer bg-blue-100 text-indigo-700 text-5xl px-4 p-2 my-2'
+								src={searchIcon}
+								onClick={() => getStatusCustomer()}
+								alt='search-icon'
 							/>
 						</section>
 						<AppList>
@@ -606,7 +635,7 @@ export default function Products() {
 									<Loading />
 								</div>
 							)}
-							{loanList.map((d, appIndex) => {
+							{loanList?.map((d, appIndex) => {
 								return (
 									<AppStatusList
 										key={d?.id}
@@ -615,21 +644,25 @@ export default function Products() {
 										}
 									>
 										<AppStatusLine1>
-											<AppEditIcon
+											{/* <AppEditIcon
 												src={imgEditIcon}
 												alt='edit'
 												onClick={() => {
 													generateOTP(d);
 												}}
-											/>
+											/> */}
 											<AppNumber>
 												Application Number: <strong>{d?.loan_ref_id}</strong>
 											</AppNumber>
+											<ApplicantName>
+												Applicant Name:{' '}
+												<strong>{d?.business_id?.businessname}</strong>
+											</ApplicantName>
 											<AppStatus>
 												Status: <strong>{d?.currentLoanStatus?.name}</strong>
 											</AppStatus>
 										</AppStatusLine1>
-										<AppStatusLine2>
+										{/* <AppStatusLine2>
 											<AppStatusDotLine />
 											{primaryStatusList.map((p, i) => {
 												return (
@@ -638,7 +671,7 @@ export default function Products() {
 													/>
 												);
 											})}
-										</AppStatusLine2>
+										</AppStatusLine2> */}
 									</AppStatusList>
 								);
 							})}

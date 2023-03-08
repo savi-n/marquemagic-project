@@ -128,6 +128,28 @@ export const Divider = styled.div`
 	margin: 40px 0;
 `;
 
+export const VerificationSectionWrapper = styled.div`
+	margin-top: 10px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 20px;
+
+	/* padding-left: 0%; */
+	/* padding-right: 10%; */
+`;
+
+export const VerificationSection = styled.div`
+	width: ${({ isLocation }) => (isLocation ? '40%' : '40%')};
+
+	@media (max-width: 1150px) {
+		width: ${({ isLocation }) => (isLocation ? '40%' : '50%')};
+	}
+	@media (max-width: 920px) {
+		width: ${({ isLocation }) => (isLocation ? '100%' : '80%')};
+	}
+`;
+
 export const CommentsForOfficeUserWrapper = styled.div``;
 
 export const CommentsForOfficeUseFieldName = styled.div`

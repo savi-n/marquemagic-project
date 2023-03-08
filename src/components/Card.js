@@ -1,6 +1,6 @@
 /* Landing page of nc-onboarding journey contains different loan cards.
 This card is designed and defined here */
-
+import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import styled from 'styled-components';
@@ -11,6 +11,13 @@ import { FormContext } from 'reducer/formReducer';
 import { useContext } from 'react';
 import { UserContext } from 'reducer/userReducer';
 import { LoanFormContext } from 'reducer/loanFormDataReducer';
+import { getGeoLocation } from 'utils/helper';
+import { setGeoLocation } from 'store/applicationSlice';
+import axios from 'axios';
+import * as API from '_config/app.config';
+import Button from './Button';
+import { useState } from 'react';
+import { useToasts } from './Toast/ToastProvider';
 
 const Wrapper = styled.div`
 
@@ -49,22 +56,22 @@ const ImgSelectProduct = styled.img`
 	margin: 0 auto;
 `;
 
-const ButtonBox = styled.div`
-  /* background: ${({ theme }) => theme.themeColor1}; */
-  text-align: center;
-  padding: 40px;
-  padding: 20px;
-`;
+// const ButtonBox = styled.div`
+//   /* background: ${({ theme }) => theme.themeColor1}; */
+//   text-align: center;
+//   padding: 40px;
+//   padding: 20px;
+// `;
 
-const Link = styled.a`
-	text-decoration: none;
-	color: #fff;
-	background: ${({ theme }) => theme.main_theme_color};
-	padding: 5px 40px;
-	display: inline-block;
-	border-radius: 20px;
-	cursor: pointer;
-`;
+// const Link = styled.a`
+// 	text-decoration: none;
+// 	color: #fff;
+// 	background: ${({ theme }) => theme.main_theme_color};
+// 	padding: 5px 40px;
+// 	display: inline-block;
+// 	border-radius: 20px;
+// 	cursor: pointer;
+// `;
 
 const Description = styled.div`
 	color: ${({ theme }) => theme.themeColor2};
@@ -78,6 +85,12 @@ const ProductName = styled.div`
 	font-weight: bold;
 `;
 
+const ButtonWrapper = styled.div`
+	text-align: center;
+	padding-top: 20px;
+	padding-bottom: 20px;
+`;
+
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const {
 		state: { basePageUrl },
@@ -89,13 +102,17 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const {
 		actions: { resetUserDetails },
 	} = useContext(UserContext);
-
+	const { app } = useSelector(state => state);
+	const { isGeoTaggingEnabled } = app;
+	const { userToken } = app;
 	const {
 		actions: { removeAllLoanDocuments },
 	} = useContext(LoanFormContext);
+	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 
 	const history = useHistory();
-
+	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
 	// const { url } = useRouteMatch();
 
 	const handleClick = (e, id) => {
@@ -113,10 +130,56 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				<ImgSelectProduct src={imgSelectProduct} alt='product' />
 			</ImgDiv>
 			<ProductName>{product.name}</ProductName>
-			<ButtonBox>
-				<Link
-					href={!add && `/applyloan/product/${btoa(product.id)}`}
-					onClick={e => {
+			{/* <ButtonBox> */}
+			<ButtonWrapper>
+				<Button
+					roundCorner={true}
+					loading={gettingGeoLocation}
+					fill
+					customStyle={{
+						padding: '3px 0 3px 0',
+						maxWidth: '145px',
+						fontSize: '16px',
+						background: 'rgb(42, 42, 221)',
+					}}
+					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
+					name={add ? 'Add Loan' : 'Get Loan'}
+					onClick={async e => {
+						if (!add) {
+							try {
+								if (isGeoTaggingEnabled) {
+									setGettingGeoLocation(true);
+									const coordinates = await getGeoLocation();
+									const reqBody = {
+										lat: coordinates?.latitude,
+										long: coordinates?.longitude,
+									};
+									// console.log(userToken);
+
+									const geoLocationRes = await axios.post(
+										`${API.API_END_POINT}/geoLocation`,
+										reqBody,
+										{
+											headers: {
+												Authorization: `Bearer ${userToken}`,
+											},
+										}
+									);
+									dispatch(setGeoLocation(geoLocationRes?.data?.data));
+								}
+							} catch (e) {
+								console.error(e.response.data.message, e.message);
+								addToast({
+									message:
+										e.response.data.message ||
+										'Geo Location failed! Please enable your location and try again.',
+									type: 'error',
+								});
+								return;
+							} finally {
+								setGettingGeoLocation(false);
+							}
+						}
 						if (product.loan_request_type === 2) {
 							if (add) {
 								setAddedProduct(product);
@@ -144,10 +207,12 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						setAddProduct && setAddProduct(false);
 					}}
 				>
-					{add ? 'Add Loan' : 'Get Loan'}
-				</Link>
+					{/* {add ? 'Add Loan' : 'Get Loan'} */}
+				</Button>
+				{/* {add ? 'Add Loan' : 'Get Loan'} */}
+				{/* </Button> */}
 				<Description>{product.description}</Description>
-			</ButtonBox>
+			</ButtonWrapper>
 		</Wrapper>
 	);
 }
