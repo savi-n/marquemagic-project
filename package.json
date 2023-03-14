@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"start": "craco start",
+		"start": "env-cmd -f ./env/.env.dev craco start",
 		"start:dev": "env-cmd -f ./env/.env.dev craco start",
 		"start:uat": "env-cmd -f ./env/.env.uat craco start",
 		"start:dev:aws": "env-cmd -f ./env/.env.aws.dev craco start",
