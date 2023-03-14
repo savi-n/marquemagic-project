@@ -66,7 +66,7 @@ export const TextHeader = styled.h2`
 	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
 		monospace;
 `;
-export const TextContent = styled.span`
+export const TextContent = styled.p`
 	height: fit-content;
 	word-break: break-all;
 	font-size: ${({ embedInImageUpload }) =>

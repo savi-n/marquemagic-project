@@ -45,9 +45,14 @@ function AddressDetailsCard(props) {
 					)}
 				</UI.TextContent>
 				{latitude && (
-					<UI.TextContent embedInImageUpload={embedInImageUpload}>
-						Lat: {latitude} Long: {longitude} {timestamp}
-					</UI.TextContent>
+					<>
+						<UI.TextContent embedInImageUpload={embedInImageUpload}>
+							Lat: {latitude} Long: {longitude}
+						</UI.TextContent>
+						<UI.TextContent embedInImageUpload={embedInImageUpload}>
+							{timestamp}
+						</UI.TextContent>
+					</>
 				)}
 			</UI.ImageText>
 			{showCloseIcon && (
