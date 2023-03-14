@@ -1220,23 +1220,48 @@ const DocumentUpload = props => {
 													section={'documentUpload'}
 												/>
 											</UI.VerificationSection>
-											{Object.keys(geoLocationData).length > 0 && (
-												<UI.VerificationSection isLocation={!!geoLocationData}>
-													<AddressDetailsCard
-														address={geoLocationData?.address}
-														latitude={geoLocationData?.lat}
-														longitude={geoLocationData?.long}
-														timestamp={geoLocationData?.timestamp}
-														showCloseIcon={false}
-														customStyle={{
-															width: 'fit-content',
-															position: 'relative',
-															bottom: '-45%',
-															heigth: 'fit-content',
-															maxHeight: 'fit-content',
-														}}
-													/>
-												</UI.VerificationSection>
+											{isGeoTaggingEnabled ? (
+												Object.keys(geoLocationData).length > 0 ? (
+													<UI.VerificationSection
+														isLocation={!!geoLocationData}
+													>
+														<AddressDetailsCard
+															address={geoLocationData?.address}
+															latitude={geoLocationData?.lat}
+															longitude={geoLocationData?.long}
+															timestamp={geoLocationData?.timestamp}
+															showCloseIcon={false}
+															customStyle={{
+																width: 'fit-content',
+																position: 'relative',
+																bottom: '-45%',
+																heigth: 'fit-content',
+																maxHeight: 'fit-content',
+															}}
+														/>
+													</UI.VerificationSection>
+												) : (
+													<UI.VerificationSection
+														isLocation={!!geoLocationData}
+													>
+														<AddressDetailsCard
+															address='Fetching Address...'
+															latitude=''
+															longitude=''
+															timestamp=''
+															showCloseIcon={false}
+															customStyle={{
+																width: 'fit-content',
+																position: 'relative',
+																bottom: '-45%',
+																heigth: 'fit-content',
+																maxHeight: 'fit-content',
+															}}
+														/>
+													</UI.VerificationSection>
+												)
+											) : (
+												''
 											)}
 										</UI.VerificationSectionWrapper>
 									);
