@@ -75,3 +75,14 @@ export const TextContent = styled.p`
 		font-size: 10px;
 	}
 `;
+
+export const TextErr = styled.p`
+	height: fit-content;
+	word-break: break-all;
+	color: red;
+	font-weight: bold;
+	font-size: '14px';
+	@media (max-width: 1100px) {
+		font-size: 10px;
+	}
+`;

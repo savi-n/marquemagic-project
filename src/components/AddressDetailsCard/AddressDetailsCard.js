@@ -13,6 +13,7 @@ function AddressDetailsCard(props) {
 		timestamp,
 		embedInImageUpload = false,
 		customStyle,
+		err,
 	} = props;
 
 	const stringLength = window.screen.width < 768 ? 25 : 75;
@@ -26,32 +27,37 @@ function AddressDetailsCard(props) {
 		>
 			<UI.TextIcon src={locationPinIcon} />
 			<UI.ImageText>
-				{/*<UI.TextHeader>{city}</UI.TextHeader>*/}
-				<UI.TextContent embedInImageUpload={embedInImageUpload}>
-					{/*since we will be receiving address in a single string*/}
-					{address?.length > stringLength && !displayCompleteAddress ? (
-						<span>
-							{address?.slice(0, stringLength)}
-							<UI.FullAddress
-								onClick={() => {
-									setDisplayCompleteAddress(true);
-								}}
-							>
-								...
-							</UI.FullAddress>
-						</span>
-					) : (
-						address
-					)}
-				</UI.TextContent>
-				{latitude && (
+				{err ? (
+					<UI.TextErr>{err}</UI.TextErr>
+				) : (
 					<>
 						<UI.TextContent embedInImageUpload={embedInImageUpload}>
-							Lat: {latitude} Long: {longitude}
+							{/*since we will be receiving address in a single string*/}
+							{address?.length > stringLength && !displayCompleteAddress ? (
+								<span>
+									{address?.slice(0, stringLength)}
+									<UI.FullAddress
+										onClick={() => {
+											setDisplayCompleteAddress(true);
+										}}
+									>
+										...
+									</UI.FullAddress>
+								</span>
+							) : (
+								address
+							)}
 						</UI.TextContent>
-						<UI.TextContent embedInImageUpload={embedInImageUpload}>
-							{timestamp}
-						</UI.TextContent>
+						{latitude && (
+							<>
+								<UI.TextContent embedInImageUpload={embedInImageUpload}>
+									Lat: {latitude} Long: {longitude}
+								</UI.TextContent>
+								<UI.TextContent embedInImageUpload={embedInImageUpload}>
+									{timestamp}
+								</UI.TextContent>
+							</>
+						)}
 					</>
 				)}
 			</UI.ImageText>
