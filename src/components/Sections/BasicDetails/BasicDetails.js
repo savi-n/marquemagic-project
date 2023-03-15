@@ -91,6 +91,7 @@ const BasicDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [fetchingAddress, setFetchingAddress] = useState(false);
 	const [
 		isIncomeTypeConfirmModalOpen,
 		setIsIncomeTypeConfirmModalOpen,
@@ -612,6 +613,7 @@ const BasicDetails = props => {
 		async function fetchGeoLocationData() {
 			try {
 				// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+				setFetchingAddress(true);
 				const reqBody = {
 					lat: geoLocation.lat,
 					long: geoLocation.long,
@@ -641,6 +643,7 @@ const BasicDetails = props => {
 					timestamp: geoLocation?.lat_long_timestamp,
 					address: geoLocationRes?.data?.data?.address,
 				});
+				setFetchingAddress(true);
 			} catch (error) {
 				console.error('fetchGeoLocationData ~ error:', error);
 				addToast({
@@ -650,6 +653,7 @@ const BasicDetails = props => {
 						'Could not fetch the current location',
 					type: 'error',
 				});
+				setFetchingAddress(false);
 			}
 		}
 
@@ -657,6 +661,7 @@ const BasicDetails = props => {
 			try {
 				// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
 				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+				setFetchingAddress(true);
 				const reqBody = {
 					lat: selectedApplicant?.lat,
 					long: selectedApplicant?.long,
@@ -685,8 +690,10 @@ const BasicDetails = props => {
 					timestamp: selectedApplicant?.timestamp,
 					address: geoPicLocationRes?.data?.data?.address,
 				});
+				setFetchingAddress(false);
 			} catch (error) {
 				console.error('fetchProfilePicGeoLocationData ~ error:', error);
+				setFetchingAddress(false);
 			}
 		}
 
@@ -697,6 +704,11 @@ const BasicDetails = props => {
 			isEditOrViewLoan
 		) {
 			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+				// setTimeout(() => {
+				// 	// console.log('🚀 ~ file: BasicDetails.js:703 ~ setTimeout ~ loading:');
+				// 	fetchGeoLocationData();
+				// 	setFetchingAddress(false);
+				// }, 5000);
 				fetchGeoLocationData();
 			}
 
@@ -979,9 +991,9 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Save and Proceed'
+						name={fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'}
 						isLoader={loading}
-						disabled={loading}
+						disabled={loading || fetchingAddress}
 						onClick={handleSubmit(() => {
 							let isProfileError = false;
 							if (isProfileMandatory && profileUploadedFile === null) {
