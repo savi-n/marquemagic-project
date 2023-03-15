@@ -419,9 +419,9 @@ export const applicantCoApplicantsSlice = createSlice({
 			if (state.isApplicant) {
 				state.applicant.profileGeoLocation = geoLocation;
 			} else {
-				state.coApplicants[
-					state.selectedApplicantCoApplicantId
-				].profileGeoLocation = geoLocation;
+				// state.coApplicants[
+				// 	state.selectedApplicantCoApplicantId
+				// ].profileGeoLocation = geoLocation;
 			}
 		},
 

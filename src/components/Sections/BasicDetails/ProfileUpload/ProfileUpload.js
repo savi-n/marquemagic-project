@@ -136,24 +136,37 @@ const ProfileUpload = props => {
 			'image/jpg': ['.jpg'],
 		},
 		onDrop: async acceptedFiles => {
+			let coordinates = {};
+			try {
+				coordinates = await getGeoLocation();
+			} catch (err) {
+				if (section === 'documentUpload') {
+					dispatch(
+						setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+					);
+				} else {
+					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+				}
+			}
 			try {
 				const formData = new FormData();
 				// const newFile = {};
 				setLoading(true);
 
 				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
-				const coordinates = await getGeoLocation();
 
 				// SELFIE DOC UPLOAD SECTION
-				if (coordinates && section === 'documentUpload') {
+				if (section === 'documentUpload') {
 					const selectedIncomeType =
 						selectedApplicant?.basic_details?.[
 							CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
 						] || selectedApplicant?.income_type;
 
 					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', coordinates?.latitude || null);
-					formData.append('long', coordinates?.longitude || null);
+					if (Object.keys(coordinates).length > 0) {
+						formData.append('lat', coordinates?.latitude || null);
+						formData.append('long', coordinates?.longitude || null);
+					}
 					formData.append('timestamp', coordinates?.timestamp || null);
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
@@ -183,7 +196,7 @@ const ProfileUpload = props => {
 							preview: resp?.data?.presignedUrl,
 							...resp?.data?.uploaded_data,
 						};
-						if (isGeoTaggingEnabled) {
+						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
 						}
@@ -205,8 +218,10 @@ const ProfileUpload = props => {
 				} else {
 					// Basic details Profile Pic Upload section
 					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', coordinates?.latitude || null);
-					formData.append('long', coordinates?.longitude || null);
+					if (Object.keys(coordinates).length > 0) {
+						formData.append('lat', coordinates?.latitude || null);
+						formData.append('long', coordinates?.longitude || null);
+					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
 						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
@@ -216,7 +231,7 @@ const ProfileUpload = props => {
 							type: 'profilePic',
 							preview: resp?.data?.presignedUrl,
 						};
-						if (isGeoTaggingEnabled) {
+						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(resp?.data?.file);
 							if (isApplicant) {
 								dispatch(setProfileGeoLocation(resp?.data?.file));
@@ -417,6 +432,11 @@ const ProfileUpload = props => {
 									picAddress?.address ||
 									uploadedFile?.address ||
 									geoLocationAddress?.address
+								}
+								err={
+									picAddress?.err ||
+									uploadedFile?.err ||
+									geoLocationAddress?.err
 								}
 							/>
 						)}
