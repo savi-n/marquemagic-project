@@ -523,10 +523,10 @@ const DocumentUpload = props => {
 					return null;
 				})?.[0];
 				if (selectedField) {
-					let file = cacheDocuments?.filter(doc => {
+					const file = cacheDocuments?.filter(doc => {
 						if (
 							`${doc?.directorId}` === `${directorId}` &&
-							doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
+							doc?.doc_type.id === selectedField?.doc_type?.[selectedIncomeType]
 						) {
 							return doc;
 						}
@@ -540,7 +540,7 @@ const DocumentUpload = props => {
 								long: file?.loan_document_details?.[0]?.long,
 							};
 							const geoLocationRes = await axios.post(
-								`${API.API_END_POINT}/geoLocation`,
+								API.GEO_LOCATION,
 								reqBody,
 								{
 									headers: {

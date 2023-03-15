@@ -617,15 +617,11 @@ const BasicDetails = props => {
 					long: geoLocation.long,
 				};
 
-				const geoLocationRes = await axios.post(
-					`${API.API_END_POINT}/geoLocation`,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					}
-				);
+				const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 
 				dispatch(
 					setGeoLocation({
@@ -662,15 +658,11 @@ const BasicDetails = props => {
 					long: selectedApplicant?.long,
 				};
 
-				const geoPicLocationRes = await axios.post(
-					`${API.API_END_POINT}/geoLocation`,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					}
-				);
+				const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 				dispatch(
 					setProfileGeoLocation({
 						lat: selectedApplicant?.lat,
