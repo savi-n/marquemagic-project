@@ -74,6 +74,7 @@ const DocumentUpload = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
+
 	const {
 		loanId,
 		businessId,
@@ -524,10 +525,11 @@ const DocumentUpload = props => {
 					return null;
 				})?.[0];
 				if (selectedField) {
-					let file = cacheDocuments?.filter(doc => {
+					const file = cacheDocuments?.filter(doc => {
 						if (
 							`${doc?.directorId}` === `${directorId}` &&
-							doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
+							doc?.doc_type?.id ===
+								selectedField?.doc_type?.[selectedIncomeType]
 						) {
 							return doc;
 						}
@@ -553,7 +555,7 @@ const DocumentUpload = props => {
 								long: file?.loan_document_details?.[0]?.long,
 							};
 							const geoLocationRes = await axios.post(
-								`${API.API_END_POINT}/geoLocation`,
+								API.GEO_LOCATION,
 								reqBody,
 								{
 									headers: {
@@ -804,11 +806,15 @@ const DocumentUpload = props => {
 						...resDoc,
 						...cacheDoc,
 						document_id: resDoc?.id,
+						id: resDoc?.id,
 					};
 					updateDocumentIdToCacheDocuments.push(newDoc);
 					return null;
 				});
-
+				// console.log(
+				// 	'updateDocumentIdToCacheDocuments',
+				// 	updateDocumentIdToCacheDocuments
+				// );
 				dispatch(
 					addOrUpdateCacheDocumentsDocUploadPage({
 						files: updateDocumentIdToCacheDocuments,
@@ -1209,7 +1215,27 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}
+								{/* {console.log(
+									'🚀 ~ file: DocumentUpload.js:1188 ~ :category.toLocaleUpperCase ~ sub_section:',
+									sub_section
+								)} */}
+								{/* {sub_section?.name} */}
+								{/* {selectedApplicant.isApplicant ||
+								sub_section?.name === 'Comments For Office Use'
+									? sub_section?.name
+									: `On-site Selfie With Co-Applicant - ${Object.keys(
+											coApplicants
+									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
+								{sub_section?.id === 'on_site_selfie_with_applicant'
+									? selectedApplicant.isApplicant
+										? sub_section?.name
+										: Object.keys(coApplicants).length > 1
+										? sub_section?.fields?.[1].label +
+										  ` ${Object.keys(coApplicants).indexOf(
+												selectedApplicantCoApplicantId
+										  ) + 1}`
+										: sub_section?.fields?.[1].label
+									: sub_section?.name}
 
 								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>

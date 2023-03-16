@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import locationPinIcon from 'assets/icons/Geo_icon_2.png';
+import locationPinWhite from 'assets/icons/Geo_icon_1.png';
+
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import { getGeoLocation } from 'utils/helper';
 import { useToasts } from '../../../Toast/ToastProvider';
@@ -45,14 +47,15 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
+		setImageLoading,
 	} = props;
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { whiteLabelId, isGeoTaggingEnabled } = app;
-	const { loanId, loanRefId, businessUserId, businessId } = application;
+	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
+	const { loanId, loanRefId, businessUserId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	const {
@@ -102,12 +105,14 @@ const ProfileUpload = props => {
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
 			setLoading(true);
 			const reqBody = {
-				loan_doc_id: file?.document_id || '',
-				business_id: businessId,
+				lender_doc_id: file?.document_id || '',
+				loan_bank_mapping_id:
+					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
 				loan_id: loanId,
-				userid: businessUserId,
+				user_id: businessUserId,
 			};
-			await axios.post(API.DELETE_DOCUMENT, reqBody);
+			await axios.post(API.DELETE_LENDER_DOCUMENT, reqBody);
+
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
 			if (isGeoTaggingEnabled) {
@@ -186,8 +191,9 @@ const ProfileUpload = props => {
 							fileId: resp?.data?.document_details_data?.doc_id,
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
-							doc_name: resp?.data?.loan_document_data?.doc_name,
-
+							doc_name: resp?.data?.lender_document_data?.doc_name,
+							loan_bank_mapping_id:
+								resp?.data?.lender_document_data?.loan_bank_mapping || 1,
 							field,
 							...coordinates,
 							preview: resp?.data?.presignedUrl,
@@ -214,6 +220,7 @@ const ProfileUpload = props => {
 					}
 				} else {
 					// Basic details Profile Pic Upload section
+					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
 					if (Object.keys(coordinates).length > 0) {
 						formData.append('lat', coordinates?.latitude || null);
@@ -254,6 +261,7 @@ const ProfileUpload = props => {
 				});
 			} finally {
 				setLoading(false);
+				setImageLoading(false);
 			}
 		},
 	});
@@ -362,6 +370,8 @@ const ProfileUpload = props => {
 									onClick={e => {
 										e.preventDefault();
 										e.stopPropagation();
+										setShowImageInfo(false);
+										// for profile pic upload in basic details section
 										if (value) {
 											onChangeFormStateField({
 												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
@@ -398,7 +408,7 @@ const ProfileUpload = props => {
 									onClick={() => {
 										setShowImageInfo(!showImageInfo);
 									}}
-									src={locationPinIcon}
+									src={showImageInfo ? locationPinWhite : locationPinIcon}
 									alt='pin-location'
 								/>
 							</UI.PinIconWrapper>
