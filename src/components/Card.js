@@ -179,7 +179,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 										'Geo Location failed! Please enable your location and try again.',
 									type: 'error',
 								});
-								// return;
+								return;
 							} finally {
 								setGettingGeoLocation(false);
 							}
