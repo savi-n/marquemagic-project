@@ -82,6 +82,7 @@ const DocumentUpload = props => {
 		cacheDocuments,
 		commentsForOfficeUse,
 		prompted,
+		geoLocation,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -523,10 +524,10 @@ const DocumentUpload = props => {
 					return null;
 				})?.[0];
 				if (selectedField) {
-					let file = cacheDocuments?.filter(doc => {
+					const file = cacheDocuments?.filter(doc => {
 						if (
 							`${doc?.directorId}` === `${directorId}` &&
-							doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
+							doc?.doc_type.id === selectedField?.doc_type?.[selectedIncomeType]
 						) {
 							return doc;
 						}
@@ -535,12 +536,24 @@ const DocumentUpload = props => {
 					if (file && Object.keys(file).length > 0) {
 						setCacheFile(file);
 						if (isGeoTaggingEnabled) {
+							if (
+								!file?.loan_document_details?.[0]?.lat &&
+								!file?.loan_document_details?.[0]?.long
+							) {
+								setGeoLocationData({ err: 'Geo Location Not Captured' });
+								dispatch(
+									setDocumentSelfieGeoLocation({
+										err: 'Geo Location Not Captured',
+									})
+								);
+								return;
+							}
 							const reqBody = {
 								lat: file?.loan_document_details?.[0]?.lat,
 								long: file?.loan_document_details?.[0]?.long,
 							};
 							const geoLocationRes = await axios.post(
-								`${API.API_END_POINT}/geoLocation`,
+								API.GEO_LOCATION,
 								reqBody,
 								{
 									headers: {
@@ -941,14 +954,22 @@ const DocumentUpload = props => {
 		newCacheDocumentTemp.push(file);
 
 		if (isGeoTaggingEnabled) {
-			const geoLocationTag = {
-				address: file?.address,
-				lat: file?.latitude,
-				long: file?.longitude,
-				timestamp: file?.timestamp,
-			};
-			setGeoLocationData(geoLocationTag);
-			dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+			if (file?.latitude === 'null' || !file.hasOwnProperty('latitude')) {
+				const geoLocationTag = {
+					err: 'Geo Location Not Captured',
+				};
+				setGeoLocationData(geoLocationTag);
+				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+			} else {
+				const geoLocationTag = {
+					address: file?.address,
+					lat: file?.latitude,
+					long: file?.longitude,
+					timestamp: file?.timestamp,
+				};
+				setGeoLocationData(geoLocationTag);
+				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+			}
 		}
 		setCacheFile(file);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
@@ -1008,6 +1029,12 @@ const DocumentUpload = props => {
 			applicantCoApplicants,
 			isEditOrViewLoan,
 		});
+		if (
+			Object.keys(geoLocation).length > 0 &&
+			geoLocation.hasOwnProperty('err')
+		)
+			return false;
+		if (Object.keys(geoLocation).length <= 0) return false;
 		let result = true;
 		appCoappsList.map(director => {
 			if (Number(applicant.directorId) === Number(director.value)) {
@@ -1227,6 +1254,7 @@ const DocumentUpload = props => {
 														latitude={geoLocationData?.lat}
 														longitude={geoLocationData?.long}
 														timestamp={geoLocationData?.timestamp}
+														err={geoLocationData?.err}
 														showCloseIcon={false}
 														customStyle={{
 															width: 'fit-content',
