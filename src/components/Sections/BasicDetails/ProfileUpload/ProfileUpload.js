@@ -367,6 +367,7 @@ const ProfileUpload = props => {
 									onClick={e => {
 										e.preventDefault();
 										e.stopPropagation();
+										setShowImageInfo(false);
 										// for profile pic upload in basic details section
 										if (value) {
 											onChangeFormStateField({
@@ -404,7 +405,7 @@ const ProfileUpload = props => {
 									onClick={() => {
 										setShowImageInfo(!showImageInfo);
 									}}
-									src={showImageInfo ? locationPinIcon : locationPinWhite}
+									src={showImageInfo ? locationPinWhite : locationPinIcon}
 									alt='pin-location'
 								/>
 							</UI.PinIconWrapper>
