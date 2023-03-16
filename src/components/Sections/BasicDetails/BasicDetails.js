@@ -437,13 +437,20 @@ const BasicDetails = props => {
 		newCacheDocumentTemp.push(file);
 
 		if (isGeoTaggingEnabled && file?.type === 'profilePic') {
-			const geoLocationTag = {
-				lat: file?.file?.lat,
-				long: file?.file?.long,
-				address: file?.file?.address,
-				timestamp: file?.file?.timestamp,
-			};
-			setProfilePicGeolocation(geoLocationTag);
+			if (file?.file?.lat === 'null' || !file?.file.hasOwnProperty('lat')) {
+				const geoLocationTag = {
+					err: 'Geo Location Not Captured',
+				};
+				setProfilePicGeolocation(geoLocationTag);
+			} else {
+				const geoLocationTag = {
+					lat: file?.file?.lat,
+					long: file?.file?.long,
+					address: file?.file?.address,
+					timestamp: file?.file?.timestamp,
+				};
+				setProfilePicGeolocation(geoLocationTag);
+			}
 		}
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
@@ -614,20 +621,17 @@ const BasicDetails = props => {
 			try {
 				// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
 				setFetchingAddress(true);
+				if (!geoLocation.lat && !geoLocation.long) return;
 				const reqBody = {
 					lat: geoLocation.lat,
 					long: geoLocation.long,
 				};
 
-				const geoLocationRes = await axios.post(
-					`${API.API_END_POINT}/geoLocation`,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					}
-				);
+				const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 
 				dispatch(
 					setGeoLocation({
@@ -643,16 +647,20 @@ const BasicDetails = props => {
 					timestamp: geoLocation?.lat_long_timestamp,
 					address: geoLocationRes?.data?.data?.address,
 				});
-				setFetchingAddress(true);
 			} catch (error) {
 				console.error('fetchGeoLocationData ~ error:', error);
+				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+				setGeoLocationData({
+					err: 'Geo Location Not Captured',
+				});
 				addToast({
 					message:
 						error?.response?.data?.message ||
 						error?.message ||
-						'Could not fetch the current location',
+						'Geo Location Not Captured',
 					type: 'error',
 				});
+			} finally {
 				setFetchingAddress(false);
 			}
 		}
@@ -662,20 +670,22 @@ const BasicDetails = props => {
 				// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
 				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
 				setFetchingAddress(true);
+				if (!selectedApplicant?.lat && !selectedApplicant?.lat) {
+					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+					setProfilePicGeolocation({ err: 'Geo Location Not Captured' });
+					return;
+				}
+
 				const reqBody = {
 					lat: selectedApplicant?.lat,
 					long: selectedApplicant?.long,
 				};
 
-				const geoPicLocationRes = await axios.post(
-					`${API.API_END_POINT}/geoLocation`,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					}
-				);
+				const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 				dispatch(
 					setProfileGeoLocation({
 						lat: selectedApplicant?.lat,
@@ -690,9 +700,9 @@ const BasicDetails = props => {
 					timestamp: selectedApplicant?.timestamp,
 					address: geoPicLocationRes?.data?.data?.address,
 				});
-				setFetchingAddress(false);
 			} catch (error) {
 				console.error('fetchProfilePicGeoLocationData ~ error:', error);
+			} finally {
 				setFetchingAddress(false);
 			}
 		}
@@ -710,6 +720,10 @@ const BasicDetails = props => {
 				// 	setFetchingAddress(false);
 				// }, 5000);
 				fetchGeoLocationData();
+			}
+			if (Object.keys(geoLocationData).length === 0) {
+				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+				setGeoLocationData({ err: 'Geo Location Not Captured' });
 			}
 
 			if (
@@ -979,6 +993,7 @@ const BasicDetails = props => {
 					latitude={geoLocationData?.lat || geoLocation?.lat}
 					longitude={geoLocationData?.long || geoLocation?.long}
 					timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
+					err={geoLocationData?.err || geoLocation?.err}
 					showCloseIcon={false}
 					customStyle={{
 						marginBottom: '30px',

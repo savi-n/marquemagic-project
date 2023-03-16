@@ -230,6 +230,12 @@ const AppLayout = () => {
 					const newDocs = formatLoanDocuments(
 						newEditLoanData?.loan_document || []
 					);
+					let newLenderDocs = [];
+					if (newEditLoanData?.lender_document.length > 0) {
+						newLenderDocs = formatLoanDocuments(
+							newEditLoanData?.lender_document || []
+						);
+					}
 					// const newLenderDocs = formatLenderDocs(
 					// 	newEditLoanData?.lender_document || []
 					// );
@@ -245,7 +251,11 @@ const AppLayout = () => {
 					// 	newDocs.push(newDoc);
 					// 	return null;
 					// });
-					dispatch(addOrUpdateCacheDocuments({ files: newDocs }));
+					dispatch(
+						addOrUpdateCacheDocuments({
+							files: [...newDocs, ...newLenderDocs],
+						})
+					);
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(

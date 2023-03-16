@@ -157,7 +157,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									// console.log(userToken);
 
 									const geoLocationRes = await axios.post(
-										`${API.API_END_POINT}/geoLocation`,
+										API.GEO_LOCATION,
 										reqBody,
 										{
 											headers: {
@@ -168,14 +168,18 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									dispatch(setGeoLocation(geoLocationRes?.data?.data));
 								}
 							} catch (e) {
-								console.error(e.response.data.message, e.message);
+								console.error(
+									e?.response?.data?.message,
+									e?.message || 'Permission denied'
+								);
+								dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
 								addToast({
 									message:
-										e.response.data.message ||
+										e?.response?.data?.message ||
 										'Geo Location failed! Please enable your location and try again.',
 									type: 'error',
 								});
-								return;
+								// return;
 							} finally {
 								setGettingGeoLocation(false);
 							}
