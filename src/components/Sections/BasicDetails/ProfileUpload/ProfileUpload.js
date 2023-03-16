@@ -261,7 +261,9 @@ const ProfileUpload = props => {
 				});
 			} finally {
 				setLoading(false);
-				setImageLoading(false);
+				if (setImageLoading) {
+					setImageLoading(false);
+				}
 			}
 		},
 	});
