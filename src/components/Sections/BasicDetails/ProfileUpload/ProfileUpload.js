@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import locationPinIcon from 'assets/icons/Geo_icon_2.png';
+import locationPinWhite from 'assets/icons/Geo_icon_1.png';
+
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import { getGeoLocation } from 'utils/helper';
 import { useToasts } from '../../../Toast/ToastProvider';
@@ -402,7 +404,7 @@ const ProfileUpload = props => {
 									onClick={() => {
 										setShowImageInfo(!showImageInfo);
 									}}
-									src={locationPinIcon}
+									src={showImageInfo ? locationPinIcon : locationPinWhite}
 									alt='pin-location'
 								/>
 							</UI.PinIconWrapper>

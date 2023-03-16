@@ -91,6 +91,7 @@ const BasicDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [fetchingAddress, setFetchingAddress] = useState(false);
 	const [
 		isIncomeTypeConfirmModalOpen,
 		setIsIncomeTypeConfirmModalOpen,
@@ -619,6 +620,7 @@ const BasicDetails = props => {
 		async function fetchGeoLocationData() {
 			try {
 				// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+				setFetchingAddress(true);
 				if (!geoLocation.lat && !geoLocation.long) return;
 				const reqBody = {
 					lat: geoLocation.lat,
@@ -658,6 +660,8 @@ const BasicDetails = props => {
 						'Geo Location Not Captured',
 					type: 'error',
 				});
+			} finally {
+				setFetchingAddress(false);
 			}
 		}
 
@@ -665,6 +669,7 @@ const BasicDetails = props => {
 			try {
 				// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
 				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+				setFetchingAddress(true);
 				if (!selectedApplicant?.lat && !selectedApplicant?.lat) {
 					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
 					setProfilePicGeolocation({ err: 'Geo Location Not Captured' });
@@ -697,6 +702,8 @@ const BasicDetails = props => {
 				});
 			} catch (error) {
 				console.error('fetchProfilePicGeoLocationData ~ error:', error);
+			} finally {
+				setFetchingAddress(false);
 			}
 		}
 
@@ -707,6 +714,11 @@ const BasicDetails = props => {
 			isEditOrViewLoan
 		) {
 			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+				// setTimeout(() => {
+				// 	// console.log('🚀 ~ file: BasicDetails.js:703 ~ setTimeout ~ loading:');
+				// 	fetchGeoLocationData();
+				// 	setFetchingAddress(false);
+				// }, 5000);
 				fetchGeoLocationData();
 			}
 			if (Object.keys(geoLocationData).length === 0) {
@@ -994,9 +1006,9 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Save and Proceed'
+						name={fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'}
 						isLoader={loading}
-						disabled={loading}
+						disabled={loading || fetchingAddress}
 						onClick={handleSubmit(() => {
 							let isProfileError = false;
 							if (isProfileMandatory && profileUploadedFile === null) {

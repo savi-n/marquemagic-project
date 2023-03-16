@@ -74,6 +74,7 @@ const DocumentUpload = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
+
 	const {
 		loanId,
 		businessId,
@@ -1210,7 +1211,27 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}
+								{/* {console.log(
+									'🚀 ~ file: DocumentUpload.js:1188 ~ :category.toLocaleUpperCase ~ sub_section:',
+									sub_section
+								)} */}
+								{/* {sub_section?.name} */}
+								{/* {selectedApplicant.isApplicant ||
+								sub_section?.name === 'Comments For Office Use'
+									? sub_section?.name
+									: `On-site Selfie With Co-Applicant - ${Object.keys(
+											coApplicants
+									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
+								{sub_section?.id === 'on_site_selfie_with_applicant'
+									? selectedApplicant.isApplicant
+										? sub_section?.name
+										: Object.keys(coApplicants).length > 1
+										? sub_section?.fields?.[1].label +
+										  ` ${Object.keys(coApplicants).indexOf(
+												selectedApplicantCoApplicantId
+										  ) + 1}`
+										: sub_section?.fields?.[1].label
+									: sub_section?.name}
 
 								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>
