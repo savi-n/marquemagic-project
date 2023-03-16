@@ -475,7 +475,7 @@ export const DocumentUploadNameToolTip = styled.div`
 `;
 
 export const CTAWrapper = styled.div`
-	margin: 20px 0 0 0;
+	margin: 30px 0 0 0;
 `;
 
 export const DocumentTaggingSectionWrapper = styled.div`
