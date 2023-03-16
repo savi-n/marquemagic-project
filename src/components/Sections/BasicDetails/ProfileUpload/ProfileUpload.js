@@ -47,7 +47,7 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
-		setFetchingAddress,
+		setImageLoading,
 	} = props;
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
@@ -220,7 +220,7 @@ const ProfileUpload = props => {
 					}
 				} else {
 					// Basic details Profile Pic Upload section
-					setFetchingAddress(true);
+					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
 					if (Object.keys(coordinates).length > 0) {
 						formData.append('lat', coordinates?.latitude || null);
@@ -261,7 +261,7 @@ const ProfileUpload = props => {
 				});
 			} finally {
 				setLoading(false);
-				setFetchingAddress(false);
+				setImageLoading(false);
 			}
 		},
 	});

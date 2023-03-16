@@ -863,7 +863,7 @@ const BasicDetails = props => {
 															timestamp: selectedApplicant?.timestamp,
 														}
 													}
-													setFetchingAddress={setFetchingAddress}
+													setImageLoading={setLoading}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
