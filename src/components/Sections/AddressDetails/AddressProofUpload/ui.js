@@ -119,6 +119,9 @@ export const Caption = styled.p`
 	font-size: 15px;
 	font-weight: 400;
 	margin-left: 20px;
+	@media (max-width: 770px) {
+		font-size: 13px;
+	}
 `;
 
 export const AcceptFilesTypes = styled.span`
