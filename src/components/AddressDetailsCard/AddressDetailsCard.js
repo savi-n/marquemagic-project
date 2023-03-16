@@ -31,31 +31,39 @@ function AddressDetailsCard(props) {
 					<UI.TextErr>{err}</UI.TextErr>
 				) : (
 					<>
-						<UI.TextContent embedInImageUpload={embedInImageUpload}>
-							{/*since we will be receiving address in a single string*/}
-							{address?.length > stringLength && !displayCompleteAddress ? (
-								<span>
-									{address?.slice(0, stringLength)}
-									<UI.FullAddress
-										onClick={() => {
-											setDisplayCompleteAddress(true);
-										}}
-									>
-										...
-									</UI.FullAddress>
-								</span>
-							) : (
-								address
-							)}
-						</UI.TextContent>
-						{latitude && (
+						{!address ? (
+							<UI.TextContent>
+								<h2>Fetching Address...</h2>
+							</UI.TextContent>
+						) : (
 							<>
 								<UI.TextContent embedInImageUpload={embedInImageUpload}>
-									Lat: {latitude} Long: {longitude}
+									{/*since we will be receiving address in a single string*/}
+									{address?.length > stringLength && !displayCompleteAddress ? (
+										<span>
+											{address?.slice(0, stringLength)}
+											<UI.FullAddress
+												onClick={() => {
+													setDisplayCompleteAddress(true);
+												}}
+											>
+												...
+											</UI.FullAddress>
+										</span>
+									) : (
+										address
+									)}
 								</UI.TextContent>
-								<UI.TextContent embedInImageUpload={embedInImageUpload}>
-									{timestamp}
-								</UI.TextContent>
+								{latitude && (
+									<>
+										<UI.TextContent embedInImageUpload={embedInImageUpload}>
+											Lat: {latitude} Long: {longitude}
+										</UI.TextContent>
+										<UI.TextContent embedInImageUpload={embedInImageUpload}>
+											{timestamp}
+										</UI.TextContent>
+									</>
+								)}
 							</>
 						)}
 					</>
