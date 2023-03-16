@@ -835,3 +835,10 @@ export const getApplicantNavigationDetails = data => {
 	// console.log('getApplicantNavigationDetails-', { returnData });
 	return returnData;
 };
+
+export const formatINR = value => {
+	return new Intl.NumberFormat('en-IN', {
+		style: 'currency',
+		currency: 'INR',
+	}).format(value);
+};
