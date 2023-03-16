@@ -47,6 +47,7 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
+		setImageLoading,
 	} = props;
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
@@ -219,6 +220,7 @@ const ProfileUpload = props => {
 					}
 				} else {
 					// Basic details Profile Pic Upload section
+					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
 					if (Object.keys(coordinates).length > 0) {
 						formData.append('lat', coordinates?.latitude || null);
@@ -259,6 +261,7 @@ const ProfileUpload = props => {
 				});
 			} finally {
 				setLoading(false);
+				setImageLoading(false);
 			}
 		},
 	});
@@ -367,6 +370,7 @@ const ProfileUpload = props => {
 									onClick={e => {
 										e.preventDefault();
 										e.stopPropagation();
+										setShowImageInfo(false);
 										// for profile pic upload in basic details section
 										if (value) {
 											onChangeFormStateField({
@@ -404,7 +408,7 @@ const ProfileUpload = props => {
 									onClick={() => {
 										setShowImageInfo(!showImageInfo);
 									}}
-									src={showImageInfo ? locationPinIcon : locationPinWhite}
+									src={showImageInfo ? locationPinWhite : locationPinIcon}
 									alt='pin-location'
 								/>
 							</UI.PinIconWrapper>
