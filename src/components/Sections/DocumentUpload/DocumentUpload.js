@@ -805,11 +805,15 @@ const DocumentUpload = props => {
 						...resDoc,
 						...cacheDoc,
 						document_id: resDoc?.id,
+						id: resDoc?.id,
 					};
 					updateDocumentIdToCacheDocuments.push(newDoc);
 					return null;
 				});
-
+				// console.log(
+				// 	'updateDocumentIdToCacheDocuments',
+				// 	updateDocumentIdToCacheDocuments
+				// );
 				dispatch(
 					addOrUpdateCacheDocumentsDocUploadPage({
 						files: updateDocumentIdToCacheDocuments,
