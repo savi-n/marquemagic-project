@@ -103,20 +103,25 @@ const ProfileUpload = props => {
 	const deleteDocument = async file => {
 		try {
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
-			setLoading(true);
-			const reqBody = {
-				lender_doc_id: file?.document_id || '',
-				loan_bank_mapping_id:
-					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
-				loan_id: loanId,
-				user_id: businessUserId,
-			};
-			await axios.post(API.DELETE_LENDER_DOCUMENT, reqBody);
+			//TODO shreyas - delete profile pic on edit
+			if (section === 'documentUpload') {
+				setLoading(true);
+				const reqBody = {
+					lender_doc_id: file?.document_id || '',
+					loan_bank_mapping_id:
+						file?.loan_bank_mapping_id ||
+						editLoanData?.loan_bank_mapping_id ||
+						1,
+					loan_id: loanId,
+					user_id: businessUserId,
+				};
+				await axios.post(API.DELETE_LENDER_DOCUMENT, reqBody);
 
-			removeCacheDocumentTemp(field.name);
-			dispatch(removeCacheDocument(file));
-			if (isGeoTaggingEnabled) {
-				dispatch(removeDocumentSelfieGeoLocation());
+				removeCacheDocumentTemp(field.name);
+				dispatch(removeCacheDocument(file));
+				if (isGeoTaggingEnabled) {
+					dispatch(removeDocumentSelfieGeoLocation());
+				}
 			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
