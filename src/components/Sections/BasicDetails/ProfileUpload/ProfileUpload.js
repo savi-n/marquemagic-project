@@ -55,7 +55,7 @@ const ProfileUpload = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
-	const { loanId, loanRefId, businessUserId } = application;
+	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	const {
@@ -103,25 +103,29 @@ const ProfileUpload = props => {
 	const deleteDocument = async file => {
 		try {
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
-			//TODO shreyas - delete profile pic on edit
+			let endPoint = API.DELETE_DOCUMENT;
 			if (section === 'documentUpload') {
-				setLoading(true);
-				const reqBody = {
-					lender_doc_id: file?.document_id || '',
-					loan_bank_mapping_id:
-						file?.loan_bank_mapping_id ||
-						editLoanData?.loan_bank_mapping_id ||
-						1,
-					loan_id: loanId,
-					user_id: businessUserId,
-				};
-				await axios.post(API.DELETE_LENDER_DOCUMENT, reqBody);
+				endPoint = API.DELETE_LENDER_DOCUMENT;
+			}
+			setLoading(true);
+			const reqBody = {
+				//for profileupload
+				loan_doc_id: file?.document_id || '',
+				business_id: businessId,
 
-				removeCacheDocumentTemp(field.name);
-				dispatch(removeCacheDocument(file));
-				if (isGeoTaggingEnabled) {
-					dispatch(removeDocumentSelfieGeoLocation());
-				}
+				//for doc upload
+				lender_doc_id: file?.document_id || '',
+				loan_bank_mapping_id:
+					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
+				loan_id: loanId,
+				user_id: businessUserId,
+			};
+			await axios.post(endPoint, reqBody);
+
+			removeCacheDocumentTemp(field.name);
+			dispatch(removeCacheDocument(file));
+			if (isGeoTaggingEnabled) {
+				dispatch(removeDocumentSelfieGeoLocation());
 			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
