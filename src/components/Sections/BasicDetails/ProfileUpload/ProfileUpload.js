@@ -201,6 +201,7 @@ const ProfileUpload = props => {
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
 							doc_name: resp?.data?.lender_document_data?.doc_name,
+							document_key: resp?.data?.lender_document_data?.doc_name,
 							loan_bank_mapping_id:
 								resp?.data?.lender_document_data?.loan_bank_mapping || 1,
 							field,
@@ -212,6 +213,7 @@ const ProfileUpload = props => {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
 						}
+						// console.log('newfile-', { newFile });
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -413,7 +415,7 @@ const ProfileUpload = props => {
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
 						</UI.CameraIconWrapper>
-						{isTag && (
+						{isGeoTaggingEnabled && isTag && (
 							<UI.PinIconWrapper>
 								<UI.IconCamera
 									onClick={() => {
