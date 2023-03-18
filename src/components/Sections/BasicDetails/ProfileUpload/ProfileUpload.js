@@ -149,15 +149,19 @@ const ProfileUpload = props => {
 		},
 		onDrop: async acceptedFiles => {
 			let coordinates = {};
-			try {
-				coordinates = await getGeoLocation();
-			} catch (err) {
-				if (section === 'documentUpload') {
-					dispatch(
-						setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
-					);
-				} else {
-					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+			if (isGeoTaggingEnabled) {
+				try {
+					coordinates = await getGeoLocation();
+				} catch (err) {
+					if (section === 'documentUpload') {
+						dispatch(
+							setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+						);
+					} else {
+						dispatch(
+							setProfileGeoLocation({ err: 'Geo Location Not Captured' })
+						);
+					}
 				}
 			}
 			try {
