@@ -145,11 +145,12 @@ export const applicantSlice = createSlice({
 			files?.map?.(newFile => {
 				const isExistIndex = oldDocuments?.findIndex(doc => {
 					if (
-						`${doc?.id}` === `${newFile?.id}` ||
-						`${doc?.document_key}` === `${newFile?.doc_name}`
-					)
-						return doc;
-					return null;
+						// `${doc?.id}` === `${newFile?.id}` ||
+						`${doc?.document_key}` === `${newFile?.document_key}`
+					) {
+						return true;
+					}
+					return false;
 				});
 				if (isExistIndex >= 0) {
 					oldDocuments[isExistIndex] = newFile;

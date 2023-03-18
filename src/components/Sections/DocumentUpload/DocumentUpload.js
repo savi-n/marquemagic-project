@@ -1104,6 +1104,13 @@ const DocumentUpload = props => {
 		}
 	};
 
+	// console.log('DocumentUpload-allprops-', {
+	// 	app,
+	// 	applicantCoApplicants,
+	// 	cacheDocuments,
+	// 	cacheDocumentsTemp,
+	// });
+
 	if (loading) {
 		return (
 			<UI.LoaderWrapper>
