@@ -413,7 +413,7 @@ const ProfileUpload = props => {
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
 						</UI.CameraIconWrapper>
-						{isTag && (
+						{isGeoTaggingEnabled && isTag && (
 							<UI.PinIconWrapper>
 								<UI.IconCamera
 									onClick={() => {

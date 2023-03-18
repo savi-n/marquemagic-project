@@ -149,6 +149,7 @@ export const applicantSlice = createSlice({
 						`${doc?.document_key}` === `${newFile?.doc_name}`
 					)
 						return doc;
+					return null;
 				});
 				if (isExistIndex >= 0) {
 					oldDocuments[isExistIndex] = newFile;
