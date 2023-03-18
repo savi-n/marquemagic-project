@@ -640,35 +640,47 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
+			// console.log('step-1');
 			const check = validateSefieWithApplicantCoapplicant();
+			// console.log('step-2', { check });
 			if (check?.isAllTheDocumentsPresent !== true) {
 				setOnSiteVerificationModal(true);
+				// console.log('step-3');
 				return;
 			}
+			// console.log('step-4');
 			if (buttonDisabledStatus()) return;
+			// console.log('step-5');
 			// change permission here
 			if (
-				selectedProduct?.product_details?.kyc_verification &&
+				// selectedProduct?.product_details?.kyc_verification &&
+				isGeoTaggingEnabled &&
 				!isAppCoAppVerificationComplete()
 			) {
+				// console.log('step-6');
 				setOnsiteVerificationErr(true);
 				return;
 			}
+			// console.log('step-7');
 			if (!isFormValid()) return;
+			// console.log('step-8');
 			setSubmitting(true);
 			await onSubmitCompleteApplication();
+			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
 				mobile: +applicantMobileNumber,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
+			// console.log('step-10', { authenticationOtpReqBody });
 			// let authenticateOtp =
 			// -- api-3 - generate otp
 			await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
 			);
+			// console.log('step-11');
 			setIsAuthenticationOtpModalOpen(true);
 		} catch (error) {
 			if (error?.response?.data?.timer) {
