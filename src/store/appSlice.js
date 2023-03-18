@@ -91,6 +91,7 @@ export const appSlice = createSlice({
 			// immutable state based off those changes
 			state.permission = action.payload;
 			state.isGeoTaggingEnabled = action.payload?.geo_tagging?.geo_tagging;
+			// state.isGeoTaggingEnabled = false;
 		},
 		setUserDetails: (state, action) => {
 			state.userDetails = action.payload;
