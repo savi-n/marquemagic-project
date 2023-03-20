@@ -505,6 +505,7 @@ const DocumentUpload = props => {
 		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 		async function fetchSelfieData() {
 			try {
+				setSubmitting(true);
 				let section = selectedSection?.sub_sections?.filter(
 					section => section.id === 'on_site_selfie_with_applicant'
 				)?.[0];
@@ -579,6 +580,8 @@ const DocumentUpload = props => {
 						'Oops! Something went wrong',
 					type: 'error',
 				});
+			} finally {
+				setSubmitting(false);
 			}
 		}
 		fetchSelfieData();
