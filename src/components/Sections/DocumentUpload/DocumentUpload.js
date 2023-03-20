@@ -10,7 +10,7 @@ import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
-
+import errorImage from 'assets/icons/geo-error.png';
 import * as API from '_config/app.config';
 import {
 	updateApplicationSection,
@@ -126,6 +126,7 @@ const DocumentUpload = props => {
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [declareCheck, setDeclareCheck] = useState(false);
 	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
+	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(false);
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -639,30 +640,47 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
+			// console.log('step-1');
+			const check = validateGeoTaggedDocsForApplicantCoapplicant();
+			// console.log('step-2', { check });
+			if (check?.isAllTheDocumentsPresent !== true) {
+				setOnSiteVerificationModal(true);
+				// console.log('step-3');
+				return;
+			}
+			// console.log('step-4');
 			if (buttonDisabledStatus()) return;
+			// console.log('step-5');
 			// change permission here
 			if (
-				selectedProduct?.product_details?.kyc_verification &&
+				// selectedProduct?.product_details?.kyc_verification &&
+				isGeoTaggingEnabled &&
 				!isAppCoAppVerificationComplete()
 			) {
+				// console.log('step-6');
 				setOnsiteVerificationErr(true);
 				return;
 			}
+			// console.log('step-7');
 			if (!isFormValid()) return;
+			// console.log('step-8');
 			setSubmitting(true);
 			await onSubmitCompleteApplication();
+			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
 				mobile: +applicantMobileNumber,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
+			// console.log('step-10', { authenticationOtpReqBody });
 			// let authenticateOtp =
 			// -- api-3 - generate otp
 			await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
 			);
+			// console.log('step-11');
 			setIsAuthenticationOtpModalOpen(true);
 		} catch (error) {
 			if (error?.response?.data?.timer) {
@@ -755,6 +773,13 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitCompleteApplication = async () => {
+		if (isEditLoan) {
+			const check = validateGeoTaggedDocsForApplicantCoapplicant();
+			if (check?.isAllTheDocumentsPresent !== true) {
+				setOnSiteVerificationModal(true);
+				return;
+			}
+		}
 		if (buttonDisabledStatus()) return;
 
 		if (!isFormValid()) return;
@@ -825,6 +850,9 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
+			if (isEditLoan && !isDraftLoan) {
+				onSkip();
+			}
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
@@ -922,7 +950,6 @@ const DocumentUpload = props => {
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication();
-					onSkip();
 				}}
 			/>
 		);
@@ -1000,6 +1027,7 @@ const DocumentUpload = props => {
 
 	const closeVerificationErrModal = () => {
 		setOnsiteVerificationErr(false);
+		setOnSiteVerificationModal(false);
 	};
 
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
@@ -1027,6 +1055,128 @@ const DocumentUpload = props => {
 			return null;
 		});
 		return result;
+	};
+	// TO CHECK IF APPLICANT AND COAPPLICANT PROFILE-PIC/SELFIE IS UPLOADED IF IT IS MANDATORY (returns an object { missingDocsForDirectors, isAllTheDocumentsPresent: false/true })
+	const validateGeoTaggedDocsForApplicantCoapplicant = () => {
+		const documentCheckStatus = {
+			isAllTheDocumentsPresent: true,
+		};
+		const applicantCoapplicantDoc = [];
+		const geoTaggedDocs = cacheDocuments?.filter(
+			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+		);
+
+		const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
+			subSection => subSection?.id === 'on_site_selfie_with_applicant'
+		)?.[0];
+		const mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
+			field => field?.geo_tagging === true && field?.is_co_applicant !== true
+		)?.[0];
+		const mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
+			field => field?.geo_tagging === true && field?.is_applicant !== true
+		)?.[0];
+
+		// check for profile pic upload geolocation starts
+		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
+			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+		)?.[0];
+
+		const profilePicField = basicDetailsSection?.sub_sections?.[0]?.fields?.filter(
+			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		);
+
+		const mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+			field => field?.geo_tagging === true && field?.is_co_applicant !== true
+		)?.[0];
+		const mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+			field => field?.geo_tagging === true && field?.is_applicant !== true
+		)?.[0];
+
+		if (!!mandatoryProfilePicFieldApplicant) {
+			applicantCoapplicantDoc?.push({
+				...mandatoryProfilePicFieldApplicant,
+				docTypeId:
+					mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+				directorId: applicant?.directorId,
+			});
+		}
+		if (
+			!!mandatoryProfilePicFieldApplicant &&
+			!!mandatoryProfilePicFieldCoApplicant
+		) {
+			Object.keys(coApplicants)?.map(coApplicantId => {
+				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
+				field.directorId = coApplicantId;
+				field.docTypeId = field?.doc_type?.[selectedIncomeType];
+				applicantCoapplicantDoc?.push(field);
+				return null;
+			});
+		}
+		// check for profile pic upload geolocation ends
+
+		// forming array with all the directors for mandatory selfie with app/coapp field
+		if (!!mandatoryFieldApplicant)
+			applicantCoapplicantDoc?.push({
+				...mandatoryFieldApplicant,
+				docTypeId: mandatoryFieldApplicant?.doc_type?.[selectedIncomeType],
+				directorId: applicant?.directorId,
+			});
+
+		if (!!mandatoryFieldApplicant && !!mandatoryFieldCoApplicant) {
+			Object.keys(coApplicants)?.map(coApplicantId => {
+				const field = _.cloneDeep(mandatoryFieldCoApplicant);
+				field.directorId = coApplicantId;
+				field.docTypeId = field?.doc_type?.[selectedIncomeType];
+				applicantCoapplicantDoc?.push(field);
+				return null;
+			});
+		}
+
+		// final check - if the onSiteSelfieWith app/coapp document is present or not
+		const missingDocsForDirectors = [];
+		applicantCoapplicantDoc?.map(doc => {
+			const getMissingDocs = geoTaggedDocs?.filter(
+				directorField =>
+					`${directorField?.directorId}` === `${doc?.directorId}` &&
+					`${directorField?.doc_type_id}` === `${doc?.docTypeId}`
+			)?.[0];
+			if (!!getMissingDocs) {
+			} else {
+				missingDocsForDirectors?.push(`${doc?.directorId}`);
+			}
+			return null;
+		});
+
+		// Getting the missing On-site-verification documents of applicant/coapplicant
+		const applicantCoappliantIndex = [];
+		if (missingDocsForDirectors?.length > 0) {
+			const isApplicantImgMissing = missingDocsForDirectors?.indexOf(
+				`${applicant?.directorId}`
+			);
+			if (isApplicantImgMissing >= 0)
+				applicantCoappliantIndex?.push('Applicant');
+
+			Object.keys(coApplicants)?.map((coapp, index) => {
+				if (missingDocsForDirectors?.includes(`${coapp}`)) {
+					applicantCoappliantIndex?.push(`Co-Applicant ${index + 1}`);
+				}
+				return null;
+			});
+			documentCheckStatus.isAllTheDocumentsPresent = false;
+			documentCheckStatus.missingDocsForDirectors = [
+				...new Set(missingDocsForDirectors),
+			];
+			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
+		}
+		// console.log({
+		// 	geoTaggedDocs,
+		// 	applicantCoapplicantDoc,
+		// 	missingDocsForDirectors,
+		// 	documentCheckStatus,
+		// 	mandatoryFieldApplicant,
+		// 	mandatoryFieldCoApplicant,
+		// });
+		return documentCheckStatus;
 	};
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
@@ -1104,6 +1254,13 @@ const DocumentUpload = props => {
 		}
 	};
 
+	// console.log('DocumentUpload-allprops-', {
+	// 	app,
+	// 	applicantCoApplicants,
+	// 	cacheDocuments,
+	// 	cacheDocumentsTemp,
+	// });
+
 	if (loading) {
 		return (
 			<UI.LoaderWrapper>
@@ -1142,6 +1299,17 @@ const DocumentUpload = props => {
 					onYes={closeVerificationErrModal}
 				/>
 			) : null}
+
+			{isGeoTaggingEnabled && onSiteVerificationModal ? (
+				<MandatoryOnsiteVerificationErrModal
+					onYes={closeVerificationErrModal}
+					errorImage={errorImage}
+					errorText={
+						'Geo-location not captured. Please capture before submitting the application!'
+					}
+				/>
+			) : null}
+
 			{totalMandatoryDocumentCount > 0 ? (
 				<UI.CollapseHeader
 					style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}

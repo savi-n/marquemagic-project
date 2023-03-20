@@ -55,7 +55,7 @@ const ProfileUpload = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
-	const { loanId, loanRefId, businessUserId } = application;
+	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
 	const {
@@ -103,25 +103,29 @@ const ProfileUpload = props => {
 	const deleteDocument = async file => {
 		try {
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
-			//TODO shreyas - delete profile pic on edit
+			let endPoint = API.DELETE_DOCUMENT;
 			if (section === 'documentUpload') {
-				setLoading(true);
-				const reqBody = {
-					lender_doc_id: file?.document_id || '',
-					loan_bank_mapping_id:
-						file?.loan_bank_mapping_id ||
-						editLoanData?.loan_bank_mapping_id ||
-						1,
-					loan_id: loanId,
-					user_id: businessUserId,
-				};
-				await axios.post(API.DELETE_LENDER_DOCUMENT, reqBody);
+				endPoint = API.DELETE_LENDER_DOCUMENT;
+			}
+			setLoading(true);
+			const reqBody = {
+				//for profileupload
+				loan_doc_id: file?.document_id || '',
+				business_id: businessId,
 
-				removeCacheDocumentTemp(field.name);
-				dispatch(removeCacheDocument(file));
-				if (isGeoTaggingEnabled) {
-					dispatch(removeDocumentSelfieGeoLocation());
-				}
+				//for doc upload
+				lender_doc_id: file?.document_id || '',
+				loan_bank_mapping_id:
+					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
+				loan_id: loanId,
+				user_id: businessUserId,
+			};
+			await axios.post(endPoint, reqBody);
+
+			removeCacheDocumentTemp(field.name);
+			dispatch(removeCacheDocument(file));
+			if (isGeoTaggingEnabled) {
+				dispatch(removeDocumentSelfieGeoLocation());
 			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
@@ -145,15 +149,19 @@ const ProfileUpload = props => {
 		},
 		onDrop: async acceptedFiles => {
 			let coordinates = {};
-			try {
-				coordinates = await getGeoLocation();
-			} catch (err) {
-				if (section === 'documentUpload') {
-					dispatch(
-						setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
-					);
-				} else {
-					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+			if (isGeoTaggingEnabled) {
+				try {
+					coordinates = await getGeoLocation();
+				} catch (err) {
+					if (section === 'documentUpload') {
+						dispatch(
+							setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+						);
+					} else {
+						dispatch(
+							setProfileGeoLocation({ err: 'Geo Location Not Captured' })
+						);
+					}
 				}
 			}
 			try {
@@ -197,6 +205,7 @@ const ProfileUpload = props => {
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
 							doc_name: resp?.data?.lender_document_data?.doc_name,
+							document_key: resp?.data?.lender_document_data?.doc_name,
 							loan_bank_mapping_id:
 								resp?.data?.lender_document_data?.loan_bank_mapping || 1,
 							field,
@@ -208,6 +217,7 @@ const ProfileUpload = props => {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
 						}
+						// console.log('newfile-', { newFile });
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -409,7 +419,7 @@ const ProfileUpload = props => {
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
 						</UI.CameraIconWrapper>
-						{isTag && (
+						{isGeoTaggingEnabled && isTag && (
 							<UI.PinIconWrapper>
 								<UI.IconCamera
 									onClick={() => {

@@ -71,6 +71,11 @@ export const ErrorMessageSubFields = styled.div`
 	color: red;
 	text-align: left;
 	padding-top: 20px;
+
+	@media (max-width: 768px) {
+		padding-top: 0px;
+		left: 0;
+	}
 	font-size: 12px;
 	font-weight: 500;
 `;
