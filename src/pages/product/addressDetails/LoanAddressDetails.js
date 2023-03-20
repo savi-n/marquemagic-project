@@ -181,7 +181,7 @@ const AddressDetailsPage = props => {
 					'',
 				// // crime_check: "Yes",,
 				businessPancardFdkey: '',
-				businessEmail:
+				business_email:
 					personalDataFormState?.email ||
 					applicantData?.email ||
 					companyData?.email ||
@@ -200,7 +200,7 @@ const AddressDetailsPage = props => {
 					companyData?.GSTVerification ||
 					formReducer?.user?.['business-details']?.GSTVerification ||
 					'',
-				businessStartDate: '4/8/90',
+				businessstartdate: companyData?.BusinessVintage || '',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
 				business_address:
 					formData?.permanent_address1 ||
