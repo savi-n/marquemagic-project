@@ -674,6 +674,7 @@ export const formatUploadCacheDocumentReqBody = data => {
 	return reqBody;
 };
 
+// TODO: Varun SME Flow move this logic inside register
 export const isFieldValid = data => {
 	// should return only null
 	const { field, isApplicant, formState } = data;

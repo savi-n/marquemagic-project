@@ -13,12 +13,15 @@ import {
 	createIndexKeyObjectFromArrayOfObject,
 	formatINR,
 	formatSectionReqBody,
+	getApplicantCoApplicantSelectOptions,
+	isFieldValid,
 	parseJSON,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
+import selectedSection from './sample.json'; // TODO: remove after testing
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 
@@ -31,14 +34,15 @@ const LiabilityDetails = props => {
 		selectedSectionId,
 		nextSectionId,
 		prevSectionId,
-		selectedSection,
 		isLocalhost,
 		isTestMode,
 		editLoanData,
 		isEditLoan,
 		isEditOrViewLoan,
 		bankList,
+		// selectedSection,
 	} = app;
+	const { isApplicant } = applicantCoApplicants;
 	const { LiabilityDetailsFinId } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -47,6 +51,7 @@ const LiabilityDetails = props => {
 	const [count, setCount] = useState(
 		selectedLiabilityDetailsSubSection?.min || 3
 	);
+	const [openAccordianIndex, setOpenAccordianIndex] = useState(-1);
 	const MAX_COUNT = selectedLiabilityDetailsSubSection?.max || 10;
 	const { handleSubmit, register, formState } = useForm();
 
@@ -280,6 +285,12 @@ const LiabilityDetails = props => {
 			);
 		});
 
+	const toggleAccordian = id => {
+		return openAccordianIndex === id
+			? setOpenAccordianIndex(-1)
+			: setOpenAccordianIndex(id);
+	};
+
 	useEffect(() => {
 		if (isEditOrViewLoan) {
 			// const LiabilityDetails = parseJSON(
@@ -300,6 +311,8 @@ const LiabilityDetails = props => {
 	// 	selectedLiabilityDetailsSubSection,
 	// });
 
+	const liabilityList = [{ id: 111 }, { id: 222 }];
+
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
@@ -310,24 +323,85 @@ const LiabilityDetails = props => {
 								{sub_section.name}
 							</UI_SECTIONS.SubSectionHeader>
 						) : null}
-						<UI_SECTIONS.Accordian>
-							<div>
-								<span>Liability For:</span>
-								<span>Shubham Gaurav</span>
-							</div>
-							<div>
-								<span>Type of Liability:</span>
-								<span>Loans</span>
-							</div>
-							<div>
-								<span>Amount:</span>
-								<span>{formatINR('80000')}</span>
-							</div>
-							<div>
-								<UI.AccordianIcon src={editIcon} alt='edit' />
-								<UI.AccordianIcon src={expandIcon} alt='toggle' />
-							</div>
-						</UI_SECTIONS.Accordian>
+						{/* combine local + db array */}
+						{liabilityList.map((liability, liabilityIndex) => {
+							const isAccordianOpen = liabilityIndex === openAccordianIndex;
+							return (
+								<UI_SECTIONS.AccordianWrapper>
+									<UI_SECTIONS.AccordianHeader
+										key={`accordian-${liabilityIndex}`}
+									>
+										{isAccordianOpen ? null : (
+											<>
+												<UI_SECTIONS.AccordianHeaderData>
+													<span>Liability For:</span>
+													<strong>Shubham Gaurav</strong>
+												</UI_SECTIONS.AccordianHeaderData>
+												<UI_SECTIONS.AccordianHeaderData>
+													<span>Type of Liability:</span>
+													<strong>Loans</strong>
+												</UI_SECTIONS.AccordianHeaderData>
+												<UI_SECTIONS.AccordianHeaderData>
+													<span>Amount:</span>
+													<strong>{formatINR('80000')}</strong>
+												</UI_SECTIONS.AccordianHeaderData>
+											</>
+										)}
+										<UI_SECTIONS.AccordianHeaderData
+											style={isAccordianOpen ? { marginLeft: 'auto' } : {}}
+										>
+											<UI.AccordianIcon src={editIcon} alt='edit' />
+											<UI.AccordianIcon
+												src={expandIcon}
+												alt='toggle'
+												onClick={() => toggleAccordian(liabilityIndex)}
+											/>
+										</UI_SECTIONS.AccordianHeaderData>
+									</UI_SECTIONS.AccordianHeader>
+									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
+										<UI_SECTIONS.FormWrapGrid>
+											{sub_section?.fields?.map((field, fieldIndex) => {
+												if (!isFieldValid({ field, formState, isApplicant })) {
+													return null;
+												}
+												const customFieldProps = {};
+												const newField = _.cloneDeep(field);
+												if (
+													newField.name === CONST.FIELD_NAME_LIABILITIES_FOR
+												) {
+													newField.options = getApplicantCoApplicantSelectOptions(
+														{ applicantCoApplicants }
+													);
+												}
+												return (
+													<UI_SECTIONS.FieldWrapGrid>
+														{register({
+															...newField,
+															value: prefilledValues(newField),
+															...customFieldProps,
+															visibility: 'visible',
+														})}
+														{(formState?.submit?.isSubmited ||
+															formState?.touched?.[newField.name]) &&
+															formState?.error?.[newField.name] && (
+																<UI_SECTIONS.ErrorMessage>
+																	{formState?.error?.[newField.name]}
+																</UI_SECTIONS.ErrorMessage>
+															)}
+													</UI_SECTIONS.FieldWrapGrid>
+												);
+											})}
+										</UI_SECTIONS.FormWrapGrid>
+										<Button customStyle={{ maxWidth: 120 }}>Save</Button>
+										{!!liability?.id || liabilityIndex === 0 ? null : (
+											<Button customStyle={{ maxWidth: 120, marginLeft: 20 }}>
+												Delete
+											</Button>
+										)}
+									</UI_SECTIONS.AccordianBody>
+								</UI_SECTIONS.AccordianWrapper>
+							);
+						})}
 					</Fragment>
 				);
 			})}

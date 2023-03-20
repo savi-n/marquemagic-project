@@ -1,0 +1,177 @@
+{
+	"name": "Liabilities Details",
+	"id": "liability_details",
+	"is_skip": true,
+	"sub_sections": [
+		{
+			"id": "liability_details",
+			"name": "Help us with Liabilities Details",
+			"is_dynamic": true,
+			"min": 1,
+			"max": 10,
+			"fields": [
+				{
+					"name": "liabilities_for",
+					"placeholder": "Liabilities For",
+					"db_key": "liabilities_for",
+					"type": "select",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": []
+				},
+				{
+					"name": "liabilities_type",
+					"placeholder": "Type of Liabilities",
+					"db_key": "liabilities_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Loans",
+							"value": "Loans"
+						},
+						{
+							"name": "Others",
+							"value": "Others"
+						}
+					],
+					"mask": {},
+					"visibility": true
+				},
+				{
+					"name": "loan_type",
+					"placeholder": "Type of Loan",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "loan_type",
+					"type": "select",
+					"mask": {},
+					"visibility": true
+				},
+				{
+					"name": "financial_institution",
+					"placeholder": "Financial Institution",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "financial_institution",
+					"type": "banklist",
+					"mask": {},
+					"visibility": true
+				},
+				{
+					"name": "total_loan_amount",
+					"placeholder": "Total Loan Amount",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "total_loan_amount",
+					"type": "number",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": [],
+					"inrupees": true
+				},
+				{
+					"name": "total_tenure",
+					"placeholder": "Total Tenure of Loan",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "total_tenure",
+					"type": "number",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": []
+				},
+				{
+					"name": "loan_start_date",
+					"placeholder": "Loan Start Date",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "loan_start_date",
+					"type": "date",
+					"mask": {},
+					"visibility": true,
+					"options": []
+				},
+				{
+					"name": "emi_amount",
+					"placeholder": "EMI Amount",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "emi_amount",
+					"type": "number",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": [],
+					"inrupees": true
+				},
+				{
+					"name": "remaining_loan_tenure",
+					"placeholder": "Remaining Loan Tenure",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "remaining_loan_tenure",
+					"type": "number",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": []
+				},
+				{
+					"name": "outstanding_loan_amount",
+					"placeholder": "Outstanding Loan Amount",
+					"for_type": ["Loans"],
+					"for_type_name": "liabilities_type",
+					"db_key": "outstanding_loan_amount",
+					"type": "number",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": [],
+					"inrupees": true
+				},
+				{
+					"name": "liability_amount",
+					"placeholder": "Amount",
+					"for_type": ["Others"],
+					"for_type_name": "liabilities_type",
+					"db_key": "liability_amount",
+					"type": "number",
+					"mask": {
+						"number_only": true,
+						"character_limit": 10
+					},
+					"visibility": true,
+					"options": [],
+					"inrupees": true
+				},
+				{
+					"name": "description",
+					"placeholder": "Description",
+					"for_type": ["Others"],
+					"for_type_name": "liabilities_type",
+					"db_key": "description",
+					"type": "text",
+					"mask": {},
+					"visibility": true,
+					"options": [],
+					"inrupees": true
+				}
+			]
+		}
+	]
+}

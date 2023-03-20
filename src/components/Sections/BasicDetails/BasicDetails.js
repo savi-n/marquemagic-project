@@ -78,6 +78,7 @@ const BasicDetails = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
+	// TODO: Varun SME Flow move this logic inside redux and expose selected applicant object
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
@@ -110,6 +111,7 @@ const BasicDetails = props => {
 	} = useForm();
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
+	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(

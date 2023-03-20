@@ -20,3 +20,5 @@ export const initialFormState = {
 	city1: 'Surat',
 	state1: 'Gujarat',
 };
+
+export const FIELD_NAME_LIABILITIES_FOR = 'liabilities_for';

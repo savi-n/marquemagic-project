@@ -113,12 +113,36 @@ export const RoundButton = styled.button`
 	}
 `;
 
-export const Accordian = styled.div`
-	margin: 20px 0;
+export const AccordianWrapper = styled.div`
+	box-shadow: rgba(11, 92, 255, 0.16) 0px 10px 36px 0px;
+`;
+
+export const AccordianHeader = styled.div`
+	margin-top: 20px;
 	display: flex;
 	justify-content: space-between;
-	box-shadow: rgba(11, 92, 255, 0.16) 0px 10px 36px 0px;
-	height: 50px;
+	height: 60px;
 	align-items: center;
 	padding: 0 20px;
+	border-radius: 6px;
+`;
+
+export const AccordianHeaderData = styled.div`
+	display: flex;
+	& strong {
+		margin-left: 5px;
+		color: #525252;
+	}
+	& img {
+		margin: 0 5px;
+		cursor: pointer;
+	}
+`;
+
+export const AccordianBody = styled.div`
+	/* border: 1px solid red; */
+	background-color: white;
+	padding: ${({ isOpen }) => (isOpen ? '0 20px 30px 20px' : '0')};
+	height: ${({ isOpen }) => (isOpen ? '100%' : '0')};
+	overflow: hidden;
 `;
