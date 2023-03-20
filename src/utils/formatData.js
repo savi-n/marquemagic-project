@@ -734,10 +734,11 @@ export const formatLoanDocuments = docs => {
 	docs?.map(doc => {
 		const newDoc = {
 			...(doc?.loan_document_details?.[0] || {}),
+			...(doc?.doc_type?.[0] || {}),
 			...doc,
 			document_key: doc?.document_key || doc?.doc_name,
 			document_id: doc?.id,
-			doc_type_id: doc.doctype,
+			doc_type_id: doc.doctype || doc.doc_type.id,
 			name: getDocumentNameFromLoanDocuments(doc),
 		};
 		newDocs.push(newDoc);

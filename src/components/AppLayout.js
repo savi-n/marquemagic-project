@@ -164,6 +164,7 @@ const AppLayout = () => {
 						isViewLoan &&
 						loanDetailsRes?.data?.data?.lender_document?.length > 0
 					) {
+						const clonedEditLoanData = _.cloneDeep(newEditLoanData);
 						const viewLoanDetailsRes = await axios.get(
 							`${API_END_POINT}/viewloanlisting?skip=0&limit=5&search=${
 								decryptedToken.loan_ref_id
@@ -174,8 +175,18 @@ const AppLayout = () => {
 								},
 							}
 						);
-						newEditLoanData.lender_document =
+						const lenderDocuments =
 							viewLoanDetailsRes?.data?.loan_details?.[0]?.lender_document;
+						lenderDocuments?.map(doc => {
+							const filteredDoc = clonedEditLoanData?.lender_document?.filter(
+								lenderDoc => {
+									return `${doc?.id}` === `${lenderDoc?.id}`;
+								}
+							)?.[0];
+							doc.loan_document_details = filteredDoc?.loan_document_details;
+							return null;
+						});
+						newEditLoanData.lender_document = lenderDocuments;
 					}
 					// console.log(newEditLoanData, 'newEditLoanData');
 					// console.log('isEdit', isEditLoan, 'isViewLoan', isViewLoan);
@@ -230,6 +241,12 @@ const AppLayout = () => {
 					const newDocs = formatLoanDocuments(
 						newEditLoanData?.loan_document || []
 					);
+					let newLenderDocs = [];
+					if (newEditLoanData?.lender_document.length > 0) {
+						newLenderDocs = formatLoanDocuments(
+							newEditLoanData?.lender_document || []
+						);
+					}
 					// const newLenderDocs = formatLenderDocs(
 					// 	newEditLoanData?.lender_document || []
 					// );
@@ -245,7 +262,11 @@ const AppLayout = () => {
 					// 	newDocs.push(newDoc);
 					// 	return null;
 					// });
-					dispatch(addOrUpdateCacheDocuments({ files: newDocs }));
+					dispatch(
+						addOrUpdateCacheDocuments({
+							files: [...newDocs, ...newLenderDocs],
+						})
+					);
 
 					if (!sessionStorage.getItem('encryptWhiteLabel')) {
 						const encryptWhiteLabelReq = await newRequest(

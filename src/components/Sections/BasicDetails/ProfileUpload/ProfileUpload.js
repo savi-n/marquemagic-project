@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import locationPinIcon from 'assets/icons/Geo_icon_2.png';
+import locationPinWhite from 'assets/icons/Geo_icon_1.png';
+
 import LoadingIcon from 'components/Loading/LoadingIcon';
 import { getGeoLocation } from 'utils/helper';
 import { useToasts } from '../../../Toast/ToastProvider';
@@ -45,13 +47,14 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
+		setImageLoading,
 	} = props;
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { whiteLabelId, isGeoTaggingEnabled } = app;
+	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
 	const { loanId, loanRefId, businessUserId, businessId } = application;
 
 	const [picAddress, setPicAddress] = useState({});
@@ -100,14 +103,25 @@ const ProfileUpload = props => {
 	const deleteDocument = async file => {
 		try {
 			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
+			let endPoint = API.DELETE_DOCUMENT;
+			if (section === 'documentUpload') {
+				endPoint = API.DELETE_LENDER_DOCUMENT;
+			}
 			setLoading(true);
 			const reqBody = {
+				//for profileupload
 				loan_doc_id: file?.document_id || '',
 				business_id: businessId,
+
+				//for doc upload
+				lender_doc_id: file?.document_id || '',
+				loan_bank_mapping_id:
+					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
 				loan_id: loanId,
-				userid: businessUserId,
+				user_id: businessUserId,
 			};
-			await axios.post(API.DELETE_DOCUMENT, reqBody);
+			await axios.post(endPoint, reqBody);
+
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
 			if (isGeoTaggingEnabled) {
@@ -134,24 +148,41 @@ const ProfileUpload = props => {
 			'image/jpg': ['.jpg'],
 		},
 		onDrop: async acceptedFiles => {
+			let coordinates = {};
+			if (isGeoTaggingEnabled) {
+				try {
+					coordinates = await getGeoLocation();
+				} catch (err) {
+					if (section === 'documentUpload') {
+						dispatch(
+							setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+						);
+					} else {
+						dispatch(
+							setProfileGeoLocation({ err: 'Geo Location Not Captured' })
+						);
+					}
+				}
+			}
 			try {
 				const formData = new FormData();
 				// const newFile = {};
 				setLoading(true);
 
 				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
-				const coordinates = await getGeoLocation();
 
 				// SELFIE DOC UPLOAD SECTION
-				if (coordinates && section === 'documentUpload') {
+				if (section === 'documentUpload') {
 					const selectedIncomeType =
 						selectedApplicant?.basic_details?.[
 							CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
 						] || selectedApplicant?.income_type;
 
 					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', coordinates?.latitude || null);
-					formData.append('long', coordinates?.longitude || null);
+					if (Object.keys(coordinates).length > 0) {
+						formData.append('lat', coordinates?.latitude || null);
+						formData.append('long', coordinates?.longitude || null);
+					}
 					formData.append('timestamp', coordinates?.timestamp || null);
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
@@ -173,17 +204,20 @@ const ProfileUpload = props => {
 							fileId: resp?.data?.document_details_data?.doc_id,
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
 							directorId: selectedApplicant.directorId,
-							doc_name: resp?.data?.loan_document_data?.doc_name,
-
+							doc_name: resp?.data?.lender_document_data?.doc_name,
+							document_key: resp?.data?.lender_document_data?.doc_name,
+							loan_bank_mapping_id:
+								resp?.data?.lender_document_data?.loan_bank_mapping || 1,
 							field,
 							...coordinates,
 							preview: resp?.data?.presignedUrl,
 							...resp?.data?.uploaded_data,
 						};
-						if (isGeoTaggingEnabled) {
+						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
 						}
+						// console.log('newfile-', { newFile });
 						dispatch(
 							addOrUpdateCacheDocument({
 								file: {
@@ -201,9 +235,12 @@ const ProfileUpload = props => {
 					}
 				} else {
 					// Basic details Profile Pic Upload section
+					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
-					formData.append('lat', coordinates?.latitude || null);
-					formData.append('long', coordinates?.longitude || null);
+					if (Object.keys(coordinates).length > 0) {
+						formData.append('lat', coordinates?.latitude || null);
+						formData.append('long', coordinates?.longitude || null);
+					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
 						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
@@ -213,7 +250,7 @@ const ProfileUpload = props => {
 							type: 'profilePic',
 							preview: resp?.data?.presignedUrl,
 						};
-						if (isGeoTaggingEnabled) {
+						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(resp?.data?.file);
 							if (isApplicant) {
 								dispatch(setProfileGeoLocation(resp?.data?.file));
@@ -239,6 +276,9 @@ const ProfileUpload = props => {
 				});
 			} finally {
 				setLoading(false);
+				if (setImageLoading) {
+					setImageLoading(false);
+				}
 			}
 		},
 	});
@@ -347,6 +387,8 @@ const ProfileUpload = props => {
 									onClick={e => {
 										e.preventDefault();
 										e.stopPropagation();
+										setShowImageInfo(false);
+										// for profile pic upload in basic details section
 										if (value) {
 											onChangeFormStateField({
 												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
@@ -377,13 +419,13 @@ const ProfileUpload = props => {
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
 						</UI.CameraIconWrapper>
-						{isTag && (
+						{isGeoTaggingEnabled && isTag && (
 							<UI.PinIconWrapper>
 								<UI.IconCamera
 									onClick={() => {
 										setShowImageInfo(!showImageInfo);
 									}}
-									src={locationPinIcon}
+									src={showImageInfo ? locationPinWhite : locationPinIcon}
 									alt='pin-location'
 								/>
 							</UI.PinIconWrapper>
@@ -413,6 +455,11 @@ const ProfileUpload = props => {
 									picAddress?.address ||
 									uploadedFile?.address ||
 									geoLocationAddress?.address
+								}
+								err={
+									picAddress?.err ||
+									uploadedFile?.err ||
+									geoLocationAddress?.err
 								}
 							/>
 						)}

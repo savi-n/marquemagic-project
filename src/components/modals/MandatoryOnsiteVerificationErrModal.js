@@ -27,7 +27,21 @@ const ModalFooter = styled.div`
 	gap: 40px;
 `;
 
-const MandatoryOnsiteVerificationErrModal = ({ onYes }) => {
+const ImageWrapper = styled.div`
+	flex-direction: column;
+	display: flex;
+	align-items: center;
+`;
+
+const ErrorImage = styled.img`
+	width: 100px;
+`;
+
+const MandatoryOnsiteVerificationErrModal = ({
+	onYes,
+	errorImage,
+	errorText,
+}) => {
 	return (
 		<Modal
 			show={true}
@@ -35,8 +49,13 @@ const MandatoryOnsiteVerificationErrModal = ({ onYes }) => {
 			width='30%'
 			customStyle={{ minHeight: '200px' }}
 		>
+			<ImageWrapper>
+				{errorImage ? <ErrorImage alt='error' src={errorImage} /> : null}
+			</ImageWrapper>
 			<ModalBody>
-				<Text>On-site Verification Not Completed</Text>
+				<Text>
+					{errorText ? errorText : 'On-site Verification Not Completed'}
+				</Text>
 			</ModalBody>
 
 			<ModalFooter>

@@ -10,7 +10,7 @@ import BankStatementModal from 'components/BankStatementModal';
 import Loading from 'components/Loading';
 import CategoryFileUpload from './CategoryFileUpload';
 import Textarea from 'components/inputs/Textarea';
-
+import errorImage from 'assets/icons/geo-error.png';
 import * as API from '_config/app.config';
 import {
 	updateApplicationSection,
@@ -74,6 +74,7 @@ const DocumentUpload = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
+
 	const {
 		loanId,
 		businessId,
@@ -82,6 +83,7 @@ const DocumentUpload = props => {
 		cacheDocuments,
 		commentsForOfficeUse,
 		prompted,
+		geoLocation,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -124,6 +126,7 @@ const DocumentUpload = props => {
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [declareCheck, setDeclareCheck] = useState(false);
 	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
+	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(false);
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -523,10 +526,11 @@ const DocumentUpload = props => {
 					return null;
 				})?.[0];
 				if (selectedField) {
-					let file = cacheDocuments?.filter(doc => {
+					const file = cacheDocuments?.filter(doc => {
 						if (
 							`${doc?.directorId}` === `${directorId}` &&
-							doc?.doctype === selectedField?.doc_type?.[selectedIncomeType]
+							doc?.doc_type?.id ===
+								selectedField?.doc_type?.[selectedIncomeType]
 						) {
 							return doc;
 						}
@@ -535,12 +539,24 @@ const DocumentUpload = props => {
 					if (file && Object.keys(file).length > 0) {
 						setCacheFile(file);
 						if (isGeoTaggingEnabled) {
+							if (
+								!file?.loan_document_details?.[0]?.lat &&
+								!file?.loan_document_details?.[0]?.long
+							) {
+								setGeoLocationData({ err: 'Geo Location Not Captured' });
+								dispatch(
+									setDocumentSelfieGeoLocation({
+										err: 'Geo Location Not Captured',
+									})
+								);
+								return;
+							}
 							const reqBody = {
 								lat: file?.loan_document_details?.[0]?.lat,
 								long: file?.loan_document_details?.[0]?.long,
 							};
 							const geoLocationRes = await axios.post(
-								`${API.API_END_POINT}/geoLocation`,
+								API.GEO_LOCATION,
 								reqBody,
 								{
 									headers: {
@@ -624,30 +640,47 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
+			// console.log('step-1');
+			const check = validateGeoTaggedDocsForApplicantCoapplicant();
+			// console.log('step-2', { check });
+			if (check?.isAllTheDocumentsPresent !== true) {
+				setOnSiteVerificationModal(true);
+				// console.log('step-3');
+				return;
+			}
+			// console.log('step-4');
 			if (buttonDisabledStatus()) return;
+			// console.log('step-5');
 			// change permission here
 			if (
-				selectedProduct?.product_details?.kyc_verification &&
+				// selectedProduct?.product_details?.kyc_verification &&
+				isGeoTaggingEnabled &&
 				!isAppCoAppVerificationComplete()
 			) {
+				// console.log('step-6');
 				setOnsiteVerificationErr(true);
 				return;
 			}
+			// console.log('step-7');
 			if (!isFormValid()) return;
+			// console.log('step-8');
 			setSubmitting(true);
 			await onSubmitCompleteApplication();
+			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
 				mobile: +applicantMobileNumber,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
+			// console.log('step-10', { authenticationOtpReqBody });
 			// let authenticateOtp =
 			// -- api-3 - generate otp
 			await axios.post(
 				API.AUTHENTICATION_GENERATE_OTP,
 				authenticationOtpReqBody
 			);
+			// console.log('step-11');
 			setIsAuthenticationOtpModalOpen(true);
 		} catch (error) {
 			if (error?.response?.data?.timer) {
@@ -740,6 +773,13 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitCompleteApplication = async () => {
+		if (isEditLoan) {
+			const check = validateGeoTaggedDocsForApplicantCoapplicant();
+			if (check?.isAllTheDocumentsPresent !== true) {
+				setOnSiteVerificationModal(true);
+				return;
+			}
+		}
 		if (buttonDisabledStatus()) return;
 
 		if (!isFormValid()) return;
@@ -791,11 +831,15 @@ const DocumentUpload = props => {
 						...resDoc,
 						...cacheDoc,
 						document_id: resDoc?.id,
+						id: resDoc?.id,
 					};
 					updateDocumentIdToCacheDocuments.push(newDoc);
 					return null;
 				});
-
+				// console.log(
+				// 	'updateDocumentIdToCacheDocuments',
+				// 	updateDocumentIdToCacheDocuments
+				// );
 				dispatch(
 					addOrUpdateCacheDocumentsDocUploadPage({
 						files: updateDocumentIdToCacheDocuments,
@@ -806,6 +850,9 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
+			if (isEditLoan && !isDraftLoan) {
+				onSkip();
+			}
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
@@ -903,7 +950,6 @@ const DocumentUpload = props => {
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication();
-					onSkip();
 				}}
 			/>
 		);
@@ -941,14 +987,22 @@ const DocumentUpload = props => {
 		newCacheDocumentTemp.push(file);
 
 		if (isGeoTaggingEnabled) {
-			const geoLocationTag = {
-				address: file?.address,
-				lat: file?.latitude,
-				long: file?.longitude,
-				timestamp: file?.timestamp,
-			};
-			setGeoLocationData(geoLocationTag);
-			dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+			if (file?.latitude === 'null' || !file.hasOwnProperty('latitude')) {
+				const geoLocationTag = {
+					err: 'Geo Location Not Captured',
+				};
+				setGeoLocationData(geoLocationTag);
+				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+			} else {
+				const geoLocationTag = {
+					address: file?.address,
+					lat: file?.latitude,
+					long: file?.longitude,
+					timestamp: file?.timestamp,
+				};
+				setGeoLocationData(geoLocationTag);
+				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+			}
 		}
 		setCacheFile(file);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
@@ -973,6 +1027,7 @@ const DocumentUpload = props => {
 
 	const closeVerificationErrModal = () => {
 		setOnsiteVerificationErr(false);
+		setOnSiteVerificationModal(false);
 	};
 
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
@@ -1001,6 +1056,128 @@ const DocumentUpload = props => {
 		});
 		return result;
 	};
+	// TO CHECK IF APPLICANT AND COAPPLICANT PROFILE-PIC/SELFIE IS UPLOADED IF IT IS MANDATORY (returns an object { missingDocsForDirectors, isAllTheDocumentsPresent: false/true })
+	const validateGeoTaggedDocsForApplicantCoapplicant = () => {
+		const documentCheckStatus = {
+			isAllTheDocumentsPresent: true,
+		};
+		const applicantCoapplicantDoc = [];
+		const geoTaggedDocs = cacheDocuments?.filter(
+			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+		);
+
+		const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
+			subSection => subSection?.id === 'on_site_selfie_with_applicant'
+		)?.[0];
+		const mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
+			field => field?.geo_tagging === true && field?.is_co_applicant !== true
+		)?.[0];
+		const mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
+			field => field?.geo_tagging === true && field?.is_applicant !== true
+		)?.[0];
+
+		// check for profile pic upload geolocation starts
+		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
+			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+		)?.[0];
+
+		const profilePicField = basicDetailsSection?.sub_sections?.[0]?.fields?.filter(
+			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		);
+
+		const mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+			field => field?.geo_tagging === true && field?.is_co_applicant !== true
+		)?.[0];
+		const mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+			field => field?.geo_tagging === true && field?.is_applicant !== true
+		)?.[0];
+
+		if (!!mandatoryProfilePicFieldApplicant) {
+			applicantCoapplicantDoc?.push({
+				...mandatoryProfilePicFieldApplicant,
+				docTypeId:
+					mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+				directorId: applicant?.directorId,
+			});
+		}
+		if (
+			!!mandatoryProfilePicFieldApplicant &&
+			!!mandatoryProfilePicFieldCoApplicant
+		) {
+			Object.keys(coApplicants)?.map(coApplicantId => {
+				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
+				field.directorId = coApplicantId;
+				field.docTypeId = field?.doc_type?.[selectedIncomeType];
+				applicantCoapplicantDoc?.push(field);
+				return null;
+			});
+		}
+		// check for profile pic upload geolocation ends
+
+		// forming array with all the directors for mandatory selfie with app/coapp field
+		if (!!mandatoryFieldApplicant)
+			applicantCoapplicantDoc?.push({
+				...mandatoryFieldApplicant,
+				docTypeId: mandatoryFieldApplicant?.doc_type?.[selectedIncomeType],
+				directorId: applicant?.directorId,
+			});
+
+		if (!!mandatoryFieldApplicant && !!mandatoryFieldCoApplicant) {
+			Object.keys(coApplicants)?.map(coApplicantId => {
+				const field = _.cloneDeep(mandatoryFieldCoApplicant);
+				field.directorId = coApplicantId;
+				field.docTypeId = field?.doc_type?.[selectedIncomeType];
+				applicantCoapplicantDoc?.push(field);
+				return null;
+			});
+		}
+
+		// final check - if the onSiteSelfieWith app/coapp document is present or not
+		const missingDocsForDirectors = [];
+		applicantCoapplicantDoc?.map(doc => {
+			const getMissingDocs = geoTaggedDocs?.filter(
+				directorField =>
+					`${directorField?.directorId}` === `${doc?.directorId}` &&
+					`${directorField?.doc_type_id}` === `${doc?.docTypeId}`
+			)?.[0];
+			if (!!getMissingDocs) {
+			} else {
+				missingDocsForDirectors?.push(`${doc?.directorId}`);
+			}
+			return null;
+		});
+
+		// Getting the missing On-site-verification documents of applicant/coapplicant
+		const applicantCoappliantIndex = [];
+		if (missingDocsForDirectors?.length > 0) {
+			const isApplicantImgMissing = missingDocsForDirectors?.indexOf(
+				`${applicant?.directorId}`
+			);
+			if (isApplicantImgMissing >= 0)
+				applicantCoappliantIndex?.push('Applicant');
+
+			Object.keys(coApplicants)?.map((coapp, index) => {
+				if (missingDocsForDirectors?.includes(`${coapp}`)) {
+					applicantCoappliantIndex?.push(`Co-Applicant ${index + 1}`);
+				}
+				return null;
+			});
+			documentCheckStatus.isAllTheDocumentsPresent = false;
+			documentCheckStatus.missingDocsForDirectors = [
+				...new Set(missingDocsForDirectors),
+			];
+			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
+		}
+		// console.log({
+		// 	geoTaggedDocs,
+		// 	applicantCoapplicantDoc,
+		// 	missingDocsForDirectors,
+		// 	documentCheckStatus,
+		// 	mandatoryFieldApplicant,
+		// 	mandatoryFieldCoApplicant,
+		// });
+		return documentCheckStatus;
+	};
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
 	const isMandatoryGeoVerificationComplete = () => {
@@ -1008,6 +1185,12 @@ const DocumentUpload = props => {
 			applicantCoApplicants,
 			isEditOrViewLoan,
 		});
+		if (
+			Object.keys(geoLocation).length > 0 &&
+			geoLocation.hasOwnProperty('err')
+		)
+			return false;
+		if (Object.keys(geoLocation).length <= 0) return false;
 		let result = true;
 		appCoappsList.map(director => {
 			if (Number(applicant.directorId) === Number(director.value)) {
@@ -1071,6 +1254,13 @@ const DocumentUpload = props => {
 		}
 	};
 
+	// console.log('DocumentUpload-allprops-', {
+	// 	app,
+	// 	applicantCoApplicants,
+	// 	cacheDocuments,
+	// 	cacheDocumentsTemp,
+	// });
+
 	if (loading) {
 		return (
 			<UI.LoaderWrapper>
@@ -1109,6 +1299,17 @@ const DocumentUpload = props => {
 					onYes={closeVerificationErrModal}
 				/>
 			) : null}
+
+			{isGeoTaggingEnabled && onSiteVerificationModal ? (
+				<MandatoryOnsiteVerificationErrModal
+					onYes={closeVerificationErrModal}
+					errorImage={errorImage}
+					errorText={
+						'Geo-location not captured. Please capture before submitting the application!'
+					}
+				/>
+			) : null}
+
 			{totalMandatoryDocumentCount > 0 ? (
 				<UI.CollapseHeader
 					style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}
@@ -1182,7 +1383,27 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.name}
+								{/* {console.log(
+									'🚀 ~ file: DocumentUpload.js:1188 ~ :category.toLocaleUpperCase ~ sub_section:',
+									sub_section
+								)} */}
+								{/* {sub_section?.name} */}
+								{/* {selectedApplicant.isApplicant ||
+								sub_section?.name === 'Comments For Office Use'
+									? sub_section?.name
+									: `On-site Selfie With Co-Applicant - ${Object.keys(
+											coApplicants
+									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
+								{sub_section?.id === 'on_site_selfie_with_applicant'
+									? selectedApplicant.isApplicant
+										? sub_section?.name
+										: Object.keys(coApplicants).length > 1
+										? sub_section?.fields?.[1].label +
+										  ` ${Object.keys(coApplicants).indexOf(
+												selectedApplicantCoApplicantId
+										  ) + 1}`
+										: sub_section?.fields?.[1].label
+									: sub_section?.name}
 
 								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
 							</UI.CommentsForOfficeUseFieldName>
@@ -1227,6 +1448,7 @@ const DocumentUpload = props => {
 														latitude={geoLocationData?.lat}
 														longitude={geoLocationData?.long}
 														timestamp={geoLocationData?.timestamp}
+														err={geoLocationData?.err}
 														showCloseIcon={false}
 														customStyle={{
 															width: 'fit-content',
