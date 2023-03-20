@@ -641,7 +641,7 @@ const DocumentUpload = props => {
 	const onSubmitOtpAuthentication = async () => {
 		try {
 			// console.log('step-1');
-			const check = validateSefieWithApplicantCoapplicant();
+			const check = validateGeoTaggedDocsForApplicantCoapplicant();
 			// console.log('step-2', { check });
 			if (check?.isAllTheDocumentsPresent !== true) {
 				setOnSiteVerificationModal(true);
@@ -774,7 +774,7 @@ const DocumentUpload = props => {
 
 	const onSubmitCompleteApplication = async () => {
 		if (isEditLoan) {
-			const check = validateSefieWithApplicantCoapplicant();
+			const check = validateGeoTaggedDocsForApplicantCoapplicant();
 			if (check?.isAllTheDocumentsPresent !== true) {
 				setOnSiteVerificationModal(true);
 				return;
@@ -1056,8 +1056,8 @@ const DocumentUpload = props => {
 		});
 		return result;
 	};
-	// TO CHECK IF APPLICANT AND COAPPLICANT SELFIE IS UPLOADED IF IT IS MANDATORY (returns an object { missingDocsForDirectors, isAllTheDocumentsPresent: false/true })
-	const validateSefieWithApplicantCoapplicant = () => {
+	// TO CHECK IF APPLICANT AND COAPPLICANT PROFILE-PIC/SELFIE IS UPLOADED IF IT IS MANDATORY (returns an object { missingDocsForDirectors, isAllTheDocumentsPresent: false/true })
+	const validateGeoTaggedDocsForApplicantCoapplicant = () => {
 		const documentCheckStatus = {
 			isAllTheDocumentsPresent: true,
 		};
@@ -1070,11 +1070,49 @@ const DocumentUpload = props => {
 			subSection => subSection?.id === 'on_site_selfie_with_applicant'
 		)?.[0];
 		const mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant === false
+			field => field?.geo_tagging === true && field?.is_co_applicant !== true
 		)?.[0];
 		const mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant === false
+			field => field?.geo_tagging === true && field?.is_applicant !== true
 		)?.[0];
+
+		// check for profile pic upload geolocation starts
+		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
+			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+		)?.[0];
+
+		const profilePicField = basicDetailsSection?.sub_sections?.[0]?.fields?.filter(
+			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+		);
+
+		const mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+			field => field?.geo_tagging === true && field?.is_co_applicant !== true
+		)?.[0];
+		const mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+			field => field?.geo_tagging === true && field?.is_applicant !== true
+		)?.[0];
+
+		if (!!mandatoryProfilePicFieldApplicant) {
+			applicantCoapplicantDoc?.push({
+				...mandatoryProfilePicFieldApplicant,
+				docTypeId:
+					mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+				directorId: applicant?.directorId,
+			});
+		}
+		if (
+			!!mandatoryProfilePicFieldApplicant &&
+			!!mandatoryProfilePicFieldCoApplicant
+		) {
+			Object.keys(coApplicants)?.map(coApplicantId => {
+				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
+				field.directorId = coApplicantId;
+				field.docTypeId = field?.doc_type?.[selectedIncomeType];
+				applicantCoapplicantDoc?.push(field);
+				return null;
+			});
+		}
+		// check for profile pic upload geolocation ends
 
 		// forming array with all the directors for mandatory selfie with app/coapp field
 		if (!!mandatoryFieldApplicant)
@@ -1125,8 +1163,10 @@ const DocumentUpload = props => {
 				return null;
 			});
 			documentCheckStatus.isAllTheDocumentsPresent = false;
-			documentCheckStatus.missingDocsForDirectors = missingDocsForDirectors;
-			documentCheckStatus.directorList = applicantCoappliantIndex;
+			documentCheckStatus.missingDocsForDirectors = [
+				...new Set(missingDocsForDirectors),
+			];
+			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
 		}
 		// console.log({
 		// 	geoTaggedDocs,
