@@ -1395,7 +1395,7 @@ const DocumentUpload = props => {
 											coApplicants
 									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
 								{sub_section?.id === 'on_site_selfie_with_applicant'
-									? selectedApplicant.isApplicant
+									? selectedApplicant?.isApplicant
 										? sub_section?.name
 										: Object.keys(coApplicants).length > 1
 										? sub_section?.fields?.[1].label +
