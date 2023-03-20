@@ -167,7 +167,7 @@ const AddressDetailsPage = props => {
 					personalDataFormState?.firstName || applicantData?.firstName || '',
 				last_name:
 					personalDataFormState?.lastName || applicantData?.lastName || '',
-				businessName:
+				businessname:
 					applicantData?.firstName ||
 					sessionStorage.getItem('BusinessName') ||
 					businessDataFormState?.BusinessName ||
@@ -189,7 +189,7 @@ const AddressDetailsPage = props => {
 					companyData?.Email ||
 					formReducer?.user?.['business-details']?.Email ||
 					'',
-				contactNo:
+				contactno:
 					personalDataFormState?.mobileNo ||
 					applicantData?.mobileNo ||
 					businessDataFormState?.mobileNo ||
@@ -202,7 +202,7 @@ const AddressDetailsPage = props => {
 					'',
 				businessStartDate: '4/8/90',
 				businesstype: applicantData?.incomeType || companyData?.BusinessType,
-				Line1:
+				business_address:
 					formData?.permanent_address1 ||
 					applicantData?.address?.address1 ||
 					'',
@@ -210,14 +210,14 @@ const AddressDetailsPage = props => {
 					formData?.permanent_address2 ||
 					applicantData?.address?.address2 ||
 					'',
-				locality:
+				business_locality:
 					formData?.permanent_address3 ||
 					formData?.permanent_city ||
 					applicantData?.address?.city ||
 					'',
-				city: formData?.permanent_city || '',
-				state: formData?.permanent_state || '',
-				pincode: formData?.permanent_pinCode || '',
+				business_city: formData?.permanent_city || '',
+				business_state: formData?.permanent_state || '',
+				business_pincode: formData?.permanent_pinCode || '',
 				business_id: sessionStorage.getItem('business_id') || '',
 				baid: sessionStorage.getItem('baid') || '',
 				aid: 2,
