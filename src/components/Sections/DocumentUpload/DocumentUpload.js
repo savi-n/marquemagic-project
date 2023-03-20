@@ -1383,10 +1383,6 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{/* {console.log(
-									'🚀 ~ file: DocumentUpload.js:1188 ~ :category.toLocaleUpperCase ~ sub_section:',
-									sub_section
-								)} */}
 								{/* {sub_section?.name} */}
 								{/* {selectedApplicant.isApplicant ||
 								sub_section?.name === 'Comments For Office Use'
@@ -1395,7 +1391,7 @@ const DocumentUpload = props => {
 											coApplicants
 									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
 								{sub_section?.id === 'on_site_selfie_with_applicant'
-									? selectedApplicant.isApplicant
+									? isApplicant
 										? sub_section?.name
 										: Object.keys(coApplicants).length > 1
 										? sub_section?.fields?.[1].label +
