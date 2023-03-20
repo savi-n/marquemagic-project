@@ -192,18 +192,22 @@ export default function useForm() {
 		submitCount: 0,
 	});
 
+	const resetForm = () => {
+		fieldsRef.current = {};
+		valuesRef.current = {};
+		touchedRef.current = {};
+		errorsRef.current = {};
+		validRef.current = {};
+		submitRef.current = {
+			isSubmitting: false,
+			isSubmited: false,
+			submitCount: 0,
+		};
+	};
+
 	useEffect(() => {
 		return () => {
-			fieldsRef.current = {};
-			valuesRef.current = {};
-			touchedRef.current = {};
-			errorsRef.current = {};
-			validRef.current = {};
-			submitRef.current = {
-				isSubmitting: false,
-				isSubmited: false,
-				submitCount: 0,
-			};
+			resetForm();
 		};
 	}, []);
 
@@ -445,6 +449,7 @@ export default function useForm() {
 		clearErrorFormState: clearError,
 		onChangeFormStateField: onChange,
 		setErrorFormStateField: setError,
+		resetForm: resetForm,
 	};
 }
 

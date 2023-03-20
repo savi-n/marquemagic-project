@@ -24,20 +24,104 @@ const DynamicForm = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		prevSectionId,
+		isLocalhost,
+		isTestMode,
+		editLoanData,
+		isEditLoan,
+		isEditOrViewLoan,
+		bankList,
+		// selectedSection,
+	} = app;
 	const { isApplicant } = applicantCoApplicants;
 	// const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
-	const { handleSubmit, register, formState } = useForm();
+	const { handleSubmit, register, formState, resetForm } = useForm();
 
 	const onProceed = async () => {};
 
-	const prefilledValues = field => {};
+	const prefilledEditOrViewLoanValues = field => {
+		// console.log('emi details', editLoanData);
+		// const LiabilityDetails = parseJSON(
+		// 	editLoanData?.bank_details?.filter(
+		// 		bank => `${bank.id}` === `${LiabilityDetailsFinId}`
+		// 	)?.[0]?.emi_details || '{}'
+		// );
+		// const LiabilityDetailsIndex = createIndexKeyObjectFromArrayOfObject({
+		// 	arrayOfObject: LiabilityDetails,
+		// 	isLiabilityDetails: true,
+		// 	isEditOrViewLoan,
+		// });
+		const preData = {
+			// ...LiabilityDetailsIndex,
+		};
+		return preData?.[field?.name];
+	};
 
-	// console.log('DynamicForms-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	selectedLiabilityDetailsSubSection,
-	// });
+	const prefilledValues = field => {
+		try {
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field.name];
+			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+			if (
+				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+			) {
+				// special scenario for bank name prefetch
+				if (application?.sections?.[selectedSectionId]?.[field?.name]?.value) {
+					return application?.sections?.[selectedSectionId]?.[field?.name]
+						?.value;
+				} else {
+					// if (
+					// 	!application?.sections?.[selectedSectionId]?.hasOwnProperty(
+					// 		'isSkip'
+					// 	)
+					// ) {
+					return application?.sections?.[selectedSectionId]?.[field?.name];
+					// }
+				}
+			}
+
+			let editViewLoanValue = '';
+
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
+
+			if (editViewLoanValue) return editViewLoanValue;
+
+			return field?.value || '';
+		} catch (error) {
+			return {};
+		}
+	};
+
+	useEffect(() => {
+		resetForm();
+		return () => {
+			resetForm();
+		};
+	}, []);
+
+	console.log('DynamicForms-allstates-', {
+		fields,
+		app,
+		selectedSection,
+	});
 
 	return (
 		<React.Fragment>

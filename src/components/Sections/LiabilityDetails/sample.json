@@ -47,6 +47,12 @@
 					"for_type_name": "liabilities_type",
 					"db_key": "loan_type",
 					"type": "select",
+					"options": [
+						{
+							"name": "Gold",
+							"value": "Gold"
+						}
+					],
 					"mask": {},
 					"visibility": true
 				},
