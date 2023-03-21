@@ -142,8 +142,14 @@ export const AccordianHeaderData = styled.div`
 export const AccordianBody = styled.div`
 	/* border: 1px solid red; */
 	background-color: white;
-	padding: ${({ isOpen }) => (isOpen ? '0 20px 30px 20px' : '0')};
-	height: ${({ isOpen }) => (isOpen ? '500px' : '0px')};
+	/* padding: 0 30px 30px 30px; */
+	padding: ${({ isOpen }) => (isOpen ? '0 30px 30px 30px' : '0')};
 	overflow: hidden;
-	transition: all 0.3s ease-in-out;
+	height: ${({ isOpen }) => (isOpen ? 'auto' : '0')};
+
+	/* Enable this for animation */
+	/* padding: ${({ isOpen }) => (isOpen ? '0 30px 30px 30px' : '0 30px')};
+	max-height: ${({ isOpen }) => (isOpen ? '1000px' : '0')};
+	height: auto;
+	transition: max-height 0.3s ease-in-out; */
 `;
