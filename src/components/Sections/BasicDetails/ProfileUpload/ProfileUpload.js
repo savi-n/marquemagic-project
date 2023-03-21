@@ -210,7 +210,10 @@ const ProfileUpload = props => {
 								resp?.data?.lender_document_data?.loan_bank_mapping || 1,
 							field,
 							...coordinates,
-							preview: resp?.data?.presignedUrl,
+							preview:
+								field?.geo_tagging === true
+									? resp?.data?.presignedUrl
+									: resp?.data?.preview,
 							...resp?.data?.uploaded_data,
 						};
 						if (isGeoTaggingEnabled && coordinates) {
@@ -248,7 +251,10 @@ const ProfileUpload = props => {
 							field,
 							...resp?.data,
 							type: 'profilePic',
-							preview: resp?.data?.presignedUrl,
+							preview:
+								field?.geo_tagging === true
+									? resp?.data?.presignedUrl
+									: resp?.data?.preview,
 						};
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(resp?.data?.file);
@@ -306,7 +312,7 @@ const ProfileUpload = props => {
 					};
 
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
-					let previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
+					const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
 
 					setSelfiePreview({
 						...uploadedFile,
@@ -419,7 +425,7 @@ const ProfileUpload = props => {
 							{...getRootProps({ className: 'dropzone' })}
 						/> */}
 						</UI.CameraIconWrapper>
-						{isGeoTaggingEnabled && isTag && (
+						{isGeoTaggingEnabled && isTag && field?.geo_tagging === true && (
 							<UI.PinIconWrapper>
 								<UI.IconCamera
 									onClick={() => {
