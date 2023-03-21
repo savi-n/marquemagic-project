@@ -440,8 +440,12 @@ const DocumentUpload = props => {
 			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
-				cacheDocuments?.map(doc => {
+				const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+				clonedCacheDocuments?.map(doc => {
 					// if (doc?.document_id) return null;
+					if (!doc?.directorId) {
+						doc.directorId = applicant?.id;
+					}
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
 							if (
