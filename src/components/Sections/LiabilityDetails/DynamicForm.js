@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react';
-import { Fragment, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import _ from 'lodash';
 
 import Button from 'components/Button';
 
 import useForm from 'hooks/useFormIndividual';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { useSelector } from 'react-redux';
 import {
 	getApplicantCoApplicantSelectOptions,
 	isFieldValid,
@@ -24,41 +20,14 @@ const DynamicForm = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		prevSectionId,
-		isLocalhost,
-		isTestMode,
-		editLoanData,
-		isEditLoan,
-		isEditOrViewLoan,
-		bankList,
-		// selectedSection,
-	} = app;
+	const { isViewLoan, selectedSectionId, isTestMode, isEditLoan } = app;
 	const { isApplicant } = applicantCoApplicants;
 	// const dispatch = useDispatch();
-	const [loading, setLoading] = useState(false);
-	const { handleSubmit, register, formState, resetForm } = useForm();
-
-	const onProceed = async () => {};
+	// const [loading, setLoading] = useState(false);
+	const { register, formState, handleSubmit } = useForm();
 
 	const prefilledEditOrViewLoanValues = field => {
-		// console.log('emi details', editLoanData);
-		// const LiabilityDetails = parseJSON(
-		// 	editLoanData?.bank_details?.filter(
-		// 		bank => `${bank.id}` === `${LiabilityDetailsFinId}`
-		// 	)?.[0]?.emi_details || '{}'
-		// );
-		// const LiabilityDetailsIndex = createIndexKeyObjectFromArrayOfObject({
-		// 	arrayOfObject: LiabilityDetails,
-		// 	isLiabilityDetails: true,
-		// 	isEditOrViewLoan,
-		// });
-		const preData = {
-			// ...LiabilityDetailsIndex,
-		};
+		const preData = {};
 		return preData?.[field?.name];
 	};
 
@@ -110,12 +79,9 @@ const DynamicForm = props => {
 		}
 	};
 
-	useEffect(() => {
-		resetForm();
-		return () => {
-			resetForm();
-		};
-	}, []);
+	const onProceed = data => {
+		console.log('onProceed-Date-', data);
+	};
 
 	console.log('DynamicForms-allstates-', {
 		fields,
@@ -156,7 +122,9 @@ const DynamicForm = props => {
 					);
 				})}
 			</UI_SECTIONS.FormWrapGrid>
-			<Button customStyle={{ maxWidth: 120 }}>Save</Button>
+			<Button customStyle={{ maxWidth: 120 }} onClick={handleSubmit(onProceed)}>
+				Save
+			</Button>
 			<Button customStyle={{ maxWidth: 120, marginLeft: 20 }}>Delete</Button>
 		</React.Fragment>
 	);

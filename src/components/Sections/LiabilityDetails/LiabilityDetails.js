@@ -1,34 +1,22 @@
 import React, { useEffect } from 'react';
 import { Fragment, useState } from 'react';
-import axios from 'axios';
-import _ from 'lodash';
 
 import Button from 'components/Button';
 
-import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
-import {
-	formatINR,
-	formatSectionReqBody,
-	getApplicantCoApplicantSelectOptions,
-	isFieldValid,
-	parseJSON,
-} from 'utils/formatData';
-import { API_END_POINT } from '_config/app.config';
+import { updateApplicationSection } from 'store/applicationSlice';
+import { formatINR } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
-import * as CONST from './const';
+// import * as CONST from './const';
 import selectedSection from './sample.json'; // TODO: remove after testing
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import DynamicForm from './DynamicForm';
 
 const LiabilityDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -36,16 +24,10 @@ const LiabilityDetails = props => {
 		prevSectionId,
 		isLocalhost,
 		isTestMode,
-		editLoanData,
 		isEditLoan,
-		isEditOrViewLoan,
-		bankList,
 		// selectedSection,
 	} = app;
-	const { isApplicant } = applicantCoApplicants;
-	const { LiabilityDetailsFinId } = application;
 	const dispatch = useDispatch();
-	const [loading, setLoading] = useState(false);
 	const selectedLiabilityDetailsSubSection =
 		selectedSection?.sub_sections?.[0] || {};
 	const [count, setCount] = useState(
@@ -53,6 +35,8 @@ const LiabilityDetails = props => {
 	);
 	const [openAccordianIndex, setOpenAccordianIndex] = useState(-1);
 	const MAX_COUNT = selectedLiabilityDetailsSubSection?.max || 10;
+	// const { handleSubmit, register, formState, resetForm } = useForm();
+	// const [isResetFormComplete, setIsResetFormComplete] = useState(false);
 
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -95,18 +79,14 @@ const LiabilityDetails = props => {
 	};
 
 	useEffect(() => {
-		if (isEditOrViewLoan) {
-			// const LiabilityDetails = parseJSON(
-			// 	editLoanData?.bank_details?.filter(
-			// 		bank => `${bank?.id}` === `${LiabilityDetailsFinId}`
-			// 	)?.[0]?.emi_details || '{}'
-			// );
-			// if (LiabilityDetails.length > 3) {
-			// 	setCount(LiabilityDetails.length);
-			// }
+		if (openAccordianIndex >= 0) {
+			// setIsResetFormComplete(false);
+			// resetForm();
+			// setTimeout(() => {
+			// setIsResetFormComplete(true);
+			// }, 200);
 		}
-		// eslint-disable-next-line
-	}, []);
+	}, [openAccordianIndex]);
 
 	// console.log('LiabilityDetails-allstates-', {
 	// 	app,
@@ -152,6 +132,7 @@ const LiabilityDetails = props => {
 										)}
 										<UI_SECTIONS.AccordianHeaderData
 											style={isAccordianOpen ? { marginLeft: 'auto' } : {}}
+											Load
 										>
 											<UI.AccordianIcon src={editIcon} alt='edit' />
 											<UI.AccordianIcon
@@ -163,6 +144,9 @@ const LiabilityDetails = props => {
 									</UI_SECTIONS.AccordianHeader>
 									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
 										<DynamicForm fields={sub_section?.fields || []} />
+										{/* {isResetFormComplete ? (
+											<DynamicForm fields={sub_section?.fields || []} />
+										) : null} */}
 									</UI_SECTIONS.AccordianBody>
 								</UI_SECTIONS.AccordianWrapper>
 							);
@@ -184,8 +168,8 @@ const LiabilityDetails = props => {
 					<Button
 						fill
 						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
+						// isLoader={loading}
+						// disabled={loading}
 						onClick={onProceed}
 					/>
 				)}
@@ -200,7 +184,11 @@ const LiabilityDetails = props => {
 				{/* buttons for easy development starts */}
 
 				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
+					<Button
+						name='Skip'
+						// disabled={loading}
+						onClick={onSkip}
+					/>
 				) : null}
 				{isLocalhost && !isViewLoan && (
 					<Button

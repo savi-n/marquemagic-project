@@ -143,6 +143,7 @@ export const AccordianBody = styled.div`
 	/* border: 1px solid red; */
 	background-color: white;
 	padding: ${({ isOpen }) => (isOpen ? '0 20px 30px 20px' : '0')};
-	height: ${({ isOpen }) => (isOpen ? '100%' : '0')};
+	height: ${({ isOpen }) => (isOpen ? '500px' : '0px')};
 	overflow: hidden;
+	transition: all 0.3s ease-in-out;
 `;

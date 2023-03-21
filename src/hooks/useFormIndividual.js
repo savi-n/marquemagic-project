@@ -336,7 +336,10 @@ export default function useForm() {
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
 
-		if (newField?.name?.includes('bank_name')) {
+		if (
+			newField?.name?.includes('bank_name') ||
+			newField.type.includes('bank')
+		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
 				!valuesRef?.current?.[newField?.name] &&
