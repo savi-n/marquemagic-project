@@ -440,8 +440,12 @@ const DocumentUpload = props => {
 			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
-				cacheDocuments?.map(doc => {
+				const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+				clonedCacheDocuments?.map(doc => {
 					// if (doc?.document_id) return null;
+					if (!doc?.directorId) {
+						doc.directorId = applicant?.id;
+					}
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
 							if (
@@ -505,6 +509,7 @@ const DocumentUpload = props => {
 		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 		async function fetchSelfieData() {
 			try {
+				setSubmitting(true);
 				let section = selectedSection?.sub_sections?.filter(
 					section => section.id === 'on_site_selfie_with_applicant'
 				)?.[0];
@@ -579,6 +584,8 @@ const DocumentUpload = props => {
 						'Oops! Something went wrong',
 					type: 'error',
 				});
+			} finally {
+				setSubmitting(false);
 			}
 		}
 		fetchSelfieData();
@@ -1383,10 +1390,6 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{/* {console.log(
-									'🚀 ~ file: DocumentUpload.js:1188 ~ :category.toLocaleUpperCase ~ sub_section:',
-									sub_section
-								)} */}
 								{/* {sub_section?.name} */}
 								{/* {selectedApplicant.isApplicant ||
 								sub_section?.name === 'Comments For Office Use'
@@ -1395,7 +1398,7 @@ const DocumentUpload = props => {
 											coApplicants
 									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
 								{sub_section?.id === 'on_site_selfie_with_applicant'
-									? selectedApplicant?.isApplicant
+									? isApplicant
 										? sub_section?.name
 										: Object.keys(coApplicants).length > 1
 										? sub_section?.fields?.[1].label +
@@ -1416,14 +1419,14 @@ const DocumentUpload = props => {
 									}
 								}
 								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
+									if (field?.is_co_applicant === false && !isApplicant) {
 										return null;
 									}
 								}
 								if (
 									isGeoTaggingEnabled &&
-									field.type === 'file' &&
-									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
+									field?.type === 'file' &&
+									field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
 								) {
 									return (
 										<UI.VerificationSectionWrapper key={field.id}>
@@ -1441,25 +1444,29 @@ const DocumentUpload = props => {
 													section={'documentUpload'}
 												/>
 											</UI.VerificationSection>
-											{Object.keys(geoLocationData).length > 0 && (
-												<UI.VerificationSection isLocation={!!geoLocationData}>
-													<AddressDetailsCard
-														address={geoLocationData?.address}
-														latitude={geoLocationData?.lat}
-														longitude={geoLocationData?.long}
-														timestamp={geoLocationData?.timestamp}
-														err={geoLocationData?.err}
-														showCloseIcon={false}
-														customStyle={{
-															width: 'fit-content',
-															position: 'relative',
-															bottom: '-45%',
-															heigth: 'fit-content',
-															maxHeight: 'fit-content',
-														}}
-													/>
-												</UI.VerificationSection>
-											)}
+											{field?.geo_tagging === true
+												? Object.keys(geoLocationData).length > 0 && (
+														<UI.VerificationSection
+															isLocation={!!geoLocationData}
+														>
+															<AddressDetailsCard
+																address={geoLocationData?.address}
+																latitude={geoLocationData?.lat}
+																longitude={geoLocationData?.long}
+																timestamp={geoLocationData?.timestamp}
+																err={geoLocationData?.err}
+																showCloseIcon={false}
+																customStyle={{
+																	width: 'fit-content',
+																	position: 'relative',
+																	bottom: '-45%',
+																	heigth: 'fit-content',
+																	maxHeight: 'fit-content',
+																}}
+															/>
+														</UI.VerificationSection>
+												  )
+												: null}
 										</UI.VerificationSectionWrapper>
 									);
 								}
