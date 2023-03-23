@@ -17,6 +17,8 @@ export const initialFormState = {
 	mother_name: 'Mother Name',
 	upi_id: '1111111',
 	relationship_with_applicant: 'Father',
+	father_last_name:'Zangetsu',
+
 };
 
 export const PAN_UPLOAD_FIELD_NAME = 'pan_upload';
