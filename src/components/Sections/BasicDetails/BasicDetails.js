@@ -183,240 +183,256 @@ const BasicDetails = props => {
 
 	const onProceed = async () => {
 		try {
-			setLoading(true);
-			const isTokenValid = await validateToken();
-			if (isTokenValid === false) return;
+					setLoading(true);
+					const isTokenValid = await validateToken();
+					if (isTokenValid === false) return;
 
-			// call login api only once
-			// TODO: varun do not call this api when RM is creating loan
-			let newBorrowerUserId = '';
-			if (!isEditOrViewLoan && !borrowerUserId) {
-				const loginCreateUserReqBody = {
-					email: formState?.values?.email || '',
-					white_label_id: whiteLabelId,
-					source: API.APP_CLIENT,
-					name: formState?.values?.first_name,
-					mobileNo: formState?.values?.mobile_no,
-					addrr1: '',
-					addrr2: '',
-				};
-				if (!!userDetails?.id) {
-					loginCreateUserReqBody.user_id = userDetails?.id;
-				}
-				const newLoginCreateUserRes = await axios.post(
-					`${API.LOGIN_CREATEUSER}`,
-					loginCreateUserReqBody
-				);
-				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
-				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
-				// first priority is to set existing user token which is comming from ui-ux
-				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
-				axios.defaults.headers.Authorization = `Bearer ${userToken ||
-					newLoginCreateUserRes?.data?.token}`;
-			} else {
-				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
-			}
+					// call login api only once
+					// TODO: varun do not call this api when RM is creating loan
+					let newBorrowerUserId = '';
 
-			// loan product is is only applicable for applicant
-			// it should not be overritten when coapplicant is income type is different then applicant
-			let selectedLoanProductId = '';
-			if (isApplicant) {
-				selectedLoanProductId =
-					selectedProduct?.product_id?.[selectedIncomeType];
-			}
-
-			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
-				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-			)?.[0];
-			const isNewProfileUploaded = !!profileUploadedFile?.file;
-			const preSignedProfileUrl =
-				profileUploadedFile?.presignedUrl ||
-				selectedApplicant?.customer_picture ||
-				'';
-			const profileFieldValue = isNewProfileUploaded
-				? {
-						...profileUploadedFile?.file,
-						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
-						is_delete_not_allowed:
-							profileField?.is_delete_not_allowed === true ? true : false,
-				  }
-				: preSignedProfileUrl;
-			const basicDetailsReqBody = formatSectionReqBody({
-				section: selectedSection,
-				values: {
-					...formState.values,
-					app_coordinates: {
-						lat: geoLocationData?.lat,
-						long: geoLocationData?.long,
-						timestamp: geoLocationData?.timestamp,
-					},
-					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
-				},
-				app,
-				applicantCoApplicants,
-				application,
-				selectedLoanProductId,
-			});
-
-			// always pass borrower user id from login api for create case / from edit loan data
-			basicDetailsReqBody.borrower_user_id =
-				newBorrowerUserId || businessUserId;
-
-			const basicDetailsRes = await axios.post(
-				`${API.API_END_POINT}/basic_details`,
-				basicDetailsReqBody
-			);
-			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
-			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
-			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
-			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
-			const newBusinessUserId =
-				basicDetailsRes?.data?.data?.business_data?.userid;
-			const newCreatedByUserId =
-				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
-
-			if (isNewProfileUploaded) {
-				const uploadedProfileRes =
-					basicDetailsRes?.data?.data?.loan_document_data || null;
-				const newProfileData = {
-					...(uploadedProfileRes || {}),
-					...profileUploadedFile,
-					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
-					directorId: newDirectorId,
-					preview: null,
-					file: null,
-					isDocRemoveAllowed: false,
-					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-				};
-				if (uploadedProfileRes?.id) {
-					newProfileData.document_id = uploadedProfileRes?.id;
-				}
-				newProfileData.name =
-					newProfileData?.filename ||
-					newProfileData?.uploaded_doc_name ||
-					newProfileData?.original_doc_name;
-
-				dispatch(
-					addOrUpdateCacheDocument({
-						file: newProfileData,
-					})
-				);
-			}
-			if (cacheDocumentsTemp.length > 0) {
-				try {
-					const uploadCacheDocumentsTemp = [];
-					cacheDocumentsTemp.map(doc => {
-						if (!doc?.requestId) return null;
-						uploadCacheDocumentsTemp.push({
-							...doc,
-							request_id: doc?.requestId,
-							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType],
-							is_delete_not_allowed: true,
-							director_id: newDirectorId,
-							directorId: newDirectorId,
-							preview: null,
-							document_id: doc?.requestId, // temp doc id as this doc is non deletable
-						});
-						return null;
-					});
-					if (uploadCacheDocumentsTemp.length) {
-						const uploadCacheDocumentsTempReqBody = {
-							loan_id: newLoanId,
-							request_ids_obj: uploadCacheDocumentsTemp,
-							user_id: newCreatedByUserId,
+					if (!isEditOrViewLoan && !borrowerUserId) {
+						const loginCreateUserReqBody = {
+							email: formState?.values?.email || '',
+							white_label_id: whiteLabelId,
+							source: API.APP_CLIENT,
+							name: formState?.values?.first_name,
+							mobileNo: formState?.values?.mobile_no,
+							addrr1: '',
+							addrr2: '',
 						};
-
-						await axios.post(
-							API.UPLOAD_CACHE_DOCS,
-							uploadCacheDocumentsTempReqBody,
-							{
-								headers: {
-									Authorization: clientToken,
-								},
-							}
+						if (!!userDetails?.id) {
+							loginCreateUserReqBody.user_id = userDetails?.id;
+						}
+						const newLoginCreateUserRes = await axios.post(
+							`${API.LOGIN_CREATEUSER}`,
+							loginCreateUserReqBody
 						);
 						dispatch(
-							addCacheDocuments({
-								files: uploadCacheDocumentsTemp,
+							setLoginCreateUserRes(newLoginCreateUserRes?.data)
+						);
+						newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
+						// first priority is to set existing user token which is comming from ui-ux
+						// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
+						axios.defaults.headers.Authorization = `Bearer ${userToken ||
+							newLoginCreateUserRes?.data?.token}`;
+					} else {
+						axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+					}
+
+					// loan product is is only applicable for applicant
+					// it should not be overritten when coapplicant is income type is different then applicant
+					let selectedLoanProductId = '';
+					if (isApplicant) {
+						selectedLoanProductId =
+							selectedProduct?.product_id?.[selectedIncomeType];
+					}
+
+					const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+						field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+					)?.[0];
+					const isNewProfileUploaded = !!profileUploadedFile?.file;
+					const preSignedProfileUrl =
+						profileUploadedFile?.presignedUrl ||
+						selectedApplicant?.customer_picture ||
+						'';
+					const profileFieldValue = isNewProfileUploaded
+						? {
+								...profileUploadedFile?.file,
+								doc_type_id:
+									profileField?.doc_type?.[selectedIncomeType],
+								is_delete_not_allowed:
+									profileField?.is_delete_not_allowed === true
+										? true
+										: false,
+						  }
+						: preSignedProfileUrl;
+					console.log(formState.values);
+					const basicDetailsReqBody = formatSectionReqBody({
+						section: selectedSection,
+						values: {
+							...formState.values,
+							app_coordinates: {
+								lat: geoLocationData?.lat,
+								long: geoLocationData?.long,
+								timestamp: geoLocationData?.timestamp,
+							},
+							[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+						},
+						app,
+						applicantCoApplicants,
+						application,
+						selectedLoanProductId,
+					});
+
+					// always pass borrower user id from login api for create case / from edit loan data
+					basicDetailsReqBody.borrower_user_id =
+						newBorrowerUserId || businessUserId;
+
+					const basicDetailsRes = await axios.post(
+						`${API.API_END_POINT}/basic_details`,
+						basicDetailsReqBody
+					);
+					const newLoanRefId =
+						basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+					const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
+					const newBusinessId =
+						basicDetailsRes?.data?.data?.business_data?.id;
+					const newDirectorId =
+						basicDetailsRes?.data?.data?.director_details?.id;
+					const newBusinessUserId =
+						basicDetailsRes?.data?.data?.business_data?.userid;
+					const newCreatedByUserId =
+						basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+
+					if (isNewProfileUploaded) {
+						const uploadedProfileRes =
+							basicDetailsRes?.data?.data?.loan_document_data || null;
+						const newProfileData = {
+							...(uploadedProfileRes || {}),
+							...profileUploadedFile,
+							...(typeof profileFieldValue !== 'string'
+								? profileFieldValue
+								: {}),
+							directorId: newDirectorId,
+							preview: null,
+							file: null,
+							isDocRemoveAllowed: false,
+							category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+						};
+						if (uploadedProfileRes?.id) {
+							newProfileData.document_id = uploadedProfileRes?.id;
+						}
+						newProfileData.name =
+							newProfileData?.filename ||
+							newProfileData?.uploaded_doc_name ||
+							newProfileData?.original_doc_name;
+
+						dispatch(
+							addOrUpdateCacheDocument({
+								file: newProfileData,
 							})
 						);
 					}
-				} catch (error) {
-					console.error('error-', error);
-				}
-			}
-			const newBasicDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: {
-					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
-					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
-				},
-			};
+					if (cacheDocumentsTemp.length > 0) {
+						try {
+							const uploadCacheDocumentsTemp = [];
+							cacheDocumentsTemp.map(doc => {
+								if (!doc?.requestId) return null;
+								uploadCacheDocumentsTemp.push({
+									...doc,
+									request_id: doc?.requestId,
+									doc_type_id:
+										doc?.field?.doc_type?.[selectedIncomeType],
+									is_delete_not_allowed: true,
+									director_id: newDirectorId,
+									directorId: newDirectorId,
+									preview: null,
+									document_id: doc?.requestId, // temp doc id as this doc is non deletable
+								});
+								return null;
+							});
+							if (uploadCacheDocumentsTemp.length) {
+								const uploadCacheDocumentsTempReqBody = {
+									loan_id: newLoanId,
+									request_ids_obj: uploadCacheDocumentsTemp,
+									user_id: newCreatedByUserId,
+								};
 
-			// TODO: varun update cin properly peding discussion with savita
-			newBasicDetails.directorId = newDirectorId;
-			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
-			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
-				.length > 0 &&
-				profilePicGeolocation) || {
-				address:
-					selectedApplicant?.address ||
-					selectedApplicant?.profileGeoLocation?.address,
-				lat: selectedApplicant?.lat,
-				long: selectedApplicant?.long,
-				timestamp: selectedApplicant?.timestamp,
-			};
-
-			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newBasicDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newBasicDetails));
-				dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
-			}
-			dispatch(
-				setLoanIds({
-					loanRefId: newLoanRefId,
-					loanId: newLoanId,
-					businessId: newBusinessId,
-					businessUserId: newBusinessUserId,
-					loanProductId: selectedLoanProductId,
-					createdByUserId: newCreatedByUserId,
-					borrowerUserId: newBorrowerUserId,
-				})
-			);
-			// dispatch(setPanExtractionRes(panExtractionResTemp));
-
-			dispatch(setSelectedSectionId(nextSectionId));
-			if (isGeoTaggingEnabled) {
-				if (
-					mandatoryGeoTag.length > 0 &&
-					mandatoryGeoTag.includes('profileGeoLocation')
-				) {
-					// ITERATING OVER THE MANDATORY FIELDS AND
-					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
-					// BUT ALLOW USER TO MOVE TO NEXT SECTION
-					if (
-						(isApplicant && !selectedApplicant.profileGeoLocation?.address) ||
-						(!isApplicant && !profilePicGeolocation?.address)
-					) {
-						addToast({
-							message: 'Mandatory Profile GeoLocation not captured',
-							type: 'error',
-						});
+								await axios.post(
+									API.UPLOAD_CACHE_DOCS,
+									uploadCacheDocumentsTempReqBody,
+									{
+										headers: {
+											Authorization: clientToken,
+										},
+									}
+								);
+								dispatch(
+									addCacheDocuments({
+										files: uploadCacheDocumentsTemp,
+									})
+								);
+							}
+						} catch (error) {
+							console.error('error-', error);
+						}
 					}
-				}
+					const newBasicDetails = {
+						sectionId: selectedSectionId,
+						sectionValues: {
+							...formState.values,
+							[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
+							[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
+						},
+					};
 
-				// IF GEOTAGGING IS MANDATORY
-				if (!geoLocation?.address) {
-					addToast({
-						message: 'Mandatory GeoLocation not captured',
-						type: 'error',
-					});
-				}
-			}
-		} catch (error) {
+					// TODO: varun update cin properly peding discussion with savita
+					newBasicDetails.directorId = newDirectorId;
+					newBasicDetails.cin =
+						applicantCoApplicants?.companyRocData?.CIN || '';
+					newBasicDetails.profileGeoLocation = (Object.keys(
+						profilePicGeolocation
+					).length > 0 &&
+						profilePicGeolocation) || {
+						address:
+							selectedApplicant?.address ||
+							selectedApplicant?.profileGeoLocation?.address,
+						lat: selectedApplicant?.lat,
+						long: selectedApplicant?.long,
+						timestamp: selectedApplicant?.timestamp,
+					};
+
+					newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
+					if (isApplicant) {
+						dispatch(updateApplicantSection(newBasicDetails));
+					} else {
+						dispatch(updateCoApplicantSection(newBasicDetails));
+						dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
+					}
+					dispatch(
+						setLoanIds({
+							loanRefId: newLoanRefId,
+							loanId: newLoanId,
+							businessId: newBusinessId,
+							businessUserId: newBusinessUserId,
+							loanProductId: selectedLoanProductId,
+							createdByUserId: newCreatedByUserId,
+							borrowerUserId: newBorrowerUserId,
+						})
+					);
+					// dispatch(setPanExtractionRes(panExtractionResTemp));
+
+					dispatch(setSelectedSectionId(nextSectionId));
+					if (isGeoTaggingEnabled) {
+						if (
+							mandatoryGeoTag.length > 0 &&
+							mandatoryGeoTag.includes('profileGeoLocation')
+						) {
+							// ITERATING OVER THE MANDATORY FIELDS AND
+							// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
+							// BUT ALLOW USER TO MOVE TO NEXT SECTION
+							if (
+								(isApplicant &&
+									!selectedApplicant.profileGeoLocation?.address) ||
+								(!isApplicant && !profilePicGeolocation?.address)
+							) {
+								addToast({
+									message: 'Mandatory Profile GeoLocation not captured',
+									type: 'error',
+								});
+							}
+						}
+
+						// IF GEOTAGGING IS MANDATORY
+						if (!geoLocation?.address) {
+							addToast({
+								message: 'Mandatory GeoLocation not captured',
+								type: 'error',
+							});
+						}
+					}
+				} catch (error) {
 			console.error('error-BasicDetails-onProceed-', {
 				error: error,
 				res: error?.response,
@@ -459,8 +475,8 @@ const BasicDetails = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
-			0
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)
+				?.length > 0
 		) {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
@@ -471,40 +487,44 @@ const BasicDetails = props => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
-			const panFile = getEditLoanLoanDocuments({
-				documents: editLoanData?.loan_document,
-				directorId: selectedApplicant?.directorId,
-				docTypeId: field?.doc_type?.[selectedApplicant?.income_type],
-			});
-			return panFile[0];
-		}
-		const preData = {
-			existing_customer: selectedApplicant?.existing_customer,
-			pan_number: selectedApplicant?.dpancard,
-			customer_id: selectedApplicant?.customer_id,
-			ckyc_number: selectedApplicant?.ckyc_number,
-			income_type: `${selectedApplicant?.income_type}`,
-			first_name: selectedApplicant?.dfirstname,
-			last_name: selectedApplicant?.dlastname,
-			dob: selectedApplicant?.ddob,
-			gender: selectedApplicant?.gender,
-			email: selectedApplicant?.demail,
-			mobile_no: selectedApplicant?.dcontact,
-			marital_status: selectedApplicant?.marital_status,
-			spouse_name: selectedApplicant?.spouse_name,
-			residence_status: selectedApplicant?.residence_status,
-			country_residence: selectedApplicant?.country_residence,
-			father_name: selectedApplicant?.father_name,
-			mother_name: selectedApplicant?.mother_name,
-			upi_id: selectedApplicant?.upi_id,
-			profile_upload: selectedApplicant?.customer_picture,
-			relationship_with_applicant:
-				selectedApplicant?.applicant_relationship,
-		};
-		console.log(selectedApplicant);
-		return preData?.[field?.name];
-	};
+					if (
+						field.type === 'file' &&
+						field.name === CONST.PAN_UPLOAD_FIELD_NAME
+					) {
+						const panFile = getEditLoanLoanDocuments({
+							documents: editLoanData?.loan_document,
+							directorId: selectedApplicant?.directorId,
+							docTypeId:
+								field?.doc_type?.[selectedApplicant?.income_type],
+						});
+						return panFile[0];
+					}
+					const preData = {
+						existing_customer: selectedApplicant?.existing_customer,
+						pan_number: selectedApplicant?.dpancard,
+						customer_id: selectedApplicant?.customer_id,
+						ckyc_number: selectedApplicant?.ckyc_number,
+						income_type: `${selectedApplicant?.income_type}`,
+						first_name: selectedApplicant?.dfirstname,
+						last_name: selectedApplicant?.dlastname,
+						dob: selectedApplicant?.ddob,
+						gender: selectedApplicant?.gender,
+						email: selectedApplicant?.demail,
+						mobile_no: selectedApplicant?.dcontact,
+						marital_status: selectedApplicant?.marital_status,
+						spouse_name: selectedApplicant?.spouse_name,
+						residence_status: selectedApplicant?.residence_status,
+						country_residence: selectedApplicant?.country_residence,
+						father_name: selectedApplicant?.father_name,
+						mother_name: selectedApplicant?.mother_name,
+						upi_id: selectedApplicant?.upi_id,
+						profile_upload: selectedApplicant?.customer_picture,
+						relationship_with_applicant:
+							selectedApplicant?.applicant_relationship,
+					};
+					// console.log(selectedApplicant);
+					return preData?.[field?.name];
+				};;
 
 	const prefilledValues = field => {
 		try {
@@ -832,371 +852,236 @@ const BasicDetails = props => {
 						/>
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
-																																	// console.log(field?.sub_fields, 'sub_field');
-																																	// disable fields based on config starts
-																																	if (
-																																		field?.hasOwnProperty(
-																																			'is_applicant'
-																																		)
-																																	) {
-																																		if (
-																																			field.is_applicant ===
-																																				false &&
-																																			isApplicant
-																																		) {
-																																			return null;
-																																		}
-																																	}
-																																	if (
-																																		field?.hasOwnProperty(
-																																			'is_co_applicant'
-																																		)
-																																	) {
-																																		if (
-																																			field.is_co_applicant ===
-																																				false &&
-																																			!isApplicant
-																																		) {
-																																			return null;
-																																		}
-																																	}
-																																	// disable fields based on config ends
-																																	if (
-																																		field.type ===
-																																			'file' &&
-																																		field.name ===
-																																			CONST.PROFILE_UPLOAD_FIELD_NAME
-																																	) {
-																																		prefilledProfileUploadValue = prefilledValues(
-																																			field
-																																		);
+								// console.log(field?.sub_fields, 'sub_field');
+								// disable fields based on config starts
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
+								// disable fields based on config ends
+								if (
+									field.type === 'file' &&
+									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+								) {
+									prefilledProfileUploadValue = prefilledValues(field);
 
-																																		return (
-																																			<UI_SECTIONS.FieldWrapGrid
-																																				style={{
-																																					gridRow:
-																																						'span 3',
-																																					height:
-																																						'100%',
-																																				}}
-																																				key={`field-${fieldIndex}-${
-																																					field.name
-																																				}`}
-																																			>
-																																				<UI.ProfilePicWrapper>
-																																					<ProfileUpload
-																																						field={
-																																							field
-																																						}
-																																						value={
-																																							prefilledProfileUploadValue
-																																						}
-																																						isPanNumberExist={
-																																							isPanNumberExist
-																																						}
-																																						isPanMandatory={
-																																							isPanUploadMandatory
-																																						}
-																																						isFormSubmited={
-																																							formState
-																																								?.submit
-																																								?.isSubmited
-																																						}
-																																						isProfileMandatory={
-																																							isProfileMandatory
-																																						}
-																																						uploadedFile={
-																																							profileUploadedFile
-																																						}
-																																						cacheDocumentsTemp={
-																																							cacheDocumentsTemp
-																																						}
-																																						addCacheDocumentTemp={
-																																							addCacheDocumentTemp
-																																						}
-																																						removeCacheDocumentTemp={
-																																							removeCacheDocumentTemp
-																																						}
-																																						onChangeFormStateField={
-																																							onChangeFormStateField
-																																						}
-																																						isDisabled={
-																																							isViewLoan
-																																						}
-																																						isTag={
-																																							true
-																																						}
-																																						geoLocationAddress={
-																																							profilePicGeolocation || {
-																																								address:
-																																									selectedApplicant
-																																										?.profileGeoLocation
-																																										?.address,
-																																								lat:
-																																									selectedApplicant?.lat,
-																																								long:
-																																									selectedApplicant?.long,
-																																								timestamp:
-																																									selectedApplicant?.timestamp,
-																																							}
-																																						}
-																																					/>
-																																				</UI.ProfilePicWrapper>
-																																			</UI_SECTIONS.FieldWrapGrid>
-																																		);
-																																	}
+									return (
+										<UI_SECTIONS.FieldWrapGrid
+											style={{
+												gridRow: 'span 3',
+												height: '100%',
+											}}
+											key={`field-${fieldIndex}-${field.name}`}
+										>
+											<UI.ProfilePicWrapper>
+												<ProfileUpload
+													field={field}
+													value={prefilledProfileUploadValue}
+													isPanNumberExist={isPanNumberExist}
+													isPanMandatory={isPanUploadMandatory}
+													isFormSubmited={formState?.submit?.isSubmited}
+													isProfileMandatory={isProfileMandatory}
+													uploadedFile={profileUploadedFile}
+													cacheDocumentsTemp={cacheDocumentsTemp}
+													addCacheDocumentTemp={addCacheDocumentTemp}
+													removeCacheDocumentTemp={
+														removeCacheDocumentTemp
+													}
+													onChangeFormStateField={
+														onChangeFormStateField
+													}
+													isDisabled={isViewLoan}
+													isTag={true}
+													geoLocationAddress={
+														profilePicGeolocation || {
+															address:
+																selectedApplicant?.profileGeoLocation
+																	?.address,
+															lat: selectedApplicant?.lat,
+															long: selectedApplicant?.long,
+															timestamp: selectedApplicant?.timestamp,
+														}
+													}
+												/>
+											</UI.ProfilePicWrapper>
+										</UI_SECTIONS.FieldWrapGrid>
+									);
+								}
 
-																																	if (
-																																		field.type ===
-																																			'file' &&
-																																		field.name ===
-																																			CONST.PAN_UPLOAD_FIELD_NAME
-																																	) {
-																																		let panErrorMessage =
-																																			((formState
-																																				?.submit
-																																				?.isSubmited ||
-																																				formState
-																																					?.touched?.[
-																																					field
-																																						.name
-																																				]) &&
-																																				formState
-																																					?.error?.[
-																																					field
-																																						.name
-																																				]) ||
-																																			'';
-																																		// console.log('pancard-error-msg-', {
-																																		// 	panErrorMessage,
-																																		// });
-																																		const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
-																																			panErrorMessage
-																																		);
-																																		panErrorMessage = panErrorMessage.replace(
-																																			CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
-																																			''
-																																		);
-																																		panErrorMessage = panErrorMessage.replace(
-																																			CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
-																																			''
-																																		);
-																																		panErrorMessage = panErrorMessage.includes(
-																																			CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
-																																		)
-																																			? ''
-																																			: panErrorMessage;
-																																		// console.log('pancard-error-msg-', {
-																																		// 	panErrorColorCode,
-																																		// 	panErrorMessage,
-																																		// });
-																																		return (
-																																			<UI_SECTIONS.FieldWrapGrid
-																																				key={`field-${fieldIndex}-${
-																																					field.name
-																																				}`}
-																																			>
-																																				<UI.ProfilePicWrapper>
-																																					<PanUpload
-																																						field={
-																																							field
-																																						}
-																																						value={prefilledValues(
-																																							field
-																																						)}
-																																						formState={
-																																							formState
-																																						}
-																																						uploadedFile={
-																																							panUploadedFile
-																																						}
-																																						addCacheDocumentTemp={
-																																							addCacheDocumentTemp
-																																						}
-																																						removeCacheDocumentTemp={
-																																							removeCacheDocumentTemp
-																																						}
-																																						isPanNumberExist={
-																																							isPanNumberExist
-																																						}
-																																						panErrorMessage={
-																																							panErrorMessage
-																																						}
-																																						panErrorColorCode={
-																																							panErrorColorCode
-																																						}
-																																						setErrorFormStateField={
-																																							setErrorFormStateField
-																																						}
-																																						onChangeFormStateField={
-																																							onChangeFormStateField
-																																						}
-																																						clearErrorFormState={
-																																							clearErrorFormState
-																																						}
-																																						isDisabled={
-																																							isViewLoan
-																																						}
-																																					/>
-																																					{panErrorMessage && (
-																																						<UI_SECTIONS.ErrorMessage
-																																							borderColorCode={
-																																								panErrorColorCode
-																																							}
-																																						>
-																																							{
-																																								panErrorMessage
-																																							}
-																																						</UI_SECTIONS.ErrorMessage>
-																																					)}
-																																				</UI.ProfilePicWrapper>
-																																			</UI_SECTIONS.FieldWrapGrid>
-																																		);
-																																	}
+								if (
+									field.type === 'file' &&
+									field.name === CONST.PAN_UPLOAD_FIELD_NAME
+								) {
+									let panErrorMessage =
+										((formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name]) ||
+										'';
+									// console.log('pancard-error-msg-', {
+									// 	panErrorMessage,
+									// });
+									const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
+										panErrorMessage
+									);
+									panErrorMessage = panErrorMessage.replace(
+										CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
+										''
+									);
+									panErrorMessage = panErrorMessage.replace(
+										CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
+										''
+									);
+									panErrorMessage = panErrorMessage.includes(
+										CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
+									)
+										? ''
+										: panErrorMessage;
+									// console.log('pancard-error-msg-', {
+									// 	panErrorColorCode,
+									// 	panErrorMessage,
+									// });
+									return (
+										<UI_SECTIONS.FieldWrapGrid
+											key={`field-${fieldIndex}-${field.name}`}
+										>
+											<UI.ProfilePicWrapper>
+												<PanUpload
+													field={field}
+													value={prefilledValues(field)}
+													formState={formState}
+													uploadedFile={panUploadedFile}
+													addCacheDocumentTemp={addCacheDocumentTemp}
+													removeCacheDocumentTemp={
+														removeCacheDocumentTemp
+													}
+													isPanNumberExist={isPanNumberExist}
+													panErrorMessage={panErrorMessage}
+													panErrorColorCode={panErrorColorCode}
+													setErrorFormStateField={
+														setErrorFormStateField
+													}
+													onChangeFormStateField={
+														onChangeFormStateField
+													}
+													clearErrorFormState={clearErrorFormState}
+													isDisabled={isViewLoan}
+												/>
+												{panErrorMessage && (
+													<UI_SECTIONS.ErrorMessage
+														borderColorCode={panErrorColorCode}
+													>
+														{panErrorMessage}
+													</UI_SECTIONS.ErrorMessage>
+												)}
+											</UI.ProfilePicWrapper>
+										</UI_SECTIONS.FieldWrapGrid>
+									);
+								}
 
-																																	if (
-																																		!field.visibility ||
-																																		!field.name ||
-																																		!field.type
-																																	)
-																																		return null;
-																																	const newValue = prefilledValues(
-																																		field
-																																	);
-																																	const newValueSelectFeild = field?.sub_fields
-																																		? prefilledValues(
-																																				field
-																																					.sub_fields[0]
-																																		  )
-																																		: prefilledValues(
-																																				field
-																																		  );
+								if (!field.visibility || !field.name || !field.type)
+									return null;
+								const newValue = prefilledValues(field);
+								// console.log(field);
+								// if (!!field.sub_fields) {
+								// 	console.log(
+								// 		prefilledValues(field.sub_fields[0]),
+								// 		'sub-fields'
+								// 	);
+								// 	console.log(prefilledValues(field, 'fields'));
+								// }
+								let newValueSelectFeild;
+								if (!!field.sub_fields) {
+									newValueSelectFeild = prefilledValues(
+										field?.sub_fields[0]
+									);
+								}
 
-																																	const customFieldProps = {};
-																																	if (
-																																		field?.name ===
-																																		CONST.MOBILE_NUMBER_FIELD_NAME
-																																	) {
-																																		customFieldProps.rules = {
-																																			...field.rules,
-																																			is_zero_not_allowed_for_first_digit: true,
-																																		};
-																																	}
-																																	if (
-																																		isPanUploadMandatory &&
-																																		!isPanNumberExist &&
-																																		field?.name !==
-																																			CONST.EXISTING_CUSTOMER_FIELD_NAME
-																																	)
-																																		customFieldProps.disabled = true;
-																																	if (
-																																		isPanUploadMandatory &&
-																																		isPanNumberExist &&
-																																		field.name ===
-																																			CONST.PAN_NUMBER_FIELD_NAME
-																																	)
-																																		customFieldProps.disabled = true;
-																																	if (
-																																		selectedApplicant?.directorId &&
-																																		field.name ===
-																																			CONST.INCOME_TYPE_FIELD_NAME
-																																	)
-																																		customFieldProps.disabled = true;
-																																	if (
-																																		isViewLoan
-																																	) {
-																																		customFieldProps.disabled = true;
-																																	}
+								const customFieldProps = {};
+								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+									customFieldProps.rules = {
+										...field.rules,
+										is_zero_not_allowed_for_first_digit: true,
+									};
+								}
+								if (
+									isPanUploadMandatory &&
+									!isPanNumberExist &&
+									field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
+								)
+									customFieldProps.disabled = true;
+								if (
+									isPanUploadMandatory &&
+									isPanNumberExist &&
+									field.name === CONST.PAN_NUMBER_FIELD_NAME
+								)
+									customFieldProps.disabled = true;
+								if (
+									selectedApplicant?.directorId &&
+									field.name === CONST.INCOME_TYPE_FIELD_NAME
+								)
+									customFieldProps.disabled = true;
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
 
-																																	return (
-																																		<UI_SECTIONS.FieldWrapGrid
-																																			key={`field-${fieldIndex}-${
-																																				field.name
-																																			}`}
-																																			style={{
-																																				display:
-																																					'flex',
-																																				justifyContent:
-																																					'space-between',
-																																				gap:
-																																					'10px',
-																																			}}
-																																		>
-																																			<div>
-																																				{field?.sub_fields &&
-																																					field
-																																						?.sub_fields[0]
-																																						.is_prefix &&
-																																					register(
-																																						{
-																																							...field
-																																								.sub_fields[0],
-																																							value: newValue,
-																																							visibility:
-																																								'visible',
-																																							...customFieldProps,
-																																						}
-																																					)}
-																																			</div>
-																																			<div
-																																				style={{
-																																					width:
-																																						'100%',
-																																				}}
-																																			>
-																																				{register(
-																																					{
-																																						...field,
-																																						value: newValueSelectFeild,
-																																						visibility:
-																																							'visible',
-																																						...customFieldProps,
-																																					}
-																																				)}
-																																			</div>
-																																			<div>
-																																				{field?.sub_fields &&
-																																					!field
-																																						?.sub_fields[0]
-																																						.is_prefix &&
-																																					register(
-																																						{
-																																							...field
-																																								.sub_fields[0],
-																																							value: newValue,
-																																							visibility:
-																																								'visible',
-																																							...customFieldProps,
-																																						}
-																																					)}
-																																			</div>
+								return (
+									<UI_SECTIONS.FieldWrapGrid
+										key={`field-${fieldIndex}-${field.name}`}
+										style={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											gap: '10px',
+										}}
+									>
+										<div>
+											{field?.sub_fields &&
+												field?.sub_fields[0].is_prefix &&
+												register({
+													...field.sub_fields[0],
+													value: newValueSelectFeild,
+													visibility: 'visible',
+													...customFieldProps,
+												})}
+										</div>
+										<div
+											style={{
+												width: '100%',
+											}}
+										>
+											{register({
+												...field,
+												value: newValue,
+												visibility: 'visible',
+												...customFieldProps,
+											})}
+										</div>
+										<div>
+											{field?.sub_fields &&
+												!field?.sub_fields[0].is_prefix &&
+												register({
+													...field.sub_fields[0],
+													value: newValueSelectFeild,
+													visibility: 'visible',
+													...customFieldProps,
+												})}
+										</div>
 
-																																			{(formState
-																																				?.submit
-																																				?.isSubmited ||
-																																				formState
-																																					?.touched?.[
-																																					field
-																																						.name
-																																				]) &&
-																																				formState
-																																					?.error?.[
-																																					field
-																																						.name
-																																				] && (
-																																					<UI_SECTIONS.ErrorMessage>
-																																						{
-																																							formState
-																																								?.error?.[
-																																								field
-																																									.name
-																																							]
-																																						}
-																																					</UI_SECTIONS.ErrorMessage>
-																																				)}
-																																		</UI_SECTIONS.FieldWrapGrid>
-																																	);
-																																})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field.name]) &&
+											formState?.error?.[field.name] && (
+												<UI_SECTIONS.ErrorMessage>
+													{formState?.error?.[field.name]}
+												</UI_SECTIONS.ErrorMessage>
+											)}
+									</UI_SECTIONS.FieldWrapGrid>
+								);
+							})}
 						</UI_SECTIONS.FormWrapGrid>
 					</Fragment>
 				);
@@ -1220,7 +1105,9 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name={fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'}
+						name={
+							fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'
+						}
 						isLoader={loading}
 						disabled={loading || fetchingAddress}
 						onClick={handleSubmit(() => {

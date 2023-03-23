@@ -106,14 +106,38 @@ export const formatSectionReqBody = data => {
 		selectedSection?.sub_sections?.map(sub_section => {
 			let sectionBody = {};
 			sub_section.fields.map(field => {
-				if (!field.db_key || !field.name || values?.[field.name] === undefined)
+				if (
+					!field.db_key ||
+					!field.name ||
+					values?.[field.name] === undefined
+				)
 					return null;
 				sectionBody[field.db_key] =
 					typeof values[field.name] === 'string'
 						? values[field.name]?.trim()
 						: values[field.name];
+
+				if (!!field.sub_fields) {
+					field.sub_fields.map(sub_field => {
+						console.log(sub_field.name, values[sub_field.name]);
+						console.log(sub_field.db_key);
+						if (
+							!sub_field.db_key ||
+							!sub_field.name ||
+							values?.[sub_field.name] === undefined
+						)
+							return null;
+						sectionBody[sub_field.db_key] =
+							typeof values[sub_field.name] === 'string'
+								? values[sub_field.name]?.trim()
+								: values[sub_field.name];
+						return null;
+					});
+				}
+
 				return null;
 			});
+			console.log(sectionBody);
 			// console.log(values, selectedSection, sectionBody);
 			if (selectedSection.id === 'basic_details') {
 				sectionBody = {
