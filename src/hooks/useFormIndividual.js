@@ -12,6 +12,7 @@ import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
+import Button from 'components/Button';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -338,10 +339,9 @@ export default function useForm() {
 				!valuesRef?.current?.[newField?.name] &&
 				setValue(newField?.name, newField?.value || '');
 		} else {
-			// old
-			setValue(newField?.name, newField?.value || '');
-		}
-
+							// old
+							setValue(newField?.name, newField?.value || '');
+						}
 		checkValidity(newField?.name);
 
 		return (
@@ -380,42 +380,57 @@ export default function useForm() {
 		valid = validDefault,
 		invalid = invalidDefault
 	) => async e => {
-		const { submitCount } = submitRef.current;
+										// console.log(valid);
+										// console.log(invalid);
 
-		submitRef.current = {
-			isSubmitting: true,
-			isSubmited: true,
-			submitCount: submitCount + 1,
-		};
+										const { submitCount } = submitRef.current;
 
-		updateFormState(uuidv4());
+										submitRef.current = {
+											isSubmitting: true,
+											isSubmited: true,
+											submitCount: submitCount + 1,
+										};
 
-		if (e) {
-			e.preventDefault && e.preventDefault();
-			e.persist && e.persist();
-		}
+										updateFormState(uuidv4());
 
-		if (
-			!Object.keys(errorsRef.current).length ||
-			(errorsRef.current.ReferenceEmail0 && errorsRef.current.ReferenceEmail1)
-		) {
-			await valid(valuesRef.current);
-		} else {
-			await invalid(valuesRef.current);
-		}
-		submitRef.current = {
-			...submitRef.current,
-			isSubmitting: false,
-		};
-		// console.log('-error-ref-', { valuesRef, touchedRef, errorsRef });
-		if (Object.keys(errorsRef?.current || {}).length > 0) {
-			document
-				.getElementsByName(Object.keys(errorsRef?.current || {})?.[0])?.[0]
-				?.focus();
-		}
+										if (e) {
+											e.preventDefault && e.preventDefault();
+											e.persist && e.persist();
+										}
+										console.log(
+											errorsRef.current,
+											'errorsRef.current-'
+										);
+										if (
+											!Object.keys(errorsRef.current)
+												.length ||
+											(errorsRef.current.ReferenceEmail0 &&
+												errorsRef.current.ReferenceEmail1)
+										) {
+											await valid(valuesRef.current);
+										} else {
+											await invalid(valuesRef.current);
+										}
+										submitRef.current = {
+											...submitRef.current,
+											isSubmitting: false,
+										};
+										// console.log('-error-ref-', { valuesRef, touchedRef, errorsRef });
+										if (
+											Object.keys(errorsRef?.current || {})
+												.length > 0
+										) {
+											document
+												.getElementsByName(
+													Object.keys(
+														errorsRef?.current || {}
+													)?.[0]
+												)?.[0]
+												?.focus();
+										}
 
-		updateFormState(uuidv4());
-	};
+										updateFormState(uuidv4());
+									};
 
 	const clearError = () => {
 		const { submitCount } = submitRef.current;
@@ -557,7 +572,14 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		}
 
 		case 'select': {
-			return <SelectField {...{ ...field, ...fieldProps }} />;
+			return (
+				<SelectField
+					{...{ ...field, ...fieldProps }}
+					style={{
+						minWidth: 100,
+					}}
+				/>
+			);
 		}
 		case 'address_proof_radio': {
 			return <AddressProofRadio {...{ ...field, ...fieldProps }} />;
@@ -631,6 +653,17 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				<DateField
 					{...{ ...field, ...fieldProps }}
 					max={fieldProps?.max || '9999-12'}
+				/>
+			);
+		}
+		case 'button': {
+			return (
+				<Button
+					{...{ ...field, ...fieldProps }}
+
+					// style={{
+					// 	Width: '150px',
+					// }}
 				/>
 			);
 		}
