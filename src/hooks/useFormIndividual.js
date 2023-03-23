@@ -397,10 +397,7 @@ export default function useForm() {
 											e.preventDefault && e.preventDefault();
 											e.persist && e.persist();
 										}
-										console.log(
-											errorsRef.current,
-											'errorsRef.current-'
-										);
+
 										if (
 											!Object.keys(errorsRef.current)
 												.length ||
