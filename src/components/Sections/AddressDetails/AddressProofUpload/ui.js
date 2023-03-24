@@ -480,7 +480,7 @@ export const DocumentUploadNameToolTip = styled.div`
 export const CTAWrapper = styled.div`
 	margin: 30px 0 0 0;
 	@media (max-width: 768px) {
-		margin: 20px 0 0 0;
+		margin: 30px 0 0 0;
 	}
 `;
 
