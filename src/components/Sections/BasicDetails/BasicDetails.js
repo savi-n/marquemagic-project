@@ -229,10 +229,11 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
-			const preSignedProfileUrl =
-				profileUploadedFile?.presignedUrl ||
-				selectedApplicant?.customer_picture ||
-				'';
+			let url = profileUploadedFile?.preview;
+			if (profileField?.geo_tagging === true) {
+				url = profileUploadedFile?.presignedUrl;
+			}
+			const profileUrl = url || selectedApplicant?.customer_picture || '';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
@@ -240,7 +241,7 @@ const BasicDetails = props => {
 						is_delete_not_allowed:
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
-				: preSignedProfileUrl;
+				: profileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -283,7 +284,7 @@ const BasicDetails = props => {
 					...profileUploadedFile,
 					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
 					directorId: newDirectorId,
-					preview: null,
+					preview: profileUrl,
 					file: null,
 					isDocRemoveAllowed: false,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -349,8 +350,8 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
-					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
 				},
 			};
 
