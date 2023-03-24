@@ -36,6 +36,7 @@ const SideNav = props => {
 		isEditLoan,
 		isDraftLoan,
 		editLoanDirectors,
+		businessSectionIds,
 	} = app;
 	const {
 		applicant,
@@ -68,12 +69,13 @@ const SideNav = props => {
 		selectedApplicant,
 	});
 
-	// console.log('SideNav-allStates-', {
-	// 	app,
-	// 	selectedProduct,
-	// 	completedSections,
-	// 	selectedApplicant,
-	// });
+	console.log('SideNav-allStates-', {
+		app,
+		selectedProduct,
+		completedSections,
+		selectedApplicant,
+		businessSectionIds,
+	});
 
 	return (
 		<Fragment>
@@ -195,8 +197,12 @@ const SideNav = props => {
 												)}
 											</UI.Menu>
 										</UI.Link>
-										{applicantCoApplicantSectionIds?.length ===
-											sectionIndex + 1 && <UI.SectionDevider />}
+										{(applicantCoApplicantSectionIds?.length +
+											businessSectionIds?.length ===
+											sectionIndex + 1 ||
+											businessSectionIds?.length === sectionIndex + 1) && (
+											<UI.SectionDevider />
+										)}
 									</Fragment>
 								);
 							}

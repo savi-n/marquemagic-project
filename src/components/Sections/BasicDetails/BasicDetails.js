@@ -616,6 +616,7 @@ const BasicDetails = props => {
 		) {
 			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
 		}
+		console.log({ selectedApplicant, selectedSection }, 'selectedSection');
 
 		async function fetchGeoLocationData() {
 			try {
