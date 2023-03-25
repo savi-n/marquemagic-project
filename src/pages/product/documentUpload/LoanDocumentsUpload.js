@@ -426,11 +426,25 @@ const DocumentUpload = props => {
 				}
 			}
 
+			const businessAddress =
+				sessionStorage.getItem('businessAddress') &&
+				JSON.parse(sessionStorage.getItem('businessAddress'));
+
+			const addressData = {
+				addressType: 'present',
+				aid: 1,
+				city: businessAddress?.business_city,
+				line1: businessAddress?.business_address,
+				line2: businessAddress?.Line2,
+				locality: businessAddress?.business_locality,
+				pincode: businessAddress?.business_pincode,
+				state: businessAddress?.business_state,
+			};
+			reqBody.businessaddress.push(addressData);
 			// Test area
 			// console.log('LoanDocumentsUpload-Create-Edit-ReqBody', reqBody);
 			// return;
 			// -- Test area
-
 			const caseReq = await newRequest(
 				editLoanData && editLoanData?.loan_ref_id
 					? BUSSINESS_LOAN_CASE_CREATION_EDIT

@@ -230,6 +230,7 @@ const AddressDetailsPage = props => {
 			const oldReqBody = getFlowData(BUSINESS_PROFILE_REQ_BODY) || {};
 			// console.log('loanaddressdetails-', { oldReqBody, reqBody });
 			// return;
+			sessionStorage.setItem('businessAddress', JSON.stringify(reqBody));
 			if (
 				!_.isEqual(
 					{
