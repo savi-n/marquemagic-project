@@ -1068,10 +1068,8 @@ const DocumentUpload = props => {
 		const documentCheckStatus = {
 			isAllTheDocumentsPresent: true,
 		};
+		const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
 		const applicantCoapplicantDoc = [];
-		const geoTaggedDocs = cacheDocuments?.filter(
-			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
-		);
 
 		let mandatoryFieldApplicant = {};
 		let mandatoryFieldCoApplicant = {};
@@ -1157,7 +1155,43 @@ const DocumentUpload = props => {
 				return null;
 			});
 		}
+		if (isEditLoan) {
+			const applicantProfile = editLoanData?.director_details?.filter(
+				dir => `${dir?.id}` === `${applicant?.directorId}`
+			)?.[0];
 
+			// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
+			// 	// console.log({ a: doc?.doc_type_id, d: doc?.directorId }, 'doc', {
+			// 	// 	a: mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+			// 	// 	d: applicant?.id,
+			// 	// });
+
+			// 	return (
+			// 		`${doc?.directorId}` === `${applicant?.id}` &&
+			// 		`${doc?.doc_type_id}` ===
+			// 			`${
+			// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+			// 			}`
+			// 	);
+			// });
+
+			clonedCacheDocuments?.map(doc => {
+				if (
+					`${doc?.directorId}` === `${applicant?.id}` &&
+					`${doc?.doc_type_id}` ===
+						`${
+							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+						}`
+				) {
+					doc.lat = applicantProfile?.lat;
+					doc.long = applicantProfile?.long;
+				}
+				return null;
+			});
+		}
+		const geoTaggedDocs = clonedCacheDocuments?.filter(
+			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+		);
 		// final check - if the onSiteSelfieWith app/coapp document is present or not
 		const missingDocsForDirectors = [];
 		applicantCoapplicantDoc?.map(doc => {
@@ -1194,6 +1228,7 @@ const DocumentUpload = props => {
 			];
 			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
 		}
+
 		// console.log({
 		// 	geoTaggedDocs,
 		// 	applicantCoapplicantDoc,
@@ -1203,6 +1238,8 @@ const DocumentUpload = props => {
 		// 	mandatoryFieldCoApplicant,
 		// 	mandatoryProfilePicFieldApplicant,
 		// 	mandatoryProfilePicFieldCoApplicant,
+		// 	cacheDocuments,
+		// 	applicant,
 		// });
 		return documentCheckStatus;
 	};
