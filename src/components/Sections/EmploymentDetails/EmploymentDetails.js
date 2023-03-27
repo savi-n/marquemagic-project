@@ -245,14 +245,14 @@ const EmploymentDetails = () => {
 				selectedEmploymentData?.organization_type,
 			organization_type_salaried: selectedEmploymentData?.organization_type,
 			organization_type_business: selectedEmploymentData?.organization_type,
-			organization_type_professional: selectedEmploymentData?.organization_type,
+			organization_type_professional:
+				selectedEmploymentData?.organization_type,
 			organization_type_others: selectedEmploymentData?.organization_type,
 			company_name: selectedEmploymentData?.company_name,
 			...selectedEmploymentIncomeData,
 		};
 		return preData?.[field?.name];
 	};
-
 	const prefilledValues = field => {
 		try {
 			if (isViewLoan) {
