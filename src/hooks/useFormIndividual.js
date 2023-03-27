@@ -339,9 +339,9 @@ export default function useForm() {
 				!valuesRef?.current?.[newField?.name] &&
 				setValue(newField?.name, newField?.value || '');
 		} else {
-							// old
-							setValue(newField?.name, newField?.value || '');
-						}
+			// old
+			setValue(newField?.name, newField?.value || '');
+		}
 		checkValidity(newField?.name);
 
 		return (
@@ -380,54 +380,45 @@ export default function useForm() {
 		valid = validDefault,
 		invalid = invalidDefault
 	) => async e => {
-										// console.log(valid);
-										// console.log(invalid);
+		// console.log(valid);
+		// console.log(invalid);
 
-										const { submitCount } = submitRef.current;
+		const { submitCount } = submitRef.current;
 
-										submitRef.current = {
-											isSubmitting: true,
-											isSubmited: true,
-											submitCount: submitCount + 1,
-										};
+		submitRef.current = {
+			isSubmitting: true,
+			isSubmited: true,
+			submitCount: submitCount + 1,
+		};
 
-										updateFormState(uuidv4());
+		updateFormState(uuidv4());
 
-										if (e) {
-											e.preventDefault && e.preventDefault();
-											e.persist && e.persist();
-										}
+		if (e) {
+			e.preventDefault && e.preventDefault();
+			e.persist && e.persist();
+		}
 
-										if (
-											!Object.keys(errorsRef.current)
-												.length ||
-											(errorsRef.current.ReferenceEmail0 &&
-												errorsRef.current.ReferenceEmail1)
-										) {
-											await valid(valuesRef.current);
-										} else {
-											await invalid(valuesRef.current);
-										}
-										submitRef.current = {
-											...submitRef.current,
-											isSubmitting: false,
-										};
-										// console.log('-error-ref-', { valuesRef, touchedRef, errorsRef });
-										if (
-											Object.keys(errorsRef?.current || {})
-												.length > 0
-										) {
-											document
-												.getElementsByName(
-													Object.keys(
-														errorsRef?.current || {}
-													)?.[0]
-												)?.[0]
-												?.focus();
-										}
+		if (
+			!Object.keys(errorsRef.current).length ||
+			(errorsRef.current.ReferenceEmail0 && errorsRef.current.ReferenceEmail1)
+		) {
+			await valid(valuesRef.current);
+		} else {
+			await invalid(valuesRef.current);
+		}
+		submitRef.current = {
+			...submitRef.current,
+			isSubmitting: false,
+		};
+		// console.log('-error-ref-', { valuesRef, touchedRef, errorsRef });
+		if (Object.keys(errorsRef?.current || {}).length > 0) {
+			document
+				.getElementsByName(Object.keys(errorsRef?.current || {})?.[0])?.[0]
+				?.focus();
+		}
 
-										updateFormState(uuidv4());
-									};
+		updateFormState(uuidv4());
+	};
 
 	const clearError = () => {
 		const { submitCount } = submitRef.current;
