@@ -1353,7 +1353,8 @@ const DocumentUpload = props => {
 			declareCheck &&
 			onsiteVerificationMsg &&
 			!prompted &&
-			!isAppCoAppVerificationComplete() ? (
+			!isAppCoAppVerificationComplete() &&
+			((isEditLoan && isDraftLoan) || !isEditLoan) ? (
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}
 
