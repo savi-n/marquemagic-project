@@ -440,8 +440,12 @@ const DocumentUpload = props => {
 			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
-				cacheDocuments?.map(doc => {
+				const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+				clonedCacheDocuments?.map(doc => {
 					// if (doc?.document_id) return null;
+					if (!doc?.directorId) {
+						doc.directorId = applicant?.id;
+					}
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
 							if (
@@ -1064,21 +1068,30 @@ const DocumentUpload = props => {
 		const documentCheckStatus = {
 			isAllTheDocumentsPresent: true,
 		};
+		const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
 		const applicantCoapplicantDoc = [];
-		const geoTaggedDocs = cacheDocuments?.filter(
-			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
-		);
 
+		let mandatoryFieldApplicant = {};
+		let mandatoryFieldCoApplicant = {};
 		const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
 			subSection => subSection?.id === 'on_site_selfie_with_applicant'
 		)?.[0];
-		const mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant !== true
-		)?.[0];
-		const mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant !== true
-		)?.[0];
+		if (onSiteSelfiefield?.fields?.length > 0) {
+			mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
+			)?.[0];
+			mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
+				field => field?.geo_tagging === true && field?.is_applicant === false
+			)?.[0];
+		}
 
+		if (
+			onSiteSelfiefield?.fields?.length === 1 &&
+			onSiteSelfiefield[0]?.geo_tagging === true
+		) {
+			mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
+			mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
+		}
 		// check for profile pic upload geolocation starts
 		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
 			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
@@ -1088,12 +1101,23 @@ const DocumentUpload = props => {
 			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		);
 
-		const mandatoryProfilePicFieldApplicant = profilePicField?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant !== true
-		)?.[0];
-		const mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant !== true
-		)?.[0];
+		let mandatoryProfilePicFieldApplicant = {};
+		let mandatoryProfilePicFieldCoApplicant = {};
+		if (profilePicField?.length > 0) {
+			mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
+			)?.[0];
+			mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+				field => field?.geo_tagging === true && field?.is_applicant === false
+			)?.[0];
+		}
+		if (
+			profilePicField?.length === 1 &&
+			profilePicField[0]?.geo_tagging === true
+		) {
+			mandatoryProfilePicFieldApplicant = profilePicField[0];
+			mandatoryProfilePicFieldCoApplicant = profilePicField[0];
+		}
 
 		if (!!mandatoryProfilePicFieldApplicant) {
 			applicantCoapplicantDoc?.push({
@@ -1103,10 +1127,7 @@ const DocumentUpload = props => {
 				directorId: applicant?.directorId,
 			});
 		}
-		if (
-			!!mandatoryProfilePicFieldApplicant &&
-			!!mandatoryProfilePicFieldCoApplicant
-		) {
+		if (!!mandatoryProfilePicFieldCoApplicant) {
 			Object.keys(coApplicants)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
 				field.directorId = coApplicantId;
@@ -1125,7 +1146,7 @@ const DocumentUpload = props => {
 				directorId: applicant?.directorId,
 			});
 
-		if (!!mandatoryFieldApplicant && !!mandatoryFieldCoApplicant) {
+		if (!!mandatoryFieldCoApplicant) {
 			Object.keys(coApplicants)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryFieldCoApplicant);
 				field.directorId = coApplicantId;
@@ -1134,7 +1155,43 @@ const DocumentUpload = props => {
 				return null;
 			});
 		}
+		if (isEditLoan) {
+			const applicantProfile = editLoanData?.director_details?.filter(
+				dir => `${dir?.id}` === `${applicant?.directorId}`
+			)?.[0];
 
+			// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
+			// 	// console.log({ a: doc?.doc_type_id, d: doc?.directorId }, 'doc', {
+			// 	// 	a: mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+			// 	// 	d: applicant?.id,
+			// 	// });
+
+			// 	return (
+			// 		`${doc?.directorId}` === `${applicant?.id}` &&
+			// 		`${doc?.doc_type_id}` ===
+			// 			`${
+			// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+			// 			}`
+			// 	);
+			// });
+
+			clonedCacheDocuments?.map(doc => {
+				if (
+					`${doc?.directorId}` === `${applicant?.id}` &&
+					`${doc?.doc_type_id}` ===
+						`${
+							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+						}`
+				) {
+					doc.lat = applicantProfile?.lat;
+					doc.long = applicantProfile?.long;
+				}
+				return null;
+			});
+		}
+		const geoTaggedDocs = clonedCacheDocuments?.filter(
+			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+		);
 		// final check - if the onSiteSelfieWith app/coapp document is present or not
 		const missingDocsForDirectors = [];
 		applicantCoapplicantDoc?.map(doc => {
@@ -1171,6 +1228,7 @@ const DocumentUpload = props => {
 			];
 			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
 		}
+
 		// console.log({
 		// 	geoTaggedDocs,
 		// 	applicantCoapplicantDoc,
@@ -1178,6 +1236,10 @@ const DocumentUpload = props => {
 		// 	documentCheckStatus,
 		// 	mandatoryFieldApplicant,
 		// 	mandatoryFieldCoApplicant,
+		// 	mandatoryProfilePicFieldApplicant,
+		// 	mandatoryProfilePicFieldCoApplicant,
+		// 	cacheDocuments,
+		// 	applicant,
 		// });
 		return documentCheckStatus;
 	};
@@ -1291,7 +1353,8 @@ const DocumentUpload = props => {
 			declareCheck &&
 			onsiteVerificationMsg &&
 			!prompted &&
-			!isAppCoAppVerificationComplete() ? (
+			!isAppCoAppVerificationComplete() &&
+			((isEditLoan && isDraftLoan) || !isEditLoan) ? (
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}
 

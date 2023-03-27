@@ -110,8 +110,7 @@ const BasicDetails = props => {
 	} = useForm();
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
-	const selectedIncomeType =
-		formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
+	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
@@ -184,256 +183,242 @@ const BasicDetails = props => {
 
 	const onProceed = async () => {
 		try {
-					setLoading(true);
-					const isTokenValid = await validateToken();
-					if (isTokenValid === false) return;
+			setLoading(true);
+			const isTokenValid = await validateToken();
+			if (isTokenValid === false) return;
 
-					// call login api only once
-					// TODO: varun do not call this api when RM is creating loan
-					let newBorrowerUserId = '';
+			// call login api only once
+			// TODO: varun do not call this api when RM is creating loan
+			let newBorrowerUserId = '';
 
-					if (!isEditOrViewLoan && !borrowerUserId) {
-						const loginCreateUserReqBody = {
-							email: formState?.values?.email || '',
-							white_label_id: whiteLabelId,
-							source: API.APP_CLIENT,
-							name: formState?.values?.first_name,
-							mobileNo: formState?.values?.mobile_no,
-							addrr1: '',
-							addrr2: '',
-						};
-						if (!!userDetails?.id) {
-							loginCreateUserReqBody.user_id = userDetails?.id;
-						}
-						const newLoginCreateUserRes = await axios.post(
-							`${API.LOGIN_CREATEUSER}`,
-							loginCreateUserReqBody
-						);
-						dispatch(
-							setLoginCreateUserRes(newLoginCreateUserRes?.data)
-						);
-						newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
-						// first priority is to set existing user token which is comming from ui-ux
-						// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
-						axios.defaults.headers.Authorization = `Bearer ${userToken ||
-							newLoginCreateUserRes?.data?.token}`;
-					} else {
-						axios.defaults.headers.Authorization = `Bearer ${userToken}`;
-					}
+			if (!isEditOrViewLoan && !borrowerUserId) {
+				const loginCreateUserReqBody = {
+					email: formState?.values?.email || '',
+					white_label_id: whiteLabelId,
+					source: API.APP_CLIENT,
+					name: formState?.values?.first_name,
+					mobileNo: formState?.values?.mobile_no,
+					addrr1: '',
+					addrr2: '',
+				};
+				if (!!userDetails?.id) {
+					loginCreateUserReqBody.user_id = userDetails?.id;
+				}
+				const newLoginCreateUserRes = await axios.post(
+					`${API.LOGIN_CREATEUSER}`,
+					loginCreateUserReqBody
+				);
+				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
+				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
+				// first priority is to set existing user token which is comming from ui-ux
+				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
+				axios.defaults.headers.Authorization = `Bearer ${userToken ||
+					newLoginCreateUserRes?.data?.token}`;
+			} else {
+				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+			}
 
-					// loan product is is only applicable for applicant
-					// it should not be overritten when coapplicant is income type is different then applicant
-					let selectedLoanProductId = '';
-					if (isApplicant) {
-						selectedLoanProductId =
-							selectedProduct?.product_id?.[selectedIncomeType];
-					}
+			// loan product is is only applicable for applicant
+			// it should not be overritten when coapplicant is income type is different then applicant
+			let selectedLoanProductId = '';
+			if (isApplicant) {
+				selectedLoanProductId =
+					selectedProduct?.product_id?.[selectedIncomeType];
+			}
 
-					const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
-						field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-					)?.[0];
-					const isNewProfileUploaded = !!profileUploadedFile?.file;
-					const preSignedProfileUrl =
-						profileUploadedFile?.presignedUrl ||
-						selectedApplicant?.customer_picture ||
-						'';
-					const profileFieldValue = isNewProfileUploaded
-						? {
-								...profileUploadedFile?.file,
-								doc_type_id:
-									profileField?.doc_type?.[selectedIncomeType],
-								is_delete_not_allowed:
-									profileField?.is_delete_not_allowed === true
-										? true
-										: false,
-						  }
-						: preSignedProfileUrl;
-					// console.log(formState.values);
-					const basicDetailsReqBody = formatSectionReqBody({
-						section: selectedSection,
-						values: {
-							...formState.values,
-							app_coordinates: {
-								lat: geoLocationData?.lat,
-								long: geoLocationData?.long,
-								timestamp: geoLocationData?.timestamp,
-							},
-							[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
-						},
-						app,
-						applicantCoApplicants,
-						application,
-						selectedLoanProductId,
-					});
+			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			)?.[0];
+			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			const preSignedProfileUrl =
+				profileUploadedFile?.presignedUrl ||
+				selectedApplicant?.customer_picture ||
+				'';
+			const profileFieldValue = isNewProfileUploaded
+				? {
+						...profileUploadedFile?.file,
+						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							profileField?.is_delete_not_allowed === true ? true : false,
+				  }
+				: preSignedProfileUrl;
+			// console.log(formState.values);
+			const basicDetailsReqBody = formatSectionReqBody({
+				section: selectedSection,
+				values: {
+					...formState.values,
+					app_coordinates: {
+						lat: geoLocationData?.lat,
+						long: geoLocationData?.long,
+						timestamp: geoLocationData?.timestamp,
+					},
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+				},
+				app,
+				applicantCoApplicants,
+				application,
+				selectedLoanProductId,
+			});
 
-					// always pass borrower user id from login api for create case / from edit loan data
-					basicDetailsReqBody.borrower_user_id =
-						newBorrowerUserId || businessUserId;
+			// always pass borrower user id from login api for create case / from edit loan data
+			basicDetailsReqBody.borrower_user_id =
+				newBorrowerUserId || businessUserId;
 
-					const basicDetailsRes = await axios.post(
-						`${API.API_END_POINT}/basic_details`,
-						basicDetailsReqBody
-					);
-					const newLoanRefId =
-						basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
-					const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
-					const newBusinessId =
-						basicDetailsRes?.data?.data?.business_data?.id;
-					const newDirectorId =
-						basicDetailsRes?.data?.data?.director_details?.id;
-					const newBusinessUserId =
-						basicDetailsRes?.data?.data?.business_data?.userid;
-					const newCreatedByUserId =
-						basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+			const basicDetailsRes = await axios.post(
+				`${API.API_END_POINT}/basic_details`,
+				basicDetailsReqBody
+			);
+			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
+			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
+			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
+			const newBusinessUserId =
+				basicDetailsRes?.data?.data?.business_data?.userid;
+			const newCreatedByUserId =
+				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
 
-					if (isNewProfileUploaded) {
-						const uploadedProfileRes =
-							basicDetailsRes?.data?.data?.loan_document_data || null;
-						const newProfileData = {
-							...(uploadedProfileRes || {}),
-							...profileUploadedFile,
-							...(typeof profileFieldValue !== 'string'
-								? profileFieldValue
-								: {}),
+			if (isNewProfileUploaded) {
+				const uploadedProfileRes =
+					basicDetailsRes?.data?.data?.loan_document_data || null;
+				const newProfileData = {
+					...(uploadedProfileRes || {}),
+					...profileUploadedFile,
+					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
+					directorId: newDirectorId,
+					preview: null,
+					file: null,
+					isDocRemoveAllowed: false,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				};
+				if (uploadedProfileRes?.id) {
+					newProfileData.document_id = uploadedProfileRes?.id;
+				}
+				newProfileData.name =
+					newProfileData?.filename ||
+					newProfileData?.uploaded_doc_name ||
+					newProfileData?.original_doc_name;
+
+				dispatch(
+					addOrUpdateCacheDocument({
+						file: newProfileData,
+					})
+				);
+			}
+			if (cacheDocumentsTemp.length > 0) {
+				try {
+					const uploadCacheDocumentsTemp = [];
+					cacheDocumentsTemp.map(doc => {
+						if (!doc?.requestId) return null;
+						uploadCacheDocumentsTemp.push({
+							...doc,
+							request_id: doc?.requestId,
+							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType],
+							is_delete_not_allowed: true,
+							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
-							file: null,
-							isDocRemoveAllowed: false,
-							category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+							document_id: doc?.requestId, // temp doc id as this doc is non deletable
+						});
+						return null;
+					});
+					if (uploadCacheDocumentsTemp.length) {
+						const uploadCacheDocumentsTempReqBody = {
+							loan_id: newLoanId,
+							request_ids_obj: uploadCacheDocumentsTemp,
+							user_id: newCreatedByUserId,
 						};
-						if (uploadedProfileRes?.id) {
-							newProfileData.document_id = uploadedProfileRes?.id;
-						}
-						newProfileData.name =
-							newProfileData?.filename ||
-							newProfileData?.uploaded_doc_name ||
-							newProfileData?.original_doc_name;
 
+						await axios.post(
+							API.UPLOAD_CACHE_DOCS,
+							uploadCacheDocumentsTempReqBody,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
 						dispatch(
-							addOrUpdateCacheDocument({
-								file: newProfileData,
+							addCacheDocuments({
+								files: uploadCacheDocumentsTemp,
 							})
 						);
 					}
-					if (cacheDocumentsTemp.length > 0) {
-						try {
-							const uploadCacheDocumentsTemp = [];
-							cacheDocumentsTemp.map(doc => {
-								if (!doc?.requestId) return null;
-								uploadCacheDocumentsTemp.push({
-									...doc,
-									request_id: doc?.requestId,
-									doc_type_id:
-										doc?.field?.doc_type?.[selectedIncomeType],
-									is_delete_not_allowed: true,
-									director_id: newDirectorId,
-									directorId: newDirectorId,
-									preview: null,
-									document_id: doc?.requestId, // temp doc id as this doc is non deletable
-								});
-								return null;
-							});
-							if (uploadCacheDocumentsTemp.length) {
-								const uploadCacheDocumentsTempReqBody = {
-									loan_id: newLoanId,
-									request_ids_obj: uploadCacheDocumentsTemp,
-									user_id: newCreatedByUserId,
-								};
-
-								await axios.post(
-									API.UPLOAD_CACHE_DOCS,
-									uploadCacheDocumentsTempReqBody,
-									{
-										headers: {
-											Authorization: clientToken,
-										},
-									}
-								);
-								dispatch(
-									addCacheDocuments({
-										files: uploadCacheDocumentsTemp,
-									})
-								);
-							}
-						} catch (error) {
-							console.error('error-', error);
-						}
-					}
-					const newBasicDetails = {
-						sectionId: selectedSectionId,
-						sectionValues: {
-							...formState.values,
-							[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
-							[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
-						},
-					};
-
-					// TODO: varun update cin properly peding discussion with savita
-					newBasicDetails.directorId = newDirectorId;
-					newBasicDetails.cin =
-						applicantCoApplicants?.companyRocData?.CIN || '';
-					newBasicDetails.profileGeoLocation = (Object.keys(
-						profilePicGeolocation
-					).length > 0 &&
-						profilePicGeolocation) || {
-						address:
-							selectedApplicant?.address ||
-							selectedApplicant?.profileGeoLocation?.address,
-						lat: selectedApplicant?.lat,
-						long: selectedApplicant?.long,
-						timestamp: selectedApplicant?.timestamp,
-					};
-
-					newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-					if (isApplicant) {
-						dispatch(updateApplicantSection(newBasicDetails));
-					} else {
-						dispatch(updateCoApplicantSection(newBasicDetails));
-						dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
-					}
-					dispatch(
-						setLoanIds({
-							loanRefId: newLoanRefId,
-							loanId: newLoanId,
-							businessId: newBusinessId,
-							businessUserId: newBusinessUserId,
-							loanProductId: selectedLoanProductId,
-							createdByUserId: newCreatedByUserId,
-							borrowerUserId: newBorrowerUserId,
-						})
-					);
-					// dispatch(setPanExtractionRes(panExtractionResTemp));
-
-					dispatch(setSelectedSectionId(nextSectionId));
-					if (isGeoTaggingEnabled) {
-						if (
-							mandatoryGeoTag.length > 0 &&
-							mandatoryGeoTag.includes('profileGeoLocation')
-						) {
-							// ITERATING OVER THE MANDATORY FIELDS AND
-							// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
-							// BUT ALLOW USER TO MOVE TO NEXT SECTION
-							if (
-								(isApplicant &&
-									!selectedApplicant.profileGeoLocation?.address) ||
-								(!isApplicant && !profilePicGeolocation?.address)
-							) {
-								addToast({
-									message: 'Mandatory Profile GeoLocation not captured',
-									type: 'error',
-								});
-							}
-						}
-
-						// IF GEOTAGGING IS MANDATORY
-						if (!geoLocation?.address) {
-							addToast({
-								message: 'Mandatory GeoLocation not captured',
-								type: 'error',
-							});
-						}
-					}
 				} catch (error) {
+					console.error('error-', error);
+				}
+			}
+			const newBasicDetails = {
+				sectionId: selectedSectionId,
+				sectionValues: {
+					...formState.values,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
+				},
+			};
+
+			// TODO: varun update cin properly peding discussion with savita
+			newBasicDetails.directorId = newDirectorId;
+			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
+				.length > 0 &&
+				profilePicGeolocation) || {
+				address:
+					selectedApplicant?.address ||
+					selectedApplicant?.profileGeoLocation?.address,
+				lat: selectedApplicant?.lat,
+				long: selectedApplicant?.long,
+				timestamp: selectedApplicant?.timestamp,
+			};
+
+			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
+			if (isApplicant) {
+				dispatch(updateApplicantSection(newBasicDetails));
+			} else {
+				dispatch(updateCoApplicantSection(newBasicDetails));
+				dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
+			}
+			dispatch(
+				setLoanIds({
+					loanRefId: newLoanRefId,
+					loanId: newLoanId,
+					businessId: newBusinessId,
+					businessUserId: newBusinessUserId,
+					loanProductId: selectedLoanProductId,
+					createdByUserId: newCreatedByUserId,
+					borrowerUserId: newBorrowerUserId,
+				})
+			);
+			// dispatch(setPanExtractionRes(panExtractionResTemp));
+
+			dispatch(setSelectedSectionId(nextSectionId));
+			if (isGeoTaggingEnabled) {
+				if (
+					mandatoryGeoTag.length > 0 &&
+					mandatoryGeoTag.includes('profileGeoLocation')
+				) {
+					// ITERATING OVER THE MANDATORY FIELDS AND
+					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
+					// BUT ALLOW USER TO MOVE TO NEXT SECTION
+					if (
+						(isApplicant && !selectedApplicant.profileGeoLocation?.address) ||
+						(!isApplicant && !profilePicGeolocation?.address)
+					) {
+						addToast({
+							message: 'Mandatory Profile GeoLocation not captured',
+							type: 'error',
+						});
+					}
+				}
+
+				// IF GEOTAGGING IS MANDATORY
+				if (!geoLocation?.address) {
+					addToast({
+						message: 'Mandatory GeoLocation not captured',
+						type: 'error',
+					});
+				}
+			}
+		} catch (error) {
 			console.error('error-BasicDetails-onProceed-', {
 				error: error,
 				res: error?.response,
@@ -483,8 +468,8 @@ const BasicDetails = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)
-				?.length > 0
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
+			0
 		) {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
@@ -495,10 +480,7 @@ const BasicDetails = props => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		if (
-			field.type === 'file' &&
-			field.name === CONST.PAN_UPLOAD_FIELD_NAME
-		) {
+		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
 			const panFile = getEditLoanLoanDocuments({
 				documents: editLoanData?.loan_document,
 				directorId: selectedApplicant?.directorId,
@@ -526,8 +508,7 @@ const BasicDetails = props => {
 			mother_name: selectedApplicant?.mother_name,
 			upi_id: selectedApplicant?.upi_id,
 			profile_upload: selectedApplicant?.customer_picture,
-			relationship_with_applicant:
-				selectedApplicant?.applicant_relationship,
+			relationship_with_applicant: selectedApplicant?.applicant_relationship,
 		};
 		// console.log(selectedApplicant);
 		return preData?.[field?.name];
@@ -548,8 +529,7 @@ const BasicDetails = props => {
 			// update value from form state
 			// whenever user decides to type or enter value
 			// form state should be the first value to prepopulate
-			const isFormStateUpdated =
-				formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -607,9 +587,7 @@ const BasicDetails = props => {
 		try {
 			const params = queryString.parse(window.location.search);
 			if (params?.token) {
-				const decryptedToken = decryptRes(
-					params?.token?.replaceAll(' ', '+')
-				);
+				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 				if (decryptedToken?.token) {
 					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
 					if (!isValidToken) {
@@ -720,15 +698,11 @@ const BasicDetails = props => {
 					long: selectedApplicant?.long,
 				};
 
-				const geoPicLocationRes = await axios.post(
-					API.GEO_LOCATION,
-					reqBody,
-					{
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					}
-				);
+				const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
 				dispatch(
 					setProfileGeoLocation({
 						lat: selectedApplicant?.lat,
@@ -897,19 +871,14 @@ const BasicDetails = props => {
 													uploadedFile={profileUploadedFile}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={
-														removeCacheDocumentTemp
-													}
-													onChangeFormStateField={
-														onChangeFormStateField
-													}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
+													onChangeFormStateField={onChangeFormStateField}
 													isDisabled={isViewLoan}
 													isTag={true}
 													geoLocationAddress={
 														profilePicGeolocation || {
 															address:
-																selectedApplicant?.profileGeoLocation
-																	?.address,
+																selectedApplicant?.profileGeoLocation?.address,
 															lat: selectedApplicant?.lat,
 															long: selectedApplicant?.long,
 															timestamp: selectedApplicant?.timestamp,
@@ -964,18 +933,12 @@ const BasicDetails = props => {
 													formState={formState}
 													uploadedFile={panUploadedFile}
 													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={
-														removeCacheDocumentTemp
-													}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													isPanNumberExist={isPanNumberExist}
 													panErrorMessage={panErrorMessage}
 													panErrorColorCode={panErrorColorCode}
-													setErrorFormStateField={
-														setErrorFormStateField
-													}
-													onChangeFormStateField={
-														onChangeFormStateField
-													}
+													setErrorFormStateField={setErrorFormStateField}
+													onChangeFormStateField={onChangeFormStateField}
 													clearErrorFormState={clearErrorFormState}
 													isDisabled={isViewLoan}
 												/>
@@ -1004,9 +967,7 @@ const BasicDetails = props => {
 								// }
 								let newValueSelectFeild;
 								if (!!field.sub_fields) {
-									newValueSelectFeild = prefilledValues(
-										field?.sub_fields[0]
-									);
+									newValueSelectFeild = prefilledValues(field?.sub_fields[0]);
 								}
 
 								const customFieldProps = {};
@@ -1113,9 +1074,7 @@ const BasicDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name={
-							fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'
-						}
+						name={fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'}
 						isLoader={loading}
 						disabled={loading || fetchingAddress}
 						onClick={handleSubmit(() => {
@@ -1131,23 +1090,21 @@ const BasicDetails = props => {
 								isProfileError = false;
 							}
 							if (isProfileError) {
-																		// console.log('profile-error-', {
-																		// 	isProfileError,
-																		// 	profileUploadedFile,
-																		// 	isEditOrViewLoan,
-																		// 	value:
-																		// 		formState?.values?.[
-																		// 			CONST.PAN_UPLOAD_FIELD_NAME
-																		// 		],
-																		// });
-																		addToast({
-																			message:
-																				'Profile is mandatory',
-																			type:
-																				'error',
-																		});
-																		return;
-																	}
+								// console.log('profile-error-', {
+								// 	isProfileError,
+								// 	profileUploadedFile,
+								// 	isEditOrViewLoan,
+								// 	value:
+								// 		formState?.values?.[
+								// 			CONST.PAN_UPLOAD_FIELD_NAME
+								// 		],
+								// });
+								addToast({
+									message: 'Profile is mandatory',
+									type: 'error',
+								});
+								return;
+							}
 							// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 							// so avoid opening income type popup at below condition
 							if (isEditOrViewLoan || !!selectedApplicant?.directorId) {
