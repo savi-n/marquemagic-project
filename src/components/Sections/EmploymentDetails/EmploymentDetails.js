@@ -245,8 +245,7 @@ const EmploymentDetails = () => {
 				selectedEmploymentData?.organization_type,
 			organization_type_salaried: selectedEmploymentData?.organization_type,
 			organization_type_business: selectedEmploymentData?.organization_type,
-			organization_type_professional:
-				selectedEmploymentData?.organization_type,
+			organization_type_professional: selectedEmploymentData?.organization_type,
 			organization_type_others: selectedEmploymentData?.organization_type,
 			company_name: selectedEmploymentData?.company_name,
 			employee_number: selectedApplicant?.employee_number,
@@ -257,8 +256,7 @@ const EmploymentDetails = () => {
 		};
 		return preData?.[field?.name];
 	};
-	const selectedEmploymentData =
-		selectedApplicant?.employment_data?.[0] || {};
+	const selectedEmploymentData = selectedApplicant?.employment_data?.[0] || {};
 	console.log(selectedEmploymentData);
 	const prefilledValues = field => {
 		try {

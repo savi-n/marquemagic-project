@@ -25,18 +25,18 @@ export const FormWrapGrid = styled.div`
 `;
 
 export const FieldWrapGrid = styled.div`
-					width: 100%;
-					${({ isSubFields }) =>
-						isSubFields &&
-						`
+	width: 100%;
+	${({ isSubFields }) =>
+		isSubFields &&
+		`
 		display: flex;
 		justify-content: space-between;
 		gap: 20px;
 	`}
-					@media (max-width: 700px) {
-						width: 100%;
-					}
-				`;
+	@media (max-width: 700px) {
+		width: 100%;
+	}
+`;
 
 export const FormWrap = styled.div`
 	position: relative;

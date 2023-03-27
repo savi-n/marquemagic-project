@@ -241,151 +241,83 @@ export default function useForm() {
 	};
 
 	const register = field => {
-															// if (field.name.includes('AccountNumber')) {
-															// 	field.rules = {};
-															// }
-															// if (field.name.includes('AccountHolderName')) {
-															// 	field.rules = {};
-															// }
-															// if (field.name.includes('BankName')) {
-															// 	field.rules = {};
-															// } uuidv4}
-															// if (field.name.includes('AccountType')) {
-															// 	field.rules = {};
-															// }
-															let newField = _.cloneDeep(
-																field
-															);
-															// Masking the values for view loan based on the configuration (Masking starts)
-															const editLoanData = JSON.parse(
-																sessionStorage.getItem(
-																	'editLoan'
-																)
-															);
-															const isViewLoan = !editLoanData
-																? false
-																: !editLoanData?.isEditLoan;
-															const userDetails =
-																JSON.parse(
-																	sessionStorage.getItem(
-																		'userDetails'
-																	)
-																) || [];
-															if (
-																newField.isMasked &&
-																isViewLoan &&
-																!newField?.userTypesAllowed?.includes(
-																	userDetails?.usertype
-																) &&
-																!newField?.userTypesAllowed?.includes(
-																	userDetails?.user_sub_type
-																) &&
-																!newField?.userTypesAllowed?.includes(
-																	'*'
-																)
-															) {
-																delete newField
-																	?.mask
-																	?.MaskValues;
-																// console.log('deleted mask as there was no usertype or user sub type');
-															}
-															// new addition
-															if (
-																newField.isMasked &&
-																isViewLoan &&
-																(newField?.userTypesAllowed?.includes(
-																	userDetails?.usertype
-																) ||
-																	newField?.userTypesAllowed?.includes(
-																		userDetails?.user_sub_type
-																	) ||
-																	newField?.userTypesAllowed?.includes(
-																		'*'
-																	))
-															) {
-																// console.log('masking happens ' + newField.name);
-																if (
-																	newField?.isMasked
-																) {
-																	// console.log('deleted rules and other masks');
-																	newField.rules = {};
-																	delete newField
-																		.mask
-																		.NumberOnly;
-																	delete newField
-																		.mask
-																		.CharacterLimit;
-																	delete newField
-																		.mask
-																		.AlphaCharOnly;
-																	delete newField
-																		.mask
-																		.AlphaNumericOnly;
-																}
-															}
+		// if (field.name.includes('AccountNumber')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('AccountHolderName')) {
+		// 	field.rules = {};
+		// }
+		// if (field.name.includes('BankName')) {
+		// 	field.rules = {};
+		// } uuidv4}
+		// if (field.name.includes('AccountType')) {
+		// 	field.rules = {};
+		// }
+		let newField = _.cloneDeep(field);
+		// Masking the values for view loan based on the configuration (Masking starts)
+		const editLoanData = JSON.parse(sessionStorage.getItem('editLoan'));
+		const isViewLoan = !editLoanData ? false : !editLoanData?.isEditLoan;
+		const userDetails = JSON.parse(sessionStorage.getItem('userDetails')) || [];
+		if (
+			newField.isMasked &&
+			isViewLoan &&
+			!newField?.userTypesAllowed?.includes(userDetails?.usertype) &&
+			!newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) &&
+			!newField?.userTypesAllowed?.includes('*')
+		) {
+			delete newField?.mask?.MaskValues;
+			// console.log('deleted mask as there was no usertype or user sub type');
+		}
+		// new addition
+		if (
+			newField.isMasked &&
+			isViewLoan &&
+			(newField?.userTypesAllowed?.includes(userDetails?.usertype) ||
+				newField?.userTypesAllowed?.includes(userDetails?.user_sub_type) ||
+				newField?.userTypesAllowed?.includes('*'))
+		) {
+			// console.log('masking happens ' + newField.name);
+			if (newField?.isMasked) {
+				// console.log('deleted rules and other masks');
+				newField.rules = {};
+				delete newField.mask.NumberOnly;
+				delete newField.mask.CharacterLimit;
+				delete newField.mask.AlphaCharOnly;
+				delete newField.mask.AlphaNumericOnly;
+			}
+		}
 
-															if (
-																!isViewLoan &&
-																newField?.mask
-																	?.MaskValues
-															) {
-																// console.log(
-																// 	'deleted masking as it is not view loan and field has maskvalues',
-																// 	{ newField }
-																// );
-																delete newField
-																	?.mask
-																	?.MaskValues;
-															}
-															// Masking ends
+		if (!isViewLoan && newField?.mask?.MaskValues) {
+			// console.log(
+			// 	'deleted masking as it is not view loan and field has maskvalues',
+			// 	{ newField }
+			// );
+			delete newField?.mask?.MaskValues;
+		}
+		// Masking ends
 
-															// condition to check whether the ifsc field should be validated or not
-															if (
-																newField?.name?.includes(
-																	'ifsc'
-																)
-															) {
-																// newField.mask = { CharacterLimit: 11 };
-																if (
-																	newField?.value
-																		?.length === 0
-																) {
-																	newField.rules = {};
-																}
-															}
-															// newField.name = newField.name.replaceAll(" ", "");
-															newField.name = newField?.name
-																?.split(' ')
-																?.join('');
-															fieldsRef.current[
-																newField.name
-															] = newField;
-															setValue(
-																newField.name,
-																newField.value || ''
-															);
-															checkValidity(
-																newField.name
-															);
+		// condition to check whether the ifsc field should be validated or not
+		if (newField?.name?.includes('ifsc')) {
+			// newField.mask = { CharacterLimit: 11 };
+			if (newField?.value?.length === 0) {
+				newField.rules = {};
+			}
+		}
+		// newField.name = newField.name.replaceAll(" ", "");
+		newField.name = newField?.name?.split(' ')?.join('');
+		fieldsRef.current[newField.name] = newField;
+		setValue(newField.name, newField.value || '');
+		checkValidity(newField.name);
 
-															return (
-																<InputFieldRender
-																	field={newField}
-																	onChange={
-																		onChange
-																	}
-																	value={
-																		valuesRef
-																			.current[
-																			newField.name
-																		] || ''
-																	}
-																	unregister={
-																		unregister
-																	}
-																/>
-															);
-														};
+		return (
+			<InputFieldRender
+				field={newField}
+				onChange={onChange}
+				value={valuesRef.current[newField.name] || ''}
+				unregister={unregister}
+			/>
+		);
+	};
 
 	const onChange = (event, type) => {
 		const { name, value } = event;

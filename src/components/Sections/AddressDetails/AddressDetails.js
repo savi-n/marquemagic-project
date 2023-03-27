@@ -588,8 +588,7 @@ const AddressDetails = props => {
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
 			permanent_aadhaar: selectedApplicant?.daadhaar,
-			permanent_address_proof_id_others:
-				selectedApplicant?.permanent_ddocname,
+			permanent_address_proof_id_others: selectedApplicant?.permanent_ddocname,
 			permanent_address_proof_id_passport: selectedApplicant?.dpassport,
 			permanent_address_proof_id_dl: selectedApplicant?.ddlNumber,
 			permanent_address_proof_id_voter: selectedApplicant?.dvoterid,
