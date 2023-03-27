@@ -588,7 +588,8 @@ const AddressDetails = props => {
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
 			permanent_aadhaar: selectedApplicant?.daadhaar,
-			permanent_address_proof_id_others: selectedApplicant?.permanent_ddocname,
+			permanent_address_proof_id_others:
+				selectedApplicant?.permanent_ddocname,
 			permanent_address_proof_id_passport: selectedApplicant?.dpassport,
 			permanent_address_proof_id_dl: selectedApplicant?.ddlNumber,
 			permanent_address_proof_id_voter: selectedApplicant?.dvoterid,
@@ -602,6 +603,12 @@ const AddressDetails = props => {
 			permanent_property_tenure: moment(
 				selectedApplicant?.permanent_residential_stability
 			).format('YYYY-MM'),
+			permanent_address_proof_issued_on: moment(
+				selectedApplicant?.permanent_address_proof_issued_on
+			).format('YYYY-MM-DD'),
+			permanent_address_proof_valid_till: moment(
+				selectedApplicant?.permanent_address_proof_valid_till
+			).format('YYYY-MM-DD'),
 
 			present_aadhaar: selectedApplicant?.daadhaar,
 			present_address_proof_id_others: selectedApplicant?.ddocname,
@@ -621,7 +628,6 @@ const AddressDetails = props => {
 		};
 		return preData?.[field?.name];
 	};
-
 	const prefilledValues = field => {
 		try {
 			// if (isViewLoan) {
