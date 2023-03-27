@@ -1,7 +1,7 @@
 export const initialFormState = {
-	liabilities_for: '997269',
-	liabilities_type: 'Others',
-	liability_amount: '100000',
+	assets_type: '997269',
+	asset_type: 'Others',
+	amount: '100000',
 	description: 'Test Description',
 	loan_type: '',
 	total_loan_amount: '',

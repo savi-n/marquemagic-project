@@ -184,16 +184,11 @@ const AssetsDetails = props => {
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Type of Assets:</span>
-															<strong>{prefillData?.fin_type}</strong>
+															<strong>{prefillData?.loan_asset_type_id}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
-															<strong>
-																{formatINR(
-																	prefillData?.assets_amount ||
-																		prefillData?.outstanding_balance
-																)}
-															</strong>
+															<strong>{formatINR(prefillData?.value)}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
