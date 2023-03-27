@@ -113,6 +113,19 @@ export const RoundButton = styled.button`
 	}
 `;
 
+export const AddDynamicSectionWrapper = styled.div`
+	display: flex;
+	gap: 15px;
+	align-items: center;
+	margin: 40px 0;
+`;
+
+export const PlusRoundButton = styled.img`
+	height: 40px;
+	width: 40px;
+	cursor: pointer;
+`;
+
 export const AccordianWrapper = styled.div`
 	box-shadow: rgba(11, 92, 255, 0.16) 0px 10px 36px 0px;
 `;
@@ -139,6 +152,13 @@ export const AccordianHeaderData = styled.div`
 	}
 `;
 
+export const AccordianIcon = styled.img`
+	height: 30px;
+	width: 30px;
+`;
+
+export const AccordianIconWrapper = styled.img;
+
 export const AccordianBody = styled.div`
 	/* border: 1px solid red; */
 	background-color: white;
@@ -152,4 +172,8 @@ export const AccordianBody = styled.div`
 	max-height: ${({ isOpen }) => (isOpen ? '1000px' : '0')};
 	height: auto;
 	transition: max-height 0.3s ease-in-out; */
+`;
+
+export const DynamicFormWrapper = styled.div`
+	/* border: 1px solid red; */
 `;

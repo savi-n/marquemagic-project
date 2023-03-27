@@ -8,16 +8,15 @@
 			"name": "Help us with Liabilities Details",
 			"is_dynamic": true,
 			"min": 1,
-			"max": 10,
+			"max": 5,
 			"fields": [
 				{
 					"name": "liabilities_for",
 					"placeholder": "Liabilities For",
 					"db_key": "liabilities_for",
 					"type": "select",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true,
 					"options": []
@@ -27,55 +26,60 @@
 					"placeholder": "Type of Liabilities",
 					"db_key": "liabilities_type",
 					"type": "select",
+					"rules": {
+						"required": true
+					},
 					"options": [
 						{
 							"name": "Loans",
-							"value": "Loans"
+							"value": "Outstanding Loans"
 						},
 						{
 							"name": "Others",
 							"value": "Others"
 						}
 					],
-					"mask": {},
 					"visibility": true
 				},
 				{
 					"name": "loan_type",
 					"placeholder": "Type of Loan",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "loan_type",
 					"type": "select",
+					"rules": {
+						"required": true
+					},
 					"options": [
 						{
 							"name": "Gold",
 							"value": "Gold"
 						}
 					],
-					"mask": {},
 					"visibility": true
 				},
 				{
 					"name": "financial_institution",
 					"placeholder": "Financial Institution",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "financial_institution",
 					"type": "banklist",
-					"mask": {},
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
 					"name": "total_loan_amount",
 					"placeholder": "Total Loan Amount",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "total_loan_amount",
 					"type": "number",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true,
 					"inrupees": true
@@ -83,36 +87,36 @@
 				{
 					"name": "total_tenure",
 					"placeholder": "Total Tenure of Loan",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "total_tenure",
 					"type": "number",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true
 				},
 				{
 					"name": "loan_start_date",
 					"placeholder": "Loan Start Date",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "loan_start_date",
 					"type": "date",
-					"mask": {},
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
 					"name": "emi_amount",
 					"placeholder": "EMI Amount",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "emi_amount",
 					"type": "number",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true,
 					"inrupees": true
@@ -120,26 +124,24 @@
 				{
 					"name": "remaining_loan_tenure",
 					"placeholder": "Remaining Loan Tenure",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "remaining_loan_tenure",
 					"type": "number",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true
 				},
 				{
 					"name": "outstanding_loan_amount",
 					"placeholder": "Outstanding Loan Amount",
-					"for_type": ["Loans"],
+					"for_type": ["Outstanding Loans"],
 					"for_type_name": "liabilities_type",
 					"db_key": "outstanding_loan_amount",
 					"type": "number",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true,
 					"inrupees": true
@@ -151,12 +153,12 @@
 					"for_type_name": "liabilities_type",
 					"db_key": "liability_amount",
 					"type": "number",
-					"mask": {
-						"number_only": true,
-						"character_limit": 10
+					"rules": {
+						"required": true
 					},
 					"visibility": true,
-					"inrupees": true
+					"inrupees": true,
+					"value": 1234
 				},
 				{
 					"name": "description",
@@ -165,9 +167,11 @@
 					"for_type_name": "liabilities_type",
 					"db_key": "description",
 					"type": "text",
-					"mask": {},
+					"rules": {
+						"required": true
+					},
 					"visibility": true,
-					"inrupees": true
+					"value": "1234"
 				}
 			]
 		}

@@ -11,10 +11,3 @@ export const Divider = styled.div`
 		grid-column: span 1;
 	}
 `;
-
-export const AccordianIcon = styled.img`
-	height: 30px;
-	width: 30px;
-`;
-
-export const AccordianIconWrapper = styled.img
