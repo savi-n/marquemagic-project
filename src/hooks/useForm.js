@@ -451,7 +451,7 @@ function InputFieldRender({ field, onChange, value, unregister }) {
 	}, []);
 
 	useEffect(() => {
-		console.log('useform-useeffect-value-', { name: field.name, value });
+		// console.log('useform-useeffect-value-', { name: field.name, value });
 		if (typeof value !== 'object') {
 			onChange({ name: field.name, value: value || '' });
 		}
