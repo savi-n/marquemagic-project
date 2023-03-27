@@ -885,6 +885,7 @@ const BasicDetails = props => {
 															timestamp: selectedApplicant?.timestamp,
 														}
 													}
+													setImageLoading={setLoading}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
