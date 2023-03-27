@@ -12,6 +12,7 @@ import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
+import Button from 'components/Button';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -348,7 +349,6 @@ export default function useForm() {
 			// old
 			setValue(newField?.name, newField?.value || '');
 		}
-
 		checkValidity(newField?.name);
 
 		return (
@@ -387,6 +387,9 @@ export default function useForm() {
 		valid = validDefault,
 		invalid = invalidDefault
 	) => async e => {
+		// console.log(valid);
+		// console.log(invalid);
+
 		const { submitCount } = submitRef.current;
 
 		submitRef.current = {
@@ -565,7 +568,14 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		}
 
 		case 'select': {
-			return <SelectField {...{ ...field, ...fieldProps }} />;
+			return (
+				<SelectField
+					{...{ ...field, ...fieldProps }}
+					style={{
+						minWidth: 100,
+					}}
+				/>
+			);
 		}
 		case 'address_proof_radio': {
 			return <AddressProofRadio {...{ ...field, ...fieldProps }} />;
@@ -639,6 +649,17 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				<DateField
 					{...{ ...field, ...fieldProps }}
 					max={fieldProps?.max || '9999-12'}
+				/>
+			);
+		}
+		case 'button': {
+			return (
+				<Button
+					{...{ ...field, ...fieldProps }}
+
+					// style={{
+					// 	Width: '150px',
+					// }}
 				/>
 			);
 		}

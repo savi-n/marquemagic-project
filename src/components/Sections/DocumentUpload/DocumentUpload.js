@@ -440,8 +440,12 @@ const DocumentUpload = props => {
 			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
 			if (isEditOrViewLoan) {
 				const newDoc = [];
-				cacheDocuments?.map(doc => {
+				const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+				clonedCacheDocuments?.map(doc => {
 					// if (doc?.document_id) return null;
+					if (!doc?.directorId) {
+						doc.directorId = applicant?.id;
+					}
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
 							if (
@@ -505,6 +509,7 @@ const DocumentUpload = props => {
 		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 		async function fetchSelfieData() {
 			try {
+				setSubmitting(true);
 				let section = selectedSection?.sub_sections?.filter(
 					section => section.id === 'on_site_selfie_with_applicant'
 				)?.[0];
@@ -579,6 +584,8 @@ const DocumentUpload = props => {
 						'Oops! Something went wrong',
 					type: 'error',
 				});
+			} finally {
+				setSubmitting(false);
 			}
 		}
 		fetchSelfieData();
@@ -1061,21 +1068,30 @@ const DocumentUpload = props => {
 		const documentCheckStatus = {
 			isAllTheDocumentsPresent: true,
 		};
+		const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
 		const applicantCoapplicantDoc = [];
-		const geoTaggedDocs = cacheDocuments?.filter(
-			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
-		);
 
+		let mandatoryFieldApplicant = {};
+		let mandatoryFieldCoApplicant = {};
 		const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
 			subSection => subSection?.id === 'on_site_selfie_with_applicant'
 		)?.[0];
-		const mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant !== true
-		)?.[0];
-		const mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant !== true
-		)?.[0];
+		if (onSiteSelfiefield?.fields?.length > 0) {
+			mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
+			)?.[0];
+			mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
+				field => field?.geo_tagging === true && field?.is_applicant === false
+			)?.[0];
+		}
 
+		if (
+			onSiteSelfiefield?.fields?.length === 1 &&
+			onSiteSelfiefield[0]?.geo_tagging === true
+		) {
+			mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
+			mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
+		}
 		// check for profile pic upload geolocation starts
 		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
 			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
@@ -1085,12 +1101,23 @@ const DocumentUpload = props => {
 			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		);
 
-		const mandatoryProfilePicFieldApplicant = profilePicField?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant !== true
-		)?.[0];
-		const mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant !== true
-		)?.[0];
+		let mandatoryProfilePicFieldApplicant = {};
+		let mandatoryProfilePicFieldCoApplicant = {};
+		if (profilePicField?.length > 0) {
+			mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
+			)?.[0];
+			mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+				field => field?.geo_tagging === true && field?.is_applicant === false
+			)?.[0];
+		}
+		if (
+			profilePicField?.length === 1 &&
+			profilePicField[0]?.geo_tagging === true
+		) {
+			mandatoryProfilePicFieldApplicant = profilePicField[0];
+			mandatoryProfilePicFieldCoApplicant = profilePicField[0];
+		}
 
 		if (!!mandatoryProfilePicFieldApplicant) {
 			applicantCoapplicantDoc?.push({
@@ -1100,10 +1127,7 @@ const DocumentUpload = props => {
 				directorId: applicant?.directorId,
 			});
 		}
-		if (
-			!!mandatoryProfilePicFieldApplicant &&
-			!!mandatoryProfilePicFieldCoApplicant
-		) {
+		if (!!mandatoryProfilePicFieldCoApplicant) {
 			Object.keys(coApplicants)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
 				field.directorId = coApplicantId;
@@ -1122,7 +1146,7 @@ const DocumentUpload = props => {
 				directorId: applicant?.directorId,
 			});
 
-		if (!!mandatoryFieldApplicant && !!mandatoryFieldCoApplicant) {
+		if (!!mandatoryFieldCoApplicant) {
 			Object.keys(coApplicants)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryFieldCoApplicant);
 				field.directorId = coApplicantId;
@@ -1131,7 +1155,43 @@ const DocumentUpload = props => {
 				return null;
 			});
 		}
+		if (isEditLoan) {
+			const applicantProfile = editLoanData?.director_details?.filter(
+				dir => `${dir?.id}` === `${applicant?.directorId}`
+			)?.[0];
 
+			// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
+			// 	// console.log({ a: doc?.doc_type_id, d: doc?.directorId }, 'doc', {
+			// 	// 	a: mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+			// 	// 	d: applicant?.id,
+			// 	// });
+
+			// 	return (
+			// 		`${doc?.directorId}` === `${applicant?.id}` &&
+			// 		`${doc?.doc_type_id}` ===
+			// 			`${
+			// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+			// 			}`
+			// 	);
+			// });
+
+			clonedCacheDocuments?.map(doc => {
+				if (
+					`${doc?.directorId}` === `${applicant?.id}` &&
+					`${doc?.doc_type_id}` ===
+						`${
+							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+						}`
+				) {
+					doc.lat = applicantProfile?.lat;
+					doc.long = applicantProfile?.long;
+				}
+				return null;
+			});
+		}
+		const geoTaggedDocs = clonedCacheDocuments?.filter(
+			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+		);
 		// final check - if the onSiteSelfieWith app/coapp document is present or not
 		const missingDocsForDirectors = [];
 		applicantCoapplicantDoc?.map(doc => {
@@ -1168,6 +1228,7 @@ const DocumentUpload = props => {
 			];
 			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
 		}
+
 		// console.log({
 		// 	geoTaggedDocs,
 		// 	applicantCoapplicantDoc,
@@ -1175,6 +1236,10 @@ const DocumentUpload = props => {
 		// 	documentCheckStatus,
 		// 	mandatoryFieldApplicant,
 		// 	mandatoryFieldCoApplicant,
+		// 	mandatoryProfilePicFieldApplicant,
+		// 	mandatoryProfilePicFieldCoApplicant,
+		// 	cacheDocuments,
+		// 	applicant,
 		// });
 		return documentCheckStatus;
 	};
@@ -1288,7 +1353,8 @@ const DocumentUpload = props => {
 			declareCheck &&
 			onsiteVerificationMsg &&
 			!prompted &&
-			!isAppCoAppVerificationComplete() ? (
+			!isAppCoAppVerificationComplete() &&
+			((isEditLoan && isDraftLoan) || !isEditLoan) ? (
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}
 
@@ -1383,10 +1449,6 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{/* {console.log(
-									'🚀 ~ file: DocumentUpload.js:1188 ~ :category.toLocaleUpperCase ~ sub_section:',
-									sub_section
-								)} */}
 								{/* {sub_section?.name} */}
 								{/* {selectedApplicant.isApplicant ||
 								sub_section?.name === 'Comments For Office Use'
@@ -1395,7 +1457,7 @@ const DocumentUpload = props => {
 											coApplicants
 									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
 								{sub_section?.id === 'on_site_selfie_with_applicant'
-									? selectedApplicant.isApplicant
+									? isApplicant
 										? sub_section?.name
 										: Object.keys(coApplicants).length > 1
 										? sub_section?.fields?.[1].label +
@@ -1416,14 +1478,14 @@ const DocumentUpload = props => {
 									}
 								}
 								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
+									if (field?.is_co_applicant === false && !isApplicant) {
 										return null;
 									}
 								}
 								if (
 									isGeoTaggingEnabled &&
-									field.type === 'file' &&
-									field.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
+									field?.type === 'file' &&
+									field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
 								) {
 									return (
 										<UI.VerificationSectionWrapper key={field.id}>
@@ -1441,25 +1503,29 @@ const DocumentUpload = props => {
 													section={'documentUpload'}
 												/>
 											</UI.VerificationSection>
-											{Object.keys(geoLocationData).length > 0 && (
-												<UI.VerificationSection isLocation={!!geoLocationData}>
-													<AddressDetailsCard
-														address={geoLocationData?.address}
-														latitude={geoLocationData?.lat}
-														longitude={geoLocationData?.long}
-														timestamp={geoLocationData?.timestamp}
-														err={geoLocationData?.err}
-														showCloseIcon={false}
-														customStyle={{
-															width: 'fit-content',
-															position: 'relative',
-															bottom: '-45%',
-															heigth: 'fit-content',
-															maxHeight: 'fit-content',
-														}}
-													/>
-												</UI.VerificationSection>
-											)}
+											{field?.geo_tagging === true
+												? Object.keys(geoLocationData).length > 0 && (
+														<UI.VerificationSection
+															isLocation={!!geoLocationData}
+														>
+															<AddressDetailsCard
+																address={geoLocationData?.address}
+																latitude={geoLocationData?.lat}
+																longitude={geoLocationData?.long}
+																timestamp={geoLocationData?.timestamp}
+																err={geoLocationData?.err}
+																showCloseIcon={false}
+																customStyle={{
+																	width: 'fit-content',
+																	position: 'relative',
+																	bottom: '-45%',
+																	heigth: 'fit-content',
+																	maxHeight: 'fit-content',
+																}}
+															/>
+														</UI.VerificationSection>
+												  )
+												: null}
 										</UI.VerificationSectionWrapper>
 									);
 								}
