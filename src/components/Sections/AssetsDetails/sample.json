@@ -1,0 +1,176 @@
+{
+	"name": "Assets Details",
+	"id": "assets_details",
+	"is_skip": true,
+	"sub_sections": [
+		{
+			"id": "assets_details",
+			"name": "Help us with Assets Details",
+			"is_dynamic": true,
+			"min": 1,
+			"max": 10,
+			"fields": [
+				{
+					"name": "assets_for",
+					"placeholder": "Assets For",
+					"db_key": "assets_for",
+					"type": "select",
+					"visibility": true,
+					"options": []
+				},
+				{
+					"name": "asset_type",
+					"placeholder": "Type of assets",
+					"db_key": "asset_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Cash In Hand",
+							"value": "67"
+						},
+						{
+							"name": "Bank Deposits",
+							"value": "68"
+						},
+						{
+							"name": "Investment in Shares/Govt. Securities",
+							"value": "69"
+						},
+						{
+							"name": "Value of Vehicles Owned",
+							"value": "70"
+						},
+						{
+							"name": "Land & Buildings(Values)",
+							"value": "71"
+						},
+						{
+							"name": "Investment in Other Business",
+							"value": "72"
+						},
+						{
+							"name": "Investment in Gold",
+							"value": "73"
+						},
+						{
+							"name": "Insurance",
+							"value": "60"
+						},
+						{
+							"name": "Others",
+							"value": "74"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "property_description",
+					"placeholder": "Property Description",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "property_description",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "estimated_value",
+					"placeholder": "Estimated Value of Property",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "estimated_value",
+					"type": "number",
+					"inrupees": true,
+					"visibility": true
+				},
+				{
+					"name": "property_survey_umber",
+					"placeholder": "Property Survey Number",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "property_survey_umber",
+					"type": "number",
+					"visibility": true
+				},
+				{
+					"name": "address_line1",
+					"placeholder": "Address Line 1",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "address_line1",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "address_line2",
+					"placeholder": "Address Line 2",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "address_line2",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "landmark",
+					"placeholder": "Land Mark",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "landmark",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "pincode",
+					"placeholder": "Pin",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"rules": {
+						"required": true,
+						"length": 6
+					},
+					"make_api_call": 6,
+					"type": "pincode",
+					"value_for_fields": [["city", "district"], ["state", "state"]],
+					"visibility": true
+				},
+				{
+					"name": "city",
+					"placeholder": "City",
+					"for_type": ["71"],
+					"for_type_name": "asset_type",
+					"db_key": "city",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "state",
+					"placeholder": "State",
+					"db_key": "state",
+					"rules": {
+						"required": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "description",
+					"placeholder": "Description",
+					"for_type": ["74"],
+					"for_type_name": "asset_type",
+					"db_key": "description",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "amount",
+					"placeholder": "Amount",
+					"for_type": ["67", "68", "69", "70", "72", "73", "74"],
+					"for_type_name": "asset_type",
+					"db_key": "amount",
+					"type": "number",
+					"visibility": true,
+					"inrupees": true
+				}
+			]
+		}
+	]
+}

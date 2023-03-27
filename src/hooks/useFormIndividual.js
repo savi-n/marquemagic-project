@@ -193,18 +193,22 @@ export default function useForm() {
 		submitCount: 0,
 	});
 
+	const resetForm = () => {
+		fieldsRef.current = {};
+		valuesRef.current = {};
+		touchedRef.current = {};
+		errorsRef.current = {};
+		validRef.current = {};
+		submitRef.current = {
+			isSubmitting: false,
+			isSubmited: false,
+			submitCount: 0,
+		};
+	};
+
 	useEffect(() => {
 		return () => {
-			fieldsRef.current = {};
-			valuesRef.current = {};
-			touchedRef.current = {};
-			errorsRef.current = {};
-			validRef.current = {};
-			submitRef.current = {
-				isSubmitting: false,
-				isSubmited: false,
-				submitCount: 0,
-			};
+			resetForm();
 		};
 	}, []);
 
@@ -333,7 +337,10 @@ export default function useForm() {
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
 
-		if (newField?.name?.includes('bank_name')) {
+		if (
+			newField?.name?.includes('bank_name') ||
+			newField.type.includes('bank')
+		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
 				!valuesRef?.current?.[newField?.name] &&
@@ -448,6 +455,7 @@ export default function useForm() {
 		clearErrorFormState: clearError,
 		onChangeFormStateField: onChange,
 		setErrorFormStateField: setError,
+		resetForm: resetForm,
 	};
 }
 

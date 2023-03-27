@@ -1,5 +1,6 @@
 /* This file contains util function to formatLoanData which is used in HomeLoanDetails component */
 import _ from 'lodash';
+import queryString from 'query-string';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import { ORIGIN } from '_config/app.config';
 import { isBusinessPan } from 'utils/helper';
@@ -80,6 +81,27 @@ export const getSelectedSubField = data => {
 		});
 		return filterField;
 	}
+};
+
+export const formatGetSectionReqBody = data => {
+	const { application, applicantCoApplicants } = data;
+	const { loanRefId, businessId, loanId } = application;
+	const {
+		selectedApplicantCoApplicantId,
+		applicant,
+		coApplicants,
+		isApplicant,
+	} = applicantCoApplicants;
+	const selectedApplicant = isApplicant
+		? applicant
+		: coApplicants[selectedApplicantCoApplicantId] || {};
+	const reqBody = {
+		business_id: businessId,
+		loan_ref_id: loanRefId,
+		director_id: selectedApplicant?.directorId,
+		loan_id: loanId,
+	};
+	return queryString.stringify(reqBody);
 };
 
 export const formatSectionReqBody = data => {
@@ -694,6 +716,7 @@ export const formatUploadCacheDocumentReqBody = data => {
 	return reqBody;
 };
 
+// TODO: Varun SME Flow move this logic inside register
 export const isFieldValid = data => {
 	// should return only null
 	const { field, isApplicant, formState } = data;
@@ -855,4 +878,11 @@ export const getApplicantNavigationDetails = data => {
 	};
 	// console.log('getApplicantNavigationDetails-', { returnData });
 	return returnData;
+};
+
+export const formatINR = value => {
+	return new Intl.NumberFormat('en-IN', {
+		style: 'currency',
+		currency: 'INR',
+	}).format(value);
 };
