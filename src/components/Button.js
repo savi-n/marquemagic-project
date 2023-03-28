@@ -94,7 +94,6 @@ export default function Button({
 			roundCorner={roundCorner}
 			style={customStyle}
 			fillColor={fill}
-			text
 		>
 			{isLoader ? <Loader /> : name && !loading && <Div>{name}</Div>}
 			{loading && <LoaderCircle />}
