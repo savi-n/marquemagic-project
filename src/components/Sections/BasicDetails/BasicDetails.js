@@ -1006,8 +1006,6 @@ const BasicDetails = props => {
 										key={`field-${fieldIndex}-${field.name}`}
 										style={{
 											display: 'flex',
-											justifyContent: 'space-between',
-											gap: '10px',
 										}}
 									>
 										<div>
@@ -1023,6 +1021,8 @@ const BasicDetails = props => {
 										<div
 											style={{
 												width: '100%',
+												marginLeft: '5px',
+												marginRight: '5px',
 											}}
 										>
 											{register({
