@@ -146,7 +146,7 @@ const AddressProofUpload = props => {
 
 	const prepopulateAddressDetails = data => {
 		const { extractionData } = data?.extractionRes;
-		console.log('prepopulateAddressDetails-', extractionData);
+		// console.log('prepopulateAddressDetails-', extractionData);
 
 		// AADHAAR NUMBER
 		const aadharNum = extractionData?.Aadhar_number?.replaceAll(
