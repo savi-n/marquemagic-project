@@ -246,11 +246,14 @@ const BasicDetails = props => {
 				section: selectedSection,
 				values: {
 					...formState.values,
-					app_coordinates: {
-						lat: geoLocationData?.lat,
-						long: geoLocationData?.long,
-						timestamp: geoLocationData?.timestamp,
-					},
+					app_coordinates:
+						selectedProfileField?.geo_tagging === true
+							? {
+									lat: geoLocationData?.lat,
+									long: geoLocationData?.long,
+									timestamp: geoLocationData?.timestamp,
+							  }
+							: {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
