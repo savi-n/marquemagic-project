@@ -9,6 +9,7 @@ import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
+	getApiErrorMessage,
 	getApplicantCoApplicantSelectOptions,
 	isFieldValid,
 } from 'utils/formatData';
@@ -181,6 +182,10 @@ const DynamicForm = props => {
 			// console.log('submitRes-', submitRes);
 		} catch (error) {
 			console.error('error-onSaveOrUpdate-', error);
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
