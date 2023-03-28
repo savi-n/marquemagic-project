@@ -11,7 +11,6 @@ import {
 	formatGetSectionReqBody,
 	formatINR,
 	getApplicantCoApplicantSelectOptions,
-	parseJSON,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -20,7 +19,7 @@ import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
-import selectedSection from './sample.json';
+// import selectedSection from './sample.json';
 
 const AssetsDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
@@ -34,7 +33,7 @@ const AssetsDetails = props => {
 		isLocalhost,
 		isTestMode,
 		isEditLoan,
-		// selectedSection,
+		selectedSection,
 	} = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -128,12 +127,12 @@ const AssetsDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	console.log('AssetsDetails-allstates-', {
-		app,
-		selectedSection,
-		isCreateFormOpen,
-		editSectionId,
-	});
+	// console.log('AssetsDetails-allstates-', {
+	// 	app,
+	// 	selectedSection,
+	// 	isCreateFormOpen,
+	// 	editSectionId,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -158,7 +157,7 @@ const AssetsDetails = props => {
 									const prefillData = section
 										? {
 												...section,
-												...parseJSON(section?.emi_details || '{}'),
+												...(section?.loan_json || {}),
 										  }
 										: {};
 									return (
@@ -201,8 +200,10 @@ const AssetsDetails = props => {
 														alt='edit'
 														onClick={() => {
 															if (isCreateFormOpen || isEditLoan) return;
-															setEditSectionId(sectionId);
 															toggleAccordian(sectionId, 'open');
+															setTimeout(() => {
+																setEditSectionId(sectionId);
+															}, 200);
 														}}
 														style={
 															isCreateFormOpen || isEditLoan

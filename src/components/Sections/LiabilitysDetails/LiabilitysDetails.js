@@ -205,8 +205,10 @@ const LiabilitysDetails = props => {
 														alt='edit'
 														onClick={() => {
 															if (isCreateFormOpen || isEditLoan) return;
-															setEditSectionId(sectionId);
 															toggleAccordian(sectionId, 'open');
+															setTimeout(() => {
+																setEditSectionId(sectionId);
+															}, 200);
 														}}
 														style={
 															isCreateFormOpen || isEditLoan

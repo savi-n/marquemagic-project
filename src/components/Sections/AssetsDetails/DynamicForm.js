@@ -15,6 +15,7 @@ import {
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
@@ -86,7 +87,7 @@ const DynamicForm = props => {
 			asset_type: `${prefillData?.loan_asset_type_id}` || '',
 			amount: prefillData?.value,
 			estimated_value: prefillData?.value,
-			property_description: prefillData?.loan_json,
+			property_description: prefillData?.property_description,
 			description: prefillData?.property_description,
 			property_survey_umber: prefillData?.survey_no,
 			address_line1: prefillData?.address1,
@@ -189,6 +190,7 @@ const DynamicForm = props => {
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
+	// 	prefillData,
 	// });
 
 	return (

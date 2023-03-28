@@ -15,6 +15,9 @@
 					"placeholder": "Assets For",
 					"db_key": "assets_for",
 					"type": "select",
+					"rules": {
+						"required": true
+					},
 					"visibility": true,
 					"options": []
 				},
@@ -23,6 +26,9 @@
 					"placeholder": "Type of assets",
 					"db_key": "asset_type",
 					"type": "select",
+					"rules": {
+						"required": true
+					},
 					"options": [
 						{
 							"name": "Cash In Hand",
@@ -70,6 +76,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "property_description",
 					"type": "text",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -79,6 +88,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "estimated_value",
 					"type": "number",
+					"rules": {
+						"required": true
+					},
 					"inrupees": true,
 					"visibility": true
 				},
@@ -89,6 +101,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "property_survey_umber",
 					"type": "number",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -98,6 +113,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "address_line1",
 					"type": "text",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -107,6 +125,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "address_line2",
 					"type": "text",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -116,6 +137,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "landmark",
 					"type": "text",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -139,6 +163,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "city",
 					"type": "text",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -158,6 +185,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "description",
 					"type": "text",
+					"rules": {
+						"required": true
+					},
 					"visibility": true
 				},
 				{
@@ -167,6 +197,9 @@
 					"for_type_name": "asset_type",
 					"db_key": "amount",
 					"type": "number",
+					"rules": {
+						"required": true
+					},
 					"visibility": true,
 					"inrupees": true
 				}
