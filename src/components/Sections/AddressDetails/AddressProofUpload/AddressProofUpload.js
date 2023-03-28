@@ -215,18 +215,14 @@ const AddressProofUpload = props => {
 		if (!!extractedIssuedDate) {
 			onChangeFormStateField({
 				name: `${prefix}address_proof_issued_on`,
-				value: moment(extractedIssuedDate, 'DD/MM/YYYY').format(
-					'YYYY-MM-DD'
-				),
+				value: moment(extractedIssuedDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
 			});
 		}
 		const extractedValidDate = extractionData?.validity;
 		if (!!extractedValidDate) {
 			onChangeFormStateField({
 				name: `${prefix}address_proof_valid_till`,
-				value: moment(extractedValidDate, 'DD/MM/YYYY').format(
-					'YYYY-MM-DD'
-				),
+				value: moment(extractedValidDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
 			});
 		}
 		if (fullAddress) {
@@ -250,304 +246,247 @@ const AddressProofUpload = props => {
 
 	const onClickFetchAddress = async () => {
 		try {
-					setFetchingAddress(true);
-					const SELECTED_REQ_TYPE = selectedAddressProofId.replaceAll(
-						prefix,
-						''
+			setFetchingAddress(true);
+			const SELECTED_REQ_TYPE = selectedAddressProofId.replaceAll(prefix, '');
+			setAddressProofError('');
+			const selectedAddressProofFiles = cacheDocumentsTemp?.filter(
+				doc => doc?.selectedAddressProofId === selectedAddressProofId
+			);
+			if (selectedAddressProofFiles.length > 2) {
+				addToast({
+					message: 'Max 2 doucment is allowed',
+					type: 'error',
+				});
+				return;
+			}
+
+			// console.log('onClickFetchAddress-selectedAddressProofFiles-', {
+			// 	selectedAddressProofFiles,
+			// });
+			// Front + Back Extract
+			if (selectedAddressProofFiles.length > 1) {
+				const frontFormData = new FormData();
+				frontFormData.append('product_id', selectedProduct.id);
+				frontFormData.append('director_id', selectedApplicant?.directorId);
+				frontFormData.append('req_type', SELECTED_REQ_TYPE);
+				frontFormData.append('process_type', 'extraction');
+				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
+
+				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
+				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
+				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
+				const frontForensicRes = frontExtractionRes?.data?.forensicData || {};
+				const frontForensicFlag = frontForensicRes?.flag?.toLowerCase() || '';
+				const frontForensicFlagMsg = frontForensicRes?.flag_message || '';
+
+				if (frontExtractionStatus === 'nok') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontExtractionMsg}`
 					);
-					setAddressProofError('');
-					const selectedAddressProofFiles = cacheDocumentsTemp?.filter(
-						doc =>
-							doc?.selectedAddressProofId === selectedAddressProofId
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'error') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontForensicFlagMsg}`
 					);
-					if (selectedAddressProofFiles.length > 2) {
-						addToast({
-							message: 'Max 2 doucment is allowed',
-							type: 'error',
-						});
-						return;
-					}
+					return; // STOP FURTHER EXECUTION
+				}
+				// if (frontForensicFlag === 'warning') {
+				// 	setAddressProofError(
+				// 		`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
+				// 	);
+				// 	// CONTINUE EXECUTION
+				// }
 
-					// console.log('onClickFetchAddress-selectedAddressProofFiles-', {
-					// 	selectedAddressProofFiles,
-					// });
-					// Front + Back Extract
-					if (selectedAddressProofFiles.length > 1) {
-						const frontFormData = new FormData();
-						frontFormData.append('product_id', selectedProduct.id);
-						frontFormData.append(
-							'director_id',
-							selectedApplicant?.directorId
-						);
-						frontFormData.append('req_type', SELECTED_REQ_TYPE);
-						frontFormData.append('process_type', 'extraction');
-						frontFormData.append(
-							'document',
-							selectedAddressProofFiles?.[0]?.file
-						);
+				const frontFile = {
+					...selectedAddressProofFiles[0],
+					extractionRes: frontExtractionRes?.data || {},
+					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+					document_key: frontExtractionRes?.data?.s3?.fd,
+					mainType: 'KYC',
+					size: frontExtractionRes?.data?.s3?.size,
+					type: 'other',
+					req_type: SELECTED_REQ_TYPE, // requires for mapping with JSON
+					requestId: frontExtractionRes?.data?.request_id,
+					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+					directorId: selectedApplicant.directorId,
+					selectedDocTypeId,
+				};
 
-						const frontExtractionRes = await getKYCData(
-							frontFormData,
-							clientToken
-						);
-						const frontExtractionStatus =
-							frontExtractionRes?.data?.status || '';
-						const frontExtractionMsg =
-							frontExtractionRes?.data?.message || '';
-						const frontForensicRes =
-							frontExtractionRes?.data?.forensicData || {};
-						const frontForensicFlag =
-							frontForensicRes?.flag?.toLowerCase() || '';
-						const frontForensicFlagMsg =
-							frontForensicRes?.flag_message || '';
+				const backFormData = new FormData();
+				backFormData.append('product_id', selectedProduct.id);
+				backFormData.append('director_id', selectedApplicant?.directorId);
+				backFormData.append('req_type', SELECTED_REQ_TYPE);
+				backFormData.append(
+					'ref_id',
+					frontExtractionRes?.data?.extractionData?.id
+				);
+				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
+				backFormData.append('process_type', 'extraction');
+				backFormData.append('document', selectedAddressProofFiles?.[1]?.file);
 
-						if (frontExtractionStatus === 'nok') {
-							setAddressProofError(
-								`${
-									CONST_SECTIONS.EXTRACTION_FLAG_ERROR
-								}${frontExtractionMsg}`
-							);
-							return; // STOP FURTHER EXECUTION
-						}
-						if (frontForensicFlag === 'error') {
-							setAddressProofError(
-								`${
-									CONST_SECTIONS.EXTRACTION_FLAG_ERROR
-								}${frontForensicFlagMsg}`
-							);
-							return; // STOP FURTHER EXECUTION
-						}
-						// if (frontForensicFlag === 'warning') {
-						// 	setAddressProofError(
-						// 		`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
-						// 	);
-						// 	// CONTINUE EXECUTION
-						// }
+				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
+				const backExtractionStatus = backExtractionRes?.data?.status || '';
+				const backExtractionMsg = backExtractionRes?.data?.message || '';
+				const backForensicRes = backExtractionRes?.data?.forensicData || {};
+				const backForensicFlag = backForensicRes?.flag?.toLowerCase() || '';
+				const backForensicFlagMsg = backForensicRes?.flag_message || '';
 
-						const frontFile = {
-							...selectedAddressProofFiles[0],
-							extractionRes: frontExtractionRes?.data || {},
-							doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
-							document_key: frontExtractionRes?.data?.s3?.fd,
-							mainType: 'KYC',
-							size: frontExtractionRes?.data?.s3?.size,
-							type: 'other',
-							req_type: SELECTED_REQ_TYPE, // requires for mapping with JSON
-							requestId: frontExtractionRes?.data?.request_id,
-							upload_doc_name: frontExtractionRes?.data?.s3?.filename,
-							category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-							directorId: selectedApplicant.directorId,
-							selectedDocTypeId,
-						};
-
-						const backFormData = new FormData();
-						backFormData.append('product_id', selectedProduct.id);
-						backFormData.append(
-							'director_id',
-							selectedApplicant?.directorId
-						);
-						backFormData.append('req_type', SELECTED_REQ_TYPE);
-						backFormData.append(
-							'ref_id',
-							frontExtractionRes?.data?.extractionData?.id
-						);
-						backFormData.append(
-							'doc_ref_id',
-							frontExtractionRes?.data?.doc_ref_id
-						);
-						backFormData.append('process_type', 'extraction');
-						backFormData.append(
-							'document',
-							selectedAddressProofFiles?.[1]?.file
-						);
-
-						const backExtractionRes = await getKYCDataId(
-							backFormData,
-							clientToken
-						);
-						const backExtractionStatus =
-							backExtractionRes?.data?.status || '';
-						const backExtractionMsg =
-							backExtractionRes?.data?.message || '';
-						const backForensicRes =
-							backExtractionRes?.data?.forensicData || {};
-						const backForensicFlag =
-							backForensicRes?.flag?.toLowerCase() || '';
-						const backForensicFlagMsg =
-							backForensicRes?.flag_message || '';
-
-						if (backExtractionStatus === 'nok') {
-							setAddressProofError(
-								`${
-									CONST_SECTIONS.EXTRACTION_FLAG_ERROR
-								}${backExtractionMsg}`
-							);
-							return; // STOP FURTHER EXECUTION
-						}
-						if (backForensicFlag === 'error') {
-							setAddressProofError(
-								`${
-									CONST_SECTIONS.EXTRACTION_FLAG_ERROR
-								}${backForensicFlagMsg}`
-							);
-							return; // STOP FURTHER EXECUTION
-						}
-						if (frontForensicFlag === 'warning') {
-							setAddressProofError(
-								`${
-									CONST_SECTIONS.EXTRACTION_FLAG_WARNING
-								}${frontForensicFlagMsg}`
-							);
-							// CONTINUE EXECUTION
-						} else if (backForensicFlag === 'warning') {
-							setAddressProofError(
-								`${
-									CONST_SECTIONS.EXTRACTION_FLAG_WARNING
-								}${backForensicFlagMsg}`
-							);
-							// CONTINUE EXECUTION
-						}
-
-						const backFile = {
-							...selectedAddressProofFiles[1],
-							extractionRes: backExtractionRes?.data || {},
-							doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
-							document_key: backExtractionRes?.data.s3.fd,
-							id: selectedAddressProofFiles[1].id,
-							mainType: 'KYC',
-							size: backExtractionRes?.data.s3.size,
-							type: 'other',
-							req_type: SELECTED_REQ_TYPE,
-							requestId: backExtractionRes?.data.request_id,
-							upload_doc_name: backExtractionRes?.data.s3.filename,
-							category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-							directorId: selectedApplicant.directorId,
-							selectedDocTypeId,
-						};
-
-						// console.log('%c front and back', 'color: red', {
-						// 	frontFile,
-						// 	backFile,
-						// });
-
-						const newCacheDocumentTemp = [];
-						cacheDocumentsTemp?.map(doc => {
-							if (doc.id === frontFile.id) {
-								newCacheDocumentTemp.push(_.cloneDeep(frontFile));
-							} else if (doc.id === backFile.id) {
-								newCacheDocumentTemp.push(_.cloneDeep(backFile));
-							} else {
-								newCacheDocumentTemp.push(_.cloneDeep(doc));
-							}
-							return null;
-						});
-						setCacheDocumentsTemp(newCacheDocumentTemp);
-						prepopulateAddressDetails(backFile);
-						await verifyKycAddressProof(backFile);
-						// setCacheDocumentsTemp([backFile])
-						// const newAddressProofExtractionData = {
-						// 	...backExtractionRes?.data?.extractionData,
-						// 	doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
-						// 	requestId: backExtractionRes?.data.request_id,
-						// };
-						// TODO BELOW TASK
-						// prepopulateAddressDetails(newAddressProofExtractionData);
-						return;
-					}
-					// Front Only Extract
-					const frontOnlyFormData = new FormData();
-					frontOnlyFormData.append('product_id', selectedProduct.id);
-					frontOnlyFormData.append(
-						'director_id',
-						selectedApplicant?.directorId
+				if (backExtractionStatus === 'nok') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${backExtractionMsg}`
 					);
-					frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
-					frontOnlyFormData.append('process_type', 'extraction');
-					frontOnlyFormData.append(
-						'document',
-						selectedAddressProofFiles?.[0]?.file
+					return; // STOP FURTHER EXECUTION
+				}
+				if (backForensicFlag === 'error') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${backForensicFlagMsg}`
 					);
-
-					const frontOnlyExtractionRes = await getKYCData(
-						frontOnlyFormData,
-						clientToken
+					return; // STOP FURTHER EXECUTION
+				}
+				if (frontForensicFlag === 'warning') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontForensicFlagMsg}`
 					);
-					const frontOnlyExtractionStatus =
-						frontOnlyExtractionRes?.data?.status || '';
-					const frontOnlyExtractionMsg =
-						frontOnlyExtractionRes?.data?.message || '';
-					const frontOnlyForensicRes =
-						frontOnlyExtractionRes?.data?.forensicData || {};
-					const frontOnlyForensicFlag =
-						frontOnlyForensicRes?.flag?.toLowerCase() || '';
-					const frontOnlyForensicFlagMsg =
-						frontOnlyForensicRes?.flag_message || '';
+					// CONTINUE EXECUTION
+				} else if (backForensicFlag === 'warning') {
+					setAddressProofError(
+						`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${backForensicFlagMsg}`
+					);
+					// CONTINUE EXECUTION
+				}
 
-					if (frontOnlyExtractionStatus === 'nok') {
-						setAddressProofError(
-							`${
-								CONST_SECTIONS.EXTRACTION_FLAG_ERROR
-							}${frontOnlyExtractionMsg}`
-						);
-						return; // STOP FURTHER EXECUTION
+				const backFile = {
+					...selectedAddressProofFiles[1],
+					extractionRes: backExtractionRes?.data || {},
+					doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+					document_key: backExtractionRes?.data.s3.fd,
+					id: selectedAddressProofFiles[1].id,
+					mainType: 'KYC',
+					size: backExtractionRes?.data.s3.size,
+					type: 'other',
+					req_type: SELECTED_REQ_TYPE,
+					requestId: backExtractionRes?.data.request_id,
+					upload_doc_name: backExtractionRes?.data.s3.filename,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+					directorId: selectedApplicant.directorId,
+					selectedDocTypeId,
+				};
+
+				// console.log('%c front and back', 'color: red', {
+				// 	frontFile,
+				// 	backFile,
+				// });
+
+				const newCacheDocumentTemp = [];
+				cacheDocumentsTemp?.map(doc => {
+					if (doc.id === frontFile.id) {
+						newCacheDocumentTemp.push(_.cloneDeep(frontFile));
+					} else if (doc.id === backFile.id) {
+						newCacheDocumentTemp.push(_.cloneDeep(backFile));
+					} else {
+						newCacheDocumentTemp.push(_.cloneDeep(doc));
 					}
-					if (frontOnlyForensicFlag === 'error') {
-						setAddressProofError(
-							`${
-								CONST_SECTIONS.EXTRACTION_FLAG_ERROR
-							}${frontOnlyForensicFlagMsg}`
-						);
-						return; // STOP FURTHER EXECUTION
-					}
-					if (frontOnlyForensicFlag === 'warning') {
-						setAddressProofError(
-							`${
-								CONST_SECTIONS.EXTRACTION_FLAG_WARNING
-							}${frontOnlyForensicFlagMsg}`
-						);
-						// CONTINUE EXECUTION
-					}
-					const frontOnlyFile = {
-						...selectedAddressProofFiles[0],
-						extractionRes: frontOnlyExtractionRes?.data || {},
-						doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
-						document_key: frontOnlyExtractionRes?.data?.s3?.fd,
-						mainType: 'KYC',
-						size: frontOnlyExtractionRes?.data?.s3?.size,
-						type: 'other',
-						req_type: SELECTED_REQ_TYPE,
-						requestId: frontOnlyExtractionRes?.data?.request_id,
-						upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
-						name: frontOnlyExtractionRes?.data?.s3?.filename,
-						category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-						directorId: selectedApplicant.directorId,
-						selectedDocTypeId,
-					};
+					return null;
+				});
+				setCacheDocumentsTemp(newCacheDocumentTemp);
+				prepopulateAddressDetails(backFile);
+				await verifyKycAddressProof(backFile);
+				// setCacheDocumentsTemp([backFile])
+				// const newAddressProofExtractionData = {
+				// 	...backExtractionRes?.data?.extractionData,
+				// 	doc_ref_id: frontExtractionRes?.data?.doc_ref_id,
+				// 	requestId: backExtractionRes?.data.request_id,
+				// };
+				// TODO BELOW TASK
+				// prepopulateAddressDetails(newAddressProofExtractionData);
+				return;
+			}
+			// Front Only Extract
+			const frontOnlyFormData = new FormData();
+			frontOnlyFormData.append('product_id', selectedProduct.id);
+			frontOnlyFormData.append('director_id', selectedApplicant?.directorId);
+			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
+			frontOnlyFormData.append('process_type', 'extraction');
+			frontOnlyFormData.append(
+				'document',
+				selectedAddressProofFiles?.[0]?.file
+			);
 
-					const newCacheDocumentTemp = [];
-					cacheDocumentsTemp?.map(doc => {
-						if (doc.id === frontOnlyFile.id) {
-							newCacheDocumentTemp.push(_.cloneDeep(frontOnlyFile));
-						} else {
-							newCacheDocumentTemp.push(_.cloneDeep(doc));
-						}
-						return null;
-					});
-					setCacheDocumentsTemp(newCacheDocumentTemp);
+			const frontOnlyExtractionRes = await getKYCData(
+				frontOnlyFormData,
+				clientToken
+			);
+			const frontOnlyExtractionStatus =
+				frontOnlyExtractionRes?.data?.status || '';
+			const frontOnlyExtractionMsg =
+				frontOnlyExtractionRes?.data?.message || '';
+			const frontOnlyForensicRes =
+				frontOnlyExtractionRes?.data?.forensicData || {};
+			const frontOnlyForensicFlag =
+				frontOnlyForensicRes?.flag?.toLowerCase() || '';
+			const frontOnlyForensicFlagMsg = frontOnlyForensicRes?.flag_message || '';
 
-					// console.log('%c front only file', 'color: red', { frontOnlyFile });
+			if (frontOnlyExtractionStatus === 'nok') {
+				setAddressProofError(
+					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontOnlyExtractionMsg}`
+				);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (frontOnlyForensicFlag === 'error') {
+				setAddressProofError(
+					`${CONST_SECTIONS.EXTRACTION_FLAG_ERROR}${frontOnlyForensicFlagMsg}`
+				);
+				return; // STOP FURTHER EXECUTION
+			}
+			if (frontOnlyForensicFlag === 'warning') {
+				setAddressProofError(
+					`${CONST_SECTIONS.EXTRACTION_FLAG_WARNING}${frontOnlyForensicFlagMsg}`
+				);
+				// CONTINUE EXECUTION
+			}
+			const frontOnlyFile = {
+				...selectedAddressProofFiles[0],
+				extractionRes: frontOnlyExtractionRes?.data || {},
+				doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
+				document_key: frontOnlyExtractionRes?.data?.s3?.fd,
+				mainType: 'KYC',
+				size: frontOnlyExtractionRes?.data?.s3?.size,
+				type: 'other',
+				req_type: SELECTED_REQ_TYPE,
+				requestId: frontOnlyExtractionRes?.data?.request_id,
+				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
+				name: frontOnlyExtractionRes?.data?.s3?.filename,
+				category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				directorId: selectedApplicant.directorId,
+				selectedDocTypeId,
+			};
 
-					// const newAddressProofExtractionData = {
-					// 	...(frontOnlyExtractionRes?.data?.extractionData || {}),
-					// 	doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
-					// 	requestId: frontOnlyExtractionRes?.data?.request_id,
-					// };
+			const newCacheDocumentTemp = [];
+			cacheDocumentsTemp?.map(doc => {
+				if (doc.id === frontOnlyFile.id) {
+					newCacheDocumentTemp.push(_.cloneDeep(frontOnlyFile));
+				} else {
+					newCacheDocumentTemp.push(_.cloneDeep(doc));
+				}
+				return null;
+			});
+			setCacheDocumentsTemp(newCacheDocumentTemp);
 
-					prepopulateAddressDetails(frontOnlyFile);
-					// console.log(frontOnlyFile);
-					await verifyKycAddressProof(frontOnlyFile);
-					// await verifyKycAddressProof(REQ_TYPE, newAddressProofExtractionData);
-				} catch (error) {
+			// console.log('%c front only file', 'color: red', { frontOnlyFile });
+
+			// const newAddressProofExtractionData = {
+			// 	...(frontOnlyExtractionRes?.data?.extractionData || {}),
+			// 	doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
+			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
+			// };
+
+			prepopulateAddressDetails(frontOnlyFile);
+			// console.log(frontOnlyFile);
+			await verifyKycAddressProof(frontOnlyFile);
+			// await verifyKycAddressProof(REQ_TYPE, newAddressProofExtractionData);
+		} catch (error) {
 			console.error('error-pan-verification-onClickFetchAddress-', error);
 		} finally {
 			setFetchingAddress(false);
