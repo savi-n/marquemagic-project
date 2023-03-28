@@ -21,6 +21,7 @@ import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
+import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails/BusinessAddressDetails';
 
 const ProductIndividual = props => {
 	const reduxState = useSelector(state => state);
@@ -36,6 +37,7 @@ const ProductIndividual = props => {
 	const dispatch = useDispatch();
 
 	const SELECTED_SECTION_MAPPING = {
+		business_address_details: BusinessAddressDetails,
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
