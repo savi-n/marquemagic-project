@@ -181,22 +181,6 @@ const BusinessDetailsSme = props => {
 					selectedProduct?.product_id?.[selectedIncomeType];
 			}
 
-			// const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
-			// 	field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-			// )?.[0];
-			// const isNewProfileUploaded = !!profileUploadedFile?.file;
-			// const preSignedProfileUrl =
-			// 	profileUploadedFile?.presignedUrl ||
-			// 	selectedApplicant?.customer_picture ||
-			// 	'';
-			// const profileFieldValue = isNewProfileUploaded
-			// 	? {
-			// 			...profileUploadedFile?.file,
-			// 			doc_type_id: profileField?.doc_type?.[selectedIncomeType],
-			// 			is_delete_not_allowed:
-			// 				profileField?.is_delete_not_allowed === true ? true : false,
-			// 	  }
-			// 	: preSignedProfileUrl;
 			const businessDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
