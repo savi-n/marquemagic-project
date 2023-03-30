@@ -36,6 +36,9 @@ const ProductIndividual = props => {
 	const dispatch = useDispatch();
 
 	const SELECTED_SECTION_MAPPING = {
+		//TODO Bikash & Akshat - change to the respective components
+		business_details: BasicDetails, // change to the respective components
+		business_address: BasicDetails, // change to the respective components
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
