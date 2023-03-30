@@ -78,7 +78,6 @@ const BasicDetails = props => {
 		coApplicants,
 		selectedApplicantCoApplicantId,
 	} = applicantCoApplicants;
-	// TODO: Varun SME Flow move this logic inside redux and expose selected applicant object
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
@@ -110,8 +109,9 @@ const BasicDetails = props => {
 		setErrorFormStateField,
 	} = useForm();
 
-	const [isTokenValid, setIsTokenValid] = useState(true);
-	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
+const [isTokenValid, setIsTokenValid] = useState(true);
+
+
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
@@ -191,7 +191,8 @@ const BasicDetails = props => {
 
 			// call login api only once
 			// TODO: varun do not call this api when RM is creating loan
-			let newBorrowerUserId = '';
+let newBorrowerUserId = "";
+
 
 			if (!isEditOrViewLoan && !borrowerUserId) {
 				const loginCreateUserReqBody = {
@@ -232,11 +233,11 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
-			let url = profileUploadedFile?.preview;
-			if (profileField?.geo_tagging === true) {
-				url = profileUploadedFile?.presignedUrl;
-			}
-			const profileUrl = url || selectedApplicant?.customer_picture || '';
+const preSignedProfileUrl =
+  profileUploadedFile?.presignedUrl ||
+  selectedApplicant?.customer_picture ||
+  "";
+
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
@@ -244,8 +245,7 @@ const BasicDetails = props => {
 						is_delete_not_allowed:
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
-				: profileUrl;
-			// console.log(formState.values);
+				: preSignedProfileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -288,7 +288,7 @@ const BasicDetails = props => {
 					...profileUploadedFile,
 					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
 					directorId: newDirectorId,
-					preview: profileUrl,
+					preview: null,
 					file: null,
 					isDocRemoveAllowed: false,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -354,8 +354,8 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
-					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
 				},
 			};
 
@@ -436,13 +436,6 @@ const BasicDetails = props => {
 			setLoading(false);
 		}
 	};
-	//
-	// const basicDetailsFunc = () => {
-	// 	console.log('hello');
-	// };
-	// const custmerIdFetch=()=>async e=>{
-
-	// }
 
 	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
@@ -491,12 +484,9 @@ const BasicDetails = props => {
 			});
 			return panFile[0];
 		}
-		console.log(selectedApplicant)
 		const preData = {
 			existing_customer: selectedApplicant?.existing_customer,
 			pan_number: selectedApplicant?.dpancard,
-			customer_id: selectedApplicant?.customer_id,
-			ckyc_number: selectedApplicant?.ckyc_number,
 			income_type: `${selectedApplicant?.income_type}`,
 			first_name: selectedApplicant?.dfirstname,
 			last_name: selectedApplicant?.dlastname,
@@ -514,7 +504,6 @@ const BasicDetails = props => {
 			profile_upload: selectedApplicant?.customer_picture,
 			relationship_with_applicant: selectedApplicant?.applicant_relationship,
 		};
-		// console.log(selectedApplicant);
 		return preData?.[field?.name];
 	};
 
@@ -592,6 +581,7 @@ const BasicDetails = props => {
 			const params = queryString.parse(window.location.search);
 			if (params?.token) {
 				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+
 				if (decryptedToken?.token) {
 					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
 					if (!isValidToken) {
@@ -631,6 +621,8 @@ const BasicDetails = props => {
 		) {
 			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
 		}
+console.log({ selectedApplicant, selectedSection }, "selectedSection");
+
 
 		async function fetchGeoLocationData() {
 			try {
@@ -686,14 +678,9 @@ const BasicDetails = props => {
 				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
 				setFetchingAddress(true);
 				if (!selectedApplicant?.lat && !selectedApplicant?.lat) {
-					dispatch(
-						setProfileGeoLocation({
-							err: 'Geo Location Not Captured',
-						})
-					);
-					setProfilePicGeolocation({
-						err: 'Geo Location Not Captured',
-					});
+dispatch(setProfileGeoLocation({ err: "Geo Location Not Captured" }));
+setProfilePicGeolocation({ err: "Geo Location Not Captured" });
+
 					return;
 				}
 
@@ -837,7 +824,6 @@ const BasicDetails = props => {
 						/>
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
-								// console.log(field?.sub_fields, 'sub_field');
 								// disable fields based on config starts
 								if (field?.hasOwnProperty('is_applicant')) {
 									if (field.is_applicant === false && isApplicant) {
@@ -858,10 +844,7 @@ const BasicDetails = props => {
 
 									return (
 										<UI_SECTIONS.FieldWrapGrid
-											style={{
-												gridRow: 'span 3',
-												height: '100%',
-											}}
+											style={{ gridRow: 'span 3', height: '100%' }}
 											key={`field-${fieldIndex}-${field.name}`}
 										>
 											<UI.ProfilePicWrapper>
@@ -961,22 +944,12 @@ const BasicDetails = props => {
 
 								if (!field.visibility || !field.name || !field.type)
 									return null;
-								const newValue = prefilledValues(field);
-								// console.log(field);
-								// if (!!field.sub_fields) {
-								// 	console.log(
-								// 		prefilledValues(field.sub_fields[0]),
-								// 		'sub-fields'
-								// 	);
-								// 	console.log(prefilledValues(field, 'fields'));
-								// }
-								let newValueSelectFeild;
-								if (!!field.sub_fields) {
-									newValueSelectFeild = prefilledValues(field?.sub_fields[0]);
-								}
+const newValue = prefilledValues(field);
 
-								const customFieldProps = {};
-								// customFieldProps.onClick = basicDetailsFunc;
+
+const customFieldProps = {};
+
+
 								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
 									customFieldProps.rules = {
 										...field.rules,
@@ -1003,49 +976,16 @@ const BasicDetails = props => {
 								if (isViewLoan) {
 									customFieldProps.disabled = true;
 								}
-
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
-										style={{
-											display: 'flex',
-										}}
 									>
-										<div>
-											{field?.sub_fields &&
-												field?.sub_fields[0].is_prefix &&
-												register({
-													...field.sub_fields[0],
-													value: newValueSelectFeild,
-													visibility: 'visible',
-													...customFieldProps,
-												})}
-										</div>
-										<div
-											style={{
-												width: '100%',
-												marginLeft: '5px',
-												marginRight: '5px',
-											}}
-										>
-											{register({
-												...field,
-												value: newValue,
-												visibility: 'visible',
-												...customFieldProps,
-											})}
-										</div>
-										<div>
-											{field?.sub_fields &&
-												!field?.sub_fields[0].is_prefix &&
-												register({
-													...field.sub_fields[0],
-													value: newValueSelectFeild,
-													visibility: 'visible',
-													...customFieldProps,
-												})}
-										</div>
-
+										{register({
+											...field,
+											value: newValue,
+											visibility: 'visible',
+											...customFieldProps,
+										})}
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name] && (
@@ -1099,10 +1039,8 @@ const BasicDetails = props => {
 								// 	isProfileError,
 								// 	profileUploadedFile,
 								// 	isEditOrViewLoan,
-								// 	value:
-								// 		formState?.values?.[
-								// 			CONST.PAN_UPLOAD_FIELD_NAME
-								// 		],
+// 	value: formState?.values?.[CONST.PAN_UPLOAD_FIELD_NAME],
+
 								// });
 								addToast({
 									message: 'Profile is mandatory',
