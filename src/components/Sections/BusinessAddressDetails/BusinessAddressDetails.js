@@ -3,38 +3,36 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
 import Button from 'components/Button';
-import {
-	updateApplicantSection,
-	updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
+// import {
+// 	updateApplicantSection,
+// 	updateCoApplicantSection,
+// } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getCompletedSections,
 	isFieldValid,
-	getSelectedField,
-	getSelectedSubField,
+	// getSelectedField,
+	// getSelectedSubField,
 } from 'utils/formatData';
-import useForm from 'hooks/useFormIndividual';
+import useForm from 'hooks/useForm';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setLoanIds } from 'store/applicationSlice';
+// import { setLoanIds } from 'store/applicationSlice';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
-import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 
 const BusinessAddressDetails = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const {
-		loanProductId,
-		loanId,
-		businessUserId,
-		createdByUserId,
-		businessAddressIdAid1,
+		// loanProductId,
+		// loanId,
+		// businessUserId,
+		// createdByUserId,
+		// businessAddressIdAid1,
 		businessAddressIdAid2,
 	} = application;
 	const {
@@ -48,24 +46,24 @@ const BusinessAddressDetails = props => {
 		nextSectionId,
 		prevSectionId,
 		isTestMode,
-		clientToken,
+		// clientToken,
 		selectedSection,
 		isLocalhost,
-		applicantCoApplicantSectionIds,
+		// applicantCoApplicantSectionIds,
 		editLoanDirectors,
 	} = app;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
-	if (isDraftLoan && !selectedApplicant?.permanent_address1) {
+	// const {
+	// 	selectedApplicantCoApplicantId,
+	// 	applicant,
+	// 	coApplicants,
+	// 	isApplicant,
+	// } = applicantCoApplicants;
+	// const selectedApplicant = isApplicant
+	// 	? applicant
+	// 	: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	// const { directorId } = selectedApplicant;
+	if (isDraftLoan) {
 		isViewLoan = false;
 		isEditLoan = false;
 		isEditOrViewLoan = false;
@@ -75,23 +73,23 @@ const BusinessAddressDetails = props => {
 		handleSubmit,
 		register,
 		formState,
-		onChangeFormStateField,
+		// onChangeFormStateField,
 	} = useForm();
 	const [loading, setLoading] = useState(false);
 
 	const { addToast } = useToasts();
 	const completedSections = getCompletedSections({
 		selectedProduct,
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
+		// isApplicant,
+		// applicant,
+		// coApplicants,
+		// selectedApplicantCoApplicantId,
 		application,
 		isEditOrViewLoan,
 		isEditLoan,
-		applicantCoApplicantSectionIds,
+		// applicantCoApplicantSectionIds,
 		editLoanDirectors,
-		selectedApplicant,
+		// selectedApplicant,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 
@@ -103,12 +101,7 @@ const BusinessAddressDetails = props => {
 	};
 	const onProceed = async () => {
 		try {
-			if (
-				!formState?.values?.present_city ||
-				!formState?.values?.present_state ||
-				!formState?.values?.permanent_city ||
-				!formState?.values?.permanent_state
-			) {
+			if (!formState?.values?.city || !formState?.values?.state) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
 					type: 'error',
@@ -116,137 +109,54 @@ const BusinessAddressDetails = props => {
 			}
 			setLoading(true);
 			const newLoanAddressDetails = [
-				// {
-				// 	business_address_id: businessAddressIdAid1,
-				// 	aid: 1,
-				// 	line1: formState?.values?.present_address1 || '',
-				// 	line2: formState?.values?.present_address2 || '',
-				// 	locality: formState?.values?.present_address3 || '',
-				// 	pincode: formState?.values?.present_pin_code || '',
-				// 	city: formState?.values?.present_city || '',
-				// 	state: formState?.values?.present_state || '',
-				// 	residential_type: formState?.values?.present_property_type || '',
-				// 	residential_stability:
-				// 		formState?.values?.present_property_tenure || '',
-				// },
 				{
 					business_address_id: businessAddressIdAid2,
 					aid: 2,
-					line1: formState?.values?.permanent_address1 || '',
-					line2: formState?.values?.permanent_address2 || '',
-					locality: formState?.values?.permanent_address3 || '',
-					pincode: formState?.values?.permanent_pin_code || '',
-					city: formState?.values?.permanent_city || '',
-					state: formState?.values?.permanent_state || '',
-					// residential_type: formState?.values?.permanent_property_type || '',
-					// residential_stability:
-					// 	formState?.values?.permanent_property_tenure || '',
+					line1: formState?.values?.address1 || '',
+					line2: formState?.values?.address2 || '',
+					locality: formState?.values?.address3 || '',
+					pincode: formState?.values?.pin_code || '',
+					city: formState?.values?.city || '',
+					state: formState?.values?.state || '',
 				},
 			];
 
 			const addressDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
+				// applicantCoApplicants,
 				application,
 				values: formState.values,
 			});
 
 			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
 
-			// // KYC VERIFICATION RELATED CHANGES CR
-			// addressDetailsReqBody.data.verify_kyc_data = cacheDocumentsTemp;
-			// // permanent_address_proof_upload
-			// // present_address_proof_upload
-			// addressDetailsReqBody.data.permanent_address_proof_upload.doc_ref_id = permanentCacheDocumentsTemp?.filter(
-			// 	doc => !!doc?.doc_ref_id
-			// )?.[0]?.doc_ref_id;
-			// addressDetailsReqBody.data.present_address_proof_upload.doc_ref_id = presentCacheDocumentsTemp?.filter(
-			// 	doc => !!doc?.doc_ref_id
-			// )?.[0]?.doc_ref_id;
-
 			const addressDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				addressDetailsReqBody
 			);
 
-			const newOtherUploadedDocumentsTemp = [];
-			// if (otherdocs.length > 0) {
-			// 	const formData = new FormData();
-			// 	const otherDocsBorrowerApi = [];
-			// 	const callLoanDocUpload = async idx => {
-			// 		formData.append('document', idx.file);
-			// 		let result = await axios.post(
-			// 			`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-			// 			formData
-			// 		);
-			// 		let leng = result.data.files.length;
-			// 		let fd = { ...idx, document_key: result.data.files[leng - 1].fd };
-			// 		otherDocsBorrowerApi.push(fd);
-			// 	};
-			// 	// call loanDocumentUpload to store the document on cloud
-			// 	await asyncForEach(otherdocs, callLoanDocUpload);
-			// 	const documentUploadReqBody = formatSectionReqBody({
-			// 		app,
-			// 		applicantCoApplicants,
-			// 		application,
-			// 	});
+			// 		const newAddressDetails = {
+			// 			sectionId: selectedSectionId,
+			// 			sectionValues: formState.values,
+			// 			// directorId,
+			// 		};
+			// 		if (isApplicant) {
+			// 			dispatch(
+			// 				setLoanIds({
+			// 					// businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
+			// 					// 	address => address.aid === 1
+			// 					// )?.[0]?.id,
+			// 					businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
+			// 						address => address.aid === 2
+			// 					)?.[0]?.id,
+			// 				})
+			// 			);
+			// 			dispatch(updateApplicantSection(newAddressDetails));
+			// 		} else {
+			// 			dispatch(updateCoApplicantSection(newAddressDetails));
+			// 		}
 
-			// 	otherDocsBorrowerApi?.map(doc => {
-			// 		if (doc?.document_id) return null;
-			// 		newOtherUploadedDocumentsTemp.push({
-			// 			...doc,
-			// 			file: null,
-			// 			preview: null,
-			// 			id: doc.doc_type_id,
-			// 			loan_id: loanId,
-			// 			doc_type_id: doc.selectedDocTypeId,
-			// 			is_delete_not_allowed: true,
-			// 			isDocRemoveAllowed: false,
-			// 			classification_type: doc?.isTagged?.classification_type,
-			// 			classification_sub_type: doc?.isTagged?.classification_sub_type,
-			// 			aid: doc?.isTagged?.id?.includes(
-			// 				CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
-			// 			)
-			// 				? CONST_ADDRESS_DETAILS.AID_PERMANENT
-			// 				: CONST_ADDRESS_DETAILS.AID_PRESENT,
-			// 			original_doc_name:
-			// 				formState?.values?.[
-			// 					`${doc?.prefix}${CONST.OTHERS_DOC_NAME_FIELD_NAME}`
-			// 				],
-			// 			document_id: 'placeholder',
-			// 			// document is is required so in document upload page we do not resubmit this documents
-			// 			// due to this user won't be able to view document
-			// 		});
-			// 		return null;
-			// 	});
-			// 	documentUploadReqBody.data.document_upload = newOtherUploadedDocumentsTemp;
-			// 	// console.log('other-documentUploadReqBody-', { documentUploadReqBody });
-			// 	// return;
-			// 	await axios.post(`${API.BORROWER_UPLOAD_URL}`, documentUploadReqBody);
-			// }
-
-			const newAddressDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-				directorId,
-			};
-			if (isApplicant) {
-				dispatch(
-					setLoanIds({
-						// businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
-						// 	address => address.aid === 1
-						// )?.[0]?.id,
-						businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
-							address => address.aid === 2
-						)?.[0]?.id,
-					})
-				);
-				dispatch(updateApplicantSection(newAddressDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newAddressDetails));
-			}
-
-			dispatch(setSelectedSectionId(nextSectionId));
+			// 		dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
 				error: error,
@@ -265,35 +175,35 @@ const BusinessAddressDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(selectedApplicant?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
-		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
-		}
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
+	// const onSkip = () => {
+	// 	const skipSectionData = {
+	// 		sectionId: selectedSectionId,
+	// 		sectionValues: {
+	// 			...(selectedApplicant?.[selectedSectionId] || {}),
+	// 			isSkip: true,
+	// 		},
+	// 		directorId,
+	// 	};
+	// 	if (isApplicant) {
+	// 		dispatch(updateApplicantSection(skipSectionData));
+	// 	} else {
+	// 		dispatch(updateCoApplicantSection(skipSectionData));
+	// 	}
+	// 	dispatch(setSelectedSectionId(nextSectionId));
+	// };
 
-	const prefilledEditOrViewLoanValues = field => {
-		const preData = {
-			permanent_address1: selectedApplicant?.permanent_address1,
-			permanent_address2: selectedApplicant?.permanent_address2,
-			permanent_address3: selectedApplicant?.permanent_locality,
-			permanent_pin_code: selectedApplicant?.permanent_pincode,
-			permanent_city: selectedApplicant?.permanent_city,
-			permanent_state: selectedApplicant?.permanent_state,
-			permanent_property_type: selectedApplicant?.permanent_residential_type,
-		};
-		return preData?.[field?.name];
-	};
+	// const prefilledEditOrViewLoanValues = field => {
+	// 	const preData = {
+	// 		permanent_address1: selectedApplicant?.permanent_address1,
+	// 		permanent_address2: selectedApplicant?.permanent_address2,
+	// 		permanent_address3: selectedApplicant?.permanent_locality,
+	// 		permanent_pin_code: selectedApplicant?.permanent_pincode,
+	// 		permanent_city: selectedApplicant?.permanent_city,
+	// 		permanent_state: selectedApplicant?.permanent_state,
+	// 		permanent_property_type: selectedApplicant?.permanent_residential_type,
+	// 	};
+	// 	return preData?.[field?.name];
+	// };
 
 	const prefilledValues = field => {
 		try {
@@ -309,9 +219,9 @@ const BusinessAddressDetails = props => {
 			// -- TEST MODE
 			let editViewLoanValue = '';
 
-			if (isEditOrViewLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
+			// if (isEditOrViewLoan) {
+			// 	editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			// }
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -329,20 +239,23 @@ const BusinessAddressDetails = props => {
 				return (
 					<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
-							<UI.H1>Help us with your {sub_section.name}</UI.H1>
+							<UI.H1>{`${sub_section.name.substring(
+								0,
+								18
+							)} Business ${sub_section.name.substring(18)}`}</UI.H1>
 						) : null}
 
 						<UI.FormWrapGrid>
 							<UI.Coloum>
 								{sub_section?.fields?.map((field, fieldIndex) => {
-									if (!isFieldValid({ field, formState, isApplicant })) {
+									if (!isFieldValid({ field, formState })) {
 										return null;
 									}
 
-									if (sub_section.aid === CONST.AID_PRESENT) {
-										if (CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name))
-											return null;
-									}
+									// if (sub_section.aid === CONST.AID_PRESENT) {
+									// 	if (CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name))
+									// 		return null;
+									// }
 
 									const newValue = prefilledValues(field);
 									const customFieldProps = {};
@@ -413,9 +326,9 @@ const BusinessAddressDetails = props => {
 				)}
 
 				{/* buttons for easy development starts */}
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
+				{/* {!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
 					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
+				) : null} */}
 				{!isViewLoan && (isLocalhost && !!isTestMode) && (
 					<Button
 						fill={!!isTestMode}

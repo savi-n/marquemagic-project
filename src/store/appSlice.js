@@ -608,16 +608,14 @@ export const appSlice = createSlice({
 					},
 				],
 			};
+			// dummy config for business address detail page
 			const sectionObj2 = {
-				id: 'business_address_details',
 				name: 'Business Address Details',
-				is_applicant: true,
+				id: 'address_details',
 				sub_sections: [
 					{
-						id: 'permanent_address_details',
-						name: 'Business Address Details',
-						aid: '2',
-						prefix: 'permanent_',
+						id: 'address_details',
+						name: 'Help us with your Address Details',
 						fields: [
 							{
 								name: 'gst_num_selected',
@@ -648,59 +646,48 @@ export const appSlice = createSlice({
 								],
 							},
 							{
-								name: 'permanent_address1',
+								name: 'address1',
 								placeholder: 'Address Line 1',
-								db_key: 'line1',
 								rules: {
 									required: true,
 								},
+								db_key: 'line1',
 								type: 'text',
 								visibility: true,
 							},
-
 							{
-								name: 'permanent_address2',
+								name: 'address2',
 								placeholder: 'Address Line 2',
+								type: 'text',
 								db_key: 'line2',
-								type: 'text',
 								visibility: true,
 							},
 							{
-								name: 'permanent_address3',
+								name: 'address3',
 								placeholder: 'Address Line 3',
-								db_key: 'line3',
+								db_key: 'locality',
 								type: 'text',
 								visibility: true,
 							},
-							// {
-							// 	name: 'permanent_address3',
-							// 	placeholder: 'Landmark',
-							// 	db_key: 'locality',
-							// 	rules: {
-							// 		required: true,
-							// 	},
-							// 	type: 'text',
-							// 	visibility: true,
-							// },
 							{
-								name: 'permanent_pin_code',
+								name: 'pin_code',
 								placeholder: 'Pin Code',
-								db_key: 'pincode',
 								rules: {
 									required: true,
 									length: 6,
 								},
+								db_key: 'pincode',
 								mask: {
 									number_only: true,
 									character_limit: 6,
 								},
 								make_api_call: 6,
 								type: 'pincode',
-								value_for_fields: [['city', 'district'], ['state', 'state']],
+								valueForFields: [['city', 'district'], ['state', 'state']],
 								visibility: true,
 							},
 							{
-								name: 'permanent_city',
+								name: 'city',
 								placeholder: 'City',
 								db_key: 'city',
 								rules: {
@@ -713,7 +700,7 @@ export const appSlice = createSlice({
 								visibility: true,
 							},
 							{
-								name: 'permanent_state',
+								name: 'state',
 								placeholder: 'State',
 								db_key: 'state',
 								rules: {

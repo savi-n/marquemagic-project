@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const H1 = styled.h1`
-	margin-top: 80px;
+	margin-top: 50px;
 	font-size: 1.5em;
 	font-weight: 500;
 	span {
@@ -10,10 +10,10 @@ export const H1 = styled.h1`
 `;
 
 export const FieldWrapGrid = styled.div`
-	margin-bottom: ${({ field }) =>
-		field.name == 'gst_num_selected' ? '40px' : 0} !important;
 	width: 100%;
 	margin: 15px 0;
+	margin-bottom: ${({ field }) =>
+		field.name === 'gst_num_selected' ? '40px' : 0};
 `;
 
 export const FormWrapGrid = styled.div`
@@ -33,10 +33,3 @@ export const Coloum = styled.div`
 		flex-basis: 100%;
 	}
 `;
-
-// export const Caption = styled.h3`
-// 	width: 100%;
-// 	font-weight: 500;
-// 	display: flex;
-// 	justify-content: space-between;
-// `;

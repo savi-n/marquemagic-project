@@ -37,7 +37,7 @@ const ProductIndividual = props => {
 	const dispatch = useDispatch();
 
 	const SELECTED_SECTION_MAPPING = {
-		business_address_details: BusinessAddressDetails,
+		address_details: BusinessAddressDetails,
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
