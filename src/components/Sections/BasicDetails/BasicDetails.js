@@ -229,11 +229,10 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
-			let url = profileUploadedFile?.preview;
-			if (profileField?.geo_tagging === true) {
-				url = profileUploadedFile?.presignedUrl;
-			}
-			const profileUrl = url || selectedApplicant?.customer_picture || '';
+			const preSignedProfileUrl =
+				profileUploadedFile?.presignedUrl ||
+				selectedApplicant?.customer_picture ||
+				'';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
@@ -241,19 +240,16 @@ const BasicDetails = props => {
 						is_delete_not_allowed:
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
-				: profileUrl;
+				: preSignedProfileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
 					...formState.values,
-					app_coordinates:
-						selectedProfileField?.geo_tagging === true
-							? {
-									lat: geoLocationData?.lat,
-									long: geoLocationData?.long,
-									timestamp: geoLocationData?.timestamp,
-							  }
-							: {},
+					app_coordinates: {
+						lat: geoLocationData?.lat,
+						long: geoLocationData?.long,
+						timestamp: geoLocationData?.timestamp,
+					},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
@@ -287,7 +283,7 @@ const BasicDetails = props => {
 					...profileUploadedFile,
 					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
 					directorId: newDirectorId,
-					preview: profileUrl,
+					preview: null,
 					file: null,
 					isDocRemoveAllowed: false,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -353,8 +349,8 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
-					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
 				},
 			};
 
@@ -620,6 +616,7 @@ const BasicDetails = props => {
 		) {
 			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
 		}
+		console.log({ selectedApplicant, selectedSection }, 'selectedSection');
 
 		async function fetchGeoLocationData() {
 			try {
