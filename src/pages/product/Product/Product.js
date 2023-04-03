@@ -2,10 +2,15 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
+import useFetch from 'hooks/useFetch';
+import { PRODUCT_DETAILS_URL } from '_config/app.config';
 
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
+// import BusinessDetails from 'components/Sections/BusinessDetails';
+// import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+
 import AddressDetails from 'components/Sections/AddressDetails';
 import EmploymentDetails from 'components/Sections/EmploymentDetails';
 import LoanDetails from 'components/Sections/LoanDetails/LoanDetails';
@@ -15,15 +20,22 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
+import _ from 'lodash';
 
-import { setIsTestMode, setBankList } from 'store/appSlice';
+import {
+	setIsTestMode,
+	setBankList,
+	setSelectedProduct,
+	setSelectedSectionId,
+} from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails/BusinessAddressDetails';
 
-const ProductIndividual = props => {
+const Product = props => {
+	const { product } = props;
 	const reduxState = useSelector(state => state);
 	const { app, applicantCoApplicants } = reduxState;
 	const {
@@ -31,7 +43,15 @@ const ProductIndividual = props => {
 		applicantCoApplicantSectionIds,
 		userToken,
 		isTestMode,
+		userDetails,
+		whiteLabelId,
+		isViewLoan,
 	} = app;
+	const { response } = useFetch({
+		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
+		options: { method: 'GET' },
+	});
+
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
@@ -51,7 +71,49 @@ const ProductIndividual = props => {
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
+	useEffect(() => {
+		// console.log({ reqType: response?.data?.loan_request_type, response });
+		if (response) {
+			const selectedProductRes = _.cloneDeep(response.data);
+			// New Individual loan changes for displaying sections based on the config - starts
+			if (isViewLoan) {
+				const tempSections = _.cloneDeep(
+					selectedProductRes?.product_details?.sections
+				);
 
+				const flowData = tempSections?.filter(section => {
+					if (section?.hide_section_usertype) {
+						return (
+							!section?.hide_section_usertype?.includes(
+								userDetails?.usertype
+								// 'Sales' - for reference
+							) &&
+							!section?.hide_section_usertype?.includes(
+								userDetails?.user_sub_type
+								// 'RCU' - for reference
+							)
+						);
+					} else {
+						return tempSections;
+					}
+				});
+				selectedProductRes.product_details.sections = flowData;
+			}
+			// New Individual loan changes for displaying sections based on the config - ends
+
+			dispatch(setSelectedProduct(selectedProductRes));
+			dispatch(
+				setSelectedSectionId(
+					selectedProductRes?.product_details?.sections[0]?.id
+				)
+			);
+			if (response?.data?.loan_request_type) {
+				response.data.product_details.loan_request_type =
+					response?.data?.loan_request_type;
+			}
+		}
+		// eslint-disable-next-line
+	}, [response]);
 	// for reseting formstate
 	useEffect(() => {
 		if (!selectedSectionId) return;
@@ -62,7 +124,7 @@ const ProductIndividual = props => {
 	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
 
 	// useEffect(() => {
-	// 	console.log('ProductIndividual-allStates-', {
+	// 	console.log('Product-allStates-', {
 	// 		reduxState,
 	// 	});
 	// }, [reduxState]);
@@ -125,4 +187,4 @@ const ProductIndividual = props => {
 	);
 };
 
-export default ProductIndividual;
+export default Product;

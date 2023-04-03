@@ -1249,6 +1249,7 @@ const AddressProofUpload = props => {
 				<UI.CTAWrapper>
 					{!addressProofError &&
 						!selectedAddressProofId?.includes('others') &&
+						!!taggedDocumentCount &&
 						doNotHideFetchAddress && (
 							<Button
 								fill
