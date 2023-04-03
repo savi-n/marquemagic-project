@@ -30,6 +30,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from '../const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
+import moment from 'moment';
 
 const PanUpload = props => {
 	const {
@@ -47,13 +48,13 @@ const PanUpload = props => {
 		removeCacheDocumentTemp,
 		isDisabled,
 	} = props;
-	const {
-		app,
-		application,
-		// applicantCoApplicants
-	} = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
 	const { selectedProduct, clientToken } = app;
 	const { loanId, businessUserId } = application;
+	const { companyRocData } = applicantCoApplicants;
+
 	// const {
 	// 	isApplicant,
 	// 	applicant,
@@ -157,7 +158,6 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
-
 	const cinNumberFetch = async cinNumber => {
 		try {
 			setLoading(true);
@@ -167,13 +167,14 @@ const PanUpload = props => {
 			const cinNumberResponse = await axios.post(
 				API.ROC_DATA_FETCH,
 				cinFetchReqBody,
-				{ authorization: clientToken }
+				{ headers: { authorization: clientToken } }
 			);
 			const companyData = cinNumberResponse?.data?.data;
 			const formattedCompanyData = formatCompanyRocData(
 				companyData,
 				confirmPanNumber
 			);
+			console.log(formattedCompanyData);
 			dispatch(setCompanyRocData(formattedCompanyData));
 		} catch (error) {
 			setLoading(false);
@@ -189,7 +190,6 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
-
 	const onCompanySelect = async cinNumber => {
 		setIsCompanyListModalOpen(false);
 		setLoading(true);
@@ -260,6 +260,27 @@ const PanUpload = props => {
 				onChangeFormStateField({
 					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
 					value: DOB || '',
+				});
+			}
+			if (!!companyRocData) {
+				onChangeFormStateField({
+					name: 'business_name',
+					value: companyRocData?.BusinessName || '',
+				});
+				onChangeFormStateField({
+					name: 'business_vintage',
+					value:
+						moment(companyRocData?.BusinessVintage).format(
+							'YYYY-MM-DD'
+						) || '',
+				});
+				onChangeFormStateField({
+					name: 'business_email',
+					value: companyRocData?.Email,
+				});
+				onChangeFormStateField({
+					name: 'business_type',
+					value: companyRocData?.BusinessType || 0,
 				});
 			}
 
