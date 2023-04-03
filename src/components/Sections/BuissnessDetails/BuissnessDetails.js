@@ -187,7 +187,7 @@ const BuissnessDetails = props => {
         selectedLoanProductId =
           selectedProduct?.product_id?.[selectedIncomeType];
       }
-      const basicDetailsReqBody = formatSectionReqBody({
+      const buissnessDetailsReqBody = formatSectionReqBody({
         section: selectedSection,
         values: {
           ...formState.values
@@ -197,21 +197,21 @@ const BuissnessDetails = props => {
         application,
         selectedLoanProductId
       });
-      basicDetailsReqBody.borrower_user_id =
+      buissnessDetailsReqBody.borrower_user_id =
         newBorrowerUserId || businessUserId;
 
-      const basicDetailsRes = await axios.post(
+      const buissnesscDetailsRes = await axios.post(
         `${API.API_END_POINT}/basic_details`,
-        basicDetailsReqBody
+        buissnessDetailsReqBody
       );
-      const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
-      const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
-      const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
-      const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
+      const newLoanRefId = buissnesscDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+      const newLoanId = buissnesscDetailsRes?.data?.data?.loan_data?.id;
+      const newBusinessId = buissnesscDetailsRes?.data?.data?.business_data?.id;
+      const newDirectorId = buissnesscDetailsRes?.data?.data?.director_details?.id;
       const newBusinessUserId =
-        basicDetailsRes?.data?.data?.business_data?.userid;
+        buissnesscDetailsRes?.data?.data?.business_data?.userid;
       const newCreatedByUserId =
-        basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+        buissnesscDetailsRes?.data?.data?.loan_data?.createdUserId;
       if (cacheDocumentsTemp.length > 0) {
         try {
           const uploadCacheDocumentsTemp = [];
@@ -256,18 +256,18 @@ const BuissnessDetails = props => {
         }
       }
 
-      const newBasicDetails = {
+      const newBuissnessDetails = {
         sectionId: selectedSectionId,
         sectionValues: {
           ...formState.values
         }
       };
-      newBasicDetails.directorId = newDirectorId;
-      newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || "";
+      newBuissnessDetails.directorId = newDirectorId;
+      newBuissnessDetails.cin = applicantCoApplicants?.companyRocData?.CIN || "";
       if (isApplicant) {
-        dispatch(updateApplicantSection(newBasicDetails));
+        dispatch(updateApplicantSection(newBuissnessDetails));
       } else {
-        dispatch(updateCoApplicantSection(newBasicDetails));
+        dispatch(updateCoApplicantSection(newBuissnessDetails));
         dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
       }
       dispatch(
@@ -283,7 +283,7 @@ const BuissnessDetails = props => {
       );
       dispatch(setSelectedSectionId(nextSectionId));
     } catch (error) {
-      console.error("error-BasicDetails-onProceed-", {
+      console.error("error-BuissnessDetails-onProceed-", {
         error: error,
         res: error?.response,
         resres: error?.response?.response,
@@ -339,6 +339,7 @@ const BuissnessDetails = props => {
     };
     return preData?.[field?.name];
   };
+  console.log(selectedApplicant?.existing_customer)
   const prefilledValues = field => {
     try {
       // [Priority - 0]
@@ -503,9 +504,9 @@ const BuissnessDetails = props => {
                       formState?.touched?.[field.name]) &&
                       formState?.error?.[field.name]) ||
                     "";
-                  console.log('pancard-error-msg-', {
-                  	panErrorMessage,
-                  });
+                  // console.log('pancard-error-msg-', {
+                  // 	panErrorMessage,
+                  // });
                   const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
                     panErrorMessage
                   );
@@ -532,7 +533,7 @@ const BuissnessDetails = props => {
                       key={`field-${fieldIndex}-${field.name}`}
                     >
                       <UI.ProfilePicWrapper>
-                        {console.log(!!panErrorMessage)}
+
                         <PanUpload
                           field={field}
                           value={prefilledValues(field)}
@@ -563,6 +564,10 @@ const BuissnessDetails = props => {
                 if (!field.visibility || !field.name || !field.type)
                   return null;
                 const newValue = prefilledValues(field);
+                let newValueSelectFeild;
+								if (!!field.sub_fields) {
+									newValueSelectFeild = prefilledValues(field?.sub_fields[0]);
+								}
                 const customFieldProps = {};
                 if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
                   customFieldProps.rules = {
@@ -599,10 +604,10 @@ const BuissnessDetails = props => {
                 >
                   <div>
                     {field?.sub_fields &&
-                      field?.sub_fields[0].is_prefix &&
+                      field?.sub_fields?.[0]?.is_prefix &&
                       register({
                         ...field.sub_fields[0],
-                        value: newSubFeildValue,
+                        value: newValueSelectFeild,
                         visibility: 'visible',
                         ...customFieldProps,
                       })}
@@ -626,7 +631,7 @@ const BuissnessDetails = props => {
                       !field?.sub_fields[0].is_prefix &&
                       register({
                         ...field.sub_fields[0],
-                        value: newSubFeildValue,
+                        value: newValueSelectFeild,
                         visibility: 'visible',
                         ...customFieldProps,
                       })}
