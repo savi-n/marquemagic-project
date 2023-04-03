@@ -73,7 +73,6 @@ const SideNav = props => {
 	// 	selectedProduct,
 	// 	completedSections,
 	// 	selectedApplicant,
-	// 	businessSectionIds,
 	// });
 
 	return (

@@ -232,11 +232,6 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
-			// const preSignedProfileUrl =
-			// 	profileUploadedFile?.presignedUrl ||
-			// 	selectedApplicant?.customer_picture ||
-			// 	'';
-
 			let url = profileUploadedFile?.preview;
 			if (profileField?.geo_tagging === true) {
 				url = profileUploadedFile?.presignedUrl;
@@ -638,7 +633,6 @@ const BasicDetails = props => {
 		) {
 			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
 		}
-		// console.log({ selectedApplicant, selectedSection }, 'selectedSection');
 
 		async function fetchGeoLocationData() {
 			try {
@@ -1107,8 +1101,6 @@ const BasicDetails = props => {
 								// 	isProfileError,
 								// 	profileUploadedFile,
 								// 	isEditOrViewLoan,
-								// 	value: formState?.values?.[CONST.PAN_UPLOAD_FIELD_NAME],
-
 								// 	value:
 								// 		formState?.values?.[
 								// 			CONST.PAN_UPLOAD_FIELD_NAME
