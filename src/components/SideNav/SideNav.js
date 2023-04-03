@@ -198,14 +198,18 @@ const SideNav = props => {
 												)}
 											</UI.Menu>
 										</UI.Link>
-										{sectionIndex + 1 ===
-											CONST.lengthOfuniqueSectionsForSmeFlow && (
-											<UI.SectionDevider />
-										)}
+										{selectedProduct?.loan_request_type === 1 &&
+											sectionIndex + 1 ===
+												CONST.lengthOfuniqueSectionsForSmeFlow && (
+												<UI.SectionDevider />
+											)}
 
-										{applicantCoApplicantSectionIds?.length +
-											CONST.lengthOfuniqueSectionsForSmeFlow ===
-											sectionIndex + 1 && <UI.SectionDevider />}
+										{selectedProduct?.loan_request_type === 1
+											? applicantCoApplicantSectionIds?.length +
+													CONST.lengthOfuniqueSectionsForSmeFlow ===
+													sectionIndex + 1 && <UI.SectionDevider />
+											: applicantCoApplicantSectionIds?.length ===
+													sectionIndex + 1 && <UI.SectionDevider />}
 									</Fragment>
 								);
 							}

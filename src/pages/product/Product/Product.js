@@ -8,6 +8,7 @@ import { PRODUCT_DETAILS_URL } from '_config/app.config';
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
+import Loading from 'components/Loading';
 // import BusinessDetails from 'components/Sections/BusinessDetails';
 // import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 
@@ -51,7 +52,6 @@ const Product = props => {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
-
 	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
@@ -169,21 +169,27 @@ const Product = props => {
 	}, []);
 
 	return (
-		<UI.Wrapper>
-			{/* {selectedSectionId !== 'application_submitted' && <SideNav />} */}
-			<SideNav />
-			<UI.RightSectionWrapper>
-				<UI.IconDottedRight src={iconDottedRight} alt='dot' />
-				<UI.DynamicSectionWrapper>
-					{[...applicantCoApplicantSectionIds, 'document_upload']?.includes(
-						selectedSectionId
-					) && <ApplicantCoApplicantHeader />}
-					<UI.DynamicSubSectionWrapper>
-						{loading ? <div /> : <SelectedComponent />}
-					</UI.DynamicSubSectionWrapper>
-				</UI.DynamicSectionWrapper>
-			</UI.RightSectionWrapper>
-		</UI.Wrapper>
+		<>
+			{!response ? (
+				<Loading />
+			) : (
+				<UI.Wrapper>
+					{/* {selectedSectionId !== 'application_submitted' && <SideNav />} */}
+					<SideNav />
+					<UI.RightSectionWrapper>
+						<UI.IconDottedRight src={iconDottedRight} alt='dot' />
+						<UI.DynamicSectionWrapper>
+							{[...applicantCoApplicantSectionIds, 'document_upload']?.includes(
+								selectedSectionId
+							) && <ApplicantCoApplicantHeader />}
+							<UI.DynamicSubSectionWrapper>
+								{loading ? <div /> : <SelectedComponent />}
+							</UI.DynamicSubSectionWrapper>
+						</UI.DynamicSectionWrapper>
+					</UI.RightSectionWrapper>
+				</UI.Wrapper>
+			)}
+		</>
 	);
 };
 
