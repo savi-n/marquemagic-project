@@ -112,8 +112,8 @@ export const appSlice = createSlice({
 			state.selectedProduct = {
 				...action.payload,
 				idBase64: encryptBase64(action.payload.id),
-				isSelectedProductTypeBusiness: action.payload.loan_req_type === 1,
-				isSelectedProductTypeSalaried: action.payload.loan_req_type === 2,
+				isSelectedProductTypeBusiness: action.payload.loan_request_type === 1,
+				isSelectedProductTypeSalaried: action.payload.loan_request_type === 2,
 			};
 			const newApplicantCoApplicantSectionIds = [];
 			let newFirstSectionId = '';
