@@ -592,22 +592,47 @@ const BuissnessDetails = props => {
                 }
                 return (
                   <UI_SECTIONS.FieldWrapGrid
-                    key={`field-${fieldIndex}-${field.name}`}
+                  key={`field-${fieldIndex}-${field.name}`}
+                  style={{
+                    display: 'flex',
+                  }}
+                >
+                  <div>
+                    {field?.sub_fields &&
+                      field?.sub_fields[0].is_prefix &&
+                      register({
+                        ...field.sub_fields[0],
+                        value: newSubFeildValue,
+                        visibility: 'visible',
+                        ...customFieldProps,
+                      })}
+                  </div>
+                  <div
+                    style={{
+                      width: '100%',
+                      marginLeft: '5px',
+                      marginRight: '5px',
+                    }}
                   >
                     {register({
                       ...field,
                       value: newValue,
-                      visibility: "visible",
-                      ...customFieldProps
+                      visibility: 'visible',
+                      ...customFieldProps,
                     })}
-                    {(formState?.submit?.isSubmited ||
-                      formState?.touched?.[field.name]) &&
-                      formState?.error?.[field.name] && (
-                        <UI_SECTIONS.ErrorMessage>
-                          {formState?.error?.[field.name]}
-                        </UI_SECTIONS.ErrorMessage>
-                      )}
-                  </UI_SECTIONS.FieldWrapGrid>
+                  </div>
+                  <div>
+                    {field?.sub_fields &&
+                      !field?.sub_fields[0].is_prefix &&
+                      register({
+                        ...field.sub_fields[0],
+                        value: newSubFeildValue,
+                        visibility: 'visible',
+                        ...customFieldProps,
+                      })}
+                  </div>
+</UI_SECTIONS.FieldWrapGrid>
+                  //end
                 );
               })}
             </UI_SECTIONS.FormWrapGrid>
