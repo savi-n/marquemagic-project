@@ -28,6 +28,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
 import Hint from 'components/Hint';
 import GreenTick from 'assets/icons/green_tick_icon.png';
+import moment from 'moment';
 
 const AddressProofUpload = props => {
 	const {
@@ -203,6 +204,27 @@ const AddressProofUpload = props => {
 			value: fullAddress,
 		});
 		const pinCode = extractionData?.pincode;
+		if (!!pinCode) {
+			onChangeFormStateField({
+				name: `${prefix}pin_code`,
+				value: pinCode,
+			});
+		}
+		const extractedIssuedDate =
+			extractionData?.issue_date || extractionData?.issue_date;
+		if (!!extractedIssuedDate) {
+			onChangeFormStateField({
+				name: `${prefix}address_proof_issued_on`,
+				value: moment(extractedIssuedDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+			});
+		}
+		const extractedValidDate = extractionData?.validity;
+		if (!!extractedValidDate) {
+			onChangeFormStateField({
+				name: `${prefix}address_proof_valid_till`,
+				value: moment(extractedValidDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+			});
+		}
 		if (fullAddress) {
 			let locationArr = fullAddress && fullAddress?.split(' ');
 			// eslint-disable-next-line
@@ -424,7 +446,6 @@ const AddressProofUpload = props => {
 				);
 				// CONTINUE EXECUTION
 			}
-
 			const frontOnlyFile = {
 				...selectedAddressProofFiles[0],
 				extractionRes: frontOnlyExtractionRes?.data || {},
@@ -460,7 +481,9 @@ const AddressProofUpload = props => {
 			// 	doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
 			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
 			// };
+
 			prepopulateAddressDetails(frontOnlyFile);
+			// console.log(frontOnlyFile);
 			await verifyKycAddressProof(frontOnlyFile);
 			// await verifyKycAddressProof(REQ_TYPE, newAddressProofExtractionData);
 		} catch (error) {
@@ -1249,6 +1272,7 @@ const AddressProofUpload = props => {
 				<UI.CTAWrapper>
 					{!addressProofError &&
 						!selectedAddressProofId?.includes('others') &&
+						!!taggedDocumentCount &&
 						doNotHideFetchAddress && (
 							<Button
 								fill

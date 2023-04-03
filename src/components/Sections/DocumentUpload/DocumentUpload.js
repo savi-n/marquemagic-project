@@ -83,7 +83,7 @@ const DocumentUpload = props => {
 		cacheDocuments,
 		commentsForOfficeUse,
 		prompted,
-		geoLocation,
+		// geoLocation,
 	} = application;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -108,7 +108,7 @@ const DocumentUpload = props => {
 
 	const [cacheFile, setCacheFile] = useState();
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
-	const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
+	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
 	const selectedIncomeType =
 		selectedApplicant?.basic_details?.['income_type'] ||
@@ -659,15 +659,15 @@ const DocumentUpload = props => {
 			if (buttonDisabledStatus()) return;
 			// console.log('step-5');
 			// change permission here
-			if (
-				// selectedProduct?.product_details?.kyc_verification &&
-				isGeoTaggingEnabled &&
-				!isAppCoAppVerificationComplete()
-			) {
-				// console.log('step-6');
-				setOnsiteVerificationErr(true);
-				return;
-			}
+			// if (
+			// 	// selectedProduct?.product_details?.kyc_verification &&
+			// 	isGeoTaggingEnabled &&
+			// 	!isAppCoAppVerificationComplete()
+			// ) {
+			// 	// console.log('step-6');
+			// 	// setOnsiteVerificationErr(true);
+			// 	return;
+			// }
 			// console.log('step-7');
 			if (!isFormValid()) return;
 			// console.log('step-8');
@@ -1033,7 +1033,7 @@ const DocumentUpload = props => {
 	};
 
 	const closeVerificationErrModal = () => {
-		setOnsiteVerificationErr(false);
+		// setOnsiteVerificationErr(false);
 		setOnSiteVerificationModal(false);
 	};
 
@@ -1068,21 +1068,30 @@ const DocumentUpload = props => {
 		const documentCheckStatus = {
 			isAllTheDocumentsPresent: true,
 		};
+		const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
 		const applicantCoapplicantDoc = [];
-		const geoTaggedDocs = cacheDocuments?.filter(
-			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
-		);
 
+		let mandatoryFieldApplicant = {};
+		let mandatoryFieldCoApplicant = {};
 		const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
 			subSection => subSection?.id === 'on_site_selfie_with_applicant'
 		)?.[0];
-		const mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant !== true
-		)?.[0];
-		const mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant !== true
-		)?.[0];
+		if (onSiteSelfiefield?.fields?.length > 0) {
+			mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
+			)?.[0];
+			mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
+				field => field?.geo_tagging === true && field?.is_applicant === false
+			)?.[0];
+		}
 
+		if (
+			onSiteSelfiefield?.fields?.length === 1 &&
+			onSiteSelfiefield[0]?.geo_tagging === true
+		) {
+			mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
+			mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
+		}
 		// check for profile pic upload geolocation starts
 		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
 			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
@@ -1092,14 +1101,28 @@ const DocumentUpload = props => {
 			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		);
 
-		const mandatoryProfilePicFieldApplicant = profilePicField?.filter(
-			field => field?.geo_tagging === true && field?.is_co_applicant !== true
-		)?.[0];
-		const mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
-			field => field?.geo_tagging === true && field?.is_applicant !== true
-		)?.[0];
+		let mandatoryProfilePicFieldApplicant = {};
+		let mandatoryProfilePicFieldCoApplicant = {};
+		if (profilePicField?.length > 0) {
+			mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
+			)?.[0];
+			mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+				field => field?.geo_tagging === true && field?.is_applicant === false
+			)?.[0];
+		}
+		if (
+			profilePicField?.length === 1 &&
+			profilePicField[0]?.geo_tagging === true
+		) {
+			mandatoryProfilePicFieldApplicant = profilePicField[0];
+			mandatoryProfilePicFieldCoApplicant = profilePicField[0];
+		}
 
-		if (!!mandatoryProfilePicFieldApplicant) {
+		if (
+			!!mandatoryProfilePicFieldApplicant &&
+			Object.keys(mandatoryProfilePicFieldApplicant)?.length > 0
+		) {
 			applicantCoapplicantDoc?.push({
 				...mandatoryProfilePicFieldApplicant,
 				docTypeId:
@@ -1108,8 +1131,8 @@ const DocumentUpload = props => {
 			});
 		}
 		if (
-			!!mandatoryProfilePicFieldApplicant &&
-			!!mandatoryProfilePicFieldCoApplicant
+			!!mandatoryProfilePicFieldCoApplicant &&
+			Object.keys(mandatoryProfilePicFieldCoApplicant)?.length > 0
 		) {
 			Object.keys(coApplicants)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
@@ -1122,14 +1145,20 @@ const DocumentUpload = props => {
 		// check for profile pic upload geolocation ends
 
 		// forming array with all the directors for mandatory selfie with app/coapp field
-		if (!!mandatoryFieldApplicant)
+		if (
+			!!mandatoryFieldApplicant &&
+			Object.keys(mandatoryFieldApplicant)?.length > 0
+		)
 			applicantCoapplicantDoc?.push({
 				...mandatoryFieldApplicant,
 				docTypeId: mandatoryFieldApplicant?.doc_type?.[selectedIncomeType],
 				directorId: applicant?.directorId,
 			});
 
-		if (!!mandatoryFieldApplicant && !!mandatoryFieldCoApplicant) {
+		if (
+			!!mandatoryFieldCoApplicant &&
+			Object.keys(mandatoryFieldCoApplicant)?.length > 0
+		) {
 			Object.keys(coApplicants)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryFieldCoApplicant);
 				field.directorId = coApplicantId;
@@ -1138,7 +1167,43 @@ const DocumentUpload = props => {
 				return null;
 			});
 		}
+		if (isEditLoan) {
+			const applicantProfile = editLoanData?.director_details?.filter(
+				dir => `${dir?.id}` === `${applicant?.directorId}`
+			)?.[0];
 
+			// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
+			// 	// console.log({ a: doc?.doc_type_id, d: doc?.directorId }, 'doc', {
+			// 	// 	a: mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+			// 	// 	d: applicant?.id,
+			// 	// });
+
+			// 	return (
+			// 		`${doc?.directorId}` === `${applicant?.id}` &&
+			// 		`${doc?.doc_type_id}` ===
+			// 			`${
+			// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+			// 			}`
+			// 	);
+			// });
+
+			clonedCacheDocuments?.map(doc => {
+				if (
+					`${doc?.directorId}` === `${applicant?.id}` &&
+					`${doc?.doc_type_id}` ===
+						`${
+							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+						}`
+				) {
+					doc.lat = applicantProfile?.lat;
+					doc.long = applicantProfile?.long;
+				}
+				return null;
+			});
+		}
+		const geoTaggedDocs = clonedCacheDocuments?.filter(
+			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+		);
 		// final check - if the onSiteSelfieWith app/coapp document is present or not
 		const missingDocsForDirectors = [];
 		applicantCoapplicantDoc?.map(doc => {
@@ -1175,6 +1240,7 @@ const DocumentUpload = props => {
 			];
 			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
 		}
+
 		// console.log({
 		// 	geoTaggedDocs,
 		// 	applicantCoapplicantDoc,
@@ -1182,69 +1248,73 @@ const DocumentUpload = props => {
 		// 	documentCheckStatus,
 		// 	mandatoryFieldApplicant,
 		// 	mandatoryFieldCoApplicant,
+		// 	mandatoryProfilePicFieldApplicant,
+		// 	mandatoryProfilePicFieldCoApplicant,
+		// 	cacheDocuments,
+		// 	applicant,
 		// });
 		return documentCheckStatus;
 	};
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
-	const isMandatoryGeoVerificationComplete = () => {
-		const appCoappsList = getApplicantCoApplicantSelectOptions({
-			applicantCoApplicants,
-			isEditOrViewLoan,
-		});
-		if (
-			Object.keys(geoLocation).length > 0 &&
-			geoLocation.hasOwnProperty('err')
-		)
-			return false;
-		if (Object.keys(geoLocation).length <= 0) return false;
-		let result = true;
-		appCoappsList.map(director => {
-			if (Number(applicant.directorId) === Number(director.value)) {
-				if (
-					applicant.geotaggingMandatory.length > 0 &&
-					applicant.geotaggingMandatory.includes('profileGeoLocation')
-				) {
-					if (!applicant.profileGeoLocation?.address) {
-						result = false;
-					}
-				}
-				if (
-					applicant.geotaggingMandatory.length > 0 &&
-					applicant.geotaggingMandatory.includes('documentSelfieGeolocation')
-				) {
-					if (!applicant.documentSelfieGeolocation?.address) {
-						result = false;
-					}
-				}
-			} else {
-				if (
-					coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
-					coApplicants?.[director.value]?.geotaggingMandatory.includes(
-						'profileGeoLocation'
-					)
-				) {
-					if (!coApplicants?.[director.value]?.profileGeoLocation?.address) {
-						result = false;
-					}
-				}
-				if (
-					coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
-					coApplicants?.[director.value]?.geotaggingMandatory.includes(
-						'documentSelfieGeolocation'
-					)
-				) {
-					if (
-						!coApplicants?.[director.value]?.documentSelfieGeolocation?.address
-					) {
-						result = false;
-					}
-				}
-			}
-			return null;
-		});
-		return result;
-	};
+	// const isMandatoryGeoVerificationComplete = () => {
+	// 	const appCoappsList = getApplicantCoApplicantSelectOptions({
+	// 		applicantCoApplicants,
+	// 		isEditOrViewLoan,
+	// 	});
+	// 	if (
+	// 		Object.keys(geoLocation).length > 0 &&
+	// 		geoLocation.hasOwnProperty('err')
+	// 	)
+	// 		return false;
+	// 	if (Object.keys(geoLocation).length <= 0) return false;
+	// 	let result = true;
+	// 	appCoappsList.map(director => {
+	// 		if (Number(applicant.directorId) === Number(director.value)) {
+	// 			if (
+	// 				applicant.geotaggingMandatory.length > 0 &&
+	// 				applicant.geotaggingMandatory.includes('profileGeoLocation')
+	// 			) {
+	// 				if (!applicant.profileGeoLocation?.address) {
+	// 					result = false;
+	// 				}
+	// 			}
+	// 			if (
+	// 				applicant.geotaggingMandatory.length > 0 &&
+	// 				applicant.geotaggingMandatory.includes('documentSelfieGeolocation')
+	// 			) {
+	// 				if (!applicant.documentSelfieGeolocation?.address) {
+	// 					result = false;
+	// 				}
+	// 			}
+	// 		} else {
+	// 			if (
+	// 				coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
+	// 				coApplicants?.[director.value]?.geotaggingMandatory.includes(
+	// 					'profileGeoLocation'
+	// 				)
+	// 			) {
+	// 				if (!coApplicants?.[director.value]?.profileGeoLocation?.address) {
+	// 					result = false;
+	// 				}
+	// 			}
+	// 			if (
+	// 				coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
+	// 				coApplicants?.[director.value]?.geotaggingMandatory.includes(
+	// 					'documentSelfieGeolocation'
+	// 				)
+	// 			) {
+	// 				if (
+	// 					!coApplicants?.[director.value]?.documentSelfieGeolocation?.address
+	// 				) {
+	// 					result = false;
+	// 				}
+	// 			}
+	// 		}
+	// 		return null;
+	// 	});
+	// 	return result;
+	// };
 
 	const removeCacheDocumentTemp = fieldName => {
 		setGeoLocationData('');
@@ -1295,17 +1365,18 @@ const DocumentUpload = props => {
 			declareCheck &&
 			onsiteVerificationMsg &&
 			!prompted &&
-			!isAppCoAppVerificationComplete() ? (
+			!isAppCoAppVerificationComplete() &&
+			((isEditLoan && isDraftLoan) || !isEditLoan) ? (
 				<CompleteOnsiteVerificationModal onYes={closeVerificationMsgModal} />
 			) : null}
 
-			{isGeoTaggingEnabled &&
+			{/* {isGeoTaggingEnabled &&
 			onsiteVerificationErr &&
 			isMandatoryGeoVerificationComplete ? (
 				<MandatoryOnsiteVerificationErrModal
 					onYes={closeVerificationErrModal}
 				/>
-			) : null}
+			) : null} */}
 
 			{isGeoTaggingEnabled && onSiteVerificationModal ? (
 				<MandatoryOnsiteVerificationErrModal
