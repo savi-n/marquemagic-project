@@ -973,8 +973,8 @@ const BasicDetails = props => {
 								// 	console.log(prefilledValues(field, 'fields'));
 								// }
 								let newValueSelectFeild;
-								if (!!field.sub_fields) {
-									newValueSelectFeild = prefilledValues(field?.sub_fields[0]);
+								if (!!field?.sub_fields) {
+									newValueSelectFeild = prefilledValues(field?.sub_fields?.[0]);
 								}
 
 								const customFieldProps = {};
