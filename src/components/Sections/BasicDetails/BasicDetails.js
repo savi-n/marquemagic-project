@@ -49,6 +49,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const BasicDetails = props => {
+
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
@@ -110,7 +111,8 @@ const BasicDetails = props => {
 	} = useForm();
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
-	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
+	const selectedIncomeType =
+		formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
@@ -266,7 +268,8 @@ const BasicDetails = props => {
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
 			);
-			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+			const newLoanRefId =
+				basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
 			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
 			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
 			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
@@ -459,8 +462,8 @@ const BasicDetails = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
-			0
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)
+				?.length > 0
 		) {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
@@ -517,7 +520,8 @@ const BasicDetails = props => {
 			// update value from form state
 			// whenever user decides to type or enter value
 			// form state should be the first value to prepopulate
-			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated =
+				formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -575,7 +579,9 @@ const BasicDetails = props => {
 		try {
 			const params = queryString.parse(window.location.search);
 			if (params?.token) {
-				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				const decryptedToken = decryptRes(
+					params?.token?.replaceAll(' ', '+')
+				);
 
 				if (decryptedToken?.token) {
 					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
@@ -595,171 +601,250 @@ const BasicDetails = props => {
 			return false;
 		}
 	};
-
 	useEffect(() => {
-		validateToken();
+										validateToken();
 
-		if (
-			!isEditLoan &&
-			!isViewLoan &&
-			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
-		) {
-			dispatch(
-				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
-			);
-		}
+										if (
+											!isEditLoan &&
+											!isViewLoan &&
+											completedSections?.includes(
+												CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID
+											)
+										) {
+											dispatch(
+												setSelectedSectionId(
+													CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
+												)
+											);
+										}
 
-		if (
-			isGeoTaggingEnabled &&
-			selectedApplicant?.profileGeoLocation &&
-			Object.keys(selectedApplicant?.profileGeoLocation).length > 0
-		) {
-			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
-		}
-		console.log({ selectedApplicant, selectedSection }, 'selectedSection');
+										if (
+											isGeoTaggingEnabled &&
+											selectedApplicant?.profileGeoLocation &&
+											Object.keys(
+												selectedApplicant?.profileGeoLocation
+											).length > 0
+										) {
+											setProfilePicGeolocation(
+												selectedApplicant.profileGeoLocation
+											);
+										}
+										// console.log({ selectedApplicant, selectedSection }, 'selectedSection');
 
-		async function fetchGeoLocationData() {
-			try {
-				// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
-				setFetchingAddress(true);
-				if (!geoLocation.lat && !geoLocation.long) return;
-				const reqBody = {
-					lat: geoLocation.lat,
-					long: geoLocation.long,
-				};
+										async function fetchGeoLocationData() {
+											try {
+												// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+												setFetchingAddress(true);
+												if (
+													!geoLocation.lat &&
+													!geoLocation.long
+												)
+													return;
+												const reqBody = {
+													lat: geoLocation.lat,
+													long: geoLocation.long,
+												};
 
-				const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-					headers: {
-						Authorization: `Bearer ${userToken}`,
-					},
-				});
+												const geoLocationRes = await axios.post(
+													API.GEO_LOCATION,
+													reqBody,
+													{
+														headers: {
+															Authorization: `Bearer ${userToken}`,
+														},
+													}
+												);
 
-				dispatch(
-					setGeoLocation({
-						lat: geoLocation.lat,
-						long: geoLocation.long,
-						timestamp: geoLocation?.lat_long_timestamp,
-						address: geoLocationRes?.data?.data?.address,
-					})
-				);
-				setGeoLocationData({
-					lat: geoLocation.lat,
-					long: geoLocation.long,
-					timestamp: geoLocation?.lat_long_timestamp,
-					address: geoLocationRes?.data?.data?.address,
-				});
-			} catch (error) {
-				console.error('fetchGeoLocationData ~ error:', error);
-				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-				setGeoLocationData({
-					err: 'Geo Location Not Captured',
-				});
-				addToast({
-					message:
-						error?.response?.data?.message ||
-						error?.message ||
-						'Geo Location Not Captured',
-					type: 'error',
-				});
-			} finally {
-				setFetchingAddress(false);
-			}
-		}
+												dispatch(
+													setGeoLocation({
+														lat: geoLocation.lat,
+														long: geoLocation.long,
+														timestamp:
+															geoLocation?.lat_long_timestamp,
+														address:
+															geoLocationRes?.data?.data
+																?.address,
+													})
+												);
+												setGeoLocationData({
+													lat: geoLocation.lat,
+													long: geoLocation.long,
+													timestamp:
+														geoLocation?.lat_long_timestamp,
+													address:
+														geoLocationRes?.data?.data
+															?.address,
+												});
+											} catch (error) {
+												console.error(
+													'fetchGeoLocationData ~ error:',
+													error
+												);
+												dispatch(
+													setGeoLocation({
+														err: 'Geo Location Not Captured',
+													})
+												);
+												setGeoLocationData({
+													err: 'Geo Location Not Captured',
+												});
+												addToast({
+													message:
+														error?.response?.data?.message ||
+														error?.message ||
+														'Geo Location Not Captured',
+													type: 'error',
+												});
+											} finally {
+												setFetchingAddress(false);
+											}
+										}
 
-		async function fetchProfilePicGeoLocationData() {
-			try {
-				// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
-				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
-				setFetchingAddress(true);
-				if (!selectedApplicant?.lat && !selectedApplicant?.lat) {
-					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
-					setProfilePicGeolocation({ err: 'Geo Location Not Captured' });
-					return;
-				}
+										async function fetchProfilePicGeoLocationData() {
+											try {
+												// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
+												// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+												setFetchingAddress(true);
+												if (
+													!selectedApplicant?.lat &&
+													!selectedApplicant?.lat
+												) {
+													dispatch(
+														setProfileGeoLocation({
+															err:
+																'Geo Location Not Captured',
+														})
+													);
+													setProfilePicGeolocation({
+														err: 'Geo Location Not Captured',
+													});
+													return;
+												}
 
-				const reqBody = {
-					lat: selectedApplicant?.lat,
-					long: selectedApplicant?.long,
-				};
+												const reqBody = {
+													lat: selectedApplicant?.lat,
+													long: selectedApplicant?.long,
+												};
 
-				const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-					headers: {
-						Authorization: `Bearer ${userToken}`,
-					},
-				});
-				dispatch(
-					setProfileGeoLocation({
-						lat: selectedApplicant?.lat,
-						long: selectedApplicant?.long,
-						timestamp: selectedApplicant?.timestamp,
-						address: geoPicLocationRes?.data?.data?.address,
-					})
-				);
-				setProfilePicGeolocation({
-					lat: selectedApplicant?.lat,
-					long: selectedApplicant?.long,
-					timestamp: selectedApplicant?.timestamp,
-					address: geoPicLocationRes?.data?.data?.address,
-				});
-			} catch (error) {
-				console.error('fetchProfilePicGeoLocationData ~ error:', error);
-			} finally {
-				setFetchingAddress(false);
-			}
-		}
+												const geoPicLocationRes = await axios.post(
+													API.GEO_LOCATION,
+													reqBody,
+													{
+														headers: {
+															Authorization: `Bearer ${userToken}`,
+														},
+													}
+												);
+												dispatch(
+													setProfileGeoLocation({
+														lat: selectedApplicant?.lat,
+														long: selectedApplicant?.long,
+														timestamp:
+															selectedApplicant?.timestamp,
+														address:
+															geoPicLocationRes?.data?.data
+																?.address,
+													})
+												);
+												setProfilePicGeolocation({
+													lat: selectedApplicant?.lat,
+													long: selectedApplicant?.long,
+													timestamp:
+														selectedApplicant?.timestamp,
+													address:
+														geoPicLocationRes?.data?.data
+															?.address,
+												});
+											} catch (error) {
+												console.error(
+													'fetchProfilePicGeoLocationData ~ error:',
+													error
+												);
+											} finally {
+												setFetchingAddress(false);
+											}
+										}
 
-		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
-		if (
-			isGeoTaggingEnabled &&
-			Object.keys(selectedApplicant).length > 0 &&
-			isEditOrViewLoan
-		) {
-			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
-				// setTimeout(() => {
-				// 	// console.log('🚀 ~ file: BasicDetails.js:703 ~ setTimeout ~ loading:');
-				// 	fetchGeoLocationData();
-				// 	setFetchingAddress(false);
-				// }, 5000);
-				fetchGeoLocationData();
-			}
-			if (Object.keys(geoLocationData).length === 0) {
-				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-				setGeoLocationData({ err: 'Geo Location Not Captured' });
-			}
+										// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
+										if (
+											isGeoTaggingEnabled &&
+											Object.keys(selectedApplicant).length >
+												0 &&
+											isEditOrViewLoan
+										) {
+											if (
+												Object.keys(geoLocationData).length >
+													0 &&
+												!geoLocation?.address
+											) {
+												// setTimeout(() => {
+												// 	// console.log('🚀 ~ file: BasicDetails.js:703 ~ setTimeout ~ loading:');
+												// 	fetchGeoLocationData();
+												// 	setFetchingAddress(false);
+												// }, 5000);
+												fetchGeoLocationData();
+											}
+											if (
+												Object.keys(geoLocationData)
+													.length === 0
+											) {
+												dispatch(
+													setGeoLocation({
+														err: 'Geo Location Not Captured',
+													})
+												);
+												setGeoLocationData({
+													err: 'Geo Location Not Captured',
+												});
+											}
 
-			if (
-				selectedApplicant?.customer_picture &&
-				(Object.keys(selectedApplicant?.profileGeoLocation).length <= 0 ||
-					!selectedApplicant?.profileGeoLocation?.address)
-			) {
-				fetchProfilePicGeoLocationData();
-			}
-		}
+											if (
+												selectedApplicant?.customer_picture &&
+												(Object.keys(
+													selectedApplicant?.profileGeoLocation
+												).length <= 0 ||
+													!selectedApplicant
+														?.profileGeoLocation?.address)
+											) {
+												fetchProfilePicGeoLocationData();
+											}
+										}
 
-		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
-		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
-		function saveMandatoryGeoLocation() {
-			let arr = [];
-			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				sub_section?.fields?.map((field, fieldIndex) => {
-					if (field?.geo_tagging) {
-						let reduxStoreKey = '';
-						if (field?.db_key === 'customer_picture') {
-							reduxStoreKey = 'profileGeoLocation';
-						}
-						arr.push(reduxStoreKey);
-					}
-					return null;
-				});
-				return null;
-			});
-			// console.log(arr, 'arr');
-			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
-		}
+										// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
+										// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
+										function saveMandatoryGeoLocation() {
+											let arr = [];
+											selectedSection?.sub_sections?.map(
+												(sub_section, sectionIndex) => {
+													sub_section?.fields?.map(
+														(field, fieldIndex) => {
+															if (field?.geo_tagging) {
+																let reduxStoreKey = '';
+																if (
+																	field?.db_key ===
+																	'customer_picture'
+																) {
+																	reduxStoreKey =
+																		'profileGeoLocation';
+																}
+																arr.push(reduxStoreKey);
+															}
+															return null;
+														}
+													);
+													return null;
+												}
+											);
+											// console.log(arr, 'arr');
+											setMandatoryGeoTag(oldArray => [
+												...oldArray,
+												...arr,
+											]);
+										}
 
-		saveMandatoryGeoLocation();
-		// eslint-disable-next-line
-	}, []);
+										saveMandatoryGeoLocation();
+										// eslint-disable-next-line
+									}, []);
 
 	// console.log('BasicDetails-666', {
 	// 	isPanNumberExist,
