@@ -36,7 +36,6 @@ const SideNav = props => {
 		isEditLoan,
 		isDraftLoan,
 		editLoanDirectors,
-		businessSectionIds,
 	} = app;
 	const {
 		applicant,
@@ -197,12 +196,8 @@ const SideNav = props => {
 												)}
 											</UI.Menu>
 										</UI.Link>
-										{(applicantCoApplicantSectionIds?.length +
-											businessSectionIds?.length ===
-											sectionIndex + 1 ||
-											businessSectionIds?.length === sectionIndex + 1) && (
-											<UI.SectionDevider />
-										)}
+										{applicantCoApplicantSectionIds?.length ===
+											sectionIndex + 1 && <UI.SectionDevider />}
 									</Fragment>
 								);
 							}
