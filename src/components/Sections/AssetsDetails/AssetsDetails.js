@@ -70,6 +70,8 @@ const AssetsDetails = props => {
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
+			setSectionData([]);
+			openCreateForm();
 		} finally {
 			setFetchingSectionData(false);
 		}
