@@ -8,6 +8,9 @@ import { PRODUCT_DETAILS_URL } from '_config/app.config';
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
+// import BusinessDetails from 'components/Sections/BusinessDetails';
+// import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+
 import AddressDetails from 'components/Sections/AddressDetails';
 import EmploymentDetails from 'components/Sections/EmploymentDetails';
 import LoanDetails from 'components/Sections/LoanDetails/LoanDetails';
@@ -30,7 +33,7 @@ import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 
-const ProductIndividual = props => {
+const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
 	const { app, applicantCoApplicants } = reduxState;
@@ -43,7 +46,6 @@ const ProductIndividual = props => {
 		whiteLabelId,
 		isViewLoan,
 	} = app;
-
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
@@ -123,7 +125,7 @@ const ProductIndividual = props => {
 	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
 
 	// useEffect(() => {
-	// 	console.log('ProductIndividual-allStates-', {
+	// 	console.log('Product-allStates-', {
 	// 		reduxState,
 	// 	});
 	// }, [reduxState]);
@@ -186,4 +188,4 @@ const ProductIndividual = props => {
 	);
 };
 
-export default ProductIndividual;
+export default Product;

@@ -22,6 +22,7 @@ import imgCheckCircle from 'assets/icons/white_tick_icon.png';
 import { getCompletedSections } from 'utils/formatData';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
+import * as CONST from './const';
 
 const SideNav = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -195,7 +196,13 @@ const SideNav = props => {
 												)}
 											</UI.Menu>
 										</UI.Link>
-										{applicantCoApplicantSectionIds?.length ===
+										{sectionIndex + 1 ===
+											CONST.lengthOfuniqueSectionsForSmeFlow && (
+											<UI.SectionDevider />
+										)}
+
+										{applicantCoApplicantSectionIds?.length +
+											CONST.lengthOfuniqueSectionsForSmeFlow ===
 											sectionIndex + 1 && <UI.SectionDevider />}
 									</Fragment>
 								);

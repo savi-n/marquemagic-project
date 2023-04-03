@@ -5,9 +5,7 @@ import Loading from 'components/Loading';
 import CustomerStoreProvider from '../_hoc/customerStoreProviders';
 
 const Products = lazy(() => import('../pages/products/Products'));
-const Product = lazy(() =>
-	import('../pages/product/ProductIndividual/ProductIndividual')
-);
+const Product = lazy(() => import('../pages/product/Product/Product'));
 
 export default function ApplyLoanContent() {
 	const { path } = useRouteMatch();
