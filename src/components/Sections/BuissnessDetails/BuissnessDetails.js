@@ -670,7 +670,8 @@ const BuissnessDetails = props => {
 								}
 								// const gstin = companyRocData?.unformatedData?.gstin;
 								if (field?.name === 'gstin' && !!gstin) {
-									customFieldProps.type = 'gstin'; //change this
+									customFieldProps.type =
+										'DisabledTextFieldModal	'; //change this
 									customFieldProps.onClick = handleGstSubmit;
 									customFieldProps.value = gstin[0]?.gstin;
 									customFieldProps.length = gstin.length;
