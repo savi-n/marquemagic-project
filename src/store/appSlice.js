@@ -28,6 +28,7 @@ const initialState = {
 	defaultLoader: '',
 	loginCreateUserRes: null,
 	whiteLabelId: '',
+	isGeoTaggingEnabled: false,
 	permission: {},
 	userDetails: {},
 	isCorporate: false, // TODO: dynamically update flag based on corporate user
@@ -80,12 +81,17 @@ export const appSlice = createSlice({
 		setWhiteLabelId: (state, action) => {
 			state.whiteLabelId = action.payload;
 		},
+		setGeoTagging: (state, action) => {
+			state.isGeoTaggingEnabled = action.payload;
+		},
 		setPermission: (state, action) => {
 			// Redux Toolkit allows us to write "mutating" logic in reducers. It
 			// doesn't actually mutate the state because it uses the Immer library,
 			// which detects changes to a "draft state" and produces a brand new
 			// immutable state based off those changes
 			state.permission = action.payload;
+			state.isGeoTaggingEnabled = action.payload?.geo_tagging?.geo_tagging;
+			// state.isGeoTaggingEnabled = false;
 		},
 		setUserDetails: (state, action) => {
 			state.userDetails = action.payload;
@@ -216,6 +222,7 @@ export const {
 	setClientToken,
 	setBankToken,
 	setProductList,
+	setGeoTagging,
 
 	setSelectedProduct,
 	setSelectedSectionId,

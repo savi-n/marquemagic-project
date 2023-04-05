@@ -119,6 +119,9 @@ export const Caption = styled.p`
 	font-size: 15px;
 	font-weight: 400;
 	margin-left: 20px;
+	@media (max-width: 770px) {
+		font-size: 13px;
+	}
 `;
 
 export const AcceptFilesTypes = styled.span`
@@ -475,7 +478,10 @@ export const DocumentUploadNameToolTip = styled.div`
 `;
 
 export const CTAWrapper = styled.div`
-	margin: 20px 0 0 0;
+	margin: 30px 0 0 0;
+	@media (max-width: 768px) {
+		margin: auto 0 0 0;
+	}
 `;
 
 export const DocumentTaggingSectionWrapper = styled.div`

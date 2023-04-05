@@ -12,6 +12,7 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
+import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 
 import {
 	setLoginCreateUserRes,
@@ -24,12 +25,13 @@ import {
 	// addCacheDocuments,
 	removeCacheDocument,
 	setSelectedApplicantCoApplicantId,
-	// addCacheDocument,
+	setProfileGeoLocation,
 } from 'store/applicantCoApplicantsSlice';
 import {
 	addOrUpdateCacheDocument,
 	addCacheDocuments,
 	setLoanIds,
+	setGeoLocation,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -68,6 +70,7 @@ const BasicDetails = props => {
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		userDetails,
+		isGeoTaggingEnabled,
 	} = app;
 	const {
 		isApplicant,
@@ -79,15 +82,24 @@ const BasicDetails = props => {
 		? applicant
 		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const { directorId } = selectedApplicant;
-	const { cacheDocuments, borrowerUserId, businessUserId } = application;
+	const {
+		cacheDocuments,
+		borrowerUserId,
+		businessUserId,
+		geoLocation,
+	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [fetchingAddress, setFetchingAddress] = useState(false);
 	const [
 		isIncomeTypeConfirmModalOpen,
 		setIsIncomeTypeConfirmModalOpen,
 	] = useState(false);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
+	const [profilePicGeolocation, setProfilePicGeolocation] = useState({});
+	const [geoLocationData, setGeoLocationData] = useState(geoLocation);
+	const [mandatoryGeoTag, setMandatoryGeoTag] = useState([]);
 	const {
 		handleSubmit,
 		register,
@@ -96,6 +108,7 @@ const BasicDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
@@ -167,16 +180,12 @@ const BasicDetails = props => {
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
+
 	const onProceed = async () => {
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
-			// console.log('nextSectionId-', {
-			// 	nextSectionId,
-			// 	selectedApplicantCoApplicantId,
-			// 	newDirectorId,
-			// });
 
 			// call login api only once
 			// TODO: varun do not call this api when RM is creating loan
@@ -204,11 +213,6 @@ const BasicDetails = props => {
 				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
 				axios.defaults.headers.Authorization = `Bearer ${userToken ||
 					newLoginCreateUserRes?.data?.token}`;
-				// console.log('onProceed-loginCreateUserReqRes-', {
-				// 	loginCreateUserReqBody,
-				// 	newLoginCreateUserRes,
-				// });
-				// return;
 			} else {
 				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
@@ -225,20 +229,31 @@ const BasicDetails = props => {
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 			)?.[0];
 			const isNewProfileUploaded = !!profileUploadedFile?.file;
-			const preSignedProfileUrl =
-				profileUploadedFile?.presignedUrl ||
-				selectedApplicant?.customer_picture ||
-				'';
+			let url = profileUploadedFile?.preview;
+			if (profileField?.geo_tagging === true) {
+				url = profileUploadedFile?.presignedUrl;
+			}
+			const profileUrl = url || selectedApplicant?.customer_picture || '';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
 						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
-				: preSignedProfileUrl;
+				: profileUrl;
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
 					...formState.values,
+					app_coordinates:
+						selectedProfileField?.geo_tagging === true
+							? {
+									lat: geoLocationData?.lat,
+									long: geoLocationData?.long,
+									timestamp: geoLocationData?.timestamp,
+							  }
+							: {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
@@ -250,15 +265,6 @@ const BasicDetails = props => {
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
-
-			// console.log('onProceed-basicDetailsReq-', {
-			// 	basicDetailsReqBody,
-			// 	profileKey: CONST.PROFILE_UPLOAD_FIELD_DB_KEY,
-			// 	profileUploadedFile,
-			// 	isNewProfileUploaded,
-			// 	profileFieldValue,
-			// });
-			// return;
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
@@ -281,7 +287,7 @@ const BasicDetails = props => {
 					...profileUploadedFile,
 					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
 					directorId: newDirectorId,
-					preview: null,
+					preview: profileUrl,
 					file: null,
 					isDocRemoveAllowed: false,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -293,12 +299,7 @@ const BasicDetails = props => {
 					newProfileData?.filename ||
 					newProfileData?.uploaded_doc_name ||
 					newProfileData?.original_doc_name;
-				// console.log('onProceed-basicDetailsResBody-', {
-				// 	basicDetailsRes,
-				// 	newProfileData,
-				// 	newDirectorId,
-				// });
-				// return;
+
 				dispatch(
 					addOrUpdateCacheDocument({
 						file: newProfileData,
@@ -318,8 +319,6 @@ const BasicDetails = props => {
 							director_id: newDirectorId,
 							directorId: newDirectorId,
 							preview: null,
-							// classification_type: CONST_SECTIONS.CLASSIFICATION_TYPE_PAN,
-							// classification_sub_type: CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F,
 							document_id: doc?.requestId, // temp doc id as this doc is non deletable
 						});
 						return null;
@@ -330,9 +329,7 @@ const BasicDetails = props => {
 							request_ids_obj: uploadCacheDocumentsTemp,
 							user_id: newCreatedByUserId,
 						};
-						// console.log('uploadCacheDocumentsTempReqBody-', {
-						// 	uploadCacheDocumentsTempReqBody,
-						// });
+
 						await axios.post(
 							API.UPLOAD_CACHE_DOCS,
 							uploadCacheDocumentsTempReqBody,
@@ -356,16 +353,26 @@ const BasicDetails = props => {
 				sectionId: selectedSectionId,
 				sectionValues: {
 					...formState.values,
-					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: preSignedProfileUrl,
-					[CONST.PROFILE_UPLOAD_FIELD_NAME]: preSignedProfileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
 				},
 			};
-			// console.log('onProceed-', {
-			// 	newBasicDetails,
-			// });
+
 			// TODO: varun update cin properly peding discussion with savita
 			newBasicDetails.directorId = newDirectorId;
 			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
+				.length > 0 &&
+				profilePicGeolocation) || {
+				address:
+					selectedApplicant?.address ||
+					selectedApplicant?.profileGeoLocation?.address,
+				lat: selectedApplicant?.lat,
+				long: selectedApplicant?.long,
+				timestamp: selectedApplicant?.timestamp,
+			};
+
+			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
 			if (isApplicant) {
 				dispatch(updateApplicantSection(newBasicDetails));
 			} else {
@@ -384,7 +391,35 @@ const BasicDetails = props => {
 				})
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
+
 			dispatch(setSelectedSectionId(nextSectionId));
+			if (isGeoTaggingEnabled) {
+				if (
+					mandatoryGeoTag.length > 0 &&
+					mandatoryGeoTag.includes('profileGeoLocation')
+				) {
+					// ITERATING OVER THE MANDATORY FIELDS AND
+					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
+					// BUT ALLOW USER TO MOVE TO NEXT SECTION
+					if (
+						(isApplicant && !selectedApplicant.profileGeoLocation?.address) ||
+						(!isApplicant && !profilePicGeolocation?.address)
+					) {
+						addToast({
+							message: 'Mandatory Profile GeoLocation not captured',
+							type: 'error',
+						});
+					}
+				}
+
+				// IF GEOTAGGING IS MANDATORY
+				if (!geoLocation?.address) {
+					addToast({
+						message: 'Mandatory GeoLocation not captured',
+						type: 'error',
+					});
+				}
+			}
 		} catch (error) {
 			console.error('error-BasicDetails-onProceed-', {
 				error: error,
@@ -401,9 +436,26 @@ const BasicDetails = props => {
 		}
 	};
 
-	const addCacheDocumentTemp = file => {
+	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
+
+		if (isGeoTaggingEnabled && file?.type === 'profilePic') {
+			if (file?.file?.lat === 'null' || !file?.file.hasOwnProperty('lat')) {
+				const geoLocationTag = {
+					err: 'Geo Location Not Captured',
+				};
+				setProfilePicGeolocation(geoLocationTag);
+			} else {
+				const geoLocationTag = {
+					lat: file?.file?.lat,
+					long: file?.file?.long,
+					address: file?.file?.address,
+					timestamp: file?.file?.timestamp,
+				};
+				setProfilePicGeolocation(geoLocationTag);
+			}
+		}
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
@@ -423,14 +475,12 @@ const BasicDetails = props => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		// console.log('applicant-', { selectedApplicant });
 		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
 			const panFile = getEditLoanLoanDocuments({
 				documents: editLoanData?.loan_document,
 				directorId: selectedApplicant?.directorId,
 				docTypeId: field?.doc_type?.[selectedApplicant?.income_type],
 			});
-			// console.log('all-pan-files-', panFile);
 			return panFile[0];
 		}
 		const preData = {
@@ -530,11 +580,7 @@ const BasicDetails = props => {
 			const params = queryString.parse(window.location.search);
 			if (params?.token) {
 				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
-				// console.log('validateToken-', {
-				// 	decryptedToken,
-				// 	type: typeof decryptedToken,
-				// 	isError: !!decryptedToken?.stack?.includes('SyntaxError'),
-				// });
+
 				if (decryptedToken?.token) {
 					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
 					if (!isValidToken) {
@@ -556,6 +602,7 @@ const BasicDetails = props => {
 
 	useEffect(() => {
 		validateToken();
+
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
@@ -565,6 +612,155 @@ const BasicDetails = props => {
 				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
 		}
+
+		if (
+			isGeoTaggingEnabled &&
+			selectedApplicant?.profileGeoLocation &&
+			Object.keys(selectedApplicant?.profileGeoLocation).length > 0
+		) {
+			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
+		}
+
+		async function fetchGeoLocationData() {
+			try {
+				// FROM APP_COORDINATES IN GET_DETAILS_WITH_LOAN_REF_ID API, LAT, LONG IS RECEIVED
+				setFetchingAddress(true);
+				if (!geoLocation.lat && !geoLocation.long) return;
+				const reqBody = {
+					lat: geoLocation.lat,
+					long: geoLocation.long,
+				};
+
+				const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+
+				dispatch(
+					setGeoLocation({
+						lat: geoLocation.lat,
+						long: geoLocation.long,
+						timestamp: geoLocation?.lat_long_timestamp,
+						address: geoLocationRes?.data?.data?.address,
+					})
+				);
+				setGeoLocationData({
+					lat: geoLocation.lat,
+					long: geoLocation.long,
+					timestamp: geoLocation?.lat_long_timestamp,
+					address: geoLocationRes?.data?.data?.address,
+				});
+			} catch (error) {
+				console.error('fetchGeoLocationData ~ error:', error);
+				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+				setGeoLocationData({
+					err: 'Geo Location Not Captured',
+				});
+				addToast({
+					message:
+						error?.response?.data?.message ||
+						error?.message ||
+						'Geo Location Not Captured',
+					type: 'error',
+				});
+			} finally {
+				setFetchingAddress(false);
+			}
+		}
+
+		async function fetchProfilePicGeoLocationData() {
+			try {
+				// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
+				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
+				setFetchingAddress(true);
+				if (!selectedApplicant?.lat && !selectedApplicant?.lat) {
+					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+					setProfilePicGeolocation({ err: 'Geo Location Not Captured' });
+					return;
+				}
+
+				const reqBody = {
+					lat: selectedApplicant?.lat,
+					long: selectedApplicant?.long,
+				};
+
+				const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+				dispatch(
+					setProfileGeoLocation({
+						lat: selectedApplicant?.lat,
+						long: selectedApplicant?.long,
+						timestamp: selectedApplicant?.timestamp,
+						address: geoPicLocationRes?.data?.data?.address,
+					})
+				);
+				setProfilePicGeolocation({
+					lat: selectedApplicant?.lat,
+					long: selectedApplicant?.long,
+					timestamp: selectedApplicant?.timestamp,
+					address: geoPicLocationRes?.data?.data?.address,
+				});
+			} catch (error) {
+				console.error('fetchProfilePicGeoLocationData ~ error:', error);
+			} finally {
+				setFetchingAddress(false);
+			}
+		}
+
+		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
+		if (
+			isGeoTaggingEnabled &&
+			Object.keys(selectedApplicant).length > 0 &&
+			isEditOrViewLoan
+		) {
+			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+				// setTimeout(() => {
+				// 	// console.log('🚀 ~ file: BasicDetails.js:703 ~ setTimeout ~ loading:');
+				// 	fetchGeoLocationData();
+				// 	setFetchingAddress(false);
+				// }, 5000);
+				fetchGeoLocationData();
+			}
+			if (Object.keys(geoLocationData).length === 0) {
+				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+				setGeoLocationData({ err: 'Geo Location Not Captured' });
+			}
+
+			if (
+				selectedApplicant?.customer_picture &&
+				(Object.keys(selectedApplicant?.profileGeoLocation).length <= 0 ||
+					!selectedApplicant?.profileGeoLocation?.address)
+			) {
+				fetchProfilePicGeoLocationData();
+			}
+		}
+
+		// RUN THROUGH SECTION AND FETCH WHERE GEO_TAGGING IS MANDATORY AND
+		// CORRESPONDING REDUX STATE KEY IS STORED IN MANDATORY ARRAY
+		function saveMandatoryGeoLocation() {
+			let arr = [];
+			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+				sub_section?.fields?.map((field, fieldIndex) => {
+					if (field?.geo_tagging) {
+						let reduxStoreKey = '';
+						if (field?.db_key === 'customer_picture') {
+							reduxStoreKey = 'profileGeoLocation';
+						}
+						arr.push(reduxStoreKey);
+					}
+					return null;
+				});
+				return null;
+			});
+			// console.log(arr, 'arr');
+			setMandatoryGeoTag(oldArray => [...oldArray, ...arr]);
+		}
+
+		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
 	}, []);
 
@@ -596,9 +792,13 @@ const BasicDetails = props => {
 			})}
 		/>
 	);
-
+	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
+			{/* <SelfieAlertModal
+				show={isSelfieAlertModalOpen}
+				onClose={setIsSelfieAlertModalOpen}
+			/> */}
 			<ConfirmModal
 				type='Income'
 				show={isIncomeTypeConfirmModalOpen}
@@ -637,10 +837,7 @@ const BasicDetails = props => {
 									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 								) {
 									prefilledProfileUploadValue = prefilledValues(field);
-									// console.log('prefilledProfileUploadValue-', {
-									// 	prefilledProfileUploadValue,
-									// 	selectedApplicant,
-									// });
+
 									return (
 										<UI_SECTIONS.FieldWrapGrid
 											style={{ gridRow: 'span 3', height: '100%' }}
@@ -660,6 +857,17 @@ const BasicDetails = props => {
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													onChangeFormStateField={onChangeFormStateField}
 													isDisabled={isViewLoan}
+													isTag={true}
+													geoLocationAddress={
+														profilePicGeolocation || {
+															address:
+																selectedApplicant?.profileGeoLocation?.address,
+															lat: selectedApplicant?.lat,
+															long: selectedApplicant?.long,
+															timestamp: selectedApplicant?.timestamp,
+														}
+													}
+													setImageLoading={setLoading}
 												/>
 											</UI.ProfilePicWrapper>
 										</UI_SECTIONS.FieldWrapGrid>
@@ -784,17 +992,29 @@ const BasicDetails = props => {
 					</Fragment>
 				);
 			})}
+			{isGeoTaggingEnabled && (
+				<AddressDetailsCard
+					address={geoLocationData?.address || geoLocation?.address}
+					latitude={geoLocationData?.lat || geoLocation?.lat}
+					longitude={geoLocationData?.long || geoLocation?.long}
+					timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
+					err={geoLocationData?.err || geoLocation?.err}
+					showCloseIcon={false}
+					customStyle={{
+						marginBottom: '30px',
+					}}
+					embedInImageUpload={false}
+				/>
+			)}
+
 			<UI_SECTIONS.Footer>
 				{!isViewLoan && (
 					<Button
 						fill
-						name='Save and Proceed'
+						name={fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'}
 						isLoader={loading}
-						disabled={loading}
+						disabled={loading || fetchingAddress}
 						onClick={handleSubmit(() => {
-							// console.log({
-							// 	isProfileMandatory,
-							// });
 							let isProfileError = false;
 							if (isProfileMandatory && profileUploadedFile === null) {
 								isProfileError = true;

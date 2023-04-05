@@ -2,15 +2,10 @@
 
 import taggedTemplate from '../utils/taggedTemplate';
 
-const API_END_POINT =
-	process.env.REACT_APP_API_URL || 'http://3.108.54.252:1337';
-const ENDPOINT_BANK =
-	process.env.REACT_APP_BANK_API || 'http://40.80.80.135:1337';
-const OTP_API_END_POINT =
-	process.env.REACT_APP_OTP_URL || 'http://18.136.14.70';
-// "https://apiv3.namastecredit.com/apiservices";
-
-const APP_DOMAIN = process.env.REACT_APP_DOMAIN || '';
+const API_END_POINT = process.env.REACT_APP_API_URL;
+const ENDPOINT_BANK = process.env.REACT_APP_BANK_API;
+const OTP_API_END_POINT = process.env.REACT_APP_OTP_URL;
+const APP_DOMAIN = process.env.REACT_APP_DOMAIN;
 
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
@@ -45,7 +40,7 @@ const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
 
 const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 
-const SECRET = 'htde6458dgej2164';
+const SECRET = process.env.REACT_APP_SECRET || '';
 const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}`;
 
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
@@ -85,8 +80,11 @@ const AADHAAR_RESEND_OTP = `${ENDPOINT_BANK}/aadhaar/resendOTP`;
 const AUTHENTICATION_GENERATE_OTP = `${API_END_POINT}/users/sendOTP`;
 const AUTHENTICATION_VERIFY_OTP = `${API_END_POINT}/users/verifyOTP`;
 const DELETE_DOCUMENT = `${API_END_POINT}/documentDelete`;
+const DELETE_LENDER_DOCUMENT = `${API_END_POINT}/lenderDocumentDelete`;
 const VIEW_DOCUMENT = `${API_END_POINT}/viewDocument`;
 const FETCH_EVAL_DETAILS = `${API_END_POINT}/fetchEvaluationDetails`;
+const UPLOAD_SELFIE_APPLICANT_COAPPLICANT = `${API_END_POINT}/geo/upload_img`;
+const GEO_LOCATION = `${API_END_POINT}/geoLocation`;
 
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
@@ -97,8 +95,6 @@ const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
 const REDIRECT_CREATE =
 	HOSTNAME === 'localhost' ? '/' : '/onboarding/applyloan';
-
-const KYC_URL = `http://40.80.80.135:1337/getKycData`;
 
 const NC_STATUS_CODE = {
 	OK: 'ok',
@@ -179,7 +175,6 @@ export {
 	SECRET,
 	DOCS_UPLOAD_URL_LOAN,
 	REDIRECT_CREATE,
-	KYC_URL,
 	CIN_UPDATE,
 	UPLOAD_CACHE_DOCS,
 	AADHAAR_GENERATE_OTP,
@@ -191,6 +186,7 @@ export {
 	COAPPLICANT_DETAILS,
 	RESEND_OTP_TIMER,
 	DELETE_DOCUMENT,
+	DELETE_LENDER_DOCUMENT,
 	VIEW_DOCUMENT,
 	CO_APPLICANTS_DOCTYPES_FETCH,
 	HOSTNAME,
@@ -213,4 +209,6 @@ export {
 	TEST_DOMAINS,
 	TO_APPLICATION_STAGE_URL,
 	VERIFY_TOKEN,
+	UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
+	GEO_LOCATION,
 };

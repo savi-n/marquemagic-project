@@ -547,7 +547,7 @@ const CategoryFileUpload = props => {
 					const mappedDocFiles = documents?.filter(
 						doc => doc?.doc_type_id === docType?.doc_type_id
 					);
-
+					// console.log('categoryfileupload-mappedDocFiles-', { mappedDocFiles });
 					return (
 						<UI.DocumentUploadList
 							key={`${docType.id}-${doctypeidx}-${docType.doc_type_id}`}

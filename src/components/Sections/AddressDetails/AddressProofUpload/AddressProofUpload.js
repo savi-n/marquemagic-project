@@ -691,7 +691,7 @@ const AddressProofUpload = props => {
 		const newCacheDocumentTemp = _.cloneDeep(
 			cacheDocumentsTemp?.filter(doc => {
 				const doc_type_id = `${doc?.doc_type_id}`;
-				if (!doc_type_id) return false;
+				if (!doc?.doc_type_id) return false;
 				return !doc_type_id?.includes(prefix);
 			})
 		);
@@ -735,7 +735,8 @@ const AddressProofUpload = props => {
 			return (prevSelectedAddressProofId.current = selectedAddressProofId);
 		}
 		if (prevSelectedAddressProofId?.current !== selectedAddressProofId) {
-			if (cacheDocumentsTemp?.filter(doc => !!doc.isTagged).length > 0) {
+			// if (cacheDocumentsTemp?.filter(doc => !!doc.isTagged).length > 0) {
+			if (cacheDocumentsTemp?.length > 0) {
 				setIsDocTypeChangeModalOpen(true);
 			} else {
 				prevSelectedAddressProofId.current = selectedAddressProofId;
@@ -784,6 +785,17 @@ const AddressProofUpload = props => {
 		customFieldProps.disabled = disabled;
 	}
 	if (isSectionCompleted) {
+		customFieldProps.disabled = true;
+	}
+	if (
+		Object.keys(
+			cacheDocumentsTemp?.filter(doc =>
+				doc?.selectedAddressProofId?.includes(
+					CONST_SECTIONS.EXTRACTION_KEY_AADHAAR
+				)
+			)?.[0]?.extractionRes || {}
+		).length > 0
+	) {
 		customFieldProps.disabled = true;
 	}
 
@@ -1237,6 +1249,7 @@ const AddressProofUpload = props => {
 				<UI.CTAWrapper>
 					{!addressProofError &&
 						!selectedAddressProofId?.includes('others') &&
+						!!taggedDocumentCount &&
 						doNotHideFetchAddress && (
 							<Button
 								fill

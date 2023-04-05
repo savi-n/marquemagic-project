@@ -104,7 +104,7 @@ export const formatSectionReqBody = data => {
 			: coApplicants[selectedApplicantCoApplicantId] || {};
 		const subSectionsData = {};
 		selectedSection?.sub_sections?.map(sub_section => {
-			const sectionBody = {};
+			let sectionBody = {};
 			sub_section.fields.map(field => {
 				if (!field.db_key || !field.name || values?.[field.name] === undefined)
 					return null;
@@ -114,6 +114,15 @@ export const formatSectionReqBody = data => {
 						: values[field.name];
 				return null;
 			});
+			// console.log(values, selectedSection, sectionBody);
+			if (selectedSection.id === 'basic_details') {
+				sectionBody = {
+					...sectionBody,
+					app_coordinates: values['app_coordinates'],
+				};
+			}
+
+			// console.log(values, selectedSection, sectionBody);
 			subSectionsData[sub_section.id] = sectionBody;
 			return null;
 		});
@@ -725,9 +734,11 @@ export const formatLoanDocuments = docs => {
 	docs?.map(doc => {
 		const newDoc = {
 			...(doc?.loan_document_details?.[0] || {}),
+			...(doc?.doc_type?.[0] || {}),
 			...doc,
+			document_key: doc?.document_key || doc?.doc_name,
 			document_id: doc?.id,
-			doc_type_id: doc.doctype,
+			doc_type_id: doc.doctype || doc.doc_type.id,
 			name: getDocumentNameFromLoanDocuments(doc),
 		};
 		newDocs.push(newDoc);

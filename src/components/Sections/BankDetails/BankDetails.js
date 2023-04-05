@@ -108,10 +108,16 @@ const BankDetails = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
+				...(application?.sections?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
+		if (
+			isEditLoan &&
+			!application?.sections?.hasOwnProperty(selectedSectionId)
+		) {
+			skipSectionData.sectionValues = { ...formState.values };
+		}
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -153,6 +159,8 @@ const BankDetails = () => {
 
 			if (
 				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
+				// &&
+				// !application?.sections?.[selectedSectionId]?.hasOwnProperty('isSkip')
 			) {
 				return application?.sections?.[selectedSectionId]?.[field?.name];
 			}

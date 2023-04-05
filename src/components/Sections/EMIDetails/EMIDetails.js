@@ -125,19 +125,26 @@ const EMIDetails = props => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
+				...(application?.sections?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
+		if (
+			isEditLoan &&
+			!application?.sections?.hasOwnProperty(selectedSectionId)
+		) {
+			skipSectionData.sectionValues = { ...formState.values };
+		}
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
+		// console.log('emi details', editLoanData);
 		const emiDetails = parseJSON(
 			editLoanData?.bank_details?.filter(
 				bank => `${bank.id}` === `${emiDetailsFinId}`
-			)?.[0]?.emi_details || {}
+			)?.[0]?.emi_details || '{}'
 		);
 		const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
 			arrayOfObject: emiDetails,
@@ -166,7 +173,6 @@ const EMIDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-
 			if (
 				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
 			) {
@@ -175,7 +181,13 @@ const EMIDetails = props => {
 					return application?.sections?.[selectedSectionId]?.[field?.name]
 						?.value;
 				} else {
+					// if (
+					// 	!application?.sections?.[selectedSectionId]?.hasOwnProperty(
+					// 		'isSkip'
+					// 	)
+					// ) {
 					return application?.sections?.[selectedSectionId]?.[field?.name];
+					// }
 				}
 			}
 
@@ -261,7 +273,7 @@ const EMIDetails = props => {
 			const emiDetails = parseJSON(
 				editLoanData?.bank_details?.filter(
 					bank => `${bank?.id}` === `${emiDetailsFinId}`
-				)?.[0]?.emi_details || {}
+				)?.[0]?.emi_details || '{}'
 			);
 			if (emiDetails.length > 3) {
 				setCount(emiDetails.length);
