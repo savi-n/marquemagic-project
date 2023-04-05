@@ -43,6 +43,8 @@ const PanUpload = props => {
 		onChangeFormStateField,
 		clearErrorFormState,
 		// cacheDocumentsTemp,
+		// state,
+		setGstin,
 		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
@@ -158,6 +160,39 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
+	const gstinFetch = async confirmPanNumber => {
+		try {
+			setLoading(true);
+			const gstinReqBody = {
+				pan: confirmPanNumber,
+			};
+			const gstinResponse = await axios.post(
+				`${API.API_END_POINT}/api/panToGst`,
+				gstinReqBody,
+				{
+					headers: {
+						authorization: clientToken,
+					},
+				}
+			);
+			const gstinData = gstinResponse?.data?.data;
+
+			return gstinData;
+			// console.log(gstin);
+		} catch (error) {
+			setLoading(false);
+			addToast({
+				message:
+					'Unable to fetch the data from PanToGst. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+			console.error('error-gstinFetchError-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
 	const cinNumberFetch = async cinNumber => {
 		try {
 			setLoading(true);
@@ -167,14 +202,24 @@ const PanUpload = props => {
 			const cinNumberResponse = await axios.post(
 				API.ROC_DATA_FETCH,
 				cinFetchReqBody,
-				{ headers: { authorization: clientToken } }
+				{
+					headers: {
+						authorization: clientToken,
+					},
+				}
 			);
+			const gstinData = await gstinFetch(confirmPanNumber);
+			setGstin(gstinData);
+			console.log({
+				gstinData,
+			});
 			const companyData = cinNumberResponse?.data?.data;
+			companyData.gstin = gstinData;
+			console.log(companyData);
 			const formattedCompanyData = formatCompanyRocData(
 				companyData,
 				confirmPanNumber
 			);
-			console.log(formattedCompanyData);
 			dispatch(setCompanyRocData(formattedCompanyData));
 		} catch (error) {
 			setLoading(false);
@@ -220,7 +265,6 @@ const PanUpload = props => {
 				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: confirmPanNumber,
 			});
-
 			/* split the name into first and last name */
 			let name = panExtractionData?.Name,
 				first_name = '',
@@ -233,7 +277,6 @@ const PanUpload = props => {
 				}
 				first_name = nameSplit.join(' ');
 			}
-
 			if (first_name) {
 				onChangeFormStateField({
 					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
@@ -270,9 +313,8 @@ const PanUpload = props => {
 				onChangeFormStateField({
 					name: 'business_vintage',
 					value:
-						moment(companyRocData?.BusinessVintage).format(
-							'YYYY-MM-DD'
-						) || '',
+						moment(companyRocData?.BusinessVintage).format('YYYY-MM-DD') ||
+						'',
 				});
 				onChangeFormStateField({
 					name: 'business_email',
@@ -419,7 +461,10 @@ const PanUpload = props => {
 				type: 'error',
 			});
 		} finally {
-			addCacheDocumentTemp({ ...previewFileData, ...newFileData });
+			addCacheDocumentTemp({
+				...previewFileData,
+				...newFileData,
+			});
 			setLoading(false);
 		}
 	};
@@ -475,7 +520,7 @@ const PanUpload = props => {
 	// 	isPreview,
 	// 	uploadedFile,
 	// });
-
+	// dispatch(setCompanyRocData(gstin));
 	return (
 		<>
 			<CompanySelectModal
@@ -510,7 +555,12 @@ const PanUpload = props => {
 						alt='close'
 					/>
 					<UI.ConfirmPanWrapper>
-						<h1 style={{ fontSize: '22px', fontWeight: '600Px' }}>
+						<h1
+							style={{
+								fontSize: '22px',
+								fontWeight: '600Px',
+							}}
+						>
 							Confirm PAN Number and Proceed
 						</h1>
 						<UI.FieldWrapperPanVerify>
@@ -537,7 +587,9 @@ const PanUpload = props => {
 									// setCacheDocumentsTemp(newCacheDocumentTemp);
 									// dispatch(panExtractionResTemp(newPanExtractionData));
 								}}
-								style={{ textAlign: 'center' }}
+								style={{
+									textAlign: 'center',
+								}}
 							/>
 							{panErrorMessage && (
 								<UI_SECTIONS.ErrorMessage borderColorCode={panErrorColorCode}>
@@ -551,7 +603,9 @@ const PanUpload = props => {
 							isLoader={loading}
 							onClick={onProceedPanConfirm}
 							disabled={loading}
-							style={{ alignText: 'center' }}
+							style={{
+								alignText: 'center',
+							}}
 						/>
 					</UI.ConfirmPanWrapper>
 				</section>
@@ -583,10 +637,17 @@ const PanUpload = props => {
 							</UI.UploadIconWrapper>
 						) : (
 							<UI.UploadIconWrapper
-								{...getRootProps({ className: 'dropzone' })}
+								{...getRootProps({
+									className: 'dropzone',
+								})}
 							>
 								{loadingFile ? (
-									<div style={{ marginLeft: 'auto', height: '30px' }}>
+									<div
+										style={{
+											marginLeft: 'auto',
+											height: '30px',
+										}}
+									>
 										<CircularLoading />
 									</div>
 								) : null}
@@ -620,13 +681,20 @@ const PanUpload = props => {
 					isDisabled={isDisabled}
 					panErrorColorCode={panErrorColorCode}
 				>
-					<label>Upload{loading ? 'ing...' : null} PAN</label>
+					<label>
+						Upload
+						{loading ? 'ing...' : null} PAN
+					</label>
 					{loading ? (
 						<UI.UploadIconWrapper>
 							<LoadingIcon />
 						</UI.UploadIconWrapper>
 					) : (
-						<UI.UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
+						<UI.UploadIconWrapper
+							{...getRootProps({
+								className: 'dropzone',
+							})}
+						>
 							<input {...getInputProps()} />
 							<UI.IconUpload src={iconUploadBlue} alt='camera' />
 						</UI.UploadIconWrapper>
