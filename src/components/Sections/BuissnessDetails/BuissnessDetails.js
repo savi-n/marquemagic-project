@@ -1,15 +1,16 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
-import queryString from "query-string";
-import _ from "lodash";
-import PanUpload from "./PanUpload";
-import useForm from "hooks/useFormIndividual";
-import Button from "components/Button";
+import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import queryString from 'query-string';
+import _ from 'lodash';
+import PanUpload from './PanUpload';
+import useForm from 'hooks/useFormIndividual';
+import Button from 'components/Button';
+import imgClose from 'assets/icons/close_icon_grey-06.svg';
 
-import Hint from "components/Hint";
-import ConfirmModal from "components/modals/ConfirmModal";
-import { decryptRes } from "utils/encrypt";
+import Hint from 'components/Hint';
+import ConfirmModal from 'components/modals/ConfirmModal';
+import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 
 import {
@@ -40,6 +41,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+import Modal from 'components/Modal';
 
 const BuissnessDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -69,7 +71,6 @@ const BuissnessDetails = props => {
 		applicant,
 		coApplicants,
 		selectedApplicantCoApplicantId,
-		companyRocData,
 	} = applicantCoApplicants;
 	const selectedApplicant = isApplicant
 		? applicant
@@ -83,11 +84,13 @@ const BuissnessDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	const [fetchingAddress, setFetchingAddress] = useState(false);
+	const [isGstModalOpen, setGstModalOpen] = useState(false);
+	// const [fetchingAddress, setFetchingAddress] = useState(false);
 	const [
 		isIncomeTypeConfirmModalOpen,
 		setIsIncomeTypeConfirmModalOpen,
 	] = useState(false);
+	const [gstin, setGstin] = useState([]);
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const {
@@ -138,7 +141,6 @@ const BuissnessDetails = props => {
 			setLoading(true);
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
-
 			// call login api only once
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
@@ -190,7 +192,7 @@ const BuissnessDetails = props => {
 				newBorrowerUserId || businessUserId;
 
 			const buissnesscDetailsRes = await axios.post(
-				`${API.API_END_POINT}/basic_details`,
+				`${API.API_END_POINT}/basic_details`, // need to be changed
 				buissnessDetailsReqBody
 			);
 			const newLoanRefId =
@@ -289,6 +291,9 @@ const BuissnessDetails = props => {
 			setLoading(false);
 		}
 	};
+	const handleGstSubmit = () => {
+		setGstModalOpen(true);
+	};
 	const addCacheDocumentTemp = async file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		newCacheDocumentTemp.push(file);
@@ -298,8 +303,8 @@ const BuissnessDetails = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
-			0
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)
+				?.length > 0
 		) {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
@@ -347,7 +352,8 @@ const BuissnessDetails = props => {
 			// update value from form state
 			// whenever user decides to type or enter value
 			// form state should be the first value to prepopulate
-			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated =
+				formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -404,7 +410,9 @@ const BuissnessDetails = props => {
 		try {
 			const params = queryString.parse(window.location.search);
 			if (params?.token) {
-				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+				const decryptedToken = decryptRes(
+					params?.token?.replaceAll(' ', '+')
+				);
 
 				if (decryptedToken?.token) {
 					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
@@ -438,7 +446,6 @@ const BuissnessDetails = props => {
 	// });
 	useEffect(() => {
 		validateToken();
-
 		if (
 			!isEditLoan &&
 			!isViewLoan &&
@@ -449,7 +456,6 @@ const BuissnessDetails = props => {
 			);
 		}
 	}, []);
-
 	const ButtonProceed = (
 		<Button
 			fill
@@ -470,6 +476,73 @@ const BuissnessDetails = props => {
 				onClose={setIsIncomeTypeConfirmModalOpen}
 				ButtonProceed={ButtonProceed}
 			/>
+			<Modal
+				show={isGstModalOpen}
+				onClose={() => {
+					setGstModalOpen(false);
+				}}
+				// Width='40%'
+				customStyle={{ minWidth: '40%' }}
+			>
+				<section className='p-4 flex flex-col gap-y-8'>
+					<UI.ImgClose
+						onClick={() => {
+							setGstModalOpen(false);
+						}}
+						src={imgClose}
+						alt='close'
+					/>
+					<table>
+						<thead
+							style={{
+								backgroundColor: 'rgb(244 244 244)',
+							}}
+						>
+							<tr>
+								<th>GSTIN</th>
+								<th>Status</th>
+								<th>State</th>
+							</tr>
+						</thead>
+						<tbody
+							style={{
+								textAlign: 'center',
+							}}
+						>
+							{!!gstin &&
+								gstin.map(items => {
+									return (
+										<tr>
+											<td>{items.gstin}</td>
+											<td>{items.status}</td>
+											<td>{items.state_code}</td>
+										</tr>
+									);
+								})}
+							{!!gstin &&
+								gstin.map(items => {
+									return (
+										<tr>
+											<td>{items.gstin}</td>
+											<td>{items.status}</td>
+											<td>{items.state_code}</td>
+										</tr>
+									);
+								})}
+							{!!gstin &&
+								gstin.map(items => {
+									return (
+										<tr>
+											<td>{items.gstin}</td>
+											<td>{items.status}</td>
+											<td>{items.state_code}</td>
+										</tr>
+									);
+								})}
+						</tbody>
+					</table>
+				</section>
+			</Modal>
 			{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
@@ -487,10 +560,7 @@ const BuissnessDetails = props => {
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								// disable fields based on config starts
 								if (field?.hasOwnProperty('is_applicant')) {
-									if (
-										field.is_applicant === false &&
-										isApplicant
-									) {
+									if (field.is_applicant === false && isApplicant) {
 										return null;
 									}
 								}
@@ -503,89 +573,107 @@ const BuissnessDetails = props => {
 									field.type === 'file' &&
 									field.name === CONST.PAN_UPLOAD_FIELD_NAME
 								) {
-									let panErrorMessage =
-										((formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name]) ||
-										'';
-									// console.log('pancard-error-msg-', {
-									// 	panErrorMessage,
-									// });
-									const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
-										panErrorMessage
-									);
-									panErrorMessage = panErrorMessage.replace(
-										CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
-										''
-									);
-									panErrorMessage = panErrorMessage.replace(
-										CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
-										''
-									);
-									panErrorMessage = panErrorMessage.includes(
-										CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
-									)
-										? ''
-										: panErrorMessage;
+										let panErrorMessage =
+											((formState?.submit?.isSubmited ||
+												formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name]) ||
+											'';
+										// console.log('pancard-error-msg-', {
+										// 	panErrorMessage,
+										// });
+										const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
+											panErrorMessage
+										);
+										panErrorMessage = panErrorMessage.replace(
+											CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
+											''
+										);
+										panErrorMessage = panErrorMessage.replace(
+											CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
+											''
+										);
+										panErrorMessage = panErrorMessage.includes(
+											CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
+										)
+											? ''
+											: panErrorMessage;
 
-									// console.log('pancard-error-msg-', {
-									// 	panErrorColorCode,
-									// 	panErrorMessage,
-									// });
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											<UI.ProfilePicWrapper>
-												<PanUpload
-													field={field}
-													value={prefilledValues(field)}
-													formState={formState}
-													uploadedFile={panUploadedFile}
-													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={
-														removeCacheDocumentTemp
-													}
-													isPanNumberExist={isPanNumberExist}
-													panErrorMessage={panErrorMessage}
-													panErrorColorCode={panErrorColorCode}
-													setErrorFormStateField={
-														setErrorFormStateField
-													}
-													onChangeFormStateField={
-														onChangeFormStateField
-													}
-													clearErrorFormState={clearErrorFormState}
-													isDisabled={isViewLoan}
-												/>
-												{panErrorMessage && (
-													<UI_SECTIONS.ErrorMessage
-														borderColorCode={panErrorColorCode}
-													>
-														{panErrorMessage}
-													</UI_SECTIONS.ErrorMessage>
-												)}
-											</UI.ProfilePicWrapper>
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
+										// console.log('pancard-error-msg-', {
+										// 	panErrorColorCode,
+										// 	panErrorMessage,
+										// });
+										// console.log(gstin);
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${fieldIndex}-${
+													field.name
+												}`}
+											>
+												<UI.ProfilePicWrapper>
+													<PanUpload
+														field={field}
+														value={prefilledValues(field)}
+														setGstin={setGstin}
+														formState={formState}
+														uploadedFile={panUploadedFile}
+														addCacheDocumentTemp={
+															addCacheDocumentTemp
+														}
+														removeCacheDocumentTemp={
+															removeCacheDocumentTemp
+														}
+														isPanNumberExist={
+															isPanNumberExist
+														}
+														panErrorMessage={panErrorMessage}
+														panErrorColorCode={
+															panErrorColorCode
+														}
+														setErrorFormStateField={
+															setErrorFormStateField
+														}
+														onChangeFormStateField={
+															onChangeFormStateField
+														}
+														clearErrorFormState={
+															clearErrorFormState
+														}
+														isDisabled={isViewLoan}
+													/>
+
+													{panErrorMessage && (
+														<UI_SECTIONS.ErrorMessage
+															borderColorCode={
+																panErrorColorCode
+															}
+														>
+															{panErrorMessage}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+												</UI.ProfilePicWrapper>
+											</UI_SECTIONS.FieldWrapGrid>
+										);
+									}
 								if (!field.visibility || !field.name || !field.type)
 									return null;
 								const newValue = prefilledValues(field);
 								let newValueSelectFeild;
 								if (!!field.sub_fields) {
-									newValueSelectFeild = prefilledValues(
-										field?.sub_fields[0]
-									);
+									newValueSelectFeild = prefilledValues(field?.sub_fields[0]);
 								}
 								const customFieldProps = {};
-								if (
-									field?.name === CONST.MOBILE_NUMBER_FIELD_NAME
-								) {
+								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
 									customFieldProps.rules = {
 										...field.rules,
 										is_zero_not_allowed_for_first_digit: true,
 									};
+								}
+								// const gstin = companyRocData?.unformatedData?.gstin;
+								if (field?.name === 'gstin' && !!gstin) {
+									customFieldProps.type = 'gstin'; //change this
+									customFieldProps.onClick = handleGstSubmit;
+									customFieldProps.value = gstin[0]?.gstin;
+									customFieldProps.length = gstin.length;
 								}
 								if (
 									isPanUploadMandatory &&
@@ -607,6 +695,7 @@ const BuissnessDetails = props => {
 								if (isViewLoan) {
 									customFieldProps.disabled = true;
 								}
+								// console.log(isGstModalOpen);
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
@@ -660,11 +749,9 @@ const BuissnessDetails = props => {
 				{!isViewLoan && (
 					<Button
 						fill
-						name={
-							fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'
-						}
+						name={'Save and Proceed'}
 						isLoader={loading}
-						disabled={loading || fetchingAddress}
+						disabled={loading}
 						onClick={handleSubmit(() => {
 							// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 							// so avoid opening income type popup at below condition
