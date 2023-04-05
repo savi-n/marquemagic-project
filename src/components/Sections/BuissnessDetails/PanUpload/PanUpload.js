@@ -204,18 +204,13 @@ const PanUpload = props => {
 				cinFetchReqBody,
 				{
 					headers: {
-						authorization: clientToken,
+						Authorization: clientToken,
 					},
 				}
 			);
-			const gstinData = await gstinFetch(confirmPanNumber);
-			setGstin(gstinData);
-			console.log({
-				gstinData,
-			});
+
 			const companyData = cinNumberResponse?.data?.data;
-			companyData.gstin = gstinData;
-			console.log(companyData);
+			// companyData.gstin = gstinData;
 			const formattedCompanyData = formatCompanyRocData(
 				companyData,
 				confirmPanNumber
@@ -260,7 +255,8 @@ const PanUpload = props => {
 			// business product + business pan card
 
 			// Pre population from pan
-
+			const gstinData = await gstinFetch(confirmPanNumber);
+			setGstin(gstinData);
 			onChangeFormStateField({
 				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: confirmPanNumber,

@@ -11,7 +11,7 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
-import GstinFiled from 'components/inputs/GstinField';
+import DisabledTextFieldModal from 'components/inputs/GstinField';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
@@ -635,9 +635,10 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
-		case 'gstin': {
-			return <GstinFiled {...{ ...field, ...fieldProps }} />;
+		case 'DisabledTextFieldModal': {
+			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
 		}
+		//DisabledTextFieldModal
 		default: {
 			return (
 				<>

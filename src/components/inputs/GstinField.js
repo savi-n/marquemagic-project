@@ -103,8 +103,8 @@ const FieldPostfixIcon = styled.span`
 	justify-content: center;
 `;
 
-export default function GstinFiled(props) {
-	const { value, length } = props;
+export default function DisabledTextFieldModal(props) {
+	const { value, length, placeholder } = props;
 	return (
 		<Div>
 			<Input />

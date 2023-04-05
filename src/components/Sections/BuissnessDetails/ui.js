@@ -5,7 +5,6 @@ export const FieldWrapper = styled.div`
 	gap: 10px;
 `;
 
-
 export const IconDelete = styled.img`
 	height: 30px;
 	width: 30px;
@@ -20,9 +19,9 @@ export const UploadIconWrapper = styled.div`
 `;
 
 export const IconUpload = styled.img`
-					height: 30px;
-					width: 30px;
-				`;
+	height: 30px;
+	width: 30px;
+`;
 
 export const ImgClose = styled.img`
 	height: 25px;
@@ -30,9 +29,6 @@ export const ImgClose = styled.img`
 	margin-left: auto;
 	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
 `;
-
-
-
 
 export const ProfilePicWrapper = styled.div`
 	margin-bottom: 10px;

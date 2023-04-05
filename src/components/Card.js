@@ -1,16 +1,16 @@
 /* Landing page of nc-onboarding journey contains different loan cards.
 This card is designed and defined here */
 import { useSelector, useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import styled from 'styled-components';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
-import { resetAllApplicationState } from 'utils/localStore';
-import { FlowContext } from 'reducer/flowReducer';
-import { FormContext } from 'reducer/formReducer';
-import { useContext } from 'react';
-import { UserContext } from 'reducer/userReducer';
-import { LoanFormContext } from 'reducer/loanFormDataReducer';
+// import { resetAllApplicationState } from 'utils/localStore';
+// import { FlowContext } from 'reducer/flowReducer';
+// import { FormContext } from 'reducer/formReducer';
+// import { useContext } from 'react';
+// import { UserContext } from 'reducer/userReducer';
+// import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import { getGeoLocation } from 'utils/helper';
 import { setGeoLocation } from 'store/applicationSlice';
 import axios from 'axios';
@@ -92,36 +92,36 @@ const ButtonWrapper = styled.div`
 `;
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
-	const {
-		state: { basePageUrl },
-		actions: { clearFlowDetails },
-	} = useContext(FlowContext);
-	const {
-		actions: { clearFormData },
-	} = useContext(FormContext);
-	const {
-		actions: { resetUserDetails },
-	} = useContext(UserContext);
+	// const {
+	// 	state: { basePageUrl },
+	// 	actions: { clearFlowDetails },
+	// } = useContext(FlowContext);
+	// const {
+	// 	actions: { clearFormData },
+	// } = useContext(FormContext);
+	// const {
+	// 	actions: { resetUserDetails },
+	// } = useContext(UserContext);
 	const { app } = useSelector(state => state);
 	const { isGeoTaggingEnabled } = app;
 	const { userToken } = app;
-	const {
-		actions: { removeAllLoanDocuments },
-	} = useContext(LoanFormContext);
+	// const {
+	// 	actions: { removeAllLoanDocuments },
+	// } = useContext(LoanFormContext);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 
-	const history = useHistory();
+	// const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
 	// const { url } = useRouteMatch();
 
-	const handleClick = (e, id) => {
-		e.preventDefault();
-		history.push({
-			pathname: `/applyloan/product/${btoa(id)}`,
-			data: id,
-		});
-	};
+	// const handleClick = (e, id) => {
+	// 	e.preventDefault();
+	// 	history.push({
+	// 		pathname: `/applyloan/product/${btoa(id)}`,
+	// 		data: id,
+	// 	});
+	// };
 
 	return (
 		<Wrapper>
@@ -172,7 +172,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									e?.response?.data?.message,
 									e?.message || 'Permission denied'
 								);
-								dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+								dispatch(
+									setGeoLocation({
+										err: 'Geo Location Not Captured',
+									})
+								);
 								addToast({
 									message:
 										e?.response?.data?.message ||
@@ -184,31 +188,31 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								setGettingGeoLocation(false);
 							}
 						}
-						if (product.loan_request_type === 2) {
-							if (add) {
-								setAddedProduct(product);
-								setAddProduct(false);
-								return;
-							}
-							e.preventDefault();
-							sessionStorage.clear();
-							const params = queryString.parse(window.location.search);
-							let redirectURL = `/nconboarding/applyloan/product/${btoa(
-								product.id
-							)}`;
-							if (params?.token) {
-								redirectURL += `?token=${params.token}`;
-							}
-							window.open(redirectURL, '_self');
+						// if (product.loan_request_type === 2) {
+						if (add) {
+							setAddedProduct(product);
+							setAddProduct(false);
 							return;
 						}
-						resetAllApplicationState();
-						clearFlowDetails(basePageUrl);
-						clearFormData();
-						resetUserDetails();
-						removeAllLoanDocuments();
-						!add ? handleClick(e, product.id) : setAddedProduct(product);
-						setAddProduct && setAddProduct(false);
+						e.preventDefault();
+						sessionStorage.clear();
+						const params = queryString.parse(window.location.search);
+						let redirectURL = `/nconboarding/applyloan/product/${btoa(
+							product.id
+						)}`;
+						if (params?.token) {
+							redirectURL += `?token=${params.token}`;
+						}
+						window.open(redirectURL, '_self');
+						return;
+						// }
+						// resetAllApplicationState();
+						// clearFlowDetails(basePageUrl);
+						// clearFormData();
+						// resetUserDetails();
+						// removeAllLoanDocuments();
+						// !add ? handleClick(e, product.id) : setAddedProduct(product);
+						// setAddProduct && setAddProduct(false);
 					}}
 				>
 					{/* {add ? 'Add Loan' : 'Get Loan'} */}
