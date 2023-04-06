@@ -122,16 +122,23 @@ export default function DisabledTextFieldModal(props) {
 	console.log('DisabledTextFieldModal-', props);
 	return (
 		<Div>
-			<Input id={props.name} placeholder={props.placeholder} disabled />
+			<Input
+				value={!!value ? value : null}
+				id={props.name}
+				placeholder={props.placeholder}
+				{...props}
+				disabled
+			/>
 			<Label
 				htmlFor={props.name}
 				disabled={props.disabled}
 				style={{
 					color: 'black',
 				}}
+				value={value}
 			>
 				{props.placeholder}
-				{!!value ? value : null}
+				{/* {!!value ? value : null} */}
 			</Label>
 			<FieldPostfixIcon onClick={props.onClick}>{length}</FieldPostfixIcon>
 		</Div>
