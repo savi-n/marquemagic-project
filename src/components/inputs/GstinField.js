@@ -4,23 +4,31 @@ For such fields, this disabledInput is created */
 
 import styled from 'styled-components';
 
-const Input = styled.div`
+const Input = styled.input`
 	height: 50px;
 	padding: 10px;
 	width: 100%;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
-	color: rgba(0, 0, 0, 0.4) !important;
-	background-color: rgba(239, 239, 239, 0.3);
-	display: flex;
-	align-items: center;
+	${({ disabled }) => disabled && `cursor: not-allowed;`}
+	/* Chrome, Safari, Edge, Opera */
 	::-webkit-outer-spin-button,
 	::-webkit-inner-spin-button {
 		-webkit-appearance: none;
 		-moz-appearance: textfield;
 		margin: 0;
 	}
+	@media (max-width: 700px) {
+		:focus {
+			::placeholder {
+				color: white;
+			}
+		}
+	}
 `;
+//  ${({ error }) =>
+// 		error ? `border: 1px solid red; outline-color: red;` : ``}
+// TODO: handler error
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}
 // TODO: handler error
@@ -33,14 +41,20 @@ const Div = styled.div`
 
 const Label = styled.label`
 	position: absolute;
+	/* display: none; */
 	z-index: 9;
 	display: flex;
 	align-items: center;
-	color: black;
 	background: white;
 	overflow: hidden;
 	transition: 0.2s;
-
+	/* @media (max-width: 700px) {
+		${({ isLargeTextLable }) =>
+			isLargeTextLable &&
+			`
+    width:150%;
+  `}
+	} */
 	${Input}:focus ~ & {
 		top: -15%;
 		left: 2%;
@@ -104,16 +118,20 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function DisabledTextFieldModal(props) {
-	const { value, length, placeholder } = props;
+	const { value, length } = props;
+	console.log('DisabledTextFieldModal-', props);
 	return (
 		<Div>
-			<Input />
+			<Input id={props.name} placeholder={props.placeholder} disabled />
 			<Label
+				htmlFor={props.name}
+				disabled={props.disabled}
 				style={{
 					color: 'black',
 				}}
 			>
-				{!!value ? value : <span>GST In</span>}
+				{props.placeholder}
+				{!!value ? value : null}
 			</Label>
 			<FieldPostfixIcon onClick={props.onClick}>{length}</FieldPostfixIcon>
 		</Div>

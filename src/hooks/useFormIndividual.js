@@ -635,7 +635,8 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
-		case 'DisabledTextFieldModal': {
+		case 'disabledtextfieldmodal': {
+			console.log('DisabledTextFieldModal--useForm');
 			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
 		}
 		//DisabledTextFieldModal
