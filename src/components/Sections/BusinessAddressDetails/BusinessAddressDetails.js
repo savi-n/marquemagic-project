@@ -1,68 +1,113 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+// import { PINCODE_ADRRESS_FETCH } from '_config/app.config';
 
 import Button from 'components/Button';
-// import {
-// 	updateApplicantSection,
-// 	updateCoApplicantSection,
-// } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getCompletedSections,
 	isFieldValid,
-	// getSelectedField,
-	// getSelectedSubField,
 } from 'utils/formatData';
 import useForm from 'hooks/useForm';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { setLoanIds } from 'store/applicationSlice';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
-// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+import Loading from 'components/Loading';
+import GstSelectInput from './GstSelectInput';
 
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const {
-		// loanProductId,
-		// loanId,
-		// businessUserId,
-		// createdByUserId,
-		// businessAddressIdAid1,
-		businessAddressIdAid2,
-	} = application;
+	const { businessAddressIdAid1 } = application;
 	const {
 		isDraftLoan,
-		// isViewLoan,
-		// isEditLoan,
-		// isEditOrViewLoan,
-		// editLoanData,
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
 		prevSectionId,
 		isTestMode,
-		// clientToken,
 		selectedSection,
 		isLocalhost,
-		// applicantCoApplicantSectionIds,
+		clientToken,
 		editLoanDirectors,
 	} = app;
+
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
-	// const {
-	// 	selectedApplicantCoApplicantId,
-	// 	applicant,
-	// 	coApplicants,
-	// 	isApplicant,
-	// } = applicantCoApplicants;
-	// const selectedApplicant = isApplicant
-	// 	? applicant
-	// 	: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	// const { directorId } = selectedApplicant;
+	const [loading, setLoading] = useState(false);
+	const { addToast } = useToasts();
+	const [businessAddress, setBusinessAddress] = useState({});
+
+	// ---------------------------------------------------------- GSTData API starts ---------------------------------------------------------------------
+	//TODO: api call for gst -> address and get Request for fetching list of GSTs
+	const ROC_Addr =
+		'BLOCK NO. 305 & 330, VILLAGE ZAK, VEHLAL ROAD, OFF NARODA-DEHGAM ROADM, TAL DEHGAM DIST GANDHINAGAR GJ 382330 IN';
+	const pinRegex = /\b\d{6}\b/; // regex to match 6-digit pin code
+	let pincodeFromRocAddress = ROC_Addr.match(pinRegex)[0];
+	// let pincodeFromRocAddress = '560052';
+
+	const GST = '29AABCT3518Q1ZS';
+	const GST_ADDR_FETCH_URL = `${API.ENDPOINT_BANK}/GSTData`; // API endpoint to fetch address from Gst Number selected in Business Details page
+
+	useEffect(() => {
+		const fetchAddressFromGstNum = async gstin => {
+			try {
+				const gstAddressReqBody = {
+					gst: gstin,
+				};
+				setLoading(true);
+				const addrResponse = await axios.post(
+					GST_ADDR_FETCH_URL,
+					gstAddressReqBody,
+					{
+						headers: {
+							Authorization: clientToken,
+						},
+					}
+				);
+				console.log(
+					'🚀 ~ file: BusinessAddressDetails.js:71 ~ fetchAddressFromGstNum ~ addrResponse:',
+					addrResponse
+				);
+
+				// set the business address based on the pradr of the response of the above api call
+
+				const newAddress = {
+					address1: ROC_Addr,
+					address2: '',
+					address3: '',
+				};
+				// setBusinessAddress(addrResponse?.data?.data?.pradr?.addr);
+				setBusinessAddress(newAddress);
+				setTimeout(() => {
+					onChangeFormStateField({
+						name: 'pin_code',
+						value: pincodeFromRocAddress,
+					});
+				}, 0);
+			} catch (error) {
+				console.error('error-AddressDetails-onProceed-', {
+					error: error,
+					res: error?.response,
+					resres: error?.response?.response,
+					resData: error?.response?.data,
+				});
+				addToast({
+					message: getApiErrorMessage(error),
+					type: 'error',
+				});
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchAddressFromGstNum(GST);
+
+		// eslint-disable-next-line
+	}, []);
+	// ---------------------------------------------------------- GSTData API ends ---------------------------------------------------------------------
 	if (isDraftLoan) {
 		isViewLoan = false;
 		isEditLoan = false;
@@ -73,23 +118,14 @@ const BusinessAddressDetails = props => {
 		handleSubmit,
 		register,
 		formState,
-		// onChangeFormStateField,
+		onChangeFormStateField,
 	} = useForm();
-	const [loading, setLoading] = useState(false);
-
-	const { addToast } = useToasts();
 	const completedSections = getCompletedSections({
 		selectedProduct,
-		// isApplicant,
-		// applicant,
-		// coApplicants,
-		// selectedApplicantCoApplicantId,
 		application,
 		isEditOrViewLoan,
 		isEditLoan,
-		// applicantCoApplicantSectionIds,
 		editLoanDirectors,
-		// selectedApplicant,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 
@@ -108,55 +144,48 @@ const BusinessAddressDetails = props => {
 				});
 			}
 			setLoading(true);
-			const newLoanAddressDetails = [
+			const newBusinessAddressDetails = [
 				{
-					business_address_id: businessAddressIdAid2,
-					aid: 2,
-					line1: formState?.values?.address1 || '',
-					line2: formState?.values?.address2 || '',
-					locality: formState?.values?.address3 || '',
-					pincode: formState?.values?.pin_code || '',
+					business_address_id: businessAddressIdAid1,
+					aid: 1,
+					address1: formState?.values?.address1 || '',
+					address2: formState?.values?.address2 || '',
+					address3: formState?.values?.address3 || '',
+					pin_code: formState?.values?.pin_code || '',
 					city: formState?.values?.city || '',
 					state: formState?.values?.state || '',
 				},
 			];
 
-			const addressDetailsReqBody = formatSectionReqBody({
+			const businessAddressDetailReqBody = formatSectionReqBody({
 				app,
-				// applicantCoApplicants,
 				application,
 				values: formState.values,
 			});
 
-			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
+			businessAddressDetailReqBody.data.business_address_details = newBusinessAddressDetails;
 
-			const addressDetailsRes = await axios.post(
-				`${API.API_END_POINT}/basic_details`,
-				addressDetailsReqBody
-			);
+			// const businessAddressDetailRes = await axios.post(
+			// 	`${API.API_END_POINT}/basic_details`,
+			// 	businessAddressDetailReqBody
+			// );
 
-			// 		const newAddressDetails = {
-			// 			sectionId: selectedSectionId,
-			// 			sectionValues: formState.values,
-			// 			// directorId,
-			// 		};
-			// 		if (isApplicant) {
-			// 			dispatch(
-			// 				setLoanIds({
-			// 					// businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
-			// 					// 	address => address.aid === 1
-			// 					// )?.[0]?.id,
-			// 					businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
-			// 						address => address.aid === 2
-			// 					)?.[0]?.id,
-			// 				})
-			// 			);
-			// 			dispatch(updateApplicantSection(newAddressDetails));
-			// 		} else {
-			// 			dispatch(updateCoApplicantSection(newAddressDetails));
-			// 		}
-
-			// 		dispatch(setSelectedSectionId(nextSectionId));
+			// const newAddressDetails = {
+			// 	sectionId: selectedSectionId,
+			// 	sectionValues: formState.values,
+			// };
+			// dispatch(
+			// 	setLoanIds({
+			// 		businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
+			// 			address => address.aid === 1
+			// 		)?.[0]?.id,
+			// 		// businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
+			// 		// 	address => address.aid === 2
+			// 		// )?.[0]?.id,
+			// 	})
+			// );
+			// dispatch(updateApplicantSection(newAddressDetails));
+			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
 				error: error,
@@ -168,44 +197,37 @@ const BusinessAddressDetails = props => {
 				message: getApiErrorMessage(error),
 				type: 'error',
 			});
-			// TODO: below line is used for testing remove this before push
-			// dispatch(setSelectedSectionId(nextSectionId));
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	// const onSkip = () => {
-	// 	const skipSectionData = {
-	// 		sectionId: selectedSectionId,
-	// 		sectionValues: {
-	// 			...(selectedApplicant?.[selectedSectionId] || {}),
-	// 			isSkip: true,
-	// 		},
-	// 		directorId,
-	// 	};
-	// 	if (isApplicant) {
-	// 		dispatch(updateApplicantSection(skipSectionData));
-	// 	} else {
-	// 		dispatch(updateCoApplicantSection(skipSectionData));
-	// 	}
-	// 	dispatch(setSelectedSectionId(nextSectionId));
-	// };
+	const prefilledEditOrViewLoanValues = field => {
+		const preData = {
+			address1: businessAddress?.address1,
+			address2: businessAddress?.address2,
+			address3: businessAddress?.address3,
+			// pin_code: businessAddress?.pncd,
+			// city: businessAddress?.city,
+			// state: businessAddress?.state,
+		};
+		return preData?.[field?.name];
+	};
 
-	// const prefilledEditOrViewLoanValues = field => {
-	// 	const preData = {
-	// 		permanent_address1: selectedApplicant?.permanent_address1,
-	// 		permanent_address2: selectedApplicant?.permanent_address2,
-	// 		permanent_address3: selectedApplicant?.permanent_locality,
-	// 		permanent_pin_code: selectedApplicant?.permanent_pincode,
-	// 		permanent_city: selectedApplicant?.permanent_city,
-	// 		permanent_state: selectedApplicant?.permanent_state,
-	// 		permanent_property_type: selectedApplicant?.permanent_residential_type,
+	// const populateGstAddressData = field => {
+	// 	const preAddrData = {
+	// 		address1: businessAddress?.bnm,
+	// 		address2: businessAddress?.st,
+	// 		address3: businessAddress?.bno,
+	// 		pin_code: businessAddress?.pncd,
+	// 		city: businessAddress?.dst,
+	// 		state: businessAddress?.stcd,
 	// 	};
-	// 	return preData?.[field?.name];
+	// 	return preAddrData?.[field?.name];
 	// };
 
 	const prefilledValues = field => {
+		console.log(businessAddress);
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
@@ -217,7 +239,7 @@ const BusinessAddressDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-			let editViewLoanValue = '';
+			let editViewLoanValue = prefilledEditOrViewLoanValues(field);
 
 			// if (isEditOrViewLoan) {
 			// 	editViewLoanValue = prefilledEditOrViewLoanValues(field);
@@ -225,37 +247,81 @@ const BusinessAddressDetails = props => {
 
 			if (editViewLoanValue) return editViewLoanValue;
 
+			// return field?.value || populateGstAddressData(field) || '';
 			return field?.value || '';
 		} catch (error) {
+			console.error(error);
 			return {};
 		}
 	};
 
-	return (
+	// ------------------------------------------------ GST Dummy Data -------------------------------------------------------------------------------------------
+	// const ROC_Addr = 'Blr - one north, Yelahanka, Bengaluru';
+	// const ROC_Addr = '';
+	const gstNumbers = [
+		{
+			gstin: '24AAACP7066Q1ZW',
+			status: 'Active',
+			state_code: '24',
+		},
+		{
+			gstin: '24AAACP7077Q1ZW',
+			status: 'Active',
+			state_code: '24',
+		},
+		{
+			gstin: '24AAACP7088Q1ZW',
+			status: 'Not Active',
+			state_code: '24',
+		},
+		{
+			gstin: '24AAACP7099Q1ZW',
+			status: 'Active',
+			state_code: '24',
+		},
+		{
+			gstin: '24AAACP7076Q1ZW',
+			status: 'Not Active',
+			state_code: '24',
+		},
+	];
+	// ------------------------------------------------ GST Dummy Data -------------------------------------------------------------------------------------------
+
+	return loading ? (
+		<Loading />
+	) : (
 		<UI_SECTIONS.Wrapper>
-			{console.log(selectedSection)}
 			{selectedSection?.sub_sections?.map((sub_section, subSectionIndex) => {
-				// const isPermanent = sub_section.aid === CONST.AID_PERMANENT;
 				return (
 					<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
 						{sub_section?.name ? (
-							<UI.H1>{`${sub_section.name.substring(
+							<UI.H1>{`${sub_section.name.slice(
 								0,
 								18
-							)} Business ${sub_section.name.substring(18)}`}</UI.H1>
+							)} Business ${sub_section.name.slice(18)}`}</UI.H1>
 						) : null}
 
 						<UI.FormWrapGrid>
 							<UI.Coloum>
+								{/* ------------------------------------------------GST DropDown------------------------------------------------------------------------- */}
+
+								{ROC_Addr && (
+									<div
+										key={subSectionIndex}
+										style={{ width: '100%', margin: '5px 0 50px 0' }}
+									>
+										<GstSelectInput
+											gstNumbers={gstNumbers}
+											placeholder='Select a GST Number'
+										/>
+									</div>
+								)}
+								{/* ------------------------------------------------GST DropDown------------------------------------------------------------------------- */}
+
 								{sub_section?.fields?.map((field, fieldIndex) => {
 									if (!isFieldValid({ field, formState })) {
 										return null;
 									}
-
-									// if (sub_section.aid === CONST.AID_PRESENT) {
-									// 	if (CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name))
-									// 		return null;
-									// }
 
 									const newValue = prefilledValues(field);
 									const customFieldProps = {};
@@ -284,7 +350,7 @@ const BusinessAddressDetails = props => {
 									return (
 										<UI.FieldWrapGrid
 											field={field}
-											key={`field-${'2222'}-${fieldIndex}-${field.name}`}
+											key={`field-${fieldIndex}-${field.name}`}
 											style={customStyle}
 										>
 											{register({
@@ -325,10 +391,6 @@ const BusinessAddressDetails = props => {
 					</>
 				)}
 
-				{/* buttons for easy development starts */}
-				{/* {!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null} */}
 				{!isViewLoan && (isLocalhost && !!isTestMode) && (
 					<Button
 						fill={!!isTestMode}
@@ -336,7 +398,6 @@ const BusinessAddressDetails = props => {
 						onClick={() => dispatch(toggleTestMode())}
 					/>
 				)}
-				{/* buttons for easy development ends */}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
