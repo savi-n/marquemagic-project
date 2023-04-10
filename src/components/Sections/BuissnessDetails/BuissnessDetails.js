@@ -12,6 +12,7 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
+import './styles.css';
 
 import {
 	setLoginCreateUserRes,
@@ -42,6 +43,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import Modal from 'components/Modal';
+import { isString } from '@craco/craco/lib/utils';
 
 const BuissnessDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -103,8 +105,7 @@ const BuissnessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const selectedIncomeType =
-		formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
+	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const completedSections = getCompletedSections({
 		selectedProduct,
 		isApplicant,
@@ -194,15 +195,15 @@ const BuissnessDetails = props => {
 			buissnessDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
 
-			const buissnesscDetailsRes = await axios.post(
-				`${API.API_END_POINT}/basic_details`, // need to be changed
-				buissnessDetailsReqBody
-			);
+			// const buissnesscDetailsRes = await axios.post(
+			// 	`${API.API_END_POINT}/basic_details`, // need to be changed
+			// 	buissnessDetailsReqBody
+			// );
+			const buissnesscDetailsRes = 0;
 			const newLoanRefId =
 				buissnesscDetailsRes?.data?.data?.loan_data?.loan_ref_id;
 			const newLoanId = buissnesscDetailsRes?.data?.data?.loan_data?.id;
-			const newBusinessId =
-				buissnesscDetailsRes?.data?.data?.business_data?.id;
+			const newBusinessId = buissnesscDetailsRes?.data?.data?.business_data?.id;
 			const newDirectorId =
 				buissnesscDetailsRes?.data?.data?.director_details?.id;
 			const newBusinessUserId =
@@ -307,8 +308,8 @@ const BuissnessDetails = props => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		if (
-			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)
-				?.length > 0
+			cacheDocumentsTemp.filter(doc => doc?.field?.name === fieldName)?.length >
+			0
 		) {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
@@ -357,9 +358,7 @@ const BuissnessDetails = props => {
 		try {
 			const params = queryString.parse(window.location.search);
 			if (params?.token) {
-				const decryptedToken = decryptRes(
-					params?.token?.replaceAll(' ', '+')
-				);
+				const decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 
 				if (decryptedToken?.token) {
 					const isValidToken = await verifyUiUxToken(decryptedToken?.token);
@@ -399,11 +398,10 @@ const BuissnessDetails = props => {
 			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
 		) {
 			dispatch(
-				setSelectedSectionId(
-					CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
-				)
+				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
 		}
+		//eslint-disable-next-line
 	}, []);
 	const ButtonProceed = (
 		<Button
@@ -417,6 +415,7 @@ const BuissnessDetails = props => {
 			})}
 		/>
 	);
+
 	return (
 		<UI_SECTIONS.Wrapper>
 			<ConfirmModal
@@ -432,105 +431,41 @@ const BuissnessDetails = props => {
 				}}
 				// Width='40%'
 				customStyle={{
-					minWidth: '25%',
-					height: '5%',
+					width: '30%',
+					minWidth: 'fit-content',
+					minHeight: 'auto',
 				}}
 			>
-				{/* <section
-					style={{
-						// overflow: 'hidden',
-						overflow: 'auto',
-						maxHeight: '400px',
-					}} */}
-				{/* > */}
-				<UI.ImgClose
-					onClick={() => {
-						setGstModalOpen(false);
-					}}
-					src={imgClose}
-					alt='close'
-				/>
-				<UI.StyledTable
-					style={{
-						// overflow: 'auto',
-						// maxHeight: '200px',
-						paddingTop: '0',
-					}}
-				>
-					<thead
-						style={{
-							backgroundColor: 'rgb(244 244 244)',
-							textAlign: 'left',
+				<section>
+					<UI.ImgClose
+						onClick={() => {
+							setGstModalOpen(false);
 						}}
-					>
-						<tr>
-							<th>GSTIN</th>
-							<th>Status</th>
-							<th>State</th>
-						</tr>
-					</thead>
-					<tbody
-						style={{
-							textAlign: 'left',
-							overflow: 'auto',
-							maxHeight: '500px',
-						}}
-					>
-						{/* {[
-								1,
-								2,
-								3,
-								4,
-								5,
-								1,
-								2,
-								3,
-								4,
-								5,
-								1,
-								2,
-								3,
-								4,
-								5,
-								1,
-								2,
-								3,
-								4,
-								5,
-								1,
-								2,
-								3,
-								4,
-								5,
-								1,
-								2,
-								3,
-								4,
-								5,
-							].map(test => {
+						src={imgClose}
+						alt='close'
+					/>
+					<div className='parent-div'>
+						<div className='header-row'>
+							<div className='column'>Gstin</div>
+							<div className='column'>State</div>
+							<div className='column'>Status</div>
+						</div>
+						<div className='data-rows'>
+							{gstin?.map((gstItem, idx) => {
+								console.log(gstItem, '------------->');
 								return (
-									<tr>
-										<td>HELLO WORLD</td>
-										<td>HELLO WORLD</td>
-										<td>HELLO WORLD</td>
-									</tr>
-								);
-							})} */}
-						{!!gstin &&
-							gstin.map(items => {
-								return (
-									<tr>
-										<td>{items.gstin}</td>
-										<td>{items.status}</td>
-										<td>{items.state_code}</td>
-									</tr>
+									<div className='data-row' key={idx}>
+										<div className='column'>{gstItem.gstin}</div>
+										<div className='column'>{gstItem.state_name}</div>
+										<div className='column'>{gstItem.status}</div>
+									</div>
 								);
 							})}
-					</tbody>
-				</UI.StyledTable>
-				{/* </section> */}
+						</div>
+					</div>
+				</section>
 			</Modal>
-			;{!isTokenValid && <SessionExpired show={!isTokenValid} />}
+			{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				return (
 					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -602,18 +537,12 @@ const BuissnessDetails = props => {
 													formState={formState}
 													uploadedFile={panUploadedFile}
 													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={
-														removeCacheDocumentTemp
-													}
+													removeCacheDocumentTemp={removeCacheDocumentTemp}
 													isPanNumberExist={isPanNumberExist}
 													panErrorMessage={panErrorMessage}
 													panErrorColorCode={panErrorColorCode}
-													setErrorFormStateField={
-														setErrorFormStateField
-													}
-													onChangeFormStateField={
-														onChangeFormStateField
-													}
+													setErrorFormStateField={setErrorFormStateField}
+													onChangeFormStateField={onChangeFormStateField}
 													clearErrorFormState={clearErrorFormState}
 													isDisabled={isViewLoan}
 												/>
@@ -634,9 +563,7 @@ const BuissnessDetails = props => {
 								const newValue = prefilledValues(field);
 								let newValueSelectFeild;
 								if (!!field.sub_fields) {
-									newValueSelectFeild = prefilledValues(
-										field?.sub_fields[0]
-									);
+									newValueSelectFeild = prefilledValues(field?.sub_fields[0]);
 								}
 								const customFieldProps = {};
 								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
@@ -703,7 +630,6 @@ const BuissnessDetails = props => {
 												visibility: 'visible',
 												...customFieldProps,
 											})}
-											``
 										</div>
 										<div>
 											{field?.sub_fields &&
