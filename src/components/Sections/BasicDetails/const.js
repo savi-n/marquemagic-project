@@ -29,7 +29,7 @@ export const initialFormState = {
 	spouse_title: 'Mrs',
 	title: 'Mr',
 	religion: 'Hindu',
-	category: 'general',
+	category: 'General',
 };
 
 export const PAN_UPLOAD_FIELD_NAME = 'pan_upload';
