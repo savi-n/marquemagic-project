@@ -232,7 +232,6 @@ export const {
 	addFormData,
 
 	setEditLoanData,
-
 	toggleTestMode,
 	setIsTestMode,
 	setBankList,
