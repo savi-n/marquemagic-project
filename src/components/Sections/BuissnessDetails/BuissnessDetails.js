@@ -349,8 +349,76 @@ const BuissnessDetails = props => {
 	// console.log(selectedApplicant?.existing_customer)
 	const prefilledValues = field => {
 		try {
-			return prefilledEditOrViewLoanValues(field);
-		} catch (error) {
+					// [Priority - 0]
+					// view loan
+					// in view loan user cannot edit any information
+					// hence this is the first priority
+					// so always prepopulate value from <editLoanData>
+					if (isViewLoan) {
+						return prefilledEditOrViewLoanValues(field) || '';
+					}
+
+					// [Priority - 1]
+					// update value from form state
+					// whenever user decides to type or enter value
+					// form state should be the first value to prepopulate
+					const isFormStateUpdated =
+						formState?.values?.[field.name] !== undefined;
+					if (isFormStateUpdated) {
+						return formState?.values?.[field.name];
+					}
+
+					// TEST MODE
+					if (isTestMode && CONST.initialFormState?.[field?.name]) {
+						return CONST.initialFormState?.[field?.name];
+					}
+					// -- TEST MODE
+
+					// [Priority - Special]
+					// special case when co-applicant is filling basic details for first time
+					// when director id is not created we prepopulate value from formstate only
+					// and last priority is to set default value <field.value> comming from JSON
+					if (
+						selectedApplicantCoApplicantId ===
+						CONST_SECTIONS.CO_APPLICANT
+					) {
+						return formState?.values?.[field.name] || field.value || '';
+					}
+
+					// [Priority - 2]
+					// fetch data from redux slice
+					// this is to prefill value when user navigates backs
+					// once user press proceed and submit api success
+					// value is stored to redux and the same we can use to prepopulate
+					if (
+						Object.keys(selectedApplicant?.[selectedSectionId] || {})
+							.length > 0
+					) {
+						return selectedApplicant?.[selectedSectionId]?.[
+							field?.name
+						];
+					}
+
+					// [Priority - 3]
+					// fetch value from edit loan
+					// this is to prefill value only once per section
+					// ex: if user visits this section for first time we prepopulate value from <editLoanData>
+					// and then when he moves to next section redux store will be ready with new updated values
+					let editViewLoanValue = '';
+
+					if (isEditLoan) {
+						editViewLoanValue = prefilledEditOrViewLoanValues(field);
+					}
+
+					if (editViewLoanValue) return editViewLoanValue;
+
+					// [Priority - 4]
+					// finally last priority is for JSON value
+					// this value will be always overwritten by other all priority
+					// this scenario will only come in loan creation first time entering form
+					// also we'll have fall back <''> empty value in case above all priority fails to prepopulate
+					return field?.value || '';
+				} catch (error) {
 			return {};
 		}
 	};
@@ -455,9 +523,15 @@ const BuissnessDetails = props => {
 								console.log(gstItem, '------------->');
 								return (
 									<div className='data-row' key={idx}>
-										<div className='column'>{gstItem.gstin}</div>
-										<div className='column'>{gstItem.state_name}</div>
-										<div className='column'>{gstItem.status}</div>
+										<div className='column'>
+											{gstItem.gstin}
+										</div>
+										<div className='column'>
+											{gstItem.status}
+										</div>
+										<div className='column'>
+											{gstItem.state_name}
+										</div>
 									</div>
 								);
 							})}
@@ -574,7 +648,8 @@ const BuissnessDetails = props => {
 								}
 								// const gstin = companyRocData?.unformatedData?.gstin;
 								if (field?.name === 'gstin' && !!gstin) {
-									customFieldProps.type = 'disabledtextfieldmodal'; //change this
+									customFieldProps.type =
+										'disabledtextfieldmodal';
 									customFieldProps.onClick = handleGstSubmit;
 									customFieldProps.value = gstin[0]?.gstin;
 									customFieldProps.length = gstin.length;

@@ -119,63 +119,36 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function DisabledTextFieldModal(props) {
-																												const {
-																													value,
-																													length,
-																												} = props;
-																												// console.log('DisabledTextFieldModal-', props);
-																												return (
-																													<Div>
-																														<Input
-																															value={
-																																!!value
-																																	? value
-																																	: null
-																															}
-																															id={
-																																props.name
-																															}
-																															placeholder={
-																																props.placeholder
-																															}
-																															{...props}
-																															disabled
-																														/>
-																														<Label
-																															htmlFor={
-																																props.name
-																															}
-																															disabled={
-																																props.disabled
-																															}
-																															style={{
-																																color:
-																																	'black',
-																															}}
-																															value={
-																																value
-																															}
-																														>
-																															{
-																																props.placeholder
-																															}
-																															{/* {!!value ? value : null} */}
-																														</Label>
-																														<FieldPostfixIcon
-																															onClick={
-																																props.onClick
-																															}
-																															state={
-																																true
-																															}
-																														>
-																															+
-																															{length -
-																																1}
-																														</FieldPostfixIcon>
-																													</Div>
-																												);
-																											}
+	const { value, length } = props;
+	// console.log('DisabledTextFieldModal-', props);
+	return (
+		<Div>
+			<Input
+				value={!!value ? value : null}
+				id={props.name}
+				placeholder={props.placeholder}
+				{...props}
+				disabled
+			/>
+			<Label
+				htmlFor={props.name}
+				disabled={props.disabled}
+				style={{
+					color: 'black',
+				}}
+				value={value}
+			>
+				{props.placeholder}
+				{/* {!!value ? value : null} */}
+			</Label>
+			{length > 1 ? (
+				<FieldPostfixIcon onClick={props.onClick} state={true}>
+					+{length - 1}
+				</FieldPostfixIcon>
+			) : null}
+		</Div>
+	);
+}
 
 //var arr[100]
 // height: 25px;
