@@ -115,38 +115,73 @@ const FieldPostfixIcon = styled.span`
 	text-align: center;
 	align-items: center;
 	justify-content: center;
+	state: false;
 `;
 
 export default function DisabledTextFieldModal(props) {
-	const { value, length } = props;
-	console.log('DisabledTextFieldModal-', props);
-	return (
-		<Div>
-			<Input
-				value={!!value ? value : null}
-				id={props.name}
-				placeholder={props.placeholder}
-				{...props}
-				disabled
-			/>
-			<Label
-				htmlFor={props.name}
-				disabled={props.disabled}
-				style={{
-					color: 'black',
-				}}
-				value={value}
-			>
-				{props.placeholder}
-				{/* {!!value ? value : null} */}
-			</Label>
-			<FieldPostfixIcon onClick={props.onClick}>{length}</FieldPostfixIcon>
-		</Div>
-	);
-}
+																												const {
+																													value,
+																													length,
+																												} = props;
+																												// console.log('DisabledTextFieldModal-', props);
+																												return (
+																													<Div>
+																														<Input
+																															value={
+																																!!value
+																																	? value
+																																	: null
+																															}
+																															id={
+																																props.name
+																															}
+																															placeholder={
+																																props.placeholder
+																															}
+																															{...props}
+																															disabled
+																														/>
+																														<Label
+																															htmlFor={
+																																props.name
+																															}
+																															disabled={
+																																props.disabled
+																															}
+																															style={{
+																																color:
+																																	'black',
+																															}}
+																															value={
+																																value
+																															}
+																														>
+																															{
+																																props.placeholder
+																															}
+																															{/* {!!value ? value : null} */}
+																														</Label>
+																														<FieldPostfixIcon
+																															onClick={
+																																props.onClick
+																															}
+																															state={
+																																true
+																															}
+																														>
+																															+
+																															{length -
+																																1}
+																														</FieldPostfixIcon>
+																													</Div>
+																												);
+																											}
 
+//var arr[100]
 // height: 25px;
 //   width: 25px;
 //   background-color: #bbb;
 //   border-radius: 50%;
 //   display: inline-block;
+//state= false
+//display=!!state?true:none

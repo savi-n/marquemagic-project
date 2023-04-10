@@ -25,6 +25,7 @@ export const IconUpload = styled.img`
 
 export const ImgClose = styled.img`
 	height: 25px;
+	margin: 1rem;
 	cursor: pointer;
 	margin-left: auto;
 	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
@@ -32,4 +33,34 @@ export const ImgClose = styled.img`
 
 export const ProfilePicWrapper = styled.div`
 	margin-bottom: 10px;
+`;
+export const StyledTable = styled.table`
+	margin: 0px 10px 10px 10px;
+	caption-side: top;
+	border: none;
+	border-collapse: collapse;
+	width: max-content;
+	th {
+		width: 150px;
+	}
+	td,
+	th {
+		border: none;
+		padding: 10px 10px 10px 10px;
+		top: auto;
+	}
+	thead {
+		position: sticky;
+		top: 0;
+		width: 500px;
+	}
+	tbody {
+		background-color: white;
+		/* scroll-behavior: smooth; */
+		overflow-x: hidden;
+		overflow-y: auto;
+	}
+	td {
+		padding: 10px 10px 10px 10px;
+	}
 `;
