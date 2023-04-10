@@ -138,15 +138,20 @@ export const AccordianWrapper = styled.div`
 export const AccordianHeader = styled.div`
 	margin-top: 20px;
 	display: flex;
-	justify-content: space-between;
+	/* justify-content: space-between; */
+	justify-content: flex-start;
 	height: 60px;
 	align-items: center;
+	flex-direction: start;
 	padding: 0 20px;
 	border-radius: 6px;
+	/* border: 1px solid red; */
 `;
 
 export const AccordianHeaderData = styled.div`
+	/* border: 1px solid green; */
 	display: flex;
+	flex: 1;
 	& strong {
 		margin-left: 5px;
 		color: #525252;

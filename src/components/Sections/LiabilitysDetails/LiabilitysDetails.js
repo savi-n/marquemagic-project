@@ -199,8 +199,11 @@ const LiabilitysDetails = props => {
 													</>
 												)}
 												<UI_SECTIONS.AccordianHeaderData
-													style={isAccordianOpen ? { marginLeft: 'auto' } : {}}
-													Load
+													style={
+														isAccordianOpen
+															? { marginLeft: 'auto', flex: 'none' }
+															: { flex: 'none' }
+													}
 												>
 													<UI_SECTIONS.AccordianIcon
 														src={editIcon}
