@@ -7,11 +7,7 @@ import Button from 'components/Button';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
-import {
-	formatGetSectionReqBody,
-	formatINR,
-	getApplicantCoApplicantSelectOptions,
-} from 'utils/formatData';
+import { formatGetSectionReqBody } from 'utils/formatData';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -59,8 +55,8 @@ const SubsidiaryDetails = props => {
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.loanfinancials_records?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.loanfinancials_records);
+			if (fetchRes?.data?.data?.length > 0) {
+				setSectionData(fetchRes?.data?.data);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -156,11 +152,7 @@ const SubsidiaryDetails = props => {
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
-									const prefillData = section
-										? {
-												...section,
-										  }
-										: {};
+									const prefillData = section || {};
 									return (
 										<UI_SECTIONS.AccordianWrapper>
 											<UI_SECTIONS.AccordianHeader
@@ -169,37 +161,25 @@ const SubsidiaryDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Subsidiary For:</span>
-															<strong>
-																{
-																	getApplicantCoApplicantSelectOptions({
-																		applicantCoApplicants,
-																	})?.filter(
-																		director =>
-																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
-																	)?.[0]?.name
-																}
-															</strong>
+															<span>Subsidiary Name:</span>
+															<strong>{prefillData?.business_name}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Subsidiary:</span>
-															<strong>{prefillData?.fin_type}</strong>
+															{/* <span>Type of Subsidiary:</span>
+															<strong>{prefillData?.fin_type}</strong> */}
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Amount:</span>
-															<strong>
-																{formatINR(
-																	prefillData?.Subsidiary_amount ||
-																		prefillData?.outstanding_balance
-																)}
-															</strong>
+															<span>Relation:</span>
+															<strong>{prefillData?.relation}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
 												<UI_SECTIONS.AccordianHeaderData
-													style={isAccordianOpen ? { marginLeft: 'auto' } : {}}
-													Load
+													style={
+														isAccordianOpen
+															? { marginLeft: 'auto', flex: 'none' }
+															: { flex: 'none' }
+													}
 												>
 													<UI_SECTIONS.AccordianIcon
 														src={editIcon}

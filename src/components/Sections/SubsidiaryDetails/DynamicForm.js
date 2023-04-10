@@ -72,12 +72,7 @@ const DynamicForm = props => {
 		// }
 		const preData = {
 			...prefillData,
-			liabilities_for: `${prefillData?.director_id || ''}`,
-			liabilities_type: prefillData?.fin_type || '',
-			loan_start_date: prefillData?.outstanding_start_date,
-			outstanding_loan_amount: prefillData?.outstanding_balance,
-			loan_type: prefillData?.subtype,
-			financial_institution: prefillData?.bank_id,
+			subsidiary_name: `${prefillData?.business_name || ''}`,
 		};
 		return preData?.[field?.name];
 	};
