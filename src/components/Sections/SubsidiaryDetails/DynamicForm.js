@@ -10,13 +10,12 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
 	isFieldValid,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
-// import selectedSection from './sample.json';
+import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
@@ -33,70 +32,52 @@ const DynamicForm = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const { selectedSectionId, isTestMode, selectedSection } = app;
+	const {
+		selectedSectionId,
+		isTestMode,
+		// selectedSection
+	} = app;
 	const { isApplicant } = applicantCoApplicants;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const prefilledEditOrViewLoanValues = field => {
-		// Sample PrefillData Object; // TODO: update data
-		// accessories: 0;
-		// address1: '';
-		// address2: '';
-		// automobile_type: '';
-		// brand_name: '';
-		// business_id: 1234581764;
-		// cersai_asset_id: '';
-		// cersai_rec_path: '';
-		// city: '';
-		// current_occupant: '';
-		// dealership_name: '';
-		// ec_applicable: 'YES';
-		// exShowroomPrice: 0;
-		// extent_of_land: '';
-		// flat_no: '';
-		// forced_sale_value: 0;
-		// id: 4375;
-		// insurance: 0;
-		// insurance_required: 'YES';
-		// ints: '2023-03-27T14:17:20.000Z';
-		// loan_asset_type_id: 67;
-		// loan_id: 32974;
-		// loan_json: null;
-		// loan_type: '';
-		// locality: '';
-		// manufacturing_yr: '';
-		// model_name: '';
-		// name_landmark: '';
-		// no_of_assets: 0;
-		// owned_type: '';
-		// pincode: '560078';
-		// priority: 'NA';
-		// property_type: 'Owned';
-		// roadTax: 0;
-		// sq_feet: 0;
-		// state: 'bangalore';
-		// survey_no: '';
-		// type_of_land: '';
-		// value: '111';
-		// value_Vehicle: '';
-		// village_name: '';
+		// Sample PrefillData Object;
+		// 	{
+		// 		"id": 19315,
+		// 		"loan_id": 32830,
+		// 		"business_id": 1234581634,
+		// 		"fin_type": "Others",
+		// 		"bank_id": 0,
+		// 		"loan_type": 0,
+		// 		"outstanding_balance": 0,
+		// 		"outstanding_balance_unit": "",
+		// 		"outstanding_start_date": "",
+		// 		"outstanding_end_date": "",
+		// 		"ints": "2023-03-23T06:21:46.000Z",
+		// 		"account_type": null,
+		// 		"account_number": null,
+		// 		"account_limit": null,
+		// 		"account_holder_name": null,
+		// 		"limit_type": "Fixed",
+		// 		"sanction_drawing_limit": {},
+		// 		"IFSC": null,
+		// 		"director_id": 997290,
+		// 		"emi_details": "{\"description\":\"test\",\"liability_amount\":\"111\"}",
+		// 		"source": null,
+		// 		"subtype": null,
+		// 		"remaining_loan_tenure": null,
+		// 		"bank_remarks": null
+		// }
 		const preData = {
 			...prefillData,
-			assets_for: `${prefillData?.director_id || ''}`,
-			asset_type: `${prefillData?.loan_asset_type_id}` || '',
-			amount: prefillData?.value,
-			estimated_value: prefillData?.value,
-			property_description: prefillData?.property_description,
-			description: prefillData?.property_description,
-			property_survey_umber: prefillData?.survey_no,
-			address_line1: prefillData?.address1,
-			address_line2: prefillData?.address2,
-			landmark: prefillData?.name_landmark,
-			pincode: prefillData?.pincode,
-			city: prefillData?.city,
-			state: prefillData?.state,
+			liabilities_for: `${prefillData?.director_id || ''}`,
+			liabilities_type: prefillData?.fin_type || '',
+			loan_start_date: prefillData?.outstanding_start_date,
+			outstanding_loan_amount: prefillData?.outstanding_balance,
+			loan_type: prefillData?.subtype,
+			financial_institution: prefillData?.bank_id,
 		};
 		return preData?.[field?.name];
 	};
@@ -158,18 +139,17 @@ const DynamicForm = props => {
 				application,
 			});
 			if (editSectionId) {
-				reqBody.data.assets_details.id = editSectionId;
+				reqBody.data.subsidiary_details.id = editSectionId;
 			}
 			if (
-				typeof reqBody?.data?.assets_details?.financial_institution?.value ===
-				'string'
+				typeof reqBody?.data?.subsidiary_details?.bank_name?.value === 'string'
 			) {
-				reqBody.data.assets_details.financial_institution = +reqBody?.data
-					?.assets_details?.financial_institution?.value;
+				reqBody.data.subsidiary_details.bank_name = +reqBody?.data
+					?.subsidiary_details?.bank_name?.value;
 			}
-			reqBody.data.assets_details = [reqBody.data.assets_details];
+			reqBody.data.subsidiary_details = [reqBody.data.subsidiary_details];
 			const submitRes = await axios.post(
-				`${API_END_POINT}/assets_details`,
+				`${API_END_POINT}/subsidiary_details`,
 				reqBody
 			);
 			if (submitRes?.data?.status === 'ok') {
@@ -195,7 +175,6 @@ const DynamicForm = props => {
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
-	// 	prefillData,
 	// });
 
 	return (
@@ -207,12 +186,6 @@ const DynamicForm = props => {
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
-					if (newField.name === CONST.FIELD_NAME_ASSETS_FOR) {
-						newField.options = getApplicantCoApplicantSelectOptions({
-							applicantCoApplicants,
-						});
-					}
-
 					if (isViewLoan) {
 						customFieldProps.disabled = true;
 					}

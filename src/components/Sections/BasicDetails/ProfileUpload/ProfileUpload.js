@@ -179,7 +179,10 @@ const ProfileUpload = props => {
 						] || selectedApplicant?.income_type;
 
 					formData.append('white_label_id', whiteLabelId);
-					if (Object.keys(coordinates).length > 0) {
+					if (
+						Object.keys(coordinates).length > 0 &&
+						field?.geo_tagging === true
+					) {
 						formData.append('lat', coordinates?.latitude || null);
 						formData.append('long', coordinates?.longitude || null);
 					}
@@ -240,7 +243,10 @@ const ProfileUpload = props => {
 					// Basic details Profile Pic Upload section
 					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
-					if (Object.keys(coordinates).length > 0) {
+					if (
+						Object.keys(coordinates).length > 0 &&
+						field?.geo_tagging === true
+					) {
 						formData.append('lat', coordinates?.latitude || null);
 						formData.append('long', coordinates?.longitude || null);
 					}

@@ -11,7 +11,6 @@ import {
 	formatGetSectionReqBody,
 	formatINR,
 	getApplicantCoApplicantSelectOptions,
-	parseJSON,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -20,8 +19,9 @@ import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
+import selectedSection from './sample.json';
 
-const LiabilitysDetails = props => {
+const SubsidiaryDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
@@ -33,7 +33,7 @@ const LiabilitysDetails = props => {
 		isLocalhost,
 		isTestMode,
 		isEditLoan,
-		selectedSection,
+		// selectedSection,
 	} = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -53,7 +53,7 @@ const LiabilitysDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/liability_details?${formatGetSectionReqBody({
+				`${API_END_POINT}/subsidiary_details?${formatGetSectionReqBody({
 					application,
 					applicantCoApplicants,
 				})}`
@@ -129,7 +129,7 @@ const LiabilitysDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('LiabilitysDetails-allstates-', {
+	// console.log('SubsidiaryDetails-allstates-', {
 	// 	app,
 	// 	selectedSection,
 	// 	isCreateFormOpen,
@@ -159,7 +159,6 @@ const LiabilitysDetails = props => {
 									const prefillData = section
 										? {
 												...section,
-												...parseJSON(section?.emi_details || '{}'),
 										  }
 										: {};
 									return (
@@ -170,7 +169,7 @@ const LiabilitysDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Liability For:</span>
+															<span>Subsidiary For:</span>
 															<strong>
 																{
 																	getApplicantCoApplicantSelectOptions({
@@ -184,14 +183,14 @@ const LiabilitysDetails = props => {
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Liability:</span>
+															<span>Type of Subsidiary:</span>
 															<strong>{prefillData?.fin_type}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
 															<strong>
 																{formatINR(
-																	prefillData?.liability_amount ||
+																	prefillData?.Subsidiary_amount ||
 																		prefillData?.outstanding_balance
 																)}
 															</strong>
@@ -296,7 +295,7 @@ const LiabilitysDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional liabilities</span>
+								<span>Click to add additional subsidiary</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
@@ -346,4 +345,4 @@ const LiabilitysDetails = props => {
 	);
 };
 
-export default LiabilitysDetails;
+export default SubsidiaryDetails;
