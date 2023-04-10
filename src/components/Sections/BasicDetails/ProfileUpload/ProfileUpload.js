@@ -47,7 +47,7 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
-		setImageLoading,
+		setImageLoading = () => {},
 	} = props;
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
