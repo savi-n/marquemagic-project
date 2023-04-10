@@ -1009,11 +1009,14 @@ const BasicDetails = props => {
 								return (
 									<UI_SECTIONS.FieldWrapGrid
 										key={`field-${fieldIndex}-${field.name}`}
-										style={{
-											display: 'flex',
-										}}
 									>
-										<div>
+										<div
+											style={{
+												display: 'flex',
+												gap: '10px',
+												alignItems: 'center',
+											}}
+										>
 											{field?.sub_fields &&
 												field?.sub_fields[0].is_prefix &&
 												register({
@@ -1022,22 +1025,18 @@ const BasicDetails = props => {
 													visibility: 'visible',
 													...customFieldProps,
 												})}
-										</div>
-										<div
-											style={{
-												width: '100%',
-												marginLeft: '5px',
-												marginRight: '5px',
-											}}
-										>
-											{register({
-												...field,
-												value: newValue,
-												visibility: 'visible',
-												...customFieldProps,
-											})}
-										</div>
-										<div>
+											<div
+												style={{
+													width: '100%',
+												}}
+											>
+												{register({
+													...field,
+													value: newValue,
+													visibility: 'visible',
+													...customFieldProps,
+												})}
+											</div>
 											{field?.sub_fields &&
 												!field?.sub_fields[0].is_prefix &&
 												register({
@@ -1047,7 +1046,6 @@ const BasicDetails = props => {
 													...customFieldProps,
 												})}
 										</div>
-
 										{(formState?.submit?.isSubmited ||
 											formState?.touched?.[field.name]) &&
 											formState?.error?.[field.name] && (
