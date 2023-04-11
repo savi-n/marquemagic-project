@@ -17,6 +17,19 @@ export const initialFormState = {
 	mother_name: 'Mother Name',
 	upi_id: '1111111',
 	relationship_with_applicant: 'Father',
+	father_last_name: 'Zangetsu',
+	mother_middle_name: 'Mother Middle name',
+	mother_last_name: 'Mother last name',
+	father_middle_name: 'Father Middle Name',
+	middle_name: 'Middle Name',
+	no_of_dependents: 10,
+	no_of_working_members: 2,
+	mother_title: 'Mrs',
+	father_title: 'Mr',
+	spouse_title: 'Mrs',
+	title: 'Mr',
+	religion: 'Hindu',
+	category: 'General',
 };
 
 export const PAN_UPLOAD_FIELD_NAME = 'pan_upload';

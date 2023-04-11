@@ -412,7 +412,10 @@ const AddressDetails = props => {
 						formData
 					);
 					let leng = result.data.files.length;
-					let fd = { ...idx, document_key: result.data.files[leng - 1].fd };
+					let fd = {
+						...idx,
+						document_key: result.data.files[leng - 1].fd,
+					};
 					otherDocsBorrowerApi.push(fd);
 				};
 				// call loanDocumentUpload to store the document on cloud
@@ -602,6 +605,12 @@ const AddressDetails = props => {
 			permanent_property_tenure: moment(
 				selectedApplicant?.permanent_residential_stability
 			).format('YYYY-MM'),
+			// permanent_address_proof_issued_on: moment(
+			// 	selectedApplicant?.issued_date
+			// ).format('DD-MM-YYYY'),
+			// permanent_address_proof_valid_till: moment(
+			// 	selectedApplicant?.validity
+			// ).format('YYYY-MM-DD'),
 
 			present_aadhaar: selectedApplicant?.daadhaar,
 			present_address_proof_id_others: selectedApplicant?.ddocname,
@@ -621,7 +630,7 @@ const AddressDetails = props => {
 		};
 		return preData?.[field?.name];
 	};
-
+	// console.log(selectedApplicant);
 	const prefilledValues = field => {
 		try {
 			// if (isViewLoan) {
@@ -923,7 +932,13 @@ const AddressDetails = props => {
 						)}
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
-								if (!isFieldValid({ field, formState, isApplicant })) {
+								if (
+									!isFieldValid({
+										field,
+										formState,
+										isApplicant,
+									})
+								) {
 									return null;
 								}
 
