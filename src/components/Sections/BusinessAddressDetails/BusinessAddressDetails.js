@@ -268,6 +268,19 @@ const BusinessAddressDetails = props => {
 									if (isViewLoan) {
 										customFieldProps.disabled = true;
 									}
+
+									if (field.name === 'select_gstin') {
+										// customFieldProps.margin = true;
+										// customFieldProps.label =
+										// 	'Select the GSTIN to prepopulate the address';
+										customFieldProps.isGSTselector = true;
+
+										//TODO: change later to received address
+										if (ROC_Addr) {
+											customFieldProps.isHidden = false;
+										}
+									}
+
 									const customStyle = {};
 
 									if (isSectionCompleted) {
