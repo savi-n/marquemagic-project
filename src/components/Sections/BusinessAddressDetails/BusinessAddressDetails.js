@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
+// import axios from 'axios';
 
 import Button from 'components/Button';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
@@ -12,7 +12,7 @@ import {
 } from 'utils/formatData';
 import useForm from 'hooks/useForm';
 import { useToasts } from 'components/Toast/ToastProvider';
-import * as API from '_config/app.config';
+// import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
@@ -30,7 +30,7 @@ const BusinessAddressDetails = props => {
 		isTestMode,
 		selectedSection,
 		isLocalhost,
-		clientToken,
+		// clientToken,
 		editLoanDirectors,
 	} = app;
 
@@ -48,61 +48,61 @@ const BusinessAddressDetails = props => {
 	const pinRegex = /\b\d{6}\b/; // regex to match 6-digit pin code
 	let pincodeFromRocAddress = ROC_Addr.match(pinRegex)[0];
 
-	const GST = '29AABCT3518Q1ZS';
-	const GST_ADDR_FETCH_URL = `${API.ENDPOINT_BANK}/GSTData`; // API endpoint to fetch address from Gst Number selected in Business Details page
+	// const GST = '29AABCT3518Q1ZS';
+	// const GST_ADDR_FETCH_URL = `${API.ENDPOINT_BANK}/GSTData`; // API endpoint to fetch address from Gst Number selected in Business Details page
 
 	useEffect(() => {
-		const fetchAddressFromGstNum = async gstin => {
-			try {
-				const gstAddressReqBody = {
-					gst: gstin,
-				};
-				setLoading(true);
-				const addrResponse = await axios.post(
-					GST_ADDR_FETCH_URL,
-					gstAddressReqBody,
-					{
-						headers: {
-							Authorization: clientToken,
-						},
-					}
-				);
-				console.log(
-					'🚀 ~ file: BusinessAddressDetails.js:71 ~ fetchAddressFromGstNum ~ addrResponse:',
-					addrResponse
-				);
+		// const fetchAddressFromGstNum = async gstin => {
+		// 	try {
+		// 		const gstAddressReqBody = {
+		// 			gst: gstin,
+		// 		};
+		// 		setLoading(true);
+		// 		const addrResponse = await axios.post(
+		// 			GST_ADDR_FETCH_URL,
+		// 			gstAddressReqBody,
+		// 			{
+		// 				headers: {
+		// 					Authorization: clientToken,
+		// 				},
+		// 			}
+		// 		);
+		// 		console.log(
+		// 			'🚀 ~ file: BusinessAddressDetails.js:71 ~ fetchAddressFromGstNum ~ addrResponse:',
+		// 			addrResponse
+		// 		);
 
-				// set the business address based on the pradr of the response of the above api call
+		// set the business address based on the pradr of the response of the above api call
 
-				const newAddress = {
-					address1: ROC_Addr,
-					address2: '',
-					address3: '',
-				};
-				// setBusinessAddress(addrResponse?.data?.data?.pradr?.addr);
-				setBusinessAddress(newAddress);
-				setTimeout(() => {
-					onChangeFormStateField({
-						name: 'pin_code',
-						value: pincodeFromRocAddress,
-					});
-				}, 0);
-			} catch (error) {
-				console.error('error-AddressDetails-onProceed-', {
-					error: error,
-					res: error?.response,
-					resres: error?.response?.response,
-					resData: error?.response?.data,
-				});
-				addToast({
-					message: getApiErrorMessage(error),
-					type: 'error',
-				});
-			} finally {
-				setLoading(false);
-			}
+		const newAddress = {
+			address1: ROC_Addr,
+			address2: '',
+			address3: '',
 		};
-		fetchAddressFromGstNum(GST);
+		// setBusinessAddress(addrResponse?.data?.data?.pradr?.addr);
+		setBusinessAddress(newAddress);
+		setTimeout(() => {
+			onChangeFormStateField({
+				name: 'pin_code',
+				value: pincodeFromRocAddress,
+			});
+		}, 0);
+		// 	} catch (error) {
+		// 		console.error('error-AddressDetails-onProceed-', {
+		// 			error: error,
+		// 			res: error?.response,
+		// 			resres: error?.response?.response,
+		// 			resData: error?.response?.data,
+		// 		});
+		// 		addToast({
+		// 			message: getApiErrorMessage(error),
+		// 			type: 'error',
+		// 		});
+		// 	} finally {
+		// 		setLoading(false);
+		// 	}
+		// };
+		// fetchAddressFromGstNum(GST);
 
 		// eslint-disable-next-line
 	}, []);
