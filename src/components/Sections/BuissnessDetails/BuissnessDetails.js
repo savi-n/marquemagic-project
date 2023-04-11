@@ -743,7 +743,6 @@ const BuissnessDetails = props => {
 					/>
 				)}
 			</UI_SECTIONS.Footer>
-			;
 		</UI_SECTIONS.Wrapper>
 	);
 };
