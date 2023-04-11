@@ -52,7 +52,6 @@ const initialState = {
 	prevSectionId: '',
 	nextSectionId: '',
 	applicantCoApplicantSectionIds: [],
-	businessSectionIds: ['one', 'two'],
 	completedSections: [],
 	formData: {},
 	editLoanData: null,
@@ -208,9 +207,6 @@ export const appSlice = createSlice({
 		setDefaultLoader: (state, action) => {
 			state.defaultLoader = action.payload;
 		},
-		setBusinessSectionIds: (state, action) => {
-			state.businessSectionIds = action.payload;
-		},
 	},
 });
 
@@ -236,7 +232,6 @@ export const {
 	addFormData,
 
 	setEditLoanData,
-	setBusinessSectionIds,
 	toggleTestMode,
 	setIsTestMode,
 	setBankList,

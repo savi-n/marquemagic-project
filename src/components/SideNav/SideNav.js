@@ -37,7 +37,6 @@ const SideNav = props => {
 		isEditLoan,
 		isDraftLoan,
 		editLoanDirectors,
-		businessSectionIds,
 	} = app;
 	const {
 		applicant,
@@ -70,13 +69,12 @@ const SideNav = props => {
 		selectedApplicant,
 	});
 
-	console.log('SideNav-allStates-', {
-		app,
-		selectedProduct,
-		completedSections,
-		selectedApplicant,
-		businessSectionIds,
-	});
+	// console.log('SideNav-allStates-', {
+	// 	app,
+	// 	selectedProduct,
+	// 	completedSections,
+	// 	selectedApplicant,
+	// });
 
 	return (
 		<Fragment>

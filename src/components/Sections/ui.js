@@ -93,3 +93,97 @@ export const Footer = styled.div`
 	display: flex;
 	gap: 20px;
 `;
+
+export const AddMoreWrapper = styled.div`
+	display: flex;
+	margin: 20px 0;
+	align-items: center;
+`;
+
+export const RoundButton = styled.button`
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 17px;
+	/* font-weight: 700; */
+	background: ${({ theme }) => theme.buttonColor2};
+	margin-right: 10px;
+	@media (max-width: 700px) {
+		height: auto;
+		width: 2.25rem;
+	}
+`;
+
+export const AddDynamicSectionWrapper = styled.div`
+	display: flex;
+	gap: 15px;
+	align-items: center;
+	margin: 40px 0;
+`;
+
+export const PlusRoundButton = styled.img`
+	height: 40px;
+	width: 40px;
+	cursor: pointer;
+`;
+
+export const AccordianWrapper = styled.div`
+	box-shadow: rgba(11, 92, 255, 0.16) 0px 10px 36px 0px;
+`;
+
+export const AccordianHeader = styled.div`
+	margin-top: 20px;
+	display: flex;
+	/* justify-content: space-between; */
+	justify-content: flex-start;
+	height: 60px;
+	align-items: center;
+	flex-direction: start;
+	padding: 0 20px;
+	border-radius: 6px;
+	/* border: 1px solid red; */
+`;
+
+export const AccordianHeaderData = styled.div`
+	/* border: 1px solid green; */
+	display: flex;
+	flex: 1;
+	& strong {
+		margin-left: 5px;
+		color: #525252;
+	}
+	& img {
+		margin: 0 5px;
+		cursor: pointer;
+	}
+`;
+
+export const AccordianIcon = styled.img`
+	height: 30px;
+	width: 30px;
+`;
+
+export const AccordianIconWrapper = styled.img;
+
+export const AccordianBody = styled.div`
+	/* border: 1px solid red; */
+	background-color: white;
+	/* padding: 0 30px 30px 30px; */
+	padding: ${({ isOpen }) => (isOpen ? '0 30px 30px 30px' : '0')};
+	overflow: hidden;
+	height: ${({ isOpen }) => (isOpen ? 'auto' : '0')};
+
+	/* Enable this for animation */
+	/* padding: ${({ isOpen }) => (isOpen ? '0 30px 30px 30px' : '0 30px')};
+	max-height: ${({ isOpen }) => (isOpen ? '1000px' : '0')};
+	height: auto;
+	transition: max-height 0.3s ease-in-out; */
+`;
+
+export const DynamicFormWrapper = styled.div`
+	/* border: 1px solid red; */
+`;
