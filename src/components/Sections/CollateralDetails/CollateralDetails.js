@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
@@ -7,7 +7,11 @@ import Button from 'components/Button';
 
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
+import {
+	formatGetSectionReqBody,
+	formatSectionReqBody,
+	getApiErrorMessage,
+} from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { updateApplicationSection } from 'store/applicationSlice';
 import * as SectionUI from 'components/Sections/ui';
@@ -32,6 +36,11 @@ const CollateralDetails = () => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+	const [openAccordianId, setOpenAccordianId] = useState('');
+	const [editSectionId, setEditSectionId] = useState('');
+	const [sectionData, setSectionData] = useState([]);
 	const { handleSubmit, register, formState } = useForm();
 
 	const naviagteToNextSection = () => {
@@ -39,6 +48,40 @@ const CollateralDetails = () => {
 	};
 	const naviagteToPreviousSection = () => {
 		dispatch(setSelectedSectionId(prevSectionId));
+	};
+
+	const openCreateForm = () => {
+		setEditSectionId('');
+		setOpenAccordianId('');
+		setIsCreateFormOpen(true);
+	};
+
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+			const fetchRes = await axios.get(
+				`${API_END_POINT}/collateralData?${formatGetSectionReqBody({
+					application,
+					applicantCoApplicants,
+				})}`
+			);
+			console.log('fetchRes-', fetchRes);
+			if (fetchRes?.data?.data?.loanfinancials_records?.length > 0) {
+				setSectionData(fetchRes?.data?.data?.loanfinancials_records);
+				setEditSectionId('');
+				setOpenAccordianId('');
+				setIsCreateFormOpen(false);
+			} else {
+				setSectionData([]);
+				openCreateForm();
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+			setSectionData([]);
+			openCreateForm();
+		} finally {
+			setFetchingSectionData(false);
+		}
 	};
 
 	const onProceed = async () => {
@@ -184,6 +227,11 @@ const CollateralDetails = () => {
 	};
 
 	// console.log('employment-details-', { coApplicants, app });
+
+	useEffect(() => {
+		fetchSectionDetails();
+		// eslint-disable-next-line
+	}, []);
 
 	return (
 		<SectionUI.Wrapper style={{ paddingTop: 50 }}>
