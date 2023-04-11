@@ -206,25 +206,27 @@ const LiabilitysDetails = props => {
 															: { flex: 'none' }
 													}
 												>
-													<UI_SECTIONS.AccordianIcon
-														src={editIcon}
-														alt='edit'
-														onClick={() => {
-															if (isCreateFormOpen || isEditLoan) return;
-															toggleAccordian(sectionId, 'open');
-															setTimeout(() => {
-																setEditSectionId(sectionId);
-															}, 200);
-														}}
-														style={
-															isCreateFormOpen || isEditLoan
-																? {
-																		cursor: 'not-allowed',
-																		visibility: 'hidden',
-																  }
-																: {}
-														}
-													/>
+													{isViewLoan ? null : (
+														<UI_SECTIONS.AccordianIcon
+															src={editIcon}
+															alt='edit'
+															onClick={() => {
+																if (isCreateFormOpen || isEditLoan) return;
+																toggleAccordian(sectionId, 'open');
+																setTimeout(() => {
+																	setEditSectionId(sectionId);
+																}, 200);
+															}}
+															style={
+																isCreateFormOpen || isEditLoan
+																	? {
+																			cursor: 'not-allowed',
+																			visibility: 'hidden',
+																	  }
+																	: {}
+															}
+														/>
+													)}
 													<UI_SECTIONS.AccordianIcon
 														src={expandIcon}
 														alt='toggle'
