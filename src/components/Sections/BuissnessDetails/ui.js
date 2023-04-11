@@ -34,33 +34,32 @@ export const ImgClose = styled.img`
 export const ProfilePicWrapper = styled.div`
 	margin-bottom: 10px;
 `;
-export const StyledTable = styled.table`
-	margin: 0px 10px 10px 10px;
-	caption-side: top;
-	border: none;
-	border-collapse: collapse;
-	width: max-content;
-	th {
-		width: 150px;
-	}
-	td,
-	th {
-		border: none;
-		padding: 10px 10px 10px 10px;
-		top: auto;
-	}
-	thead {
-		position: sticky;
-		top: 0;
-		width: 500px;
-	}
-	tbody {
-		background-color: white;
-		/* scroll-behavior: smooth; */
-		overflow-x: hidden;
-		overflow-y: auto;
-	}
-	td {
-		padding: 10px 10px 10px 10px;
-	}
+export const TableParentDiv = styled.div`
+	height: 300px;
+	overflow-y: scroll;
+	display: flex;
+	flex-direction: column;
+`;
+
+export const TableHeader = styled.div`
+	position: sticky;
+	top: 0;
+	display: flex;
+	background-color: #f0f0f0;
+`;
+export const TableRowWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+`;
+export const TableRow = styled.div`
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+`;
+
+export const TableCollumns = styled.div`
+	flex: 1;
+	padding: 8px;
+	text-align: center;
 `;

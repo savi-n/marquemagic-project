@@ -111,7 +111,7 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function InputField(props) {
-	const isLargeTextLable = props.name.length > 15;
+	const isLargeTextLable = props?.name?.length > 15;
 	return (
 		<Div>
 			<Input

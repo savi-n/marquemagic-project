@@ -42,6 +42,8 @@ const PanUpload = props => {
 		panErrorMessage,
 		onChangeFormStateField,
 		clearErrorFormState,
+		setUdyogAadhar,
+		udyogAadhar,
 		// cacheDocumentsTemp,
 		// state,
 		setGstin,
@@ -71,9 +73,12 @@ const PanUpload = props => {
 	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
+	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
+	console.log({ udyogAadhar });
+	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
@@ -160,6 +165,39 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
+	const onProceedUdyodAadhar = async udyogAadharNumber => {
+		try {
+			// console.log({
+			// 	udyogAadharNumber,
+			// });
+			setLoading(true);
+			setUdyogAadhar(udyogAadharNumber);
+			const VerifyUdyogResBody = {
+				uan: udyogAadharNumber,
+			};
+			const VerifyUdyog = await axios.get(
+				`${API.ENDPOINT_BANK}/get/udyog`,
+				VerifyUdyogResBody,
+				{
+					headers: {
+						Authorization: clientToken,
+					},
+				}
+			);
+			VerifyUdyog();
+		} catch (e) {
+			setLoading(false);
+			addToast({
+				message:
+					'Unable to fetch the data from udyog. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
 	const gstinFetch = async confirmPanNumber => {
 		try {
 			setLoading(true);
@@ -181,13 +219,13 @@ const PanUpload = props => {
 			// console.log(gstin);
 		} catch (error) {
 			setLoading(false);
-			addToast({
-				message:
-					'Unable to fetch the data from PanToGst. Please continue to fill the details.',
-				// || error?.message ||
-				// 'ROC search failed, try again',
-				type: 'error',
-			});
+			// addToast({
+			// 	message:
+			// 		'Unable to fetch the data from PanToGst. Please continue to fill the details.',
+			// 	// || error?.message ||
+			// 	// 'ROC search failed, try again',
+			// 	type: 'error',
+			// });
 			console.error('error-gstinFetchError-', error);
 		} finally {
 			setLoading(false);
@@ -235,7 +273,6 @@ const PanUpload = props => {
 		setLoading(true);
 		await cinNumberFetch(cinNumber);
 	};
-
 	const onProceedPanConfirm = async () => {
 		try {
 			const panErrorMessage = isInvalidPan(confirmPanNumber);
@@ -536,6 +573,48 @@ const PanUpload = props => {
 				}}
 			/>
 			<Modal
+				show={isUdyogModalOpen}
+				onClose={() => {
+					setIsUdyogModalOpen(false);
+				}}
+				width='30%'
+			>
+				<section className='p-4 flex flex-col gap-y-8'>
+					<UI.ImgClose
+						onClick={() => {
+							setIsUdyogModalOpen(false);
+						}}
+						src={imgClose}
+						alt='close'
+					/>
+					<InputField
+						value={udyogAadhar}
+						onChange={e => {
+							setUdyogAadhar(e.target.value);
+						}}
+						// style={{
+						// 	textAlign: 'center',
+						// }}
+					/>
+					<Button
+						name='Proceed'
+						fill
+						isLoader={loading}
+						onClick={() =>
+							// 	console.log({
+							// 		udyogAadhar,
+							// 	})
+							// }
+							onProceedUdyodAadhar(udyogAadhar)
+						}
+						disabled={loading}
+						style={{
+							alignText: 'center',
+						}}
+					/>
+				</section>
+			</Modal>
+			<Modal
 				show={isPanConfirmModalOpen}
 				onClose={() => {
 					setIsPanConfirmModalOpen(false);
@@ -560,11 +639,12 @@ const PanUpload = props => {
 							Confirm PAN Number and Proceed
 						</h1>
 						<UI.FieldWrapperPanVerify>
-							<InputField
+							{/* <InputField
 								name={CONST_BASIC_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
 								value={confirmPanNumber}
 								onChange={e => {
-									setConfirmPanNumber(e.target.value);
+									console.log({ e });
+									// setConfirmPanNumber(e?.target?.value);
 									// const newPanExtractionData = _.cloneDeep(
 									// 	panExtractionResTemp
 									// );
@@ -586,7 +666,7 @@ const PanUpload = props => {
 								style={{
 									textAlign: 'center',
 								}}
-							/>
+							/> */}
 							{panErrorMessage && (
 								<UI_SECTIONS.ErrorMessage borderColorCode={panErrorColorCode}>
 									{panErrorMessage}
@@ -597,7 +677,11 @@ const PanUpload = props => {
 							name='Proceed'
 							fill
 							isLoader={loading}
-							onClick={onProceedPanConfirm}
+							// onClick={onProceedPanConfirm}
+							onClick={() => {
+								setIsPanConfirmModalOpen(false);
+								setIsUdyogModalOpen(true);
+							}}
 							disabled={loading}
 							style={{
 								alignText: 'center',
