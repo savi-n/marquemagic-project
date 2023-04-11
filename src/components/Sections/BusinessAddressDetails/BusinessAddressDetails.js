@@ -1,7 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-// import { PINCODE_ADRRESS_FETCH } from '_config/app.config';
 
 import Button from 'components/Button';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
@@ -18,7 +17,6 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import GstSelectInput from './GstSelectInput';
 
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -41,13 +39,14 @@ const BusinessAddressDetails = props => {
 	const { addToast } = useToasts();
 	const [businessAddress, setBusinessAddress] = useState({});
 
-	// ---------------------------------------------------------- GSTData API starts ---------------------------------------------------------------------
+	// ---------------------------------------------------------- GSTData API starts (for now hard-coding the data) --------------------------------------------
 	//TODO: api call for gst -> address and get Request for fetching list of GSTs
+
+	// if there is single line of ROC address, then from there to extract pincode, using this
 	const ROC_Addr =
 		'BLOCK NO. 305 & 330, VILLAGE ZAK, VEHLAL ROAD, OFF NARODA-DEHGAM ROADM, TAL DEHGAM DIST GANDHINAGAR GJ 382330 IN';
 	const pinRegex = /\b\d{6}\b/; // regex to match 6-digit pin code
 	let pincodeFromRocAddress = ROC_Addr.match(pinRegex)[0];
-	// let pincodeFromRocAddress = '560052';
 
 	const GST = '29AABCT3518Q1ZS';
 	const GST_ADDR_FETCH_URL = `${API.ENDPOINT_BANK}/GSTData`; // API endpoint to fetch address from Gst Number selected in Business Details page
@@ -202,7 +201,7 @@ const BusinessAddressDetails = props => {
 		}
 	};
 
-	const prefilledEditOrViewLoanValues = field => {
+	const populatePreData = field => {
 		const preData = {
 			address1: businessAddress?.address1,
 			address2: businessAddress?.address2,
@@ -213,18 +212,6 @@ const BusinessAddressDetails = props => {
 		};
 		return preData?.[field?.name];
 	};
-
-	// const populateGstAddressData = field => {
-	// 	const preAddrData = {
-	// 		address1: businessAddress?.bnm,
-	// 		address2: businessAddress?.st,
-	// 		address3: businessAddress?.bno,
-	// 		pin_code: businessAddress?.pncd,
-	// 		city: businessAddress?.dst,
-	// 		state: businessAddress?.stcd,
-	// 	};
-	// 	return preAddrData?.[field?.name];
-	// };
 
 	const prefilledValues = field => {
 		console.log(businessAddress);
@@ -239,7 +226,7 @@ const BusinessAddressDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-			let editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			let editViewLoanValue = populatePreData(field);
 
 			// if (isEditOrViewLoan) {
 			// 	editViewLoanValue = prefilledEditOrViewLoanValues(field);
@@ -254,38 +241,6 @@ const BusinessAddressDetails = props => {
 			return {};
 		}
 	};
-
-	// ------------------------------------------------ GST Dummy Data -------------------------------------------------------------------------------------------
-	// const ROC_Addr = 'Blr - one north, Yelahanka, Bengaluru';
-	// const ROC_Addr = '';
-	const gstNumbers = [
-		{
-			gstin: '24AAACP7066Q1ZW',
-			status: 'Active',
-			state_code: '24',
-		},
-		{
-			gstin: '24AAACP7077Q1ZW',
-			status: 'Active',
-			state_code: '24',
-		},
-		{
-			gstin: '24AAACP7088Q1ZW',
-			status: 'Not Active',
-			state_code: '24',
-		},
-		{
-			gstin: '24AAACP7099Q1ZW',
-			status: 'Active',
-			state_code: '24',
-		},
-		{
-			gstin: '24AAACP7076Q1ZW',
-			status: 'Not Active',
-			state_code: '24',
-		},
-	];
-	// ------------------------------------------------ GST Dummy Data -------------------------------------------------------------------------------------------
 
 	return loading ? (
 		<Loading />
@@ -303,21 +258,6 @@ const BusinessAddressDetails = props => {
 
 						<UI.FormWrapGrid>
 							<UI.Coloum>
-								{/* ------------------------------------------------GST DropDown------------------------------------------------------------------------- */}
-
-								{ROC_Addr && (
-									<div
-										key={subSectionIndex}
-										style={{ width: '100%', margin: '5px 0 50px 0' }}
-									>
-										<GstSelectInput
-											gstNumbers={gstNumbers}
-											placeholder='Select a GST Number'
-										/>
-									</div>
-								)}
-								{/* ------------------------------------------------GST DropDown------------------------------------------------------------------------- */}
-
 								{sub_section?.fields?.map((field, fieldIndex) => {
 									if (!isFieldValid({ field, formState })) {
 										return null;
