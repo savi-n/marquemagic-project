@@ -15,6 +15,9 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
+import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
+import AssetsDetails from 'components/Sections/AssetsDetails';
+import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
 
 import { setIsTestMode, setBankList } from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
@@ -45,7 +48,10 @@ const ProductIndividual = props => {
 		document_upload: DocumentUpload,
 		reference_details: ReferenceDetails,
 		emi_details: EMIDetails,
+		liability_details: LiabilitysDetails,
+		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
+		subsidiary_details: SubsidiaryDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
