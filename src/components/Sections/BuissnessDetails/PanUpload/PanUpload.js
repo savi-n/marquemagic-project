@@ -346,8 +346,9 @@ const PanUpload = props => {
 				onChangeFormStateField({
 					name: 'business_vintage',
 					value:
-						moment(companyRocData?.BusinessVintage).format('YYYY-MM-DD') ||
-						'',
+						moment(companyRocData?.BusinessVintage).format(
+							'YYYY-MM-DD'
+						) || '',
 				});
 				onChangeFormStateField({
 					name: 'business_email',
