@@ -271,10 +271,11 @@ const BasicDetails = props => {
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
 
-			const basicDetailsRes = await axios.post(
-				`${API.API_END_POINT}/basic_details`,
-				basicDetailsReqBody
-			);
+			// const basicDetailsRes = await axios.post(
+			// 	`${API.API_END_POINT}/basic_details`,
+			// 	basicDetailsReqBody
+			// );
+			const basicDetailsRes = 0;
 			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
 			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
 			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
