@@ -21,6 +21,7 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
+import BuissnessDetails from 'components/Sections/BuissnessDetails/BuissnessDetails';
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
@@ -59,7 +60,9 @@ const Product = props => {
 	const dispatch = useDispatch();
 
 	const SELECTED_SECTION_MAPPING = {
-		address_details: BusinessAddressDetails,
+		//TODO Bikash & Akshat - change to the respective components
+		business_details: BuissnessDetails, // change to the respective components
+		business_address: BusinessAddressDetails, // change to the respective components
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,

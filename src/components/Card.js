@@ -172,7 +172,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 									e?.response?.data?.message,
 									e?.message || 'Permission denied'
 								);
-								dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
+								dispatch(
+									setGeoLocation({
+										err: 'Geo Location Not Captured',
+									})
+								);
 								addToast({
 									message:
 										e?.response?.data?.message ||
