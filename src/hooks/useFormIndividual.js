@@ -13,6 +13,7 @@ import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
 import DisabledTextFieldModal from 'components/inputs/GstinField';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
+import Button from 'components/Button';
 import moment from 'moment';
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -193,18 +194,22 @@ export default function useForm() {
 		submitCount: 0,
 	});
 
+	const resetForm = () => {
+		fieldsRef.current = {};
+		valuesRef.current = {};
+		touchedRef.current = {};
+		errorsRef.current = {};
+		validRef.current = {};
+		submitRef.current = {
+			isSubmitting: false,
+			isSubmited: false,
+			submitCount: 0,
+		};
+	};
+
 	useEffect(() => {
 		return () => {
-			fieldsRef.current = {};
-			valuesRef.current = {};
-			touchedRef.current = {};
-			errorsRef.current = {};
-			validRef.current = {};
-			submitRef.current = {
-				isSubmitting: false,
-				isSubmited: false,
-				submitCount: 0,
-			};
+			resetForm();
 		};
 	}, []);
 
@@ -333,7 +338,10 @@ export default function useForm() {
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
 
-		if (newField?.name?.includes('bank_name')) {
+		if (
+			newField?.name?.includes('bank_name') ||
+			newField.type.includes('bank')
+		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
 				!valuesRef?.current?.[newField?.name] &&
@@ -342,7 +350,6 @@ export default function useForm() {
 			// old
 			setValue(newField?.name, newField?.value || '');
 		}
-
 		checkValidity(newField?.name);
 
 		return (
@@ -381,6 +388,9 @@ export default function useForm() {
 		valid = validDefault,
 		invalid = invalidDefault
 	) => async e => {
+		// console.log(valid);
+		// console.log(invalid);
+
 		const { submitCount } = submitRef.current;
 
 		submitRef.current = {
@@ -446,6 +456,7 @@ export default function useForm() {
 		clearErrorFormState: clearError,
 		onChangeFormStateField: onChange,
 		setErrorFormStateField: setError,
+		resetForm: resetForm,
 	};
 }
 
@@ -558,7 +569,14 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		}
 
 		case 'select': {
-			return <SelectField {...{ ...field, ...fieldProps }} />;
+			return (
+				<SelectField
+					{...{ ...field, ...fieldProps }}
+					style={{
+						minWidth: 100,
+					}}
+				/>
+			);
 		}
 		case 'address_proof_radio': {
 			return <AddressProofRadio {...{ ...field, ...fieldProps }} />;
@@ -636,10 +654,20 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 			);
 		}
 		case 'disabledtextfieldmodal': {
-			console.log('DisabledTextFieldModal--useForm');
 			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
 		}
 		//DisabledTextFieldModal
+		case 'button': {
+			return (
+				<Button
+					{...{ ...field, ...fieldProps }}
+
+					// style={{
+					// 	Width: '150px',
+					// }}
+				/>
+			);
+		}
 		default: {
 			return (
 				<>

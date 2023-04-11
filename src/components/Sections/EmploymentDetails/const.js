@@ -23,4 +23,5 @@ export const initialFormState = {
 	income_from_rent: '100000',
 	income_from_agriculture: '100000',
 	any_other_income: '100000',
+	income_loan_repayment: 'Yes',
 };
