@@ -1,0 +1,31 @@
+.parent-div {
+	height: 300px; /* Set the height of the parent div to the desired height */
+	overflow-y: scroll; /* Enable vertical scrolling */
+	display: flex;
+	flex-direction: column;
+}
+
+.header-row {
+	position: sticky;
+	top: 0;
+	display: flex;
+	background-color: #f0f0f0; /* Set the background color of the header row */
+}
+
+.data-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.data-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+.column {
+	flex: 1; /* Distribute the available space evenly among columns */
+	padding: 8px; /* Add padding to the columns */
+	text-align: center; /* Align text to the left */
+}

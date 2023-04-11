@@ -21,6 +21,7 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
+import BuissnessDetails from 'components/Sections/BuissnessDetails/BuissnessDetails';
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
@@ -35,6 +36,7 @@ import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
+import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails/BusinessAddressDetails';
 
 const Product = props => {
 	const { product } = props;
@@ -59,8 +61,8 @@ const Product = props => {
 
 	const SELECTED_SECTION_MAPPING = {
 		//TODO Bikash & Akshat - change to the respective components
-		business_details: BasicDetails, // change to the respective components
-		business_address: BasicDetails, // change to the respective components
+		business_details: BuissnessDetails, // change to the respective components
+		business_address: BusinessAddressDetails, // change to the respective components
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
