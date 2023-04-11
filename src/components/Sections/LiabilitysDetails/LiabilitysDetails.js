@@ -170,6 +170,7 @@ const LiabilitysDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
+															{/* // NOTE auto Prefill not work for name since director id is hardcoded */}
 															<span>Liability For:</span>
 															<strong>
 																{
