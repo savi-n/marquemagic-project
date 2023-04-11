@@ -947,7 +947,7 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submittingOtp || submitting}
-				disabled={submittingOtp || buttonDisabledStatus()}
+				disabled={submittingOtp || submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submittingOtp && submitting) return;
 					onSubmitOtpAuthentication();
