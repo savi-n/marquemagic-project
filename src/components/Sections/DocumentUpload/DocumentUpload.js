@@ -120,13 +120,18 @@ const DocumentUpload = props => {
 	const applicantMobileNumber =
 		applicant?.basic_details?.mobile_no || applicant?.dcontact;
 	const { addToast } = useToasts();
+	const [submittingOtp, setSubmittingOtp] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [savingComments, setSavingComments] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [declareCheck, setDeclareCheck] = useState(false);
-	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
-	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(false);
+	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState(
+		''
+	);
+	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(
+		false
+	);
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -339,8 +344,9 @@ const DocumentUpload = props => {
 							const doc_type_id = doctype;
 							const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
 							if (
-								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
-									?.length <= 0
+								newAllDocumentTypes?.filter(
+									d => d?.doc_type_id === doc_type_id
+								)?.length <= 0
 							) {
 								newAllDocumentTypes.push({
 									...docListItem,
@@ -365,8 +371,9 @@ const DocumentUpload = props => {
 							const doc_type_id = doctype;
 							const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
 							if (
-								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
-									?.length <= 0
+								newAllDocumentTypes?.filter(
+									d => d?.doc_type_id === doc_type_id
+								)?.length <= 0
 							) {
 								newAllDocumentTypes.push({
 									...docListItem,
@@ -548,7 +555,9 @@ const DocumentUpload = props => {
 								!file?.loan_document_details?.[0]?.lat &&
 								!file?.loan_document_details?.[0]?.long
 							) {
-								setGeoLocationData({ err: 'Geo Location Not Captured' });
+								setGeoLocationData({
+									err: 'Geo Location Not Captured',
+								});
 								dispatch(
 									setDocumentSelfieGeoLocation({
 										err: 'Geo Location Not Captured',
@@ -647,6 +656,7 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
+			setSubmittingOtp(true);
 			// console.log('step-1');
 			const check = validateGeoTaggedDocsForApplicantCoapplicant();
 			// console.log('step-2', { check });
@@ -671,7 +681,6 @@ const DocumentUpload = props => {
 			// console.log('step-7');
 			if (!isFormValid()) return;
 			// console.log('step-8');
-			setSubmitting(true);
 			await onSubmitCompleteApplication();
 			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
@@ -701,9 +710,10 @@ const DocumentUpload = props => {
 				type: 'error',
 			});
 		} finally {
-			setSubmitting(false);
+			setSubmittingOtp(false);
 		}
 	};
+	// console.log(submittingOtp);
 
 	const isFormValid = () => {
 		let isDocTypeUnTagged = false;
@@ -864,7 +874,8 @@ const DocumentUpload = props => {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
 				message:
-					getApiErrorMessage(error) || 'Server down. Please try after sometime',
+					getApiErrorMessage(error) ||
+					'Server down. Please try after sometime',
 				type: 'error',
 			});
 		} finally {
@@ -935,10 +946,10 @@ const DocumentUpload = props => {
 					width: '200px',
 					background: 'blue',
 				}}
-				isLoader={submitting}
-				disabled={submitting || buttonDisabledStatus()}
+				isLoader={submittingOtp || submitting}
+				disabled={submittingOtp || buttonDisabledStatus()}
 				onClick={() => {
-					if (submitting) return;
+					if (submittingOtp && submitting) return;
 					onSubmitOtpAuthentication();
 				}}
 			/>
@@ -1053,8 +1064,9 @@ const DocumentUpload = props => {
 				}
 			} else {
 				if (
-					Object.keys(coApplicants?.[director.value]?.documentSelfieGeolocation)
-						.length <= 0
+					Object.keys(
+						coApplicants?.[director.value]?.documentSelfieGeolocation
+					).length <= 0
 				) {
 					result = false;
 				}
@@ -1078,7 +1090,8 @@ const DocumentUpload = props => {
 		)?.[0];
 		if (onSiteSelfiefield?.fields?.length > 0) {
 			mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-				field => field?.geo_tagging === true && field?.is_co_applicant === false
+				field =>
+					field?.geo_tagging === true && field?.is_co_applicant === false
 			)?.[0];
 			mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
 				field => field?.geo_tagging === true && field?.is_applicant === false
@@ -1105,10 +1118,12 @@ const DocumentUpload = props => {
 		let mandatoryProfilePicFieldCoApplicant = {};
 		if (profilePicField?.length > 0) {
 			mandatoryProfilePicFieldApplicant = profilePicField?.filter(
-				field => field?.geo_tagging === true && field?.is_co_applicant === false
+				field =>
+					field?.geo_tagging === true && field?.is_co_applicant === false
 			)?.[0];
 			mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
-				field => field?.geo_tagging === true && field?.is_applicant === false
+				field =>
+					field?.geo_tagging === true && field?.is_applicant === false
 			)?.[0];
 		}
 		if (
@@ -1192,7 +1207,9 @@ const DocumentUpload = props => {
 					`${doc?.directorId}` === `${applicant?.id}` &&
 					`${doc?.doc_type_id}` ===
 						`${
-							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+							mandatoryProfilePicFieldApplicant?.doc_type?.[
+								selectedIncomeType
+							]
 						}`
 				) {
 					doc.lat = applicantProfile?.lat;
@@ -1238,7 +1255,9 @@ const DocumentUpload = props => {
 			documentCheckStatus.missingDocsForDirectors = [
 				...new Set(missingDocsForDirectors),
 			];
-			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
+			documentCheckStatus.directorList = [
+				...new Set(applicantCoappliantIndex),
+			];
 		}
 
 		// console.log({
@@ -1390,7 +1409,10 @@ const DocumentUpload = props => {
 
 			{totalMandatoryDocumentCount > 0 ? (
 				<UI.CollapseHeader
-					style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}
+					style={{
+						marginBottom: 20,
+						borderBottom: '3px solid #eee',
+					}}
 				>
 					<UI.CategoryNameHeader>
 						<span style={{ color: 'red' }}>*</span> Mandatory

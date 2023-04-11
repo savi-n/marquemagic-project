@@ -256,8 +256,8 @@ const EmploymentDetails = () => {
 		};
 		return preData?.[field?.name];
 	};
-	const selectedEmploymentData = selectedApplicant?.employment_data?.[0] || {};
-	console.log(selectedEmploymentData);
+	// const selectedEmploymentData = selectedApplicant?.employment_data?.[0] || {};
+	// console.log(selectedEmploymentData);
 	const prefilledValues = field => {
 		try {
 			if (isViewLoan) {
@@ -355,7 +355,9 @@ const EmploymentDetails = () => {
 										key={`field-${fieldIndex}-${field.name}`}
 										style={
 											field.type === 'address_proof_radio'
-												? { gridColumn: 'span 2' }
+												? {
+														gridColumn: 'span 2',
+												  }
 												: {}
 										}
 									>
