@@ -126,12 +126,8 @@ const DocumentUpload = props => {
 	const [submitting, setSubmitting] = useState(false);
 	const [cibilCheckbox, setCibilCheckbox] = useState(false);
 	const [declareCheck, setDeclareCheck] = useState(false);
-	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState(
-		''
-	);
-	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(
-		false
-	);
+	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
+	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(false);
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -344,9 +340,8 @@ const DocumentUpload = props => {
 							const doc_type_id = doctype;
 							const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
 							if (
-								newAllDocumentTypes?.filter(
-									d => d?.doc_type_id === doc_type_id
-								)?.length <= 0
+								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
+									?.length <= 0
 							) {
 								newAllDocumentTypes.push({
 									...docListItem,
@@ -371,9 +366,8 @@ const DocumentUpload = props => {
 							const doc_type_id = doctype;
 							const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
 							if (
-								newAllDocumentTypes?.filter(
-									d => d?.doc_type_id === doc_type_id
-								)?.length <= 0
+								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
+									?.length <= 0
 							) {
 								newAllDocumentTypes.push({
 									...docListItem,
@@ -874,8 +868,7 @@ const DocumentUpload = props => {
 			console.error('error-onSubmitCompleteApplication-', error);
 			addToast({
 				message:
-					getApiErrorMessage(error) ||
-					'Server down. Please try after sometime',
+					getApiErrorMessage(error) || 'Server down. Please try after sometime',
 				type: 'error',
 			});
 		} finally {
@@ -1064,9 +1057,8 @@ const DocumentUpload = props => {
 				}
 			} else {
 				if (
-					Object.keys(
-						coApplicants?.[director.value]?.documentSelfieGeolocation
-					).length <= 0
+					Object.keys(coApplicants?.[director.value]?.documentSelfieGeolocation)
+						.length <= 0
 				) {
 					result = false;
 				}
@@ -1090,8 +1082,7 @@ const DocumentUpload = props => {
 		)?.[0];
 		if (onSiteSelfiefield?.fields?.length > 0) {
 			mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-				field =>
-					field?.geo_tagging === true && field?.is_co_applicant === false
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
 			)?.[0];
 			mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
 				field => field?.geo_tagging === true && field?.is_applicant === false
@@ -1118,12 +1109,10 @@ const DocumentUpload = props => {
 		let mandatoryProfilePicFieldCoApplicant = {};
 		if (profilePicField?.length > 0) {
 			mandatoryProfilePicFieldApplicant = profilePicField?.filter(
-				field =>
-					field?.geo_tagging === true && field?.is_co_applicant === false
+				field => field?.geo_tagging === true && field?.is_co_applicant === false
 			)?.[0];
 			mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
-				field =>
-					field?.geo_tagging === true && field?.is_applicant === false
+				field => field?.geo_tagging === true && field?.is_applicant === false
 			)?.[0];
 		}
 		if (
@@ -1207,9 +1196,7 @@ const DocumentUpload = props => {
 					`${doc?.directorId}` === `${applicant?.id}` &&
 					`${doc?.doc_type_id}` ===
 						`${
-							mandatoryProfilePicFieldApplicant?.doc_type?.[
-								selectedIncomeType
-							]
+							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
 						}`
 				) {
 					doc.lat = applicantProfile?.lat;
@@ -1255,9 +1242,7 @@ const DocumentUpload = props => {
 			documentCheckStatus.missingDocsForDirectors = [
 				...new Set(missingDocsForDirectors),
 			];
-			documentCheckStatus.directorList = [
-				...new Set(applicantCoappliantIndex),
-			];
+			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
 		}
 
 		// console.log({
