@@ -27,7 +27,7 @@ import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST_BASIC_DETAILS from '../const';
+import * as CONST_BUSINESS_DETAILS from '../const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
@@ -42,8 +42,6 @@ const PanUpload = props => {
 		panErrorMessage,
 		onChangeFormStateField,
 		clearErrorFormState,
-		setUdyogAadhar,
-		udyogAadhar,
 		// cacheDocumentsTemp,
 		// state,
 		setGstin,
@@ -73,18 +71,16 @@ const PanUpload = props => {
 	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
-	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
-	// console.log({ udyogAadhar });
 	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
 	// const panExtractionResTemp =
 	// 	cacheDocumentsTemp.filter(
-	// 		doc => doc.field.name === CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME
+	// 		doc => doc.field.name === CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME
 	// 	)?.[0] || null;
 	// const panExtractionFile =
 	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
@@ -299,36 +295,36 @@ const PanUpload = props => {
 			}
 			setGstin(gstinData);
 			onChangeFormStateField({
-				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: confirmPanNumber,
 			});
 			/* split the name into first and last name */
 			let name = panExtractionData?.Name,
-				first_name = '',
-				last_name = '';
+				business_name = '',
+				business_type = '';
 			if (name) {
 				let nameSplit = name.split(' ');
 				if (nameSplit.length > 1) {
-					last_name = nameSplit[nameSplit.length - 1];
+					business_type = nameSplit[nameSplit.length - 1];
 					nameSplit.pop();
 				}
-				first_name = nameSplit.join(' ');
+				business_name = nameSplit.join(' ');
 			}
-			if (first_name) {
+			if (business_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
-					value: first_name || '',
+					name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+					value: business_name || '',
 				});
 			}
-			if (last_name) {
+			if (business_type) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
-					value: last_name || '',
+					name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+					value: business_type || '',
 				});
 			}
 			if (panExtractionData?.father_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
 					value: panExtractionData?.father_name || '',
 				});
 			}
@@ -338,7 +334,7 @@ const PanUpload = props => {
 					?.reverse()
 					?.join('-');
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.DOB_FIELD_NAME,
 					value: DOB || '',
 				});
 			}
@@ -350,8 +346,7 @@ const PanUpload = props => {
 				onChangeFormStateField({
 					name: 'business_vintage',
 					value:
-						moment(companyRocData?.BusinessVintage).format('YYYY-MM-DD') ||
-						'',
+						moment(companyRocData?.BusinessVintage).format('YYYY-MM-DD') || '',
 				});
 				onChangeFormStateField({
 					name: 'business_email',
@@ -577,7 +572,7 @@ const PanUpload = props => {
 					setIsCompanyListModalOpen(false);
 				}}
 			/>
-			<Modal
+			{/* <Modal
 				show={isUdyogModalOpen}
 				onClose={() => {
 					setIsUdyogModalOpen(false);
@@ -644,7 +639,7 @@ const PanUpload = props => {
 						}}
 					/>
 				</section>
-			</Modal>
+			</Modal> */}
 			<Modal
 				show={isPanConfirmModalOpen}
 				onClose={() => {
@@ -684,9 +679,9 @@ const PanUpload = props => {
 									// newCacheDocumentTemp.map(doc => {
 									// 	if (
 									// 		doc.field.name ===
-									// 		CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME
+									// 		CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME
 									// 	) {
-									// 		doc[CONST_BASIC_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME] =
+									// 		doc[CONST_BUSINESS_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME] =
 									// 			e.target.value;
 									// 	}
 									// 	return doc;
@@ -771,11 +766,11 @@ const PanUpload = props => {
 											e.stopPropagation();
 											removeCacheDocumentTemp(field.name);
 											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
 											});
 											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
+												name: CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
 												value: '',
 											});
 											clearErrorFormState();

@@ -104,7 +104,7 @@ const BuissnessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
+	const selectedIncomeType = 'business';
 	const completedSections = getCompletedSections({
 		selectedProduct,
 		isApplicant,
@@ -176,11 +176,9 @@ const BuissnessDetails = props => {
 
 			// loan product is is only applicable for applicant
 			// it should not be overritten when coapplicant is income type is different then applicant
-			let selectedLoanProductId = '';
-			if (isApplicant) {
-				selectedLoanProductId =
-					selectedProduct?.product_id?.[selectedIncomeType];
-			}
+			const selectedLoanProductId =
+				selectedProduct?.product_id?.[selectedIncomeType] || '';
+
 			const buissnessDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
@@ -194,11 +192,10 @@ const BuissnessDetails = props => {
 			buissnessDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
 
-			// const buissnesscDetailsRes = await axios.post(
-			// 	`${API.API_END_POINT}/basic_details`, // need to be changed
-			// 	buissnessDetailsReqBody
-			// );
-			const buissnesscDetailsRes = 0;
+			const buissnesscDetailsRes = await axios.post(
+				API.BUSINESS_DETIALS,
+				buissnessDetailsReqBody
+			);
 			const newLoanRefId =
 				buissnesscDetailsRes?.data?.data?.loan_data?.loan_ref_id;
 			const newLoanId = buissnesscDetailsRes?.data?.data?.loan_data?.id;
@@ -540,16 +537,16 @@ const BuissnessDetails = props => {
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								// disable fields based on config starts
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
-								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
+								// if (field?.hasOwnProperty('is_applicant')) {
+								// 	if (field.is_applicant === false && isApplicant) {
+								// 		return null;
+								// 	}
+								// }
+								// if (field?.hasOwnProperty('is_co_applicant')) {
+								// 	if (field.is_co_applicant === false && !isApplicant) {
+								// 		return null;
+								// 	}
+								// }
 								if (
 									field.type === 'file' &&
 									field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -652,11 +649,11 @@ const BuissnessDetails = props => {
 									field.name === CONST.PAN_NUMBER_FIELD_NAME
 								)
 									customFieldProps.disabled = true;
-								if (
-									selectedApplicant?.directorId &&
-									field.name === CONST.INCOME_TYPE_FIELD_NAME
-								)
-									customFieldProps.disabled = true;
+								// if (
+								// 	selectedApplicant?.directorId &&
+								// 	field.name === CONST.INCOME_TYPE_FIELD_NAME
+								// )
+								// 	customFieldProps.disabled = true;
 								if (isViewLoan) {
 									customFieldProps.disabled = true;
 								}
@@ -720,7 +717,7 @@ const BuissnessDetails = props => {
 						onClick={handleSubmit(() => {
 							// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 							// so avoid opening income type popup at below condition
-							if (isEditOrViewLoan || !!selectedApplicant?.directorId) {
+							if (isEditOrViewLoan) {
 								onProceed();
 								return;
 							}
@@ -741,7 +738,6 @@ const BuissnessDetails = props => {
 					/>
 				)}
 			</UI_SECTIONS.Footer>
-			;
 		</UI_SECTIONS.Wrapper>
 	);
 };
