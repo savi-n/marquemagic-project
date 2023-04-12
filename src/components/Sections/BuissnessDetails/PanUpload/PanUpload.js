@@ -27,7 +27,7 @@ import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST_BASIC_DETAILS from './const';
+import * as CONST_BUSINESS_DETAILS from './const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
@@ -168,24 +168,24 @@ const PanUpload = props => {
 	};
 	const onProceedUdyodAadhar = async udyogAadharNumber => {
 		try {
-					// console.log({
-					// 	udyogAadharNumber,
-					// });
-					setLoading(true);
-					setUdyogAadhar(udyogAadharNumber);
-					const VerifyUdyog = await axios.get(
-						`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
-						{
-							headers: {
-								Authorization: clientToken,
-							},
-						}
-					);
-					// if (!!VerifyUdyog) {
-					// 	console.log(VerifyUdyog?.data?.data.UdyogAddress_KEY);
-					// }
-					return VerifyUdyog;
-				} catch (e) {
+			// console.log({
+			// 	udyogAadharNumber,
+			// });
+			setLoading(true);
+			setUdyogAadhar(udyogAadharNumber);
+			const VerifyUdyog = await axios.get(
+				`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
+				{
+					headers: {
+						Authorization: clientToken,
+					},
+				}
+			);
+			// if (!!VerifyUdyog) {
+			// 	console.log(VerifyUdyog?.data?.data.UdyogAddress_KEY);
+			// }
+			return VerifyUdyog;
+		} catch (e) {
 			setLoading(false);
 			addToast({
 				message:
@@ -303,7 +303,7 @@ const PanUpload = props => {
 			}
 			setGstin(gstinData);
 			onChangeFormStateField({
-				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: confirmPanNumber,
 			});
 			/* split the name into first and last name */
@@ -320,19 +320,19 @@ const PanUpload = props => {
 			}
 			if (first_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.FIRST_NAME_FIELD_NAME,
 					value: first_name || '',
 				});
 			}
 			if (last_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
 					value: last_name || '',
 				});
 			}
 			if (panExtractionData?.father_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
 					value: panExtractionData?.father_name || '',
 				});
 			}
@@ -342,7 +342,7 @@ const PanUpload = props => {
 					?.reverse()
 					?.join('-');
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.DOB_FIELD_NAME,
 					value: DOB || '',
 				});
 			}
@@ -674,7 +674,7 @@ const PanUpload = props => {
 						</h1>
 						<UI.FieldWrapperPanVerify>
 							<InputField
-								name={CONST_BASIC_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
+								name={CONST_BUSINESS_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
 								value={confirmPanNumber}
 								onChange={e => {
 									// console.log({ e });
@@ -774,11 +774,13 @@ const PanUpload = props => {
 											e.stopPropagation();
 											removeCacheDocumentTemp(field.name);
 											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+												name:
+													CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
 											});
 											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
+												name:
+													CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
 												value: '',
 											});
 											clearErrorFormState();
