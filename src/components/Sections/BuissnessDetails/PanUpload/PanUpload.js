@@ -168,24 +168,24 @@ const PanUpload = props => {
 	};
 	const onProceedUdyodAadhar = async udyogAadharNumber => {
 		try {
-			// console.log({
-			// 	udyogAadharNumber,
-			// });
-			setLoading(true);
-			setUdyogAadhar(udyogAadharNumber);
-			const VerifyUdyog = await axios.get(
-				`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
-				{
-					headers: {
-						Authorization: clientToken,
-					},
-				}
-			);
-			if (!!VerifyUdyog) {
-				console.log(VerifyUdyog?.data?.data.UdyogAddress_KEY);
-			}
-			return VerifyUdyog;
-		} catch (e) {
+					// console.log({
+					// 	udyogAadharNumber,
+					// });
+					setLoading(true);
+					setUdyogAadhar(udyogAadharNumber);
+					const VerifyUdyog = await axios.get(
+						`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
+						{
+							headers: {
+								Authorization: clientToken,
+							},
+						}
+					);
+					// if (!!VerifyUdyog) {
+					// 	console.log(VerifyUdyog?.data?.data.UdyogAddress_KEY);
+					// }
+					return VerifyUdyog;
+				} catch (e) {
 			setLoading(false);
 			addToast({
 				message:
