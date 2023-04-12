@@ -12,7 +12,6 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import './styles.css';
 
 import {
 	setLoginCreateUserRes,
