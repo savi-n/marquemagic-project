@@ -12,7 +12,6 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import './styles.css';
 
 import {
 	setLoginCreateUserRes,
@@ -345,7 +344,6 @@ const BuissnessDetails = props => {
 		};
 		return preData?.[field?.name];
 	};
-	const fetchSectinDetails = async () => {};
 	// console.log(selectedApplicant?.existing_customer)
 	const prefilledValues = field => {
 		try {
