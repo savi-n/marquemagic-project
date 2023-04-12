@@ -180,8 +180,7 @@ const PanUpload = props => {
 					},
 				}
 			);
-			const response = await VerifyUdyog;
-			return response;
+			return VerifyUdyog;
 		} catch (e) {
 			setLoading(false);
 			addToast({
@@ -290,7 +289,8 @@ const PanUpload = props => {
 
 			// Pre population from pan
 			const gstinData = await gstinFetch(confirmPanNumber);
-			if (!gstinData) {
+			console.log(gstinData);
+			if (gstinData?.status === 'ok' && !gstinData) {
 				setIsUdyogModalOpen(true);
 				onChangeFormStateField({
 					name: 'udhyog_number',
