@@ -36,11 +36,11 @@ const CollateralDetails = () => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	const [fetchingSectionData, setFetchingSectionData] = useState(false);
-	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
-	const [openAccordianId, setOpenAccordianId] = useState('');
-	const [editSectionId, setEditSectionId] = useState('');
-	const [sectionData, setSectionData] = useState([]);
+	const [, setFetchingSectionData] = useState(false);
+	const [, setIsCreateFormOpen] = useState(false);
+	const [, setOpenAccordianId] = useState('');
+	const [, setEditSectionId] = useState('');
+	const [, setSectionData] = useState([]);
 	const { handleSubmit, register, formState } = useForm();
 
 	const naviagteToNextSection = () => {
