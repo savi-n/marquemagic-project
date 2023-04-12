@@ -27,7 +27,7 @@ import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST_BASIC_DETAILS from '../const';
+import * as CONST_BASIC_DETAILS from './const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
@@ -77,6 +77,7 @@ const PanUpload = props => {
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [UdyogAddress, setUdyogAddress] = useState([]);
 	// console.log({ udyogAadhar });
 	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
@@ -180,6 +181,9 @@ const PanUpload = props => {
 					},
 				}
 			);
+			if (!!VerifyUdyog) {
+				console.log(VerifyUdyog?.data?.data.UdyogAddress_KEY);
+			}
 			return VerifyUdyog;
 		} catch (e) {
 			setLoading(false);
@@ -215,13 +219,13 @@ const PanUpload = props => {
 			// console.log(gstin);
 		} catch (error) {
 			setLoading(false);
-			// addToast({
-			// 	message:
-			// 		'Unable to fetch the data from PanToGst. Please continue to fill the details.',
-			// 	// || error?.message ||
-			// 	// 'ROC search failed, try again',
-			// 	type: 'error',
-			// });
+			addToast({
+				message:
+					'Unable to fetch the data from PanToGst. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
 			console.error('error-gstinFetchError-', error);
 		} finally {
 			setLoading(false);
@@ -290,7 +294,7 @@ const PanUpload = props => {
 			// Pre population from pan
 			const gstinData = await gstinFetch(confirmPanNumber);
 			// console.log(gstinData);
-			if (gstinData?.status === 'ok' && !gstinData) {
+			if (!gstinData) {
 				setIsUdyogModalOpen(true);
 				onChangeFormStateField({
 					name: 'udhyog_number',
@@ -581,8 +585,8 @@ const PanUpload = props => {
 				onClose={() => {
 					setIsUdyogModalOpen(false);
 				}}
-				width='20%'
-				height='30%'
+				// width='20%'
+				// height='30%'
 			>
 				<section>
 					<UI.ImgClose
