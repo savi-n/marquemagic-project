@@ -487,7 +487,7 @@ const BuissnessDetails = props => {
 				}}
 				// Width='40%'
 				customStyle={{
-					width: '30%',
+					width: '45%',
 					minWidth: 'fit-content',
 					minHeight: 'auto',
 				}}
@@ -500,24 +500,24 @@ const BuissnessDetails = props => {
 						src={imgClose}
 						alt='close'
 					/>
+					<UI.TableHeader>
+						<UI.TableColumn>Gstin</UI.TableColumn>
+						<UI.TableColumn>State</UI.TableColumn>
+						<UI.TableColumn>Status</UI.TableColumn>
+					</UI.TableHeader>
 					<UI.TableParentDiv>
-						<UI.TableHeader>
-							<UI.TableCollumns>Gstin</UI.TableCollumns>
-							<UI.TableCollumns>State</UI.TableCollumns>
-							<UI.TableCollumns>Status</UI.TableCollumns>
-						</UI.TableHeader>
-						<UI.TableRow>
+						<UI.TableDataRowWrapper>
 							{gstin?.map((gstItem, idx) => {
 								// console.log(gstItem, '------------->');
 								return (
-									<div className='data-row' key={idx}>
-										<UI.TableCollumns>{gstItem.gstin}</UI.TableCollumns>
-										<UI.TableCollumns>{gstItem.status}</UI.TableCollumns>
-										<UI.TableCollumns>{gstItem.state_name}</UI.TableCollumns>
-									</div>
+									<UI.TableRow key={idx}>
+										<UI.TableColumn>{gstItem.gstin}</UI.TableColumn>
+										<UI.TableColumn>{gstItem.status}</UI.TableColumn>
+										<UI.TableColumn>{gstItem.state_name}</UI.TableColumn>
+									</UI.TableRow>
 								);
 							})}
-						</UI.TableRow>
+						</UI.TableDataRowWrapper>
 					</UI.TableParentDiv>
 				</section>
 			</Modal>
