@@ -38,6 +38,7 @@ import {
 	getApiErrorMessage,
 	getEditLoanLoanDocuments,
 	getSelectedField,
+	isFieldValid,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -839,18 +840,20 @@ const BasicDetails = props => {
 						/>
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
+								if (!isFieldValid({ field, isApplicant, formState }))
+									return null;
 								// console.log(field?.sub_fields, 'sub_field');
 								// disable fields based on config starts
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
-								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
+								// if (field?.hasOwnProperty('is_applicant')) {
+								// 	if (field.is_applicant === false && isApplicant) {
+								// 		return null;
+								// 	}
+								// }
+								// if (field?.hasOwnProperty('is_co_applicant')) {
+								// 	if (field.is_co_applicant === false && !isApplicant) {
+								// 		return null;
+								// 	}
+								// }
 								// disable fields based on config ends
 								if (
 									field.type === 'file' &&

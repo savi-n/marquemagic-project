@@ -369,7 +369,6 @@ const BuissnessDetails = props => {
 			// -- TEST MODE
 
 			// [Priority - Special]
-			// special case when co-applicant is filling basic details for first time
 			// when director id is not created we prepopulate value from formstate only
 			// and last priority is to set default value <field.value> comming from JSON
 			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
