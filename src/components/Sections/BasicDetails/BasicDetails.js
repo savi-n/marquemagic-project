@@ -1053,6 +1053,13 @@ const BasicDetails = props => {
 													{formState?.error?.[field.name]}
 												</UI_SECTIONS.ErrorMessage>
 											)}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
+											formState?.error?.[field?.sub_fields?.[0]?.name] && (
+												<UI_SECTIONS.ErrorMessage>
+													{formState?.error?.[field?.sub_fields[0]?.name]}
+												</UI_SECTIONS.ErrorMessage>
+											)}
 									</UI_SECTIONS.FieldWrapGrid>
 								);
 							})}
