@@ -27,7 +27,7 @@ import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST_BASIC_DETAILS from '../const';
+import * as CONST_BUSINESS_DETAILS from '../const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
@@ -84,7 +84,7 @@ const PanUpload = props => {
 	const dispatch = useDispatch();
 	// const panExtractionResTemp =
 	// 	cacheDocumentsTemp.filter(
-	// 		doc => doc.field.name === CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME
+	// 		doc => doc.field.name === CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME
 	// 	)?.[0] || null;
 	// const panExtractionFile =
 	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
@@ -299,7 +299,7 @@ const PanUpload = props => {
 			}
 			setGstin(gstinData);
 			onChangeFormStateField({
-				name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: confirmPanNumber,
 			});
 			/* split the name into first and last name */
@@ -316,19 +316,19 @@ const PanUpload = props => {
 			}
 			if (first_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FIRST_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.FIRST_NAME_FIELD_NAME,
 					value: first_name || '',
 				});
 			}
 			if (last_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.LAST_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
 					value: last_name || '',
 				});
 			}
 			if (panExtractionData?.father_name) {
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.FATHER_NAME_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
 					value: panExtractionData?.father_name || '',
 				});
 			}
@@ -338,7 +338,7 @@ const PanUpload = props => {
 					?.reverse()
 					?.join('-');
 				onChangeFormStateField({
-					name: CONST_BASIC_DETAILS.DOB_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.DOB_FIELD_NAME,
 					value: DOB || '',
 				});
 			}
@@ -670,7 +670,7 @@ const PanUpload = props => {
 						</h1>
 						<UI.FieldWrapperPanVerify>
 							<InputField
-								name={CONST_BASIC_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
+								name={CONST_BUSINESS_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME}
 								value={confirmPanNumber}
 								onChange={e => {
 									// console.log({ e });
@@ -683,9 +683,9 @@ const PanUpload = props => {
 									// newCacheDocumentTemp.map(doc => {
 									// 	if (
 									// 		doc.field.name ===
-									// 		CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME
+									// 		CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME
 									// 	) {
-									// 		doc[CONST_BASIC_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME] =
+									// 		doc[CONST_BUSINESS_DETAILS.PAN_NUMBER_CONFIRM_FIELD_NAME] =
 									// 			e.target.value;
 									// 	}
 									// 	return doc;
@@ -770,11 +770,11 @@ const PanUpload = props => {
 											e.stopPropagation();
 											removeCacheDocumentTemp(field.name);
 											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
 											});
 											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
+												name: CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
 												value: '',
 											});
 											clearErrorFormState();
