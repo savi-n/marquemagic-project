@@ -13,7 +13,7 @@ export const initialFormState = {
 	owner_type: 'Previous',
 	ownership_status: 'Single',
 	owner_name: 'Tensa',
-	ownership_from: '2023-01',
+	ownership_from: '2023-01-01',
 	percent_share: '50',
 
 	address1: 'Add Line 1',

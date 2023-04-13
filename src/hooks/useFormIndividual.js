@@ -340,7 +340,7 @@ export default function useForm() {
 
 		if (
 			newField?.name?.includes('bank_name') ||
-			newField.type.includes('bank')
+			newField?.type?.includes('bank')
 		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
