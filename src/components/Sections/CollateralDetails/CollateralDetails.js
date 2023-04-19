@@ -68,9 +68,9 @@ const CollateralDetails = () => {
 					applicantCoApplicants,
 				})}`
 			);
-			console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.loanAssetRecord?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.loanAssetRecord);
+			// console.log('fetchRes-', fetchRes);
+			if (fetchRes?.data?.data?.assetsAdditionalRecord?.length > 0) {
+				setSectionData(fetchRes?.data?.data?.assetsAdditionalRecord);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -134,47 +134,22 @@ const CollateralDetails = () => {
 							const sectionId = section?.id;
 							const isAccordianOpen = sectionId === openAccordianId;
 							const isEditLoan = editSectionId === sectionId;
-							const collateralData = section || {};
-							const collateralDetailsSection = Array.isArray(section?.loan_json)
-								? section?.loan_json?.[0]
-								: section?.loan_json || {};
+							const collateralData =
+								section?.initial_collateral?.collateral_details || {};
+							const addressData =
+								section?.initial_collateral?.property_address_details || {};
 							const prefillData = {
+								...section,
 								...collateralData,
-								...collateralDetailsSection,
-
-								// TODO: shreyas - remove individual mapping for fields which works properly from the above spread operator
-								collateral_sub_type:
-									collateralDetailsSection?.collateral_sub_type,
-								current_market_value:
-									collateralDetailsSection?.CurrentMarketValue,
-
-								collateral_type: collateralDetailsSection?.Collateraltype,
-								property_type: collateralDetailsSection?.property_type,
-
-								total_area: collateralDetailsSection?.total_area,
-								construction_area: collateralDetailsSection?.construction_area,
-
-								age: collateralDetailsSection?.age,
-								property_purpose: collateralDetailsSection?.property_purpose,
-
-								property_amount: collateralDetailsSection?.value,
-
-								property_ownership:
-									collateralDetailsSection?.property_ownership,
-								percent_share: collateralDetailsSection?.percent_share,
-
-								owner_name: collateralDetailsSection?.owner_name,
-								owner_type: collateralDetailsSection?.owner_type,
-
-								ownership_from: collateralDetailsSection?.ownership_from,
-								ownership_status: collateralDetailsSection?.ownership_status,
-								pin_code: collateralData.pincode,
-								nature_of_ownership: collateralData?.owned_type,
-								property_occupant: collateralData?.current_occupant,
-								address3: collateralData?.name_landmark,
-								vehicle: collateralData?.brand_name,
-								loan_type: collateralData?.loan_type,
-								vehicle_value: collateralData?.value_Vehicle,
+								...addressData,
+								property_amount: collateralData?.value || '',
+								collateral_type: collateralData?.loan_type || '',
+								current_market_value: collateralData?.loan_json || '',
+								landmark: addressData?.name_landmark || '',
+								address3: addressData?.name_landmark || '',
+								pin_code: addressData?.pincode || '',
+								nature_of_ownership: addressData?.owned_type || '',
+								property_occupant: addressData?.current_occupant || '',
 							};
 							return (
 								<UI_SECTIONS.AccordianWrapper>
@@ -184,16 +159,18 @@ const CollateralDetails = () => {
 										{isAccordianOpen ? null : (
 											<>
 												<UI_SECTIONS.AccordianHeaderData>
-													<span>Assets For:</span>
-													<strong>name</strong>
+													<span>Collateral Type:</span>
+													<strong>{prefillData?.nature_of_property}</strong>
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
-													<span>Type of Assets:</span>
-													<strong>{prefillData?.loan_asset_type_id}</strong>
+													{/* <span>Type of Assets:</span>
+													<strong>{prefillData?.loan_asset_type_id}</strong> */}
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>Amount:</span>
-													<strong>{formatINR(prefillData?.value)}</strong>
+													<strong>
+														{formatINR(prefillData?.property_amount)}
+													</strong>
 												</UI_SECTIONS.AccordianHeaderData>
 											</>
 										)}

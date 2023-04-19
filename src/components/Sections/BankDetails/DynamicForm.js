@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
@@ -19,7 +19,7 @@ import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
 	const {
-		subSections = [],
+		fields,
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
 		prefillData = {},
@@ -39,10 +39,7 @@ const DynamicForm = props => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const prefilledEditOrViewLoanValues = field => {
-		const preData = {
-			...prefillData,
-		};
-		return preData?.[field?.name];
+		return prefillData?.[field?.name];
 	};
 
 	const prefilledValues = field => {
@@ -101,18 +98,19 @@ const DynamicForm = props => {
 				applicantCoApplicants,
 				application,
 			});
-			reqBody.data = [
-				{
-					collateral_details: reqBody.data.collateral_details,
-					property_address_details: reqBody.data.property_address_details,
-				},
-			];
 			if (editSectionId) {
-				reqBody.data[0].id = editSectionId;
-				reqBody.data[0].assets_additional_id = editSectionId;
+				reqBody.data.bank_details.id = editSectionId;
 			}
+			let newBankId = reqBody.data.bank_details.bank_id;
+			// console.log('reqBody-before-', { newBankId });
+			if (typeof newBankId !== 'string' && typeof newBankId !== 'number') {
+				newBankId = newBankId?.value;
+			}
+			newBankId = `${newBankId}`;
+			reqBody.data.bank_details.bank_id = newBankId;
+			reqBody.data.bank_details = [reqBody.data.bank_details];
 			const submitRes = await axios.post(
-				`${API_END_POINT}/collateralData`,
+				`${API_END_POINT}/bank_details`,
 				reqBody
 			);
 			if (submitRes?.data?.status === 'ok') {
@@ -143,53 +141,42 @@ const DynamicForm = props => {
 
 	return (
 		<React.Fragment>
-			{subSections?.map((subSection, subSectionIndex) => {
-				return (
-					<Fragment key={`subSection-${subSectionIndex}-${subSection?.id}`}>
-						{subSection?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								{subSection.name}
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
-						<UI_SECTIONS.FormWrapGrid>
-							{subSection?.fields?.map((field, fieldIndex) => {
-								if (!isFieldValid({ field, formState, isApplicant })) {
-									return null;
-								}
-								const customFieldProps = {};
-								const newField = _.cloneDeep(field);
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-								// console.log('render-field-', {
-								// 	field,
-								// 	customFieldProps,
-								// 	isViewLoan,
-								// 	newField,
-								// 	formState,
-								// });
-								return (
-									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
-										{register({
-											...newField,
-											value: prefilledValues(newField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[newField.name]) &&
-											formState?.error?.[newField.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[newField.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-									</UI_SECTIONS.FieldWrapGrid>
-								);
+			<UI_SECTIONS.FormWrapGrid>
+				{fields?.map((field, fieldIndex) => {
+					if (!isFieldValid({ field, formState, isApplicant })) {
+						return null;
+					}
+					const customFieldProps = {};
+					const newField = _.cloneDeep(field);
+					if (isViewLoan) {
+						customFieldProps.disabled = true;
+					}
+					// console.log('render-field-', {
+					// 	field,
+					// 	customFieldProps,
+					// 	isViewLoan,
+					// 	newField,
+					// 	formState,
+					// });
+					return (
+						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
+							{register({
+								...newField,
+								value: prefilledValues(newField),
+								...customFieldProps,
+								visibility: 'visible',
 							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
+							{(formState?.submit?.isSubmited ||
+								formState?.touched?.[newField.name]) &&
+								formState?.error?.[newField.name] && (
+									<UI_SECTIONS.ErrorMessage>
+										{formState?.error?.[newField.name]}
+									</UI_SECTIONS.ErrorMessage>
+								)}
+						</UI_SECTIONS.FieldWrapGrid>
+					);
+				})}
+			</UI_SECTIONS.FormWrapGrid>
 			{!isViewLoan && (
 				<>
 					<Button
