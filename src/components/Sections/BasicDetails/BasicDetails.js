@@ -736,7 +736,11 @@ const BasicDetails = props => {
 			Object.keys(selectedApplicant).length > 0 &&
 			isEditOrViewLoan
 		) {
-			if (Object.keys(geoLocationData).length > 0 && !geoLocation?.address) {
+			if (
+				!!geoLocationData &&
+				Object.keys(geoLocationData)?.length > 0 &&
+				!geoLocation?.address
+			) {
 				// setTimeout(() => {
 				// 	// console.log('🚀 ~ file: BasicDetails.js:703 ~ setTimeout ~ loading:');
 				// 	fetchGeoLocationData();
@@ -744,7 +748,7 @@ const BasicDetails = props => {
 				// }, 5000);
 				fetchGeoLocationData();
 			}
-			if (Object.keys(geoLocationData).length === 0) {
+			if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
 				dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
 				setGeoLocationData({ err: 'Geo Location Not Captured' });
 			}

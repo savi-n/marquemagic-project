@@ -101,6 +101,7 @@ const BuissnessDetails = props => {
 	] = useState(false);
 	const [gstin, setGstin] = useState([]);
 	const gst = gstin?.data?.data || [];
+	// console.log({ gstin, gst });
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -428,23 +429,30 @@ const BuissnessDetails = props => {
 	// };
 
 	const prefilledValues = field => {
-		const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-		if (isFormStateUpdated) {
-			return formState?.values?.[field.name];
-		}
-		if (field?.db_key === 'business_email')
-			return sectionData?.user_data?.email;
-		if (field?.db_key === 'email') {
-			return sectionData?.business_details?.business_email;
-		}
-		if (field?.db_key === 'name')
-			return sectionData?.business_details?.first_name;
+		try {
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field?.name];
+			}
 
-		return (
-			sectionData?.business_details?.[field?.db_key] ||
-			sectionData?.loan_data?.[field?.db_key] ||
-			sectionData?.user_data?.[field?.db_key]
-		);
+			const preData = {
+				business_email: sectionData?.user_data?.email,
+				email: sectionData?.business_details?.business_email,
+				name: sectionData?.business_details?.first_name,
+			};
+
+			return (
+				preData?.[field?.db_key] ||
+				sectionData?.business_details?.[field?.db_key] ||
+				sectionData?.loan_data?.[field?.db_key] ||
+				sectionData?.user_data?.[field?.db_key]
+			);
+		} catch (err) {
+			console.error('error-BusinessDetials', {
+				error: err,
+				res: err?.response?.data || '',
+			});
+		}
 	};
 	const validateToken = async () => {
 		try {
@@ -534,7 +542,6 @@ const BuissnessDetails = props => {
 			);
 		}
 		//new get api
-
 		if (!!businessId && !!loanId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
@@ -716,7 +723,6 @@ const BuissnessDetails = props => {
 												is_zero_not_allowed_for_first_digit: true,
 											};
 										}
-										// const gstin = companyRocData?.unformatedData?.gstin;
 
 										if (
 											field?.name === CONST.GSTIN_FIELD_NAME &&
