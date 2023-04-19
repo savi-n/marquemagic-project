@@ -36,9 +36,8 @@ import {
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getEditLoanLoanDocuments,
+	getEditLoanDocuments,
 	getSelectedField,
-	isFieldValid,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -488,7 +487,7 @@ const BasicDetails = props => {
 
 	const prefilledEditOrViewLoanValues = field => {
 		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
-			const panFile = getEditLoanLoanDocuments({
+			const panFile = getEditLoanDocuments({
 				documents: editLoanData?.loan_document,
 				directorId: selectedApplicant?.directorId,
 				docTypeId: field?.doc_type?.[selectedApplicant?.income_type],
@@ -840,20 +839,18 @@ const BasicDetails = props => {
 						/>
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
-								if (!isFieldValid({ field, isApplicant, formState }))
-									return null;
 								// console.log(field?.sub_fields, 'sub_field');
 								// disable fields based on config starts
-								// if (field?.hasOwnProperty('is_applicant')) {
-								// 	if (field.is_applicant === false && isApplicant) {
-								// 		return null;
-								// 	}
-								// }
-								// if (field?.hasOwnProperty('is_co_applicant')) {
-								// 	if (field.is_co_applicant === false && !isApplicant) {
-								// 		return null;
-								// 	}
-								// }
+								if (field?.hasOwnProperty('is_applicant')) {
+									if (field.is_applicant === false && isApplicant) {
+										return null;
+									}
+								}
+								if (field?.hasOwnProperty('is_co_applicant')) {
+									if (field.is_co_applicant === false && !isApplicant) {
+										return null;
+									}
+								}
 								// disable fields based on config ends
 								if (
 									field.type === 'file' &&

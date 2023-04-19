@@ -15,6 +15,7 @@ const initialState = {
 	loanRefId: '',
 	loanId: '',
 	businessId: '',
+	businessType: '',
 	businessUserId: '',
 	loanProductId: '',
 	createdByUserId: '',
@@ -294,6 +295,9 @@ export const applicantSlice = createSlice({
 		setIsPrompted: (state, action) => {
 			state.prompted = action.payload;
 		},
+		setBusinessType: (state, action) => {
+			state.businessType = action.payload;
+		},
 	},
 });
 
@@ -316,6 +320,7 @@ export const {
 	clearAllCacheDocuments,
 
 	addAllDocumentTypes,
+	setBusinessType,
 
 	setCommentsForOfficeUse,
 	setIsPrompted,

@@ -337,10 +337,9 @@ export default function useForm() {
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
-
 		if (
 			newField?.name?.includes('bank_name') ||
-			newField.type.includes('bank')
+			newField?.type?.includes('bank')
 		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
@@ -674,6 +673,7 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
+
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{/* {field?.inrupees && (
