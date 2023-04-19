@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { Fragment, useState } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
+import Loading from 'components/Loading';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
@@ -12,7 +13,6 @@ import {
 	formatINR,
 	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
-import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
@@ -124,7 +124,7 @@ const AssetsDetails = props => {
 		setOpenAccordianId('');
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

@@ -214,7 +214,6 @@ const BusinessAddressDetails = props => {
 	};
 
 	const prefilledValues = field => {
-		console.log(businessAddress);
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
