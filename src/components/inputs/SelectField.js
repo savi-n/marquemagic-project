@@ -3,6 +3,7 @@
 import styled from 'styled-components';
 
 const Select = styled.select`
+	size: 10;
 	height: 50px;
 	padding: 10px;
 	width: 100%;
@@ -10,8 +11,6 @@ const Select = styled.select`
 	border-radius: 6px;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
 	margin-bottom: ${({ isGSTselector }) => (isGSTselector ? '50px' : 0)};
-	/* display: ${({ isHidden }) => (isHidden ? 'none' : 'flex')}; */
-
 `;
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}
@@ -19,7 +18,6 @@ const Select = styled.select`
 
 const Div = styled.div`
 	position: relative;
-	display: ${({ isHidden }) => (isHidden ? 'none' : 'flex')};
 
 	/* ::after {
 		content: '▼';
@@ -71,21 +69,21 @@ export default function SelectField(props) {
 		<>
 			{/* only applies to gst selector in Business_address details page */}
 			{props.isGSTselector ? (
-				<Div
-					isHidden={props.isHidden}
-					style={{ marginBottom: '10px', fontWeight: 'bold' }}
-				>
+				<Div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
 					Select the GSTIN to prepopulate the address
 				</Div>
 			) : null}
-			{/* ---------------------------------------------------------------- */}
-			<Div isHidden={props.isHidden}>
+			<Div>
 				<Select title={props.placeholder} {...props}>
 					<option disabled value=''>
 						{props.placeholder}
 					</option>
 					{props.options?.map(({ value, name }) => (
-						<option key={value} value={value?.toString().trim()}>
+						<option
+							key={value}
+							value={value?.toString().trim()}
+							disabled={name.split(' - ').includes('Inactive')}
+						>
 							{name}
 						</option>
 					))}

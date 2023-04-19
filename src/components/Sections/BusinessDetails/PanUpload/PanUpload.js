@@ -239,6 +239,10 @@ const PanUpload = props => {
 				setIsUdyogModalOpen(true);
 			}
 			setGstin(gstinData);
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+				value: panExtractionData?.panNumber,
+			});
 			// onChangeFormStateField({
 			// 	name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 			// 	value: confirmPanNumber,

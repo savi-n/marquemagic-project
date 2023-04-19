@@ -117,7 +117,7 @@ export const appSlice = createSlice({
 			};
 			const newApplicantCoApplicantSectionIds = [];
 			let newFirstSectionId = '';
-			action.payload.product_details.sections.map((section, sectionIndex) => {
+			action.payload.product_details?.sections?.map((section, sectionIndex) => {
 				if (sectionIndex === 0) newFirstSectionId = section.id;
 				if (section.is_applicant)
 					newApplicantCoApplicantSectionIds.push(section.id);
@@ -132,7 +132,8 @@ export const appSlice = createSlice({
 				section => section?.id === action.payload
 			);
 			const newSelectedSection =
-				state?.selectedProduct?.product_details?.sections[selectedIndex] || {};
+				state?.selectedProduct?.product_details?.sections?.[selectedIndex] ||
+				{};
 			const newPrevSectionId =
 				state?.selectedProduct?.product_details?.sections?.[selectedIndex - 1]
 					?.id || '';
