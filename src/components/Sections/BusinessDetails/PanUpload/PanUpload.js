@@ -105,7 +105,6 @@ const PanUpload = props => {
 			}
 		},
 	});
-
 	const handleExtractionPan = async file => {
 		// console.log('handleExtractionPan-called-0th');
 		const previewFileData = {
@@ -213,7 +212,6 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
-
 	const onProceedPanConfirm = async () => {
 		try {
 			// console.log('onProceedPanConfirm-called-1st');
@@ -344,7 +342,6 @@ const PanUpload = props => {
 			clearErrorFormState();
 		}
 	};
-
 	const verifyKycPan = async () => {
 		// console.log('verifykyc-called-2nd');
 		try {
@@ -374,11 +371,9 @@ const PanUpload = props => {
 			return {};
 		}
 	};
-
 	const gstinFetch = async confirmPanNumber => {
 		try {
 			// console.log('gstin-fetch-called-3rd');
-
 			setLoading(true);
 			const gstinReqBody = {
 				pan: confirmPanNumber,
@@ -406,11 +401,9 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
-
 	const companyNameSearch = async companyName => {
 		try {
 			// console.log('companyNameSearch-called-4th');
-
 			setLoading(true);
 			const companyNameReqBody = {
 				search: companyName.trim(),
@@ -433,7 +426,6 @@ const PanUpload = props => {
 			setLoading(false);
 		}
 	};
-
 	const onCompanySelect = async cinNumber => {
 		// console.log('onCompanySelect-called-5th');
 
@@ -459,7 +451,6 @@ const PanUpload = props => {
 					},
 				}
 			);
-
 			const companyData = cinNumberResponse?.data?.data;
 			// companyData.gstin = gstinData;
 			const formattedCompanyData = formatCompanyRocData(
@@ -510,7 +501,6 @@ const PanUpload = props => {
 	const onProceedUdyogAadhar = async udyogAadharNumber => {
 		try {
 			// console.log('onproceedudyogAadhar-3-called-4th-n-last');
-
 			// console.log({
 			// 	udyogAadharNumber,
 			// });
@@ -545,7 +535,6 @@ const PanUpload = props => {
 	};
 
 	// Pancard extraction function
-
 	const openDocument = async file => {
 		try {
 			setLoadingFile(true);
@@ -565,7 +554,6 @@ const PanUpload = props => {
 			setLoadingFile(false);
 		}
 	};
-
 	useEffect(() => {
 		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
 		return () =>
@@ -788,6 +776,11 @@ const PanUpload = props => {
 											e.preventDefault();
 											e.stopPropagation();
 											removeCacheDocumentTemp(field.name);
+											setGstin([]);
+											onChangeFormStateField({
+												name:'gstin',
+												value:'',
+											})
 											onChangeFormStateField({
 												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
