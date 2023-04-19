@@ -52,13 +52,10 @@ const PanUpload = props => {
 		removeCacheDocumentTemp,
 		isDisabled,
 	} = props;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const { selectedProduct, clientToken } = app;
-	const { loanId, businessUserId } = application;
-	const { companyRocData } = applicantCoApplicants;
-
+	const { app, application } = useSelector(state => state);
+	const { selectedProduct, clientToken, selectedSectionId } = app;
+	const { loanId, businessUserId, sections } = application;
+	// const { companyRocData } = applicantCoApplicants;
 	// const {
 	// 	isApplicant,
 	// 	applicant,
@@ -90,316 +87,27 @@ const PanUpload = props => {
 	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
 	// 	null;
-	const panExtractionData = uploadedFile?.panExtractionData;
+	const panExtractionData = uploadedFile?.panExtractionData || {};
 
-	const openDocument = async file => {
-		try {
-			setLoadingFile(true);
-			// console.log('open-doc-', { file, loanId, businessUserId });
-			const reqBody = {
-				filename: file?.doc_name || file?.document_key || file?.fd || '',
-			};
-			reqBody.loan_id = loanId;
-			reqBody.userid = businessUserId;
-			// console.log('openDocument-reqBody-', { reqBody, file });
-			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
-			// console.log('openDocument-res-', docRes);
-			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
-		} catch (error) {
-			console.error('Unable to open file, try after sometime', error);
-		} finally {
-			setLoadingFile(false);
-		}
-	};
+	// called for roc starts
+	const { getRootProps, getInputProps } = useDropzone({
+		accept: {
+			'*': [],
+		},
+		onDrop: async acceptedFiles => {
+			try {
+				setLoading(true);
+				await handleExtractionPan(acceptedFiles[0]);
+			} catch (error) {
+				console.error('error-ProfileFileUpload-onDrop-', error);
+			} finally {
+				setLoading(false);
+			}
+		},
+	});
 
-	const verifyKycPan = async () => {
-		try {
-			// console.log('verifyKycPan-', {
-			// 	selectedAddressProof,
-			// 	isVerifyKycData,
-			// 	extractionData,
-			// });
-			if (!selectedProduct?.product_details?.kyc_verification) return {};
-			const verifyKycPanReqBody = {
-				doc_ref_id: panExtractionData?.doc_ref_id,
-				doc_type: CONST_SECTIONS.EXTRACTION_KEY_PAN,
-				number: confirmPanNumber,
-				name: panExtractionData?.companyName || '',
-			};
-			const verifiedRes = await verifyKycDataUiUx(
-				verifyKycPanReqBody,
-				clientToken
-			);
-			return verifiedRes;
-		} catch (error) {
-			console.error('error-verifyKycPan-', error);
-			addToast({
-				message: error.message || 'Something Went Wrong. Try Again!',
-				type: 'error',
-			});
-			return {};
-		}
-	};
-
-	const companyNameSearch = async companyName => {
-		try {
-			setLoading(true);
-			const companyNameReqBody = {
-				search: companyName.trim(),
-			};
-			const companyNameSearchRes = await axios.post(
-				API.SEARCH_COMPANY_NAME,
-				companyNameReqBody
-			);
-			const newCompanyList = companyNameSearchRes?.data?.data || [];
-			setCompanyList(newCompanyList);
-			return newCompanyList;
-		} catch (error) {
-			console.error('error-companyNameSearch-', error);
-			addToast({
-				message: error.message || 'Company search failed, try again',
-				type: 'error',
-			});
-			return [];
-		} finally {
-			setLoading(false);
-		}
-	};
-	const onProceedUdyodAadhar = async udyogAadharNumber => {
-		try {
-			// console.log({
-			// 	udyogAadharNumber,
-			// });
-			setLoading(true);
-			setUdyogAadhar(udyogAadharNumber);
-			const VerifyUdyog = await axios.get(
-				`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
-				{
-					headers: {
-						Authorization: clientToken,
-					},
-				}
-			);
-			return VerifyUdyog;
-		} catch (e) {
-			setLoading(false);
-			addToast({
-				message:
-					'Unable to fetch the data from udyog. Please continue to fill the details.',
-				// || error?.message ||
-				// 'ROC search failed, try again',
-				type: 'error',
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
-	const gstinFetch = async confirmPanNumber => {
-		try {
-			setLoading(true);
-			const gstinReqBody = {
-				pan: confirmPanNumber,
-			};
-			const gstinResponse = await axios.post(
-				`${API.API_END_POINT}/api/panToGst`,
-				gstinReqBody,
-				{
-					headers: {
-						authorization: clientToken,
-					},
-				}
-			);
-			const gstinData = gstinResponse?.data?.data;
-
-			return gstinData;
-			// console.log(gstin);
-		} catch (error) {
-			setLoading(false);
-			// addToast({
-			// 	message:
-			// 		'Unable to fetch the data from PanToGst. Please continue to fill the details.',
-			// 	// || error?.message ||
-			// 	// 'ROC search failed, try again',
-			// 	type: 'error',
-			// });
-			console.error('error-gstinFetchError-', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-	const cinNumberFetch = async cinNumber => {
-		try {
-			setLoading(true);
-			const cinFetchReqBody = {
-				cin_number: cinNumber,
-			};
-			const cinNumberResponse = await axios.post(
-				API.ROC_DATA_FETCH,
-				cinFetchReqBody,
-				{
-					headers: {
-						Authorization: clientToken,
-					},
-				}
-			);
-
-			const companyData = cinNumberResponse?.data?.data;
-			// companyData.gstin = gstinData;
-			const formattedCompanyData = formatCompanyRocData(
-				companyData,
-				confirmPanNumber
-			);
-			dispatch(setCompanyRocData(formattedCompanyData));
-		} catch (error) {
-			setLoading(false);
-			addToast({
-				message:
-					'Unable to fetch the data from ROC. Please continue to fill the details.',
-				// || error?.message ||
-				// 'ROC search failed, try again',
-				type: 'error',
-			});
-			console.error('error-cinnumberfetch-', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-	const onCompanySelect = async cinNumber => {
-		setIsCompanyListModalOpen(false);
-		setLoading(true);
-		await cinNumberFetch(cinNumber);
-	};
-	const onProceedPanConfirm = async () => {
-		try {
-			const panErrorMessage = isInvalidPan(confirmPanNumber);
-			if (panErrorMessage) {
-				return addToast({
-					message: panErrorMessage,
-					type: 'error',
-				});
-			}
-			setLoading(true);
-			// call verifykyc api
-			const verifiedRes = await verifyKycPan();
-			// console.log(
-			// 	'pan-verification-handlePanConfirm-verifiedRes-',
-			// 	verifiedRes
-			// );
-			// business product + business pan card
-
-			// Pre population from pan
-			const gstinData = await gstinFetch(confirmPanNumber);
-			// console.log(gstinData);
-			if (gstinData?.status === 'ok' && !gstinData) {
-				setIsUdyogModalOpen(true);
-				onChangeFormStateField({
-					name: 'udhyog_number',
-					value: udyogAadhar,
-				});
-			}
-			setGstin(gstinData);
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value: confirmPanNumber,
-			});
-			/* split the name into first and last name */
-			let name = panExtractionData?.Name,
-				first_name = '',
-				last_name = '';
-			if (name) {
-				let nameSplit = name.split(' ');
-				if (nameSplit.length > 1) {
-					last_name = nameSplit[nameSplit.length - 1];
-					nameSplit.pop();
-				}
-				first_name = nameSplit.join(' ');
-			}
-			if (first_name) {
-				onChangeFormStateField({
-					name: CONST_BUSINESS_DETAILS.FIRST_NAME_FIELD_NAME,
-					value: first_name || '',
-				});
-			}
-			if (last_name) {
-				onChangeFormStateField({
-					name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
-					value: last_name || '',
-				});
-			}
-			if (panExtractionData?.father_name) {
-				onChangeFormStateField({
-					name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
-					value: panExtractionData?.father_name || '',
-				});
-			}
-			if (panExtractionData?.DOB) {
-				let DOB = panExtractionData?.DOB;
-				DOB = DOB?.split('/')
-					?.reverse()
-					?.join('-');
-				onChangeFormStateField({
-					name: CONST_BUSINESS_DETAILS.DOB_FIELD_NAME,
-					value: DOB || '',
-				});
-			}
-			if (!!companyRocData) {
-				onChangeFormStateField({
-					name: 'business_name',
-					value: companyRocData?.BusinessName || '',
-				});
-				onChangeFormStateField({
-					name: 'business_vintage',
-					value:
-						moment(companyRocData?.BusinessVintage).format('YYYY-MM-DD') || '',
-				});
-				onChangeFormStateField({
-					name: 'business_email',
-					value: companyRocData?.Email,
-				});
-				onChangeFormStateField({
-					name: 'business_type',
-					value: companyRocData?.BusinessType || 0,
-				});
-			}
-
-			// Company search select is only applicable for business loans
-			if (
-				!!gstinData &&
-				selectedProduct.isSelectedProductTypeBusiness &&
-				panExtractionData?.isBusinessPan
-			) {
-				await companyNameSearch(
-					verifiedRes?.data?.message?.upstreamName ||
-						panExtractionData?.companyName
-				);
-				// console.log('company information from pancardfile', newCompanyList);
-				// console.log(
-				// 	'information related to pancardextraction',
-				// 	panExtractionData
-				// );
-				setIsPanConfirmModalOpen(false);
-				setIsCompanyListModalOpen(true);
-				return;
-			}
-			// business product + personal pan card
-			if (selectedProduct.isSelectedProductTypeBusiness) {
-				setIsPanConfirmModalOpen(false);
-			}
-			// salaried product + personal pan card
-			if (selectedProduct.isSelectedProductTypeSalaried) {
-				setIsPanConfirmModalOpen(false);
-			}
-			setIsPanConfirmModalOpen(false);
-		} catch (error) {
-			console.error('error-handlePanConfirm-', error);
-		} finally {
-			setLoading(false);
-			clearErrorFormState();
-		}
-	};
-
-	// Pancard extraction function
 	const handleExtractionPan = async file => {
+		// console.log('handleExtractionPan-called-0th');
 		const previewFileData = {
 			name: file.name,
 			preview: URL.createObjectURL(file),
@@ -506,37 +214,353 @@ const PanUpload = props => {
 		}
 	};
 
-	const { getRootProps, getInputProps } = useDropzone({
-		accept: {
-			'*': [],
-		},
-		onDrop: async acceptedFiles => {
-			try {
-				setLoading(true);
-				// TODO: extraction
-				// const formData = new FormData();
-				// formData.append('white_label_id', whiteLabelId);
-				// formData.append('document', acceptedFiles[0]);
-				// const profileRes = await axios.post(
-				// 	`${API_END_POINT}/profilePicUpload`,
-				// 	formData
-				// );
-				// dispatch(setProfileImageRes(profileRes?.data));
-				// setFiles(
-				// 	acceptedFiles.map(file =>
-				// 		Object.assign(file, {
-				// 			preview: URL.createObjectURL(file),
-				// 		})
-				// 	)
-				// );
-				await handleExtractionPan(acceptedFiles[0]);
-			} catch (error) {
-				console.error('error-ProfileFileUpload-onDrop-', error);
-			} finally {
-				setLoading(false);
+	const onProceedPanConfirm = async () => {
+		try {
+			// console.log('onProceedPanConfirm-called-1st');
+			const panErrorMessage = isInvalidPan(confirmPanNumber);
+			if (panErrorMessage) {
+				return addToast({
+					message: panErrorMessage,
+					type: 'error',
+				});
 			}
-		},
-	});
+			setLoading(true);
+			// call verifykyc api
+			const verifiedRes = await verifyKycPan();
+			// console.log(
+			// 	'pan-verification-handlePanConfirm-verifiedRes-',
+			// 	verifiedRes
+			// );
+			// business product + business pan card
+
+			// Pre population from pan
+			const gstinData = await gstinFetch(confirmPanNumber);
+			if (!gstinData) {
+				setIsUdyogModalOpen(true);
+			}
+			setGstin(gstinData);
+			// onChangeFormStateField({
+			// 	name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+			// 	value: confirmPanNumber,
+			// });
+			/* split the name into first and last name */
+			// let name = panExtractionData?.Name,
+			// 	first_name = '',
+			// 	last_name = '';
+			// if (name) {
+			// 	let nameSplit = name.split(' ');
+			// 	if (nameSplit.length > 1) {
+			// 		last_name = nameSplit[nameSplit.length - 1];
+			// 		nameSplit.pop();
+			// 	}
+			// 	first_name = nameSplit.join(' ');
+			// }
+			// if (first_name) {
+			// 	onChangeFormStateField({
+			// 		name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+			// 		value: first_name || '',
+			// 	});
+			// }
+			// if (last_name) {
+			// 	onChangeFormStateField({
+			// 		name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
+			// 		value: last_name || '',
+			// 	});
+			// }
+			// if (panExtractionData?.father_name) {
+			// 	onChangeFormStateField({
+			// 		name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
+			// 		value: panExtractionData?.father_name || '',
+			// 	});
+			// }
+			// // console.log({ panExtractionData });
+			// if (panExtractionData?.DOB) {
+			// 	let DOB = panExtractionData?.DOB;
+			// 	DOB = DOB?.split('/')
+			// 		?.reverse()
+			// 		?.join('-');
+			// 	onChangeFormStateField({
+			// 		name: CONST_BUSINESS_DETAILS.DOB_FIELD_NAME,
+			// 		value: DOB || '',
+			// 	});
+			// }
+			// if (!!companyRocData) {
+			// 	// console.log({ companyRocData });
+			// 	onChangeFormStateField({
+			// 		name: 'business_name',
+			// 		value: companyRocData?.BusinessName || '',
+			// 	});
+			// 	onChangeFormStateField({
+			// 		name: 'business_vintage',
+			// 		value:
+			// 			moment(companyRocData?.BusinessVintage).format('YYYY-MM-DD') || '',
+			// 	});
+			// 	onChangeFormStateField({
+			// 		name: 'business_email',
+			// 		value: companyRocData?.Email,
+			// 	});
+			// 	onChangeFormStateField({
+			// 		name: 'business_type',
+			// 		value: companyRocData?.BusinessType || 0,
+			// 	});
+			// }
+
+			// Company search select is only applicable for business loans
+			if (
+				!!gstinData &&
+				selectedProduct.isSelectedProductTypeBusiness &&
+				panExtractionData?.isBusinessPan
+			) {
+				await companyNameSearch(
+					verifiedRes?.data?.message?.upstreamName ||
+						panExtractionData?.companyName
+				);
+				// console.log('company information from pancardfile', newCompanyList);
+				// console.log(
+				// 	'information related to pancardextraction',
+				// 	panExtractionData
+				// );
+				setIsPanConfirmModalOpen(false);
+				setIsCompanyListModalOpen(true);
+				return;
+			}
+			// business product + personal pan card
+			if (selectedProduct.isSelectedProductTypeBusiness) {
+				setIsPanConfirmModalOpen(false);
+			}
+			// salaried product + personal pan card
+			if (selectedProduct.isSelectedProductTypeSalaried) {
+				setIsPanConfirmModalOpen(false);
+			}
+			setIsPanConfirmModalOpen(false);
+		} catch (error) {
+			console.error('error-handlePanConfirm-', error);
+		} finally {
+			setLoading(false);
+			clearErrorFormState();
+		}
+	};
+
+	const verifyKycPan = async () => {
+		// console.log('verifykyc-called-2nd');
+		try {
+			// console.log('verifyKycPan-', {
+			// 	selectedAddressProof,
+			// 	isVerifyKycData,
+			// 	extractionData,
+			// });
+			if (!selectedProduct?.product_details?.kyc_verification) return {};
+			const verifyKycPanReqBody = {
+				doc_ref_id: panExtractionData?.doc_ref_id,
+				doc_type: CONST_SECTIONS.EXTRACTION_KEY_PAN,
+				number: confirmPanNumber,
+				name: panExtractionData?.companyName || '',
+			};
+			const verifiedRes = await verifyKycDataUiUx(
+				verifyKycPanReqBody,
+				clientToken
+			);
+			return verifiedRes;
+		} catch (error) {
+			console.error('error-verifyKycPan-', error);
+			addToast({
+				message: error.message || 'Something Went Wrong. Try Again!',
+				type: 'error',
+			});
+			return {};
+		}
+	};
+
+	const gstinFetch = async confirmPanNumber => {
+		try {
+			// console.log('gstin-fetch-called-3rd');
+
+			setLoading(true);
+			const gstinReqBody = {
+				pan: confirmPanNumber,
+			};
+			const gstinResponse = await axios.post(API.PAN_TO_GST, gstinReqBody, {
+				headers: {
+					authorization: clientToken,
+				},
+			});
+			// const gstinData = gstinResponse?.data?.data;
+
+			return gstinResponse;
+			// console.log(gstin);
+		} catch (error) {
+			setLoading(false);
+			// addToast({
+			// 	message:
+			// 		'Unable to fetch the data from PanToGst. Please continue to fill the details.',
+			// 	// || error?.message ||
+			// 	// 'ROC search failed, try again',
+			// 	type: 'error',
+			// });
+			console.error('error-gstinFetchError-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const companyNameSearch = async companyName => {
+		try {
+			// console.log('companyNameSearch-called-4th');
+
+			setLoading(true);
+			const companyNameReqBody = {
+				search: companyName.trim(),
+			};
+			const companyNameSearchRes = await axios.post(
+				API.SEARCH_COMPANY_NAME,
+				companyNameReqBody
+			);
+			const newCompanyList = companyNameSearchRes?.data?.data || [];
+			setCompanyList(newCompanyList);
+			return newCompanyList;
+		} catch (error) {
+			console.error('error-companyNameSearch-', error);
+			addToast({
+				message: error.message || 'Company search failed, try again',
+				type: 'error',
+			});
+			return [];
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const onCompanySelect = async cinNumber => {
+		// console.log('onCompanySelect-called-5th');
+
+		setIsCompanyListModalOpen(false);
+		setLoading(true);
+		await cinNumberFetch(cinNumber);
+	};
+
+	const cinNumberFetch = async cinNumber => {
+		try {
+			// console.log('cinNumberFetch-setCompanyRocData-called-6th');
+
+			setLoading(true);
+			const cinFetchReqBody = {
+				cin_number: cinNumber,
+			};
+			const cinNumberResponse = await axios.post(
+				API.ROC_DATA_FETCH,
+				cinFetchReqBody,
+				{
+					headers: {
+						Authorization: clientToken,
+					},
+				}
+			);
+
+			const companyData = cinNumberResponse?.data?.data;
+			// companyData.gstin = gstinData;
+			const formattedCompanyData = formatCompanyRocData(
+				companyData,
+				confirmPanNumber
+			);
+			dispatch(setCompanyRocData(formattedCompanyData));
+			// prepopulation starts
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+				value:
+					formattedCompanyData?.panNumber || panExtractionData?.panNumber || '',
+			});
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+				value:
+					formattedCompanyData?.BusinessName || panExtractionData?.Name || '',
+			});
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+				value: formattedCompanyData?.BusinessType || 0 || '',
+			});
+			const businessVintageValue =
+				moment(formattedCompanyData?.BusinessVintage).format('YYYY-MM-DD') ||
+				moment(panExtractionData?.DOB).format('YYYY-MM-DD') ||
+				'';
+
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+				value: businessVintageValue,
+			});
+			// prepopulation ends
+		} catch (error) {
+			setLoading(false);
+			addToast({
+				message:
+					'Unable to fetch the data from ROC. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+			console.error('error-cinnumberfetch-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+	// called for roc ends
+	const onProceedUdyogAadhar = async udyogAadharNumber => {
+		try {
+			// console.log('onproceedudyogAadhar-3-called-4th-n-last');
+
+			// console.log({
+			// 	udyogAadharNumber,
+			// });
+			setLoading(true);
+			setUdyogAadhar(udyogAadharNumber);
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+				value: panExtractionData?.panNumber,
+			});
+			const VerifyUdyog = await axios.get(
+				`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
+				{
+					headers: {
+						Authorization: clientToken,
+					},
+				}
+			);
+			return VerifyUdyog;
+		} catch (e) {
+			setLoading(false);
+			addToast({
+				message:
+					'Unable to fetch the data from udyog. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+			setIsUdyogModalOpen(false);
+		}
+	};
+
+	// Pancard extraction function
+
+	const openDocument = async file => {
+		try {
+			setLoadingFile(true);
+			// console.log('open-doc-', { file, loanId, businessUserId });
+			const reqBody = {
+				filename: file?.doc_name || file?.document_key || file?.fd || '',
+			};
+			reqBody.loan_id = loanId;
+			reqBody.userid = businessUserId;
+			// console.log('openDocument-reqBody-', { reqBody, file });
+			const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
+			// console.log('openDocument-res-', docRes);
+			window.open(decryptViewDocumentUrl(docRes?.data?.signedurl), '_blank');
+		} catch (error) {
+			console.error('Unable to open file, try after sometime', error);
+		} finally {
+			setLoadingFile(false);
+		}
+	};
 
 	useEffect(() => {
 		// Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -598,29 +622,19 @@ const PanUpload = props => {
 						value={udyogAadhar}
 						onChange={e => {
 							setUdyogAadhar(e.target.value);
-							onChangeFormStateField({
-								name: 'udhyog_number',
-								value: udyogAadhar,
-							});
 						}}
-						// style={{
-						// 	textAlign: 'center',
-						// }}
 					/>
 					<Button
 						name='Proceed'
 						fill
 						isLoader={loading}
-						onClick={() =>
-							// 	console.log({
-							// 		udyogAadhar,
-							// 	})
-							// }
-							{
-								onProceedUdyodAadhar(udyogAadhar);
-								setIsUdyogModalOpen(false);
-							}
-						}
+						onClick={() => {
+							onChangeFormStateField({
+								name: 'udyam_number',
+								value: udyogAadhar,
+							});
+							onProceedUdyogAadhar(udyogAadhar);
+						}}
 						disabled={loading}
 						style={{
 							alignText: 'center',
@@ -630,13 +644,14 @@ const PanUpload = props => {
 						name='Skip'
 						fill
 						isLoader={loading}
-						onClick={() =>
-							// 	console.log({
-							// 		udyogAadhar,
-							// 	})
-							// }
-							setIsUdyogModalOpen(false)
-						}
+						onClick={() => {
+							onChangeFormStateField({
+								name: 'udhyog_number',
+								value: '',
+							});
+							setUdyogAadhar('');
+							setIsUdyogModalOpen(false);
+						}}
 						disabled={loading}
 						style={{
 							alignText: 'center',
@@ -739,7 +754,7 @@ const PanUpload = props => {
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>
-							{uploadedFile?.name}
+							{uploadedFile?.name || uploadedFile?.uploaded_doc_name}
 						</UI.UploadedFileName>
 						{loading ? (
 							<UI.UploadIconWrapper>
@@ -761,7 +776,7 @@ const PanUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!uploadedFile?.document_id && (
+								{!uploadedFile?.document_id && !sections[selectedSectionId] && (
 									<UI.IconDelete
 										src={iconDelete}
 										alt='delete'

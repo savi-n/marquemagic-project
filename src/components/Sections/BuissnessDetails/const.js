@@ -32,3 +32,7 @@ export const PROFILE_UPLOAD_FIELD_DB_KEY = 'customer_picture';
 export const EXISTING_CUSTOMER_FIELD_NAME = 'existing_customer';
 export const INCOME_TYPE_FIELD_NAME = 'income_type';
 export const DOB_FIELD_NAME = 'dob';
+export const BUSINESS_VINTAGE_FIELD_NAME = 'business_vintage';
+export const UDYAM_NUMBER_FIELD_NAME = 'udyam_number';
+export const BUSINESS_MOBILE_FIELD_NAME = 'mobile_no';
+export const GSTIN_FIELD_NAME = 'gstin';

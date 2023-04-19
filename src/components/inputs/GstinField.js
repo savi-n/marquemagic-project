@@ -115,7 +115,7 @@ const FieldPostfixIcon = styled.span`
 	text-align: center;
 	align-items: center;
 	justify-content: center;
-	state: false;
+	cursor: pointer;
 `;
 
 export default function DisabledTextFieldModal(props) {

@@ -653,7 +653,7 @@ export const getDocumentCategoryName = type => {
 	return category;
 };
 
-export const getEditLoanLoanDocuments = data => {
+export const getEditLoanDocuments = data => {
 	const { documents, directorId, docTypeId } = data;
 	return documents?.filter(doc => {
 		if (
