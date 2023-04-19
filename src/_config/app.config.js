@@ -71,6 +71,7 @@ const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 
 const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
+const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
 
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
@@ -176,6 +177,7 @@ export {
 	BANK_LIST_FETCH,
 	IFSC_LIST_FETCH,
 	BUSINESS_DETIALS,
+	BUSINESS_ADDRESS_DETAILS,
 	DOCTYPES_FETCH,
 	APP_CLIENT,
 	SECRET,

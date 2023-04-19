@@ -60,7 +60,7 @@ const Product = props => {
 	const SELECTED_SECTION_MAPPING = {
 		//TODO Bikash & Akshat - change to the respective components
 		business_details: BuissnessDetails, // change to the respective components
-		address_details: BusinessAddressDetails, // change to the respective components
+		business_address_details: BusinessAddressDetails, // change to the respective components
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
@@ -110,7 +110,7 @@ const Product = props => {
 			dispatch(setSelectedProduct(selectedProductRes));
 			dispatch(
 				setSelectedSectionId(
-					selectedProductRes?.product_details?.sections[0]?.id
+					selectedProductRes?.product_details?.sections?.[0]?.id
 				)
 			);
 			if (response?.data?.loan_request_type) {
