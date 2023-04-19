@@ -19,7 +19,7 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
-import BuissnessDetails from 'components/Sections/BuissnessDetails/BuissnessDetails';
+import BuissnessDetails from 'components/Sections/BusinessDetails/BusinessDetails';
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
