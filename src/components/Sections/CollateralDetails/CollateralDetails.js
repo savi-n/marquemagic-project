@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
@@ -114,7 +114,7 @@ const CollateralDetails = () => {
 
 	// console.log('employment-details-', { coApplicants, app });
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
@@ -119,7 +119,7 @@ const BankDetails = () => {
 		setOpenAccordianId('');
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

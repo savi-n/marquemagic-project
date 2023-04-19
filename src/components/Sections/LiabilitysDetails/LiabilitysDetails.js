@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { Fragment, useState } from 'react';
 import axios from 'axios';
 
@@ -124,7 +124,7 @@ const LiabilitysDetails = props => {
 		setOpenAccordianId('');
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
