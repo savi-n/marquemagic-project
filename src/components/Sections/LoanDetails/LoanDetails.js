@@ -1,16 +1,24 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, {
+	Fragment,
+	useState,
+	useEffect,
+	useRef,
+	useLayoutEffect,
+} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
+import Loading from 'components/Loading';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import {
+	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getApplicantCoApplicantSelectOptions,
@@ -34,7 +42,7 @@ const LoanDetails = () => {
 		isTestMode,
 		isLocalhost,
 		isEditLoan,
-		editLoanData,
+		// editLoanData,
 		isEditOrViewLoan,
 	} = app;
 	const { loanId, cacheDocuments } = application;
@@ -60,6 +68,8 @@ const LoanDetails = () => {
 		applicantAndCoapplicantOptions,
 		setApplicantAndCoapplicantOptions,
 	] = useState([]);
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [sectionData, setSectionData] = useState([]);
 	const {
 		handleSubmit,
 		register,
@@ -259,20 +269,21 @@ const LoanDetails = () => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		const imdDetails = editLoanData?.imd_details || {};
+		const imdDetails = sectionData?.imd_details || {};
+		const loanDetails = sectionData?.loan_details || {};
 		const preData = {
-			loan_amount: editLoanData?.loan_amount,
-			tenure: editLoanData?.applied_tenure,
-			loan_usage_type_id: editLoanData?.loan_usage_type?.id,
-			loan_source: editLoanData?.loan_origin,
-			connector_name: editLoanData?.connector_user_id,
-			connector_code: editLoanData?.connector_user_id,
+			loan_amount: loanDetails?.loan_amount,
+			tenure: loanDetails?.applied_tenure,
+			loan_usage_type_id: loanDetails?.loan_usage_type?.id,
+			loan_source: loanDetails?.loan_origin,
+			connector_name: loanDetails?.connector_user_id,
+			connector_code: loanDetails?.connector_user_id,
 			...imdDetails,
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
-			branch_id: editLoanData?.branch_id,
-			loan_type: editLoanData?.loan_usage_type?.id,
+			branch_id: loanDetails?.branch_id,
+			loan_type: loanDetails?.loan_usage_type?.id,
 		};
 		return preData?.[field?.name];
 	};
@@ -311,6 +322,25 @@ const LoanDetails = () => {
 			return field?.value || '';
 		} catch (error) {
 			return {};
+		}
+	};
+
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+			const fetchRes = await axios.get(
+				`${API.API_END_POINT}/updateLoanDetails?${formatGetSectionReqBody({
+					application,
+					applicantCoApplicants,
+				})}`
+			);
+			// console.log('fetchRes-', fetchRes);
+			setSectionData(fetchRes?.data?.data?.loanData || {});
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+			setSectionData({});
+		} finally {
+			setFetchingSectionData(false);
 		}
 	};
 
@@ -354,8 +384,10 @@ const LoanDetails = () => {
 	// 	// eslint-disable-next-line
 	// }, [formState.values, connectorOptions]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		getConnectors();
+		fetchSectionDetails();
+		// eslint-disable-next-line
 	}, []);
 
 	// console.log('loan-details-allstates-', {
@@ -382,157 +414,169 @@ const LoanDetails = () => {
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								{sub_section.name}
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								const newField = _.cloneDeep(field);
-								const customFieldProps = {};
-								if (!newField.visibility) return null;
-								if (newField?.for_type_name) {
-									if (
-										!newField?.for_type.includes(
-											formState?.values?.[newField?.for_type_name]
-										)
-									)
-										return null;
-								}
-								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-									// const newOptions = getApplicantCoApplicantSelectOptions({
-									// 	applicantCoApplicants,
-									// 	isEditOrViewLoan,
-									// });
-									newField.options = [
-										...applicantAndCoapplicantOptions,
-										...newField.options,
-									];
-								}
-								if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
-									newField.options = connectorOptions;
-								}
-								if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
-									customFieldProps.disabled = true;
-								}
-								if (
-									newField.type === 'file' &&
-									newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-								) {
-									const selectedDocTypeId =
-										field?.doc_type?.[selectedIncomeType];
-									const errorMessage =
-										(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-										formState?.error?.[field.name];
-									if (isEditOrViewLoan) {
-										const imd_document_id = prefilledEditOrViewLoanValues(
-											field
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<>
+					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						return (
+							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+								{sub_section?.name ? (
+									<UI_SECTIONS.SubSectionHeader>
+										{sub_section.name}
+									</UI_SECTIONS.SubSectionHeader>
+								) : null}
+								<UI_SECTIONS.FormWrapGrid>
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										const newField = _.cloneDeep(field);
+										const customFieldProps = {};
+										if (!newField.visibility) return null;
+										if (newField?.for_type_name) {
+											if (
+												!newField?.for_type.includes(
+													formState?.values?.[newField?.for_type_name]
+												)
+											)
+												return null;
+										}
+										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
+											// const newOptions = getApplicantCoApplicantSelectOptions({
+											// 	applicantCoApplicants,
+											// 	isEditOrViewLoan,
+											// });
+											newField.options = [
+												...applicantAndCoapplicantOptions,
+												...newField.options,
+											];
+										}
+										if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
+											newField.options = connectorOptions;
+										}
+										if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
+											customFieldProps.disabled = true;
+										}
+										if (
+											newField.type === 'file' &&
+											newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+										) {
+											const selectedDocTypeId =
+												field?.doc_type?.[selectedIncomeType];
+											const errorMessage =
+												(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name];
+											if (isEditOrViewLoan) {
+												const imd_document_id = prefilledEditOrViewLoanValues(
+													field
+												);
+												editLoanUploadedFile =
+													cacheDocuments?.filter(
+														doc =>
+															`${doc?.document_id}` === `${imd_document_id}`
+													)?.[0] || null;
+											}
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${fieldIndex}-${field.name}`}
+												>
+													<InputFieldSingleFileUpload
+														field={field}
+														uploadedFile={
+															selectedImdDocumentFile || editLoanUploadedFile
+														}
+														selectedDocTypeId={selectedDocTypeId}
+														clearErrorFormState={clearErrorFormState}
+														addCacheDocumentTemp={addCacheDocumentTemp}
+														removeCacheDocumentTemp={removeCacheDocumentTemp}
+														errorColorCode={errorMessage ? 'red' : ''}
+														isFormSubmited={!!formState?.submit?.isSubmited}
+														category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
+													/>
+													{errorMessage && (
+														<UI_SECTIONS.ErrorMessage>
+															{errorMessage}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+												</UI_SECTIONS.FieldWrapGrid>
+											);
+										}
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${fieldIndex}-${newField.name}`}
+											>
+												{register({
+													...newField,
+													value: prefilledValues(newField),
+													...customFieldProps,
+													visibility: 'visible',
+												})}
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[newField.name]) &&
+													formState?.error?.[newField.name] && (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[newField.name]}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+											</UI_SECTIONS.FieldWrapGrid>
 										);
-										editLoanUploadedFile =
-											cacheDocuments?.filter(
-												doc => `${doc?.document_id}` === `${imd_document_id}`
-											)?.[0] || null;
+									})}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button
+								fill
+								name='Save and Proceed'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									const isIMDDocumentExist =
+										selectedImdDocumentFile || editLoanUploadedFile;
+									if (
+										formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] ===
+											'Yes' &&
+										!isIMDDocumentExist
+									) {
+										addToast({
+											message: 'IMD document is mandatory',
+											type: 'error',
+										});
+										return;
 									}
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											<InputFieldSingleFileUpload
-												field={field}
-												uploadedFile={
-													selectedImdDocumentFile || editLoanUploadedFile
-												}
-												selectedDocTypeId={selectedDocTypeId}
-												clearErrorFormState={clearErrorFormState}
-												addCacheDocumentTemp={addCacheDocumentTemp}
-												removeCacheDocumentTemp={removeCacheDocumentTemp}
-												errorColorCode={errorMessage ? 'red' : ''}
-												isFormSubmited={!!formState?.submit?.isSubmited}
-												category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
-											/>
-											{errorMessage && (
-												<UI_SECTIONS.ErrorMessage>
-													{errorMessage}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-								return (
-									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${fieldIndex}-${newField.name}`}
-									>
-										{register({
-											...newField,
-											value: prefilledValues(newField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[newField.name]) &&
-											formState?.error?.[newField.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[newField.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-									</UI_SECTIONS.FieldWrapGrid>
-								);
-							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(() => {
-							const isIMDDocumentExist =
-								selectedImdDocumentFile || editLoanUploadedFile;
-							if (
-								formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
-								!isIMDDocumentExist
-							) {
-								addToast({
-									message: 'IMD document is mandatory',
-									type: 'error',
-								});
-								return;
-							}
-							onProceed();
-						})}
-					/>
-				)}
+									onProceed();
+								})}
+							/>
+						)}
 
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
+						{isViewLoan && (
+							<>
+								<Button
+									name='Previous'
+									onClick={naviagteToPreviousSection}
+									fill
+								/>
+								<Button name='Next' onClick={naviagteToNextSection} fill />
+							</>
+						)}
 
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{isLocalhost && !isViewLoan && !!isTestMode && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-			</UI_SECTIONS.Footer>
+						{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
+							<Button name='Skip' disabled={loading} onClick={onSkip} />
+						) : null}
+						{isLocalhost && !isViewLoan && !!isTestMode && (
+							<Button
+								fill={!!isTestMode}
+								name='Auto Fill'
+								onClick={() => dispatch(toggleTestMode())}
+							/>
+						)}
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };
