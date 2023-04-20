@@ -28,7 +28,7 @@ const BankDetails = () => {
 		selectedSection,
 		isTestMode,
 		isLocalhost,
-		isEditLoan,
+		// isEditLoan,
 	} = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -84,16 +84,9 @@ const BankDetails = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = {};
-		}
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};

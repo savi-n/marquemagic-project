@@ -41,7 +41,7 @@ const LoanDetails = () => {
 		prevSectionId,
 		isTestMode,
 		isLocalhost,
-		isEditLoan,
+		// isEditLoan,
 		// editLoanData,
 		isEditOrViewLoan,
 	} = app;
@@ -260,7 +260,6 @@ const LoanDetails = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
@@ -290,10 +289,6 @@ const LoanDetails = () => {
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
-
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
@@ -305,17 +300,9 @@ const LoanDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-			) {
-				return application?.sections?.[selectedSectionId]?.[field?.name];
-			}
-
 			let editViewLoanValue = '';
 
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
+			editViewLoanValue = prefilledEditOrViewLoanValues(field);
 
 			if (editViewLoanValue) return editViewLoanValue;
 

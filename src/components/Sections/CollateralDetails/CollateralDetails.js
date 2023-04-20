@@ -91,7 +91,6 @@ const CollateralDetails = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
