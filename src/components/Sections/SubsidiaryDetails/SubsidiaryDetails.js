@@ -28,7 +28,7 @@ const SubsidiaryDetails = props => {
 		prevSectionId,
 		isLocalhost,
 		isTestMode,
-		isEditLoan,
+		// isEditLoan,
 		// selectedSection,
 	} = app;
 	const dispatch = useDispatch();
@@ -85,16 +85,9 @@ const SubsidiaryDetails = props => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = {};
-		}
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};

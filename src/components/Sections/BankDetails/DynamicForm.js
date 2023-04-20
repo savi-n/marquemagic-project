@@ -32,7 +32,7 @@ const DynamicForm = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const { selectedSectionId, isTestMode, selectedSection } = app;
+	const { isTestMode, selectedSection } = app;
 	const { isApplicant } = applicantCoApplicants;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
@@ -58,18 +58,6 @@ const DynamicForm = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-			) {
-				// special scenario for bank name prefetch
-				if (application?.sections?.[selectedSectionId]?.[field?.name]?.value) {
-					return application?.sections?.[selectedSectionId]?.[field?.name]
-						?.value;
-				} else {
-					return application?.sections?.[selectedSectionId]?.[field?.name];
-				}
-			}
 
 			let editViewLoanValue = '';
 
