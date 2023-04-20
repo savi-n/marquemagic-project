@@ -24,6 +24,7 @@ import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
+import ConsentDetails from 'components/Sections/ConsentDetails';
 
 const ProductIndividual = props => {
 	const reduxState = useSelector(state => state);
@@ -51,6 +52,7 @@ const ProductIndividual = props => {
 		liability_details: LiabilitysDetails,
 		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
+		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
 	};
 	let SelectedComponent =
