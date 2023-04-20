@@ -91,7 +91,7 @@ const ApplicantCoApplicantHeader = props => {
 				let coApplicant_count=0;
 				let label='';
 				let obj={};
-		console.log(directorListObject)
+		// console.log(directorListObject)
 		directorListObject?.data?.map(item => {
 			// console.log(item);
 			if (
