@@ -4,6 +4,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import appReducer from './appSlice';
 import applicationReducer from './applicationSlice';
 import applicantCoApplicantsReducer from './applicantCoApplicantsSlice';
+import directorsReducer from './directorsSlice';
 import storageSession from 'redux-persist/lib/storage/session';
 // import { appSlice } from './appSlice';
 // import { applicantSlice } from './applicationSlice';
@@ -30,6 +31,7 @@ export const rootReducers = combineReducers({
 	app: appReducer,
 	application: applicationReducer,
 	applicantCoApplicants: applicantCoApplicantsReducer,
+	directors: directorsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducers);
