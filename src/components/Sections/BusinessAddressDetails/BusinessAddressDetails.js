@@ -7,7 +7,7 @@ import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getCompletedSections,
+	// getCompletedSections,
 	isFieldValid,
 } from 'utils/formatData';
 import useForm from 'hooks/useFormIndividual';
@@ -37,14 +37,14 @@ const BusinessAddressDetails = props => {
 		isLocalhost,
 		clientToken,
 		userToken,
-		editLoanDirectors,
+		// editLoanDirectors,
 	} = app;
 
-	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
+	let { isViewLoan } = app;
 	if (isDraftLoan) {
 		isViewLoan = false;
-		isEditLoan = false;
-		isEditOrViewLoan = false;
+		// isEditLoan = false;
+		// isEditOrViewLoan = false;
 	}
 	const dispatch = useDispatch();
 	const {
@@ -53,13 +53,13 @@ const BusinessAddressDetails = props => {
 		formState,
 		onChangeFormStateField,
 	} = useForm();
-	const completedSections = getCompletedSections({
-		selectedProduct,
-		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		editLoanDirectors,
-	});
+	// const completedSections = getCompletedSections({
+	// 	selectedProduct,
+	// 	application,
+	// 	isEditOrViewLoan,
+	// 	isEditLoan,
+	// 	editLoanDirectors,
+	// });
 
 	const [loading, setLoading] = useState(false);
 	const [fetchingGstAddress, setFetchingGstAddress] = useState(false);
@@ -266,7 +266,7 @@ const BusinessAddressDetails = props => {
 		}, 0);
 	};
 
-	const isSectionCompleted = completedSections?.includes(selectedSectionId);
+	// const isSectionCompleted = completedSections?.includes(selectedSectionId);
 
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -421,14 +421,14 @@ const BusinessAddressDetails = props => {
 									}
 
 									const customStyle = {};
-									if (isSectionCompleted) {
-										customFieldProps.disabled = true;
-									}
+									// if (isSectionCompleted) {
+									// 	customFieldProps.disabled = true;
+									// }
 
 									// TO overwrite all above condition and disable everything
-									if (isEditOrViewLoan) {
-										customFieldProps.disabled = true;
-									}
+									// if (isEditOrViewLoan) {
+									// 	customFieldProps.disabled = true;
+									// }
 
 									// in all the scenario this fields will be always disabled
 									if (
