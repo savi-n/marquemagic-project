@@ -32,7 +32,7 @@ const ReferenceDetails = () => {
 		isTestMode,
 		isLocalhost,
 		// editLoanData,
-		isEditLoan,
+		// isEditLoan,
 	} = app;
 	const { refId1, refId2 } = application;
 	const dispatch = useDispatch();
@@ -92,23 +92,15 @@ const ReferenceDetails = () => {
 			// console.log('-referenceDetailsRes-', {
 			// 	referenceDetailsReqBody,
 			// });
-			const referenceDetailsRes = await axios.post(
+			// const referenceDetailsRes =
+			await axios.post(
 				`${API_END_POINT}/LoanReferences/create`,
 				referenceDetailsReqBody
 			);
-			const newRefId1 = referenceDetailsRes?.data?.data?.[0]?.id;
-			const newRefId2 = referenceDetailsRes?.data?.data?.[1]?.id;
+			onSkip();
 			// console.log('-referenceDetailsRes-', {
 			// 	referenceDetailsRes,
 			// });
-			const newReferenceDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-				refId1: newRefId1,
-				refId2: newRefId2,
-			};
-			dispatch(updateApplicationSection(newReferenceDetails));
-			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-ReferenceDetails-onProceed-', {
 				error: error,
@@ -129,7 +121,6 @@ const ReferenceDetails = () => {
 		const skipSectionData = {
 			sectionId: selectedSectionId,
 			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
 				isSkip: true,
 			},
 		};
@@ -138,8 +129,8 @@ const ReferenceDetails = () => {
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		const ref1Data = sectionData?.loanData?.[0] || {};
-		const ref2Data = sectionData?.loanData?.[1] || {};
+		const ref1Data = sectionData?.[0] || {};
+		const ref2Data = sectionData?.[1] || {};
 		const preData = {
 			Name0: ref1Data?.ref_name,
 			reference_email0: ref1Data?.ref_email,
@@ -184,17 +175,9 @@ const ReferenceDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-			) {
-				return application?.sections?.[selectedSectionId]?.[field?.name];
-			}
-
 			let editViewLoanValue = '';
 
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
+			editViewLoanValue = prefilledEditOrViewLoanValues(field);
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -213,11 +196,11 @@ const ReferenceDetails = () => {
 					applicantCoApplicants,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			setSectionData(fetchRes?.data?.data?.loanData || {});
+			console.log('fetchRes-', fetchRes);
+			setSectionData(fetchRes?.data?.data?.loanData || []);
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
-			setSectionData({});
+			setSectionData([]);
 		} finally {
 			setFetchingSectionData(false);
 		}
@@ -259,23 +242,6 @@ const ReferenceDetails = () => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
-										// handle following changes in json // remove below code after verify
-										// if (field.name.includes('pincode')) {
-										// 	customFieldProps.type = 'pincode';
-										// 	customFieldProps.value_for_fields = [
-										// 		['city0', 'district'],
-										// 		['state0', 'state'],
-										// 	];
-										// 	customFieldProps.rules = {
-										// 		required: false,
-										// 		length: 6,
-										// 	};
-										// 	customFieldProps.make_api_call = 6;
-										// 	customFieldProps.mask = {
-										// 		number_only: true,
-										// 		character_limit: 6,
-										// 	};
-										// }
 										return (
 											<>
 												{field.name === 'Name1' ? <UI.Divider /> : null}

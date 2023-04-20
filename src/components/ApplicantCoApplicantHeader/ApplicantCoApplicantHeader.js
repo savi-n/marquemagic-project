@@ -8,7 +8,10 @@ import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setCountApplicants,setDirectors } from 'store/applicantCoApplicantsSlice';
+import {
+	setCountApplicants,
+	setDirectors,
+} from 'store/applicantCoApplicantsSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 import * as UI from './ui';
@@ -68,7 +71,7 @@ const ApplicantCoApplicantHeader = props => {
 				`${API.API_END_POINT}/director_details?business_id=${businessId}`,
 				{
 					headers: {
-						Authorization:`Bearer ${userToken}`,
+						Authorization: `Bearer ${userToken}`,
 					},
 				}
 			);
@@ -84,11 +87,11 @@ const ApplicantCoApplicantHeader = props => {
 			});
 		}
 	};
-	const setGlobalCount=directorListObject=>{
-		let director_count= 0;
-				let coApplicant_count=0;
-				let label='';
-				let obj={};
+	const setGlobalCount = directorListObject => {
+		let director_count = 0;
+		let coApplicant_count = 0;
+		// let label = '';
+		let obj = {};
 		// console.log(directorListObject)
 		directorListObject?.data?.map(item => {
 			// console.log(item);
@@ -96,35 +99,39 @@ const ApplicantCoApplicantHeader = props => {
 				item.type_name === 'Director' ||
 				item.type_name === 'Partner' ||
 				item.type_name === 'Member' ||
-				item.type_name === 'Proprietor'|| item.type_name==='Applicant'
+				item.type_name === 'Proprietor' ||
+				item.type_name === 'Applicant'
 			) {
-				director_count=director_count+1;
-				obj[item.id]={
-					'type':item.type_name,
-					'label':item.type_name+director_count
-				}
-
+				director_count = director_count + 1;
+				obj[item.id] = {
+					type: item.type_name,
+					label: item.type_name + director_count,
+				};
 			} else {
-				coApplicant_count=coApplicant_count+1
-				obj[item.id]={
-					'type':item.type_name,
-					'label':item.type_name+director_count
-				}
+				coApplicant_count = coApplicant_count + 1;
+				obj[item.id] = {
+					type: item.type_name,
+					label: item.type_name + director_count,
+				};
 			}
+			return null;
 		});
-		dispatch(setDirectors(obj))
+		dispatch(setDirectors(obj));
 		setCount({
-			Director:director_count,
-			CoApplicants:coApplicant_count,
-		})
-		}
-useEffect(()=>{
-OnFetchDirectorList();
-},[])
-	useEffect(()=>{
-		setGlobalCount(directorListObject)
-	},[directorListObject])
-	dispatch(setCountApplicants(count));
+			Director: director_count,
+			CoApplicants: coApplicant_count,
+		});
+	};
+	useEffect(() => {
+		OnFetchDirectorList();
+		// eslint-disable-next-line
+	}, []);
+
+	useEffect(() => {
+		setGlobalCount(directorListObject);
+		dispatch(setCountApplicants(count));
+		// eslint-disable-next-line
+	}, [directorListObject]);
 
 	if (isDocumentUploadMandatory) {
 		const applicantMandatoryDocumentIds = [];
