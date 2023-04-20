@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 // import _ from 'lodash';
 import axios from 'axios';
@@ -11,7 +11,6 @@ import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
 import Button from 'components/Button';
 
-import { setCompanyRocData } from 'store/applicantCoApplicantsSlice';
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
 // import { isBusinessPan } from 'utils/helper';
@@ -51,6 +50,7 @@ const PanUpload = props => {
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		isDisabled,
+		setCompanyRocData,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const { selectedProduct, clientToken, selectedSectionId } = app;
@@ -78,7 +78,6 @@ const PanUpload = props => {
 	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	const dispatch = useDispatch();
 	// const panExtractionResTemp =
 	// 	cacheDocumentsTemp.filter(
 	// 		doc => doc.field.name === CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME
@@ -457,7 +456,7 @@ const PanUpload = props => {
 				companyData,
 				confirmPanNumber
 			);
-			dispatch(setCompanyRocData(formattedCompanyData));
+			setCompanyRocData(formattedCompanyData);
 			// prepopulation starts
 			onChangeFormStateField({
 				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
@@ -597,10 +596,9 @@ const PanUpload = props => {
 				onClose={() => {
 					setIsUdyogModalOpen(false);
 				}}
-				width='20%'
-				height='30%'
+				customStyle={{ minHeight: '40%' }}
 			>
-				<section>
+				<section className='p-4 flex-row gap-y-4'>
 					<UI.ImgClose
 						onClick={() => {
 							setIsUdyogModalOpen(false);
@@ -608,47 +606,53 @@ const PanUpload = props => {
 						src={imgClose}
 						alt='close'
 					/>
-					<span>Udyog Aadhar</span>
-					<InputField
-						name='Udyog Aadhar'
-						value={udyogAadhar}
-						onChange={e => {
-							setUdyogAadhar(e.target.value);
-						}}
-					/>
-					<Button
-						name='Proceed'
-						fill
-						isLoader={loading}
-						onClick={() => {
-							onChangeFormStateField({
-								name: 'udyam_number',
-								value: udyogAadhar,
-							});
-							onProceedUdyogAadhar(udyogAadhar);
-						}}
-						disabled={loading}
-						style={{
-							alignText: 'center',
-						}}
-					/>
-					<Button
-						name='Skip'
-						fill
-						isLoader={loading}
-						onClick={() => {
-							onChangeFormStateField({
-								name: 'udhyog_number',
-								value: '',
-							});
-							setUdyogAadhar('');
-							setIsUdyogModalOpen(false);
-						}}
-						disabled={loading}
-						style={{
-							alignText: 'center',
-						}}
-					/>
+					<UI.Title>Udyog Aadhar</UI.Title>
+					<UI.Field>
+						<InputField
+							name='Udyog Aadhar'
+							value={udyogAadhar}
+							onChange={e => {
+								setUdyogAadhar(e.target.value);
+							}}
+						/>
+					</UI.Field>
+					<UI.ButtonWrapper>
+						<Button
+							name='Proceed'
+							fill
+							isLoader={loading}
+							onClick={() => {
+								onChangeFormStateField({
+									name: 'udyam_number',
+									value: udyogAadhar,
+								});
+								onProceedUdyogAadhar(udyogAadhar);
+							}}
+							disabled={loading}
+							customStyle={{
+								// alignText: 'center',
+								margin: '10px',
+							}}
+						/>
+						<Button
+							name='Skip'
+							fill
+							isLoader={loading}
+							onClick={() => {
+								onChangeFormStateField({
+									name: 'udhyog_number',
+									value: '',
+								});
+								setUdyogAadhar('');
+								setIsUdyogModalOpen(false);
+							}}
+							disabled={loading}
+							customStyle={{
+								// alignText: 'center',
+								margin: '10px',
+							}}
+						/>
+					</UI.ButtonWrapper>
 				</section>
 			</Modal>
 			<Modal
@@ -778,9 +782,9 @@ const PanUpload = props => {
 											removeCacheDocumentTemp(field.name);
 											setGstin([]);
 											onChangeFormStateField({
-												name:'gstin',
-												value:'',
-											})
+												name: 'gstin',
+												value: '',
+											});
 											onChangeFormStateField({
 												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
