@@ -160,10 +160,6 @@ const ReferenceDetails = () => {
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
-
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];

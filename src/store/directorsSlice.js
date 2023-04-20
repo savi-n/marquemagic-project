@@ -1,8 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
+const initialDirectorsObject = {
+	// if length of sections is 3 then it's validated
+	sections: [
+		// 'basic_details',
+		// 'address_details',
+		// 'employment_details',
+	],
+	isMandatorySectionsCompleted: false,
+	profileGeoLocation: {},
+	documentSelfieGeolocation: {},
+	geotaggingMandatory: [],
+};
+
 const initialState = {
-	directors: {},
+	directors: _.cloneDeep(initialDirectorsObject),
 	selectedDirector: {},
 	selectedDirectorId: '',
 	isApplicant: false,
@@ -10,10 +23,15 @@ const initialState = {
 	profileGeoLocation: {},
 	documentSelfieGeolocation: {},
 	geotaggingMandatory: [],
+	directorSectionsIds: [
+		'basic_details',
+		'address_details',
+		'employment_details',
+	],
 };
 
-const isApplicant = direcotr => {
-	return direcotr?.type_name === 'Applicant';
+const isApplicant = director => {
+	return director?.type_name === 'Applicant';
 	// item.type_name === 'Director' ||
 	// item.type_name === 'Partner' ||
 	// item.type_name === 'Member' ||
@@ -25,18 +43,31 @@ export const directorsSlice = createSlice({
 	initialState,
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
-		updateDirectors: (state, action) => {
-			const newDirectors = {};
-			action?.payload?.map(director => {
-				newDirectors[director.id] = director;
+		setDirectors: (state, action) => {
+			const newDirectors = _.cloneDeep(initialDirectorsObject);
+			let newSelectedDirector = _.cloneDeep(initialDirectorsObject);
+			action?.payload?.map((director, directorIndex) => {
+				if (directorIndex === 0) newSelectedDirector = director;
+				const fullName = [];
+				if (director.dfirstname) fullName.push(director.dfirstname);
+				if (director.dlastname) fullName.push(director.dlastname);
+				newDirectors[director.id] = {
+					label: `${director.type_name}`,
+					fullName: fullName.join(' '),
+				};
 				return null;
 			});
 			state.directors = newDirectors;
+			state.selectedDirector = newSelectedDirector;
+			state.selectedDirectorId = `${newSelectedDirector.id}`;
+			state.isApplicant = isApplicant(newSelectedDirector);
 		},
-		updateDirector: (state, action) => {
-			state.directors[action.payload.id] = action.payload;
+		setDirector: (state, action) => {
+			if (state.directors[action.payload.id]) {
+				state.directors[action.payload.id] = action.payload;
+			}
 		},
-		onSelectDirector: (state, action) => {
+		setSelectedDirector: (state, action) => {
 			// action.payload === directorid
 			const newDirectorId = `${action.payload}`;
 			const newSelectedDirector = state.directors[newDirectorId];
@@ -44,6 +75,25 @@ export const directorsSlice = createSlice({
 			state.selectedDirector = newSelectedDirector;
 			state.isApplicant = isApplicant(newSelectedDirector);
 			// state.isEntity = isEntity(newSelectedDirector);
+		},
+		setSelectedDirectorId: (state, action) => {
+			// action.payload === directorid
+			state.selectedDirectorId = action.payload;
+		},
+		setSections: (state, action) => {
+			if (
+				!state.directors[state.selectedDirectorId].sections.includes(
+					action.payload
+				) &&
+				action.payload
+			) {
+				if (state.directors[state.selectedDirectorId].sections.length === 2) {
+					state.directors[
+						state.selectedDirectorId
+					].isMandatorySectionsCompleted = true;
+				}
+				state.directors[state.selectedDirectorId].sections.push(action.payload);
+			}
 		},
 
 		// SET GEOLOCATION FOR PROFILE PICTURE
@@ -86,9 +136,11 @@ export const directorsSlice = createSlice({
 });
 export const {
 	reInitializeDirectorsSlice,
-	updateDirectors,
-	updateDirector,
-	onSelectDirector,
+	setDirectors,
+	setDirector,
+	setSelectedDirector,
+	setSelectedDirectorId,
+	setSections,
 
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,

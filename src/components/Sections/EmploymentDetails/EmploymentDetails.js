@@ -2,7 +2,6 @@ import React, { Fragment, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
-import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
@@ -11,7 +10,9 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setSelectedDirectorId } from 'store/directorsSlice';
 import {
+	updateApplicantSection,
 	setSelectedApplicantCoApplicantId,
 	updateCoApplicantSection,
 } from 'store/applicantCoApplicantsSlice';
@@ -156,7 +157,7 @@ const EmploymentDetails = () => {
 
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
+		dispatch(setSelectedDirectorId(CONST_SECTIONS.NEW_DIRECTOR));
 		dispatch(setSelectedSectionId(firstSectionId));
 	};
 

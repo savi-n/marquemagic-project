@@ -7,6 +7,14 @@ export const Wrapper = styled.div`
 	/* padding: 0 50px; */
 `;
 
+export const LoadingWrapper = styled.div`
+	height: 100px;
+	width: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`;
+
 export const UL = styled.ul`
 	/* border: 1px solid gold; */
 	display: flex;
