@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+// import axios from 'axios';
 
 import DeleteCoApplicantModal from 'components/modals/DeleteCoApplicantModal';
 import Loading from 'components/Loading';
@@ -8,20 +8,27 @@ import Loading from 'components/Loading';
 import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
-import { setDirectors, setSelectedDirector } from 'store/directorsSlice';
+import {
+	getDirectors,
+	// setDirectors,
+	setSelectedDirector,
+} from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 // import { getApplicantNavigationDetails } from 'utils/formatData';
-import * as API from '_config/app.config';
+// import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
 
 const ApplicantCoApplicantHeader = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorId, directors } = useSelector(
-		state => state.directors
-	);
+	const {
+		selectedDirectorId,
+		directors,
+		fetchingDirectors,
+		addNewDirectorKey,
+	} = useSelector(state => state.directors);
 
 	const {
 		selectedSectionId,
@@ -30,7 +37,7 @@ const ApplicantCoApplicantHeader = props => {
 		// isDraftLoan,
 		firstSectionId,
 		// clientToken,
-		userToken,
+		// userToken,
 	} = app;
 	// const [flag,setFlag]={};
 	const { businessId } = application;
@@ -41,7 +48,7 @@ const ApplicantCoApplicantHeader = props => {
 		isDeleteCoApplicantModalOpen,
 		setIsDeleteCoApplicantModalOpen,
 	] = useState(false);
-	const [fetchingDirectors, setFetchingDirectors] = useState(false);
+	// const [fetchingDirectors, setFetchingDirectors] = useState(false);
 	const refListWrapper = useRef(null);
 
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
@@ -49,18 +56,19 @@ const ApplicantCoApplicantHeader = props => {
 
 	const fetchDirectors = async () => {
 		// console.log("Applicant CoApp header");
+		if (!businessId) return;
 		try {
-			setFetchingDirectors(true);
-			const directorsRes = await axios.get(
-				`${API.API_END_POINT}/director_details?business_id=${businessId}`,
-				{
-					headers: {
-						Authorization: `Bearer ${userToken}`,
-					},
-				}
-			);
-			console.log('directorsRes-', directorsRes);
-			dispatch(setDirectors(directorsRes?.data?.data || []));
+			// setFetchingDirectors(true);
+			// const directorsRes = await axios.get(
+			// 	`${API.API_END_POINT}/director_details?business_id=${businessId}`,
+			// 	{
+			// 		headers: {
+			// 			Authorization: `Bearer ${userToken}`,
+			// 		},
+			// 	}
+			// );
+			// console.log('directorsRes-', directorsRes);
+			dispatch(getDirectors(businessId));
 		} catch (e) {
 			addToast({
 				message:
@@ -70,7 +78,7 @@ const ApplicantCoApplicantHeader = props => {
 				type: 'error',
 			});
 		} finally {
-			setFetchingDirectors(false);
+			// setFetchingDirectors(false);
 		}
 	};
 
@@ -167,19 +175,17 @@ const ApplicantCoApplicantHeader = props => {
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
-						{/* <UI.LI>
-							<UI.Avatar
-								src={isApplicant ? iconAvatarActive : iconAvatarInActive}
-								alt='Avatar'
-								onClick={() =>
-									onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT)
-								}
-							/>
-							{selectedSectionId ===
-								CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-								!isApplicantMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-							<UI.AvatarName>Applicant</UI.AvatarName>
-						</UI.LI> */}
+						{Object.keys(directors).length === 0 && (
+							<UI.LI>
+								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
+								{/* TODO: varun update mandatory flag doc upload */}
+								{/* {selectedSectionId ===
+									CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+									!isApplicantMandatoryDocumentSubmited &&
+									<UI.BadgeInvalid />} */}
+								<UI.AvatarName>Applicant</UI.AvatarName>
+							</UI.LI>
+						)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
 							let isMandatoryDocumentSubmited = true;
 							const director = directors[directorId];
@@ -207,28 +213,35 @@ const ApplicantCoApplicantHeader = props => {
 								});
 							}
 							return (
-								<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
-									{/* DELETE Co-Applicant will be part of future release */}
-									{/* {selectedDirectorId === directorId && (
+								<>
+									<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
+										{/* DELETE Co-Applicant will be part of future release */}
+										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
-									<UI.Avatar
-										src={
-											+selectedDirectorId === +directorId
-												? iconAvatarActive
-												: iconAvatarInActive
-										}
-										alt='Avatar'
-										onClick={() => onClickApplicantCoApplicant(directorId)}
-									/>
-									{selectedSectionId ===
-										CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-										!isMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-									<UI.AvatarName>{director?.label}</UI.AvatarName>
-								</UI.LI>
+										<UI.Avatar
+											src={
+												+selectedDirectorId === +directorId
+													? iconAvatarActive
+													: iconAvatarInActive
+											}
+											alt='Avatar'
+											onClick={() => onClickApplicantCoApplicant(directorId)}
+										/>
+										{selectedSectionId ===
+											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+											!isMandatoryDocumentSubmited && <UI.BadgeInvalid />}
+										<UI.AvatarName>{director?.label}</UI.AvatarName>
+										{director?.shortName && (
+											<UI.HoverBadge>
+												{director?.shortName?.toLowerCase()}
+											</UI.HoverBadge>
+										)}
+									</UI.LI>
+								</>
 							);
 						})}
-						{selectedDirectorId === CONST_SECTIONS.NEW_DIRECTOR && (
+						{addNewDirectorKey && (
 							<UI.LI>
 								<UI.BadgeDelete
 									src={iconDelete}
@@ -238,9 +251,7 @@ const ApplicantCoApplicantHeader = props => {
 									alt='delete'
 								/>
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
-								<UI.AvatarName>
-									{/* TODO: Varun add dynamic label co-app, director, guaranter */}
-								</UI.AvatarName>
+								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
 							</UI.LI>
 						)}
 					</UI.UL>

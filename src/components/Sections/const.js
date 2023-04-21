@@ -4,7 +4,6 @@ import iconWarning from 'assets/icons/amber_warning_icon.png';
 
 export const APPLICANT = 'applicant';
 export const CO_APPLICANT = 'coapplicant';
-export const NEW_DIRECTOR = 'new_director';
 
 export const EXTRACTION_KEY_PAN = 'pan';
 export const EXTRACTION_KEY_DL = 'DL';

@@ -10,15 +10,12 @@ import ProfileUpload from './ProfileUpload';
 import PanUpload from './PanUpload';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
+import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
+import NavigateCTA from 'components/Sections/NavigateCTA';
+
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
-
-import {
-	setLoginCreateUserRes,
-	toggleTestMode,
-	setSelectedSectionId,
-} from 'store/appSlice';
+import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
@@ -33,6 +30,7 @@ import {
 	setLoanIds,
 	setGeoLocation,
 } from 'store/applicationSlice';
+import { getDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
@@ -61,7 +59,6 @@ const BasicDetails = props => {
 		whiteLabelId,
 		clientToken,
 		userToken,
-		isLocalhost,
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
@@ -179,9 +176,6 @@ const BasicDetails = props => {
 	});
 	const isProfileMandatory = !!selectedProfileField?.rules?.required;
 	let prefilledProfileUploadValue = '';
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
 
 	const onProceed = async () => {
 		try {
@@ -362,7 +356,6 @@ const BasicDetails = props => {
 				},
 			};
 
-			// TODO: varun update cin properly peding discussion with savita
 			newBasicDetails.directorId = newDirectorId;
 			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
 			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
@@ -395,7 +388,8 @@ const BasicDetails = props => {
 				})
 			);
 			// dispatch(setPanExtractionRes(panExtractionResTemp));
-
+			dispatch(setAddNewDirectorKey(''));
+			dispatch(getDirectors(newBusinessId));
 			dispatch(setSelectedSectionId(nextSectionId));
 			if (isGeoTaggingEnabled) {
 				if (
@@ -1131,18 +1125,7 @@ const BasicDetails = props => {
 						})}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-				{isLocalhost && !isViewLoan && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
+				<NavigateCTA previous={false} />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

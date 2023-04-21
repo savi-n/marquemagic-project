@@ -1,10 +1,14 @@
 /* Header section for the application */
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import queryString from 'query-string';
+
+import Button from 'components/Button';
+
+import { toggleTestMode } from 'store/appSlice';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import Button from 'components/Button';
-import queryString from 'query-string';
 import * as UI from './ui';
 
 // const Div = styled.div`
@@ -14,11 +18,17 @@ import * as UI from './ui';
 const Header = props => {
 	const { logo, openAccount, openAccountLink, logoLink } = props;
 	const { app, application } = useSelector(state => state);
-	const { userToken: reduxUserToken } = app;
+	const {
+		userToken: reduxUserToken,
+		isLocalhost,
+		isTestMode,
+		isViewLoan,
+	} = app;
 	const { loanRefId: reduxLoanRefId } = application;
 	const [corporateName, setCorporateName] = useState('');
 	const [backToDashboard, setBackToDashboard] = useState(false);
 	const [loanRefId, setLoanRefId] = useState('');
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		const params = queryString.parse(window.location.search);
@@ -74,6 +84,27 @@ const Header = props => {
 			>
 				<UI.Logo src={logo} alt='logo' />
 			</UI.LogoLink>
+			{isLocalhost && !isViewLoan && (
+				<div
+					style={{
+						width: '100%',
+						textAlign: 'center',
+					}}
+				>
+					<Button
+						fill={!!isTestMode}
+						name='Auto Fill'
+						onClick={() => dispatch(toggleTestMode())}
+					/>
+					<Button
+						customStyle={{ marginLeft: 20 }}
+						name='Skip'
+						onClick={() => {
+							// TODO: varun add section id to directors / application object
+						}}
+					/>
+				</div>
+			)}
 			{corporateName && (
 				<div
 					style={{
@@ -96,7 +127,6 @@ const Header = props => {
 					</Button>
 				</UI.ButtonBackToDashboardWrapper>
 			)}
-
 			{openAccount && (
 				<div className='ml-auto'>
 					<Button onClick={() => window.open(openAccountLink, '_blank')}>

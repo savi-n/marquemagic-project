@@ -14,11 +14,7 @@ import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 
-import {
-	setLoginCreateUserRes,
-	toggleTestMode,
-	setSelectedSectionId,
-} from 'store/appSlice';
+import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
 import { removeCacheDocument } from 'store/applicantCoApplicantsSlice';
 import {
 	addCacheDocuments,
@@ -50,12 +46,10 @@ const BuissnessDetails = props => {
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		isTestMode,
 		selectedSection,
 		whiteLabelId,
 		clientToken,
 		userToken,
-		isLocalhost,
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
@@ -861,13 +855,6 @@ const BuissnessDetails = props => {
 							<>
 								<Button name='Next' onClick={naviagteToNextSection} fill />
 							</>
-						)}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
 						)}
 					</UI_SECTIONS.Footer>
 				</>

@@ -1,5 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_END_POINT } from '_config/app.config';
+import axios from 'axios';
 import _ from 'lodash';
+
+import {
+	getDirectorFullName,
+	getShortString,
+	isDirectorApplicant,
+} from 'utils/formatData';
 
 const initialDirectorsObject = {
 	// if length of sections is 3 then it's validated
@@ -15,14 +23,15 @@ const initialDirectorsObject = {
 };
 
 const initialState = {
-	directors: _.cloneDeep(initialDirectorsObject),
+	directors: {},
+	fetchingDirectors: false,
+	fetchingDirectorsSuccess: false,
+	fetchingDirectorsErrorMessage: false,
 	selectedDirector: {},
 	selectedDirectorId: '',
-	isApplicant: false,
-	isEntity: false,
-	profileGeoLocation: {},
-	documentSelfieGeolocation: {},
-	geotaggingMandatory: [],
+	selectedDirectorIsApplicant: false,
+	selectedDirectorIsEntity: false,
+	addNewDirectorKey: '',
 	directorSectionsIds: [
 		'basic_details',
 		'address_details',
@@ -30,75 +39,107 @@ const initialState = {
 	],
 };
 
-const isApplicant = director => {
-	return director?.type_name === 'Applicant';
-	// item.type_name === 'Director' ||
-	// item.type_name === 'Partner' ||
-	// item.type_name === 'Member' ||
-	// item.type_name === 'Proprietor'
-};
+export const getDirectors = createAsyncThunk(
+	'getDirectors',
+	async (businessId, { rejectWithValue }) => {
+		try {
+			const directorsRes = await axios.get(
+				`${API_END_POINT}/director_details?business_id=${businessId}`
+			);
+			return directorsRes?.data?.data || [];
+		} catch (error) {
+			return rejectWithValue(error.message);
+		}
+	}
+);
 
 export const directorsSlice = createSlice({
 	name: 'directors',
 	initialState,
-	reducers: {
-		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
-		setDirectors: (state, action) => {
-			const newDirectors = _.cloneDeep(initialDirectorsObject);
-			let newSelectedDirector = _.cloneDeep(initialDirectorsObject);
-			action?.payload?.map((director, directorIndex) => {
-				if (directorIndex === 0) newSelectedDirector = director;
-				const fullName = [];
-				if (director.dfirstname) fullName.push(director.dfirstname);
-				if (director.dlastname) fullName.push(director.dlastname);
-				newDirectors[director.id] = {
+	extraReducers: {
+		[getDirectors.pending]: state => {
+			state.fetchingDirectors = true;
+		},
+		[getDirectors.fulfilled]: (state, { payload }) => {
+			state.fetchingDirectors = false;
+			state.fetchingDirectorsSuccess = true;
+			const newDirectors = {};
+			let selectedDefaultDirector = {};
+			const sortedDirectors = payload?.sort(
+				(a, b) => a?.type_name - b?.type_name
+			);
+			sortedDirectors?.map((director, directorIndex) => {
+				const fullName = getDirectorFullName(director);
+				const newDirectorObject = {
+					..._.cloneDeep(initialDirectorsObject),
+					...director,
 					label: `${director.type_name}`,
-					fullName: fullName.join(' '),
+					fullName: getDirectorFullName(director),
+					shortName: getShortString(fullName, 10),
 				};
+				newDirectors[director.id] = newDirectorObject;
+				if (directorIndex === 0) {
+					selectedDefaultDirector = newDirectorObject;
+				}
 				return null;
 			});
 			state.directors = newDirectors;
-			state.selectedDirector = newSelectedDirector;
-			state.selectedDirectorId = `${newSelectedDirector.id}`;
-			state.isApplicant = isApplicant(newSelectedDirector);
-		},
-		setDirector: (state, action) => {
-			if (state.directors[action.payload.id]) {
-				state.directors[action.payload.id] = action.payload;
+			if (!state.selectedDirectorId) {
+				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
+				state.selectedDirector = selectedDefaultDirector;
+				state.selectedDirectorIsApplicant = isDirectorApplicant(
+					selectedDefaultDirector
+				);
 			}
 		},
-		setSelectedDirector: (state, action) => {
+		[getDirectors.rejected]: (state, { payload }) => {
+			state.fetchingDirectors = false;
+			state.fetchingDirectorsSuccess = false;
+			state.fetchingDirectorsErrorMessage = payload;
+		},
+	},
+	reducers: {
+		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
+		setDirector: (state, { payload }) => {
+			if (state.directors[payload.id]) {
+				state.directors[payload.id] = payload;
+			}
+		},
+		setAddNewDirectorKey: (state, { payload }) => {
+			state.addNewDirectorKey = payload;
+		},
+		setSelectedDirector: (state, { payload }) => {
 			// action.payload === directorid
-			const newDirectorId = `${action.payload}`;
+			const newDirectorId = `${payload}`;
 			const newSelectedDirector = state.directors[newDirectorId];
 			state.selectedDirectorId = newDirectorId;
 			state.selectedDirector = newSelectedDirector;
-			state.isApplicant = isApplicant(newSelectedDirector);
+			state.selectedDirectorIsApplicant = isDirectorApplicant(
+				newSelectedDirector
+			);
 			// state.isEntity = isEntity(newSelectedDirector);
 		},
-		setSelectedDirectorId: (state, action) => {
+		setSelectedDirectorId: (state, { payload }) => {
 			// action.payload === directorid
-			state.selectedDirectorId = action.payload;
+			state.selectedDirectorId = payload;
 		},
-		setSections: (state, action) => {
+		setSections: (state, { payload }) => {
 			if (
-				!state.directors[state.selectedDirectorId].sections.includes(
-					action.payload
-				) &&
-				action.payload
+				!state.directors[state.selectedDirectorId].sections.includes(payload) &&
+				payload
 			) {
 				if (state.directors[state.selectedDirectorId].sections.length === 2) {
 					state.directors[
 						state.selectedDirectorId
 					].isMandatorySectionsCompleted = true;
 				}
-				state.directors[state.selectedDirectorId].sections.push(action.payload);
+				state.directors[state.selectedDirectorId].sections.push(payload);
 			}
 		},
 
 		// SET GEOLOCATION FOR PROFILE PICTURE
-		setProfileGeoLocation: (state, action) => {
-			const { address, lat, long, timestamp } = action.payload;
+		setProfileGeoLocation: (state, { payload }) => {
+			const { address, lat, long, timestamp } = payload;
 			let geoLocation = { address, lat, long, timestamp };
 			state.directors[
 				state.selectedDirectorId
@@ -106,8 +147,8 @@ export const directorsSlice = createSlice({
 		},
 
 		// SET SELFIE DOC GEOLOCATION
-		setDocumentSelfieGeoLocation: (state, action) => {
-			const { address, lat, long, timestamp } = action.payload;
+		setDocumentSelfieGeoLocation: (state, { payload }) => {
+			const { address, lat, long, timestamp } = payload;
 			let geoLocation = { address, lat, long, timestamp };
 			state.directors[
 				state.selectedDirectorId
@@ -115,28 +156,25 @@ export const directorsSlice = createSlice({
 		},
 
 		// REMOVE GEOLOCATION DETAILS ON DELETE OF SELFIE DOC
-		removeDocumentSelfieGeoLocation: (state, action) => {
+		removeDocumentSelfieGeoLocation: (state, { payload }) => {
 			state.directors[state.selectedDirectorId].documentSelfieGeolocation = {};
 		},
 
 		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
-		setGeotaggingMandatoryFields: (state, action) => {
-			const { directorId } = action.payload;
+		setGeotaggingMandatoryFields: (state, { payload }) => {
+			const { directorId } = payload;
 			if (
-				!state.directors[directorId].geotaggingMandatory.includes(
-					action.payload.field
-				)
+				!state.directors[directorId].geotaggingMandatory.includes(payload.field)
 			) {
-				state.directors[directorId].geotaggingMandatory.push(
-					action.payload.field
-				);
+				state.directors[directorId].geotaggingMandatory.push(payload.field);
 			}
 		},
 	},
 });
+
 export const {
 	reInitializeDirectorsSlice,
-	setDirectors,
+	setAddNewDirectorKey,
 	setDirector,
 	setSelectedDirector,
 	setSelectedDirectorId,
