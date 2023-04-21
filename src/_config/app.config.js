@@ -41,7 +41,7 @@ const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
 const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 
 const SECRET = process.env.REACT_APP_SECRET || '';
-const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}`;
+const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}&country=${'Country'}`;
 
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
 
