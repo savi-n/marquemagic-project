@@ -13,45 +13,54 @@ export const TableWrapper = styled.div`
 `;
 
 export const TableMainHeader = styled.div`
+	font-weight: bold;
+	color: #4e4e4e;
 	font-size: 1.2rem;
 	background-color: #f0f0f0;
 	padding: 13px;
 	border-radius: 5px;
-	margin-bottom: 20px;
 `;
 
 export const TableContainer = styled.div`
-	display: flex;
-	flex-direction: column;
+	padding: 15px;
 	width: 80%;
 	@media screen and (max-width: 768px) {
 		width: 100%;
+		overflow: auto;
 	}
 `;
 
-export const TableRow = styled.div`
+export const TableRow = styled.ul`
+	padding: 0;
+	width: 100%;
+	list-style: none;
 	display: flex;
-	flex-direction: row;
-
-	@media only screen and (max-width: 768px) {
-		flex-wrap: wrap;
-	}
+	justify-content: space-between;
 `;
 
 export const TableHeader = styled(TableRow)`
-	font-weight: bolder;
+	justify-content: start;
+	font-weight: bold;
 	color: #017cfe;
 `;
-
-export const TableCell = styled.div`
-	font-size: 1.1rem;
+export const HR = styled.hr`
+	margin-top: 15px;
+	height: 1.5px;
+	background: #f0f0f0;
+`;
+export const TableCell = styled.li`
+	display: flex;
+	padding: 5px 10px;
+	width: 25%;
 	align-self: center;
-	flex-basis: 0;
-	flex-grow: 1;
-	padding: 0.5rem;
+	word-break: break-all;
 
 	@media only screen and (max-width: 768px) {
 		word-wrap: break-word;
-		width: 30%;
+		min-width: 60%;
+
+		&:last-child {
+			min-width: fit-content;
+		}
 	}
 `;
