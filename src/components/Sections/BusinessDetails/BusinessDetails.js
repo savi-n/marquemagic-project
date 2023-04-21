@@ -90,6 +90,8 @@ const BuissnessDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
 	const [companyRocData, setCompanyRocData] = useState({});
+	const [isPrefilEmail,setisPrefilMobileNo]= useState(true);
+
 
 	const {
 		handleSubmit,
@@ -340,7 +342,9 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-
+	const handleBlur=()=>{
+		console.log("input blurred");
+	}
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
@@ -484,6 +488,7 @@ const BuissnessDetails = props => {
 						}}
 					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
+					{/* {console.log(formState.values.email)}; */}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -575,6 +580,7 @@ const BuissnessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
+
 										if (
 											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -632,6 +638,15 @@ const BuissnessDetails = props => {
 
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+										}
+										if(field.name==='contact_email'){
+											// console.log("Contact")
+											customFieldProps.onBlur={handleBlur}
+											if(isPrefilEmail){
+												// console.log(formState?.values?.email);
+												customFieldProps.value=formState.values.email
+											}
+											// customFieldProps.value=formState.values.email
 										}
 
 										return (
