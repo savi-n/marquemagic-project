@@ -19,9 +19,7 @@ import {
 	toggleTestMode,
 	setSelectedSectionId,
 } from 'store/appSlice';
-import { removeCacheDocument } from 'store/applicantCoApplicantsSlice';
 import {
-	addCacheDocuments,
 	setLoanIds,
 	updateApplicationSection,
 	setBusinessType,
@@ -30,17 +28,18 @@ import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getSelectedField,
+	getCompletedSections,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { getCompletedSections } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import Modal from 'components/Modal';
+import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 
 const BuissnessDetails = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
@@ -60,51 +59,38 @@ const BuissnessDetails = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		isDraftLoan,
-		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 		userDetails,
 	} = app;
 	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
-	const {
-		cacheDocuments,
 		borrowerUserId,
 		businessUserId,
 		businessId,
 		loanId,
 		businessType,
 		loanRefId,
-		sections,
 	} = application;
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 	const dispatch = useDispatch();
 	const [sectionData, setSectionData] = useState({});
-	// const [FetchSectionData, setFetchingSectionData] = useState(false);
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
-	// const [fetchingAddress, setFetchingAddress] = useState(false);
 	const [
 		isIncomeTypeConfirmModalOpen,
 		setIsIncomeTypeConfirmModalOpen,
 	] = useState(false);
 	const [gstin, setGstin] = useState([]);
 	const gst = gstin?.data?.data || [];
-	// console.log({ gstin, gst });
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
+	const [companyRocData, setCompanyRocData] = useState({});
+
 	const {
 		handleSubmit,
 		register,
@@ -116,17 +102,11 @@ const BuissnessDetails = props => {
 	const selectedIncomeType = 'business';
 	const completedSections = getCompletedSections({
 		selectedProduct,
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
 		application,
 		isEditOrViewLoan,
 		isEditLoan,
 		isDraftLoan,
-		applicantCoApplicantSectionIds,
 		editLoanDirectors,
-		selectedApplicant,
 	});
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -137,16 +117,7 @@ const BuissnessDetails = props => {
 	const panUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
-		)?.[0] ||
-		cacheDocuments?.filter(
-			doc =>
-				`${doc?.directorId}` === `${directorId}` &&
-				(doc?.is_delete_not_allowed === 'true' ||
-					doc?.is_delete_not_allowed === true) &&
-				doc?.doc_type_id ===
-					selectedPanUploadField?.doc_type?.[selectedIncomeType]
-		)?.[0] ||
-		null;
+		)?.[0] || null;
 	const tempPanUploadedFile = !!sectionData?.loan_document
 		? sectionData?.loan_document
 		: null;
@@ -156,7 +127,7 @@ const BuissnessDetails = props => {
 			setLoading(true);
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
-			// call login api only once
+			// call login craete user api only once while creating the loan
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
 			if (!isEditOrViewLoan && !borrowerUserId) {
@@ -185,9 +156,6 @@ const BuissnessDetails = props => {
 			} else {
 				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
-
-			// loan product is is only applicable for applicant
-			// it should not be overritten when coapplicant is income type is different then applicant
 			const selectedLoanProductId =
 				selectedProduct?.product_id?.[selectedIncomeType] || '';
 
@@ -205,6 +173,9 @@ const BuissnessDetails = props => {
 				newBorrowerUserId || businessUserId || borrowerUserId;
 
 			buissnessDetailsReqBody.data.business_details.loan_document = [];
+			if (Object.values(companyRocData)?.length > 0)
+				buissnessDetailsReqBody.data.business_details.corporateid =
+					companyRocData?.CIN;
 
 			const buissnessDetailsRes = await axios.post(
 				API.BUSINESS_DETIALS,
@@ -216,8 +187,7 @@ const BuissnessDetails = props => {
 			const newBusinessId =
 				buissnessDetailsRes?.data?.data?.business_data?.id ||
 				buissnessDetailsRes?.data?.data?.loan_data?.business_id;
-			// const newDirectorId =
-			// 	buissnessDetailsRes?.data?.data?.director_details?.id;
+
 			const newBusinessUserId =
 				buissnessDetailsRes?.data?.data?.business_data?.userid;
 			const newCreatedByUserId =
@@ -239,9 +209,6 @@ const BuissnessDetails = props => {
 									formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME]
 								],
 							is_delete_not_allowed: true,
-							// director_id: newDirectorId,
-							// directorId: newDirectorId,
-							preview: null,
 							document_id: doc?.requestId, // temp doc id as this doc is non deletable
 						});
 						return null;
@@ -262,11 +229,6 @@ const BuissnessDetails = props => {
 								},
 							}
 						);
-						dispatch(
-							addCacheDocuments({
-								files: uploadCacheDocumentsTemp,
-							})
-						);
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -279,9 +241,7 @@ const BuissnessDetails = props => {
 				},
 				businessType: formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME],
 			};
-			// newBuissnessDetails.directorId = newDirectorId;
-			newBuissnessDetails.cin =
-				applicantCoApplicants?.companyRocData?.CIN || '';
+			newBuissnessDetails.cin = companyRocData?.CIN || '';
 			dispatch(updateApplicationSection(newBuissnessDetails));
 			dispatch(
 				setLoanIds({
@@ -327,106 +287,8 @@ const BuissnessDetails = props => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
-		} else {
-			dispatch(
-				removeCacheDocument({
-					fieldName,
-				})
-			);
 		}
 	};
-
-	// const prefilledEditOrViewLoanValues = field => {
-	// 	if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
-	// 		const panFile = getEditLoanDocuments({
-	// 			documents: editLoanData?.loan_document,
-	// 			directorId: selectedApplicant?.directorId,
-	// 			docTypeId: field?.doc_type?.[selectedApplicant?.income_type],
-	// 		});
-	// 		return panFile[0];
-	// 	}
-	// 	const preData = {
-	// 		existing_customer: selectedApplicant?.existing_customer,
-	// 		pan_number: selectedApplicant?.dpancard,
-	// 		customer_id: selectedApplicant?.customer_id,
-	// 		buissness_name: selectedApplicant?.buissness_name,
-	// 		buissness_type: selectedApplicant?.buissness_type,
-	// 		business_vintage: selectedApplicant?.business_vintage,
-	// 		gstin: selectedApplicant?.gstin,
-	// 		annual: selectedApplicant?.annual,
-	// 		buissness_mobile_number: selectedApplicant?.buissness_mobile_number,
-	// 		buissness_email: selectedApplicant?.buissness_email,
-	// 	};
-	// 	return preData?.[field?.name];
-	// };
-	// console.log(selectedApplicant?.existing_customer)
-	// const prefilledValues = field => {
-	// 	try {
-	// 		// [Priority - 0]
-	// 		// view loan
-	// 		// in view loan user cannot edit any information
-	// 		// hence this is the first priority
-	// 		// so always prepopulate value from <editLoanData>
-	// 		if (isViewLoan) {
-	// 			return prefilledEditOrViewLoanValues(field) || '';
-	// 		}
-
-	// 		// [Priority - 1]
-	// 		// update value from form state
-	// 		// whenever user decides to type or enter value
-	// 		// form state should be the first value to prepopulate
-	// 		const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-	// 		if (isFormStateUpdated) {
-	// 			return formState?.values?.[field.name];
-	// 		}
-
-	// 		// TEST MODE
-	// 		if (isTestMode && CONST.initialFormState?.[field?.name]) {
-	// 			return CONST.initialFormState?.[field?.name];
-	// 		}
-	// 		// -- TEST MODE
-
-	// 		// [Priority - Special]
-	// 		// when director id is not created we prepopulate value from formstate only
-	// 		// and last priority is to set default value <field.value> comming from JSON
-	// 		if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-	// 			return formState?.values?.[field.name] || field.value || '';
-	// 		}
-
-	// 		// [Priority - 2]
-	// 		// fetch data from redux slice
-	// 		// this is to prefill value when user navigates backs
-	// 		// once user press proceed and submit api success
-	// 		// value is stored to redux and the same we can use to prepopulate
-	// 		if (
-	// 			Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
-	// 		) {
-	// 			return selectedApplicant?.[selectedSectionId]?.[field?.name];
-	// 		}
-
-	// 		// [Priority - 3]
-	// 		// fetch value from edit loan
-	// 		// this is to prefill value only once per section
-	// 		// ex: if user visits this section for first time we prepopulate value from <editLoanData>
-	// 		// and then when he moves to next section redux store will be ready with new updated values
-	// 		let editViewLoanValue = '';
-
-	// 		if (isEditLoan) {
-	// 			editViewLoanValue = prefilledEditOrViewLoanValues(field);
-	// 		}
-
-	// 		if (editViewLoanValue) return editViewLoanValue;
-
-	// 		// [Priority - 4]
-	// 		// finally last priority is for JSON value
-	// 		// this value will be always overwritten by other all priority
-	// 		// this scenario will only come in loan creation first time entering form
-	// 		// also we'll have fall back <''> empty value in case above all priority fails to prepopulate
-	// 		return field?.value || '';
-	// 	} catch (error) {
-	// 		return {};
-	// 	}
-	// };
 
 	const prefilledValues = field => {
 		try {
@@ -478,31 +340,11 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-	//Prepopulation after pan upload
-	// console.log(companyRocData);
-	// useEffect(() => {
-	// 	validateToken();
-	//   if(!!companyRocData){
-	//     const prefilledValues=field=>{
-	//       if (isTestMode && CONST.initialFormState?.[field?.name]) {
-	//         return CONST.initialFormSta<te?.[field?.name];
-	//       }
-	//     }
-	//   }
-	// });
+
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
-			// const fetchRes = await axios.get(
-			// 	`${API_END_POINT}/business_details?business_id=${businessId}&loan_id=${loanId}&doc_type_id=${
-			// 		selectedPanUploadField?.doc_type?.[4]
-			// 	}`
-			// );
-			// const fetchRes = await axios.get(
-			// 	`${API_END_POINT}/business_details?loan_ref_id=${loanRefId}&doc_type_id=${
-			// 		selectedPanUploadField?.doc_type?.[businessType]
-			// 	}`
-			// );
+
 			const fetchRes = await axios.get(`${API_END_POINT}/business_details`, {
 				params: {
 					loan_ref_id: loanRefId,
@@ -513,16 +355,35 @@ const BuissnessDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
+				if (
+					!!fetchRes?.data?.data?.company_master_data
+					// Object.values(fetchRes?.data?.data?.company_master_data)?.length > 0
+				)
+					setCompanyRocData(
+						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
+					);
 				if (!businessType)
 					dispatch(
 						setBusinessType(fetchRes?.data?.business_details?.businesstype)
 					);
+				if (isEditOrViewLoan) {
+					const responseData = fetchRes?.data?.data;
+					dispatch(
+						setLoanIds({
+							loanId: responseData?.loan_data?.id,
+							businessId:
+								responseData?.business_details?.id ||
+								responseData?.loan_data?.business_id?.id,
+						})
+					);
+				}
+
 				const panToGstRes = await axios.post(API.PAN_TO_GST, {
 					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 				});
 				setGstin(panToGstRes);
 			} else {
-				setSectionData([]);
+				setSectionData({});
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -565,7 +426,7 @@ const BuissnessDetails = props => {
 			) : (
 				<>
 					<ConfirmModal
-						type='Income'
+						type='Business'
 						show={isIncomeTypeConfirmModalOpen}
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
@@ -610,6 +471,18 @@ const BuissnessDetails = props => {
 							</UI.TableParentDiv>
 						</section>
 					</Modal>
+
+					<ROCBusinessDetailsModal
+						show={isBusinessModalOpen}
+						onClose={() => {
+							setIsBusinessModalOpen(false);
+						}}
+						companyDetails={companyRocData}
+						id={{
+							udyogAadhar,
+							pan: formState?.values?.[CONST.PAN_NUMBER_FIELD_NAME],
+						}}
+					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
@@ -628,17 +501,6 @@ const BuissnessDetails = props => {
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((f, fieldIndex) => {
 										const field = _.cloneDeep(f);
-										// disable fields based on config starts
-										// if (field?.hasOwnProperty('is_applicant')) {
-										// 	if (field.is_applicant === false && isApplicant) {
-										// 		return null;
-										// 	}
-										// }
-										// if (field?.hasOwnProperty('is_co_applicant')) {
-										// 	if (field.is_co_applicant === false && !isApplicant) {
-										// 		return null;
-										// 	}
-										// }
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -665,11 +527,6 @@ const BuissnessDetails = props => {
 												? ''
 												: panErrorMessage;
 
-											// console.log('pancard-error-msg-', {
-											// 	panErrorColorCode,
-											// 	panErrorMessage,
-											// });
-											// console.log(gstin);
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${fieldIndex}-${field.name}`}
@@ -694,6 +551,7 @@ const BuissnessDetails = props => {
 															onChangeFormStateField={onChangeFormStateField}
 															clearErrorFormState={clearErrorFormState}
 															isDisabled={isViewLoan}
+															setCompanyRocData={setCompanyRocData}
 														/>
 
 														{panErrorMessage && (
@@ -717,13 +575,23 @@ const BuissnessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
-										if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+										if (
+											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
+										) {
 											customFieldProps.rules = {
 												...field.rules,
 												is_zero_not_allowed_for_first_digit: true,
 											};
 										}
-
+										if (
+											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
+												field?.name ===
+													CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME) &&
+											(isEditOrViewLoan ||
+												completedSections?.includes(selectedSectionId))
+										) {
+											customFieldProps.disabled = true;
+										}
 										if (
 											field?.name === CONST.GSTIN_FIELD_NAME &&
 											gstin?.data?.data?.length > 0 &&
@@ -756,27 +624,16 @@ const BuissnessDetails = props => {
 										}
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&
-											(isEditOrViewLoan || !!sections?.[selectedSectionId])
+											(isEditOrViewLoan ||
+												completedSections?.includes(selectedSectionId))
 										) {
 											customFieldProps.disabled = true;
 										}
-										// }
-										// if (
-										// 	selectedApplicant?.directorId &&
-										// 	field.name === CONST.INCOME_TYPE_FIELD_NAME
-										// )
-										// 	customFieldProps.disabled = true;
+
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
 
-										// if (
-										// 	field?.name === 'udhyog_number' &&
-										// 	(formState?.values?.['udhyog_number'] === '' ||
-										// 		udyogAadhar === '')
-										// ) {
-										// 	return null;
-										// }
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -840,6 +697,21 @@ const BuissnessDetails = props => {
 						);
 					})}
 					<UI_SECTIONS.Footer>
+						{/* {console.log({
+							companyRocData,
+							sectionData,
+							loanId,
+							businessId,
+							loanRefId,
+						})} */}
+						{Object.values(companyRocData)?.length > 0 && (
+							<Button
+								name={'Business Details'}
+								onClick={() => {
+									setIsBusinessModalOpen(true);
+								}}
+							/>
+						)}
 						{!isViewLoan && (
 							<Button
 								fill
@@ -847,8 +719,6 @@ const BuissnessDetails = props => {
 								isLoader={loading}
 								disabled={loading}
 								onClick={handleSubmit(() => {
-									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
-									// so avoid opening income type popup at below condition
 									if (isEditOrViewLoan) {
 										onProceed();
 										return;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 // import _ from 'lodash';
 import axios from 'axios';
@@ -11,7 +11,6 @@ import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
 import Button from 'components/Button';
 
-import { setCompanyRocData } from 'store/applicantCoApplicantsSlice';
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
 // import { isBusinessPan } from 'utils/helper';
@@ -51,6 +50,7 @@ const PanUpload = props => {
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		isDisabled,
+		setCompanyRocData,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const { selectedProduct, clientToken, selectedSectionId } = app;
@@ -78,7 +78,6 @@ const PanUpload = props => {
 	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	const dispatch = useDispatch();
 	// const panExtractionResTemp =
 	// 	cacheDocumentsTemp.filter(
 	// 		doc => doc.field.name === CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME
@@ -457,7 +456,7 @@ const PanUpload = props => {
 				companyData,
 				confirmPanNumber
 			);
-			dispatch(setCompanyRocData(formattedCompanyData));
+			setCompanyRocData(formattedCompanyData);
 			// prepopulation starts
 			onChangeFormStateField({
 				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
