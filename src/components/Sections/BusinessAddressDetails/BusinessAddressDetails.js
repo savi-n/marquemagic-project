@@ -101,8 +101,11 @@ const BusinessAddressDetails = props => {
 					gst: fetchRes?.data?.data?.gstin,
 					uan: fetchRes?.data?.data?.udyam_number,
 				});
-				fetchAllGstNumbers(fetchRes?.data?.data?.pan);
+				if (!fetchRes?.data?.data?.udyam_number)
+					fetchAllGstNumbers(fetchRes?.data?.data?.pan);
 				// populateFromResponse(address);
+			} else {
+				setSectionData([]);
 			}
 		} catch (error) {
 			console.error('error-BusinessAddressDetails', {
