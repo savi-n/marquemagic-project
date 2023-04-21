@@ -70,7 +70,7 @@ const PanUpload = props => {
 	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
-	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(false);
+	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(true);
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -597,10 +597,9 @@ const PanUpload = props => {
 				onClose={() => {
 					setIsUdyogModalOpen(false);
 				}}
-				width='20%'
-				height='30%'
+				customStyle={{ minHeight: '40%' }}
 			>
-				<section>
+				<section className='p-4 flex-row gap-y-4'>
 					<UI.ImgClose
 						onClick={() => {
 							setIsUdyogModalOpen(false);
@@ -608,47 +607,53 @@ const PanUpload = props => {
 						src={imgClose}
 						alt='close'
 					/>
-					<span>Udyog Aadhar</span>
-					<InputField
-						name='Udyog Aadhar'
-						value={udyogAadhar}
-						onChange={e => {
-							setUdyogAadhar(e.target.value);
-						}}
-					/>
-					<Button
-						name='Proceed'
-						fill
-						isLoader={loading}
-						onClick={() => {
-							onChangeFormStateField({
-								name: 'udyam_number',
-								value: udyogAadhar,
-							});
-							onProceedUdyogAadhar(udyogAadhar);
-						}}
-						disabled={loading}
-						style={{
-							alignText: 'center',
-						}}
-					/>
-					<Button
-						name='Skip'
-						fill
-						isLoader={loading}
-						onClick={() => {
-							onChangeFormStateField({
-								name: 'udhyog_number',
-								value: '',
-							});
-							setUdyogAadhar('');
-							setIsUdyogModalOpen(false);
-						}}
-						disabled={loading}
-						style={{
-							alignText: 'center',
-						}}
-					/>
+					<UI.Title>Udyog Aadhar</UI.Title>
+					<UI.Field>
+						<InputField
+							name='Udyog Aadhar'
+							value={udyogAadhar}
+							onChange={e => {
+								setUdyogAadhar(e.target.value);
+							}}
+						/>
+					</UI.Field>
+					<UI.ButtonWrapper>
+						<Button
+							name='Proceed'
+							fill
+							isLoader={loading}
+							onClick={() => {
+								onChangeFormStateField({
+									name: 'udyam_number',
+									value: udyogAadhar,
+								});
+								onProceedUdyogAadhar(udyogAadhar);
+							}}
+							disabled={loading}
+							customStyle={{
+								// alignText: 'center',
+								margin: '10px',
+							}}
+						/>
+						<Button
+							name='Skip'
+							fill
+							isLoader={loading}
+							onClick={() => {
+								onChangeFormStateField({
+									name: 'udhyog_number',
+									value: '',
+								});
+								setUdyogAadhar('');
+								setIsUdyogModalOpen(false);
+							}}
+							disabled={loading}
+							customStyle={{
+								// alignText: 'center',
+								margin: '10px',
+							}}
+						/>
+					</UI.ButtonWrapper>
 				</section>
 			</Modal>
 			<Modal
@@ -778,9 +783,9 @@ const PanUpload = props => {
 											removeCacheDocumentTemp(field.name);
 											setGstin([]);
 											onChangeFormStateField({
-												name:'gstin',
-												value:'',
-											})
+												name: 'gstin',
+												value: '',
+											});
 											onChangeFormStateField({
 												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 												value: '',
