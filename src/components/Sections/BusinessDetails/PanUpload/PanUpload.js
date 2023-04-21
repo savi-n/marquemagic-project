@@ -70,7 +70,7 @@ const PanUpload = props => {
 	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
-	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(true);
+	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
