@@ -46,6 +46,7 @@ const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pi
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
 
 const PAN_TO_GST = `${API_END_POINT}/api/panToGst`;
+const ADD_MULTIPLE_DIRECTOR = `${API_END_POINT}/addMultipleDirector`;
 
 const BUSSINESS_LOAN_CASE_CREATION = `${API_END_POINT}/casecreation_uiux`;
 const BUSSINESS_LOAN_CASE_CREATION_EDIT = `${API_END_POINT}/loan/edit/`;
@@ -181,6 +182,7 @@ export {
 	DOCTYPES_FETCH,
 	APP_CLIENT,
 	SECRET,
+	ADD_MULTIPLE_DIRECTOR,
 	DOCS_UPLOAD_URL_LOAN,
 	REDIRECT_CREATE,
 	CIN_UPDATE,

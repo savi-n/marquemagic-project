@@ -781,6 +781,7 @@ const PanUpload = props => {
 											e.stopPropagation();
 											removeCacheDocumentTemp(field.name);
 											setGstin([]);
+											setCompanyRocData({});
 											onChangeFormStateField({
 												name: 'gstin',
 												value: '',
