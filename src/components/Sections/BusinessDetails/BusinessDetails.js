@@ -173,7 +173,7 @@ const BuissnessDetails = props => {
 				newBorrowerUserId || businessUserId || borrowerUserId;
 
 			buissnessDetailsReqBody.data.business_details.loan_document = [];
-			if (Object.values(companyRocData)?.length > 0)
+			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
 
@@ -574,6 +574,7 @@ const BuissnessDetails = props => {
 															clearErrorFormState={clearErrorFormState}
 															isDisabled={isViewLoan}
 															setCompanyRocData={setCompanyRocData}
+															completedSections={completedSections}
 														/>
 
 														{panErrorMessage && (
@@ -726,7 +727,7 @@ const BuissnessDetails = props => {
 							businessId,
 							loanRefId,
 						})} */}
-						{Object.values(companyRocData)?.length > 0 && (
+						{!!companyRocData && Object.values(companyRocData)?.length > 0 && (
 							<Button
 								name={'Business Details'}
 								onClick={() => {

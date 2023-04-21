@@ -51,10 +51,16 @@ const PanUpload = props => {
 		removeCacheDocumentTemp,
 		isDisabled,
 		setCompanyRocData,
+		completedSections,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken, selectedSectionId } = app;
-	const { loanId, businessUserId, sections } = application;
+	const {
+		selectedProduct,
+		clientToken,
+		selectedSectionId,
+		isEditOrViewLoan,
+	} = app;
+	const { loanId, businessUserId } = application;
 	// const { companyRocData } = applicantCoApplicants;
 	// const {
 	// 	isApplicant,
@@ -509,15 +515,30 @@ const PanUpload = props => {
 				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: panExtractionData?.panNumber,
 			});
-			const VerifyUdyog = await axios.get(
-				`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
+			const verifyUdyogRes = await axios.get(
+				`${API.ENDPOINT_BANK}/get/udyam?udyamRegNo=${udyogAadharNumber}`,
 				{
 					headers: {
 						Authorization: clientToken,
 					},
 				}
 			);
-			return VerifyUdyog;
+			// console.log({ verifyUdyogRes });
+			// prepopulation using udyam
+			if (verifyUdyogRes?.data?.status === 'ok') {
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+					value: verifyUdyogRes?.data?.data?.nameOfEnterprise || '',
+				});
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+					value:
+						moment(verifyUdyogRes?.data?.data?.dateOfIncorporation).format(
+							'YYYY-MM-DD'
+						) || '',
+				});
+			}
+			return verifyUdyogRes;
 		} catch (e) {
 			setLoading(false);
 			addToast({
@@ -637,7 +658,6 @@ const PanUpload = props => {
 						<Button
 							name='Skip'
 							fill
-							isLoader={loading}
 							onClick={() => {
 								onChangeFormStateField({
 									name: 'udhyog_number',
@@ -772,32 +792,34 @@ const PanUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!uploadedFile?.document_id && !sections[selectedSectionId] && (
-									<UI.IconDelete
-										src={iconDelete}
-										alt='delete'
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											removeCacheDocumentTemp(field.name);
-											setGstin([]);
-											setCompanyRocData({});
-											onChangeFormStateField({
-												name: 'gstin',
-												value: '',
-											});
-											onChangeFormStateField({
-												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-												value: '',
-											});
-											onChangeFormStateField({
-												name: CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
-												value: '',
-											});
-											clearErrorFormState();
-										}}
-									/>
-								)}
+								{!uploadedFile?.document_id &&
+									!isEditOrViewLoan &&
+									!completedSections?.includes(selectedSectionId) && (
+										<UI.IconDelete
+											src={iconDelete}
+											alt='delete'
+											onClick={e => {
+												e.preventDefault();
+												e.stopPropagation();
+												removeCacheDocumentTemp(field.name);
+												setGstin([]);
+												setCompanyRocData({});
+												onChangeFormStateField({
+													name: 'gstin',
+													value: '',
+												});
+												onChangeFormStateField({
+													name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+													value: '',
+												});
+												onChangeFormStateField({
+													name: CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
+													value: '',
+												});
+												clearErrorFormState();
+											}}
+										/>
+									)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>
