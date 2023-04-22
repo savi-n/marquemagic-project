@@ -62,7 +62,7 @@ const PINCODE_PATH = 'pincode';
 
 export default function Pincode(props) {
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan } = app;
+	const { isViewLoan, permission } = app;
 	const { api } = application;
 	const { addToast } = useToasts();
 	const [processing, setProcessing] = useState(false);
@@ -101,7 +101,10 @@ export default function Pincode(props) {
 					selectedPincodeRes = api?.[PINCODE_PATH]?.[API_REQ_ID];
 				} else {
 					const pincodeRes = await axios.get(
-						PINCODE_ADRRESS_FETCH({ pinCode: value })
+						PINCODE_ADRRESS_FETCH({
+							pinCode: value,
+							Country: permission?.country,
+						})
 					);
 					if (pincodeRes.status === 'nok' || !pincodeRes) {
 						await addToast({ message: 'Invalid Pincode', type: 'error' });
