@@ -547,22 +547,6 @@ const AddressDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
-		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
-		}
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
 		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
 		// 	aadhaarOtpRes,

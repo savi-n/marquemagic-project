@@ -115,24 +115,6 @@ const EMIDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = { ...formState.values };
-		}
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prefilledEditOrViewLoanValues = field => {
 		// console.log('emi details', editLoanData);
 		const emiDetails = parseJSON(

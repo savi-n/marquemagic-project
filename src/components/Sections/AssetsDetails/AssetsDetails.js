@@ -26,13 +26,7 @@ const AssetsDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		isTestMode,
-		selectedSection,
-	} = app;
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');

@@ -193,22 +193,6 @@ const EmploymentDetails = () => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
-		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
-		}
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prefilledEditOrViewLoanValues = field => {
 		const selectedEmploymentData =
 			selectedApplicant?.employment_data?.[0] || {};

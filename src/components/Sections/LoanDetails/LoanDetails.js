@@ -246,17 +246,6 @@ const LoanDetails = () => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prefilledEditOrViewLoanValues = field => {
 		const imdDetails = sectionData?.imd_details || {};
 		const loanDetails = sectionData?.loan_details || {};

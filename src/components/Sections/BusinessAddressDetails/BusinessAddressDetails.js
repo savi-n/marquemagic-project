@@ -342,18 +342,6 @@ const BusinessAddressDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prefilledValues = field => {
 		try {
 			const address = sectionData?.filter(address => address?.aid === 1)?.[0];
