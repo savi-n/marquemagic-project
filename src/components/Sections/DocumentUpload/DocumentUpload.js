@@ -120,6 +120,7 @@ const DocumentUpload = props => {
 	const applicantMobileNumber =
 		applicant?.basic_details?.mobile_no || applicant?.dcontact;
 	const { addToast } = useToasts();
+	const [submittingOtp, setSubmittingOtp] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [savingComments, setSavingComments] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
@@ -548,7 +549,9 @@ const DocumentUpload = props => {
 								!file?.loan_document_details?.[0]?.lat &&
 								!file?.loan_document_details?.[0]?.long
 							) {
-								setGeoLocationData({ err: 'Geo Location Not Captured' });
+								setGeoLocationData({
+									err: 'Geo Location Not Captured',
+								});
 								dispatch(
 									setDocumentSelfieGeoLocation({
 										err: 'Geo Location Not Captured',
@@ -647,6 +650,7 @@ const DocumentUpload = props => {
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
+			setSubmittingOtp(true);
 			// console.log('step-1');
 			const check = validateGeoTaggedDocsForApplicantCoapplicant();
 			// console.log('step-2', { check });
@@ -671,7 +675,6 @@ const DocumentUpload = props => {
 			// console.log('step-7');
 			if (!isFormValid()) return;
 			// console.log('step-8');
-			setSubmitting(true);
 			await onSubmitCompleteApplication();
 			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
@@ -701,9 +704,10 @@ const DocumentUpload = props => {
 				type: 'error',
 			});
 		} finally {
-			setSubmitting(false);
+			setSubmittingOtp(false);
 		}
 	};
+	// console.log(submittingOtp);
 
 	const isFormValid = () => {
 		let isDocTypeUnTagged = false;
@@ -935,10 +939,10 @@ const DocumentUpload = props => {
 					width: '200px',
 					background: 'blue',
 				}}
-				isLoader={submitting}
-				disabled={submitting || buttonDisabledStatus()}
+				isLoader={submittingOtp || submitting}
+				disabled={submittingOtp || submitting || buttonDisabledStatus()}
 				onClick={() => {
-					if (submitting) return;
+					if (submittingOtp && submitting) return;
 					onSubmitOtpAuthentication();
 				}}
 			/>
@@ -1390,7 +1394,10 @@ const DocumentUpload = props => {
 
 			{totalMandatoryDocumentCount > 0 ? (
 				<UI.CollapseHeader
-					style={{ marginBottom: 20, borderBottom: '3px solid #eee' }}
+					style={{
+						marginBottom: 20,
+						borderBottom: '3px solid #eee',
+					}}
 				>
 					<UI.CategoryNameHeader>
 						<span style={{ color: 'red' }}>*</span> Mandatory
