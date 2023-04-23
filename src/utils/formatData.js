@@ -532,6 +532,14 @@ export const getApplicantCoApplicantSelectOptions = data => {
 	return options;
 };
 
+export const getAllCompletedSections = data => {
+	const { application, selectedDirector } = data;
+	return [
+		...(application?.sections || []),
+		...(selectedDirector?.sections || []),
+	];
+};
+
 export const getCompletedSections = data => {
 	const {
 		selectedProduct,

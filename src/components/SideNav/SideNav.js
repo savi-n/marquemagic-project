@@ -12,69 +12,45 @@ import {
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
-import { useToasts } from 'components/Toast/ToastProvider';
+// import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
-import { validateEmploymentDetails } from 'utils/formatData';
+import { getAllCompletedSections } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
-import { getCompletedSections } from 'utils/formatData';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
 import * as CONST from './const';
 
 const SideNav = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const { selectedDirector } = useSelector(state => state.directors);
 	const {
 		selectedProduct,
 		selectedSectionId,
 		applicantCoApplicantSectionIds,
 		isEditOrViewLoan,
 		isViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		editLoanDirectors,
 	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { addToast } = useToasts();
+	// const { addToast } = useToasts();
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
 	const isApplicationSubmitted =
 		selectedSectionId === CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID;
 
-	const completedSections = getCompletedSections({
-		selectedProduct,
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
+	const completedSections = getAllCompletedSections({
 		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		applicantCoApplicantSectionIds,
-		editLoanDirectors,
-		selectedApplicant,
+		selectedDirector,
 	});
 
-	// console.log('SideNav-allStates-', {
-	// 	app,
-	// 	selectedProduct,
-	// 	completedSections,
-	// 	selectedApplicant,
-	// });
+	console.log('SideNav-allStates-', {
+		app,
+		selectedProduct,
+		completedSections,
+		selectedDirector,
+	});
 
 	return (
 		<Fragment>
@@ -136,33 +112,34 @@ const SideNav = props => {
 												)
 													return;
 
-												if (!isViewLoan && isCompleted) {
-													let isValid;
-													if (
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
-													) {
-														isValid = validateEmploymentDetails({
-															coApplicants,
-															isApplicant,
-														});
-													}
-													if (
-														isValid === false &&
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
-													) {
-														addToast({
-															message:
-																'Please fill all the details in Co-Applicant-' +
-																Object.keys(coApplicants)?.length,
-															type: 'error',
-														});
-														return;
-													}
-												}
+												// TODO: varun applay new logic for validation
+												// if (!isViewLoan && isCompleted) {
+												// 	let isValid;
+												// 	if (
+												// 		!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+												// 			section?.id
+												// 		)
+												// 	) {
+												// 		isValid = validateEmploymentDetails({
+												// 			coApplicants,
+												// 			isApplicant,
+												// 		});
+												// 	}
+												// 	if (
+												// 		isValid === false &&
+												// 		!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
+												// 			section?.id
+												// 		)
+												// 	) {
+												// 		addToast({
+												// 			message:
+												// 				'Please fill all the details in Co-Applicant-' +
+												// 				Object.keys(coApplicants)?.length,
+												// 			type: 'error',
+												// 		});
+												// 		return;
+												// 	}
+												// }
 
 												if (isCompleted || isActive) {
 													dispatch(setSelectedSectionId(section.id));

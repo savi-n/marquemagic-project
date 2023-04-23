@@ -16,17 +16,10 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
+import { setProfileGeoLocation } from 'store/directorsSlice';
 import {
-	updateApplicantSection,
-	updateCoApplicantSection,
+	// addOrUpdateCacheDocument,
 	// addCacheDocuments,
-	removeCacheDocument,
-	setSelectedApplicantCoApplicantId,
-	setProfileGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
-import {
-	addOrUpdateCacheDocument,
-	addCacheDocuments,
 	setLoanIds,
 	setGeoLocation,
 } from 'store/applicationSlice';
@@ -298,11 +291,11 @@ const BasicDetails = props => {
 					newProfileData?.uploaded_doc_name ||
 					newProfileData?.original_doc_name;
 
-				dispatch(
-					addOrUpdateCacheDocument({
-						file: newProfileData,
-					})
-				);
+				// dispatch(
+				// 	addOrUpdateCacheDocument({
+				// 		file: newProfileData,
+				// 	})
+				// );
 			}
 			if (cacheDocumentsTemp.length > 0) {
 				try {
@@ -337,11 +330,11 @@ const BasicDetails = props => {
 								},
 							}
 						);
-						dispatch(
-							addCacheDocuments({
-								files: uploadCacheDocumentsTemp,
-							})
-						);
+						// dispatch(
+						// 	addCacheDocuments({
+						// 		files: uploadCacheDocumentsTemp,
+						// 	})
+						// );
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -370,12 +363,12 @@ const BasicDetails = props => {
 			};
 
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newBasicDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newBasicDetails));
-				dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
-			}
+			// if (isApplicant) {
+			// dispatch(updateApplicantSection(newBasicDetails));
+			// } else {
+			// dispatch(updateCoApplicantSection(newBasicDetails));
+			// dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
+			// }
 			dispatch(
 				setLoanIds({
 					loanRefId: newLoanRefId,
@@ -474,8 +467,6 @@ const BasicDetails = props => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
-		} else {
-			dispatch(removeCacheDocument({ fieldName }));
 		}
 	};
 
