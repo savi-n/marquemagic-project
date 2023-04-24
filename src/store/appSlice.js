@@ -112,12 +112,12 @@ export const appSlice = createSlice({
 			state.selectedProduct = {
 				...action.payload,
 				idBase64: encryptBase64(action.payload.id),
-				isSelectedProductTypeBusiness: action.payload.loan_req_type === 1,
-				isSelectedProductTypeSalaried: action.payload.loan_req_type === 2,
+				isSelectedProductTypeBusiness: action.payload.loan_request_type === 1,
+				isSelectedProductTypeSalaried: action.payload.loan_request_type === 2,
 			};
 			const newApplicantCoApplicantSectionIds = [];
 			let newFirstSectionId = '';
-			action.payload.product_details.sections.map((section, sectionIndex) => {
+			action.payload.product_details?.sections?.map((section, sectionIndex) => {
 				if (sectionIndex === 0) newFirstSectionId = section.id;
 				if (section.is_applicant)
 					newApplicantCoApplicantSectionIds.push(section.id);
@@ -132,7 +132,8 @@ export const appSlice = createSlice({
 				section => section?.id === action.payload
 			);
 			const newSelectedSection =
-				state?.selectedProduct?.product_details?.sections[selectedIndex] || {};
+				state?.selectedProduct?.product_details?.sections?.[selectedIndex] ||
+				{};
 			const newPrevSectionId =
 				state?.selectedProduct?.product_details?.sections?.[selectedIndex - 1]
 					?.id || '';

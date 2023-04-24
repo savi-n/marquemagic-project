@@ -11,6 +11,7 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
+import DisabledTextFieldModal from 'components/inputs/GstinField';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
@@ -336,10 +337,9 @@ export default function useForm() {
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
-
 		if (
 			newField?.name?.includes('bank_name') ||
-			newField.type.includes('bank')
+			newField?.type?.includes('bank')
 		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
@@ -652,6 +652,10 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
+		case 'disabledtextfieldmodal': {
+			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
+		}
+		//DisabledTextFieldModal
 		case 'button': {
 			return (
 				<Button
@@ -669,6 +673,7 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
+
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{/* {field?.inrupees && (

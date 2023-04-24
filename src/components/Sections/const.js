@@ -17,6 +17,10 @@ export const ADDRESS_DETAILS_SECTION_ID = 'loan_address_details';
 export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 
+//for sme flow
+export const BUSINESS_DETAILS_SECTION_ID = 'business_details';
+export const BUSINESS_ADDRESS_SECTION_ID = 'address_details';
+
 export const INITIAL_SECTION_IDS = [
 	BASIC_DETAILS_SECTION_ID,
 	ADDRESS_DETAILS_SECTION_ID,

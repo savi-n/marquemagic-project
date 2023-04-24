@@ -15,6 +15,7 @@ const initialState = {
 	loanRefId: '',
 	loanId: '',
 	businessId: '',
+	businessType: '',
 	businessUserId: '',
 	loanProductId: '',
 	createdByUserId: '',
@@ -26,7 +27,7 @@ const initialState = {
 	emiDetailsFinId: '',
 	businessAddressIdAid1: '',
 	businessAddressIdAid2: '',
-	sections: {},
+	sections: [],
 	documents: [],
 	cacheDocuments: [],
 	allDocumentTypes: [],
@@ -77,20 +78,11 @@ export const applicantSlice = createSlice({
 				state.businessAddressIdAid2 = businessAddressIdAid2;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
-		updateApplicationSection: (state, action) => {
-			const {
-				sectionId,
-				sectionValues,
-				loanAssetsId,
-				assetsAdditionalId,
-				refId1,
-				refId2,
-			} = action.payload;
-			state.sections[sectionId] = sectionValues;
-			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
-			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
-			if (refId1) state.refId1 = refId1;
-			if (refId2) state.refId2 = refId2;
+		setCompletedApplicationSection: (state, { payload }) => {
+			// payload === sectionId
+			if (!state.sections.includes(payload)) {
+				state.sections.push(payload);
+			}
 		},
 
 		// CACHE DOCUMENT RELATED ACTIONS
@@ -294,6 +286,9 @@ export const applicantSlice = createSlice({
 		setIsPrompted: (state, action) => {
 			state.prompted = action.payload;
 		},
+		setBusinessType: (state, action) => {
+			state.businessType = action.payload;
+		},
 	},
 });
 
@@ -301,7 +296,7 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
-	updateApplicationSection,
+	setCompletedApplicationSection,
 
 	addCacheDocument,
 	addOrUpdateCacheDocument,
@@ -316,6 +311,7 @@ export const {
 	clearAllCacheDocuments,
 
 	addAllDocumentTypes,
+	setBusinessType,
 
 	setCommentsForOfficeUse,
 	setIsPrompted,

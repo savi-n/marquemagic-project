@@ -10,12 +10,12 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
 	isFieldValid,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
@@ -39,47 +39,15 @@ const DynamicForm = props => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const prefilledEditOrViewLoanValues = field => {
-		// Sample PrefillData Object;
-		// 	{
-		// 		"id": 19315,
-		// 		"loan_id": 32830,
-		// 		"business_id": 1234581634,
-		// 		"fin_type": "Others",
-		// 		"bank_id": 0,
-		// 		"loan_type": 0,
-		// 		"outstanding_balance": 0,
-		// 		"outstanding_balance_unit": "",
-		// 		"outstanding_start_date": "",
-		// 		"outstanding_end_date": "",
-		// 		"ints": "2023-03-23T06:21:46.000Z",
-		// 		"account_type": null,
-		// 		"account_number": null,
-		// 		"account_limit": null,
-		// 		"account_holder_name": null,
-		// 		"limit_type": "Fixed",
-		// 		"sanction_drawing_limit": {},
-		// 		"IFSC": null,
-		// 		"director_id": 997290,
-		// 		"emi_details": "{\"description\":\"test\",\"liability_amount\":\"111\"}",
-		// 		"source": null,
-		// 		"subtype": null,
-		// 		"remaining_loan_tenure": null,
-		// 		"bank_remarks": null
-		// }
-		const preData = {
-			...prefillData,
-			liabilities_for: `${prefillData?.director_id || ''}`,
-			liabilities_type: prefillData?.fin_type || '',
-			loan_start_date: prefillData?.outstanding_start_date,
-			outstanding_loan_amount: prefillData?.outstanding_balance,
-			loan_type: prefillData?.subtype,
-			financial_institution: prefillData?.bank_id,
-		};
-		return preData?.[field?.name];
+		return prefillData?.[field?.name];
 	};
 
 	const prefilledValues = field => {
 		try {
+			if (isViewLoan) {
+				return prefilledEditOrViewLoanValues(field) || '';
+			}
+
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
@@ -93,7 +61,9 @@ const DynamicForm = props => {
 
 			let editViewLoanValue = '';
 
-			editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			if (isEditLoan) {
+				editViewLoanValue = prefilledEditOrViewLoanValues(field);
+			}
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -117,18 +87,18 @@ const DynamicForm = props => {
 				application,
 			});
 			if (editSectionId) {
-				reqBody.data.liability_details.id = editSectionId;
+				reqBody.data.bank_details.id = editSectionId;
 			}
-			if (
-				typeof reqBody?.data?.liability_details?.financial_institution
-					?.value === 'string'
-			) {
-				reqBody.data.liability_details.financial_institution = +reqBody?.data
-					?.liability_details?.financial_institution?.value;
+			let newBankId = reqBody.data.bank_details.bank_id;
+			// console.log('reqBody-before-', { newBankId });
+			if (typeof newBankId !== 'string' && typeof newBankId !== 'number') {
+				newBankId = newBankId?.value;
 			}
-			reqBody.data.liability_details = [reqBody.data.liability_details];
+			newBankId = `${newBankId}`;
+			reqBody.data.bank_details.bank_id = newBankId;
+			reqBody.data.bank_details = [reqBody.data.bank_details];
 			const submitRes = await axios.post(
-				`${API_END_POINT}/liability_details`,
+				`${API_END_POINT}/bank_details`,
 				reqBody
 			);
 			if (submitRes?.data?.status === 'ok') {
@@ -154,6 +124,7 @@ const DynamicForm = props => {
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
+	// 	prefillData,
 	// });
 
 	return (
@@ -165,12 +136,6 @@ const DynamicForm = props => {
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
-					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = getApplicantCoApplicantSelectOptions({
-							applicantCoApplicants,
-						});
-					}
-
 					if (isViewLoan) {
 						customFieldProps.disabled = true;
 					}

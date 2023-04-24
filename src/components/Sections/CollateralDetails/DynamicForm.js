@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
@@ -10,16 +10,16 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
 	isFieldValid,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
-		fields,
+		subSections = [],
 		onSaveOrUpdateSuccessCallback = () => {},
 		onCancelCallback = () => {},
 		prefillData = {},
@@ -39,41 +39,8 @@ const DynamicForm = props => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const prefilledEditOrViewLoanValues = field => {
-		// Sample PrefillData Object;
-		// 	{
-		// 		"id": 19315,
-		// 		"loan_id": 32830,
-		// 		"business_id": 1234581634,
-		// 		"fin_type": "Others",
-		// 		"bank_id": 0,
-		// 		"loan_type": 0,
-		// 		"outstanding_balance": 0,
-		// 		"outstanding_balance_unit": "",
-		// 		"outstanding_start_date": "",
-		// 		"outstanding_end_date": "",
-		// 		"ints": "2023-03-23T06:21:46.000Z",
-		// 		"account_type": null,
-		// 		"account_number": null,
-		// 		"account_limit": null,
-		// 		"account_holder_name": null,
-		// 		"limit_type": "Fixed",
-		// 		"sanction_drawing_limit": {},
-		// 		"IFSC": null,
-		// 		"director_id": 997290,
-		// 		"emi_details": "{\"description\":\"test\",\"liability_amount\":\"111\"}",
-		// 		"source": null,
-		// 		"subtype": null,
-		// 		"remaining_loan_tenure": null,
-		// 		"bank_remarks": null
-		// }
 		const preData = {
 			...prefillData,
-			liabilities_for: `${prefillData?.director_id || ''}`,
-			liabilities_type: prefillData?.fin_type || '',
-			loan_start_date: prefillData?.outstanding_start_date,
-			outstanding_loan_amount: prefillData?.outstanding_balance,
-			loan_type: prefillData?.subtype,
-			financial_institution: prefillData?.bank_id,
 		};
 		return preData?.[field?.name];
 	};
@@ -116,19 +83,18 @@ const DynamicForm = props => {
 				applicantCoApplicants,
 				application,
 			});
+			reqBody.data = [
+				{
+					collateral_details: reqBody.data.collateral_details,
+					property_address_details: reqBody.data.property_address_details,
+				},
+			];
 			if (editSectionId) {
-				reqBody.data.liability_details.id = editSectionId;
+				reqBody.data[0].id = editSectionId;
+				reqBody.data[0].assets_additional_id = editSectionId;
 			}
-			if (
-				typeof reqBody?.data?.liability_details?.financial_institution
-					?.value === 'string'
-			) {
-				reqBody.data.liability_details.financial_institution = +reqBody?.data
-					?.liability_details?.financial_institution?.value;
-			}
-			reqBody.data.liability_details = [reqBody.data.liability_details];
 			const submitRes = await axios.post(
-				`${API_END_POINT}/liability_details`,
+				`${API_END_POINT}/collateralData`,
 				reqBody
 			);
 			if (submitRes?.data?.status === 'ok') {
@@ -154,52 +120,58 @@ const DynamicForm = props => {
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
+	// 	prefillData,
 	// });
 
 	return (
 		<React.Fragment>
-			<UI_SECTIONS.FormWrapGrid>
-				{fields?.map((field, fieldIndex) => {
-					if (!isFieldValid({ field, formState, isApplicant })) {
-						return null;
-					}
-					const customFieldProps = {};
-					const newField = _.cloneDeep(field);
-					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = getApplicantCoApplicantSelectOptions({
-							applicantCoApplicants,
-						});
-					}
-
-					if (isViewLoan) {
-						customFieldProps.disabled = true;
-					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
-					return (
-						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
-							{register({
-								...newField,
-								value: prefilledValues(newField),
-								...customFieldProps,
-								visibility: 'visible',
+			{subSections?.map((subSection, subSectionIndex) => {
+				return (
+					<Fragment key={`subSection-${subSectionIndex}-${subSection?.id}`}>
+						{subSection?.name ? (
+							<UI_SECTIONS.SubSectionHeader>
+								{subSection.name}
+							</UI_SECTIONS.SubSectionHeader>
+						) : null}
+						<UI_SECTIONS.FormWrapGrid>
+							{subSection?.fields?.map((field, fieldIndex) => {
+								if (!isFieldValid({ field, formState, isApplicant })) {
+									return null;
+								}
+								const customFieldProps = {};
+								const newField = _.cloneDeep(field);
+								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
+								// console.log('render-field-', {
+								// 	field,
+								// 	customFieldProps,
+								// 	isViewLoan,
+								// 	newField,
+								// 	formState,
+								// });
+								return (
+									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
+										{register({
+											...newField,
+											value: prefilledValues(newField),
+											...customFieldProps,
+											visibility: 'visible',
+										})}
+										{(formState?.submit?.isSubmited ||
+											formState?.touched?.[newField.name]) &&
+											formState?.error?.[newField.name] && (
+												<UI_SECTIONS.ErrorMessage>
+													{formState?.error?.[newField.name]}
+												</UI_SECTIONS.ErrorMessage>
+											)}
+									</UI_SECTIONS.FieldWrapGrid>
+								);
 							})}
-							{(formState?.submit?.isSubmited ||
-								formState?.touched?.[newField.name]) &&
-								formState?.error?.[newField.name] && (
-									<UI_SECTIONS.ErrorMessage>
-										{formState?.error?.[newField.name]}
-									</UI_SECTIONS.ErrorMessage>
-								)}
-						</UI_SECTIONS.FieldWrapGrid>
-					);
-				})}
-			</UI_SECTIONS.FormWrapGrid>
+						</UI_SECTIONS.FormWrapGrid>
+					</Fragment>
+				);
+			})}
 			{!isViewLoan && (
 				<>
 					<Button

@@ -1,6 +1,7 @@
-/* Input field for Input type */
+/* Certain Input fields in the form are kept disabled as
+the data is extracted from extraction API and shouldnt be altered.
+For such fields, this disabledInput is created */
 
-// import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Input = styled.input`
@@ -28,8 +29,12 @@ const Input = styled.input`
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}
 // TODO: handler error
+//  ${({ error }) =>
+// 		error ? `border: 1px solid red; outline-color: red;` : ``}
+// TODO: handler error
 
 const Div = styled.div`
+	display: 'flex';
 	position: relative;
 	width: 100%;
 `;
@@ -90,52 +95,66 @@ const Label = styled.label`
   `}
 `;
 
-const Asteris = styled.span`
-	color: red;
-`;
-
-const Span = styled.span`
-	max-width: 100%;
-	max-height: 100%;
-`;
-
 const FieldPostfixIcon = styled.span`
+	display: flex;
 	position: absolute;
+	height: 2rem;
+	width: 2rem;
+	background: #dce2f7;
+	border-radius: 50%;
 	right: 0;
 	top: 0;
-	font-size: 12px;
-	color: grey;
+	font-size: 16px;
+	color: black;
 	line-height: 50px;
+	/* margin: 3% 3% 3% 3%; */
+	margin-top: 2%;
+	margin-bottom: 1%;
 	margin-right: 3%;
 	z-index: 10;
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
 `;
 
-export default function InputField(props) {
-	const isLargeTextLable = props?.name?.length > 15;
+export default function DisabledTextFieldModal(props) {
+	const { value, length } = props;
+	// console.log('DisabledTextFieldModal-', props);
 	return (
 		<Div>
 			<Input
+				value={!!value ? value : null}
 				id={props.name}
-				type={props.type}
+				placeholder={props.placeholder}
 				{...props}
-				onWheel={() => document.activeElement.blur()}
+				disabled
 			/>
 			<Label
-				isLargeTextLable={isLargeTextLable}
-				value={props.value}
 				htmlFor={props.name}
 				disabled={props.disabled}
+				style={{
+					color: 'black',
+				}}
+				value={value}
 			>
-				<Span>
-					{props.placeholder}{' '}
-					{props?.rules?.minValue && `min ${props?.rules?.minValue}`}
-					{props?.rules?.minValue && props?.rules?.maxValue ? ' - ' : ' '}
-					{props?.rules?.maxValue && `max ${props?.rules?.maxValue}`}
-					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
-				</Span>
-				{/* {props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>} */}
+				{props.placeholder}
+				{/* {!!value ? value : null} */}
 			</Label>
-			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
+			{length > 1 ? (
+				<FieldPostfixIcon onClick={props.onClick} state={true}>
+					+{length - 1}
+				</FieldPostfixIcon>
+			) : null}
 		</Div>
 	);
 }
+
+//var arr[100]
+// height: 25px;
+//   width: 25px;
+//   background-color: #bbb;
+//   border-radius: 50%;
+//   display: inline-block;
+//state= false
+//display=!!state?true:none

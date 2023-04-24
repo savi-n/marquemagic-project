@@ -109,21 +109,13 @@ export const formatSectionReqBody = data => {
 		const {
 			values,
 			app,
-			applicantCoApplicants,
+			selectedDirector,
 			application,
 			selectedLoanProductId,
+			isApplicant,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
-		const {
-			selectedApplicantCoApplicantId,
-			applicant,
-			coApplicants,
-			isApplicant,
-		} = applicantCoApplicants;
-		const selectedApplicant = isApplicant
-			? applicant
-			: coApplicants[selectedApplicantCoApplicantId] || {};
 		const subSectionsData = {};
 		selectedSection?.sub_sections?.map(sub_section => {
 			let sectionBody = {};
@@ -189,8 +181,8 @@ export const formatSectionReqBody = data => {
 			reqBody.business_id = businessId;
 		}
 
-		if (selectedApplicant?.directorId) {
-			reqBody.director_id = selectedApplicant?.directorId;
+		if (selectedDirector?.directorId) {
+			reqBody.director_id = selectedDirector?.directorId;
 		}
 		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
@@ -532,6 +524,18 @@ export const getApplicantCoApplicantSelectOptions = data => {
 	return options;
 };
 
+export const getAllCompletedSections = data => {
+	const { application, selectedDirector } = data;
+	let completedSections = [];
+	if (Array.isArray(application?.sections)) {
+		completedSections = [...completedSections, ...application?.sections];
+	}
+	if (Array.isArray(selectedDirector?.sections)) {
+		completedSections = [...completedSections, ...selectedDirector?.sections];
+	}
+	return completedSections;
+};
+
 export const getCompletedSections = data => {
 	const {
 		selectedProduct,
@@ -653,7 +657,7 @@ export const getDocumentCategoryName = type => {
 	return category;
 };
 
-export const getEditLoanLoanDocuments = data => {
+export const getEditLoanDocuments = data => {
 	const { documents, directorId, docTypeId } = data;
 	return documents?.filter(doc => {
 		if (
@@ -885,4 +889,26 @@ export const formatINR = value => {
 		style: 'currency',
 		currency: 'INR',
 	}).format(value);
+};
+
+export const isDirectorApplicant = director => {
+	return director?.type_name === 'Applicant';
+	// item.type_name === 'Director' ||
+	// item.type_name === 'Partner' ||
+	// item.type_name === 'Member' ||
+	// item.type_name === 'Proprietor'
+};
+
+export const getDirectorFullName = director => {
+	const fullName = [];
+	if (director.dfirstname) fullName.push(director.dfirstname);
+	if (director.dlastname) fullName.push(director.dlastname);
+	return fullName.join(' ');
+};
+
+export const getShortString = (str, max) => {
+	if (str.length > max) {
+		return str.slice(0, max) + '...';
+	}
+	return str;
 };

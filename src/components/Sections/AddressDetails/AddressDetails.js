@@ -4,20 +4,21 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import moment from 'moment';
 
 import Button from 'components/Button';
 import AadhaarOTPModal from './AadhaarOTPModal';
 import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
-import moment from 'moment';
+import NavigateCTA from 'components/Sections/NavigateCTA';
+
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
 	setVerifyOtpResponse,
 } from 'store/applicantCoApplicantsSlice';
 import { addOrUpdateCacheDocuments } from 'store/applicationSlice';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-
+import { setSelectedSectionId } from 'store/appSlice';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
@@ -57,18 +58,12 @@ const AddressDetails = props => {
 	} = application;
 	const {
 		isDraftLoan,
-		// isViewLoan,
-		// isEditLoan,
-		// isEditOrViewLoan,
-		// editLoanData,
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
 		clientToken,
 		selectedSection,
-		isLocalhost,
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
 	} = app;
@@ -213,12 +208,7 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(false);
 		}
 	};
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
+
 	const onProceed = async () => {
 		// onSkip();
 		// return;
@@ -555,23 +545,6 @@ const AddressDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(selectedApplicant?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
-		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
-		}
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
@@ -1124,25 +1097,7 @@ const AddressDetails = props => {
 						onClick={handleSubmit(onProceed)}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-
-				{/* buttons for easy development starts */}
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{!isViewLoan && (isLocalhost && !!isTestMode) && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-				{/* buttons for easy development ends */}
+				<NavigateCTA />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
