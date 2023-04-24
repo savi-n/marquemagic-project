@@ -1,15 +1,17 @@
 /* FIle upload details section. This section handles drag, drop
 of file, upload and deletion */
-
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Popover } from 'react-tiny-popover';
+import moment from 'moment';
+import _ from 'lodash';
+
 import CircularLoading from 'components/Loaders/Circular';
 import Button from 'components/Button';
 import Modal from 'components/Modal';
+import Hint from 'components/Hint';
 
 import generateUID from 'utils/uid';
 import { verifyKycDataUiUx } from 'utils/request';
@@ -22,13 +24,11 @@ import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import imgArrowDownCircle from 'assets/icons/drop_down_green-05.svg';
 import imgGreyCheck from 'assets/icons/grey_tick_icon.png';
 import imgGreenCheck from 'assets/icons/green_tick_icon.png';
+import GreenTick from 'assets/icons/green_tick_icon.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
-import Hint from 'components/Hint';
-import GreenTick from 'assets/icons/green_tick_icon.png';
-import moment from 'moment';
 
 const AddressProofUpload = props => {
 	const {
@@ -77,7 +77,6 @@ const AddressProofUpload = props => {
 		coApplicants,
 		isApplicant,
 	} = applicantCoApplicants;
-	// const selectedDirectorId = selectedApplicantCoApplicantId;
 	const selectedApplicant = isApplicant
 		? applicant
 		: coApplicants[selectedApplicantCoApplicantId] || {};

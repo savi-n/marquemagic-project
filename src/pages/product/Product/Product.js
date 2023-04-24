@@ -129,11 +129,11 @@ const Product = props => {
 		});
 	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
 
-	// useEffect(() => {
-	// 	console.log('Product-allStates-', {
-	// 		reduxState,
-	// 	});
-	// }, [reduxState]);
+	useEffect(() => {
+		console.log('Product-allStates-', {
+			reduxState,
+		});
+	}, [reduxState]);
 
 	const getBankList = () => {
 		try {

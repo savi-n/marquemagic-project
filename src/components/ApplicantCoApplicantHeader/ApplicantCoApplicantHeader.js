@@ -8,15 +8,9 @@ import Loading from 'components/Loading';
 import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
-import {
-	getDirectors,
-	// setDirectors,
-	setSelectedDirector,
-} from 'store/directorsSlice';
+import { getDirectors, setSelectedDirectorId } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { getApplicantNavigationDetails } from 'utils/formatData';
-// import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
@@ -152,7 +146,7 @@ const ApplicantCoApplicantHeader = props => {
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(firstSectionId));
 		}
-		dispatch(setSelectedDirector(id));
+		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 

@@ -25,7 +25,10 @@ import * as CONST from './const';
 
 const SideNav = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -50,6 +53,7 @@ const SideNav = props => {
 		selectedProduct,
 		completedSections,
 		selectedDirector,
+		application,
 	});
 
 	return (

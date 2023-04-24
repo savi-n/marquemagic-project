@@ -17,12 +17,7 @@ import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
 import { setProfileGeoLocation } from 'store/directorsSlice';
-import {
-	// addOrUpdateCacheDocument,
-	// addCacheDocuments,
-	setLoanIds,
-	setGeoLocation,
-} from 'store/applicationSlice';
+import { setLoanIds, setGeoLocation } from 'store/applicationSlice';
 import { getDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	formatSectionReqBody,
@@ -41,9 +36,10 @@ import * as CONST from './const';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { isApplicant, selectedDirector, selectedDirectorId } = useSelector(
+	const { isApplicant, directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -104,19 +100,6 @@ const BasicDetails = props => {
 		application,
 		selectedDirector,
 	});
-	// TODO Shreyas - Enable this in 1.4
-	// const panUploadedFile =
-	// 	cacheDocumentsTemp?.filter(
-	// 		doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
-	// 	)?.[0] ||
-	// 	cacheDocuments?.filter(
-	// 		doc =>
-	// 			doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
-	// 			(doc?.classification_sub_type ===
-	// 				CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
-	// 				`${directorId}`
-	// 	)?.[0] ||
-	// 	null;
 
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,

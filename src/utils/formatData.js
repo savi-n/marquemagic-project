@@ -486,34 +486,20 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 	};
 };
 
-export const getApplicantCoApplicantSelectOptions = data => {
-	const { applicantCoApplicants } = data;
-	const { applicant, coApplicants } = applicantCoApplicants;
+export const getSelectDirectorOptions = data => {
+	const { directors } = data;
 	const options = [];
-
-	const applicantFirstName =
-		applicant?.basic_details?.first_name || applicant?.dfirstname || '';
-	const applicantLastName =
-		applicant?.basic_details?.last_name || applicant?.dlastname || '';
-	const applicantName = [applicantFirstName, applicantLastName].join(' ');
-
-	options.push({
-		name: applicantName,
-		value: applicant?.directorId,
-	});
-	Object.keys(coApplicants).map(directorId => {
-		const coApplicantFirstName =
-			coApplicants?.[directorId]?.basic_details?.first_name ||
-			coApplicants?.[directorId]?.dfirstname ||
+	Object.keys(directors).map(directorId => {
+		const firstName =
+			directors?.[directorId]?.basic_details?.first_name ||
+			directors?.[directorId]?.dfirstname ||
 			'';
-		const coApplicantLastName =
-			coApplicants?.[directorId]?.basic_details?.last_name ||
-			coApplicants?.[directorId]?.dlastname ||
+		const lastName =
+			directors?.[directorId]?.basic_details?.last_name ||
+			directors?.[directorId]?.dlastname ||
 			'';
 
-		const coApplicantName = [coApplicantFirstName, coApplicantLastName].join(
-			' '
-		);
+		const coApplicantName = [firstName, lastName].join(' ');
 
 		options.push({
 			name: coApplicantName,

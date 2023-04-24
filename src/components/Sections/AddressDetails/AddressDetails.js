@@ -11,13 +11,6 @@ import AadhaarOTPModal from './AadhaarOTPModal';
 import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
 import NavigateCTA from 'components/Sections/NavigateCTA';
-
-import {
-	updateApplicantSection,
-	updateCoApplicantSection,
-	setVerifyOtpResponse,
-} from 'store/applicantCoApplicantsSlice';
-import { addOrUpdateCacheDocuments } from 'store/applicationSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -31,8 +24,9 @@ import {
 	getSelectedSubField,
 	getAllCompletedSections,
 } from 'utils/formatData';
-import { isInvalidAadhaar } from 'utils/validation';
 import { setLoanIds } from 'store/applicationSlice';
+import { setCompletedDirectorSection } from 'store/directorsSlice';
+import { isInvalidAadhaar } from 'utils/validation';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
@@ -45,9 +39,10 @@ import { useEffect } from 'react';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector, isApplicant } = useSelector(
+	const { selectedDirectorId, isApplicant, directors } = useSelector(
 		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		loanProductId,
 		loanId,
@@ -190,8 +185,6 @@ const AddressDetails = props => {
 	};
 
 	const onSaveAndProceed = async () => {
-		// onSkip();
-		// return;
 		try {
 			if (
 				!formState?.values?.present_city ||
@@ -276,28 +269,6 @@ const AddressDetails = props => {
 						}
 					}
 				}
-
-				// TODO: validate only for other documents
-				// if (
-				// 	!isPermanentSelectedAddressProofTypeAadhaar &&
-				// 	permanentCacheDocumentsTemp.length === 0
-				// ) {
-				// 	addToast({
-				// 		message: 'Please upload permanent address proof documents',
-				// 		type: 'error',
-				// 	});
-				// 	return;
-				// }
-				// if (
-				// 	!isSameAsAboveAddressChecked &&
-				// 	presentCacheDocumentsTemp.length === 0
-				// ) {
-				// 	addToast({
-				// 		message: 'Please upload present address proof documents',
-				// 		type: 'error',
-				// 	});
-				// 	return;
-				// }
 			}
 			setLoading(true);
 			const newLoanAddressDetails = [
@@ -477,39 +448,17 @@ const AddressDetails = props => {
 					console.error('error-', error);
 				}
 			}
-
-			// add all uploaded cache document to redux
 			dispatch(
-				addOrUpdateCacheDocuments({
-					files: [
-						...newKycUploadCacheDocumentsTemp,
-						...newOtherUploadedDocumentsTemp,
-					],
+				setLoanIds({
+					businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
+						address => address.aid === 1
+					)?.[0]?.id,
+					businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
+						address => address.aid === 2
+					)?.[0]?.id,
 				})
 			);
-			const newAddressDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-				directorId,
-			};
-			if (isApplicant) {
-				dispatch(
-					setLoanIds({
-						businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
-							address => address.aid === 1
-						)?.[0]?.id,
-						businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
-							address => address.aid === 2
-						)?.[0]?.id,
-					})
-				);
-				dispatch(updateApplicantSection(newAddressDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newAddressDetails));
-			}
-			if (verifyOtpResponseTemp) {
-				dispatch(setVerifyOtpResponse(verifyOtpResponseTemp));
-			}
+			dispatch(setCompletedDirectorSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {

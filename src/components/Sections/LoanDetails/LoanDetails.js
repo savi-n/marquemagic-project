@@ -22,7 +22,7 @@ import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
+	getSelectDirectorOptions,
 } from 'utils/formatData';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -33,6 +33,7 @@ const LoanDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
+	const { directors } = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -352,12 +353,9 @@ const LoanDetails = () => {
 	// });
 
 	useEffect(() => {
-		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
-			{
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}
-		);
+		const newApplicantAndCoapplicantOptions = getSelectDirectorOptions({
+			directors,
+		});
 		// console.log(
 		// 	newApplicantAndCoapplicantOptions,
 		// 	'newApplicantAndCoapplicantOptions-loan-details'
@@ -394,10 +392,6 @@ const LoanDetails = () => {
 												return null;
 										}
 										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-											// const newOptions = getApplicantCoApplicantSelectOptions({
-											// 	applicantCoApplicants,
-											// 	isEditOrViewLoan,
-											// });
 											newField.options = [
 												...applicantAndCoapplicantOptions,
 												...newField.options,
