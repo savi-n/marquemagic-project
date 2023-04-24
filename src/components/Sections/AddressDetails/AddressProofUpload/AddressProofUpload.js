@@ -66,20 +66,10 @@ const AddressProofUpload = props => {
 	// 	docTypeOptions
 	// );
 	let { addressProofError } = props;
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const { selectedDirector } = useSelector(state => state.directors);
 	const { selectedProduct, clientToken, editLoanData } = app;
 	const { loanId, businessUserId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const directorDetails = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
 	const prevSelectedAddressProofId = useRef(null);
@@ -266,7 +256,7 @@ const AddressProofUpload = props => {
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
 				frontFormData.append('product_id', selectedProduct.id);
-				frontFormData.append('director_id', selectedApplicant?.directorId);
+				frontFormData.append('director_id', selectedDirector?.directorId);
 				frontFormData.append('req_type', SELECTED_REQ_TYPE);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
@@ -309,13 +299,13 @@ const AddressProofUpload = props => {
 					requestId: frontExtractionRes?.data?.request_id,
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 
 				const backFormData = new FormData();
 				backFormData.append('product_id', selectedProduct.id);
-				backFormData.append('director_id', selectedApplicant?.directorId);
+				backFormData.append('director_id', selectedDirector?.directorId);
 				backFormData.append('req_type', SELECTED_REQ_TYPE);
 				backFormData.append(
 					'ref_id',
@@ -369,7 +359,7 @@ const AddressProofUpload = props => {
 					requestId: backExtractionRes?.data.request_id,
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 
@@ -405,7 +395,7 @@ const AddressProofUpload = props => {
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
-			frontOnlyFormData.append('director_id', selectedApplicant?.directorId);
+			frontOnlyFormData.append('director_id', selectedDirector?.directorId);
 			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
 			frontOnlyFormData.append('process_type', 'extraction');
 			frontOnlyFormData.append(
@@ -458,7 +448,7 @@ const AddressProofUpload = props => {
 				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 				name: frontOnlyExtractionRes?.data?.s3?.filename,
 				category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-				directorId: selectedApplicant.directorId,
+				directorId: selectedDirector.directorId,
 				selectedDocTypeId,
 			};
 
@@ -651,7 +641,7 @@ const AddressProofUpload = props => {
 					type: 'other',
 					upload_doc_name: f.name,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 				newCacheDocumentTemp.push(file);
@@ -940,7 +930,7 @@ const AddressProofUpload = props => {
 								...customFieldProps,
 							})}
 							{(selectedVerifyOtp?.res?.status === 'ok' ||
-								selectedApplicant?.is_aadhaar_otp_verified === true) && (
+								selectedDirector?.is_aadhaar_otp_verified === true) && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
@@ -954,7 +944,7 @@ const AddressProofUpload = props => {
 									isViewLoan ||
 									verifyingWithOtp ||
 									(directorDetails?.filter(
-										director => director?.id === selectedApplicant?.directorId
+										director => director?.id === selectedDirector?.directorId
 									).length > 0 &&
 										isEditLoan)
 								}

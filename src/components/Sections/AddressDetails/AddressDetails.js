@@ -311,7 +311,6 @@ const AddressDetails = props => {
 				selectedDirector,
 				application,
 				values: formState.values,
-				isApplicant,
 			});
 
 			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
@@ -366,7 +365,6 @@ const AddressDetails = props => {
 					app,
 					selectedDirector,
 					application,
-					isApplicant,
 				});
 
 				otherDocsBorrowerApi?.map(doc => {

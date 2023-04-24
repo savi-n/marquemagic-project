@@ -45,6 +45,7 @@ const initialState = {
 	isEntity: false,
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
+	selectDirectorOptions: [],
 	directorSectionsIds: [
 		'basic_details',
 		'address_details',
@@ -79,10 +80,15 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
 			let selectedDefaultDirector = {};
+			const newSelectedDirectorOptions = [];
 			const sortedDirectors = payload?.sort(
 				(a, b) => a?.type_name - b?.type_name
 			);
+			let newIsEntity = true;
 			sortedDirectors?.map((director, directorIndex) => {
+				if (director.type_name === DIRECTOR_TYPES.applicant) {
+					newIsEntity = false;
+				}
 				const fullName = getDirectorFullName(director);
 				const directorId = `${director.id}`;
 				const newSections = [
@@ -95,22 +101,21 @@ export const directorsSlice = createSlice({
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
 					label: `${director.type_name}`,
-					fullName: getDirectorFullName(director),
+					fullName,
 					shortName: getShortString(fullName, 10),
 					sections: newSections,
 					directorId,
 				};
+				newSelectedDirectorOptions.push({
+					name: fullName,
+					value: directorId,
+				});
 				newDirectors[directorId] = newDirectorObject;
 				if (directorIndex === 0) {
 					selectedDefaultDirector = director;
-					if (newDirectorObject?.type_name !== DIRECTOR_TYPES.applicant) {
-						state.isApplicant = false;
-						state.isEntity = true;
-					}
 				}
 				return null;
 			});
-			state.directors = newDirectors;
 			if (!state.selectedDirectorId) {
 				const isApplicant = isDirectorApplicant(selectedDefaultDirector);
 				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
@@ -118,7 +123,18 @@ export const directorsSlice = createSlice({
 				state.applicantDirectorId = isApplicant
 					? `${selectedDefaultDirector.id}`
 					: '';
+			} else {
+				const prevDirector = state.directors[state.selectedDirectorId];
+				const isApplicant = isDirectorApplicant(prevDirector);
+				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
+				state.isApplicant = isApplicant;
+				state.applicantDirectorId = isApplicant
+					? `${selectedDefaultDirector.id}`
+					: '';
 			}
+			state.isEntity = newIsEntity;
+			state.directors = newDirectors;
+			state.selectedDirectorOptions = newSelectedDirectorOptions;
 		},
 		[getDirectors.rejected]: (state, { payload }) => {
 			state.fetchingDirectors = false;

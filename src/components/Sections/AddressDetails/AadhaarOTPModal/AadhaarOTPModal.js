@@ -96,10 +96,8 @@ const AadhaarOTPModal = props => {
 		formState,
 		setVerifyOtpResponseTemp,
 	} = props;
-	const { application, app, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const { applicant, coApplicants } = applicantCoApplicants;
+	const { application, app } = useSelector(state => state);
+	const { selectedDirector } = useSelector(state => state.directors);
 	const { loanProductId } = application;
 	const { selectedSection, clientToken, selectedProduct } = app;
 	const { addToast } = useToasts();
@@ -130,10 +128,8 @@ const AadhaarOTPModal = props => {
 			section: selectedSection,
 			values: initialFormState.values,
 			app,
-			applicantCoApplicants,
 			application,
-			applicant,
-			coApplicants,
+			selectedDirector,
 		});
 
 		try {

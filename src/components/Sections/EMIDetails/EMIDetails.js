@@ -24,9 +24,8 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const EMIDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const { selectedDirector } = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -81,7 +80,7 @@ const EMIDetails = props => {
 				section: selectedSection,
 				values: newValues,
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 			});
 

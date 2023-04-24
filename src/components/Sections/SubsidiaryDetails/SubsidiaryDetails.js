@@ -19,9 +19,7 @@ import { API_END_POINT } from '_config/app.config';
 import selectedSection from './sample.json';
 
 const SubsidiaryDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const { isViewLoan, selectedSectionId, nextSectionId } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -43,7 +41,6 @@ const SubsidiaryDetails = props => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/subsidiary_details?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);

@@ -240,7 +240,7 @@ const ApplicantCoApplicantHeader = props => {
 								<UI.BadgeDelete
 									src={iconDelete}
 									onClick={() =>
-										setIsDeleteCoApplicantModalOpen('[DYNAMIC LABEL]')
+										setIsDeleteCoApplicantModalOpen(addNewDirectorKey)
 									}
 									alt='delete'
 								/>

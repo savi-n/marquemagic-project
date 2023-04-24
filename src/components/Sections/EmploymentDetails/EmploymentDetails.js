@@ -101,7 +101,7 @@ const EmploymentDetails = () => {
 			// console.log('-employmentDetailsReq-', {
 			// 	employmentDetailsReqBody,
 			// 	app,
-			// 	applicantCoApplicants,
+			// 	selectedDirector,
 			// 	application,
 			// });
 			// const employmentDetailsRes =
