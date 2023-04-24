@@ -17,9 +17,7 @@ import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 
 const CollateralDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
@@ -49,7 +47,6 @@ const CollateralDetails = () => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/collateralData?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);

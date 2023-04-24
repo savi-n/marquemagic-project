@@ -39,7 +39,8 @@ import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
-	const { app, applicantCoApplicants } = reduxState;
+	const { selectedDirectorId } = useSelector(state => state.directors);
+	const { app } = reduxState;
 	const {
 		selectedSectionId,
 		directorSectionIds,
@@ -53,7 +54,6 @@ const Product = props => {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
-	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
 
@@ -127,7 +127,7 @@ const Product = props => {
 		sleep(100).then(res => {
 			setLoading(false);
 		});
-	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
+	}, [selectedSectionId, selectedDirectorId, isTestMode]);
 
 	useEffect(() => {
 		console.log('Product-allStates-', {

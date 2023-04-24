@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-// import _ from 'lodash';
 import axios from 'axios';
 
 import LoadingIcon from 'components/Loading/LoadingIcon';
@@ -13,7 +12,6 @@ import Button from 'components/Button';
 
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { isBusinessPan } from 'utils/helper';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
 	formatCompanyRocData,
@@ -34,7 +32,6 @@ import moment from 'moment';
 const PanUpload = props => {
 	const {
 		field,
-		// value,
 		formState,
 		setErrorFormStateField,
 		panErrorColorCode,
@@ -43,8 +40,6 @@ const PanUpload = props => {
 		clearErrorFormState,
 		setUdyogAadhar,
 		udyogAadhar,
-		// cacheDocumentsTemp,
-		// state,
 		setGstin,
 		uploadedFile,
 		addCacheDocumentTemp,
@@ -61,37 +56,14 @@ const PanUpload = props => {
 		isEditOrViewLoan,
 	} = app;
 	const { loanId, businessUserId } = application;
-	// const { companyRocData } = applicantCoApplicants;
-	// const {
-	// 	isApplicant,
-	// 	applicant,
-	// 	coApplicants,
-	// 	selectedApplicantCoApplicantId,
-	// } = applicantCoApplicants;
-	// const selectedApplicant = isApplicant
-	//  ? applicant
-	// 	: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	// const { cacheDocuments } = selectedApplicant;
-	// const [files, setFiles] = useState([]);
-	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
 	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
-	// console.log({ udyogAadhar });
-	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	// const panExtractionResTemp =
-	// 	cacheDocumentsTemp.filter(
-	// 		doc => doc.field.name === CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME
-	// 	)?.[0] || null;
-	// const panExtractionFile =
-	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	null;
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 
 	// called for roc starts

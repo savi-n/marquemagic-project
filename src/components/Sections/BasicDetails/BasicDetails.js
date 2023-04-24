@@ -36,9 +36,12 @@ import * as CONST from './const';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { isApplicant, directors, selectedDirectorId } = useSelector(
-		state => state.directors
-	);
+	const {
+		isApplicant,
+		directors,
+		selectedDirectorId,
+		addNewDirectorKey,
+	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
@@ -211,13 +214,14 @@ const BasicDetails = props => {
 				selectedDirector,
 				application,
 				selectedLoanProductId,
-				isApplicant,
 			});
 
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
-
+			if (addNewDirectorKey) {
+				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
+			}
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -301,7 +305,7 @@ const BasicDetails = props => {
 
 			newBasicDetails.directorId = newDirectorId;
 			// TODO: shreyas work with director object and pass cin
-			// newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			// newBasicDetails.cin = selectedDirector?.companyRocData?.CIN || '';
 			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
 				.length > 0 &&
 				profilePicGeolocation) || {
@@ -724,7 +728,6 @@ const BasicDetails = props => {
 	// 	profileUploadedFile,
 	// 	app,
 	// 	application,
-	// 	applicantCoApplicants,
 	// 	selectedDirector,
 	// 	cacheDocumentsTemp,
 	// 	cacheDocuments,

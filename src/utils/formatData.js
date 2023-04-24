@@ -84,23 +84,16 @@ export const getSelectedSubField = data => {
 };
 
 export const formatGetSectionReqBody = data => {
-	const { application, applicantCoApplicants } = data;
+	const { application, selectedDirector } = data;
 	const { loanRefId, businessId, loanId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const reqBody = {
 		business_id: businessId,
 		loan_ref_id: loanRefId,
-		director_id: selectedApplicant?.directorId,
 		loan_id: loanId,
 	};
+	if (selectedDirector?.directorId) {
+		reqBody.director_id = selectedDirector?.directorId;
+	}
 	return queryString.stringify(reqBody);
 };
 
@@ -112,7 +105,6 @@ export const formatSectionReqBody = data => {
 			selectedDirector,
 			application,
 			selectedLoanProductId,
-			isApplicant,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
@@ -184,7 +176,6 @@ export const formatSectionReqBody = data => {
 		if (selectedDirector?.directorId) {
 			reqBody.director_id = selectedDirector?.directorId;
 		}
-		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 		// console.log('formatSectionReqBody-', { data, selectedApplicant });

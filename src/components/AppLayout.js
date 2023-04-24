@@ -334,9 +334,6 @@ const AppLayout = () => {
 			setLoading(false);
 		}
 		if (response) {
-			// dispatch(reInitializeAppSlice());
-			// dispatch(reInitializeApplicantCoApplicantSlice());
-			// dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
 			dispatch(setPermission(response?.permission || {}));

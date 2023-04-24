@@ -9,11 +9,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import {
-	formatGetSectionReqBody,
-	formatINR,
-	getSelectDirectorOptions,
-} from 'utils/formatData';
+import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
@@ -23,10 +19,8 @@ import { API_END_POINT } from '_config/app.config';
 // import selectedSection from './sample.json';
 
 const AssetsDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const { directors } = useSelector(state => state.directors);
+	const { app, application } = useSelector(state => state);
+	const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -48,7 +42,6 @@ const AssetsDetails = props => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -145,9 +138,7 @@ const AssetsDetails = props => {
 															<span>Assets For:</span>
 															<strong>
 																{
-																	getSelectDirectorOptions({
-																		directors,
-																	})?.filter(
+																	selectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
 																			`${prefillData?.director_id}`
