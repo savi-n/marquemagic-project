@@ -90,7 +90,7 @@ const BuissnessDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
 	const [companyRocData, setCompanyRocData] = useState({});
-	const [isPrefilEmail,setisPrefilMobileNo]= useState(true);
+	const [isPrefilEmail,setisPrefilEmail]= useState(true);
 
 
 	const {
@@ -342,8 +342,10 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-	const handleBlur=()=>{
-		console.log("input blurred");
+	function handleBlur(e){
+		console.log("input blurred",e);
+		setisPrefilEmail(false);
+		// console.log(e);
 	}
 	const fetchSectionDetails = async () => {
 		try {
@@ -641,7 +643,7 @@ const BuissnessDetails = props => {
 										}
 										if(field.name==='contact_email'){
 											// console.log("Contact")
-											customFieldProps.onBlur={handleBlur}
+											customFieldProps.onblur=handleBlur
 											if(isPrefilEmail){
 												// console.log(formState?.values?.email);
 												customFieldProps.value=formState.values.email
