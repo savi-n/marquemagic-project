@@ -18,7 +18,10 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
+import {
+	setCompletedApplicationSection,
+	setLoanIds,
+} from 'store/applicationSlice';
 import { extractPincode } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
@@ -290,7 +293,7 @@ const BusinessAddressDetails = props => {
 
 	// const isSectionCompleted = completedSections?.includes(selectedSectionId);
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			if (!formState?.values?.city || !formState?.values?.state) {
 				return addToast({
@@ -341,13 +344,7 @@ const BusinessAddressDetails = props => {
 					)?.[0]?.id,
 				})
 			);
-			const newAddressDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: {
-					...formState?.values,
-				},
-			};
-			dispatch(updateApplicationSection(newAddressDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
@@ -486,7 +483,7 @@ const BusinessAddressDetails = props => {
 						}
 						isLoader={loading}
 						disabled={loading || fetchingGstAddress}
-						onClick={handleSubmit(onProceed)}
+						onClick={handleSubmit(onSaveAndProceed)}
 					/>
 				)}
 				<NavigateCTA />

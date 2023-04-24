@@ -15,7 +15,7 @@ import {
 	getApiErrorMessage,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
@@ -39,7 +39,7 @@ const ReferenceDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const reference_details = [
@@ -107,13 +107,7 @@ const ReferenceDetails = () => {
 	};
 
 	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -266,7 +260,7 @@ const ReferenceDetails = () => {
 								name='Save and Proceed'
 								isLoader={loading}
 								disabled={loading}
-								onClick={handleSubmit(onProceed)}
+								onClick={handleSubmit(onSaveAndProceed)}
 							/>
 						)}
 

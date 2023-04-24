@@ -26,13 +26,13 @@ import {
 import { getDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	formatSectionReqBody,
+	getAllCompletedSections,
 	getApiErrorMessage,
 	getEditLoanDocuments,
 	getSelectedField,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { getCompletedSections } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -40,8 +40,9 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const BasicDetails = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { isApplicant, selectedDirector, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
 	const {
 		selectedProduct,
@@ -56,23 +57,9 @@ const BasicDetails = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		editLoanData,
-		isDraftLoan,
-		applicantCoApplicantSectionIds,
-		editLoanDirectors,
 		userDetails,
 		isGeoTaggingEnabled,
 	} = app;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	// TODO: Varun SME Flow move this logic inside redux and expose selected applicant object
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
 	const {
 		cacheDocuments,
 		borrowerUserId,
@@ -110,22 +97,12 @@ const BasicDetails = props => {
 		cacheDocuments?.filter(
 			doc =>
 				doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME &&
-				`${doc?.directorId}` === `${directorId}`
+				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] ||
 		null;
-	const completedSections = getCompletedSections({
-		selectedProduct,
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
+	const completedSections = getAllCompletedSections({
 		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		applicantCoApplicantSectionIds,
-		editLoanDirectors,
-		selectedApplicant,
+		selectedDirector,
 	});
 	// TODO Shreyas - Enable this in 1.4
 	// const panUploadedFile =
@@ -154,7 +131,7 @@ const BasicDetails = props => {
 		)?.[0] ||
 		cacheDocuments?.filter(
 			doc =>
-				`${doc?.directorId}` === `${directorId}` &&
+				`${doc?.directorId}` === `${selectedDirectorId}` &&
 				(doc?.is_delete_not_allowed === 'true' ||
 					doc?.is_delete_not_allowed === true) &&
 				doc?.doc_type_id ===
@@ -170,7 +147,7 @@ const BasicDetails = props => {
 	const isProfileMandatory = !!selectedProfileField?.rules?.required;
 	let prefilledProfileUploadValue = '';
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
@@ -223,7 +200,7 @@ const BasicDetails = props => {
 			if (profileField?.geo_tagging === true) {
 				url = profileUploadedFile?.presignedUrl;
 			}
-			const profileUrl = url || selectedApplicant?.customer_picture || '';
+			const profileUrl = url || selectedDirector?.customer_picture || '';
 			const profileFieldValue = isNewProfileUploaded
 				? {
 						...profileUploadedFile?.file,
@@ -248,9 +225,10 @@ const BasicDetails = props => {
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				selectedLoanProductId,
+				isApplicant,
 			});
 
 			// always pass borrower user id from login api for create case / from edit loan data
@@ -290,12 +268,6 @@ const BasicDetails = props => {
 					newProfileData?.filename ||
 					newProfileData?.uploaded_doc_name ||
 					newProfileData?.original_doc_name;
-
-				// dispatch(
-				// 	addOrUpdateCacheDocument({
-				// 		file: newProfileData,
-				// 	})
-				// );
 			}
 			if (cacheDocumentsTemp.length > 0) {
 				try {
@@ -330,11 +302,6 @@ const BasicDetails = props => {
 								},
 							}
 						);
-						// dispatch(
-						// 	addCacheDocuments({
-						// 		files: uploadCacheDocumentsTemp,
-						// 	})
-						// );
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -350,25 +317,20 @@ const BasicDetails = props => {
 			};
 
 			newBasicDetails.directorId = newDirectorId;
-			newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			// TODO: shreyas work with director object and pass cin
+			// newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
 			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
 				.length > 0 &&
 				profilePicGeolocation) || {
 				address:
-					selectedApplicant?.address ||
-					selectedApplicant?.profileGeoLocation?.address,
-				lat: selectedApplicant?.lat,
-				long: selectedApplicant?.long,
-				timestamp: selectedApplicant?.timestamp,
+					selectedDirector?.address ||
+					selectedDirector?.profileGeoLocation?.address,
+				lat: selectedDirector?.lat,
+				long: selectedDirector?.long,
+				timestamp: selectedDirector?.timestamp,
 			};
 
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
-			// if (isApplicant) {
-			// dispatch(updateApplicantSection(newBasicDetails));
-			// } else {
-			// dispatch(updateCoApplicantSection(newBasicDetails));
-			// dispatch(setSelectedApplicantCoApplicantId(newDirectorId));
-			// }
 			dispatch(
 				setLoanIds({
 					loanRefId: newLoanRefId,
@@ -380,7 +342,6 @@ const BasicDetails = props => {
 					borrowerUserId: newBorrowerUserId,
 				})
 			);
-			// dispatch(setPanExtractionRes(panExtractionResTemp));
 			dispatch(setAddNewDirectorKey(''));
 			dispatch(getDirectors(newBusinessId));
 			dispatch(setSelectedSectionId(nextSectionId));
@@ -393,7 +354,7 @@ const BasicDetails = props => {
 					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
 					// BUT ALLOW USER TO MOVE TO NEXT SECTION
 					if (
-						(isApplicant && !selectedApplicant.profileGeoLocation?.address) ||
+						(isApplicant && !selectedDirector.profileGeoLocation?.address) ||
 						(!isApplicant && !profilePicGeolocation?.address)
 					) {
 						addToast({
@@ -474,34 +435,34 @@ const BasicDetails = props => {
 		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
 			const panFile = getEditLoanDocuments({
 				documents: editLoanData?.loan_document,
-				directorId: selectedApplicant?.directorId,
-				docTypeId: field?.doc_type?.[selectedApplicant?.income_type],
+				directorId: selectedDirector?.directorId,
+				docTypeId: field?.doc_type?.[selectedDirector?.income_type],
 			});
 			return panFile[0];
 		}
 		const preData = {
-			existing_customer: selectedApplicant?.existing_customer,
-			pan_number: selectedApplicant?.dpancard,
-			customer_id: selectedApplicant?.customer_id,
-			ckyc_number: selectedApplicant?.ckyc_number,
-			income_type: `${selectedApplicant?.income_type}`,
-			first_name: selectedApplicant?.dfirstname,
-			last_name: selectedApplicant?.dlastname,
-			dob: selectedApplicant?.ddob,
-			gender: selectedApplicant?.gender,
-			email: selectedApplicant?.demail,
-			mobile_no: selectedApplicant?.dcontact,
-			marital_status: selectedApplicant?.marital_status,
-			spouse_name: selectedApplicant?.spouse_name,
-			residence_status: selectedApplicant?.residence_status,
-			country_residence: selectedApplicant?.country_residence,
-			father_name: selectedApplicant?.father_name,
-			mother_name: selectedApplicant?.mother_name,
-			upi_id: selectedApplicant?.upi_id,
-			profile_upload: selectedApplicant?.customer_picture,
-			relationship_with_applicant: selectedApplicant?.applicant_relationship,
+			existing_customer: selectedDirector?.existing_customer,
+			pan_number: selectedDirector?.dpancard,
+			customer_id: selectedDirector?.customer_id,
+			ckyc_number: selectedDirector?.ckyc_number,
+			income_type: `${selectedDirector?.income_type}`,
+			first_name: selectedDirector?.dfirstname,
+			last_name: selectedDirector?.dlastname,
+			dob: selectedDirector?.ddob,
+			gender: selectedDirector?.gender,
+			email: selectedDirector?.demail,
+			mobile_no: selectedDirector?.dcontact,
+			marital_status: selectedDirector?.marital_status,
+			spouse_name: selectedDirector?.spouse_name,
+			residence_status: selectedDirector?.residence_status,
+			country_residence: selectedDirector?.country_residence,
+			father_name: selectedDirector?.father_name,
+			mother_name: selectedDirector?.mother_name,
+			upi_id: selectedDirector?.upi_id,
+			profile_upload: selectedDirector?.customer_picture,
+			relationship_with_applicant: selectedDirector?.applicant_relationship,
 		};
-		// console.log(selectedApplicant);
+		// console.log(selectedDirector);
 		return preData?.[field?.name];
 	};
 
@@ -535,7 +496,7 @@ const BasicDetails = props => {
 			// special case when co-applicant is filling basic details for first time
 			// when director id is not created we prepopulate value from formstate only
 			// and last priority is to set default value <field.value> comming from JSON
-			if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
+			if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
 				return formState?.values?.[field.name] || field.value || '';
 			}
 
@@ -544,10 +505,8 @@ const BasicDetails = props => {
 			// this is to prefill value when user navigates backs
 			// once user press proceed and submit api success
 			// value is stored to redux and the same we can use to prepopulate
-			if (
-				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
-			) {
-				return selectedApplicant?.[selectedSectionId]?.[field?.name];
+			if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
+				return selectedDirector?.[selectedSectionId]?.[field?.name];
 			}
 
 			// [Priority - 3]
@@ -613,10 +572,10 @@ const BasicDetails = props => {
 
 		if (
 			isGeoTaggingEnabled &&
-			selectedApplicant?.profileGeoLocation &&
-			Object.keys(selectedApplicant?.profileGeoLocation).length > 0
+			selectedDirector?.profileGeoLocation &&
+			Object.keys(selectedDirector?.profileGeoLocation).length > 0
 		) {
-			setProfilePicGeolocation(selectedApplicant.profileGeoLocation);
+			setProfilePicGeolocation(selectedDirector.profileGeoLocation);
 		}
 
 		async function fetchGeoLocationData() {
@@ -672,7 +631,7 @@ const BasicDetails = props => {
 				// SELECTED_APPLICANT (FROM DIRECTOR DETAILS)
 				// WE GET LAT LONG WHICH CORRESPONDS TO PROFILE UPLOAD
 				setFetchingAddress(true);
-				if (!selectedApplicant?.lat && !selectedApplicant?.lat) {
+				if (!selectedDirector?.lat && !selectedDirector?.lat) {
 					dispatch(
 						setProfileGeoLocation({
 							err: 'Geo Location Not Captured',
@@ -685,8 +644,8 @@ const BasicDetails = props => {
 				}
 
 				const reqBody = {
-					lat: selectedApplicant?.lat,
-					long: selectedApplicant?.long,
+					lat: selectedDirector?.lat,
+					long: selectedDirector?.long,
 				};
 
 				const geoPicLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
@@ -696,16 +655,16 @@ const BasicDetails = props => {
 				});
 				dispatch(
 					setProfileGeoLocation({
-						lat: selectedApplicant?.lat,
-						long: selectedApplicant?.long,
-						timestamp: selectedApplicant?.timestamp,
+						lat: selectedDirector?.lat,
+						long: selectedDirector?.long,
+						timestamp: selectedDirector?.timestamp,
 						address: geoPicLocationRes?.data?.data?.address,
 					})
 				);
 				setProfilePicGeolocation({
-					lat: selectedApplicant?.lat,
-					long: selectedApplicant?.long,
-					timestamp: selectedApplicant?.timestamp,
+					lat: selectedDirector?.lat,
+					long: selectedDirector?.long,
+					timestamp: selectedDirector?.timestamp,
 					address: geoPicLocationRes?.data?.data?.address,
 				});
 			} catch (error) {
@@ -718,7 +677,7 @@ const BasicDetails = props => {
 		// BASED ON PERMISSION SET GEOTAGGING FOR APPLICATION AND PROFILE PIC
 		if (
 			isGeoTaggingEnabled &&
-			Object.keys(selectedApplicant).length > 0 &&
+			Object.keys(selectedDirector).length > 0 &&
 			isEditOrViewLoan
 		) {
 			if (
@@ -739,9 +698,9 @@ const BasicDetails = props => {
 			}
 
 			if (
-				selectedApplicant?.customer_picture &&
-				(Object.keys(selectedApplicant?.profileGeoLocation).length <= 0 ||
-					!selectedApplicant?.profileGeoLocation?.address)
+				selectedDirector?.customer_picture &&
+				(Object.keys(selectedDirector?.profileGeoLocation).length <= 0 ||
+					!selectedDirector?.profileGeoLocation?.address)
 			) {
 				fetchProfilePicGeoLocationData();
 			}
@@ -783,7 +742,7 @@ const BasicDetails = props => {
 	// 	app,
 	// 	application,
 	// 	applicantCoApplicants,
-	// 	selectedApplicant,
+	// 	selectedDirector,
 	// 	cacheDocumentsTemp,
 	// 	cacheDocuments,
 	// });
@@ -796,7 +755,7 @@ const BasicDetails = props => {
 			disabled={loading}
 			onClick={handleSubmit(() => {
 				setIsIncomeTypeConfirmModalOpen(false);
-				onProceed();
+				onSaveAndProceed();
 			})}
 		/>
 	);
@@ -873,10 +832,10 @@ const BasicDetails = props => {
 													geoLocationAddress={
 														profilePicGeolocation || {
 															address:
-																selectedApplicant?.profileGeoLocation?.address,
-															lat: selectedApplicant?.lat,
-															long: selectedApplicant?.long,
-															timestamp: selectedApplicant?.timestamp,
+																selectedDirector?.profileGeoLocation?.address,
+															lat: selectedDirector?.lat,
+															long: selectedDirector?.long,
+															timestamp: selectedDirector?.timestamp,
 														}
 													}
 													setImageLoading={setLoading}
@@ -987,7 +946,7 @@ const BasicDetails = props => {
 								)
 									customFieldProps.disabled = true;
 								if (
-									selectedApplicant?.directorId &&
+									selectedDirector?.directorId &&
 									field.name === CONST.INCOME_TYPE_FIELD_NAME
 								)
 									customFieldProps.disabled = true;
@@ -1108,8 +1067,8 @@ const BasicDetails = props => {
 							}
 							// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 							// so avoid opening income type popup at below condition
-							if (isEditOrViewLoan || !!selectedApplicant?.directorId) {
-								onProceed();
+							if (isEditOrViewLoan || !!selectedDirector?.directorId) {
+								onSaveAndProceed();
 								return;
 							}
 							setIsIncomeTypeConfirmModalOpen(true);

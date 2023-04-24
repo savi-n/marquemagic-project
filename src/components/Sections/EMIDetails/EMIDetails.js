@@ -9,7 +9,10 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
+import {
+	setCompletedApplicationSection,
+	setLoanIds,
+} from 'store/applicationSlice';
 import {
 	createIndexKeyObjectFromArrayOfObject,
 	formatSectionReqBody,
@@ -43,7 +46,7 @@ const EMIDetails = props => {
 	const MAX_COUNT = selectedEmiDetailsSubSection?.max || 10;
 	const { handleSubmit, register, formState } = useForm();
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 
@@ -102,11 +105,7 @@ const EMIDetails = props => {
 			// console.log('-emiDetailsRes-', {
 			// 	emiDetailsRes,
 			// });
-			const newEmiDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-			};
-			dispatch(updateApplicationSection(newEmiDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LoanDetails-onProceed-', error);
@@ -302,7 +301,7 @@ const EMIDetails = props => {
 						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
-						onClick={handleSubmit(onProceed)}
+						onClick={handleSubmit(onSaveAndProceed)}
 					/>
 				)}
 

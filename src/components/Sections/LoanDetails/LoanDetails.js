@@ -17,14 +17,13 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
-import { addCacheDocuments, removeCacheDocument } from 'store/applicationSlice';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
@@ -103,8 +102,6 @@ const LoanDetails = () => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
-		} else {
-			dispatch(removeCacheDocument({ fieldName }));
 		}
 	};
 
@@ -129,7 +126,7 @@ const LoanDetails = () => {
 		}
 	};
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const loanDetailsReqBody = formatSectionReqBody({
@@ -202,11 +199,6 @@ const LoanDetails = () => {
 						// console.log('updateDocumentIdToCacheDocuments-', {
 						// 	updateDocumentIdToCacheDocuments,
 						// });
-						dispatch(
-							addCacheDocuments({
-								files: updateDocumentIdToCacheDocuments,
-							})
-						);
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -224,11 +216,7 @@ const LoanDetails = () => {
 			// 	loanDetailsReqBody,
 			// 	loanDetailsRes,
 			// });
-			const newLoanDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-			};
-			dispatch(updateApplicationSection(newLoanDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LoanDetails-onProceed-', {
@@ -514,7 +502,7 @@ const LoanDetails = () => {
 										});
 										return;
 									}
-									onProceed();
+									onSaveAndProceed();
 								})}
 							/>
 						)}

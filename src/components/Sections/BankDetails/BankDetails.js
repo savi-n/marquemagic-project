@@ -7,7 +7,7 @@ import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 
 import { formatGetSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
@@ -64,14 +64,8 @@ const BankDetails = () => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -318,7 +312,7 @@ const BankDetails = () => {
 					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
-							<Button fill name='Save and Proceed' onClick={onSkip} />
+							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
 						)}
 
 						<NavigateCTA />
