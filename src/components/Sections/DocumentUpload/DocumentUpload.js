@@ -20,11 +20,9 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 } from 'store/applicationSlice';
 import {
-	// 	removeCacheDocument,
 	setGeotaggingMandatoryFields,
 	setDocumentSelfieGeoLocation,
-	// 	removeDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+} from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';

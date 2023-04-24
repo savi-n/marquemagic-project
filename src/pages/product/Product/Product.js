@@ -42,7 +42,7 @@ const Product = props => {
 	const { app, applicantCoApplicants } = reduxState;
 	const {
 		selectedSectionId,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		userToken,
 		isTestMode,
 		userDetails,
@@ -185,7 +185,7 @@ const Product = props => {
 					<UI.RightSectionWrapper>
 						<UI.IconDottedRight src={iconDottedRight} alt='dot' />
 						<UI.DynamicSectionWrapper>
-							{[...applicantCoApplicantSectionIds, 'document_upload']?.includes(
+							{[...(directorSectionIds || []), 'document_upload']?.includes(
 								selectedSectionId
 							) && <ApplicantCoApplicantHeader />}
 							<UI.DynamicSubSectionWrapper>

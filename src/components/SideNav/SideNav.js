@@ -29,7 +29,7 @@ const SideNav = props => {
 	const {
 		selectedProduct,
 		selectedSectionId,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		isEditOrViewLoan,
 		isViewLoan,
 	} = app;
@@ -180,11 +180,12 @@ const SideNav = props => {
 											)}
 
 										{selectedProduct?.loan_request_type === 1
-											? applicantCoApplicantSectionIds?.length +
+											? directorSectionIds?.length +
 													CONST.lengthOfuniqueSectionsForSmeFlow ===
 													sectionIndex + 1 && <UI.SectionDevider />
-											: applicantCoApplicantSectionIds?.length ===
-													sectionIndex + 1 && <UI.SectionDevider />}
+											: directorSectionIds?.length === sectionIndex + 1 && (
+													<UI.SectionDevider />
+											  )}
 									</Fragment>
 								);
 							}
