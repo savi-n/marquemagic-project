@@ -365,7 +365,7 @@ const BuissnessDetails = props => {
 		}
 	};
 	function handleBlur(e){
-		console.log("input blurred",e);
+		// console.log("input blurred",e);
 		setisPrefilEmail(false);
 		// console.log(e);
 	}
@@ -605,7 +605,6 @@ const BuissnessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
-
 										if (
 											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -664,9 +663,12 @@ const BuissnessDetails = props => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
-										if(field.name==='contact_email'){
+										if(field.name==='email'){
 											// console.log("Contact")
 											customFieldProps.onblur=handleBlur
+
+										}
+										if(field.name==='contact_email'){
 											if(isPrefilEmail){
 												// console.log(formState?.values?.email);
 												customFieldProps.value=formState.values.email
