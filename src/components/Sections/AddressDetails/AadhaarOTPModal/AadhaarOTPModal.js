@@ -15,7 +15,6 @@ import {
 	AADHAAR_RESEND_OTP,
 	RESEND_OTP_TIMER,
 } from '_config/app.config';
-// import { setVerifyOtpResponse } from 'store/applicantCoApplicantsSlice';
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';

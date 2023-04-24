@@ -1,24 +1,9 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import {
-	useState,
-	// useEffect
-} from 'react';
-import {
-	useSelector,
-	// useDispatch
-} from 'react-redux';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
-// import Button from 'components/Button';
-// import {
-// 	reInitializeAppSlice,
-// 	setUserDetails,
-// 	setWhiteLabelId,
-// } from 'store/appSlice';
-// import { reInitializeApplicantCoApplicantSlice } from 'store/applicantCoApplicantsSlice';
-// import { reInitializeApplicationSlice } from 'store/applicationSlice';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
 

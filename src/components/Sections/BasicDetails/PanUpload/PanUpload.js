@@ -9,8 +9,7 @@ import Modal from 'components/Modal';
 import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
 import Button from 'components/Button';
-
-import { setCompanyRocData } from 'store/applicantCoApplicantsSlice';
+import { setCompanyRocData } from 'store/directorsSlice';
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { decryptViewDocumentUrl } from 'utils/encrypt';

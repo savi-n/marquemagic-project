@@ -11,8 +11,6 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
-// import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
 import { getAllCompletedSections } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -36,7 +34,6 @@ const SideNav = props => {
 		isEditOrViewLoan,
 		isViewLoan,
 	} = app;
-	// const { addToast } = useToasts();
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
@@ -147,18 +144,6 @@ const SideNav = props => {
 
 												if (isCompleted || isActive) {
 													dispatch(setSelectedSectionId(section.id));
-													if (
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
-														// && typeof selectedApplicant?.directorId !== 'number'
-													) {
-														dispatch(
-															setSelectedApplicantCoApplicantId(
-																CONST_SECTIONS.APPLICANT
-															)
-														);
-													}
 												}
 											}}
 										>
