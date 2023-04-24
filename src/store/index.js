@@ -6,9 +6,6 @@ import applicationReducer from './applicationSlice';
 import applicantCoApplicantsReducer from './applicantCoApplicantsSlice';
 import directorsReducer from './directorsSlice';
 import storageSession from 'redux-persist/lib/storage/session';
-// import { appSlice } from './appSlice';
-// import { applicantSlice } from './applicationSlice';
-// import { applicantCoApplicantsSlice } from './applicantCoApplicantsSlice';
 import {
 	persistReducer,
 	persistStore,
