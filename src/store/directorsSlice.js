@@ -27,9 +27,9 @@ const initialState = {
 	fetchingDirectors: false,
 	fetchingDirectorsSuccess: false,
 	fetchingDirectorsErrorMessage: false,
-	selectedDirector: {},
+	selectedDirector: _.cloneDeep(initialDirectorsObject),
 	selectedDirectorId: '',
-	selectedDirectorIsApplicant: false,
+	isApplicant: true,
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
 	directorSectionsIds: [
@@ -64,7 +64,7 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
-			let selectedDefaultDirector = {};
+			let selectedDefaultDirector = _.cloneDeep(initialDirectorsObject);
 			const sortedDirectors = payload?.sort(
 				(a, b) => a?.type_name - b?.type_name
 			);
@@ -76,6 +76,8 @@ export const directorsSlice = createSlice({
 					label: `${director.type_name}`,
 					fullName: getDirectorFullName(director),
 					shortName: getShortString(fullName, 10),
+					sections: ['basic_details'],
+					directorId: `${director.id}`,
 				};
 				newDirectors[director.id] = newDirectorObject;
 				if (directorIndex === 0) {
@@ -87,9 +89,7 @@ export const directorsSlice = createSlice({
 			if (!state.selectedDirectorId) {
 				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
 				state.selectedDirector = selectedDefaultDirector;
-				state.selectedDirectorIsApplicant = isDirectorApplicant(
-					selectedDefaultDirector
-				);
+				state.isApplicant = isDirectorApplicant(selectedDefaultDirector);
 			}
 		},
 		[getDirectors.rejected]: (state, { payload }) => {
@@ -113,17 +113,18 @@ export const directorsSlice = createSlice({
 			const newDirectorId = `${payload}`;
 			const newSelectedDirector = state.directors[newDirectorId];
 			state.selectedDirectorId = newDirectorId;
-			state.selectedDirector = newSelectedDirector;
-			state.selectedDirectorIsApplicant = isDirectorApplicant(
-				newSelectedDirector
-			);
+			state.selectedDirector = {
+				..._.cloneDeep(initialDirectorsObject),
+				newSelectedDirector,
+			};
+			state.isApplicant = isDirectorApplicant(newSelectedDirector);
 			// state.isEntity = isEntity(newSelectedDirector);
 		},
 		setSelectedDirectorId: (state, { payload }) => {
 			// action.payload === directorid
 			state.selectedDirectorId = payload;
 		},
-		setSections: (state, { payload }) => {
+		setCompletedDirectorSection: (state, { payload }) => {
 			if (
 				!state.directors[state.selectedDirectorId].sections.includes(payload) &&
 				payload
@@ -178,7 +179,7 @@ export const {
 	setDirector,
 	setSelectedDirector,
 	setSelectedDirectorId,
-	setSections,
+	setCompletedDirectorSection,
 
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,

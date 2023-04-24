@@ -7,7 +7,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { formatGetSectionReqBody } from 'utils/formatData';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -65,14 +65,8 @@ const SubsidiaryDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -265,7 +259,7 @@ const SubsidiaryDetails = props => {
 								name='Save and Proceed'
 								// isLoader={isCreateFormOpen || !!editSectionId}
 								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSkip}
+								onClick={onSaveAndProceed}
 							/>
 						)}
 

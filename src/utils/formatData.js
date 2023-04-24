@@ -109,21 +109,13 @@ export const formatSectionReqBody = data => {
 		const {
 			values,
 			app,
-			applicantCoApplicants,
+			selectedDirector,
 			application,
 			selectedLoanProductId,
+			isApplicant,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
-		const {
-			selectedApplicantCoApplicantId,
-			applicant,
-			coApplicants,
-			isApplicant,
-		} = applicantCoApplicants;
-		const selectedApplicant = isApplicant
-			? applicant
-			: coApplicants[selectedApplicantCoApplicantId] || {};
 		const subSectionsData = {};
 		selectedSection?.sub_sections?.map(sub_section => {
 			let sectionBody = {};
@@ -189,8 +181,8 @@ export const formatSectionReqBody = data => {
 			reqBody.business_id = businessId;
 		}
 
-		if (selectedApplicant?.directorId) {
-			reqBody.director_id = selectedApplicant?.directorId;
+		if (selectedDirector?.directorId) {
+			reqBody.director_id = selectedDirector?.directorId;
 		}
 		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
@@ -534,10 +526,14 @@ export const getApplicantCoApplicantSelectOptions = data => {
 
 export const getAllCompletedSections = data => {
 	const { application, selectedDirector } = data;
-	return [
-		...(application?.sections || []),
-		...(selectedDirector?.sections || []),
-	];
+	let completedSections = [];
+	if (Array.isArray(application?.sections)) {
+		completedSections = [...completedSections, ...application?.sections];
+	}
+	if (Array.isArray(selectedDirector?.sections)) {
+		completedSections = [...completedSections, ...selectedDirector?.sections];
+	}
+	return completedSections;
 };
 
 export const getCompletedSections = data => {

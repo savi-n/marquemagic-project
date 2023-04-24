@@ -7,7 +7,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatINR,
@@ -69,14 +69,8 @@ const LiabilitysDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -290,7 +284,7 @@ const LiabilitysDetails = props => {
 								name='Save and Proceed'
 								// isLoader={isCreateFormOpen || !!editSectionId}
 								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSkip}
+								onClick={onSaveAndProceed}
 							/>
 						)}
 
