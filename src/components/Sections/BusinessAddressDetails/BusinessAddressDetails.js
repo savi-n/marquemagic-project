@@ -3,11 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
 import Button from 'components/Button';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import NavigateCTA from 'components/Sections/NavigateCTA';
+
+import { setSelectedSectionId } from 'store/appSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	// getCompletedSections,
 	isFieldValid,
 } from 'utils/formatData';
 import useForm from 'hooks/useFormIndividual';
@@ -17,7 +18,10 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
+import {
+	setCompletedApplicationSection,
+	setLoanIds,
+} from 'store/applicationSlice';
 import { extractPincode } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
@@ -31,10 +35,8 @@ const BusinessAddressDetails = props => {
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
 		selectedSection,
-		isLocalhost,
 		clientToken,
 		userToken,
 		// editLoanDirectors,
@@ -291,13 +293,7 @@ const BusinessAddressDetails = props => {
 
 	// const isSectionCompleted = completedSections?.includes(selectedSectionId);
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			if (!formState?.values?.city || !formState?.values?.state) {
 				return addToast({
@@ -348,13 +344,7 @@ const BusinessAddressDetails = props => {
 					)?.[0]?.id,
 				})
 			);
-			const newAddressDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: {
-					...formState?.values,
-				},
-			};
-			dispatch(updateApplicationSection(newAddressDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
@@ -370,18 +360,6 @@ const BusinessAddressDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledValues = field => {
@@ -505,26 +483,10 @@ const BusinessAddressDetails = props => {
 						}
 						isLoader={loading}
 						disabled={loading || fetchingGstAddress}
-						onClick={handleSubmit(onProceed)}
+						onClick={handleSubmit(onSaveAndProceed)}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-				{!!selectedSection?.is_skip || !!isTestMode ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-
-				{!isViewLoan && (isLocalhost && !!isTestMode) && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
+				<NavigateCTA />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);

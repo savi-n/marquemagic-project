@@ -13,15 +13,10 @@ import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
-
-import {
-	setLoginCreateUserRes,
-	toggleTestMode,
-	setSelectedSectionId,
-} from 'store/appSlice';
+import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
 import {
 	setLoanIds,
-	updateApplicationSection,
+	setCompletedApplicationSection,
 	setBusinessType,
 } from 'store/applicationSlice';
 import {
@@ -49,12 +44,10 @@ const BuissnessDetails = props => {
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		isTestMode,
 		selectedSection,
 		whiteLabelId,
 		clientToken,
 		userToken,
-		isLocalhost,
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
@@ -124,7 +117,7 @@ const BuissnessDetails = props => {
 		? sectionData?.loan_document
 		: null;
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
@@ -266,7 +259,7 @@ const BuissnessDetails = props => {
 				businessType: formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME],
 			};
 			newBuissnessDetails.cin = companyRocData?.CIN || '';
-			dispatch(updateApplicationSection(newBuissnessDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(
 				setLoanIds({
 					loanRefId: newLoanRefId,
@@ -445,7 +438,7 @@ const BuissnessDetails = props => {
 			disabled={loading}
 			onClick={handleSubmit(() => {
 				setIsIncomeTypeConfirmModalOpen(false);
-				onProceed();
+				onSaveAndProceed();
 			})}
 		/>
 	);
@@ -772,7 +765,7 @@ const BuissnessDetails = props => {
 								disabled={loading}
 								onClick={handleSubmit(() => {
 									if (isEditOrViewLoan) {
-										onProceed();
+										onSaveAndProceed();
 										return;
 									}
 									setIsIncomeTypeConfirmModalOpen(true);
@@ -783,13 +776,6 @@ const BuissnessDetails = props => {
 							<>
 								<Button name='Next' onClick={naviagteToNextSection} fill />
 							</>
-						)}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
 						)}
 					</UI_SECTIONS.Footer>
 				</>

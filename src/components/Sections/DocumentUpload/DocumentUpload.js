@@ -13,19 +13,16 @@ import Textarea from 'components/inputs/Textarea';
 import errorImage from 'assets/icons/geo-error.png';
 import * as API from '_config/app.config';
 import {
-	updateApplicationSection,
+	setCompletedApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
-	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import {
-	// 	removeCacheDocument,
 	setGeotaggingMandatoryFields,
 	setDocumentSelfieGeoLocation,
-	// 	removeDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+} from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -767,19 +764,9 @@ const DocumentUpload = props => {
 		}
 		return true;
 	};
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
 
-		// TODO: varun combine all redux cache dispatch here before moving to application submited section
-		dispatch(clearAllCacheDocuments());
-
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -862,7 +849,7 @@ const DocumentUpload = props => {
 			// 	documentUploadRes,
 			// });
 			if (isEditLoan && !isDraftLoan) {
-				onSkip();
+				onSaveAndProceed();
 			}
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
@@ -1359,7 +1346,7 @@ const DocumentUpload = props => {
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
-					onSkip={onSkip}
+					onSkip={onSaveAndProceed}
 					isDocumentUploadMandatory={isDocumentUploadMandatory}
 				/>
 			) : null}

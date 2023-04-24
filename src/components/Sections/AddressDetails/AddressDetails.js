@@ -4,20 +4,21 @@
 import React, { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import moment from 'moment';
 
 import Button from 'components/Button';
 import AadhaarOTPModal from './AadhaarOTPModal';
 import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
-import moment from 'moment';
+import NavigateCTA from 'components/Sections/NavigateCTA';
+
 import {
 	updateApplicantSection,
 	updateCoApplicantSection,
 	setVerifyOtpResponse,
 } from 'store/applicantCoApplicantsSlice';
 import { addOrUpdateCacheDocuments } from 'store/applicationSlice';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-
+import { setSelectedSectionId } from 'store/appSlice';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
@@ -25,10 +26,10 @@ import {
 	formatAddressProofDocTypeList,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getCompletedSections,
 	isFieldValid,
 	getSelectedField,
 	getSelectedSubField,
+	getAllCompletedSections,
 } from 'utils/formatData';
 import { isInvalidAadhaar } from 'utils/validation';
 import { setLoanIds } from 'store/applicationSlice';
@@ -43,8 +44,9 @@ import { asyncForEach } from 'utils/helper';
 import { useEffect } from 'react';
 
 const AddressDetails = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { selectedDirector, isApplicant } = useSelector(
+		state => state.directors
 	);
 	const {
 		loanProductId,
@@ -57,37 +59,19 @@ const AddressDetails = props => {
 	} = application;
 	const {
 		isDraftLoan,
-		// isViewLoan,
-		// isEditLoan,
-		// isEditOrViewLoan,
-		// editLoanData,
-		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
 		clientToken,
 		selectedSection,
-		isLocalhost,
-		applicantCoApplicantSectionIds,
-		editLoanDirectors,
 	} = app;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
+	const { directorId } = selectedDirector;
 	const selectedIncomeType =
-		selectedApplicant?.basic_details?.[
+		selectedDirector?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		] || selectedApplicant?.income_type;
-	if (isDraftLoan && !selectedApplicant?.permanent_address1) {
+		] || selectedDirector?.income_type;
+	if (isDraftLoan && !selectedDirector?.permanent_address1) {
 		isViewLoan = false;
 		isEditLoan = false;
 		isEditOrViewLoan = false;
@@ -124,24 +108,15 @@ const AddressDetails = props => {
 	] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
-	const completedSections = getCompletedSections({
-		selectedProduct,
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
+	const completedSections = getAllCompletedSections({
 		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		applicantCoApplicantSectionIds,
-		editLoanDirectors,
-		selectedApplicant,
+		selectedDirector,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const selectedVerifyOtp =
-		verifyOtpResponseTemp || selectedApplicant?.api?.verifyOtp || null;
+		verifyOtpResponseTemp || selectedDirector?.api?.verifyOtp || null;
 
 	const onClickVerifyWithOtp = async () => {
 		try {
@@ -213,13 +188,8 @@ const AddressDetails = props => {
 			setVerifyingWithOtp(false);
 		}
 	};
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-	const onProceed = async () => {
+
+	const onSaveAndProceed = async () => {
 		// onSkip();
 		// return;
 		try {
@@ -367,9 +337,10 @@ const AddressDetails = props => {
 
 			const addressDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				values: formState.values,
+				isApplicant,
 			});
 
 			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
@@ -422,8 +393,9 @@ const AddressDetails = props => {
 				await asyncForEach(otherdocs, callLoanDocUpload);
 				const documentUploadReqBody = formatSectionReqBody({
 					app,
-					applicantCoApplicants,
+					selectedDirector,
 					application,
+					isApplicant,
 				});
 
 				otherDocsBorrowerApi?.map(doc => {
@@ -557,23 +529,6 @@ const AddressDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(selectedApplicant?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
-		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
-		}
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prePopulateAddressDetailsFromVerifyOtpRes = aadhaarOtpRes => {
 		// console.log('prePopulateAddressDetailsFromVerifyOtpRes-aadhaarOtpRes-', {
 		// 	aadhaarOtpRes,
@@ -590,47 +545,47 @@ const AddressDetails = props => {
 
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
-			permanent_aadhaar: selectedApplicant?.daadhaar,
-			permanent_address_proof_id_others: selectedApplicant?.permanent_ddocname,
-			permanent_address_proof_id_passport: selectedApplicant?.dpassport,
-			permanent_address_proof_id_dl: selectedApplicant?.ddlNumber,
-			permanent_address_proof_id_voter: selectedApplicant?.dvoterid,
-			permanent_address1: selectedApplicant?.permanent_address1,
-			permanent_address2: selectedApplicant?.permanent_address2,
-			permanent_address3: selectedApplicant?.permanent_locality,
-			permanent_pin_code: selectedApplicant?.permanent_pincode,
-			permanent_city: selectedApplicant?.permanent_city,
-			permanent_state: selectedApplicant?.permanent_state,
-			permanent_property_type: selectedApplicant?.permanent_residential_type,
+			permanent_aadhaar: selectedDirector?.daadhaar,
+			permanent_address_proof_id_others: selectedDirector?.permanent_ddocname,
+			permanent_address_proof_id_passport: selectedDirector?.dpassport,
+			permanent_address_proof_id_dl: selectedDirector?.ddlNumber,
+			permanent_address_proof_id_voter: selectedDirector?.dvoterid,
+			permanent_address1: selectedDirector?.permanent_address1,
+			permanent_address2: selectedDirector?.permanent_address2,
+			permanent_address3: selectedDirector?.permanent_locality,
+			permanent_pin_code: selectedDirector?.permanent_pincode,
+			permanent_city: selectedDirector?.permanent_city,
+			permanent_state: selectedDirector?.permanent_state,
+			permanent_property_type: selectedDirector?.permanent_residential_type,
 			permanent_property_tenure: moment(
-				selectedApplicant?.permanent_residential_stability
+				selectedDirector?.permanent_residential_stability
 			).format('YYYY-MM'),
 			// permanent_address_proof_issued_on: moment(
-			// 	selectedApplicant?.issued_date
+			// 	selectedDirector?.issued_date
 			// ).format('DD-MM-YYYY'),
 			// permanent_address_proof_valid_till: moment(
-			// 	selectedApplicant?.validity
+			// 	selectedDirector?.validity
 			// ).format('YYYY-MM-DD'),
 
-			present_aadhaar: selectedApplicant?.daadhaar,
-			present_address_proof_id_others: selectedApplicant?.ddocname,
-			present_address_proof_id_passport: selectedApplicant?.dpassport,
-			present_address_proof_id_dl: selectedApplicant?.ddlNumber,
-			present_address_proof_id_voter: selectedApplicant?.dvoterid,
-			present_address1: selectedApplicant?.address1,
-			present_address2: selectedApplicant?.address2,
-			present_address3: selectedApplicant?.locality,
-			present_pin_code: selectedApplicant?.pincode,
-			present_city: selectedApplicant?.city,
-			present_state: selectedApplicant?.state,
-			present_property_type: selectedApplicant?.residential_type,
+			present_aadhaar: selectedDirector?.daadhaar,
+			present_address_proof_id_others: selectedDirector?.ddocname,
+			present_address_proof_id_passport: selectedDirector?.dpassport,
+			present_address_proof_id_dl: selectedDirector?.ddlNumber,
+			present_address_proof_id_voter: selectedDirector?.dvoterid,
+			present_address1: selectedDirector?.address1,
+			present_address2: selectedDirector?.address2,
+			present_address3: selectedDirector?.locality,
+			present_pin_code: selectedDirector?.pincode,
+			present_city: selectedDirector?.city,
+			present_state: selectedDirector?.state,
+			present_property_type: selectedDirector?.residential_type,
 			present_property_tenure: moment(
-				selectedApplicant?.residential_stability
+				selectedDirector?.residential_stability
 			).format('YYYY-MM'),
 		};
 		return preData?.[field?.name];
 	};
-	// console.log(selectedApplicant);
+	// console.log(selectedDirector);
 	const prefilledValues = field => {
 		try {
 			// if (isViewLoan) {
@@ -655,10 +610,8 @@ const AddressDetails = props => {
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
-			) {
-				return selectedApplicant?.[selectedSectionId]?.[field?.name];
+			if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
+				return selectedDirector?.[selectedSectionId]?.[field?.name];
 			}
 
 			let editViewLoanValue = '';
@@ -682,7 +635,7 @@ const AddressDetails = props => {
 			const filterPermanentDocs = cacheDocuments.filter(
 				doc =>
 					`${doc?.aid}` === CONST.AID_PERMANENT &&
-					`${selectedApplicant?.directorId}` === `${doc?.directorId}` &&
+					`${selectedDirector?.directorId}` === `${doc?.directorId}` &&
 					CONST_SECTIONS.ADDRESS_PROOF_CLASSIFICATION_KEYS.includes(
 						doc?.classification_type
 					)
@@ -690,7 +643,7 @@ const AddressDetails = props => {
 			const filterPresentDocs = cacheDocuments.filter(
 				doc =>
 					`${doc?.aid}` === CONST.AID_PRESENT &&
-					`${selectedApplicant?.directorId}` === `${doc?.directorId}` &&
+					`${selectedDirector?.directorId}` === `${doc?.directorId}` &&
 					CONST_SECTIONS.ADDRESS_PROOF_CLASSIFICATION_KEYS.includes(
 						doc?.classification_type
 					)
@@ -739,7 +692,7 @@ const AddressDetails = props => {
 	// 	applicant,
 	// 	coApplicants,
 	// 	application,
-	// 	selectedApplicant,
+	// 	selectedDirector,
 	// 	isSameAsAboveAddressChecked,
 	// 	formState,
 	// });
@@ -791,7 +744,7 @@ const AddressDetails = props => {
 				selectedCacheDocumentsTemp = [
 					...cacheDocuments.filter(
 						doc =>
-							`${doc?.directorId}` === `${selectedApplicant?.directorId}` &&
+							`${doc?.directorId}` === `${selectedDirector?.directorId}` &&
 							`${doc?.aid}` === `${sub_section?.aid}` &&
 							!!doc?.classification_type &&
 							!!doc?.classification_sub_type
@@ -805,7 +758,7 @@ const AddressDetails = props => {
 				];
 				// console.log('address-details-step1-merge-all-docs-', {
 				// 	selectedAddressProofId,
-				// 	selectedApplicant,
+				// 	selectedDirector,
 				// 	cacheDocuments,
 				// 	otherPermanentCacheDocTemp,
 				// 	permanentCacheDocumentsTemp,
@@ -992,7 +945,7 @@ const AddressDetails = props => {
 												}
 												docTypeOptions={selectedDocumentTypes}
 												addressProofUploadSection={sub_section}
-												selectedApplicant={selectedApplicant}
+												selectedDirector={selectedDirector}
 												addressProofError={
 													isPermanent
 														? permanentAddressProofError
@@ -1121,28 +1074,10 @@ const AddressDetails = props => {
 						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
-						onClick={handleSubmit(onProceed)}
+						onClick={handleSubmit(onSaveAndProceed)}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-
-				{/* buttons for easy development starts */}
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{!isViewLoan && (isLocalhost && !!isTestMode) && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-				{/* buttons for easy development ends */}
+				<NavigateCTA />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
