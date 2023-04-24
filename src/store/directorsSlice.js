@@ -1,13 +1,25 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, current } from '@reduxjs/toolkit';
 import { API_END_POINT } from '_config/app.config';
 import axios from 'axios';
 import _ from 'lodash';
+import { BASIC_DETAILS_SECTION_ID } from 'components/Sections/const';
 
 import {
 	getDirectorFullName,
 	getShortString,
 	isDirectorApplicant,
 } from 'utils/formatData';
+
+export const DIRECTOR_TYPES = {
+	applicant: 'Applicant',
+	coApplicant: 'Co-applicant',
+	director: 'Director',
+	partner: 'Partner',
+	guarantor: 'Guarantor',
+	trustee: 'Trustee',
+	member: 'Member',
+	proprietor: 'Proprietor',
+};
 
 const initialDirectorsObject = {
 	// if length of sections is 3 then it's validated
@@ -27,9 +39,10 @@ const initialState = {
 	fetchingDirectors: false,
 	fetchingDirectorsSuccess: false,
 	fetchingDirectorsErrorMessage: false,
-	selectedDirector: _.cloneDeep(initialDirectorsObject),
 	selectedDirectorId: '',
+	applicantDirectorId: '',
 	isApplicant: true,
+	isEntity: false,
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
 	directorSectionsIds: [
@@ -61,35 +74,50 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectors = true;
 		},
 		[getDirectors.fulfilled]: (state, { payload }) => {
+			const prevState = current(state);
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
-			let selectedDefaultDirector = _.cloneDeep(initialDirectorsObject);
+			let selectedDefaultDirector = {};
 			const sortedDirectors = payload?.sort(
 				(a, b) => a?.type_name - b?.type_name
 			);
 			sortedDirectors?.map((director, directorIndex) => {
 				const fullName = getDirectorFullName(director);
+				const directorId = `${director.id}`;
+				const newSections = [
+					...(prevState?.directors?.[directorId]?.sections || []),
+				];
+				if (!newSections.includes(BASIC_DETAILS_SECTION_ID)) {
+					newSections.push(BASIC_DETAILS_SECTION_ID);
+				}
 				const newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
 					label: `${director.type_name}`,
 					fullName: getDirectorFullName(director),
 					shortName: getShortString(fullName, 10),
-					sections: ['basic_details'],
-					directorId: `${director.id}`,
+					sections: newSections,
+					directorId,
 				};
-				newDirectors[director.id] = newDirectorObject;
+				newDirectors[directorId] = newDirectorObject;
 				if (directorIndex === 0) {
-					selectedDefaultDirector = newDirectorObject;
+					selectedDefaultDirector = director;
+					if (newDirectorObject?.type_name !== DIRECTOR_TYPES.applicant) {
+						state.isApplicant = false;
+						state.isEntity = true;
+					}
 				}
 				return null;
 			});
 			state.directors = newDirectors;
 			if (!state.selectedDirectorId) {
+				const isApplicant = isDirectorApplicant(selectedDefaultDirector);
 				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
-				state.selectedDirector = selectedDefaultDirector;
-				state.isApplicant = isDirectorApplicant(selectedDefaultDirector);
+				state.isApplicant = isApplicant;
+				state.applicantDirectorId = isApplicant
+					? `${selectedDefaultDirector.id}`
+					: '';
 			}
 		},
 		[getDirectors.rejected]: (state, { payload }) => {
@@ -108,33 +136,29 @@ export const directorsSlice = createSlice({
 		setAddNewDirectorKey: (state, { payload }) => {
 			state.addNewDirectorKey = payload;
 		},
-		setSelectedDirector: (state, { payload }) => {
-			// action.payload === directorid
-			const newDirectorId = `${payload}`;
-			const newSelectedDirector = state.directors[newDirectorId];
-			state.selectedDirectorId = newDirectorId;
-			state.selectedDirector = {
-				..._.cloneDeep(initialDirectorsObject),
-				newSelectedDirector,
-			};
-			state.isApplicant = isDirectorApplicant(newSelectedDirector);
-			// state.isEntity = isEntity(newSelectedDirector);
-		},
 		setSelectedDirectorId: (state, { payload }) => {
 			// action.payload === directorid
 			state.selectedDirectorId = payload;
 		},
 		setCompletedDirectorSection: (state, { payload }) => {
-			if (
-				!state.directors[state.selectedDirectorId].sections.includes(payload) &&
-				payload
-			) {
-				if (state.directors[state.selectedDirectorId].sections.length === 2) {
-					state.directors[
-						state.selectedDirectorId
-					].isMandatorySectionsCompleted = true;
+			try {
+				const currentState = current(state);
+				const { selectedDirectorId } = currentState;
+				const newDirectors = _.cloneDeep(currentState.directors);
+				if (
+					!newDirectors[selectedDirectorId].sections.includes(payload) &&
+					payload
+				) {
+					newDirectors[selectedDirectorId].sections.push(payload);
+					if (newDirectors[selectedDirectorId].sections.length === 3) {
+						newDirectors[
+							selectedDirectorId
+						].isMandatorySectionsCompleted = true;
+					}
 				}
-				state.directors[state.selectedDirectorId].sections.push(payload);
+				state.directors = newDirectors;
+			} catch (e) {
+				console.log('error-setCompletedDirectorSection-', e);
 			}
 		},
 
@@ -163,11 +187,14 @@ export const directorsSlice = createSlice({
 
 		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
 		setGeotaggingMandatoryFields: (state, { payload }) => {
-			const { directorId } = payload;
 			if (
-				!state.directors[directorId].geotaggingMandatory.includes(payload.field)
+				!state.directors[state.selectedDirectorId].geotaggingMandatory.includes(
+					payload.field
+				)
 			) {
-				state.directors[directorId].geotaggingMandatory.push(payload.field);
+				state.directors[state.selectedDirectorId].geotaggingMandatory.push(
+					payload.field
+				);
 			}
 		},
 	},
@@ -177,7 +204,6 @@ export const {
 	reInitializeDirectorsSlice,
 	setAddNewDirectorKey,
 	setDirector,
-	setSelectedDirector,
 	setSelectedDirectorId,
 	setCompletedDirectorSection,
 

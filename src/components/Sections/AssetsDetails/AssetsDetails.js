@@ -12,7 +12,7 @@ import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatINR,
-	getApplicantCoApplicantSelectOptions,
+	getSelectDirectorOptions,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -26,6 +26,7 @@ const AssetsDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
+	const { directors } = useSelector(state => state.directors);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -144,8 +145,8 @@ const AssetsDetails = props => {
 															<span>Assets For:</span>
 															<strong>
 																{
-																	getApplicantCoApplicantSelectOptions({
-																		applicantCoApplicants,
+																	getSelectDirectorOptions({
+																		directors,
 																	})?.filter(
 																		director =>
 																			`${director?.value}` ===

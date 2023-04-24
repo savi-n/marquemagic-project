@@ -31,7 +31,7 @@ import {
 	getDocumentCategoryName,
 	parseJSON,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
+	getSelectDirectorOptions,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -47,7 +47,7 @@ const DocumentUpload = props => {
 	const { app, applicantCoApplicants, application } = useSelector(
 		state => state
 	);
-	// const { userToken } = app;
+	const { directors } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -592,9 +592,8 @@ const DocumentUpload = props => {
 
 		// SET MANDATORY FIELDS IN DOC UPLOAD SECTION TO APPLICANT/COAPPLICANT
 		function saveMandatoryGeoLocation() {
-			const coApplicantList = getApplicantCoApplicantSelectOptions({
-				applicantCoApplicants,
-				isEditOrViewLoan,
+			const coApplicantList = getSelectDirectorOptions({
+				directors,
 			}).filter(
 				director => Number(director.value) !== Number(applicant.directorId)
 			);
@@ -1030,12 +1029,9 @@ const DocumentUpload = props => {
 
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
 	const isAppCoAppVerificationComplete = () => {
-		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
-			{
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}
-		);
+		const newApplicantAndCoapplicantOptions = getSelectDirectorOptions({
+			directors,
+		});
 		let result = true;
 		newApplicantAndCoapplicantOptions.map(director => {
 			if (Number(applicant.directorId) === Number(director.value)) {
@@ -1249,9 +1245,8 @@ const DocumentUpload = props => {
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
 	// const isMandatoryGeoVerificationComplete = () => {
-	// 	const appCoappsList = getApplicantCoApplicantSelectOptions({
-	// 		applicantCoApplicants,
-	// 		isEditOrViewLoan,
+	// 	const appCoappsList = getSelectDirectorOptions({
+	// 		directors
 	// 	});
 	// 	if (
 	// 		Object.keys(geoLocation).length > 0 &&

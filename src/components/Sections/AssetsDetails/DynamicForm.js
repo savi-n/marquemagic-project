@@ -10,7 +10,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
+	getSelectDirectorOptions,
 	isFieldValid,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -33,6 +33,7 @@ const DynamicForm = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
+	const { directors } = useSelector(state => state.directors);
 	const { isTestMode, selectedSection } = app;
 	const { isApplicant } = applicantCoApplicants;
 	const { register, formState, handleSubmit } = useForm();
@@ -190,8 +191,8 @@ const DynamicForm = props => {
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
 					if (newField.name === CONST.FIELD_NAME_ASSETS_FOR) {
-						newField.options = getApplicantCoApplicantSelectOptions({
-							applicantCoApplicants,
+						newField.options = getSelectDirectorOptions({
+							directors,
 						});
 					}
 

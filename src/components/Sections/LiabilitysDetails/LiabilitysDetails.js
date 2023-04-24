@@ -11,7 +11,7 @@ import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatINR,
-	getApplicantCoApplicantSelectOptions,
+	getSelectDirectorOptions,
 	parseJSON,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
@@ -26,6 +26,7 @@ const LiabilitysDetails = props => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
+	const { directors } = useSelector(state => state.directors);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -145,8 +146,8 @@ const LiabilitysDetails = props => {
 															<span>Liability For:</span>
 															<strong>
 																{
-																	getApplicantCoApplicantSelectOptions({
-																		applicantCoApplicants,
+																	getSelectDirectorOptions({
+																		directors,
 																	})?.filter(
 																		director =>
 																			`${director?.value}` ===
