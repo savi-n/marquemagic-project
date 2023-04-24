@@ -4,8 +4,9 @@ import axios from 'axios';
 
 import Button from 'components/Button';
 import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 
 import { formatGetSectionReqBody } from 'utils/formatData';
@@ -20,16 +21,7 @@ const BankDetails = () => {
 	const { app, application, applicantCoApplicants } = useSelector(
 		state => state
 	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		prevSectionId,
-		selectedSection,
-		isTestMode,
-		isLocalhost,
-		// isEditLoan,
-	} = app;
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -70,14 +62,6 @@ const BankDetails = () => {
 		} finally {
 			setFetchingSectionData(false);
 		}
-	};
-
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
 	const onSkip = () => {
@@ -337,29 +321,7 @@ const BankDetails = () => {
 							<Button fill name='Save and Proceed' onClick={onSkip} />
 						)}
 
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)}
-
-						{/* buttons for easy development starts */}
-						{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-							<Button name='Skip' onClick={onSkip} />
-						) : null}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
-						{/* buttons for easy development ends */}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

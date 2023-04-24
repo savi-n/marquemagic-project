@@ -532,6 +532,14 @@ export const getApplicantCoApplicantSelectOptions = data => {
 	return options;
 };
 
+export const getAllCompletedSections = data => {
+	const { application, selectedDirector } = data;
+	return [
+		...(application?.sections || []),
+		...(selectedDirector?.sections || []),
+	];
+};
+
 export const getCompletedSections = data => {
 	const {
 		selectedProduct,
@@ -885,4 +893,26 @@ export const formatINR = value => {
 		style: 'currency',
 		currency: 'INR',
 	}).format(value);
+};
+
+export const isDirectorApplicant = director => {
+	return director?.type_name === 'Applicant';
+	// item.type_name === 'Director' ||
+	// item.type_name === 'Partner' ||
+	// item.type_name === 'Member' ||
+	// item.type_name === 'Proprietor'
+};
+
+export const getDirectorFullName = director => {
+	const fullName = [];
+	if (director.dfirstname) fullName.push(director.dfirstname);
+	if (director.dlastname) fullName.push(director.dlastname);
+	return fullName.join(' ');
+};
+
+export const getShortString = (str, max) => {
+	if (str.length > max) {
+		return str.slice(0, max) + '...';
+	}
+	return str;
 };

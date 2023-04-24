@@ -12,10 +12,11 @@ import _ from 'lodash';
 import Button from 'components/Button';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
 import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import { updateApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
@@ -38,11 +39,7 @@ const LoanDetails = () => {
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
-		isLocalhost,
-		// isEditLoan,
-		// editLoanData,
 		isEditOrViewLoan,
 	} = app;
 	const { loanId, cacheDocuments } = application;
@@ -130,13 +127,6 @@ const LoanDetails = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
 	const onProceed = async () => {
@@ -254,17 +244,6 @@ const LoanDetails = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
@@ -540,27 +519,7 @@ const LoanDetails = () => {
 							/>
 						)}
 
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)}
-
-						{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-							<Button name='Skip' disabled={loading} onClick={onSkip} />
-						) : null}
-						{isLocalhost && !isViewLoan && !!isTestMode && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

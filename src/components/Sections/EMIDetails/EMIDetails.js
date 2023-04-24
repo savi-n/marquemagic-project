@@ -4,10 +4,11 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
 import {
 	createIndexKeyObjectFromArrayOfObject,
@@ -27,9 +28,7 @@ const EMIDetails = props => {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
-		prevSectionId,
 		selectedSection,
-		isLocalhost,
 		isTestMode,
 		editLoanData,
 		isEditLoan,
@@ -43,12 +42,7 @@ const EMIDetails = props => {
 	const [count, setCount] = useState(selectedEmiDetailsSubSection?.min || 3);
 	const MAX_COUNT = selectedEmiDetailsSubSection?.max || 10;
 	const { handleSubmit, register, formState } = useForm();
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
+
 	const onProceed = async () => {
 		try {
 			setLoading(true);
@@ -119,24 +113,6 @@ const EMIDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = { ...formState.values };
-		}
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
@@ -330,26 +306,7 @@ const EMIDetails = props => {
 					/>
 				)}
 
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-
-				{/* buttons for easy development starts */}
-
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{isLocalhost && !isViewLoan && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-				{/* buttons for easy development ends */}
+				<NavigateCTA />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
