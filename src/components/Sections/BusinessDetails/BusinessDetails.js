@@ -91,7 +91,7 @@ const BuissnessDetails = props => {
 	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail,setisPrefilEmail]= useState(true);
-
+	const [isPrefilMobileNumber,setIsPrefilMobileNumber]= useState(true);
 
 	const {
 		handleSubmit,
@@ -364,10 +364,13 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-	function handleBlur(e){
+	function handleBlurEmail(e){
 		// console.log("input blurred",e);
 		setisPrefilEmail(false);
 		// console.log(e);
+	}
+	function handleBlurMobileNumber(e){
+		setIsPrefilMobileNumber(false);
 	}
 	const fetchSectionDetails = async () => {
 		try {
@@ -665,8 +668,7 @@ const BuissnessDetails = props => {
 										}
 										if(field.name==='email'){
 											// console.log("Contact")
-											customFieldProps.onblur=handleBlur
-
+											customFieldProps.onblur=handleBlurEmail
 										}
 										if(field.name==='contact_email'){
 											if(isPrefilEmail){
@@ -674,6 +676,14 @@ const BuissnessDetails = props => {
 												customFieldProps.value=formState.values.email
 											}
 											// customFieldProps.value=formState.values.email
+										}
+										if(field.name==='business_mobile_no'){
+											customFieldProps.onblur=handleBlurMobileNumber
+										}
+										if(field.name==='mobile_no'){
+											if(isPrefilMobileNumber){
+												customFieldProps.value=formState.values.business_mobile_no;
+											}
 										}
 
 										return (
