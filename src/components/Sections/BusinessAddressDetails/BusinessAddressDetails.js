@@ -68,6 +68,7 @@ const BusinessAddressDetails = props => {
 	const [sectionData, setSectionData] = useState([]);
 	const [gstAndUan, setGstAndUan] = useState({});
 	const [gstNumbers, setGstNumbers] = useState([]);
+	const [udyamData, setUdyamData] = useState({});
 
 	/*
 	--------------------------------------------------- /business_address_details GET API  --------------------------------------------
@@ -100,8 +101,30 @@ const BusinessAddressDetails = props => {
 					gst: fetchRes?.data?.data?.gstin,
 					uan: fetchRes?.data?.data?.udyam_number,
 				});
-				fetchAllGstNumbers(fetchRes?.data?.data?.pan);
+				if (!fetchRes?.data?.data?.udyam_number) {
+					fetchAllGstNumbers(fetchRes?.data?.data?.pan);
+				} else {
+					try {
+						const verifyUdyogRes = await axios.get(
+							`${API.ENDPOINT_BANK}/get/udyam?udyamRegNo=${
+								fetchRes?.data?.data?.udyam_number
+							}`,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+						if (verifyUdyogRes?.data?.status === 'ok') {
+							setUdyamData(verifyUdyogRes?.data?.data);
+						}
+					} catch (error) {
+						console.error(error);
+					}
+				}
 				// populateFromResponse(address);
+			} else {
+				setSectionData([]);
 			}
 		} catch (error) {
 			console.error('error-BusinessAddressDetails', {
@@ -345,6 +368,8 @@ const BusinessAddressDetails = props => {
 	const prefilledValues = field => {
 		try {
 			const address = sectionData?.filter(address => address?.aid === 1)?.[0];
+			let udyamDetails = {};
+
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
@@ -356,20 +381,24 @@ const BusinessAddressDetails = props => {
 			}
 			// -- TEST MODE
 
-			// console.log({
-			// 	field,
-			// 	sectionData,
-			// 	value: address?.[field?.db_key],
-			// 	key: field?.db_key,
-			// 	gstAndUan,
-			// 	gstUan: !gstAndUan?.uan,
-			// });
-			if (field?.name === 'select_gstin') return gstAndUan?.gst;
-
+			if (!!udyamData && Object.values(udyamData)?.length > 0 && !address) {
+				udyamDetails = {
+					[CONST.ADDRESS_LINE_1_DB_KEY]:
+						udyamData?.officialAddress?.['Flat/Door/Block No.'],
+					[CONST.ADDRESS_LINE_2_DB_KEY]:
+						udyamData?.officialAddress?.['Road/Street/Lane'] || '',
+					[CONST.ADDRESS_LINE_3_DB_KEY]:
+						udyamData?.officialAddress?.['Name of Premises/ Building'] || '',
+					[CONST.PINCODE_DB_KEY]: udyamData?.officialAddress?.['Pin:'] || '',
+					[CONST.CITY_DB_KEY]: udyamData?.officialAddress?.['City'] || '',
+					[CONST.STATE_DB_KEY]: udyamData?.officialAddress?.['State'] || '',
+				};
+				return udyamDetails?.[field?.db_key];
+			}
+			if (field?.name === CONST.SELECT_GSTIN_FIELD_NAME) return gstAndUan?.gst;
 			return address?.[field?.db_key];
 		} catch (error) {
 			console.error(error);
-			return {};
 		}
 	};
 
@@ -451,7 +480,9 @@ const BusinessAddressDetails = props => {
 					<Button
 						fill
 						name={
-							fetchingGstAddress ? 'Fetching Address...' : 'Save and Proceed'
+							fetchingGstAddress || loading
+								? 'Fetching Address...'
+								: 'Save and Proceed'
 						}
 						isLoader={loading}
 						disabled={loading || fetchingGstAddress}

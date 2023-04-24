@@ -7,6 +7,7 @@ export const Wrapper = styled.div`
 export const SubSectionHeader = styled.h2`
 	font-size: 1.5em;
 	font-weight: 500;
+	margin: 20px 0;
 `;
 
 export const FormWrapGrid = styled.div`

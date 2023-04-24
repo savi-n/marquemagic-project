@@ -113,3 +113,17 @@ export const ImgClose = styled.img`
 	margin-left: auto;
 	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
 `;
+
+export const Field = styled.div`
+	margin: 40px 0;
+`;
+
+export const ButtonWrapper = styled.div`
+	text-align: center;
+`;
+
+export const Title = styled.div`
+	text-align: center;
+	margin: 20px 0;
+	font-size: large;
+`;
