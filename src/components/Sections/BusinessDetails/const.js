@@ -37,3 +37,4 @@ export const UDYAM_NUMBER_FIELD_NAME = 'udyam_number';
 export const MOBILE_NUMBER_FIELD_NAME = 'mobile_no';
 export const GSTIN_FIELD_NAME = 'gstin';
 export const BUSINESS_EMAIL_FIELD = 'email';
+export const CONTACT_EMAIL_FIELD='contact_email'

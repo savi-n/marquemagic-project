@@ -666,21 +666,21 @@ const BuissnessDetails = props => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
-										if(field.name==='email'){
+										if(field.name===CONST.BUSINESS_EMAIL_FIELD){
 											// console.log("Contact")
 											customFieldProps.onblur=handleBlurEmail
 										}
-										if(field.name==='contact_email'){
+										if(field.name===CONST.CONTACT_EMAIL_FIELD){
 											if(isPrefilEmail){
 												// console.log(formState?.values?.email);
 												customFieldProps.value=formState.values.email
 											}
 											// customFieldProps.value=formState.values.email
 										}
-										if(field.name==='business_mobile_no'){
+										if(field.name===CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME){
 											customFieldProps.onblur=handleBlurMobileNumber
 										}
-										if(field.name==='mobile_no'){
+										if(field.name===CONST.MOBILE_NUMBER_FIELD_NAME){
 											if(isPrefilMobileNumber){
 												customFieldProps.value=formState.values.business_mobile_no;
 											}
