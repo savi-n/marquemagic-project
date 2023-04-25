@@ -84,23 +84,16 @@ export const getSelectedSubField = data => {
 };
 
 export const formatGetSectionReqBody = data => {
-	const { application, applicantCoApplicants } = data;
+	const { application, selectedDirector } = data;
 	const { loanRefId, businessId, loanId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const reqBody = {
 		business_id: businessId,
 		loan_ref_id: loanRefId,
-		director_id: selectedApplicant?.directorId,
 		loan_id: loanId,
 	};
+	if (selectedDirector?.directorId) {
+		reqBody.director_id = selectedDirector?.directorId;
+	}
 	return queryString.stringify(reqBody);
 };
 
@@ -112,7 +105,6 @@ export const formatSectionReqBody = data => {
 			selectedDirector,
 			application,
 			selectedLoanProductId,
-			isApplicant,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
@@ -184,7 +176,6 @@ export const formatSectionReqBody = data => {
 		if (selectedDirector?.directorId) {
 			reqBody.director_id = selectedDirector?.directorId;
 		}
-		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 		// console.log('formatSectionReqBody-', { data, selectedApplicant });
@@ -486,34 +477,20 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 	};
 };
 
-export const getApplicantCoApplicantSelectOptions = data => {
-	const { applicantCoApplicants } = data;
-	const { applicant, coApplicants } = applicantCoApplicants;
+export const getSelectDirectorOptions = data => {
+	const { directors } = data;
 	const options = [];
-
-	const applicantFirstName =
-		applicant?.basic_details?.first_name || applicant?.dfirstname || '';
-	const applicantLastName =
-		applicant?.basic_details?.last_name || applicant?.dlastname || '';
-	const applicantName = [applicantFirstName, applicantLastName].join(' ');
-
-	options.push({
-		name: applicantName,
-		value: applicant?.directorId,
-	});
-	Object.keys(coApplicants).map(directorId => {
-		const coApplicantFirstName =
-			coApplicants?.[directorId]?.basic_details?.first_name ||
-			coApplicants?.[directorId]?.dfirstname ||
+	Object.keys(directors).map(directorId => {
+		const firstName =
+			directors?.[directorId]?.basic_details?.first_name ||
+			directors?.[directorId]?.dfirstname ||
 			'';
-		const coApplicantLastName =
-			coApplicants?.[directorId]?.basic_details?.last_name ||
-			coApplicants?.[directorId]?.dlastname ||
+		const lastName =
+			directors?.[directorId]?.basic_details?.last_name ||
+			directors?.[directorId]?.dlastname ||
 			'';
 
-		const coApplicantName = [coApplicantFirstName, coApplicantLastName].join(
-			' '
-		);
+		const coApplicantName = [firstName, lastName].join(' ');
 
 		options.push({
 			name: coApplicantName,

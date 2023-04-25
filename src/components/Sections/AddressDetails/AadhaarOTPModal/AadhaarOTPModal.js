@@ -15,7 +15,6 @@ import {
 	AADHAAR_RESEND_OTP,
 	RESEND_OTP_TIMER,
 } from '_config/app.config';
-// import { setVerifyOtpResponse } from 'store/applicantCoApplicantsSlice';
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
@@ -97,10 +96,8 @@ const AadhaarOTPModal = props => {
 		formState,
 		setVerifyOtpResponseTemp,
 	} = props;
-	const { application, app, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const { applicant, coApplicants } = applicantCoApplicants;
+	const { application, app } = useSelector(state => state);
+	const { selectedDirector } = useSelector(state => state.directors);
 	const { loanProductId } = application;
 	const { selectedSection, clientToken, selectedProduct } = app;
 	const { addToast } = useToasts();
@@ -131,10 +128,8 @@ const AadhaarOTPModal = props => {
 			section: selectedSection,
 			values: initialFormState.values,
 			app,
-			applicantCoApplicants,
 			application,
-			applicant,
-			coApplicants,
+			selectedDirector,
 		});
 
 		try {

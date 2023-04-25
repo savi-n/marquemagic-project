@@ -8,34 +8,34 @@ import Button from 'components/Button';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import * as UI_SECTIONS from 'components/Sections/ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
+// import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import { setSelectedSectionId } from 'store/appSlice';
 import {
 	setAddNewDirectorKey,
+	setCompletedDirectorSection,
 	setSelectedDirectorId,
 } from 'store/directorsSlice';
 import {
-	updateApplicantSection,
-	setSelectedApplicantCoApplicantId,
-	updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
-import {
 	formatSectionReqBody,
-	getApplicantNavigationDetails,
+	// getApplicantNavigationDetails,
 	getApiErrorMessage,
-	validateEmploymentDetails,
+	// validateEmploymentDetails,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 
 const EmploymentDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const {
+		directors,
+		applicantDirectorId,
+		isApplicant,
+		selectedDirectorId,
+	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
 		selectedSectionId,
-		selectedProduct,
 		nextSectionId,
 		firstSectionId,
 		isTestMode,
@@ -43,48 +43,39 @@ const EmploymentDetails = () => {
 		isEditLoan,
 		isDraftLoan,
 	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
 
-	const {
-		nextApplicantDirectorId,
-		// lastDirectorId,
-		isLastApplicantIsSelected,
-	} = getApplicantNavigationDetails({
-		applicant,
-		coApplicants,
-		selectedApplicant,
-	});
+	// const {
+	// 	nextApplicantDirectorId,
+	// 	lastDirectorId,
+	// 	isLastApplicantIsSelected,
+	// } = getApplicantNavigationDetails({
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedDirector,
+	// });
 
 	const validateNavigation = () => {
-		const isValid = validateEmploymentDetails({
-			coApplicants,
-			isApplicant,
-		});
-		if (
-			isValid === false &&
-			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
-		) {
-			addToast({
-				message:
-					'Please fill all the details in Co-Applicant-' +
-					Object.keys(coApplicants)?.length,
-				type: 'error',
-			});
-			return false;
-		}
+		// TODO: shreyas update logic
+		// const isValid = validateEmploymentDetails({
+		// 	coApplicants,
+		// 	isApplicant,
+		// });
+		// if (
+		// 	isValid === false &&
+		// 	selectedDirector?.directorId !== +Object.keys(coApplicants).pop()
+		// ) {
+		// 	addToast({
+		// 		message:
+		// 			'Please fill all the details in Co-Applicant-' +
+		// 			Object.keys(coApplicants)?.length,
+		// 		type: 'error',
+		// 	});
+		// 	return false;
+		// }
 		return true;
 	};
 
@@ -94,48 +85,37 @@ const EmploymentDetails = () => {
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				values: formState.values,
 			});
 
-			if (selectedApplicant?.employmentId) {
-				employmentDetailsReqBody.employment_id =
-					selectedApplicant?.employmentId;
+			if (selectedDirector?.employmentId) {
+				employmentDetailsReqBody.employment_id = selectedDirector?.employmentId;
 			}
-			if (selectedApplicant?.incomeDataId) {
+			if (selectedDirector?.incomeDataId) {
 				employmentDetailsReqBody.income_data_id =
-					selectedApplicant?.incomeDataId;
+					selectedDirector?.incomeDataId;
 			}
 
 			// console.log('-employmentDetailsReq-', {
 			// 	employmentDetailsReqBody,
 			// 	app,
-			// 	applicantCoApplicants,
+			// 	selectedDirector,
 			// 	application,
 			// });
-			const employmentDetailsRes = await axios.post(
+			// const employmentDetailsRes =
+			await axios.post(
 				`${API_END_POINT}/employmentData`,
 				employmentDetailsReqBody
 			);
 			// console.log('-employmentDetailsRes-', {
 			// 	employmentDetailsRes,
 			// });
-			const newEmploymentDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-				employmentId: employmentDetailsRes?.data?.data?.employment_id,
-				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
-				directorId,
-			};
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newEmploymentDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newEmploymentDetails));
-			}
+			dispatch(setCompletedDirectorSection(selectedSectionId));
 			return true;
 		} catch (error) {
-			console.error('error-submitEmploymentDetails-onProceed-', {
+			console.error('error-submitEmploymentDetails-onSaveAndProceed-', {
 				error: error,
 				res: error?.response,
 				resres: error?.response?.response,
@@ -163,7 +143,7 @@ const EmploymentDetails = () => {
 		dispatch(setSelectedSectionId(firstSectionId));
 	};
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			if (!isDraftLoan && !validateNavigation()) {
 				return;
@@ -172,31 +152,31 @@ const EmploymentDetails = () => {
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
 
+			// TODO: udpate draft logics
 			// draft stage next applicant exist
-			if (isDraftLoan && !isLastApplicantIsSelected) {
-				dispatch(setSelectedApplicantCoApplicantId(nextApplicantDirectorId));
-				dispatch(setSelectedSectionId(firstSectionId));
-				return;
-			}
+			// if (isDraftLoan && !isLastApplicantIsSelected) {
+			// 	dispatch(setSelectedDirectorId(nextApplicantDirectorId));
+			// 	dispatch(setSelectedSectionId(firstSectionId));
+			// 	return;
+			// }
 
 			// draft stage last applicant
-			if (isDraftLoan && isLastApplicantIsSelected) {
-				dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
-				dispatch(setSelectedSectionId(nextSectionId));
-				return;
-			}
+			// if (isDraftLoan && isLastApplicantIsSelected) {
+			// 	dispatch(setselectedDirectorCoApplicantId(CONST_SECTIONS.APPLICANT));
+			// 	dispatch(setSelectedSectionId(nextSectionId));
+			// 	return;
+			// }
 
-			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
+			dispatch(setSelectedDirectorId(applicantDirectorId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-EmploymentDetails-onProceed-', error);
+			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
 		}
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
-		const selectedEmploymentData =
-			selectedApplicant?.employment_data?.[0] || {};
-		const selectedEmploymentIncomeData = selectedApplicant?.incomeData || {};
+		const selectedEmploymentData = selectedDirector?.employment_data?.[0] || {};
+		const selectedEmploymentIncomeData = selectedDirector?.incomeData || {};
 		const preData = {
 			...selectedEmploymentData,
 			years_in_company: selectedEmploymentData?.year_in_company,
@@ -209,15 +189,15 @@ const EmploymentDetails = () => {
 			organization_type_professional: selectedEmploymentData?.organization_type,
 			organization_type_others: selectedEmploymentData?.organization_type,
 			company_name: selectedEmploymentData?.company_name,
-			employee_number: selectedApplicant?.employee_number,
-			retirement_age: selectedApplicant?.retirement_age,
-			deductions: selectedApplicant?.deductions,
-			income_loan_repayment: selectedApplicant?.income_loan_repayment,
+			employee_number: selectedDirector?.employee_number,
+			retirement_age: selectedDirector?.retirement_age,
+			deductions: selectedDirector?.deductions,
+			income_loan_repayment: selectedDirector?.income_loan_repayment,
 			...selectedEmploymentIncomeData,
 		};
 		return preData?.[field?.name];
 	};
-	// const selectedEmploymentData = selectedApplicant?.employment_data?.[0] || {};
+	// const selectedEmploymentData = selectedDirector?.employment_data?.[0] || {};
 	// console.log(selectedEmploymentData);
 	const prefilledValues = field => {
 		try {
@@ -236,10 +216,8 @@ const EmploymentDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
-			) {
-				return selectedApplicant?.[selectedSectionId]?.[field?.name];
+			if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
+				return selectedDirector?.[selectedSectionId]?.[field?.name];
 			}
 
 			let editViewLoanValue = '';
@@ -258,22 +236,26 @@ const EmploymentDetails = () => {
 
 	let displayProceedCTA = true;
 	let displayAddCoApplicantCTA = true;
-	if (
-		isViewLoan ||
-		(selectedProduct?.product_details?.is_coapplicant_mandatory &&
-			Object.keys(coApplicants || {})?.length <= 0)
-	) {
-		displayProceedCTA = false;
-	}
+
+	// TODO: varun validate CTA based on coapplicant count
+	// if (
+	// 	isViewLoan ||
+	// 	(selectedProduct?.product_details?.is_coapplicant_mandatory &&
+	// 		Object.keys(coApplicants || {})?.length <= 0)
+	// ) {
+	// 	displayProceedCTA = false;
+	// }
 
 	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
 		displayAddCoApplicantCTA = false;
 	}
-	if (isDraftLoan && !isLastApplicantIsSelected) {
-		displayAddCoApplicantCTA = false;
-	}
 
-	console.log('employment-details-', { coApplicants, app });
+	// TODO: update draft validation logic
+	// if (isDraftLoan && !isLastApplicantIsSelected) {
+	// 	displayAddCoApplicantCTA = false;
+	// }
+
+	console.log('employment-details-', { app });
 
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -355,7 +337,7 @@ const EmploymentDetails = () => {
 						name='Save and Proceed'
 						isLoader={loading}
 						disabled={loading}
-						onClick={handleSubmit(onProceed)}
+						onClick={handleSubmit(onSaveAndProceed)}
 					/>
 				)}
 				{/* visibility of add co-applicant based on the config */}

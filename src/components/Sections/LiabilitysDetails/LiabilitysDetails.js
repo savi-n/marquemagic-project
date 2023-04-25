@@ -11,7 +11,6 @@ import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatINR,
-	getApplicantCoApplicantSelectOptions,
 	parseJSON,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
@@ -23,9 +22,8 @@ import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
 
 const LiabilitysDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const { selectDirectorOptions } = useSelector(state => state.directors);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -47,7 +45,6 @@ const LiabilitysDetails = props => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/liability_details?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -145,9 +142,7 @@ const LiabilitysDetails = props => {
 															<span>Liability For:</span>
 															<strong>
 																{
-																	getApplicantCoApplicantSelectOptions({
-																		applicantCoApplicants,
-																	})?.filter(
+																	selectDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
 																			`${prefillData?.director_id}`

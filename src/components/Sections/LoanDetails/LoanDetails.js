@@ -22,7 +22,6 @@ import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -30,8 +29,9 @@ import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
 
 const LoanDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { selectedDirector, selectDirectorOptions } = useSelector(
+		state => state.directors
 	);
 	const {
 		isViewLoan,
@@ -42,28 +42,15 @@ const LoanDetails = () => {
 		isEditOrViewLoan,
 	} = app;
 	const { loanId, cacheDocuments } = application;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const selectedIncomeType =
-		selectedApplicant?.basic_details?.[
+		selectedDirector?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		] || selectedApplicant?.income_type;
+		] || selectedDirector?.income_type;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [
-		applicantAndCoapplicantOptions,
-		setApplicantAndCoapplicantOptions,
-	] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const {
@@ -131,7 +118,6 @@ const LoanDetails = () => {
 			setLoading(true);
 			const loanDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
 				application,
 				values: formState.values,
 			});
@@ -285,7 +271,6 @@ const LoanDetails = () => {
 			const fetchRes = await axios.get(
 				`${API.API_END_POINT}/updateLoanDetails?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -347,24 +332,9 @@ const LoanDetails = () => {
 	// console.log('loan-details-allstates-', {
 	// 	app,
 	// 	application,
-	// 	applicantCoApplicants,
+	// 	selectedDirector,
 	// 	formState,
 	// });
-
-	useEffect(() => {
-		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
-			{
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}
-		);
-		// console.log(
-		// 	newApplicantAndCoapplicantOptions,
-		// 	'newApplicantAndCoapplicantOptions-loan-details'
-		// );
-		setApplicantAndCoapplicantOptions(newApplicantAndCoapplicantOptions);
-		// eslint-disable-next-line
-	}, [applicantCoApplicants]);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -394,12 +364,8 @@ const LoanDetails = () => {
 												return null;
 										}
 										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-											// const newOptions = getApplicantCoApplicantSelectOptions({
-											// 	applicantCoApplicants,
-											// 	isEditOrViewLoan,
-											// });
 											newField.options = [
-												...applicantAndCoapplicantOptions,
+												...selectDirectorOptions,
 												...newField.options,
 											];
 										}

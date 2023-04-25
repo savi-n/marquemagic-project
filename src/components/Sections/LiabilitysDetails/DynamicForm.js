@@ -10,7 +10,6 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
 	isFieldValid,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -29,11 +28,12 @@ const DynamicForm = props => {
 		editSectionId = '',
 	} = props;
 	const isViewLoan = !isEditLoan;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { selectedDirectors, isApplicant } = useSelector(
+		state => state.directors
 	);
+	const { selectDirectorOptions } = useSelector(state => state.directors);
 	const { isTestMode, selectedSection } = app;
-	const { isApplicant } = applicantCoApplicants;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +113,7 @@ const DynamicForm = props => {
 					...formState.values,
 				},
 				app,
-				applicantCoApplicants,
+				selectedDirectors,
 				application,
 			});
 			if (editSectionId) {
@@ -166,9 +166,7 @@ const DynamicForm = props => {
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
 					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = getApplicantCoApplicantSelectOptions({
-							applicantCoApplicants,
-						});
+						newField.options = selectDirectorOptions;
 					}
 
 					if (isViewLoan) {

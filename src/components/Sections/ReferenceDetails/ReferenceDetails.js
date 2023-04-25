@@ -21,9 +21,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const ReferenceDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -74,7 +72,6 @@ const ReferenceDetails = () => {
 				section: selectedSection,
 				values: formState.values,
 				app,
-				applicantCoApplicants,
 				application,
 			});
 			referenceDetailsReqBody.data.reference_details = reference_details;
@@ -172,7 +169,6 @@ const ReferenceDetails = () => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/LoanReferences/create?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			console.log('fetchRes-', fetchRes);

@@ -18,9 +18,7 @@ import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
 
 const BankDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -42,7 +40,6 @@ const BankDetails = () => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/bank_details?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -94,63 +91,6 @@ const BankDetails = () => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
-
-	// const prefilledEditOrViewLoanValues = field => {
-	// 	const bankData =
-	// 		editLoanData?.bank_details?.filter(
-	// 			data => data.fin_type === CONST.FIN_TYPE_BANK_ACCOUNT
-	// 		)?.[0] || {};
-	// 	const preData = {
-	// 		bank_name: bankData?.bank_id,
-	// 		account_number: bankData?.account_number,
-	// 		ifsc_code: bankData?.IFSC,
-	// 		account_type: bankData?.account_type,
-	// 		account_holder_name: bankData?.account_holder_name,
-	// 		start_date: bankData?.outstanding_start_date,
-	// 		end_date: bankData?.outstanding_end_date,
-	// 	};
-	// 	// console.log('predata-', { bankData });
-	// 	return preData?.[field?.name];
-	// };
-
-	// const prefilledValues = field => {
-	// 	try {
-	// 		if (isViewLoan) {
-	// 			return prefilledEditOrViewLoanValues(field) || '';
-	// 		}
-
-	// 		const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-	// 		if (isFormStateUpdated) {
-	// 			return formState?.values?.[field.name];
-	// 		}
-
-	// 		// TEST MODE
-	// 		if (isTestMode && CONST.initialFormState?.[field?.name]) {
-	// 			return CONST.initialFormState?.[field?.name];
-	// 		}
-	// 		// -- TEST MODE
-
-	// 		if (
-	// 			Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-	// 			// &&
-	// 			// !application?.sections?.[selectedSectionId]?.hasOwnProperty('isSkip')
-	// 		) {
-	// 			return application?.sections?.[selectedSectionId]?.[field?.name];
-	// 		}
-
-	// 		let editViewLoanValue = '';
-
-	// 		if (isEditLoan) {
-	// 			editViewLoanValue = prefilledEditOrViewLoanValues(field);
-	// 		}
-
-	// 		if (editViewLoanValue) return editViewLoanValue;
-
-	// 		return field?.value || '';
-	// 	} catch (error) {
-	// 		return {};
-	// 	}
-	// };
 
 	// console.log('bank-details-', { app, application });
 
