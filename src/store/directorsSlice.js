@@ -135,6 +135,9 @@ export const directorsSlice = createSlice({
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;
 			state.selectedDirectorOptions = newSelectedDirectorOptions;
+			if (newSelectedDirectorOptions.length === 0) {
+				state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
+			}
 		},
 		[getDirectors.rejected]: (state, { payload }) => {
 			state.fetchingDirectors = false;
