@@ -56,7 +56,12 @@ const ApplicantCoApplicantHeader = props => {
 	const fetchDirectors = async () => {
 		// console.log("Applicant CoApp header");
 		if (!businessId) {
-			return dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			if (selectedProduct?.isSelectedProductTypeSalaried) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			} else {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+			}
+			return;
 		}
 		try {
 			// setFetchingDirectors(true);
@@ -93,7 +98,7 @@ const ApplicantCoApplicantHeader = props => {
 	// 	refListWrapper,
 	// });
 
-	const onClickApplicantCoApplicant = id => {
+	const onClickDirectorAvatar = id => {
 		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
 		// 	return setIsDeleteCoApplicantModalOpen(id);
 		// }
@@ -170,12 +175,28 @@ const ApplicantCoApplicantHeader = props => {
 							onNo={() => setIsDeleteCoApplicantModalOpen(false)}
 							onYes={() => {
 								setIsDeleteCoApplicantModalOpen(false);
-								onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT);
+								onClickDirectorAvatar(CONST_SECTIONS.APPLICANT);
 							}}
 							label={isDeleteCoApplicantModalOpen}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							selectedSectionId ===
+								CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID && (
+								<UI.LI>
+									<UI.Avatar
+										src={
+											!selectedDirectorId
+												? iconAvatarActive
+												: iconAvatarInActive
+										}
+										alt='Avatar'
+										onClick={() => onClickDirectorAvatar('')}
+									/>
+									<UI.AvatarName>Entity</UI.AvatarName>
+								</UI.LI>
+							)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
 							let isMandatoryDocumentSubmited = true;
 							const director = directors[directorId];
@@ -216,7 +237,7 @@ const ApplicantCoApplicantHeader = props => {
 													: iconAvatarInActive
 											}
 											alt='Avatar'
-											onClick={() => onClickApplicantCoApplicant(directorId)}
+											onClick={() => onClickDirectorAvatar(directorId)}
 										/>
 										{selectedSectionId ===
 											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
@@ -233,15 +254,16 @@ const ApplicantCoApplicantHeader = props => {
 						})}
 						{addNewDirectorKey && (
 							<UI.LI>
-								{addNewDirectorKey !== DIRECTOR_TYPES.applicant && (
-									<UI.BadgeDelete
-										src={iconDelete}
-										onClick={() =>
-											setIsDeleteCoApplicantModalOpen(addNewDirectorKey)
-										}
-										alt='delete'
-									/>
-								)}
+								{addNewDirectorKey !== DIRECTOR_TYPES.applicant &&
+									Object.keys(directors).length !== 0 && (
+										<UI.BadgeDelete
+											src={iconDelete}
+											onClick={() =>
+												setIsDeleteCoApplicantModalOpen(addNewDirectorKey)
+											}
+											alt='delete'
+										/>
+									)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
 								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
 							</UI.LI>
