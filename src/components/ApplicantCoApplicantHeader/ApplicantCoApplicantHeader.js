@@ -56,7 +56,12 @@ const ApplicantCoApplicantHeader = props => {
 	const fetchDirectors = async () => {
 		// console.log("Applicant CoApp header");
 		if (!businessId) {
-			return dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			if (selectedProduct?.isSelectedProductTypeSalaried) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			} else {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+			}
+			return;
 		}
 		try {
 			// setFetchingDirectors(true);
