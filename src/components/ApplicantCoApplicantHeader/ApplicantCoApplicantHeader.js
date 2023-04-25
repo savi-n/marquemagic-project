@@ -8,7 +8,12 @@ import Loading from 'components/Loading';
 import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
-import { getDirectors, setSelectedDirectorId } from 'store/directorsSlice';
+import {
+	DIRECTOR_TYPES,
+	getDirectors,
+	setAddNewDirectorKey,
+	setSelectedDirectorId,
+} from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
@@ -50,7 +55,9 @@ const ApplicantCoApplicantHeader = props => {
 
 	const fetchDirectors = async () => {
 		// console.log("Applicant CoApp header");
-		if (!businessId) return;
+		if (!businessId) {
+			return dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+		}
 		try {
 			// setFetchingDirectors(true);
 			// const directorsRes = await axios.get(
@@ -169,17 +176,6 @@ const ApplicantCoApplicantHeader = props => {
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
-						{Object.keys(directors).length === 0 && (
-							<UI.LI>
-								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
-								{/* TODO: varun update mandatory flag doc upload */}
-								{/* {selectedSectionId ===
-									CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-									!isApplicantMandatoryDocumentSubmited &&
-									<UI.BadgeInvalid />} */}
-								<UI.AvatarName>Applicant</UI.AvatarName>
-							</UI.LI>
-						)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
 							let isMandatoryDocumentSubmited = true;
 							const director = directors[directorId];
@@ -237,13 +233,15 @@ const ApplicantCoApplicantHeader = props => {
 						})}
 						{addNewDirectorKey && (
 							<UI.LI>
-								<UI.BadgeDelete
-									src={iconDelete}
-									onClick={() =>
-										setIsDeleteCoApplicantModalOpen(addNewDirectorKey)
-									}
-									alt='delete'
-								/>
+								{addNewDirectorKey !== DIRECTOR_TYPES.applicant && (
+									<UI.BadgeDelete
+										src={iconDelete}
+										onClick={() =>
+											setIsDeleteCoApplicantModalOpen(addNewDirectorKey)
+										}
+										alt='delete'
+									/>
+								)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
 								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
 							</UI.LI>
