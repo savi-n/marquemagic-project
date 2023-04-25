@@ -67,7 +67,10 @@ const AddressProofUpload = props => {
 	// );
 	let { addressProofError } = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { selectedProduct, clientToken, editLoanData } = app;
 	const { loanId, businessUserId } = application;
 	const directorDetails = editLoanData?.director_details;

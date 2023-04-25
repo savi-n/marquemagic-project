@@ -30,9 +30,10 @@ import * as CONST from './const';
 
 const LoanDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector, selectDirectorOptions } = useSelector(
+	const { directors, selectedDirectorId, selectDirectorOptions } = useSelector(
 		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
 		selectedSectionId,
