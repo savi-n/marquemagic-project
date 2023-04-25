@@ -3,11 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
 import Button from 'components/Button';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import Loading from 'components/Loading';
 import DynamicForm from './DynamicForm';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -16,20 +17,8 @@ import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 
 const CollateralDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		prevSectionId,
-		selectedSection,
-		isLocalhost,
-		isTestMode,
-		// isEditLoan,
-		// editLoanData,
-	} = app;
+	const { app, application } = useSelector(state => state);
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
@@ -38,13 +27,6 @@ const CollateralDetails = () => {
 	const [sectionData, setSectionData] = useState([]);
 	// const { handleSubmit, register, formState } = useForm();
 	const MAX_ADD_COUNT = selectedSection?.max || 10;
-
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
 
 	const openCreateForm = () => {
 		setEditSectionId('');
@@ -65,7 +47,6 @@ const CollateralDetails = () => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/collateralData?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -87,14 +68,8 @@ const CollateralDetails = () => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -280,32 +255,10 @@ const CollateralDetails = () => {
 					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
-							<Button fill name='Save and Proceed' onClick={onSkip} />
+							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
 						)}
 
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)}
-
-						{/* buttons for easy development starts */}
-						{!!selectedSection?.is_skip || !!isTestMode ? (
-							<Button name='Skip' onClick={onSkip} />
-						) : null}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
-						{/* buttons for easy development ends */}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

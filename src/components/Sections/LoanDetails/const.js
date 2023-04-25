@@ -3,6 +3,9 @@ export const initialFormState = {
 	tenure: '12',
 	loan_usage_type_id: '21',
 	branchId: '179424',
+	pre_emi: 'No',
+	credit_insurance: 'No',
+	repayment_mode: 'NACH',
 
 	loan_source: 'Branch',
 

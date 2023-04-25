@@ -5,34 +5,29 @@ import axios from 'axios';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 
 const ReferenceDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
-		prevSectionId,
 		selectedSection,
 		isTestMode,
-		isLocalhost,
-		// editLoanData,
-		// isEditLoan,
 	} = app;
 	const { refId1, refId2 } = application;
 	const dispatch = useDispatch();
@@ -42,15 +37,7 @@ const ReferenceDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const reference_details = [
@@ -85,7 +72,6 @@ const ReferenceDetails = () => {
 				section: selectedSection,
 				values: formState.values,
 				app,
-				applicantCoApplicants,
 				application,
 			});
 			referenceDetailsReqBody.data.reference_details = reference_details;
@@ -118,13 +104,7 @@ const ReferenceDetails = () => {
 	};
 
 	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -160,10 +140,6 @@ const ReferenceDetails = () => {
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
-
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
@@ -193,7 +169,6 @@ const ReferenceDetails = () => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/LoanReferences/create?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			console.log('fetchRes-', fetchRes);
@@ -281,30 +256,11 @@ const ReferenceDetails = () => {
 								name='Save and Proceed'
 								isLoader={loading}
 								disabled={loading}
-								onClick={handleSubmit(onProceed)}
+								onClick={handleSubmit(onSaveAndProceed)}
 							/>
-						)}
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
 						)}
 
-						{!!selectedSection?.is_skip || !!isTestMode ? (
-							<Button name='Skip' disabled={loading} onClick={onSkip} />
-						) : null}
-						{isLocalhost && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

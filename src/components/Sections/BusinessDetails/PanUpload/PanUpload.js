@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-// import _ from 'lodash';
 import axios from 'axios';
 
 import LoadingIcon from 'components/Loading/LoadingIcon';
@@ -13,7 +12,6 @@ import Button from 'components/Button';
 
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { isBusinessPan } from 'utils/helper';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
 	formatCompanyRocData,
@@ -34,7 +32,6 @@ import moment from 'moment';
 const PanUpload = props => {
 	const {
 		field,
-		// value,
 		formState,
 		setErrorFormStateField,
 		panErrorColorCode,
@@ -43,49 +40,30 @@ const PanUpload = props => {
 		clearErrorFormState,
 		setUdyogAadhar,
 		udyogAadhar,
-		// cacheDocumentsTemp,
-		// state,
 		setGstin,
 		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		isDisabled,
 		setCompanyRocData,
+		completedSections,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken, selectedSectionId } = app;
-	const { loanId, businessUserId, sections } = application;
-	// const { companyRocData } = applicantCoApplicants;
-	// const {
-	// 	isApplicant,
-	// 	applicant,
-	// 	coApplicants,
-	// 	selectedApplicantCoApplicantId,
-	// } = applicantCoApplicants;
-	// const selectedApplicant = isApplicant
-	//  ? applicant
-	// 	: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	// const { cacheDocuments } = selectedApplicant;
-	// const [files, setFiles] = useState([]);
-	// const [panFile, setPanFile] = useState(null);
+	const {
+		selectedProduct,
+		clientToken,
+		selectedSectionId,
+		isEditOrViewLoan,
+	} = app;
+	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
 	const [isUdyogModalOpen, setIsUdyogModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
 	const [confirmPanNumber, setConfirmPanNumber] = useState('');
 	const [loading, setLoading] = useState(false);
-	// console.log({ udyogAadhar });
-	// const [udyogAadhar, setUdyog] = useState('');
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	// const panExtractionResTemp =
-	// 	cacheDocumentsTemp.filter(
-	// 		doc => doc.field.name === CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME
-	// 	)?.[0] || null;
-	// const panExtractionFile =
-	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	null;
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 
 	// called for roc starts
@@ -509,15 +487,30 @@ const PanUpload = props => {
 				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 				value: panExtractionData?.panNumber,
 			});
-			const VerifyUdyog = await axios.get(
-				`${API.ENDPOINT_BANK}/get/udyog?uan=${udyogAadharNumber}`,
+			const verifyUdyogRes = await axios.get(
+				`${API.ENDPOINT_BANK}/get/udyam?udyamRegNo=${udyogAadharNumber}`,
 				{
 					headers: {
 						Authorization: clientToken,
 					},
 				}
 			);
-			return VerifyUdyog;
+			// console.log({ verifyUdyogRes });
+			// prepopulation using udyam
+			if (verifyUdyogRes?.data?.status === 'ok') {
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+					value: verifyUdyogRes?.data?.data?.nameOfEnterprise || '',
+				});
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+					value:
+						moment(verifyUdyogRes?.data?.data?.dateOfIncorporation).format(
+							'YYYY-MM-DD'
+						) || '',
+				});
+			}
+			return verifyUdyogRes;
 		} catch (e) {
 			setLoading(false);
 			addToast({
@@ -637,7 +630,6 @@ const PanUpload = props => {
 						<Button
 							name='Skip'
 							fill
-							isLoader={loading}
 							onClick={() => {
 								onChangeFormStateField({
 									name: 'udhyog_number',
@@ -772,31 +764,34 @@ const PanUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!uploadedFile?.document_id && !sections[selectedSectionId] && (
-									<UI.IconDelete
-										src={iconDelete}
-										alt='delete'
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											removeCacheDocumentTemp(field.name);
-											setGstin([]);
-											onChangeFormStateField({
-												name: 'gstin',
-												value: '',
-											});
-											onChangeFormStateField({
-												name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-												value: '',
-											});
-											onChangeFormStateField({
-												name: CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
-												value: '',
-											});
-											clearErrorFormState();
-										}}
-									/>
-								)}
+								{!uploadedFile?.document_id &&
+									!isEditOrViewLoan &&
+									!completedSections?.includes(selectedSectionId) && (
+										<UI.IconDelete
+											src={iconDelete}
+											alt='delete'
+											onClick={e => {
+												e.preventDefault();
+												e.stopPropagation();
+												removeCacheDocumentTemp(field.name);
+												setGstin([]);
+												setCompanyRocData({});
+												onChangeFormStateField({
+													name: 'gstin',
+													value: '',
+												});
+												onChangeFormStateField({
+													name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+													value: '',
+												});
+												onChangeFormStateField({
+													name: CONST_BUSINESS_DETAILS.PAN_UPLOAD_FIELD_NAME,
+													value: '',
+												});
+												clearErrorFormState();
+											}}
+										/>
+									)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>

@@ -14,21 +14,14 @@ import {
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
 	setPermission,
-	// reInitializeAppSlice,
 	setUserToken,
 } from 'store/appSlice';
 import {
-	// reInitializeApplicationSlice,
 	setGeoLocation,
 	setLoanIds,
 	addOrUpdateCacheDocuments,
 	clearCacheDraftModeSectionsData,
 } from 'store/applicationSlice';
-import {
-	// reInitializeApplicantCoApplicantSlice,
-	setEditLoanApplicantsData,
-	setSelectedApplicantCoApplicantId,
-} from 'store/applicantCoApplicantsSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from 'components/Header';
 import Loading from 'components/Loading';
@@ -51,7 +44,6 @@ import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
 import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
 import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
-import * as CONST_SECTIONS from 'components/Sections/const';
 import { formatLoanDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
@@ -195,18 +187,12 @@ const AppLayout = () => {
 					dispatch(setUserToken(decryptedToken.token));
 					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
 					dispatch(setGeoLocation(newEditLoanData.app_coordinates));
-					dispatch(
-						setEditLoanApplicantsData({ editLoanData: newEditLoanData })
-					);
 					// TODO: to be removed in M1.5
 					const isDraftLoan =
 						newEditLoanData?.loan_status_id === 1 &&
 						newEditLoanData?.loan_sub_status_id === 1;
 					if (isDraftLoan) {
 						dispatch(clearCacheDraftModeSectionsData());
-						dispatch(
-							setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT)
-						);
 					}
 					// TODO: -- to be removed in M1.5
 					dispatch(
@@ -348,9 +334,6 @@ const AppLayout = () => {
 			setLoading(false);
 		}
 		if (response) {
-			// dispatch(reInitializeAppSlice());
-			// dispatch(reInitializeApplicantCoApplicantSlice());
-			// dispatch(reInitializeApplicationSlice());
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
 			dispatch(setPermission(response?.permission || {}));

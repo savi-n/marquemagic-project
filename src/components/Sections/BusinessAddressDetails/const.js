@@ -30,30 +30,10 @@ export const resetAllFields = {
 	property_tenure: '',
 };
 
-export const PREFIX_PRESENT = 'present_';
-export const PREFIX_PERMANENT = 'permanent_';
-export const AID_PRESENT = '1';
-export const AID_PERMANENT = '2';
-export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
-export const ADDRESSPROOF = 'addressproof';
-
-export const PERMANENT_ADDRESS_DETAILS_SECTION_ID = 'permanent_address_details';
-export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
-export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';
-export const AADHAAR_FIELD_NAME = 'aadhaar';
-export const AADHAAR_FIELD_NAME_FOR_OTP = 'permanent_aadhaar';
-export const ADDRESS_PROOF_TYPE_FIELD_NAME = 'address_proof_type';
-export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
-	'permanent_address_proof_type';
-export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR =
-	'permanent_aadhar';
-export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
-	'present_address_proof_type';
-export const PRESENT_ID_PROOF_UPLOAD_FIELD_NAME = 'present_id_upload';
-export const PERMANENT_ADDRESS1_FIELD_NAME = 'permanent_address1';
-export const OTHERS_DOC_NAME_FIELD_NAME = 'address_proof_id_others';
-
-export const HIDE_PRESENT_ADDRESS_FIELDS = [
-	PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
-	PRESENT_ID_PROOF_UPLOAD_FIELD_NAME,
-];
+export const ADDRESS_LINE_1_DB_KEY = 'line1';
+export const ADDRESS_LINE_2_DB_KEY = 'line2';
+export const ADDRESS_LINE_3_DB_KEY = 'locality';
+export const PINCODE_DB_KEY = 'pincode';
+export const CITY_DB_KEY = 'city';
+export const STATE_DB_KEY = 'state';
+export const SELECT_GSTIN_FIELD_NAME = 'select_gstin';

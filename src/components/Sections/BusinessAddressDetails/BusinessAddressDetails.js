@@ -3,11 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
 import Button from 'components/Button';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import NavigateCTA from 'components/Sections/NavigateCTA';
+
+import { setSelectedSectionId } from 'store/appSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	// getCompletedSections,
 	isFieldValid,
 } from 'utils/formatData';
 import useForm from 'hooks/useFormIndividual';
@@ -17,13 +18,15 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
+import {
+	setCompletedApplicationSection,
+	setLoanIds,
+} from 'store/applicationSlice';
 import { extractPincode } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const { selectedDirector } = useSelector(state => state.directors);
 	const { businessId } = application;
 
 	const {
@@ -31,10 +34,8 @@ const BusinessAddressDetails = props => {
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
 		selectedSection,
-		isLocalhost,
 		clientToken,
 		userToken,
 		// editLoanDirectors,
@@ -69,6 +70,7 @@ const BusinessAddressDetails = props => {
 	const [sectionData, setSectionData] = useState([]);
 	const [gstAndUan, setGstAndUan] = useState({});
 	const [gstNumbers, setGstNumbers] = useState([]);
+	const [udyamData, setUdyamData] = useState({});
 
 	/*
 	--------------------------------------------------- /business_address_details GET API  --------------------------------------------
@@ -101,8 +103,27 @@ const BusinessAddressDetails = props => {
 					gst: fetchRes?.data?.data?.gstin,
 					uan: fetchRes?.data?.data?.udyam_number,
 				});
-				if (!fetchRes?.data?.data?.udyam_number)
+				if (!fetchRes?.data?.data?.udyam_number) {
 					fetchAllGstNumbers(fetchRes?.data?.data?.pan);
+				} else {
+					try {
+						const verifyUdyogRes = await axios.get(
+							`${API.ENDPOINT_BANK}/get/udyam?udyamRegNo=${
+								fetchRes?.data?.data?.udyam_number
+							}`,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+						if (verifyUdyogRes?.data?.status === 'ok') {
+							setUdyamData(verifyUdyogRes?.data?.data);
+						}
+					} catch (error) {
+						console.error(error);
+					}
+				}
 				// populateFromResponse(address);
 			} else {
 				setSectionData([]);
@@ -271,13 +292,7 @@ const BusinessAddressDetails = props => {
 
 	// const isSectionCompleted = completedSections?.includes(selectedSectionId);
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			if (!formState?.values?.city || !formState?.values?.state) {
 				return addToast({
@@ -292,7 +307,7 @@ const BusinessAddressDetails = props => {
 				app,
 				application,
 				values: formState?.values,
-				applicantCoApplicants,
+				selectedDirector,
 				selectedLoanProductId,
 			});
 
@@ -328,13 +343,7 @@ const BusinessAddressDetails = props => {
 					)?.[0]?.id,
 				})
 			);
-			const newAddressDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: {
-					...formState?.values,
-				},
-			};
-			dispatch(updateApplicationSection(newAddressDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
@@ -352,21 +361,11 @@ const BusinessAddressDetails = props => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prefilledValues = field => {
 		try {
 			const address = sectionData?.filter(address => address?.aid === 1)?.[0];
+			let udyamDetails = {};
+
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
@@ -378,20 +377,24 @@ const BusinessAddressDetails = props => {
 			}
 			// -- TEST MODE
 
-			// console.log({
-			// 	field,
-			// 	sectionData,
-			// 	value: address?.[field?.db_key],
-			// 	key: field?.db_key,
-			// 	gstAndUan,
-			// 	gstUan: !gstAndUan?.uan,
-			// });
-			if (field?.name === 'select_gstin') return gstAndUan?.gst;
-
+			if (!!udyamData && Object.values(udyamData)?.length > 0 && !address) {
+				udyamDetails = {
+					[CONST.ADDRESS_LINE_1_DB_KEY]:
+						udyamData?.officialAddress?.['Flat/Door/Block No.'],
+					[CONST.ADDRESS_LINE_2_DB_KEY]:
+						udyamData?.officialAddress?.['Road/Street/Lane'] || '',
+					[CONST.ADDRESS_LINE_3_DB_KEY]:
+						udyamData?.officialAddress?.['Name of Premises/ Building'] || '',
+					[CONST.PINCODE_DB_KEY]: udyamData?.officialAddress?.['Pin:'] || '',
+					[CONST.CITY_DB_KEY]: udyamData?.officialAddress?.['City'] || '',
+					[CONST.STATE_DB_KEY]: udyamData?.officialAddress?.['State'] || '',
+				};
+				return udyamDetails?.[field?.db_key];
+			}
+			if (field?.name === CONST.SELECT_GSTIN_FIELD_NAME) return gstAndUan?.gst;
 			return address?.[field?.db_key];
 		} catch (error) {
 			console.error(error);
-			return {};
 		}
 	};
 
@@ -473,30 +476,16 @@ const BusinessAddressDetails = props => {
 					<Button
 						fill
 						name={
-							fetchingGstAddress ? 'Fetching Address...' : 'Save and Proceed'
+							fetchingGstAddress || loading
+								? 'Fetching Address...'
+								: 'Save and Proceed'
 						}
 						isLoader={loading}
 						disabled={loading || fetchingGstAddress}
-						onClick={handleSubmit(onProceed)}
+						onClick={handleSubmit(onSaveAndProceed)}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-				{!!selectedSection?.is_skip || !!isTestMode ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-
-				{!isViewLoan && (isLocalhost && !!isTestMode) && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
+				<NavigateCTA />
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
