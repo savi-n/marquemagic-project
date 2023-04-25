@@ -37,7 +37,7 @@ const initialState = {
 	prompted: false,
 };
 
-export const applicantSlice = createSlice({
+export const applicationSlice = createSlice({
 	name: 'application',
 	initialState,
 	reducers: {
@@ -318,6 +318,6 @@ export const {
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
-} = applicantSlice.actions;
+} = applicationSlice.actions;
 
-export default applicantSlice.reducer;
+export default applicationSlice.reducer;
