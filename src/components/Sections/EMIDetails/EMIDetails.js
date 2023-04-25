@@ -25,7 +25,10 @@ import * as CONST from './const';
 
 const EMIDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
 		selectedSectionId,

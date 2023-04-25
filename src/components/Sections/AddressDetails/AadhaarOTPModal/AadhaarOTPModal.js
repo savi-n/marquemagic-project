@@ -97,7 +97,10 @@ const AadhaarOTPModal = props => {
 		setVerifyOtpResponseTemp,
 	} = props;
 	const { application, app } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { loanProductId } = application;
 	const { selectedSection, clientToken, selectedProduct } = app;
 	const { addToast } = useToasts();
