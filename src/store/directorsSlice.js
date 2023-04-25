@@ -46,11 +46,6 @@ const initialState = {
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
 	selectDirectorOptions: [],
-	directorSectionsIds: [
-		'basic_details',
-		'address_details',
-		'employment_details',
-	],
 };
 
 export const getDirectors = createAsyncThunk(
@@ -216,8 +211,6 @@ export const directorsSlice = createSlice({
 				);
 			}
 		},
-		// TODO: shreyas to be removed or to be handled here
-		setCompanyRocData: () => {},
 	},
 });
 
@@ -232,7 +225,6 @@ export const {
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
 	setGeotaggingMandatoryFields,
-	setCompanyRocData,
 } = directorsSlice.actions;
 
 export default directorsSlice.reducer;
