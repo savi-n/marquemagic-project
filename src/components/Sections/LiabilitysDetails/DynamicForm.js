@@ -29,10 +29,13 @@ const DynamicForm = props => {
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectors, isApplicant } = useSelector(
-		state => state.directors
-	);
-	const { selectDirectorOptions } = useSelector(state => state.directors);
+	const {
+		directors,
+		selectedDirectorId,
+		isApplicant,
+		selectDirectorOptions,
+	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { isTestMode, selectedSection } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
@@ -113,7 +116,7 @@ const DynamicForm = props => {
 					...formState.values,
 				},
 				app,
-				selectedDirectors,
+				selectedDirector,
 				application,
 			});
 			if (editSectionId) {

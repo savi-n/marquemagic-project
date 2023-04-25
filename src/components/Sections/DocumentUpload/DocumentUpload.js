@@ -47,12 +47,12 @@ const DocumentUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const {
 		directors,
-		selectedDirector,
 		selectedDirectorId,
 		applicantDirectorId,
 		isApplicant,
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const coApplicants = {};
 	Object.keys(directors).map(directorId => {
 		if (directors[directorId].type_name === DIRECTOR_TYPES.applicant)

@@ -38,7 +38,10 @@ import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusi
 
 const BuissnessDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -82,6 +85,8 @@ const BuissnessDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
 	const [companyRocData, setCompanyRocData] = useState({});
+	const [isPrefilEmail, setisPrefilEmail] = useState(true);
+	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
 
 	const {
 		handleSubmit,
@@ -354,7 +359,14 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-
+	function handleBlurEmail(e) {
+		// console.log("input blurred",e);
+		setisPrefilEmail(false);
+		// console.log(e);
+	}
+	function handleBlurMobileNumber(e) {
+		setIsPrefilMobileNumber(false);
+	}
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
@@ -498,6 +510,7 @@ const BuissnessDetails = props => {
 						}}
 					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
+					{/* {console.log(formState.values.email)}; */}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -647,6 +660,28 @@ const BuissnessDetails = props => {
 
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
+										}
+										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
+											// console.log("Contact")
+											customFieldProps.onblur = handleBlurEmail;
+										}
+										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
+											if (isPrefilEmail) {
+												// console.log(formState?.values?.email);
+												customFieldProps.value = formState.values.email;
+											}
+											// customFieldProps.value=formState.values.email
+										}
+										if (
+											field.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
+										) {
+											customFieldProps.onblur = handleBlurMobileNumber;
+										}
+										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+											if (isPrefilMobileNumber) {
+												customFieldProps.value =
+													formState.values.business_mobile_no;
+											}
 										}
 
 										return (

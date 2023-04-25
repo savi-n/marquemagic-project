@@ -26,7 +26,10 @@ import { extractPincode } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { businessId } = application;
 
 	const {
