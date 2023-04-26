@@ -43,10 +43,9 @@ const ApplicantCoApplicantHeader = props => {
 	const { cacheDocuments, allDocumentTypes } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const [
-		isDeleteCoApplicantModalOpen,
-		setIsDeleteCoApplicantModalOpen,
-	] = useState(false);
+	const [isDeleteDirectorModalOpen, setIsDeleteDirectorModalOpen] = useState(
+		false
+	);
 	// const [fetchingDirectors, setFetchingDirectors] = useState(false);
 	const refListWrapper = useRef(null);
 
@@ -100,7 +99,7 @@ const ApplicantCoApplicantHeader = props => {
 
 	const onClickDirectorAvatar = id => {
 		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
-		// 	return setIsDeleteCoApplicantModalOpen(id);
+		// 	return setIsDeleteDirectorModalOpen(id);
 		// }
 		if (selectedDirectorId === `${id}`) {
 			return;
@@ -170,14 +169,14 @@ const ApplicantCoApplicantHeader = props => {
 				</UI.LoadingWrapper>
 			) : (
 				<>
-					{isDeleteCoApplicantModalOpen && (
+					{isDeleteDirectorModalOpen && (
 						<DeleteCoApplicantModal
-							onNo={() => setIsDeleteCoApplicantModalOpen(false)}
+							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
-								setIsDeleteCoApplicantModalOpen(false);
-								onClickDirectorAvatar(CONST_SECTIONS.APPLICANT);
+								setIsDeleteDirectorModalOpen(false);
+								dispatch(setAddNewDirectorKey(''));
 							}}
-							label={isDeleteCoApplicantModalOpen}
+							label={isDeleteDirectorModalOpen}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
@@ -200,6 +199,10 @@ const ApplicantCoApplicantHeader = props => {
 						{Object.keys(directors).map((directorId, directorIndex) => {
 							let isMandatoryDocumentSubmited = true;
 							const director = directors[directorId];
+							let isSelectNotAllowed = false;
+							if (addNewDirectorKey) {
+								isSelectNotAllowed = true;
+							}
 							if (isDocumentUploadMandatory) {
 								const coApplicantMandatoryDocumentIds = [];
 								allDocumentTypes?.map(
@@ -237,7 +240,13 @@ const ApplicantCoApplicantHeader = props => {
 													: iconAvatarInActive
 											}
 											alt='Avatar'
-											onClick={() => onClickDirectorAvatar(directorId)}
+											onClick={() => {
+												if (isSelectNotAllowed) return;
+												onClickDirectorAvatar(directorId);
+											}}
+											style={
+												isSelectNotAllowed ? { cursor: 'not-allowed	' } : {}
+											}
 										/>
 										{selectedSectionId ===
 											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
@@ -259,7 +268,7 @@ const ApplicantCoApplicantHeader = props => {
 										<UI.BadgeDelete
 											src={iconDelete}
 											onClick={() =>
-												setIsDeleteCoApplicantModalOpen(addNewDirectorKey)
+												setIsDeleteDirectorModalOpen(addNewDirectorKey)
 											}
 											alt='delete'
 										/>

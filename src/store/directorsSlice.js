@@ -74,7 +74,8 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
-			let selectedDefaultDirector = {};
+			// let firstDirector = {};
+			let lastDirector = {};
 			const newSelectedDirectorOptions = [];
 			const sortedDirectors = payload?.sort(
 				(a, b) => a?.type_name - b?.type_name
@@ -106,26 +107,26 @@ export const directorsSlice = createSlice({
 					value: directorId,
 				});
 				newDirectors[directorId] = newDirectorObject;
-				if (directorIndex === 0) {
-					selectedDefaultDirector = director;
+				// if (directorIndex === 0) {
+				// 	firstDirector = director;
+				// }
+				if (directorIndex === sortedDirectors.length - 1) {
+					lastDirector = director;
 				}
 				return null;
 			});
 			if (!state.selectedDirectorId) {
-				const isApplicant = isDirectorApplicant(selectedDefaultDirector);
-				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
+				const isApplicant = isDirectorApplicant(lastDirector);
+				state.selectedDirectorId = `${lastDirector.id}`;
 				state.isApplicant = isApplicant;
-				state.applicantDirectorId = isApplicant
-					? `${selectedDefaultDirector.id}`
-					: '';
+				state.applicantDirectorId = isApplicant ? `${lastDirector.id}` : '';
 			} else {
-				const prevDirector = state.directors[state.selectedDirectorId];
+				const prevDirector = newDirectors[state.selectedDirectorId];
 				const isApplicant = isDirectorApplicant(prevDirector);
-				state.selectedDirectorId = `${selectedDefaultDirector.id}`;
+
+				state.selectedDirectorId = `${prevDirector.id}`;
 				state.isApplicant = isApplicant;
-				state.applicantDirectorId = isApplicant
-					? `${selectedDefaultDirector.id}`
-					: '';
+				state.applicantDirectorId = isApplicant ? `${prevDirector.id}` : '';
 			}
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;
