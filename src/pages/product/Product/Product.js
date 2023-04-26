@@ -23,6 +23,7 @@ import BuissnessDetails from 'components/Sections/BusinessDetails/BusinessDetail
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
+import PowerOfAtterneyDetails from 'components/Sections/PowerOfAtterneyDetails';
 import _ from 'lodash';
 import {
 	setIsTestMode,
@@ -74,6 +75,7 @@ const Product = props => {
 		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
 		subsidiary_details: SubsidiaryDetails,
+		poa_details: PowerOfAtterneyDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;

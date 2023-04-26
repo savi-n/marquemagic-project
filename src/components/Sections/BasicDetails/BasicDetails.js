@@ -239,6 +239,10 @@ const BasicDetails = props => {
 			const newCreatedByUserId =
 				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
 
+			if (!newLoanRefId || !newLoanId || !newBusinessId) {
+				throw new Error('Unable to create loan, Try after sometimes');
+			}
+
 			if (isNewProfileUploaded) {
 				const uploadedProfileRes =
 					basicDetailsRes?.data?.data?.loan_document_data || null;
