@@ -502,13 +502,23 @@ export const getSelectDirectorOptions = data => {
 };
 
 export const getAllCompletedSections = data => {
-	const { application, selectedDirector } = data;
+	const {
+		application,
+		selectedDirector,
+		addNewDirectorKey,
+		directorSectionIds,
+	} = data;
+	console.log('getAllCompletedSections-', data);
 	let completedSections = [];
 	if (Array.isArray(application?.sections)) {
 		completedSections = [...completedSections, ...application?.sections];
 	}
 	if (Array.isArray(selectedDirector?.sections)) {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
+	}
+	// 'Entity'
+	if (!addNewDirectorKey && !selectedDirector) {
+		completedSections = [...completedSections, ...directorSectionIds];
 	}
 	return completedSections;
 };

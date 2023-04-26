@@ -109,10 +109,10 @@ const Header = props => {
 							customStyle={{ padding: '4px 8px', width: 100, marginLeft: 20 }}
 							name='Skip'
 							onClick={() => {
-								console.log('header-onskip-', {
-									directorSectionIds,
-									selectedSectionId,
-								});
+								// console.log('header-onskip-', {
+								// 	directorSectionIds,
+								// 	selectedSectionId,
+								// });
 								if (directorSectionIds?.includes(selectedSectionId)) {
 									dispatch(setCompletedDirectorSection(selectedSectionId));
 								} else {
