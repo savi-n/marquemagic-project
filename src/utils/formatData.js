@@ -508,7 +508,6 @@ export const getAllCompletedSections = data => {
 		addNewDirectorKey,
 		directorSectionIds,
 	} = data;
-	console.log('getAllCompletedSections-', data);
 	let completedSections = [];
 	if (Array.isArray(application?.sections)) {
 		completedSections = [...completedSections, ...application?.sections];
@@ -790,23 +789,40 @@ export const formatLenderDocs = docs => {
 
 // validating employment details section for onProceed or add-coapplicant
 export const validateEmploymentDetails = data => {
-	const { coApplicants, isApplicant } = data;
+	const { selectedDirector, directors } = data;
 	let allowProceed = false;
-	let filteredCoApplicant = [];
-	if (Object.keys(coApplicants)?.length > 0) {
-		filteredCoApplicant = Object.values(coApplicants)?.filter(coApplicant => {
-			return !coApplicant?.employmentId;
+	const lastDirector = Object.values(directors)?.pop();
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+
+	if (
+		Object.keys(directors)?.length === 1 &&
+		selectedDirector?.sections?.length >= 2
+	) {
+		return { allowProceed: true };
+	}
+	if (Object.keys(directors)?.length > 1) {
+		const notCompletedDirectors = [];
+
+		restOfTheDirectors?.map(dir => {
+			if (dir?.sections?.length < 3) {
+				// console.log(dir?.sections, 'sections-dir');
+				notCompletedDirectors.push(dir);
+			}
+			if (lastDirector?.sections?.length < 3)
+				notCompletedDirectors.push(lastDirector);
+			return null;
 		});
+		if (notCompletedDirectors?.length === 0) allowProceed = true;
+		return {
+			allowProceed,
+			lastDirector,
+			restOfTheDirectors,
+			notCompletedDirectors,
+			directorName: `${notCompletedDirectors?.[0]?.type_name} ${
+				notCompletedDirectors?.[0]?.fullName
+			}`,
+		};
 	}
-	if (filteredCoApplicant.length === 0) {
-		allowProceed = true;
-	} else {
-		allowProceed = false;
-	}
-	if (isApplicant && Object.keys(coApplicants)?.length === 0) {
-		allowProceed = true;
-	}
-	return allowProceed;
 };
 
 export const getApplicantNavigationDetails = data => {
