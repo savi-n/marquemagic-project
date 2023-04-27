@@ -787,7 +787,7 @@ export const formatLenderDocs = docs => {
 	return newDocs;
 };
 
-// validation for all the directors : check before adding new director or moving to other section
+// Validation for all the directors : This is the check before adding new director or moving to other sections from employment/basic/address details section
 export const validateEmploymentDetails = data => {
 	const { selectedDirector, directors } = data;
 	let allowProceed = false;
