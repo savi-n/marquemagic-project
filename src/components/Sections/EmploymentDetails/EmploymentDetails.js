@@ -106,7 +106,7 @@ const EmploymentDetails = () => {
 			// 	selectedDirector,
 			// 	application,
 			// });
-			const employmentDetailsRes = await axios.post(
+			await axios.post(
 				`${API_END_POINT}/employmentData`,
 				employmentDetailsReqBody
 			);
