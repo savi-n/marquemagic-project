@@ -808,16 +808,27 @@ export const validateEmploymentDetails = data => {
 				// console.log(dir?.sections, 'sections-dir');
 				notCompletedDirectors.push(dir);
 			}
-			if (lastDirector?.sections?.length < 3)
-				notCompletedDirectors.push(lastDirector);
+
 			return null;
 		});
+
+		if (lastDirector?.sections?.length < 2)
+			notCompletedDirectors.push(lastDirector);
+
+		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director
+		if (
+			lastDirector?.sections?.length === 2 &&
+			+selectedDirector?.directorId !== +lastDirector?.directorId
+		)
+			notCompletedDirectors.push(lastDirector);
+
 		if (notCompletedDirectors?.length === 0) allowProceed = true;
 		return {
 			allowProceed,
 			lastDirector,
 			restOfTheDirectors,
 			notCompletedDirectors,
+			selectedDirector,
 			directorName: `${notCompletedDirectors?.[0]?.type_name} ${
 				notCompletedDirectors?.[0]?.fullName
 			}`,

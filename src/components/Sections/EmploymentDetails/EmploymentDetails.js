@@ -64,8 +64,6 @@ const EmploymentDetails = () => {
 	// });
 
 	const validateNavigation = () => {
-		// TODO: shreyas update logic
-
 		const validateDirector = validateEmploymentDetails({
 			selectedDirector,
 			directors,
@@ -77,6 +75,7 @@ const EmploymentDetails = () => {
 				message: `Please fill all the details in ${
 					validateDirector?.directorName
 				}`,
+				type: 'error',
 			});
 			return false;
 		}
@@ -134,10 +133,11 @@ const EmploymentDetails = () => {
 		}
 	};
 
-	const onAddDirector = async () => {
+	const onAddDirector = async key => {
 		if (!isDraftLoan && !validateNavigation()) {
 			return;
 		}
+		dispatch(setAddNewDirectorKey(key));
 
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
@@ -350,8 +350,8 @@ const EmploymentDetails = () => {
 								isLoader={loading}
 								disabled={loading}
 								onClick={handleSubmit(() => {
-									dispatch(setAddNewDirectorKey('Co-applicant'));
-									onAddDirector();
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									onAddDirector('Co-applicant');
 								})}
 							/>
 						)}
@@ -364,8 +364,7 @@ const EmploymentDetails = () => {
 									isLoader={loading}
 									disabled={loading}
 									onClick={handleSubmit(() => {
-										dispatch(setAddNewDirectorKey(field.key));
-										onAddDirector();
+										onAddDirector(field?.key);
 									})}
 								/>
 							);
