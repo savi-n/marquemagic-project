@@ -312,6 +312,11 @@ const BuissnessDetails = props => {
 
 	const prefilledValues = field => {
 		try {
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
+				return CONST.initialFormState?.[field?.db_key];
+			}
+			// -- TEST MODE
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];

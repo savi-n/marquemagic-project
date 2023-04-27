@@ -106,7 +106,6 @@ const Product = props => {
 				selectedProductRes.product_details.sections = flowData;
 			}
 			// New Individual loan changes for displaying sections based on the config - ends
-
 			dispatch(setSelectedProduct(selectedProductRes));
 			dispatch(
 				setSelectedSectionId(
@@ -129,11 +128,11 @@ const Product = props => {
 		});
 	}, [selectedSectionId, selectedDirectorId, isTestMode]);
 
-	useEffect(() => {
-		console.log('Product-allStates-', {
-			reduxState,
-		});
-	}, [reduxState]);
+	// useEffect(() => {
+	// 	console.log('Product-allStates-', {
+	// 		reduxState,
+	// 	});
+	// }, [reduxState]);
 
 	const getBankList = () => {
 		try {
