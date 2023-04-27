@@ -787,7 +787,7 @@ export const formatLenderDocs = docs => {
 	return newDocs;
 };
 
-// validating employment details section for onProceed or add-coapplicant
+// validation for all the directors : check before adding new director or moving to other section
 export const validateEmploymentDetails = data => {
 	const { selectedDirector, directors } = data;
 	let allowProceed = false;
@@ -823,12 +823,13 @@ export const validateEmploymentDetails = data => {
 			notCompletedDirectors.push(lastDirector);
 
 		if (notCompletedDirectors?.length === 0) allowProceed = true;
+
 		return {
 			allowProceed,
-			lastDirector,
-			restOfTheDirectors,
-			notCompletedDirectors,
-			selectedDirector,
+			// lastDirector,
+			// restOfTheDirectors,
+			// notCompletedDirectors,
+			// selectedDirector,
 			directorName: `${notCompletedDirectors?.[0]?.type_name} ${
 				notCompletedDirectors?.[0]?.fullName
 			}`,
