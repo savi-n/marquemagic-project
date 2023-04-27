@@ -13,15 +13,10 @@ import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
-
-import {
-	setLoginCreateUserRes,
-	toggleTestMode,
-	setSelectedSectionId,
-} from 'store/appSlice';
+import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
 import {
 	setLoanIds,
-	updateApplicationSection,
+	setCompletedApplicationSection,
 	setBusinessType,
 } from 'store/applicationSlice';
 import {
@@ -42,25 +37,26 @@ import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 
 const BuissnessDetails = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
-		isTestMode,
 		selectedSection,
 		whiteLabelId,
 		clientToken,
 		userToken,
-		isLocalhost,
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
 		isDraftLoan,
 		editLoanDirectors,
 		userDetails,
+		isTestMode,
 	} = app;
 	const {
 		borrowerUserId,
@@ -90,6 +86,8 @@ const BuissnessDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
 	const [companyRocData, setCompanyRocData] = useState({});
+	const [isPrefilEmail, setisPrefilEmail] = useState(true);
+	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
 
 	const {
 		handleSubmit,
@@ -122,7 +120,7 @@ const BuissnessDetails = props => {
 		? sectionData?.loan_document
 		: null;
 
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
@@ -165,7 +163,7 @@ const BuissnessDetails = props => {
 					...formState.values,
 				},
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				selectedLoanProductId,
 			});
@@ -264,7 +262,7 @@ const BuissnessDetails = props => {
 				businessType: formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME],
 			};
 			newBuissnessDetails.cin = companyRocData?.CIN || '';
-			dispatch(updateApplicationSection(newBuissnessDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(
 				setLoanIds({
 					loanRefId: newLoanRefId,
@@ -319,6 +317,12 @@ const BuissnessDetails = props => {
 				return formState?.values?.[field?.name];
 			}
 
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
 			const preData = {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
@@ -362,7 +366,14 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-
+	function handleBlurEmail(e) {
+		// console.log("input blurred",e);
+		setisPrefilEmail(false);
+		// console.log(e);
+	}
+	function handleBlurMobileNumber(e) {
+		setIsPrefilMobileNumber(false);
+	}
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
@@ -436,7 +447,7 @@ const BuissnessDetails = props => {
 			disabled={loading}
 			onClick={handleSubmit(() => {
 				setIsIncomeTypeConfirmModalOpen(false);
-				onProceed();
+				onSaveAndProceed();
 			})}
 		/>
 	);
@@ -506,6 +517,7 @@ const BuissnessDetails = props => {
 						}}
 					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
+					{/* {console.log(formState.values.email)}; */}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -656,6 +668,28 @@ const BuissnessDetails = props => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
+										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
+											// console.log("Contact")
+											customFieldProps.onblur = handleBlurEmail;
+										}
+										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
+											if (isPrefilEmail) {
+												// console.log(formState?.values?.email);
+												customFieldProps.value = formState.values.email;
+											}
+											// customFieldProps.value=formState.values.email
+										}
+										if (
+											field.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
+										) {
+											customFieldProps.onblur = handleBlurMobileNumber;
+										}
+										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+											if (isPrefilMobileNumber) {
+												customFieldProps.value =
+													formState.values.business_mobile_no;
+											}
+										}
 
 										return (
 											<UI_SECTIONS.FieldWrapGrid
@@ -743,7 +777,7 @@ const BuissnessDetails = props => {
 								disabled={loading}
 								onClick={handleSubmit(() => {
 									if (isEditOrViewLoan) {
-										onProceed();
+										onSaveAndProceed();
 										return;
 									}
 									setIsIncomeTypeConfirmModalOpen(true);
@@ -754,13 +788,6 @@ const BuissnessDetails = props => {
 							<>
 								<Button name='Next' onClick={naviagteToNextSection} fill />
 							</>
-						)}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
 						)}
 					</UI_SECTIONS.Footer>
 				</>

@@ -12,62 +12,46 @@ import _ from 'lodash';
 import Button from 'components/Button';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
 import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setSelectedSectionId } from 'store/appSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
 } from 'utils/formatData';
-import { addCacheDocuments, removeCacheDocument } from 'store/applicationSlice';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
 
 const LoanDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId, selectDirectorOptions } = useSelector(
+		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
-		isLocalhost,
-		// isEditLoan,
-		// editLoanData,
 		isEditOrViewLoan,
 	} = app;
 	const { loanId, cacheDocuments } = application;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
 	const selectedIncomeType =
-		selectedApplicant?.basic_details?.[
+		selectedDirector?.basic_details?.[
 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		] || selectedApplicant?.income_type;
+		] || selectedDirector?.income_type;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [
-		applicantAndCoapplicantOptions,
-		setApplicantAndCoapplicantOptions,
-	] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const {
@@ -106,8 +90,6 @@ const LoanDetails = () => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
-		} else {
-			dispatch(removeCacheDocument({ fieldName }));
 		}
 	};
 
@@ -132,19 +114,11 @@ const LoanDetails = () => {
 		}
 	};
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const loanDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
 				application,
 				values: formState.values,
 			});
@@ -212,11 +186,6 @@ const LoanDetails = () => {
 						// console.log('updateDocumentIdToCacheDocuments-', {
 						// 	updateDocumentIdToCacheDocuments,
 						// });
-						dispatch(
-							addCacheDocuments({
-								files: updateDocumentIdToCacheDocuments,
-							})
-						);
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -234,11 +203,7 @@ const LoanDetails = () => {
 			// 	loanDetailsReqBody,
 			// 	loanDetailsRes,
 			// });
-			const newLoanDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-			};
-			dispatch(updateApplicationSection(newLoanDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LoanDetails-onProceed-', {
@@ -254,17 +219,6 @@ const LoanDetails = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	const prefilledEditOrViewLoanValues = field => {
@@ -318,7 +272,6 @@ const LoanDetails = () => {
 			const fetchRes = await axios.get(
 				`${API.API_END_POINT}/updateLoanDetails?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -380,24 +333,9 @@ const LoanDetails = () => {
 	// console.log('loan-details-allstates-', {
 	// 	app,
 	// 	application,
-	// 	applicantCoApplicants,
+	// 	selectedDirector,
 	// 	formState,
 	// });
-
-	useEffect(() => {
-		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
-			{
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}
-		);
-		// console.log(
-		// 	newApplicantAndCoapplicantOptions,
-		// 	'newApplicantAndCoapplicantOptions-loan-details'
-		// );
-		setApplicantAndCoapplicantOptions(newApplicantAndCoapplicantOptions);
-		// eslint-disable-next-line
-	}, [applicantCoApplicants]);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -427,12 +365,8 @@ const LoanDetails = () => {
 												return null;
 										}
 										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-											// const newOptions = getApplicantCoApplicantSelectOptions({
-											// 	applicantCoApplicants,
-											// 	isEditOrViewLoan,
-											// });
 											newField.options = [
-												...applicantAndCoapplicantOptions,
+												...selectDirectorOptions,
 												...newField.options,
 											];
 										}
@@ -535,32 +469,12 @@ const LoanDetails = () => {
 										});
 										return;
 									}
-									onProceed();
+									onSaveAndProceed();
 								})}
 							/>
 						)}
 
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)}
-
-						{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-							<Button name='Skip' disabled={loading} onClick={onSkip} />
-						) : null}
-						{isLocalhost && !isViewLoan && !!isTestMode && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

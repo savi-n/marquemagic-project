@@ -51,7 +51,7 @@ const initialState = {
 	firstSectionId: '',
 	prevSectionId: '',
 	nextSectionId: '',
-	applicantCoApplicantSectionIds: [],
+	directorSectionIds: [],
 	completedSections: [],
 	formData: {},
 	editLoanData: null,
@@ -115,16 +115,15 @@ export const appSlice = createSlice({
 				isSelectedProductTypeBusiness: action.payload.loan_request_type === 1,
 				isSelectedProductTypeSalaried: action.payload.loan_request_type === 2,
 			};
-			const newApplicantCoApplicantSectionIds = [];
+			const newdirectorSectionIds = [];
 			let newFirstSectionId = '';
 			action.payload.product_details?.sections?.map((section, sectionIndex) => {
 				if (sectionIndex === 0) newFirstSectionId = section.id;
-				if (section.is_applicant)
-					newApplicantCoApplicantSectionIds.push(section.id);
+				if (section.is_applicant) newdirectorSectionIds.push(section.id);
 				return null;
 			});
 			state.firstSectionId = newFirstSectionId;
-			state.applicantCoApplicantSectionIds = newApplicantCoApplicantSectionIds;
+			state.directorSectionIds = newdirectorSectionIds;
 		},
 		setSelectedSectionId: (state, action) => {
 			state.selectedSectionId = action.payload;

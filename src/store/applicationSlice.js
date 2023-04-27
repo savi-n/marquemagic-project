@@ -27,7 +27,7 @@ const initialState = {
 	emiDetailsFinId: '',
 	businessAddressIdAid1: '',
 	businessAddressIdAid2: '',
-	sections: {},
+	sections: [],
 	documents: [],
 	cacheDocuments: [],
 	allDocumentTypes: [],
@@ -37,7 +37,7 @@ const initialState = {
 	prompted: false,
 };
 
-export const applicantSlice = createSlice({
+export const applicationSlice = createSlice({
 	name: 'application',
 	initialState,
 	reducers: {
@@ -78,20 +78,11 @@ export const applicantSlice = createSlice({
 				state.businessAddressIdAid2 = businessAddressIdAid2;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
-		updateApplicationSection: (state, action) => {
-			const {
-				sectionId,
-				sectionValues,
-				loanAssetsId,
-				assetsAdditionalId,
-				refId1,
-				refId2,
-			} = action.payload;
-			state.sections[sectionId] = sectionValues;
-			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
-			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
-			if (refId1) state.refId1 = refId1;
-			if (refId2) state.refId2 = refId2;
+		setCompletedApplicationSection: (state, { payload }) => {
+			// payload === sectionId
+			if (!state.sections.includes(payload)) {
+				state.sections.push(payload);
+			}
 		},
 
 		// CACHE DOCUMENT RELATED ACTIONS
@@ -305,7 +296,7 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
-	updateApplicationSection,
+	setCompletedApplicationSection,
 
 	addCacheDocument,
 	addOrUpdateCacheDocument,
@@ -327,6 +318,6 @@ export const {
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
-} = applicantSlice.actions;
+} = applicationSlice.actions;
 
-export default applicantSlice.reducer;
+export default applicationSlice.reducer;

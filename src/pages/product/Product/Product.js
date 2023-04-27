@@ -23,6 +23,7 @@ import BuissnessDetails from 'components/Sections/BusinessDetails/BusinessDetail
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
+import PowerOfAtterneyDetails from 'components/Sections/PowerOfAtterneyDetails';
 import _ from 'lodash';
 import {
 	setIsTestMode,
@@ -39,10 +40,11 @@ import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
-	const { app, applicantCoApplicants } = reduxState;
+	const { selectedDirectorId } = useSelector(state => state.directors);
+	const { app } = reduxState;
 	const {
 		selectedSectionId,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		userToken,
 		isTestMode,
 		userDetails,
@@ -53,7 +55,6 @@ const Product = props => {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
-	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
 
@@ -74,6 +75,7 @@ const Product = props => {
 		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
 		subsidiary_details: SubsidiaryDetails,
+		poa_details: PowerOfAtterneyDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
@@ -127,13 +129,13 @@ const Product = props => {
 		sleep(100).then(res => {
 			setLoading(false);
 		});
-	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
+	}, [selectedSectionId, selectedDirectorId, isTestMode]);
 
-	// useEffect(() => {
-	// 	console.log('Product-allStates-', {
-	// 		reduxState,
-	// 	});
-	// }, [reduxState]);
+	useEffect(() => {
+		console.log('Product-allStates-', {
+			reduxState,
+		});
+	}, [reduxState]);
 
 	const getBankList = () => {
 		try {
@@ -185,7 +187,7 @@ const Product = props => {
 					<UI.RightSectionWrapper>
 						<UI.IconDottedRight src={iconDottedRight} alt='dot' />
 						<UI.DynamicSectionWrapper>
-							{[...applicantCoApplicantSectionIds, 'document_upload']?.includes(
+							{[...(directorSectionIds || []), 'document_upload']?.includes(
 								selectedSectionId
 							) && <ApplicantCoApplicantHeader />}
 							<UI.DynamicSubSectionWrapper>
