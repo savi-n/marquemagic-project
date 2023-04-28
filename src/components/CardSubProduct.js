@@ -1,3 +1,5 @@
+/* Landing page of nc-onboarding journey contains different loan cards.
+This card is designed and defined here */
 import { useSelector, useDispatch } from 'react-redux';
 // import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
@@ -16,8 +18,6 @@ import * as API from '_config/app.config';
 import Button from './Button';
 import { useState } from 'react';
 import { useToasts } from './Toast/ToastProvider';
-import Modal from 'components/Modal';
-// import Button from 'components/Button';
 
 const Wrapper = styled.div`
 
@@ -56,6 +56,23 @@ const ImgSelectProduct = styled.img`
 	margin: 0 auto;
 `;
 
+// const ButtonBox = styled.div`
+//   /* background: ${({ theme }) => theme.themeColor1}; */
+//   text-align: center;
+//   padding: 40px;
+//   padding: 20px;
+// `;
+
+// const Link = styled.a`
+// 	text-decoration: none;
+// 	color: #fff;
+// 	background: ${({ theme }) => theme.main_theme_color};
+// 	padding: 5px 40px;
+// 	display: inline-block;
+// 	border-radius: 20px;
+// 	cursor: pointer;
+// `;
+
 const Description = styled.div`
 	color: ${({ theme }) => theme.themeColor2};
 	padding: 10px 0;
@@ -73,7 +90,6 @@ const ButtonWrapper = styled.div`
 	padding-top: 20px;
 	padding-bottom: 20px;
 `;
-
 
 export default function CardSubProduct({ product, add, setAddedProduct, setAddProduct }) {
 	// const {
@@ -94,6 +110,7 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 	// } = useContext(LoanFormContext);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
+
 	// const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
 	// const { url } = useRouteMatch();
@@ -105,10 +122,8 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 	// 		data: id,
 	// 	});
 	// };
-// console.log("CardSubProduct",product);
+
 	return (
-		<>
-		{console.log("CardSubProduct",product)}
 		<Wrapper>
 			<ImgDiv>
 				<Img src={product.url} alt={product.name} />
@@ -118,7 +133,6 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 			{/* <ButtonBox> */}
 			<ButtonWrapper>
 				<Button
-          // src={}
 					roundCorner={true}
 					loading={gettingGeoLocation}
 					fill
@@ -128,8 +142,8 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 						fontSize: '16px',
 						background: 'rgb(42, 42, 221)',
 					}}
-					name='Add loan'
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
+					name="Add loan"
 					onClick={async e => {
 						if (!add) {
 							try {
@@ -208,10 +222,5 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 				<Description>{product.description}</Description>
 			</ButtonWrapper>
 		</Wrapper>
-
-		<Modal>
-
-		</Modal>
-		</>
 	);
 }
