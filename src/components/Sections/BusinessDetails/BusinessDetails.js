@@ -322,12 +322,6 @@ const BuissnessDetails = props => {
 				return formState?.values?.[field?.name];
 			}
 
-			// TEST MODE
-			if (isTestMode && CONST.initialFormState?.[field?.name]) {
-				return CONST.initialFormState?.[field?.name];
-			}
-			// -- TEST MODE
-
 			const preData = {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
@@ -608,9 +602,9 @@ const BuissnessDetails = props => {
 										if (!field.visibility || !field.name || !field.type)
 											return null;
 										const newValue = prefilledValues(field);
-										let newValueSelectFeild;
+										let newValueSelectField;
 										if (!!field.sub_fields) {
-											newValueSelectFeild = prefilledValues(
+											newValueSelectField = prefilledValues(
 												field?.sub_fields[0]
 											);
 										}
@@ -711,7 +705,7 @@ const BuissnessDetails = props => {
 														field?.sub_fields[0].is_prefix &&
 														register({
 															...field.sub_fields[0],
-															value: newValueSelectFeild,
+															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
 														})}
@@ -731,7 +725,7 @@ const BuissnessDetails = props => {
 														!field?.sub_fields[0].is_prefix &&
 														register({
 															...field.sub_fields[0],
-															value: newValueSelectFeild,
+															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
 														})}
