@@ -398,7 +398,6 @@ const ProfileUpload = props => {
 										// for profile pic upload in basic details section
 										if (value || fetchedValue) {
 											setFetchedValue('');
-											// setSelfiePreview({});
 											setFetchedProfilePic();
 											onChangeFormStateField({
 												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
