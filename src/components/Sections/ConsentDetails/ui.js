@@ -10,6 +10,9 @@ export const ImgClose = styled.img`
 
 export const TableWrapper = styled.div`
 	margin-bottom: 40px;
+	@media (max-width: 768px) {
+		font-size: 14px;
+	}
 `;
 
 export const TableMainHeader = styled.div`
@@ -24,7 +27,7 @@ export const TableMainHeader = styled.div`
 export const TableContainer = styled.div`
 	padding: 15px;
 	width: 80%;
-	@media screen and (max-width: 768px) {
+	@media (max-width: 768px) {
 		width: 100%;
 		overflow: auto;
 	}
@@ -55,9 +58,13 @@ export const TableCell = styled.li`
 	align-self: center;
 	word-break: break-all;
 
-	@media only screen and (max-width: 768px) {
+	@media (max-width: 768px) {
 		word-wrap: break-word;
-		min-width: 60%;
+		min-width: 40%;
+
+		&:nth-child(3) {
+			min-width: 30%;
+		}
 
 		&:last-child {
 			min-width: fit-content;

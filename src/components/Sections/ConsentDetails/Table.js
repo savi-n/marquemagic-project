@@ -2,7 +2,23 @@ import React from 'react';
 import * as UI from './ui.js';
 import Button from 'components/Button.js';
 
-const Table = ({ headers, data, fetchHandle, hasSeperator }) => {
+const Table = ({
+	headers,
+	data,
+	// fetchHandle,
+	hasSeperator,
+	buttonDisabled,
+}) => {
+	// Mapping headers title to corresponding table object keys
+	const mapping = {
+		'Aadhar Number': 'aadhaar',
+		'Applicant Name': 'name',
+		Status: 'status',
+		'PAN Number': 'pan',
+		'Company Name': 'name',
+		'Gst Number': 'gstin',
+		// 'Itr Number': 'itr_num',
+	};
 	return (
 		<>
 			<UI.TableContainer>
@@ -11,14 +27,19 @@ const Table = ({ headers, data, fetchHandle, hasSeperator }) => {
 						<UI.TableCell key={header}>{header}</UI.TableCell>
 					))}
 				</UI.TableHeader>
-				{console.log(data)}
 				{data.map((rowData, rowIndex) => (
 					<UI.TableRow key={rowIndex}>
 						{headers.map(header => (
-							<UI.TableCell key={header}>{rowData[header]}</UI.TableCell>
+							<UI.TableCell key={header}>
+								{rowData[mapping[header]]}
+							</UI.TableCell>
 						))}
 						<UI.TableCell>
-							<Button name='Fetch' onClick={() => fetchHandle(rowData)} />
+							<Button
+								name='Fetch'
+								// onClick={() => fetchHandle(rowData)}
+								disabled={buttonDisabled}
+							/>
 						</UI.TableCell>
 					</UI.TableRow>
 				))}

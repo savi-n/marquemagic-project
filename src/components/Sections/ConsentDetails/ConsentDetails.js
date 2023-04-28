@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-
+import * as API from '_config/app.config';
 import { toggleTestMode, setSelectedSectionId } from 'store/appSlice';
 import { getApiErrorMessage } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -12,148 +12,10 @@ import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui.js';
 import Table from './Table.js';
+import { useEffect } from 'react';
+import Loading from 'components/Loading/Loading.js';
 
 const ConsentDetails = props => {
-	// const fil = [
-	// 	{
-	// 		headers: ['Applicant', 'Aadhar Number', 'Status', ''],
-	// 		data: [
-	// 			{
-	// 				name: 'John Doe',
-	// 				aadhar_num: 'HJHJHJ4545GHGH',
-	// 				status: 'In Progress',
-	// 			},
-	// 			{
-	// 				name: 'John Doe',
-	// 				aadhar_num: 'HJHJHJ4545GHGH',
-	// 				status: 'In Progress',
-	// 			},
-	// 			{
-	// 				name: 'John Doe',
-	// 				aadhar_num: 'HJHJHJ4545GHGH',
-	// 				status: 'In Progress',
-	// 			},
-	// 		],
-	// 	},
-	// ];
-
-	const diff_sections = [
-		{
-			id: 'roc',
-			name: 'ROC',
-			fields: [
-				{
-					headers: ['Applicant', 'Aadhar Number', 'Status'],
-					data: [
-						{
-							Applicant: 'John Doe',
-							'Aadhar Number': 'One',
-							Status: 'In Progress',
-						},
-						{
-							'Aadhar Number': 'One',
-							Applicant: 'John Doe',
-							Status: 'In Progress',
-						},
-						{
-							Applicant: 'John Doe',
-							'Aadhar Number': 'One',
-							Status: 'In Progress',
-						},
-					],
-				},
-				{
-					headers: ['Company', 'Aadhar Number', 'Status'],
-					data: [
-						{
-							Company: 'John Doe',
-							'Aadhar Number': 'Four',
-							Status: 'In Progrsadfess',
-						},
-						{
-							'Aadhar Number': 'Four',
-							Status: 'In Progrsadfess',
-						},
-						{
-							'Aadhar Number': 'Four',
-							Status: 'In Progrsadfess',
-						},
-					],
-				},
-				{
-					headers: ['Company', 'Aadhar Number', 'Status'],
-					data: [
-						{
-							Company: 'John Doe',
-							'Aadhar Number': 'Four',
-							Status: 'In Progrsadfess',
-						},
-						{
-							'Aadhar Number': 'Four',
-							Status: 'In Progrsadfess',
-						},
-						{
-							'Aadhar Number': 'Four',
-							Status: 'In Progrsadfess',
-						},
-					],
-				},
-			],
-		},
-		{
-			id: 'cibil_equifax',
-			name: 'CIBIL/Equifax',
-			fields: [
-				{
-					headers: ['Applicant', 'Gst Number', 'Status'],
-					data: [
-						{
-							Applicant: 'John Doe',
-							'Gst Number': 'HJHJHJ4545GHGH',
-							Status: 'In Progress',
-						},
-						{
-							Applicant: 'John Doe',
-							'Gst Number': 'HJHJHJ4545GHGH',
-							Status: 'In Progress',
-						},
-						{
-							Applicant: 'John Doe',
-							'Gst Number': 'HJHJHJ4545GHGH',
-							Status: 'In Progress',
-						},
-					],
-				},
-			],
-		},
-		{
-			id: 'itr',
-			name: 'ITR',
-			fields: [
-				{
-					headers: ['Applicant', 'Itr Number', 'Status'],
-					data: [
-						{
-							Applicant: 'John Doe',
-							'Itr Number': 'HJHJHJ4545GHGH',
-							Status: 'In Progress',
-						},
-						{
-							Applicant: 'John Doe',
-							'Itr Number': 'HJHJHJ4545GHGH',
-							Status: 'In Progress',
-						},
-						{
-							Applicant: 'John Doe',
-							'Itr Number': 'HJHJHJ4545GHGH',
-							Status: 'In Progress',
-						},
-					],
-				},
-			],
-		},
-	];
-
 	const { app, application } = useSelector(state => state);
 	const {
 		selectedSectionId,
@@ -163,11 +25,60 @@ const ConsentDetails = props => {
 		selectedSection,
 		isLocalhost,
 		isViewLoan,
+		userToken,
+		// isEditLoan,
+		// isEditOrViewLoan,
 	} = app;
+
+	const { businessId, loanId, loanRefId } = application;
 
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [htmlContent, setHtmlContent] = useState('');
+	const [isGstModalOpen, setGstModalOpen] = useState(false);
+	const [consentDetails, setConsentDetails] = useState(null);
+
+	const fetchConsentDetails = () => {
+		setLoading(true);
+		return axios
+			.post(
+				`${API.API_END_POINT}/api/consentDetails`,
+				{
+					business_id: businessId,
+					loan_id: loanId,
+					loan_ref_id: loanRefId,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
+			)
+			.then(consentRes => {
+				setConsentDetails(consentRes?.data?.response);
+				setLoading(false);
+			})
+			.catch(error => {
+				console.error('error-ConsentDetails-getConsentDetails', {
+					error: error,
+					res: error?.response,
+					resres: error?.response?.response,
+					resData: error?.response?.data,
+				});
+				addToast({
+					message: getApiErrorMessage(error),
+					type: 'error',
+				});
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	};
+
+	useEffect(() => {
+		fetchConsentDetails();
+	}, []);
 
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -188,39 +99,57 @@ const ConsentDetails = props => {
 		dispatch(updateApplicationSection(skipSectionData));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
-	const [htmlContent, setHtmlContent] = useState('');
-	const [isGstModalOpen, setGstModalOpen] = useState(false);
-	const fetchHandle = appObj => {
-		axios
-			.get(`http://localhost:1337/equifax?aadhar_num=${appObj.Applicant}`)
-			.then(response => {
-				setHtmlContent(response.data);
-			})
-			.catch(error => {
-				console.error(error);
-			});
-		setGstModalOpen(true);
-	};
-	const onProceed = async () => {
-		try {
-			setLoading(true);
-		} catch (error) {
-			console.error('error-ConsentDetails-onProceed-', {
-				error: error,
-				res: error?.response,
-				resres: error?.response?.response,
-				resData: error?.response?.data,
-			});
-			addToast({
-				message: getApiErrorMessage(error),
-				type: 'error',
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
 
-	return (
+	// TODO:Implement fetch for every modal
+	// const fetchHandle = async appObj => {
+	// 	try {
+	// 		appObj.status = 'fetched';
+	// 		console.log(appObj);
+	// 		setLoading(true);
+	// 		const response = await axios.get(
+	// 			`http://localhost:1337/equifax?aadhar_num=${appObj.Applicant}`
+	// 		);
+	// 		setHtmlContent(response.data);
+	// 		setGstModalOpen(true);
+	// 	} catch (error) {
+	// 		console.error('error-ConsentDetails-fetchModal-', {
+	// 			error: error,
+	// 			res: error?.response,
+	// 			resres: error?.response?.response,
+	// 			resData: error?.response?.data,
+	// 		});
+	// 		addToast({
+	// 			message: getApiErrorMessage(error),
+	// 			type: 'error',
+	// 		});
+	// 		setGstModalOpen(false);
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
+	// const onProceed = async () => {
+	// 	try {
+	// 		setLoading(true);
+	// 	} catch (error) {
+	// 		console.error('error-ConsentDetails-onProceed-', {
+	// 			error: error,
+	// 			res: error?.response,
+	// 			resres: error?.response?.response,
+	// 			resData: error?.response?.data,
+	// 		});
+	// 		addToast({
+	// 			message: getApiErrorMessage(error),
+	// 			type: 'error',
+	// 		});
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
+	return loading ? (
+		<Loading />
+	) : (
 		<UI_SECTIONS.Wrapper>
 			<Modal
 				show={isGstModalOpen}
@@ -261,19 +190,25 @@ const ConsentDetails = props => {
 				</UI_SECTIONS.SubSectionHeader>
 			) : null}
 
-			{diff_sections?.map((sub_section, sectionIndex) => {
+			{consentDetails?.map((tables, sectionIndex) => {
 				return (
-					<UI.TableWrapper key={`section-${sectionIndex}-${sub_section?.id}`}>
-						<UI.TableMainHeader>{sub_section?.name}</UI.TableMainHeader>
-						{sub_section.fields.map((field, idx) => {
+					<UI.TableWrapper key={`section-${sectionIndex}-${tables?.id}`}>
+						{/* {Will change it later to something dynamic} */}
+						{tables.fields[0].data.length >= 1 && (
+							<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
+						)}
+						{tables.fields.map((field, idx) => {
 							return (
 								<>
-									<Table
-										headers={field.headers}
-										data={field.data}
-										fetchHandle={fetchHandle}
-										hasSeperator={idx < sub_section.fields.length - 1}
-									/>
+									{field.data.length >= 1 && (
+										<Table
+											headers={field.headers}
+											data={field.data}
+											// fetchHandle={fetchHandle}
+											hasSeperator={idx < tables.fields.length - 1}
+											buttonDisabled={isViewLoan}
+										/>
+									)}
 								</>
 							);
 						})}
@@ -287,7 +222,7 @@ const ConsentDetails = props => {
 						name={'Save and Proceed'}
 						isLoader={loading}
 						disabled={loading}
-						onClick={onProceed}
+						onClick={onSkip}
 					/>
 				)}
 				{isViewLoan && (
@@ -308,7 +243,7 @@ const ConsentDetails = props => {
 						onClick={() => dispatch(toggleTestMode())}
 					/>
 				)}
-				<Button name='skip' onClick={onSkip} />
+				{/* <Button name='skip' onClick={onSkip} /> */}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
