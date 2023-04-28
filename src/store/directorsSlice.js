@@ -1,0 +1,231 @@
+import { createSlice, createAsyncThunk, current } from '@reduxjs/toolkit';
+import { API_END_POINT } from '_config/app.config';
+import axios from 'axios';
+import _ from 'lodash';
+import { BASIC_DETAILS_SECTION_ID } from 'components/Sections/const';
+
+import {
+	getDirectorFullName,
+	getShortString,
+	isDirectorApplicant,
+} from 'utils/formatData';
+
+export const DIRECTOR_TYPES = {
+	applicant: 'Applicant',
+	coApplicant: 'Co-applicant',
+	director: 'Director',
+	partner: 'Partner',
+	guarantor: 'Guarantor',
+	trustee: 'Trustee',
+	member: 'Member',
+	proprietor: 'Proprietor',
+};
+
+const initialDirectorsObject = {
+	// if length of sections is 3 then it's validated
+	sections: [
+		// 'basic_details',
+		// 'address_details',
+		// 'employment_details',
+	],
+	isMandatorySectionsCompleted: false,
+	profileGeoLocation: {},
+	documentSelfieGeolocation: {},
+	geotaggingMandatory: [],
+};
+
+const initialState = {
+	directors: {},
+	fetchingDirectors: false,
+	fetchingDirectorsSuccess: false,
+	fetchingDirectorsErrorMessage: false,
+	selectedDirectorId: '',
+	applicantDirectorId: '',
+	isApplicant: true,
+	isEntity: false,
+	selectedDirectorIsEntity: false,
+	addNewDirectorKey: '',
+	selectDirectorOptions: [],
+};
+
+export const getDirectors = createAsyncThunk(
+	'getDirectors',
+	async (businessId, { rejectWithValue }) => {
+		try {
+			const directorsRes = await axios.get(
+				`${API_END_POINT}/director_details?business_id=${businessId}`
+			);
+			return directorsRes?.data?.data || [];
+		} catch (error) {
+			return rejectWithValue(error.message);
+		}
+	}
+);
+
+export const directorsSlice = createSlice({
+	name: 'directors',
+	initialState,
+	extraReducers: {
+		[getDirectors.pending]: state => {
+			state.fetchingDirectors = true;
+		},
+		[getDirectors.fulfilled]: (state, { payload }) => {
+			const prevState = current(state);
+			state.fetchingDirectors = false;
+			state.fetchingDirectorsSuccess = true;
+			const newDirectors = {};
+			// let firstDirector = {};
+			let lastDirector = {};
+			const newSelectedDirectorOptions = [];
+			const sortedDirectors = payload?.sort(
+				(a, b) => a?.type_name - b?.type_name
+			);
+			let newIsEntity = true;
+			sortedDirectors?.map((director, directorIndex) => {
+				if (director.type_name === DIRECTOR_TYPES.applicant) {
+					newIsEntity = false;
+				}
+				const fullName = getDirectorFullName(director);
+				const directorId = `${director.id}`;
+				const newSections = [
+					...(prevState?.directors?.[directorId]?.sections || []),
+				];
+				if (!newSections.includes(BASIC_DETAILS_SECTION_ID)) {
+					newSections.push(BASIC_DETAILS_SECTION_ID);
+				}
+				const newDirectorObject = {
+					..._.cloneDeep(initialDirectorsObject),
+					...director,
+					label: `${director.type_name}`,
+					fullName,
+					shortName: getShortString(fullName, 10),
+					sections: newSections,
+					directorId,
+				};
+				newSelectedDirectorOptions.push({
+					name: fullName,
+					value: directorId,
+				});
+				newDirectors[directorId] = newDirectorObject;
+				// if (directorIndex === 0) {
+				// 	firstDirector = director;
+				// }
+				if (directorIndex === sortedDirectors.length - 1) {
+					lastDirector = director;
+				}
+				return null;
+			});
+			if (!state.selectedDirectorId) {
+				const isApplicant = isDirectorApplicant(lastDirector);
+				state.selectedDirectorId = `${lastDirector.id}`;
+				state.isApplicant = isApplicant;
+				state.applicantDirectorId = isApplicant ? `${lastDirector.id}` : '';
+			} else {
+				const prevDirector = newDirectors[state.selectedDirectorId];
+				const isApplicant = isDirectorApplicant(prevDirector);
+
+				state.selectedDirectorId = `${prevDirector.id}`;
+				state.isApplicant = isApplicant;
+				state.applicantDirectorId = isApplicant ? `${prevDirector.id}` : '';
+			}
+			state.isEntity = newIsEntity;
+			state.directors = newDirectors;
+			state.selectedDirectorOptions = newSelectedDirectorOptions;
+			if (newSelectedDirectorOptions.length === 0) {
+				state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
+			}
+		},
+		[getDirectors.rejected]: (state, { payload }) => {
+			state.fetchingDirectors = false;
+			state.fetchingDirectorsSuccess = false;
+			state.fetchingDirectorsErrorMessage = payload;
+		},
+	},
+	reducers: {
+		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
+		setDirector: (state, { payload }) => {
+			if (state.directors[payload.id]) {
+				state.directors[payload.id] = payload;
+			}
+		},
+		setAddNewDirectorKey: (state, { payload }) => {
+			state.addNewDirectorKey = payload;
+		},
+		setSelectedDirectorId: (state, { payload }) => {
+			// action.payload === directorid
+			state.selectedDirectorId = payload;
+		},
+		setCompletedDirectorSection: (state, { payload }) => {
+			try {
+				const currentState = current(state);
+				const { selectedDirectorId } = currentState;
+				const newDirectors = _.cloneDeep(currentState.directors);
+				if (
+					!newDirectors[selectedDirectorId].sections.includes(payload) &&
+					payload
+				) {
+					newDirectors[selectedDirectorId].sections.push(payload);
+					if (newDirectors[selectedDirectorId].sections.length === 3) {
+						newDirectors[
+							selectedDirectorId
+						].isMandatorySectionsCompleted = true;
+					}
+				}
+				state.directors = newDirectors;
+			} catch (e) {
+				console.log('error-setCompletedDirectorSection-', e);
+			}
+		},
+
+		// SET GEOLOCATION FOR PROFILE PICTURE
+		setProfileGeoLocation: (state, { payload }) => {
+			const { address, lat, long, timestamp } = payload;
+			let geoLocation = { address, lat, long, timestamp };
+			state.directors[
+				state.selectedDirectorId
+			].profileGeoLocation = geoLocation;
+		},
+
+		// SET SELFIE DOC GEOLOCATION
+		setDocumentSelfieGeoLocation: (state, { payload }) => {
+			const { address, lat, long, timestamp } = payload;
+			let geoLocation = { address, lat, long, timestamp };
+			state.directors[
+				state.selectedDirectorId
+			].documentSelfieGeolocation = geoLocation;
+		},
+
+		// REMOVE GEOLOCATION DETAILS ON DELETE OF SELFIE DOC
+		removeDocumentSelfieGeoLocation: (state, { payload }) => {
+			state.directors[state.selectedDirectorId].documentSelfieGeolocation = {};
+		},
+
+		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
+		setGeotaggingMandatoryFields: (state, { payload }) => {
+			if (
+				!state.directors[state.selectedDirectorId].geotaggingMandatory.includes(
+					payload.field
+				)
+			) {
+				state.directors[state.selectedDirectorId].geotaggingMandatory.push(
+					payload.field
+				);
+			}
+		},
+	},
+});
+
+export const {
+	reInitializeDirectorsSlice,
+	setAddNewDirectorKey,
+	setDirector,
+	setSelectedDirectorId,
+	setCompletedDirectorSection,
+
+	setProfileGeoLocation,
+	setDocumentSelfieGeoLocation,
+	removeDocumentSelfieGeoLocation,
+	setGeotaggingMandatoryFields,
+} = directorsSlice.actions;
+
+export default directorsSlice.reducer;

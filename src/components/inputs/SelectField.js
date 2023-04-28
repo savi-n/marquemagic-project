@@ -3,12 +3,14 @@
 import styled from 'styled-components';
 
 const Select = styled.select`
+	size: 10;
 	height: 50px;
 	padding: 10px;
 	width: 100%;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
+	margin-bottom: ${({ isGSTselector }) => (isGSTselector ? '50px' : 0)};
 `;
 //  ${({ error }) =>
 // 		error ? `border: 1px solid red; outline-color: red;` : ``}
@@ -16,6 +18,7 @@ const Select = styled.select`
 
 const Div = styled.div`
 	position: relative;
+
 	/* ::after {
 		content: '▼';
 		font-size: 12px;
@@ -63,21 +66,37 @@ const Span = styled.span`
 
 export default function SelectField(props) {
 	return (
-		<Div>
-			<Select title={props.placeholder} {...props}>
-				<option disabled value=''>
-					{props.placeholder}
-				</option>
-				{props.options?.map(({ value, name }) => (
-					<option key={value} value={value?.toString().trim()}>
-						{name}
+		<>
+			{/* only applies to gst selector in Business_address details page */}
+			{props.isGSTselector ? (
+				<Div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+					Select the GSTIN to prepopulate the address
+				</Div>
+			) : null}
+			<Div>
+				<Select title={props.placeholder} {...props}>
+					<option disabled value=''>
+						{props.placeholder}
 					</option>
-				))}
-			</Select>
-			<Label value={props.value} htmlFor={props.name} disabled={props.disabled}>
-				<Span>{props.placeholder}</Span>
-				{props.rules?.required && <Asteris>*</Asteris>}
-			</Label>
-		</Div>
+					{props.options?.map(({ value, name }) => (
+						<option
+							key={value}
+							value={value?.toString().trim()}
+							disabled={name.split(' - ').includes('Inactive')}
+						>
+							{name}
+						</option>
+					))}
+				</Select>
+				<Label
+					value={props.value}
+					htmlFor={props.name}
+					disabled={props.disabled}
+				>
+					<Span>{props.placeholder}</Span>
+					{props.rules?.required && <Asteris>*</Asteris>}
+				</Label>
+			</Div>
+		</>
 	);
 }

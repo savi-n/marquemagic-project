@@ -5,7 +5,7 @@ import * as API from '_config/app.config';
 import { toggleTestMode, setSelectedSectionId } from 'store/appSlice';
 import { getApiErrorMessage } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import Button from 'components/Button';
 import Modal from 'components/Modal';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -78,6 +78,7 @@ const ConsentDetails = props => {
 
 	useEffect(() => {
 		fetchConsentDetails();
+		//eslint-disable-next-line
 	}, []);
 
 	const naviagteToNextSection = () => {
@@ -86,18 +87,6 @@ const ConsentDetails = props => {
 
 	const naviagteToPreviousSection = () => {
 		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
 	// TODO:Implement fetch for every modal
@@ -128,24 +117,10 @@ const ConsentDetails = props => {
 	// 	}
 	// };
 
-	// const onProceed = async () => {
-	// 	try {
-	// 		setLoading(true);
-	// 	} catch (error) {
-	// 		console.error('error-ConsentDetails-onProceed-', {
-	// 			error: error,
-	// 			res: error?.response,
-	// 			resres: error?.response?.response,
-	// 			resData: error?.response?.data,
-	// 		});
-	// 		addToast({
-	// 			message: getApiErrorMessage(error),
-	// 			type: 'error',
-	// 		});
-	// 	} finally {
-	// 		setLoading(false);
-	// 	}
-	// };
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
+		dispatch(setSelectedSectionId(nextSectionId));
+	};
 
 	return loading ? (
 		<Loading />
@@ -222,7 +197,7 @@ const ConsentDetails = props => {
 						name={'Save and Proceed'}
 						isLoader={loading}
 						disabled={loading}
-						onClick={onSkip}
+						onClick={onSaveAndProceed}
 					/>
 				)}
 				{isViewLoan && (

@@ -1,3 +1,5 @@
+// This file is Deprecated. All the changes are made in src/pages/product/Product/Product.js file with the new flow.
+
 /* This file defines the side menu that is seen in loan application creation journey */
 
 import { useContext, useEffect, Fragment, useState } from 'react';
@@ -241,11 +243,11 @@ export default function Product(props) {
 				const selectedProductRes = _.cloneDeep(response.data);
 				// New Individual loan changes for displaying sections based on the config - starts
 				if (isViewLoan) {
-					let tempSections = _.cloneDeep(
+					const tempSections = _.cloneDeep(
 						selectedProductRes?.product_details?.sections
 					);
 
-					let flowData = tempSections?.filter(section => {
+					const flowData = tempSections?.filter(section => {
 						if (section?.hide_section_usertype) {
 							return (
 								!section?.hide_section_usertype?.includes(
@@ -282,20 +284,22 @@ export default function Product(props) {
 				const sessionUserDetails = JSON.parse(
 					sessionStorage.getItem('userDetails')
 				);
-				let flowData = response?.data?.product_details?.flow.filter(section => {
-					if (section?.hide_section_usertype) {
-						return (
-							!section?.hide_section_usertype?.includes(
-								sessionUserDetails?.usertype
-							) &&
-							!section?.hide_section_usertype?.includes(
-								sessionUserDetails?.user_sub_type
-							)
-						);
-					} else {
-						return response?.data?.product_details?.flow;
+				const flowData = response?.data?.product_details?.flow.filter(
+					section => {
+						if (section?.hide_section_usertype) {
+							return (
+								!section?.hide_section_usertype?.includes(
+									sessionUserDetails?.usertype
+								) &&
+								!section?.hide_section_usertype?.includes(
+									sessionUserDetails?.user_sub_type
+								)
+							);
+						} else {
+							return response?.data?.product_details?.flow;
+						}
 					}
-				});
+				);
 				if (flowData.length > 0) {
 					response.data.product_details.flow = flowData;
 				}

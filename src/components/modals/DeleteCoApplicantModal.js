@@ -30,11 +30,7 @@ const ModalFooter = styled.div`
 	gap: 40px;
 `;
 
-export default function DeleteCoApplicantModal({
-	onYes,
-	onNo,
-	coApplicantNumber = '',
-}) {
+export default function DeleteCoApplicantModal({ onYes, onNo, label = '' }) {
 	return (
 		<Modal
 			show={true}
@@ -43,9 +39,7 @@ export default function DeleteCoApplicantModal({
 			customStyle={{ minHeight: '200px' }}
 		>
 			<ModalBody>
-				<Text>
-					Are you sure you want to delete Co-Applicant{coApplicantNumber}?
-				</Text>
+				<Text>Are you sure you want to delete the {label}?</Text>
 				<Text>You will loose all the entered details</Text>
 			</ModalBody>
 			<ModalFooter>

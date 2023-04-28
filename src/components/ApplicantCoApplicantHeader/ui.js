@@ -7,6 +7,14 @@ export const Wrapper = styled.div`
 	/* padding: 0 50px; */
 `;
 
+export const LoadingWrapper = styled.div`
+	height: 100px;
+	width: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`;
+
 export const UL = styled.ul`
 	/* border: 1px solid gold; */
 	display: flex;
@@ -85,4 +93,16 @@ export const Indecator = styled.img`
 	height: 50px;
 	width: 50px;
 	cursor: pointer;
+`;
+
+export const HoverBadge = styled.div`
+	/* position: absolute; */
+	/* background: white; */
+	/* box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+		rgba(60, 64, 67, 0.15) 0px 2px 6px 2px; */
+	border-radius: 6px;
+	padding: 4px 8px;
+	font-size: 12px;
+	text-transform: capitalize;
+	z-index: 999;
 `;

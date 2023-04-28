@@ -16,7 +16,7 @@ import {
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+} from 'store/directorsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
@@ -49,26 +49,13 @@ const ProfileUpload = props => {
 		selectedApplicant,
 		setImageLoading = () => {},
 	} = props;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const { isApplicant } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
 	const { loanId, loanRefId, businessUserId, businessId } = application;
-
 	const [picAddress, setPicAddress] = useState({});
-	const {
-		isApplicant,
-		// applicant,
-		// coApplicants,
-		// selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	// const selectedApplicant = isApplicant
-	// 	? applicant
-	// 	: coApplicants[selectedApplicantCoApplicantId] || {};
-	// const { cacheDocuments } = selectedApplicant;
-	// const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
@@ -413,23 +400,6 @@ const ProfileUpload = props => {
 									}}
 								/>
 							)}
-							{/* TODO: verify requirement and push back re-upload before delete */}
-							{/* <UI.IconDelete
-							src={iconDelete}
-							alt='delete'
-							onClick={e => {
-								e.preventDefault();
-								e.stopPropagation();
-								removeCacheDocumentTemp(field.name);
-								// setProfileImageResTemp(null);
-							}}
-						/>
-						<input {...getInputProps()} />
-						<UI.IconCamera
-							src={iconCameraBlue}
-							alt='camera'
-							{...getRootProps({ className: 'dropzone' })}
-						/> */}
 						</UI.CameraIconWrapper>
 						{isGeoTaggingEnabled && isTag && field?.geo_tagging === true && (
 							<UI.PinIconWrapper>
