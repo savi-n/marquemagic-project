@@ -37,9 +37,11 @@ const PanUpload = props => {
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		isDisabled,
+		selectedDirector,
+		selectedSectionId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken } = app;
+	const { selectedProduct, clientToken, isEditOrViewLoan } = app;
 	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
@@ -497,7 +499,7 @@ const PanUpload = props => {
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>
-							{uploadedFile?.name}
+							{uploadedFile?.name || uploadedFile?.uploaded_doc_name}
 						</UI.UploadedFileName>
 						{loading ? (
 							<UI.UploadIconWrapper>
@@ -512,26 +514,28 @@ const PanUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!uploadedFile?.document_id && (
-									<UI.IconDelete
-										src={iconDelete}
-										alt='delete'
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											removeCacheDocumentTemp(field.name);
-											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
-												value: '',
-											});
-											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
-												value: '',
-											});
-											clearErrorFormState();
-										}}
-									/>
-								)}
+								{!uploadedFile?.document_id &&
+									!isEditOrViewLoan &&
+									!selectedDirector?.sections?.includes(selectedSectionId) && (
+										<UI.IconDelete
+											src={iconDelete}
+											alt='delete'
+											onClick={e => {
+												e.preventDefault();
+												e.stopPropagation();
+												removeCacheDocumentTemp(field.name);
+												onChangeFormStateField({
+													name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+													value: '',
+												});
+												onChangeFormStateField({
+													name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
+													value: '',
+												});
+												clearErrorFormState();
+											}}
+										/>
+									)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>

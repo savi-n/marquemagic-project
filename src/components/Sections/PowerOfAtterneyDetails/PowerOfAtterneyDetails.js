@@ -9,7 +9,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
+import { formatGetSectionReqBody } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
@@ -40,13 +40,13 @@ const PowerOfAtterneyDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/power_of_atterney?${formatGetSectionReqBody({
+				`${API_END_POINT}/poa_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.loanassets_records);
+			if (fetchRes?.data?.data?.length > 0) {
+				setSectionData(fetchRes?.data?.data);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -120,12 +120,7 @@ const PowerOfAtterneyDetails = props => {
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
-									const prefillData = section
-										? {
-												...section,
-												...(section?.loan_json || {}),
-										  }
-										: {};
+									const prefillData = section || {};
 									return (
 										<UI_SECTIONS.AccordianWrapper>
 											<UI_SECTIONS.AccordianHeader
@@ -134,24 +129,23 @@ const PowerOfAtterneyDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Assets For:</span>
+															<span>Principal:</span>
 															<strong>
 																{
 																	selectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
+																			`${prefillData?.principal}`
 																	)?.[0]?.name
 																}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
+														<UI_SECTIONS.AccordianHeaderData />
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Assets:</span>
-															<strong>{prefillData?.loan_asset_type_id}</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Amount:</span>
-															<strong>{formatINR(prefillData?.value)}</strong>
+															<span>Relation:</span>
+															<strong>
+																{prefillData?.principal_relationship_with_poa}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
