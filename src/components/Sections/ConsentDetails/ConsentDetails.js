@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import * as API from '_config/app.config';
-import { toggleTestMode, setSelectedSectionId } from 'store/appSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import { getApiErrorMessage } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
@@ -21,9 +21,7 @@ const ConsentDetails = props => {
 		selectedSectionId,
 		nextSectionId,
 		prevSectionId,
-		isTestMode,
 		selectedSection,
-		isLocalhost,
 		isViewLoan,
 		userToken,
 		// isEditLoan,
@@ -211,14 +209,6 @@ const ConsentDetails = props => {
 						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
 					</>
 				)}
-				{isLocalhost && !isViewLoan && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-				{/* <Button name='skip' onClick={onSkip} /> */}
 			</UI_SECTIONS.Footer>
 		</UI_SECTIONS.Wrapper>
 	);
