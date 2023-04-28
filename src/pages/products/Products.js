@@ -19,7 +19,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'components/Modal';
 import Button from 'components/Button';
-import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import imgDotElement from 'assets/images/bg/Landing_page_dot-element.png';
 // import imgEditIcon from 'assets/icons/edit-icon.png';
 // import { faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -27,8 +26,7 @@ import axios from 'axios';
 import { useToasts } from 'components/Toast/ToastProvider';
 import Loading from 'components/Loading';
 import searchIcon from 'assets/icons/search-icon.png';
-import SelectField from 'components/inputs/SelectField';
-import { ImgClose } from 'components/Sections/BasicDetails/PanUpload/ui';
+
 // import InputField from 'components/inputs/InputField';
 const Wrapper = styled.div`
 	padding: 30px 80px 50px 80px;
@@ -330,7 +328,7 @@ export default function Products() {
 	const [refstatus, setRefstatus] = useState('');
 	const { addToast } = useToasts();
 	const [loanList, setLoanList] = useState([]);
-	const [, setPrimaryStatusList] = useState([]);
+	// const [, setPrimaryStatusList] = useState([]);
 	const [modalOTP, setModalOTP] = useState(false);
 	const [modalOTPData, setModalOTPData] = useState({});
 	const [OTP, setOTP] = useState('');
@@ -338,9 +336,6 @@ export default function Products() {
 	const [errOTP, setErrOTP] = useState('');
 	const [addProduct, setAddProduct] = useState(false);
 	const [loadingOTP, setLoadingOTP] = useState(false);
-	const [isSubProductModalOpen,setSubProductModalOpen]= useState(false);
-	const [SubProduct, setSubProduct]= useState(false);
-	const [subProductComments,setSubProductCommnets]= useState(false);
 	const initialLoanProductCount = 3;
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
 
@@ -373,7 +368,7 @@ export default function Products() {
 					if (s.parent_id === 0) primary.push(s);
 					return null;
 				});
-				setPrimaryStatusList(primary);
+				// setPrimaryStatusList(primary);
 			} else {
 				addToast({
 					message: 'No Loans Found',
@@ -478,19 +473,6 @@ export default function Products() {
 			});
 		}
 	};
-	const options=[{
-		value:1,
-		name:'Product 1 and Product 2',
-	},
-	{
-		value:2,
-		name:'Product 2 and Product 2',
-	},
-	{
-		value:3,
-		name:'Product 3'
-	}
-]
 	useEffect(() => {
 		sessionStorage.removeItem('formstate');
 		sessionStorage.removeItem('formstatepan');
@@ -527,9 +509,12 @@ export default function Products() {
 			<ProductsBox style={{ marginTop: 40 }}>
 				{!addedProduct && products?.data?.length > 3 ? (
 					<AddProductBox>
-						<Button onClick={() =>{
-							// setAddProduct(true);
-							setSubProductModalOpen(true)}} roundCorner>
+						<Button
+							onClick={() => {
+								setAddProduct(true);
+							}}
+							roundCorner
+						>
 							<FontAwesomeIcon size='sm' icon={faPlus} />
 							&nbsp;&nbsp;
 							<span className='text-blue'>Add Product</span>
@@ -538,12 +523,19 @@ export default function Products() {
 				) : (
 					<>
 						{addedProduct && (
-							<Card product={addedProduct} key={`product__${addProduct.id}`} />
+							<Card
+								product={addedProduct}
+								key={`product__${addProduct.id}`}
+							/>
 						)}
 					</>
 				)}
 			</ProductsBox>
-			<Modal show={addProduct} width='80%' onClose={() => setAddProduct(false)}>
+			<Modal
+				show={addProduct}
+				width='80%'
+				onClose={() => setAddProduct(false)}
+			>
 				{loadingOTP ? (
 					<div
 						style={{
@@ -577,61 +569,43 @@ export default function Products() {
 					</>
 				)}
 			</Modal>
-			<Modal
+			{/* <Modal
 			show= {isSubProductModalOpen}
 			onClose={()=>setSubProductModalOpen(false)}
-			width="40%"
-			>
-				<section  className='p-4 flex flex-col gap-y-8'>
+			width="90%"
+			><ImgClose
+			onClick={()=>{
+				setSubProductModalOpen(false);
+			}}
+			src={imgClose}
+			alt='close'
+			/>
+				<section  className='flex flex-col gap-y-8'>
 					<div style={{
-						display:'flex'
+						display:'flex',
+						alignSelf:'center'
 					}}>
 						<span style={{
-							font:'30px Arial, sans-serif'
+							font:'30px Arial, sans-serif',
 						}}>Change Sub Product</span>
-					<ImgClose
-					onClick={()=>{
-						setSubProductModalOpen(false);
-					}}
-					src={imgClose}
-					alt='close'
-					/>
+					<DivAdd>
+						{console.log(products?.data?.sub_products)};
+						{products && products?.data?.sub_products && products?.data.sub_products.map((subProduct,idx)=>{
+								if(idx<initialLoanProductCount) return null;
+								return(
+									<CardSubProduct
+									add={true}
+											setAddedProduct={setAddedSubProduct}
+											product={subProduct}
+											key={`product__${subProduct.id}`}
+											setAddProduct={setAddSubProduct}
+											/>
+								);
+						})}
+					</DivAdd>
 					</div>
-					<div style={{
-						// display:'flex',
-						// gap:'10px',
-						// alignItems:'center',
-						fontSize:'large',
-						paddingTop:'1rem'
-					}}>
-						<h1>Select Sub-Product</h1>
-						<SelectField
-						options={options}
-						/>
-					</div>
-					<h1>Enter Comments*</h1>
-					<textarea
-					 className="comment-field"
-					 placeholder="Add Comments..."
-					 onChange={e=>setSubProductCommnets(e)}
-					 name="comment"
-					 id="comment"
-					 style={{
-						height:'150px',
-						border:'1px solid black'
-					 }}
-					/>
-					<Button
-					name='Submit'
-					 fill
-					 customStyle={{
-						display:'flex',
-						alignSelf:'flex-end',
-						justifyContent:'flex-end'
-					 }}
-					/>
 				</section>
-			</Modal>
+			</Modal> */}
 			<Modal show={modalOTP} width='50%' onClose={() => setModalOTP(false)}>
 				<ModalOTPHeader className='text-center w-full py-6'>
 					Please enter OTP sent to your Phone Number +91 xxxxxxxx
@@ -715,7 +689,9 @@ export default function Products() {
 									<AppStatusList
 										key={d?.id}
 										style={
-											appIndex === loanList.length - 1 ? { border: 'none' } : {}
+											appIndex === loanList.length - 1
+												? { border: 'none' }
+												: {}
 										}
 									>
 										<AppStatusLine1>

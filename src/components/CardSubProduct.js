@@ -1,5 +1,3 @@
-/* Landing page of nc-onboarding journey contains different loan cards.
-This card is designed and defined here */
 import { useSelector, useDispatch } from 'react-redux';
 // import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
@@ -16,12 +14,11 @@ import { setGeoLocation } from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 import Button from './Button';
-import CardSubProduct from './CardSubProduct';
 import { useState } from 'react';
 import { useToasts } from './Toast/ToastProvider';
 import Modal from 'components/Modal';
 // import Button from 'components/Button';
-import imgClose from 'assets/icons/close_icon_grey-06.svg';
+
 const Wrapper = styled.div`
 
   width: 25%;
@@ -43,27 +40,6 @@ width: 100%;
 	}
 `;
 
-const DivAdd = styled.div`
-	gap: 40px 0;
-	padding: 20px 0 20px 0;
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
-	/* @media (max-width: 700px) {
-		gap: 0;
-	} */
-	/* gap: 50px; */
-	/* align-items: center; */
-	/* gap: calc(12% / 3); */
-`;
-
-
-const ImgClose = styled.img`
-	height: 25px;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
-`;
 
 const ImgDiv = styled.div`
 	width: 100%;
@@ -80,23 +56,6 @@ const ImgSelectProduct = styled.img`
 	height: 35px;
 	margin: 0 auto;
 `;
-
-// const ButtonBox = styled.div`
-//   /* background: ${({ theme }) => theme.themeColor1}; */
-//   text-align: center;
-//   padding: 40px;
-//   padding: 20px;
-// `;
-
-// const Link = styled.a`
-// 	text-decoration: none;
-// 	color: #fff;
-// 	background: ${({ theme }) => theme.main_theme_color};
-// 	padding: 5px 40px;
-// 	display: inline-block;
-// 	border-radius: 20px;
-// 	cursor: pointer;
-// `;
 
 const Description = styled.div`
 	color: ${({ theme }) => theme.themeColor2};
@@ -116,7 +75,8 @@ const ButtonWrapper = styled.div`
 	padding-bottom: 20px;
 `;
 
-export default function Card({ product, add, setAddedProduct, setAddProduct }) {
+
+export default function CardSubProduct({ product, add, setAddedProduct, setAddProduct }) {
 	// const {
 	// 	state: { basePageUrl },
 	// 	actions: { clearFlowDetails },
@@ -130,14 +90,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const { app } = useSelector(state => state);
 	const { isGeoTaggingEnabled } = app;
 	const { userToken } = app;
-	const [addedSubProduct, setAddedSubProduct] = useState(null);
 	// const {
 	// 	actions: { removeAllLoanDocuments },
 	// } = useContext(LoanFormContext);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const [isSubProductModalOpen,setSubProductModalOpen]= useState(false);
-	// const [SubProduct, setAddedSubProduct]= useState(false);
 	// const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
 	// const { url } = useRouteMatch();
@@ -149,7 +106,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// 		data: id,
 	// 	});
 	// };
+// console.log("CardSubProduct",product);
 	return (
+		<>
+		{console.log("CardSubProduct",product)}
 		<Wrapper>
 			<ImgDiv>
 				<Img src={product.url} alt={product.name} />
@@ -159,6 +119,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			{/* <ButtonBox> */}
 			<ButtonWrapper>
 				<Button
+          // src={}
 					roundCorner={true}
 					loading={gettingGeoLocation}
 					fill
@@ -168,15 +129,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						fontSize: '16px',
 						background: 'rgb(42, 42, 221)',
 					}}
+					name='Add loan'
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
-					name={add ? 'Add Loan' : 'Get Loan'}
 					onClick={async e => {
-						if(!!product?.sub_products){setSubProductModalOpen(true);}
 						if (!add) {
 							try {
-								if(product?.sub_products){
-									setSubProductModalOpen(true);
-								}
 								if (isGeoTaggingEnabled) {
 									setGettingGeoLocation(true);
 									const coordinates = await getGeoLocation();
@@ -220,10 +177,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						}
 						// if (product.loan_request_type === 2) {
 						if (add) {
-
 							setAddedProduct(product);
 							setAddProduct(false);
-							if(!!product?.sub_products){setSubProductModalOpen(true);}
 							return;
 						}
 						e.preventDefault();
@@ -235,7 +190,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (params?.token) {
 							redirectURL += `?token=${params.token}`;
 						}
-						if(isSubProductModalOpen){window.open(redirectURL, '_self');}
+						window.open(redirectURL, '_self');
 						return;
 						// }
 						// resetAllApplicationState();
@@ -253,46 +208,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				{/* </Button> */}
 				<Description>{product.description}</Description>
 			</ButtonWrapper>
-			<Modal
-			show= {isSubProductModalOpen}
-			onClose={()=>setSubProductModalOpen(false)}
-					width="80%"
-			><ImgClose
-			onClick={()=>{
-				setSubProductModalOpen(false);
-			}}
-			src={imgClose}
-			alt='close'
-			/>
-			<span style={{
-							font:'30px Arial, sans-serif',
-							display:'flex',
-							justifyContent:'center'
-						}}>Change Sub Product</span>
-				<section  className='flex flex-col gap-y-8'>
-					{/* <div style={{
-						display:'flex',
-						alignSelf:'center'
-					}}> */}
-
-					<DivAdd>
-						{/* {console.log(product?.sub_products)}; */}
-						{product && product?.sub_products && product?.sub_products.map((subProduct,idx)=>{
-								// if(idx<initialLoanProductCount) return null;
-								// console.log(product+"-> "+subProduct);
-								return(
-								<CardSubProduct
-								add={true}
-								setAddedProduct={setAddedSubProduct}
-								product={subProduct}
-
-								/>
-								);
-						})}
-					</DivAdd>
-				</section>
-			</Modal>
 		</Wrapper>
 
+		<Modal>
+
+		</Modal>
+		</>
 	);
 }
