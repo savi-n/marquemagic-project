@@ -220,7 +220,6 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						}
 						// if (product.loan_request_type === 2) {
 						if (add) {
-
 							setAddedProduct(product);
 							setAddProduct(false);
 							if(!!product?.sub_products){setSubProductModalOpen(true);}
@@ -282,10 +281,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								// console.log(product+"-> "+subProduct);
 								return(
 								<CardSubProduct
-								add={true}
-								setAddedProduct={setAddedSubProduct}
-								product={subProduct}
-
+											add={true}
+											setAddedProduct={setAddedProduct}
+											product={product}
+											key={`product__${subProduct.id}`}
+											setAddProduct={setAddProduct}
 								/>
 								);
 						})}
