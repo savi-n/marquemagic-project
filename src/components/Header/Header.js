@@ -100,18 +100,19 @@ const Header = props => {
 						fill={!!isTestMode}
 						name='Auto Fill'
 						onClick={() => dispatch(toggleTestMode())}
+						customStyle={{ padding: '4px 8px', width: 100 }}
 					/>
 					{!['basic_details', 'business_details'].includes(
 						selectedSectionId
 					) && (
 						<Button
-							customStyle={{ marginLeft: 20 }}
+							customStyle={{ padding: '4px 8px', width: 100, marginLeft: 20 }}
 							name='Skip'
 							onClick={() => {
-								console.log('header-onskip-', {
-									directorSectionIds,
-									selectedSectionId,
-								});
+								// console.log('header-onskip-', {
+								// 	directorSectionIds,
+								// 	selectedSectionId,
+								// });
 								if (directorSectionIds?.includes(selectedSectionId)) {
 									dispatch(setCompletedDirectorSection(selectedSectionId));
 								} else {

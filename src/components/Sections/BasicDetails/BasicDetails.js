@@ -16,7 +16,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
-import { setProfileGeoLocation } from 'store/directorsSlice';
+import { DIRECTOR_TYPES, setProfileGeoLocation } from 'store/directorsSlice';
 import { setLoanIds, setGeoLocation } from 'store/applicationSlice';
 import { getDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
 import {
@@ -221,7 +221,11 @@ const BasicDetails = props => {
 				newBorrowerUserId || businessUserId;
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
+			} else if (selectedDirector) {
+				basicDetailsReqBody.data.basic_details.type_name =
+					selectedDirector?.type_name;
 			}
+
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -234,6 +238,10 @@ const BasicDetails = props => {
 				basicDetailsRes?.data?.data?.business_data?.userid;
 			const newCreatedByUserId =
 				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+
+			if (!newLoanRefId || !newLoanId || !newBusinessId) {
+				throw new Error('Unable to create loan, Try after sometimes');
+			}
 
 			if (isNewProfileUploaded) {
 				const uploadedProfileRes =
@@ -555,6 +563,14 @@ const BasicDetails = props => {
 			dispatch(
 				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
+		}
+
+		if (
+			Object.keys(directors).length === 0 &&
+			!addNewDirectorKey &&
+			!selectedDirectorId
+		) {
+			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
 		}
 
 		if (

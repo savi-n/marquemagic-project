@@ -274,8 +274,8 @@ const LoanDetails = () => {
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			setSectionData(fetchRes?.data?.data?.loanData || {});
+			// console.log('fetchRes-', fetchRes)
+			setSectionData(fetchRes?.data?.data || {});
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData({});
@@ -335,6 +335,7 @@ const LoanDetails = () => {
 	// 	application,
 	// 	selectedDirector,
 	// 	formState,
+	// 	selectedSection,
 	// });
 
 	return (

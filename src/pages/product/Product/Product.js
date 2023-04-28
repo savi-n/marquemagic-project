@@ -23,6 +23,7 @@ import BuissnessDetails from 'components/Sections/BusinessDetails/BusinessDetail
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
+import PowerOfAtterneyDetails from 'components/Sections/PowerOfAtterneyDetails';
 import _ from 'lodash';
 import {
 	setIsTestMode,
@@ -74,6 +75,7 @@ const Product = props => {
 		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
 		subsidiary_details: SubsidiaryDetails,
+		poa_details: PowerOfAtterneyDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
@@ -106,7 +108,6 @@ const Product = props => {
 				selectedProductRes.product_details.sections = flowData;
 			}
 			// New Individual loan changes for displaying sections based on the config - ends
-
 			dispatch(setSelectedProduct(selectedProductRes));
 			dispatch(
 				setSelectedSectionId(
@@ -129,11 +130,11 @@ const Product = props => {
 		});
 	}, [selectedSectionId, selectedDirectorId, isTestMode]);
 
-	useEffect(() => {
-		console.log('Product-allStates-', {
-			reduxState,
-		});
-	}, [reduxState]);
+	// useEffect(() => {
+	// 	console.log('Product-allStates-', {
+	// 		reduxState,
+	// 	});
+	// }, [reduxState]);
 
 	const getBankList = () => {
 		try {

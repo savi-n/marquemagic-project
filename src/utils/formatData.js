@@ -502,13 +502,22 @@ export const getSelectDirectorOptions = data => {
 };
 
 export const getAllCompletedSections = data => {
-	const { application, selectedDirector } = data;
+	const {
+		application,
+		selectedDirector,
+		addNewDirectorKey,
+		directorSectionIds,
+	} = data;
 	let completedSections = [];
 	if (Array.isArray(application?.sections)) {
 		completedSections = [...completedSections, ...application?.sections];
 	}
 	if (Array.isArray(selectedDirector?.sections)) {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
+	}
+	// 'Entity'
+	if (!addNewDirectorKey && !selectedDirector) {
+		completedSections = [...completedSections, ...directorSectionIds];
 	}
 	return completedSections;
 };
@@ -778,25 +787,54 @@ export const formatLenderDocs = docs => {
 	return newDocs;
 };
 
-// validating employment details section for onProceed or add-coapplicant
+// Validation for all the directors : This is the check before adding new director or moving to other sections from employment/basic/address details section
 export const validateEmploymentDetails = data => {
-	const { coApplicants, isApplicant } = data;
+	const { selectedDirector, directors } = data;
 	let allowProceed = false;
-	let filteredCoApplicant = [];
-	if (Object.keys(coApplicants)?.length > 0) {
-		filteredCoApplicant = Object.values(coApplicants)?.filter(coApplicant => {
-			return !coApplicant?.employmentId;
+	const lastDirector = Object.values(directors)?.pop();
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+
+	if (
+		Object.keys(directors)?.length === 1 &&
+		selectedDirector?.sections?.length >= 2
+	) {
+		return { allowProceed: true };
+	}
+	if (Object.keys(directors)?.length > 1) {
+		const notCompletedDirectors = [];
+
+		restOfTheDirectors?.map(dir => {
+			if (dir?.sections?.length < 3) {
+				// console.log(dir?.sections, 'sections-dir');
+				notCompletedDirectors.push(dir);
+			}
+
+			return null;
 		});
+
+		if (lastDirector?.sections?.length < 2)
+			notCompletedDirectors.push(lastDirector);
+
+		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director
+		if (
+			lastDirector?.sections?.length === 2 &&
+			+selectedDirector?.directorId !== +lastDirector?.directorId
+		)
+			notCompletedDirectors.push(lastDirector);
+
+		if (notCompletedDirectors?.length === 0) allowProceed = true;
+
+		return {
+			allowProceed,
+			// lastDirector,
+			// restOfTheDirectors,
+			// notCompletedDirectors,
+			// selectedDirector,
+			directorName: `${notCompletedDirectors?.[0]?.type_name} ${
+				notCompletedDirectors?.[0]?.fullName
+			}`,
+		};
 	}
-	if (filteredCoApplicant.length === 0) {
-		allowProceed = true;
-	} else {
-		allowProceed = false;
-	}
-	if (isApplicant && Object.keys(coApplicants)?.length === 0) {
-		allowProceed = true;
-	}
-	return allowProceed;
 };
 
 export const getApplicantNavigationDetails = data => {

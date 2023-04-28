@@ -17,6 +17,27 @@ export const ADDRESS_DETAILS_SECTION_ID = 'loan_address_details';
 export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 
+export const ALL_SECTION_IDS = {
+	document_upload: 'document_upload',
+	consent_details: 'consent_details',
+	poa_details: 'poa_details',
+	reference_details: 'reference_details',
+	subsidiary_details: 'subsidiary_details',
+	bank_details: 'bank_details',
+	collateral_details: 'collateral_details',
+	assets_details: 'assets_details',
+	liability_details: 'liability_details',
+	loan_details: 'loan_details',
+	employment_details: 'employment_details',
+	loan_address_details: 'loan_address_details',
+	basic_details: 'basic_details',
+
+	business_details: 'business_details',
+	business_address_details: 'business_address_details',
+
+	application_submitted: 'application_submitted',
+};
+
 //for sme flow
 export const BUSINESS_DETAILS_SECTION_ID = 'business_details';
 export const BUSINESS_ADDRESS_SECTION_ID = 'address_details';

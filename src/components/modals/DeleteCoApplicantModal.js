@@ -39,7 +39,7 @@ export default function DeleteCoApplicantModal({ onYes, onNo, label = '' }) {
 			customStyle={{ minHeight: '200px' }}
 		>
 			<ModalBody>
-				<Text>Are you sure you want to delete {label}?</Text>
+				<Text>Are you sure you want to delete the {label}?</Text>
 				<Text>You will loose all the entered details</Text>
 			</ModalBody>
 			<ModalFooter>

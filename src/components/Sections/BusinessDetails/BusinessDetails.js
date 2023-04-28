@@ -56,6 +56,7 @@ const BuissnessDetails = props => {
 		isDraftLoan,
 		editLoanDirectors,
 		userDetails,
+		isTestMode,
 	} = app;
 	const {
 		borrowerUserId,
@@ -311,10 +312,21 @@ const BuissnessDetails = props => {
 
 	const prefilledValues = field => {
 		try {
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
+				return CONST.initialFormState?.[field?.db_key];
+			}
+			// -- TEST MODE
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
 
 			const preData = {
 				business_email: sectionData?.user_data?.email,

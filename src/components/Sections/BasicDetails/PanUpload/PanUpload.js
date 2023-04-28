@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
@@ -9,14 +9,10 @@ import Modal from 'components/Modal';
 import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
 import Button from 'components/Button';
-import { setCompanyRocData } from 'store/directorsSlice';
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
-import {
-	formatCompanyRocData,
-	formatPanExtractionData,
-} from 'utils/formatData';
+import { formatPanExtractionData } from 'utils/formatData';
 import { verifyKycDataUiUx } from 'utils/request';
 import { isInvalidPan } from 'utils/validation';
 import iconUploadBlue from 'assets/icons/upload_icon_blue.png';
@@ -52,7 +48,7 @@ const PanUpload = props => {
 	const [loading, setLoading] = useState(false);
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	const dispatch = useDispatch();
+	// const dispatch = useDispatch();
 	const panExtractionData = uploadedFile?.panExtractionData;
 
 	const openDocument = async file => {
@@ -135,17 +131,9 @@ const PanUpload = props => {
 			const cinFetchReqBody = {
 				cin_number: cinNumber,
 			};
-			const cinNumberResponse = await axios.post(
-				API.ROC_DATA_FETCH,
-				cinFetchReqBody,
-				{ authorization: clientToken }
-			);
-			const companyData = cinNumberResponse?.data?.data;
-			const formattedCompanyData = formatCompanyRocData(
-				companyData,
-				confirmPanNumber
-			);
-			dispatch(setCompanyRocData(formattedCompanyData));
+			await axios.post(API.ROC_DATA_FETCH, cinFetchReqBody, {
+				authorization: clientToken,
+			});
 		} catch (error) {
 			setLoading(false);
 			addToast({
