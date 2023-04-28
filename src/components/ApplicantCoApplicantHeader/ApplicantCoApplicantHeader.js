@@ -29,15 +29,7 @@ const ApplicantCoApplicantHeader = props => {
 		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 
-	const {
-		selectedSectionId,
-		selectedProduct,
-		isLocalhost,
-		// isDraftLoan,
-		firstSectionId,
-		// clientToken,
-		// userToken,
-	} = app;
+	const { selectedSectionId, selectedProduct, isLocalhost } = app;
 	// const [flag,setFlag]={};
 	const { businessId } = application;
 	const { cacheDocuments, allDocumentTypes } = application;
@@ -155,7 +147,7 @@ const ApplicantCoApplicantHeader = props => {
 		// }
 
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
-			dispatch(setSelectedSectionId(firstSectionId));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
 		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
@@ -175,6 +167,7 @@ const ApplicantCoApplicantHeader = props => {
 							onYes={() => {
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
+								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
 							label={isDeleteDirectorModalOpen}
 						/>

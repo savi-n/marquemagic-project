@@ -47,13 +47,13 @@ const SideNav = props => {
 		directorSectionIds,
 	});
 
-	console.log('SideNav-allStates-', {
-		app,
-		selectedProduct,
-		completedSections,
-		selectedDirector,
-		application,
-	});
+	// console.log('SideNav-allStates-', {
+	// 	app,
+	// 	selectedProduct,
+	// 	completedSections,
+	// 	selectedDirector,
+	// 	application,
+	// });
 
 	return (
 		<Fragment>
