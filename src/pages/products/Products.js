@@ -509,12 +509,7 @@ export default function Products() {
 			<ProductsBox style={{ marginTop: 40 }}>
 				{!addedProduct && products?.data?.length > 3 ? (
 					<AddProductBox>
-						<Button
-							onClick={() => {
-								setAddProduct(true);
-							}}
-							roundCorner
-						>
+						<Button onClick={() => setAddProduct(true)} roundCorner>
 							<FontAwesomeIcon size='sm' icon={faPlus} />
 							&nbsp;&nbsp;
 							<span className='text-blue'>Add Product</span>
