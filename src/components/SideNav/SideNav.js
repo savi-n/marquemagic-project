@@ -11,8 +11,6 @@ import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
-// import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
 import { getAllCompletedSections } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -25,15 +23,17 @@ import * as CONST from './const';
 
 const SideNav = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirector } = useSelector(state => state.directors);
+	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		isEditOrViewLoan,
 		isViewLoan,
 	} = app;
-	// const { addToast } = useToasts();
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
@@ -43,14 +43,17 @@ const SideNav = props => {
 	const completedSections = getAllCompletedSections({
 		application,
 		selectedDirector,
+		addNewDirectorKey,
+		directorSectionIds,
 	});
 
-	console.log('SideNav-allStates-', {
-		app,
-		selectedProduct,
-		completedSections,
-		selectedDirector,
-	});
+	// console.log('SideNav-allStates-', {
+	// 	app,
+	// 	selectedProduct,
+	// 	completedSections,
+	// 	selectedDirector,
+	// 	application,
+	// });
 
 	return (
 		<Fragment>
@@ -143,18 +146,6 @@ const SideNav = props => {
 
 												if (isCompleted || isActive) {
 													dispatch(setSelectedSectionId(section.id));
-													if (
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
-														// && typeof selectedApplicant?.directorId !== 'number'
-													) {
-														dispatch(
-															setSelectedApplicantCoApplicantId(
-																CONST_SECTIONS.APPLICANT
-															)
-														);
-													}
 												}
 											}}
 										>
@@ -180,11 +171,12 @@ const SideNav = props => {
 											)}
 
 										{selectedProduct?.loan_request_type === 1
-											? applicantCoApplicantSectionIds?.length +
+											? directorSectionIds?.length +
 													CONST.lengthOfuniqueSectionsForSmeFlow ===
 													sectionIndex + 1 && <UI.SectionDevider />
-											: applicantCoApplicantSectionIds?.length ===
-													sectionIndex + 1 && <UI.SectionDevider />}
+											: directorSectionIds?.length === sectionIndex + 1 && (
+													<UI.SectionDevider />
+											  )}
 									</Fragment>
 								);
 							}

@@ -29,11 +29,12 @@ const DynamicForm = props => {
 		editSectionId = '',
 	} = props;
 	const isViewLoan = !isEditLoan;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId, isApplicant } = useSelector(
+		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { isTestMode, selectedSection } = app;
-	const { isApplicant } = applicantCoApplicants;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +81,7 @@ const DynamicForm = props => {
 					...formState.values,
 				},
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 			});
 			reqBody.data = [

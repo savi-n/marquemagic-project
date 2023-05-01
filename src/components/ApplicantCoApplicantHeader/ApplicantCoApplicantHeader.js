@@ -9,14 +9,13 @@ import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
 import {
+	DIRECTOR_TYPES,
 	getDirectors,
-	// setDirectors,
-	setSelectedDirector,
+	setAddNewDirectorKey,
+	setSelectedDirectorId,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { getApplicantNavigationDetails } from 'utils/formatData';
-// import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
@@ -30,24 +29,15 @@ const ApplicantCoApplicantHeader = props => {
 		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 
-	const {
-		selectedSectionId,
-		selectedProduct,
-		isLocalhost,
-		// isDraftLoan,
-		firstSectionId,
-		// clientToken,
-		// userToken,
-	} = app;
+	const { selectedSectionId, selectedProduct, isLocalhost } = app;
 	// const [flag,setFlag]={};
 	const { businessId } = application;
 	const { cacheDocuments, allDocumentTypes } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const [
-		isDeleteCoApplicantModalOpen,
-		setIsDeleteCoApplicantModalOpen,
-	] = useState(false);
+	const [isDeleteDirectorModalOpen, setIsDeleteDirectorModalOpen] = useState(
+		false
+	);
 	// const [fetchingDirectors, setFetchingDirectors] = useState(false);
 	const refListWrapper = useRef(null);
 
@@ -56,7 +46,14 @@ const ApplicantCoApplicantHeader = props => {
 
 	const fetchDirectors = async () => {
 		// console.log("Applicant CoApp header");
-		if (!businessId) return;
+		if (!businessId) {
+			if (selectedProduct?.isSelectedProductTypeSalaried) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			} else {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+			}
+			return;
+		}
 		try {
 			// setFetchingDirectors(true);
 			// const directorsRes = await axios.get(
@@ -92,9 +89,9 @@ const ApplicantCoApplicantHeader = props => {
 	// 	refListWrapper,
 	// });
 
-	const onClickApplicantCoApplicant = id => {
+	const onClickDirectorAvatar = id => {
 		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
-		// 	return setIsDeleteCoApplicantModalOpen(id);
+		// 	return setIsDeleteDirectorModalOpen(id);
 		// }
 		if (selectedDirectorId === `${id}`) {
 			return;
@@ -150,9 +147,9 @@ const ApplicantCoApplicantHeader = props => {
 		// }
 
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
-			dispatch(setSelectedSectionId(firstSectionId));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
-		dispatch(setSelectedDirector(id));
+		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
@@ -164,31 +161,41 @@ const ApplicantCoApplicantHeader = props => {
 				</UI.LoadingWrapper>
 			) : (
 				<>
-					{isDeleteCoApplicantModalOpen && (
+					{isDeleteDirectorModalOpen && (
 						<DeleteCoApplicantModal
-							onNo={() => setIsDeleteCoApplicantModalOpen(false)}
+							onNo={() => setIsDeleteDirectorModalOpen(false)}
 							onYes={() => {
-								setIsDeleteCoApplicantModalOpen(false);
-								onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT);
+								setIsDeleteDirectorModalOpen(false);
+								dispatch(setAddNewDirectorKey(''));
+								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
-							label={isDeleteCoApplicantModalOpen}
+							label={isDeleteDirectorModalOpen}
 						/>
 					)}
 					<UI.UL ref={refListWrapper} id='appRefList'>
-						{Object.keys(directors).length === 0 && (
-							<UI.LI>
-								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
-								{/* TODO: varun update mandatory flag doc upload */}
-								{/* {selectedSectionId ===
-									CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-									!isApplicantMandatoryDocumentSubmited &&
-									<UI.BadgeInvalid />} */}
-								<UI.AvatarName>Applicant</UI.AvatarName>
-							</UI.LI>
-						)}
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							selectedSectionId ===
+								CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID && (
+								<UI.LI>
+									<UI.Avatar
+										src={
+											!selectedDirectorId
+												? iconAvatarActive
+												: iconAvatarInActive
+										}
+										alt='Avatar'
+										onClick={() => onClickDirectorAvatar('')}
+									/>
+									<UI.AvatarName>Entity</UI.AvatarName>
+								</UI.LI>
+							)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
 							let isMandatoryDocumentSubmited = true;
 							const director = directors[directorId];
+							let isSelectNotAllowed = false;
+							if (addNewDirectorKey) {
+								isSelectNotAllowed = true;
+							}
 							if (isDocumentUploadMandatory) {
 								const coApplicantMandatoryDocumentIds = [];
 								allDocumentTypes?.map(
@@ -226,7 +233,13 @@ const ApplicantCoApplicantHeader = props => {
 													: iconAvatarInActive
 											}
 											alt='Avatar'
-											onClick={() => onClickApplicantCoApplicant(directorId)}
+											onClick={() => {
+												if (isSelectNotAllowed) return;
+												onClickDirectorAvatar(directorId);
+											}}
+											style={
+												isSelectNotAllowed ? { cursor: 'not-allowed	' } : {}
+											}
 										/>
 										{selectedSectionId ===
 											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
@@ -243,13 +256,16 @@ const ApplicantCoApplicantHeader = props => {
 						})}
 						{addNewDirectorKey && (
 							<UI.LI>
-								<UI.BadgeDelete
-									src={iconDelete}
-									onClick={() =>
-										setIsDeleteCoApplicantModalOpen('[DYNAMIC LABEL]')
-									}
-									alt='delete'
-								/>
+								{addNewDirectorKey !== DIRECTOR_TYPES.applicant &&
+									Object.keys(directors).length !== 0 && (
+										<UI.BadgeDelete
+											src={iconDelete}
+											onClick={() =>
+												setIsDeleteDirectorModalOpen(addNewDirectorKey)
+											}
+											alt='delete'
+										/>
+									)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
 								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
 							</UI.LI>

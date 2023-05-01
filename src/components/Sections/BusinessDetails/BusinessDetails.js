@@ -37,9 +37,11 @@ import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 
 const BuissnessDetails = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -54,6 +56,7 @@ const BuissnessDetails = props => {
 		isDraftLoan,
 		editLoanDirectors,
 		userDetails,
+		isTestMode,
 	} = app;
 	const {
 		borrowerUserId,
@@ -83,6 +86,8 @@ const BuissnessDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
 	const [companyRocData, setCompanyRocData] = useState({});
+	const [isPrefilEmail, setisPrefilEmail] = useState(true);
+	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
 
 	const {
 		handleSubmit,
@@ -158,7 +163,7 @@ const BuissnessDetails = props => {
 					...formState.values,
 				},
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				selectedLoanProductId,
 			});
@@ -307,6 +312,11 @@ const BuissnessDetails = props => {
 
 	const prefilledValues = field => {
 		try {
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
+				return CONST.initialFormState?.[field?.db_key];
+			}
+			// -- TEST MODE
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
@@ -355,7 +365,14 @@ const BuissnessDetails = props => {
 			return false;
 		}
 	};
-
+	function handleBlurEmail(e) {
+		// console.log("input blurred",e);
+		setisPrefilEmail(false);
+		// console.log(e);
+	}
+	function handleBlurMobileNumber(e) {
+		setIsPrefilMobileNumber(false);
+	}
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
@@ -499,6 +516,7 @@ const BuissnessDetails = props => {
 						}}
 					/>
 					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
+					{/* {console.log(formState.values.email)}; */}
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
@@ -584,9 +602,9 @@ const BuissnessDetails = props => {
 										if (!field.visibility || !field.name || !field.type)
 											return null;
 										const newValue = prefilledValues(field);
-										let newValueSelectFeild;
+										let newValueSelectField;
 										if (!!field.sub_fields) {
-											newValueSelectFeild = prefilledValues(
+											newValueSelectField = prefilledValues(
 												field?.sub_fields[0]
 											);
 										}
@@ -649,6 +667,28 @@ const BuissnessDetails = props => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
+										if (field.name === CONST.BUSINESS_EMAIL_FIELD) {
+											// console.log("Contact")
+											customFieldProps.onblur = handleBlurEmail;
+										}
+										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
+											if (isPrefilEmail) {
+												// console.log(formState?.values?.email);
+												customFieldProps.value = formState.values.email;
+											}
+											// customFieldProps.value=formState.values.email
+										}
+										if (
+											field.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
+										) {
+											customFieldProps.onblur = handleBlurMobileNumber;
+										}
+										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+											if (isPrefilMobileNumber) {
+												customFieldProps.value =
+													formState.values.business_mobile_no;
+											}
+										}
 
 										return (
 											<UI_SECTIONS.FieldWrapGrid
@@ -665,7 +705,7 @@ const BuissnessDetails = props => {
 														field?.sub_fields[0].is_prefix &&
 														register({
 															...field.sub_fields[0],
-															value: newValueSelectFeild,
+															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
 														})}
@@ -685,7 +725,7 @@ const BuissnessDetails = props => {
 														!field?.sub_fields[0].is_prefix &&
 														register({
 															...field.sub_fields[0],
-															value: newValueSelectFeild,
+															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
 														})}

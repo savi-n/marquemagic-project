@@ -84,23 +84,16 @@ export const getSelectedSubField = data => {
 };
 
 export const formatGetSectionReqBody = data => {
-	const { application, applicantCoApplicants } = data;
+	const { application, selectedDirector } = data;
 	const { loanRefId, businessId, loanId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const reqBody = {
 		business_id: businessId,
 		loan_ref_id: loanRefId,
-		director_id: selectedApplicant?.directorId,
 		loan_id: loanId,
 	};
+	if (selectedDirector?.directorId) {
+		reqBody.director_id = selectedDirector?.directorId;
+	}
 	return queryString.stringify(reqBody);
 };
 
@@ -112,7 +105,6 @@ export const formatSectionReqBody = data => {
 			selectedDirector,
 			application,
 			selectedLoanProductId,
-			isApplicant,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
@@ -184,7 +176,6 @@ export const formatSectionReqBody = data => {
 		if (selectedDirector?.directorId) {
 			reqBody.director_id = selectedDirector?.directorId;
 		}
-		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 		// console.log('formatSectionReqBody-', { data, selectedApplicant });
@@ -486,34 +477,20 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 	};
 };
 
-export const getApplicantCoApplicantSelectOptions = data => {
-	const { applicantCoApplicants } = data;
-	const { applicant, coApplicants } = applicantCoApplicants;
+export const getSelectDirectorOptions = data => {
+	const { directors } = data;
 	const options = [];
-
-	const applicantFirstName =
-		applicant?.basic_details?.first_name || applicant?.dfirstname || '';
-	const applicantLastName =
-		applicant?.basic_details?.last_name || applicant?.dlastname || '';
-	const applicantName = [applicantFirstName, applicantLastName].join(' ');
-
-	options.push({
-		name: applicantName,
-		value: applicant?.directorId,
-	});
-	Object.keys(coApplicants).map(directorId => {
-		const coApplicantFirstName =
-			coApplicants?.[directorId]?.basic_details?.first_name ||
-			coApplicants?.[directorId]?.dfirstname ||
+	Object.keys(directors).map(directorId => {
+		const firstName =
+			directors?.[directorId]?.basic_details?.first_name ||
+			directors?.[directorId]?.dfirstname ||
 			'';
-		const coApplicantLastName =
-			coApplicants?.[directorId]?.basic_details?.last_name ||
-			coApplicants?.[directorId]?.dlastname ||
+		const lastName =
+			directors?.[directorId]?.basic_details?.last_name ||
+			directors?.[directorId]?.dlastname ||
 			'';
 
-		const coApplicantName = [coApplicantFirstName, coApplicantLastName].join(
-			' '
-		);
+		const coApplicantName = [firstName, lastName].join(' ');
 
 		options.push({
 			name: coApplicantName,
@@ -525,13 +502,22 @@ export const getApplicantCoApplicantSelectOptions = data => {
 };
 
 export const getAllCompletedSections = data => {
-	const { application, selectedDirector } = data;
+	const {
+		application,
+		selectedDirector,
+		addNewDirectorKey,
+		directorSectionIds,
+	} = data;
 	let completedSections = [];
 	if (Array.isArray(application?.sections)) {
 		completedSections = [...completedSections, ...application?.sections];
 	}
 	if (Array.isArray(selectedDirector?.sections)) {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
+	}
+	// 'Entity'
+	if (!addNewDirectorKey && !selectedDirector) {
+		completedSections = [...completedSections, ...directorSectionIds];
 	}
 	return completedSections;
 };
@@ -547,7 +533,7 @@ export const getCompletedSections = data => {
 		isEditOrViewLoan,
 		isEditLoan,
 		editLoanDirectors,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		selectedApplicant,
 		isDraftLoan,
 	} = data;
@@ -559,7 +545,7 @@ export const getCompletedSections = data => {
 			if (
 				isEditLoan &&
 				!editLoanDirectors.includes(`${selectedApplicant?.directorId}`) && // new director
-				applicantCoApplicantSectionIds.includes(section?.id)
+				directorSectionIds.includes(section?.id)
 			) {
 				if (
 					Object.keys(
@@ -801,25 +787,54 @@ export const formatLenderDocs = docs => {
 	return newDocs;
 };
 
-// validating employment details section for onProceed or add-coapplicant
+// Validation for all the directors : This is the check before adding new director or moving to other sections from employment/basic/address details section
 export const validateEmploymentDetails = data => {
-	const { coApplicants, isApplicant } = data;
+	const { selectedDirector, directors } = data;
 	let allowProceed = false;
-	let filteredCoApplicant = [];
-	if (Object.keys(coApplicants)?.length > 0) {
-		filteredCoApplicant = Object.values(coApplicants)?.filter(coApplicant => {
-			return !coApplicant?.employmentId;
+	const lastDirector = Object.values(directors)?.pop();
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+
+	if (
+		Object.keys(directors)?.length === 1 &&
+		selectedDirector?.sections?.length >= 2
+	) {
+		return { allowProceed: true };
+	}
+	if (Object.keys(directors)?.length > 1) {
+		const notCompletedDirectors = [];
+
+		restOfTheDirectors?.map(dir => {
+			if (dir?.sections?.length < 3) {
+				// console.log(dir?.sections, 'sections-dir');
+				notCompletedDirectors.push(dir);
+			}
+
+			return null;
 		});
+
+		if (lastDirector?.sections?.length < 2)
+			notCompletedDirectors.push(lastDirector);
+
+		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director
+		if (
+			lastDirector?.sections?.length === 2 &&
+			+selectedDirector?.directorId !== +lastDirector?.directorId
+		)
+			notCompletedDirectors.push(lastDirector);
+
+		if (notCompletedDirectors?.length === 0) allowProceed = true;
+
+		return {
+			allowProceed,
+			// lastDirector,
+			// restOfTheDirectors,
+			// notCompletedDirectors,
+			// selectedDirector,
+			directorName: `${notCompletedDirectors?.[0]?.type_name} ${
+				notCompletedDirectors?.[0]?.fullName
+			}`,
+		};
 	}
-	if (filteredCoApplicant.length === 0) {
-		allowProceed = true;
-	} else {
-		allowProceed = false;
-	}
-	if (isApplicant && Object.keys(coApplicants)?.length === 0) {
-		allowProceed = true;
-	}
-	return allowProceed;
 };
 
 export const getApplicantNavigationDetails = data => {

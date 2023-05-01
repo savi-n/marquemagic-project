@@ -1,24 +1,9 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import {
-	useState,
-	// useEffect
-} from 'react';
-import {
-	useSelector,
-	// useDispatch
-} from 'react-redux';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
-// import Button from 'components/Button';
-// import {
-// 	reInitializeAppSlice,
-// 	setUserDetails,
-// 	setWhiteLabelId,
-// } from 'store/appSlice';
-// import { reInitializeApplicantCoApplicantSlice } from 'store/applicantCoApplicantsSlice';
-// import { reInitializeApplicationSlice } from 'store/applicationSlice';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
 
@@ -76,31 +61,11 @@ const data = [
 const ApplicationSubmitted = props => {
 	const { application } = useSelector(state => state);
 	const { loanRefId } = application;
-	// const reduxStore = useSelector(state => state);
-	// const dispatch = useDispatch();
-	// const [loanRefId, setLoanRefId] = useState('');
 	const [count] = useState(0);
 	const d = data[count];
 
-	// TODO: develop this feature
-	// useEffect(() => {
-	// 	if (reduxStore?.app?.userToken) {
-	// 		const { app, application } = reduxStore;
-	// 		const { whiteLabelId, userDetails } = app;
-	// 		const { loanRefId: newLoanRefId } = application;
-	// 		setLoanRefId(newLoanRefId);
-	// 		dispatch(reInitializeAppSlice());
-	// 		dispatch(reInitializeApplicantCoApplicantSlice());
-	// 		dispatch(reInitializeApplicationSlice());
-	// 		sessionStorage.clear();
-	// 		userDetails && dispatch(setUserDetails(userDetails));
-	// 		whiteLabelId && dispatch(setWhiteLabelId(whiteLabelId));
-	// 	}
-	// }, []);
-
 	return (
 		<Wrapper>
-			{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
 			<CaptionImg bg={d.img} />
 			<Caption>{d.caption}</Caption>
 			<section>

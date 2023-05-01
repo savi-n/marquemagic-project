@@ -16,19 +16,14 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
-import { setProfileGeoLocation } from 'store/directorsSlice';
-import {
-	// addOrUpdateCacheDocument,
-	// addCacheDocuments,
-	setLoanIds,
-	setGeoLocation,
-} from 'store/applicationSlice';
+import { DIRECTOR_TYPES, setProfileGeoLocation } from 'store/directorsSlice';
+import { setLoanIds, setGeoLocation } from 'store/applicationSlice';
 import { getDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	formatSectionReqBody,
 	getAllCompletedSections,
 	getApiErrorMessage,
-	getEditLoanDocuments,
+	// getEditLoanDocuments,
 	getSelectedField,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -38,12 +33,18 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+import Loading from 'components/Loading';
+import { API_END_POINT } from '_config/app.config';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { isApplicant, selectedDirector, selectedDirectorId } = useSelector(
-		state => state.directors
-	);
+	const {
+		isApplicant,
+		directors,
+		selectedDirectorId,
+		addNewDirectorKey,
+	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -56,15 +57,16 @@ const BasicDetails = props => {
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
-		editLoanData,
+		// editLoanData,
 		userDetails,
 		isGeoTaggingEnabled,
 	} = app;
 	const {
-		cacheDocuments,
+		// cacheDocuments,
 		borrowerUserId,
 		businessUserId,
 		geoLocation,
+		loanRefId,
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -88,35 +90,22 @@ const BasicDetails = props => {
 	} = useForm();
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [sectionData, setSectionData] = useState({});
+	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
 	const profileUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
 		)?.[0] ||
-		cacheDocuments?.filter(
-			doc =>
-				doc?.field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME &&
-				`${doc?.directorId}` === `${selectedDirectorId}`
-		)?.[0] ||
+		fetchedProfilePic ||
 		null;
+
 	const completedSections = getAllCompletedSections({
 		application,
 		selectedDirector,
 	});
-	// TODO Shreyas - Enable this in 1.4
-	// const panUploadedFile =
-	// 	cacheDocumentsTemp?.filter(
-	// 		doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
-	// 	)?.[0] ||
-	// 	cacheDocuments?.filter(
-	// 		doc =>
-	// 			doc?.classification_type === CONST_SECTIONS.CLASSIFICATION_TYPE_PAN &&
-	// 			(doc?.classification_sub_type ===
-	// 				CONST_SECTIONS.CLASSIFICATION_SUB_TYPE_F && `${doc?.directorId}`) ===
-	// 				`${directorId}`
-	// 	)?.[0] ||
-	// 	null;
 
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -128,17 +117,13 @@ const BasicDetails = props => {
 	const panUploadedFile =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
-		)?.[0] ||
-		cacheDocuments?.filter(
-			doc =>
-				`${doc?.directorId}` === `${selectedDirectorId}` &&
-				(doc?.is_delete_not_allowed === 'true' ||
-					doc?.is_delete_not_allowed === true) &&
-				doc?.doc_type_id ===
-					selectedPanUploadField?.doc_type?.[selectedIncomeType]
-		)?.[0] ||
-		null;
+		)?.[0] || null;
 	const isPanNumberExist = !!formState.values.pan_number;
+
+	const tempPanUploadedFile = !!sectionData?.loan_document_details
+		? sectionData?.loan_document_details?.[0]
+		: null;
+
 	const selectedProfileField = getSelectedField({
 		fieldName: CONST.PROFILE_UPLOAD_FIELD_NAME,
 		selectedSection,
@@ -228,12 +213,17 @@ const BasicDetails = props => {
 				selectedDirector,
 				application,
 				selectedLoanProductId,
-				isApplicant,
 			});
 
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
+			if (addNewDirectorKey) {
+				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
+			} else if (selectedDirector) {
+				basicDetailsReqBody.data.basic_details.type_name =
+					selectedDirector?.type_name;
+			}
 
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
@@ -247,6 +237,10 @@ const BasicDetails = props => {
 				basicDetailsRes?.data?.data?.business_data?.userid;
 			const newCreatedByUserId =
 				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+
+			if (!newLoanRefId || !newLoanId || !newBusinessId) {
+				throw new Error('Unable to create loan, Try after sometimes');
+			}
 
 			if (isNewProfileUploaded) {
 				const uploadedProfileRes =
@@ -277,6 +271,8 @@ const BasicDetails = props => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
 							request_id: doc?.requestId,
+							classification_type:
+								doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME ? 'pan' : null,
 							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType],
 							is_delete_not_allowed: true,
 							director_id: newDirectorId,
@@ -318,7 +314,7 @@ const BasicDetails = props => {
 
 			newBasicDetails.directorId = newDirectorId;
 			// TODO: shreyas work with director object and pass cin
-			// newBasicDetails.cin = applicantCoApplicants?.companyRocData?.CIN || '';
+			// newBasicDetails.cin = selectedDirector?.companyRocData?.CIN || '';
 			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
 				.length > 0 &&
 				profilePicGeolocation) || {
@@ -431,107 +427,107 @@ const BasicDetails = props => {
 		}
 	};
 
-	const prefilledEditOrViewLoanValues = field => {
-		if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
-			const panFile = getEditLoanDocuments({
-				documents: editLoanData?.loan_document,
-				directorId: selectedDirector?.directorId,
-				docTypeId: field?.doc_type?.[selectedDirector?.income_type],
-			});
-			return panFile[0];
-		}
-		const preData = {
-			existing_customer: selectedDirector?.existing_customer,
-			pan_number: selectedDirector?.dpancard,
-			customer_id: selectedDirector?.customer_id,
-			ckyc_number: selectedDirector?.ckyc_number,
-			income_type: `${selectedDirector?.income_type}`,
-			first_name: selectedDirector?.dfirstname,
-			last_name: selectedDirector?.dlastname,
-			dob: selectedDirector?.ddob,
-			gender: selectedDirector?.gender,
-			email: selectedDirector?.demail,
-			mobile_no: selectedDirector?.dcontact,
-			marital_status: selectedDirector?.marital_status,
-			spouse_name: selectedDirector?.spouse_name,
-			residence_status: selectedDirector?.residence_status,
-			country_residence: selectedDirector?.country_residence,
-			father_name: selectedDirector?.father_name,
-			mother_name: selectedDirector?.mother_name,
-			upi_id: selectedDirector?.upi_id,
-			profile_upload: selectedDirector?.customer_picture,
-			relationship_with_applicant: selectedDirector?.applicant_relationship,
-		};
-		// console.log(selectedDirector);
-		return preData?.[field?.name];
-	};
+	// const prefilledEditOrViewLoanValues = field => {
+	// 	if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
+	// 		const panFile = getEditLoanDocuments({
+	// 			documents: editLoanData?.loan_document,
+	// 			directorId: selectedDirector?.directorId,
+	// 			docTypeId: field?.doc_type?.[selectedDirector?.income_type],
+	// 		});
+	// 		return panFile[0];
+	// 	}
+	// 	const preData = {
+	// 		existing_customer: selectedDirector?.existing_customer,
+	// 		pan_number: selectedDirector?.dpancard,
+	// 		customer_id: selectedDirector?.customer_id,
+	// 		ckyc_number: selectedDirector?.ckyc_number,
+	// 		income_type: `${selectedDirector?.income_type}`,
+	// 		first_name: selectedDirector?.dfirstname,
+	// 		last_name: selectedDirector?.dlastname,
+	// 		dob: selectedDirector?.ddob,
+	// 		gender: selectedDirector?.gender,
+	// 		email: selectedDirector?.demail,
+	// 		mobile_no: selectedDirector?.dcontact,
+	// 		marital_status: selectedDirector?.marital_status,
+	// 		spouse_name: selectedDirector?.spouse_name,
+	// 		residence_status: selectedDirector?.residence_status,
+	// 		country_residence: selectedDirector?.country_residence,
+	// 		father_name: selectedDirector?.father_name,
+	// 		mother_name: selectedDirector?.mother_name,
+	// 		upi_id: selectedDirector?.upi_id,
+	// 		profile_upload: selectedDirector?.customer_picture,
+	// 		relationship_with_applicant: selectedDirector?.applicant_relationship,
+	// 	};
+	// 	// console.log(selectedDirector);
+	// 	return preData?.[field?.name];
+	// };
 
-	const prefilledValues = field => {
-		try {
-			// [Priority - 0]
-			// view loan
-			// in view loan user cannot edit any information
-			// hence this is the first priority
-			// so always prepopulate value from <editLoanData>
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
+	// const prefilledValues = field => {
+	// 	try {
+	// 		// [Priority - 0]
+	// 		// view loan
+	// 		// in view loan user cannot edit any information
+	// 		// hence this is the first priority
+	// 		// so always prepopulate value from <editLoanData>
+	// 		if (isViewLoan) {
+	// 			return prefilledEditOrViewLoanValues(field) || '';
+	// 		}
 
-			// [Priority - 1]
-			// update value from form state
-			// whenever user decides to type or enter value
-			// form state should be the first value to prepopulate
-			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-			if (isFormStateUpdated) {
-				return formState?.values?.[field.name];
-			}
+	// 		// [Priority - 1]
+	// 		// update value from form state
+	// 		// whenever user decides to type or enter value
+	// 		// form state should be the first value to prepopulate
+	// 		const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+	// 		if (isFormStateUpdated) {
+	// 			return formState?.values?.[field.name];
+	// 		}
 
-			// TEST MODE
-			if (isTestMode && CONST.initialFormState?.[field?.name]) {
-				return CONST.initialFormState?.[field?.name];
-			}
-			// -- TEST MODE
+	// 		// TEST MODE
+	// 		if (isTestMode && CONST.initialFormState?.[field?.name]) {
+	// 			return CONST.initialFormState?.[field?.name];
+	// 		}
+	// 		// -- TEST MODE
 
-			// [Priority - Special]
-			// special case when co-applicant is filling basic details for first time
-			// when director id is not created we prepopulate value from formstate only
-			// and last priority is to set default value <field.value> comming from JSON
-			if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
-				return formState?.values?.[field.name] || field.value || '';
-			}
+	// 		// [Priority - Special]
+	// 		// special case when co-applicant is filling basic details for first time
+	// 		// when director id is not created we prepopulate value from formstate only
+	// 		// and last priority is to set default value <field.value> comming from JSON
+	// 		if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
+	// 			return formState?.values?.[field.name] || field.value || '';
+	// 		}
 
-			// [Priority - 2]
-			// fetch data from redux slice
-			// this is to prefill value when user navigates backs
-			// once user press proceed and submit api success
-			// value is stored to redux and the same we can use to prepopulate
-			if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
-				return selectedDirector?.[selectedSectionId]?.[field?.name];
-			}
+	// 		// [Priority - 2]
+	// 		// fetch data from redux slice
+	// 		// this is to prefill value when user navigates backs
+	// 		// once user press proceed and submit api success
+	// 		// value is stored to redux and the same we can use to prepopulate
+	// 		if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
+	// 			return selectedDirector?.[selectedSectionId]?.[field?.name];
+	// 		}
 
-			// [Priority - 3]
-			// fetch value from edit loan
-			// this is to prefill value only once per section
-			// ex: if user visits this section for first time we prepopulate value from <editLoanData>
-			// and then when he moves to next section redux store will be ready with new updated values
-			let editViewLoanValue = '';
+	// 		// [Priority - 3]
+	// 		// fetch value from edit loan
+	// 		// this is to prefill value only once per section
+	// 		// ex: if user visits this section for first time we prepopulate value from <editLoanData>
+	// 		// and then when he moves to next section redux store will be ready with new updated values
+	// 		let editViewLoanValue = '';
 
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
+	// 		if (isEditLoan) {
+	// 			editViewLoanValue = prefilledEditOrViewLoanValues(field);
+	// 		}
 
-			if (editViewLoanValue) return editViewLoanValue;
+	// 		if (editViewLoanValue) return editViewLoanValue;
 
-			// [Priority - 4]
-			// finally last priority is for JSON value
-			// this value will be always overwritten by other all priority
-			// this scenario will only come in loan creation first time entering form
-			// also we'll have fall back <''> empty value in case above all priority fails to prepopulate
-			return field?.value || '';
-		} catch (error) {
-			return {};
-		}
-	};
+	// 		// [Priority - 4]
+	// 		// finally last priority is for JSON value
+	// 		// this value will be always overwritten by other all priority
+	// 		// this scenario will only come in loan creation first time entering form
+	// 		// also we'll have fall back <''> empty value in case above all priority fails to prepopulate
+	// 		return field?.value || '';
+	// 	} catch (error) {
+	// 		return {};
+	// 	}
+	// };
 
 	const validateToken = async () => {
 		try {
@@ -557,6 +553,72 @@ const BasicDetails = props => {
 		}
 	};
 
+	const prefilledValues = field => {
+		try {
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field?.name];
+			}
+
+			// console.log({
+			// 	sectionData,
+			// 	formstate: formState?.values,
+			// });
+			const preData = {
+				title: sectionData?.business_data?.title,
+				first_name: sectionData?.director_details?.dfirstname,
+				last_name: sectionData?.director_details?.dlastname,
+				business_email: sectionData?.director_details?.demail,
+				contactno: sectionData?.director_details?.dcontact,
+			};
+
+			// TEST MODE
+			if (isTestMode && CONST.initialFormState?.[field?.name]) {
+				return CONST.initialFormState?.[field?.name];
+			}
+			// -- TEST MODE
+
+			if (field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME) return;
+
+			return (
+				preData?.[field?.db_key] ||
+				sectionData?.director_details?.[field?.db_key] ||
+				sectionData?.loan_request_Data?.[field?.db_key]
+			);
+		} catch (err) {
+			console.error('error-BusinessDetials', {
+				error: err,
+				res: err?.response?.data || '',
+			});
+		}
+	};
+
+	// fetch section data starts
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+
+			const fetchRes = await axios.get(`${API_END_POINT}/basic_details`, {
+				params: {
+					loan_ref_id: loanRefId,
+					director_id: selectedDirectorId,
+				},
+			});
+			if (fetchRes?.data?.status === 'ok') {
+				setSectionData(fetchRes?.data?.data);
+				setFetchedProfilePic(
+					fetchRes?.data?.data?.director_details?.customer_picture
+				);
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			setFetchingSectionData(false);
+		}
+	};
+
+	// fetch section data ends
+
 	useEffect(() => {
 		validateToken();
 
@@ -569,6 +631,17 @@ const BasicDetails = props => {
 				setSelectedSectionId(CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID)
 			);
 		}
+
+		if (
+			Object.keys(directors).length === 0 &&
+			!addNewDirectorKey &&
+			!selectedDirectorId
+		) {
+			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+		}
+		// new fetch section data starts
+		if (!!loanRefId) fetchSectionDetails();
+		// new fetch section data ends
 
 		if (
 			isGeoTaggingEnabled &&
@@ -741,7 +814,6 @@ const BasicDetails = props => {
 	// 	profileUploadedFile,
 	// 	app,
 	// 	application,
-	// 	applicantCoApplicants,
 	// 	selectedDirector,
 	// 	cacheDocumentsTemp,
 	// 	cacheDocuments,
@@ -762,321 +834,333 @@ const BasicDetails = props => {
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
-			{/* <SelfieAlertModal
-				show={isSelfieAlertModalOpen}
-				onClose={setIsSelfieAlertModalOpen}
-			/> */}
-			<ConfirmModal
-				type='Income'
-				show={isIncomeTypeConfirmModalOpen}
-				onClose={setIsIncomeTypeConfirmModalOpen}
-				ButtonProceed={ButtonProceed}
-			/>
-			{!isTokenValid && <SessionExpired show={!isTokenValid} />}
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								{sub_section.name}
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
-						<Hint
-							hint='Please upload the document with KYC image in Portrait Mode'
-							hintIconName='Portrait Mode'
-						/>
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								// console.log(field?.sub_fields, 'sub_field');
-								// disable fields based on config starts
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
-								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
-								// disable fields based on config ends
-								if (
-									field.type === 'file' &&
-									field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-								) {
-									prefilledProfileUploadValue = prefilledValues(field);
-
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											style={{
-												gridRow: 'span 3',
-												height: '100%',
-											}}
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											<UI.ProfilePicWrapper>
-												<ProfileUpload
-													field={field}
-													value={prefilledProfileUploadValue}
-													isPanNumberExist={isPanNumberExist}
-													isPanMandatory={isPanUploadMandatory}
-													isFormSubmited={formState?.submit?.isSubmited}
-													isProfileMandatory={isProfileMandatory}
-													uploadedFile={profileUploadedFile}
-													cacheDocumentsTemp={cacheDocumentsTemp}
-													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={removeCacheDocumentTemp}
-													onChangeFormStateField={onChangeFormStateField}
-													isDisabled={isViewLoan}
-													isTag={true}
-													geoLocationAddress={
-														profilePicGeolocation || {
-															address:
-																selectedDirector?.profileGeoLocation?.address,
-															lat: selectedDirector?.lat,
-															long: selectedDirector?.long,
-															timestamp: selectedDirector?.timestamp,
-														}
-													}
-													setImageLoading={setLoading}
-												/>
-											</UI.ProfilePicWrapper>
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
-
-								if (
-									field.type === 'file' &&
-									field.name === CONST.PAN_UPLOAD_FIELD_NAME
-								) {
-									let panErrorMessage =
-										((formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name]) ||
-										'';
-									// console.log('pancard-error-msg-', {
-									// 	panErrorMessage,
-									// });
-									const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
-										panErrorMessage
-									);
-									panErrorMessage = panErrorMessage.replace(
-										CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
-										''
-									);
-									panErrorMessage = panErrorMessage.replace(
-										CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
-										''
-									);
-									panErrorMessage = panErrorMessage.includes(
-										CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
-									)
-										? ''
-										: panErrorMessage;
-									// console.log('pancard-error-msg-', {
-									// 	panErrorColorCode,
-									// 	panErrorMessage,
-									// });
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											<UI.ProfilePicWrapper>
-												<PanUpload
-													field={field}
-													value={prefilledValues(field)}
-													formState={formState}
-													uploadedFile={panUploadedFile}
-													addCacheDocumentTemp={addCacheDocumentTemp}
-													removeCacheDocumentTemp={removeCacheDocumentTemp}
-													isPanNumberExist={isPanNumberExist}
-													panErrorMessage={panErrorMessage}
-													panErrorColorCode={panErrorColorCode}
-													setErrorFormStateField={setErrorFormStateField}
-													onChangeFormStateField={onChangeFormStateField}
-													clearErrorFormState={clearErrorFormState}
-													isDisabled={isViewLoan}
-												/>
-												{panErrorMessage && (
-													<UI_SECTIONS.ErrorMessage
-														borderColorCode={panErrorColorCode}
-													>
-														{panErrorMessage}
-													</UI_SECTIONS.ErrorMessage>
-												)}
-											</UI.ProfilePicWrapper>
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
-
-								if (!field.visibility || !field.name || !field.type)
-									return null;
-								const newValue = prefilledValues(field);
-								// console.log(field);
-								// if (!!field.sub_fields) {
-								// 	console.log(
-								// 		prefilledValues(field.sub_fields[0]),
-								// 		'sub-fields'
-								// 	);
-								// 	console.log(prefilledValues(field, 'fields'));
-								// }
-								let newValueSelectFeild;
-								if (!!field?.sub_fields) {
-									newValueSelectFeild = prefilledValues(field?.sub_fields?.[0]);
-								}
-
-								const customFieldProps = {};
-								// customFieldProps.onClick = basicDetailsFunc;
-								if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
-									customFieldProps.rules = {
-										...field.rules,
-										is_zero_not_allowed_for_first_digit: true,
-									};
-								}
-								if (
-									isPanUploadMandatory &&
-									!isPanNumberExist &&
-									field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
-								)
-									customFieldProps.disabled = true;
-								if (
-									isPanUploadMandatory &&
-									isPanNumberExist &&
-									field.name === CONST.PAN_NUMBER_FIELD_NAME
-								)
-									customFieldProps.disabled = true;
-								if (
-									selectedDirector?.directorId &&
-									field.name === CONST.INCOME_TYPE_FIELD_NAME
-								)
-									customFieldProps.disabled = true;
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-
-								return (
-									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${fieldIndex}-${field.name}`}
-									>
-										<div
-											style={{
-												display: 'flex',
-												gap: '10px',
-												alignItems: 'center',
-											}}
-										>
-											{field?.sub_fields &&
-												field?.sub_fields[0].is_prefix &&
-												register({
-													...field.sub_fields[0],
-													value: newValueSelectFeild,
-													visibility: 'visible',
-													...customFieldProps,
-												})}
-											<div
-												style={{
-													width: '100%',
-												}}
-											>
-												{register({
-													...field,
-													value: newValue,
-													visibility: 'visible',
-													...customFieldProps,
-												})}
-											</div>
-											{field?.sub_fields &&
-												!field?.sub_fields[0].is_prefix &&
-												register({
-													...field.sub_fields[0],
-													value: newValueSelectFeild,
-													visibility: 'visible',
-													...customFieldProps,
-												})}
-										</div>
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[field.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
-											formState?.error?.[field?.sub_fields?.[0]?.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[field?.sub_fields[0]?.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-									</UI_SECTIONS.FieldWrapGrid>
-								);
-							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			{isGeoTaggingEnabled && (
-				<AddressDetailsCard
-					address={geoLocationData?.address || geoLocation?.address}
-					latitude={geoLocationData?.lat || geoLocation?.lat}
-					longitude={geoLocationData?.long || geoLocation?.long}
-					timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
-					err={geoLocationData?.err || geoLocation?.err}
-					showCloseIcon={false}
-					customStyle={{
-						marginBottom: '30px',
-					}}
-					embedInImageUpload={false}
-				/>
-			)}
-
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name={fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'}
-						isLoader={loading}
-						disabled={loading || fetchingAddress}
-						onClick={handleSubmit(() => {
-							let isProfileError = false;
-							if (isProfileMandatory && profileUploadedFile === null) {
-								isProfileError = true;
-							}
-							if (
-								isEditOrViewLoan &&
-								prefilledProfileUploadValue &&
-								typeof prefilledProfileUploadValue === 'string'
-							) {
-								isProfileError = false;
-							}
-							if (isProfileError) {
-								// console.log('profile-error-', {
-								// 	isProfileError,
-								// 	profileUploadedFile,
-								// 	isEditOrViewLoan,
-								// 	value:
-								// 		formState?.values?.[
-								// 			CONST.PAN_UPLOAD_FIELD_NAME
-								// 		],
-								// });
-								addToast({
-									message: 'Profile is mandatory',
-									type: 'error',
-								});
-								return;
-							}
-							// director id will be present in case of aplicant / coapplicant if they move out of basic details page
-							// so avoid opening income type popup at below condition
-							if (isEditOrViewLoan || !!selectedDirector?.directorId) {
-								onSaveAndProceed();
-								return;
-							}
-							setIsIncomeTypeConfirmModalOpen(true);
-						})}
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<>
+					<ConfirmModal
+						type='Income'
+						show={isIncomeTypeConfirmModalOpen}
+						onClose={setIsIncomeTypeConfirmModalOpen}
+						ButtonProceed={ButtonProceed}
 					/>
-				)}
-				<NavigateCTA previous={false} />
-			</UI_SECTIONS.Footer>
+					{!isTokenValid && <SessionExpired show={!isTokenValid} />}
+					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						return (
+							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+								{sub_section?.name ? (
+									<UI_SECTIONS.SubSectionHeader>
+										{sub_section.name}
+									</UI_SECTIONS.SubSectionHeader>
+								) : null}
+								<Hint
+									hint='Please upload the document with KYC image in Portrait Mode'
+									hintIconName='Portrait Mode'
+								/>
+								<UI_SECTIONS.FormWrapGrid>
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										// console.log(field?.sub_fields, 'sub_field');
+										// disable fields based on config starts
+										if (field?.hasOwnProperty('is_applicant')) {
+											if (field.is_applicant === false && isApplicant) {
+												return null;
+											}
+										}
+										if (field?.hasOwnProperty('is_co_applicant')) {
+											if (field.is_co_applicant === false && !isApplicant) {
+												return null;
+											}
+										}
+										// disable fields based on config ends
+										if (
+											field.type === 'file' &&
+											field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+										) {
+											prefilledProfileUploadValue = prefilledValues(field);
+
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													style={{
+														gridRow: 'span 3',
+														height: '100%',
+													}}
+													key={`field-${fieldIndex}-${field.name}`}
+												>
+													<UI.ProfilePicWrapper>
+														<ProfileUpload
+															field={field}
+															value={prefilledProfileUploadValue}
+															isPanNumberExist={isPanNumberExist}
+															isPanMandatory={isPanUploadMandatory}
+															isFormSubmited={formState?.submit?.isSubmited}
+															isProfileMandatory={isProfileMandatory}
+															uploadedFile={profileUploadedFile}
+															cacheDocumentsTemp={cacheDocumentsTemp}
+															addCacheDocumentTemp={addCacheDocumentTemp}
+															removeCacheDocumentTemp={removeCacheDocumentTemp}
+															onChangeFormStateField={onChangeFormStateField}
+															isDisabled={isViewLoan}
+															isTag={true}
+															geoLocationAddress={
+																profilePicGeolocation || {
+																	address:
+																		selectedDirector?.profileGeoLocation
+																			?.address,
+																	lat: selectedDirector?.lat,
+																	long: selectedDirector?.long,
+																	timestamp: selectedDirector?.timestamp,
+																}
+															}
+															setImageLoading={setLoading}
+															setFetchedProfilePic={setFetchedProfilePic}
+														/>
+													</UI.ProfilePicWrapper>
+												</UI_SECTIONS.FieldWrapGrid>
+											);
+										}
+
+										if (
+											field.type === 'file' &&
+											field.name === CONST.PAN_UPLOAD_FIELD_NAME
+										) {
+											let panErrorMessage =
+												((formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+													formState?.error?.[field.name]) ||
+												'';
+											// console.log('pancard-error-msg-', {
+											// 	panErrorMessage,
+											// });
+											const panErrorColorCode = CONST_SECTIONS.getExtractionFlagColorCode(
+												panErrorMessage
+											);
+											panErrorMessage = panErrorMessage.replace(
+												CONST_SECTIONS.EXTRACTION_FLAG_ERROR,
+												''
+											);
+											panErrorMessage = panErrorMessage.replace(
+												CONST_SECTIONS.EXTRACTION_FLAG_WARNING,
+												''
+											);
+											panErrorMessage = panErrorMessage.includes(
+												CONST_SECTIONS.EXTRACTION_FLAG_SUCCESS
+											)
+												? ''
+												: panErrorMessage;
+											// console.log('pancard-error-msg-', {
+											// 	panErrorColorCode,
+											// 	panErrorMessage,
+											// });
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${fieldIndex}-${field.name}`}
+												>
+													<UI.ProfilePicWrapper>
+														<PanUpload
+															field={field}
+															value={prefilledValues(field)}
+															formState={formState}
+															uploadedFile={
+																panUploadedFile || tempPanUploadedFile
+															}
+															addCacheDocumentTemp={addCacheDocumentTemp}
+															removeCacheDocumentTemp={removeCacheDocumentTemp}
+															isPanNumberExist={isPanNumberExist}
+															panErrorMessage={panErrorMessage}
+															panErrorColorCode={panErrorColorCode}
+															setErrorFormStateField={setErrorFormStateField}
+															onChangeFormStateField={onChangeFormStateField}
+															clearErrorFormState={clearErrorFormState}
+															isDisabled={isViewLoan}
+															selectedDirector={selectedDirector}
+															selectedSectionId={selectedSectionId}
+														/>
+														{panErrorMessage && (
+															<UI_SECTIONS.ErrorMessage
+																borderColorCode={panErrorColorCode}
+															>
+																{panErrorMessage}
+															</UI_SECTIONS.ErrorMessage>
+														)}
+													</UI.ProfilePicWrapper>
+												</UI_SECTIONS.FieldWrapGrid>
+											);
+										}
+
+										if (!field.visibility || !field.name || !field.type)
+											return null;
+										const newValue = prefilledValues(field);
+										// console.log(field);
+										// if (!!field.sub_fields) {
+										// 	console.log(
+										// 		prefilledValues(field.sub_fields[0]),
+										// 		'sub-fields'
+										// 	);
+										// 	console.log(prefilledValues(field, 'fields'));
+										// }
+										let newValueSelectField;
+										if (!!field?.sub_fields) {
+											newValueSelectField = prefilledValues(
+												field?.sub_fields?.[0]
+											);
+										}
+
+										const customFieldProps = {};
+										// customFieldProps.onClick = basicDetailsFunc;
+										if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+											customFieldProps.rules = {
+												...field.rules,
+												is_zero_not_allowed_for_first_digit: true,
+											};
+										}
+										if (
+											isPanUploadMandatory &&
+											!isPanNumberExist &&
+											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
+										)
+											customFieldProps.disabled = true;
+										if (
+											isPanUploadMandatory &&
+											isPanNumberExist &&
+											field.name === CONST.PAN_NUMBER_FIELD_NAME
+										)
+											customFieldProps.disabled = true;
+										if (
+											selectedDirector?.directorId &&
+											field.name === CONST.INCOME_TYPE_FIELD_NAME
+										)
+											customFieldProps.disabled = true;
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${fieldIndex}-${field.name}`}
+											>
+												<div
+													style={{
+														display: 'flex',
+														gap: '10px',
+														alignItems: 'center',
+													}}
+												>
+													{field?.sub_fields &&
+														field?.sub_fields[0].is_prefix &&
+														register({
+															...field.sub_fields[0],
+															value: newValueSelectField,
+															visibility: 'visible',
+															...customFieldProps,
+														})}
+													<div
+														style={{
+															width: '100%',
+														}}
+													>
+														{register({
+															...field,
+															value: newValue,
+															visibility: 'visible',
+															...customFieldProps,
+														})}
+													</div>
+													{field?.sub_fields &&
+														!field?.sub_fields[0].is_prefix &&
+														register({
+															...field.sub_fields[0],
+															value: newValueSelectField,
+															visibility: 'visible',
+															...customFieldProps,
+														})}
+												</div>
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+													formState?.error?.[field.name] && (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[field.name]}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
+													formState?.error?.[field?.sub_fields?.[0]?.name] && (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[field?.sub_fields[0]?.name]}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+											</UI_SECTIONS.FieldWrapGrid>
+										);
+									})}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
+					{isGeoTaggingEnabled && (
+						<AddressDetailsCard
+							address={geoLocationData?.address || geoLocation?.address}
+							latitude={geoLocationData?.lat || geoLocation?.lat}
+							longitude={geoLocationData?.long || geoLocation?.long}
+							timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
+							err={geoLocationData?.err || geoLocation?.err}
+							showCloseIcon={false}
+							customStyle={{
+								marginBottom: '30px',
+							}}
+							embedInImageUpload={false}
+						/>
+					)}
+
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button
+								fill
+								name={
+									fetchingAddress ? 'Fetching Address...' : 'Save and Proceed'
+								}
+								isLoader={loading}
+								disabled={loading || fetchingAddress}
+								onClick={handleSubmit(() => {
+									let isProfileError = false;
+									if (isProfileMandatory && profileUploadedFile === null) {
+										isProfileError = true;
+									}
+									if (
+										isEditOrViewLoan &&
+										prefilledProfileUploadValue &&
+										typeof prefilledProfileUploadValue === 'string'
+									) {
+										isProfileError = false;
+									}
+									if (isProfileError) {
+										// console.log('profile-error-', {
+										// 	isProfileError,
+										// 	profileUploadedFile,
+										// 	isEditOrViewLoan,
+										// 	value:
+										// 		formState?.values?.[
+										// 			CONST.PAN_UPLOAD_FIELD_NAME
+										// 		],
+										// });
+										addToast({
+											message: 'Profile is mandatory',
+											type: 'error',
+										});
+										return;
+									}
+									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
+									// so avoid opening income type popup at below condition
+									if (isEditOrViewLoan || !!selectedDirector?.directorId) {
+										onSaveAndProceed();
+										return;
+									}
+									setIsIncomeTypeConfirmModalOpen(true);
+								})}
+							/>
+						)}
+						<NavigateCTA previous={false} />
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };

@@ -25,9 +25,11 @@ import {
 import { extractPincode } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { businessId } = application;
 
 	const {
@@ -308,7 +310,7 @@ const BusinessAddressDetails = props => {
 				app,
 				application,
 				values: formState?.values,
-				applicantCoApplicants,
+				selectedDirector,
 				selectedLoanProductId,
 			});
 

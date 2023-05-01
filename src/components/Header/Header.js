@@ -5,7 +5,9 @@ import queryString from 'query-string';
 
 import Button from 'components/Button';
 
-import { toggleTestMode } from 'store/appSlice';
+import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import { setCompletedDirectorSection } from 'store/directorsSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -23,6 +25,9 @@ const Header = props => {
 		isLocalhost,
 		isTestMode,
 		isViewLoan,
+		selectedSectionId,
+		directorSectionIds,
+		nextSectionId,
 	} = app;
 	const { loanRefId: reduxLoanRefId } = application;
 	const [corporateName, setCorporateName] = useState('');
@@ -95,14 +100,28 @@ const Header = props => {
 						fill={!!isTestMode}
 						name='Auto Fill'
 						onClick={() => dispatch(toggleTestMode())}
+						customStyle={{ padding: '4px 8px', width: 100 }}
 					/>
-					<Button
-						customStyle={{ marginLeft: 20 }}
-						name='Skip'
-						onClick={() => {
-							// TODO: varun add section id to directors / application object
-						}}
-					/>
+					{!['basic_details', 'business_details'].includes(
+						selectedSectionId
+					) && (
+						<Button
+							customStyle={{ padding: '4px 8px', width: 100, marginLeft: 20 }}
+							name='Skip'
+							onClick={() => {
+								// console.log('header-onskip-', {
+								// 	directorSectionIds,
+								// 	selectedSectionId,
+								// });
+								if (directorSectionIds?.includes(selectedSectionId)) {
+									dispatch(setCompletedDirectorSection(selectedSectionId));
+								} else {
+									dispatch(setCompletedApplicationSection(selectedSectionId));
+								}
+								dispatch(setSelectedSectionId(nextSectionId));
+							}}
+						/>
+					)}
 				</div>
 			)}
 			{corporateName && (

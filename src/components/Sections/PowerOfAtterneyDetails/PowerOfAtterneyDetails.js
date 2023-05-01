@@ -1,24 +1,26 @@
-import React, { Fragment, useState, useLayoutEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useLayoutEffect } from 'react';
+import { Fragment, useState } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 
+import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-
 import { formatGetSectionReqBody } from 'utils/formatData';
-import { API_END_POINT } from '_config/app.config';
+import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
-import * as UI_SECTIONS from 'components/Sections/ui';
+import { API_END_POINT } from '_config/app.config';
+// import selectedSection from './sample.json';
 
-const BankDetails = () => {
+const PowerOfAtterneyDetails = props => {
 	const { app, application } = useSelector(state => state);
+	const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -26,7 +28,7 @@ const BankDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
-	const MAX_ADD_COUNT = selectedSection?.max || 10;
+	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
 	const openCreateForm = () => {
 		setEditSectionId('');
@@ -38,7 +40,7 @@ const BankDetails = () => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/bank_details?${formatGetSectionReqBody({
+				`${API_END_POINT}/poa_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
@@ -92,7 +94,12 @@ const BankDetails = () => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('bank-details-', { app, application });
+	console.log('PowerOfAtterneyDetails-allstates-', {
+		app,
+		selectedSection,
+		isCreateFormOpen,
+		editSectionId,
+	});
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -113,13 +120,7 @@ const BankDetails = () => {
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
-									const prefillData = {
-										...(section || {}),
-										bank_name: `${section?.bank_id || ''}`,
-										ifsc_code: section?.IFSC || '',
-										start_date: section?.outstanding_start_date,
-										end_date: section?.outstanding_end_date,
-									};
+									const prefillData = section || {};
 									return (
 										<UI_SECTIONS.AccordianWrapper>
 											<UI_SECTIONS.AccordianHeader
@@ -128,18 +129,23 @@ const BankDetails = () => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Name:</span>
+															<span>Principal:</span>
 															<strong>
-																{prefillData?.account_holder_name}
+																{
+																	selectedDirectorOptions?.filter(
+																		director =>
+																			`${director?.value}` ===
+																			`${prefillData?.principal}`
+																	)?.[0]?.name
+																}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
+														<UI_SECTIONS.AccordianHeaderData />
 														<UI_SECTIONS.AccordianHeaderData>
-															{/* <span>Type of Assets:</span>
-															<strong>{prefillData?.loan_asset_type_id}</strong> */}
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>AC#:</span>
-															<strong>{prefillData?.account_number}</strong>
+															<span>Relation:</span>
+															<strong>
+																{prefillData?.principal_relationship_with_poa}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
@@ -252,7 +258,13 @@ const BankDetails = () => {
 					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
-							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
+							<Button
+								fill
+								name='Save and Proceed'
+								// isLoader={isCreateFormOpen || !!editSectionId}
+								disabled={isCreateFormOpen || !!editSectionId}
+								onClick={onSaveAndProceed}
+							/>
 						)}
 
 						<NavigateCTA />
@@ -263,4 +275,4 @@ const BankDetails = () => {
 	);
 };
 
-export default BankDetails;
+export default PowerOfAtterneyDetails;
