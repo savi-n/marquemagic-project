@@ -523,19 +523,12 @@ export default function Products() {
 				) : (
 					<>
 						{addedProduct && (
-							<Card
-								product={addedProduct}
-								key={`product__${addProduct.id}`}
-							/>
+							<Card product={addedProduct} key={`product__${addProduct.id}`} />
 						)}
 					</>
 				)}
 			</ProductsBox>
-			<Modal
-				show={addProduct}
-				width='80%'
-				onClose={() => setAddProduct(false)}
-			>
+			<Modal show={addProduct} width='80%' onClose={() => setAddProduct(false)}>
 				{loadingOTP ? (
 					<div
 						style={{
@@ -569,43 +562,6 @@ export default function Products() {
 					</>
 				)}
 			</Modal>
-			{/* <Modal
-			show= {isSubProductModalOpen}
-			onClose={()=>setSubProductModalOpen(false)}
-			width="90%"
-			><ImgClose
-			onClick={()=>{
-				setSubProductModalOpen(false);
-			}}
-			src={imgClose}
-			alt='close'
-			/>
-				<section  className='flex flex-col gap-y-8'>
-					<div style={{
-						display:'flex',
-						alignSelf:'center'
-					}}>
-						<span style={{
-							font:'30px Arial, sans-serif',
-						}}>Change Sub Product</span>
-					<DivAdd>
-						{console.log(products?.data?.sub_products)};
-						{products && products?.data?.sub_products && products?.data.sub_products.map((subProduct,idx)=>{
-								if(idx<initialLoanProductCount) return null;
-								return(
-									<CardSubProduct
-									add={true}
-											setAddedProduct={setAddedSubProduct}
-											product={subProduct}
-											key={`product__${subProduct.id}`}
-											setAddProduct={setAddSubProduct}
-											/>
-								);
-						})}
-					</DivAdd>
-					</div>
-				</section>
-			</Modal> */}
 			<Modal show={modalOTP} width='50%' onClose={() => setModalOTP(false)}>
 				<ModalOTPHeader className='text-center w-full py-6'>
 					Please enter OTP sent to your Phone Number +91 xxxxxxxx
@@ -689,9 +645,7 @@ export default function Products() {
 									<AppStatusList
 										key={d?.id}
 										style={
-											appIndex === loanList.length - 1
-												? { border: 'none' }
-												: {}
+											appIndex === loanList.length - 1 ? { border: 'none' } : {}
 										}
 									>
 										<AppStatusLine1>
