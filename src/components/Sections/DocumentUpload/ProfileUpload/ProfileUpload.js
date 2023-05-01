@@ -47,11 +47,10 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
-		setFetchedProfilePic,
 		setImageLoading = () => {},
 	} = props;
 	const { app, application } = useSelector(state => state);
-	// const { isApplicant } = useSelector(state => state.directors);
+	const { isApplicant } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
@@ -60,7 +59,6 @@ const ProfileUpload = props => {
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
-	const [fetchedValue, setFetchedValue] = useState('');
 
 	const openDocument = async file => {
 		try {
@@ -253,9 +251,9 @@ const ProfileUpload = props => {
 						};
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(resp?.data?.file);
-							// if (isApplicant) {
-							// dispatch(setProfileGeoLocation(resp?.data?.file));
-							// }
+							if (isApplicant) {
+								dispatch(setProfileGeoLocation(resp?.data?.file));
+							}
 						}
 						addCacheDocumentTemp(newFile);
 					} else {
@@ -287,21 +285,20 @@ const ProfileUpload = props => {
 	useEffect(() => {
 		(async () => {
 			try {
-				setLoading(true);
 				// WHEN ONLY FD KEY IS RECEIVED, NEED TO CALL VIEWDOCUMENT API
 				// AND DECRYPT THE RESPONSE TO FETCH PRESIGNED URL
 				if (
-					// section === 'documentUpload' &&
+					section === 'documentUpload' &&
 					uploadedFile &&
 					!uploadedFile?.preview &&
 					Object.keys(uploadedFile).length > 0
 				) {
+					setLoading(true);
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||
 							uploadedFile?.document_key ||
 							uploadedFile?.fd ||
-							uploadedFile?.filename ||
 							'',
 						loan_id: loanId,
 						userid: businessUserId,
@@ -309,13 +306,13 @@ const ProfileUpload = props => {
 
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 					const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
-					// console.log({ docRes, previewFile });
+
 					setSelfiePreview({
 						...uploadedFile,
 						preview: previewFile,
 						presignedUrl: previewFile,
 					});
-					setFetchedValue(previewFile);
+					setLoading(false);
 				}
 			} catch (err) {
 				console.error(err);
@@ -323,8 +320,6 @@ const ProfileUpload = props => {
 					message: err?.message || 'Network Error',
 					type: 'error',
 				});
-			} finally {
-				setLoading(false);
 			}
 		})();
 
@@ -352,15 +347,12 @@ const ProfileUpload = props => {
 					src={
 						loading
 							? imageBgProfile
-							: // : section === 'documentUpload'
-							  // ?
-							  uploadedFile?.preview ||
+							: section === 'documentUpload'
+							? uploadedFile?.preview ||
 							  uploadedFile?.presignedUrl ||
 							  selfiePreview?.preview ||
-							  selfiePreview?.presignedUrl ||
-							  value ||
-							  fetchedValue
-						// uploadedFile?.preview || uploadedFile?.presignedUrl || value
+							  selfiePreview?.presignedUrl
+							: uploadedFile?.preview || uploadedFile?.presignedUrl || value
 					}
 					alt='Loading File...'
 					onClick={e => {
@@ -396,9 +388,7 @@ const ProfileUpload = props => {
 										e.stopPropagation();
 										setShowImageInfo(false);
 										// for profile pic upload in basic details section
-										if (value || fetchedValue) {
-											setFetchedValue('');
-											setFetchedProfilePic();
+										if (value) {
 											onChangeFormStateField({
 												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
 												value: '',

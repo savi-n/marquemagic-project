@@ -37,7 +37,7 @@ import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
 import * as CONST from './const';
-import ProfileUpload from '../BasicDetails/ProfileUpload';
+import ProfileUpload from './ProfileUpload/ProfileUpload';
 import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDetailsCard';
 import useForm from 'hooks/useFormIndividual';
 import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
