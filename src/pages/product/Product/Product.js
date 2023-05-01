@@ -35,6 +35,7 @@ import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
+import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 
 const Product = props => {
@@ -74,6 +75,7 @@ const Product = props => {
 		liability_details: LiabilitysDetails,
 		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
+		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
 		poa_details: PowerOfAtterneyDetails,
 	};
