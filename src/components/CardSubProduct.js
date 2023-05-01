@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import queryString from 'query-string';
 import styled from 'styled-components';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
+import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { resetAllApplicationState } from 'utils/localStore';
 // import { FlowContext } from 'reducer/flowReducer';
 // import { FormContext } from 'reducer/formReducer';
@@ -90,6 +91,11 @@ const ButtonWrapper = styled.div`
 	padding-top: 20px;
 	padding-bottom: 20px;
 `;
+const RightArrow= styled.img`
+height: 50px;
+	cursor: pointer;
+	margin: auto;
+`
 
 export default function CardSubProduct({ product, add, setAddedProduct, setAddProduct }) {
 	// const {
@@ -132,16 +138,17 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 			<ProductName>{product.name}</ProductName>
 			{/* <ButtonBox> */}
 			<ButtonWrapper>
-				<Button
+				<RightArrow
+					src={rightArrowImg}
 					roundCorner={true}
 					loading={gettingGeoLocation}
 					fill
-					customStyle={{
-						padding: '3px 0 3px 0',
-						maxWidth: '145px',
-						fontSize: '16px',
-						background: 'rgb(42, 42, 221)',
-					}}
+					// customStyle={{
+					// 	padding: '3px 0 3px 0',
+					// 	maxWidth: '145px',
+					// 	fontSize: '16px',
+					// 	background: 'rgb(42, 42, 221)',
+					// }}
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
 					name="Add loan"
 					onClick={async e => {
@@ -217,7 +224,7 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 					}}
 				>
 					{/* {add ? 'Add Loan' : 'Get Loan'} */}
-				</Button>
+				</RightArrow>
 				{/* {add ? 'Add Loan' : 'Get Loan'} */}
 				{/* </Button> */}
 				<Description>{product.description}</Description>
