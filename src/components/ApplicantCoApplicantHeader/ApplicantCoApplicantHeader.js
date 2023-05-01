@@ -268,6 +268,7 @@ const ApplicantCoApplicantHeader = props => {
 									)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
 								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
+								<UI.HoverBadge>&nbsp;</UI.HoverBadge>
 							</UI.LI>
 						)}
 					</UI.UL>

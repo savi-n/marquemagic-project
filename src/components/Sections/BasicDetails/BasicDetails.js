@@ -25,6 +25,7 @@ import {
 	getApiErrorMessage,
 	// getEditLoanDocuments,
 	getSelectedField,
+	isDirectorApplicant,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -38,13 +39,11 @@ import { API_END_POINT } from '_config/app.config';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const {
-		isApplicant,
-		directors,
-		selectedDirectorId,
-		addNewDirectorKey,
-	} = useSelector(state => state.directors);
+	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
+		state => state.directors
+	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -338,8 +337,10 @@ const BasicDetails = props => {
 					borrowerUserId: newBorrowerUserId,
 				})
 			);
-			dispatch(setAddNewDirectorKey(''));
-			dispatch(getDirectors(newBusinessId));
+			if (addNewDirectorKey) {
+				dispatch(getDirectors(newBusinessId));
+				dispatch(setAddNewDirectorKey(''));
+			}
 			dispatch(setSelectedSectionId(nextSectionId));
 			if (isGeoTaggingEnabled) {
 				if (

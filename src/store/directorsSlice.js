@@ -4,11 +4,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { BASIC_DETAILS_SECTION_ID } from 'components/Sections/const';
 
-import {
-	getDirectorFullName,
-	getShortString,
-	isDirectorApplicant,
-} from 'utils/formatData';
+import { getDirectorFullName, getShortString } from 'utils/formatData';
 
 export const DIRECTOR_TYPES = {
 	applicant: 'Applicant',
@@ -41,7 +37,6 @@ const initialState = {
 	fetchingDirectorsErrorMessage: false,
 	selectedDirectorId: '',
 	applicantDirectorId: '',
-	isApplicant: true,
 	isEntity: false,
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
@@ -74,7 +69,7 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
-			// let firstDirector = {};
+			let applicantDirector = {};
 			let lastDirector = {};
 			const newSelectedDirectorOptions = [];
 			const sortedDirectors = payload?.sort(
@@ -82,9 +77,6 @@ export const directorsSlice = createSlice({
 			);
 			let newIsEntity = true;
 			sortedDirectors?.map((director, directorIndex) => {
-				if (director.type_name === DIRECTOR_TYPES.applicant) {
-					newIsEntity = false;
-				}
 				const fullName = getDirectorFullName(director);
 				const directorId = `${director.id}`;
 				const newSections = [
@@ -107,30 +99,30 @@ export const directorsSlice = createSlice({
 					value: directorId,
 				});
 				newDirectors[directorId] = newDirectorObject;
-				// if (directorIndex === 0) {
-				// 	firstDirector = director;
-				// }
 				if (directorIndex === sortedDirectors.length - 1) {
-					lastDirector = director;
+					lastDirector = newDirectorObject;
+				}
+
+				if (director.type_name === DIRECTOR_TYPES.applicant) {
+					newIsEntity = false;
+					applicantDirector = newDirectorObject;
 				}
 				return null;
 			});
-			if (!state.selectedDirectorId) {
-				const isApplicant = isDirectorApplicant(lastDirector);
-				state.selectedDirectorId = `${lastDirector.id}`;
-				state.isApplicant = isApplicant;
-				state.applicantDirectorId = isApplicant ? `${lastDirector.id}` : '';
-			} else {
-				const prevDirector = newDirectors[state.selectedDirectorId];
-				const isApplicant = isDirectorApplicant(prevDirector);
 
+			if (prevState.selectedDirectorId) {
+				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector.id}`;
-				state.isApplicant = isApplicant;
-				state.applicantDirectorId = isApplicant ? `${prevDirector.id}` : '';
+			} else if (prevState.addNewDirectorKey) {
+				state.selectedDirectorId = '';
+				// DON'T Update any state;
+			} else if (!prevState.selectedDirectorId) {
+				state.selectedDirectorId = `${lastDirector.id}`;
 			}
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;
 			state.selectedDirectorOptions = newSelectedDirectorOptions;
+			state.applicantDirectorId = `${applicantDirector?.id}` || '';
 			if (newSelectedDirectorOptions.length === 0) {
 				state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 			}
