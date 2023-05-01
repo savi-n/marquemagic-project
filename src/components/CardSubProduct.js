@@ -145,6 +145,7 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
 					name="Add loan"
 					onClick={async e => {
+						// setSubProduct(true)
 						if (!add) {
 							try {
 								if (isGeoTaggingEnabled) {

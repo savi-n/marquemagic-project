@@ -130,7 +130,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const { app } = useSelector(state => state);
 	const { isGeoTaggingEnabled } = app;
 	const { userToken } = app;
-	const [addedSubProduct, setAddedSubProduct] = useState(null);
+	// const [addedSubProduct, setAddedSubProduct] = useState(null);
 	// const {
 	// 	actions: { removeAllLoanDocuments },
 	// } = useContext(LoanFormContext);
@@ -171,7 +171,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
 					name={add ? 'Add Loan' : 'Get Loan'}
 					onClick={async e => {
-						if(!!product?.sub_products){setSubProductModalOpen(true);}
+						// if(!!product?.sub_products){setSubProductModalOpen(true);}
 						if (!add) {
 							try {
 								if(product?.sub_products){
@@ -234,7 +234,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (params?.token) {
 							redirectURL += `?token=${params.token}`;
 						}
-						if(isSubProductModalOpen){window.open(redirectURL, '_self');}
+						// window.open(redirectURL, '_self');
+						if(!product?.sub_products || isSubProductModalOpen){window.open(redirectURL, '_self');}
 						return;
 						// }
 						// resetAllApplicationState();
@@ -281,11 +282,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								// console.log(product+"-> "+subProduct);
 								return(
 								<CardSubProduct
-											add={true}
-											setAddedProduct={setAddedProduct}
+											add={add}
+											setAddedProduct={setAddProduct}
 											product={product}
 											key={`product__${subProduct.id}`}
-											setAddProduct={setAddProduct}
+											setAddProduct={setAddedProduct}
 								/>
 								);
 						})}
