@@ -43,6 +43,7 @@ const BasicDetails = props => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	console.log(selectedDirector);
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
 		selectedProduct,
@@ -212,7 +213,6 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
-
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -222,7 +222,6 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
-
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -640,7 +639,7 @@ const BasicDetails = props => {
 			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
 		}
 		// new fetch section data starts
-		if (!!loanRefId) fetchSectionDetails();
+		if (!!loanRefId && !!selectedDirector?.section.includes('basic_details')) fetchSectionDetails();
 		// new fetch section data ends
 
 		if (
