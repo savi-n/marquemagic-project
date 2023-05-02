@@ -284,7 +284,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								<CardSubProduct
 											add={add}
 											setAddedProduct={setAddProduct}
-											product={product}
+											product={subProduct}
 											key={`product__${subProduct.id}`}
 											setAddProduct={setAddedProduct}
 								/>
