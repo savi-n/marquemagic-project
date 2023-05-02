@@ -32,6 +32,7 @@ import {
 	getDocumentCategoryName,
 	parseJSON,
 	getApiErrorMessage,
+	isDirectorApplicant,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -49,10 +50,10 @@ const DocumentUpload = props => {
 		directors,
 		selectedDirectorId,
 		applicantDirectorId,
-		isApplicant,
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const coApplicants = {};
 	Object.keys(directors).map(directorId => {
 		if (directors[directorId].type_name === DIRECTOR_TYPES.applicant)
