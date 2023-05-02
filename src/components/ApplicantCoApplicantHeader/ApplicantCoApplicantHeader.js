@@ -167,9 +167,7 @@ const ApplicantCoApplicantHeader = props => {
 							onYes={() => {
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
-								dispatch(
-									setSelectedDirectorId(+Object.keys(directors)?.pop())
-								);
+								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
 							}}
 							label={isDeleteDirectorModalOpen}
 						/>
