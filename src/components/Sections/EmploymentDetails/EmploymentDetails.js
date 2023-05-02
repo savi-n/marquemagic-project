@@ -228,8 +228,10 @@ const EmploymentDetails = () => {
 		}
 	};
 	// fetch section data ends
+
 	useEffect(() => {
-		fetchSectionDetails();
+		if (!!selectedDirector?.section?.includes('employment_details'))
+			fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 

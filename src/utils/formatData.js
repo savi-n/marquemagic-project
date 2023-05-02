@@ -477,7 +477,7 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 	};
 };
 
-export const getSelectDirectorOptions = data => {
+export const getselectedDirectorOptions = data => {
 	const { directors } = data;
 	const options = [];
 	Object.keys(directors).map(directorId => {

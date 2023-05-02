@@ -78,7 +78,7 @@ export const directorsSlice = createSlice({
 			let newIsEntity = true;
 			sortedDirectors?.map((director, directorIndex) => {
 				const fullName = getDirectorFullName(director);
-				const directorId = `${director.id}`;
+				const directorId = `${director?.id || ''}`;
 				const newSections = [
 					...(prevState?.directors?.[directorId]?.sections || []),
 				];
@@ -109,20 +109,22 @@ export const directorsSlice = createSlice({
 				}
 				return null;
 			});
-
+			// console.log("PrevState",!prevState.selectedDirectorId);
 			if (prevState.selectedDirectorId) {
+				// console.log(newDirectors);
 				const prevDirector = newDirectors[state.selectedDirectorId];
-				state.selectedDirectorId = `${prevDirector.id}`;
+				// console.log(prevDirector);
+				state.selectedDirectorId = `${prevDirector?.directorId}`;
 			} else if (prevState.addNewDirectorKey) {
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
-				state.selectedDirectorId = `${lastDirector.id}`;
+				state.selectedDirectorId = `${lastDirector.directorId}`;
 			}
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;
 			state.selectedDirectorOptions = newSelectedDirectorOptions;
-			state.applicantDirectorId = `${applicantDirector?.id}` || '';
+			state.applicantDirectorId = `${applicantDirector?.directorId}` || '';
 			if (newSelectedDirectorOptions.length === 0) {
 				state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 			}
