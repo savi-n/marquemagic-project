@@ -187,6 +187,7 @@ const ApplicantCoApplicantHeader = props => {
 										onClick={() => onClickDirectorAvatar('')}
 									/>
 									<UI.AvatarName>Entity</UI.AvatarName>
+									<UI.HoverBadge>&nbsp;</UI.HoverBadge>
 								</UI.LI>
 							)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
@@ -268,6 +269,7 @@ const ApplicantCoApplicantHeader = props => {
 									)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
 								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
+								<UI.HoverBadge>&nbsp;</UI.HoverBadge>
 							</UI.LI>
 						)}
 					</UI.UL>

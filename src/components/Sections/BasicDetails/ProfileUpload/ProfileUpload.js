@@ -51,7 +51,6 @@ const ProfileUpload = props => {
 		setImageLoading = () => {},
 	} = props;
 	const { app, application } = useSelector(state => state);
-	// const { isApplicant } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
@@ -253,9 +252,6 @@ const ProfileUpload = props => {
 						};
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(resp?.data?.file);
-							// if (isApplicant) {
-							// dispatch(setProfileGeoLocation(resp?.data?.file));
-							// }
 						}
 						addCacheDocumentTemp(newFile);
 					} else {

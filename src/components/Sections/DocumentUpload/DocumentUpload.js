@@ -32,6 +32,7 @@ import {
 	getDocumentCategoryName,
 	parseJSON,
 	getApiErrorMessage,
+	isDirectorApplicant,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -49,10 +50,10 @@ const DocumentUpload = props => {
 		directors,
 		selectedDirectorId,
 		applicantDirectorId,
-		isApplicant,
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const coApplicants = {};
 	Object.keys(directors).map(directorId => {
 		if (directors[directorId].type_name === DIRECTOR_TYPES.applicant)
@@ -276,12 +277,16 @@ const DocumentUpload = props => {
 
 			if (oldApplicantDocumentTypes?.length > 0) {
 				oldApplicantDocumentTypes.map(docType =>
-					newAllDocumentTypes.push({ ...docType })
+					newAllDocumentTypes.push({
+						...docType,
+					})
 				);
 			} else {
 				const newApplicantDocumentTypes = await getApplicantDocumentTypes();
 				newApplicantDocumentTypes.map(docType =>
-					newAllDocumentTypes.push({ ...docType })
+					newAllDocumentTypes.push({
+						...docType,
+					})
 				);
 			}
 			// -- APPLICANT
@@ -294,7 +299,9 @@ const DocumentUpload = props => {
 				);
 				if (oldCoApplicantDocumentTypes?.length > 0) {
 					oldCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({ ...docType })
+						newAllDocumentTypes.push({
+							...docType,
+						})
 					);
 				} else {
 					const newCoApplicantDocumentTypes = await getCoApplicantDocumentTypes(
@@ -304,7 +311,9 @@ const DocumentUpload = props => {
 						}
 					);
 					newCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({ ...docType })
+						newAllDocumentTypes.push({
+							...docType,
+						})
 					);
 				}
 			});
@@ -458,7 +467,11 @@ const DocumentUpload = props => {
 					});
 					return null;
 				});
-				dispatch(addOrUpdateCacheDocumentsDocUploadPage({ files: newDoc }));
+				dispatch(
+					addOrUpdateCacheDocumentsDocUploadPage({
+						files: newDoc,
+					})
+				);
 			}
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
@@ -1219,7 +1232,7 @@ const DocumentUpload = props => {
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
 	// const isMandatoryGeoVerificationComplete = () => {
-	// 	const appCoappsList = selectDirectorOptions({
+	// 	const appCoappsList = selectedDirectorOptions({
 	// 		directors
 	// 	});
 	// 	if (
@@ -1356,7 +1369,14 @@ const DocumentUpload = props => {
 					}}
 				>
 					<UI.CategoryNameHeader>
-						<span style={{ color: 'red' }}>*</span> Mandatory
+						<span
+							style={{
+								color: 'red',
+							}}
+						>
+							*
+						</span>{' '}
+						Mandatory
 					</UI.CategoryNameHeader>
 					{renderDocUploadedCount({
 						uploaded: totalMandatoryUploadedDocumentCount,
@@ -1435,7 +1455,15 @@ const DocumentUpload = props => {
 										: sub_section?.fields?.[1].label
 									: sub_section?.name}
 
-								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
+								{isCommentRequired && (
+									<span
+										style={{
+											color: 'red',
+										}}
+									>
+										*
+									</span>
+								)}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
@@ -1523,7 +1551,10 @@ const DocumentUpload = props => {
 					<Button
 						name='Get Other Bank Statements'
 						onClick={() => setIsOtherBankStatementModal(true)}
-						customStyle={{ width: 'auto', height: '45px' }}
+						customStyle={{
+							width: 'auto',
+							height: '45px',
+						}}
 					/>
 				)}
 				<UI.CheckboxWrapper>

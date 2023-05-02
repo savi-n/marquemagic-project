@@ -22,6 +22,7 @@ import {
 	formatSectionReqBody,
 	// getApplicantNavigationDetails,
 	getApiErrorMessage,
+	isDirectorApplicant,
 	validateEmploymentDetails,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
@@ -29,13 +30,11 @@ import Loading from 'components/Loading';
 
 const EmploymentDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const {
-		directors,
-		applicantDirectorId,
-		isApplicant,
-		selectedDirectorId,
-	} = useSelector(state => state.directors);
+	const { directors, applicantDirectorId, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -229,8 +228,10 @@ const EmploymentDetails = () => {
 		}
 	};
 	// fetch section data ends
+
 	useEffect(() => {
-		fetchSectionDetails();
+		if (!!selectedDirector?.section?.includes('employment_details'))
+			fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 

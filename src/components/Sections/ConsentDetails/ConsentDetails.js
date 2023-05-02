@@ -33,7 +33,7 @@ const ConsentDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	const [htmlContent, setHtmlContent] = useState('');
+	// const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
 	const [consentDetails, setConsentDetails] = useState(null);
 
@@ -154,7 +154,7 @@ const ConsentDetails = props => {
 						src={imgClose}
 						alt='close'
 					/>
-					<div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+					{/* <div dangerouslySetInnerHTML={{ __html: htmlContent }} /> */}
 				</section>
 			</Modal>
 			{selectedSection?.sub_sections[0]?.name ? (

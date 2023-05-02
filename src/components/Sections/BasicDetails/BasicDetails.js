@@ -25,6 +25,7 @@ import {
 	getApiErrorMessage,
 	// getEditLoanDocuments,
 	getSelectedField,
+	isDirectorApplicant,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -38,13 +39,12 @@ import { API_END_POINT } from '_config/app.config';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const {
-		isApplicant,
-		directors,
-		selectedDirectorId,
-		addNewDirectorKey,
-	} = useSelector(state => state.directors);
+	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
+		state => state.directors
+	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	// console.log(selectedDirector);
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -174,10 +174,9 @@ const BasicDetails = props => {
 			// loan product is is only applicable for applicant
 			// it should not be overritten when coapplicant is income type is different then applicant
 			let selectedLoanProductId = '';
-			if (isApplicant) {
-				selectedLoanProductId =
-					selectedProduct?.product_id?.[selectedIncomeType];
-			}
+			// if (isApplicant) {
+			selectedLoanProductId = selectedProduct?.product_id?.[selectedIncomeType];
+			// }
 
 			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
@@ -216,7 +215,6 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
-
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -226,7 +224,6 @@ const BasicDetails = props => {
 				basicDetailsReqBody.data.basic_details.type_name =
 					selectedDirector?.type_name;
 			}
-
 			const basicDetailsRes = await axios.post(
 				`${API.API_END_POINT}/basic_details`,
 				basicDetailsReqBody
@@ -340,8 +337,10 @@ const BasicDetails = props => {
 					borrowerUserId: newBorrowerUserId,
 				})
 			);
-			dispatch(setAddNewDirectorKey(''));
-			dispatch(getDirectors(newBusinessId));
+			if (addNewDirectorKey) {
+				dispatch(getDirectors(newBusinessId));
+				dispatch(setAddNewDirectorKey(''));
+			}
 			dispatch(setSelectedSectionId(nextSectionId));
 			if (isGeoTaggingEnabled) {
 				if (
@@ -352,8 +351,8 @@ const BasicDetails = props => {
 					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
 					// BUT ALLOW USER TO MOVE TO NEXT SECTION
 					if (
-						(isApplicant && !selectedDirector.profileGeoLocation?.address) ||
-						(!isApplicant && !profilePicGeolocation?.address)
+						!selectedDirector.profileGeoLocation?.address ||
+						!profilePicGeolocation?.address
 					) {
 						addToast({
 							message: 'Mandatory Profile GeoLocation not captured',
@@ -642,7 +641,12 @@ const BasicDetails = props => {
 			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
 		}
 		// new fetch section data starts
-		if (!!loanRefId) fetchSectionDetails();
+		if (
+			!!loanRefId &&
+			!!selectedDirector &&
+			!!selectedDirector?.section?.includes('basic_details')
+		)
+			fetchSectionDetails();
 		// new fetch section data ends
 
 		if (

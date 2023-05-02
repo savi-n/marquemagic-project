@@ -24,6 +24,7 @@ import {
 	getSelectedSubField,
 	getAllCompletedSections,
 	formatAddressType,
+	isDirectorApplicant,
 } from 'utils/formatData';
 import { setLoanIds } from 'store/applicationSlice';
 import { setCompletedDirectorSection } from 'store/directorsSlice';
@@ -42,10 +43,11 @@ import Loading from 'components/Loading';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorId, isApplicant, directors } = useSelector(
+	const { selectedDirectorId, directors } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
 		loanProductId,
 		loanId,
