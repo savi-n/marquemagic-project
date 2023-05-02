@@ -7,6 +7,7 @@ const Select = styled.select`
 	height: 50px;
 	padding: 10px;
 	width: 100%;
+	min-width: 30%;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 	${({ disabled }) => disabled && `cursor: not-allowed;`}
