@@ -57,7 +57,6 @@ const DivAdd = styled.div`
 	/* gap: calc(12% / 3); */
 `;
 
-
 const ImgClose = styled.img`
 	height: 25px;
 	cursor: pointer;
@@ -136,7 +135,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// } = useContext(LoanFormContext);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const [isSubProductModalOpen,setSubProductModalOpen]= useState(false);
+	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	// const [SubProduct, setAddedSubProduct]= useState(false);
 	// const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
@@ -174,7 +173,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						// if(!!product?.sub_products){setSubProductModalOpen(true);}
 						if (!add) {
 							try {
-								if(product?.sub_products){
+								if (product?.sub_products) {
 									setSubProductModalOpen(true);
 								}
 								if (isGeoTaggingEnabled) {
@@ -222,7 +221,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (add) {
 							setAddedProduct(product);
 							setAddProduct(false);
-							if(!!product?.sub_products){setSubProductModalOpen(true);}
+							if (!!product?.sub_products) {
+								setSubProductModalOpen(true);
+							}
 							return;
 						}
 						e.preventDefault();
@@ -235,7 +236,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							redirectURL += `?token=${params.token}`;
 						}
 						// window.open(redirectURL, '_self');
-						if(!product?.sub_products || isSubProductModalOpen){window.open(redirectURL, '_self');}
+						if (!product?.sub_products || isSubProductModalOpen) {
+							window.open(redirectURL, '_self');
+						}
 						return;
 						// }
 						// resetAllApplicationState();
@@ -254,22 +257,27 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				<Description>{product.description}</Description>
 			</ButtonWrapper>
 			<Modal
-			show= {isSubProductModalOpen}
-			onClose={()=>setSubProductModalOpen(false)}
-					width="80%"
-			><ImgClose
-			onClick={()=>{
-				setSubProductModalOpen(false);
-			}}
-			src={imgClose}
-			alt='close'
-			/>
-			<span style={{
-							font:'30px Arial, sans-serif',
-							display:'flex',
-							justifyContent:'center'
-						}}>Change Sub Product</span>
-				<section  className='flex flex-col gap-y-8'>
+				show={isSubProductModalOpen}
+				onClose={() => setSubProductModalOpen(false)}
+				width='80%'
+			>
+				<ImgClose
+					onClick={() => {
+						setSubProductModalOpen(false);
+					}}
+					src={imgClose}
+					alt='close'
+				/>
+				<span
+					style={{
+						font: '30px Arial, sans-serif',
+						display: 'flex',
+						justifyContent: 'center',
+					}}
+				>
+					Change Sub Product
+				</span>
+				<section className='flex flex-col gap-y-8'>
 					{/* <div style={{
 						display:'flex',
 						alignSelf:'center'
@@ -277,23 +285,24 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 
 					<DivAdd>
 						{/* {console.log(product?.sub_products)}; */}
-						{product && product?.sub_products && product?.sub_products.map((subProduct,idx)=>{
+						{product &&
+							product?.sub_products &&
+							product?.sub_products.map((subProduct, idx) => {
 								// if(idx<initialLoanProductCount) return null;
 								// console.log(product+"-> "+subProduct);
-								return(
-								<CardSubProduct
-											add={add}
-											setAddedProduct={setAddProduct}
-											product={subProduct}
-											key={`product__${subProduct.id}`}
-											setAddProduct={setAddedProduct}
-								/>
+								return (
+									<CardSubProduct
+										add={add}
+										setAddedProduct={setAddProduct}
+										product={subProduct}
+										key={`product__${subProduct.id}`}
+										setAddProduct={setAddedProduct}
+									/>
 								);
-						})}
+							})}
 					</DivAdd>
 				</section>
 			</Modal>
 		</Wrapper>
-
 	);
 }
