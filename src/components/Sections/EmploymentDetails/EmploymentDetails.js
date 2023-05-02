@@ -228,12 +228,12 @@ const EmploymentDetails = () => {
 		}
 	};
 	// fetch section data ends
-	if(!!selectedDirector?.section.includes('employment_details')){
+
 	useEffect(() => {
-		fetchSectionDetails();
+		if(!!selectedDirector?.section?.includes('employment_details'))
+fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
-}
 
 	let displayProceedCTA = true;
 	let displayAddCoApplicantCTA = true;

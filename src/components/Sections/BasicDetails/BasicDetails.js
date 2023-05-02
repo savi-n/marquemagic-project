@@ -43,7 +43,7 @@ const BasicDetails = props => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	console.log(selectedDirector);
+	// console.log(selectedDirector);
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const {
 		selectedProduct,
@@ -639,7 +639,7 @@ const BasicDetails = props => {
 			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
 		}
 		// new fetch section data starts
-		if (!!loanRefId && !!selectedDirector?.section.includes('basic_details')) fetchSectionDetails();
+		if (!!loanRefId && !!selectedDirector && !!selectedDirector?.section?.includes('basic_details')) fetchSectionDetails();
 		// new fetch section data ends
 
 		if (
