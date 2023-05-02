@@ -16,7 +16,7 @@ const Table = ({
 		Status: 'status',
 		'PAN Number': 'pan',
 		'Company Name': 'name',
-		'Gst Number': 'gstin',
+		'GST Number': 'gstin',
 		// 'Itr Number': 'itr_num',
 	};
 	return (

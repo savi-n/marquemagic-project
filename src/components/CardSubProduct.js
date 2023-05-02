@@ -16,7 +16,7 @@ import { getGeoLocation } from 'utils/helper';
 import { setGeoLocation } from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
-import Button from './Button';
+// import Button from './Button';
 import { useState } from 'react';
 import { useToasts } from './Toast/ToastProvider';
 
@@ -91,13 +91,18 @@ const ButtonWrapper = styled.div`
 	padding-top: 20px;
 	padding-bottom: 20px;
 `;
-const RightArrow= styled.img`
-height: 50px;
+const RightArrow = styled.img`
+	height: 50px;
 	cursor: pointer;
 	margin: auto;
-`
+`;
 
-export default function CardSubProduct({ product, add, setAddedProduct, setAddProduct }) {
+export default function CardSubProduct({
+	product,
+	add,
+	setAddedProduct,
+	setAddProduct,
+}) {
 	// const {
 	// 	state: { basePageUrl },
 	// 	actions: { clearFlowDetails },
@@ -150,7 +155,7 @@ export default function CardSubProduct({ product, add, setAddedProduct, setAddPr
 					// 	background: 'rgb(42, 42, 221)',
 					// }}
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
-					name="Add loan"
+					name='Add loan'
 					onClick={async e => {
 						// setSubProduct(true)
 						if (!add) {
