@@ -23,7 +23,7 @@ import { API_END_POINT } from '_config/app.config';
 
 const LiabilitysDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectDirectorOptions } = useSelector(state => state.directors);
+	const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
@@ -142,17 +142,21 @@ const LiabilitysDetails = props => {
 															<span>Liability For:</span>
 															<strong>
 																{
-																	selectDirectorOptions?.filter(
+																	selectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
+																			`${
+																				prefillData?.director_id
+																			}`
 																	)?.[0]?.name
 																}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Type of Liability:</span>
-															<strong>{prefillData?.fin_type}</strong>
+															<strong>
+																{prefillData?.fin_type}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
@@ -168,7 +172,10 @@ const LiabilitysDetails = props => {
 												<UI_SECTIONS.AccordianHeaderData
 													style={
 														isAccordianOpen
-															? { marginLeft: 'auto', flex: 'none' }
+															? {
+																	marginLeft: 'auto',
+																	flex: 'none',
+															  }
 															: { flex: 'none' }
 													}
 												>
@@ -177,8 +184,15 @@ const LiabilitysDetails = props => {
 															src={editIcon}
 															alt='edit'
 															onClick={() => {
-																if (isCreateFormOpen || isEditLoan) return;
-																toggleAccordian(sectionId, 'open');
+																if (
+																	isCreateFormOpen ||
+																	isEditLoan
+																)
+																	return;
+																toggleAccordian(
+																	sectionId,
+																	'open'
+																);
 																setTimeout(() => {
 																	setEditSectionId(sectionId);
 																}, 200);
@@ -197,12 +211,17 @@ const LiabilitysDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
-															if (isCreateFormOpen || isEditLoan) return;
+															if (
+																isCreateFormOpen ||
+																isEditLoan
+															)
+																return;
 															toggleAccordian(sectionId);
 														}}
 														style={{
 															transform: 'rotate(90deg)',
-															...(isCreateFormOpen || isEditLoan
+															...(isCreateFormOpen ||
+															isEditLoan
 																? {
 																		cursor: 'not-allowed',
 																		visibility: 'hidden',
@@ -212,20 +231,29 @@ const LiabilitysDetails = props => {
 													/>
 												</UI_SECTIONS.AccordianHeaderData>
 											</UI_SECTIONS.AccordianHeader>
-											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
-												{isAccordianOpen && !isCreateFormOpen && (
-													<DynamicForm
-														fields={sub_section?.fields || []}
-														prefillData={prefillData}
-														onSaveOrUpdateSuccessCallback={
-															onSaveOrUpdateSuccessCallback
-														}
-														onCancelCallback={onCancelCallback}
-														isEditLoan={isEditLoan}
-														editSectionId={editSectionId}
-														isCreateFormOpen={isCreateFormOpen}
-													/>
-												)}
+											<UI_SECTIONS.AccordianBody
+												isOpen={isAccordianOpen}
+											>
+												{isAccordianOpen &&
+													!isCreateFormOpen && (
+														<DynamicForm
+															fields={
+																sub_section?.fields || []
+															}
+															prefillData={prefillData}
+															onSaveOrUpdateSuccessCallback={
+																onSaveOrUpdateSuccessCallback
+															}
+															onCancelCallback={
+																onCancelCallback
+															}
+															isEditLoan={isEditLoan}
+															editSectionId={editSectionId}
+															isCreateFormOpen={
+																isCreateFormOpen
+															}
+														/>
+													)}
 												{/* {isResetFormComplete ? (
 											<DynamicForm fields={sub_section?.fields || []} />
 										) : null} */}

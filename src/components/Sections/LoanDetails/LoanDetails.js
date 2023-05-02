@@ -30,9 +30,11 @@ import * as CONST from './const';
 
 const LoanDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId, selectDirectorOptions } = useSelector(
-		state => state.directors
-	);
+	const {
+		directors,
+		selectedDirectorId,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
@@ -367,7 +369,7 @@ const LoanDetails = () => {
 										}
 										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
 											newField.options = [
-												...selectDirectorOptions,
+												...selectedDirectorOptions,
 												...newField.options,
 											];
 										}
