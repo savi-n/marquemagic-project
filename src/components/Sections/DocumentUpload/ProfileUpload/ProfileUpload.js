@@ -46,7 +46,7 @@ const ProfileUpload = props => {
 		isTag = false,
 		geoLocationAddress = {},
 		section = 'basicDetails',
-		selectedApplicant,
+		selectedDirector,
 		setImageLoading = () => {},
 	} = props;
 	const { app, application } = useSelector(state => state);
@@ -160,9 +160,9 @@ const ProfileUpload = props => {
 				// SELFIE DOC UPLOAD SECTION
 				if (section === 'documentUpload') {
 					const selectedIncomeType =
-						selectedApplicant?.basic_details?.[
+						selectedDirector?.basic_details?.[
 							CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-						] || selectedApplicant?.income_type;
+						] || selectedDirector?.income_type;
 
 					formData.append('white_label_id', whiteLabelId);
 					if (
@@ -172,10 +172,11 @@ const ProfileUpload = props => {
 						formData.append('lat', coordinates?.latitude || null);
 						formData.append('long', coordinates?.longitude || null);
 					}
+
 					formData.append('timestamp', coordinates?.timestamp || null);
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
-					formData.append('director_id', selectedApplicant.directorId);
+					formData.append('director_id', selectedDirector?.directorId||null);
 					formData.append('user_id', businessUserId || null);
 					formData.append(
 						'doc_type_id',
@@ -192,7 +193,7 @@ const ProfileUpload = props => {
 							document_id: resp?.data?.document_details_data?.doc_id,
 							fileId: resp?.data?.document_details_data?.doc_id,
 							doc_type_id: field?.doc_type?.[selectedIncomeType],
-							directorId: selectedApplicant.directorId,
+							directorId: selectedDirector.directorId,
 							doc_name: resp?.data?.lender_document_data?.doc_name,
 							document_key: resp?.data?.lender_document_data?.doc_name,
 							loan_bank_mapping_id:

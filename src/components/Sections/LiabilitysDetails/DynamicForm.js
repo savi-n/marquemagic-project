@@ -30,9 +30,11 @@ const DynamicForm = props => {
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId, selectDirectorOptions } = useSelector(
-		state => state.directors
-	);
+	const {
+		directors,
+		selectedDirectorId,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection } = app;
@@ -168,7 +170,7 @@ const DynamicForm = props => {
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
 					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = selectDirectorOptions;
+						newField.options = selectedDirectorOptions;
 					}
 
 					if (isViewLoan) {

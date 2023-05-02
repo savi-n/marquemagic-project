@@ -167,7 +167,9 @@ const ApplicantCoApplicantHeader = props => {
 							onYes={() => {
 								setIsDeleteDirectorModalOpen(false);
 								dispatch(setAddNewDirectorKey(''));
-								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
+								dispatch(
+									setSelectedDirectorId(+Object.keys(directors)?.pop())
+								);
 							}}
 							label={isDeleteDirectorModalOpen}
 						/>
@@ -187,6 +189,7 @@ const ApplicantCoApplicantHeader = props => {
 										onClick={() => onClickDirectorAvatar('')}
 									/>
 									<UI.AvatarName>Entity</UI.AvatarName>
+									<UI.HoverBadge>&nbsp;</UI.HoverBadge>
 								</UI.LI>
 							)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
