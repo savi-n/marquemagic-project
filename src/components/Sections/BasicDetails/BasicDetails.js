@@ -171,10 +171,9 @@ const BasicDetails = props => {
 			// loan product is is only applicable for applicant
 			// it should not be overritten when coapplicant is income type is different then applicant
 			let selectedLoanProductId = '';
-			if (isApplicant) {
-				selectedLoanProductId =
-					selectedProduct?.product_id?.[selectedIncomeType];
-			}
+			// if (isApplicant) {
+			selectedLoanProductId = selectedProduct?.product_id?.[selectedIncomeType];
+			// }
 
 			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
 				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
@@ -351,8 +350,8 @@ const BasicDetails = props => {
 					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
 					// BUT ALLOW USER TO MOVE TO NEXT SECTION
 					if (
-						(isApplicant && !selectedDirector.profileGeoLocation?.address) ||
-						(!isApplicant && !profilePicGeolocation?.address)
+						!selectedDirector.profileGeoLocation?.address ||
+						!profilePicGeolocation?.address
 					) {
 						addToast({
 							message: 'Mandatory Profile GeoLocation not captured',
