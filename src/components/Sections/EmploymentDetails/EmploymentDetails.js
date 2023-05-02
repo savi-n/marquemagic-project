@@ -230,8 +230,8 @@ const EmploymentDetails = () => {
 	// fetch section data ends
 
 	useEffect(() => {
-		if(!!selectedDirector?.section?.includes('employment_details'))
-fetchSectionDetails();
+		if (!!selectedDirector?.section?.includes('employment_details'))
+			fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 

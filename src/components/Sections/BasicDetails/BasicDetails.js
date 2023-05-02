@@ -639,7 +639,12 @@ const BasicDetails = props => {
 			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
 		}
 		// new fetch section data starts
-		if (!!loanRefId && !!selectedDirector && !!selectedDirector?.section?.includes('basic_details')) fetchSectionDetails();
+		if (
+			!!loanRefId &&
+			!!selectedDirector &&
+			!!selectedDirector?.section?.includes('basic_details')
+		)
+			fetchSectionDetails();
 		// new fetch section data ends
 
 		if (
