@@ -23,6 +23,7 @@ import {
 	getSelectedField,
 	getSelectedSubField,
 	getAllCompletedSections,
+	formatAddressType,
 } from 'utils/formatData';
 import { setLoanIds } from 'store/applicationSlice';
 import { setCompletedDirectorSection } from 'store/directorsSlice';
@@ -36,6 +37,8 @@ import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach } from 'utils/helper';
 import { useEffect } from 'react';
+import { API_END_POINT } from '_config/app.config';
+import Loading from 'components/Loading';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -50,7 +53,7 @@ const AddressDetails = props => {
 		createdByUserId,
 		businessAddressIdAid1,
 		businessAddressIdAid2,
-		cacheDocuments,
+		loanRefId,
 	} = application;
 	const {
 		isDraftLoan,
@@ -96,6 +99,8 @@ const AddressDetails = props => {
 	const [permanentAddressProofError, setPermanentAddressProofError] = useState(
 		''
 	);
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [sectionData, setSectionData] = useState({});
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [
 		isSameAsAboveAddressChecked,
@@ -490,60 +495,37 @@ const AddressDetails = props => {
 		});
 	};
 
-	const prefilledEditOrViewLoanValues = field => {
-		const preData = {
-			permanent_aadhaar: selectedDirector?.daadhaar,
-			permanent_address_proof_id_others: selectedDirector?.permanent_ddocname,
-			permanent_address_proof_id_passport: selectedDirector?.dpassport,
-			permanent_address_proof_id_dl: selectedDirector?.ddlNumber,
-			permanent_address_proof_id_voter: selectedDirector?.dvoterid,
-			permanent_address1: selectedDirector?.permanent_address1,
-			permanent_address2: selectedDirector?.permanent_address2,
-			permanent_address3: selectedDirector?.permanent_locality,
-			permanent_pin_code: selectedDirector?.permanent_pincode,
-			permanent_city: selectedDirector?.permanent_city,
-			permanent_state: selectedDirector?.permanent_state,
-			permanent_property_type: selectedDirector?.permanent_residential_type,
-			permanent_property_tenure: moment(
-				selectedDirector?.permanent_residential_stability
-			).format('YYYY-MM'),
-			// permanent_address_proof_issued_on: moment(
-			// 	selectedDirector?.issued_date
-			// ).format('DD-MM-YYYY'),
-			// permanent_address_proof_valid_till: moment(
-			// 	selectedDirector?.validity
-			// ).format('YYYY-MM-DD'),
-
-			present_aadhaar: selectedDirector?.daadhaar,
-			present_address_proof_id_others: selectedDirector?.ddocname,
-			present_address_proof_id_passport: selectedDirector?.dpassport,
-			present_address_proof_id_dl: selectedDirector?.ddlNumber,
-			present_address_proof_id_voter: selectedDirector?.dvoterid,
-			present_address1: selectedDirector?.address1,
-			present_address2: selectedDirector?.address2,
-			present_address3: selectedDirector?.locality,
-			present_pin_code: selectedDirector?.pincode,
-			present_city: selectedDirector?.city,
-			present_state: selectedDirector?.state,
-			present_property_type: selectedDirector?.residential_type,
-			present_property_tenure: moment(
-				selectedDirector?.residential_stability
-			).format('YYYY-MM'),
-		};
-		return preData?.[field?.name];
-	};
 	// console.log(selectedDirector);
 	const prefilledValues = field => {
 		try {
-			// if (isViewLoan) {
-			// 	editViewLoanValue = prefilledEditOrViewLoanValues(field) || '';
-			// }
-
 			// custom prefill only for this section
 			if (isSameAsAboveAddressChecked) {
 				return formState?.values?.[
 					field?.name?.replace(CONST.PREFIX_PRESENT, CONST.PREFIX_PERMANENT)
 				];
+			}
+
+			if (field?.name === CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME) {
+				const selectedDoc = permanentCacheDocumentsTemp?.filter(doc => {
+					return (
+						`${doc?.directorId}` === `${selectedDirectorId}` &&
+						`${doc?.document_details?.aid}` ===
+							CONST_ADDRESS_DETAILS.AID_PERMANENT
+					);
+				})?.[0];
+
+				if (!!selectedDoc) return formatAddressType(selectedDoc);
+			}
+			if (field?.name === CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME) {
+				const selectedDoc = presentCacheDocumentsTemp?.filter(doc => {
+					return (
+						`${doc?.directorId}` === `${selectedDirectorId}` &&
+						`${doc?.document_details?.aid}` ===
+							CONST_ADDRESS_DETAILS.AID_PRESENT
+					);
+				})?.[0];
+
+				if (!!selectedDoc) return formatAddressType(selectedDoc);
 			}
 
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
@@ -556,81 +538,100 @@ const AddressDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
+			const preData = {
+				permanent_address_proof_address_type:
+					sectionData?.director_details?.address_type,
 
-			if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
-				return selectedDirector?.[selectedSectionId]?.[field?.name];
-			}
+				permanent_aadhaar: sectionData?.director_details?.daadhaar,
+				permanent_address_proof_id_others:
+					sectionData?.director_details?.permanent_ddocname,
+				permanent_address_proof_id_passport:
+					sectionData?.director_details?.dpassport,
+				permanent_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
+				permanent_address_proof_id_voter:
+					sectionData?.director_details?.dvoterid,
+				permanent_address1: sectionData?.director_details?.permanent_address1,
+				permanent_address2: sectionData?.director_details?.permanent_address2,
+				permanent_address3: sectionData?.director_details?.permanent_locality,
+				permanent_pin_code: sectionData?.director_details?.permanent_pincode,
+				permanent_city: sectionData?.director_details?.permanent_city,
+				permanent_state: sectionData?.director_details?.permanent_state,
+				permanent_property_type:
+					sectionData?.director_details?.permanent_residential_type,
+				permanent_property_tenure: moment(
+					sectionData?.director_details?.permanent_residential_stability
+				).format('YYYY-MM'),
 
-			let editViewLoanValue = '';
-
-			if (isEditOrViewLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
-
-			if (editViewLoanValue) return editViewLoanValue;
-
-			return field?.value || '';
+				present_aadhaar: sectionData?.director_details?.daadhaar,
+				present_address_proof_id_others:
+					sectionData?.director_details?.ddocname,
+				present_address_proof_id_passport:
+					sectionData?.director_details?.dpassport,
+				present_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
+				present_address_proof_id_voter: sectionData?.director_details?.dvoterid,
+				present_address1: sectionData?.director_details?.address1,
+				present_address2: sectionData?.director_details?.address2,
+				present_address3: sectionData?.director_details?.locality,
+				present_pin_code: sectionData?.director_details?.pincode,
+				present_city: sectionData?.director_details?.city,
+				present_state: sectionData?.director_details?.state,
+				present_property_type: sectionData?.director_details?.residential_type,
+				present_property_tenure: moment(
+					sectionData?.director_details?.residential_stability
+				).format('YYYY-MM'),
+			};
+			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
-			return {};
+			console.error('error-fetchSectionDetails-', error);
 		}
 	};
 
-	useEffect(() => {
-		if (isEditOrViewLoan) {
-			let selectedAddressProofPermanentValue = '';
-			let selectedAddressProofPresentValue = '';
-			const filterPermanentDocs = cacheDocuments.filter(
-				doc =>
-					`${doc?.aid}` === CONST.AID_PERMANENT &&
-					`${selectedDirector?.directorId}` === `${doc?.directorId}` &&
-					CONST_SECTIONS.ADDRESS_PROOF_CLASSIFICATION_KEYS.includes(
-						doc?.classification_type
-					)
-			);
-			const filterPresentDocs = cacheDocuments.filter(
-				doc =>
-					`${doc?.aid}` === CONST.AID_PRESENT &&
-					`${selectedDirector?.directorId}` === `${doc?.directorId}` &&
-					CONST_SECTIONS.ADDRESS_PROOF_CLASSIFICATION_KEYS.includes(
-						doc?.classification_type
-					)
-			);
-			if (filterPermanentDocs?.length > 0) {
-				selectedAddressProofPermanentValue = `${CONST.PREFIX_PERMANENT}${
-					CONST_SECTIONS
-						.GET_CLASSIFICATION_KEYS_FROM_ADDRESS_PROOF_KEYS_MAPPING[
-						(filterPermanentDocs?.[0]?.classification_type)
-					]
-				}`;
-			}
-			if (filterPresentDocs?.length > 0) {
-				selectedAddressProofPresentValue = `${CONST.PREFIX_PRESENT}${
-					CONST_SECTIONS
-						.GET_CLASSIFICATION_KEYS_FROM_ADDRESS_PROOF_KEYS_MAPPING[
-						(filterPresentDocs?.[0]?.classification_type)
-					]
-				}`;
-			}
-			// console.log('addressdetails-useeffect-edit-', {
-			// 	cacheDocuments,
-			// 	filterPresentDocs,
-			// 	filterPermanentDocs,
-			// 	selectedAddressProofPermanentValue,
-			// 	selectedAddressProofPresentValue,
-			// });
-			if (selectedAddressProofPermanentValue) {
-				onChangeFormStateField({
-					name: CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
-					value: selectedAddressProofPermanentValue,
+	// fetch section data starts
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+
+			const fetchRes = await axios.get(`${API_END_POINT}/basic_details`, {
+				params: {
+					loan_ref_id: loanRefId,
+					director_id: selectedDirectorId,
+				},
+			});
+			if (fetchRes?.data?.status === 'ok') {
+				fetchRes?.data?.data?.loan_document_details?.map(doc => {
+					doc.name = doc?.uploaded_doc_name;
+					doc.doc_type_id = doc?.doctype;
+					return null;
 				});
+				setSectionData(fetchRes?.data?.data);
+
+				setPermanentCacheDocumentsTemp(
+					fetchRes?.data?.data?.loan_document_details?.filter(
+						doc =>
+							`${doc?.document_details?.aid}` === '2' &&
+							`${doc?.directorId}` === `${selectedDirectorId}` &&
+							doc?.document_details?.classification_type !== 'pan'
+					)
+				);
+				setPresentCacheDocumentsTemp(
+					fetchRes?.data?.data?.loan_document_details?.filter(
+						doc =>
+							`${doc?.document_details?.aid}` === '1' &&
+							`${doc?.directorId}` === `${selectedDirectorId}` &&
+							doc?.document_details?.classification_type !== 'pan'
+					)
+				);
 			}
-			if (selectedAddressProofPresentValue) {
-				onChangeFormStateField({
-					name: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
-					value: selectedAddressProofPresentValue,
-				});
-			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			setFetchingSectionData(false);
 		}
+	};
+	// fetch section data ends
+
+	useEffect(() => {
+		if (!!loanRefId) fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 
@@ -646,386 +647,389 @@ const AddressDetails = props => {
 
 	return (
 		<UI_SECTIONS.Wrapper>
-			{isAadhaarOtpModalOpen && (
-				<AadhaarOTPModal
-					formState={formState}
-					isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
-					setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
-					aadhaarGenOtpResponse={aadharOtpResponse?.res}
-					prePopulateAddressDetailsFromVerifyOtpRes={
-						prePopulateAddressDetailsFromVerifyOtpRes
-					}
-					setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
-				/>
-			)}
-			{selectedSection?.sub_sections?.map((sub_section, subSectionIndex) => {
-				let isInActiveAddressProofUpload = false;
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<>
+					{isAadhaarOtpModalOpen && (
+						<AadhaarOTPModal
+							formState={formState}
+							isAadhaarOtpModalOpen={isAadhaarOtpModalOpen}
+							setIsAadhaarOtpModalOpen={setIsAadhaarOtpModalOpen}
+							aadhaarGenOtpResponse={aadharOtpResponse?.res}
+							prePopulateAddressDetailsFromVerifyOtpRes={
+								prePopulateAddressDetailsFromVerifyOtpRes
+							}
+							setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
+						/>
+					)}
+					{selectedSection?.sub_sections?.map(
+						(sub_section, subSectionIndex) => {
+							let isInActiveAddressProofUpload = false;
 
-				const isPermanent = sub_section.aid === CONST.AID_PERMANENT;
-				const selectedAddressProofFieldName = isPermanent
-					? CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
-					: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME;
-				const selectedAddressProofId =
-					formState.values[selectedAddressProofFieldName];
+							const isPermanent = sub_section.aid === CONST.AID_PERMANENT;
+							const selectedAddressProofFieldName = isPermanent
+								? CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
+								: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME;
+							const selectedAddressProofId =
+								formState.values[selectedAddressProofFieldName];
 
-				const selectedAddressProofTypeOption = sub_section.fields
-					.filter(field => field.name === selectedAddressProofFieldName)?.[0]
-					?.options?.filter(o => o.value === selectedAddressProofId)?.[0];
+							const selectedAddressProofTypeOption = sub_section.fields
+								.filter(
+									field => field.name === selectedAddressProofFieldName
+								)?.[0]
+								?.options?.filter(o => o.value === selectedAddressProofId)?.[0];
 
-				const selectedDocTypeId =
-					selectedAddressProofTypeOption?.doc_type?.[selectedIncomeType];
-				const prefix = isPermanent
-					? CONST.PREFIX_PERMANENT
-					: CONST.PREFIX_PRESENT;
-				const selectedDocumentTypes = formatAddressProofDocTypeList({
-					selectedAddressProofId,
-					prefix,
-					aid: sub_section.aid,
-				});
+							const selectedDocTypeId =
+								selectedAddressProofTypeOption?.doc_type?.[selectedIncomeType];
+							const prefix = isPermanent
+								? CONST.PREFIX_PERMANENT
+								: CONST.PREFIX_PRESENT;
+							const selectedDocumentTypes = formatAddressProofDocTypeList({
+								selectedAddressProofId,
+								prefix,
+								aid: sub_section.aid,
+							});
+							if (!selectedAddressProofId) {
+								isInActiveAddressProofUpload = true;
+							}
 
-				if (!selectedAddressProofId) {
-					isInActiveAddressProofUpload = true;
-				}
+							const selectedCacheDocumentsTemp = [
+								...(isPermanent
+									? permanentCacheDocumentsTemp
+									: presentCacheDocumentsTemp),
+								...(isPermanent
+									? otherPermanentCacheDocTemp
+									: otherPresentCacheDocTemp),
+							];
 
-				let selectedCacheDocumentsTemp = [];
-				selectedCacheDocumentsTemp = [
-					...cacheDocuments.filter(
-						doc =>
-							`${doc?.directorId}` === `${selectedDirector?.directorId}` &&
-							`${doc?.aid}` === `${sub_section?.aid}` &&
-							!!doc?.classification_type &&
-							!!doc?.classification_sub_type
-					),
-					...(isPermanent
-						? permanentCacheDocumentsTemp
-						: presentCacheDocumentsTemp),
-					...(isPermanent
-						? otherPermanentCacheDocTemp
-						: otherPresentCacheDocTemp),
-				];
-				// console.log('address-details-step1-merge-all-docs-', {
-				// 	selectedAddressProofId,
-				// 	selectedDirector,
-				// 	cacheDocuments,
-				// 	otherPermanentCacheDocTemp,
-				// 	permanentCacheDocumentsTemp,
-				// 	otherPresentCacheDocTemp,
-				// 	presentCacheDocumentsTemp,
-				// 	selectedCacheDocumentsTemp,
-				// });
+							// remove after verifying above code
+							const cacheDocumentsTemp = [];
+							selectedCacheDocumentsTemp?.map(doc => {
+								const selectedDocumentType = selectedDocumentTypes?.filter(
+									docType =>
+										docType?.classification_type ===
+											doc?.document_details?.classification_type &&
+										docType?.classification_sub_type ===
+											doc?.document_details?.classification_sub_type
+								);
+								const newDoc = { ...doc };
+								if (selectedDocumentType?.length > 0) {
+									newDoc.isTagged = selectedDocumentType?.[0] || {};
+								}
+								cacheDocumentsTemp.push(newDoc);
+								return null;
+							});
 
-				// remove after verifying above code
-				const cacheDocumentsTemp = [];
-				selectedCacheDocumentsTemp?.map(doc => {
-					const selectedDocumentType = selectedDocumentTypes?.filter(
-						docType =>
-							docType?.classification_type === doc?.classification_type &&
-							docType?.classification_sub_type === doc?.classification_sub_type
-					);
-					const newDoc = { ...doc };
-					if (selectedDocumentType?.length > 0) {
-						newDoc.isTagged = selectedDocumentType?.[0] || {};
-					}
-					cacheDocumentsTemp.push(newDoc);
-					return null;
-				});
+							if (selectedAddressProofId) {
+								const isFrontTagged =
+									cacheDocumentsTemp?.filter(
+										f => f?.isTagged?.id === selectedDocumentTypes?.[0]?.id
+									).length > 0;
+								const isBackTagged =
+									cacheDocumentsTemp?.filter(
+										f => f?.isTagged?.id === selectedDocumentTypes?.[1]?.id
+									).length > 0;
+								const isFrontBackTagged =
+									cacheDocumentsTemp?.filter(
+										f => f?.isTagged?.id === selectedDocumentTypes?.[2]?.id
+									).length > 0;
+								// if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
+								// 	isProceedDisabledAddressProof = false;
+								// }
+								// if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
+								// 	isProceedDisabledAddressProof = false;
+								// }
+								if (isFrontTagged && isBackTagged && !isFrontBackTagged) {
+									isInActiveAddressProofUpload = true;
+									// isProceedDisabledAddressProof = false;
+								}
+								if (isFrontBackTagged && !isFrontTagged && !isBackTagged) {
+									isInActiveAddressProofUpload = true;
+									// isProceedDisabledAddressProof = false;
+								}
+								if (presentAddressProofError) {
+									isInActiveAddressProofUpload = true;
+									// isProceedDisabledAddressProof = true;
+								}
+								if (
+									cacheDocumentsTemp?.filter(f => !f?.isTagged?.id).length > 0
+								) {
+									isInActiveAddressProofUpload = true;
+									// isProceedDisabledAddressProof = true;
+								}
+							}
 
-				// console.log('address-details-step2-filter-by-aid-and-classification-', {
-				// 	selectedAddressProofId,
-				// 	selectedCacheDocumentsTemp,
-				// 	cacheDocumentsTemp,
-				// });
-				if (selectedAddressProofId) {
-					const isFrontTagged =
-						cacheDocumentsTemp?.filter(
-							f => f?.isTagged?.id === selectedDocumentTypes?.[0]?.id
-						).length > 0;
-					const isBackTagged =
-						cacheDocumentsTemp?.filter(
-							f => f?.isTagged?.id === selectedDocumentTypes?.[1]?.id
-						).length > 0;
-					const isFrontBackTagged =
-						cacheDocumentsTemp?.filter(
-							f => f?.isTagged?.id === selectedDocumentTypes?.[2]?.id
-						).length > 0;
-					// if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
-					// 	isProceedDisabledAddressProof = false;
-					// }
-					// if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
-					// 	isProceedDisabledAddressProof = false;
-					// }
-					if (isFrontTagged && isBackTagged && !isFrontBackTagged) {
-						isInActiveAddressProofUpload = true;
-						// isProceedDisabledAddressProof = false;
-					}
-					if (isFrontBackTagged && !isFrontTagged && !isBackTagged) {
-						isInActiveAddressProofUpload = true;
-						// isProceedDisabledAddressProof = false;
-					}
-					if (presentAddressProofError) {
-						isInActiveAddressProofUpload = true;
-						// isProceedDisabledAddressProof = true;
-					}
-					if (cacheDocumentsTemp?.filter(f => !f?.isTagged?.id).length > 0) {
-						isInActiveAddressProofUpload = true;
-						// isProceedDisabledAddressProof = true;
-					}
-				}
+							if (isSectionCompleted) {
+								isInActiveAddressProofUpload = true;
+							}
 
-				if (isSectionCompleted) {
-					isInActiveAddressProofUpload = true;
-				}
+							if (isViewLoan) {
+								isInActiveAddressProofUpload = true;
+							}
 
-				if (isViewLoan) {
-					isInActiveAddressProofUpload = true;
-				}
-
-				return (
-					<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<>
-								<UI_SECTIONS.SubSectionHeader>
-									{sub_section.name}
-								</UI_SECTIONS.SubSectionHeader>
-								<Hint
-									hint='Please upload the document with KYC image in Portrait Mode'
-									hintIconName='Portrait Mode'
-								/>
-							</>
-						) : null}
-						{sub_section.id.includes(CONST.ADDRESS_PROOF_UPLOAD_SECTION_ID) && (
-							<UI.SubSectionCustomHeader style={{ marginTop: 40 }}>
-								<h4>
-									Select any one of the documents mentioned below for{' '}
-									<strong>
-										{sub_section?.name ? 'Permanent' : 'Present'} Address
-									</strong>
-									<span style={{ color: 'red' }}>*</span>
-								</h4>
-								<h4>
-									{sub_section?.name ? null : (
+							return (
+								<Fragment key={`section-${subSectionIndex}-${sub_section?.id}`}>
+									{sub_section?.name ? (
 										<>
-											<UI.CheckboxSameAs
-												type='checkbox'
-												id={CONST.CHECKBOX_SAME_AS_ID}
-												checked={!!isSameAsAboveAddressChecked}
-												disabled={
-													isSectionCompleted ||
-													isViewLoan ||
-													!formState?.values?.[
-														CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS1_FIELD_NAME
-													]
-												}
-												onChange={() => {
-													setIsSameAsAboveAddressChecked(
-														!isSameAsAboveAddressChecked
-													);
-												}}
+											<UI_SECTIONS.SubSectionHeader>
+												{sub_section.name}
+											</UI_SECTIONS.SubSectionHeader>
+											<Hint
+												hint='Please upload the document with KYC image in Portrait Mode'
+												hintIconName='Portrait Mode'
 											/>
-											<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-												Same as Permanent Address
-											</label>
 										</>
+									) : null}
+									{sub_section.id.includes(
+										CONST.ADDRESS_PROOF_UPLOAD_SECTION_ID
+									) && (
+										<UI.SubSectionCustomHeader style={{ marginTop: 40 }}>
+											<h4>
+												Select any one of the documents mentioned below for{' '}
+												<strong>
+													{sub_section?.name ? 'Permanent' : 'Present'} Address
+												</strong>
+												<span style={{ color: 'red' }}>*</span>
+											</h4>
+											<h4>
+												{sub_section?.name ? null : (
+													<>
+														<UI.CheckboxSameAs
+															type='checkbox'
+															id={CONST.CHECKBOX_SAME_AS_ID}
+															checked={!!isSameAsAboveAddressChecked}
+															disabled={
+																isSectionCompleted ||
+																isViewLoan ||
+																!formState?.values?.[
+																	CONST_ADDRESS_DETAILS
+																		.PERMANENT_ADDRESS1_FIELD_NAME
+																]
+															}
+															onChange={() => {
+																setIsSameAsAboveAddressChecked(
+																	!isSameAsAboveAddressChecked
+																);
+															}}
+														/>
+														<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+															Same as Permanent Address
+														</label>
+													</>
+												)}
+											</h4>
+										</UI.SubSectionCustomHeader>
 									)}
-								</h4>
-							</UI.SubSectionCustomHeader>
-						)}
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								if (
-									!isFieldValid({
-										field,
-										formState,
-										isApplicant,
-									})
-								) {
-									return null;
-								}
+									<UI_SECTIONS.FormWrapGrid>
+										{sub_section?.fields?.map((field, fieldIndex) => {
+											if (
+												!isFieldValid({
+													field,
+													formState,
+													isApplicant,
+												})
+											) {
+												return null;
+											}
 
-								if (
-									sub_section.aid === CONST.AID_PRESENT &&
-									isSameAsAboveAddressChecked
-								) {
-									if (CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name))
-										return null;
-								}
-								const isVerifyWithOtpField = field.name.includes(
-									CONST.AADHAAR_FIELD_NAME
-								);
-								if (isVerifyWithOtpField) return null;
+											if (
+												sub_section.aid === CONST.AID_PRESENT &&
+												isSameAsAboveAddressChecked
+											) {
+												if (
+													CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name)
+												)
+													return null;
+											}
+											const isVerifyWithOtpField = field.name.includes(
+												CONST.AADHAAR_FIELD_NAME
+											);
+											if (isVerifyWithOtpField) return null;
 
-								const newValue = prefilledValues(field);
-								const customFieldProps = {};
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-								const customStyle = {};
+											const newValue = prefilledValues(field);
+											const customFieldProps = {};
+											if (isViewLoan) {
+												customFieldProps.disabled = true;
+											}
+											const customStyle = {};
 
-								const isIdProofUploadField =
-									field.type === 'file' &&
-									field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
+											const isIdProofUploadField =
+												field.type === 'file' &&
+												field.name.includes(CONST.ID_PROOF_UPLOAD_FIELD_NAME);
 
-								if (field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)) {
-									customStyle.gridColumn = 'span 2';
-								}
+											if (
+												field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
+											) {
+												customStyle.gridColumn = 'span 2';
+											}
 
-								if (isIdProofUploadField) {
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											style={{ gridColumn: 'span 2' }}
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											<AddressProofUpload
-												field={field}
-												register={register}
-												formState={formState}
-												onChangeFormStateField={onChangeFormStateField}
-												prefilledValues={prefilledValues}
-												prefix={prefix}
-												isPermanent={isPermanent}
-												disabled={!selectedAddressProofId}
-												isInActive={isInActiveAddressProofUpload}
-												isSectionCompleted={isSectionCompleted}
-												selectedAddressProofId={selectedAddressProofId}
-												selectedAddressProofFieldName={
-													selectedAddressProofFieldName
+											if (isIdProofUploadField) {
+												return (
+													<UI_SECTIONS.FieldWrapGrid
+														style={{ gridColumn: 'span 2' }}
+														key={`field-${fieldIndex}-${field.name}`}
+													>
+														<AddressProofUpload
+															field={field}
+															register={register}
+															formState={formState}
+															onChangeFormStateField={onChangeFormStateField}
+															prefilledValues={prefilledValues}
+															prefix={prefix}
+															isPermanent={isPermanent}
+															disabled={!selectedAddressProofId}
+															isInActive={isInActiveAddressProofUpload}
+															isSectionCompleted={isSectionCompleted}
+															selectedAddressProofId={selectedAddressProofId}
+															selectedAddressProofFieldName={
+																selectedAddressProofFieldName
+															}
+															docTypeOptions={selectedDocumentTypes}
+															addressProofUploadSection={sub_section}
+															selectedDirector={selectedDirector}
+															addressProofError={
+																isPermanent
+																	? permanentAddressProofError
+																	: presentAddressProofError
+															}
+															setAddressProofError={
+																isPermanent
+																	? setPermanentAddressProofError
+																	: setPresentAddressProofError
+															}
+															onClickVerifyWithOtp={onClickVerifyWithOtp}
+															verifyingWithOtp={verifyingWithOtp}
+															cacheDocumentsTemp={cacheDocumentsTemp}
+															setCacheDocumentsTemp={
+																isPermanent
+																	? selectedAddressProofId?.includes('others')
+																		? setOtherPermanentCacheDocTemp
+																		: setPermanentCacheDocumentsTemp
+																	: selectedAddressProofId?.includes('others')
+																	? setOtherPresentCacheDocTemp
+																	: setPresentCacheDocumentsTemp
+															}
+															selectedDocTypeId={selectedDocTypeId}
+															selectedVerifyOtp={selectedVerifyOtp}
+															isEditLoan={isEditLoan}
+															isViewLoan={isViewLoan}
+															isEditOrViewLoan={isEditOrViewLoan}
+														/>
+													</UI_SECTIONS.FieldWrapGrid>
+												);
+											}
+
+											if (
+												!!selectedVerifyOtp?.res &&
+												sub_section?.id ===
+													CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID
+											) {
+												customFieldProps.disabled = false;
+											} else if (
+												cacheDocumentsTemp?.filter(doc => !!doc?.extractionRes)
+													.length > 0
+											) {
+												customFieldProps.disabled = false;
+											} else if (selectedAddressProofId?.includes('others')) {
+												customFieldProps.disabled = false;
+											} else {
+												if (
+													!field.name.includes(
+														CONST.ADDRESS_PROOF_TYPE_FIELD_NAME
+													)
+												) {
+													customFieldProps.disabled = true;
 												}
-												docTypeOptions={selectedDocumentTypes}
-												addressProofUploadSection={sub_section}
-												selectedDirector={selectedDirector}
-												addressProofError={
-													isPermanent
-														? permanentAddressProofError
-														: presentAddressProofError
+											}
+
+											if (
+												isSectionCompleted &&
+												field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
+											) {
+												customFieldProps.disabled = true;
+											}
+
+											if (
+												isSameAsAboveAddressChecked &&
+												field.name.includes(CONST.PREFIX_PRESENT)
+											) {
+												customFieldProps.disabled = true;
+											}
+
+											// Untill permanent address1 is not filled disable present address proof
+											if (
+												field.name ===
+													CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME &&
+												!formState?.values?.[
+													CONST.PERMANENT_ADDRESS1_FIELD_NAME
+												]
+											) {
+												customFieldProps.disabled = true;
+											}
+
+											// EDIT / VIEW MODE Enable all address fields and disable all doc related fields
+											if (isSectionCompleted) {
+												if (sub_section?.id?.includes('address_details')) {
+													customFieldProps.disabled = false;
+												} else {
+													customFieldProps.disabled = true;
 												}
-												setAddressProofError={
-													isPermanent
-														? setPermanentAddressProofError
-														: setPresentAddressProofError
-												}
-												onClickVerifyWithOtp={onClickVerifyWithOtp}
-												verifyingWithOtp={verifyingWithOtp}
-												cacheDocumentsTemp={cacheDocumentsTemp}
-												setCacheDocumentsTemp={
-													isPermanent
-														? selectedAddressProofId?.includes('others')
-															? setOtherPermanentCacheDocTemp
-															: setPermanentCacheDocumentsTemp
-														: selectedAddressProofId?.includes('others')
-														? setOtherPresentCacheDocTemp
-														: setPresentCacheDocumentsTemp
-												}
-												selectedDocTypeId={selectedDocTypeId}
-												selectedVerifyOtp={selectedVerifyOtp}
-												isEditLoan={isEditLoan}
-												isViewLoan={isViewLoan}
-												isEditOrViewLoan={isEditOrViewLoan}
-											/>
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
+											}
 
-								if (
-									!!selectedVerifyOtp?.res &&
-									sub_section?.id === CONST.PERMANENT_ADDRESS_DETAILS_SECTION_ID
-								) {
-									customFieldProps.disabled = false;
-								} else if (
-									cacheDocumentsTemp?.filter(doc => !!doc?.extractionRes)
-										.length > 0
-								) {
-									customFieldProps.disabled = false;
-								} else if (selectedAddressProofId?.includes('others')) {
-									customFieldProps.disabled = false;
-								} else {
-									if (
-										!field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
-									) {
-										customFieldProps.disabled = true;
-									}
-								}
+											// TO overwrite all above condition and disable everything
+											if (isViewLoan) {
+												customFieldProps.disabled = true;
+											}
 
-								if (
-									isSectionCompleted &&
-									field.name.includes(CONST.ADDRESS_PROOF_TYPE_FIELD_NAME)
-								) {
-									customFieldProps.disabled = true;
-								}
+											// in all the scenario this fields will be always disabled
+											if (
+												field.name.includes('city') ||
+												field.name.includes('state')
+											) {
+												customFieldProps.disabled = true;
+											}
 
-								if (
-									isSameAsAboveAddressChecked &&
-									field.name.includes(CONST.PREFIX_PRESENT)
-								) {
-									customFieldProps.disabled = true;
-								}
-
-								// Untill permanent address1 is not filled disable present address proof
-								if (
-									field.name === CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME &&
-									!formState?.values?.[CONST.PERMANENT_ADDRESS1_FIELD_NAME]
-								) {
-									customFieldProps.disabled = true;
-								}
-
-								// EDIT / VIEW MODE Enable all address fields and disable all doc related fields
-								if (isSectionCompleted) {
-									if (sub_section?.id?.includes('address_details')) {
-										customFieldProps.disabled = false;
-									} else {
-										customFieldProps.disabled = true;
-									}
-								}
-
-								// TO overwrite all above condition and disable everything
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-
-								// in all the scenario this fields will be always disabled
-								if (
-									field.name.includes('city') ||
-									field.name.includes('state')
-								) {
-									customFieldProps.disabled = true;
-								}
-
-								return (
-									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${prefix}-${fieldIndex}-${field.name}`}
-										style={customStyle}
-									>
-										{register({
-											...field,
-											value: newValue,
-											visibility: 'visible',
-											...customFieldProps,
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${prefix}-${fieldIndex}-${field.name}`}
+													style={customStyle}
+												>
+													{register({
+														...field,
+														value: newValue,
+														visibility: 'visible',
+														...customFieldProps,
+													})}
+													{(formState?.submit?.isSubmited ||
+														formState?.touched?.[field.name]) &&
+														formState?.error?.[field.name] && (
+															<UI_SECTIONS.ErrorMessage>
+																{formState?.error?.[field.name]}
+															</UI_SECTIONS.ErrorMessage>
+														)}
+												</UI_SECTIONS.FieldWrapGrid>
+											);
 										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[field.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-									</UI_SECTIONS.FieldWrapGrid>
-								);
-							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onSaveAndProceed)}
-					/>
-				)}
-				<NavigateCTA />
-			</UI_SECTIONS.Footer>
+									</UI_SECTIONS.FormWrapGrid>
+								</Fragment>
+							);
+						}
+					)}
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button
+								fill
+								name='Save and Proceed'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(onSaveAndProceed)}
+							/>
+						)}
+						<NavigateCTA />
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };

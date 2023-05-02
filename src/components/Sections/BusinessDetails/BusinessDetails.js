@@ -195,7 +195,6 @@ const BuissnessDetails = props => {
 			if (!!newBusinessType) dispatch(setBusinessType(newBusinessType));
 
 			// add director starts
-			// console.log({ companyRocData });
 			if (
 				!!companyRocData &&
 				Object.values(companyRocData)?.length > 0 &&
@@ -204,10 +203,16 @@ const BuissnessDetails = props => {
 				!completedSections?.includes(selectedSectionId)
 			) {
 				try {
-					const addDirectorsReqBody = {
-						business_id: newBusinessId,
-						data: companyRocData?.directorsForShow,
-					};
+					const addDirectorsReqBody = formatSectionReqBody({
+						section: selectedSection,
+						values: {},
+						app,
+						selectedDirector,
+						application,
+						selectedLoanProductId,
+					});
+					addDirectorsReqBody.data =
+						companyRocData?.directorsForShow || companyRocData?.data?.director;
 					axios.post(API.ADD_MULTIPLE_DIRECTOR, addDirectorsReqBody);
 					// console.log({ addDirectorRes });
 				} catch (error) {
