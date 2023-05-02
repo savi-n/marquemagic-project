@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import queryString from 'query-string';
 import styled from 'styled-components';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
+import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { resetAllApplicationState } from 'utils/localStore';
 // import { FlowContext } from 'reducer/flowReducer';
 // import { FormContext } from 'reducer/formReducer';
@@ -16,12 +17,9 @@ import { setGeoLocation } from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 import Button from './Button';
-import CardSubProduct from './CardSubProduct';
 import { useState } from 'react';
 import { useToasts } from './Toast/ToastProvider';
-import Modal from 'components/Modal';
-// import Button from 'components/Button';
-import imgClose from 'assets/icons/close_icon_grey-06.svg';
+
 const Wrapper = styled.div`
 
   width: 25%;
@@ -41,27 +39,6 @@ const Wrapper = styled.div`
 margin: 1rem 0;
 width: 100%;
 	}
-`;
-
-const DivAdd = styled.div`
-	gap: 40px 0;
-	padding: 20px 0 20px 0;
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
-	/* @media (max-width: 700px) {
-		gap: 0;
-	} */
-	/* gap: 50px; */
-	/* align-items: center; */
-	/* gap: calc(12% / 3); */
-`;
-
-const ImgClose = styled.img`
-	height: 25px;
-	cursor: pointer;
-	margin-left: auto;
-	margin-right: ${({ isPreTag }) => (isPreTag ? '60px' : '10px')};
 `;
 
 const ImgDiv = styled.div`
@@ -114,8 +91,13 @@ const ButtonWrapper = styled.div`
 	padding-top: 20px;
 	padding-bottom: 20px;
 `;
+const RightArrow= styled.img`
+height: 50px;
+	cursor: pointer;
+	margin: auto;
+`
 
-export default function Card({ product, add, setAddedProduct, setAddProduct }) {
+export default function CardSubProduct({ product, add, setAddedProduct, setAddProduct }) {
 	// const {
 	// 	state: { basePageUrl },
 	// 	actions: { clearFlowDetails },
@@ -129,14 +111,12 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const { app } = useSelector(state => state);
 	const { isGeoTaggingEnabled } = app;
 	const { userToken } = app;
-	// const [addedSubProduct, setAddedSubProduct] = useState(null);
 	// const {
 	// 	actions: { removeAllLoanDocuments },
 	// } = useContext(LoanFormContext);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
-	// const [SubProduct, setAddedSubProduct]= useState(false);
+
 	// const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
 	// const { url } = useRouteMatch();
@@ -148,6 +128,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// 		data: id,
 	// 	});
 	// };
+
 	return (
 		<Wrapper>
 			<ImgDiv>
@@ -157,25 +138,23 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			<ProductName>{product.name}</ProductName>
 			{/* <ButtonBox> */}
 			<ButtonWrapper>
-				<Button
+				<RightArrow
+					src={rightArrowImg}
 					roundCorner={true}
 					loading={gettingGeoLocation}
 					fill
-					customStyle={{
-						padding: '3px 0 3px 0',
-						maxWidth: '145px',
-						fontSize: '16px',
-						background: 'rgb(42, 42, 221)',
-					}}
+					// customStyle={{
+					// 	padding: '3px 0 3px 0',
+					// 	maxWidth: '145px',
+					// 	fontSize: '16px',
+					// 	background: 'rgb(42, 42, 221)',
+					// }}
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
-					name={add ? 'Add Loan' : 'Get Loan'}
+					name="Add loan"
 					onClick={async e => {
-						// if(!!product?.sub_products){setSubProductModalOpen(true);}
+						// setSubProduct(true)
 						if (!add) {
 							try {
-								if (product?.sub_products) {
-									setSubProductModalOpen(true);
-								}
 								if (isGeoTaggingEnabled) {
 									setGettingGeoLocation(true);
 									const coordinates = await getGeoLocation();
@@ -221,9 +200,6 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (add) {
 							setAddedProduct(product);
 							setAddProduct(false);
-							if (!!product?.sub_products) {
-								setSubProductModalOpen(true);
-							}
 							return;
 						}
 						e.preventDefault();
@@ -235,10 +211,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (params?.token) {
 							redirectURL += `?token=${params.token}`;
 						}
-						// window.open(redirectURL, '_self');
-						if (!product?.sub_products || isSubProductModalOpen) {
-							window.open(redirectURL, '_self');
-						}
+						window.open(redirectURL, '_self');
 						return;
 						// }
 						// resetAllApplicationState();
@@ -251,58 +224,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					}}
 				>
 					{/* {add ? 'Add Loan' : 'Get Loan'} */}
-				</Button>
+				</RightArrow>
 				{/* {add ? 'Add Loan' : 'Get Loan'} */}
 				{/* </Button> */}
 				<Description>{product.description}</Description>
 			</ButtonWrapper>
-			<Modal
-				show={isSubProductModalOpen}
-				onClose={() => setSubProductModalOpen(false)}
-				width='80%'
-			>
-				<ImgClose
-					onClick={() => {
-						setSubProductModalOpen(false);
-					}}
-					src={imgClose}
-					alt='close'
-				/>
-				<span
-					style={{
-						font: '30px Arial, sans-serif',
-						display: 'flex',
-						justifyContent: 'center',
-					}}
-				>
-					Change Sub Product
-				</span>
-				<section className='flex flex-col gap-y-8'>
-					{/* <div style={{
-						display:'flex',
-						alignSelf:'center'
-					}}> */}
-
-					<DivAdd>
-						{/* {console.log(product?.sub_products)}; */}
-						{product &&
-							product?.sub_products &&
-							product?.sub_products.map((subProduct, idx) => {
-								// if(idx<initialLoanProductCount) return null;
-								// console.log(product+"-> "+subProduct);
-								return (
-									<CardSubProduct
-										add={add}
-										setAddedProduct={setAddProduct}
-										product={subProduct}
-										key={`product__${subProduct.id}`}
-										setAddProduct={setAddedProduct}
-									/>
-								);
-							})}
-					</DivAdd>
-				</section>
-			</Modal>
 		</Wrapper>
 	);
 }
