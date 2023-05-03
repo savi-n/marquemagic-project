@@ -547,8 +547,8 @@ export const getCompletedSections = data => {
 			// editloan adding new coapplicant
 			if (
 				isEditLoan &&
-				!editLoanDirectors.includes(`${selectedApplicant?.directorId}`) && // new director
-				directorSectionIds.includes(section?.id)
+				!editLoanDirectors?.includes(`${selectedApplicant?.directorId}`) && // new director
+				directorSectionIds?.includes(section?.id)
 			) {
 				if (
 					Object.keys(
