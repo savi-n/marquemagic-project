@@ -36,7 +36,7 @@ import * as CONST from './const';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 
-const BuissnessDetails = props => {
+const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
@@ -281,7 +281,7 @@ const BuissnessDetails = props => {
 			);
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-BuissnessDetails-onProceed-', {
+			console.error('error-BusinessDetails-onProceed-', {
 				error: error,
 				res: error?.response,
 				resres: error?.response?.response,
@@ -799,4 +799,4 @@ const BuissnessDetails = props => {
 		</UI_SECTIONS.Wrapper>
 	);
 };
-export default BuissnessDetails;
+export default BusinessDetails;

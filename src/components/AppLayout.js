@@ -6,10 +6,11 @@ import styled, { ThemeProvider } from 'styled-components';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
-import _ from 'lodash';
+// import _ from 'lodash';
 
 import {
-	setEditLoanData,
+	// setEditLoanData,
+	setEditOrViewLoan,
 	setUserDetails,
 	setWhiteLabelId as appSetWhiteLabelId,
 	setClientToken as appSetClientToken,
@@ -17,10 +18,10 @@ import {
 	setUserToken,
 } from 'store/appSlice';
 import {
-	setGeoLocation,
+	// setGeoLocation,
 	setLoanIds,
-	addOrUpdateCacheDocuments,
-	clearCacheDraftModeSectionsData,
+	// addOrUpdateCacheDocuments,
+	// clearCacheDraftModeSectionsData,
 } from 'store/applicationSlice';
 import GlobalStyle from '../components/Styles/GlobalStyles';
 import Header from 'components/Header';
@@ -36,15 +37,15 @@ import {
 	//APP_DOMAIN,
 	APP_CLIENT,
 	API_END_POINT,
-	WHITELABEL_ENCRYPTION_API,
-	GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
+	// WHITELABEL_ENCRYPTION_API,
+	// GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 } from '_config/app.config.js';
 import { AppContext } from 'reducer/appReducer';
 import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
-import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
-import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
-import { formatLoanDocuments } from 'utils/formatData';
+// import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
+// import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
+// import { formatLoanDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
@@ -132,174 +133,196 @@ const AppLayout = () => {
 			// when user comes for create / editing this loan from ui-ux
 			const params = queryString.parse(window.location.search);
 			let decryptedToken = {};
-			try {
-				decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
-				if (params?.token && decryptedToken.loan_ref_id) {
-					const loanDetailsRes = await axios.get(
-						`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${
-							decryptedToken.loan_ref_id
-						}`
-					);
-					// console.log(loanDetailsRes?.data?.data, 'data resp');
+			decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+			const isEditLoan = decryptedToken?.edit ? true : false;
+			const isViewLoan = !isEditLoan && !decryptedToken?.create;
 
-					const isEditLoan = decryptedToken.edit ? true : false;
-					const isViewLoan = !isEditLoan;
-					const newEditLoanData =
-						{
-							..._.cloneDeep(loanDetailsRes?.data?.data),
-							isEditLoan,
-							token: decryptedToken.token,
-						} || {};
+			// set the values for new flow
+			dispatch(setUserToken(decryptedToken?.token));
 
-					// Request URL: http://3.108.54.252:1337/viewloanlisting?skip=0&limit=5&search=COIT00246086
-					if (
-						isViewLoan &&
-						loanDetailsRes?.data?.data?.lender_document?.length > 0
-					) {
-						const clonedEditLoanData = _.cloneDeep(newEditLoanData);
-						const viewLoanDetailsRes = await axios.get(
-							`${API_END_POINT}/viewloanlisting?skip=0&limit=5&search=${
-								decryptedToken.loan_ref_id
-							}`,
-							{
-								headers: {
-									Authorization: `Bearer ${decryptedToken.token}`,
-								},
-							}
-						);
-						const lenderDocuments =
-							viewLoanDetailsRes?.data?.loan_details?.[0]?.lender_document;
-						lenderDocuments?.map(doc => {
-							const filteredDoc = clonedEditLoanData?.lender_document?.filter(
-								lenderDoc => {
-									return `${doc?.id}` === `${lenderDoc?.id}`;
-								}
-							)?.[0];
-							doc.loan_document_details = filteredDoc?.loan_document_details;
-							return null;
-						});
-						newEditLoanData.lender_document = lenderDocuments;
-					}
-					// console.log(newEditLoanData, 'newEditLoanData');
-					// console.log('isEdit', isEditLoan, 'isViewLoan', isViewLoan);
-					sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
-					sessionStorage.setItem('userToken', decryptedToken.token);
-					dispatch(setUserToken(decryptedToken.token));
-					dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
-					dispatch(setGeoLocation(newEditLoanData.app_coordinates));
-					// TODO: to be removed in M1.5
-					const isDraftLoan =
-						newEditLoanData?.loan_status_id === 1 &&
-						newEditLoanData?.loan_sub_status_id === 1;
-					if (isDraftLoan) {
-						dispatch(clearCacheDraftModeSectionsData());
-					}
-					// TODO: -- to be removed in M1.5
-					dispatch(
-						setLoanIds({
-							loanRefId: newEditLoanData?.loan_ref_id,
-							loanId: newEditLoanData?.id,
-							businessId: newEditLoanData?.business_id?.id,
-							businessUserId: newEditLoanData?.business_id?.userid,
-							loanProductId: newEditLoanData?.loan_product_id,
-							createdByUserId: newEditLoanData?.createdUserId,
-							loanAssetsId: newEditLoanData?.loan_assets?.[0]?.id,
-							assetsAdditionalId: newEditLoanData?.assets_additional_id,
-							refId1: newEditLoanData?.reference_details?.[0]?.id,
-							refId2: newEditLoanData?.reference_details?.[1]?.id,
-							bankDetailsFinId: newEditLoanData?.bank_details?.filter(
-								bank =>
-									bank?.fin_type === CONST_BANK_DETAILS.FIN_TYPE_BANK_ACCOUNT
-							)?.[0]?.id,
-							emiDetailsFinId: newEditLoanData?.bank_details?.filter(
-								bank =>
-									bank?.fin_type ===
-									CONST_EMI_DETAILS.FIN_TYPE_OUTSTANDING_LOANS
-							)?.[0]?.id,
-							businessAddressIdAid1: newEditLoanData?.business_address?.filter(
-								address => `${address?.aid}` === '1'
-							)?.[0]?.id,
-							businessAddressIdAid2: newEditLoanData?.business_address?.filter(
-								address => `${address?.aid}` === '2'
-							)?.[0]?.id,
-						})
-					);
-					const newDocs = formatLoanDocuments(
-						newEditLoanData?.loan_document || []
-					);
-					let newLenderDocs = [];
-					if (newEditLoanData?.lender_document.length > 0) {
-						newLenderDocs = formatLoanDocuments(
-							newEditLoanData?.lender_document || []
-						);
-					}
-					// const newLenderDocs = formatLenderDocs(
-					// 	newEditLoanData?.lender_document || []
-					// );
-					// const newDocs = [];
-					// newEditLoanData?.loan_document?.map(doc => {
-					// 	const newDoc = {
-					// 		...(doc?.loan_document_details?.[0] || {}),
-					// 		...doc,
-					// 		document_id: doc?.id,
-					// 		doc_type_id: doc.doctype,
-					// 		name: getDocumentNameFromLoanDocuments(doc),
-					// 	};
-					// 	newDocs.push(newDoc);
-					// 	return null;
-					// });
-					dispatch(
-						addOrUpdateCacheDocuments({
-							files: [...newDocs, ...newLenderDocs],
-						})
-					);
+			dispatch(
+				setLoanIds({
+					loanRefId: decryptedToken?.loan_ref_id,
+				})
+			);
 
-					if (!sessionStorage.getItem('encryptWhiteLabel')) {
-						const encryptWhiteLabelReq = await newRequest(
-							WHITELABEL_ENCRYPTION_API,
-							{
-								method: 'GET',
-							},
-							{ Authorization: `Bearer ${decryptedToken.token}` }
-						);
+			dispatch(
+				setEditOrViewLoan({
+					isEditLoan,
+					isViewLoan,
+				})
+			);
 
-						const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+			// try {
+			// 	decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
+			// 	if (params?.token && decryptedToken.loan_ref_id) {
+			// 		const loanDetailsRes = await axios.get(
+			// 			`${GE_LOAN_DETAILS_WITH_LOAN_REF_ID}?loan_ref_id=${
+			// 				decryptedToken.loan_ref_id
+			// 			}`
+			// 		);
+			// 		// console.log(loanDetailsRes?.data?.data, 'data resp');
 
-						sessionStorage.setItem(
-							'encryptWhiteLabel',
-							encryptWhiteLabelRes.encrypted_whitelabel[0]
-						);
-					}
+			// 		const isEditLoan = decryptedToken.edit ? true : false;
+			// 		const isViewLoan = !isEditLoan;
+			// 		const newEditLoanData =
+			// 			{
+			// 				..._.cloneDeep(loanDetailsRes?.data?.data),
+			// 				isEditLoan,
+			// 				token: decryptedToken.token,
+			// 			} || {};
 
-					// CreateUser
-					// TODO: integrate create-user api for view/edit mode
-					// const reqBody = {
-					// 	email: formState?.values?.Email || '',
-					// 	white_label_id: whiteLabelId,
-					// 	source: APP_CLIENT,
-					// 	name: formState?.values?.BusinessName,
-					// 	mobileNo: formState?.values?.mobileNo,
-					// };
-					// if (sessionStorage.getItem('userDetails')) {
-					// 	try {
-					// 		reqBody.user_id =
-					// 			JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
-					// 	} catch (err) {
-					// 		return err;
-					// 	}
-					// }
-					// const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
-					// 	method: 'POST',
-					// 	data: reqBody,
-					// });
-					// const userDetailsRes = userDetailsReq.data;
-					// sessionStorage.setItem('userToken', userDetailsRes.token);
-					// -- CreateUser
-				}
-			} catch (error) {
-				console.error('error-getDetailsWithLoanRefId-', error);
-				// window.open('/somethingwentwrong', '_self');
-			}
+			// 		// Request URL: http://3.108.54.252:1337/viewloanlisting?skip=0&limit=5&search=COIT00246086
+			// 		if (
+			// 			isViewLoan &&
+			// 			loanDetailsRes?.data?.data?.lender_document?.length > 0
+			// 		) {
+			// 			const clonedEditLoanData = _.cloneDeep(newEditLoanData);
+			// 			const viewLoanDetailsRes = await axios.get(
+			// 				`${API_END_POINT}/viewloanlisting?skip=0&limit=5&search=${
+			// 					decryptedToken.loan_ref_id
+			// 				}`,
+			// 				{
+			// 					headers: {
+			// 						Authorization: `Bearer ${decryptedToken.token}`,
+			// 					},
+			// 				}
+			// 			);
+			// 			const lenderDocuments =
+			// 				viewLoanDetailsRes?.data?.loan_details?.[0]?.lender_document;
+			// 			lenderDocuments?.map(doc => {
+			// 				const filteredDoc = clonedEditLoanData?.lender_document?.filter(
+			// 					lenderDoc => {
+			// 						return `${doc?.id}` === `${lenderDoc?.id}`;
+			// 					}
+			// 				)?.[0];
+			// 				doc.loan_document_details = filteredDoc?.loan_document_details;
+			// 				return null;
+			// 			});
+			// 			newEditLoanData.lender_document = lenderDocuments;
+			// 		}
+			// 		// console.log(newEditLoanData, 'newEditLoanData');
+			// 		// console.log('isEdit', isEditLoan, 'isViewLoan', isViewLoan);
+			// 		sessionStorage.setItem('editLoan', JSON.stringify(newEditLoanData));
+			// 		sessionStorage.setItem('userToken', decryptedToken.token);
+			// 		dispatch(setUserToken(decryptedToken.token));
+			// 		dispatch(setEditLoanData({ editLoanData: newEditLoanData }));
+			// 		dispatch(setGeoLocation(newEditLoanData.app_coordinates));
+			// 		// TODO: to be removed in M1.5
+			// 		const isDraftLoan =
+			// 			newEditLoanData?.loan_status_id === 1 &&
+			// 			newEditLoanData?.loan_sub_status_id === 1;
+			// 		if (isDraftLoan) {
+			// 			dispatch(clearCacheDraftModeSectionsData());
+			// 		}
+			// 		// TODO: -- to be removed in M1.5
+			// 		dispatch(
+			// 			setLoanIds({
+
+			// 				loanRefId: newEditLoanData?.loan_ref_id,-- needed - done
+			// 				loanId: newEditLoanData?.id,-- needed - done
+			// 				businessId: newEditLoanData?.business_id?.id,-- needed - done
+			// 				businessUserId: newEditLoanData?.business_id?.userid,-- done
+			// 				loanProductId: newEditLoanData?.loan_product_id,-- done
+			// 				createdByUserId: newEditLoanData?.createdUserId,-- done
+
+			// 				loanAssetsId: newEditLoanData?.loan_assets?.[0]?.id,
+			// 				assetsAdditionalId: newEditLoanData?.assets_additional_id,
+			// 				refId1: newEditLoanData?.reference_details?.[0]?.id,
+			// 				refId2: newEditLoanData?.reference_details?.[1]?.id,
+			// 				bankDetailsFinId: newEditLoanData?.bank_details?.filter(
+			// 					bank =>
+			// 						bank?.fin_type === CONST_BANK_DETAILS.FIN_TYPE_BANK_ACCOUNT
+			// 				)?.[0]?.id,
+			// 				emiDetailsFinId: newEditLoanData?.bank_details?.filter(
+			// 					bank =>
+			// 						bank?.fin_type ===
+			// 						CONST_EMI_DETAILS.FIN_TYPE_OUTSTANDING_LOANS
+			// 				)?.[0]?.id,
+			// 				businessAddressIdAid1: newEditLoanData?.business_address?.filter(
+			// 					address => `${address?.aid}` === '1'
+			// 				)?.[0]?.id,
+			// 				businessAddressIdAid2: newEditLoanData?.business_address?.filter(
+			// 					address => `${address?.aid}` === '2'
+			// 				)?.[0]?.id,
+			// 			})
+			// 		);
+			// 		const newDocs = formatLoanDocuments(
+			// 			newEditLoanData?.loan_document || []
+			// 		);
+			// 		let newLenderDocs = [];
+			// 		if (newEditLoanData?.lender_document.length > 0) {
+			// 			newLenderDocs = formatLoanDocuments(
+			// 				newEditLoanData?.lender_document || []
+			// 			);
+			// 		}
+			// 		// const newLenderDocs = formatLenderDocs(
+			// 		// 	newEditLoanData?.lender_document || []
+			// 		// );
+			// 		// const newDocs = [];
+			// 		// newEditLoanData?.loan_document?.map(doc => {
+			// 		// 	const newDoc = {
+			// 		// 		...(doc?.loan_document_details?.[0] || {}),
+			// 		// 		...doc,
+			// 		// 		document_id: doc?.id,
+			// 		// 		doc_type_id: doc.doctype,
+			// 		// 		name: getDocumentNameFromLoanDocuments(doc),
+			// 		// 	};
+			// 		// 	newDocs.push(newDoc);
+			// 		// 	return null;
+			// 		// });
+			// 		dispatch(
+			// 			addOrUpdateCacheDocuments({
+			// 				files: [...newDocs, ...newLenderDocs],
+			// 			})
+			// 		);
+
+			// 		if (!sessionStorage.getItem('encryptWhiteLabel')) {
+			// 			const encryptWhiteLabelReq = await newRequest(
+			// 				WHITELABEL_ENCRYPTION_API,
+			// 				{
+			// 					method: 'GET',
+			// 				},
+			// 				{ Authorization: `Bearer ${decryptedToken.token}` }
+			// 			);
+
+			// 			const encryptWhiteLabelRes = encryptWhiteLabelReq.data;
+
+			// 			sessionStorage.setItem(
+			// 				'encryptWhiteLabel',
+			// 				encryptWhiteLabelRes.encrypted_whitelabel[0]
+			// 			);
+			// 		}
+
+			// 		// CreateUser
+			// 		// TODO: integrate create-user api for view/edit mode
+			// 		// const reqBody = {
+			// 		// 	email: formState?.values?.Email || '',
+			// 		// 	white_label_id: whiteLabelId,
+			// 		// 	source: APP_CLIENT,
+			// 		// 	name: formState?.values?.BusinessName,
+			// 		// 	mobileNo: formState?.values?.mobileNo,
+			// 		// };
+			// 		// if (sessionStorage.getItem('userDetails')) {
+			// 		// 	try {
+			// 		// 		reqBody.user_id =
+			// 		// 			JSON.parse(sessionStorage.getItem('userDetails'))?.id || null;
+			// 		// 	} catch (err) {
+			// 		// 		return err;
+			// 		// 	}
+			// 		// }
+			// 		// const userDetailsReq = await newRequest(LOGIN_CREATEUSER, {
+			// 		// 	method: 'POST',
+			// 		// 	data: reqBody,
+			// 		// });
+			// 		// const userDetailsRes = userDetailsReq.data;
+			// 		// sessionStorage.setItem('userToken', userDetailsRes.token);
+			// 		// -- CreateUser
+			// 	}
+			// } catch (error) {
+			// 	console.error('error-getDetailsWithLoanRefId-', error);
+			// 	// window.open('/somethingwentwrong', '_self');
+			// }
 			try {
 				if (params.cid || params.uid || decryptedToken?.userId) {
 					let UID = params?.cid || params?.uid || '';
