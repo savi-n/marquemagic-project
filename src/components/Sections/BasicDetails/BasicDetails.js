@@ -338,7 +338,7 @@ const BasicDetails = props => {
 				})
 			);
 			if (addNewDirectorKey) {
-				dispatch(getDirectors(newBusinessId));
+				dispatch(getDirectors(newLoanRefId));
 				dispatch(setAddNewDirectorKey(''));
 			}
 			dispatch(setSelectedSectionId(nextSectionId));
