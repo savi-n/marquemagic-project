@@ -26,7 +26,6 @@ import {
 	formatAddressType,
 	isDirectorApplicant,
 } from 'utils/formatData';
-import { setLoanIds } from 'store/applicationSlice';
 import { setCompletedDirectorSection } from 'store/directorsSlice';
 import { isInvalidAadhaar } from 'utils/validation';
 import * as API from '_config/app.config';
@@ -53,8 +52,6 @@ const AddressDetails = props => {
 		loanId,
 		businessUserId,
 		createdByUserId,
-		businessAddressIdAid1,
-		businessAddressIdAid2,
 		loanRefId,
 	} = application;
 	const {
@@ -103,6 +100,10 @@ const AddressDetails = props => {
 	);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
+	const [editSectionIds, setEditSectionIds] = useState({
+		businessAddressIdAid1: '',
+		businessAddressIdAid2: '',
+	});
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [
 		isSameAsAboveAddressChecked,
@@ -193,6 +194,7 @@ const AddressDetails = props => {
 
 	const onSaveAndProceed = async () => {
 		try {
+			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
 			if (
 				!formState?.values?.present_city ||
 				!formState?.values?.present_state ||
@@ -453,16 +455,14 @@ const AddressDetails = props => {
 					console.error('error-', error);
 				}
 			}
-			dispatch(
-				setLoanIds({
-					businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
-						address => address.aid === 1
-					)?.[0]?.id,
-					businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
-						address => address.aid === 2
-					)?.[0]?.id,
-				})
-			);
+			setEditSectionIds({
+				businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
+					address => address.aid === 1
+				)?.[0]?.id,
+				businessAddressIdAid2: addressDetailsRes?.data?.data?.business_address_data?.filter(
+					address => address.aid === 2
+				)?.[0]?.id,
+			});
 			dispatch(setCompletedDirectorSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
