@@ -58,20 +58,22 @@ const AddressProofUpload = props => {
 		isEditOrViewLoan,
 	} = props;
 
-	// console.log(
+	// console.log({
+	// 	selectedAddressProofFieldName,
+	// 	selectedAddressProofId,
+	// 	addressProofUploadSection,
+	// 	prefilledValues,
 	// 	cacheDocumentsTemp,
-	// 	'< cachedocstemp -- 888 addressproofupload > prefilleddocs',
-	// 	prefilledDocs,
-	// 	'docTypeOptions',
-	// 	docTypeOptions
-	// );
+	// 	setCacheDocumentsTemp,
+	// 	selectedDocTypeId,
+	// });
 	let { addressProofError } = props;
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const { selectedProduct, clientToken, editLoanData } = app;
+	const { selectedProduct, clientToken, editLoanData, selectedSectionId } = app;
 	const { loanId, businessUserId } = application;
 	const directorDetails = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
@@ -1239,7 +1241,10 @@ const AddressProofUpload = props => {
 													</div>
 												) : (
 													isDocRemoveAllowed &&
-													!isViewLoan && (
+													!isEditOrViewLoan &&
+													!selectedDirector?.sections?.includes(
+														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
+													) && (
 														<UI.ImgClose
 															style={{ height: '20px' }}
 															src={isViewMore ? imgArrowDownCircle : imgClose}
@@ -1265,7 +1270,8 @@ const AddressProofUpload = props => {
 					{!addressProofError &&
 						!selectedAddressProofId?.includes('others') &&
 						!!taggedDocumentCount &&
-						doNotHideFetchAddress && (
+						doNotHideFetchAddress &&
+						!selectedDirector?.sections?.includes(selectedSectionId) && (
 							<Button
 								fill
 								name='Fetch Address'

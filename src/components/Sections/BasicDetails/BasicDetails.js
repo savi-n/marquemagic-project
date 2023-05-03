@@ -121,7 +121,9 @@ const BasicDetails = props => {
 	const isPanNumberExist = !!formState.values.pan_number;
 
 	const tempPanUploadedFile = !!sectionData?.loan_document_details
-		? sectionData?.loan_document_details?.[0]
+		? sectionData?.loan_document_details?.filter(
+				doc => doc?.document_details?.classification_type === 'pan'
+		  )?.[0]
 		: null;
 
 	const selectedProfileField = getSelectedField({
