@@ -45,10 +45,10 @@ const initialState = {
 
 export const getDirectors = createAsyncThunk(
 	'getDirectors',
-	async (businessId, { rejectWithValue }) => {
+	async (loanRefId, { rejectWithValue }) => {
 		try {
 			const directorsRes = await axios.get(
-				`${API_END_POINT}/director_details?business_id=${businessId}`
+				`${API_END_POINT}/director_details?loan_ref_id=${loanRefId}`
 			);
 			return directorsRes?.data?.data || [];
 		} catch (error) {
@@ -103,7 +103,7 @@ export const directorsSlice = createSlice({
 					lastDirector = newDirectorObject;
 				}
 
-				if (director.type_name === DIRECTOR_TYPES.applicant) {
+				if (newDirectorObject.type_name === DIRECTOR_TYPES.applicant) {
 					newIsEntity = false;
 					applicantDirector = newDirectorObject;
 				}
@@ -124,7 +124,8 @@ export const directorsSlice = createSlice({
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;
 			state.selectedDirectorOptions = newSelectedDirectorOptions;
-			state.applicantDirectorId = `${applicantDirector?.directorId}` || '';
+			state.applicantDirectorId =
+				`${applicantDirector?.directorId || ''}` || '';
 			if (newSelectedDirectorOptions.length === 0) {
 				state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 			}

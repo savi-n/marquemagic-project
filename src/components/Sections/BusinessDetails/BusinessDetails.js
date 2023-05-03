@@ -36,7 +36,7 @@ import * as CONST from './const';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 
-const BuissnessDetails = props => {
+const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
@@ -88,7 +88,6 @@ const BuissnessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
-
 	const {
 		handleSubmit,
 		register,
@@ -97,7 +96,6 @@ const BuissnessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const selectedIncomeType = 'business';
 	const completedSections = getCompletedSections({
 		selectedProduct,
 		application,
@@ -110,6 +108,8 @@ const BuissnessDetails = props => {
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
 		selectedSection,
 	});
+	const selectedIncomeType =
+		formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME] || {};
 	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
 	const isPanNumberExist = !!formState?.values?.pan_number;
 	const panUploadedFile =
@@ -281,7 +281,7 @@ const BuissnessDetails = props => {
 			);
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-BuissnessDetails-onProceed-', {
+			console.error('error-BusinessDetails-onProceed-', {
 				error: error,
 				res: error?.response,
 				resres: error?.response?.response,
@@ -411,6 +411,9 @@ const BuissnessDetails = props => {
 							businessId:
 								responseData?.business_details?.id ||
 								responseData?.loan_data?.business_id?.id,
+							businessUserId: fetchRes?.data?.data?.business_details?.userid,
+							loanProductId: fetchRes?.data?.data?.loan_data?.loan_product_id,
+							createdByUserId: fetchRes?.data?.data?.loan_data?.createdUserId,
 						})
 					);
 				}
@@ -440,7 +443,7 @@ const BuissnessDetails = props => {
 			);
 		}
 		//new get api
-		if (!!businessId && !!loanId) fetchSectionDetails();
+		if ((!!businessId && !!loanId) || loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
 	const ButtonProceed = (
@@ -799,4 +802,4 @@ const BuissnessDetails = props => {
 		</UI_SECTIONS.Wrapper>
 	);
 };
-export default BuissnessDetails;
+export default BusinessDetails;

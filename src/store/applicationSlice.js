@@ -1,15 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
-/*
-bankDetailsFinId,
-	fin_type = Bank Account
-	fin_id pass this id in api for update
-emiDetailsFinId
-	fin_type = Outstanding Loans
-	fin_id pass this id in api for update
-*/
-
 const initialState = {
 	borrowerUserId: '',
 	loanRefId: '',
@@ -19,14 +10,6 @@ const initialState = {
 	businessUserId: '',
 	loanProductId: '',
 	createdByUserId: '',
-	loanAssetsId: '',
-	assetsAdditionalId: '',
-	refId1: '',
-	refId2: '',
-	bankDetailsFinId: '',
-	emiDetailsFinId: '',
-	businessAddressIdAid1: '',
-	businessAddressIdAid2: '',
 	sections: [],
 	documents: [],
 	cacheDocuments: [],
@@ -50,14 +33,6 @@ export const applicationSlice = createSlice({
 				businessUserId,
 				loanProductId,
 				createdByUserId,
-				loanAssetsId,
-				assetsAdditionalId,
-				refId1,
-				refId2,
-				bankDetailsFinId,
-				emiDetailsFinId,
-				businessAddressIdAid1,
-				businessAddressIdAid2,
 				borrowerUserId,
 			} = action.payload;
 			if (loanRefId) state.loanRefId = loanRefId;
@@ -66,16 +41,6 @@ export const applicationSlice = createSlice({
 			if (businessUserId) state.businessUserId = businessUserId;
 			if (loanProductId) state.loanProductId = loanProductId;
 			if (createdByUserId) state.createdByUserId = createdByUserId;
-			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
-			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
-			if (refId1) state.refId1 = refId1;
-			if (refId2) state.refId2 = refId2;
-			if (bankDetailsFinId) state.bankDetailsFinId = bankDetailsFinId;
-			if (emiDetailsFinId) state.emiDetailsFinId = emiDetailsFinId;
-			if (businessAddressIdAid1)
-				state.businessAddressIdAid1 = businessAddressIdAid1;
-			if (businessAddressIdAid2)
-				state.businessAddressIdAid2 = businessAddressIdAid2;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
 		setCompletedApplicationSection: (state, { payload }) => {

@@ -338,7 +338,7 @@ const BasicDetails = props => {
 				})
 			);
 			if (addNewDirectorKey) {
-				dispatch(getDirectors(newBusinessId));
+				dispatch(getDirectors(newLoanRefId));
 				dispatch(setAddNewDirectorKey(''));
 			}
 			dispatch(setSelectedSectionId(nextSectionId));
@@ -610,6 +610,18 @@ const BasicDetails = props => {
 				setFetchedProfilePic(
 					fetchRes?.data?.data?.director_details?.customer_picture
 				);
+				// setting values for edit loan
+				dispatch(
+					setLoanIds({
+						businessId: fetchRes?.data?.data?.business_data?.id,
+						loanId: fetchRes?.data?.data?.loan_request_Data?.id,
+						businessUserId: fetchRes?.data?.data?.business_data?.userid,
+						loanProductId:
+							fetchRes?.data?.data?.loan_request_Data?.loan_product_id,
+						createdByUserId:
+							fetchRes?.data?.data?.loan_request_Data?.createdUserId,
+					})
+				);
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -643,8 +655,8 @@ const BasicDetails = props => {
 		// new fetch section data starts
 		if (
 			!!loanRefId &&
-			!!selectedDirector &&
-			!!selectedDirector?.section?.includes('basic_details')
+			!!selectedDirector
+			//&& !!selectedDirector?.section?.includes('basic_details')
 		)
 			fetchSectionDetails();
 		// new fetch section data ends

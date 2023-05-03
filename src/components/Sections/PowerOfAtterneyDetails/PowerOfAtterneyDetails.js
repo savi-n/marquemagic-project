@@ -94,12 +94,12 @@ const PowerOfAtterneyDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	console.log('PowerOfAtterneyDetails-allstates-', {
-		app,
-		selectedSection,
-		isCreateFormOpen,
-		editSectionId,
-	});
+	// console.log('PowerOfAtterneyDetails-allstates-', {
+	// 	app,
+	// 	selectedSection,
+	// 	isCreateFormOpen,
+	// 	editSectionId,
+	// });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
