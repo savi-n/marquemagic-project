@@ -171,6 +171,20 @@ export const directorsSlice = createSlice({
 				console.log('error-setCompletedDirectorSection-', e);
 			}
 		},
+		setNewCompletedDirectorSections: (state, { payload }) => {
+			// payload --> accepts object with directorId's as keys and array of completed sections as values for all the directors eg: {999888: [basic_details, address_details]}
+			const currentState = current(state);
+			const { directors } = currentState;
+			const newDirectors = _.cloneDeep(directors);
+
+			Object.keys(payload).map(dir => {
+				if (newDirectors?.hasOwnProperty(dir)) {
+					newDirectors[dir].sections = payload?.[dir];
+				}
+				return null;
+			});
+			state.directors = newDirectors;
+		},
 
 		// SET GEOLOCATION FOR PROFILE PICTURE
 		setProfileGeoLocation: (state, { payload }) => {
@@ -216,6 +230,7 @@ export const {
 	setDirector,
 	setSelectedDirectorId,
 	setCompletedDirectorSection,
+	setNewCompletedDirectorSections,
 
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
