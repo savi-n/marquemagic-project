@@ -33,6 +33,7 @@ export const initialFormState = {
 	mother_name: 'Mother Name',
 	upi_id: '1111111',
 	relationship_with_applicant: 'Father',
+	name: 'const jijo',
 };
 
 export const FIRST_NAME_FIELD_NAME = 'first_name';
