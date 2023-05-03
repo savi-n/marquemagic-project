@@ -18,10 +18,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import {
-	setCompletedApplicationSection,
-	setLoanIds,
-} from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { extractPincode } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
@@ -71,6 +68,14 @@ const BusinessAddressDetails = props => {
 
 	const selectedLoanProductId = selectedProduct?.product_id?.['business'] || '';
 	const [sectionData, setSectionData] = useState([]);
+	const [
+		,
+		// editSectionIds
+		setEditSectionIds,
+	] = useState({
+		businessAddressIdAid1: '',
+		businessAddressIdAid2: '',
+	});
 	const [gstAndUan, setGstAndUan] = useState({});
 	const [gstNumbers, setGstNumbers] = useState([]);
 	const [udyamData, setUdyamData] = useState({});
@@ -331,21 +336,24 @@ const BusinessAddressDetails = props => {
 			businessAddressDetailReqBody.data.business_address_details = tempAddress;
 			// delete businessAddressDetailReqBody?.data?.address_details;
 			// temp changes ends
+
+			// TODO: Shreyas verify edit mode whether address is getting updated or not
+			// if not pass businessaddressasadi1 and 2
+			// editSectionIds
+
 			const businessAddressDetailRes = await axios.post(
 				API.BUSINESS_ADDRESS_DETAILS,
 				businessAddressDetailReqBody
 			);
 
-			dispatch(
-				setLoanIds({
-					businessAddressIdAid1: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
-						address => address.aid === 1
-					)?.[0]?.id,
-					businessAddressIdAid2: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
-						address => address.aid === 2
-					)?.[0]?.id,
-				})
-			);
+			setEditSectionIds({
+				businessAddressIdAid1: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
+					address => address.aid === 1
+				)?.[0]?.id,
+				businessAddressIdAid2: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
+					address => address.aid === 2
+				)?.[0]?.id,
+			});
 			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {

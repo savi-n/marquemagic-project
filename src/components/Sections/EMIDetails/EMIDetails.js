@@ -9,10 +9,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import useForm from 'hooks/useFormIndividual';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
-import {
-	setCompletedApplicationSection,
-	setLoanIds,
-} from 'store/applicationSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	createIndexKeyObjectFromArrayOfObject,
 	formatSectionReqBody,
@@ -95,14 +92,10 @@ const EMIDetails = props => {
 			// });
 			// return;
 			if (emiDetailsReqBody.data.emi_details?.length > 0) {
-				const emiDetailsRes = await axios.post(
+				await axios.post(
 					`${API_END_POINT}/addBankDetailsNew`,
 					emiDetailsReqBody
 				);
-				if (!emiDetailsFinId)
-					dispatch(
-						setLoanIds({ emiDetailsFinId: emiDetailsRes?.data?.data?.id })
-					);
 			}
 			// console.log('-emiDetailsRes-', {
 			// 	emiDetailsRes,
