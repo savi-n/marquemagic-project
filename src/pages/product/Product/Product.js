@@ -37,6 +37,7 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 
 const Product = props => {
 	const { product } = props;
@@ -126,6 +127,10 @@ const Product = props => {
 	// for reseting formstate
 	useEffect(() => {
 		if (!selectedSectionId) return;
+
+		// doc upload get api is called only once for all directors so avoid rerender
+		if (selectedSectionId === DOCUMENT_UPLOAD_SECTION_ID) return;
+
 		setLoading(true);
 		sleep(100).then(res => {
 			setLoading(false);
