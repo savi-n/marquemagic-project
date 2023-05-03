@@ -58,7 +58,7 @@ export const BadgeInvalid = styled.div`
 	height: 12px;
 	width: 12px;
 	top: 0;
-	margin-top: 30px;
+	margin-top: 15px;
 	margin-left: 50px;
 	background-color: #dc3545;
 	border-radius: 25px;
@@ -104,5 +104,4 @@ export const HoverBadge = styled.div`
 	padding: 4px 8px;
 	font-size: 12px;
 	text-transform: capitalize;
-	z-index: 999;
 `;
