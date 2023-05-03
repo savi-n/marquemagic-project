@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { Fragment, useState } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setSelectedSectionId } from 'store/appSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 import {
 	formatGetSectionReqBody,
 	formatINR,
-	getApplicantCoApplicantSelectOptions,
 	parseJSON,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
@@ -22,19 +22,9 @@ import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
 
 const LiabilitysDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		prevSectionId,
-		isLocalhost,
-		isTestMode,
-		isEditLoan,
-		selectedSection,
-	} = app;
+	const { app, application } = useSelector(state => state);
+	const { selectedDirectorOptions } = useSelector(state => state.directors);
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -55,7 +45,6 @@ const LiabilitysDetails = props => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/liability_details?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -77,29 +66,8 @@ const LiabilitysDetails = props => {
 		}
 	};
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = {};
-		}
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -124,7 +92,7 @@ const LiabilitysDetails = props => {
 		setOpenAccordianId('');
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -174,19 +142,21 @@ const LiabilitysDetails = props => {
 															<span>Liability For:</span>
 															<strong>
 																{
-																	getApplicantCoApplicantSelectOptions({
-																		applicantCoApplicants,
-																	})?.filter(
+																	selectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
+																			`${
+																				prefillData?.director_id
+																			}`
 																	)?.[0]?.name
 																}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Type of Liability:</span>
-															<strong>{prefillData?.fin_type}</strong>
+															<strong>
+																{prefillData?.fin_type}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
@@ -202,7 +172,10 @@ const LiabilitysDetails = props => {
 												<UI_SECTIONS.AccordianHeaderData
 													style={
 														isAccordianOpen
-															? { marginLeft: 'auto', flex: 'none' }
+															? {
+																	marginLeft: 'auto',
+																	flex: 'none',
+															  }
 															: { flex: 'none' }
 													}
 												>
@@ -211,8 +184,15 @@ const LiabilitysDetails = props => {
 															src={editIcon}
 															alt='edit'
 															onClick={() => {
-																if (isCreateFormOpen || isEditLoan) return;
-																toggleAccordian(sectionId, 'open');
+																if (
+																	isCreateFormOpen ||
+																	isEditLoan
+																)
+																	return;
+																toggleAccordian(
+																	sectionId,
+																	'open'
+																);
 																setTimeout(() => {
 																	setEditSectionId(sectionId);
 																}, 200);
@@ -231,12 +211,17 @@ const LiabilitysDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
-															if (isCreateFormOpen || isEditLoan) return;
+															if (
+																isCreateFormOpen ||
+																isEditLoan
+															)
+																return;
 															toggleAccordian(sectionId);
 														}}
 														style={{
 															transform: 'rotate(90deg)',
-															...(isCreateFormOpen || isEditLoan
+															...(isCreateFormOpen ||
+															isEditLoan
 																? {
 																		cursor: 'not-allowed',
 																		visibility: 'hidden',
@@ -246,20 +231,29 @@ const LiabilitysDetails = props => {
 													/>
 												</UI_SECTIONS.AccordianHeaderData>
 											</UI_SECTIONS.AccordianHeader>
-											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
-												{isAccordianOpen && !isCreateFormOpen && (
-													<DynamicForm
-														fields={sub_section?.fields || []}
-														prefillData={prefillData}
-														onSaveOrUpdateSuccessCallback={
-															onSaveOrUpdateSuccessCallback
-														}
-														onCancelCallback={onCancelCallback}
-														isEditLoan={isEditLoan}
-														editSectionId={editSectionId}
-														isCreateFormOpen={isCreateFormOpen}
-													/>
-												)}
+											<UI_SECTIONS.AccordianBody
+												isOpen={isAccordianOpen}
+											>
+												{isAccordianOpen &&
+													!isCreateFormOpen && (
+														<DynamicForm
+															fields={
+																sub_section?.fields || []
+															}
+															prefillData={prefillData}
+															onSaveOrUpdateSuccessCallback={
+																onSaveOrUpdateSuccessCallback
+															}
+															onCancelCallback={
+																onCancelCallback
+															}
+															isEditLoan={isEditLoan}
+															editSectionId={editSectionId}
+															isCreateFormOpen={
+																isCreateFormOpen
+															}
+														/>
+													)}
 												{/* {isResetFormComplete ? (
 											<DynamicForm fields={sub_section?.fields || []} />
 										) : null} */}
@@ -313,38 +307,11 @@ const LiabilitysDetails = props => {
 								name='Save and Proceed'
 								// isLoader={isCreateFormOpen || !!editSectionId}
 								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSkip}
+								onClick={onSaveAndProceed}
 							/>
 						)}
 
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)}
-
-						{/* buttons for easy development starts */}
-
-						{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-							<Button
-								name='Skip'
-								// disabled={loading}
-								onClick={onSkip}
-							/>
-						) : null}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
-						{/* buttons for easy development ends */}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

@@ -13,19 +13,17 @@ import Textarea from 'components/inputs/Textarea';
 import errorImage from 'assets/icons/geo-error.png';
 import * as API from '_config/app.config';
 import {
-	updateApplicationSection,
+	setCompletedApplicationSection,
 	addAllDocumentTypes,
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
-	clearAllCacheDocuments,
 } from 'store/applicationSlice';
 import {
-	// 	removeCacheDocument,
 	setGeotaggingMandatoryFields,
 	setDocumentSelfieGeoLocation,
-	// 	removeDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+	DIRECTOR_TYPES,
+} from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { asyncForEach } from 'utils/helper';
@@ -34,23 +32,35 @@ import {
 	getDocumentCategoryName,
 	parseJSON,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
+	isDirectorApplicant,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
 import * as CONST from './const';
-import ProfileUpload from '../BasicDetails/ProfileUpload';
+import ProfileUpload from './ProfileUpload/ProfileUpload';
 import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDetailsCard';
 import useForm from 'hooks/useFormIndividual';
 import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
 import MandatoryOnsiteVerificationErrModal from 'components/modals/MandatoryOnsiteVerificationErrModal';
 
 const DocumentUpload = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
-	// const { userToken } = app;
+	const { app, application } = useSelector(state => state);
+	const {
+		directors,
+		selectedDirectorId,
+		applicantDirectorId,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
+	const coApplicants = {};
+	Object.keys(directors).map(directorId => {
+		if (directors[directorId].type_name === DIRECTOR_TYPES.applicant)
+			return null;
+		coApplicants[directorId] = directors[directorId];
+		return null;
+	});
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -68,12 +78,6 @@ const DocumentUpload = props => {
 		userToken,
 		isGeoTaggingEnabled,
 	} = app;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
 
 	const {
 		loanId,
@@ -83,17 +87,12 @@ const DocumentUpload = props => {
 		cacheDocuments,
 		commentsForOfficeUse,
 		prompted,
-		// geoLocation,
 	} = application;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
-	const selectedApplicantDocumentTypes = allDocumentTypes?.filter(
-		docType => `${docType?.directorId}` === `${directorId}`
+	const selectedDirectorDocumentTypes = allDocumentTypes?.filter(
+		docType => `${docType?.directorId}` === `${selectedDirectorId}`
 	);
-	const selectedApplicantDocuments = cacheDocuments.filter(
-		doc => `${doc?.directorId}` === `${directorId}`
+	const selectedDirectorDocuments = cacheDocuments.filter(
+		doc => `${doc?.directorId}` === `${selectedDirectorId}`
 	);
 	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
@@ -101,24 +100,20 @@ const DocumentUpload = props => {
 	const isCommentRequired = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
-	// TODO: visibility of documents
-	// selectedApplicant?.cacheDocuments.map(doc =>
-	// 	selectedApplicantDocuments.push(doc)
-	// );
 
 	const [cacheFile, setCacheFile] = useState();
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
 	const selectedIncomeType =
-		selectedApplicant?.basic_details?.['income_type'] ||
-		selectedApplicant?.income_type;
+		selectedDirector?.basic_details?.['income_type'] ||
+		selectedDirector?.income_type;
 
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
 	const applicantMobileNumber =
-		applicant?.basic_details?.mobile_no || applicant?.dcontact;
+		selectedDirector?.basic_details?.mobile_no || selectedDirector?.dcontact;
 	const { addToast } = useToasts();
 	const [submittingOtp, setSubmittingOtp] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -173,7 +168,8 @@ const DocumentUpload = props => {
 		try {
 			const reqBody = {
 				business_type:
-					applicant?.basic_details?.income_type || applicant?.income_type,
+					selectedDirector?.basic_details?.income_type ||
+					selectedDirector?.income_type,
 				loan_product: loanProductId,
 			};
 			// console.log('applicantDocReqBody-', { reqBody });
@@ -190,7 +186,7 @@ const DocumentUpload = props => {
 						name: d.name,
 						doc_type_id: d.doc_type_id,
 						category,
-						directorId: applicant.directorId,
+						directorId: applicantDirectorId,
 					});
 					return null;
 				});
@@ -276,17 +272,21 @@ const DocumentUpload = props => {
 
 			// APPLICANT
 			const oldApplicantDocumentTypes = allDocumentTypes?.filter(
-				docType => `${docType.directorId}` === `${applicant.directorId}`
+				docType => `${docType.directorId}` === `${applicantDirectorId}`
 			);
 
 			if (oldApplicantDocumentTypes?.length > 0) {
 				oldApplicantDocumentTypes.map(docType =>
-					newAllDocumentTypes.push({ ...docType })
+					newAllDocumentTypes.push({
+						...docType,
+					})
 				);
 			} else {
 				const newApplicantDocumentTypes = await getApplicantDocumentTypes();
 				newApplicantDocumentTypes.map(docType =>
-					newAllDocumentTypes.push({ ...docType })
+					newAllDocumentTypes.push({
+						...docType,
+					})
 				);
 			}
 			// -- APPLICANT
@@ -299,17 +299,21 @@ const DocumentUpload = props => {
 				);
 				if (oldCoApplicantDocumentTypes?.length > 0) {
 					oldCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({ ...docType })
+						newAllDocumentTypes.push({
+							...docType,
+						})
 					);
 				} else {
 					const newCoApplicantDocumentTypes = await getCoApplicantDocumentTypes(
 						{
-							coApplicant: coApplicants[directorId],
+							coApplicant: directors[directorId],
 							history: coApplicantDocTypeResHistory,
 						}
 					);
 					newCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({ ...docType })
+						newAllDocumentTypes.push({
+							...docType,
+						})
 					);
 				}
 			});
@@ -347,7 +351,7 @@ const DocumentUpload = props => {
 									...docListItem,
 									doc_type_id,
 									category,
-									directorId: applicant?.directorId,
+									directorId: applicantDirectorId,
 								});
 							}
 							preFillLenderDocsTag.push({
@@ -357,7 +361,7 @@ const DocumentUpload = props => {
 								category,
 								name,
 								document_key,
-								directorId: applicant?.directorId,
+								directorId: applicantDirectorId,
 								document_id: lenderDoc?.id,
 							});
 							return null;
@@ -373,7 +377,7 @@ const DocumentUpload = props => {
 									...docListItem,
 									doc_type_id,
 									category,
-									directorId: applicant?.directorId,
+									directorId: applicantDirectorId,
 								});
 							}
 							// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
@@ -384,7 +388,7 @@ const DocumentUpload = props => {
 								lenderDoc.uploaded_by === userDetails.id
 							) {
 								externalUserSelectedDocTypeIds.push(
-									`${applicant?.directorId}${doc_type_id}`
+									`${applicantDirectorId}${doc_type_id}`
 								);
 							}
 
@@ -395,7 +399,7 @@ const DocumentUpload = props => {
 								category,
 								name,
 								document_key,
-								directorId: applicant?.directorId,
+								directorId: applicantDirectorId,
 								document_id: lenderDoc?.id,
 							});
 							return null;
@@ -445,7 +449,7 @@ const DocumentUpload = props => {
 				clonedCacheDocuments?.map(doc => {
 					// if (doc?.document_id) return null;
 					if (!doc?.directorId) {
-						doc.directorId = applicant?.id;
+						doc.directorId = applicantDirectorId;
 					}
 					const selectedDocType =
 						newAllDocumentTypes.filter(docType => {
@@ -463,7 +467,11 @@ const DocumentUpload = props => {
 					});
 					return null;
 				});
-				dispatch(addOrUpdateCacheDocumentsDocUploadPage({ files: newDoc }));
+				dispatch(
+					addOrUpdateCacheDocumentsDocUploadPage({
+						files: newDoc,
+					})
+				);
 			}
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
@@ -505,7 +513,7 @@ const DocumentUpload = props => {
 		initializeDocTypeList();
 		initializeCommentForOfficeUse();
 		if (isGeoTaggingEnabled) {
-			setGeoLocationData(selectedApplicant.documentSelfieGeolocation);
+			setGeoLocationData(selectedDirector.documentSelfieGeolocation);
 		}
 		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 		async function fetchSelfieData() {
@@ -534,7 +542,7 @@ const DocumentUpload = props => {
 				if (selectedField) {
 					const file = cacheDocuments?.filter(doc => {
 						if (
-							`${doc?.directorId}` === `${directorId}` &&
+							`${doc?.directorId}` === `${selectedDirectorId}` &&
 							doc?.doc_type?.id ===
 								selectedField?.doc_type?.[selectedIncomeType]
 						) {
@@ -595,42 +603,17 @@ const DocumentUpload = props => {
 
 		// SET MANDATORY FIELDS IN DOC UPLOAD SECTION TO APPLICANT/COAPPLICANT
 		function saveMandatoryGeoLocation() {
-			const coApplicantList = getApplicantCoApplicantSelectOptions({
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}).filter(
-				director => Number(director.value) !== Number(applicant.directorId)
-			);
-
 			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 				sub_section?.fields?.map((field, fieldIndex) => {
 					if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
 						if (field?.db_key === 'on_site_selfie') {
 							let reduxStoreKey = 'documentSelfieGeolocation';
-							if (
-								field?.hasOwnProperty('is_applicant') &&
-								field.is_applicant === false
-							) {
-								coApplicantList.map(dir => {
-									dispatch(
-										setGeotaggingMandatoryFields({
-											directorId: dir.value,
-											field: reduxStoreKey,
-										})
-									);
-									return null;
-								});
-							}
-							if (field?.hasOwnProperty('is_co_applicant')) {
-								if (field.is_co_applicant === false && isApplicant) {
-									dispatch(
-										setGeotaggingMandatoryFields({
-											directorId: applicant.directorId,
-											field: reduxStoreKey,
-										})
-									);
-								}
-							}
+							dispatch(
+								setGeotaggingMandatoryFields({
+									directorId: selectedDirectorId,
+									field: reduxStoreKey,
+								})
+							);
 						}
 					}
 					return null;
@@ -767,19 +750,9 @@ const DocumentUpload = props => {
 		}
 		return true;
 	};
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
 
-		// TODO: varun combine all redux cache dispatch here before moving to application submited section
-		dispatch(clearAllCacheDocuments());
-
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -802,7 +775,7 @@ const DocumentUpload = props => {
 			}
 			const documentUploadReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 			});
 			const newUploadedDocuments = [];
@@ -862,7 +835,7 @@ const DocumentUpload = props => {
 			// 	documentUploadRes,
 			// });
 			if (isEditLoan && !isDraftLoan) {
-				onSkip();
+				onSaveAndProceed();
 			}
 		} catch (error) {
 			console.error('error-onSubmitCompleteApplication-', error);
@@ -885,7 +858,7 @@ const DocumentUpload = props => {
 			setSavingComments(true);
 			const commentReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				values: {},
 			});
@@ -1027,7 +1000,7 @@ const DocumentUpload = props => {
 		cacheDocuments?.filter(
 			doc =>
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
-				`${doc?.directorId}` === `${directorId}`
+				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] ||
 		null;
 
@@ -1043,16 +1016,13 @@ const DocumentUpload = props => {
 
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
 	const isAppCoAppVerificationComplete = () => {
-		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
-			{
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}
-		);
 		let result = true;
-		newApplicantAndCoapplicantOptions.map(director => {
-			if (Number(applicant.directorId) === Number(director.value)) {
-				if (Object.keys(applicant.documentSelfieGeolocation).length <= 0) {
+		selectedDirectorOptions.map(director => {
+			if (Number(applicantDirectorId) === Number(director.value)) {
+				if (
+					Object.keys(selectedDirector?.documentSelfieGeolocation || {})
+						.length <= 0
+				) {
 					result = false;
 				}
 			} else {
@@ -1131,7 +1101,7 @@ const DocumentUpload = props => {
 				...mandatoryProfilePicFieldApplicant,
 				docTypeId:
 					mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
-				directorId: applicant?.directorId,
+				directorId: applicantDirectorId,
 			});
 		}
 		if (
@@ -1156,7 +1126,7 @@ const DocumentUpload = props => {
 			applicantCoapplicantDoc?.push({
 				...mandatoryFieldApplicant,
 				docTypeId: mandatoryFieldApplicant?.doc_type?.[selectedIncomeType],
-				directorId: applicant?.directorId,
+				directorId: applicantDirectorId,
 			});
 
 		if (
@@ -1173,7 +1143,7 @@ const DocumentUpload = props => {
 		}
 		if (isEditLoan) {
 			const applicantProfile = editLoanData?.director_details?.filter(
-				dir => `${dir?.id}` === `${applicant?.directorId}`
+				dir => `${dir?.id}` === `${applicantDirectorId}`
 			)?.[0];
 
 			// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
@@ -1193,7 +1163,7 @@ const DocumentUpload = props => {
 
 			clonedCacheDocuments?.map(doc => {
 				if (
-					`${doc?.directorId}` === `${applicant?.id}` &&
+					`${doc?.directorId}` === `${applicantDirectorId}` &&
 					`${doc?.doc_type_id}` ===
 						`${
 							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
@@ -1227,7 +1197,7 @@ const DocumentUpload = props => {
 		const applicantCoappliantIndex = [];
 		if (missingDocsForDirectors?.length > 0) {
 			const isApplicantImgMissing = missingDocsForDirectors?.indexOf(
-				`${applicant?.directorId}`
+				`${applicantDirectorId}`
 			);
 			if (isApplicantImgMissing >= 0)
 				applicantCoappliantIndex?.push('Applicant');
@@ -1262,9 +1232,8 @@ const DocumentUpload = props => {
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
 	// const isMandatoryGeoVerificationComplete = () => {
-	// 	const appCoappsList = getApplicantCoApplicantSelectOptions({
-	// 		applicantCoApplicants,
-	// 		isEditOrViewLoan,
+	// 	const appCoappsList = selectedDirectorOptions({
+	// 		directors
 	// 	});
 	// 	if (
 	// 		Object.keys(geoLocation).length > 0 &&
@@ -1337,7 +1306,7 @@ const DocumentUpload = props => {
 
 	// console.log('DocumentUpload-allprops-', {
 	// 	app,
-	// 	applicantCoApplicants,
+	// 	selectedDirector,
 	// 	cacheDocuments,
 	// 	cacheDocumentsTemp,
 	// });
@@ -1359,7 +1328,7 @@ const DocumentUpload = props => {
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
-					onSkip={onSkip}
+					onSkip={onSaveAndProceed}
 					isDocumentUploadMandatory={isDocumentUploadMandatory}
 				/>
 			) : null}
@@ -1400,7 +1369,14 @@ const DocumentUpload = props => {
 					}}
 				>
 					<UI.CategoryNameHeader>
-						<span style={{ color: 'red' }}>*</span> Mandatory
+						<span
+							style={{
+								color: 'red',
+							}}
+						>
+							*
+						</span>{' '}
+						Mandatory
 					</UI.CategoryNameHeader>
 					{renderDocUploadedCount({
 						uploaded: totalMandatoryUploadedDocumentCount,
@@ -1410,11 +1386,11 @@ const DocumentUpload = props => {
 			) : null}
 			{CONST_SECTIONS.ALL_DOC_CATEGORY.map((category, categoryIndex) => {
 				const selectedDocumentTypes =
-					selectedApplicantDocumentTypes?.filter(
+					selectedDirectorDocumentTypes?.filter(
 						docType => docType.category === category
 					) || [];
 				if (selectedDocumentTypes.length <= 0) return null;
-				const selectedDocuments = selectedApplicantDocuments?.filter(
+				const selectedDocuments = selectedDirectorDocuments?.filter(
 					doc => doc?.category === category
 				);
 				if (
@@ -1425,7 +1401,7 @@ const DocumentUpload = props => {
 					return null;
 				}
 				return (
-					<div key={`data-${category}-{${directorId}}`}>
+					<div key={`data-${category}-{${selectedDirectorId}}`}>
 						<UI.CollapseHeader onClick={() => toggleOpenSection(category)}>
 							<UI.CategoryNameHeader>
 								{category === CONST_SECTIONS.DOC_CATEGORY_EVAL
@@ -1453,7 +1429,7 @@ const DocumentUpload = props => {
 									documents={selectedDocuments}
 									documentTypes={selectedDocumentTypes}
 									category={category}
-									directorId={directorId}
+									directorId={selectedDirectorId}
 								/>
 							</UI.UploadWrapper>
 						</UI.CollapseBody>
@@ -1468,25 +1444,26 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{/* {sub_section?.name} */}
-								{/* {selectedApplicant.isApplicant ||
-								sub_section?.name === 'Comments For Office Use'
-									? sub_section?.name
-									: `On-site Selfie With Co-Applicant - ${Object.keys(
-											coApplicants
-									  ).indexOf(selectedApplicantCoApplicantId) + 1}`} */}
 								{sub_section?.id === 'on_site_selfie_with_applicant'
 									? isApplicant
 										? sub_section?.name
 										: Object.keys(coApplicants).length > 1
 										? sub_section?.fields?.[1].label +
 										  ` ${Object.keys(coApplicants).indexOf(
-												selectedApplicantCoApplicantId
+												selectedDirectorId
 										  ) + 1}`
 										: sub_section?.fields?.[1].label
 									: sub_section?.name}
 
-								{isCommentRequired && <span style={{ color: 'red' }}>*</span>}
+								{isCommentRequired && (
+									<span
+										style={{
+											color: 'red',
+										}}
+									>
+										*
+									</span>
+								)}
 							</UI.CommentsForOfficeUseFieldName>
 							{sub_section?.fields?.map(field => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
@@ -1518,7 +1495,7 @@ const DocumentUpload = props => {
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
-													selectedApplicant={selectedApplicant}
+													selectedDirector={selectedDirector}
 													section={'documentUpload'}
 												/>
 											</UI.VerificationSection>
@@ -1574,7 +1551,10 @@ const DocumentUpload = props => {
 					<Button
 						name='Get Other Bank Statements'
 						onClick={() => setIsOtherBankStatementModal(true)}
-						customStyle={{ width: 'auto', height: '45px' }}
+						customStyle={{
+							width: 'auto',
+							height: '45px',
+						}}
 					/>
 				)}
 				<UI.CheckboxWrapper>

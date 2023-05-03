@@ -16,7 +16,7 @@ import {
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
-} from 'store/applicantCoApplicantsSlice';
+} from 'store/directorsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
 import imageBgProfile from 'assets/images/bg/profile_image_upload.png';
@@ -47,31 +47,19 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedApplicant,
+		setFetchedProfilePic,
 		setImageLoading = () => {},
 	} = props;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
 	const { loanId, loanRefId, businessUserId, businessId } = application;
-
 	const [picAddress, setPicAddress] = useState({});
-	const {
-		isApplicant,
-		// applicant,
-		// coApplicants,
-		// selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	// const selectedApplicant = isApplicant
-	// 	? applicant
-	// 	: coApplicants[selectedApplicantCoApplicantId] || {};
-	// const { cacheDocuments } = selectedApplicant;
-	// const [files, setFiles] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
+	const [fetchedValue, setFetchedValue] = useState('');
 
 	const openDocument = async file => {
 		try {
@@ -264,9 +252,6 @@ const ProfileUpload = props => {
 						};
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(resp?.data?.file);
-							if (isApplicant) {
-								dispatch(setProfileGeoLocation(resp?.data?.file));
-							}
 						}
 						addCacheDocumentTemp(newFile);
 					} else {
@@ -298,20 +283,21 @@ const ProfileUpload = props => {
 	useEffect(() => {
 		(async () => {
 			try {
+				setLoading(true);
 				// WHEN ONLY FD KEY IS RECEIVED, NEED TO CALL VIEWDOCUMENT API
 				// AND DECRYPT THE RESPONSE TO FETCH PRESIGNED URL
 				if (
-					section === 'documentUpload' &&
+					// section === 'documentUpload' &&
 					uploadedFile &&
 					!uploadedFile?.preview &&
 					Object.keys(uploadedFile).length > 0
 				) {
-					setLoading(true);
 					const reqBody = {
 						filename:
 							uploadedFile.doc_name ||
 							uploadedFile?.document_key ||
 							uploadedFile?.fd ||
+							uploadedFile?.filename ||
 							'',
 						loan_id: loanId,
 						userid: businessUserId,
@@ -319,13 +305,13 @@ const ProfileUpload = props => {
 
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 					const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
-
+					// console.log({ docRes, previewFile });
 					setSelfiePreview({
 						...uploadedFile,
 						preview: previewFile,
 						presignedUrl: previewFile,
 					});
-					setLoading(false);
+					setFetchedValue(previewFile);
 				}
 			} catch (err) {
 				console.error(err);
@@ -333,6 +319,8 @@ const ProfileUpload = props => {
 					message: err?.message || 'Network Error',
 					type: 'error',
 				});
+			} finally {
+				setLoading(false);
 			}
 		})();
 
@@ -360,12 +348,15 @@ const ProfileUpload = props => {
 					src={
 						loading
 							? imageBgProfile
-							: section === 'documentUpload'
-							? uploadedFile?.preview ||
+							: // : section === 'documentUpload'
+							  // ?
+							  uploadedFile?.preview ||
 							  uploadedFile?.presignedUrl ||
 							  selfiePreview?.preview ||
-							  selfiePreview?.presignedUrl
-							: uploadedFile?.preview || uploadedFile?.presignedUrl || value
+							  selfiePreview?.presignedUrl ||
+							  value ||
+							  fetchedValue
+						// uploadedFile?.preview || uploadedFile?.presignedUrl || value
 					}
 					alt='Loading File...'
 					onClick={e => {
@@ -401,7 +392,9 @@ const ProfileUpload = props => {
 										e.stopPropagation();
 										setShowImageInfo(false);
 										// for profile pic upload in basic details section
-										if (value) {
+										if (value || fetchedValue) {
+											setFetchedValue('');
+											setFetchedProfilePic();
 											onChangeFormStateField({
 												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
 												value: '',
@@ -413,23 +406,6 @@ const ProfileUpload = props => {
 									}}
 								/>
 							)}
-							{/* TODO: verify requirement and push back re-upload before delete */}
-							{/* <UI.IconDelete
-							src={iconDelete}
-							alt='delete'
-							onClick={e => {
-								e.preventDefault();
-								e.stopPropagation();
-								removeCacheDocumentTemp(field.name);
-								// setProfileImageResTemp(null);
-							}}
-						/>
-						<input {...getInputProps()} />
-						<UI.IconCamera
-							src={iconCameraBlue}
-							alt='camera'
-							{...getRootProps({ className: 'dropzone' })}
-						/> */}
 						</UI.CameraIconWrapper>
 						{isGeoTaggingEnabled && isTag && field?.geo_tagging === true && (
 							<UI.PinIconWrapper>

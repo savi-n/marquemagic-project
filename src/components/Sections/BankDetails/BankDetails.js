@@ -1,284 +1,264 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
 
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection, setLoanIds } from 'store/applicationSlice';
-import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
+import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
-import { formatSectionReqBody, getApiErrorMessage } from 'utils/formatData';
-import { useToasts } from 'components/Toast/ToastProvider';
+import { setSelectedSectionId } from 'store/appSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
+
+import { formatGetSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
+import editIcon from 'assets/icons/edit-icon.png';
+import expandIcon from 'assets/icons/right_arrow_active.png';
+import plusRoundIcon from 'assets/icons/plus_icon_round.png';
+import DynamicForm from './DynamicForm';
 import * as UI_SECTIONS from 'components/Sections/ui';
-import * as CONST from './const';
 
 const BankDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		prevSectionId,
-		selectedSection,
-		isTestMode,
-		isLocalhost,
-		editLoanData,
-		isEditLoan,
-	} = app;
-	const { bankDetailsFinId } = application;
+	const { app, application } = useSelector(state => state);
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
-	const [loading, setLoading] = useState(false);
-	const { handleSubmit, register, formState } = useForm();
-	const { addToast } = useToasts();
+	const [openAccordianId, setOpenAccordianId] = useState('');
+	const [editSectionId, setEditSectionId] = useState('');
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+	const [sectionData, setSectionData] = useState([]);
+	const MAX_ADD_COUNT = selectedSection?.max || 10;
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
+	const openCreateForm = () => {
+		setEditSectionId('');
+		setOpenAccordianId('');
+		setIsCreateFormOpen(true);
 	};
 
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onProceed = async () => {
+	const fetchSectionDetails = async () => {
 		try {
-			setLoading(true);
-			const bankDetailsReqBody = formatSectionReqBody({
-				section: selectedSection,
-				values: formState.values,
-				app,
-				applicantCoApplicants,
-				application,
-			});
-			let newBankId = bankDetailsReqBody.data.bank_details.bank_id;
-			// console.log('bankDetailsReqBody-before-', { newBankId });
-			if (typeof newBankId !== 'string' && typeof newBankId !== 'number') {
-				newBankId = newBankId?.value;
-			}
-			newBankId = `${newBankId}`;
-			bankDetailsReqBody.data.bank_details.bank_id = newBankId;
-			if (bankDetailsFinId) bankDetailsReqBody.data.fin_id = bankDetailsFinId;
-			// console.log('bankDetailsReqBody-after', {
-			// 	bankDetailsReqBody,
-			// 	newBankId,
-			// });
-			// return;
-			const bankDetailsRes = await axios.post(
-				`${API_END_POINT}/addBankDetailsNew`,
-				bankDetailsReqBody
+			setFetchingSectionData(true);
+			const fetchRes = await axios.get(
+				`${API_END_POINT}/bank_details?${formatGetSectionReqBody({
+					application,
+				})}`
 			);
-			if (!bankDetailsFinId) {
-				dispatch(
-					setLoanIds({ bankDetailsFinId: bankDetailsRes?.data?.data?.id })
-				);
+			// console.log('fetchRes-', fetchRes);
+			if (fetchRes?.data?.data?.length > 0) {
+				setSectionData(fetchRes?.data?.data);
+				setEditSectionId('');
+				setOpenAccordianId('');
+				setIsCreateFormOpen(false);
+			} else {
+				setSectionData([]);
+				openCreateForm();
 			}
-			// console.log('-bankDetailsRes-', {
-			// 	bankDetailsReqBody,
-			// 	bankDetailsRes,
-			// });
-			const newBankDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: {
-					...formState?.values,
-					bank_name: newBankId,
-				},
-			};
-			dispatch(updateApplicationSection(newBankDetails));
-			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-BankDetails-onProceed-', {
-				error: error,
-				res: error?.response,
-				resres: error?.response?.response,
-				resData: error?.response?.data,
-			});
-			addToast({
-				message: getApiErrorMessage(error),
-				type: 'error',
-			});
+			console.error('error-fetchSectionDetails-', error);
+			setSectionData([]);
+			openCreateForm();
 		} finally {
-			setLoading(false);
+			setFetchingSectionData(false);
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = { ...formState.values };
-		}
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
-	const prefilledEditOrViewLoanValues = field => {
-		const bankData =
-			editLoanData?.bank_details?.filter(
-				data => data.fin_type === CONST.FIN_TYPE_BANK_ACCOUNT
-			)?.[0] || {};
-		const preData = {
-			bank_name: bankData?.bank_id,
-			account_number: bankData?.account_number,
-			ifsc_code: bankData?.IFSC,
-			account_type: bankData?.account_type,
-			account_holder_name: bankData?.account_holder_name,
-			start_date: bankData?.outstanding_start_date,
-			end_date: bankData?.outstanding_end_date,
-		};
-		// console.log('predata-', { bankData });
-		return preData?.[field?.name];
+	const toggleAccordian = (id, openOrClose) => {
+		if (openOrClose === 'open') return setOpenAccordianId(id);
+		if (openOrClose === 'close') return setOpenAccordianId('');
+		return openAccordianId === id
+			? setOpenAccordianId('')
+			: setOpenAccordianId(id);
 	};
 
-	const prefilledValues = field => {
-		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
+	const onSaveOrUpdateSuccessCallback = () => {
+		fetchSectionDetails();
+	};
 
-			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-			if (isFormStateUpdated) {
-				return formState?.values?.[field.name];
-			}
-
-			// TEST MODE
-			if (isTestMode && CONST.initialFormState?.[field?.name]) {
-				return CONST.initialFormState?.[field?.name];
-			}
-			// -- TEST MODE
-
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-				// &&
-				// !application?.sections?.[selectedSectionId]?.hasOwnProperty('isSkip')
-			) {
-				return application?.sections?.[selectedSectionId]?.[field?.name];
-			}
-
-			let editViewLoanValue = '';
-
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
-
-			if (editViewLoanValue) return editViewLoanValue;
-
-			return field?.value || '';
-		} catch (error) {
-			return {};
+	const onCancelCallback = deleteEditSectionId => {
+		if (deleteEditSectionId) {
+			setEditSectionId('');
+		} else {
+			setIsCreateFormOpen(false);
 		}
+		setOpenAccordianId('');
 	};
+
+	useLayoutEffect(() => {
+		fetchSectionDetails();
+		// eslint-disable-next-line
+	}, []);
 
 	// console.log('bank-details-', { app, application });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								Help us with your{' '}
-								<span
-									style={{
-										color: '#1414ad',
-									}}
-								>
-									{sub_section.name}
-								</span>
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<>
+					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
+						return (
+							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+								{sub_section?.name ? (
+									<UI_SECTIONS.SubSectionHeader>
+										{sub_section.name}
+									</UI_SECTIONS.SubSectionHeader>
+								) : null}
+								{/* combine local + db array */}
+								{sectionData.map((section, sectionIndex) => {
+									const sectionId = section?.id;
+									const isAccordianOpen = sectionId === openAccordianId;
+									const isEditLoan = editSectionId === sectionId;
+									const prefillData = {
+										...(section || {}),
+										bank_name: `${section?.bank_id || ''}`,
+										ifsc_code: section?.IFSC || '',
+										start_date: section?.outstanding_start_date,
+										end_date: section?.outstanding_end_date,
+									};
+									return (
+										<UI_SECTIONS.AccordianWrapper>
+											<UI_SECTIONS.AccordianHeader
+												key={`accordian-${sectionIndex}`}
+											>
+												{isAccordianOpen ? null : (
+													<>
+														<UI_SECTIONS.AccordianHeaderData>
+															<span>Name:</span>
+															<strong>
+																{prefillData?.account_holder_name}
+															</strong>
+														</UI_SECTIONS.AccordianHeaderData>
+														<UI_SECTIONS.AccordianHeaderData>
+															{/* <span>Type of Assets:</span>
+															<strong>{prefillData?.loan_asset_type_id}</strong> */}
+														</UI_SECTIONS.AccordianHeaderData>
+														<UI_SECTIONS.AccordianHeaderData>
+															<span>AC#:</span>
+															<strong>{prefillData?.account_number}</strong>
+														</UI_SECTIONS.AccordianHeaderData>
+													</>
+												)}
+												<UI_SECTIONS.AccordianHeaderData
+													style={
+														isAccordianOpen
+															? { marginLeft: 'auto', flex: 'none' }
+															: { flex: 'none' }
+													}
+												>
+													{isViewLoan ? null : (
+														<UI_SECTIONS.AccordianIcon
+															src={editIcon}
+															alt='edit'
+															onClick={() => {
+																if (isCreateFormOpen || isEditLoan) return;
+																toggleAccordian(sectionId, 'open');
+																setTimeout(() => {
+																	setEditSectionId(sectionId);
+																}, 200);
+															}}
+															style={
+																isCreateFormOpen || isEditLoan
+																	? {
+																			cursor: 'not-allowed',
+																			visibility: 'hidden',
+																	  }
+																	: {}
+															}
+														/>
+													)}
+													<UI_SECTIONS.AccordianIcon
+														src={expandIcon}
+														alt='toggle'
+														onClick={() => {
+															if (isCreateFormOpen || isEditLoan) return;
+															toggleAccordian(sectionId);
+														}}
+														style={{
+															transform: 'rotate(90deg)',
+															...(isCreateFormOpen || isEditLoan
+																? {
+																		cursor: 'not-allowed',
+																		visibility: 'hidden',
+																  }
+																: {}),
+														}}
+													/>
+												</UI_SECTIONS.AccordianHeaderData>
+											</UI_SECTIONS.AccordianHeader>
+											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
+												{isAccordianOpen && !isCreateFormOpen && (
+													<DynamicForm
+														fields={sub_section?.fields || []}
+														prefillData={prefillData}
+														onSaveOrUpdateSuccessCallback={
+															onSaveOrUpdateSuccessCallback
+														}
+														onCancelCallback={onCancelCallback}
+														isEditLoan={isEditLoan}
+														editSectionId={editSectionId}
+														isCreateFormOpen={isCreateFormOpen}
+													/>
+												)}
+												{/* {isResetFormComplete ? (
+											<DynamicForm fields={sub_section?.fields || []} />
+										) : null} */}
+											</UI_SECTIONS.AccordianBody>
+										</UI_SECTIONS.AccordianWrapper>
+									);
+								})}
+								<div style={{ marginTop: 30 }} />
+								{isCreateFormOpen && (
+									<UI_SECTIONS.AccordianWrapper>
+										<UI_SECTIONS.AccordianBody
+											isOpen={true}
+											style={{ padding: 30 }}
+										>
+											<UI_SECTIONS.DynamicFormWrapper>
+												<DynamicForm
+													fields={sub_section?.fields || []}
+													onSaveOrUpdateSuccessCallback={
+														onSaveOrUpdateSuccessCallback
+													}
+													onCancelCallback={onCancelCallback}
+													submitCTAName='Save'
+													hideCancelCTA={!(sectionData?.length > 0)}
+													isEditLoan={true}
+												/>
+											</UI_SECTIONS.DynamicFormWrapper>
+										</UI_SECTIONS.AccordianBody>
+									</UI_SECTIONS.AccordianWrapper>
+								)}
+							</Fragment>
+						);
+					})}
+					<UI_SECTIONS.AddDynamicSectionWrapper>
+						{isCreateFormOpen ||
+						isViewLoan ||
+						sectionData?.length >= MAX_ADD_COUNT ||
+						!!editSectionId ? null : (
+							<>
+								<UI_SECTIONS.PlusRoundButton
+									src={plusRoundIcon}
+									onClick={openCreateForm}
+								/>
+								<span>Click to add additional assets</span>
+							</>
+						)}
+					</UI_SECTIONS.AddDynamicSectionWrapper>
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
+						)}
 
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								if (!field.visibility) return null;
-								if (field?.for_type_name) {
-									if (
-										!field?.for_type.includes(
-											formState?.values?.[field?.for_type_name]
-										)
-									)
-										return null;
-								}
-
-								const newField = _.cloneDeep(field);
-								const customFieldProps = {};
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-								// TODO: varun do following chagnes from config
-								// ifsc field is lagging need to fix
-								if (field.name === 'ifsc_code') {
-									customFieldProps.type = 'ifsclist';
-								}
-								if (field.name === 'bank_name') {
-									customFieldProps.ifsc_required = true;
-								}
-								return (
-									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${fieldIndex}-${newField.name}`}
-									>
-										{register({
-											...field,
-											value: prefilledValues(newField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[newField.name]) &&
-											formState?.error?.[newField.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[newField.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-									</UI_SECTIONS.FieldWrapGrid>
-								);
-							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onProceed)}
-					/>
-				)}
-
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-
-				{/* buttons for easy development starts */}
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{isLocalhost && !isViewLoan && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-				{/* buttons for easy development ends */}
-			</UI_SECTIONS.Footer>
+						<NavigateCTA />
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };

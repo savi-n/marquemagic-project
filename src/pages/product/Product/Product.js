@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
+import useFetch from 'hooks/useFetch';
+import { PRODUCT_DETAILS_URL } from '_config/app.config';
 
 import ApplicantCoApplicantHeader from 'components/ApplicantCoApplicantHeader';
 import SideNav from 'components/SideNav';
 import BasicDetails from 'components/Sections/BasicDetails';
+import Loading from 'components/Loading';
+
 import AddressDetails from 'components/Sections/AddressDetails';
 import EmploymentDetails from 'components/Sections/EmploymentDetails';
 import LoanDetails from 'components/Sections/LoanDetails/LoanDetails';
@@ -15,30 +19,50 @@ import DocumentUpload from 'components/Sections/DocumentUpload';
 import ReferenceDetails from 'components/Sections/ReferenceDetails';
 import EMIDetails from 'components/Sections/EMIDetails';
 import ApplicationSubmitted from 'components/Sections/ApplicationSubmitted';
+import BuissnessDetails from 'components/Sections/BusinessDetails/BusinessDetails';
 import LiabilitysDetails from 'components/Sections/LiabilitysDetails';
 import AssetsDetails from 'components/Sections/AssetsDetails';
 import SubsidiaryDetails from 'components/Sections/SubsidiaryDetails';
-
-import { setIsTestMode, setBankList } from 'store/appSlice';
+import PowerOfAtterneyDetails from 'components/Sections/PowerOfAtterneyDetails';
+import _ from 'lodash';
+import {
+	setIsTestMode,
+	setBankList,
+	setSelectedProduct,
+	setSelectedSectionId,
+} from 'store/appSlice';
 import iconDottedRight from 'assets/images/bg/Landing_page_dot-element.png';
 import * as UI from './ui';
 import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
+import ConsentDetails from 'components/Sections/ConsentDetails';
+import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 
-const ProductIndividual = props => {
+const Product = props => {
+	const { product } = props;
 	const reduxState = useSelector(state => state);
-	const { app, applicantCoApplicants } = reduxState;
+	const { selectedDirectorId } = useSelector(state => state.directors);
+	const { app } = reduxState;
 	const {
 		selectedSectionId,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		userToken,
 		isTestMode,
+		userDetails,
+		whiteLabelId,
+		isViewLoan,
 	} = app;
-	const { selectedApplicantCoApplicantId } = applicantCoApplicants;
+	const { response } = useFetch({
+		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
+		options: { method: 'GET' },
+	});
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
 
 	const SELECTED_SECTION_MAPPING = {
+		//TODO Bikash & Akshat - change to the respective components
+		business_details: BuissnessDetails, // change to the respective components
+		business_address_details: BusinessAddressDetails, // change to the respective components
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
@@ -51,11 +75,54 @@ const ProductIndividual = props => {
 		liability_details: LiabilitysDetails,
 		assets_details: AssetsDetails,
 		application_submitted: ApplicationSubmitted,
+		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
+		poa_details: PowerOfAtterneyDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
+	useEffect(() => {
+		// console.log({ reqType: response?.data?.loan_request_type, response });
+		if (response) {
+			const selectedProductRes = _.cloneDeep(response.data);
+			// New Individual loan changes for displaying sections based on the config - starts
+			if (isViewLoan) {
+				const tempSections = _.cloneDeep(
+					selectedProductRes?.product_details?.sections
+				);
 
+				const flowData = tempSections?.filter(section => {
+					if (section?.hide_section_usertype) {
+						return (
+							!section?.hide_section_usertype?.includes(
+								userDetails?.usertype
+								// 'Sales' - for reference
+							) &&
+							!section?.hide_section_usertype?.includes(
+								userDetails?.user_sub_type
+								// 'RCU' - for reference
+							)
+						);
+					} else {
+						return tempSections;
+					}
+				});
+				selectedProductRes.product_details.sections = flowData;
+			}
+			// New Individual loan changes for displaying sections based on the config - ends
+			dispatch(setSelectedProduct(selectedProductRes));
+			dispatch(
+				setSelectedSectionId(
+					selectedProductRes?.product_details?.sections?.[0]?.id
+				)
+			);
+			if (response?.data?.loan_request_type) {
+				response.data.product_details.loan_request_type =
+					response?.data?.loan_request_type;
+			}
+		}
+		// eslint-disable-next-line
+	}, [response]);
 	// for reseting formstate
 	useEffect(() => {
 		if (!selectedSectionId) return;
@@ -63,10 +130,10 @@ const ProductIndividual = props => {
 		sleep(100).then(res => {
 			setLoading(false);
 		});
-	}, [selectedSectionId, selectedApplicantCoApplicantId, isTestMode]);
+	}, [selectedSectionId, selectedDirectorId, isTestMode]);
 
 	// useEffect(() => {
-	// 	console.log('ProductIndividual-allStates-', {
+	// 	console.log('Product-allStates-', {
 	// 		reduxState,
 	// 	});
 	// }, [reduxState]);
@@ -111,22 +178,28 @@ const ProductIndividual = props => {
 	}, []);
 
 	return (
-		<UI.Wrapper>
-			{/* {selectedSectionId !== 'application_submitted' && <SideNav />} */}
-			<SideNav />
-			<UI.RightSectionWrapper>
-				<UI.IconDottedRight src={iconDottedRight} alt='dot' />
-				<UI.DynamicSectionWrapper>
-					{[...applicantCoApplicantSectionIds, 'document_upload']?.includes(
-						selectedSectionId
-					) && <ApplicantCoApplicantHeader />}
-					<UI.DynamicSubSectionWrapper>
-						{loading ? <div /> : <SelectedComponent />}
-					</UI.DynamicSubSectionWrapper>
-				</UI.DynamicSectionWrapper>
-			</UI.RightSectionWrapper>
-		</UI.Wrapper>
+		<>
+			{!response ? (
+				<Loading />
+			) : (
+				<UI.Wrapper>
+					{/* {selectedSectionId !== 'application_submitted' && <SideNav />} */}
+					<SideNav />
+					<UI.RightSectionWrapper>
+						<UI.IconDottedRight src={iconDottedRight} alt='dot' />
+						<UI.DynamicSectionWrapper>
+							{[...(directorSectionIds || []), 'document_upload']?.includes(
+								selectedSectionId
+							) && <ApplicantCoApplicantHeader />}
+							<UI.DynamicSubSectionWrapper>
+								{loading ? <div /> : <SelectedComponent />}
+							</UI.DynamicSubSectionWrapper>
+						</UI.DynamicSectionWrapper>
+					</UI.RightSectionWrapper>
+				</UI.Wrapper>
+			)}
+		</>
 	);
 };
 
-export default ProductIndividual;
+export default Product;

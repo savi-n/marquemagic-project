@@ -27,6 +27,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import Loading from 'components/Loading';
 import searchIcon from 'assets/icons/search-icon.png';
 
+// import InputField from 'components/inputs/InputField';
 const Wrapper = styled.div`
 	padding: 30px 80px 50px 80px;
 	@media (max-width: 700px) {
@@ -327,7 +328,7 @@ export default function Products() {
 	const [refstatus, setRefstatus] = useState('');
 	const { addToast } = useToasts();
 	const [loanList, setLoanList] = useState([]);
-	const [, setPrimaryStatusList] = useState([]);
+	// const [, setPrimaryStatusList] = useState([]);
 	const [modalOTP, setModalOTP] = useState(false);
 	const [modalOTPData, setModalOTPData] = useState({});
 	const [OTP, setOTP] = useState('');
@@ -367,7 +368,7 @@ export default function Products() {
 					if (s.parent_id === 0) primary.push(s);
 					return null;
 				});
-				setPrimaryStatusList(primary);
+				// setPrimaryStatusList(primary);
 			} else {
 				addToast({
 					message: 'No Loans Found',
@@ -472,7 +473,6 @@ export default function Products() {
 			});
 		}
 	};
-
 	useEffect(() => {
 		sessionStorage.removeItem('formstate');
 		sessionStorage.removeItem('formstatepan');

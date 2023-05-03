@@ -1,274 +1,287 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+// import axios from 'axios';
 
 import DeleteCoApplicantModal from 'components/modals/DeleteCoApplicantModal';
+import Loading from 'components/Loading';
 
-import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
 import iconDelete from 'assets/icons/grey_delete_icon.png';
 import iconAvatarInActive from 'assets/icons/Profile-complete.png';
 import iconAvatarActive from 'assets/icons/Profile-in-progress.png';
+import {
+	DIRECTOR_TYPES,
+	getDirectors,
+	setAddNewDirectorKey,
+	setSelectedDirectorId,
+} from 'store/directorsSlice';
+import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_DOCUMENT_UPLOAD from 'components/Sections/DocumentUpload/const';
-import { setSelectedSectionId } from 'store/appSlice';
-import { getApplicantNavigationDetails } from 'utils/formatData';
 
 const ApplicantCoApplicantHeader = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const {
-		selectedSectionId,
-		selectedProduct,
-		isLocalhost,
-		isDraftLoan,
-		firstSectionId,
-	} = app;
-	const {
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-		applicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+		selectedDirectorId,
+		directors,
+		fetchingDirectors,
+		addNewDirectorKey,
+	} = useSelector(state => state.directors);
+
+	const { selectedSectionId, selectedProduct, isLocalhost } = app;
+	// const [flag,setFlag]={};
+	const { businessId } = application;
 	const { cacheDocuments, allDocumentTypes } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const [
-		isDeleteCoApplicantModalOpen,
-		setIsDeleteCoApplicantModalOpen,
-	] = useState(false);
+	const [isDeleteDirectorModalOpen, setIsDeleteDirectorModalOpen] = useState(
+		false
+	);
+	// const [fetchingDirectors, setFetchingDirectors] = useState(false);
 	const refListWrapper = useRef(null);
+
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
 
-	let isApplicantMandatoryDocumentSubmited = true;
-	if (isDocumentUploadMandatory) {
-		const applicantMandatoryDocumentIds = [];
-		allDocumentTypes?.map(
-			docType =>
-				`${docType?.directorId}` === `${applicant.directorId}` &&
-				docType?.isMandatory &&
-				applicantMandatoryDocumentIds.push(
-					`${applicant.directorId}${docType?.doc_type_id}`
-				)
-		);
-		const applicantUploadedDocumetnIds = [];
-		cacheDocuments?.map(d =>
-			applicantUploadedDocumetnIds.push(`${d?.directorId}${d?.doc_type_id}`)
-		);
-		applicantMandatoryDocumentIds?.map(docId => {
-			if (!applicantUploadedDocumetnIds.includes(docId)) {
-				isApplicantMandatoryDocumentSubmited = false;
+	const fetchDirectors = async () => {
+		// console.log("Applicant CoApp header");
+		if (!businessId) {
+			if (selectedProduct?.isSelectedProductTypeSalaried) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			} else {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
 			}
-			return null;
-		});
-		// console.log('applicant-doc-mandatory-', {
-		// 	isApplicantMandatoryDocumentSubmited,
-		// 	isDocumentUploadMandatory,
-		// 	applicantMandatoryDocumentIds,
-		// 	applicantUploadedDocumetnIds,
-		// });
-	}
+			return;
+		}
+		try {
+			// setFetchingDirectors(true);
+			// const directorsRes = await axios.get(
+			// 	`${API.API_END_POINT}/director_details?business_id=${businessId}`,
+			// 	{
+			// 		headers: {
+			// 			Authorization: `Bearer ${userToken}`,
+			// 		},
+			// 	}
+			// );
+			// console.log('directorsRes-', directorsRes);
+			dispatch(getDirectors(businessId));
+		} catch (e) {
+			addToast({
+				message:
+					'Unable to fetch the data from udyog. Please continue to fill the details.',
+				// || error?.message ||
+				// 'ROC search failed, try again',
+				type: 'error',
+			});
+		} finally {
+			// setFetchingDirectors(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchDirectors();
+		// eslint-disable-next-line
+	}, []);
 
 	// console.log('ApplicantCoApplicantHeader-allstates-', {
 	// 	props,
 	// 	refListWrapper,
 	// });
 
-	const onClickApplicantCoApplicant = id => {
-		// if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-		// 	return setIsDeleteCoApplicantModalOpen(id);
+	const onClickDirectorAvatar = id => {
+		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
+		// 	return setIsDeleteDirectorModalOpen(id);
 		// }
-		if (selectedApplicantCoApplicantId === `${id}`) {
+		if (selectedDirectorId === `${id}`) {
 			return;
 		}
 
-		if (isDraftLoan) {
-			const {
-				nextApplicantDirectorId,
-				isEmploymentDetailsSubmited,
-				lastIncompleteDirectorId,
-				lastIncompleteDirectorIndex,
-			} = getApplicantNavigationDetails({
-				applicant,
-				coApplicants,
-				selectedApplicant,
-			});
+		// TODO: varun validation for navigation in draft mode
+		// if (isDraftLoan) {
+		// 	const {
+		// 		nextApplicantDirectorId,
+		// 		isEmploymentDetailsSubmited,
+		// 		lastIncompleteDirectorId,
+		// 		lastIncompleteDirectorIndex,
+		// 	} = getApplicantNavigationDetails({
+		// 		applicant: selectedDirector,
+		// 		coApplicants: directors,
+		// 		selectedApplicant: selectedDirector,
+		// 	});
 
-			if (
-				isEmploymentDetailsSubmited &&
-				`${nextApplicantDirectorId}` === `${id}`
-			) {
-				// allowed to move
-			} else {
-				const tempSelectedApplicant =
-					id === CONST_SECTIONS.APPLICANT ? applicant : coApplicants[id];
-				if (
-					!(
-						Object.keys(
-							tempSelectedApplicant?.[
-								CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID
-							] || {}
-						)?.length > 0
-					)
-				) {
-					// if last director is applicant
-					dispatch(setSelectedSectionId(firstSectionId));
-					if (`${lastIncompleteDirectorId}` === `${applicant?.directorId}`) {
-						dispatch(
-							setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT)
-						);
-					} else {
-						dispatch(
-							setSelectedApplicantCoApplicantId(lastIncompleteDirectorId)
-						);
-					}
-					return addToast({
-						message: `Please fill all the details of ${
-							lastIncompleteDirectorIndex === 0
-								? 'applicant'
-								: `co-applicant ${lastIncompleteDirectorIndex}`
-						}`,
-						type: 'error',
-					});
-				}
-			}
-		}
+		// 	if (
+		// 		isEmploymentDetailsSubmited &&
+		// 		`${nextApplicantDirectorId}` === `${id}`
+		// 	) {
+		// 		// allowed to move
+		// 	} else {
+		// 		const tempSelectedApplicant =
+		// 			id === CONST_SECTIONS.APPLICANT ? applicant : coApplicants[id];
+		// 		if (
+		// 			!(
+		// 				Object.keys(
+		// 					tempSelectedApplicant?.[
+		// 						CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID
+		// 					] || {}
+		// 				)?.length > 0
+		// 			)
+		// 		) {
+		// 			// if last director is applicant
+		// 			dispatch(setSelectedSectionId(firstSectionId));
+		// 			if (`${lastIncompleteDirectorId}` === `${applicant?.directorId}`) {
+		// 				dispatch(setSelectedDirector(applicant?.directorId));
+		// 			} else {
+		// 				dispatch(setSelectedDirector(lastIncompleteDirectorId));
+		// 			}
+		// 		}
+		// 	}
+		// 	return addToast({
+		// 		message: `Please fill all the details of ${
+		// 			lastIncompleteDirectorIndex === 0
+		// 				? 'applicant'
+		// 				: `co-applicant ${lastIncompleteDirectorIndex}`
+		// 		}`,
+		// 		type: 'error',
+		// 	});
+		// }
 
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
-			dispatch(setSelectedSectionId(firstSectionId));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}
-		dispatch(setSelectedApplicantCoApplicantId(id));
+		dispatch(setSelectedDirectorId(id));
 		// dispatch(setSelectedSectionId(firstSectionId));
 	};
 
-	let totalCoApplicantCount = 0;
-	if (!!Object?.keys(coApplicants)?.length) {
-		totalCoApplicantCount += Object?.keys(coApplicants)?.length;
-	}
-	if (selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT) {
-		totalCoApplicantCount += 1;
-	}
-
 	return (
 		<UI.Wrapper>
-			{isDeleteCoApplicantModalOpen && (
-				<DeleteCoApplicantModal
-					onNo={() => setIsDeleteCoApplicantModalOpen(false)}
-					onYes={() => {
-						setIsDeleteCoApplicantModalOpen(false);
-						onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT);
-					}}
-					coApplicantNumber={Object.keys(coApplicants).length + 1}
-				/>
-			)}
-			<UI.UL ref={refListWrapper} id='appRefList'>
-				<UI.LI>
-					<UI.Avatar
-						src={isApplicant ? iconAvatarActive : iconAvatarInActive}
-						alt='Avatar'
-						onClick={() =>
-							onClickApplicantCoApplicant(CONST_SECTIONS.APPLICANT)
-						}
-					/>
-					{selectedSectionId ===
-						CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-						!isApplicantMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-					<UI.AvatarName>Applicant</UI.AvatarName>
-				</UI.LI>
-				{Object.keys(coApplicants).map((directorId, directorIndex) => {
-					let isCoApplicantMandatoryDocumentSubmited = true;
-					if (isDocumentUploadMandatory) {
-						const coApplicantMandatoryDocumentIds = [];
-						allDocumentTypes?.map(
-							docType =>
-								`${docType?.directorId}` === `${directorId}` &&
-								docType?.isMandatory &&
-								coApplicantMandatoryDocumentIds.push(
-									`${directorId}${docType?.doc_type_id}`
-								)
-						);
-						const coApplicantUploadedDocumetnIds = [];
-						cacheDocuments?.map(d =>
-							coApplicantUploadedDocumetnIds.push(
-								`${d?.directorId}${d?.doc_type_id}`
-							)
-						);
-						coApplicantMandatoryDocumentIds?.map(docId => {
-							if (!coApplicantUploadedDocumetnIds.includes(docId)) {
-								isCoApplicantMandatoryDocumentSubmited = false;
+			{fetchingDirectors ? (
+				<UI.LoadingWrapper>
+					<Loading />
+				</UI.LoadingWrapper>
+			) : (
+				<>
+					{isDeleteDirectorModalOpen && (
+						<DeleteCoApplicantModal
+							onNo={() => setIsDeleteDirectorModalOpen(false)}
+							onYes={() => {
+								setIsDeleteDirectorModalOpen(false);
+								dispatch(setAddNewDirectorKey(''));
+								dispatch(setSelectedDirectorId(+Object.keys(directors)?.pop()));
+							}}
+							label={isDeleteDirectorModalOpen}
+						/>
+					)}
+					<UI.UL ref={refListWrapper} id='appRefList'>
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							selectedSectionId ===
+								CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID && (
+								<UI.LI>
+									<UI.Avatar
+										src={
+											!selectedDirectorId
+												? iconAvatarActive
+												: iconAvatarInActive
+										}
+										alt='Avatar'
+										onClick={() => onClickDirectorAvatar('')}
+									/>
+									<UI.AvatarName>Entity</UI.AvatarName>
+									<UI.HoverBadge>&nbsp;</UI.HoverBadge>
+								</UI.LI>
+							)}
+						{Object.keys(directors).map((directorId, directorIndex) => {
+							let isMandatoryDocumentSubmited = true;
+							const director = directors[directorId];
+							let isSelectNotAllowed = false;
+							if (addNewDirectorKey) {
+								isSelectNotAllowed = true;
 							}
-							return null;
-						});
-					}
-					return (
-						<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
-							{/* DELETE Co-Applicant will be part of future release */}
-							{/* {selectedApplicantCoApplicantId === directorId && (
+							if (isDocumentUploadMandatory) {
+								const coApplicantMandatoryDocumentIds = [];
+								allDocumentTypes?.map(
+									docType =>
+										`${docType?.directorId}` === `${directorId}` &&
+										docType?.isMandatory &&
+										coApplicantMandatoryDocumentIds.push(
+											`${directorId}${docType?.doc_type_id}`
+										)
+								);
+								const coApplicantUploadedDocumetnIds = [];
+								cacheDocuments?.map(d =>
+									coApplicantUploadedDocumetnIds.push(
+										`${d?.directorId}${d?.doc_type_id}`
+									)
+								);
+								coApplicantMandatoryDocumentIds?.map(docId => {
+									if (!coApplicantUploadedDocumetnIds.includes(docId)) {
+										isMandatoryDocumentSubmited = false;
+									}
+									return null;
+								});
+							}
+							return (
+								<>
+									<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
+										{/* DELETE Co-Applicant will be part of future release */}
+										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
 							)} */}
-							<UI.Avatar
-								src={
-									+selectedApplicantCoApplicantId === +directorId
-										? iconAvatarActive
-										: iconAvatarInActive
-								}
-								alt='Avatar'
-								onClick={() => onClickApplicantCoApplicant(directorId)}
-							/>
-							{selectedSectionId ===
-								CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-								!isCoApplicantMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-							<UI.AvatarName>
-								Co-Applicant
-								{totalCoApplicantCount > 1 ? ` ${directorIndex + 1}` : ''}
-							</UI.AvatarName>
-						</UI.LI>
-					);
-				})}
-				{selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT && (
-					<UI.LI>
-						<UI.BadgeDelete
-							src={iconDelete}
-							onClick={() => setIsDeleteCoApplicantModalOpen(true)}
-							alt='delete'
-						/>
-						<UI.Avatar
-							src={
-								selectedApplicantCoApplicantId === CONST_SECTIONS.CO_APPLICANT
-									? iconAvatarActive
-									: iconAvatarInActive
-							}
-							alt='Avatar'
-							onClick={() =>
-								onClickApplicantCoApplicant(CONST_SECTIONS.CO_APPLICANT)
-							}
-						/>
-						<UI.AvatarName>
-							Co-Applicant
-							{totalCoApplicantCount > 1
-								? ` ${Object.keys(coApplicants).length + 1}`
-								: ''}
-						</UI.AvatarName>
-					</UI.LI>
-				)}
-			</UI.UL>
-			{isLocalhost && (
-				<UI.UL>
-					<UI.LI>
-						selected <br />
-						{selectedApplicantCoApplicantId}
-						<br />
-						<br />
-						applicant
-						<br />
-						{applicant?.directorId}
-					</UI.LI>
-				</UI.UL>
+										<UI.Avatar
+											src={
+												+selectedDirectorId === +directorId
+													? iconAvatarActive
+													: iconAvatarInActive
+											}
+											alt='Avatar'
+											onClick={() => {
+												if (isSelectNotAllowed) return;
+												onClickDirectorAvatar(directorId);
+											}}
+											style={
+												isSelectNotAllowed ? { cursor: 'not-allowed	' } : {}
+											}
+										/>
+										{selectedSectionId ===
+											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
+											!isMandatoryDocumentSubmited && <UI.BadgeInvalid />}
+										<UI.AvatarName>{director?.label}</UI.AvatarName>
+										{director?.shortName && (
+											<UI.HoverBadge>
+												{director?.shortName?.toLowerCase()}
+											</UI.HoverBadge>
+										)}
+									</UI.LI>
+								</>
+							);
+						})}
+						{addNewDirectorKey && (
+							<UI.LI>
+								{addNewDirectorKey !== DIRECTOR_TYPES.applicant &&
+									Object.keys(directors).length !== 0 && (
+										<UI.BadgeDelete
+											src={iconDelete}
+											onClick={() =>
+												setIsDeleteDirectorModalOpen(addNewDirectorKey)
+											}
+											alt='delete'
+										/>
+									)}
+								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
+								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
+								<UI.HoverBadge>&nbsp;</UI.HoverBadge>
+							</UI.LI>
+						)}
+					</UI.UL>
+					{isLocalhost && (
+						<UI.UL>
+							<UI.LI>
+								selected <br />
+								{selectedDirectorId}
+							</UI.LI>
+						</UI.UL>
+					)}
+				</>
 			)}
 		</UI.Wrapper>
 	);

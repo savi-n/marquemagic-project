@@ -10,7 +10,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
+	isDirectorApplicant,
 	isFieldValid,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -30,11 +30,15 @@ const DynamicForm = props => {
 		editSectionId = '',
 	} = props;
 	const isViewLoan = !isEditLoan;
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const { selectedSectionId, isTestMode, selectedSection } = app;
-	const { isApplicant } = applicantCoApplicants;
+	const { app, application } = useSelector(state => state);
+	const {
+		directors,
+		selectedDirectorId,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
+	const { isTestMode, selectedSection } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -103,10 +107,6 @@ const DynamicForm = props => {
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
-
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
@@ -118,23 +118,9 @@ const DynamicForm = props => {
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-			) {
-				// special scenario for bank name prefetch
-				if (application?.sections?.[selectedSectionId]?.[field?.name]?.value) {
-					return application?.sections?.[selectedSectionId]?.[field?.name]
-						?.value;
-				} else {
-					return application?.sections?.[selectedSectionId]?.[field?.name];
-				}
-			}
-
 			let editViewLoanValue = '';
 
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
+			editViewLoanValue = prefilledEditOrViewLoanValues(field);
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -154,7 +140,7 @@ const DynamicForm = props => {
 					...formState.values,
 				},
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 			});
 			if (editSectionId) {
@@ -208,9 +194,7 @@ const DynamicForm = props => {
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
 					if (newField.name === CONST.FIELD_NAME_ASSETS_FOR) {
-						newField.options = getApplicantCoApplicantSelectOptions({
-							applicantCoApplicants,
-						});
+						newField.options = selectedDirectorOptions;
 					}
 
 					if (isViewLoan) {

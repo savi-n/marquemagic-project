@@ -1,15 +1,17 @@
 /* FIle upload details section. This section handles drag, drop
 of file, upload and deletion */
-
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Popover } from 'react-tiny-popover';
+import moment from 'moment';
+import _ from 'lodash';
+
 import CircularLoading from 'components/Loaders/Circular';
 import Button from 'components/Button';
 import Modal from 'components/Modal';
+import Hint from 'components/Hint';
 
 import generateUID from 'utils/uid';
 import { verifyKycDataUiUx } from 'utils/request';
@@ -22,13 +24,11 @@ import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import imgArrowDownCircle from 'assets/icons/drop_down_green-05.svg';
 import imgGreyCheck from 'assets/icons/grey_tick_icon.png';
 import imgGreenCheck from 'assets/icons/green_tick_icon.png';
+import GreenTick from 'assets/icons/green_tick_icon.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
-import Hint from 'components/Hint';
-import GreenTick from 'assets/icons/green_tick_icon.png';
-import moment from 'moment';
 
 const AddressProofUpload = props => {
 	const {
@@ -58,29 +58,23 @@ const AddressProofUpload = props => {
 		isEditOrViewLoan,
 	} = props;
 
-	// console.log(
+	// console.log({
+	// 	selectedAddressProofFieldName,
+	// 	selectedAddressProofId,
+	// 	addressProofUploadSection,
+	// 	prefilledValues,
 	// 	cacheDocumentsTemp,
-	// 	'< cachedocstemp -- 888 addressproofupload > prefilleddocs',
-	// 	prefilledDocs,
-	// 	'docTypeOptions',
-	// 	docTypeOptions
-	// );
+	// 	setCacheDocumentsTemp,
+	// 	selectedDocTypeId,
+	// });
 	let { addressProofError } = props;
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
-	const { selectedProduct, clientToken, editLoanData } = app;
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const { selectedProduct, clientToken, editLoanData, selectedSectionId } = app;
 	const { loanId, businessUserId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	// const selectedDirectorId = selectedApplicantCoApplicantId;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
 	const directorDetails = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
 	const prevSelectedAddressProofId = useRef(null);
@@ -267,7 +261,7 @@ const AddressProofUpload = props => {
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
 				frontFormData.append('product_id', selectedProduct.id);
-				frontFormData.append('director_id', selectedApplicant?.directorId);
+				frontFormData.append('director_id', selectedDirector?.directorId);
 				frontFormData.append('req_type', SELECTED_REQ_TYPE);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
@@ -310,13 +304,13 @@ const AddressProofUpload = props => {
 					requestId: frontExtractionRes?.data?.request_id,
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 
 				const backFormData = new FormData();
 				backFormData.append('product_id', selectedProduct.id);
-				backFormData.append('director_id', selectedApplicant?.directorId);
+				backFormData.append('director_id', selectedDirector?.directorId);
 				backFormData.append('req_type', SELECTED_REQ_TYPE);
 				backFormData.append(
 					'ref_id',
@@ -370,7 +364,7 @@ const AddressProofUpload = props => {
 					requestId: backExtractionRes?.data.request_id,
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 
@@ -406,7 +400,7 @@ const AddressProofUpload = props => {
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
-			frontOnlyFormData.append('director_id', selectedApplicant?.directorId);
+			frontOnlyFormData.append('director_id', selectedDirector?.directorId);
 			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
 			frontOnlyFormData.append('process_type', 'extraction');
 			frontOnlyFormData.append(
@@ -459,7 +453,7 @@ const AddressProofUpload = props => {
 				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 				name: frontOnlyExtractionRes?.data?.s3?.filename,
 				category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-				directorId: selectedApplicant.directorId,
+				directorId: selectedDirector.directorId,
 				selectedDocTypeId,
 			};
 
@@ -652,7 +646,7 @@ const AddressProofUpload = props => {
 					type: 'other',
 					upload_doc_name: f.name,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 				newCacheDocumentTemp.push(file);
@@ -941,7 +935,7 @@ const AddressProofUpload = props => {
 								...customFieldProps,
 							})}
 							{(selectedVerifyOtp?.res?.status === 'ok' ||
-								selectedApplicant?.is_aadhaar_otp_verified === true) && (
+								selectedDirector?.is_aadhaar_otp_verified === true) && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
@@ -955,7 +949,7 @@ const AddressProofUpload = props => {
 									isViewLoan ||
 									verifyingWithOtp ||
 									(directorDetails?.filter(
-										director => director?.id === selectedApplicant?.directorId
+										director => director?.id === selectedDirector?.directorId
 									).length > 0 &&
 										isEditLoan)
 								}
@@ -1247,7 +1241,10 @@ const AddressProofUpload = props => {
 													</div>
 												) : (
 													isDocRemoveAllowed &&
-													!isViewLoan && (
+													!isEditOrViewLoan &&
+													!selectedDirector?.sections?.includes(
+														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
+													) && (
 														<UI.ImgClose
 															style={{ height: '20px' }}
 															src={isViewMore ? imgArrowDownCircle : imgClose}
@@ -1273,7 +1270,8 @@ const AddressProofUpload = props => {
 					{!addressProofError &&
 						!selectedAddressProofId?.includes('others') &&
 						!!taggedDocumentCount &&
-						doNotHideFetchAddress && (
+						doNotHideFetchAddress &&
+						!selectedDirector?.sections?.includes(selectedSectionId) && (
 							<Button
 								fill
 								name='Fetch Address'

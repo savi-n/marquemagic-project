@@ -1,18 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { Fragment, useState } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
+import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
-import {
-	formatGetSectionReqBody,
-	formatINR,
-	getApplicantCoApplicantSelectOptions,
-} from 'utils/formatData';
-import Loading from 'components/Loading';
+import { setSelectedSectionId } from 'store/appSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
@@ -22,19 +19,9 @@ import { API_END_POINT } from '_config/app.config';
 // import selectedSection from './sample.json';
 
 const AssetsDetails = props => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
-	const {
-		isViewLoan,
-		selectedSectionId,
-		nextSectionId,
-		prevSectionId,
-		isLocalhost,
-		isTestMode,
-		isEditLoan,
-		selectedSection,
-	} = app;
+	const { app, application } = useSelector(state => state);
+	const { selectedDirectorOptions } = useSelector(state => state.directors);
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -55,7 +42,6 @@ const AssetsDetails = props => {
 			const fetchRes = await axios.get(
 				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
 					application,
-					applicantCoApplicants,
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
@@ -77,29 +63,8 @@ const AssetsDetails = props => {
 		}
 	};
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.sections?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		if (
-			isEditLoan &&
-			!application?.sections?.hasOwnProperty(selectedSectionId)
-		) {
-			skipSectionData.sectionValues = {};
-		}
-		dispatch(updateApplicationSection(skipSectionData));
+	const onSaveAndProceed = () => {
+		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
@@ -124,7 +89,7 @@ const AssetsDetails = props => {
 		setOpenAccordianId('');
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -173,9 +138,7 @@ const AssetsDetails = props => {
 															<span>Assets For:</span>
 															<strong>
 																{
-																	getApplicantCoApplicantSelectOptions({
-																		applicantCoApplicants,
-																	})?.filter(
+																	selectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
 																			`${prefillData?.director_id}`
@@ -307,38 +270,11 @@ const AssetsDetails = props => {
 								name='Save and Proceed'
 								// isLoader={isCreateFormOpen || !!editSectionId}
 								disabled={isCreateFormOpen || !!editSectionId}
-								onClick={onSkip}
+								onClick={onSaveAndProceed}
 							/>
 						)}
 
-						{isViewLoan && (
-							<>
-								<Button
-									name='Previous'
-									onClick={naviagteToPreviousSection}
-									fill
-								/>
-								<Button name='Next' onClick={naviagteToNextSection} fill />
-							</>
-						)}
-
-						{/* buttons for easy development starts */}
-
-						{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-							<Button
-								name='Skip'
-								// disabled={loading}
-								onClick={onSkip}
-							/>
-						) : null}
-						{isLocalhost && !isViewLoan && (
-							<Button
-								fill={!!isTestMode}
-								name='Auto Fill'
-								onClick={() => dispatch(toggleTestMode())}
-							/>
-						)}
-						{/* buttons for easy development ends */}
+						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
 			)}
