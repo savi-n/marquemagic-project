@@ -88,7 +88,6 @@ const BusinessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
-
 	const {
 		handleSubmit,
 		register,
@@ -97,7 +96,6 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const selectedIncomeType = 'business';
 	const completedSections = getCompletedSections({
 		selectedProduct,
 		application,
@@ -110,6 +108,8 @@ const BusinessDetails = props => {
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
 		selectedSection,
 	});
+	const selectedIncomeType =
+		formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME] || {};
 	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
 	const isPanNumberExist = !!formState?.values?.pan_number;
 	const panUploadedFile =
@@ -443,7 +443,7 @@ const BusinessDetails = props => {
 			);
 		}
 		//new get api
-		if (!!businessId && !!loanId) fetchSectionDetails();
+		if ((!!businessId && !!loanId) || loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
 	const ButtonProceed = (
