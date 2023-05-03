@@ -633,7 +633,7 @@ const AddressDetails = props => {
 	// fetch section data ends
 
 	useEffect(() => {
-		if (!!loanRefId) fetchSectionDetails();
+		if (!!loanRefId && !!selectedDirectorId) fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 

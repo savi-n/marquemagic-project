@@ -31,8 +31,7 @@ const ApplicantCoApplicantHeader = props => {
 
 	const { selectedSectionId, selectedProduct, isLocalhost } = app;
 	// const [flag,setFlag]={};
-	const { businessId } = application;
-	const { cacheDocuments, allDocumentTypes } = application;
+	const { cacheDocuments, allDocumentTypes, loanRefId } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [isDeleteDirectorModalOpen, setIsDeleteDirectorModalOpen] = useState(
@@ -45,8 +44,7 @@ const ApplicantCoApplicantHeader = props => {
 		?.document_mandatory;
 
 	const fetchDirectors = async () => {
-		// console.log("Applicant CoApp header");
-		if (!businessId) {
+		if (!loanRefId) {
 			if (selectedProduct?.isSelectedProductTypeSalaried) {
 				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
 			} else {
@@ -55,17 +53,7 @@ const ApplicantCoApplicantHeader = props => {
 			return;
 		}
 		try {
-			// setFetchingDirectors(true);
-			// const directorsRes = await axios.get(
-			// 	`${API.API_END_POINT}/director_details?business_id=${businessId}`,
-			// 	{
-			// 		headers: {
-			// 			Authorization: `Bearer ${userToken}`,
-			// 		},
-			// 	}
-			// );
-			// console.log('directorsRes-', directorsRes);
-			dispatch(getDirectors(businessId));
+			dispatch(getDirectors(loanRefId));
 		} catch (e) {
 			addToast({
 				message:
@@ -74,8 +62,6 @@ const ApplicantCoApplicantHeader = props => {
 				// 'ROC search failed, try again',
 				type: 'error',
 			});
-		} finally {
-			// setFetchingDirectors(false);
 		}
 	};
 
