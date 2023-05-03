@@ -119,7 +119,9 @@ export const formatSectionReqBody = data => {
 					typeof values[field.name] === 'string'
 						? values[field.name]?.trim()
 						: values[field.name];
-
+				if (field.db_key === 'locality' && !sectionBody[field.db_key]) {
+					sectionBody[field.db_key] = sessionStorage.getItem('locality') || '';
+				}
 				if (!!field.sub_fields) {
 					field.sub_fields?.map(sub_field => {
 						// console.log(sub_field.name, values[sub_field.name]);

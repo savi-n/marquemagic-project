@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import moment from 'moment';
@@ -26,7 +26,6 @@ import {
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { asyncForEach } from 'utils/helper';
 import {
 	formatSectionReqBody,
 	getDocumentCategoryName,
@@ -54,11 +53,13 @@ const DocumentUpload = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const coApplicants = {};
+	const nonApplicantDirectorsObject = {};
+	const nonApplicantDirectorsArray = [];
 	Object.keys(directors).map(directorId => {
 		if (directors[directorId].type_name === DIRECTOR_TYPES.applicant)
 			return null;
-		coApplicants[directorId] = directors[directorId];
+		nonApplicantDirectorsObject[directorId] = directors[directorId];
+		nonApplicantDirectorsArray.push(directors[directorId]);
 		return null;
 	});
 	const dispatch = useDispatch();
@@ -134,6 +135,10 @@ const DocumentUpload = props => {
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [geoLocationData, setGeoLocationData] = useState('');
+	const isUseEffectCalledOnce = useRef(false);
+
+	// --------------------------------------------------------------------------
+
 	let prefilledProfileUploadValue = '';
 
 	// EVAL DOCUMENTS
@@ -164,91 +169,6 @@ const DocumentUpload = props => {
 		}
 	};
 
-	const getApplicantDocumentTypes = async () => {
-		try {
-			const reqBody = {
-				business_type:
-					selectedDirector?.basic_details?.income_type ||
-					selectedDirector?.income_type,
-				loan_product: loanProductId,
-			};
-			// console.log('applicantDocReqBody-', { reqBody });
-			const applicantDocRes = await axios.post(API.DOCTYPES_FETCH, reqBody);
-			// console.log('applicantDocRes-', applicantDocRes);
-
-			const newAppDocOptions = [];
-			for (const key in applicantDocRes?.data) {
-				applicantDocRes?.data[key].map(d => {
-					const category = getDocumentCategoryName(d?.doc_type);
-					newAppDocOptions.push({
-						...d,
-						value: d.doc_type_id,
-						name: d.name,
-						doc_type_id: d.doc_type_id,
-						category,
-						directorId: applicantDirectorId,
-					});
-					return null;
-				});
-			}
-			return newAppDocOptions;
-		} catch (error) {
-			console.error('error-getApplicantDocumentTypes-', error);
-			return [];
-		}
-	};
-
-	const getCoApplicantDocumentTypes = async data => {
-		const { coApplicant, history } = data;
-		try {
-			// http://3.108.54.252:1337/coApplicantDocList?income_type=1
-			const coApplicantIncomeTypeId = `${coApplicant?.basic_details
-				?.income_type || coApplicant?.income_type}`;
-			let coAppDocTypesRes = {};
-			// console.log('before-api-call-', {
-			// 	coApplicantIncomeTypeId,
-			// 	coAppDocTypesRes,
-			// 	history,
-			// });
-			if (history[coApplicantIncomeTypeId]) {
-				coAppDocTypesRes = history[coApplicantIncomeTypeId];
-			} else {
-				coAppDocTypesRes = await axios.get(
-					`${
-						API.CO_APPLICANTS_DOCTYPES_FETCH
-					}?income_type=${coApplicantIncomeTypeId}`
-				);
-				coAppDocTypesRes = coAppDocTypesRes?.data?.data || {};
-				history[coApplicantIncomeTypeId] = coAppDocTypesRes;
-			}
-			// console.log('coAppDocTypesRes-', { coAppDocTypesRes, history });
-			const newDocTypeList = [];
-			for (const key in coAppDocTypesRes) {
-				// console.log('coAppDocTypesRes?.data?.data-', { key });
-				// newIncomeTypeDocTypeList[key] = [];
-				coAppDocTypesRes[key]?.map(d => {
-					const category = getDocumentCategoryName(d?.doc_type);
-					const newDoc = {
-						...d,
-						doc_type_id: d?.id,
-						type_name: coApplicant?.type_name,
-						value: d?.id,
-						category,
-						directorId: coApplicant?.directorId,
-					};
-					newDocTypeList.push(newDoc);
-					// newIncomeTypeDocTypeList[key].push(newDoc);
-					return null;
-				});
-			}
-			return newDocTypeList;
-			// return { newIncomeTypeDocTypeList, newDocTypeList };
-		} catch (error) {
-			console.error('error-getCoApplicantDocumentTypes-', error);
-			return [];
-		}
-	};
-
 	const initializeDocTypeList = async () => {
 		try {
 			// console.log('initializeDocTypeList');
@@ -270,54 +190,70 @@ const DocumentUpload = props => {
 			}
 			// -- EXTERNAL / OTHER USER
 
-			// APPLICANT
-			const oldApplicantDocumentTypes = allDocumentTypes?.filter(
-				docType => `${docType.directorId}` === `${applicantDirectorId}`
-			);
+			// APPLICANT OR ENTITY
+			const reqBody = {
+				business_type:
+					selectedDirector?.basic_details?.income_type ||
+					selectedDirector?.income_type,
+				loan_product: loanProductId,
+			};
+			// console.log('applicantDocReqBody-', { reqBody });
+			const applicantDocRes = await axios.post(API.DOCTYPES_FETCH, reqBody);
+			// console.log('applicantDocRes-', applicantDocRes);
 
-			if (oldApplicantDocumentTypes?.length > 0) {
-				oldApplicantDocumentTypes.map(docType =>
+			for (const key in applicantDocRes?.data) {
+				applicantDocRes?.data[key].forEach(d => {
+					const category = getDocumentCategoryName(d?.doc_type);
 					newAllDocumentTypes.push({
-						...docType,
-					})
-				);
-			} else {
-				const newApplicantDocumentTypes = await getApplicantDocumentTypes();
-				newApplicantDocumentTypes.map(docType =>
-					newAllDocumentTypes.push({
-						...docType,
-					})
-				);
+						...d,
+						value: d.doc_type_id,
+						name: d.name,
+						doc_type_id: d.doc_type_id,
+						category,
+						directorId: applicantDirectorId || 0,
+					});
+				});
 			}
-			// -- APPLICANT
+			// -- APPLICANT OR ENTITY
 
-			// CO-APPLICANTS
-			const coApplicantDocTypeResHistory = {};
-			await asyncForEach(Object.keys(coApplicants), async directorId => {
-				const oldCoApplicantDocumentTypes = allDocumentTypes?.filter(
-					docType => `${docType.directorId}` === `${directorId}`
-				);
-				if (oldCoApplicantDocumentTypes?.length > 0) {
-					oldCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({
-							...docType,
-						})
-					);
-				} else {
-					const newCoApplicantDocumentTypes = await getCoApplicantDocumentTypes(
-						{
-							coApplicant: directors[directorId],
-							history: coApplicantDocTypeResHistory,
-						}
-					);
-					newCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({
-							...docType,
-						})
-					);
+			// NON-APPLICANTS
+			// const coApplicantDocTypeResHistory = {};
+			const allCoApplicantUniqueIncomeTypeIds = [];
+			Object.keys(nonApplicantDirectorsObject).forEach(directorId => {
+				const businessOrIncomeType =
+					nonApplicantDirectorsObject[directorId]?.income_type ||
+					nonApplicantDirectorsObject[directorId]?.businesstype;
+				if (!allCoApplicantUniqueIncomeTypeIds.includes(businessOrIncomeType)) {
+					allCoApplicantUniqueIncomeTypeIds.push(businessOrIncomeType);
 				}
 			});
-			// -- CO-APPLICANTS
+			const coAppDocTypesRes = await axios.get(
+				`${
+					API.CO_APPLICANTS_DOCTYPES_FETCH
+				}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
+			);
+			// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
+			coAppDocTypesRes?.data?.data?.forEach(
+				(nonApplicantDocs, nonApplicantIndex) => {
+					for (const key in nonApplicantDocs) {
+						nonApplicantDocs[key]?.forEach(docType => {
+							const category = getDocumentCategoryName(docType?.doc_type);
+							const newDoc = {
+								...docType,
+								doc_type_id: docType?.id,
+								type_name:
+									nonApplicantDirectorsArray?.[nonApplicantIndex]?.type_name,
+								value: docType?.id,
+								category,
+								directorId:
+									nonApplicantDirectorsArray?.[nonApplicantIndex]?.directorId,
+							};
+							newAllDocumentTypes.push(newDoc);
+						});
+					}
+				}
+			);
+			// -- NON-APPLICANTS
 
 			if (isViewLoan) {
 				const preFillLenderDocsTag = [];
@@ -510,119 +446,122 @@ const DocumentUpload = props => {
 	};
 
 	useEffect(() => {
-		initializeDocTypeList();
-		initializeCommentForOfficeUse();
-		if (isGeoTaggingEnabled) {
-			setGeoLocationData(selectedDirector.documentSelfieGeolocation);
-		}
-		// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
-		async function fetchSelfieData() {
-			try {
-				setSubmitting(true);
-				let section = selectedSection?.sub_sections?.filter(
-					section => section.id === 'on_site_selfie_with_applicant'
-				)?.[0];
-				let selectedField = section?.fields?.filter(field => {
-					if (field?.hasOwnProperty('is_applicant')) {
-						if (field.is_applicant === false && isApplicant) {
-							return null;
-						} else {
-							return field;
+		if (!isUseEffectCalledOnce.current) {
+			isUseEffectCalledOnce.current = true;
+			initializeDocTypeList();
+			initializeCommentForOfficeUse();
+			if (isGeoTaggingEnabled) {
+				setGeoLocationData(selectedDirector.documentSelfieGeolocation);
+			}
+			// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
+			async function fetchSelfieData() {
+				try {
+					setSubmitting(true);
+					let section = selectedSection?.sub_sections?.filter(
+						section => section.id === 'on_site_selfie_with_applicant'
+					)?.[0];
+					let selectedField = section?.fields?.filter(field => {
+						if (field?.hasOwnProperty('is_applicant')) {
+							if (field.is_applicant === false && isApplicant) {
+								return null;
+							} else {
+								return field;
+							}
 						}
-					}
-					if (field?.hasOwnProperty('is_co_applicant')) {
-						if (field.is_co_applicant === false && !isApplicant) {
-							return null;
-						} else {
-							return field;
-						}
-					}
-					return null;
-				})?.[0];
-				if (selectedField) {
-					const file = cacheDocuments?.filter(doc => {
-						if (
-							`${doc?.directorId}` === `${selectedDirectorId}` &&
-							doc?.doc_type?.id ===
-								selectedField?.doc_type?.[selectedIncomeType]
-						) {
-							return doc;
+						if (field?.hasOwnProperty('is_co_applicant')) {
+							if (field.is_co_applicant === false && !isApplicant) {
+								return null;
+							} else {
+								return field;
+							}
 						}
 						return null;
 					})?.[0];
-					if (file && Object.keys(file).length > 0) {
-						setCacheFile(file);
-						if (isGeoTaggingEnabled) {
+					if (selectedField) {
+						const file = cacheDocuments?.filter(doc => {
 							if (
-								!file?.loan_document_details?.[0]?.lat &&
-								!file?.loan_document_details?.[0]?.long
+								`${doc?.directorId}` === `${selectedDirectorId}` &&
+								doc?.doc_type?.id ===
+									selectedField?.doc_type?.[selectedIncomeType]
 							) {
-								setGeoLocationData({
-									err: 'Geo Location Not Captured',
-								});
-								dispatch(
-									setDocumentSelfieGeoLocation({
+								return doc;
+							}
+							return null;
+						})?.[0];
+						if (file && Object.keys(file).length > 0) {
+							setCacheFile(file);
+							if (isGeoTaggingEnabled) {
+								if (
+									!file?.loan_document_details?.[0]?.lat &&
+									!file?.loan_document_details?.[0]?.long
+								) {
+									setGeoLocationData({
 										err: 'Geo Location Not Captured',
+									});
+									dispatch(
+										setDocumentSelfieGeoLocation({
+											err: 'Geo Location Not Captured',
+										})
+									);
+									return;
+								}
+								const reqBody = {
+									lat: file?.loan_document_details?.[0]?.lat,
+									long: file?.loan_document_details?.[0]?.long,
+								};
+								const geoLocationRes = await axios.post(
+									API.GEO_LOCATION,
+									reqBody,
+									{
+										headers: {
+											Authorization: `Bearer ${userToken}`,
+										},
+									}
+								);
+								setGeoLocationData(geoLocationRes?.data?.data);
+								dispatch(
+									setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
+								);
+							}
+						}
+					}
+				} catch (err) {
+					addToast({
+						message:
+							err?.response?.data?.message ||
+							err?.message ||
+							'Oops! Something went wrong',
+						type: 'error',
+					});
+				} finally {
+					setSubmitting(false);
+				}
+			}
+			fetchSelfieData();
+
+			// SET MANDATORY FIELDS IN DOC UPLOAD SECTION TO APPLICANT/COAPPLICANT
+			function saveMandatoryGeoLocation() {
+				selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+					sub_section?.fields?.map((field, fieldIndex) => {
+						if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
+							if (field?.db_key === 'on_site_selfie') {
+								let reduxStoreKey = 'documentSelfieGeolocation';
+								dispatch(
+									setGeotaggingMandatoryFields({
+										directorId: selectedDirectorId,
+										field: reduxStoreKey,
 									})
 								);
-								return;
 							}
-							const reqBody = {
-								lat: file?.loan_document_details?.[0]?.lat,
-								long: file?.loan_document_details?.[0]?.long,
-							};
-							const geoLocationRes = await axios.post(
-								API.GEO_LOCATION,
-								reqBody,
-								{
-									headers: {
-										Authorization: `Bearer ${userToken}`,
-									},
-								}
-							);
-							setGeoLocationData(geoLocationRes?.data?.data);
-							dispatch(
-								setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
-							);
 						}
-					}
-				}
-			} catch (err) {
-				addToast({
-					message:
-						err?.response?.data?.message ||
-						err?.message ||
-						'Oops! Something went wrong',
-					type: 'error',
-				});
-			} finally {
-				setSubmitting(false);
-			}
-		}
-		fetchSelfieData();
-
-		// SET MANDATORY FIELDS IN DOC UPLOAD SECTION TO APPLICANT/COAPPLICANT
-		function saveMandatoryGeoLocation() {
-			selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				sub_section?.fields?.map((field, fieldIndex) => {
-					if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
-						if (field?.db_key === 'on_site_selfie') {
-							let reduxStoreKey = 'documentSelfieGeolocation';
-							dispatch(
-								setGeotaggingMandatoryFields({
-									directorId: selectedDirectorId,
-									field: reduxStoreKey,
-								})
-							);
-						}
-					}
+						return null;
+					});
 					return null;
 				});
-				return null;
-			});
-		}
-		if (isGeoTaggingEnabled) {
-			saveMandatoryGeoLocation();
+			}
+			if (isGeoTaggingEnabled) {
+				saveMandatoryGeoLocation();
+			}
 		}
 		// eslint-disable-next-line
 	}, []);
@@ -1027,8 +966,10 @@ const DocumentUpload = props => {
 				}
 			} else {
 				if (
-					Object.keys(coApplicants?.[director.value]?.documentSelfieGeolocation)
-						.length <= 0
+					Object.keys(
+						nonApplicantDirectorsObject?.[director.value]
+							?.documentSelfieGeolocation
+					).length <= 0
 				) {
 					result = false;
 				}
@@ -1108,7 +1049,7 @@ const DocumentUpload = props => {
 			!!mandatoryProfilePicFieldCoApplicant &&
 			Object.keys(mandatoryProfilePicFieldCoApplicant)?.length > 0
 		) {
-			Object.keys(coApplicants)?.map(coApplicantId => {
+			Object.keys(nonApplicantDirectorsObject)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
 				field.directorId = coApplicantId;
 				field.docTypeId = field?.doc_type?.[selectedIncomeType];
@@ -1133,7 +1074,7 @@ const DocumentUpload = props => {
 			!!mandatoryFieldCoApplicant &&
 			Object.keys(mandatoryFieldCoApplicant)?.length > 0
 		) {
-			Object.keys(coApplicants)?.map(coApplicantId => {
+			Object.keys(nonApplicantDirectorsObject)?.map(coApplicantId => {
 				const field = _.cloneDeep(mandatoryFieldCoApplicant);
 				field.directorId = coApplicantId;
 				field.docTypeId = field?.doc_type?.[selectedIncomeType];
@@ -1202,7 +1143,7 @@ const DocumentUpload = props => {
 			if (isApplicantImgMissing >= 0)
 				applicantCoappliantIndex?.push('Applicant');
 
-			Object.keys(coApplicants)?.map((coapp, index) => {
+			Object.keys(nonApplicantDirectorsObject)?.map((coapp, index) => {
 				if (missingDocsForDirectors?.includes(`${coapp}`)) {
 					applicantCoappliantIndex?.push(`Co-Applicant ${index + 1}`);
 				}
@@ -1262,23 +1203,23 @@ const DocumentUpload = props => {
 	// 			}
 	// 		} else {
 	// 			if (
-	// 				coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
-	// 				coApplicants?.[director.value]?.geotaggingMandatory.includes(
+	// 				nonApplicantDirectorsObject?.[director.value]?.geotaggingMandatory.length > 0 &&
+	// 				nonApplicantDirectorsObject?.[director.value]?.geotaggingMandatory.includes(
 	// 					'profileGeoLocation'
 	// 				)
 	// 			) {
-	// 				if (!coApplicants?.[director.value]?.profileGeoLocation?.address) {
+	// 				if (!nonApplicantDirectorsObject?.[director.value]?.profileGeoLocation?.address) {
 	// 					result = false;
 	// 				}
 	// 			}
 	// 			if (
-	// 				coApplicants?.[director.value]?.geotaggingMandatory.length > 0 &&
-	// 				coApplicants?.[director.value]?.geotaggingMandatory.includes(
+	// 				nonApplicantDirectorsObject?.[director.value]?.geotaggingMandatory.length > 0 &&
+	// 				nonApplicantDirectorsObject?.[director.value]?.geotaggingMandatory.includes(
 	// 					'documentSelfieGeolocation'
 	// 				)
 	// 			) {
 	// 				if (
-	// 					!coApplicants?.[director.value]?.documentSelfieGeolocation?.address
+	// 					!nonApplicantDirectorsObject?.[director.value]?.documentSelfieGeolocation?.address
 	// 				) {
 	// 					result = false;
 	// 				}
@@ -1304,7 +1245,7 @@ const DocumentUpload = props => {
 		}
 	};
 
-	// console.log('DocumentUpload-allprops-', {
+	// console.log('DocumentUpload-allstates-', {
 	// 	app,
 	// 	selectedDirector,
 	// 	cacheDocuments,
@@ -1447,9 +1388,9 @@ const DocumentUpload = props => {
 								{sub_section?.id === 'on_site_selfie_with_applicant'
 									? isApplicant
 										? sub_section?.name
-										: Object.keys(coApplicants).length > 1
+										: Object.keys(nonApplicantDirectorsObject).length > 1
 										? sub_section?.fields?.[1].label +
-										  ` ${Object.keys(coApplicants).indexOf(
+										  ` ${Object.keys(nonApplicantDirectorsObject).indexOf(
 												selectedDirectorId
 										  ) + 1}`
 										: sub_section?.fields?.[1].label
