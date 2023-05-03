@@ -411,6 +411,9 @@ const BusinessDetails = props => {
 							businessId:
 								responseData?.business_details?.id ||
 								responseData?.loan_data?.business_id?.id,
+							businessUserId: fetchRes?.data?.data?.business_details?.userid,
+							loanProductId: fetchRes?.data?.data?.loan_data?.loan_product_id,
+							createdByUserId: fetchRes?.data?.data?.loan_data?.createdUserId,
 						})
 					);
 				}
