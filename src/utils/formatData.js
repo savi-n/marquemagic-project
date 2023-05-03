@@ -4,6 +4,7 @@ import queryString from 'query-string';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import { ORIGIN } from '_config/app.config';
 import { isBusinessPan } from 'utils/helper';
+import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 
 export const businessTypeMaps = [
 	[['private', 'pvt'], 4],
@@ -926,4 +927,23 @@ export const getShortString = (str, max) => {
 		return str.slice(0, max) + '...';
 	}
 	return str;
+};
+
+export const formatAddressType = doc => {
+	const prefix =
+		`${doc?.document_details?.aid}` === '1'
+			? CONST_ADDRESS_DETAILS.PREFIX_PRESENT
+			: `${doc?.document_details?.aid}` === '2'
+			? CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
+			: null;
+
+	const valuesObj = {
+		aadhaar: `${prefix}aadhar`,
+		dl: `${prefix}DL`,
+		voter: `${prefix}voter`,
+		passport: `${prefix}passport`,
+		others: `${prefix}others`,
+	};
+	const value = valuesObj?.[doc?.document_details?.classification_type];
+	return `${value}`;
 };
