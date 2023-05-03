@@ -61,34 +61,51 @@ export const applicationSlice = createSlice({
 				borrowerUserId,
 			} = action.payload;
 
-			Object.keys(action.payload).map(id => {
-				if (state?.[id]?.length === 0) {
-					if (id === 'loanRefId') state.loanRefId = `${loanRefId}`;
-					if (id === 'loanId') state.loanId = `${loanId}`;
-					if (id === 'businessId') state.businessId = `${businessId}`;
-					if (id === 'businessUserId')
-						state.businessUserId = `${businessUserId}`;
-					if (id === 'loanProductId') state.loanProductId = `${loanProductId}`;
-					if (id === 'createdByUserId')
-						state.createdByUserId = `${createdByUserId}`;
-					if (id === 'loanAssetsId') state.loanAssetsId = `${loanAssetsId}`;
-					if (id === 'assetsAdditionalId')
-						state.assetsAdditionalId = `${assetsAdditionalId}`;
-					if (id === 'refId1') state.refId1 = `${refId1}`;
-					if (id === 'refId2') state.refId2 = `${refId2}`;
-					if (id === 'bankDetailsFinId')
-						state.bankDetailsFinId = `${bankDetailsFinId}`;
-					if (id === 'emiDetailsFinId')
-						state.emiDetailsFinId = `${emiDetailsFinId}`;
-					if (id === 'businessAddressIdAid1')
-						state.businessAddressIdAid1 = `${businessAddressIdAid1}`;
-					if (id === 'businessAddressIdAid2')
-						state.businessAddressIdAid2 = `${businessAddressIdAid2}`;
-					if (id === 'borrowerUserId')
-						state.borrowerUserId = `${borrowerUserId}`;
-				}
-				return null;
-			});
+			// Object.keys(action.payload).map(id => {
+			// 	if (state?.[id]?.length === 0) {
+			// 		if (id === 'loanRefId') state.loanRefId = `${loanRefId}`;
+			// 		if (id === 'loanId') state.loanId = `${loanId}`;
+			// 		if (id === 'businessId') state.businessId = `${businessId}`;
+			// 		if (id === 'businessUserId')
+			// 			state.businessUserId = `${businessUserId}`;
+			// 		if (id === 'loanProductId') state.loanProductId = `${loanProductId}`;
+			// 		if (id === 'createdByUserId')
+			// 			state.createdByUserId = `${createdByUserId}`;
+			// 		if (id === 'loanAssetsId') state.loanAssetsId = `${loanAssetsId}`;
+			// 		if (id === 'assetsAdditionalId')
+			// 			state.assetsAdditionalId = `${assetsAdditionalId}`;
+			// 		if (id === 'refId1') state.refId1 = `${refId1}`;
+			// 		if (id === 'refId2') state.refId2 = `${refId2}`;
+			// 		if (id === 'bankDetailsFinId')
+			// 			state.bankDetailsFinId = `${bankDetailsFinId}`;
+			// 		if (id === 'emiDetailsFinId')
+			// 			state.emiDetailsFinId = `${emiDetailsFinId}`;
+			// 		if (id === 'businessAddressIdAid1')
+			// 			state.businessAddressIdAid1 = `${businessAddressIdAid1}`;
+			// 		if (id === 'businessAddressIdAid2')
+			// 			state.businessAddressIdAid2 = `${businessAddressIdAid2}`;
+			// 		if (id === 'borrowerUserId')
+			// 			state.borrowerUserId = `${borrowerUserId}`;
+			// 	}
+			// 	return null;
+			// });
+			if (loanRefId) state.loanRefId = loanRefId;
+			if (loanId) state.loanId = loanId;
+			if (businessId) state.businessId = businessId;
+			if (businessUserId) state.businessUserId = businessUserId;
+			if (loanProductId) state.loanProductId = loanProductId;
+			if (createdByUserId) state.createdByUserId = createdByUserId;
+			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
+			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
+			if (refId1) state.refId1 = refId1;
+			if (refId2) state.refId2 = refId2;
+			if (bankDetailsFinId) state.bankDetailsFinId = bankDetailsFinId;
+			if (emiDetailsFinId) state.emiDetailsFinId = emiDetailsFinId;
+			if (businessAddressIdAid1)
+				state.businessAddressIdAid1 = businessAddressIdAid1;
+			if (businessAddressIdAid2)
+				state.businessAddressIdAid2 = businessAddressIdAid2;
+			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
 		setCompletedApplicationSection: (state, { payload }) => {
 			// payload === sectionId
