@@ -13,12 +13,13 @@ import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import { getGeoLocation } from 'utils/helper';
-import { setGeoLocation } from 'store/applicationSlice';
+import { setGeoLocation,reInitializeApplicationSlice } from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 // import Button from './Button';
 import { useState } from 'react';
 import { useToasts } from './Toast/ToastProvider';
+import { reInitializeDirectorsSlice } from 'store/directorsSlice';
 
 const Wrapper = styled.div`
 
@@ -157,6 +158,8 @@ export default function CardSubProduct({
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
 					name='Add loan'
 					onClick={async e => {
+						dispatch(reInitializeApplicationSlice());
+						dispatch(reInitializeDirectorsSlice());
 						// setSubProduct(true)
 						if (!add) {
 							try {

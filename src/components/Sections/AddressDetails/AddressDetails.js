@@ -109,6 +109,10 @@ const AddressDetails = props => {
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
+	const [
+		setIsPermanentAddressIsPresentAddress,
+		setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress,
+	] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
 	const completedSections = getAllCompletedSections({
@@ -606,15 +610,17 @@ const AddressDetails = props => {
 					return null;
 				});
 				setSectionData(fetchRes?.data?.data);
-
-				setPermanentCacheDocumentsTemp(
-					fetchRes?.data?.data?.loan_document_details?.filter(
-						doc =>
-							`${doc?.document_details?.aid}` === '2' &&
-							`${doc?.directorId}` === `${selectedDirectorId}` &&
-							doc?.document_details?.classification_type !== 'pan'
-					)
+				const permanentCacheDocumentsTempRes = fetchRes?.data?.data?.loan_document_details?.filter(
+					doc =>
+						`${doc?.document_details?.aid}` === '2' &&
+						`${doc?.directorId}` === `${selectedDirectorId}` &&
+						doc?.document_details?.classification_type !== 'pan'
 				);
+				if (permanentCacheDocumentsTempRes.length === 2)
+					setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress(
+						true
+					);
+				setPermanentCacheDocumentsTemp(permanentCacheDocumentsTempRes);
 				setPresentCacheDocumentsTemp(
 					fetchRes?.data?.data?.loan_document_details?.filter(
 						doc =>
@@ -867,59 +873,71 @@ const AddressDetails = props => {
 											}
 
 											if (isIdProofUploadField) {
-												return (
-													<UI_SECTIONS.FieldWrapGrid
-														style={{ gridColumn: 'span 2' }}
-														key={`field-${fieldIndex}-${field.name}`}
-													>
-														<AddressProofUpload
-															field={field}
-															register={register}
-															formState={formState}
-															onChangeFormStateField={onChangeFormStateField}
-															prefilledValues={prefilledValues}
-															prefix={prefix}
-															isPermanent={isPermanent}
-															disabled={!selectedAddressProofId}
-															isInActive={isInActiveAddressProofUpload}
-															isSectionCompleted={isSectionCompleted}
-															selectedAddressProofId={selectedAddressProofId}
-															selectedAddressProofFieldName={
-																selectedAddressProofFieldName
-															}
-															docTypeOptions={selectedDocumentTypes}
-															addressProofUploadSection={sub_section}
-															selectedDirector={selectedDirector}
-															addressProofError={
-																isPermanent
-																	? permanentAddressProofError
-																	: presentAddressProofError
-															}
-															setAddressProofError={
-																isPermanent
-																	? setPermanentAddressProofError
-																	: setPresentAddressProofError
-															}
-															onClickVerifyWithOtp={onClickVerifyWithOtp}
-															verifyingWithOtp={verifyingWithOtp}
-															cacheDocumentsTemp={cacheDocumentsTemp}
-															setCacheDocumentsTemp={
-																isPermanent
-																	? selectedAddressProofId?.includes('others')
-																		? setOtherPermanentCacheDocTemp
-																		: setPermanentCacheDocumentsTemp
-																	: selectedAddressProofId?.includes('others')
-																	? setOtherPresentCacheDocTemp
-																	: setPresentCacheDocumentsTemp
-															}
-															selectedDocTypeId={selectedDocTypeId}
-															selectedVerifyOtp={selectedVerifyOtp}
-															isEditLoan={isEditLoan}
-															isViewLoan={isViewLoan}
-															isEditOrViewLoan={isEditOrViewLoan}
-														/>
-													</UI_SECTIONS.FieldWrapGrid>
-												);
+												if (
+													sub_section.id ===
+														CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
+													!!setIsPermanentAddressIsPresentAddress
+												) {
+													return null;
+												} else {
+													return (
+														<UI_SECTIONS.FieldWrapGrid
+															style={{
+																gridColumn: 'span 2',
+															}}
+															key={`field-${fieldIndex}-${field.name}`}
+														>
+															{/* {console.log(field.name,isIdProofUploadField)} */}
+
+															<AddressProofUpload
+																field={field}
+																register={register}
+																formState={formState}
+																onChangeFormStateField={onChangeFormStateField}
+																prefilledValues={prefilledValues}
+																prefix={prefix}
+																isPermanent={isPermanent}
+																disabled={!selectedAddressProofId}
+																isInActive={isInActiveAddressProofUpload}
+																isSectionCompleted={isSectionCompleted}
+																selectedAddressProofId={selectedAddressProofId}
+																selectedAddressProofFieldName={
+																	selectedAddressProofFieldName
+																}
+																docTypeOptions={selectedDocumentTypes}
+																addressProofUploadSection={sub_section}
+																selectedDirector={selectedDirector}
+																addressProofError={
+																	isPermanent
+																		? permanentAddressProofError
+																		: presentAddressProofError
+																}
+																setAddressProofError={
+																	isPermanent
+																		? setPermanentAddressProofError
+																		: setPresentAddressProofError
+																}
+																onClickVerifyWithOtp={onClickVerifyWithOtp}
+																verifyingWithOtp={verifyingWithOtp}
+																cacheDocumentsTemp={cacheDocumentsTemp}
+																setCacheDocumentsTemp={
+																	isPermanent
+																		? selectedAddressProofId?.includes('others')
+																			? setOtherPermanentCacheDocTemp
+																			: setPermanentCacheDocumentsTemp
+																		: selectedAddressProofId?.includes('others')
+																		? setOtherPresentCacheDocTemp
+																		: setPresentCacheDocumentsTemp
+																}
+																selectedDocTypeId={selectedDocTypeId}
+																selectedVerifyOtp={selectedVerifyOtp}
+																isEditLoan={isEditLoan}
+																isViewLoan={isViewLoan}
+																isEditOrViewLoan={isEditOrViewLoan}
+															/>
+														</UI_SECTIONS.FieldWrapGrid>
+													);
+												}
 											}
 
 											if (
@@ -991,7 +1009,15 @@ const AddressDetails = props => {
 											) {
 												customFieldProps.disabled = true;
 											}
-
+											//here
+											// console.log(sub_section);
+											if (
+												sub_section.id ===
+													CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
+												!!setIsPermanentAddressIsPresentAddress
+											) {
+												return null;
+											}
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${prefix}-${fieldIndex}-${field.name}`}
