@@ -13,7 +13,11 @@ import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
-import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
+import {
+	setIsDraftLoan,
+	setLoginCreateUserRes,
+	setSelectedSectionId,
+} from 'store/appSlice';
 import { setNewCompletedDirectorSections } from 'store/directorsSlice';
 import {
 	setLoanIds,
@@ -425,6 +429,13 @@ const BusinessDetails = props => {
 					dispatch(
 						setNewCompletedSections(tempCompletedSections?.loan_details)
 					);
+					if (
+						!tempCompletedSections?.loan_details?.includes(
+							CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
+						)
+					) {
+						dispatch(setIsDraftLoan(true));
+					}
 					dispatch(
 						setNewCompletedDirectorSections(
 							tempCompletedSections?.director_details

@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import _ from 'lodash';
+import { APPLICATION_SUBMITTED_SECTION_ID } from 'components/Sections/const';
 
 const initialState = {
 	borrowerUserId: '',
@@ -51,7 +52,9 @@ export const applicationSlice = createSlice({
 		},
 
 		setNewCompletedSections: (state, { payload }) => {
-			state.sections = payload;
+			state.sections = payload.filter(
+				id => id !== APPLICATION_SUBMITTED_SECTION_ID
+			);
 		},
 
 		// CACHE DOCUMENT RELATED ACTIONS
