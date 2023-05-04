@@ -53,6 +53,7 @@ const SideNav = props => {
 	// 	completedSections,
 	// 	selectedDirector,
 	// 	application,
+	// 	addNewDirectorKey,
 	// });
 
 	return (

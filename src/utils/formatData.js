@@ -522,8 +522,8 @@ export const getAllCompletedSections = data => {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
 	}
 	// 'Entity'
-	if (!addNewDirectorKey && !selectedDirector) {
-		completedSections = [...completedSections, ...directorSectionIds];
+	if (!addNewDirectorKey && !selectedDirector?.directorId) {
+		completedSections = [...completedSections, ...(directorSectionIds || [])];
 	}
 	return completedSections;
 };
