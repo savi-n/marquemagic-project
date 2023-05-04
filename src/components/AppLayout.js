@@ -45,7 +45,6 @@ import imgProductBg from 'assets/images/bg/Landing_page_blob-element.png';
 import { decryptRes } from 'utils/encrypt';
 // import * as CONST_EMI_DETAILS from 'components/Sections/EMIDetails/const';
 // import * as CONST_BANK_DETAILS from 'components/Sections/BankDetails/const';
-// import { formatLoanDocuments } from 'utils/formatData';
 
 const HeaderWrapper = styled.div`
   min-height: 80px;
