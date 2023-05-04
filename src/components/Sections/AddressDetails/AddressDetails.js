@@ -867,65 +867,109 @@ const AddressDetails = props => {
 											}
 
 											if (isIdProofUploadField) {
-												if(sub_section.id===CONST_ADDRESS_DETAILS.SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD  && !!setIsPermanentAddressIsPresentAddress){
+												if (
+													sub_section.id ===
+														CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
+													!!setIsPermanentAddressIsPresentAddress
+												) {
 													return null;
 												} else {
-												return (
-													<UI_SECTIONS.FieldWrapGrid
-														style={{ gridColumn: 'span 2' }}
-														key={`field-${fieldIndex}-${field.name}`}
-													>
-														{/* {console.log(field.name,isIdProofUploadField)} */}
+													return (
+														<UI_SECTIONS.FieldWrapGrid
+															style={{
+																gridColumn: 'span 2',
+															}}
+															key={`field-${fieldIndex}-${
+																field.name
+															}`}
+														>
+															{/* {console.log(field.name,isIdProofUploadField)} */}
 
-														<AddressProofUpload
-															field={field}
-															register={register}
-															formState={formState}
-															onChangeFormStateField={onChangeFormStateField}
-															prefilledValues={prefilledValues}
-															prefix={prefix}
-															isPermanent={isPermanent}
-															disabled={!selectedAddressProofId}
-															isInActive={isInActiveAddressProofUpload}
-															isSectionCompleted={isSectionCompleted}
-															selectedAddressProofId={selectedAddressProofId}
-															selectedAddressProofFieldName={
-																selectedAddressProofFieldName
-															}
-															docTypeOptions={selectedDocumentTypes}
-															addressProofUploadSection={sub_section}
-															selectedDirector={selectedDirector}
-															addressProofError={
-																isPermanent
-																	? permanentAddressProofError
-																	: presentAddressProofError
-															}
-															setAddressProofError={
-																isPermanent
-																	? setPermanentAddressProofError
-																	: setPresentAddressProofError
-															}
-															onClickVerifyWithOtp={onClickVerifyWithOtp}
-															verifyingWithOtp={verifyingWithOtp}
-															cacheDocumentsTemp={cacheDocumentsTemp}
-															setCacheDocumentsTemp={
-																isPermanent
-																	? selectedAddressProofId?.includes('others')
-																		? setOtherPermanentCacheDocTemp
-																		: setPermanentCacheDocumentsTemp
-																	: selectedAddressProofId?.includes('others')
-																	? setOtherPresentCacheDocTemp
-																	: setPresentCacheDocumentsTemp
-															}
-															selectedDocTypeId={selectedDocTypeId}
-															selectedVerifyOtp={selectedVerifyOtp}
-															isEditLoan={isEditLoan}
-															isViewLoan={isViewLoan}
-															isEditOrViewLoan={isEditOrViewLoan}
-														/>
-													</UI_SECTIONS.FieldWrapGrid>
-												);
-														}
+															<AddressProofUpload
+																field={field}
+																register={register}
+																formState={formState}
+																onChangeFormStateField={
+																	onChangeFormStateField
+																}
+																prefilledValues={
+																	prefilledValues
+																}
+																prefix={prefix}
+																isPermanent={
+																	isPermanent
+																}
+																disabled={
+																	!selectedAddressProofId
+																}
+																isInActive={
+																	isInActiveAddressProofUpload
+																}
+																isSectionCompleted={
+																	isSectionCompleted
+																}
+																selectedAddressProofId={
+																	selectedAddressProofId
+																}
+																selectedAddressProofFieldName={
+																	selectedAddressProofFieldName
+																}
+																docTypeOptions={
+																	selectedDocumentTypes
+																}
+																addressProofUploadSection={
+																	sub_section
+																}
+																selectedDirector={
+																	selectedDirector
+																}
+																addressProofError={
+																	isPermanent
+																		? permanentAddressProofError
+																		: presentAddressProofError
+																}
+																setAddressProofError={
+																	isPermanent
+																		? setPermanentAddressProofError
+																		: setPresentAddressProofError
+																}
+																onClickVerifyWithOtp={
+																	onClickVerifyWithOtp
+																}
+																verifyingWithOtp={
+																	verifyingWithOtp
+																}
+																cacheDocumentsTemp={
+																	cacheDocumentsTemp
+																}
+																setCacheDocumentsTemp={
+																	isPermanent
+																		? selectedAddressProofId?.includes(
+																				'others'
+																		  )
+																			? setOtherPermanentCacheDocTemp
+																			: setPermanentCacheDocumentsTemp
+																		: selectedAddressProofId?.includes(
+																				'others'
+																		  )
+																		? setOtherPresentCacheDocTemp
+																		: setPresentCacheDocumentsTemp
+																}
+																selectedDocTypeId={
+																	selectedDocTypeId
+																}
+																selectedVerifyOtp={
+																	selectedVerifyOtp
+																}
+																isEditLoan={isEditLoan}
+																isViewLoan={isViewLoan}
+																isEditOrViewLoan={
+																	isEditOrViewLoan
+																}
+															/>
+														</UI_SECTIONS.FieldWrapGrid>
+													);
+												}
 											}
 
 											if (
@@ -999,7 +1043,11 @@ const AddressDetails = props => {
 											}
 											//here
 											// console.log(sub_section);
-											if(sub_section.id===CONST_ADDRESS_DETAILS.SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD && !!setIsPermanentAddressIsPresentAddress){
+											if (
+												sub_section.id ===
+													CONST_ADDRESS_DETAILS.SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD &&
+												!!setIsPermanentAddressIsPresentAddress
+											) {
 												return null;
 											}
 											return (

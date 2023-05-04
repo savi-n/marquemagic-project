@@ -36,7 +36,8 @@ export const AID_PRESENT = '1';
 export const AID_PERMANENT = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
 export const ADDRESSPROOF = 'addressproof';
-export const SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD="present_address_proof_upload";
+export const SUB_SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD =
+	'present_address_proof_upload';
 
 
 export const PERMANENT_ADDRESS_DETAILS_SECTION_ID = 'permanent_address_details';
