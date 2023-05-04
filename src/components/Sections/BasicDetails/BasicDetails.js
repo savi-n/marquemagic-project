@@ -656,7 +656,7 @@ const BasicDetails = props => {
 		if (
 			!!loanRefId &&
 			!!selectedDirector
-			//&& !!selectedDirector?.section?.includes('basic_details')
+			&& !!selectedDirector?.sections?.includes('basic_details')
 		)
 			fetchSectionDetails();
 		// new fetch section data ends

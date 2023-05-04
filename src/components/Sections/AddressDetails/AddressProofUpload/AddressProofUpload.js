@@ -193,9 +193,19 @@ const AddressProofUpload = props => {
 		// const dob = extractionData?.DOB || extractionData?.dob;
 
 		const fullAddress = extractionData?.address || extractionData?.Address;
+		// console.log(fullAddress,"fullAddress");
+		const addressArray= fullAddress.split(/[;,]+/)
 		onChangeFormStateField({
 			name: `${prefix}address1`,
-			value: fullAddress,
+			value: addressArray?.[0],
+		});
+		onChangeFormStateField({
+			name: `${prefix}address2`,
+			value: addressArray?.[1],
+		});
+		onChangeFormStateField({
+			name: `${prefix}address3`,
+			value: addressArray?.[2],
 		});
 		const pinCode = extractionData?.pincode;
 		if (!!pinCode) {
