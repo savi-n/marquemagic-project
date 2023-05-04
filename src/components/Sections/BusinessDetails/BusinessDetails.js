@@ -215,6 +215,8 @@ const BusinessDetails = props => {
 					});
 					addDirectorsReqBody.data =
 						companyRocData?.directorsForShow || companyRocData?.data?.director;
+					addDirectorsReqBody.business_id = newBusinessId;
+					addDirectorsReqBody.loan_id = newLoanId;
 					axios.post(API.ADD_MULTIPLE_DIRECTOR, addDirectorsReqBody);
 					// console.log({ addDirectorRes });
 				} catch (error) {
