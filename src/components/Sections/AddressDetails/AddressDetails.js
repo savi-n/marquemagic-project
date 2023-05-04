@@ -109,7 +109,10 @@ const AddressDetails = props => {
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
-	const [setIsPermanentAddressIsPresentAddress, setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress] = useState(false);
+	const [
+		setIsPermanentAddressIsPresentAddress,
+		setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress,
+	] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
 	const completedSections = getAllCompletedSections({
@@ -613,7 +616,10 @@ const AddressDetails = props => {
 						`${doc?.directorId}` === `${selectedDirectorId}` &&
 						doc?.document_details?.classification_type !== 'pan'
 				);
-				if(permanentCacheDocumentsTempRes.length===2) setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress(true);
+				if (permanentCacheDocumentsTempRes.length === 2)
+					setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress(
+						true
+					);
 				setPermanentCacheDocumentsTemp(permanentCacheDocumentsTempRes);
 				setPresentCacheDocumentsTemp(
 					fetchRes?.data?.data?.loan_document_details?.filter(
@@ -879,9 +885,7 @@ const AddressDetails = props => {
 															style={{
 																gridColumn: 'span 2',
 															}}
-															key={`field-${fieldIndex}-${
-																field.name
-															}`}
+															key={`field-${fieldIndex}-${field.name}`}
 														>
 															{/* {console.log(field.name,isIdProofUploadField)} */}
 
@@ -889,40 +893,20 @@ const AddressDetails = props => {
 																field={field}
 																register={register}
 																formState={formState}
-																onChangeFormStateField={
-																	onChangeFormStateField
-																}
-																prefilledValues={
-																	prefilledValues
-																}
+																onChangeFormStateField={onChangeFormStateField}
+																prefilledValues={prefilledValues}
 																prefix={prefix}
-																isPermanent={
-																	isPermanent
-																}
-																disabled={
-																	!selectedAddressProofId
-																}
-																isInActive={
-																	isInActiveAddressProofUpload
-																}
-																isSectionCompleted={
-																	isSectionCompleted
-																}
-																selectedAddressProofId={
-																	selectedAddressProofId
-																}
+																isPermanent={isPermanent}
+																disabled={!selectedAddressProofId}
+																isInActive={isInActiveAddressProofUpload}
+																isSectionCompleted={isSectionCompleted}
+																selectedAddressProofId={selectedAddressProofId}
 																selectedAddressProofFieldName={
 																	selectedAddressProofFieldName
 																}
-																docTypeOptions={
-																	selectedDocumentTypes
-																}
-																addressProofUploadSection={
-																	sub_section
-																}
-																selectedDirector={
-																	selectedDirector
-																}
+																docTypeOptions={selectedDocumentTypes}
+																addressProofUploadSection={sub_section}
+																selectedDirector={selectedDirector}
 																addressProofError={
 																	isPermanent
 																		? permanentAddressProofError
@@ -933,39 +917,23 @@ const AddressDetails = props => {
 																		? setPermanentAddressProofError
 																		: setPresentAddressProofError
 																}
-																onClickVerifyWithOtp={
-																	onClickVerifyWithOtp
-																}
-																verifyingWithOtp={
-																	verifyingWithOtp
-																}
-																cacheDocumentsTemp={
-																	cacheDocumentsTemp
-																}
+																onClickVerifyWithOtp={onClickVerifyWithOtp}
+																verifyingWithOtp={verifyingWithOtp}
+																cacheDocumentsTemp={cacheDocumentsTemp}
 																setCacheDocumentsTemp={
 																	isPermanent
-																		? selectedAddressProofId?.includes(
-																				'others'
-																		  )
+																		? selectedAddressProofId?.includes('others')
 																			? setOtherPermanentCacheDocTemp
 																			: setPermanentCacheDocumentsTemp
-																		: selectedAddressProofId?.includes(
-																				'others'
-																		  )
+																		: selectedAddressProofId?.includes('others')
 																		? setOtherPresentCacheDocTemp
 																		: setPresentCacheDocumentsTemp
 																}
-																selectedDocTypeId={
-																	selectedDocTypeId
-																}
-																selectedVerifyOtp={
-																	selectedVerifyOtp
-																}
+																selectedDocTypeId={selectedDocTypeId}
+																selectedVerifyOtp={selectedVerifyOtp}
 																isEditLoan={isEditLoan}
 																isViewLoan={isViewLoan}
-																isEditOrViewLoan={
-																	isEditOrViewLoan
-																}
+																isEditOrViewLoan={isEditOrViewLoan}
 															/>
 														</UI_SECTIONS.FieldWrapGrid>
 													);
