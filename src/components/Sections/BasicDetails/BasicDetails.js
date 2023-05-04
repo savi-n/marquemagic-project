@@ -16,7 +16,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
-import { DIRECTOR_TYPES, setProfileGeoLocation } from 'store/directorsSlice';
+import { setProfileGeoLocation } from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setGeoLocation,
