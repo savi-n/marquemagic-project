@@ -40,10 +40,10 @@ import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusi
 
 const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId } = useSelector(
-		state => state.directors
-	);
-	const selectedDirector = directors?.[selectedDirectorId] || {};
+	// const { directors, selectedDirectorId } = useSelector(
+	// 	state => state.directors
+	// );
+	// const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -63,8 +63,8 @@ const BusinessDetails = props => {
 	const {
 		borrowerUserId,
 		businessUserId,
-		businessId,
-		loanId,
+		// businessId,
+		// loanId,
 		businessType,
 		loanRefId,
 	} = application;
@@ -165,7 +165,7 @@ const BusinessDetails = props => {
 					...formState.values,
 				},
 				app,
-				selectedDirector,
+				// selectedDirector,
 				application,
 				selectedLoanProductId,
 			});
@@ -209,7 +209,7 @@ const BusinessDetails = props => {
 						section: selectedSection,
 						values: {},
 						app,
-						selectedDirector,
+						// selectedDirector,
 						application,
 						selectedLoanProductId,
 					});
@@ -387,9 +387,6 @@ const BusinessDetails = props => {
 			const fetchRes = await axios.get(`${API_END_POINT}/business_details`, {
 				params: {
 					loan_ref_id: loanRefId,
-					doc_type_id: businessType
-						? selectedPanUploadField?.doc_type?.[businessType]
-						: null,
 				},
 			});
 			if (fetchRes?.data?.status === 'ok') {
@@ -459,7 +456,7 @@ const BusinessDetails = props => {
 			);
 		}
 		//new get api
-		if ((!!businessId && !!loanId) || loanRefId) fetchSectionDetails();
+		if (loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
 	const ButtonProceed = (
