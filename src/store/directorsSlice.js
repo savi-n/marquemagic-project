@@ -45,15 +45,23 @@ const initialState = {
 
 export const getDirectors = createAsyncThunk(
 	'getDirectors',
-	async (loanRefId, { rejectWithValue }) => {
+	async (data, { rejectWithValue }) => {
+		const { loanRefId, isSelectedProductTypeBusiness } = data;
+		const res = {
+			existingDirectors: [],
+			isSelectedProductTypeBusiness,
+		};
 		try {
 			const directorsRes = await axios.get(
 				`${API_END_POINT}/director_details?loan_ref_id=${loanRefId}`
 			);
-			return directorsRes?.data?.data || [];
+			// return directorsRes?.data?.data || [];
+			res.existingDirectors = directorsRes?.data?.data || [];
 		} catch (error) {
-			return rejectWithValue(error.message);
+			// return [];
+			// return rejectWithValue(error.message);
 		}
+		return res;
 	}
 );
 
@@ -65,6 +73,7 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectors = true;
 		},
 		[getDirectors.fulfilled]: (state, { payload }) => {
+			const { existingDirectors, isSelectedProductTypeBusiness } = payload;
 			const prevState = current(state);
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
@@ -72,7 +81,7 @@ export const directorsSlice = createSlice({
 			let applicantDirector = {};
 			let lastDirector = {};
 			const newSelectedDirectorOptions = [];
-			const sortedDirectors = payload?.sort(
+			const sortedDirectors = existingDirectors?.sort(
 				(a, b) => a?.type_name - b?.type_name
 			);
 			let newIsEntity = true;
@@ -114,12 +123,12 @@ export const directorsSlice = createSlice({
 				// console.log(newDirectors);
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				// console.log(prevDirector);
-				state.selectedDirectorId = `${prevDirector?.directorId}`;
+				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
-				state.selectedDirectorId = `${lastDirector.directorId}`;
+				state.selectedDirectorId = `${lastDirector.directorId || ''}`;
 			}
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;
@@ -127,7 +136,11 @@ export const directorsSlice = createSlice({
 			state.applicantDirectorId =
 				`${applicantDirector?.directorId || ''}` || '';
 			if (newSelectedDirectorOptions.length === 0) {
-				state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
+				if (isSelectedProductTypeBusiness) {
+					state.addNewDirectorKey = DIRECTOR_TYPES.director;
+				} else {
+					state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
+				}
 			}
 		},
 		[getDirectors.rejected]: (state, { payload }) => {
@@ -148,7 +161,7 @@ export const directorsSlice = createSlice({
 		},
 		setSelectedDirectorId: (state, { payload }) => {
 			// action.payload === directorid
-			state.selectedDirectorId = payload;
+			state.selectedDirectorId = payload || '';
 		},
 		setCompletedDirectorSection: (state, { payload }) => {
 			try {
