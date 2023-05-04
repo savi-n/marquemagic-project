@@ -32,6 +32,7 @@ import {
 	parseJSON,
 	getApiErrorMessage,
 	isDirectorApplicant,
+	formatLoanDocuments,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -81,6 +82,7 @@ const DocumentUpload = props => {
 	} = app;
 
 	const {
+		loanRefId,
 		loanId,
 		businessId,
 		loanProductId,
@@ -141,34 +143,6 @@ const DocumentUpload = props => {
 
 	let prefilledProfileUploadValue = '';
 
-	// EVAL DOCUMENTS
-	const initializeExternalUserDocCheckList = async () => {
-		try {
-			const evalData = await axios.get(
-				`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
-			);
-			const selectedEvalData = evalData?.data?.data?.filter(
-				d => `${d?.assign_userid}` === `${userDetails?.id}`
-			)?.[0];
-			const newSelectedDocCheckList = selectedEvalData
-				? selectedEvalData?.assigned_document_list
-					? JSON.parse(selectedEvalData?.assigned_document_list)
-					: []
-				: [];
-			// setSelectedDocCheckList(newSelectedDocCheckList);
-			// console.log('initializeExternalUserDocCheckList-evalData-', {
-			// 	userDetails,
-			// 	evalData,
-			// 	selectedEvalData,
-			// 	newSelectedDocCheckList,
-			// 	editLoanData,
-			// });
-			return newSelectedDocCheckList;
-		} catch (error) {
-			console.error('error-initializeExternalUserDocCheckList-', error);
-		}
-	};
-
 	const initializeDocTypeList = async () => {
 		try {
 			// console.log('initializeDocTypeList');
@@ -177,42 +151,69 @@ const DocumentUpload = props => {
 			const newAllDocumentTypes = [];
 
 			// EXTERNAL / OTHER USER
-			let externalUserSelectedDocTypeList = [];
-			const externalUserSelectedDocTypeIds = [];
+			const externalUserAllowedToViewDocTypeIds = [];
 			if (isViewLoan) {
-				externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
-				externalUserSelectedDocTypeList.map(doc => {
-					externalUserSelectedDocTypeIds.push(
-						`${doc?.director_id}${doc?.doc_type_id}`
+				// externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
+				try {
+					const evalData = await axios.get(
+						`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
 					);
-					return null;
-				});
+					const selectedEvalData = evalData?.data?.data?.filter(
+						d => `${d?.assign_userid}` === `${userDetails?.id}`
+					)?.[0];
+					const newSelectedDocCheckList = selectedEvalData
+						? selectedEvalData?.assigned_document_list
+							? JSON.parse(selectedEvalData?.assigned_document_list)
+							: []
+						: [];
+					newSelectedDocCheckList.map(doc => {
+						externalUserAllowedToViewDocTypeIds.push(
+							`${doc?.director_id}${doc?.doc_type_id}`
+						);
+						return null;
+					});
+					// console.log('initializeExternalUserDocCheckList-evalData-', {
+					// 	userDetails,
+					// 	evalData,
+					// 	selectedEvalData,
+					// 	newSelectedDocCheckList,
+					// 	editLoanData,
+					// });
+				} catch (error) {
+					console.error('error-initializeExternalUserDocCheckList-', error);
+				}
 			}
 			// -- EXTERNAL / OTHER USER
 
 			// APPLICANT OR ENTITY
-			const reqBody = {
-				business_type:
-					selectedDirector?.basic_details?.income_type ||
-					selectedDirector?.income_type,
-				loan_product: loanProductId,
-			};
-			// console.log('applicantDocReqBody-', { reqBody });
-			const applicantDocRes = await axios.post(API.DOCTYPES_FETCH, reqBody);
-			// console.log('applicantDocRes-', applicantDocRes);
-
-			for (const key in applicantDocRes?.data) {
-				applicantDocRes?.data[key].forEach(d => {
-					const category = getDocumentCategoryName(d?.doc_type);
-					newAllDocumentTypes.push({
-						...d,
-						value: d.doc_type_id,
-						name: d.name,
-						doc_type_id: d.doc_type_id,
-						category,
-						directorId: applicantDirectorId || 0,
+			try {
+				const reqBody = {
+					business_type:
+						selectedDirector?.basic_details?.income_type ||
+						selectedDirector?.income_type,
+					loan_product: loanProductId,
+				};
+				// console.log('applicantDocReqBody-', { reqBody });
+				const applicantDocRes = await axios.post(API.DOCTYPES_FETCH, reqBody);
+				// console.log('applicantDocRes-', applicantDocRes);
+				for (const key in applicantDocRes?.data) {
+					applicantDocRes?.data[key].forEach(d => {
+						const category = getDocumentCategoryName(d?.doc_type);
+						newAllDocumentTypes.push({
+							...d,
+							value: d.doc_type_id,
+							name: d.name,
+							doc_type_id: d.doc_type_id,
+							category,
+							directorId: applicantDirectorId || 0,
+						});
 					});
-				});
+				}
+			} catch (error) {
+				console.error(
+					'error-failed-to-fetch-applicant-entity-documentlist-',
+					error
+				);
 			}
 			// -- APPLICANT OR ENTITY
 
@@ -227,132 +228,170 @@ const DocumentUpload = props => {
 					allCoApplicantUniqueIncomeTypeIds.push(businessOrIncomeType);
 				}
 			});
-			const coAppDocTypesRes = await axios.get(
-				`${
-					API.CO_APPLICANTS_DOCTYPES_FETCH
-				}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
-			);
-			// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
-			coAppDocTypesRes?.data?.data?.forEach(
-				(nonApplicantDocs, nonApplicantIndex) => {
-					for (const key in nonApplicantDocs) {
-						nonApplicantDocs[key]?.forEach(docType => {
-							const category = getDocumentCategoryName(docType?.doc_type);
-							const newDoc = {
-								...docType,
-								doc_type_id: docType?.id,
-								type_name:
-									nonApplicantDirectorsArray?.[nonApplicantIndex]?.type_name,
-								value: docType?.id,
-								category,
-								directorId:
-									nonApplicantDirectorsArray?.[nonApplicantIndex]?.directorId,
-							};
-							newAllDocumentTypes.push(newDoc);
-						});
-					}
+			if (allCoApplicantUniqueIncomeTypeIds.length > 0) {
+				try {
+					const coAppDocTypesRes = await axios.get(
+						`${
+							API.CO_APPLICANTS_DOCTYPES_FETCH
+						}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
+					);
+					// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
+					coAppDocTypesRes?.data?.data?.forEach(
+						(nonApplicantDocs, nonApplicantIndex) => {
+							for (const key in nonApplicantDocs) {
+								nonApplicantDocs[key]?.forEach(docType => {
+									const category = getDocumentCategoryName(docType?.doc_type);
+									const newDoc = {
+										...docType,
+										doc_type_id: docType?.id,
+										type_name:
+											nonApplicantDirectorsArray?.[nonApplicantIndex]
+												?.type_name,
+										value: docType?.id,
+										category,
+										directorId:
+											nonApplicantDirectorsArray?.[nonApplicantIndex]
+												?.directorId,
+									};
+									newAllDocumentTypes.push(newDoc);
+								});
+							}
+						}
+					);
+				} catch (error) {
+					console.error(
+						'error-failted to fetch coapplicant document list-',
+						error
+					);
 				}
-			);
+			}
 			// -- NON-APPLICANTS
 
-			if (isViewLoan) {
-				const preFillLenderDocsTag = [];
-				const preFillEvalDocsTag = [];
-				editLoanData?.lender_document?.map(lenderDoc => {
-					const docListItem = lenderDoc?.doc_type;
-					const priority = docListItem?.priority;
-					const doctype = docListItem?.id;
-					const name =
-						lenderDoc?.uploaded_doc_name ||
-						lenderDoc?.original_doc_name ||
-						lenderDoc?.doc_name;
-					const document_key = lenderDoc?.doc_name;
-					let displayEvalDoc = false;
-					if (userDetails.is_other) {
-						if (lenderDoc.uploaded_by === userDetails.id) {
-							displayEvalDoc = true;
-						}
-					} else {
-						displayEvalDoc = true;
-					}
-					if (displayEvalDoc) {
-						if (priority === '300') {
-							const doc_type_id = doctype;
-							const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
-							if (
-								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
-									?.length <= 0
-							) {
-								newAllDocumentTypes.push({
-									...docListItem,
-									doc_type_id,
-									category,
-									directorId: applicantDirectorId,
-								});
-							}
-							preFillLenderDocsTag.push({
-								...lenderDoc,
-								doctype,
-								doc_type_id,
-								category,
-								name,
-								document_key,
-								directorId: applicantDirectorId,
-								document_id: lenderDoc?.id,
-							});
-							return null;
-						}
-						if (priority === '3') {
-							const doc_type_id = doctype;
-							const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
-							if (
-								newAllDocumentTypes?.filter(d => d?.doc_type_id === doc_type_id)
-									?.length <= 0
-							) {
-								newAllDocumentTypes.push({
-									...docListItem,
-									doc_type_id,
-									category,
-									directorId: applicantDirectorId,
-								});
-							}
-							// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
-							// this is to overwrite assignment document checklist
-							// DOS-3031
-							if (
-								userDetails.is_other &&
-								lenderDoc.uploaded_by === userDetails.id
-							) {
-								externalUserSelectedDocTypeIds.push(
-									`${applicantDirectorId}${doc_type_id}`
-								);
-							}
+			// FETCH ALL DOCUMENTS
+			try {
+				let preFillKycFinOtherDocs = [];
+				const preFillLenderDocs = [];
+				const preFillEvalDocs = [];
+				const allDocumentsRes = await axios.get(
+					`${
+						API.GET_ALL_UPLOADED_DOCUMENTS_UIUX
+						// API.GET_ALL_UPLOADED_DOCUMENTS
+					}?loan_ref_id=${loanRefId}`
+				);
+				console.log('allDocumentsRes-', allDocumentsRes);
+				if (allDocumentsRes?.data?.documentList?.loan_document?.length > 0) {
+					preFillKycFinOtherDocs = formatLoanDocuments({
+						docs: allDocumentsRes?.data?.documentList?.loan_document,
+						docTypes: newAllDocumentTypes,
+					});
+				}
 
-							preFillEvalDocsTag.push({
-								...lenderDoc,
-								doctype,
-								doc_type_id,
-								category,
-								name,
-								document_key,
-								directorId: applicantDirectorId,
-								document_id: lenderDoc?.id,
-							});
+				if (isViewLoan) {
+					allDocumentsRes?.data?.documentList?.lender_document?.map(
+						lenderDoc => {
+							const docListItem = lenderDoc?.doc_type;
+							const priority = docListItem?.priority;
+							const doctype = docListItem?.id;
+							const name =
+								lenderDoc?.uploaded_doc_name ||
+								lenderDoc?.original_doc_name ||
+								lenderDoc?.doc_name;
+							const document_key = lenderDoc?.doc_name;
+							let displayEvalDoc = false;
+							if (userDetails.is_other) {
+								if (lenderDoc.uploaded_by === userDetails.id) {
+									displayEvalDoc = true;
+								}
+							} else {
+								displayEvalDoc = true;
+							}
+							if (displayEvalDoc) {
+								if (priority === '300') {
+									const doc_type_id = doctype;
+									const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
+									if (
+										newAllDocumentTypes?.filter(
+											d => d?.doc_type_id === doc_type_id
+										)?.length <= 0
+									) {
+										newAllDocumentTypes.push({
+											...docListItem,
+											doc_type_id,
+											category,
+											directorId: applicantDirectorId,
+										});
+									}
+									preFillLenderDocs.push({
+										...lenderDoc,
+										doctype,
+										doc_type_id,
+										category,
+										name,
+										document_key,
+										directorId: applicantDirectorId,
+										document_id: lenderDoc?.id,
+									});
+									return null;
+								}
+								if (priority === '3') {
+									const doc_type_id = doctype;
+									const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
+									if (
+										newAllDocumentTypes?.filter(
+											d => d?.doc_type_id === doc_type_id
+										)?.length <= 0
+									) {
+										newAllDocumentTypes.push({
+											...docListItem,
+											doc_type_id,
+											category,
+											directorId: applicantDirectorId,
+										});
+									}
+									// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
+									// this is to overwrite assignment document checklist
+									// DOS-3031
+									if (
+										userDetails.is_other &&
+										lenderDoc.uploaded_by === userDetails.id
+									) {
+										externalUserAllowedToViewDocTypeIds.push(
+											`${applicantDirectorId}${doc_type_id}`
+										);
+									}
+
+									preFillEvalDocs.push({
+										...lenderDoc,
+										doctype,
+										doc_type_id,
+										category,
+										name,
+										document_key,
+										directorId: applicantDirectorId,
+										document_id: lenderDoc?.id,
+									});
+									return null;
+								}
+							}
 							return null;
 						}
-					}
-					return null;
-				});
-				// console.log('1111111-', {
-				// 	files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
-				// 	newAllDocumentTypes,
-				// });
+					);
+					// console.log('1111111-', {
+					// 	files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
+					// 	newAllDocumentTypes,
+					// });
+				}
 				dispatch(
 					addOrUpdateCacheDocumentsDocUploadPage({
-						files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
+						files: [
+							...preFillKycFinOtherDocs,
+							...preFillLenderDocs,
+							...preFillEvalDocs,
+						],
 					})
 				);
-			}
+			} catch (error) {}
+			// -- FETCH ALL DOCUMENTS
 
 			// console.log('newAllDocumentTypes-', {
 			// 	newAllDocumentTypes,
@@ -364,12 +403,12 @@ const DocumentUpload = props => {
 			// 	),
 			// });
 			newAllDocumentTypes.sort((a, b) => a.id - b.id);
-			if (externalUserSelectedDocTypeIds.length > 0) {
+			if (externalUserAllowedToViewDocTypeIds.length > 0) {
 				// only show document types which is assign to external user
 				dispatch(
 					addAllDocumentTypes(
 						newAllDocumentTypes.filter(doc =>
-							externalUserSelectedDocTypeIds.includes(
+							externalUserAllowedToViewDocTypeIds.includes(
 								`${doc?.directorId}${doc?.doc_type_id}`
 							)
 						)
@@ -379,36 +418,36 @@ const DocumentUpload = props => {
 				dispatch(addAllDocumentTypes(newAllDocumentTypes));
 			}
 			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
-			if (isEditOrViewLoan) {
-				const newDoc = [];
-				const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
-				clonedCacheDocuments?.map(doc => {
-					// if (doc?.document_id) return null;
-					if (!doc?.directorId) {
-						doc.directorId = applicantDirectorId;
-					}
-					const selectedDocType =
-						newAllDocumentTypes.filter(docType => {
-							if (
-								`${docType.doc_type_id}` === `${doc.doctype}` ||
-								`${docType.doc_type_id}` === `${doc.doc_type_id}`
-							)
-								return true;
-							return false;
-						})?.[0] || {};
+			// if (isEditOrViewLoan) {
+			// 	const newDoc = [];
+			// 	const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+			// 	clonedCacheDocuments?.map(doc => {
+			// 		// if (doc?.document_id) return null;
+			// 		if (!doc?.directorId) {
+			// 			doc.directorId = applicantDirectorId;
+			// 		}
+			// 		const selectedDocType =
+			// 			newAllDocumentTypes.filter(docType => {
+			// 				if (
+			// 					`${docType.doc_type_id}` === `${doc.doctype}` ||
+			// 					`${docType.doc_type_id}` === `${doc.doc_type_id}`
+			// 				)
+			// 					return true;
+			// 				return false;
+			// 			})?.[0] || {};
 
-					newDoc.push({
-						...selectedDocType,
-						...doc,
-					});
-					return null;
-				});
-				dispatch(
-					addOrUpdateCacheDocumentsDocUploadPage({
-						files: newDoc,
-					})
-				);
-			}
+			// 		newDoc.push({
+			// 			...selectedDocType,
+			// 			...doc,
+			// 		});
+			// 		return null;
+			// 	});
+			// 	dispatch(
+			// 		addOrUpdateCacheDocumentsDocUploadPage({
+			// 			files: newDoc,
+			// 		})
+			// 	);
+			// }
 		} catch (error) {
 			console.error('error-initializeComponent-', error);
 		} finally {
@@ -574,13 +613,14 @@ const DocumentUpload = props => {
 		try {
 			setSubmittingOtp(true);
 			// console.log('step-1');
-			const check = validateGeoTaggedDocsForApplicantCoapplicant();
-			// console.log('step-2', { check });
-			if (check?.isAllTheDocumentsPresent !== true) {
-				setOnSiteVerificationModal(true);
-				// console.log('step-3');
-				return;
-			}
+			// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
+			// const check = validateGeoTaggedDocsForApplicantCoapplicant();
+			// // console.log('step-2', { check });
+			// if (check?.isAllTheDocumentsPresent !== true) {
+			// 	setOnSiteVerificationModal(true);
+			// 	// console.log('step-3');
+			// 	return;
+			// }
 			// console.log('step-4');
 			if (buttonDisabledStatus()) return;
 			// console.log('step-5');
@@ -696,13 +736,14 @@ const DocumentUpload = props => {
 	};
 
 	const onSubmitCompleteApplication = async () => {
-		if (isEditLoan) {
-			const check = validateGeoTaggedDocsForApplicantCoapplicant();
-			if (check?.isAllTheDocumentsPresent !== true) {
-				setOnSiteVerificationModal(true);
-				return;
-			}
-		}
+		// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
+		// if (isEditLoan) {
+		// 	const check = validateGeoTaggedDocsForApplicantCoapplicant();
+		// 	if (check?.isAllTheDocumentsPresent !== true) {
+		// 		setOnSiteVerificationModal(true);
+		// 		return;
+		// 	}
+		// }
 		if (buttonDisabledStatus()) return;
 
 		if (!isFormValid()) return;
@@ -763,11 +804,11 @@ const DocumentUpload = props => {
 				// 	'updateDocumentIdToCacheDocuments',
 				// 	updateDocumentIdToCacheDocuments
 				// );
-				dispatch(
-					addOrUpdateCacheDocumentsDocUploadPage({
-						files: updateDocumentIdToCacheDocuments,
-					})
-				);
+				// dispatch(
+				// 	addOrUpdateCacheDocumentsDocUploadPage({
+				// 		files: updateDocumentIdToCacheDocuments,
+				// 	})
+				// );
 			}
 
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
@@ -978,198 +1019,199 @@ const DocumentUpload = props => {
 		});
 		return result;
 	};
+
 	// TO CHECK IF APPLICANT AND COAPPLICANT PROFILE-PIC/SELFIE IS UPLOADED IF IT IS MANDATORY (returns an object { missingDocsForDirectors, isAllTheDocumentsPresent: false/true })
-	const validateGeoTaggedDocsForApplicantCoapplicant = () => {
-		const documentCheckStatus = {
-			isAllTheDocumentsPresent: true,
-		};
-		const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
-		const applicantCoapplicantDoc = [];
+	// const validateGeoTaggedDocsForApplicantCoapplicant = () => {
+	// 	const documentCheckStatus = {
+	// 		isAllTheDocumentsPresent: true,
+	// 	};
+	// 	const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+	// 	const applicantCoapplicantDoc = [];
 
-		let mandatoryFieldApplicant = {};
-		let mandatoryFieldCoApplicant = {};
-		const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
-			subSection => subSection?.id === 'on_site_selfie_with_applicant'
-		)?.[0];
-		if (onSiteSelfiefield?.fields?.length > 0) {
-			mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
-				field => field?.geo_tagging === true && field?.is_co_applicant === false
-			)?.[0];
-			mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
-				field => field?.geo_tagging === true && field?.is_applicant === false
-			)?.[0];
-		}
+	// 	let mandatoryFieldApplicant = {};
+	// 	let mandatoryFieldCoApplicant = {};
+	// 	const onSiteSelfiefield = selectedSection?.sub_sections?.filter(
+	// 		subSection => subSection?.id === 'on_site_selfie_with_applicant'
+	// 	)?.[0];
+	// 	if (onSiteSelfiefield?.fields?.length > 0) {
+	// 		mandatoryFieldApplicant = onSiteSelfiefield?.fields?.filter(
+	// 			field => field?.geo_tagging === true && field?.is_co_applicant === false
+	// 		)?.[0];
+	// 		mandatoryFieldCoApplicant = onSiteSelfiefield?.fields?.filter(
+	// 			field => field?.geo_tagging === true && field?.is_applicant === false
+	// 		)?.[0];
+	// 	}
 
-		if (
-			onSiteSelfiefield?.fields?.length === 1 &&
-			onSiteSelfiefield[0]?.geo_tagging === true
-		) {
-			mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
-			mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
-		}
-		// check for profile pic upload geolocation starts
-		const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
-			section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
-		)?.[0];
+	// 	if (
+	// 		onSiteSelfiefield?.fields?.length === 1 &&
+	// 		onSiteSelfiefield[0]?.geo_tagging === true
+	// 	) {
+	// 		mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
+	// 		mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
+	// 	}
+	// 	// check for profile pic upload geolocation starts
+	// 	const basicDetailsSection = selectedProduct?.product_details?.sections?.filter(
+	// 		section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+	// 	)?.[0];
 
-		const profilePicField = basicDetailsSection?.sub_sections?.[0]?.fields?.filter(
-			field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
-		);
+	// 	const profilePicField = basicDetailsSection?.sub_sections?.[0]?.fields?.filter(
+	// 		field => field.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+	// 	);
 
-		let mandatoryProfilePicFieldApplicant = {};
-		let mandatoryProfilePicFieldCoApplicant = {};
-		if (profilePicField?.length > 0) {
-			mandatoryProfilePicFieldApplicant = profilePicField?.filter(
-				field => field?.geo_tagging === true && field?.is_co_applicant === false
-			)?.[0];
-			mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
-				field => field?.geo_tagging === true && field?.is_applicant === false
-			)?.[0];
-		}
-		if (
-			profilePicField?.length === 1 &&
-			profilePicField[0]?.geo_tagging === true
-		) {
-			mandatoryProfilePicFieldApplicant = profilePicField[0];
-			mandatoryProfilePicFieldCoApplicant = profilePicField[0];
-		}
+	// 	let mandatoryProfilePicFieldApplicant = {};
+	// 	let mandatoryProfilePicFieldCoApplicant = {};
+	// 	if (profilePicField?.length > 0) {
+	// 		mandatoryProfilePicFieldApplicant = profilePicField?.filter(
+	// 			field => field?.geo_tagging === true && field?.is_co_applicant === false
+	// 		)?.[0];
+	// 		mandatoryProfilePicFieldCoApplicant = profilePicField?.filter(
+	// 			field => field?.geo_tagging === true && field?.is_applicant === false
+	// 		)?.[0];
+	// 	}
+	// 	if (
+	// 		profilePicField?.length === 1 &&
+	// 		profilePicField[0]?.geo_tagging === true
+	// 	) {
+	// 		mandatoryProfilePicFieldApplicant = profilePicField[0];
+	// 		mandatoryProfilePicFieldCoApplicant = profilePicField[0];
+	// 	}
 
-		if (
-			!!mandatoryProfilePicFieldApplicant &&
-			Object.keys(mandatoryProfilePicFieldApplicant)?.length > 0
-		) {
-			applicantCoapplicantDoc?.push({
-				...mandatoryProfilePicFieldApplicant,
-				docTypeId:
-					mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
-				directorId: applicantDirectorId,
-			});
-		}
-		if (
-			!!mandatoryProfilePicFieldCoApplicant &&
-			Object.keys(mandatoryProfilePicFieldCoApplicant)?.length > 0
-		) {
-			Object.keys(nonApplicantDirectorsObject)?.map(coApplicantId => {
-				const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
-				field.directorId = coApplicantId;
-				field.docTypeId = field?.doc_type?.[selectedIncomeType];
-				applicantCoapplicantDoc?.push(field);
-				return null;
-			});
-		}
-		// check for profile pic upload geolocation ends
+	// 	if (
+	// 		!!mandatoryProfilePicFieldApplicant &&
+	// 		Object.keys(mandatoryProfilePicFieldApplicant)?.length > 0
+	// 	) {
+	// 		applicantCoapplicantDoc?.push({
+	// 			...mandatoryProfilePicFieldApplicant,
+	// 			docTypeId:
+	// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+	// 			directorId: applicantDirectorId,
+	// 		});
+	// 	}
+	// 	if (
+	// 		!!mandatoryProfilePicFieldCoApplicant &&
+	// 		Object.keys(mandatoryProfilePicFieldCoApplicant)?.length > 0
+	// 	) {
+	// 		Object.keys(nonApplicantDirectorsObject)?.map(coApplicantId => {
+	// 			const field = _.cloneDeep(mandatoryProfilePicFieldCoApplicant);
+	// 			field.directorId = coApplicantId;
+	// 			field.docTypeId = field?.doc_type?.[selectedIncomeType];
+	// 			applicantCoapplicantDoc?.push(field);
+	// 			return null;
+	// 		});
+	// 	}
+	// 	// check for profile pic upload geolocation ends
 
-		// forming array with all the directors for mandatory selfie with app/coapp field
-		if (
-			!!mandatoryFieldApplicant &&
-			Object.keys(mandatoryFieldApplicant)?.length > 0
-		)
-			applicantCoapplicantDoc?.push({
-				...mandatoryFieldApplicant,
-				docTypeId: mandatoryFieldApplicant?.doc_type?.[selectedIncomeType],
-				directorId: applicantDirectorId,
-			});
+	// 	// forming array with all the directors for mandatory selfie with app/coapp field
+	// 	if (
+	// 		!!mandatoryFieldApplicant &&
+	// 		Object.keys(mandatoryFieldApplicant)?.length > 0
+	// 	)
+	// 		applicantCoapplicantDoc?.push({
+	// 			...mandatoryFieldApplicant,
+	// 			docTypeId: mandatoryFieldApplicant?.doc_type?.[selectedIncomeType],
+	// 			directorId: applicantDirectorId,
+	// 		});
 
-		if (
-			!!mandatoryFieldCoApplicant &&
-			Object.keys(mandatoryFieldCoApplicant)?.length > 0
-		) {
-			Object.keys(nonApplicantDirectorsObject)?.map(coApplicantId => {
-				const field = _.cloneDeep(mandatoryFieldCoApplicant);
-				field.directorId = coApplicantId;
-				field.docTypeId = field?.doc_type?.[selectedIncomeType];
-				applicantCoapplicantDoc?.push(field);
-				return null;
-			});
-		}
-		if (isEditLoan) {
-			const applicantProfile = editLoanData?.director_details?.filter(
-				dir => `${dir?.id}` === `${applicantDirectorId}`
-			)?.[0];
+	// 	if (
+	// 		!!mandatoryFieldCoApplicant &&
+	// 		Object.keys(mandatoryFieldCoApplicant)?.length > 0
+	// 	) {
+	// 		Object.keys(nonApplicantDirectorsObject)?.map(coApplicantId => {
+	// 			const field = _.cloneDeep(mandatoryFieldCoApplicant);
+	// 			field.directorId = coApplicantId;
+	// 			field.docTypeId = field?.doc_type?.[selectedIncomeType];
+	// 			applicantCoapplicantDoc?.push(field);
+	// 			return null;
+	// 		});
+	// 	}
+	// 	if (isEditLoan) {
+	// 		const applicantProfile = editLoanData?.director_details?.filter(
+	// 			dir => `${dir?.id}` === `${applicantDirectorId}`
+	// 		)?.[0];
 
-			// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
-			// 	// console.log({ a: doc?.doc_type_id, d: doc?.directorId }, 'doc', {
-			// 	// 	a: mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
-			// 	// 	d: applicant?.id,
-			// 	// });
+	// 		// const filterProfileDocData = clonedCacheDocuments?.filter(doc => {
+	// 		// 	// console.log({ a: doc?.doc_type_id, d: doc?.directorId }, 'doc', {
+	// 		// 	// 	a: mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType],
+	// 		// 	// 	d: applicant?.id,
+	// 		// 	// });
 
-			// 	return (
-			// 		`${doc?.directorId}` === `${applicant?.id}` &&
-			// 		`${doc?.doc_type_id}` ===
-			// 			`${
-			// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
-			// 			}`
-			// 	);
-			// });
+	// 		// 	return (
+	// 		// 		`${doc?.directorId}` === `${applicant?.id}` &&
+	// 		// 		`${doc?.doc_type_id}` ===
+	// 		// 			`${
+	// 		// 				mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+	// 		// 			}`
+	// 		// 	);
+	// 		// });
 
-			clonedCacheDocuments?.map(doc => {
-				if (
-					`${doc?.directorId}` === `${applicantDirectorId}` &&
-					`${doc?.doc_type_id}` ===
-						`${
-							mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
-						}`
-				) {
-					doc.lat = applicantProfile?.lat;
-					doc.long = applicantProfile?.long;
-				}
-				return null;
-			});
-		}
-		const geoTaggedDocs = clonedCacheDocuments?.filter(
-			doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
-		);
-		// final check - if the onSiteSelfieWith app/coapp document is present or not
-		const missingDocsForDirectors = [];
-		applicantCoapplicantDoc?.map(doc => {
-			const getMissingDocs = geoTaggedDocs?.filter(
-				directorField =>
-					`${directorField?.directorId}` === `${doc?.directorId}` &&
-					`${directorField?.doc_type_id}` === `${doc?.docTypeId}`
-			)?.[0];
-			if (!!getMissingDocs) {
-			} else {
-				missingDocsForDirectors?.push(`${doc?.directorId}`);
-			}
-			return null;
-		});
+	// 		clonedCacheDocuments?.map(doc => {
+	// 			if (
+	// 				`${doc?.directorId}` === `${applicantDirectorId}` &&
+	// 				`${doc?.doc_type_id}` ===
+	// 					`${
+	// 						mandatoryProfilePicFieldApplicant?.doc_type?.[selectedIncomeType]
+	// 					}`
+	// 			) {
+	// 				doc.lat = applicantProfile?.lat;
+	// 				doc.long = applicantProfile?.long;
+	// 			}
+	// 			return null;
+	// 		});
+	// 	}
+	// 	const geoTaggedDocs = clonedCacheDocuments?.filter(
+	// 		doc => doc?.hasOwnProperty('lat') && doc?.hasOwnProperty('long')
+	// 	);
+	// 	// final check - if the onSiteSelfieWith app/coapp document is present or not
+	// 	const missingDocsForDirectors = [];
+	// 	applicantCoapplicantDoc?.map(doc => {
+	// 		const getMissingDocs = geoTaggedDocs?.filter(
+	// 			directorField =>
+	// 				`${directorField?.directorId}` === `${doc?.directorId}` &&
+	// 				`${directorField?.doc_type_id}` === `${doc?.docTypeId}`
+	// 		)?.[0];
+	// 		if (!!getMissingDocs) {
+	// 		} else {
+	// 			missingDocsForDirectors?.push(`${doc?.directorId}`);
+	// 		}
+	// 		return null;
+	// 	});
 
-		// Getting the missing On-site-verification documents of applicant/coapplicant
-		const applicantCoappliantIndex = [];
-		if (missingDocsForDirectors?.length > 0) {
-			const isApplicantImgMissing = missingDocsForDirectors?.indexOf(
-				`${applicantDirectorId}`
-			);
-			if (isApplicantImgMissing >= 0)
-				applicantCoappliantIndex?.push('Applicant');
+	// 	// Getting the missing On-site-verification documents of applicant/coapplicant
+	// 	const applicantCoappliantIndex = [];
+	// 	if (missingDocsForDirectors?.length > 0) {
+	// 		const isApplicantImgMissing = missingDocsForDirectors?.indexOf(
+	// 			`${applicantDirectorId}`
+	// 		);
+	// 		if (isApplicantImgMissing >= 0)
+	// 			applicantCoappliantIndex?.push('Applicant');
 
-			Object.keys(nonApplicantDirectorsObject)?.map((coapp, index) => {
-				if (missingDocsForDirectors?.includes(`${coapp}`)) {
-					applicantCoappliantIndex?.push(`Co-Applicant ${index + 1}`);
-				}
-				return null;
-			});
-			documentCheckStatus.isAllTheDocumentsPresent = false;
-			documentCheckStatus.missingDocsForDirectors = [
-				...new Set(missingDocsForDirectors),
-			];
-			documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
-		}
+	// 		Object.keys(nonApplicantDirectorsObject)?.map((coapp, index) => {
+	// 			if (missingDocsForDirectors?.includes(`${coapp}`)) {
+	// 				applicantCoappliantIndex?.push(`Co-Applicant ${index + 1}`);
+	// 			}
+	// 			return null;
+	// 		});
+	// 		documentCheckStatus.isAllTheDocumentsPresent = false;
+	// 		documentCheckStatus.missingDocsForDirectors = [
+	// 			...new Set(missingDocsForDirectors),
+	// 		];
+	// 		documentCheckStatus.directorList = [...new Set(applicantCoappliantIndex)];
+	// 	}
 
-		// console.log({
-		// 	geoTaggedDocs,
-		// 	applicantCoapplicantDoc,
-		// 	missingDocsForDirectors,
-		// 	documentCheckStatus,
-		// 	mandatoryFieldApplicant,
-		// 	mandatoryFieldCoApplicant,
-		// 	mandatoryProfilePicFieldApplicant,
-		// 	mandatoryProfilePicFieldCoApplicant,
-		// 	cacheDocuments,
-		// 	applicant,
-		// });
-		return documentCheckStatus;
-	};
+	// 	// console.log({
+	// 	// 	geoTaggedDocs,
+	// 	// 	applicantCoapplicantDoc,
+	// 	// 	missingDocsForDirectors,
+	// 	// 	documentCheckStatus,
+	// 	// 	mandatoryFieldApplicant,
+	// 	// 	mandatoryFieldCoApplicant,
+	// 	// 	mandatoryProfilePicFieldApplicant,
+	// 	// 	mandatoryProfilePicFieldCoApplicant,
+	// 	// 	cacheDocuments,
+	// 	// 	applicant,
+	// 	// });
+	// 	return documentCheckStatus;
+	// };
 
 	// TO CHECK IF MANDATORY ONSITE VERIFICATION IS COMPLETE OR NOT
 	// const isMandatoryGeoVerificationComplete = () => {
@@ -1245,12 +1287,13 @@ const DocumentUpload = props => {
 		}
 	};
 
-	// console.log('DocumentUpload-allstates-', {
-	// 	app,
-	// 	selectedDirector,
-	// 	cacheDocuments,
-	// 	cacheDocumentsTemp,
-	// });
+	console.log('DocumentUpload-allstates-', {
+		app,
+		selectedDirector,
+		cacheDocuments,
+		cacheDocumentsTemp,
+		applicantDirectorId,
+	});
 
 	if (loading) {
 		return (

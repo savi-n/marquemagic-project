@@ -95,6 +95,8 @@ const GEO_LOCATION = `${API_END_POINT}/geoLocation`;
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
 const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
+const GET_ALL_UPLOADED_DOCUMENTS_UIUX = `${API_END_POINT}/UploadedDocList_uiux`;
+const GET_ALL_UPLOADED_DOCUMENTS = `${API_END_POINT}/uploaded_doc_list`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -221,4 +223,6 @@ export {
 	VERIFY_TOKEN,
 	UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
 	GEO_LOCATION,
+	GET_ALL_UPLOADED_DOCUMENTS_UIUX,
+	GET_ALL_UPLOADED_DOCUMENTS,
 };

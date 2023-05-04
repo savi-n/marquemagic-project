@@ -44,3 +44,4 @@ export const PROFILE_UPLOAD_FIELD_DB_KEY = 'customer_picture';
 export const EXISTING_CUSTOMER_FIELD_NAME = 'existing_customer';
 export const INCOME_TYPE_FIELD_NAME = 'income_type';
 export const DOB_FIELD_NAME = 'dob';
+export const BASIC_DETAILS_SECTION_ID="basic_details"

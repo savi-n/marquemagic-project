@@ -19,6 +19,7 @@ import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
 import * as API from '_config/app.config';
+import { APPLICATION_SUBMITTED_SECTION_ID } from '../../const';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -165,6 +166,7 @@ const AuthenticationOTPModal = props => {
 				// --api 5 - application stage
 				const applicationStageReqBody = {
 					loan_id: loanId,
+					section_id: APPLICATION_SUBMITTED_SECTION_ID,
 				};
 
 				if (isDocumentUploadMandatory) {
