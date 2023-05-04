@@ -14,10 +14,12 @@ import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
+import { setNewCompletedDirectorSections } from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setCompletedApplicationSection,
 	setBusinessType,
+	setNewCompletedSections,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -88,7 +90,6 @@ const BusinessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
-
 	const {
 		handleSubmit,
 		register,
@@ -97,7 +98,6 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const selectedIncomeType = 'business';
 	const completedSections = getCompletedSections({
 		selectedProduct,
 		application,
@@ -110,6 +110,8 @@ const BusinessDetails = props => {
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
 		selectedSection,
 	});
+	const selectedIncomeType =
+		formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME] || {};
 	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
 	const isPanNumberExist = !!formState?.values?.pan_number;
 	const panUploadedFile =
@@ -416,6 +418,20 @@ const BusinessDetails = props => {
 							createdByUserId: fetchRes?.data?.data?.loan_data?.createdUserId,
 						})
 					);
+
+					// update completed sections
+					const tempCompletedSections = JSON.parse(
+						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
+					);
+					dispatch(
+						setNewCompletedSections(tempCompletedSections?.loan_details)
+					);
+					dispatch(
+						setNewCompletedDirectorSections(
+							tempCompletedSections?.director_details
+						)
+					);
+					// console.log({ tempCompletedSections });
 				}
 
 				const panToGstRes = await axios.post(API.PAN_TO_GST, {
@@ -443,7 +459,7 @@ const BusinessDetails = props => {
 			);
 		}
 		//new get api
-		if (!!businessId && !!loanId) fetchSectionDetails();
+		if ((!!businessId && !!loanId) || loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
 	const ButtonProceed = (
