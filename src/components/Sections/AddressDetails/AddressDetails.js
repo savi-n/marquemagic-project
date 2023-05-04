@@ -109,7 +109,7 @@ const AddressDetails = props => {
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
-	const [isPermanentAddress, setIsPermanentAddress] = useState(false);
+	const [setIsPermanentAddressIsPresentAddress, setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress] = useState(false);
 	// const presentAddressProofDocsRef = useRef([]);
 	const { addToast } = useToasts();
 	const completedSections = getAllCompletedSections({
@@ -613,7 +613,7 @@ const AddressDetails = props => {
 						`${doc?.directorId}` === `${selectedDirectorId}` &&
 						doc?.document_details?.classification_type !== 'pan'
 				);
-				if(permanentCacheDocumentsTempRes.length===2) setIsPermanentAddress(true);
+				if(permanentCacheDocumentsTempRes.length===2) setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress(true);
 				setPermanentCacheDocumentsTemp(permanentCacheDocumentsTempRes);
 				setPresentCacheDocumentsTemp(
 					fetchRes?.data?.data?.loan_document_details?.filter(
@@ -867,7 +867,7 @@ const AddressDetails = props => {
 											}
 
 											if (isIdProofUploadField) {
-												if(sub_section.id==="present_address_proof_upload"&& !!isPermanentAddress){
+												if(sub_section.id===CONST_ADDRESS_DETAILS.SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD  && !!setIsPermanentAddressIsPresentAddress){
 													return null;
 												} else {
 												return (
@@ -999,7 +999,7 @@ const AddressDetails = props => {
 											}
 											//here
 											// console.log(sub_section);
-											if(sub_section.id==="present_address_proof_upload"&& !!isPermanentAddress){
+											if(sub_section.id===CONST_ADDRESS_DETAILS.SECTION_ID_PRESENT_ADDRESS_PROOF_UPLOAD && !!setIsPermanentAddressIsPresentAddress){
 												return null;
 											}
 											return (
