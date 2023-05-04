@@ -765,10 +765,31 @@ export const getDocumentNameFromLoanDocuments = doc => {
 	);
 };
 
-export const formatLoanDocuments = docs => {
+export const getCategoryKeyFromCategoryName = doc => {
+	let selectedCategory = CONST_SECTIONS.DOC_CATEGORY_OTHER;
+	CONST_SECTIONS.ALL_DOC_CATEGORY.forEach(category => {
+		if ((doc?.doc_type || doc?.category)?.toLowerCase()?.includes(category)) {
+			selectedCategory = category;
+		}
+	});
+	return selectedCategory;
+};
+
+export const formatLoanDocuments = data => {
+	const { docs, docTypes } = data;
 	const newDocs = [];
 	docs?.map(doc => {
+		const selectedDocType =
+			docTypes.filter(docType => {
+				if (
+					`${docType.doc_type_id}` === `${doc.doctype}` ||
+					`${docType.doc_type_id}` === `${doc.doc_type_id}`
+				)
+					return true;
+				return false;
+			})?.[0] || {};
 		const newDoc = {
+			...selectedDocType,
 			...(doc?.loan_document_details?.[0] || {}),
 			...(doc?.doc_type?.[0] || {}),
 			...doc,
@@ -776,6 +797,8 @@ export const formatLoanDocuments = docs => {
 			document_id: doc?.id,
 			doc_type_id: doc.doctype || doc.doc_type.id,
 			name: getDocumentNameFromLoanDocuments(doc),
+			category: getCategoryKeyFromCategoryName(doc),
+			directorId: `${doc?.directorId}`,
 		};
 		newDocs.push(newDoc);
 		return null;
