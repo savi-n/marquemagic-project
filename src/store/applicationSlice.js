@@ -50,6 +50,10 @@ export const applicationSlice = createSlice({
 			}
 		},
 
+		setNewCompletedSections: (state, { payload }) => {
+			state.sections = payload;
+		},
+
 		// CACHE DOCUMENT RELATED ACTIONS
 		addCacheDocument: (state, action) => {
 			// pass only single file object
@@ -262,6 +266,7 @@ export const {
 
 	setLoanIds,
 	setCompletedApplicationSection,
+	setNewCompletedSections,
 
 	addCacheDocument,
 	addOrUpdateCacheDocument,

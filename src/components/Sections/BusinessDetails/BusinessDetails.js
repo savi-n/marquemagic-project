@@ -14,10 +14,12 @@ import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { API_END_POINT } from '_config/app.config';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
+import { setNewCompletedDirectorSections } from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setCompletedApplicationSection,
 	setBusinessType,
+	setNewCompletedSections,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -416,6 +418,20 @@ const BusinessDetails = props => {
 							createdByUserId: fetchRes?.data?.data?.loan_data?.createdUserId,
 						})
 					);
+
+					// update completed sections
+					const tempCompletedSections = JSON.parse(
+						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
+					);
+					dispatch(
+						setNewCompletedSections(tempCompletedSections?.loan_details)
+					);
+					dispatch(
+						setNewCompletedDirectorSections(
+							tempCompletedSections?.director_details
+						)
+					);
+					// console.log({ tempCompletedSections });
 				}
 
 				const panToGstRes = await axios.post(API.PAN_TO_GST, {

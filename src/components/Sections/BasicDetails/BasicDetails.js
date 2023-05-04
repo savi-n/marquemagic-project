@@ -17,8 +17,16 @@ import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
 import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
 import { DIRECTOR_TYPES, setProfileGeoLocation } from 'store/directorsSlice';
-import { setLoanIds, setGeoLocation } from 'store/applicationSlice';
-import { getDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
+import {
+	setLoanIds,
+	setGeoLocation,
+	setNewCompletedSections,
+} from 'store/applicationSlice';
+import {
+	getDirectors,
+	setAddNewDirectorKey,
+	setNewCompletedDirectorSections,
+} from 'store/directorsSlice';
 import {
 	formatSectionReqBody,
 	getAllCompletedSections,
@@ -106,7 +114,7 @@ const BasicDetails = props => {
 		application,
 		selectedDirector,
 	});
-
+	// console.log({ selectedDirector, selectedProduct, isEditOrViewLoan });
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
 		selectedSection,
@@ -610,6 +618,25 @@ const BasicDetails = props => {
 				setFetchedProfilePic(
 					fetchRes?.data?.data?.director_details?.customer_picture
 				);
+				// update completed sections
+				if (
+					isEditOrViewLoan &&
+					`${selectedProduct?.loan_request_type}` === '2'
+				) {
+					const tempCompletedSections = JSON.parse(
+						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
+					);
+					dispatch(
+						setNewCompletedSections(tempCompletedSections?.loan_details)
+					);
+
+					dispatch(
+						setNewCompletedDirectorSections(
+							tempCompletedSections?.director_details
+						)
+					);
+				}
+
 				// setting values for edit loan
 				dispatch(
 					setLoanIds({
