@@ -15,7 +15,11 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import { setLoginCreateUserRes, setSelectedSectionId } from 'store/appSlice';
+import {
+	setIsDraftLoan,
+	setLoginCreateUserRes,
+	setSelectedSectionId,
+} from 'store/appSlice';
 import { setProfileGeoLocation } from 'store/directorsSlice';
 import {
 	setLoanIds,
@@ -630,7 +634,13 @@ const BasicDetails = props => {
 					dispatch(
 						setNewCompletedSections(tempCompletedSections?.loan_details)
 					);
-
+					if (
+						!tempCompletedSections?.loan_details?.includes(
+							CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID
+						)
+					) {
+						dispatch(setIsDraftLoan(true));
+					}
 					dispatch(
 						setNewCompletedDirectorSections(
 							tempCompletedSections?.director_details

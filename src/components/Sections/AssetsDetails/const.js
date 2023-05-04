@@ -1,6 +1,6 @@
 export const initialFormState = {
 	assets_for: '997269',
-	asset_type: 'Others',
+	asset_type: '74',
 	amount: '100000',
 	description: 'Test Description',
 	state: 'BIHAR',
