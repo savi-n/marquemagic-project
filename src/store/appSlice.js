@@ -190,7 +190,9 @@ export const appSlice = createSlice({
 				state.editLoanDirectors = newEditLoanDirectorIds;
 			}
 		},
-
+		setIsDraftLoan: (state, { payload }) => {
+			state.isDraftLoan = payload;
+		},
 		toggleTestMode: (state, action) => {
 			state.isTestMode = !state.isTestMode;
 		},
@@ -252,6 +254,7 @@ export const {
 	setEditOrViewLoan,
 
 	setDefaultLoader,
+	setIsDraftLoan,
 } = appSlice.actions;
 
 export default appSlice.reducer;

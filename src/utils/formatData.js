@@ -179,6 +179,9 @@ export const formatSectionReqBody = data => {
 		if (selectedDirector?.directorId) {
 			reqBody.director_id = selectedDirector?.directorId;
 		}
+		if (isDirectorApplicant(selectedDirector)) {
+			reqBody.is_applicant = true;
+		}
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 		// console.log('formatSectionReqBody-', { data, selectedApplicant });
