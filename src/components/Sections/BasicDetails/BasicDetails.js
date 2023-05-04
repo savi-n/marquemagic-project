@@ -571,7 +571,6 @@ const BasicDetails = props => {
 
 			// console.log({
 			// 	sectionData,
-			// 	formstate: formState?.values,
 			// });
 			const preData = {
 				title: sectionData?.business_data?.title,
@@ -579,6 +578,8 @@ const BasicDetails = props => {
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
 				contactno: sectionData?.director_details?.dcontact,
+				businesspancardnumber:
+					sectionData?.business_data?.businesspancardnumber,
 			};
 
 			// TEST MODE
@@ -672,18 +673,19 @@ const BasicDetails = props => {
 			);
 		}
 
-		if (
-			Object.keys(directors).length === 0 &&
-			!addNewDirectorKey &&
-			!selectedDirectorId
-		) {
-			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
-		}
+		// if (
+		// 	Object.keys(directors).length === 0 &&
+		// 	!addNewDirectorKey &&
+		// 	!selectedDirectorId
+		// ) {
+		// 	dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
+		// }
 		// new fetch section data starts
 		if (
 			!!loanRefId &&
-			!!selectedDirector
-			//&& !!selectedDirector?.section?.includes('basic_details')
+			// !!selectedDirector &&
+			!!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
+			selectedDirectorId
 		)
 			fetchSectionDetails();
 		// new fetch section data ends

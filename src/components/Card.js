@@ -12,7 +12,7 @@ import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-elem
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import { getGeoLocation } from 'utils/helper';
-import { setGeoLocation } from 'store/applicationSlice';
+import { setGeoLocation,reInitializeApplicationSlice } from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 import Button from './Button';
@@ -20,6 +20,7 @@ import CardSubProduct from './CardSubProduct';
 import { useState } from 'react';
 import { useToasts } from './Toast/ToastProvider';
 import Modal from 'components/Modal';
+import { reInitializeDirectorsSlice } from 'store/directorsSlice';
 // import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 const Wrapper = styled.div`
@@ -170,6 +171,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
 					name={add ? 'Add Loan' : 'Get Loan'}
 					onClick={async e => {
+						dispatch(reInitializeApplicationSlice());
+						dispatch(reInitializeDirectorsSlice());
 						// if(!!product?.sub_products){setSubProductModalOpen(true);}
 						if (!add) {
 							try {

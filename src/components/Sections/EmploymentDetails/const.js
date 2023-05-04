@@ -29,3 +29,5 @@ export const initialFormState = {
 	deductions: '23',
 	income_loan_repayment: 'Yes',
 };
+
+export const EMPLOYMENT_DETAILS_SECTION_ID="employment_details"
