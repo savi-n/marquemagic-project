@@ -357,7 +357,10 @@ const BasicDetails = props => {
 				);
 				dispatch(setAddNewDirectorKey(''));
 			}
-			dispatch(setSelectedSectionId(nextSectionId));
+			setTimeout(() => {
+				// to update after directors are fetched
+				dispatch(setSelectedSectionId(nextSectionId));
+			}, 500);
 			if (isGeoTaggingEnabled) {
 				if (
 					mandatoryGeoTag.length > 0 &&

@@ -33,6 +33,7 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	formatLoanDocuments,
+	isFieldValid,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -48,10 +49,12 @@ const DocumentUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const {
 		directors,
-		selectedDirectorId,
 		applicantDirectorId,
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
+	let { selectedDirectorId } = useSelector(state => state.directors);
+	if (!selectedDirectorId)
+		selectedDirectorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const nonApplicantDirectorsObject = {};
@@ -90,6 +93,8 @@ const DocumentUpload = props => {
 		cacheDocuments,
 		commentsForOfficeUse,
 		prompted,
+		businessType,
+		businessMobile,
 	} = application;
 	const selectedDirectorDocumentTypes = allDocumentTypes?.filter(
 		docType => `${docType?.directorId}` === `${selectedDirectorId}`
@@ -115,8 +120,8 @@ const DocumentUpload = props => {
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
-	const applicantMobileNumber =
-		selectedDirector?.basic_details?.mobile_no || selectedDirector?.dcontact;
+	const applicantOrEntityMobileNumber =
+		selectedDirector?.dcontact || businessMobile;
 	const { addToast } = useToasts();
 	const [submittingOtp, setSubmittingOtp] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -136,7 +141,7 @@ const DocumentUpload = props => {
 	] = useState(false);
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [geoLocationData, setGeoLocationData] = useState('');
+	const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
 
 	// --------------------------------------------------------------------------
@@ -192,8 +197,7 @@ const DocumentUpload = props => {
 					// APPLICANT OR ENTITY
 					try {
 						const reqBody = {
-							business_type:
-								selectedDirector?.income_type || selectedDirector?.income_type,
+							business_type: selectedDirector?.income_type || businessType,
 							loan_product: loanProductId,
 						};
 						// console.log('applicantDocReqBody-', { reqBody });
@@ -203,7 +207,7 @@ const DocumentUpload = props => {
 						);
 						// console.log('applicantDocRes-', applicantDocRes);
 						for (const key in applicantDocRes?.data) {
-							applicantDocRes?.data[key].forEach(d => {
+							applicantDocRes?.data?.[key]?.forEach(d => {
 								const category = getDocumentCategoryName(d?.doc_type);
 								newAllDocumentTypes.push({
 									...d,
@@ -211,7 +215,8 @@ const DocumentUpload = props => {
 									name: d.name,
 									doc_type_id: d.doc_type_id,
 									category,
-									directorId: applicantDirectorId || 0,
+									directorId:
+										applicantDirectorId || CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 								});
 							});
 						}
@@ -500,7 +505,7 @@ const DocumentUpload = props => {
 			initializeDocTypeList();
 			initializeCommentForOfficeUse();
 			if (isGeoTaggingEnabled) {
-				setGeoLocationData(selectedDirector.documentSelfieGeolocation);
+				setGeoLocationData(selectedDirector?.documentSelfieGeolocation || {});
 			}
 			// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 			async function fetchSelfieData() {
@@ -567,7 +572,7 @@ const DocumentUpload = props => {
 										},
 									}
 								);
-								setGeoLocationData(geoLocationRes?.data?.data);
+								setGeoLocationData(geoLocationRes?.data?.data || {});
 								dispatch(
 									setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
 								);
@@ -651,7 +656,7 @@ const DocumentUpload = props => {
 			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
-				mobile: +applicantMobileNumber,
+				mobile: +applicantOrEntityMobileNumber,
 				business_id: businessId,
 				product_id: selectedProduct.id,
 			};
@@ -1283,7 +1288,7 @@ const DocumentUpload = props => {
 	// };
 
 	const removeCacheDocumentTemp = fieldName => {
-		setGeoLocationData('');
+		setGeoLocationData({});
 		setCacheFile(null);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		let docsTemp = cacheDocumentsTemp.filter(
@@ -1303,6 +1308,7 @@ const DocumentUpload = props => {
 		cacheDocuments,
 		cacheDocumentsTemp,
 		applicantDirectorId,
+		allDocumentTypes,
 	});
 
 	if (loading) {
@@ -1318,7 +1324,7 @@ const DocumentUpload = props => {
 				<AuthenticationOtpModal
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
-					setContactNo={applicantMobileNumber}
+					setContactNo={applicantOrEntityMobileNumber}
 					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
@@ -1459,26 +1465,21 @@ const DocumentUpload = props => {
 									</span>
 								)}
 							</UI.CommentsForOfficeUseFieldName>
-							{sub_section?.fields?.map(field => {
+							{sub_section?.fields?.map((field, fieldIndex) => {
 								// {selectedSection?.sub_sections?.[0]?.fields?.map(field => {
-								if (!field?.visibility) return null;
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
+								if (!isFieldValid({ field, formState: {}, isApplicant })) {
+									return null;
 								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field?.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
+
 								if (
 									isGeoTaggingEnabled &&
 									field?.type === 'file' &&
 									field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME
 								) {
 									return (
-										<UI.VerificationSectionWrapper key={field.id}>
+										<UI.VerificationSectionWrapper
+											key={`dataitem-${field?.id}${fieldIndex}`}
+										>
 											<UI.VerificationSection isLocation={!!geoLocationData}>
 												<ProfileUpload
 													field={field}
@@ -1494,7 +1495,7 @@ const DocumentUpload = props => {
 												/>
 											</UI.VerificationSection>
 											{field?.geo_tagging === true
-												? Object.keys(geoLocationData).length > 0 && (
+												? Object.keys(geoLocationData || {}).length > 0 && (
 														<UI.VerificationSection
 															isLocation={!!geoLocationData}
 														>

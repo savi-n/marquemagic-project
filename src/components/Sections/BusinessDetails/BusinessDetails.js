@@ -24,6 +24,7 @@ import {
 	setCompletedApplicationSection,
 	setBusinessType,
 	setNewCompletedSections,
+	setBusinessMobile,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -59,8 +60,8 @@ const BusinessDetails = props => {
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
-		isDraftLoan,
-		editLoanDirectors,
+		// isDraftLoan,
+		// editLoanDirectors,
 		userDetails,
 		isTestMode,
 	} = app;
@@ -105,10 +106,6 @@ const BusinessDetails = props => {
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		editLoanDirectors,
 	});
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -123,7 +120,7 @@ const BusinessDetails = props => {
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] || null;
 	const tempPanUploadedFile = !!sectionData?.loan_document
-		? sectionData?.loan_document
+		? sectionData?.loan_document?.[0]
 		: null;
 
 	const onSaveAndProceed = async () => {
@@ -198,9 +195,13 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.loan_data?.createdUserId;
 			const newBusinessType =
 				buissnessDetailsRes?.data?.data?.business_data?.businesstype;
+			const newBusinessMobile =
+				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) dispatch(setBusinessType(newBusinessType));
+			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 
 			// add director starts
+
 			if (
 				!!companyRocData &&
 				Object.values(companyRocData)?.length > 0 &&
