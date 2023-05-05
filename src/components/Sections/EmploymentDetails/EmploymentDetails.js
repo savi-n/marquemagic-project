@@ -31,7 +31,7 @@ import Loading from 'components/Loading';
 
 const EmploymentDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { directors, applicantDirectorId, selectedDirectorId } = useSelector(
+	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
@@ -180,7 +180,6 @@ const EmploymentDetails = () => {
 			// 	dispatch(setSelectedSectionId(nextSectionId));
 			// 	return;
 			// }
-			dispatch(setSelectedDirectorId(applicantDirectorId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onSaveAndProceed-', error);

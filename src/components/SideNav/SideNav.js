@@ -45,16 +45,18 @@ const SideNav = props => {
 		selectedDirector,
 		addNewDirectorKey,
 		directorSectionIds,
+		selectedProduct,
+		selectedSectionId,
 	});
 
-	// console.log('SideNav-allStates-', {
-	// 	app,
-	// 	selectedProduct,
-	// 	completedSections,
-	// 	selectedDirector,
-	// 	application,
-	// 	addNewDirectorKey,
-	// });
+	console.log('SideNav-allStates-', {
+		app,
+		selectedProduct,
+		completedSections,
+		selectedDirector,
+		application,
+		addNewDirectorKey,
+	});
 
 	return (
 		<Fragment>
