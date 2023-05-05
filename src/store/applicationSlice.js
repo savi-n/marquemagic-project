@@ -11,6 +11,7 @@ const initialState = {
 	businessUserId: '',
 	loanProductId: '',
 	createdByUserId: '',
+	businessMobile: '',
 	sections: [],
 	documents: [],
 	cacheDocuments: [],
@@ -255,11 +256,14 @@ export const applicationSlice = createSlice({
 
 		// SET PROMPT (ONCE PER APPLICATION SESSION) TO MOTIVATE USER TO
 		// COMPLETE ONSITE VERIFICATION
-		setIsPrompted: (state, action) => {
-			state.prompted = action.payload;
+		setIsPrompted: (state, { payload }) => {
+			state.prompted = payload;
 		},
-		setBusinessType: (state, action) => {
-			state.businessType = action.payload;
+		setBusinessType: (state, { payload }) => {
+			state.businessType = payload;
+		},
+		setBusinessMobile: (state, { payload }) => {
+			state.businessMobile = payload;
 		},
 	},
 });
@@ -285,6 +289,7 @@ export const {
 
 	addAllDocumentTypes,
 	setBusinessType,
+	setBusinessMobile,
 
 	setCommentsForOfficeUse,
 	setIsPrompted,

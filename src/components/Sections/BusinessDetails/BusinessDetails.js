@@ -24,6 +24,7 @@ import {
 	setCompletedApplicationSection,
 	setBusinessType,
 	setNewCompletedSections,
+	setBusinessMobile,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
@@ -203,7 +204,10 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.loan_data?.createdUserId;
 			const newBusinessType =
 				buissnessDetailsRes?.data?.data?.business_data?.businesstype;
+			const newBusinessMobile =
+				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) dispatch(setBusinessType(newBusinessType));
+			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 
 			// add director starts
 

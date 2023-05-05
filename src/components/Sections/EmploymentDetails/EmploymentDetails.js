@@ -45,7 +45,7 @@ const EmploymentDetails = () => {
 		isDraftLoan,
 		selectedProduct,
 	} = app;
-	const { businessId, loanRefId } = application;
+	const { businessId, loanRefId, businessType } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -404,7 +404,10 @@ const EmploymentDetails = () => {
 								/>
 							)}
 						{!initialDirectorsUpdated &&
+							selectedProduct?.isSelectedProductTypeBusiness &&
 							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
+								if (!field?.business_income_type_id?.includes(+businessType))
+									return null;
 								return (
 									<Button
 										key={`field${fieldIndex}`}
