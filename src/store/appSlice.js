@@ -212,13 +212,14 @@ export const appSlice = createSlice({
 		setEditOrViewLoan: (state, action) => {
 			const { isEditLoan, isViewLoan } = action.payload;
 
-			if (isEditLoan === true) {
-				state.isEditLoan = true;
-				state.isViewLoan = false;
+			if (isEditLoan) {
+				state.isEditLoan = isEditLoan;
+				state.isViewLoan = !isEditLoan;
 			}
-			if (isViewLoan === true) {
-				state.isViewLoan = true;
-				state.isEditLoan = false;
+
+			if (isViewLoan) {
+				state.isViewLoan = isViewLoan;
+				state.isEditLoan = !isViewLoan;
 			}
 			if (isEditLoan || isViewLoan) state.isEditOrViewLoan = true;
 		},
