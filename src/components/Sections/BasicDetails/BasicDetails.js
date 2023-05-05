@@ -151,7 +151,6 @@ const BasicDetails = props => {
 			setLoading(true);
 			const isTokenValid = await validateToken();
 			if (isTokenValid === false) return;
-
 			// call login api only once
 			// TODO: varun do not call this api when RM is creating loan
 			let newBorrowerUserId = '';
@@ -227,6 +226,7 @@ const BasicDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
+
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
@@ -250,7 +250,7 @@ const BasicDetails = props => {
 				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
 
 			if (!newLoanRefId || !newLoanId || !newBusinessId) {
-				throw new Error('Unable to create loan, Try after sometimes');
+				throw new Error('Unable to create loan, Try after sometime');
 			}
 
 			if (isNewProfileUploaded) {
@@ -322,7 +322,6 @@ const BasicDetails = props => {
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
 				},
 			};
-
 			newBasicDetails.directorId = newDirectorId;
 			// TODO: shreyas work with director object and pass cin
 			// newBasicDetails.cin = selectedDirector?.companyRocData?.CIN || '';
@@ -336,7 +335,6 @@ const BasicDetails = props => {
 				long: selectedDirector?.long,
 				timestamp: selectedDirector?.timestamp,
 			};
-
 			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
 			dispatch(
 				setLoanIds({
@@ -350,7 +348,13 @@ const BasicDetails = props => {
 				})
 			);
 			if (addNewDirectorKey) {
-				dispatch(getDirectors(newLoanRefId));
+				dispatch(
+					getDirectors({
+						loanRefId: newLoanRefId,
+						isSelectedProductTypeBusiness:
+							selectedProduct?.isSelectedProductTypeBusiness,
+					})
+				);
 				dispatch(setAddNewDirectorKey(''));
 			}
 			dispatch(setSelectedSectionId(nextSectionId));
@@ -683,13 +687,6 @@ const BasicDetails = props => {
 			);
 		}
 
-		// if (
-		// 	Object.keys(directors).length === 0 &&
-		// 	!addNewDirectorKey &&
-		// 	!selectedDirectorId
-		// ) {
-		// 	dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.director));
-		// }
 		// new fetch section data starts
 		if (
 			!!loanRefId &&
@@ -861,7 +858,7 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('BasicDetails-666', {
+	// console.log('BasicDetails-allstates', {
 	// 	isPanNumberExist,
 	// 	selectedProfileField,
 	// 	isProfileMandatory,
@@ -873,7 +870,7 @@ const BasicDetails = props => {
 	// 	application,
 	// 	selectedDirector,
 	// 	cacheDocumentsTemp,
-	// 	cacheDocuments,
+	// 	addNewDirectorKey,
 	// });
 
 	const ButtonProceed = (

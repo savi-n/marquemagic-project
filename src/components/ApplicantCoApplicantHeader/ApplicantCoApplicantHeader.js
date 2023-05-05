@@ -53,7 +53,13 @@ const ApplicantCoApplicantHeader = props => {
 			return;
 		}
 		try {
-			dispatch(getDirectors(loanRefId));
+			dispatch(
+				getDirectors({
+					loanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+				})
+			);
 		} catch (e) {
 			addToast({
 				message:
