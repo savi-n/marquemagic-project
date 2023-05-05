@@ -18,7 +18,10 @@ import {
 	setLoginCreateUserRes,
 	setSelectedSectionId,
 } from 'store/appSlice';
-import { setNewCompletedDirectorSections } from 'store/directorsSlice';
+import {
+	setNewCompletedDirectorSections,
+	getDirectors,
+} from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setCompletedApplicationSection,
@@ -418,6 +421,14 @@ const BusinessDetails = props => {
 						setBusinessType(fetchRes?.data?.business_details?.businesstype)
 					);
 				if (isEditOrViewLoan) {
+					dispatch(
+						getDirectors({
+							loanRefId,
+							isSelectedProductTypeBusiness:
+								selectedProduct?.isSelectedProductTypeBusiness,
+							selectedSectionId,
+						})
+					);
 					const responseData = fetchRes?.data?.data;
 					dispatch(
 						setLoanIds({
