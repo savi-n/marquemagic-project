@@ -2,7 +2,10 @@ import { createSlice, createAsyncThunk, current } from '@reduxjs/toolkit';
 import { API_END_POINT } from '_config/app.config';
 import axios from 'axios';
 import _ from 'lodash';
-import { BASIC_DETAILS_SECTION_ID } from 'components/Sections/const';
+import {
+	BASIC_DETAILS_SECTION_ID,
+	DOCUMENT_UPLOAD_SECTION_ID,
+} from 'components/Sections/const';
 
 import { getDirectorFullName, getShortString } from 'utils/formatData';
 
@@ -46,10 +49,15 @@ const initialState = {
 export const getDirectors = createAsyncThunk(
 	'getDirectors',
 	async (data, { rejectWithValue }) => {
-		const { loanRefId, isSelectedProductTypeBusiness } = data;
+		const {
+			loanRefId,
+			isSelectedProductTypeBusiness,
+			selectedSectionId,
+		} = data;
 		const res = {
 			existingDirectors: [],
 			isSelectedProductTypeBusiness,
+			selectedSectionId,
 		};
 		try {
 			const directorsRes = await axios.get(
@@ -73,7 +81,11 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectors = true;
 		},
 		[getDirectors.fulfilled]: (state, { payload }) => {
-			const { existingDirectors, isSelectedProductTypeBusiness } = payload;
+			const {
+				existingDirectors,
+				isSelectedProductTypeBusiness,
+				selectedSectionId,
+			} = payload;
 			const prevState = current(state);
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
@@ -141,6 +153,15 @@ export const directorsSlice = createSlice({
 				} else {
 					state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 				}
+			} else {
+				// multiple driector exist
+				if (
+					isSelectedProductTypeBusiness &&
+					selectedSectionId === DOCUMENT_UPLOAD_SECTION_ID
+				) {
+					state.addNewDirectorKey = '';
+					state.selectedDirectorId = '';
+				}
 			}
 		},
 		[getDirectors.rejected]: (state, { payload }) => {
@@ -203,34 +224,46 @@ export const directorsSlice = createSlice({
 		setProfileGeoLocation: (state, { payload }) => {
 			const { address, lat, long, timestamp } = payload;
 			let geoLocation = { address, lat, long, timestamp };
-			state.directors[
-				state.selectedDirectorId
-			].profileGeoLocation = geoLocation;
+			if (state?.directors[state?.selectedDirectorId]?.profileGeoLocation) {
+				state.directors[
+					state.selectedDirectorId
+				].profileGeoLocation = geoLocation;
+			}
 		},
 
 		// SET SELFIE DOC GEOLOCATION
 		setDocumentSelfieGeoLocation: (state, { payload }) => {
 			const { address, lat, long, timestamp } = payload;
 			let geoLocation = { address, lat, long, timestamp };
-			state.directors[
-				state.selectedDirectorId
-			].documentSelfieGeolocation = geoLocation;
+			if (
+				state?.directors[state?.selectedDirectorId]?.documentSelfieGeolocation
+			) {
+				state.directors[
+					state.selectedDirectorId
+				].documentSelfieGeolocation = geoLocation;
+			}
 		},
 
 		// REMOVE GEOLOCATION DETAILS ON DELETE OF SELFIE DOC
 		removeDocumentSelfieGeoLocation: (state, { payload }) => {
-			state.directors[state.selectedDirectorId].documentSelfieGeolocation = {};
+			if (
+				state?.directors[state?.selectedDirectorId]?.documentSelfieGeolocation
+			) {
+				state.directors[
+					state.selectedDirectorId
+				].documentSelfieGeolocation = {};
+			}
 		},
 
 		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
 		setGeotaggingMandatoryFields: (state, { payload }) => {
 			if (
-				!state.directors[state.selectedDirectorId].geotaggingMandatory.includes(
-					payload.field
-				)
+				!state.directors[
+					(state?.selectedDirectorId)
+				]?.geotaggingMandatory?.includes(payload?.field)
 			) {
-				state.directors[state.selectedDirectorId].geotaggingMandatory.push(
-					payload.field
+				state?.directors[state?.selectedDirectorId]?.geotaggingMandatory?.push(
+					payload?.field
 				);
 			}
 		},

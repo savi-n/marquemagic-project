@@ -59,7 +59,7 @@ const DocumentUpload = props => {
 	Object.keys(directors).map(directorId => {
 		if (directors[directorId].type_name === DIRECTOR_TYPES.applicant)
 			return null;
-		nonApplicantDirectorsObject[directorId] = directors[directorId];
+		nonApplicantDirectorsObject[directorId] = directors?.[directorId] || {};
 		nonApplicantDirectorsArray.push(directors[directorId]);
 		return null;
 	});
@@ -143,350 +143,360 @@ const DocumentUpload = props => {
 
 	let prefilledProfileUploadValue = '';
 
-	const initializeDocTypeList = async () => {
-		try {
-			// console.log('initializeDocTypeList');
-			setLoading(true);
-
-			const newAllDocumentTypes = [];
-
-			// EXTERNAL / OTHER USER
-			const externalUserAllowedToViewDocTypeIds = [];
-			if (isViewLoan) {
-				// externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
-				try {
-					const evalData = await axios.get(
-						`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
-					);
-					const selectedEvalData = evalData?.data?.data?.filter(
-						d => `${d?.assign_userid}` === `${userDetails?.id}`
-					)?.[0];
-					const newSelectedDocCheckList = selectedEvalData
-						? selectedEvalData?.assigned_document_list
-							? JSON.parse(selectedEvalData?.assigned_document_list)
-							: []
-						: [];
-					newSelectedDocCheckList.map(doc => {
-						externalUserAllowedToViewDocTypeIds.push(
-							`${doc?.director_id}${doc?.doc_type_id}`
-						);
-						return null;
-					});
-					// console.log('initializeExternalUserDocCheckList-evalData-', {
-					// 	userDetails,
-					// 	evalData,
-					// 	selectedEvalData,
-					// 	newSelectedDocCheckList,
-					// 	editLoanData,
-					// });
-				} catch (error) {
-					console.error('error-initializeExternalUserDocCheckList-', error);
-				}
-			}
-			// -- EXTERNAL / OTHER USER
-
-			// APPLICANT OR ENTITY
-			try {
-				const reqBody = {
-					business_type:
-						selectedDirector?.basic_details?.income_type ||
-						selectedDirector?.income_type,
-					loan_product: loanProductId,
-				};
-				// console.log('applicantDocReqBody-', { reqBody });
-				const applicantDocRes = await axios.post(API.DOCTYPES_FETCH, reqBody);
-				// console.log('applicantDocRes-', applicantDocRes);
-				for (const key in applicantDocRes?.data) {
-					applicantDocRes?.data[key].forEach(d => {
-						const category = getDocumentCategoryName(d?.doc_type);
-						newAllDocumentTypes.push({
-							...d,
-							value: d.doc_type_id,
-							name: d.name,
-							doc_type_id: d.doc_type_id,
-							category,
-							directorId: applicantDirectorId || 0,
-						});
-					});
-				}
-			} catch (error) {
-				console.error(
-					'error-failed-to-fetch-applicant-entity-documentlist-',
-					error
-				);
-			}
-			// -- APPLICANT OR ENTITY
-
-			// NON-APPLICANTS
-			// const coApplicantDocTypeResHistory = {};
-			const allCoApplicantUniqueIncomeTypeIds = [];
-			Object.keys(nonApplicantDirectorsObject).forEach(directorId => {
-				const businessOrIncomeType =
-					nonApplicantDirectorsObject[directorId]?.income_type ||
-					nonApplicantDirectorsObject[directorId]?.businesstype;
-				if (!allCoApplicantUniqueIncomeTypeIds.includes(businessOrIncomeType)) {
-					allCoApplicantUniqueIncomeTypeIds.push(businessOrIncomeType);
-				}
-			});
-			if (allCoApplicantUniqueIncomeTypeIds.length > 0) {
-				try {
-					const coAppDocTypesRes = await axios.get(
-						`${
-							API.CO_APPLICANTS_DOCTYPES_FETCH
-						}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
-					);
-					// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
-					coAppDocTypesRes?.data?.data?.forEach(
-						(nonApplicantDocs, nonApplicantIndex) => {
-							for (const key in nonApplicantDocs) {
-								nonApplicantDocs[key]?.forEach(docType => {
-									const category = getDocumentCategoryName(docType?.doc_type);
-									const newDoc = {
-										...docType,
-										doc_type_id: docType?.id,
-										type_name:
-											nonApplicantDirectorsArray?.[nonApplicantIndex]
-												?.type_name,
-										value: docType?.id,
-										category,
-										directorId:
-											nonApplicantDirectorsArray?.[nonApplicantIndex]
-												?.directorId,
-									};
-									newAllDocumentTypes.push(newDoc);
-								});
-							}
-						}
-					);
-				} catch (error) {
-					console.error(
-						'error-failted to fetch coapplicant document list-',
-						error
-					);
-				}
-			}
-			// -- NON-APPLICANTS
-
-			// FETCH ALL DOCUMENTS
-			try {
-				let preFillKycFinOtherDocs = [];
-				const preFillLenderDocs = [];
-				const preFillEvalDocs = [];
-				const allDocumentsRes = await axios.get(
-					`${
-						API.GET_ALL_UPLOADED_DOCUMENTS_UIUX
-						// API.GET_ALL_UPLOADED_DOCUMENTS
-					}?loan_ref_id=${loanRefId}`
-				);
-				console.log('allDocumentsRes-', allDocumentsRes);
-				if (allDocumentsRes?.data?.documentList?.loan_document?.length > 0) {
-					preFillKycFinOtherDocs = formatLoanDocuments({
-						docs: allDocumentsRes?.data?.documentList?.loan_document,
-						docTypes: newAllDocumentTypes,
-					});
-				}
-
-				if (isViewLoan) {
-					allDocumentsRes?.data?.documentList?.lender_document?.map(
-						lenderDoc => {
-							const docListItem = lenderDoc?.doc_type;
-							const priority = docListItem?.priority;
-							const doctype = docListItem?.id;
-							const name =
-								lenderDoc?.uploaded_doc_name ||
-								lenderDoc?.original_doc_name ||
-								lenderDoc?.doc_name;
-							const document_key = lenderDoc?.doc_name;
-							let displayEvalDoc = false;
-							if (userDetails.is_other) {
-								if (lenderDoc.uploaded_by === userDetails.id) {
-									displayEvalDoc = true;
-								}
-							} else {
-								displayEvalDoc = true;
-							}
-							if (displayEvalDoc) {
-								if (priority === '300') {
-									const doc_type_id = doctype;
-									const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
-									if (
-										newAllDocumentTypes?.filter(
-											d => d?.doc_type_id === doc_type_id
-										)?.length <= 0
-									) {
-										newAllDocumentTypes.push({
-											...docListItem,
-											doc_type_id,
-											category,
-											directorId: applicantDirectorId,
-										});
-									}
-									preFillLenderDocs.push({
-										...lenderDoc,
-										doctype,
-										doc_type_id,
-										category,
-										name,
-										document_key,
-										directorId: applicantDirectorId,
-										document_id: lenderDoc?.id,
-									});
-									return null;
-								}
-								if (priority === '3') {
-									const doc_type_id = doctype;
-									const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
-									if (
-										newAllDocumentTypes?.filter(
-											d => d?.doc_type_id === doc_type_id
-										)?.length <= 0
-									) {
-										newAllDocumentTypes.push({
-											...docListItem,
-											doc_type_id,
-											category,
-											directorId: applicantDirectorId,
-										});
-									}
-									// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
-									// this is to overwrite assignment document checklist
-									// DOS-3031
-									if (
-										userDetails.is_other &&
-										lenderDoc.uploaded_by === userDetails.id
-									) {
-										externalUserAllowedToViewDocTypeIds.push(
-											`${applicantDirectorId}${doc_type_id}`
-										);
-									}
-
-									preFillEvalDocs.push({
-										...lenderDoc,
-										doctype,
-										doc_type_id,
-										category,
-										name,
-										document_key,
-										directorId: applicantDirectorId,
-										document_id: lenderDoc?.id,
-									});
-									return null;
-								}
-							}
-							return null;
-						}
-					);
-					// console.log('1111111-', {
-					// 	files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
-					// 	newAllDocumentTypes,
-					// });
-				}
-				dispatch(
-					addOrUpdateCacheDocumentsDocUploadPage({
-						files: [
-							...preFillKycFinOtherDocs,
-							...preFillLenderDocs,
-							...preFillEvalDocs,
-						],
-					})
-				);
-			} catch (error) {}
-			// -- FETCH ALL DOCUMENTS
-
-			// console.log('newAllDocumentTypes-', {
-			// 	newAllDocumentTypes,
-			// 	externalUserSelectedDocTypeIds,
-			// 	filter: newAllDocumentTypes.filter(doc =>
-			// 		externalUserSelectedDocTypeIds.includes(
-			// 			`${doc?.directorId}${doc?.doc_type_id}`
-			// 		)
-			// 	),
-			// });
-			newAllDocumentTypes.sort((a, b) => a.id - b.id);
-			if (externalUserAllowedToViewDocTypeIds.length > 0) {
-				// only show document types which is assign to external user
-				dispatch(
-					addAllDocumentTypes(
-						newAllDocumentTypes.filter(doc =>
-							externalUserAllowedToViewDocTypeIds.includes(
-								`${doc?.directorId}${doc?.doc_type_id}`
-							)
-						)
-					)
-				);
-			} else {
-				dispatch(addAllDocumentTypes(newAllDocumentTypes));
-			}
-			// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
-			// if (isEditOrViewLoan) {
-			// 	const newDoc = [];
-			// 	const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
-			// 	clonedCacheDocuments?.map(doc => {
-			// 		// if (doc?.document_id) return null;
-			// 		if (!doc?.directorId) {
-			// 			doc.directorId = applicantDirectorId;
-			// 		}
-			// 		const selectedDocType =
-			// 			newAllDocumentTypes.filter(docType => {
-			// 				if (
-			// 					`${docType.doc_type_id}` === `${doc.doctype}` ||
-			// 					`${docType.doc_type_id}` === `${doc.doc_type_id}`
-			// 				)
-			// 					return true;
-			// 				return false;
-			// 			})?.[0] || {};
-
-			// 		newDoc.push({
-			// 			...selectedDocType,
-			// 			...doc,
-			// 		});
-			// 		return null;
-			// 	});
-			// 	dispatch(
-			// 		addOrUpdateCacheDocumentsDocUploadPage({
-			// 			files: newDoc,
-			// 		})
-			// 	);
-			// }
-		} catch (error) {
-			console.error('error-initializeComponent-', error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const initializeCommentForOfficeUse = () => {
-		if (isEditOrViewLoan && editLoanData?.remarks) {
-			const allRemarks = parseJSON(editLoanData?.remarks);
-			const allCommentsForOfficeUse = [];
-			Object.keys(allRemarks)?.map(key => {
-				if (!!allRemarks?.[key]?.is_comment_for_office_use) {
-					allCommentsForOfficeUse.push(allRemarks[key]);
-				}
-				return null;
-			});
-			try {
-				allCommentsForOfficeUse.sort(
-					(a, b) => moment(b.datetime) - moment(a.datetime)
-				);
-			} catch (e) {}
-			setCommentsFromEditLoanData(allCommentsForOfficeUse?.[0]?.comment);
-			if (allCommentsForOfficeUse?.length > 0) {
-				dispatch(
-					setCommentsForOfficeUse(allCommentsForOfficeUse?.[0]?.comment || '')
-				);
-			}
-			// console.log('allremarks-', {
-			// 	allRemarks,
-			// 	allCommentsForOfficeUse,
-			// 	newcomment: allCommentsForOfficeUse?.[0]?.comment || '',
-			// });
-		}
-	};
-
 	useEffect(() => {
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
+
+			const initializeDocTypeList = async () => {
+				try {
+					// console.log('initializeDocTypeList');
+					setLoading(true);
+
+					const newAllDocumentTypes = [];
+
+					// EXTERNAL / OTHER USER
+					const externalUserAllowedToViewDocTypeIds = [];
+					if (isViewLoan) {
+						// externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
+						try {
+							const evalData = await axios.get(
+								`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
+							);
+							const selectedEvalData = evalData?.data?.data?.filter(
+								d => `${d?.assign_userid}` === `${userDetails?.id}`
+							)?.[0];
+							const newSelectedDocCheckList = selectedEvalData
+								? selectedEvalData?.assigned_document_list
+									? JSON.parse(selectedEvalData?.assigned_document_list)
+									: []
+								: [];
+							newSelectedDocCheckList.map(doc => {
+								externalUserAllowedToViewDocTypeIds.push(
+									`${doc?.director_id}${doc?.doc_type_id}`
+								);
+								return null;
+							});
+							// console.log('initializeExternalUserDocCheckList-evalData-', {
+							// 	userDetails,
+							// 	evalData,
+							// 	selectedEvalData,
+							// 	newSelectedDocCheckList,
+							// 	editLoanData,
+							// });
+						} catch (error) {
+							console.error('error-initializeExternalUserDocCheckList-', error);
+						}
+					}
+					// -- EXTERNAL / OTHER USER
+
+					// APPLICANT OR ENTITY
+					try {
+						const reqBody = {
+							business_type:
+								selectedDirector?.income_type || selectedDirector?.income_type,
+							loan_product: loanProductId,
+						};
+						// console.log('applicantDocReqBody-', { reqBody });
+						const applicantDocRes = await axios.post(
+							API.DOCTYPES_FETCH,
+							reqBody
+						);
+						// console.log('applicantDocRes-', applicantDocRes);
+						for (const key in applicantDocRes?.data) {
+							applicantDocRes?.data[key].forEach(d => {
+								const category = getDocumentCategoryName(d?.doc_type);
+								newAllDocumentTypes.push({
+									...d,
+									value: d.doc_type_id,
+									name: d.name,
+									doc_type_id: d.doc_type_id,
+									category,
+									directorId: applicantDirectorId || 0,
+								});
+							});
+						}
+					} catch (error) {
+						console.error(
+							'error-failed-to-fetch-applicant-entity-documentlist-',
+							error
+						);
+					}
+					// -- APPLICANT OR ENTITY
+
+					// NON-APPLICANTS
+					// const coApplicantDocTypeResHistory = {};
+					const allCoApplicantUniqueIncomeTypeIds = [];
+					Object.keys(nonApplicantDirectorsObject).forEach(directorId => {
+						const businessOrIncomeType =
+							nonApplicantDirectorsObject[directorId]?.income_type ||
+							nonApplicantDirectorsObject[directorId]?.businesstype;
+						if (
+							!allCoApplicantUniqueIncomeTypeIds.includes(businessOrIncomeType)
+						) {
+							allCoApplicantUniqueIncomeTypeIds.push(businessOrIncomeType);
+						}
+					});
+					if (allCoApplicantUniqueIncomeTypeIds.length > 0) {
+						try {
+							const coAppDocTypesRes = await axios.get(
+								`${
+									API.CO_APPLICANTS_DOCTYPES_FETCH
+								}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
+							);
+							// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
+							coAppDocTypesRes?.data?.data?.forEach(
+								(nonApplicantDocs, nonApplicantIndex) => {
+									for (const key in nonApplicantDocs) {
+										nonApplicantDocs[key]?.forEach(docType => {
+											const category = getDocumentCategoryName(
+												docType?.doc_type
+											);
+											const newDoc = {
+												...docType,
+												doc_type_id: docType?.id,
+												type_name:
+													nonApplicantDirectorsArray?.[nonApplicantIndex]
+														?.type_name,
+												value: docType?.id,
+												category,
+												directorId:
+													nonApplicantDirectorsArray?.[nonApplicantIndex]
+														?.directorId,
+											};
+											newAllDocumentTypes.push(newDoc);
+										});
+									}
+								}
+							);
+						} catch (error) {
+							console.error(
+								'error-failted to fetch coapplicant document list-',
+								error
+							);
+						}
+					}
+					// -- NON-APPLICANTS
+
+					// FETCH ALL DOCUMENTS
+					let preFillKycFinOtherDocs = [];
+					let preFillLenderDocs = [];
+					let preFillEvalDocs = [];
+					try {
+						const allDocumentsRes = await axios.get(
+							`${
+								API.GET_ALL_UPLOADED_DOCUMENTS_UIUX
+								// API.GET_ALL_UPLOADED_DOCUMENTS
+							}?loan_ref_id=${loanRefId}`
+						);
+						console.log('allDocumentsRes-', allDocumentsRes);
+						if (
+							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
+						) {
+							preFillKycFinOtherDocs = formatLoanDocuments({
+								docs: allDocumentsRes?.data?.documentList?.loan_document,
+								docTypes: newAllDocumentTypes,
+							});
+						}
+
+						if (isViewLoan) {
+							allDocumentsRes?.data?.documentList?.lender_document?.map(
+								lenderDoc => {
+									const docListItem = lenderDoc?.doc_type;
+									const priority = docListItem?.priority;
+									const doctype = docListItem?.id;
+									const name =
+										lenderDoc?.uploaded_doc_name ||
+										lenderDoc?.original_doc_name ||
+										lenderDoc?.doc_name;
+									const document_key = lenderDoc?.doc_name;
+									let displayEvalDoc = false;
+									if (userDetails.is_other) {
+										if (lenderDoc.uploaded_by === userDetails.id) {
+											displayEvalDoc = true;
+										}
+									} else {
+										displayEvalDoc = true;
+									}
+									if (displayEvalDoc) {
+										if (priority === '300') {
+											const doc_type_id = doctype;
+											const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
+											if (
+												newAllDocumentTypes?.filter(
+													d => d?.doc_type_id === doc_type_id
+												)?.length <= 0
+											) {
+												newAllDocumentTypes.push({
+													...docListItem,
+													doc_type_id,
+													category,
+													directorId: applicantDirectorId,
+												});
+											}
+											preFillLenderDocs.push({
+												...lenderDoc,
+												doctype,
+												doc_type_id,
+												category,
+												name,
+												document_key,
+												directorId: applicantDirectorId,
+												document_id: lenderDoc?.id,
+											});
+											return null;
+										}
+										if (priority === '3') {
+											const doc_type_id = doctype;
+											const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
+											if (
+												newAllDocumentTypes?.filter(
+													d => d?.doc_type_id === doc_type_id
+												)?.length <= 0
+											) {
+												newAllDocumentTypes.push({
+													...docListItem,
+													doc_type_id,
+													category,
+													directorId: applicantDirectorId,
+												});
+											}
+											// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
+											// this is to overwrite assignment document checklist
+											// DOS-3031
+											if (
+												userDetails.is_other &&
+												lenderDoc.uploaded_by === userDetails.id
+											) {
+												externalUserAllowedToViewDocTypeIds.push(
+													`${applicantDirectorId}${doc_type_id}`
+												);
+											}
+
+											preFillEvalDocs.push({
+												...lenderDoc,
+												doctype,
+												doc_type_id,
+												category,
+												name,
+												document_key,
+												directorId: applicantDirectorId,
+												document_id: lenderDoc?.id,
+											});
+											return null;
+										}
+									}
+									return null;
+								}
+							);
+							// console.log('1111111-', {
+							// 	files: [...preFillLenderDocsTag, ...preFillEvalDocsTag],
+							// 	newAllDocumentTypes,
+							// });
+						}
+					} catch (error) {}
+					dispatch(
+						addOrUpdateCacheDocumentsDocUploadPage({
+							files: [
+								...preFillKycFinOtherDocs,
+								...preFillLenderDocs,
+								...preFillEvalDocs,
+							],
+						})
+					);
+					// -- FETCH ALL DOCUMENTS
+
+					// console.log('newAllDocumentTypes-', {
+					// 	newAllDocumentTypes,
+					// 	externalUserSelectedDocTypeIds,
+					// 	filter: newAllDocumentTypes.filter(doc =>
+					// 		externalUserSelectedDocTypeIds.includes(
+					// 			`${doc?.directorId}${doc?.doc_type_id}`
+					// 		)
+					// 	),
+					// });
+					newAllDocumentTypes.sort((a, b) => a.id - b.id);
+					if (externalUserAllowedToViewDocTypeIds.length > 0) {
+						// only show document types which is assign to external user
+						dispatch(
+							addAllDocumentTypes(
+								newAllDocumentTypes.filter(doc =>
+									externalUserAllowedToViewDocTypeIds.includes(
+										`${doc?.directorId}${doc?.doc_type_id}`
+									)
+								)
+							)
+						);
+					} else {
+						dispatch(addAllDocumentTypes(newAllDocumentTypes));
+					}
+					// console.log('DocumentUpload-isEditOrViewLoan-', { isEditOrViewLoan });
+					// if (isEditOrViewLoan) {
+					// 	const newDoc = [];
+					// 	const clonedCacheDocuments = _.cloneDeep(cacheDocuments);
+					// 	clonedCacheDocuments?.map(doc => {
+					// 		// if (doc?.document_id) return null;
+					// 		if (!doc?.directorId) {
+					// 			doc.directorId = applicantDirectorId;
+					// 		}
+					// 		const selectedDocType =
+					// 			newAllDocumentTypes.filter(docType => {
+					// 				if (
+					// 					`${docType.doc_type_id}` === `${doc.doctype}` ||
+					// 					`${docType.doc_type_id}` === `${doc.doc_type_id}`
+					// 				)
+					// 					return true;
+					// 				return false;
+					// 			})?.[0] || {};
+
+					// 		newDoc.push({
+					// 			...selectedDocType,
+					// 			...doc,
+					// 		});
+					// 		return null;
+					// 	});
+					// 	dispatch(
+					// 		addOrUpdateCacheDocumentsDocUploadPage({
+					// 			files: newDoc,
+					// 		})
+					// 	);
+					// }
+				} catch (error) {
+					console.error('error-initializeComponent-', error);
+				} finally {
+					setLoading(false);
+				}
+			};
+
+			const initializeCommentForOfficeUse = () => {
+				if (isEditOrViewLoan && editLoanData?.remarks) {
+					const allRemarks = parseJSON(editLoanData?.remarks);
+					const allCommentsForOfficeUse = [];
+					Object.keys(allRemarks)?.map(key => {
+						if (!!allRemarks?.[key]?.is_comment_for_office_use) {
+							allCommentsForOfficeUse.push(allRemarks[key]);
+						}
+						return null;
+					});
+					try {
+						allCommentsForOfficeUse.sort(
+							(a, b) => moment(b.datetime) - moment(a.datetime)
+						);
+					} catch (e) {}
+					setCommentsFromEditLoanData(allCommentsForOfficeUse?.[0]?.comment);
+					if (allCommentsForOfficeUse?.length > 0) {
+						dispatch(
+							setCommentsForOfficeUse(
+								allCommentsForOfficeUse?.[0]?.comment || ''
+							)
+						);
+					}
+					// console.log('allremarks-', {
+					// 	allRemarks,
+					// 	allCommentsForOfficeUse,
+					// 	newcomment: allCommentsForOfficeUse?.[0]?.comment || '',
+					// });
+				}
+			};
 			initializeDocTypeList();
 			initializeCommentForOfficeUse();
 			if (isGeoTaggingEnabled) {
@@ -1425,7 +1435,7 @@ const DocumentUpload = props => {
 				{/* TODO: comment for office use  */}
 				{selectedSection?.sub_sections?.map((sub_section, idx) => {
 					return (
-						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section.id}`}>
+						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section?.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
 								{sub_section?.id === 'on_site_selfie_with_applicant'
@@ -1436,7 +1446,7 @@ const DocumentUpload = props => {
 										  ` ${Object.keys(nonApplicantDirectorsObject).indexOf(
 												selectedDirectorId
 										  ) + 1}`
-										: sub_section?.fields?.[1].label
+										: sub_section?.fields?.[1]?.label
 									: sub_section?.name}
 
 								{isCommentRequired && (

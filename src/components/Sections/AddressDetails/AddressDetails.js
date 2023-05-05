@@ -1,7 +1,7 @@
 //aid:1 = present address
 //aid:2 = permanent address
 
-import React, { useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import moment from 'moment';
@@ -36,7 +36,6 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach } from 'utils/helper';
-import { useEffect } from 'react';
 import { API_END_POINT } from '_config/app.config';
 import Loading from 'components/Loading';
 
@@ -652,6 +651,8 @@ const AddressDetails = props => {
 	// 	isSameAsAboveAddressChecked,
 	// 	formState,
 	// });
+
+	if (!selectedDirectorId) return null;
 
 	return (
 		<UI_SECTIONS.Wrapper>

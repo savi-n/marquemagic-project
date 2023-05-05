@@ -511,8 +511,10 @@ export const getAllCompletedSections = data => {
 	const {
 		application,
 		selectedDirector,
-		addNewDirectorKey,
+		// addNewDirectorKey,
 		directorSectionIds,
+		selectedProduct,
+		selectedSectionId,
 	} = data;
 	let completedSections = [];
 	if (Array.isArray(application?.sections)) {
@@ -521,10 +523,22 @@ export const getAllCompletedSections = data => {
 	if (Array.isArray(selectedDirector?.sections)) {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
 	}
-	// 'Entity'
-	if (!addNewDirectorKey && !selectedDirector?.directorId) {
+	// // 'Entity'
+
+	if (
+		selectedProduct?.isSelectedProductTypeBusiness &&
+		selectedSectionId === CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID
+	) {
 		completedSections = [...completedSections, ...(directorSectionIds || [])];
 	}
+
+	// if (
+	// 	!addNewDirectorKey &&
+	// 	!selectedDirector?.directorId &&
+	// 	application?.sections?.includes(CONST_SECTIONS.BUSINESS_DETAILS_SECTION_ID)
+	// ) {
+	// 	completedSections = [...completedSections, ...(directorSectionIds || [])];
+	// }
 	return completedSections;
 };
 

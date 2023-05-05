@@ -58,6 +58,7 @@ const ApplicantCoApplicantHeader = props => {
 					loanRefId,
 					isSelectedProductTypeBusiness:
 						selectedProduct?.isSelectedProductTypeBusiness,
+					selectedSectionId,
 				})
 			);
 		} catch (e) {
