@@ -527,7 +527,10 @@ export const getAllCompletedSections = data => {
 
 	if (
 		selectedProduct?.isSelectedProductTypeBusiness &&
-		selectedSectionId === CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID
+		[
+			CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID,
+			CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID,
+		].includes(selectedSectionId)
 	) {
 		completedSections = [...completedSections, ...(directorSectionIds || [])];
 	}

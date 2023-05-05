@@ -24,12 +24,13 @@ import {
 	setCompletedApplicationSection,
 	setBusinessType,
 	setNewCompletedSections,
+	setBusinessMobile,
 } from 'store/applicationSlice';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getSelectedField,
-	getCompletedSections,
+	getAllCompletedSections,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -59,8 +60,8 @@ const BusinessDetails = props => {
 		isViewLoan,
 		isEditLoan,
 		isEditOrViewLoan,
-		isDraftLoan,
-		editLoanDirectors,
+		// isDraftLoan,
+		// editLoanDirectors,
 		userDetails,
 		isTestMode,
 	} = app;
@@ -102,13 +103,9 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const completedSections = getCompletedSections({
+	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		editLoanDirectors,
 	});
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -123,8 +120,16 @@ const BusinessDetails = props => {
 			doc => doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME
 		)?.[0] || null;
 	const tempPanUploadedFile = !!sectionData?.loan_document
-		? sectionData?.loan_document
+		? sectionData?.loan_document?.[0]
 		: null;
+
+	// format object to match the desired key_type in payload
+	const formatObject = payloadObj => {
+		return payloadObj?.map(obj => ({
+			name: obj.Name,
+			'din/pan': obj.Din,
+		}));
+	};
 
 	const onSaveAndProceed = async () => {
 		try {
@@ -198,9 +203,13 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.loan_data?.createdUserId;
 			const newBusinessType =
 				buissnessDetailsRes?.data?.data?.business_data?.businesstype;
+			const newBusinessMobile =
+				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) dispatch(setBusinessType(newBusinessType));
+			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 
 			// add director starts
+
 			if (
 				!!companyRocData &&
 				Object.values(companyRocData)?.length > 0 &&
@@ -218,11 +227,11 @@ const BusinessDetails = props => {
 						selectedLoanProductId,
 					});
 					addDirectorsReqBody.data =
-						companyRocData?.directorsForShow || companyRocData?.data?.director;
+						companyRocData?.data?.director ||
+						formatObject(companyRocData?.directorsForShow);
 					addDirectorsReqBody.business_id = newBusinessId;
 					addDirectorsReqBody.loan_id = newLoanId;
 					axios.post(API.ADD_MULTIPLE_DIRECTOR, addDirectorsReqBody);
-					// console.log({ addDirectorRes });
 				} catch (error) {
 					console.error(error);
 				}
@@ -566,8 +575,8 @@ const BusinessDetails = props => {
 									/>
 								)}
 								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((f, fieldIndex) => {
-										const field = _.cloneDeep(f);
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										// const field = _.cloneDeep(f);
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -683,10 +692,11 @@ const BusinessDetails = props => {
 											field.name === CONST.PAN_NUMBER_FIELD_NAME
 										)
 											customFieldProps.disabled = true;
-
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] === ''
+											!!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											`${formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]}`
+												?.length === 0
 										) {
 											return null;
 										}

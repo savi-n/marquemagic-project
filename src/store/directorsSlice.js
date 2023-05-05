@@ -7,7 +7,11 @@ import {
 	DOCUMENT_UPLOAD_SECTION_ID,
 } from 'components/Sections/const';
 
-import { getDirectorFullName, getShortString } from 'utils/formatData';
+import {
+	getDirectorFullName,
+	getShortString,
+	checkInitialDirectorsUpdated,
+} from 'utils/formatData';
 
 export const DIRECTOR_TYPES = {
 	applicant: 'Applicant',
@@ -43,7 +47,7 @@ const initialState = {
 	isEntity: false,
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
-	selectDirectorOptions: [],
+	selectedDirectorOptions: [],
 };
 
 export const getDirectors = createAsyncThunk(
@@ -92,6 +96,7 @@ export const directorsSlice = createSlice({
 			const newDirectors = {};
 			let applicantDirector = {};
 			let lastDirector = {};
+			let firstDirector = {};
 			const newSelectedDirectorOptions = [];
 			const sortedDirectors = existingDirectors?.sort(
 				(a, b) => a?.type_name - b?.type_name
@@ -123,6 +128,9 @@ export const directorsSlice = createSlice({
 				if (directorIndex === sortedDirectors.length - 1) {
 					lastDirector = newDirectorObject;
 				}
+				if (directorIndex === 0) {
+					firstDirector = newDirectorObject;
+				}
 
 				if (newDirectorObject.type_name === DIRECTOR_TYPES.applicant) {
 					newIsEntity = false;
@@ -132,15 +140,17 @@ export const directorsSlice = createSlice({
 			});
 			// console.log("PrevState",!prevState.selectedDirectorId);
 			if (prevState.selectedDirectorId) {
-				// console.log(newDirectors);
 				const prevDirector = newDirectors[state.selectedDirectorId];
-				// console.log(prevDirector);
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
-				state.selectedDirectorId = `${lastDirector.directorId || ''}`;
+				if (checkInitialDirectorsUpdated(newDirectors)) {
+					state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
+				} else {
+					state.selectedDirectorId = `${lastDirector.directorId || ''}`;
+				}
 			}
 			state.isEntity = newIsEntity;
 			state.directors = newDirectors;

@@ -68,14 +68,7 @@ const BusinessAddressDetails = props => {
 
 	const selectedLoanProductId = selectedProduct?.product_id?.['business'] || '';
 	const [sectionData, setSectionData] = useState([]);
-	const [
-		,
-		// editSectionIds
-		setEditSectionIds,
-	] = useState({
-		businessAddressIdAid1: '',
-		businessAddressIdAid2: '',
-	});
+	const [editSectionId, setEditSectionId] = useState('');
 	const [gstAndUan, setGstAndUan] = useState({});
 	const [gstNumbers, setGstNumbers] = useState([]);
 	const [udyamData, setUdyamData] = useState({});
@@ -106,7 +99,7 @@ const BusinessAddressDetails = props => {
 			if (fetchRes?.data?.status === 'ok') {
 				const address = fetchRes?.data?.data?.address;
 				setSectionData(address);
-
+				if (address?.length > 0) setEditSectionId(address?.[0]?.id);
 				setGstAndUan({
 					gst: fetchRes?.data?.data?.gstin,
 					uan: fetchRes?.data?.data?.udyam_number,
@@ -269,33 +262,35 @@ const BusinessAddressDetails = props => {
 	// populate address fields with response value
 	const populateFromResponse = businessAddress => {
 		// console.log({ businessAddress });
-		setTimeout(() => {
-			onChangeFormStateField({
-				name: 'pin_code',
-				value:
-					+businessAddress?.pincode ||
-					extractPincode(businessAddress?.line1) || // if there is single line of ROC address,
-					'',
-			});
-			onChangeFormStateField({
-				name: 'address1',
-				value: businessAddress?.line1 || '',
-			});
-
-			if (businessAddress?.line2) {
+		if (sectionData?.length === 0) {
+			setTimeout(() => {
 				onChangeFormStateField({
-					name: 'address2',
-					value: businessAddress?.line2 || '',
+					name: 'pin_code',
+					value:
+						+businessAddress?.pincode ||
+						extractPincode(businessAddress?.line1) || // if there is single line of ROC address,
+						'',
 				});
-			}
-
-			if (businessAddress?.line3) {
 				onChangeFormStateField({
-					name: 'address3',
-					value: businessAddress?.line3 || '',
+					name: 'address1',
+					value: businessAddress?.line1 || '',
 				});
-			}
-		}, 0);
+
+				if (businessAddress?.line2) {
+					onChangeFormStateField({
+						name: 'address2',
+						value: businessAddress?.line2 || '',
+					});
+				}
+
+				if (businessAddress?.line3) {
+					onChangeFormStateField({
+						name: 'address3',
+						value: businessAddress?.line3 || '',
+					});
+				}
+			}, 0);
+		}
 	};
 
 	// const isSectionCompleted = completedSections?.includes(selectedSectionId);
@@ -334,26 +329,14 @@ const BusinessAddressDetails = props => {
 				businessAddressDetailReqBody?.data?.business_address_details
 			);
 			businessAddressDetailReqBody.data.business_address_details = tempAddress;
-			// delete businessAddressDetailReqBody?.data?.address_details;
-			// temp changes ends
+			if (editSectionId)
+				businessAddressDetailReqBody.data.business_address_details[0].id = editSectionId;
 
-			// TODO: Shreyas verify edit mode whether address is getting updated or not
-			// if not pass businessaddressasadi1 and 2
-			// editSectionIds
-
-			const businessAddressDetailRes = await axios.post(
+			await axios.post(
 				API.BUSINESS_ADDRESS_DETAILS,
 				businessAddressDetailReqBody
 			);
 
-			setEditSectionIds({
-				businessAddressIdAid1: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
-					address => address.aid === 1
-				)?.[0]?.id,
-				businessAddressIdAid2: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
-					address => address.aid === 2
-				)?.[0]?.id,
-			});
 			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
