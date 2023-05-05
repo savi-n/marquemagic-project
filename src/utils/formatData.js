@@ -880,6 +880,23 @@ export const validateEmploymentDetails = data => {
 	}
 };
 
+export const checkInitialDirectorsUpdated = directors => {
+	if (Object.keys(directors)?.length <= 1) return false;
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+	const notCompletedDirectors = [];
+	if (Object.keys(directors)?.length > 1) {
+		restOfTheDirectors?.map(dir => {
+			if (dir?.sections?.length < 3) {
+				notCompletedDirectors.push(dir);
+			}
+			return null;
+		});
+		// console.log({ restOfTheDirectors, notCompletedDirectors });
+	}
+	if (notCompletedDirectors?.length > 0) return true;
+	return false;
+};
+
 export const getApplicantNavigationDetails = data => {
 	const { applicant, coApplicants, selectedApplicant } = data;
 
