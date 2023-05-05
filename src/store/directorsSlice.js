@@ -47,7 +47,7 @@ const initialState = {
 	isEntity: false,
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
-	selectDirectorOptions: [],
+	selectedDirectorOptions: [],
 };
 
 export const getDirectors = createAsyncThunk(
