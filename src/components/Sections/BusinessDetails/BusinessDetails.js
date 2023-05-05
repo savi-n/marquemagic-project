@@ -567,8 +567,8 @@ const BusinessDetails = props => {
 									/>
 								)}
 								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((f, fieldIndex) => {
-										const field = _.cloneDeep(f);
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										// const field = _.cloneDeep(f);
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -684,10 +684,11 @@ const BusinessDetails = props => {
 											field.name === CONST.PAN_NUMBER_FIELD_NAME
 										)
 											customFieldProps.disabled = true;
-
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] === ''
+											!!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											`${formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]}`
+												?.length === 0
 										) {
 											return null;
 										}
