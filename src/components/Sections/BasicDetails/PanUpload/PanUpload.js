@@ -365,9 +365,8 @@ const PanUpload = props => {
 	};
 
 	const { getRootProps, getInputProps } = useDropzone({
-		accept: {
-			'*': [],
-		},
+		accept: '',
+
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);

@@ -68,9 +68,7 @@ const PanUpload = props => {
 
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
-		accept: {
-			'*': [],
-		},
+		accept: '',
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
