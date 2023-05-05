@@ -68,14 +68,7 @@ const BusinessAddressDetails = props => {
 
 	const selectedLoanProductId = selectedProduct?.product_id?.['business'] || '';
 	const [sectionData, setSectionData] = useState([]);
-	const [
-		,
-		// editSectionIds
-		setEditSectionIds,
-	] = useState({
-		businessAddressIdAid1: '',
-		businessAddressIdAid2: '',
-	});
+	const [editSectionId, setEditSectionId] = useState('');
 	const [gstAndUan, setGstAndUan] = useState({});
 	const [gstNumbers, setGstNumbers] = useState([]);
 	const [udyamData, setUdyamData] = useState({});
@@ -106,7 +99,7 @@ const BusinessAddressDetails = props => {
 			if (fetchRes?.data?.status === 'ok') {
 				const address = fetchRes?.data?.data?.address;
 				setSectionData(address);
-
+				setEditSectionId(address?.[0]?.id);
 				setGstAndUan({
 					gst: fetchRes?.data?.data?.gstin,
 					uan: fetchRes?.data?.data?.udyam_number,
@@ -334,26 +327,14 @@ const BusinessAddressDetails = props => {
 				businessAddressDetailReqBody?.data?.business_address_details
 			);
 			businessAddressDetailReqBody.data.business_address_details = tempAddress;
-			// delete businessAddressDetailReqBody?.data?.address_details;
-			// temp changes ends
+			if (editSectionId)
+				businessAddressDetailReqBody.data.business_address_details[0].id = editSectionId;
 
-			// TODO: Shreyas verify edit mode whether address is getting updated or not
-			// if not pass businessaddressasadi1 and 2
-			// editSectionIds
-
-			const businessAddressDetailRes = await axios.post(
+			await axios.post(
 				API.BUSINESS_ADDRESS_DETAILS,
 				businessAddressDetailReqBody
 			);
 
-			setEditSectionIds({
-				businessAddressIdAid1: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
-					address => address.aid === 1
-				)?.[0]?.id,
-				businessAddressIdAid2: businessAddressDetailRes?.data?.data?.business_address_data?.filter(
-					address => address.aid === 2
-				)?.[0]?.id,
-			});
 			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {

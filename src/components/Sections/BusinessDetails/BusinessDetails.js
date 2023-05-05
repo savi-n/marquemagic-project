@@ -29,7 +29,7 @@ import {
 	formatSectionReqBody,
 	getApiErrorMessage,
 	getSelectedField,
-	getCompletedSections,
+	getAllCompletedSections,
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -102,7 +102,7 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	const completedSections = getCompletedSections({
+	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
 		isEditOrViewLoan,
