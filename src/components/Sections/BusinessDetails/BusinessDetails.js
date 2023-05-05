@@ -132,6 +132,14 @@ const BusinessDetails = props => {
 		? sectionData?.loan_document?.[0]
 		: null;
 
+	// format object to match the desired key_type in payload
+	const formatObject = payloadObj => {
+		return payloadObj?.map(obj => ({
+			name: obj.Name,
+			'din/pan': obj.Din,
+		}));
+	};
+
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -228,11 +236,11 @@ const BusinessDetails = props => {
 						selectedLoanProductId,
 					});
 					addDirectorsReqBody.data =
-						companyRocData?.directorsForShow || companyRocData?.data?.director;
+						companyRocData?.data?.director ||
+						formatObject(companyRocData?.directorsForShow);
 					addDirectorsReqBody.business_id = newBusinessId;
 					addDirectorsReqBody.loan_id = newLoanId;
 					axios.post(API.ADD_MULTIPLE_DIRECTOR, addDirectorsReqBody);
-					// console.log({ addDirectorRes });
 				} catch (error) {
 					console.error(error);
 				}
