@@ -14,6 +14,7 @@ import {
 import Button from 'components/Button';
 import { getAllCompletedSections } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
+import { setSelectedDirectorId } from 'store/directorsSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
@@ -23,9 +24,12 @@ import * as CONST from './const';
 
 const SideNav = props => {
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
-		state => state.directors
-	);
+	const {
+		directors,
+		selectedDirectorId,
+		addNewDirectorKey,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		selectedProduct,
@@ -148,6 +152,24 @@ const SideNav = props => {
 												// }
 
 												if (isCompleted || isActive) {
+													// console.log('selectedDirectorId-', {
+													// 	selectedDirectorId,
+													// 	selectedDirectorOptions,
+													// });
+													// handle isEntity Scenario
+													// when user is in document upload page and selected sectino is Entity selects director sections
+													if (
+														!selectedDirectorId &&
+														directorSectionIds.includes(section.id)
+													) {
+														dispatch(
+															setSelectedDirectorId(
+																selectedDirectorOptions?.[0]?.value || ''
+															)
+														);
+													}
+													// -- handle isEntity Scenario
+
 													dispatch(setSelectedSectionId(section.id));
 												}
 											}}
