@@ -103,17 +103,8 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
-	// const completedSections = getCompletedSections({
-	// 	selectedProduct,
-	// 	selectedSectionId,
-	// 	application,
-	// 	isEditOrViewLoan,
-	// 	isEditLoan,
-	// 	isDraftLoan,
-	// 	editLoanDirectors,
-	// });
-
 	const completedSections = getAllCompletedSections({
+		selectedProduct,
 		application,
 	});
 	const selectedPanUploadField = getSelectedField({
