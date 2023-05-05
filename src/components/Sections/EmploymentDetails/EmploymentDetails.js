@@ -24,13 +24,14 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	validateEmploymentDetails,
+	checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import Loading from 'components/Loading';
 
 const EmploymentDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { directors, applicantDirectorId, selectedDirectorId } = useSelector(
+	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
@@ -52,7 +53,10 @@ const EmploymentDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
 	const editSectionId = sectionData?.income_data?.employment_id || '';
-	const [initialDirectorsUpdated, setInitialDirectorsUpdated] = useState(false);
+	const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
+		? checkInitialDirectorsUpdated(directors)
+		: false;
+
 	// console.log({
 	// 	directors,
 	// 	popValue: `${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}`,
@@ -176,7 +180,6 @@ const EmploymentDetails = () => {
 			// 	dispatch(setSelectedSectionId(nextSectionId));
 			// 	return;
 			// }
-			dispatch(setSelectedDirectorId(applicantDirectorId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
@@ -199,23 +202,6 @@ const EmploymentDetails = () => {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		} else {
 			dispatch(setSelectedSectionId(nextSectionId));
-		}
-	};
-
-	const checkInitialDirectorsUpdated = () => {
-		if (Object.keys(directors)?.length === 1) return;
-
-		if (Object.keys(directors)?.length > 1) {
-			const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
-			const notCompletedDirectors = [];
-			restOfTheDirectors?.map(dir => {
-				if (dir?.sections?.length < 3) {
-					notCompletedDirectors.push(dir);
-				}
-				return null;
-			});
-			if (notCompletedDirectors?.length > 0) setInitialDirectorsUpdated(true);
-			// console.log({ restOfTheDirectors, notCompletedDirectors });
 		}
 	};
 
@@ -273,9 +259,6 @@ const EmploymentDetails = () => {
 	// fetch section data ends
 
 	useEffect(() => {
-		if (selectedProduct?.isSelectedProductTypeBusiness)
-			checkInitialDirectorsUpdated();
-
 		if (
 			!!selectedDirector?.sections?.includes(
 				CONST.EMPLOYMENT_DETAILS_SECTION_ID

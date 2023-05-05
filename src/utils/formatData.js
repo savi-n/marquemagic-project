@@ -511,8 +511,10 @@ export const getAllCompletedSections = data => {
 	const {
 		application,
 		selectedDirector,
-		addNewDirectorKey,
+		// addNewDirectorKey,
 		directorSectionIds,
+		selectedProduct,
+		selectedSectionId,
 	} = data;
 	let completedSections = [];
 	if (Array.isArray(application?.sections)) {
@@ -521,10 +523,22 @@ export const getAllCompletedSections = data => {
 	if (Array.isArray(selectedDirector?.sections)) {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
 	}
-	// 'Entity'
-	if (!addNewDirectorKey && !selectedDirector?.directorId) {
+	// // 'Entity'
+
+	if (
+		selectedProduct?.isSelectedProductTypeBusiness &&
+		selectedSectionId === CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID
+	) {
 		completedSections = [...completedSections, ...(directorSectionIds || [])];
 	}
+
+	// if (
+	// 	!addNewDirectorKey &&
+	// 	!selectedDirector?.directorId &&
+	// 	application?.sections?.includes(CONST_SECTIONS.BUSINESS_DETAILS_SECTION_ID)
+	// ) {
+	// 	completedSections = [...completedSections, ...(directorSectionIds || [])];
+	// }
 	return completedSections;
 };
 
@@ -864,6 +878,23 @@ export const validateEmploymentDetails = data => {
 			}`,
 		};
 	}
+};
+
+export const checkInitialDirectorsUpdated = directors => {
+	if (Object.keys(directors)?.length <= 1) return false;
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+	const notCompletedDirectors = [];
+	if (Object.keys(directors)?.length > 1) {
+		restOfTheDirectors?.map(dir => {
+			if (dir?.sections?.length < 3) {
+				notCompletedDirectors.push(dir);
+			}
+			return null;
+		});
+		// console.log({ restOfTheDirectors, notCompletedDirectors });
+	}
+	if (notCompletedDirectors?.length > 0) return true;
+	return false;
 };
 
 export const getApplicantNavigationDetails = data => {
