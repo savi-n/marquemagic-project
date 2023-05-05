@@ -42,6 +42,7 @@ const EmploymentDetails = () => {
 		isTestMode,
 		selectedSection,
 		isDraftLoan,
+		selectedProduct,
 	} = app;
 	const { businessId, loanRefId } = application;
 	const dispatch = useDispatch();
@@ -51,7 +52,15 @@ const EmploymentDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
 	const editSectionId = sectionData?.income_data?.employment_id || '';
-
+	const [initialDirectorsUpdated, setInitialDirectorsUpdated] = useState(false);
+	// console.log({
+	// 	directors,
+	// 	popValue: `${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}`,
+	// 	lengthOfDir: Object.keys.directors?.length > 1,
+	// 	initialDirectorsUpdated,
+	// 	isSelectedProductTypeBusiness:
+	// 		selectedProduct?.isSelectedProductTypeBusiness,
+	// });
 	// const {
 	// 	nextApplicantDirectorId,
 	// 	lastDirectorId,
@@ -167,11 +176,46 @@ const EmploymentDetails = () => {
 			// 	dispatch(setSelectedSectionId(nextSectionId));
 			// 	return;
 			// }
-
 			dispatch(setSelectedDirectorId(applicantDirectorId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
+		}
+	};
+
+	const navigateToNextDirector = async () => {
+		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+		if (!isEmploymentDetailsSubmited) return;
+
+		const indexOfCurrentDirector = Object.keys(directors)?.indexOf(
+			`${selectedDirectorId}`
+		);
+		if (Object.keys(directors)?.length > +indexOfCurrentDirector + 1) {
+			dispatch(
+				setSelectedDirectorId(
+					Object.keys(directors)?.[`${+indexOfCurrentDirector + 1}`]
+				)
+			);
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+		} else {
+			dispatch(setSelectedSectionId(nextSectionId));
+		}
+	};
+
+	const checkInitialDirectorsUpdated = () => {
+		if (Object.keys(directors)?.length === 1) return;
+
+		if (Object.keys(directors)?.length > 1) {
+			const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+			const notCompletedDirectors = [];
+			restOfTheDirectors?.map(dir => {
+				if (dir?.sections?.length < 3) {
+					notCompletedDirectors.push(dir);
+				}
+				return null;
+			});
+			if (notCompletedDirectors?.length > 0) setInitialDirectorsUpdated(true);
+			// console.log({ restOfTheDirectors, notCompletedDirectors });
 		}
 	};
 
@@ -206,7 +250,6 @@ const EmploymentDetails = () => {
 	};
 
 	// fetch section data starts
-
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
@@ -230,7 +273,14 @@ const EmploymentDetails = () => {
 	// fetch section data ends
 
 	useEffect(() => {
-		if (!!selectedDirector?.sections?.includes(CONST.EMPLOYMENT_DETAILS_SECTION_ID))
+		if (selectedProduct?.isSelectedProductTypeBusiness)
+			checkInitialDirectorsUpdated();
+
+		if (
+			!!selectedDirector?.sections?.includes(
+				CONST.EMPLOYMENT_DETAILS_SECTION_ID
+			)
+		)
 			fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -334,7 +384,7 @@ const EmploymentDetails = () => {
 						);
 					})}
 					<UI_SECTIONS.Footer>
-						{displayProceedCTA && (
+						{displayProceedCTA && !initialDirectorsUpdated && (
 							<Button
 								fill
 								name='Save and Proceed'
@@ -344,7 +394,7 @@ const EmploymentDetails = () => {
 							/>
 						)}
 						{/* visibility of add co-applicant based on the config */}
-						{displayAddCoApplicantCTA && (
+						{displayAddCoApplicantCTA && !initialDirectorsUpdated && (
 							<Button
 								fill
 								name='Add Co-Applicant'
@@ -356,20 +406,35 @@ const EmploymentDetails = () => {
 								})}
 							/>
 						)}
-						{selectedSection?.footer?.fields?.map((field, fieldIndex) => {
-							return (
+
+						{`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
+							Object.keys(directors)?.length > 1 &&
+							initialDirectorsUpdated && (
 								<Button
-									key={`field${fieldIndex}`}
 									fill
-									name={field?.name}
+									name={'Next'}
 									isLoader={loading}
 									disabled={loading}
 									onClick={handleSubmit(() => {
-										onAddDirector(field?.key);
+										navigateToNextDirector();
 									})}
 								/>
-							);
-						})}
+							)}
+						{!initialDirectorsUpdated &&
+							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
+								return (
+									<Button
+										key={`field${fieldIndex}`}
+										fill
+										name={field?.name}
+										isLoader={loading}
+										disabled={loading}
+										onClick={handleSubmit(() => {
+											onAddDirector(field?.key);
+										})}
+									/>
+								);
+							})}
 						<NavigateCTA />
 					</UI_SECTIONS.Footer>
 				</>
