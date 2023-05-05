@@ -99,7 +99,7 @@ const BusinessAddressDetails = props => {
 			if (fetchRes?.data?.status === 'ok') {
 				const address = fetchRes?.data?.data?.address;
 				setSectionData(address);
-				setEditSectionId(address?.[0]?.id);
+				if (address?.length > 0) setEditSectionId(address?.[0]?.id);
 				setGstAndUan({
 					gst: fetchRes?.data?.data?.gstin,
 					uan: fetchRes?.data?.data?.udyam_number,
@@ -262,33 +262,35 @@ const BusinessAddressDetails = props => {
 	// populate address fields with response value
 	const populateFromResponse = businessAddress => {
 		// console.log({ businessAddress });
-		setTimeout(() => {
-			onChangeFormStateField({
-				name: 'pin_code',
-				value:
-					+businessAddress?.pincode ||
-					extractPincode(businessAddress?.line1) || // if there is single line of ROC address,
-					'',
-			});
-			onChangeFormStateField({
-				name: 'address1',
-				value: businessAddress?.line1 || '',
-			});
-
-			if (businessAddress?.line2) {
+		if (sectionData?.length === 0) {
+			setTimeout(() => {
 				onChangeFormStateField({
-					name: 'address2',
-					value: businessAddress?.line2 || '',
+					name: 'pin_code',
+					value:
+						+businessAddress?.pincode ||
+						extractPincode(businessAddress?.line1) || // if there is single line of ROC address,
+						'',
 				});
-			}
-
-			if (businessAddress?.line3) {
 				onChangeFormStateField({
-					name: 'address3',
-					value: businessAddress?.line3 || '',
+					name: 'address1',
+					value: businessAddress?.line1 || '',
 				});
-			}
-		}, 0);
+
+				if (businessAddress?.line2) {
+					onChangeFormStateField({
+						name: 'address2',
+						value: businessAddress?.line2 || '',
+					});
+				}
+
+				if (businessAddress?.line3) {
+					onChangeFormStateField({
+						name: 'address3',
+						value: businessAddress?.line3 || '',
+					});
+				}
+			}, 0);
+		}
 	};
 
 	// const isSectionCompleted = completedSections?.includes(selectedSectionId);
