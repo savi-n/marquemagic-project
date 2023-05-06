@@ -73,7 +73,7 @@ const ApplicantCoApplicantHeader = props => {
 	};
 
 	useEffect(() => {
-		if (!selectedProduct?.isSelectedProductTypeBusiness) fetchDirectors();
+		fetchDirectors();
 		// eslint-disable-next-line
 	}, []);
 
