@@ -168,7 +168,7 @@ const ProfileUpload = props => {
 
 					formData.append('white_label_id', whiteLabelId);
 					if (
-						Object.keys(coordinates).length > 0 &&
+						Object.keys(coordinates)?.length > 0 &&
 						field?.geo_tagging === true
 					) {
 						formData.append('lat', coordinates?.latitude || null);
@@ -184,7 +184,7 @@ const ProfileUpload = props => {
 						field?.doc_type?.[selectedIncomeType] || null
 					);
 					formData.append('document', acceptedFiles[0]);
-					if (acceptedFiles.length > 0) {
+					if (acceptedFiles?.length > 0) {
 						const resp = await axios.post(
 							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
 							formData
@@ -232,14 +232,14 @@ const ProfileUpload = props => {
 					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
 					if (
-						Object.keys(coordinates).length > 0 &&
+						Object.keys(coordinates)?.length > 0 &&
 						field?.geo_tagging === true
 					) {
 						formData.append('lat', coordinates?.latitude || null);
 						formData.append('long', coordinates?.longitude || null);
 					}
 					formData.append('document', acceptedFiles[0]);
-					if (acceptedFiles.length > 0) {
+					if (acceptedFiles?.length > 0) {
 						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
 						const newFile = {
 							field,
@@ -290,7 +290,7 @@ const ProfileUpload = props => {
 					// section === 'documentUpload' &&
 					uploadedFile &&
 					!uploadedFile?.preview &&
-					Object.keys(uploadedFile).length > 0
+					Object.keys(uploadedFile)?.length > 0
 				) {
 					const reqBody = {
 						filename:
@@ -304,14 +304,16 @@ const ProfileUpload = props => {
 					};
 
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
-					const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
-					// console.log({ docRes, previewFile });
-					setSelfiePreview({
-						...uploadedFile,
-						preview: previewFile,
-						presignedUrl: previewFile,
-					});
-					setFetchedValue(previewFile);
+					if (docRes?.data?.status === 'ok') {
+						const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
+						// console.log({ docRes, previewFile });
+						setSelfiePreview({
+							...uploadedFile,
+							preview: previewFile,
+							presignedUrl: previewFile,
+						});
+						setFetchedValue(previewFile);
+					}
 				}
 			} catch (err) {
 				console.error(err);
