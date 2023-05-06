@@ -832,6 +832,25 @@ export const formatLenderDocs = docs => {
 	const newDocs = [];
 	return newDocs;
 };
+// Special scenario - To check the completed sections for all the directors : used only on click of any of the sections in the side nav
+export const validateAllDirectorSectionsCompleted = directors => {
+	const incompleteDirectors = [];
+	Object.values(directors)?.map(dir => {
+		if (dir?.sections?.length < 3) {
+			incompleteDirectors?.push(dir);
+		}
+		return null;
+	});
+	if (incompleteDirectors?.length > 0) {
+		return {
+			allowProceed: false,
+			directorName: `${incompleteDirectors?.[0]?.type_name} ${
+				incompleteDirectors?.[0]?.fullName
+			}`,
+		};
+	}
+	return { allowProceed: true };
+};
 
 // Validation for all the directors : This is the check before adding new director or moving to other sections from employment/basic/address details section
 export const validateEmploymentDetails = data => {
@@ -876,9 +895,12 @@ export const validateEmploymentDetails = data => {
 			// restOfTheDirectors,
 			// notCompletedDirectors,
 			// selectedDirector,
-			directorName: `${notCompletedDirectors?.[0]?.type_name} ${
-				notCompletedDirectors?.[0]?.fullName
-			}`,
+			directorName:
+				notCompletedDirectors?.length > 0
+					? `${notCompletedDirectors?.[0]?.type_name} ${
+							notCompletedDirectors?.[0]?.fullName
+					  }`
+					: null,
 		};
 	}
 };

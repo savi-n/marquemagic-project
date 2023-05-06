@@ -1131,6 +1131,9 @@ const BasicDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											selectedDirector?.directorId &&
+											selectedDirector?.sections.includes(
+												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+											) &&
 											field.name === CONST.INCOME_TYPE_FIELD_NAME
 										)
 											customFieldProps.disabled = true;

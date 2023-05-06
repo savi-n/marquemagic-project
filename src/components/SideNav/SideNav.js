@@ -7,14 +7,23 @@ import {
 import queryString from 'query-string';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useToasts } from 'components/Toast/ToastProvider';
+
 import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import Button from 'components/Button';
-import { getAllCompletedSections } from 'utils/formatData';
+import {
+	getAllCompletedSections,
+	validateEmploymentDetails,
+	validateAllDirectorSectionsCompleted,
+} from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
-import { setSelectedDirectorId } from 'store/directorsSlice';
+import {
+	setAddNewDirectorKey,
+	setSelectedDirectorId,
+} from 'store/directorsSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
@@ -31,6 +40,8 @@ const SideNav = props => {
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const { addToast } = useToasts();
+
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -122,34 +133,47 @@ const SideNav = props => {
 												)
 													return;
 
-												// TODO: varun applay new logic for validation
-												// if (!isViewLoan && isCompleted) {
-												// 	let isValid;
-												// 	if (
-												// 		!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-												// 			section?.id
-												// 		)
-												// 	) {
-												// 		isValid = validateEmploymentDetails({
-												// 			coApplicants,
-												// 			isApplicant,
-												// 		});
-												// 	}
-												// 	if (
-												// 		isValid === false &&
-												// 		!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-												// 			section?.id
-												// 		)
-												// 	) {
-												// 		addToast({
-												// 			message:
-												// 				'Please fill all the details in Co-Applicant-' +
-												// 				Object.keys(coApplicants)?.length,
-												// 			type: 'error',
-												// 		});
-												// 		return;
-												// 	}
-												// }
+												if (!isViewLoan && isCompleted) {
+													if (addNewDirectorKey?.length > 0) {
+														dispatch(setAddNewDirectorKey(''));
+														dispatch(
+															setSelectedDirectorId(
+																Object.keys(directors)?.pop()
+															)
+														);
+													}
+
+													const initialSections = selectedProduct?.isSelectedProductTypeBusiness
+														? CONST_SECTIONS.INITIAL_SECTION_IDS_SME_FLOW
+														: CONST_SECTIONS.INITIAL_SECTION_IDS;
+
+													let isValid;
+													let checkAllDirectorsCompleted;
+													if (!initialSections.includes(section?.id)) {
+														checkAllDirectorsCompleted = validateAllDirectorSectionsCompleted(
+															directors
+														);
+
+														isValid = validateEmploymentDetails({
+															selectedDirector,
+															directors,
+														});
+													}
+
+													if (
+														(isValid?.allowProceed === false ||
+															checkAllDirectorsCompleted?.allowProceed ===
+																false) &&
+														!initialSections.includes(section?.id)
+													) {
+														addToast({
+															message: `Please fill all the details in the ${isValid?.directorName ||
+																checkAllDirectorsCompleted?.directorName}`,
+															type: 'error',
+														});
+														return;
+													}
+												}
 
 												if (isCompleted || isActive) {
 													// console.log('selectedDirectorId-', {
