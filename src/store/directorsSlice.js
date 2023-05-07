@@ -200,11 +200,11 @@ export const directorsSlice = createSlice({
 				const { selectedDirectorId } = currentState;
 				const newDirectors = _.cloneDeep(currentState.directors);
 				if (
-					!newDirectors[selectedDirectorId].sections.includes(payload) &&
+					!newDirectors?.[selectedDirectorId]?.sections?.includes(payload) &&
 					payload
 				) {
-					newDirectors[selectedDirectorId].sections.push(payload);
-					if (newDirectors[selectedDirectorId].sections.length === 3) {
+					newDirectors?.[selectedDirectorId]?.sections?.push(payload);
+					if (newDirectors?.[selectedDirectorId]?.sections?.length === 3) {
 						newDirectors[
 							selectedDirectorId
 						].isMandatorySectionsCompleted = true;

@@ -418,7 +418,9 @@ const BusinessDetails = props => {
 					);
 				if (!businessType)
 					dispatch(
-						setBusinessType(fetchRes?.data?.business_details?.businesstype)
+						setBusinessType(
+							fetchRes?.data?.data?.business_details?.businesstype
+						)
 					);
 				if (isEditOrViewLoan) {
 					dispatch(
@@ -705,7 +707,8 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											!!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] !==
+												undefined &&
 											`${formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]}`
 												?.length === 0
 										) {
