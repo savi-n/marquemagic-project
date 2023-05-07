@@ -25,14 +25,14 @@ const NavigateCTA = props => {
 			{previous && (
 				<Button
 					name='Previous'
-					onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
+					onClick={() => dispatch(setSelectedSectionId(prevSectionId))}
 					fill
 				/>
 			)}
 			{next && (
 				<Button
 					name='Next'
-					onClick={() => dispatch(setSelectedSectionId(prevSectionId))}
+					onClick={() => dispatch(setSelectedSectionId(nextSectionId))}
 					fill
 				/>
 			)}
