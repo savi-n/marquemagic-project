@@ -38,6 +38,7 @@ import {
 	// getEditLoanDocuments,
 	getSelectedField,
 	isDirectorApplicant,
+	checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -1134,7 +1135,8 @@ const BasicDetails = props => {
 											selectedDirector?.sections.includes(
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
-											field.name === CONST.INCOME_TYPE_FIELD_NAME
+											field.name === CONST.INCOME_TYPE_FIELD_NAME &&
+											!checkInitialDirectorsUpdated(directors)
 										)
 											customFieldProps.disabled = true;
 										if (isViewLoan) {

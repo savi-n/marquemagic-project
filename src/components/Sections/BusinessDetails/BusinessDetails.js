@@ -418,7 +418,9 @@ const BusinessDetails = props => {
 					);
 				if (!businessType)
 					dispatch(
-						setBusinessType(fetchRes?.data?.business_details?.businesstype)
+						setBusinessType(
+							fetchRes?.data?.data?.business_details?.businesstype
+						)
 					);
 				if (isEditOrViewLoan) {
 					dispatch(
