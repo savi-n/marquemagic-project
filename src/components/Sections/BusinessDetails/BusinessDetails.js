@@ -707,8 +707,7 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] !==
-												undefined &&
+											!!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
 											`${formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]}`
 												?.length === 0
 										) {
