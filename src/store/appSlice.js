@@ -84,13 +84,16 @@ export const appSlice = createSlice({
 		setGeoTagging: (state, action) => {
 			state.isGeoTaggingEnabled = action.payload;
 		},
-		setPermission: (state, action) => {
+		setPermission: (state, { payload }) => {
 			// Redux Toolkit allows us to write "mutating" logic in reducers. It
 			// doesn't actually mutate the state because it uses the Immer library,
 			// which detects changes to a "draft state" and produces a brand new
 			// immutable state based off those changes
-			state.permission = action.payload;
-			state.isGeoTaggingEnabled = action.payload?.geo_tagging?.geo_tagging;
+			state.permission = {
+				...payload,
+				isCountryIndia: payload?.country?.toLowerCase() === 'india',
+			};
+			state.isGeoTaggingEnabled = payload?.geo_tagging?.geo_tagging;
 			// state.isGeoTaggingEnabled = false;
 		},
 		setUserDetails: (state, action) => {
