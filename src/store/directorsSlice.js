@@ -68,7 +68,7 @@ export const getDirectors = createAsyncThunk(
 				`${API_END_POINT}/director_details?loan_ref_id=${loanRefId}`
 			);
 			// return directorsRes?.data?.data || [];
-			res.existingDirectors = directorsRes?.data?.data || [];
+			res.existingDirectors = directorsRes?.data?.data?.directors || [];
 		} catch (error) {
 			// return [];
 			// return rejectWithValue(error.message);
