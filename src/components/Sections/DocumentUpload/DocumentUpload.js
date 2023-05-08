@@ -1302,14 +1302,14 @@ const DocumentUpload = props => {
 		}
 	};
 
-	console.log('DocumentUpload-allstates-', {
-		app,
-		selectedDirector,
-		cacheDocuments,
-		cacheDocumentsTemp,
-		applicantDirectorId,
-		allDocumentTypes,
-	});
+	// console.log('DocumentUpload-allstates-', {
+	// 	app,
+	// 	selectedDirector,
+	// 	cacheDocuments,
+	// 	cacheDocumentsTemp,
+	// 	applicantDirectorId,
+	// 	allDocumentTypes,
+	// });
 
 	if (loading) {
 		return (

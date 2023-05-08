@@ -64,14 +64,14 @@ const SideNav = props => {
 		selectedSectionId,
 	});
 
-	console.log('SideNav-allStates-', {
-		app,
-		selectedProduct,
-		completedSections,
-		selectedDirector,
-		application,
-		addNewDirectorKey,
-	});
+	// console.log('SideNav-allStates-', {
+	// 	app,
+	// 	selectedProduct,
+	// 	completedSections,
+	// 	selectedDirector,
+	// 	application,
+	// 	addNewDirectorKey,
+	// });
 
 	return (
 		<Fragment>
@@ -134,11 +134,22 @@ const SideNav = props => {
 													return;
 
 												if (!isViewLoan && isCompleted) {
-													if (addNewDirectorKey?.length > 0) {
-														dispatch(setAddNewDirectorKey(''));
+													if (
+														addNewDirectorKey?.length >
+															0 ||
+														!selectedDirectorId
+													) {
+														dispatch(
+															setAddNewDirectorKey('')
+														);
+														console.log(Object.keys(
+															directors
+														)?.pop())
 														dispatch(
 															setSelectedDirectorId(
-																Object.keys(directors)?.pop()
+																Object.keys(
+																	directors
+																)?.pop()
 															)
 														);
 													}
