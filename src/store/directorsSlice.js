@@ -11,6 +11,7 @@ import {
 	getDirectorFullName,
 	getShortString,
 	checkInitialDirectorsUpdated,
+	// formatDirectorSections,
 } from 'utils/formatData';
 
 export const DIRECTOR_TYPES = {
@@ -62,13 +63,17 @@ export const getDirectors = createAsyncThunk(
 			existingDirectors: [],
 			isSelectedProductTypeBusiness,
 			selectedSectionId,
+			completedDirectorSections: {},
 		};
 		try {
 			const directorsRes = await axios.get(
 				`${API_END_POINT}/director_details?loan_ref_id=${loanRefId}`
 			);
 			// return directorsRes?.data?.data || [];
-			res.existingDirectors = directorsRes?.data?.data || [];
+			res.existingDirectors = directorsRes?.data?.data?.directors || [];
+			res.completedDirectorSections =
+				JSON.parse(directorsRes?.data?.data?.trackData?.[0]?.onboarding_track)
+					?.director_details || {};
 		} catch (error) {
 			// return [];
 			// return rejectWithValue(error.message);
@@ -89,6 +94,7 @@ export const directorsSlice = createSlice({
 				existingDirectors,
 				isSelectedProductTypeBusiness,
 				selectedSectionId,
+				// completedDirectorSections,
 			} = payload;
 			const prevState = current(state);
 			state.fetchingDirectors = false;
@@ -111,6 +117,11 @@ export const directorsSlice = createSlice({
 				if (!newSections.includes(BASIC_DETAILS_SECTION_ID)) {
 					newSections.push(BASIC_DETAILS_SECTION_ID);
 				}
+				// const updatedDirectors = formatDirectorSections({
+				// 	directors: newDirectors,
+				// 	completedDirectorSections,
+				// });
+				// const newSections = updatedDirectors?.[+directorId]?.sections || [];
 				const newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
