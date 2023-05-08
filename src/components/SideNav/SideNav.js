@@ -135,21 +135,13 @@ const SideNav = props => {
 
 												if (!isViewLoan && isCompleted) {
 													if (
-														addNewDirectorKey?.length >
-															0 ||
+														addNewDirectorKey?.length > 0 ||
 														!selectedDirectorId
 													) {
-														dispatch(
-															setAddNewDirectorKey('')
-														);
-														console.log(Object.keys(
-															directors
-														)?.pop())
+														dispatch(setAddNewDirectorKey(''));
 														dispatch(
 															setSelectedDirectorId(
-																Object.keys(
-																	directors
-																)?.pop()
+																Object.keys(directors)?.pop()
 															)
 														);
 													}
