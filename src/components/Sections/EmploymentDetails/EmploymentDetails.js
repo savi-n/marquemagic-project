@@ -42,7 +42,7 @@ const EmploymentDetails = () => {
 		nextSectionId,
 		isTestMode,
 		selectedSection,
-		isDraftLoan,
+		// isDraftLoan,
 		selectedProduct,
 	} = app;
 	const { businessId, loanRefId, businessType } = application;
@@ -146,12 +146,13 @@ const EmploymentDetails = () => {
 	};
 
 	const onAddDirector = async key => {
-		if (!isDraftLoan && !validateNavigation()) {
+		if (!validateNavigation()) {
 			return;
 		}
 		dispatch(setAddNewDirectorKey(key));
 
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+
 		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedDirectorId(''));
 		dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
@@ -159,7 +160,7 @@ const EmploymentDetails = () => {
 
 	const onSaveAndProceed = async () => {
 		try {
-			if (!isDraftLoan && !validateNavigation()) {
+			if (!validateNavigation()) {
 				return;
 			}
 
