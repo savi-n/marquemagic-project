@@ -1034,3 +1034,16 @@ export const formatAddressType = doc => {
 	const value = valuesObj?.[doc?.document_details?.classification_type];
 	return `${value}`;
 };
+
+export const formatDirectorSections = data => {
+	const { directors, completedDirectorSections } = data;
+	const newDirectors = _.cloneDeep(directors);
+
+	Object.keys(completedDirectorSections)?.map(dir => {
+		if (newDirectors?.hasOwnProperty(dir)) {
+			newDirectors[dir].sections = completedDirectorSections?.[dir];
+		}
+		return null;
+	});
+	return newDirectors;
+};

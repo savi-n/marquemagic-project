@@ -86,7 +86,11 @@ const ApplicantCoApplicantHeader = props => {
 		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
 		// 	return setIsDeleteDirectorModalOpen(id);
 		// }
+
 		if (selectedDirectorId === `${id}`) {
+			return;
+		}
+		if (directors[selectedDirectorId]['sections'].length > 2) {
 			return;
 		}
 
@@ -190,6 +194,9 @@ const ApplicantCoApplicantHeader = props => {
 							if (addNewDirectorKey) {
 								isSelectNotAllowed = true;
 							}
+							if (directors[selectedDirectorId]['sections'].length !== 3) {
+								isSelectNotAllowed = true;
+							}
 							if (isDocumentUploadMandatory) {
 								const coApplicantMandatoryDocumentIds = [];
 								allDocumentTypes?.map(
@@ -228,7 +235,13 @@ const ApplicantCoApplicantHeader = props => {
 											}
 											alt='Avatar'
 											onClick={() => {
-												if (isSelectNotAllowed) return;
+												if (isSelectNotAllowed) {
+													addToast({
+														message:"Please complete all the sections",
+														type:'error',
+													});
+													return;
+												}
 												onClickDirectorAvatar(directorId);
 											}}
 											style={

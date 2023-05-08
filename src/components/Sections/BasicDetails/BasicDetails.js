@@ -352,16 +352,16 @@ const BasicDetails = props => {
 					borrowerUserId: newBorrowerUserId,
 				})
 			);
-			if (addNewDirectorKey) {
-				dispatch(
-					getDirectors({
-						loanRefId: newLoanRefId,
-						isSelectedProductTypeBusiness:
-							selectedProduct?.isSelectedProductTypeBusiness,
-					})
-				);
-				dispatch(setAddNewDirectorKey(''));
-			}
+			// if (addNewDirectorKey) {
+			dispatch(
+				getDirectors({
+					loanRefId: newLoanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+				})
+			);
+			dispatch(setAddNewDirectorKey(''));
+			// }
 			setTimeout(() => {
 				// to update after directors are fetched
 				dispatch(setSelectedSectionId(nextSectionId));
