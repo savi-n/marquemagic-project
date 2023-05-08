@@ -293,7 +293,7 @@ const DocumentUpload = props => {
 								// API.GET_ALL_UPLOADED_DOCUMENTS
 							}?loan_ref_id=${loanRefId}`
 						);
-						console.log('allDocumentsRes-', allDocumentsRes);
+						// console.log('allDocumentsRes-', allDocumentsRes);
 						if (
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {

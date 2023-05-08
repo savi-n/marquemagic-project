@@ -171,7 +171,7 @@ const ReferenceDetails = () => {
 					application,
 				})}`
 			);
-			console.log('fetchRes-', fetchRes);
+			// console.log('fetchRes-', fetchRes);
 			setSectionData(fetchRes?.data?.data?.loanData || []);
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
