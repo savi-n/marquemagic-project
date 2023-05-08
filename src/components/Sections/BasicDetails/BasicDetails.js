@@ -73,7 +73,9 @@ const BasicDetails = props => {
 		// editLoanData,
 		userDetails,
 		isGeoTaggingEnabled,
+		permission,
 	} = app;
+	const { isCountryIndia } = permission;
 	const {
 		// cacheDocuments,
 		borrowerUserId,
@@ -911,20 +913,20 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('BasicDetails-allstates', {
-	// 	isPanNumberExist,
-	// 	selectedProfileField,
-	// 	isProfileMandatory,
-	// 	selectedPanUploadField,
-	// 	isPanUploadMandatory,
-	// 	panUploadedFile,
-	// 	profileUploadedFile,
-	// 	app,
-	// 	application,
-	// 	selectedDirector,
-	// 	cacheDocumentsTemp,
-	// 	addNewDirectorKey,
-	// });
+	console.log('BasicDetails-allstates', {
+		isPanNumberExist,
+		selectedProfileField,
+		isProfileMandatory,
+		selectedPanUploadField,
+		isPanUploadMandatory,
+		panUploadedFile,
+		profileUploadedFile,
+		app,
+		application,
+		selectedDirector,
+		cacheDocumentsTemp,
+		addNewDirectorKey,
+	});
 
 	const ButtonProceed = (
 		<Button
@@ -960,10 +962,12 @@ const BasicDetails = props => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
-								<Hint
-									hint='Please upload the document with KYC image in Portrait Mode'
-									hintIconName='Portrait Mode'
-								/>
+								{isCountryIndia ? (
+									<Hint
+										hint='Please upload the document with KYC image in Portrait Mode'
+										hintIconName='Portrait Mode'
+									/>
+								) : null}
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
 										// console.log(field?.sub_fields, 'sub_field');

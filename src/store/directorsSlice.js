@@ -98,6 +98,7 @@ export const directorsSlice = createSlice({
 			let lastDirector = {};
 			let firstDirector = {};
 			const newSelectedDirectorOptions = [];
+			console.log('existingDirectors-', existingDirectors);
 			const sortedDirectors = existingDirectors?.sort(
 				(a, b) => a?.type_name - b?.type_name
 			);

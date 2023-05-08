@@ -60,7 +60,9 @@ const AddressDetails = props => {
 		isTestMode,
 		clientToken,
 		selectedSection,
+		permission,
 	} = app;
+	const { isCountryIndia } = permission;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
 	const { directorId } = selectedDirector;
 	if (isDraftLoan && !selectedDirector?.permanent_address1) {
@@ -208,7 +210,9 @@ const AddressDetails = props => {
 				});
 			}
 
-			if (!isEditOrViewLoan) {
+			// FOR OTHER COUNTRY THEN INDIA THESE VALIDATION NOT MANDATORY
+			// US CLIENT REQUIREMENT CHANGES
+			if (!isEditOrViewLoan && isCountryIndia) {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
@@ -640,15 +644,14 @@ const AddressDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('AddressDetails-allProps-', {
-	// 	app,
-	// 	applicant,
-	// 	coApplicants,
-	// 	application,
-	// 	selectedDirector,
-	// 	isSameAsAboveAddressChecked,
-	// 	formState,
-	// });
+	console.log('AddressDetails-allstates-', {
+		app,
+		application,
+		selectedDirector,
+		isSameAsAboveAddressChecked,
+		formState,
+		selectedSection,
+	});
 
 	if (!selectedDirectorId) return null;
 
@@ -782,10 +785,12 @@ const AddressDetails = props => {
 											<UI_SECTIONS.SubSectionHeader>
 												{sub_section.name}
 											</UI_SECTIONS.SubSectionHeader>
-											<Hint
-												hint='Please upload the document with KYC image in Portrait Mode'
-												hintIconName='Portrait Mode'
-											/>
+											{isCountryIndia ? (
+												<Hint
+													hint='Please upload the document with KYC image in Portrait Mode'
+													hintIconName='Portrait Mode'
+												/>
+											) : null}
 										</>
 									) : null}
 									{sub_section.id.includes(
@@ -793,7 +798,11 @@ const AddressDetails = props => {
 									) && (
 										<UI.SubSectionCustomHeader style={{ marginTop: 40 }}>
 											<h4>
-												Select any one of the documents mentioned below for{' '}
+												{isCountryIndia ? (
+													<span>
+														Select any one of the documents mentioned below for{' '}
+													</span>
+												) : null}
 												<strong>
 													{sub_section?.name ? 'Permanent' : 'Present'} Address
 												</strong>
@@ -1017,6 +1026,11 @@ const AddressDetails = props => {
 											) {
 												return null;
 											}
+
+											if (!isCountryIndia) {
+											}
+											customFieldProps.disabled = false;
+
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${prefix}-${fieldIndex}-${field.name}`}
