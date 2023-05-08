@@ -33,7 +33,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
-import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
