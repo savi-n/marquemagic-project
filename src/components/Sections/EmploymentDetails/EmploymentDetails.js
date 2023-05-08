@@ -367,7 +367,7 @@ const EmploymentDetails = () => {
 						);
 					})}
 					<UI_SECTIONS.Footer>
-						{displayProceedCTA && !initialDirectorsUpdated && (
+						{displayProceedCTA && !initialDirectorsUpdated && !isViewLoan && (
 							<Button
 								fill
 								name='Save and Proceed'
@@ -403,7 +403,8 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
-						{!initialDirectorsUpdated &&
+						{!isViewLoan &&
+							!initialDirectorsUpdated &&
 							selectedProduct?.isSelectedProductTypeBusiness &&
 							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
 								if (!field?.business_income_type_id?.includes(+businessType))

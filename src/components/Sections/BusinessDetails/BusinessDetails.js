@@ -18,7 +18,10 @@ import {
 	setLoginCreateUserRes,
 	setSelectedSectionId,
 } from 'store/appSlice';
-import { setNewCompletedDirectorSections } from 'store/directorsSlice';
+import {
+	setNewCompletedDirectorSections,
+	getDirectors,
+} from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setCompletedApplicationSection,
@@ -406,6 +409,10 @@ const BusinessDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
+				if (fetchRes?.data?.data?.business_details?.udyam_number) {
+					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
+				}
+
 				if (
 					!!fetchRes?.data?.data?.company_master_data
 					// Object.values(fetchRes?.data?.data?.company_master_data)?.length > 0
@@ -415,9 +422,19 @@ const BusinessDetails = props => {
 					);
 				if (!businessType)
 					dispatch(
-						setBusinessType(fetchRes?.data?.business_details?.businesstype)
+						setBusinessType(
+							fetchRes?.data?.data?.business_details?.businesstype
+						)
 					);
 				if (isEditOrViewLoan) {
+					dispatch(
+						getDirectors({
+							loanRefId,
+							isSelectedProductTypeBusiness:
+								selectedProduct?.isSelectedProductTypeBusiness,
+							selectedSectionId,
+						})
+					);
 					const responseData = fetchRes?.data?.data;
 					dispatch(
 						setLoanIds({
@@ -694,9 +711,8 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											!!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
-											`${formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]}`
-												?.length === 0
+											!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											!udyogAadhar
 										) {
 											return null;
 										}

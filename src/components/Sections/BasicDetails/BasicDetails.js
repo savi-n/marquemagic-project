@@ -38,6 +38,7 @@ import {
 	// getEditLoanDocuments,
 	getSelectedField,
 	isDirectorApplicant,
+	checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -591,6 +592,7 @@ const BasicDetails = props => {
 				contactno: sectionData?.director_details?.dcontact,
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber,
+				businesstype: `${sectionData?.director_details?.income_type}`, //to be removed if madhuri changes in the configuration
 			};
 
 			// TEST MODE
@@ -627,9 +629,55 @@ const BasicDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
-				setFetchedProfilePic(
-					fetchRes?.data?.data?.director_details?.customer_picture
-				);
+
+				// to fetch the geoLocation of the profile pic
+				const fetchedProfilePicData =
+					fetchRes?.data?.data?.director_details?.customer_picture;
+				if (
+					fetchedProfilePicData &&
+					Object.keys(fetchedProfilePicData)?.length > 0
+				) {
+					setFetchedProfilePic(fetchedProfilePicData);
+
+					const reqBody = {
+						lat: fetchedProfilePicData?.lat,
+						long: fetchedProfilePicData?.long,
+						director_id: selectedDirectorId,
+					};
+					const profileGeoLocationRes = await axios.post(
+						API.GEO_LOCATION,
+						reqBody,
+						{
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						}
+					);
+					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+				}
+
+				// to fetch the geoLocation
+				const appCoordinates =
+					fetchRes?.data?.data?.director_details?.app_coordinates;
+
+				if (
+					(!geoLocation || geoLocation?.err) &&
+					appCoordinates &&
+					Object.keys(appCoordinates)?.length > 0
+				) {
+					const reqBody = {
+						lat: appCoordinates?.lat,
+						long: appCoordinates?.long,
+						director_id: selectedDirectorId,
+					};
+					const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+						headers: {
+							Authorization: `Bearer ${userToken}`,
+						},
+					});
+					dispatch(setGeoLocation(geoLocationRes?.data?.data));
+				}
+
 				// update completed sections
 				if (
 					isEditOrViewLoan &&
@@ -1084,7 +1132,11 @@ const BasicDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											selectedDirector?.directorId &&
-											field.name === CONST.INCOME_TYPE_FIELD_NAME
+											selectedDirector?.sections.includes(
+												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+											) &&
+											field.name === CONST.INCOME_TYPE_FIELD_NAME &&
+											!checkInitialDirectorsUpdated(directors)
 										)
 											customFieldProps.disabled = true;
 										if (isViewLoan) {
