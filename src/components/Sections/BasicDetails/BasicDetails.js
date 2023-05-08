@@ -135,7 +135,9 @@ const BasicDetails = props => {
 
 	const tempPanUploadedFile = !!sectionData?.loan_document_details
 		? sectionData?.loan_document_details?.filter(
-				doc => doc?.document_details?.classification_type === 'pan'
+				doc =>
+					doc?.document_details?.classification_type === 'pan' &&
+					`${doc?.directorId}` === `${selectedDirectorId}`
 		  )?.[0]
 		: null;
 
