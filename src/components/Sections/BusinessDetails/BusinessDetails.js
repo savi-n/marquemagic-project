@@ -409,6 +409,10 @@ const BusinessDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
+				if (fetchRes?.data?.data?.business_details?.udyam_number) {
+					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
+				}
+
 				if (
 					!!fetchRes?.data?.data?.company_master_data
 					// Object.values(fetchRes?.data?.data?.company_master_data)?.length > 0
@@ -707,9 +711,8 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											!!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
-											`${formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME]}`
-												?.length === 0
+											!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											!udyogAadhar
 										) {
 											return null;
 										}

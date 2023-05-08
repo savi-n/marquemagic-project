@@ -420,6 +420,8 @@ const BusinessAddressDetails = props => {
 										return null;
 									}
 
+									if (isViewLoan) customFieldProps.disabled = true;
+
 									const customStyle = {};
 									// if (isSectionCompleted) {
 									// 	customFieldProps.disabled = true;

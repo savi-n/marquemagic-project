@@ -63,10 +63,6 @@ const AddressDetails = props => {
 	} = app;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
 	const { directorId } = selectedDirector;
-	const selectedIncomeType =
-		selectedDirector?.basic_details?.[
-			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		] || selectedDirector?.income_type;
 	if (isDraftLoan && !selectedDirector?.permanent_address1) {
 		isViewLoan = false;
 		isEditLoan = false;
@@ -103,6 +99,8 @@ const AddressDetails = props => {
 		businessAddressIdAid1: '',
 		businessAddressIdAid2: '',
 	});
+	const selectedIncomeType =
+		sectionData?.director_details?.income_type || selectedDirector?.income_type;
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [
 		isSameAsAboveAddressChecked,
