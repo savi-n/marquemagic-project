@@ -375,7 +375,7 @@ const BasicDetails = props => {
 					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
 					// BUT ALLOW USER TO MOVE TO NEXT SECTION
 					if (
-						!selectedDirector.profileGeoLocation?.address ||
+						!selectedDirector.profileGeoLocation?.address &&
 						!profilePicGeolocation?.address
 					) {
 						addToast({
