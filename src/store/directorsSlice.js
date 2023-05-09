@@ -75,7 +75,7 @@ export const getDirectors = createAsyncThunk(
 				JSON.parse(directorsRes?.data?.data?.trackData?.[0]?.onboarding_track)
 					?.director_details || {};
 
-			existingDirectors.map(director => {
+			existingDirectors?.map(director => {
 				director.directorId = director?.id;
 				director.sections = completedDirectorSections?.[+director?.id];
 				return null;
@@ -110,7 +110,6 @@ export const directorsSlice = createSlice({
 			let lastDirector = {};
 			let firstDirector = {};
 			const newSelectedDirectorOptions = [];
-			console.log('existingDirectors-', existingDirectors);
 			const sortedDirectors = existingDirectors?.sort(
 				(a, b) => a?.type_name - b?.type_name
 			);
@@ -130,7 +129,7 @@ export const directorsSlice = createSlice({
 				const newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					label: `${director.type_name}`,
+					label: `${director?.type_name}`,
 					fullName,
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
@@ -141,14 +140,14 @@ export const directorsSlice = createSlice({
 					value: directorId,
 				});
 				newDirectors[directorId] = newDirectorObject;
-				if (directorIndex === sortedDirectors.length - 1) {
+				if (directorIndex === sortedDirectors?.length - 1) {
 					lastDirector = newDirectorObject;
 				}
 				if (directorIndex === 0) {
 					firstDirector = newDirectorObject;
 				}
 
-				if (newDirectorObject.type_name === DIRECTOR_TYPES.applicant) {
+				if (newDirectorObject?.type_name === DIRECTOR_TYPES.applicant) {
 					newIsEntity = false;
 					applicantDirector = newDirectorObject;
 				}
