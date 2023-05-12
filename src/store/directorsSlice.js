@@ -3,7 +3,7 @@ import { API_END_POINT } from '_config/app.config';
 import axios from 'axios';
 import _ from 'lodash';
 import {
-	BASIC_DETAILS_SECTION_ID,
+	// BASIC_DETAILS_SECTION_ID,
 	DOCUMENT_UPLOAD_SECTION_ID,
 } from 'components/Sections/const';
 
@@ -62,13 +62,25 @@ export const getDirectors = createAsyncThunk(
 			existingDirectors: [],
 			isSelectedProductTypeBusiness,
 			selectedSectionId,
+			completedDirectorSections: {},
 		};
 		try {
 			const directorsRes = await axios.get(
 				`${API_END_POINT}/director_details?loan_ref_id=${loanRefId}`
 			);
 			// return directorsRes?.data?.data || [];
-			res.existingDirectors = directorsRes?.data?.data || [];
+			const existingDirectors = directorsRes?.data?.data?.directors || [];
+
+			const completedDirectorSections =
+				JSON.parse(directorsRes?.data?.data?.trackData?.[0]?.onboarding_track)
+					?.director_details || {};
+
+			existingDirectors?.map(director => {
+				director.directorId = director?.id;
+				director.sections = completedDirectorSections?.[+director?.id];
+				return null;
+			});
+			res.existingDirectors = existingDirectors;
 		} catch (error) {
 			// return [];
 			// return rejectWithValue(error.message);
@@ -105,19 +117,22 @@ export const directorsSlice = createSlice({
 			sortedDirectors?.map((director, directorIndex) => {
 				const fullName = getDirectorFullName(director);
 				const directorId = `${director?.id || ''}`;
-				const newSections = [
-					...(prevState?.directors?.[directorId]?.sections || []),
-				];
-				if (!newSections.includes(BASIC_DETAILS_SECTION_ID)) {
-					newSections.push(BASIC_DETAILS_SECTION_ID);
-				}
+				// const newSections = [
+				// 	...(prevState?.directors?.[directorId]?.sections || []),
+				// ];
+				// if (!newSections.includes(BASIC_DETAILS_SECTION_ID)) {
+				// 	newSections.push(BASIC_DETAILS_SECTION_ID);
+				// }
+
+				// const newSections = updatedDirectors?.[+directorId]?.sections || [];
+
 				const newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					label: `${director.type_name}`,
+					label: `${director?.type_name}`,
 					fullName,
 					shortName: getShortString(fullName, 10),
-					sections: newSections,
+					// sections: newSections,
 					directorId,
 				};
 				newSelectedDirectorOptions.push({
@@ -125,14 +140,14 @@ export const directorsSlice = createSlice({
 					value: directorId,
 				});
 				newDirectors[directorId] = newDirectorObject;
-				if (directorIndex === sortedDirectors.length - 1) {
+				if (directorIndex === sortedDirectors?.length - 1) {
 					lastDirector = newDirectorObject;
 				}
 				if (directorIndex === 0) {
 					firstDirector = newDirectorObject;
 				}
 
-				if (newDirectorObject.type_name === DIRECTOR_TYPES.applicant) {
+				if (newDirectorObject?.type_name === DIRECTOR_TYPES.applicant) {
 					newIsEntity = false;
 					applicantDirector = newDirectorObject;
 				}

@@ -86,9 +86,13 @@ const ApplicantCoApplicantHeader = props => {
 		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
 		// 	return setIsDeleteDirectorModalOpen(id);
 		// }
-		if (selectedDirectorId === `${id}`) {
-			return;
-		}
+
+		// if (selectedDirectorId === `${id}`) {
+		// 	return;
+		// }
+		// if (directors[selectedDirectorId]['sections'].length > 2) {
+		// 	return;
+		// }
 
 		// TODO: varun validation for navigation in draft mode
 		// if (isDraftLoan) {
@@ -190,6 +194,9 @@ const ApplicantCoApplicantHeader = props => {
 							if (addNewDirectorKey) {
 								isSelectNotAllowed = true;
 							}
+							// if (directors[selectedDirectorId]['sections'].length !== 3) {
+							// 	isSelectNotAllowed = true;
+							// }
 							if (isDocumentUploadMandatory) {
 								const coApplicantMandatoryDocumentIds = [];
 								allDocumentTypes?.map(
@@ -228,7 +235,9 @@ const ApplicantCoApplicantHeader = props => {
 											}
 											alt='Avatar'
 											onClick={() => {
-												if (isSelectNotAllowed) return;
+												if (isSelectNotAllowed) {
+													return;
+												}
 												onClickDirectorAvatar(directorId);
 											}}
 											style={

@@ -38,7 +38,7 @@ import {
 	// getEditLoanDocuments,
 	getSelectedField,
 	isDirectorApplicant,
-	checkInitialDirectorsUpdated,
+	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -73,7 +73,9 @@ const BasicDetails = props => {
 		// editLoanData,
 		userDetails,
 		isGeoTaggingEnabled,
+		permission,
 	} = app;
+	const { isCountryIndia } = permission;
 	const {
 		// cacheDocuments,
 		borrowerUserId,
@@ -135,7 +137,9 @@ const BasicDetails = props => {
 
 	const tempPanUploadedFile = !!sectionData?.loan_document_details
 		? sectionData?.loan_document_details?.filter(
-				doc => doc?.document_details?.classification_type === 'pan'
+				doc =>
+					doc?.document_details?.classification_type === 'pan' &&
+					`${doc?.directorId}` === `${selectedDirectorId}`
 		  )?.[0]
 		: null;
 
@@ -348,16 +352,16 @@ const BasicDetails = props => {
 					borrowerUserId: newBorrowerUserId,
 				})
 			);
-			if (addNewDirectorKey) {
-				dispatch(
-					getDirectors({
-						loanRefId: newLoanRefId,
-						isSelectedProductTypeBusiness:
-							selectedProduct?.isSelectedProductTypeBusiness,
-					})
-				);
-				dispatch(setAddNewDirectorKey(''));
-			}
+			// if (addNewDirectorKey) {
+			dispatch(
+				getDirectors({
+					loanRefId: newLoanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+				})
+			);
+			dispatch(setAddNewDirectorKey(''));
+			// }
 			setTimeout(() => {
 				// to update after directors are fetched
 				dispatch(setSelectedSectionId(nextSectionId));
@@ -371,7 +375,7 @@ const BasicDetails = props => {
 					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
 					// BUT ALLOW USER TO MOVE TO NEXT SECTION
 					if (
-						!selectedDirector.profileGeoLocation?.address ||
+						!selectedDirector.profileGeoLocation?.address &&
 						!profilePicGeolocation?.address
 					) {
 						addToast({
@@ -909,20 +913,20 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('BasicDetails-allstates', {
-	// 	isPanNumberExist,
-	// 	selectedProfileField,
-	// 	isProfileMandatory,
-	// 	selectedPanUploadField,
-	// 	isPanUploadMandatory,
-	// 	panUploadedFile,
-	// 	profileUploadedFile,
-	// 	app,
-	// 	application,
-	// 	selectedDirector,
-	// 	cacheDocumentsTemp,
-	// 	addNewDirectorKey,
-	// });
+	console.log('BasicDetails-allstates', {
+		isPanNumberExist,
+		selectedProfileField,
+		isProfileMandatory,
+		selectedPanUploadField,
+		isPanUploadMandatory,
+		panUploadedFile,
+		profileUploadedFile,
+		app,
+		application,
+		selectedDirector,
+		cacheDocumentsTemp,
+		addNewDirectorKey,
+	});
 
 	const ButtonProceed = (
 		<Button
@@ -958,10 +962,12 @@ const BasicDetails = props => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
-								<Hint
-									hint='Please upload the document with KYC image in Portrait Mode'
-									hintIconName='Portrait Mode'
-								/>
+								{isCountryIndia ? (
+									<Hint
+										hint='Please upload the document with KYC image in Portrait Mode'
+										hintIconName='Portrait Mode'
+									/>
+								) : null}
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
 										// console.log(field?.sub_fields, 'sub_field');
@@ -1132,11 +1138,11 @@ const BasicDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											selectedDirector?.directorId &&
-											selectedDirector?.sections.includes(
+											selectedDirector?.sections?.includes(
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
-											field.name === CONST.INCOME_TYPE_FIELD_NAME &&
-											!checkInitialDirectorsUpdated(directors)
+											field.name === CONST.INCOME_TYPE_FIELD_NAME
+											// !checkInitialDirectorsUpdated(directors)
 										)
 											customFieldProps.disabled = true;
 										if (isViewLoan) {
