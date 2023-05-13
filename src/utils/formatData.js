@@ -91,7 +91,7 @@ export const formatSectionReqBody = data => {
 			application,
 			selectedLoanProductId,
 		} = data;
-		const { whiteLabelId, selectedProduct, selectedSection } = app;
+		const { whiteLabelId, selectedProduct, selectedSection, permission } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
 		const {
 			selectedApplicantCoApplicantId,
@@ -149,6 +149,9 @@ export const formatSectionReqBody = data => {
 
 		if (selectedApplicant?.directorId) {
 			reqBody.director_id = selectedApplicant?.directorId;
+		}
+		if (permission?.country) {
+			reqBody.country = permission?.country;
 		}
 		reqBody.is_applicant = isApplicant;
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
