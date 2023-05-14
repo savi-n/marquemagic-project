@@ -71,7 +71,9 @@ const AddressDetails = props => {
 		isLocalhost,
 		applicantCoApplicantSectionIds,
 		editLoanDirectors,
+		permission,
 	} = app;
+	const { isCountryIndia } = permission;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
 	const {
 		selectedApplicantCoApplicantId,
@@ -235,7 +237,7 @@ const AddressDetails = props => {
 				});
 			}
 
-			if (!isEditOrViewLoan) {
+			if (!isEditOrViewLoan && isCountryIndia) {
 				const isPermanentSelectedAddressProofTypeAadhaar = formState?.values?.[
 					CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 				]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
@@ -878,16 +880,22 @@ const AddressDetails = props => {
 								<UI_SECTIONS.SubSectionHeader>
 									{sub_section.name}
 								</UI_SECTIONS.SubSectionHeader>
-								<Hint
-									hint='Please upload the document with KYC image in Portrait Mode'
-									hintIconName='Portrait Mode'
-								/>
+								{isCountryIndia && (
+									<Hint
+										hint='Please upload the document with KYC image in Portrait Mode'
+										hintIconName='Portrait Mode'
+									/>
+								)}
 							</>
 						) : null}
 						{sub_section.id.includes(CONST.ADDRESS_PROOF_UPLOAD_SECTION_ID) && (
 							<UI.SubSectionCustomHeader style={{ marginTop: 40 }}>
 								<h4>
-									Select any one of the documents mentioned below for{' '}
+									{isCountryIndia ? (
+										<span>
+											Select any one of the documents mentioned below for{' '}
+										</span>
+									) : null}
 									<strong>
 										{sub_section?.name ? 'Permanent' : 'Present'} Address
 									</strong>
@@ -1072,6 +1080,10 @@ const AddressDetails = props => {
 									field.name.includes('state')
 								) {
 									customFieldProps.disabled = true;
+								}
+
+								if (!isCountryIndia) {
+									customFieldProps.disabled = false;
 								}
 
 								return (
