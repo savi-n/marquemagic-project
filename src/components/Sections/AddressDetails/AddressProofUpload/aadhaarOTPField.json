@@ -1,0 +1,38 @@
+{
+	"name": "present_aadhaar",
+	"db_key": "daadhaar",
+	"placeholder": "Aadhaar Number",
+	"type": "text",
+	"rules": {
+		"required": true
+	},
+	"protected": false,
+	"pattern": "x",
+	"mask": {
+		"alpha_numeric_only": true,
+		"character_limit": 12
+	},
+	"visibility": true,
+	"sub_fields": [
+		{
+			"name": "verifywithotp",
+			"db_key": "verifywithotp",
+			"placeholder": "Verify with OTP",
+			"type": "button",
+			"rules": {
+				"required": true
+			},
+			"visibility": true,
+			"isbuttonfilled": false
+		},
+		{
+			"name": "verifylink",
+			"db_key": "verifylink",
+			"placeholder": "Verify",
+			"type": "link",
+			"rules": {},
+			"link": "https://www.google.com",
+			"visibility": false
+		}
+	]
+}

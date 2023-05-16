@@ -131,6 +131,7 @@ const DocumentUpload = props => {
 	const [declareCheck, setDeclareCheck] = useState(false);
 	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
 	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(false);
+	const [isAadhaarVerified, setIsAadhaarVerified] = useState(false);
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -294,6 +295,11 @@ const DocumentUpload = props => {
 							}?loan_ref_id=${loanRefId}`
 						);
 						// console.log('allDocumentsRes-', allDocumentsRes);
+						if (
+							allDocumentsRes?.data?.documentList?.is_aadhaar_verified_with_otp
+						) {
+							setIsAadhaarVerified(true);
+						}
 						if (
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {
@@ -895,10 +901,22 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	if (
-		selectedProduct.product_details.otp_authentication &&
-		(isDraftLoan || !isEditLoan)
-	) {
+	let applicationOTPAuthentication = false;
+	if (selectedProduct?.product_details?.otp_authentication) {
+		applicationOTPAuthentication = true;
+		if (
+			isEditLoan ||
+			(selectedProduct?.product_details
+				?.if_aadhaar_verified_skip_otp_authentication &&
+				isAadhaarVerified)
+		) {
+			applicationOTPAuthentication = false;
+		}
+	} else {
+	}
+	// selectedProduct?.product_details?.otp_authentication &&
+	// (isDraftLoan || !isEditLoan)
+	if (applicationOTPAuthentication) {
 		displayProceedButton = (
 			<Button
 				name='Submit'

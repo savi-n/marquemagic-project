@@ -19,6 +19,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import { VIEW_DOCUMENT } from '_config/app.config';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
 import { getKYCData, getKYCDataId } from 'utils/request';
+import { isDirectorApplicant, isFieldValid } from 'utils/formatData';
 import uploadCircleIcon from 'assets/icons/upload_icon_blue.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import imgArrowDownCircle from 'assets/icons/drop_down_green-05.svg';
@@ -29,6 +30,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
+import sampleOTPFieldJson from './aadhaarOTPField.json';
 
 const AddressProofUpload = props => {
 	const {
@@ -40,7 +42,6 @@ const AddressProofUpload = props => {
 		selectedAddressProofFieldName = '',
 		selectedAddressProofId = '',
 		isInActive = false,
-		// prefilledDocs = [],
 		addressProofUploadSection,
 		register,
 		prefilledValues,
@@ -73,6 +74,7 @@ const AddressProofUpload = props => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { selectedProduct, clientToken, editLoanData, selectedSectionId } = app;
 	const { loanId, businessUserId } = application;
 	const directorDetails = editLoanData?.director_details;
@@ -832,7 +834,7 @@ const AddressProofUpload = props => {
 		customFieldProps.disabled = true;
 	}
 
-	// console.log('addressproofupload-', { props });
+	console.log('addressproofupload-allstates', { props, aadhaarProofOTPField });
 
 	return (
 		<UI.Wrapper>
@@ -955,29 +957,72 @@ const AddressProofUpload = props => {
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
-							<Button
-								name='Verify with OTP'
-								isLoader={verifyingWithOtp}
-								disabled={
-									isSectionCompleted ||
-									selectedVerifyOtp?.res?.status === 'ok' ||
-									!formState.values[aadhaarProofOTPField.name] ||
-									isViewLoan ||
-									verifyingWithOtp ||
-									(directorDetails?.filter(
-										director => director?.id === selectedDirector?.directorId
-									).length > 0 &&
-										isEditLoan)
-								}
-								type='submit'
-								customStyle={{
-									whiteSpace: 'nowrap',
-									width: '150px',
-									minWidth: '150px',
-									height: '45px',
-								}}
-								onClick={onClickVerifyWithOtp}
-							/>
+							{/* {aadhaarProofOTPField?.sub_fields */}
+							{/* TODO: map correct value after testign */}
+							{sampleOTPFieldJson?.sub_fields
+								?.filter(f => !f?.is_prefix)
+								?.map(subField => {
+									if (
+										!isFieldValid({
+											field: subField,
+											isApplicant,
+											formState: {},
+										})
+									) {
+										return null;
+									}
+									if (subField?.type === 'button') {
+										return (
+											<Button
+												name={
+													<span>
+														{subField?.placeholder}
+														{!!subField?.rules?.required && (
+															<sup style={{ color: 'red' }}>&nbsp;*</sup>
+														)}
+													</span>
+												}
+												isLoader={verifyingWithOtp}
+												disabled={
+													isSectionCompleted ||
+													selectedVerifyOtp?.res?.status === 'ok' ||
+													!formState.values[aadhaarProofOTPField.name] ||
+													isViewLoan ||
+													verifyingWithOtp ||
+													(directorDetails?.filter(
+														director =>
+															director?.id === selectedDirector?.directorId
+													).length > 0 &&
+														isEditLoan)
+												}
+												type='button'
+												customStyle={{
+													whiteSpace: 'nowrap',
+													width: '150px',
+													minWidth: '150px',
+													height: '45px',
+												}}
+												onClick={onClickVerifyWithOtp}
+											/>
+										);
+									}
+									if (subField?.type === 'link') {
+										return (
+											<Button
+												name={subField?.placeholder}
+												type='button'
+												customStyle={{
+													whiteSpace: 'nowrap',
+													width: '150px',
+													minWidth: '150px',
+													height: '45px',
+												}}
+												onClick={() => window.open(subField?.link, '_blank')}
+											/>
+										);
+									}
+									return null;
+								})}
 							{(formState?.submit?.isSubmited ||
 								formState?.touched?.[aadhaarProofOTPField.name]) &&
 								formState?.error?.[aadhaarProofOTPField.name] && (

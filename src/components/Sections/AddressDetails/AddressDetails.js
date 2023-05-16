@@ -11,6 +11,8 @@ import AadhaarOTPModal from './AadhaarOTPModal';
 import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
 import NavigateCTA from 'components/Sections/NavigateCTA';
+import Loading from 'components/Loading';
+
 import { setSelectedSectionId } from 'store/appSlice';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -37,7 +39,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
-import Loading from 'components/Loading';
+import sampleOTPFieldJson from './AddressProofUpload/aadhaarOTPField.json';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -123,6 +125,13 @@ const AddressDetails = props => {
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const selectedVerifyOtp =
 		verifyOtpResponseTemp || selectedDirector?.api?.verifyOtp || null;
+	// const selectedPermanentAadhaarField = getSelectedField({
+	// 	fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
+	// 	selectedSection,
+	// 	isApplicant,
+	// });
+	// TODO: remove before deploying
+	const selectedPermanentAadhaarField = sampleOTPFieldJson;
 
 	const onClickVerifyWithOtp = async () => {
 		try {
@@ -224,11 +233,6 @@ const AddressDetails = props => {
 
 				// Below code is for Aadhar - Verify with OTP button making it mandatory
 				// based on rules passed to it
-				const selectedPermanentAadhaarField = getSelectedField({
-					fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
-					selectedSection,
-					isApplicant,
-				});
 
 				const isVerifyWithOtpRequired = !!getSelectedSubField({
 					fields: selectedPermanentAadhaarField?.sub_fields || [],
