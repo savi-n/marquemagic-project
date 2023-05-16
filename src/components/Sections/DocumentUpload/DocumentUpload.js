@@ -44,6 +44,7 @@ import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDe
 import useForm from 'hooks/useFormIndividual';
 import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
 import MandatoryOnsiteVerificationErrModal from 'components/modals/MandatoryOnsiteVerificationErrModal';
+import { DIRECTOR_TYPES } from 'store/directorsSlice';
 
 const DocumentUpload = props => {
 	const { app, application } = useSelector(state => state);
@@ -51,12 +52,15 @@ const DocumentUpload = props => {
 		directors,
 		applicantDirectorId,
 		selectedDirectorOptions,
+		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 	let { selectedDirectorId } = useSelector(state => state.directors);
 	if (!selectedDirectorId)
 		selectedDirectorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const isApplicant = isDirectorApplicant(selectedDirector);
+	const isApplicant = addNewDirectorKey
+		? addNewDirectorKey === DIRECTOR_TYPES.applicant
+		: isDirectorApplicant(selectedDirector);
 	const nonApplicantDirectorsObject = {};
 	const nonApplicantDirectorsArray = [];
 	Object.keys(directors).map(directorId => {

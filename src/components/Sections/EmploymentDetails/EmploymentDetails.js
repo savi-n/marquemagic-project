@@ -11,6 +11,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 // import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
+import { DIRECTOR_TYPES } from 'store/directorsSlice';
 
 import { setSelectedSectionId } from 'store/appSlice';
 import {
@@ -35,7 +36,9 @@ const EmploymentDetails = () => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const isApplicant = isDirectorApplicant(selectedDirector);
+	const isApplicant = addNewDirectorKey
+		? addNewDirectorKey === DIRECTOR_TYPES.applicant
+		: isDirectorApplicant(selectedDirector);
 	const {
 		isViewLoan,
 		selectedSectionId,

@@ -57,10 +57,10 @@ const BasicDetails = props => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const isApplicant =
-		addNewDirectorKey === DIRECTOR_TYPES.applicant
-			? true
-			: isDirectorApplicant(selectedDirector);
+
+	const isApplicant = addNewDirectorKey
+		? addNewDirectorKey === DIRECTOR_TYPES.applicant
+		: isDirectorApplicant(selectedDirector);
 
 	const {
 		selectedProduct,
@@ -931,6 +931,7 @@ const BasicDetails = props => {
 		cacheDocumentsTemp,
 		addNewDirectorKey,
 		formState,
+		isApplicant,
 	});
 
 	const ButtonProceed = (

@@ -26,7 +26,10 @@ import {
 	formatAddressType,
 	isDirectorApplicant,
 } from 'utils/formatData';
-import { setCompletedDirectorSection } from 'store/directorsSlice';
+import {
+	setCompletedDirectorSection,
+	DIRECTOR_TYPES,
+} from 'store/directorsSlice';
 import { isInvalidAadhaar } from 'utils/validation';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -41,11 +44,13 @@ import Loading from 'components/Loading';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorId, directors } = useSelector(
+	const { selectedDirectorId, directors, addNewDirectorKey } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const isApplicant = isDirectorApplicant(selectedDirector);
+	const isApplicant = addNewDirectorKey
+		? addNewDirectorKey === DIRECTOR_TYPES.applicant
+		: isDirectorApplicant(selectedDirector);
 	const {
 		loanProductId,
 		loanId,

@@ -16,6 +16,8 @@ import {
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+import { DIRECTOR_TYPES } from 'store/directorsSlice';
+
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
@@ -35,9 +37,13 @@ const DynamicForm = props => {
 		directors,
 		selectedDirectorId,
 		selectedDirectorOptions,
+		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const isApplicant = isDirectorApplicant(selectedDirector);
+	const isApplicant = addNewDirectorKey
+		? addNewDirectorKey === DIRECTOR_TYPES.applicant
+		: isDirectorApplicant(selectedDirector);
+
 	const { isTestMode, selectedSection } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
