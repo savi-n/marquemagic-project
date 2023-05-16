@@ -211,6 +211,12 @@ const LiabilitysDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
+															openAccordianId !==
+																sectionId &&
+																onCancelCallback(
+																	openAccordianId
+																);
+
 															if (
 																isCreateFormOpen ||
 																isEditLoan
