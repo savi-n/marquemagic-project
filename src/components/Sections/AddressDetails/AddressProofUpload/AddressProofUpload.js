@@ -30,7 +30,6 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
-import sampleOTPFieldJson from './aadhaarOTPField.json';
 
 const AddressProofUpload = props => {
 	const {
@@ -957,9 +956,7 @@ const AddressProofUpload = props => {
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
-							{/* {aadhaarProofOTPField?.sub_fields */}
-							{/* TODO: map correct value after testign */}
-							{sampleOTPFieldJson?.sub_fields
+							{aadhaarProofOTPField?.sub_fields
 								?.filter(f => !f?.is_prefix)
 								?.map(subField => {
 									if (

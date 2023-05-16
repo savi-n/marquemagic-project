@@ -24,15 +24,6 @@
 			},
 			"visibility": true,
 			"isbuttonfilled": false
-		},
-		{
-			"name": "verifylink",
-			"db_key": "verifylink",
-			"placeholder": "Verify",
-			"type": "link",
-			"rules": {},
-			"link": "https://www.google.com",
-			"visibility": false
 		}
 	]
 }

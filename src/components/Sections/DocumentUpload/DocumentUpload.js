@@ -658,7 +658,7 @@ const DocumentUpload = props => {
 			// console.log('step-7');
 			if (!isFormValid()) return;
 			// console.log('step-8');
-			await onSubmitCompleteApplication();
+			await onSubmitCompleteApplication({ goToNextSection: false });
 			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
@@ -756,7 +756,8 @@ const DocumentUpload = props => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
-	const onSubmitCompleteApplication = async () => {
+	const onSubmitCompleteApplication = async (data = {}) => {
+		const { goToNextSection } = data;
 		// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
 		// if (isEditLoan) {
 		// 	const check = validateGeoTaggedDocsForApplicantCoapplicant();
@@ -765,20 +766,26 @@ const DocumentUpload = props => {
 		// 		return;
 		// 	}
 		// }
+		// console.log('step-1');
 		if (buttonDisabledStatus()) return;
+		// console.log('step-2');
 
 		if (!isFormValid()) return;
+		// console.log('step-3');
 		try {
+			// console.log('step-4');
 			setSubmitting(true);
 			// --api-1
 			if (commentsForOfficeUse !== commentsFromEditLOanData) {
 				await submitCommentsForOfficeUse();
 			}
+			// console.log('step-5');
 			const documentUploadReqBody = formatSectionReqBody({
 				app,
 				selectedDirector,
 				application,
 			});
+			// console.log('step-6');
 			const newUploadedDocuments = [];
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
@@ -835,7 +842,7 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			if (isEditLoan && !isDraftLoan) {
+			if (goToNextSection) {
 				onSaveAndProceed();
 			}
 		} catch (error) {
@@ -912,7 +919,6 @@ const DocumentUpload = props => {
 		) {
 			applicationOTPAuthentication = false;
 		}
-	} else {
 	}
 	// selectedProduct?.product_details?.otp_authentication &&
 	// (isDraftLoan || !isEditLoan)
@@ -946,7 +952,7 @@ const DocumentUpload = props => {
 				disabled={submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submitting) return;
-					onSubmitCompleteApplication();
+					onSubmitCompleteApplication({ goToNextSection: true });
 				}}
 			/>
 		);
@@ -1327,6 +1333,9 @@ const DocumentUpload = props => {
 	// 	cacheDocumentsTemp,
 	// 	applicantDirectorId,
 	// 	allDocumentTypes,
+	// 	applicationOTPAuthentication,
+	// 	selectedProduct,
+	// 	isAadhaarVerified,
 	// });
 
 	if (loading) {
@@ -1343,7 +1352,6 @@ const DocumentUpload = props => {
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
 					setContactNo={applicantOrEntityMobileNumber}
-					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
 					onSkip={onSaveAndProceed}

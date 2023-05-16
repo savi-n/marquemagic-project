@@ -39,7 +39,6 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
-import sampleOTPFieldJson from './AddressProofUpload/aadhaarOTPField.json';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -125,13 +124,11 @@ const AddressDetails = props => {
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
 	const selectedVerifyOtp =
 		verifyOtpResponseTemp || selectedDirector?.api?.verifyOtp || null;
-	// const selectedPermanentAadhaarField = getSelectedField({
-	// 	fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
-	// 	selectedSection,
-	// 	isApplicant,
-	// });
-	// TODO: remove before deploying
-	const selectedPermanentAadhaarField = sampleOTPFieldJson;
+	const selectedPermanentAadhaarField = getSelectedField({
+		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
+		selectedSection,
+		isApplicant,
+	});
 
 	const onClickVerifyWithOtp = async () => {
 		try {
