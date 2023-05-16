@@ -1005,6 +1005,7 @@ export const isDirectorApplicant = director => {
 export const getDirectorFullName = director => {
 	const fullName = [];
 	if (director.dfirstname) fullName.push(director.dfirstname);
+	if (director.middle_name) fullName.push(director.middle_name);
 	if (director.dlastname) fullName.push(director.dlastname);
 	return fullName.join(' ');
 };
