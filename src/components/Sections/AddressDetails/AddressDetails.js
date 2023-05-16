@@ -46,7 +46,6 @@ const AddressDetails = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-
 	const {
 		loanProductId,
 		loanId,
