@@ -131,6 +131,7 @@ const DocumentUpload = props => {
 	const [declareCheck, setDeclareCheck] = useState(false);
 	const [commentsFromEditLOanData, setCommentsFromEditLoanData] = useState('');
 	const [onSiteVerificationModal, setOnSiteVerificationModal] = useState(false);
+	const [isAadhaarVerified, setIsAadhaarVerified] = useState(false);
 	const [
 		isOtherBankStatementModalOpen,
 		setIsOtherBankStatementModal,
@@ -294,6 +295,11 @@ const DocumentUpload = props => {
 							}?loan_ref_id=${loanRefId}`
 						);
 						// console.log('allDocumentsRes-', allDocumentsRes);
+						if (
+							allDocumentsRes?.data?.documentList?.is_aadhaar_verified_with_otp
+						) {
+							setIsAadhaarVerified(true);
+						}
 						if (
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {
@@ -652,7 +658,7 @@ const DocumentUpload = props => {
 			// console.log('step-7');
 			if (!isFormValid()) return;
 			// console.log('step-8');
-			await onSubmitCompleteApplication();
+			await onSubmitCompleteApplication({ goToNextSection: false });
 			// console.log('step-9');
 			// pass only applicant because selected applicant can be co-applicant-1-2-3 and user can still press submit CTA
 			const authenticationOtpReqBody = {
@@ -750,7 +756,8 @@ const DocumentUpload = props => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
-	const onSubmitCompleteApplication = async () => {
+	const onSubmitCompleteApplication = async (data = {}) => {
+		const { goToNextSection } = data;
 		// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
 		// if (isEditLoan) {
 		// 	const check = validateGeoTaggedDocsForApplicantCoapplicant();
@@ -759,20 +766,26 @@ const DocumentUpload = props => {
 		// 		return;
 		// 	}
 		// }
+		// console.log('step-1');
 		if (buttonDisabledStatus()) return;
+		// console.log('step-2');
 
 		if (!isFormValid()) return;
+		// console.log('step-3');
 		try {
+			// console.log('step-4');
 			setSubmitting(true);
 			// --api-1
 			if (commentsForOfficeUse !== commentsFromEditLOanData) {
 				await submitCommentsForOfficeUse();
 			}
+			// console.log('step-5');
 			const documentUploadReqBody = formatSectionReqBody({
 				app,
 				selectedDirector,
 				application,
 			});
+			// console.log('step-6');
 			const newUploadedDocuments = [];
 			cacheDocuments?.map(doc => {
 				if (doc?.document_id) return null;
@@ -829,7 +842,7 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			if (isEditLoan && !isDraftLoan) {
+			if (goToNextSection) {
 				onSaveAndProceed();
 			}
 		} catch (error) {
@@ -895,10 +908,21 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	if (
-		selectedProduct.product_details.otp_authentication &&
-		(isDraftLoan || !isEditLoan)
-	) {
+	let applicationOTPAuthentication = false;
+	if (selectedProduct?.product_details?.otp_authentication) {
+		applicationOTPAuthentication = true;
+		if (
+			isEditLoan ||
+			(selectedProduct?.product_details
+				?.if_aadhaar_verified_skip_otp_authentication &&
+				isAadhaarVerified)
+		) {
+			applicationOTPAuthentication = false;
+		}
+	}
+	// selectedProduct?.product_details?.otp_authentication &&
+	// (isDraftLoan || !isEditLoan)
+	if (applicationOTPAuthentication) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
@@ -928,7 +952,7 @@ const DocumentUpload = props => {
 				disabled={submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submitting) return;
-					onSubmitCompleteApplication();
+					onSubmitCompleteApplication({ goToNextSection: true });
 				}}
 			/>
 		);
@@ -1309,6 +1333,9 @@ const DocumentUpload = props => {
 	// 	cacheDocumentsTemp,
 	// 	applicantDirectorId,
 	// 	allDocumentTypes,
+	// 	applicationOTPAuthentication,
+	// 	selectedProduct,
+	// 	isAadhaarVerified,
 	// });
 
 	if (loading) {
@@ -1325,7 +1352,6 @@ const DocumentUpload = props => {
 					isAuthenticationOtpModalOpen={isAuthenticationOtpModalOpen}
 					setIsAuthenticationOtpModalOpen={setIsAuthenticationOtpModalOpen}
 					setContactNo={applicantOrEntityMobileNumber}
-					onSubmitCompleteApplication={onSubmitCompleteApplication}
 					setIsVerifyWithOtpDisabled={setIsVerifyWithOtpDisabled}
 					generateOtpTimer={generateOtpTimer}
 					onSkip={onSaveAndProceed}
