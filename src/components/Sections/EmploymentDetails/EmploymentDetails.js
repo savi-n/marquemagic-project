@@ -149,13 +149,13 @@ const EmploymentDetails = () => {
 		if (!validateNavigation()) {
 			return;
 		}
-		dispatch(setAddNewDirectorKey(key));
 
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 
 		if (!isEmploymentDetailsSubmited) return;
 		dispatch(setSelectedDirectorId(''));
 		dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+		dispatch(setAddNewDirectorKey(key));
 	};
 
 	const onSaveAndProceed = async () => {

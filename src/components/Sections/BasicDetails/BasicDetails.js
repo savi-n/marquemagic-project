@@ -20,7 +20,7 @@ import {
 	setLoginCreateUserRes,
 	setSelectedSectionId,
 } from 'store/appSlice';
-import { setProfileGeoLocation } from 'store/directorsSlice';
+import { DIRECTOR_TYPES, setProfileGeoLocation } from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setGeoLocation,
@@ -38,6 +38,7 @@ import {
 	// getEditLoanDocuments,
 	getSelectedField,
 	isDirectorApplicant,
+	isFieldValid,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -56,8 +57,11 @@ const BasicDetails = props => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	// console.log(selectedDirector);
-	const isApplicant = isDirectorApplicant(selectedDirector);
+	const isApplicant =
+		addNewDirectorKey === DIRECTOR_TYPES.applicant
+			? true
+			: isDirectorApplicant(selectedDirector);
+
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -596,7 +600,7 @@ const BasicDetails = props => {
 				contactno: sectionData?.director_details?.dcontact,
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber,
-				businesstype: `${sectionData?.director_details?.income_type}`, //to be removed if madhuri changes in the configuration
+				businesstype: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
 			};
 
 			// TEST MODE
@@ -926,6 +930,7 @@ const BasicDetails = props => {
 		selectedDirector,
 		cacheDocumentsTemp,
 		addNewDirectorKey,
+		formState,
 	});
 
 	const ButtonProceed = (
@@ -970,17 +975,14 @@ const BasicDetails = props => {
 								) : null}
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
-										// console.log(field?.sub_fields, 'sub_field');
-										// disable fields based on config starts
-										if (field?.hasOwnProperty('is_applicant')) {
-											if (field.is_applicant === false && isApplicant) {
-												return null;
-											}
-										}
-										if (field?.hasOwnProperty('is_co_applicant')) {
-											if (field.is_co_applicant === false && !isApplicant) {
-												return null;
-											}
+										if (
+											!isFieldValid({
+												field,
+												formState,
+												isApplicant,
+											})
+										) {
+											return null;
 										}
 										// disable fields based on config ends
 										if (
