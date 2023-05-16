@@ -96,12 +96,16 @@ export const Indecator = styled.img`
 `;
 
 export const HoverBadge = styled.div`
-	/* position: absolute; */
-	/* background: white; */
-	/* box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+					/* position: absolute; */
+					/* background: white; */
+					/* box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
 		rgba(60, 64, 67, 0.15) 0px 2px 6px 2px; */
-	border-radius: 6px;
-	padding: 4px 8px;
-	font-size: 12px;
-	text-transform: capitalize;
-`;
+					border-radius: 6px;
+					padding: 4px 8px;
+					font-size: 12px;
+					text-transform: capitalize;
+					max-width: 130px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				`;

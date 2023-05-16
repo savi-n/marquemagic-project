@@ -222,7 +222,9 @@ const ApplicantCoApplicantHeader = props => {
 							}
 							return (
 								<>
-									<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
+									<UI.LI
+										key={`coapp-{${directorIndex}}-${directorId}`}
+									>
 										{/* DELETE Co-Applicant will be part of future release */}
 										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
@@ -241,16 +243,22 @@ const ApplicantCoApplicantHeader = props => {
 												onClickDirectorAvatar(directorId);
 											}}
 											style={
-												isSelectNotAllowed ? { cursor: 'not-allowed	' } : {}
+												isSelectNotAllowed
+													? { cursor: 'not-allowed	' }
+													: {}
 											}
 										/>
 										{selectedSectionId ===
 											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-											!isMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-										<UI.AvatarName>{director?.label}</UI.AvatarName>
-										{director?.shortName && (
-											<UI.HoverBadge>
-												{director?.shortName?.toLowerCase()}
+											!isMandatoryDocumentSubmited && (
+												<UI.BadgeInvalid />
+											)}
+										<UI.AvatarName>
+											{director?.label}
+										</UI.AvatarName>
+										{director?.fullName && (
+											<UI.HoverBadge title={director?.fullName}>
+												{director?.fullName?.toLowerCase()}
 											</UI.HoverBadge>
 										)}
 									</UI.LI>
