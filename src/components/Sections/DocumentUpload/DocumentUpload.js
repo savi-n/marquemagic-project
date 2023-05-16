@@ -44,7 +44,6 @@ import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDe
 import useForm from 'hooks/useFormIndividual';
 import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
 import MandatoryOnsiteVerificationErrModal from 'components/modals/MandatoryOnsiteVerificationErrModal';
-import { DIRECTOR_TYPES } from 'store/directorsSlice';
 
 const DocumentUpload = props => {
 	const { app, application } = useSelector(state => state);

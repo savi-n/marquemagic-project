@@ -32,7 +32,7 @@ import Loading from 'components/Loading';
 
 const EmploymentDetails = () => {
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId } = useSelector(
+	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
