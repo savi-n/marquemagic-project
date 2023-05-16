@@ -51,15 +51,12 @@ const DocumentUpload = props => {
 		directors,
 		applicantDirectorId,
 		selectedDirectorOptions,
-		addNewDirectorKey,
 	} = useSelector(state => state.directors);
 	let { selectedDirectorId } = useSelector(state => state.directors);
 	if (!selectedDirectorId)
 		selectedDirectorId = CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY;
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const isApplicant = addNewDirectorKey
-		? addNewDirectorKey === DIRECTOR_TYPES.applicant
-		: isDirectorApplicant(selectedDirector);
+	const isApplicant = isDirectorApplicant(selectedDirector);
 	const nonApplicantDirectorsObject = {};
 	const nonApplicantDirectorsArray = [];
 	Object.keys(directors).map(directorId => {
