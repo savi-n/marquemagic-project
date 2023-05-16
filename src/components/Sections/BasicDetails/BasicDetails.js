@@ -917,22 +917,22 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	console.log('BasicDetails-allstates', {
-		isPanNumberExist,
-		selectedProfileField,
-		isProfileMandatory,
-		selectedPanUploadField,
-		isPanUploadMandatory,
-		panUploadedFile,
-		profileUploadedFile,
-		app,
-		application,
-		selectedDirector,
-		cacheDocumentsTemp,
-		addNewDirectorKey,
-		formState,
-		isApplicant,
-	});
+	// console.log('BasicDetails-allstates', {
+	// 	isPanNumberExist,
+	// 	selectedProfileField,
+	// 	isProfileMandatory,
+	// 	selectedPanUploadField,
+	// 	isPanUploadMandatory,
+	// 	panUploadedFile,
+	// 	profileUploadedFile,
+	// 	app,
+	// 	application,
+	// 	selectedDirector,
+	// 	cacheDocumentsTemp,
+	// 	addNewDirectorKey,
+	// 	formState,
+	// 	isApplicant,
+	// });
 
 	const ButtonProceed = (
 		<Button

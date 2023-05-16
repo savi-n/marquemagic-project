@@ -645,14 +645,14 @@ const AddressDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	console.log('AddressDetails-allstates-', {
-		app,
-		application,
-		selectedDirector,
-		isSameAsAboveAddressChecked,
-		formState,
-		selectedSection,
-	});
+	// console.log('AddressDetails-allstates-', {
+	// 	app,
+	// 	application,
+	// 	selectedDirector,
+	// 	isSameAsAboveAddressChecked,
+	// 	formState,
+	// 	selectedSection,
+	// });
 
 	if (!selectedDirectorId) return null;
 
