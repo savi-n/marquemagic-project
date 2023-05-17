@@ -28,7 +28,10 @@ import {
 	formatAddressType,
 	isDirectorApplicant,
 } from 'utils/formatData';
-import { setCompletedDirectorSection } from 'store/directorsSlice';
+import {
+	getDirectors,
+	setCompletedDirectorSection,
+} from 'store/directorsSlice';
 import { isInvalidAadhaar } from 'utils/validation';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -62,6 +65,7 @@ const AddressDetails = props => {
 		clientToken,
 		selectedSection,
 		permission,
+		selectedProduct,
 	} = app;
 	const { isCountryIndia } = permission;
 	let { isViewLoan, isEditLoan, isEditOrViewLoan } = app;
@@ -122,8 +126,17 @@ const AddressDetails = props => {
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
 	const [verifyOtpResponseTemp, setVerifyOtpResponseTemp] = useState(null);
-	const selectedVerifyOtp =
-		verifyOtpResponseTemp || selectedDirector?.api?.verifyOtp || null;
+	let selectedVerifyOtp = verifyOtpResponseTemp || null;
+	if (
+		sectionData?.director_details?.is_aadhaar_verified_with_otp &&
+		!selectedVerifyOtp
+	) {
+		selectedVerifyOtp = {
+			res: {
+				status: 'ok',
+			},
+		};
+	}
 	const selectedPermanentAadhaarField = getSelectedField({
 		fieldName: CONST.AADHAAR_FIELD_NAME_FOR_OTP,
 		selectedSection,
@@ -471,6 +484,13 @@ const AddressDetails = props => {
 			});
 			dispatch(setCompletedDirectorSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
+			dispatch(
+				getDirectors({
+					loanRefId: loanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+				})
+			);
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
 				error: error,
@@ -612,6 +632,14 @@ const AddressDetails = props => {
 					return null;
 				});
 				setSectionData(fetchRes?.data?.data);
+				setEditSectionIds({
+					businessAddressIdAid1: fetchRes?.data?.data?.business_address_data?.filter(
+						address => address.aid === 1
+					)?.[0]?.id,
+					businessAddressIdAid2: fetchRes?.data?.data?.business_address_data?.filter(
+						address => address.aid === 2
+					)?.[0]?.id,
+				});
 				const permanentCacheDocumentsTempRes = fetchRes?.data?.data?.loan_document_details?.filter(
 					doc =>
 						`${doc?.document_details?.aid}` === '2' &&
@@ -652,6 +680,7 @@ const AddressDetails = props => {
 	// 	isSameAsAboveAddressChecked,
 	// 	formState,
 	// 	selectedSection,
+	// 	isCountryIndia,
 	// });
 
 	if (!selectedDirectorId) return null;
@@ -1028,9 +1057,9 @@ const AddressDetails = props => {
 												return null;
 											}
 
-											if (!isCountryIndia) {
+											if (!isCountryIndia && !isViewLoan) {
+												customFieldProps.disabled = false;
 											}
-											customFieldProps.disabled = false;
 
 											return (
 												<UI_SECTIONS.FieldWrapGrid
