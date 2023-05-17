@@ -24,7 +24,14 @@ import { API_END_POINT } from '_config/app.config';
 const LiabilitysDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedDirectorOptions } = useSelector(state => state.directors);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		selectedProduct,
+	} = app;
+	const { businessName } = application;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -38,6 +45,14 @@ const LiabilitysDetails = props => {
 		setOpenAccordianId('');
 		setIsCreateFormOpen(true);
 	};
+	const business = {
+		name: businessName,
+		value: '0',
+	}; // get the business/applicant details here
+	let newselectedDirectorOptions;
+	if (businessName && selectedProduct?.isSelectedProductTypeBusiness)
+		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
+	else newselectedDirectorOptions = selectedDirectorOptions;
 
 	const fetchSectionDetails = async () => {
 		try {
@@ -142,7 +157,7 @@ const LiabilitysDetails = props => {
 															<span>Liability For:</span>
 															<strong>
 																{
-																	selectedDirectorOptions?.filter(
+																	newselectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
 																			`${
@@ -211,6 +226,11 @@ const LiabilitysDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
+															openAccordianId !== sectionId &&
+																onCancelCallback(
+																	openAccordianId
+																);
+
 															if (
 																isCreateFormOpen ||
 																isEditLoan
