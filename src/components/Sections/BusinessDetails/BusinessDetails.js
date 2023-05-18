@@ -850,7 +850,10 @@ const BusinessDetails = props => {
 								isLoader={loading}
 								disabled={loading}
 								onClick={handleSubmit(() => {
-									if (isEditOrViewLoan) {
+									if (
+										isEditOrViewLoan ||
+										completedSections?.includes(selectedSectionId)
+									) {
 										onSaveAndProceed();
 										return;
 									}
