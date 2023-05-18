@@ -81,14 +81,17 @@ export const ErrorMessageSubFields = styled.div`
 	font-weight: 500;
 `;
 export const ErrorMessage = styled.div`
-	color: red;
-	text-align: left;
-	padding-left: 4px;
-	padding-top: 2px;
-	font-size: 12px;
-	font-weight: 500;
-	${({ borderColorCode }) => borderColorCode && `color: ${borderColorCode};`}
-`;
+					color: red;
+					text-align: left;
+					padding-left: 4px;
+					padding-top: 2px;
+					font-size: 12px;
+					font-weight: 500;
+					display: inline;
+					margin-right: 30px;
+					${({ borderColorCode }) =>
+						borderColorCode && `color: ${borderColorCode};`}
+				`;
 
 export const Footer = styled.div`
 	display: flex;
