@@ -38,7 +38,8 @@ const DynamicForm = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection } = app;
+	const { isTestMode, selectedSection, selectedProduct } = app;
+	const { businessName } = application;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,7 +90,7 @@ const DynamicForm = props => {
 		const preData = {
 			...prefillData,
 			assets_for: `${prefillData?.director_id || ''}`,
-			asset_type: `${prefillData?.loan_asset_type_id}` || '',
+			asset_type: `${prefillData?.loan_asset_type_id || ''}` || '',
 			amount: prefillData?.value,
 			estimated_value: prefillData?.value,
 			property_description: prefillData?.property_description,
@@ -193,8 +194,16 @@ const DynamicForm = props => {
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
+					const business = {
+						name: businessName || 'Company/Business',
+						value: '0',
+					};
 					if (newField.name === CONST.FIELD_NAME_ASSETS_FOR) {
-						newField.options = selectedDirectorOptions;
+						// newField.options = selectedDirectorOptions;
+						newField.options = selectedProduct?.isSelectedProductTypeBusiness
+							? [business, ...selectedDirectorOptions]
+							: selectedDirectorOptions;
+						// newField.options.push(entity);
 					}
 
 					if (isViewLoan) {

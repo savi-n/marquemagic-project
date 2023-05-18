@@ -82,7 +82,7 @@ export default function SelectField(props) {
 					{props.options?.map(({ value, name }) => (
 						<option
 							key={value}
-							value={value?.toString().trim()}
+							value={value?.toString()?.trim() || ''}
 							disabled={name
 								?.toString()
 								.split(' - ')

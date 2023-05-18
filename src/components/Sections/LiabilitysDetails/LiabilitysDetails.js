@@ -46,7 +46,7 @@ const LiabilitysDetails = props => {
 		setIsCreateFormOpen(true);
 	};
 	const business = {
-		name: businessName,
+		name: businessName || 'Company/Business',
 		value: '0',
 	}; // get the business/applicant details here
 	let newselectedDirectorOptions;

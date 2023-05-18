@@ -478,6 +478,11 @@ const BusinessDetails = props => {
 					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 				});
 				setGstin(panToGstRes);
+				dispatch(
+					setBusinessName(
+						fetchRes?.data?.data?.business_details?.businessname
+					)
+				);
 			} else {
 				setSectionData({});
 			}
@@ -747,7 +752,11 @@ const BusinessDetails = props => {
 											customFieldProps.onblur = handleBlurEmail;
 										}
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
-											if (isPrefilEmail) {
+											if (
+												isPrefilEmail &&
+												!isEditOrViewLoan &&
+												!completedSections?.includes(selectedSectionId)
+											) {
 												// console.log(formState?.values?.email);
 												customFieldProps.value = formState.values.email;
 											}
@@ -759,7 +768,11 @@ const BusinessDetails = props => {
 											customFieldProps.onblur = handleBlurMobileNumber;
 										}
 										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
-											if (isPrefilMobileNumber) {
+											if (
+												isPrefilMobileNumber &&
+												!isEditOrViewLoan &&
+												!completedSections?.includes(selectedSectionId)
+											) {
 												customFieldProps.value =
 													formState.values.business_mobile_no;
 											}
