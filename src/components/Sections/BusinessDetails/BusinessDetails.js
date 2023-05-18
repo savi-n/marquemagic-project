@@ -479,9 +479,7 @@ const BusinessDetails = props => {
 				});
 				setGstin(panToGstRes);
 				dispatch(
-					setBusinessName(
-						fetchRes?.data?.data?.business_details?.businessname
-					)
+					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
 				);
 			} else {
 				setSectionData({});
@@ -563,8 +561,8 @@ const BusinessDetails = props => {
 										return (
 											<UI.TableRow key={idx}>
 												<UI.TableColumn>{gstItem.gstin}</UI.TableColumn>
-												<UI.TableColumn>{gstItem.status}</UI.TableColumn>
 												<UI.TableColumn>{gstItem.state_name}</UI.TableColumn>
+												<UI.TableColumn>{gstItem.status}</UI.TableColumn>
 											</UI.TableRow>
 										);
 									})}
