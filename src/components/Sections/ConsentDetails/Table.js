@@ -5,9 +5,10 @@ import Button from 'components/Button.js';
 const Table = ({
 	headers,
 	data,
-	// fetchHandle,
+	fetchHandle,
 	hasSeperator,
 	buttonDisabled,
+	section,
 }) => {
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
@@ -19,6 +20,7 @@ const Table = ({
 		'GST Number': 'gstin',
 		// 'Itr Number': 'itr_num',
 	};
+	const enabledSection = 'ITR';
 	return (
 		<>
 			<UI.TableContainer>
@@ -36,9 +38,16 @@ const Table = ({
 						))}
 						<UI.TableCell>
 							<Button
-								name='Fetch'
-								// onClick={() => fetchHandle(rowData)}
-								disabled={buttonDisabled}
+								name={rowData.status === 'Fetched' ? 'Fetched' : 'Fetch'}
+								onClick={() =>
+									section === enabledSection &&
+									fetchHandle({ ...rowData, section })
+								}
+								disabled={
+									buttonDisabled ||
+									rowData.status === 'Fetched' ||
+									rowData.status === 'In Progress'
+								}
 							/>
 						</UI.TableCell>
 					</UI.TableRow>
