@@ -110,7 +110,7 @@ const DocumentUpload = props => {
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
 
-	const [cacheFile, setCacheFile] = useState();
+	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
@@ -145,10 +145,6 @@ const DocumentUpload = props => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
-
-	// --------------------------------------------------------------------------
-
-	let prefilledProfileUploadValue = '';
 
 	useEffect(() => {
 		if (!isUseEffectCalledOnce.current) {
@@ -550,7 +546,9 @@ const DocumentUpload = props => {
 							return null;
 						})?.[0];
 						if (file && Object.keys(file).length > 0) {
-							setCacheFile(file);
+							const newCatchFiles = _.cloneDeep(cacheFile);
+							cacheFile.selectedDirectorId = { file };
+							setCacheFile(newCatchFiles);
 							if (isGeoTaggingEnabled) {
 								if (
 									!file?.loan_document_details?.[0]?.lat &&
@@ -1008,21 +1006,22 @@ const DocumentUpload = props => {
 				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
 			}
 		}
-		setCacheFile(file);
+		const newCatchFiles = _.cloneDeep(cacheFile);
+		cacheFile.selectedDirectorId = { file };
+		setCacheFile(newCatchFiles);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	const profileUploadedFile =
-		cacheDocumentsTemp?.[0] ||
-		cacheDocumentsTemp?.filter(
-			doc => doc?.field?.name === CONST.SELFIE_UPLOAD_FIELD_NAME
-		)?.[0] ||
+		// cacheDocumentsTemp?.[0] ||
+		// cacheDocumentsTemp?.filter(
+		// 	doc => doc?.field?.name === CONST.SELFIE_UPLOAD_FIELD_NAME
+		// )?.[0] ||
 		cacheDocuments?.filter(
 			doc =>
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
-		)?.[0] ||
-		null;
+		)?.[0] || null;
 
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
@@ -1314,7 +1313,9 @@ const DocumentUpload = props => {
 
 	const removeCacheDocumentTemp = fieldName => {
 		setGeoLocationData({});
-		setCacheFile(null);
+		const newCatchFiles = _.cloneDeep(cacheFile);
+		delete newCatchFiles[selectedDirectorId];
+		setCacheFile(newCatchFiles);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		let docsTemp = cacheDocumentsTemp.filter(
 			doc => doc?.field?.name === fieldName
@@ -1520,8 +1521,11 @@ const DocumentUpload = props => {
 													field={field}
 													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
-													value={prefilledProfileUploadValue}
-													uploadedFile={profileUploadedFile || cacheFile}
+													uploadedFile={
+														cacheFile?.[selectedDirectorId]?.file ||
+														profileUploadedFile ||
+														null
+													}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
