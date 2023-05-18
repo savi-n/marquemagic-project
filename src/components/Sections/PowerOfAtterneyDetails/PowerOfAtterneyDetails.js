@@ -252,7 +252,7 @@ const PowerOfAtterneyDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional Power of Attorney Details</span>
+								<span>Click to add</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
