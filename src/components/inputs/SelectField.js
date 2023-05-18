@@ -83,7 +83,10 @@ export default function SelectField(props) {
 						<option
 							key={value}
 							value={value?.toString().trim()}
-							disabled={name.split(' - ').includes('Inactive')}
+							disabled={name
+								?.toString()
+								.split(' - ')
+								.includes('Inactive')}
 						>
 							{name}
 						</option>

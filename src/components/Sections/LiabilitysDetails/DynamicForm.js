@@ -37,7 +37,8 @@ const DynamicForm = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection } = app;
+	const { isTestMode, selectedSection, selectedProduct } = app;
+	const { businessName } = application;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,7 +85,8 @@ const DynamicForm = props => {
 
 	const prefilledValues = field => {
 		try {
-			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated =
+				formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -164,13 +166,25 @@ const DynamicForm = props => {
 		<React.Fragment>
 			<UI_SECTIONS.FormWrapGrid>
 				{fields?.map((field, fieldIndex) => {
-					if (!isFieldValid({ field, formState, isApplicant })) {
+					if (
+						!isFieldValid({
+							field,
+							formState,
+							isApplicant,
+						})
+					) {
 						return null;
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
+					const business = {
+						name: businessName,
+						value: '0',
+					}; // get the business name here
 					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = selectedDirectorOptions;
+						newField.options = selectedProduct?.isSelectedProductTypeBusiness
+							? [business, ...selectedDirectorOptions]
+							: selectedDirectorOptions;
 					}
 
 					if (isViewLoan) {
