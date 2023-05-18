@@ -34,6 +34,7 @@ import {
 	isDirectorApplicant,
 	formatLoanDocuments,
 	isFieldValid,
+	getSelectedDirectorIndex,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -109,7 +110,7 @@ const DocumentUpload = props => {
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
 
-	const [cacheFile, setCacheFile] = useState();
+	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
@@ -144,10 +145,6 @@ const DocumentUpload = props => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
-
-	// --------------------------------------------------------------------------
-
-	let prefilledProfileUploadValue = '';
 
 	useEffect(() => {
 		if (!isUseEffectCalledOnce.current) {
@@ -549,7 +546,9 @@ const DocumentUpload = props => {
 							return null;
 						})?.[0];
 						if (file && Object.keys(file).length > 0) {
-							setCacheFile(file);
+							const newCatchFiles = _.cloneDeep(cacheFile);
+							cacheFile.selectedDirectorId = { file };
+							setCacheFile(newCatchFiles);
 							if (isGeoTaggingEnabled) {
 								if (
 									!file?.loan_document_details?.[0]?.lat &&
@@ -1007,21 +1006,22 @@ const DocumentUpload = props => {
 				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
 			}
 		}
-		setCacheFile(file);
+		const newCatchFiles = _.cloneDeep(cacheFile);
+		cacheFile.selectedDirectorId = { file };
+		setCacheFile(newCatchFiles);
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	const profileUploadedFile =
-		cacheDocumentsTemp?.[0] ||
-		cacheDocumentsTemp?.filter(
-			doc => doc?.field?.name === CONST.SELFIE_UPLOAD_FIELD_NAME
-		)?.[0] ||
+		// cacheDocumentsTemp?.[0] ||
+		// cacheDocumentsTemp?.filter(
+		// 	doc => doc?.field?.name === CONST.SELFIE_UPLOAD_FIELD_NAME
+		// )?.[0] ||
 		cacheDocuments?.filter(
 			doc =>
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
-		)?.[0] ||
-		null;
+		)?.[0] || null;
 
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
@@ -1313,7 +1313,9 @@ const DocumentUpload = props => {
 
 	const removeCacheDocumentTemp = fieldName => {
 		setGeoLocationData({});
-		setCacheFile(null);
+		const newCatchFiles = _.cloneDeep(cacheFile);
+		delete newCatchFiles[selectedDirectorId];
+		setCacheFile(newCatchFiles);
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
 		let docsTemp = cacheDocumentsTemp.filter(
 			doc => doc?.field?.name === fieldName
@@ -1470,7 +1472,7 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section?.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.id === 'on_site_selfie_with_applicant'
+								{/* {sub_section?.id === 'on_site_selfie_with_applicant'
 									? isApplicant
 										? sub_section?.name
 										: Object.keys(nonApplicantDirectorsObject).length > 1
@@ -1479,6 +1481,14 @@ const DocumentUpload = props => {
 												selectedDirectorId
 										  ) + 1}`
 										: sub_section?.fields?.[1]?.label
+									: sub_section?.name} */}
+								{sub_section?.name?.includes('Selfie')
+									? `${sub_section?.fields?.[0]?.label} ${
+											selectedDirector?.type_name
+									  } ${getSelectedDirectorIndex({
+											directors,
+											selectedDirector,
+									  })}`
 									: sub_section?.name}
 
 								{isCommentRequired && (
@@ -1511,8 +1521,11 @@ const DocumentUpload = props => {
 													field={field}
 													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
-													value={prefilledProfileUploadValue}
-													uploadedFile={profileUploadedFile || cacheFile}
+													uploadedFile={
+														cacheFile?.[selectedDirectorId]?.file ||
+														profileUploadedFile ||
+														null
+													}
 													cacheDocumentsTemp={cacheDocumentsTemp}
 													addCacheDocumentTemp={addCacheDocumentTemp}
 													removeCacheDocumentTemp={removeCacheDocumentTemp}
