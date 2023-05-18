@@ -60,7 +60,7 @@ export default function IfscList(props) {
 			options={options}
 			onSelectOptionCallback={onIfscSelectCallback}
 			defaultValue={value}
-			disabled={isViewLoan}
+			disabled={field?.disabled || isViewLoan}
 			onIfscChange={onIfscChange}
 			rules={field.rules}
 		/>
