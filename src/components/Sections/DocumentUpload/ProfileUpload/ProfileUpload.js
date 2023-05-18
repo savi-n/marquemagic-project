@@ -33,7 +33,7 @@ import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard
 const ProfileUpload = props => {
 	const {
 		field,
-		value,
+		value = '',
 		isPanMandatory,
 		isPanNumberExist,
 		isFormSubmited,
@@ -176,7 +176,7 @@ const ProfileUpload = props => {
 					formData.append('timestamp', coordinates?.timestamp || null);
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
-					formData.append('director_id', selectedDirector?.directorId||null);
+					formData.append('director_id', selectedDirector?.directorId || null);
 					formData.append('user_id', businessUserId || null);
 					formData.append(
 						'doc_type_id',
