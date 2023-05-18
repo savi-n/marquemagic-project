@@ -1035,3 +1035,27 @@ export const formatAddressType = doc => {
 	const value = valuesObj?.[doc?.document_details?.classification_type];
 	return `${value}`;
 };
+
+export const getSelectedDirectorIndex = data => {
+	const { directors, selectedDirector } = data;
+	let selectedDirectorIndex = 0;
+	let totalCount = 0;
+	Object.keys(directors || {})?.forEach(directorId => {
+		if (directors?.[directorId]?.type_name === selectedDirector?.type_name) {
+			totalCount++;
+			if (directorId === selectedDirector?.directorId) {
+				selectedDirectorIndex = totalCount;
+			}
+		}
+	});
+	const currentIndex =
+		totalCount > 1 && selectedDirectorIndex > 0 ? selectedDirectorIndex : '';
+	// console.log('getSelectedDirectorIndex-', {
+	// 	directors,
+	// 	selectedDirector,
+	// 	selectedDirectorIndex,
+	// 	totalCount,
+	// 	currentIndex,
+	// });
+	return currentIndex;
+};
