@@ -15,6 +15,7 @@ import {
 	setSelectedDirectorId,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
+import { getSelectedDirectorIndex } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -222,9 +223,7 @@ const ApplicantCoApplicantHeader = props => {
 							}
 							return (
 								<>
-									<UI.LI
-										key={`coapp-{${directorIndex}}-${directorId}`}
-									>
+									<UI.LI key={`coapp-{${directorIndex}}-${directorId}`}>
 										{/* DELETE Co-Applicant will be part of future release */}
 										{/* {selectedDirectorId === directorId && (
 								<UI.BadgeDelete src={iconDelete} />
@@ -243,18 +242,17 @@ const ApplicantCoApplicantHeader = props => {
 												onClickDirectorAvatar(directorId);
 											}}
 											style={
-												isSelectNotAllowed
-													? { cursor: 'not-allowed	' }
-													: {}
+												isSelectNotAllowed ? { cursor: 'not-allowed	' } : {}
 											}
 										/>
 										{selectedSectionId ===
 											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
-											!isMandatoryDocumentSubmited && (
-												<UI.BadgeInvalid />
-											)}
+											!isMandatoryDocumentSubmited && <UI.BadgeInvalid />}
 										<UI.AvatarName>
-											{director?.label}
+											{`${director?.label} ${getSelectedDirectorIndex({
+												directors,
+												selectedDirector: director,
+											})}`}
 										</UI.AvatarName>
 										{director?.fullName && (
 											<UI.HoverBadge title={director?.fullName}>

@@ -227,7 +227,7 @@ export const directorsSlice = createSlice({
 				}
 				state.directors = newDirectors;
 			} catch (e) {
-				console.log('error-setCompletedDirectorSection-', e);
+				console.error('error-setCompletedDirectorSection-', e);
 			}
 		},
 		setNewCompletedDirectorSections: (state, { payload }) => {
