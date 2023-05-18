@@ -33,7 +33,7 @@ const ConsentDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	// const [htmlContent, setHtmlContent] = useState('');
+	const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
 	const [consentDetails, setConsentDetails] = useState(null);
 
@@ -88,32 +88,35 @@ const ConsentDetails = props => {
 	};
 
 	// TODO:Implement fetch for every modal
-	// const fetchHandle = async appObj => {
-	// 	try {
-	// 		appObj.status = 'fetched';
-	// 		console.log(appObj);
-	// 		setLoading(true);
-	// 		const response = await axios.get(
-	// 			`http://localhost:1337/equifax?aadhar_num=${appObj.Applicant}`
-	// 		);
-	// 		setHtmlContent(response.data);
-	// 		setGstModalOpen(true);
-	// 	} catch (error) {
-	// 		console.error('error-ConsentDetails-fetchModal-', {
-	// 			error: error,
-	// 			res: error?.response,
-	// 			resres: error?.response?.response,
-	// 			resData: error?.response?.data,
-	// 		});
-	// 		addToast({
-	// 			message: getApiErrorMessage(error),
-	// 			type: 'error',
-	// 		});
-	// 		setGstModalOpen(false);
-	// 	} finally {
-	// 		setLoading(false);
-	// 	}
-	// };
+	const fetchHandle = async appObj => {
+		try {
+			if (!appObj.id) return;
+			appObj.status = 'In Progress';
+
+			setLoading(true);
+			const response = await axios.get(
+				`${API.API_END_POINT}/api/getConsent?choice=${
+					appObj.section
+				}&director_id=${appObj.id}&loan_id=${loanId}`
+			);
+			setHtmlContent(response.data);
+			setGstModalOpen(true);
+		} catch (error) {
+			console.error('error-ConsentDetails-fetchModal-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+			setGstModalOpen(false);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const onSaveAndProceed = () => {
 		dispatch(setCompletedApplicationSection(selectedSectionId));
@@ -154,12 +157,12 @@ const ConsentDetails = props => {
 						src={imgClose}
 						alt='close'
 					/>
-					{/* <div dangerouslySetInnerHTML={{ __html: htmlContent }} /> */}
+					<div dangerouslySetInnerHTML={{ __html: htmlContent }} />
 				</section>
 			</Modal>
 			{selectedSection?.sub_sections[0]?.name ? (
 				<UI_SECTIONS.SubSectionHeader style={{ margin: '60px 0 20px 0' }}>
-					{selectedSection?.sub_sections?.[0]?.name}
+					{selectedSection?.sub_sections?.[0]?.name}ss
 				</UI_SECTIONS.SubSectionHeader>
 			) : null}
 
@@ -175,10 +178,13 @@ const ConsentDetails = props => {
 								<>
 									{field.data.length >= 1 && (
 										<Table
+											section={tables?.name}
 											headers={field.headers}
 											data={field.data}
-											// fetchHandle={fetchHandle}
-											hasSeperator={idx < tables.fields.length - 1}
+											fetchHandle={fetchHandle}
+											hasSeperator={
+												idx < tables.fields.length - 1
+											}
 											buttonDisabled={isViewLoan}
 										/>
 									)}
@@ -206,7 +212,11 @@ const ConsentDetails = props => {
 
 				{isViewLoan && (
 					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+						<Button
+							name='Previous'
+							onClick={naviagteToPreviousSection}
+							fill
+						/>
 					</>
 				)}
 			</UI_SECTIONS.Footer>
