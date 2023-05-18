@@ -246,7 +246,7 @@ const BankDetails = () => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional assets</span>
+								<span>Click to add additional Bank Details</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
