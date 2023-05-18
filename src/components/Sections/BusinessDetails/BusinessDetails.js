@@ -478,6 +478,11 @@ const BusinessDetails = props => {
 					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 				});
 				setGstin(panToGstRes);
+				dispatch(
+					setBusinessName(
+						fetchRes?.data?.data?.business_details?.businessname
+					)
+				);
 			} else {
 				setSectionData({});
 			}

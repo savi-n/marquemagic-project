@@ -219,12 +219,10 @@ const PanUpload = props => {
 
 			/* split the name into first and last name */
 			let name = panExtractionData?.Name,
-				first_name = '',
-				last_name = '';
+				first_name = '';
 			if (name) {
 				let nameSplit = name.split(' ');
 				if (nameSplit.length > 1) {
-					last_name = nameSplit[nameSplit.length - 1];
 					nameSplit.pop();
 				}
 				first_name = nameSplit.join(' ');
@@ -235,19 +233,6 @@ const PanUpload = props => {
 					value: first_name || '',
 				});
 			}
-			// if (last_name) {
-			// 	onChangeFormStateField({
-			// 		name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
-			// 		value: last_name || '',
-			// 	});
-			// }
-			// if (panExtractionData?.father_name) {
-			// 	onChangeFormStateField({
-			// 		name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
-			// 		value: panExtractionData?.father_name || '',
-			// 	});
-			// }
-			// // console.log({ panExtractionData });
 			if (panExtractionData?.DOB) {
 				let DOB = panExtractionData?.DOB;
 				DOB = DOB?.split('/')
