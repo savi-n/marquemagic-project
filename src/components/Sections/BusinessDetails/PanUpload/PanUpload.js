@@ -235,12 +235,12 @@ const PanUpload = props => {
 					value: first_name || '',
 				});
 			}
-			if (last_name) {
-				onChangeFormStateField({
-					name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
-					value: last_name || '',
-				});
-			}
+			// if (last_name) {
+			// 	onChangeFormStateField({
+			// 		name: CONST_BUSINESS_DETAILS.LAST_NAME_FIELD_NAME,
+			// 		value: last_name || '',
+			// 	});
+			// }
 			// if (panExtractionData?.father_name) {
 			// 	onChangeFormStateField({
 			// 		name: CONST_BUSINESS_DETAILS.FATHER_NAME_FIELD_NAME,
