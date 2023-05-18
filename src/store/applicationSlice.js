@@ -20,6 +20,7 @@ const initialState = {
 	commentsForOfficeUse: '',
 	geoLocation: {},
 	prompted: false,
+	businessName: '',
 };
 
 export const applicationSlice = createSlice({
@@ -265,6 +266,9 @@ export const applicationSlice = createSlice({
 		setBusinessMobile: (state, { payload }) => {
 			state.businessMobile = payload;
 		},
+		setBusinessName: (state, { payload }) => {
+			state.businessName = payload;
+		},
 	},
 });
 
@@ -290,7 +294,7 @@ export const {
 	addAllDocumentTypes,
 	setBusinessType,
 	setBusinessMobile,
-
+	setBusinessName,
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addCacheAPIReqRes,
