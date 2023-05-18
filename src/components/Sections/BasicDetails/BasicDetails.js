@@ -968,7 +968,7 @@ const BasicDetails = props => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
-								{isCountryIndia ? (
+								{isCountryIndia && sub_section?.id !== 'family_details'? (
 									<Hint
 										hint='Please upload the document with KYC image in Portrait Mode'
 										hintIconName='Portrait Mode'
