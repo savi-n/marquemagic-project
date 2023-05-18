@@ -21,7 +21,14 @@ import { API_END_POINT } from '_config/app.config';
 const AssetsDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { selectedDirectorOptions } = useSelector(state => state.directors);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		selectedProduct,
+	} = app;
+	const { businessName } = application;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -30,6 +37,14 @@ const AssetsDetails = props => {
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
+	const business = {
+		name: businessName || 'Company/Business',
+		value: '0',
+	}; // TODO: need to optimize business/applicant details here
+	let newselectedDirectorOptions;
+	if (selectedProduct?.isSelectedProductTypeBusiness)
+		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
+	else newselectedDirectorOptions = selectedDirectorOptions;
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -138,7 +153,7 @@ const AssetsDetails = props => {
 															<span>Assets For:</span>
 															<strong>
 																{
-																	selectedDirectorOptions?.filter(
+																	newselectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
 																			`${prefillData?.director_id}`
@@ -148,7 +163,11 @@ const AssetsDetails = props => {
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Type of Assets:</span>
-															<strong>{prefillData?.loan_asset_type_id}</strong>
+															<strong>
+																{prefillData?.fin_type ||
+																	prefillData?.loan_asset_type_id?.typename}
+																{prefillData?.fin_type}
+															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
@@ -159,7 +178,10 @@ const AssetsDetails = props => {
 												<UI_SECTIONS.AccordianHeaderData
 													style={
 														isAccordianOpen
-															? { marginLeft: 'auto', flex: 'none' }
+															? {
+																	marginLeft: 'auto',
+																	flex: 'none',
+															  }
 															: { flex: 'none' }
 													}
 												>
@@ -188,11 +210,8 @@ const AssetsDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
-															openAccordianId !==
-																sectionId &&
-																onCancelCallback(
-																	openAccordianId
-																);
+															openAccordianId !== sectionId &&
+																onCancelCallback(openAccordianId);
 															if (isCreateFormOpen || isEditLoan) return;
 															toggleAccordian(sectionId);
 														}}

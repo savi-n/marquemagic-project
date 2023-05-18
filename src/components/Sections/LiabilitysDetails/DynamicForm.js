@@ -178,7 +178,7 @@ const DynamicForm = props => {
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
 					const business = {
-						name: businessName,
+						name: businessName || 'Company/Business',
 						value: '0',
 					}; // get the business name here
 					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
