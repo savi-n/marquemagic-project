@@ -34,6 +34,7 @@ import {
 	isDirectorApplicant,
 	formatLoanDocuments,
 	isFieldValid,
+	getSelectedDirectorIndex,
 } from 'utils/formatData';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -1470,7 +1471,7 @@ const DocumentUpload = props => {
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section?.id}`}>
 							<UI.Divider />
 							<UI.CommentsForOfficeUseFieldName>
-								{sub_section?.id === 'on_site_selfie_with_applicant'
+								{/* {sub_section?.id === 'on_site_selfie_with_applicant'
 									? isApplicant
 										? sub_section?.name
 										: Object.keys(nonApplicantDirectorsObject).length > 1
@@ -1479,6 +1480,14 @@ const DocumentUpload = props => {
 												selectedDirectorId
 										  ) + 1}`
 										: sub_section?.fields?.[1]?.label
+									: sub_section?.name} */}
+								{sub_section?.name?.includes('Selfie')
+									? `${sub_section?.fields?.[0]?.label} ${
+											selectedDirector?.type_name
+									  } ${getSelectedDirectorIndex({
+											directors,
+											selectedDirector,
+									  })}`
 									: sub_section?.name}
 
 								{isCommentRequired && (

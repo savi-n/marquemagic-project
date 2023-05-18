@@ -15,6 +15,7 @@ import {
 	setSelectedDirectorId,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
+import { getSelectedDirectorIndex } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
@@ -247,10 +248,15 @@ const ApplicantCoApplicantHeader = props => {
 										{selectedSectionId ===
 											CONST_DOCUMENT_UPLOAD.DOCUMENT_UPLOAD_SECTION_ID &&
 											!isMandatoryDocumentSubmited && <UI.BadgeInvalid />}
-										<UI.AvatarName>{director?.label}</UI.AvatarName>
-										{director?.shortName && (
-											<UI.HoverBadge>
-												{director?.shortName?.toLowerCase()}
+										<UI.AvatarName>
+											{`${director?.label} ${getSelectedDirectorIndex({
+												directors,
+												selectedDirector: director,
+											})}`}
+										</UI.AvatarName>
+										{director?.fullName && (
+											<UI.HoverBadge title={director?.fullName}>
+												{director?.fullName?.toLowerCase()}
 											</UI.HoverBadge>
 										)}
 									</UI.LI>

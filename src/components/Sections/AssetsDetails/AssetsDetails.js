@@ -188,6 +188,11 @@ const AssetsDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
+															openAccordianId !==
+																sectionId &&
+																onCancelCallback(
+																	openAccordianId
+																);
 															if (isCreateFormOpen || isEditLoan) return;
 															toggleAccordian(sectionId);
 														}}

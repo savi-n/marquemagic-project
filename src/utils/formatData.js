@@ -1005,6 +1005,7 @@ export const isDirectorApplicant = director => {
 export const getDirectorFullName = director => {
 	const fullName = [];
 	if (director.dfirstname) fullName.push(director.dfirstname);
+	if (director.middle_name) fullName.push(director.middle_name);
 	if (director.dlastname) fullName.push(director.dlastname);
 	return fullName.join(' ');
 };
@@ -1033,4 +1034,28 @@ export const formatAddressType = doc => {
 	};
 	const value = valuesObj?.[doc?.document_details?.classification_type];
 	return `${value}`;
+};
+
+export const getSelectedDirectorIndex = data => {
+	const { directors, selectedDirector } = data;
+	let selectedDirectorIndex = 0;
+	let totalCount = 0;
+	Object.keys(directors || {})?.forEach(directorId => {
+		if (directors?.[directorId]?.type_name === selectedDirector?.type_name) {
+			totalCount++;
+			if (directorId === selectedDirector?.directorId) {
+				selectedDirectorIndex = totalCount;
+			}
+		}
+	});
+	const currentIndex =
+		totalCount > 1 && selectedDirectorIndex > 0 ? selectedDirectorIndex : '';
+	// console.log('getSelectedDirectorIndex-', {
+	// 	directors,
+	// 	selectedDirector,
+	// 	selectedDirectorIndex,
+	// 	totalCount,
+	// 	currentIndex,
+	// });
+	return currentIndex;
 };
