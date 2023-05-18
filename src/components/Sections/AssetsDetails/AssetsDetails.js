@@ -164,9 +164,7 @@ const AssetsDetails = props => {
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Type of Assets:</span>
 															<strong>
-																{prefillData?.fin_type ||
-																	prefillData?.loan_asset_type_id?.typename}
-																{prefillData?.fin_type}
+																{prefillData?.loan_asset_type_id?.typename}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>

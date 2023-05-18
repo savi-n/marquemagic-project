@@ -90,7 +90,7 @@ const DynamicForm = props => {
 		const preData = {
 			...prefillData,
 			assets_for: `${prefillData?.director_id || ''}`,
-			asset_type: `${prefillData?.loan_asset_type_id}` || '',
+			asset_type: `${prefillData?.loan_asset_type_id || ''}` || '',
 			amount: prefillData?.value,
 			estimated_value: prefillData?.value,
 			property_description: prefillData?.property_description,
@@ -108,8 +108,7 @@ const DynamicForm = props => {
 
 	const prefilledValues = field => {
 		try {
-			const isFormStateUpdated =
-				formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
