@@ -914,7 +914,7 @@ export const checkInitialDirectorsUpdated = directors => {
 	const notCompletedDirectors = [];
 	if (Object.keys(directors)?.length > 1) {
 		restOfTheDirectors?.map(dir => {
-			if (dir?.sections?.length < 3) {
+			if (!dir?.sections || dir?.sections?.length < 3) {
 				notCompletedDirectors.push(dir);
 			}
 			return null;
