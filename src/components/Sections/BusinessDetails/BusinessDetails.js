@@ -412,6 +412,9 @@ const BusinessDetails = props => {
 				},
 			});
 			if (fetchRes?.data?.status === 'ok') {
+				dispatch(
+					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
+				);
 				setSectionData(fetchRes?.data?.data);
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
@@ -478,9 +481,7 @@ const BusinessDetails = props => {
 					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 				});
 				setGstin(panToGstRes);
-				dispatch(
-					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
-				);
+				
 			} else {
 				setSectionData({});
 			}
