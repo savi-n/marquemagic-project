@@ -87,7 +87,10 @@ export const ErrorMessage = styled.div`
 	padding-top: 2px;
 	font-size: 12px;
 	font-weight: 500;
-	${({ borderColorCode }) => borderColorCode && `color: ${borderColorCode};`}
+	display: inline;
+	margin-right: 30px;
+	${({ borderColorCode }) =>
+		borderColorCode && `color: ${borderColorCode};`}
 `;
 
 export const Footer = styled.div`

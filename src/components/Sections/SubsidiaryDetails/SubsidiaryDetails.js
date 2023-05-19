@@ -234,8 +234,8 @@ const SubsidiaryDetails = props => {
 								)}
 							</Fragment>
 						);
-					})}
-					<UI_SECTIONS.AddDynamicSectionWrapper>
+					})}					
+					{sectionData?.length === 0 && (<UI_SECTIONS.AddDynamicSectionWrapper>
 						{isCreateFormOpen ||
 						isViewLoan ||
 						sectionData?.length >= MAX_ADD_COUNT ||
@@ -248,7 +248,7 @@ const SubsidiaryDetails = props => {
 								<span>Click to add additional subsidiary</span>
 							</>
 						)}
-					</UI_SECTIONS.AddDynamicSectionWrapper>
+					</UI_SECTIONS.AddDynamicSectionWrapper>)}					
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
 							<Button
