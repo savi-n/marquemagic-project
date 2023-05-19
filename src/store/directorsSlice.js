@@ -161,7 +161,10 @@ export const directorsSlice = createSlice({
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
-				if (checkInitialDirectorsUpdated(newDirectors)) {
+				if (
+					isSelectedProductTypeBusiness &&
+					checkInitialDirectorsUpdated(newDirectors)
+				) {
 					state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
 				} else {
 					state.selectedDirectorId = `${lastDirector.directorId || ''}`;
