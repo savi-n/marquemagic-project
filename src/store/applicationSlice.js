@@ -1,32 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import _ from 'lodash';
-
-/*
-bankDetailsFinId,
-	fin_type = Bank Account
-	fin_id pass this id in api for update
-emiDetailsFinId
-	fin_type = Outstanding Loans
-	fin_id pass this id in api for update
-*/
+import { APPLICATION_SUBMITTED_SECTION_ID } from 'components/Sections/const';
 
 const initialState = {
 	borrowerUserId: '',
 	loanRefId: '',
 	loanId: '',
 	businessId: '',
+	businessType: '',
 	businessUserId: '',
 	loanProductId: '',
 	createdByUserId: '',
-	loanAssetsId: '',
-	assetsAdditionalId: '',
-	refId1: '',
-	refId2: '',
-	bankDetailsFinId: '',
-	emiDetailsFinId: '',
-	businessAddressIdAid1: '',
-	businessAddressIdAid2: '',
-	sections: {},
+	businessMobile: '',
+	sections: [],
 	documents: [],
 	cacheDocuments: [],
 	allDocumentTypes: [],
@@ -34,9 +20,10 @@ const initialState = {
 	commentsForOfficeUse: '',
 	geoLocation: {},
 	prompted: false,
+	businessName: '',
 };
 
-export const applicantSlice = createSlice({
+export const applicationSlice = createSlice({
 	name: 'application',
 	initialState,
 	reducers: {
@@ -49,14 +36,6 @@ export const applicantSlice = createSlice({
 				businessUserId,
 				loanProductId,
 				createdByUserId,
-				loanAssetsId,
-				assetsAdditionalId,
-				refId1,
-				refId2,
-				bankDetailsFinId,
-				emiDetailsFinId,
-				businessAddressIdAid1,
-				businessAddressIdAid2,
 				borrowerUserId,
 			} = action.payload;
 			if (loanRefId) state.loanRefId = loanRefId;
@@ -65,32 +44,19 @@ export const applicantSlice = createSlice({
 			if (businessUserId) state.businessUserId = businessUserId;
 			if (loanProductId) state.loanProductId = loanProductId;
 			if (createdByUserId) state.createdByUserId = createdByUserId;
-			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
-			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
-			if (refId1) state.refId1 = refId1;
-			if (refId2) state.refId2 = refId2;
-			if (bankDetailsFinId) state.bankDetailsFinId = bankDetailsFinId;
-			if (emiDetailsFinId) state.emiDetailsFinId = emiDetailsFinId;
-			if (businessAddressIdAid1)
-				state.businessAddressIdAid1 = businessAddressIdAid1;
-			if (businessAddressIdAid2)
-				state.businessAddressIdAid2 = businessAddressIdAid2;
 			if (borrowerUserId) state.borrowerUserId = borrowerUserId;
 		},
-		updateApplicationSection: (state, action) => {
-			const {
-				sectionId,
-				sectionValues,
-				loanAssetsId,
-				assetsAdditionalId,
-				refId1,
-				refId2,
-			} = action.payload;
-			state.sections[sectionId] = sectionValues;
-			if (loanAssetsId) state.loanAssetsId = loanAssetsId;
-			if (assetsAdditionalId) state.assetsAdditionalId = assetsAdditionalId;
-			if (refId1) state.refId1 = refId1;
-			if (refId2) state.refId2 = refId2;
+		setCompletedApplicationSection: (state, { payload }) => {
+			// payload === sectionId
+			if (!state.sections.includes(payload)) {
+				state.sections.push(payload);
+			}
+		},
+
+		setNewCompletedSections: (state, { payload }) => {
+			state.sections = payload.filter(
+				id => id !== APPLICATION_SUBMITTED_SECTION_ID
+			);
 		},
 
 		// CACHE DOCUMENT RELATED ACTIONS
@@ -291,8 +257,17 @@ export const applicantSlice = createSlice({
 
 		// SET PROMPT (ONCE PER APPLICATION SESSION) TO MOTIVATE USER TO
 		// COMPLETE ONSITE VERIFICATION
-		setIsPrompted: (state, action) => {
-			state.prompted = action.payload;
+		setIsPrompted: (state, { payload }) => {
+			state.prompted = payload;
+		},
+		setBusinessType: (state, { payload }) => {
+			state.businessType = payload;
+		},
+		setBusinessMobile: (state, { payload }) => {
+			state.businessMobile = payload;
+		},
+		setBusinessName: (state, { payload }) => {
+			state.businessName = payload;
 		},
 	},
 });
@@ -301,7 +276,8 @@ export const {
 	reInitializeApplicationSlice,
 
 	setLoanIds,
-	updateApplicationSection,
+	setCompletedApplicationSection,
+	setNewCompletedSections,
 
 	addCacheDocument,
 	addOrUpdateCacheDocument,
@@ -316,12 +292,14 @@ export const {
 	clearAllCacheDocuments,
 
 	addAllDocumentTypes,
-
+	setBusinessType,
+	setBusinessMobile,
+	setBusinessName,
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
-} = applicantSlice.actions;
+} = applicationSlice.actions;
 
-export default applicantSlice.reducer;
+export default applicationSlice.reducer;

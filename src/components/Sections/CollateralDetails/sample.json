@@ -1,0 +1,554 @@
+{
+	"name": "Collateral Details",
+	"id": "collateral_details",
+	"hide_section_usertype": ["Legal", "Technical"],
+	"sub_sections": [
+		{
+			"id": "collateral_details",
+			"name": "Collateral Details",
+			"fields": [
+				{
+					"name": "collateral_type",
+					"placeholder": "Collateral type",
+					"rules": {},
+					"type": "select",
+					"db_key": "loan_type",
+					"options": [
+						{
+							"value": "Apartment",
+							"name": "Apartment"
+						},
+						{
+							"value": "Commercial complex - Mall",
+							"name": "Commercial complex - Mall"
+						},
+						{
+							"value": "Factory",
+							"name": "Factory"
+						},
+						{
+							"value": "Godown",
+							"name": "Godown"
+						},
+						{
+							"value": "Hospitals-Institutions",
+							"name": "Hospitals-Institutions"
+						},
+						{
+							"value": "Independent Building",
+							"name": "Independent Building"
+						},
+						{
+							"value": "Independent Commercial Building",
+							"name": "Independent Commercial Building"
+						},
+						{
+							"value": "Industrial Estate",
+							"name": "Industrial Estate"
+						},
+						{
+							"value": "Restaurant",
+							"name": "Restaurant"
+						},
+						{
+							"value": "Row Houses",
+							"name": "Row Houses"
+						},
+						{
+							"value": "SHED",
+							"name": "SHED"
+						},
+						{
+							"value": "SHOP",
+							"name": "SHOP"
+						}
+					],
+					"visibility": true,
+					"default_value": ""
+				},
+				{
+					"name": "current_market_value",
+					"placeholder": "Current Market Value",
+					"rules": {},
+					"db_key": "loan_json",
+					"type": "number",
+					"inrupees": true,
+					"visibility": true
+				},
+				{
+					"name": "collateral_sub_type",
+					"placeholder": "Collateral Sub Type",
+					"rules": {
+						"required": true
+					},
+					"db_key": "collateral_sub_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Purchase a Plot",
+							"value": "Purchase a Plot"
+						},
+						{
+							"name": "Plot + Self Construction",
+							"value": "Plot + Self Construction"
+						},
+						{
+							"name": "Construction On Land",
+							"value": "Construction On Land"
+						},
+						{
+							"name": "Resale",
+							"value": "Resale"
+						},
+						{
+							"name": "Builder Property Under Construction",
+							"value": "Builder Property Under Construction"
+						},
+						{
+							"name": "Ready Property",
+							"value": "Ready Property"
+						},
+						{
+							"name": "Semi-Finished",
+							"value": "Semi-Finished"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "property_type",
+					"placeholder": "Property Type",
+					"rules": {
+						"required": true
+					},
+					"db_key": "property_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Row Houses",
+							"value": "Row Houses"
+						},
+						{
+							"name": "Apartment",
+							"value": "Apartment"
+						},
+						{
+							"name": "Independent Commercial",
+							"value": "Independent Commercial"
+						},
+						{
+							"name": "Commercial Complex/Mall",
+							"value": "Commercial Complex/Mall"
+						},
+						{
+							"name": "Industrial Estate",
+							"value": "Industrial Estate"
+						},
+						{
+							"name": "Factory",
+							"value": "Factory"
+						},
+						{
+							"name": "Godown",
+							"value": "Godown"
+						},
+						{
+							"name": "Hospital_Institutions",
+							"value": "Hospital_Institutions"
+						},
+						{
+							"name": "Restaurant",
+							"value": "Restaurant"
+						},
+						{
+							"name": "Independent",
+							"value": "Independent"
+						},
+						{
+							"name": "SHOP",
+							"value": "SHOP"
+						},
+						{
+							"name": "SHED",
+							"value": "SHED"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "nature_of_property",
+					"placeholder": "Nature of Property",
+					"rules": {
+						"required": true
+					},
+					"db_key": "nature_of_property",
+					"type": "select",
+					"options": [
+						{
+							"name": "Residential",
+							"value": "Residential"
+						},
+						{
+							"name": "Commercial",
+							"value": "Commercial"
+						},
+						{
+							"name": "Institutional",
+							"value": "Institutional"
+						},
+						{
+							"name": "Agricultural",
+							"value": "Agricultural"
+						},
+						{
+							"name": "Industrial",
+							"value": "Industrial"
+						},
+						{
+							"name": "PLOT",
+							"value": "PLOT"
+						},
+						{
+							"name": "Apartment",
+							"value": "Apartment"
+						},
+						{
+							"name": "Independent",
+							"value": "Independent"
+						},
+						{
+							"name": "Row Houses",
+							"value": "Row Houses"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "total_area",
+					"placeholder": "Total Area Value (in Square Feet)",
+					"rules": {
+						"required": true
+					},
+					"db_key": "total_area",
+					"type": "number",
+					"visibility": true
+				},
+				{
+					"name": "construction_area",
+					"placeholder": "Construction Area Value (in Square Feet)",
+					"rules": {
+						"required": true
+					},
+					"db_key": "construction_area",
+					"type": "number",
+					"visibility": true
+				},
+				{
+					"name": "age",
+					"placeholder": " Property Age",
+					"rules": {
+						"required": true,
+						"past_dates": true
+					},
+					"mask": {},
+					"type": "month",
+					"db_key": "age",
+					"is_month_picker": true,
+					"visibility": true
+				},
+				{
+					"name": "property_purpose",
+					"placeholder": "Property Purpose",
+					"rules": {
+						"required": true
+					},
+					"db_key": "property_purpose",
+					"type": "select",
+					"options": [
+						{
+							"name": "Vacant",
+							"value": "Vacant"
+						},
+						{
+							"name": "Rented",
+							"value": "Rented"
+						},
+						{
+							"name": "Mixed Use",
+							"value": "Mixed Use"
+						},
+						{
+							"name": "Multi Tenanted",
+							"value": "Multi Tenanted"
+						},
+						{
+							"name": "Self Occupied",
+							"value": "Self Occupied"
+						},
+						{
+							"name": "Leased",
+							"value": "Leased"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "property_ownership",
+					"placeholder": "Property Ownership",
+					"rules": {
+						"required": true
+					},
+					"db_key": "property_ownership",
+					"type": "select",
+					"options": [
+						{
+							"name": "Lease Hold",
+							"value": "Lease Hold"
+						},
+						{
+							"name": "Free Hold",
+							"value": "Free Hold"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "property_amount",
+					"placeholder": "Property Cost",
+					"rules": {
+						"required": true
+					},
+					"db_key": "value",
+					"type": "number",
+					"inrupees": true,
+					"visibility": true
+				},
+				{
+					"name": "owner_type",
+					"placeholder": "Owner Type",
+					"rules": {
+						"required": true
+					},
+					"db_key": "owner_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Current/Future",
+							"value": "Current/Future"
+						},
+						{
+							"name": "Previous",
+							"value": "Previous"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "ownership_status",
+					"placeholder": "Ownership Status",
+					"rules": {
+						"required": true
+					},
+					"db_key": "ownership_status",
+					"type": "select",
+					"options": [
+						{
+							"name": "Single",
+							"value": "Single"
+						},
+						{
+							"name": "Joint",
+							"value": "Joint"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "owner_name",
+					"placeholder": "Owner Name",
+					"rules": {
+						"required": true
+					},
+					"db_key": "owner_name",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "ownership_from",
+					"placeholder": "Ownership From",
+					"rules": {
+						"required": true,
+						"past_dates": true
+					},
+					"mask": {},
+					"type": "date",
+					"db_key": "ownership_from",
+					"visibility": true
+				},
+				{
+					"name": "percent_share",
+					"placeholder": "Percent Share",
+					"rules": {
+						"required": true,
+						"maxValue": 100,
+						"minValue": 0
+					},
+					"mask": {
+						"character_limit": 3,
+						"number_only": true
+					},
+					"db_key": "percent_share",
+					"type": "number",
+					"visibility": true
+				}
+			]
+		},
+		{
+			"name": "Property Address",
+			"id": "property_address_details",
+			"fields": [
+				{
+					"name": "address1",
+					"placeholder": "Address Line 1",
+					"db_key": "address1",
+					"rules": {
+						"required": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "address2",
+					"placeholder": "Address Line 2",
+					"db_key": "address2",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "address3",
+					"placeholder": "Landmark",
+					"db_key": "name_landmark",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "pin_code",
+					"placeholder": "Pin Code",
+					"db_key": "pincode",
+					"rules": {
+						"required": true,
+						"length": 6
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 6
+					},
+					"make_api_call": 6,
+					"type": "pincode",
+					"value_for_fields": [["city", "district"], ["state", "state"]],
+					"visibility": true
+				},
+				{
+					"name": "city",
+					"placeholder": "City",
+					"db_key": "city",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alph_char_only": true
+					},
+					"type": "text",
+					"visibility": true,
+					"disabled": true
+				},
+				{
+					"name": "state",
+					"placeholder": "State",
+					"db_key": "state",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true,
+					"disabled": true
+				},
+				{
+					"name": "nature_of_ownership",
+					"placeholder": "Nature of Ownership",
+					"db_key": "owned_type",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "select",
+					"options": [
+						{
+							"name": "Inherited",
+							"value": "Inherited"
+						},
+						{
+							"name": "Purchased",
+							"value": "Purchased"
+						},
+						{
+							"name": "Gifted",
+							"value": "Gifted"
+						},
+						{
+							"name": "Govt Allotted",
+							"value": "Govt Allotted"
+						},
+						{
+							"name": "Other",
+							"value": "Other"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "property_occupant",
+					"placeholder": "Current Occupant of the Property",
+					"db_key": "current_occupant",
+					"rules": {
+						"required": true
+					},
+					"mask": {},
+					"type": "select",
+					"options": [
+						{
+							"name": "Self-Occupied",
+							"value": "Self-Occupied"
+						},
+						{
+							"name": "Mortgagor",
+							"value": "Mortgagor"
+						},
+						{
+							"name": "Other Relatives",
+							"value": "Other Relatives"
+						},
+						{
+							"name": "Tenants",
+							"value": "Tenants"
+						},
+						{
+							"name": "Unoccupied",
+							"value": "Unoccupied"
+						},
+						{
+							"name": "Others",
+							"value": "Others"
+						}
+					],
+					"visibility": true
+				}
+			]
+		}
+	]
+}

@@ -33,6 +33,7 @@ const initialState = {
 	coApplicants: {},
 	selectedApplicant: {},
 	generateAadhaarOtpResponse: {},
+	countApplicants: {},
 	// verifyOtpResponse: {},
 };
 
@@ -122,6 +123,13 @@ export const applicantCoApplicantsSlice = createSlice({
 				].selectedParmanentAddressProofId = action.payload;
 			}
 		},
+		setCountApplicants: (state, action) => {
+			state.countApplicants = action.payload;
+		},
+		setDirectors: (state, action) => {
+			state.coApplicants = action.payload;
+		},
+
 		setSelectedPresentAddressProofId: (state, action) => {
 			if (state.isApplicant) {
 				state.applicant.selectedPresentAddressProofId = action.payload;
@@ -170,7 +178,6 @@ export const applicantCoApplicantsSlice = createSlice({
 				].isSameAsAboveAddressChecked = action.payload;
 			}
 		},
-
 		// DOCUMENT RELATED ACTIONS
 		addLoanDocument: (state, action) => {
 			// const { file } = action.payload;
@@ -487,6 +494,8 @@ export const {
 	setPresentAddressProofExtractionRes,
 	setCompanyRocData,
 
+	setCountApplicants,
+	setDirectors,
 	addLoanDocument,
 	addLoanDocuments,
 	removeLoanDocument,

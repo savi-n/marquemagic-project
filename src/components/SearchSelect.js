@@ -272,10 +272,11 @@ export default function SearchSelect(props) {
 		}
 	};
 
-	const filterdOptions = selectOptions.filter(
-		({ name, value }) =>
-			name.toLowerCase().includes(searchKey.toLowerCase()) ||
-			value.toLowerCase().includes(searchKey.toLowerCase())
+	const filterdOptions = selectOptions.filter(({ name, value }) =>
+		searchKey.length >= 3
+			? name.toLowerCase().includes(searchKey.toLowerCase()) ||
+			  value.toLowerCase().includes(searchKey.toLowerCase())
+			: false
 	);
 
 	return (
@@ -347,7 +348,9 @@ export default function SearchSelect(props) {
 						))}
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
-								Options Not Found.
+								{searchKey.length < 3
+									? 'Please enter atleast 3 character'
+									: 'Options Not Found.'}
 								{/* {' '}
 								{field.name.includes('ifsc')
 									? 'Enter only 11 characters'

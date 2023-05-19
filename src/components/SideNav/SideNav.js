@@ -7,72 +7,70 @@ import {
 import queryString from 'query-string';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useToasts } from 'components/Toast/ToastProvider';
+
 import {
 	faChevronLeft,
 	faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import { setSelectedApplicantCoApplicantId } from 'store/applicantCoApplicantsSlice';
-import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
-import { validateEmploymentDetails } from 'utils/formatData';
+import {
+	getAllCompletedSections,
+	validateEmploymentDetails,
+	validateAllDirectorSectionsCompleted,
+} from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
+import {
+	setAddNewDirectorKey,
+	setSelectedDirectorId,
+} from 'store/directorsSlice';
 import imgBackArrowCircle from 'assets/icons/Left_nav_bar_back_icon.png';
 import imgArrorRight from 'assets/icons/Left_nav_bar-right-arrow_BG.png';
 import imgCheckCircle from 'assets/icons/white_tick_icon.png';
-import { getCompletedSections } from 'utils/formatData';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
+import * as CONST from './const';
 
 const SideNav = props => {
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const {
+		directors,
+		selectedDirectorId,
+		addNewDirectorKey,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const { addToast } = useToasts();
+
 	const {
 		selectedProduct,
 		selectedSectionId,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		isEditOrViewLoan,
 		isViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		editLoanDirectors,
 	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { addToast } = useToasts();
 	const { loanRefId } = application;
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
 	const isApplicationSubmitted =
 		selectedSectionId === CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID;
 
-	const completedSections = getCompletedSections({
-		selectedProduct,
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
+	const completedSections = getAllCompletedSections({
 		application,
-		isEditOrViewLoan,
-		isEditLoan,
-		isDraftLoan,
-		applicantCoApplicantSectionIds,
-		editLoanDirectors,
-		selectedApplicant,
+		selectedDirector,
+		addNewDirectorKey,
+		directorSectionIds,
+		selectedProduct,
+		selectedSectionId,
 	});
 
 	// console.log('SideNav-allStates-', {
 	// 	app,
 	// 	selectedProduct,
 	// 	completedSections,
-	// 	selectedApplicant,
+	// 	selectedDirector,
+	// 	application,
+	// 	addNewDirectorKey,
 	// });
 
 	return (
@@ -136,27 +134,44 @@ const SideNav = props => {
 													return;
 
 												if (!isViewLoan && isCompleted) {
-													let isValid;
 													if (
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
+														addNewDirectorKey?.length > 0 ||
+														!selectedDirectorId
 													) {
+														dispatch(setAddNewDirectorKey(''));
+														dispatch(
+															setSelectedDirectorId(
+																Object.keys(directors)?.pop()
+															)
+														);
+													}
+
+													const initialSections = selectedProduct?.isSelectedProductTypeBusiness
+														? CONST_SECTIONS.INITIAL_SECTION_IDS_SME_FLOW
+														: CONST_SECTIONS.INITIAL_SECTION_IDS;
+
+													let isValid;
+													let checkAllDirectorsCompleted;
+													if (!initialSections.includes(section?.id)) {
+														checkAllDirectorsCompleted = validateAllDirectorSectionsCompleted(
+															directors
+														);
+
 														isValid = validateEmploymentDetails({
-															coApplicants,
-															isApplicant,
+															selectedDirector,
+															directors,
 														});
 													}
+
 													if (
-														isValid === false &&
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
+														(isValid?.allowProceed === false ||
+															checkAllDirectorsCompleted?.allowProceed ===
+																false) &&
+														!initialSections.includes(section?.id)
 													) {
 														addToast({
-															message:
-																'Please fill all the details in Co-Applicant-' +
-																Object.keys(coApplicants)?.length,
+															message: `Please fill all the details in the ${isValid?.directorName ||
+																checkAllDirectorsCompleted?.directorName}`,
 															type: 'error',
 														});
 														return;
@@ -164,19 +179,25 @@ const SideNav = props => {
 												}
 
 												if (isCompleted || isActive) {
-													dispatch(setSelectedSectionId(section.id));
+													// console.log('selectedDirectorId-', {
+													// 	selectedDirectorId,
+													// 	selectedDirectorOptions,
+													// });
+													// handle isEntity Scenario
+													// when user is in document upload page and selected sectino is Entity selects director sections
 													if (
-														!CONST_SECTIONS.INITIAL_SECTION_IDS.includes(
-															section?.id
-														)
-														// && typeof selectedApplicant?.directorId !== 'number'
+														!selectedDirectorId &&
+														directorSectionIds.includes(section.id)
 													) {
 														dispatch(
-															setSelectedApplicantCoApplicantId(
-																CONST_SECTIONS.APPLICANT
+															setSelectedDirectorId(
+																selectedDirectorOptions?.[0]?.value || ''
 															)
 														);
 													}
+													// -- handle isEntity Scenario
+
+													dispatch(setSelectedSectionId(section.id));
 												}
 											}}
 										>
@@ -195,8 +216,19 @@ const SideNav = props => {
 												)}
 											</UI.Menu>
 										</UI.Link>
-										{applicantCoApplicantSectionIds?.length ===
-											sectionIndex + 1 && <UI.SectionDevider />}
+										{selectedProduct?.loan_request_type === 1 &&
+											sectionIndex + 1 ===
+												CONST.lengthOfuniqueSectionsForSmeFlow && (
+												<UI.SectionDevider />
+											)}
+
+										{selectedProduct?.loan_request_type === 1
+											? directorSectionIds?.length +
+													CONST.lengthOfuniqueSectionsForSmeFlow ===
+													sectionIndex + 1 && <UI.SectionDevider />
+											: directorSectionIds?.length === sectionIndex + 1 && (
+													<UI.SectionDevider />
+											  )}
 									</Fragment>
 								);
 							}

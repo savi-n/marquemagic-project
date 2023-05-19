@@ -51,7 +51,7 @@ const initialState = {
 	firstSectionId: '',
 	prevSectionId: '',
 	nextSectionId: '',
-	applicantCoApplicantSectionIds: [],
+	directorSectionIds: [],
 	completedSections: [],
 	formData: {},
 	editLoanData: null,
@@ -84,13 +84,16 @@ export const appSlice = createSlice({
 		setGeoTagging: (state, action) => {
 			state.isGeoTaggingEnabled = action.payload;
 		},
-		setPermission: (state, action) => {
+		setPermission: (state, { payload }) => {
 			// Redux Toolkit allows us to write "mutating" logic in reducers. It
 			// doesn't actually mutate the state because it uses the Immer library,
 			// which detects changes to a "draft state" and produces a brand new
 			// immutable state based off those changes
-			state.permission = action.payload;
-			state.isGeoTaggingEnabled = action.payload?.geo_tagging?.geo_tagging;
+			state.permission = {
+				...payload,
+				isCountryIndia: payload?.country?.toLowerCase() === 'india',
+			};
+			state.isGeoTaggingEnabled = payload?.geo_tagging?.geo_tagging;
 			// state.isGeoTaggingEnabled = false;
 		},
 		setUserDetails: (state, action) => {
@@ -112,19 +115,18 @@ export const appSlice = createSlice({
 			state.selectedProduct = {
 				...action.payload,
 				idBase64: encryptBase64(action.payload.id),
-				isSelectedProductTypeBusiness: action.payload.loan_req_type === 1,
-				isSelectedProductTypeSalaried: action.payload.loan_req_type === 2,
+				isSelectedProductTypeBusiness: action.payload.loan_request_type === 1,
+				isSelectedProductTypeSalaried: action.payload.loan_request_type === 2,
 			};
-			const newApplicantCoApplicantSectionIds = [];
+			const newdirectorSectionIds = [];
 			let newFirstSectionId = '';
-			action.payload.product_details.sections.map((section, sectionIndex) => {
+			action.payload.product_details?.sections?.map((section, sectionIndex) => {
 				if (sectionIndex === 0) newFirstSectionId = section.id;
-				if (section.is_applicant)
-					newApplicantCoApplicantSectionIds.push(section.id);
+				if (section.is_applicant) newdirectorSectionIds.push(section.id);
 				return null;
 			});
 			state.firstSectionId = newFirstSectionId;
-			state.applicantCoApplicantSectionIds = newApplicantCoApplicantSectionIds;
+			state.directorSectionIds = newdirectorSectionIds;
 		},
 		setSelectedSectionId: (state, action) => {
 			state.selectedSectionId = action.payload;
@@ -132,7 +134,8 @@ export const appSlice = createSlice({
 				section => section?.id === action.payload
 			);
 			const newSelectedSection =
-				state?.selectedProduct?.product_details?.sections[selectedIndex] || {};
+				state?.selectedProduct?.product_details?.sections?.[selectedIndex] ||
+				{};
 			const newPrevSectionId =
 				state?.selectedProduct?.product_details?.sections?.[selectedIndex - 1]
 					?.id || '';
@@ -190,7 +193,9 @@ export const appSlice = createSlice({
 				state.editLoanDirectors = newEditLoanDirectorIds;
 			}
 		},
-
+		setIsDraftLoan: (state, { payload }) => {
+			state.isDraftLoan = payload;
+		},
 		toggleTestMode: (state, action) => {
 			state.isTestMode = !state.isTestMode;
 		},
@@ -206,6 +211,20 @@ export const appSlice = createSlice({
 		},
 		setDefaultLoader: (state, action) => {
 			state.defaultLoader = action.payload;
+		},
+		setEditOrViewLoan: (state, action) => {
+			const { isEditLoan, isViewLoan } = action.payload;
+
+			if (isEditLoan) {
+				state.isEditLoan = isEditLoan;
+				state.isViewLoan = !isEditLoan;
+			}
+
+			if (isViewLoan) {
+				state.isViewLoan = isViewLoan;
+				state.isEditLoan = !isViewLoan;
+			}
+			if (isEditLoan || isViewLoan) state.isEditOrViewLoan = true;
 		},
 	},
 });
@@ -232,13 +251,14 @@ export const {
 	addFormData,
 
 	setEditLoanData,
-
 	toggleTestMode,
 	setIsTestMode,
 	setBankList,
 	setIfscList,
+	setEditOrViewLoan,
 
 	setDefaultLoader,
+	setIsDraftLoan,
 } = appSlice.actions;
 
 export default appSlice.reducer;

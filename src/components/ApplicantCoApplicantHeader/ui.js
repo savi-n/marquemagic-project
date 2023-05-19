@@ -7,6 +7,14 @@ export const Wrapper = styled.div`
 	/* padding: 0 50px; */
 `;
 
+export const LoadingWrapper = styled.div`
+	height: 100px;
+	width: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`;
+
 export const UL = styled.ul`
 	/* border: 1px solid gold; */
 	display: flex;
@@ -50,7 +58,7 @@ export const BadgeInvalid = styled.div`
 	height: 12px;
 	width: 12px;
 	top: 0;
-	margin-top: 30px;
+	margin-top: 15px;
 	margin-left: 50px;
 	background-color: #dc3545;
 	border-radius: 25px;
@@ -86,3 +94,18 @@ export const Indecator = styled.img`
 	width: 50px;
 	cursor: pointer;
 `;
+
+export const HoverBadge = styled.div`
+	/* position: absolute; */
+	/* background: white; */
+	/* box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+		rgba(60, 64, 67, 0.15) 0px 2px 6px 2px; */
+		border-radius: 6px;
+		padding: 4px 8px;
+		font-size: 12px;
+		text-transform: capitalize;
+		max-width: 130px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+				`;

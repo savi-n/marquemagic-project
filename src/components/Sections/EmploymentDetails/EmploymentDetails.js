@@ -1,83 +1,93 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
-import { updateApplicantSection } from 'store/applicantCoApplicantsSlice';
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import Button from 'components/Button';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import * as UI_SECTIONS from 'components/Sections/ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
+// import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST from './const';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
+import * as CONST_SECTIONS from 'components/Sections/const';
+
+import { setSelectedSectionId } from 'store/appSlice';
 import {
-	setSelectedApplicantCoApplicantId,
-	updateCoApplicantSection,
-} from 'store/applicantCoApplicantsSlice';
+	setAddNewDirectorKey,
+	setCompletedDirectorSection,
+	setSelectedDirectorId,
+} from 'store/directorsSlice';
 import {
 	formatSectionReqBody,
-	getApplicantNavigationDetails,
+	// getApplicantNavigationDetails,
 	getApiErrorMessage,
+	isDirectorApplicant,
 	validateEmploymentDetails,
+	checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
+import Loading from 'components/Loading';
 
 const EmploymentDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
+
 	const {
 		isViewLoan,
 		selectedSectionId,
-		selectedProduct,
 		nextSectionId,
-		prevSectionId,
-		firstSectionId,
 		isTestMode,
-		isLocalhost,
 		selectedSection,
-		isEditLoan,
-		isDraftLoan,
+		// isDraftLoan,
+		selectedProduct,
 	} = app;
-	const {
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-		isApplicant,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	const { directorId } = selectedApplicant;
+	const { businessId, loanRefId, businessType } = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const { handleSubmit, register, formState } = useForm();
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [sectionData, setSectionData] = useState({});
+	const editSectionId = sectionData?.income_data?.employment_id || '';
+	const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
+		? checkInitialDirectorsUpdated(directors)
+		: false;
 
-	const {
-		nextApplicantDirectorId,
-		// lastDirectorId,
-		isLastApplicantIsSelected,
-	} = getApplicantNavigationDetails({
-		applicant,
-		coApplicants,
-		selectedApplicant,
-	});
+	// console.log({
+	// 	directors,
+	// 	popValue: `${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}`,
+	// 	lengthOfDir: Object.keys.directors?.length > 1,
+	// 	initialDirectorsUpdated,
+	// 	isSelectedProductTypeBusiness:
+	// 		selectedProduct?.isSelectedProductTypeBusiness,
+	// });
+	// const {
+	// 	nextApplicantDirectorId,
+	// 	lastDirectorId,
+	// 	isLastApplicantIsSelected,
+	// } = getApplicantNavigationDetails({
+	// 	applicant,
+	// 	coApplicants,
+	// 	selectedDirector,
+	// });
 
 	const validateNavigation = () => {
-		const isValid = validateEmploymentDetails({
-			coApplicants,
-			isApplicant,
+		const validateDirector = validateEmploymentDetails({
+			selectedDirector,
+			directors,
 		});
-		if (
-			isValid === false &&
-			selectedApplicant?.directorId !== +Object.keys(coApplicants).pop()
-		) {
+		// console.log({ validateDirector });
+
+		if (validateDirector?.allowProceed === false) {
 			addToast({
-				message:
-					'Please fill all the details in Co-Applicant-' +
-					Object.keys(coApplicants)?.length,
+				message: `Please fill all the details in ${
+					validateDirector?.directorName
+				}`,
 				type: 'error',
 			});
 			return false;
@@ -91,48 +101,35 @@ const EmploymentDetails = () => {
 			// console.log('submitEmploymentDetails-', { formState });
 			const employmentDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
+				selectedDirector,
 				application,
 				values: formState.values,
 			});
 
-			if (selectedApplicant?.employmentId) {
-				employmentDetailsReqBody.employment_id =
-					selectedApplicant?.employmentId;
+			if (editSectionId) {
+				employmentDetailsReqBody.employment_id = editSectionId;
 			}
-			if (selectedApplicant?.incomeDataId) {
-				employmentDetailsReqBody.income_data_id =
-					selectedApplicant?.incomeDataId;
+			if (sectionData?.income_data?.id) {
+				employmentDetailsReqBody.income_data_id = sectionData?.income_data?.id;
 			}
 
 			// console.log('-employmentDetailsReq-', {
 			// 	employmentDetailsReqBody,
 			// 	app,
-			// 	applicantCoApplicants,
+			// 	selectedDirector,
 			// 	application,
 			// });
-			const employmentDetailsRes = await axios.post(
+			await axios.post(
 				`${API_END_POINT}/employmentData`,
 				employmentDetailsReqBody
 			);
 			// console.log('-employmentDetailsRes-', {
 			// 	employmentDetailsRes,
 			// });
-			const newEmploymentDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-				employmentId: employmentDetailsRes?.data?.data?.employment_id,
-				incomeDataId: employmentDetailsRes?.data?.data?.income_data_id,
-				directorId,
-			};
-			if (isApplicant) {
-				dispatch(updateApplicantSection(newEmploymentDetails));
-			} else {
-				dispatch(updateCoApplicantSection(newEmploymentDetails));
-			}
+			dispatch(setCompletedDirectorSection(selectedSectionId));
 			return true;
 		} catch (error) {
-			console.error('error-submitEmploymentDetails-onProceed-', {
+			console.error('error-submitEmploymentDetails-onSaveAndProceed-', {
 				error: error,
 				res: error?.response,
 				resres: error?.response?.response,
@@ -149,284 +146,288 @@ const EmploymentDetails = () => {
 		}
 	};
 
-	const onAddCoApplicant = async () => {
-		if (!isDraftLoan && !validateNavigation()) {
+	const onAddDirector = async key => {
+		if (!validateNavigation()) {
 			return;
 		}
 
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+
 		if (!isEmploymentDetailsSubmited) return;
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
-		dispatch(setSelectedSectionId(firstSectionId));
+		dispatch(setSelectedDirectorId(''));
+		dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+		dispatch(setAddNewDirectorKey(key));
 	};
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
-			if (!isDraftLoan && !validateNavigation()) {
+			if (!validateNavigation()) {
 				return;
 			}
 
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
 
+			// TODO: udpate draft logics
 			// draft stage next applicant exist
-			if (isDraftLoan && !isLastApplicantIsSelected) {
-				dispatch(setSelectedApplicantCoApplicantId(nextApplicantDirectorId));
-				dispatch(setSelectedSectionId(firstSectionId));
-				return;
-			}
+			// if (isDraftLoan && !isLastApplicantIsSelected) {
+			// 	dispatch(setSelectedDirectorId(nextApplicantDirectorId));
+			// 	dispatch(setSelectedSectionId(firstSectionId));
+			// 	return;
+			// }
 
 			// draft stage last applicant
-			if (isDraftLoan && isLastApplicantIsSelected) {
-				dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
-				dispatch(setSelectedSectionId(nextSectionId));
-				return;
-			}
-
-			dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.APPLICANT));
+			// if (isDraftLoan && isLastApplicantIsSelected) {
+			// 	dispatch(setselectedDirectorCoApplicantId(CONST_SECTIONS.APPLICANT));
+			// 	dispatch(setSelectedSectionId(nextSectionId));
+			// 	return;
+			// }
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
-			console.error('error-EmploymentDetails-onProceed-', error);
+			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
 		}
 	};
 
-	const onSkipAddCoApplicant = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(selectedApplicant?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
+	const navigateToNextDirector = async () => {
+		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+		if (!isEmploymentDetailsSubmited) return;
+
+		const indexOfCurrentDirector = Object.keys(directors)?.indexOf(
+			`${selectedDirectorId}`
+		);
+		if (Object.keys(directors)?.length > +indexOfCurrentDirector + 1) {
+			dispatch(
+				setSelectedDirectorId(
+					Object.keys(directors)?.[`${+indexOfCurrentDirector + 1}`]
+				)
+			);
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
+			dispatch(setSelectedSectionId(nextSectionId));
 		}
-		dispatch(setSelectedApplicantCoApplicantId(CONST_SECTIONS.CO_APPLICANT));
-		dispatch(setSelectedSectionId(firstSectionId));
-	};
-
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(selectedApplicant?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-			directorId,
-		};
-		if (isApplicant) {
-			dispatch(updateApplicantSection(skipSectionData));
-		} else {
-			dispatch(updateCoApplicantSection(skipSectionData));
-		}
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
-	const prefilledEditOrViewLoanValues = field => {
-		const selectedEmploymentData =
-			selectedApplicant?.employment_data?.[0] || {};
-		const selectedEmploymentIncomeData = selectedApplicant?.incomeData || {};
-		const preData = {
-			...selectedEmploymentData,
-			years_in_company: selectedEmploymentData?.year_in_company,
-			pin_code: selectedEmploymentData?.pincode,
-			organization_type: selectedEmploymentData?.organization_type,
-			organization_type_salaried_self_employed:
-				selectedEmploymentData?.organization_type,
-			organization_type_salaried: selectedEmploymentData?.organization_type,
-			organization_type_business: selectedEmploymentData?.organization_type,
-			organization_type_professional: selectedEmploymentData?.organization_type,
-			organization_type_others: selectedEmploymentData?.organization_type,
-			company_name: selectedEmploymentData?.company_name,
-			...selectedEmploymentIncomeData,
-		};
-		return preData?.[field?.name];
 	};
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
-
-			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-			if (isFormStateUpdated) {
-				return formState?.values?.[field.name];
-			}
-
+			// console.log({
+			// 	empDetails: sectionData?.employment_details,
+			// 	income_details: sectionData?.income_data,
+			// 	dbkey: field?.db_key,
+			// });
 			// TEST MODE
-			if (isTestMode && CONST.initialFormState?.[field?.name]) {
-				return CONST.initialFormState?.[field?.name];
+			if (isTestMode && CONST.initialFormState?.[field?.db_key]) {
+				return CONST.initialFormState?.[field?.db_key];
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(selectedApplicant?.[selectedSectionId] || {}).length > 0
-			) {
-				return selectedApplicant?.[selectedSectionId]?.[field?.name];
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (isFormStateUpdated) {
+				return formState?.values?.[field?.name];
 			}
 
-			let editViewLoanValue = '';
-
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
-
-			if (editViewLoanValue) return editViewLoanValue;
-
-			return field?.value || '';
-		} catch (error) {
-			return {};
+			return (
+				sectionData?.employment_details?.[field?.db_key] ||
+				sectionData?.income_data?.[field?.db_key]
+			);
+		} catch (err) {
+			console.error('error-BusinessDetials', {
+				error: err,
+				res: err?.response?.data || '',
+			});
 		}
 	};
 
+	// fetch section data starts
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+
+			const fetchRes = await axios.get(`${API_END_POINT}/employmentData`, {
+				params: {
+					loan_ref_id: loanRefId,
+					business_id: businessId,
+					director_id: selectedDirectorId,
+				},
+			});
+			if (fetchRes?.data?.status === 'ok') {
+				setSectionData(fetchRes?.data?.data);
+			}
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+		} finally {
+			setFetchingSectionData(false);
+		}
+	};
+	// fetch section data ends
+
+	useEffect(() => {
+		if (
+			!!selectedDirector?.sections?.includes(
+				CONST.EMPLOYMENT_DETAILS_SECTION_ID
+			)
+		)
+			fetchSectionDetails();
+		// eslint-disable-next-line
+	}, []);
+
 	let displayProceedCTA = true;
 	let displayAddCoApplicantCTA = true;
-	if (
-		isViewLoan ||
-		(selectedProduct?.product_details?.is_coapplicant_mandatory &&
-			Object.keys(coApplicants || {})?.length <= 0)
-	) {
-		displayProceedCTA = false;
-	}
+
+	// TODO: varun validate CTA based on coapplicant count
+	// if (
+	// 	isViewLoan ||
+	// 	(selectedProduct?.product_details?.is_coapplicant_mandatory &&
+	// 		Object.keys(coApplicants || {})?.length <= 0)
+	// ) {
+	// 	displayProceedCTA = false;
+	// }
 
 	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
 		displayAddCoApplicantCTA = false;
 	}
-	if (isDraftLoan && !isLastApplicantIsSelected) {
-		displayAddCoApplicantCTA = false;
-	}
-	// console.log('employment-details-', { coApplicants, app });
+
+	// TODO: update draft validation logic
+	// if (isDraftLoan && !isLastApplicantIsSelected) {
+	// 	displayAddCoApplicantCTA = false;
+	// }
 
 	return (
 		<UI_SECTIONS.Wrapper>
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								{sub_section.name}
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								// disable fields based on config starts
-								if (field?.hasOwnProperty('is_applicant')) {
-									if (field.is_applicant === false && isApplicant) {
-										return null;
-									}
-								}
-								if (field?.hasOwnProperty('is_co_applicant')) {
-									if (field.is_co_applicant === false && !isApplicant) {
-										return null;
-									}
-								}
-								// disable fields based on config ends
-								if (!field.visibility) return null;
-								if (field?.for_type_name) {
-									if (
-										!field?.for_type.includes(
-											formState?.values?.[field?.for_type_name]
-										)
-									)
-										return null;
-								}
-								const customFieldProps = {};
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-								return (
-									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${fieldIndex}-${field.name}`}
-										style={
-											field.type === 'address_proof_radio'
-												? { gridColumn: 'span 2' }
-												: {}
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<>
+					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						return (
+							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+								{sub_section?.name ? (
+									<UI_SECTIONS.SubSectionHeader>
+										{sub_section.name}
+									</UI_SECTIONS.SubSectionHeader>
+								) : null}
+								<UI_SECTIONS.FormWrapGrid>
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										// disable fields based on config starts
+										if (field?.hasOwnProperty('is_applicant')) {
+											if (field.is_applicant === false && isApplicant) {
+												return null;
+											}
 										}
-									>
-										{register({
-											...field,
-											value: prefilledValues(field),
-											...customFieldProps,
-											visibility: 'visible',
+										if (field?.hasOwnProperty('is_co_applicant')) {
+											if (field.is_co_applicant === false && !isApplicant) {
+												return null;
+											}
+										}
+										// disable fields based on config ends
+										if (!field.visibility) return null;
+										if (field?.for_type_name) {
+											if (
+												!field?.for_type.includes(
+													formState?.values?.[field?.for_type_name]
+												)
+											)
+												return null;
+										}
+										const customFieldProps = {};
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${fieldIndex}-${field.name}`}
+												style={
+													field.type === 'address_proof_radio'
+														? {
+																gridColumn: 'span 2',
+														  }
+														: {}
+												}
+											>
+												{register({
+													...field,
+													value: prefilledValues(field),
+													...customFieldProps,
+													visibility: 'visible',
+												})}
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+													formState?.error?.[field.name] &&
+													(field.subFields ? (
+														<UI_SECTIONS.ErrorMessageSubFields>
+															{formState?.error?.[field.name]}
+														</UI_SECTIONS.ErrorMessageSubFields>
+													) : (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[field.name]}
+														</UI_SECTIONS.ErrorMessage>
+													))}
+											</UI_SECTIONS.FieldWrapGrid>
+										);
+									})}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
+					<UI_SECTIONS.Footer>
+						{displayProceedCTA && !initialDirectorsUpdated && !isViewLoan && (
+							<Button
+								fill
+								name='Save and Proceed'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(onSaveAndProceed)}
+							/>
+						)}
+						{/* visibility of add co-applicant based on the config */}
+						{displayAddCoApplicantCTA && !initialDirectorsUpdated && (
+							<Button
+								fill
+								name='Add Co-Applicant'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									onAddDirector('Co-applicant');
+								})}
+							/>
+						)}
+
+						{`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
+							Object.keys(directors)?.length > 1 &&
+							initialDirectorsUpdated && (
+								<Button
+									fill
+									name={'Next'}
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(() => {
+										navigateToNextDirector();
+									})}
+								/>
+							)}
+						{!isViewLoan &&
+							!initialDirectorsUpdated &&
+							selectedProduct?.isSelectedProductTypeBusiness &&
+							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
+								if (!field?.business_income_type_id?.includes(+businessType))
+									return null;
+								return (
+									<Button
+										key={`field${fieldIndex}`}
+										fill
+										name={field?.name}
+										isLoader={loading}
+										disabled={loading}
+										onClick={handleSubmit(() => {
+											onAddDirector(field?.key);
 										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-											formState?.error?.[field.name] &&
-											(field.subFields ? (
-												<UI_SECTIONS.ErrorMessageSubFields>
-													{formState?.error?.[field.name]}
-												</UI_SECTIONS.ErrorMessageSubFields>
-											) : (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[field.name]}
-												</UI_SECTIONS.ErrorMessage>
-											))}
-									</UI_SECTIONS.FieldWrapGrid>
+									/>
 								);
 							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			<UI_SECTIONS.Footer>
-				{displayProceedCTA && (
-					<Button
-						fill
-						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onProceed)}
-					/>
-				)}
-				{/* visibility of add co-applicant based on the config */}
-				{displayAddCoApplicantCTA && (
-					<Button
-						fill
-						name='Add Co-Applicant'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onAddCoApplicant)}
-					/>
-				)}
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-
-				{/* buttons for easy development starts */}
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button
-						fill
-						name='Skip Add-CoApplicant'
-						disabled={loading}
-						onClick={onSkipAddCoApplicant}
-					/>
-				) : null}
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{!isViewLoan && (isLocalhost && !!isTestMode) && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-				{/* buttons for easy development ends */}
-			</UI_SECTIONS.Footer>
+						<NavigateCTA />
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };
