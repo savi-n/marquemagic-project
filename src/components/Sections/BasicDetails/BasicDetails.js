@@ -968,7 +968,7 @@ const BasicDetails = props => {
 										{sub_section.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
-								{isCountryIndia && sub_section?.id !== 'family_details'? (
+								{isCountryIndia && sub_section?.id !== 'family_details' ? (
 									<Hint
 										hint='Please upload the document with KYC image in Portrait Mode'
 										hintIconName='Portrait Mode'
@@ -1145,7 +1145,6 @@ const BasicDetails = props => {
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
 											field.name === CONST.INCOME_TYPE_FIELD_NAME
-											// !checkInitialDirectorsUpdated(directors)
 										)
 											customFieldProps.disabled = true;
 										if (isViewLoan) {
