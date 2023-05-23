@@ -750,6 +750,8 @@ const BusinessDetails = props => {
 											customFieldProps.onblur = handleBlurEmail;
 										}
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
+											customFieldProps.onFocus = handleBlurEmail;
+
 											if (
 												isPrefilEmail &&
 												!isEditOrViewLoan &&
@@ -766,6 +768,7 @@ const BusinessDetails = props => {
 											customFieldProps.onblur = handleBlurMobileNumber;
 										}
 										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+											customFieldProps.onFocus = handleBlurMobileNumber;
 											if (
 												isPrefilMobileNumber &&
 												!isEditOrViewLoan &&
