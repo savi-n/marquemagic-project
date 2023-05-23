@@ -481,7 +481,6 @@ const BusinessDetails = props => {
 					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 				});
 				setGstin(panToGstRes);
-				
 			} else {
 				setSectionData({});
 			}
@@ -750,42 +749,30 @@ const BusinessDetails = props => {
 											// console.log("Contact")
 											customFieldProps.onblur = handleBlurEmail;
 										}
-										if (
-											field.name ===
-											CONST.CONTACT_EMAIL_FIELD
-										) {
+										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
 											customFieldProps.onFocus = handleBlurEmail;
 
 											if (
 												isPrefilEmail &&
 												!isEditOrViewLoan &&
-												!completedSections?.includes(
-													selectedSectionId
-												)
+												!completedSections?.includes(selectedSectionId)
 											) {
 												// console.log(formState?.values?.email);
-												customFieldProps.value =
-													formState.values.email;
+												customFieldProps.value = formState.values.email;
 											}
 											// customFieldProps.value=formState.values.email
 										}
 										if (
-											field.name ===
-											CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
+											field.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
 											customFieldProps.onblur = handleBlurMobileNumber;
 										}
-										if (
-											field.name ===
-											CONST.MOBILE_NUMBER_FIELD_NAME
-										) {
+										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
 											customFieldProps.onFocus = handleBlurMobileNumber;
 											if (
 												isPrefilMobileNumber &&
 												!isEditOrViewLoan &&
-												!completedSections?.includes(
-													selectedSectionId
-												)
+												!completedSections?.includes(selectedSectionId)
 											) {
 												customFieldProps.value =
 													formState.values.business_mobile_no;
