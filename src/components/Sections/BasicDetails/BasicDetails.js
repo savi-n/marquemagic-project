@@ -111,6 +111,10 @@ const BasicDetails = props => {
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
+	const passportData =
+		!!sectionData && Object.keys(sectionData)?.length > 0
+			? JSON.parse(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
+			: {};
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
@@ -612,6 +616,7 @@ const BasicDetails = props => {
 			if (field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME) return;
 
 			return (
+				passportData?.[field?.db_key] ||
 				preData?.[field?.db_key] ||
 				sectionData?.director_details?.[field?.db_key] ||
 				sectionData?.loan_request_Data?.[field?.db_key]
