@@ -1217,7 +1217,6 @@ const BasicDetails = props => {
 							</Fragment>
 						);
 					})}
-					{console.log({ geoLocationData, geoLocation })}
 					{isGeoTaggingEnabled && (
 						<AddressDetailsCard
 							address={geoLocationData?.address || geoLocation?.address}
