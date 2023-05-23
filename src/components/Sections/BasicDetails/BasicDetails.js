@@ -618,12 +618,7 @@ const BasicDetails = props => {
 
 			if (field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME) return;
 
-			return (
-				// passportData?.[field?.db_key] ||
-				preData?.[field?.db_key]
-				// sectionData?.director_details?.[field?.db_key] ||
-				// sectionData?.loan_request_Data?.[field?.db_key]
-			);
+			return preData?.[field?.db_key];
 		} catch (err) {
 			console.error('error-BusinessDetials', {
 				error: err,
