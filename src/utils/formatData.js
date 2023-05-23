@@ -736,7 +736,8 @@ export const formatUploadCacheDocumentReqBody = data => {
 export const isFieldValid = data => {
 	// should return only null
 	const { field, isApplicant, formState } = data;
-	if (!field?.visibility || !field?.name || !field?.type) return false;
+	// if (!field?.visibility || !field?.name || !field?.type) return false;
+	if (field?.visibility === false || !field?.name || !field?.type) return false;
 	if (field?.hasOwnProperty('is_applicant')) {
 		if (field.is_applicant === false && isApplicant) {
 			return false;

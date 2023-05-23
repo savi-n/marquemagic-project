@@ -675,7 +675,11 @@ const BusinessDetails = props => {
 												</UI_SECTIONS.FieldWrapGrid>
 											);
 										}
-										if (!field.visibility || !field.name || !field.type)
+										if (
+											field?.visibility === false ||
+											!field?.name ||
+											!field?.type
+										)
 											return null;
 										const newValue = prefilledValues(field);
 										let newValueSelectField;
