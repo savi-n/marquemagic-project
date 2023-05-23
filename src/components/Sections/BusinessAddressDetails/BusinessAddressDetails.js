@@ -357,7 +357,8 @@ const BusinessAddressDetails = props => {
 
 	const prefilledValues = field => {
 		try {
-			const address = sectionData?.filter(address => address?.aid === 1)?.[0];
+			const address =
+				sectionData?.filter(address => address?.aid === 1)?.[0] || {};
 			let udyamDetails = {};
 
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
