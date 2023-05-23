@@ -14,7 +14,6 @@ const Table = ({
 	section,
 	hasSeperator,
 	buttonDisabled,
-	loanId,
 	application,
 	token,
 }) => {
@@ -26,7 +25,7 @@ const Table = ({
 		'PAN Number': 'pan',
 		'Company Name': 'name',
 		'GST Number': 'gstin',
-		CIN: 'cin',
+		'CIN Number': 'cin',
 		'Udyam Number': 'udyamNum',
 		'Crime Check': 'crimecheck',
 		// 'Itr Number': 'itr_num',
@@ -40,7 +39,7 @@ const Table = ({
 		'Aadhaar Consent': 'AADHAAR',
 		ITR: 'ITR',
 		// 'GST Verification': 'GST',
-		UDYAM: 'UDYAM',
+		Udyam: 'udyam',
 		'C-KYC': 'CKYC',
 		'Bio-metric KYC': 'BKYC',
 		'Crime Check': 'CRIMECHECK',
@@ -49,15 +48,16 @@ const Table = ({
 	const { addToast } = useToasts();
 	const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setModalOpen] = useState(false);
+	const [disabled, setDisabled]=useState(false)
 	// const dispatch = useDispatch();
 
+	// const disabled =
 	const fetchHandle = async appObj => {
 		const payLoad = {
 			choice: sections[section],
 			director_id: appObj.id,
 			aadhaar: appObj.aadhaar,
 			pan: appObj.pan,
-			// pan: 'AACCO0644D',
 			crimeCheck: appObj.check,
 			gstin: appObj.gstin,
 			cin: appObj.cin,
@@ -65,17 +65,19 @@ const Table = ({
 		};
 		try {
 			appObj.status = 'In Progress';
+			setDisabled(true)
 			setLoading(true);
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
 					application,
 				})}`,
+				 sections[section] === 'ROC' ?
 				{
+					headers: {
+						Authorization:  `${token}`,
+					},
 					params: payLoad,
-				},
-				{
-					header: { authorization: token },
-				}
+				}:{params:payLoad}
 			);
 			// TODO: MODAL only for those which needs User inputs //ITR and AADHAAR
 			if (sections[section] === 'ITR' || sections[section] === 'GST') {
@@ -88,11 +90,24 @@ const Table = ({
 						type: 'error',
 					});
 					appObj.status = 'Failed';
-				} else {
+				} else if(response?.data?.status === 'nok'){
+					addToast({
+						message: 'Something went wrong, Please try after sometime!',
+						type: 'error',
+					});
+					appObj.status = 'Invalid Data';
+					setDisabled(true)
+				}
+
+
+
+				else {
 					// TODO: Here need to get status from API and update appObj.status
-					console.log({ response });
 					appObj.status =
-						response?.data?.status === 200 ? 'Fetched' : response?.data?.status;
+						(response?.data?.status === 200 || response?.data?.status === 'ok')
+						? 'In Progress'
+
+						:response?.data?.status;
 				}
 			}
 		} catch (error) {
@@ -110,7 +125,6 @@ const Table = ({
 			appObj.status = 'Failed';
 		} finally {
 			setLoading(false);
-			// console.log('Status:', appObj);
 		}
 	};
 
@@ -160,7 +174,7 @@ const Table = ({
 					<UI.TableRow key={rowIndex}>
 						{headers.map(header => (
 							<UI.TableCell key={header}>
-								{rowData[mapping[header]]}
+								{rowData[mapping[header]] || '--'}
 							</UI.TableCell>
 						))}
 						<UI.TableCell>
@@ -168,9 +182,8 @@ const Table = ({
 								name={rowData.status === 'Fetched' ? 'Fetched' : 'Fetch'}
 								onClick={() => fetchHandle(rowData)}
 								disabled={
-									buttonDisabled ||
-									rowData.status === 'Fetched' ||
-									rowData.status === 'In Progress'
+									buttonDisabled || disabled ||
+									rowData.status === 'Fetched'
 								}
 							/>
 						</UI.TableCell>
