@@ -3,8 +3,8 @@ export const initialFormState = {
 	pan_number: 'ABCDE2222F',
 	// pan_number: '',
 	income_type: '7',
-	first_name: 'Tensa',
-	last_name: 'Zangetsu',
+	first_name: 'TensaF',
+	last_name: 'TensaL',
 	dob: '1994-11-05',
 	gender: 'Male',
 	email: 'varunbhai.miyani@namastecredit.com',
@@ -18,10 +18,10 @@ export const initialFormState = {
 	upi_id: '1111111',
 	relationship_with_applicant: 'Father',
 	father_last_name: 'Zangetsu',
-	mother_middle_name: 'Mother Middle name',
-	mother_last_name: 'Mother last name',
-	father_middle_name: 'Father Middle Name',
-	middle_name: 'Middle Name',
+	mother_middle_name: 'MotherM',
+	mother_last_name: 'MotherL',
+	father_middle_name: 'FatherM',
+	middle_name: 'TensaM',
 	no_of_dependents: 10,
 	no_of_working_members: 2,
 	mother_title: 'Mrs',
@@ -44,4 +44,4 @@ export const PROFILE_UPLOAD_FIELD_DB_KEY = 'customer_picture';
 export const EXISTING_CUSTOMER_FIELD_NAME = 'existing_customer';
 export const INCOME_TYPE_FIELD_NAME = 'income_type';
 export const DOB_FIELD_NAME = 'dob';
-export const BASIC_DETAILS_SECTION_ID="basic_details"
+export const BASIC_DETAILS_SECTION_ID = 'basic_details';

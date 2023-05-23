@@ -84,6 +84,12 @@ const DynamicForm = props => {
 	};
 
 	const prefilledValues = field => {
+		//OUTSTANDING AMOUNT CALC
+		if (field['name'] === 'outstanding_loan_amount') {
+			return (field['value'] =
+				+formState?.values?.['emi_amount'] *
+				+formState?.values?.['remaining_loan_tenure']);
+		}
 		try {
 			const isFormStateUpdated =
 				formState?.values?.[field.name] !== undefined;
@@ -111,6 +117,22 @@ const DynamicForm = props => {
 
 	const onSaveOrUpdate = async data => {
 		try {
+			//VALIDATION FOR EMI AMOUNT AND REMAINING LOAN AMOUNT
+			if (+data?.emi_amount >= +data?.total_loan_amount) {
+				addToast({
+					message: '"EMI amount" can not be more than "Total Loan Amount"',
+					type: 'error',
+				});
+				return;
+			}
+			if (+data?.remaining_loan_tenure > +data?.total_tenure) {
+				addToast({
+					message:
+						'"Remaining Loan Tenure" can not be more than "Total Tenure of Loan"',
+					type: 'error',
+				});
+				return;
+			}
 			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
 			const reqBody = formatSectionReqBody({
