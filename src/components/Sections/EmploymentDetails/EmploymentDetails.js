@@ -224,11 +224,11 @@ const EmploymentDetails = () => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-
-			return (
-				sectionData?.employment_details?.[field?.db_key] ||
-				sectionData?.income_data?.[field?.db_key]
-			);
+			const preData = {
+				...sectionData?.employment_details,
+				...sectionData?.income_data,
+			};
+			return preData?.[field?.db_key];
 		} catch (err) {
 			console.error('error-BusinessDetials', {
 				error: err,

@@ -597,6 +597,9 @@ const BasicDetails = props => {
 			// 	sectionData,
 			// });
 			const preData = {
+				...sectionData?.director_details,
+				...sectionData?.loan_request_Data,
+				...passportData,
 				title: sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
@@ -616,10 +619,10 @@ const BasicDetails = props => {
 			if (field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME) return;
 
 			return (
-				passportData?.[field?.db_key] ||
-				preData?.[field?.db_key] ||
-				sectionData?.director_details?.[field?.db_key] ||
-				sectionData?.loan_request_Data?.[field?.db_key]
+				// passportData?.[field?.db_key] ||
+				preData?.[field?.db_key]
+				// sectionData?.director_details?.[field?.db_key] ||
+				// sectionData?.loan_request_Data?.[field?.db_key]
 			);
 		} catch (err) {
 			console.error('error-BusinessDetials', {
