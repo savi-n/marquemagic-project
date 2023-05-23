@@ -412,6 +412,9 @@ const BusinessDetails = props => {
 				},
 			});
 			if (fetchRes?.data?.status === 'ok') {
+				dispatch(
+					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
+				);
 				setSectionData(fetchRes?.data?.data);
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
@@ -478,9 +481,6 @@ const BusinessDetails = props => {
 					pan: fetchRes?.data?.data?.business_details?.businesspancardnumber,
 				});
 				setGstin(panToGstRes);
-				dispatch(
-					setBusinessName(fetchRes?.data?.data?.business_details?.businessname)
-				);
 			} else {
 				setSectionData({});
 			}
@@ -750,6 +750,8 @@ const BusinessDetails = props => {
 											customFieldProps.onblur = handleBlurEmail;
 										}
 										if (field.name === CONST.CONTACT_EMAIL_FIELD) {
+											customFieldProps.onFocus = handleBlurEmail;
+
 											if (
 												isPrefilEmail &&
 												!isEditOrViewLoan &&
@@ -766,6 +768,7 @@ const BusinessDetails = props => {
 											customFieldProps.onblur = handleBlurMobileNumber;
 										}
 										if (field.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
+											customFieldProps.onFocus = handleBlurMobileNumber;
 											if (
 												isPrefilMobileNumber &&
 												!isEditOrViewLoan &&
