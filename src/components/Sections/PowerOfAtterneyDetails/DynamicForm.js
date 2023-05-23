@@ -146,12 +146,12 @@ const DynamicForm = props => {
 			if (editSectionId) {
 				reqBody.data.poa_details.id = editSectionId;
 			}
-			if (
-				typeof reqBody?.data?.poa_details?.financial_institution?.value ===
-				'string'
-			) {
-				reqBody.data.poa_details.financial_institution = +reqBody?.data
-					?.poa_details?.financial_institution?.value;
+			if (reqBody.data.poa_details.principal) {
+				const directorFullNameSplit = selectedDirectorOptions
+					.filter(d => d.value === reqBody.data.poa_details.principal)?.[0]
+					?.name?.split('-');
+				reqBody.data.poa_details.principal_name =
+					directorFullNameSplit?.[directorFullNameSplit?.length - 1];
 			}
 			reqBody.data.poa_details = [reqBody.data.poa_details];
 			const submitRes = await axios.post(

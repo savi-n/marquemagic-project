@@ -424,6 +424,21 @@ const LoanDetails = () => {
 												</UI_SECTIONS.FieldWrapGrid>
 											);
 										}
+
+										let newPrefilledValue = prefilledValues(newField);
+
+										if (newField?.sum_of?.length > 0) {
+											// console.log('field-sum-of-', { newField });
+											let newPrefilledValueSum = 0;
+											newField?.sum_of?.forEach(field_name => {
+												newPrefilledValueSum += formState?.values?.[field_name]
+													? +formState?.values?.[field_name]
+													: 0;
+											});
+											// console.log('field-sum-', { newPrefilledValueSum });
+											newPrefilledValue = newPrefilledValueSum;
+										}
+
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -433,7 +448,7 @@ const LoanDetails = () => {
 											>
 												{register({
 													...newField,
-													value: prefilledValues(newField),
+													value: newPrefilledValue,
 													...customFieldProps,
 													visibility: 'visible',
 												})}
