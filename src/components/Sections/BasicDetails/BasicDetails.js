@@ -112,7 +112,10 @@ const BasicDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
 	const passportData =
-		!!sectionData && Object.keys(sectionData)?.length > 0
+		!!sectionData &&
+		Object.keys(sectionData)?.length > 0 &&
+		sectionData?.hasOwnProperty('ekyc_respons_data') &&
+		sectionData?.ekyc_respons_data?.length > 0
 			? JSON.parse(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
 			: {};
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
@@ -538,7 +541,6 @@ const BasicDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
-
 				// to fetch the geoLocation of the profile pic
 				const fetchedProfilePicData =
 					fetchRes?.data?.data?.director_details?.customer_picture;
@@ -547,22 +549,23 @@ const BasicDetails = props => {
 					Object.keys(fetchedProfilePicData)?.length > 0
 				) {
 					setFetchedProfilePic(fetchedProfilePicData);
-
-					const reqBody = {
-						lat: fetchedProfilePicData?.lat,
-						long: fetchedProfilePicData?.long,
-						director_id: selectedDirectorId,
-					};
-					const profileGeoLocationRes = await axios.post(
-						API.GEO_LOCATION,
-						reqBody,
-						{
-							headers: {
-								Authorization: `Bearer ${userToken}`,
-							},
-						}
-					);
-					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+					if (!!fetchedProfilePicData?.lat) {
+						const reqBody = {
+							lat: fetchedProfilePicData?.lat,
+							long: fetchedProfilePicData?.long,
+							director_id: selectedDirectorId,
+						};
+						const profileGeoLocationRes = await axios.post(
+							API.GEO_LOCATION,
+							reqBody,
+							{
+								headers: {
+									Authorization: `Bearer ${userToken}`,
+								},
+							}
+						);
+						setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+					}
 				}
 
 				// to fetch the geoLocation
@@ -570,7 +573,7 @@ const BasicDetails = props => {
 					fetchRes?.data?.data?.director_details?.app_coordinates;
 
 				if (
-					(!geoLocation || geoLocation?.err) &&
+					// (!geoLocation || geoLocation?.err) &&
 					appCoordinates &&
 					Object.keys(appCoordinates)?.length > 0
 				) {
@@ -585,6 +588,7 @@ const BasicDetails = props => {
 						},
 					});
 					dispatch(setGeoLocation(geoLocationRes?.data?.data));
+					setGeoLocationData(geoLocationRes?.data?.data);
 				}
 
 				// update completed sections
