@@ -352,17 +352,15 @@ const BusinessDetails = props => {
 			}
 
 			const preData = {
+				...sectionData?.business_details,
+				...sectionData?.loan_data,
+				...sectionData?.user_data,
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 			};
 
-			return (
-				preData?.[field?.db_key] ||
-				sectionData?.business_details?.[field?.db_key] ||
-				sectionData?.loan_data?.[field?.db_key] ||
-				sectionData?.user_data?.[field?.db_key]
-			);
+			return preData?.[field?.db_key];
 		} catch (err) {
 			console.error('error-BusinessDetials', {
 				error: err,
@@ -677,7 +675,11 @@ const BusinessDetails = props => {
 												</UI_SECTIONS.FieldWrapGrid>
 											);
 										}
-										if (!field.visibility || !field.name || !field.type)
+										if (
+											field?.visibility === false ||
+											!field?.name ||
+											!field?.type
+										)
 											return null;
 										const newValue = prefilledValues(field);
 										let newValueSelectField;
