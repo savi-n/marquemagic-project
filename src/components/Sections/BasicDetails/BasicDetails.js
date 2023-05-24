@@ -39,6 +39,7 @@ import {
 	getSelectedField,
 	isDirectorApplicant,
 	isFieldValid,
+	parseJSON,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -116,7 +117,7 @@ const BasicDetails = props => {
 		Object.keys(sectionData)?.length > 0 &&
 		sectionData?.hasOwnProperty('ekyc_respons_data') &&
 		sectionData?.ekyc_respons_data?.length > 0
-			? JSON.parse(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
+			? parseJSON(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
 			: {};
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
@@ -596,7 +597,7 @@ const BasicDetails = props => {
 					isEditOrViewLoan &&
 					`${selectedProduct?.loan_request_type}` === '2'
 				) {
-					const tempCompletedSections = JSON.parse(
+					const tempCompletedSections = parseJSON(
 						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					);
 					dispatch(
