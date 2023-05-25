@@ -39,6 +39,7 @@ import {
 	getSelectedField,
 	isDirectorApplicant,
 	isFieldValid,
+	parseJSON,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -112,8 +113,11 @@ const BasicDetails = props => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
 	const passportData =
-		!!sectionData && Object.keys(sectionData)?.length > 0
-			? JSON.parse(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
+		!!sectionData &&
+		Object.keys(sectionData)?.length > 0 &&
+		sectionData?.hasOwnProperty('ekyc_respons_data') &&
+		sectionData?.ekyc_respons_data?.length > 0
+			? parseJSON(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
 			: {};
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
@@ -538,7 +542,6 @@ const BasicDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
-
 				// to fetch the geoLocation of the profile pic
 				const fetchedProfilePicData =
 					fetchRes?.data?.data?.director_details?.customer_picture;
@@ -547,22 +550,23 @@ const BasicDetails = props => {
 					Object.keys(fetchedProfilePicData)?.length > 0
 				) {
 					setFetchedProfilePic(fetchedProfilePicData);
-
-					const reqBody = {
-						lat: fetchedProfilePicData?.lat,
-						long: fetchedProfilePicData?.long,
-						director_id: selectedDirectorId,
-					};
-					const profileGeoLocationRes = await axios.post(
-						API.GEO_LOCATION,
-						reqBody,
-						{
-							headers: {
-								Authorization: `Bearer ${userToken}`,
-							},
-						}
-					);
-					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+					if (!!fetchedProfilePicData?.lat) {
+						const reqBody = {
+							lat: fetchedProfilePicData?.lat,
+							long: fetchedProfilePicData?.long,
+							director_id: selectedDirectorId,
+						};
+						const profileGeoLocationRes = await axios.post(
+							API.GEO_LOCATION,
+							reqBody,
+							{
+								headers: {
+									Authorization: `Bearer ${userToken}`,
+								},
+							}
+						);
+						setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+					}
 				}
 
 				// to fetch the geoLocation
@@ -570,7 +574,7 @@ const BasicDetails = props => {
 					fetchRes?.data?.data?.director_details?.app_coordinates;
 
 				if (
-					(!geoLocation || geoLocation?.err) &&
+					// (!geoLocation || geoLocation?.err) &&
 					appCoordinates &&
 					Object.keys(appCoordinates)?.length > 0
 				) {
@@ -585,6 +589,7 @@ const BasicDetails = props => {
 						},
 					});
 					dispatch(setGeoLocation(geoLocationRes?.data?.data));
+					setGeoLocationData(geoLocationRes?.data?.data);
 				}
 
 				// update completed sections
@@ -592,7 +597,7 @@ const BasicDetails = props => {
 					isEditOrViewLoan &&
 					`${selectedProduct?.loan_request_type}` === '2'
 				) {
-					const tempCompletedSections = JSON.parse(
+					const tempCompletedSections = parseJSON(
 						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					);
 					dispatch(
