@@ -64,7 +64,7 @@ const Single = ({
 			udyamNum: appObj.udyamNum,
 		};
 		try {
-			// console.log('inside', payLoad);
+			sections[section] === 'CRIMECHECK' && setDisabled(true);
 			// appObj.status = 'In Progress';
 			setStatus('In Progress');
 			setDisabled(true);
@@ -174,13 +174,32 @@ const Single = ({
 					</UI.TableCell>
 				))}
 				<UI.TableCell>
-					<Button
-						name={rowData.status === 'Fetched' ? 'Fetched' : 'Fetch'}
-						onClick={() => fetchHandle(rowData)}
-						disabled={
-							buttonDisabled || disabled || rowData.status === 'Fetched'
-						}
-					/>
+					{sections[section] !== 'CRIMECHECK' ? (
+						<Button
+							name='Fetch'
+							onClick={() => fetchHandle(rowData)}
+							disabled={
+								buttonDisabled || disabled || rowData.status === 'Fetched'
+							}
+						/>
+					) : (
+						rowData.status === 'Not Fetched' && (
+							<UI.Buttons>
+								<Button
+									width='100px'
+									name='Yes'
+									onClick={() => fetchHandle({ ...rowData, check: true })}
+									disabled={buttonDisabled || disabled}
+								/>
+								<Button
+									width='80px'
+									name='No'
+									onClick={() => fetchHandle({ ...rowData, check: false })}
+									disabled={buttonDisabled || disabled}
+								/>
+							</UI.Buttons>
+						)
+					)}
 				</UI.TableCell>
 			</UI.TableRow>
 		</>

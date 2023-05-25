@@ -8,7 +8,7 @@ const Table = ({
 	hasSeperator,
 	buttonDisabled,
 	application,
-	token,
+	// token,
 }) => {
 	return (
 		<>
@@ -25,6 +25,7 @@ const Table = ({
 						key={rowIndex}
 						section={section}
 						application={application}
+						buttonDisabled={buttonDisabled}
 					/>
 				))}
 			</UI.TableContainer>
