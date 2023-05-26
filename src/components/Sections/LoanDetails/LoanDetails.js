@@ -44,6 +44,7 @@ const LoanDetails = () => {
 		nextSectionId,
 		isTestMode,
 		isEditOrViewLoan,
+		selectedProduct,
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const selectedIncomeType =
@@ -459,6 +460,10 @@ const LoanDetails = () => {
 											});
 											// console.log('field-sum-', { newPrefilledValueSum });
 											newPrefilledValue = newPrefilledValueSum;
+										}
+
+										if (newField?.name === CONST.FIELD_NAME_TYPE_OF_LOAN) {
+											newPrefilledValue = selectedProduct?.name || '';
 										}
 
 										if (isViewLoan) {

@@ -28,3 +28,4 @@ export const CONNECTOR_CODE_FIELD_NAME = 'connector_code';
 export const IMD_PAID_BY_FIELD_NAME = 'imd_paid_by';
 export const IMD_DOCUMENT_UPLOAD_FIELD_NAME = 'imd_document_proof';
 export const IMD_COLLECTED_FIELD_NAME = 'imd_collected';
+export const FIELD_NAME_TYPE_OF_LOAN = 'type_of_loan';
