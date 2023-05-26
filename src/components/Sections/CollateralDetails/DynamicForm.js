@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
@@ -28,16 +28,24 @@ const DynamicForm = props => {
 		hideCancelCTA = false,
 		isEditLoan,
 		editSectionId = '',
+		isCreateFormOpen,
+		assets,
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
+	const { businessName } = application;
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection } = app;
-	const { register, formState, handleSubmit } = useForm();
+	const {
+		register,
+		formState,
+		handleSubmit,
+		onChangeFormStateField,
+	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -119,12 +127,148 @@ const DynamicForm = props => {
 		}
 	};
 
-	// console.log('DynamicForms-allstates-', {
-	// 	fields,
-	// 	app,
-	// 	selectedSection,
-	// 	prefillData,
-	// });
+	useEffect(() => {
+		const filtered = assets?.filter(
+			item => `${item.id}` === formState?.values?.['select_collateral']
+		);
+		if (formState?.values?.['select_collateral']) {
+			onChangeFormStateField({
+				name: 'existing_collateral',
+				value: !!filtered[0]?.id,
+			});
+			onChangeFormStateField({
+				name: 'select_collateral',
+				value: `${filtered[0]?.id}`,
+			});
+
+			onChangeFormStateField({
+				name: 'id',
+				value: filtered[0]?.id,
+			});
+
+			onChangeFormStateField({
+				name: 'owner_name',
+				value:
+					filtered[0]?.director_id === 0
+						? businessName
+						: directors?.[filtered[0]?.director_id]?.fullName,
+			});
+
+			onChangeFormStateField({
+				name: 'loan_id',
+				value: filtered[0]?.loan_id,
+			});
+
+			onChangeFormStateField({
+				name: 'loan_json',
+				value: filtered[0]?.value,
+			});
+
+			onChangeFormStateField({
+				name: 'city',
+				value: filtered[0]?.city,
+			});
+
+			onChangeFormStateField({
+				name: 'state',
+				value: filtered[0]?.state,
+			});
+			onChangeFormStateField({
+				name: 'pin_code',
+				value: filtered[0]?.pincode,
+			});
+			onChangeFormStateField({
+				name: 'address1',
+				value: filtered[0]?.address1,
+			});
+			onChangeFormStateField({
+				name: 'address2',
+				value: filtered[0]?.address2,
+			});
+
+			onChangeFormStateField({
+				name: 'address3',
+				value: filtered[0]?.name_landmark,
+			});
+			onChangeFormStateField({
+				name: 'owned_type',
+				value: filtered[0]?.owned_type,
+			});
+			onChangeFormStateField({
+				name: 'current_occupant',
+				value: filtered[0]?.current_occupant,
+			});
+		} else {
+			onChangeFormStateField({
+				name: 'existing_collateral',
+				value: null,
+			});
+			onChangeFormStateField({
+				name: 'select_collateral',
+				value: '',
+			});
+
+			onChangeFormStateField({
+				name: 'id',
+				value: null,
+			});
+
+			onChangeFormStateField({
+				name: 'owner_name',
+				value: null,
+			});
+
+			onChangeFormStateField({
+				name: 'loan_id',
+				value: null,
+			});
+
+			onChangeFormStateField({
+				name: 'loan_json',
+				value: null,
+			});
+
+			onChangeFormStateField({
+				name: 'city',
+				value: '',
+			});
+
+			onChangeFormStateField({
+				name: 'state',
+				value: '',
+			});
+			onChangeFormStateField({
+				name: 'pin_code',
+				value: null,
+			});
+			onChangeFormStateField({
+				name: 'address1',
+				value: null,
+			});
+			onChangeFormStateField({
+				name: 'address2',
+				value: null,
+			});
+
+			onChangeFormStateField({
+				name: 'address3',
+				value: null,
+			});
+			onChangeFormStateField({
+				name: 'owned_type',
+				value: null,
+			});
+			onChangeFormStateField({
+				name: 'current_occupant',
+				value: null,
+			});
+		}
+		// eslint-disable-next-line
+	}, [formState?.values?.['select_collateral']]);
+
+	// const test = () => {
+	// 	console.log('test');
+	// };
 
 	return (
 		<React.Fragment>
@@ -144,6 +288,9 @@ const DynamicForm = props => {
 								const customFieldProps = {};
 								const newField = _.cloneDeep(field);
 								if (isViewLoan) {
+									customFieldProps.disabled = true;
+								}
+								if (!isCreateFormOpen && field.name === 'select_collateral') {
 									customFieldProps.disabled = true;
 								}
 								// console.log('render-field-', {
