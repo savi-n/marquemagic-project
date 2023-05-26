@@ -39,6 +39,7 @@ import {
 	getSelectedField,
 	isDirectorApplicant,
 	isFieldValid,
+	parseJSON,
 	// checkInitialDirectorsUpdated,
 } from 'utils/formatData';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -111,6 +112,13 @@ const BasicDetails = props => {
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
+	const passportData =
+		!!sectionData &&
+		Object.keys(sectionData)?.length > 0 &&
+		sectionData?.hasOwnProperty('ekyc_respons_data') &&
+		sectionData?.ekyc_respons_data?.length > 0
+			? parseJSON(sectionData?.ekyc_respons_data?.[0]?.kyc_details)
+			: {};
 	const [fetchedProfilePic, setFetchedProfilePic] = useState();
 	// TODO: Varun SME Flow move this selected income type inside redux and expose selected income type
 	const selectedIncomeType = formState?.values?.[CONST.INCOME_TYPE_FIELD_NAME];
@@ -456,108 +464,6 @@ const BasicDetails = props => {
 		}
 	};
 
-	// const prefilledEditOrViewLoanValues = field => {
-	// 	if (field.type === 'file' && field.name === CONST.PAN_UPLOAD_FIELD_NAME) {
-	// 		const panFile = getEditLoanDocuments({
-	// 			documents: editLoanData?.loan_document,
-	// 			directorId: selectedDirector?.directorId,
-	// 			docTypeId: field?.doc_type?.[selectedDirector?.income_type],
-	// 		});
-	// 		return panFile[0];
-	// 	}
-	// 	const preData = {
-	// 		existing_customer: selectedDirector?.existing_customer,
-	// 		pan_number: selectedDirector?.dpancard,
-	// 		customer_id: selectedDirector?.customer_id,
-	// 		ckyc_number: selectedDirector?.ckyc_number,
-	// 		income_type: `${selectedDirector?.income_type}`,
-	// 		first_name: selectedDirector?.dfirstname,
-	// 		last_name: selectedDirector?.dlastname,
-	// 		dob: selectedDirector?.ddob,
-	// 		gender: selectedDirector?.gender,
-	// 		email: selectedDirector?.demail,
-	// 		mobile_no: selectedDirector?.dcontact,
-	// 		marital_status: selectedDirector?.marital_status,
-	// 		spouse_name: selectedDirector?.spouse_name,
-	// 		residence_status: selectedDirector?.residence_status,
-	// 		country_residence: selectedDirector?.country_residence,
-	// 		father_name: selectedDirector?.father_name,
-	// 		mother_name: selectedDirector?.mother_name,
-	// 		upi_id: selectedDirector?.upi_id,
-	// 		profile_upload: selectedDirector?.customer_picture,
-	// 		relationship_with_applicant: selectedDirector?.applicant_relationship,
-	// 	};
-	// 	// console.log(selectedDirector);
-	// 	return preData?.[field?.name];
-	// };
-
-	// const prefilledValues = field => {
-	// 	try {
-	// 		// [Priority - 0]
-	// 		// view loan
-	// 		// in view loan user cannot edit any information
-	// 		// hence this is the first priority
-	// 		// so always prepopulate value from <editLoanData>
-	// 		if (isViewLoan) {
-	// 			return prefilledEditOrViewLoanValues(field) || '';
-	// 		}
-
-	// 		// [Priority - 1]
-	// 		// update value from form state
-	// 		// whenever user decides to type or enter value
-	// 		// form state should be the first value to prepopulate
-	// 		const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-	// 		if (isFormStateUpdated) {
-	// 			return formState?.values?.[field.name];
-	// 		}
-
-	// 		// TEST MODE
-	// 		if (isTestMode && CONST.initialFormState?.[field?.name]) {
-	// 			return CONST.initialFormState?.[field?.name];
-	// 		}
-	// 		// -- TEST MODE
-
-	// 		// [Priority - Special]
-	// 		// special case when co-applicant is filling basic details for first time
-	// 		// when director id is not created we prepopulate value from formstate only
-	// 		// and last priority is to set default value <field.value> comming from JSON
-	// 		if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
-	// 			return formState?.values?.[field.name] || field.value || '';
-	// 		}
-
-	// 		// [Priority - 2]
-	// 		// fetch data from redux slice
-	// 		// this is to prefill value when user navigates backs
-	// 		// once user press proceed and submit api success
-	// 		// value is stored to redux and the same we can use to prepopulate
-	// 		if (Object.keys(selectedDirector?.[selectedSectionId] || {}).length > 0) {
-	// 			return selectedDirector?.[selectedSectionId]?.[field?.name];
-	// 		}
-
-	// 		// [Priority - 3]
-	// 		// fetch value from edit loan
-	// 		// this is to prefill value only once per section
-	// 		// ex: if user visits this section for first time we prepopulate value from <editLoanData>
-	// 		// and then when he moves to next section redux store will be ready with new updated values
-	// 		let editViewLoanValue = '';
-
-	// 		if (isEditLoan) {
-	// 			editViewLoanValue = prefilledEditOrViewLoanValues(field);
-	// 		}
-
-	// 		if (editViewLoanValue) return editViewLoanValue;
-
-	// 		// [Priority - 4]
-	// 		// finally last priority is for JSON value
-	// 		// this value will be always overwritten by other all priority
-	// 		// this scenario will only come in loan creation first time entering form
-	// 		// also we'll have fall back <''> empty value in case above all priority fails to prepopulate
-	// 		return field?.value || '';
-	// 	} catch (error) {
-	// 		return {};
-	// 	}
-	// };
-
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);
@@ -593,6 +499,9 @@ const BasicDetails = props => {
 			// 	sectionData,
 			// });
 			const preData = {
+				...sectionData?.director_details,
+				...sectionData?.loan_request_Data,
+				...passportData,
 				title: sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
@@ -611,11 +520,7 @@ const BasicDetails = props => {
 
 			if (field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME) return;
 
-			return (
-				preData?.[field?.db_key] ||
-				sectionData?.director_details?.[field?.db_key] ||
-				sectionData?.loan_request_Data?.[field?.db_key]
-			);
+			return preData?.[field?.db_key];
 		} catch (err) {
 			console.error('error-BusinessDetials', {
 				error: err,
@@ -637,7 +542,6 @@ const BasicDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
-
 				// to fetch the geoLocation of the profile pic
 				const fetchedProfilePicData =
 					fetchRes?.data?.data?.director_details?.customer_picture;
@@ -646,22 +550,23 @@ const BasicDetails = props => {
 					Object.keys(fetchedProfilePicData)?.length > 0
 				) {
 					setFetchedProfilePic(fetchedProfilePicData);
-
-					const reqBody = {
-						lat: fetchedProfilePicData?.lat,
-						long: fetchedProfilePicData?.long,
-						director_id: selectedDirectorId,
-					};
-					const profileGeoLocationRes = await axios.post(
-						API.GEO_LOCATION,
-						reqBody,
-						{
-							headers: {
-								Authorization: `Bearer ${userToken}`,
-							},
-						}
-					);
-					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+					if (!!fetchedProfilePicData?.lat) {
+						const reqBody = {
+							lat: fetchedProfilePicData?.lat,
+							long: fetchedProfilePicData?.long,
+							director_id: selectedDirectorId,
+						};
+						const profileGeoLocationRes = await axios.post(
+							API.GEO_LOCATION,
+							reqBody,
+							{
+								headers: {
+									Authorization: `Bearer ${userToken}`,
+								},
+							}
+						);
+						setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+					}
 				}
 
 				// to fetch the geoLocation
@@ -669,7 +574,7 @@ const BasicDetails = props => {
 					fetchRes?.data?.data?.director_details?.app_coordinates;
 
 				if (
-					(!geoLocation || geoLocation?.err) &&
+					// (!geoLocation || geoLocation?.err) &&
 					appCoordinates &&
 					Object.keys(appCoordinates)?.length > 0
 				) {
@@ -684,6 +589,7 @@ const BasicDetails = props => {
 						},
 					});
 					dispatch(setGeoLocation(geoLocationRes?.data?.data));
+					setGeoLocationData(geoLocationRes?.data?.data);
 				}
 
 				// update completed sections
@@ -691,7 +597,7 @@ const BasicDetails = props => {
 					isEditOrViewLoan &&
 					`${selectedProduct?.loan_request_type}` === '2'
 				) {
-					const tempCompletedSections = JSON.parse(
+					const tempCompletedSections = parseJSON(
 						fetchRes?.data?.data?.trackData?.[0]?.onboarding_track
 					);
 					dispatch(

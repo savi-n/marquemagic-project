@@ -22,6 +22,7 @@ import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
+	parseJSON,
 } from 'utils/formatData';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
@@ -43,6 +44,7 @@ const LoanDetails = () => {
 		nextSectionId,
 		isTestMode,
 		isEditOrViewLoan,
+		selectedProduct,
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const selectedIncomeType =
@@ -226,10 +228,29 @@ const LoanDetails = () => {
 	const prefilledEditOrViewLoanValues = field => {
 		const imdDetails = sectionData?.imd_details || {};
 		const loanDetails = sectionData?.loan_details || {};
+		let estimatedFundRequirements = {};
+		let sourceFundRequirements = {};
+		if (sectionData?.loan_additional_data?.estimated_fund_requirements) {
+			estimatedFundRequirements = parseJSON(
+				sectionData?.loan_additional_data?.estimated_fund_requirements
+			);
+		}
+		if (sectionData?.loan_additional_data?.source_fund_requirements) {
+			sourceFundRequirements = parseJSON(
+				sectionData?.loan_additional_data?.source_fund_requirements
+			);
+		}
 		const preData = {
+			...loanDetails,
 			loan_amount: loanDetails?.loan_amount,
 			tenure: loanDetails?.applied_tenure,
-			loan_usage_type_id: loanDetails?.loan_usage_type?.id,
+			loan_usage_type_id: ['string', 'number'].includes(
+				typeof loanDetails?.loan_usage_type
+			)
+				? loanDetails?.loan_usage_type
+				: loanDetails?.loan_usage_type?.id,
+			scheme_category: loanDetails?.scheme_category_code,
+			credit_insurance: loanDetails?.credit_linked_insurance,
 			loan_source: loanDetails?.loan_origin,
 			connector_name: loanDetails?.connector_user_id,
 			connector_code: loanDetails?.connector_user_id,
@@ -239,6 +260,8 @@ const LoanDetails = () => {
 			imd_paid_by: imdDetails?.imd_paid_by,
 			branch_id: loanDetails?.branch_id,
 			loan_type: loanDetails?.loan_usage_type?.id,
+			...estimatedFundRequirements,
+			...sourceFundRequirements,
 		};
 		return preData?.[field?.name];
 	};
@@ -424,6 +447,25 @@ const LoanDetails = () => {
 												</UI_SECTIONS.FieldWrapGrid>
 											);
 										}
+
+										let newPrefilledValue = prefilledValues(newField);
+
+										if (newField?.sum_of?.length > 0) {
+											// console.log('field-sum-of-', { newField });
+											let newPrefilledValueSum = 0;
+											newField?.sum_of?.forEach(field_name => {
+												newPrefilledValueSum += formState?.values?.[field_name]
+													? +formState?.values?.[field_name]
+													: 0;
+											});
+											// console.log('field-sum-', { newPrefilledValueSum });
+											newPrefilledValue = newPrefilledValueSum;
+										}
+
+										if (newField?.name === CONST.FIELD_NAME_TYPE_OF_LOAN) {
+											newPrefilledValue = selectedProduct?.name || '';
+										}
+
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -433,7 +475,7 @@ const LoanDetails = () => {
 											>
 												{register({
 													...newField,
-													value: prefilledValues(newField),
+													value: newPrefilledValue,
 													...customFieldProps,
 													visibility: 'visible',
 												})}

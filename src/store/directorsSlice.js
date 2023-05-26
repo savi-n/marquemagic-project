@@ -11,6 +11,7 @@ import {
 	getDirectorFullName,
 	getShortString,
 	checkInitialDirectorsUpdated,
+	getSelectedDirectorIndex,
 } from 'utils/formatData';
 
 export const DIRECTOR_TYPES = {
@@ -109,6 +110,7 @@ export const directorsSlice = createSlice({
 			let applicantDirector = {};
 			let lastDirector = {};
 			let firstDirector = {};
+			const directorOptions = [];
 			const newSelectedDirectorOptions = [];
 			const sortedDirectors = existingDirectors?.sort(
 				(a, b) => a?.type_name - b?.type_name
@@ -135,8 +137,8 @@ export const directorsSlice = createSlice({
 					// sections: newSections,
 					directorId,
 				};
-				newSelectedDirectorOptions.push({
-					name: fullName,
+				directorOptions.push({
+					name: `${director.type_name}|${fullName}`,
 					value: directorId,
 				});
 				newDirectors[directorId] = newDirectorObject;
@@ -152,6 +154,22 @@ export const directorsSlice = createSlice({
 					applicantDirector = newDirectorObject;
 				}
 				return null;
+			});
+			directorOptions.forEach(director => {
+				const directorFullName = director?.name?.split('|');
+				const directorIndex = getSelectedDirectorIndex({
+					directors: newDirectors,
+					selectedDirector: newDirectors[director.value],
+				});
+				let newName = directorFullName[0];
+				if (directorIndex) {
+					newName += ' ' + directorIndex;
+				}
+				newName += ' - ' + directorFullName[1];
+				newSelectedDirectorOptions.push({
+					...director,
+					name: newName,
+				});
 			});
 			// console.log("PrevState",!prevState.selectedDirectorId);
 			if (prevState.selectedDirectorId) {
