@@ -71,3 +71,7 @@ export const TableCell = styled.li`
 		}
 	}
 `;
+export const Buttons = styled.div`
+	display: flex;
+	gap: 1rem;
+`;
