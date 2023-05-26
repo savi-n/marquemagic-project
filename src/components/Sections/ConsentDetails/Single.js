@@ -43,7 +43,7 @@ const Single = ({
 		'Bio-metric KYC': 'BKYC',
 		'Crime Check': 'CRIMECHECK',
 	};
-	const [loading, setLoading] = useState();
+	// const [loading, setLoading] = useState();
 	const { addToast } = useToasts();
 	const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setModalOpen] = useState(false);
@@ -68,7 +68,7 @@ const Single = ({
 			// appObj.status = 'In Progress';
 			setStatus('In Progress');
 			setDisabled(true);
-			setLoading(true);
+			// setLoading(true);
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
 					application,
@@ -126,7 +126,7 @@ const Single = ({
 			// appObj.status = 'Failed';
 			setStatus('Failed');
 		} finally {
-			setLoading(false);
+			// setLoading(false);
 		}
 	};
 
