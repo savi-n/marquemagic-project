@@ -15,16 +15,20 @@ import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
+import _ from 'lodash';
 
 const CollateralDetails = () => {
 	const { app, application } = useSelector(state => state);
 	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	const { businessName } = application;
+	const { directors } = useSelector(state => state.directors);
 	const dispatch = useDispatch();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
 	const [sectionData, setSectionData] = useState([]);
+	const [assets, setAssets] = useState([]);
 	// const { handleSubmit, register, formState } = useForm();
 	const MAX_ADD_COUNT = selectedSection?.max || 10;
 
@@ -50,6 +54,9 @@ const CollateralDetails = () => {
 				})}`
 			);
 			// console.log('fetchRes-', fetchRes);
+			if (fetchRes?.data?.data?.loanAssetRecord?.length > 0) {
+				setAssets(fetchRes.data.data.loanAssetRecord);
+			}
 			if (fetchRes?.data?.data?.assetsAdditionalRecord?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.assetsAdditionalRecord);
 				setEditSectionId('');
@@ -93,6 +100,56 @@ const CollateralDetails = () => {
 		// eslint-disable-next-line
 	}, []);
 
+	///TODO: COLLATERAL ADD ASSET
+	const collats_from_asset =
+		assets &&
+		assets.filter(asset => {
+			return asset.loan_asset_type_id && asset.loan_asset_type_id === 71;
+		});
+	const newOptions = [
+		{
+			name: 'Add New',
+			value: '',
+		},
+	];
+	//check if this collateral is in existion collateral
+
+	//Assets already added in collaterals
+	const exclude_ids = [];
+	sectionData &&
+		sectionData.map(section =>
+			exclude_ids.push(
+				section?.initial_collateral?.collateral_details?.select_collateral
+			)
+		);
+
+	collats_from_asset &&
+		collats_from_asset.map(collats => {
+			return (
+				!exclude_ids.includes(`${collats.id}`) &&
+				newOptions.push({
+					value: `${collats.id}`,
+					name: `${
+						collats?.director_id === 0
+							? businessName
+							: directors?.[collats?.director_id]?.fullName
+					} - Survey # ${collats.survey_no}`,
+				})
+			);
+		});
+
+	const newSectons = _.cloneDeep(selectedSection);
+	newSectons?.sub_sections?.filter(section => {
+		if (section.id === 'collateral_details') {
+			section.fields?.map(
+				sec =>
+					sec.name === 'select_collateral' && sec.options.push(...newOptions)
+			);
+		}
+		return null;
+	});
+	//END TODO: COLLATERAL
+
 	return (
 		<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
 			{fetchingSectionData ? (
@@ -109,9 +166,13 @@ const CollateralDetails = () => {
 							const isAccordianOpen = sectionId === openAccordianId;
 							const isEditLoan = editSectionId === sectionId;
 							const collateralData =
-								section?.initial_collateral?.collateral_details || {};
+								section?.modified_collateral?.collateral_details ||
+								section?.initial_collateral?.collateral_details ||
+								{};
 							const addressData =
-								section?.initial_collateral?.property_address_details || {};
+								section?.modified_collateral?.property_address_details ||
+								section?.initial_collateral?.property_address_details ||
+								{};
 							const prefillData = {
 								...section,
 								...collateralData,
@@ -126,10 +187,8 @@ const CollateralDetails = () => {
 								property_occupant: addressData?.current_occupant || '',
 							};
 							return (
-								<UI_SECTIONS.AccordianWrapper>
-									<UI_SECTIONS.AccordianHeader
-										key={`accordian-${sectionIndex}`}
-									>
+								<UI_SECTIONS.AccordianWrapper key={`accordian-${sectionIndex}`}>
+									<UI_SECTIONS.AccordianHeader>
 										{isAccordianOpen ? null : (
 											<>
 												<UI_SECTIONS.AccordianHeaderData>
@@ -198,11 +257,13 @@ const CollateralDetails = () => {
 									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
 										{isAccordianOpen && !isCreateFormOpen && (
 											<DynamicForm
+												// subSections={newSectons?.sub_sections || []}
 												subSections={selectedSection?.sub_sections || []}
 												prefillData={prefillData}
 												onSaveOrUpdateSuccessCallback={
 													onSaveOrUpdateSuccessCallback
 												}
+												// assets={assets}
 												onCancelCallback={onCancelCallback}
 												isEditLoan={isEditLoan}
 												editSectionId={editSectionId}
@@ -225,14 +286,16 @@ const CollateralDetails = () => {
 								>
 									<UI_SECTIONS.DynamicFormWrapper>
 										<DynamicForm
-											subSections={selectedSection?.sub_sections || []}
+											subSections={newSectons?.sub_sections || []}
 											onSaveOrUpdateSuccessCallback={
 												onSaveOrUpdateSuccessCallback
 											}
+											assets={assets}
 											onCancelCallback={onCancelCallback}
 											submitCTAName='Save'
 											hideCancelCTA={!(sectionData?.length > 0)}
 											isEditLoan={true}
+											isCreateFormOpen={isCreateFormOpen}
 										/>
 									</UI_SECTIONS.DynamicFormWrapper>
 								</UI_SECTIONS.AccordianBody>
