@@ -112,7 +112,7 @@ const ConsentDetails = props => {
 						{tables.fields[0].data.length >= 1 && (
 							<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
 						)}
-						{tables.fields.map((field, idx) => {
+						{tables.fields?.map((field, idx) => {
 							return (
 								field.data.length >= 1 && (
 									<Table
