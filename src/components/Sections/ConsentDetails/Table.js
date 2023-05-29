@@ -14,11 +14,11 @@ const Table = ({
 		<>
 			<UI.TableContainer>
 				<UI.TableHeader>
-					{headers.map(header => (
+					{headers?.map(header => (
 						<UI.TableCell key={header}>{header}</UI.TableCell>
 					))}
 				</UI.TableHeader>
-				{data.map((rowData, rowIndex) => (
+				{data?.map((rowData, rowIndex) => (
 					<Single
 						headers={headers}
 						rowData={rowData}
