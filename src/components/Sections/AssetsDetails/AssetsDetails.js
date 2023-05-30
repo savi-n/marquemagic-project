@@ -133,7 +133,6 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
-									console.log({ section });
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
