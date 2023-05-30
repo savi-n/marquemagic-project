@@ -9,7 +9,7 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
+import { formatGetSectionReqBody } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
@@ -37,14 +37,14 @@ const ShareholderDetails = props => {
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
-	const business = {
-		name: businessName || 'Company/Business',
-		value: '0',
-	}; // TODO: need to optimize business/applicant details here
-	let newselectedDirectorOptions;
-	if (selectedProduct?.isSelectedProductTypeBusiness)
-		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
-	else newselectedDirectorOptions = selectedDirectorOptions;
+	// const business = {
+	// 	name: businessName || 'Company/Business',
+	// 	value: '0',
+	// }; // TODO: need to optimize business/applicant details here
+	// let newselectedDirectorOptions;
+	// if (selectedProduct?.isSelectedProductTypeBusiness)
+	// 	newselectedDirectorOptions = [business, ...selectedDirectorOptions];
+	// else newselectedDirectorOptions = selectedDirectorOptions;
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -55,13 +55,13 @@ const ShareholderDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
+				`${API_END_POINT}/shareholder_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.shareholder_records?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.shareholder_records);
+			// console.log('fetchRes-', fetchRes?.data?.data);
+			if (fetchRes?.data?.data?.length > 0) {
+				setSectionData(fetchRes?.data?.data);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -130,13 +130,13 @@ const ShareholderDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
+									console.log(section);
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const prefillData = section
 										? {
 												...section,
-												...(section?.loan_json || {}),
 										  }
 										: {};
 									return (
@@ -148,25 +148,14 @@ const ShareholderDetails = props => {
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Shareholder Name:</span>
-															<strong>
-																{
-																	newselectedDirectorOptions?.filter(
-																		director =>
-																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
-																	)?.[0]?.name
-																}
-															</strong>
+															<strong>{prefillData?.name}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Percentage:</span>
 															<strong>
-																{prefillData?.loan_asset_type_id?.typename}
+																{/* {prefillData?.loan_asset_type_id?.percentage} */}
+																{prefillData?.percentage}
 															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Percentage:</span>
-															<strong>{formatINR(prefillData?.value)}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
@@ -211,7 +200,9 @@ const ShareholderDetails = props => {
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',

@@ -34,12 +34,12 @@ const DynamicForm = props => {
 	const {
 		directors,
 		selectedDirectorId,
-		selectedDirectorOptions,
+		// selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, selectedProduct } = app;
-	const { businessName } = application;
+	// const { businessName } = application;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,11 +47,11 @@ const DynamicForm = props => {
 	const prefilledEditOrViewLoanValues = field => {
 		const prePopulateData = {
 			...prefillData,
-			shareholder_name: prefillData?.shareholder_name,
-			company_address: prefillData?.company_address,
-			shareholder_percentage: prefillData?.shareholder_percentage,
+			shareholder_name: prefillData?.name,
+			company_address: prefillData?.address,
+			shareholder_percentage: prefillData?.percentage,
 			pincode: prefillData?.pincode,
-			relation_shareholder: prefillData?.relation_shareholder,
+			relation_shareholder: prefillData?.relationship,
 		};
 		return prePopulateData?.[field?.name];
 	};
@@ -99,9 +99,9 @@ const DynamicForm = props => {
 			}
 
 			reqBody.data.shareholder_details = [reqBody.data.shareholder_details];
-			reqBody.data.asset = [reqBody.data.shareholder_details];
 			const submitRes = await axios.post(`${ADD_SHAREHOLDER_DETAILS}`, reqBody);
-			if (submitRes?.data?.status === 'ok') {
+			console.log({ submitRes });
+			if (submitRes?.status === 'ok' || '200') {
 				onSaveOrUpdateSuccessCallback();
 				addToast({
 					message: submitRes?.data?.message || 'Success',
