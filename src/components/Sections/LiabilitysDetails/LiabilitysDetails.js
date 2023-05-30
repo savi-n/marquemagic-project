@@ -37,6 +37,7 @@ const LiabilitysDetails = props => {
 	const [editSectionId, setEditSectionId] = useState('');
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+	const [editLiability, setEditLiability] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
@@ -199,6 +200,7 @@ const LiabilitysDetails = props => {
 															src={editIcon}
 															alt='edit'
 															onClick={() => {
+																setEditLiability(true);
 																if (
 																	isCreateFormOpen ||
 																	isEditLoan
@@ -260,6 +262,7 @@ const LiabilitysDetails = props => {
 															fields={
 																sub_section?.fields || []
 															}
+															editLiability={editLiability}
 															prefillData={prefillData}
 															onSaveOrUpdateSuccessCallback={
 																onSaveOrUpdateSuccessCallback
