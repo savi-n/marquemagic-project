@@ -109,17 +109,17 @@ const ConsentDetails = props => {
 				return (
 					<UI.TableWrapper key={`section-${sectionIndex}-${tables?.id}`}>
 						{/* {Will change it later to something dynamic} */}
-						{tables.fields[0].data.length >= 1 && (
+						{tables?.fields[0]?.data?.length >= 1 && (
 							<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
 						)}
-						{tables.fields?.map((field, idx) => {
+						{tables?.fields?.map((field, idx) => {
 							return (
-								field.data.length >= 1 && (
+								field?.data?.length >= 1 && (
 									<Table
 										key={`table-${idx}`}
 										application={application}
-										headers={field.headers}
-										data={field.data}
+										headers={field?.headers}
+										data={field?.data}
 										loanId={loanId}
 										token={clientToken}
 										hasSeperator={idx < tables?.fields?.length - 1}
