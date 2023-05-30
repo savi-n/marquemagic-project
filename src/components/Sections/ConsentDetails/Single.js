@@ -23,11 +23,14 @@ const Single = ({
 		Status: 'status',
 		'PAN Number': 'pan',
 		'Company Name': 'name',
+		// 'Business Name': 'name',
 		'GST Number': 'gstin',
 		'CIN Number': 'cin',
 		'Udyam Number': 'udyamNum',
-		'Crime Check': 'crimecheck',
+		'Crime Check': 'crime_check',
 		// 'Itr Number': 'itr_num',
+		'Director ID': 'director_id',
+		Name: 'name',
 	};
 	const sections = {
 		ROC: 'ROC',
@@ -35,19 +38,18 @@ const Single = ({
 		'CIBIL/Equifax': 'CIBIL',
 		EPFO: 'EPFO',
 		ESIC: 'ESIC',
-		'Aadhaar Consent': 'AADHAAR',
+		'Aadhaar Consent': 'aadhaar',
 		ITR: 'ITR',
 		// 'GST Verification': 'GST',
 		Udyam: 'udyam',
 		'C-KYC': 'CKYC',
 		'Bio-metric KYC': 'BKYC',
-		'Crime Check': 'CRIMECHECK',
+		'Crime Check Consent': 'crime_check',
 	};
-	// const [loading, setLoading] = useState();
+	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
 	const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setModalOpen] = useState(false);
-	const [disabled, setDisabled] = useState(false);
 	const [status, setStatus] = useState(rowData?.status);
 	// const dispatch = useDispatch();
 
@@ -55,25 +57,27 @@ const Single = ({
 		// console.log({ appObj });
 		const payLoad = {
 			choice: sections[section],
-			director_id: appObj.id,
-			aadhaar: appObj.aadhaar,
-			pan: appObj.pan,
-			crimeCheck: appObj.check,
-			gstin: appObj.gstin,
-			cin: appObj.cin,
-			udyamNum: appObj.udyamNum,
+			director_id: appObj?.id || appObj?.director_id,
+			aadhaarNo: appObj?.aadhaar,
+			pan: appObj?.pan,
+			crime_check: appObj?.check,
+			gstin: appObj?.gstin,
+			cin: appObj?.cin,
+			udyamNum: appObj?.udyamNum,
+			// udyamNum:'UDYAM-MH-19-0002476',
+			is_applicant: appObj?.is_applicant,
 		};
 		try {
-			sections[section] === 'CRIMECHECK' && setDisabled(true);
-			// appObj.status = 'In Progress';
+			// sections[section] === 'crime_check' && setDisabled(true);
+			// appObj?.status = 'In Progress';
 			setStatus('In Progress');
-			setDisabled(true);
-			// setLoading(true);
+			// setDisabled(true);
+			setLoading(true);
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
 					application,
 				})}`,
-				sections[section] === 'ROC'
+				sections[section] === 'ROC' || sections[section] === 'aadhaar'
 					? {
 							headers: {
 								Authorization: `${token}`,
@@ -82,29 +86,44 @@ const Single = ({
 					  }
 					: { params: payLoad }
 			);
-			// TODO: MODAL only for those which needs User inputs //ITR and AADHAAR
-			if (sections[section] === 'ITR' || sections[section] === 'GST') {
-				setHtmlContent(response.data);
+			// TODO: MODAL only for those which needs User inputs //ITR, GST and AADHAAR
+			if (
+				sections[section] === 'ITR' ||
+				sections[section] === 'GST' ||
+				sections[section] === 'aadhaar'
+			) {
+				setHtmlContent(response?.data);
 				setModalOpen(true);
 			} else {
+				if (
+					sections[section] === 'crime_check' &&
+					response?.data?.status === 'ok'
+				) {
+					//console.log('section', section);
+					addToast({
+						message: response?.data?.message || 'successfully updated',
+						type: 'success',
+					});
+					setStatus(appObj?.check);
+				}
 				if (response?.data?.status === 'Wrong Input') {
 					addToast({
 						message: 'Error fetching details, Please try after sometime!',
 						type: 'error',
 					});
-					// appObj.status = 'Failed';
+					// appObj?.status = 'Failed';
 					setStatus('Failed');
 				} else if (response?.data?.status === 'nok') {
 					addToast({
 						message: 'Something went wrong, Please try after sometime!',
 						type: 'error',
 					});
-					// appObj.status = 'Invalid Data';
+					// appObj?.status = 'Invalid Data';
 					setStatus('Invalid Data');
 
-					setDisabled(true);
+					// setDisabled(true);
 				} else {
-					// TODO: Here need to get status from API and update appObj.status
+					// TODO: Here need to get status from API and update appObj?.status
 					appObj.status =
 						response?.data?.status === 200 || response?.data?.status === 'ok'
 							? 'In Progress'
@@ -123,10 +142,10 @@ const Single = ({
 				type: 'error',
 			});
 			setModalOpen(false);
-			// appObj.status = 'Failed';
+			// appObj?.status = 'Failed';
 			setStatus('Failed');
 		} finally {
-			// setLoading(false);
+			setLoading(false);
 		}
 	};
 
@@ -170,35 +189,41 @@ const Single = ({
 			<UI.TableRow>
 				{headers?.map(header => (
 					<UI.TableCell key={header}>
-						{header === 'Status' ? status : rowData[mapping[header]] || '--'}
+						{mapping[header] !== 'director_id' &&
+							(header === 'Status'
+								? status
+								: rowData[mapping[header]] || '--')}
 					</UI.TableCell>
 				))}
 				<UI.TableCell>
-					{sections[section] !== 'CRIMECHECK' ? (
+					{sections[section] !== 'crime_check' ? (
 						<Button
 							name='Fetch'
 							onClick={() => fetchHandle(rowData)}
 							disabled={
-								buttonDisabled || disabled || rowData.status === 'Fetched'
+								buttonDisabled ||
+								rowData?.status === 'Fetched' ||
+								rowData?.status === 'In Progress'
 							}
+							loading={loading}
 						/>
+					) : rowData?.status === 'Yes' || rowData?.status === 'No' ? (
+						''
 					) : (
-						rowData.status === 'Not Fetched' && (
-							<UI.Buttons>
-								<Button
-									width='100px'
-									name='Yes'
-									onClick={() => fetchHandle({ ...rowData, check: true })}
-									disabled={buttonDisabled || disabled}
-								/>
-								<Button
-									width='80px'
-									name='No'
-									onClick={() => fetchHandle({ ...rowData, check: false })}
-									disabled={buttonDisabled || disabled}
-								/>
-							</UI.Buttons>
-						)
+						<UI.Buttons>
+							<Button
+								width='100px'
+								name='Yes'
+								onClick={() => fetchHandle({ ...rowData, check: 'Yes' })}
+								disabled={buttonDisabled}
+							/>
+							<Button
+								width='80px'
+								name='No'
+								onClick={() => fetchHandle({ ...rowData, check: 'No' })}
+								disabled={buttonDisabled}
+							/>
+						</UI.Buttons>
 					)}
 				</UI.TableCell>
 			</UI.TableRow>
