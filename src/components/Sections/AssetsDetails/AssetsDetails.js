@@ -133,12 +133,17 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
+									console.log({ section });
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const prefillData = section
 										? {
 												...section,
+												director_id:
+													section?.director_id === 0
+														? '0'
+														: `${section?.director_id}`,
 												...(section?.loan_json || {}),
 										  }
 										: {};

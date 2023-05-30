@@ -143,6 +143,10 @@ const LiabilitysDetails = props => {
 									const prefillData = section
 										? {
 												...section,
+												director_id:
+													section?.director_id === 0
+														? '0'
+														: `${section?.director_id}`,
 												...parseJSON(section?.emi_details || '{}'),
 										  }
 										: {};
