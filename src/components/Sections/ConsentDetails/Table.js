@@ -8,14 +8,16 @@ const Table = ({
 	hasSeperator,
 	buttonDisabled,
 	application,
-	// token,
+	token,
 }) => {
 	return (
 		<>
 			<UI.TableContainer>
 				<UI.TableHeader>
 					{headers?.map(header => (
-						<UI.TableCell key={header}>{header}</UI.TableCell>
+						<UI.TableCell key={header}>
+							{header !== 'Director ID' && header}
+						</UI.TableCell>
 					))}
 				</UI.TableHeader>
 				{data?.map((rowData, rowIndex) => (
@@ -24,6 +26,7 @@ const Table = ({
 						rowData={rowData}
 						key={rowIndex}
 						section={section}
+						token={token}
 						application={application}
 						buttonDisabled={buttonDisabled}
 					/>
@@ -33,6 +36,4 @@ const Table = ({
 		</>
 	);
 };
-
-
 export default Table;
