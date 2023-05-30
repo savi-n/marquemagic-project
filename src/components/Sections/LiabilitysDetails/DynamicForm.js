@@ -84,7 +84,7 @@ const DynamicForm = props => {
 	};
 
 	const prefilledValues = field => {
-		//TODO:  config field mis-matching,DOS-3949
+		//TODO:  config field mis-matching, Temp Fixed for DOS-3949
 		if (field['name'] === 'loan_type') {
 			return prefillData?.loan_sub_type;
 		}
