@@ -37,6 +37,7 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 
 const Product = props => {
@@ -78,6 +79,7 @@ const Product = props => {
 		application_submitted: ApplicationSubmitted,
 		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
+		shareholder_details: ShareholderDetails,
 		poa_details: PowerOfAtterneyDetails,
 	};
 	let SelectedComponent =
