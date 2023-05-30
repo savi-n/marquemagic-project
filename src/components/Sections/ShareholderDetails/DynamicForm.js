@@ -31,15 +31,12 @@ const DynamicForm = props => {
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
-	const {
-		directors,
-		selectedDirectorId,
-		// selectedDirectorOptions,
-	} = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection, selectedProduct } = app;
-	// const { businessName } = application;
+	const { isTestMode, selectedSection } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,7 +98,7 @@ const DynamicForm = props => {
 			reqBody.data.shareholder_details = [reqBody.data.shareholder_details];
 			const submitRes = await axios.post(`${ADD_SHAREHOLDER_DETAILS}`, reqBody);
 			console.log({ submitRes });
-			if (submitRes?.status === 'ok' || '200') {
+			if (submitRes?.data?.status === 'ok') {
 				onSaveOrUpdateSuccessCallback();
 				addToast({
 					message: submitRes?.data?.message || 'Success',
@@ -120,13 +117,6 @@ const DynamicForm = props => {
 		}
 	};
 
-	// console.log('DynamicForms-allstates-', {
-	// 	fields,
-	// 	app,
-	// 	selectedSection,
-	// 	prefillData,
-	// });
-
 	return (
 		<>
 			<UI_SECTIONS.FormWrapGrid>
@@ -136,28 +126,11 @@ const DynamicForm = props => {
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
-					// const business = {
-					// 	name: businessName || 'Company/Business',
-					// 	value: '0',
-					// };
-					// if (newField.name === CONST.FIELD_NAME_ASSETS_FOR) {
-					// 	// newField.options = selectedDirectorOptions;
-					// 	newField.options = selectedProduct?.isSelectedProductTypeBusiness
-					// 		? [business, ...selectedDirectorOptions]
-					// 		: selectedDirectorOptions;
-					// 	// newField.options.push(entity);
-					// }
 
 					if (isViewLoan) {
 						customFieldProps.disabled = true;
 					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
+
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({

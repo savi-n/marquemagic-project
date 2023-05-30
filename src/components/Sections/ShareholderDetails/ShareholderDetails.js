@@ -20,15 +20,15 @@ import { API_END_POINT } from '_config/app.config';
 
 const ShareholderDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorOptions } = useSelector(state => state.directors);
+	// const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
 		selectedSection,
-		selectedProduct,
+		// selectedProduct,
 	} = app;
-	const { businessName } = application;
+
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -37,14 +37,6 @@ const ShareholderDetails = props => {
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
-	// const business = {
-	// 	name: businessName || 'Company/Business',
-	// 	value: '0',
-	// }; // TODO: need to optimize business/applicant details here
-	// let newselectedDirectorOptions;
-	// if (selectedProduct?.isSelectedProductTypeBusiness)
-	// 	newselectedDirectorOptions = [business, ...selectedDirectorOptions];
-	// else newselectedDirectorOptions = selectedDirectorOptions;
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -108,10 +100,6 @@ const ShareholderDetails = props => {
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
-
-	// console.log('ShareholderDetails-allstates-', {
-	// 	isCreateFormOpen,
-	// });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
