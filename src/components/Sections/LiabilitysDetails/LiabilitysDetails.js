@@ -161,18 +161,14 @@ const LiabilitysDetails = props => {
 																	newselectedDirectorOptions?.filter(
 																		director =>
 																			`${director?.value}` ===
-																			`${
-																				prefillData?.director_id
-																			}`
+																			`${prefillData?.director_id}`
 																	)?.[0]?.name
 																}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Type of Liability:</span>
-															<strong>
-																{prefillData?.fin_type}
-															</strong>
+															<strong>{prefillData?.fin_type}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
 															<span>Amount:</span>
@@ -201,15 +197,8 @@ const LiabilitysDetails = props => {
 															alt='edit'
 															onClick={() => {
 																setEditLiability(true);
-																if (
-																	isCreateFormOpen ||
-																	isEditLoan
-																)
-																	return;
-																toggleAccordian(
-																	sectionId,
-																	'open'
-																);
+																if (isCreateFormOpen || isEditLoan) return;
+																toggleAccordian(sectionId, 'open');
 																setTimeout(() => {
 																	setEditSectionId(sectionId);
 																}, 200);
@@ -229,21 +218,16 @@ const LiabilitysDetails = props => {
 														alt='toggle'
 														onClick={() => {
 															openAccordianId !== sectionId &&
-																onCancelCallback(
-																	openAccordianId
-																);
+																onCancelCallback(openAccordianId);
 
-															if (
-																isCreateFormOpen ||
-																isEditLoan
-															)
-																return;
+															if (isCreateFormOpen || isEditLoan) return;
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
-															...(isCreateFormOpen ||
-															isEditLoan
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
+															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',
 																		visibility: 'hidden',
@@ -253,30 +237,21 @@ const LiabilitysDetails = props => {
 													/>
 												</UI_SECTIONS.AccordianHeaderData>
 											</UI_SECTIONS.AccordianHeader>
-											<UI_SECTIONS.AccordianBody
-												isOpen={isAccordianOpen}
-											>
-												{isAccordianOpen &&
-													!isCreateFormOpen && (
-														<DynamicForm
-															fields={
-																sub_section?.fields || []
-															}
-															editLiability={editLiability}
-															prefillData={prefillData}
-															onSaveOrUpdateSuccessCallback={
-																onSaveOrUpdateSuccessCallback
-															}
-															onCancelCallback={
-																onCancelCallback
-															}
-															isEditLoan={isEditLoan}
-															editSectionId={editSectionId}
-															isCreateFormOpen={
-																isCreateFormOpen
-															}
-														/>
-													)}
+											<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
+												{isAccordianOpen && !isCreateFormOpen && (
+													<DynamicForm
+														fields={sub_section?.fields || []}
+														editLiability={editLiability}
+														prefillData={prefillData}
+														onSaveOrUpdateSuccessCallback={
+															onSaveOrUpdateSuccessCallback
+														}
+														onCancelCallback={onCancelCallback}
+														isEditLoan={isEditLoan}
+														editSectionId={editSectionId}
+														isCreateFormOpen={isCreateFormOpen}
+													/>
+												)}
 												{/* {isResetFormComplete ? (
 											<DynamicForm fields={sub_section?.fields || []} />
 										) : null} */}
