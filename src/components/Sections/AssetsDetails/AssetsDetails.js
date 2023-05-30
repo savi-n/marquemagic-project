@@ -214,7 +214,9 @@ const AssetsDetails = props => {
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',
