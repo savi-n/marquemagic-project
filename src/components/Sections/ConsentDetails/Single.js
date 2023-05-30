@@ -92,14 +92,14 @@ const Single = ({
 				sections[section] === 'GST' ||
 				sections[section] === 'aadhaar'
 			) {
-				setHtmlContent(response.data);
+				setHtmlContent(response?.data);
 				setModalOpen(true);
 			} else {
 				if (
 					sections[section] === 'crime_check' &&
 					response?.data?.status === 'ok'
 				) {
-					console.log('section', section);
+					//console.log('section', section);
 					addToast({
 						message: response?.data?.message || 'successfully updated',
 						type: 'success',
