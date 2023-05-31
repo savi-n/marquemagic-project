@@ -6,6 +6,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { getApiErrorMessage } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper.js';
 import Button from 'components/Button';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui.js';
@@ -74,6 +75,7 @@ const ConsentDetails = props => {
 	};
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		fetchConsentDetails();
 		//eslint-disable-next-line
 	}, []);
