@@ -123,7 +123,11 @@ const DocumentUpload = props => {
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
 	]);
 	const applicantOrEntityMobileNumber =
-		selectedDirector?.dcontact || businessMobile;
+		businessMobile ||
+		directors?.[applicantDirectorId]?.dcontact ||
+		selectedDirector?.dcontact ||
+		'';
+
 	const { addToast } = useToasts();
 	const [submittingOtp, setSubmittingOtp] = useState(false);
 	const [loading, setLoading] = useState(false);
