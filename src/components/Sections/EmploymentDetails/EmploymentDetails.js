@@ -26,6 +26,7 @@ import {
 	validateEmploymentDetails,
 	checkInitialDirectorsUpdated,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
 import Loading from 'components/Loading';
 
@@ -261,6 +262,7 @@ const EmploymentDetails = () => {
 	// fetch section data ends
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (
 			!!selectedDirector?.sections?.includes(
 				CONST.EMPLOYMENT_DETAILS_SECTION_ID

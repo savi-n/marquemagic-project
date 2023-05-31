@@ -9,6 +9,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import DynamicForm from './DynamicForm';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -96,6 +97,7 @@ const CollateralDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

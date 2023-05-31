@@ -1,11 +1,12 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
+import { scrollToTopRootElement } from 'utils/helper';
 
 const Wrapper = styled.div`
 	flex: 1;
@@ -63,6 +64,10 @@ const ApplicationSubmitted = props => {
 	const { loanRefId } = application;
 	const [count] = useState(0);
 	const d = data[count];
+
+	useEffect(() => {
+		scrollToTopRootElement();
+	}, []);
 
 	return (
 		<Wrapper>
