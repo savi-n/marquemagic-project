@@ -51,6 +51,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -640,6 +641,7 @@ const BasicDetails = props => {
 	// fetch section data ends
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		validateToken();
 
 		if (
@@ -656,7 +658,7 @@ const BasicDetails = props => {
 		if (
 			!!loanRefId &&
 			// !!selectedDirector &&
-			!!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
+			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
 			selectedDirectorId
 		)
 			fetchSectionDetails();

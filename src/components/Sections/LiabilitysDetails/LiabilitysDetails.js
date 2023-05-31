@@ -13,6 +13,7 @@ import {
 	formatINR,
 	parseJSON,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -109,6 +110,7 @@ const LiabilitysDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

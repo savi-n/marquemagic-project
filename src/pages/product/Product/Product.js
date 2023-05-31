@@ -84,6 +84,7 @@ const Product = props => {
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
+
 	useEffect(() => {
 		// console.log({ reqType: response?.data?.loan_request_type, response });
 		if (response) {

@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { formatGetSectionReqBody } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -89,6 +90,7 @@ const SubsidiaryDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
