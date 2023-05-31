@@ -6,14 +6,14 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { getApiErrorMessage } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper.js';
 import Button from 'components/Button';
-import Modal from 'components/Modal';
-import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui.js';
 import Table from './Table.js';
 import { useEffect } from 'react';
 import Loading from 'components/Loading/Loading.js';
+// import data from './sampleData.js';
 
 const ConsentDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -26,6 +26,7 @@ const ConsentDetails = props => {
 		userToken,
 		// isEditLoan,
 		// isEditOrViewLoan,
+		clientToken,
 	} = app;
 
 	const { businessId, loanId, loanRefId } = application;
@@ -33,8 +34,6 @@ const ConsentDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	const [htmlContent, setHtmlContent] = useState('');
-	const [isGstModalOpen, setGstModalOpen] = useState(false);
 	const [consentDetails, setConsentDetails] = useState(null);
 
 	const fetchConsentDetails = () => {
@@ -55,6 +54,7 @@ const ConsentDetails = props => {
 			)
 			.then(consentRes => {
 				setConsentDetails(consentRes?.data?.response);
+				// setConsentDetails(data);
 				setLoading(false);
 			})
 			.catch(error => {
@@ -75,6 +75,7 @@ const ConsentDetails = props => {
 	};
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		fetchConsentDetails();
 		//eslint-disable-next-line
 	}, []);
@@ -87,37 +88,6 @@ const ConsentDetails = props => {
 		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
-	// TODO:Implement fetch for every modal
-	const fetchHandle = async appObj => {
-		try {
-			if (!appObj.id) return;
-			appObj.status = 'In Progress';
-
-			setLoading(true);
-			const response = await axios.get(
-				`${API.API_END_POINT}/api/getConsent?choice=${
-					appObj.section
-				}&director_id=${appObj.id}&loan_id=${loanId}`
-			);
-			setHtmlContent(response.data);
-			setGstModalOpen(true);
-		} catch (error) {
-			console.error('error-ConsentDetails-fetchModal-', {
-				error: error,
-				res: error?.response,
-				resres: error?.response?.response,
-				resData: error?.response?.data,
-			});
-			addToast({
-				message: getApiErrorMessage(error),
-				type: 'error',
-			});
-			setGstModalOpen(false);
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	const onSaveAndProceed = () => {
 		dispatch(setCompletedApplicationSection(selectedSectionId));
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -127,42 +97,13 @@ const ConsentDetails = props => {
 		<Loading />
 	) : (
 		<UI_SECTIONS.Wrapper>
-			<Modal
-				show={isGstModalOpen}
-				onClose={() => {
-					setGstModalOpen(false);
-				}}
-				// Width='40%'
-				customStyle={{
-					width: '40%',
-					minWidth: 'fit-content',
-					minHeight: 'auto',
-					position: 'relative',
-					padding: '0',
-				}}
-			>
-				<section>
-					<UI.ImgClose
-						onClick={() => {
-							setGstModalOpen(false);
-						}}
-						style={{
-							color: 'black',
-							position: 'absolute',
-							top: '0',
-							right: '0',
-							zIndex: '1',
-							display: 'inline',
-						}}
-						src={imgClose}
-						alt='close'
-					/>
-					<div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-				</section>
-			</Modal>
 			{selectedSection?.sub_sections[0]?.name ? (
-				<UI_SECTIONS.SubSectionHeader style={{ margin: '60px 0 20px 0' }}>
-					{selectedSection?.sub_sections?.[0]?.name}ss
+				<UI_SECTIONS.SubSectionHeader
+					style={{
+						margin: '60px 0 20px 0',
+					}}
+				>
+					{selectedSection?.sub_sections?.[0]?.name}
 				</UI_SECTIONS.SubSectionHeader>
 			) : null}
 
@@ -170,25 +111,24 @@ const ConsentDetails = props => {
 				return (
 					<UI.TableWrapper key={`section-${sectionIndex}-${tables?.id}`}>
 						{/* {Will change it later to something dynamic} */}
-						{tables.fields[0].data.length >= 1 && (
+						{tables?.fields?.[0]?.data?.length >= 1 && (
 							<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
 						)}
-						{tables.fields.map((field, idx) => {
+						{tables?.fields?.map((field, idx) => {
 							return (
-								<>
-									{field.data.length >= 1 && (
-										<Table
-											section={tables?.name}
-											headers={field.headers}
-											data={field.data}
-											fetchHandle={fetchHandle}
-											hasSeperator={
-												idx < tables.fields.length - 1
-											}
-											buttonDisabled={isViewLoan}
-										/>
-									)}
-								</>
+								field?.data?.length >= 1 && (
+									<Table
+										key={`table-${idx}`}
+										application={application}
+										headers={field?.headers || []}
+										data={field?.data || []}
+										loanId={loanId}
+										token={clientToken}
+										hasSeperator={idx < tables?.fields?.length - 1}
+										section={tables?.name}
+										buttonDisabled={isViewLoan}
+									/>
+								)
 							);
 						})}
 					</UI.TableWrapper>
@@ -212,11 +152,7 @@ const ConsentDetails = props => {
 
 				{isViewLoan && (
 					<>
-						<Button
-							name='Previous'
-							onClick={naviagteToPreviousSection}
-							fill
-						/>
+						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
 					</>
 				)}
 			</UI_SECTIONS.Footer>

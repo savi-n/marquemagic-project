@@ -39,6 +39,7 @@ import {
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
+import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -489,6 +490,7 @@ const BusinessDetails = props => {
 		}
 	};
 	useEffect(() => {
+		scrollToTopRootElement();
 		validateToken();
 		if (
 			!isEditLoan &&

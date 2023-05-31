@@ -16,6 +16,7 @@ import {
 } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
@@ -182,6 +183,7 @@ const ReferenceDetails = () => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

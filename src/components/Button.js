@@ -16,9 +16,9 @@ const StyledButton = styled.button`
 	background: ${({ theme, fillColor }) =>
 		fillColor && (typeof fillColor === 'string' ? '' : '#1414ad')};
 
-align-items: flex-start;
-	/* min-width: ${({ width }) => (width ? width : '200px')}; */
-	width: 200px;
+	align-items: flex-start;
+	width: ${({ width }) => (width ? width : '200px')};
+	/* width: 200px; */
 	font-size: 0.9em;
 	font-weight: 500;
 	text-align: center;

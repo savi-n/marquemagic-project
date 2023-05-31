@@ -15,6 +15,7 @@ import {
 	formatSectionReqBody,
 	parseJSON,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
@@ -239,6 +240,7 @@ const EMIDetails = props => {
 		});
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (isEditOrViewLoan) {
 			const emiDetails = parseJSON(
 				editLoanData?.bank_details?.filter(

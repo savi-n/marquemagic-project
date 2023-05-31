@@ -22,7 +22,9 @@ import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
+	parseJSON,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
@@ -43,6 +45,7 @@ const LoanDetails = () => {
 		nextSectionId,
 		isTestMode,
 		isEditOrViewLoan,
+		selectedProduct,
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const selectedIncomeType =
@@ -226,10 +229,29 @@ const LoanDetails = () => {
 	const prefilledEditOrViewLoanValues = field => {
 		const imdDetails = sectionData?.imd_details || {};
 		const loanDetails = sectionData?.loan_details || {};
+		let estimatedFundRequirements = {};
+		let sourceFundRequirements = {};
+		if (sectionData?.loan_additional_data?.estimated_fund_requirements) {
+			estimatedFundRequirements = parseJSON(
+				sectionData?.loan_additional_data?.estimated_fund_requirements
+			);
+		}
+		if (sectionData?.loan_additional_data?.source_fund_requirements) {
+			sourceFundRequirements = parseJSON(
+				sectionData?.loan_additional_data?.source_fund_requirements
+			);
+		}
 		const preData = {
+			...loanDetails,
 			loan_amount: loanDetails?.loan_amount,
 			tenure: loanDetails?.applied_tenure,
-			loan_usage_type_id: loanDetails?.loan_usage_type?.id,
+			loan_usage_type_id: ['string', 'number'].includes(
+				typeof loanDetails?.loan_usage_type
+			)
+				? loanDetails?.loan_usage_type
+				: loanDetails?.loan_usage_type?.id,
+			scheme_category: loanDetails?.scheme_category_code,
+			credit_insurance: loanDetails?.credit_linked_insurance,
 			loan_source: loanDetails?.loan_origin,
 			connector_name: loanDetails?.connector_user_id,
 			connector_code: loanDetails?.connector_user_id,
@@ -239,6 +261,8 @@ const LoanDetails = () => {
 			imd_paid_by: imdDetails?.imd_paid_by,
 			branch_id: loanDetails?.branch_id,
 			loan_type: loanDetails?.loan_usage_type?.id,
+			...estimatedFundRequirements,
+			...sourceFundRequirements,
 		};
 		return preData?.[field?.name];
 	};
@@ -287,6 +311,7 @@ const LoanDetails = () => {
 	};
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (!selectedConnectorId) return;
 		// console.log('useEffect-', {
 		// 	prev: prevSelectedConnectorId?.current,
@@ -437,6 +462,10 @@ const LoanDetails = () => {
 											});
 											// console.log('field-sum-', { newPrefilledValueSum });
 											newPrefilledValue = newPrefilledValueSum;
+										}
+
+										if (newField?.name === CONST.FIELD_NAME_TYPE_OF_LOAN) {
+											newPrefilledValue = selectedProduct?.name || '';
 										}
 
 										if (isViewLoan) {

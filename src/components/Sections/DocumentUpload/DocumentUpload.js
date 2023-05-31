@@ -36,6 +36,7 @@ import {
 	isFieldValid,
 	getSelectedDirectorIndex,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
@@ -147,6 +148,7 @@ const DocumentUpload = props => {
 	const isUseEffectCalledOnce = useRef(false);
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
 

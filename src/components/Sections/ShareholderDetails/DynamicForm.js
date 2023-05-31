@@ -15,7 +15,8 @@ import {
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
-import { API_END_POINT } from '_config/app.config';
+import { ADD_SHAREHOLDER_DETAILS } from '_config/app.config';
+// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
@@ -27,77 +28,34 @@ const DynamicForm = props => {
 		hideCancelCTA = false,
 		isEditLoan,
 		editSectionId = '',
-		editLiability,
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
-	const {
-		directors,
-		selectedDirectorId,
-		selectedDirectorOptions,
-	} = useSelector(state => state.directors);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection, selectedProduct } = app;
-	const { businessName } = application;
+	const { isTestMode, selectedSection } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const prefilledEditOrViewLoanValues = field => {
-		// Sample PrefillData Object;
-		// 	{
-		// 		"id": 19315,
-		// 		"loan_id": 32830,
-		// 		"business_id": 1234581634,
-		// 		"fin_type": "Others",
-		// 		"bank_id": 0,
-		// 		"loan_type": 0,
-		// 		"outstanding_balance": 0,
-		// 		"outstanding_balance_unit": "",
-		// 		"outstanding_start_date": "",
-		// 		"outstanding_end_date": "",
-		// 		"ints": "2023-03-23T06:21:46.000Z",
-		// 		"account_type": null,
-		// 		"account_number": null,
-		// 		"account_limit": null,
-		// 		"account_holder_name": null,
-		// 		"limit_type": "Fixed",
-		// 		"sanction_drawing_limit": {},
-		// 		"IFSC": null,
-		// 		"director_id": 997290,
-		// 		"emi_details": "{\"description\":\"test\",\"liability_amount\":\"111\"}",
-		// 		"source": null,
-		// 		"subtype": null,
-		// 		"remaining_loan_tenure": null,
-		// 		"bank_remarks": null
-		// }
-		const preData = {
+		const prePopulateData = {
 			...prefillData,
-			liabilities_for: `${prefillData?.director_id || ''}`,
-			liabilities_type: prefillData?.fin_type || '',
-			loan_start_date: prefillData?.outstanding_start_date,
-			outstanding_loan_amount: prefillData?.outstanding_balance,
-			loan_type: prefillData?.subtype,
-			financial_institution: prefillData?.bank_id,
+			shareholder_name: prefillData?.name,
+			company_address: prefillData?.address,
+			shareholder_percentage: prefillData?.percentage,
+			pincode: prefillData?.pincode,
+			relation_shareholder: prefillData?.relationship,
 		};
-		return preData?.[field?.name];
+		return prePopulateData?.[field?.name];
 	};
 
 	const prefilledValues = field => {
-		//TODO:  config field mis-matching, Temp Fixed for DOS-3949
-		if (editLiability && field['name'] === 'loan_type') {
-			return prefillData?.loan_sub_type;
-		}
-		//OUTSTANDING AMOUNT CALC
-		if (field['name'] === 'outstanding_loan_amount') {
-			return (field['value'] =
-				+formState?.values?.['emi_amount'] *
-				+formState?.values?.['remaining_loan_tenure']);
-		}
 		try {
-			const isFormStateUpdated =
-				formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -120,24 +78,8 @@ const DynamicForm = props => {
 		}
 	};
 
-	const onSaveOrUpdate = async data => {
+	const onSaveOrUpdate = async () => {
 		try {
-			//VALIDATION FOR EMI AMOUNT AND REMAINING LOAN AMOUNT
-			if (+data?.emi_amount >= +data?.total_loan_amount) {
-				addToast({
-					message: '"EMI amount" can not be more than "Total Loan Amount"',
-					type: 'error',
-				});
-				return;
-			}
-			if (+data?.remaining_loan_tenure > +data?.total_tenure) {
-				addToast({
-					message:
-						'"Remaining Loan Tenure" can not be more than "Total Tenure of Loan"',
-					type: 'error',
-				});
-				return;
-			}
 			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
 			const reqBody = formatSectionReqBody({
@@ -150,20 +92,12 @@ const DynamicForm = props => {
 				application,
 			});
 			if (editSectionId) {
-				reqBody.data.liability_details.id = editSectionId;
+				reqBody.data.shareholder_details.id = editSectionId;
 			}
-			if (
-				typeof reqBody?.data?.liability_details?.financial_institution
-					?.value === 'string'
-			) {
-				reqBody.data.liability_details.financial_institution = +reqBody?.data
-					?.liability_details?.financial_institution?.value;
-			}
-			reqBody.data.liability_details = [reqBody.data.liability_details];
-			const submitRes = await axios.post(
-				`${API_END_POINT}/liability_details`,
-				reqBody
-			);
+
+			reqBody.data.shareholder_details = [reqBody.data.shareholder_details];
+			const submitRes = await axios.post(`${ADD_SHAREHOLDER_DETAILS}`, reqBody);
+			console.log({ submitRes });
 			if (submitRes?.data?.status === 'ok') {
 				onSaveOrUpdateSuccessCallback();
 				addToast({
@@ -183,47 +117,20 @@ const DynamicForm = props => {
 		}
 	};
 
-	// console.log('DynamicForms-allstates-', {
-	// 	fields,
-	// 	app,
-	// 	selectedSection,
-	// });
-
 	return (
-		<React.Fragment>
+		<>
 			<UI_SECTIONS.FormWrapGrid>
 				{fields?.map((field, fieldIndex) => {
-					if (
-						!isFieldValid({
-							field,
-							formState,
-							isApplicant,
-						})
-					) {
+					if (!isFieldValid({ field, formState, isApplicant })) {
 						return null;
 					}
 					const customFieldProps = {};
 					const newField = _.cloneDeep(field);
-					const business = {
-						name: businessName || 'Company/Business',
-						value: '0',
-					}; // get the business name here
-					if (newField.name === CONST.FIELD_NAME_LIABILITIES_FOR) {
-						newField.options = selectedProduct?.isSelectedProductTypeBusiness
-							? [business, ...selectedDirectorOptions]
-							: selectedDirectorOptions;
-					}
 
 					if (isViewLoan) {
 						customFieldProps.disabled = true;
 					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
+
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({
@@ -261,7 +168,7 @@ const DynamicForm = props => {
 					)}
 				</>
 			)}
-		</React.Fragment>
+		</>
 	);
 };
 

@@ -9,27 +9,27 @@ import NavigateCTA from 'components/Sections/NavigateCTA';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
+import { formatGetSectionReqBody } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement } from 'utils/helper';
 // import selectedSection from './sample.json';
 
-const AssetsDetails = props => {
+const ShareholderDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorOptions } = useSelector(state => state.directors);
+	// const { selectedDirectorOptions } = useSelector(state => state.directors);
 	const {
 		isViewLoan,
 		selectedSectionId,
 		nextSectionId,
 		selectedSection,
-		selectedProduct,
+		// selectedProduct,
 	} = app;
-	const { businessName } = application;
+
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -38,14 +38,6 @@ const AssetsDetails = props => {
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
-	const business = {
-		name: businessName || 'Company/Business',
-		value: '0',
-	}; // TODO: need to optimize business/applicant details here
-	let newselectedDirectorOptions;
-	if (selectedProduct?.isSelectedProductTypeBusiness)
-		newselectedDirectorOptions = [business, ...selectedDirectorOptions];
-	else newselectedDirectorOptions = selectedDirectorOptions;
 	const openCreateForm = () => {
 		setEditSectionId('');
 		setOpenAccordianId('');
@@ -56,13 +48,13 @@ const AssetsDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/assets_details?${formatGetSectionReqBody({
+				`${API_END_POINT}/shareholder_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
-			if (fetchRes?.data?.data?.loanassets_records?.length > 0) {
-				setSectionData(fetchRes?.data?.data?.loanassets_records);
+			// console.log('fetchRes-', fetchRes?.data?.data);
+			if (fetchRes?.data?.data?.length > 0) {
+				setSectionData(fetchRes?.data?.data);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -111,13 +103,6 @@ const AssetsDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('AssetsDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -135,17 +120,13 @@ const AssetsDetails = props => {
 								) : null}
 								{/* combine local + db array */}
 								{sectionData.map((section, sectionIndex) => {
+									console.log(section);
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
 									const prefillData = section
 										? {
 												...section,
-												director_id:
-													section?.director_id === 0
-														? '0'
-														: `${section?.director_id}`,
-												...(section?.loan_json || {}),
 										  }
 										: {};
 									return (
@@ -156,26 +137,15 @@ const AssetsDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Assets For:</span>
-															<strong>
-																{
-																	newselectedDirectorOptions?.filter(
-																		director =>
-																			`${director?.value}` ===
-																			`${prefillData?.director_id}`
-																	)?.[0]?.name
-																}
-															</strong>
+															<span>Shareholder Name:</span>
+															<strong>{prefillData?.name}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Type of Assets:</span>
+															<span>Percentage:</span>
 															<strong>
-																{prefillData?.loan_asset_type_id?.typename}
+																{/* {prefillData?.loan_asset_type_id?.percentage} */}
+																{prefillData?.percentage}
 															</strong>
-														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData>
-															<span>Amount:</span>
-															<strong>{formatINR(prefillData?.value)}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
 												)}
@@ -247,9 +217,6 @@ const AssetsDetails = props => {
 														isCreateFormOpen={isCreateFormOpen}
 													/>
 												)}
-												{/* {isResetFormComplete ? (
-											<DynamicForm fields={sub_section?.fields || []} />
-										) : null} */}
 											</UI_SECTIONS.AccordianBody>
 										</UI_SECTIONS.AccordianWrapper>
 									);
@@ -289,7 +256,7 @@ const AssetsDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional assets</span>
+								<span>Click to add additional shareholders</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
@@ -312,4 +279,4 @@ const AssetsDetails = props => {
 	);
 };
 
-export default AssetsDetails;
+export default ShareholderDetails;
