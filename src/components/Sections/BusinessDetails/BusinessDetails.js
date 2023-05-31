@@ -133,6 +133,7 @@ const BusinessDetails = props => {
 		return payloadObj?.map(obj => ({
 			name: obj.Name,
 			'din/pan': obj.Din,
+			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
 		}));
 	};
 
@@ -233,6 +234,11 @@ const BusinessDetails = props => {
 						// selectedDirector,
 						application,
 						selectedLoanProductId,
+					});
+
+					companyRocData?.data?.director?.map(dir => {
+						dir.income_type = 'business'; // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
+						return null;
 					});
 					addDirectorsReqBody.data =
 						companyRocData?.data?.director ||
