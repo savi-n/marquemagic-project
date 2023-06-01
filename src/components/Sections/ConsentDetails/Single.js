@@ -62,7 +62,7 @@ const Single = ({
 			aadhaarNo: appObj?.aadhaar,
 			pan: appObj?.pan,
 			crime_check: appObj?.check,
-			gstin: appObj?.gstin,
+			gstin: appObj?.gstn || appObj?.gstin,
 			cin: appObj?.cin,
 			udyamNum: appObj?.udyamNum,
 			// udyamNum:'UDYAM-MH-19-0002476',
