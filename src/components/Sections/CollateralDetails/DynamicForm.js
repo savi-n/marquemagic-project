@@ -131,7 +131,7 @@ const DynamicForm = props => {
 		const filtered = assets?.filter(
 			item => `${item.id}` === formState?.values?.['select_collateral']
 		);
-		if (formState?.values?.['select_collateral']) {
+		if (isCreateFormOpen && formState?.values?.['select_collateral']) {
 			onChangeFormStateField({
 				name: 'existing_collateral',
 				value: !!filtered[0]?.id,
@@ -198,7 +198,7 @@ const DynamicForm = props => {
 				name: 'current_occupant',
 				value: filtered[0]?.current_occupant,
 			});
-		} else {
+		} else if (isCreateFormOpen) {
 			onChangeFormStateField({
 				name: 'existing_collateral',
 				value: null,
