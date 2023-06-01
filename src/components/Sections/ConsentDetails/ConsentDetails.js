@@ -144,15 +144,15 @@ const ConsentDetails = props => {
 						onClick={onSaveAndProceed}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
 
 				{isViewLoan && (
 					<>
 						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+					</>
+				)}
+				{isViewLoan && (
+					<>
+						<Button name='Next' onClick={naviagteToNextSection} fill />
 					</>
 				)}
 			</UI_SECTIONS.Footer>
