@@ -17,6 +17,7 @@ import Button from 'components/Button';
 import {
 	getAllCompletedSections,
 	validateEmploymentDetails,
+	validateDirectorForSme,
 	validateAllDirectorSectionsCompleted,
 } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -150,17 +151,28 @@ const SideNav = props => {
 														? CONST_SECTIONS.INITIAL_SECTION_IDS_SME_FLOW
 														: CONST_SECTIONS.INITIAL_SECTION_IDS;
 
-													let isValid;
+													let isValid = {};
 													let checkAllDirectorsCompleted;
 													if (!initialSections.includes(section?.id)) {
-														checkAllDirectorsCompleted = validateAllDirectorSectionsCompleted(
-															directors
-														);
-
-														isValid = validateEmploymentDetails({
-															selectedDirector,
-															directors,
-														});
+														if (
+															selectedProduct?.isSelectedProductTypeBusiness
+														) {
+															checkAllDirectorsCompleted = validateDirectorForSme(
+																directors
+															);
+														} else {
+															checkAllDirectorsCompleted = validateAllDirectorSectionsCompleted(
+																directors
+															);
+														}
+														if (
+															selectedProduct?.isSelectedProductTypeSalaried
+														) {
+															isValid = validateEmploymentDetails({
+																selectedDirector,
+																directors,
+															});
+														}
 													}
 
 													if (
