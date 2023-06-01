@@ -456,31 +456,27 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
-						{selectedProduct?.isSelectedProductTypeBusiness &&
-							!isViewLoan &&
-							Object.keys(directors)?.length > 1 && (
-								<Button
-									fill
-									name={'Save and Proceed'}
-									isLoader={loading}
-									disabled={loading}
-									onClick={handleSubmit(onSaveAndProceedSme)}
-								/>
-							)}
-						{selectedProduct?.isSelectedProductTypeBusiness &&
-							!isViewLoan &&
-							Object.keys(directors)?.length > 1 && (
-								<Button
-									fill
-									name='Add Co-Applicant'
-									isLoader={loading}
-									disabled={loading}
-									onClick={handleSubmit(() => {
-										// dispatch(setAddNewDirectorKey('Co-applicant'));
-										onAddDirectorSme('Co-applicant');
-									})}
-								/>
-							)}
+						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
+							<Button
+								fill
+								name={'Save and Proceed'}
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(onSaveAndProceedSme)}
+							/>
+						)}
+						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
+							<Button
+								fill
+								name='Add Co-Applicant'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									onAddDirectorSme('Co-applicant');
+								})}
+							/>
+						)}
 						{selectedProduct?.isSelectedProductTypeBusiness &&
 							!isViewLoan &&
 							// !initialDirectorsUpdated &&
