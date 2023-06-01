@@ -441,7 +441,15 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
-
+						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
+							<Button
+								fill
+								name={'Save and Proceed'}
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(onSaveAndProceedSme)}
+							/>
+						)}
 						{selectedProduct?.isSelectedProductTypeBusiness &&
 							`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
 							Object.keys(directors)?.length > 1 &&
@@ -456,15 +464,7 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
-						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
-							<Button
-								fill
-								name={'Save and Proceed'}
-								isLoader={loading}
-								disabled={loading}
-								onClick={handleSubmit(onSaveAndProceedSme)}
-							/>
-						)}
+
 						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
 							<Button
 								fill
