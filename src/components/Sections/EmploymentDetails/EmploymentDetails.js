@@ -189,6 +189,17 @@ const EmploymentDetails = () => {
 		}
 	};
 
+	const onSaveAndProceedInitialDirectors = async () => {
+		try {
+			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+			if (!isEmploymentDetailsSubmited) return;
+
+			dispatch(setSelectedSectionId(nextSectionId));
+		} catch (error) {
+			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
+		}
+	};
+
 	const navigateToNextDirector = async () => {
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
@@ -405,6 +416,17 @@ const EmploymentDetails = () => {
 									onClick={handleSubmit(() => {
 										navigateToNextDirector();
 									})}
+								/>
+							)}
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							Object.keys(directors)?.length > 1 &&
+							initialDirectorsUpdated && (
+								<Button
+									fill
+									name={'Save and Proceed'}
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(onSaveAndProceedInitialDirectors)}
 								/>
 							)}
 						{!isViewLoan &&

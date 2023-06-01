@@ -13,7 +13,6 @@ import {
 	formatINR,
 	parseJSON,
 } from 'utils/formatData';
-import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -38,7 +37,6 @@ const LiabilitysDetails = props => {
 	const [editSectionId, setEditSectionId] = useState('');
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
-	const [editLiability, setEditLiability] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	const MAX_ADD_COUNT = selectedSection?.sub_sections?.[0]?.max || 10;
 
@@ -110,7 +108,6 @@ const LiabilitysDetails = props => {
 	};
 
 	useLayoutEffect(() => {
-		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -145,10 +142,6 @@ const LiabilitysDetails = props => {
 									const prefillData = section
 										? {
 												...section,
-												director_id:
-													section?.director_id === 0
-														? '0'
-														: `${section?.director_id}`,
 												...parseJSON(section?.emi_details || '{}'),
 										  }
 										: {};
@@ -202,7 +195,6 @@ const LiabilitysDetails = props => {
 															src={editIcon}
 															alt='edit'
 															onClick={() => {
-																setEditLiability(true);
 																if (isCreateFormOpen || isEditLoan) return;
 																toggleAccordian(sectionId, 'open');
 																setTimeout(() => {
@@ -230,9 +222,7 @@ const LiabilitysDetails = props => {
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: isAccordianOpen
-																? 'rotate(270deg)'
-																: 'rotate(90deg)',
+															transform: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',
@@ -247,7 +237,6 @@ const LiabilitysDetails = props => {
 												{isAccordianOpen && !isCreateFormOpen && (
 													<DynamicForm
 														fields={sub_section?.fields || []}
-														editLiability={editLiability}
 														prefillData={prefillData}
 														onSaveOrUpdateSuccessCallback={
 															onSaveOrUpdateSuccessCallback

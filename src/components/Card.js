@@ -12,7 +12,10 @@ import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-elem
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import { getGeoLocation } from 'utils/helper';
-import { setGeoLocation,reInitializeApplicationSlice } from 'store/applicationSlice';
+import {
+	setGeoLocation,
+	reInitializeApplicationSlice,
+} from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 import Button from './Button';
@@ -176,7 +179,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						// if(!!product?.sub_products){setSubProductModalOpen(true);}
 						if (!add) {
 							try {
-								if (product?.sub_products) {
+								if (
+									product?.sub_products &&
+									product?.sub_products?.length > 0
+								) {
 									setSubProductModalOpen(true);
 								}
 								if (isGeoTaggingEnabled) {
@@ -224,9 +230,12 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (add) {
 							setAddedProduct(product);
 							setAddProduct(false);
-							if (!!product?.sub_products) {
-								setSubProductModalOpen(true);
-							}
+							// if (
+							// 	!!product?.sub_products &&
+							// 	product?.sub_products?.length > 0
+							// ) {
+							// 	setSubProductModalOpen(true);
+							// }
 							return;
 						}
 						e.preventDefault();
@@ -239,7 +248,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							redirectURL += `?token=${params.token}`;
 						}
 						// window.open(redirectURL, '_self');
-						if (!product?.sub_products || isSubProductModalOpen) {
+						if (
+							!product?.sub_products ||
+							product?.sub_products?.length === 0 ||
+							isSubProductModalOpen
+						) {
 							window.open(redirectURL, '_self');
 						}
 						return;
