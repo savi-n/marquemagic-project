@@ -5,17 +5,18 @@ import axios from 'axios';
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
+import DynamicForm from './DynamicForm';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { formatGetSectionReqBody } from 'utils/formatData';
-import * as UI_SECTIONS from 'components/Sections/ui';
+import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
-import DynamicForm from './DynamicForm';
-import { API_END_POINT } from '_config/app.config';
+import * as UI_SECTIONS from 'components/Sections/ui';
 // import selectedSection from './sample.json';
 
 const PowerOfAtterneyDetails = props => {
@@ -90,6 +91,7 @@ const PowerOfAtterneyDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -185,7 +187,9 @@ const PowerOfAtterneyDetails = props => {
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',

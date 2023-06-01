@@ -26,6 +26,7 @@ import {
 	validateEmploymentDetails,
 	checkInitialDirectorsUpdated,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
 import Loading from 'components/Loading';
 
@@ -188,6 +189,17 @@ const EmploymentDetails = () => {
 		}
 	};
 
+	const onSaveAndProceedInitialDirectors = async () => {
+		try {
+			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+			if (!isEmploymentDetailsSubmited) return;
+
+			dispatch(setSelectedSectionId(nextSectionId));
+		} catch (error) {
+			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
+		}
+	};
+
 	const navigateToNextDirector = async () => {
 		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 		if (!isEmploymentDetailsSubmited) return;
@@ -261,6 +273,7 @@ const EmploymentDetails = () => {
 	// fetch section data ends
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (
 			!!selectedDirector?.sections?.includes(
 				CONST.EMPLOYMENT_DETAILS_SECTION_ID
@@ -403,6 +416,17 @@ const EmploymentDetails = () => {
 									onClick={handleSubmit(() => {
 										navigateToNextDirector();
 									})}
+								/>
+							)}
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							Object.keys(directors)?.length > 1 &&
+							initialDirectorsUpdated && (
+								<Button
+									fill
+									name={'Save and Proceed'}
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(onSaveAndProceedInitialDirectors)}
 								/>
 							)}
 						{!isViewLoan &&

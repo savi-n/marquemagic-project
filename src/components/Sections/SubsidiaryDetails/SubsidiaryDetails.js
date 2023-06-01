@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { formatGetSectionReqBody } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -89,6 +90,7 @@ const SubsidiaryDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -178,7 +180,9 @@ const SubsidiaryDetails = props => {
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',
@@ -234,8 +238,9 @@ const SubsidiaryDetails = props => {
 								)}
 							</Fragment>
 						);
-					})}					
-					{sectionData?.length === 0 && (<UI_SECTIONS.AddDynamicSectionWrapper>
+					})}
+
+					<UI_SECTIONS.AddDynamicSectionWrapper>
 						{isCreateFormOpen ||
 						isViewLoan ||
 						sectionData?.length >= MAX_ADD_COUNT ||
@@ -248,7 +253,7 @@ const SubsidiaryDetails = props => {
 								<span>Click to add additional subsidiary</span>
 							</>
 						)}
-					</UI_SECTIONS.AddDynamicSectionWrapper>)}					
+					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
 							<Button

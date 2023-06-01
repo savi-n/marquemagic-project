@@ -1,11 +1,15 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
+import { scrollToTopRootElement } from 'utils/helper';
+import { APPLICATION_SUBMITTED_SECTION_ID } from '../const';
+import { TO_APPLICATION_STAGE_URL } from '_config/app.config';
+import axios from 'axios';
 
 const Wrapper = styled.div`
 	flex: 1;
@@ -59,10 +63,32 @@ const data = [
 ];
 
 const ApplicationSubmitted = props => {
-	const { application } = useSelector(state => state);
-	const { loanRefId } = application;
+	const { app, application } = useSelector(state => state);
+	const { selectedProduct } = app;
+	const { loanRefId, loanId } = application;
 	const [count] = useState(0);
 	const d = data[count];
+	const isDocumentUploadMandatory = !!selectedProduct?.product_details
+		?.document_mandatory;
+
+	useEffect(() => {
+		scrollToTopRootElement();
+		const moveToApplicationStage = () => {
+			try {
+				const applicationStageReqBody = {
+					loan_id: loanId,
+					section_id: APPLICATION_SUBMITTED_SECTION_ID,
+				};
+
+				if (isDocumentUploadMandatory) {
+					applicationStageReqBody.is_mandatory_documents_uploaded = true;
+				}
+				axios.post(`${TO_APPLICATION_STAGE_URL}`, applicationStageReqBody);
+			} catch (e) {}
+		};
+		moveToApplicationStage();
+		// eslint-disable-next-line
+	}, []);
 
 	return (
 		<Wrapper>

@@ -9,6 +9,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import DynamicForm from './DynamicForm';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -96,6 +97,7 @@ const CollateralDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -158,7 +160,7 @@ const CollateralDetails = () => {
 				<>
 					<Fragment>
 						<UI_SECTIONS.SubSectionHeader>
-							Help Us With Your Colalteral Details
+							Help Us With Your Collateral Details
 						</UI_SECTIONS.SubSectionHeader>
 						{/* combine local + db array */}
 						{sectionData.map((section, sectionIndex) => {
@@ -243,7 +245,9 @@ const CollateralDetails = () => {
 													toggleAccordian(sectionId);
 												}}
 												style={{
-													transform: 'rotate(90deg)',
+													transform: isAccordianOpen
+														? 'rotate(270deg)'
+														: 'rotate(90deg)',
 													...(isCreateFormOpen || isEditLoan
 														? {
 																cursor: 'not-allowed',

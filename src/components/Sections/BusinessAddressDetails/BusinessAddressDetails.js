@@ -19,7 +19,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
-import { extractPincode } from 'utils/helper';
+import { extractPincode, scrollToTopRootElement } from 'utils/helper';
 
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -146,6 +146,7 @@ const BusinessAddressDetails = props => {
 	};
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		fetchBusinessAddressDetails();
 		// eslint-disable-next-line
 	}, []);
