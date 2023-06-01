@@ -96,8 +96,7 @@ const DynamicForm = props => {
 				+formState?.values?.['remaining_loan_tenure']);
 		}
 		try {
-			const isFormStateUpdated =
-				formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
