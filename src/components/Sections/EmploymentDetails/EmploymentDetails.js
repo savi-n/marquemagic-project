@@ -25,6 +25,7 @@ import {
 	isDirectorApplicant,
 	validateEmploymentDetails,
 	checkInitialDirectorsUpdated,
+	validateDirectorForSme,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
@@ -160,6 +161,27 @@ const EmploymentDetails = () => {
 		dispatch(setAddNewDirectorKey(key));
 	};
 
+	const onAddDirectorSme = async key => {
+		if (`${selectedDirectorId}` !== `${Object.keys(directors)?.[0]}`) {
+			const validateDirector = validateDirectorForSme(directors);
+			if (validateDirector?.allowProceed === false) {
+				addToast({
+					message: `Please fill all the details in ${validateDirector?.directorName ||
+						'the First Director'}`,
+					type: 'error',
+				});
+				return;
+			}
+		}
+
+		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+
+		if (!isEmploymentDetailsSubmited) return;
+		dispatch(setSelectedDirectorId(''));
+		dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+		dispatch(setAddNewDirectorKey(key));
+	};
+
 	const onSaveAndProceed = async () => {
 		try {
 			if (!validateNavigation()) {
@@ -189,8 +211,20 @@ const EmploymentDetails = () => {
 		}
 	};
 
-	const onSaveAndProceedInitialDirectors = async () => {
+	const onSaveAndProceedSme = async () => {
 		try {
+			if (`${selectedDirectorId}` !== `${Object.keys(directors)?.[0]}`) {
+				const validateDirector = validateDirectorForSme(directors);
+				if (validateDirector?.allowProceed === false) {
+					addToast({
+						message: `Please fill all the details in ${validateDirector?.directorName ||
+							'the First Director'}`,
+						type: 'error',
+					});
+					return;
+				}
+			}
+
 			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
 			if (!isEmploymentDetailsSubmited) return;
 
@@ -382,32 +416,36 @@ const EmploymentDetails = () => {
 						);
 					})}
 					<UI_SECTIONS.Footer>
-						{displayProceedCTA && !initialDirectorsUpdated && !isViewLoan && (
-							<Button
-								fill
-								name='Save and Proceed'
-								isLoader={loading}
-								disabled={loading}
-								onClick={handleSubmit(onSaveAndProceed)}
-							/>
-						)}
+						{displayProceedCTA &&
+							selectedProduct?.loan_request_type === 2 &&
+							!isViewLoan && (
+								<Button
+									fill
+									name='Save and Proceed'
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(onSaveAndProceed)}
+								/>
+							)}
 						{/* visibility of add co-applicant based on the config */}
-						{displayAddCoApplicantCTA && !initialDirectorsUpdated && (
-							<Button
-								fill
-								name='Add Co-Applicant'
-								isLoader={loading}
-								disabled={loading}
-								onClick={handleSubmit(() => {
-									// dispatch(setAddNewDirectorKey('Co-applicant'));
-									onAddDirector('Co-applicant');
-								})}
-							/>
-						)}
+						{displayAddCoApplicantCTA &&
+							selectedProduct?.loan_request_type === 2 && (
+								<Button
+									fill
+									name='Add Co-Applicant'
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(() => {
+										// dispatch(setAddNewDirectorKey('Co-applicant'));
+										onAddDirector('Co-applicant');
+									})}
+								/>
+							)}
 
-						{`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
 							Object.keys(directors)?.length > 1 &&
-							initialDirectorsUpdated && (
+							!isViewLoan && (
 								<Button
 									fill
 									name={'Next'}
@@ -419,19 +457,33 @@ const EmploymentDetails = () => {
 								/>
 							)}
 						{selectedProduct?.isSelectedProductTypeBusiness &&
-							Object.keys(directors)?.length > 1 &&
-							initialDirectorsUpdated && (
+							!isViewLoan &&
+							Object.keys(directors)?.length > 1 && (
 								<Button
 									fill
 									name={'Save and Proceed'}
 									isLoader={loading}
 									disabled={loading}
-									onClick={handleSubmit(onSaveAndProceedInitialDirectors)}
+									onClick={handleSubmit(onSaveAndProceedSme)}
 								/>
 							)}
-						{!isViewLoan &&
-							!initialDirectorsUpdated &&
-							selectedProduct?.isSelectedProductTypeBusiness &&
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							!isViewLoan &&
+							Object.keys(directors)?.length > 1 && (
+								<Button
+									fill
+									name='Add Co-Applicant'
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(() => {
+										// dispatch(setAddNewDirectorKey('Co-applicant'));
+										onAddDirectorSme('Co-applicant');
+									})}
+								/>
+							)}
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							!isViewLoan &&
+							// !initialDirectorsUpdated &&
 							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
 								if (!field?.business_income_type_id?.includes(+businessType))
 									return null;
@@ -443,7 +495,7 @@ const EmploymentDetails = () => {
 										isLoader={loading}
 										disabled={loading}
 										onClick={handleSubmit(() => {
-											onAddDirector(field?.key);
+											onAddDirectorSme(field?.key);
 										})}
 									/>
 								);
