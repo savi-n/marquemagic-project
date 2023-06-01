@@ -299,7 +299,7 @@ const AssetsDetails = props => {
 								fill
 								name='Save and Proceed'
 								// isLoader={isCreateFormOpen || !!editSectionId}
-								disabled={isCreateFormOpen || !!editSectionId}
+								// disabled={isCreateFormOpen || !!editSectionId}
 								onClick={onSaveAndProceed}
 							/>
 						)}

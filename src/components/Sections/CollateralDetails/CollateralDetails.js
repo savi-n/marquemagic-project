@@ -111,7 +111,7 @@ const CollateralDetails = () => {
 	const newOptions = [
 		{
 			name: 'Add New',
-			value: '',
+			value: 'new',
 		},
 	];
 	//check if this collateral is in existion collateral
@@ -121,7 +121,8 @@ const CollateralDetails = () => {
 	sectionData &&
 		sectionData.map(section =>
 			exclude_ids.push(
-				section?.initial_collateral?.collateral_details?.select_collateral
+				(section?.modified_collateral || section?.initial_collateral)
+					?.collateral_details?.select_collateral
 			)
 		);
 
