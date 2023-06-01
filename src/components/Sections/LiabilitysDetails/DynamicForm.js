@@ -27,7 +27,6 @@ const DynamicForm = props => {
 		hideCancelCTA = false,
 		isEditLoan,
 		editSectionId = '',
-		editLiability,
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
@@ -86,8 +85,9 @@ const DynamicForm = props => {
 
 	const prefilledValues = field => {
 		//TODO:  config field mis-matching, Temp Fixed for DOS-3949
-		if (editLiability && field['name'] === 'loan_type') {
-			return prefillData?.loan_sub_type;
+		if (editSectionId !== '' && field['name'] === 'loan_type') {
+			if (formState?.values['loan_type'] === '')
+				return prefillData?.loan_sub_type;
 		}
 		//OUTSTANDING AMOUNT CALC
 		if (field['name'] === 'outstanding_loan_amount') {

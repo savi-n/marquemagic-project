@@ -51,6 +51,7 @@ const Single = ({
 	const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setModalOpen] = useState(false);
 	const [status, setStatus] = useState(rowData?.status);
+	const [disabled, setDisabled] = useState(false);
 	// const dispatch = useDispatch();
 
 	const fetchHandle = async appObj => {
@@ -71,7 +72,7 @@ const Single = ({
 			// sections[section] === 'crime_check' && setDisabled(true);
 			// appObj?.status = 'In Progress';
 			setStatus('In Progress');
-			// setDisabled(true);
+			setDisabled(true);
 			setLoading(true);
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
@@ -94,41 +95,37 @@ const Single = ({
 			) {
 				setHtmlContent(response?.data);
 				setModalOpen(true);
-			} else {
-				if (
-					sections[section] === 'crime_check' &&
-					response?.data?.status === 'ok'
-				) {
-					//console.log('section', section);
-					addToast({
-						message: response?.data?.message || 'successfully updated',
-						type: 'success',
-					});
-					setStatus(appObj?.check);
-				}
-				if (response?.data?.status === 'Wrong Input') {
-					addToast({
-						message: 'Error fetching details, Please try after sometime!',
-						type: 'error',
-					});
-					// appObj?.status = 'Failed';
-					setStatus('Failed');
-				} else if (response?.data?.status === 'nok') {
-					addToast({
-						message: 'Something went wrong, Please try after sometime!',
-						type: 'error',
-					});
-					// appObj?.status = 'Invalid Data';
-					setStatus('Invalid Data');
+			}
 
-					// setDisabled(true);
-				} else {
-					// TODO: Here need to get status from API and update appObj?.status
-					appObj.status =
-						response?.data?.status === 200 || response?.data?.status === 'ok'
-							? 'In Progress'
-							: response?.data?.status;
+			if (
+				sections[section] === 'crime_check' &&
+				response?.data?.status === 'ok'
+			) {
+				//console.log('section', section);
+				addToast({
+					message: response?.data?.message || 'Successfully updated',
+					type: 'success',
+				});
+				setStatus(appObj?.check);
+				setDisabled(true);
+			} else if (
+				response?.data?.status === 200 ||
+				response?.data?.status === 'ok'
+			) {
+					setStatus('In Progress');
+					setDisabled(true);
 				}
+			if (
+				response?.data?.status === 'Wrong Input' ||
+				response?.data?.status === 'nok'
+			) {
+				addToast({
+					message: 'Something went wrong, Please try after sometime!',
+					type: 'error',
+				});
+				// appObj?.status = 'Invalid Data';
+				setStatus('Failed');
+				setDisabled(false);
 			}
 		} catch (error) {
 			console.error('error-ConsentDetails-fetchModal-', {
@@ -182,7 +179,10 @@ const Single = ({
 						src={imgClose}
 						alt='close'
 					/>
-					<div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+					<div
+						dangerouslySetInnerHTML={{ __html: htmlContent }}
+						style={{ padding: '1rem' }}
+					/>
 				</section>
 			</Modal>
 
@@ -201,28 +201,28 @@ const Single = ({
 							name='Fetch'
 							onClick={() => fetchHandle(rowData)}
 							disabled={
-								buttonDisabled ||
-								rowData?.status === 'Fetched' ||
-								rowData?.status === 'In Progress'
+								buttonDisabled || disabled || rowData?.status === 'Fetched'
 							}
 							loading={loading}
 						/>
-					) : rowData?.status === 'Yes' || rowData?.status === 'No' ? (
-						''
 					) : (
 						<UI.Buttons>
 							<Button
 								width='100px'
 								name='Yes'
 								onClick={() => fetchHandle({ ...rowData, check: 'Yes' })}
-								disabled={buttonDisabled}
+								disabled={
+									buttonDisabled || disabled || rowData?.status === 'Yes'
+								}
 							/>
-							<Button
+							{/* <Button
 								width='80px'
 								name='No'
 								onClick={() => fetchHandle({ ...rowData, check: 'No' })}
-								disabled={buttonDisabled}
-							/>
+								disabled={
+									buttonDisabled || disabled || rowData?.status === 'Yes'
+								}
+							/> */}
 						</UI.Buttons>
 					)}
 				</UI.TableCell>
