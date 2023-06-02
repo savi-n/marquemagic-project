@@ -910,7 +910,10 @@ export const validateEmploymentDetails = data => {
 };
 // Special case for SME Flow. Used only when clicked on any of the sections in the side nav.
 export const validateDirectorForSme = directors => {
-	if (directors?.[Object.keys(directors)?.[0]]?.sections.length < 3)
+	if (
+		!directors?.[+Object.keys(directors)?.[0]]?.sections ||
+		directors?.[+Object.keys(directors)?.[0]]?.sections.length < 3
+	)
 		return { allowProceed: false };
 	return { allowProceed: true };
 };
