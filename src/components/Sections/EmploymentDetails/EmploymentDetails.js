@@ -24,7 +24,7 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	validateEmploymentDetails,
-	checkInitialDirectorsUpdated,
+	// checkInitialDirectorsUpdated,
 	validateDirectorForSme,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
@@ -56,9 +56,9 @@ const EmploymentDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
 	const editSectionId = sectionData?.income_data?.employment_id || '';
-	const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
-		? checkInitialDirectorsUpdated(directors)
-		: false;
+	// const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
+	// 	? checkInitialDirectorsUpdated(directors)
+	// 	: false;
 
 	// console.log({
 	// 	directors,

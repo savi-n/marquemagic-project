@@ -97,7 +97,6 @@ const DynamicForm = props => {
 
 			reqBody.data.shareholder_details = [reqBody.data.shareholder_details];
 			const submitRes = await axios.post(`${ADD_SHAREHOLDER_DETAILS}`, reqBody);
-			console.log({ submitRes });
 			if (submitRes?.data?.status === 'ok') {
 				onSaveOrUpdateSuccessCallback();
 				addToast({

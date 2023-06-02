@@ -107,7 +107,11 @@ const AddressDetails = props => {
 		businessAddressIdAid2: '',
 	});
 	const selectedIncomeType =
-		sectionData?.director_details?.income_type || selectedDirector?.income_type;
+		sectionData?.director_details?.income_type === 0
+			? '0'
+			: sectionData?.director_details?.income_type ||
+			  selectedDirector?.income_type ||
+			  '';
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [
 		isSameAsAboveAddressChecked,
