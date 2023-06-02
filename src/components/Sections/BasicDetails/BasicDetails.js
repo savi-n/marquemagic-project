@@ -648,13 +648,6 @@ const BasicDetails = props => {
 		validateToken();
 
 		if (
-			selectedProduct?.isSelectedProductTypeSalaried &&
-			Object.keys(directors || {}).length <= 0
-		) {
-			dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
-		}
-
-		if (
 			!isEditLoan &&
 			!isViewLoan &&
 			completedSections?.includes(CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID)
