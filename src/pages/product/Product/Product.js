@@ -39,6 +39,7 @@ import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
+import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 
 const Product = props => {
 	const { product } = props;
@@ -120,6 +121,9 @@ const Product = props => {
 					selectedProductRes?.product_details?.sections?.[0]?.id
 				)
 			);
+			if (selectedProductRes?.loan_request_type === 2) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			}
 			if (response?.data?.loan_request_type) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;
