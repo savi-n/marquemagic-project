@@ -160,10 +160,9 @@ const ProfileUpload = props => {
 				// SELFIE DOC UPLOAD SECTION
 				if (section === 'documentUpload') {
 					const selectedIncomeType =
-						selectedDirector?.basic_details?.[
-							CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-						] || selectedDirector?.income_type;
-
+						selectedDirector?.income_type === 0
+							? '0'
+							: selectedDirector?.income_type || '';
 					formData.append('white_label_id', whiteLabelId);
 					if (
 						Object.keys(coordinates).length > 0 &&
