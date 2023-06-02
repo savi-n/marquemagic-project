@@ -116,8 +116,9 @@ const DocumentUpload = props => {
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
 	const selectedIncomeType =
-		selectedDirector?.basic_details?.['income_type'] ||
-		selectedDirector?.income_type;
+		selectedDirector?.income_type === 0
+			? '0'
+			: selectedDirector?.income_type || '';
 
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -201,7 +202,8 @@ const DocumentUpload = props => {
 					// APPLICANT OR ENTITY
 					try {
 						const reqBody = {
-							business_type: selectedDirector?.income_type || businessType,
+							business_type:
+								directors?.[applicantDirectorId]?.income_type || businessType,
 							loan_product: loanProductId,
 						};
 						// console.log('applicantDocReqBody-', { reqBody });
@@ -235,16 +237,26 @@ const DocumentUpload = props => {
 					// NON-APPLICANTS
 					// const coApplicantDocTypeResHistory = {};
 					const allCoApplicantUniqueIncomeTypeIds = [];
+					// console.log('coappdocfetch-', { nonApplicantDirectorsObject });
 					Object.keys(nonApplicantDirectorsObject).forEach(directorId => {
 						const businessOrIncomeType =
-							nonApplicantDirectorsObject[directorId]?.income_type ||
-							nonApplicantDirectorsObject[directorId]?.businesstype;
+							nonApplicantDirectorsObject?.[directorId]?.income_type === 0
+								? '0'
+								: `${nonApplicantDirectorsObject?.[directorId]?.income_type ||
+										''}` ||
+								  `${nonApplicantDirectorsObject?.[directorId]?.businesstype ||
+										''}` ||
+								  '';
 						if (
 							!allCoApplicantUniqueIncomeTypeIds.includes(businessOrIncomeType)
 						) {
 							allCoApplicantUniqueIncomeTypeIds.push(businessOrIncomeType);
 						}
 					});
+					// console.log('coappdocfetch-', {
+					// 	allCoApplicantUniqueIncomeTypeIds,
+					// 	nonApplicantDirectorsObject,
+					// });
 					if (allCoApplicantUniqueIncomeTypeIds.length > 0) {
 						try {
 							const coAppDocTypesRes = await axios.get(
