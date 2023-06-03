@@ -27,7 +27,7 @@ import {
 import { scrollToTopRootElement } from 'utils/helper';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
-import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
 
 const LoanDetails = () => {
@@ -49,9 +49,9 @@ const LoanDetails = () => {
 	} = app;
 	const { loanId, cacheDocuments } = application;
 	const selectedIncomeType =
-		selectedDirector?.basic_details?.[
-			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		] || selectedDirector?.income_type;
+		selectedDirector?.income_type === 0
+			? '0'
+			: selectedDirector?.income_type || '';
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);

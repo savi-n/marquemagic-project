@@ -510,7 +510,10 @@ const BasicDetails = props => {
 				contactno: sectionData?.director_details?.dcontact,
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber,
-				businesstype: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
+				businesstype:
+					sectionData?.director_details?.income_type === 0
+						? '0'
+						: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
 			};
 
 			// TEST MODE
