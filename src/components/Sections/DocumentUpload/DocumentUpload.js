@@ -24,6 +24,7 @@ import {
 	// 	removeCacheDocument,
 	setGeotaggingMandatoryFields,
 	setDocumentSelfieGeoLocation,
+
 	// 	removeDocumentSelfieGeoLocation,
 } from 'store/applicantCoApplicantsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
@@ -139,7 +140,7 @@ const DocumentUpload = props => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [geoLocationData, setGeoLocationData] = useState('');
 	let prefilledProfileUploadValue = '';
-
+	console.log({ coApplicants });
 	// EVAL DOCUMENTS
 	const initializeExternalUserDocCheckList = async () => {
 		try {
@@ -291,27 +292,86 @@ const DocumentUpload = props => {
 			// -- APPLICANT
 
 			// CO-APPLICANTS
-			const coApplicantDocTypeResHistory = {};
-			await asyncForEach(Object.keys(coApplicants), async directorId => {
-				const oldCoApplicantDocumentTypes = allDocumentTypes?.filter(
-					docType => `${docType.directorId}` === `${directorId}`
-				);
-				if (oldCoApplicantDocumentTypes?.length > 0) {
-					oldCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({ ...docType })
-					);
-				} else {
-					const newCoApplicantDocumentTypes = await getCoApplicantDocumentTypes(
-						{
-							coApplicant: coApplicants[directorId],
-							history: coApplicantDocTypeResHistory,
-						}
-					);
-					newCoApplicantDocumentTypes.map(docType =>
-						newAllDocumentTypes.push({ ...docType })
-					);
+			// NON-APPLICANTS
+			// const coApplicantDocTypeResHistory = {};
+			const allCoApplicantUniqueIncomeTypeIds = [];
+			// console.log('coappdocfetch-', { nonApplicantDirectorsObject });
+			Object.keys(coApplicants).forEach(directorId => {
+				const businessOrIncomeType =
+					coApplicants?.[directorId]?.income_type === 0
+						? '0'
+						: `${coApplicants?.[directorId]?.income_type ||
+								coApplicants?.[directorId]?.basic_details?.income_type ||
+								''}` ||
+						  `${coApplicants?.[directorId]?.businesstype ||
+								coApplicants?.[directorId]?.busienss_details?.businesstype ||
+								''}` ||
+						  '';
+				if (!allCoApplicantUniqueIncomeTypeIds.includes(businessOrIncomeType)) {
+					allCoApplicantUniqueIncomeTypeIds.push(businessOrIncomeType);
 				}
 			});
+			// console.log('coappdocfetch-', {
+			// 	allCoApplicantUniqueIncomeTypeIds,
+			// 	nonApplicantDirectorsObject,
+			// });
+			if (allCoApplicantUniqueIncomeTypeIds.length > 0) {
+				try {
+					const coAppDocTypesRes = await axios.get(
+						`${
+							API.CO_APPLICANTS_DOCTYPES_FETCH
+						}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
+					);
+					// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
+					coAppDocTypesRes?.data?.data?.forEach(
+						(nonApplicantDocs, nonApplicantIndex) => {
+							for (const key in nonApplicantDocs) {
+								nonApplicantDocs[key]?.forEach(docType => {
+									const category = getDocumentCategoryName(docType?.doc_type);
+									const newDoc = {
+										...docType,
+										doc_type_id: docType?.id,
+										type_name: coApplicants?.[nonApplicantIndex]?.type_name,
+										value: docType?.id,
+										category,
+										directorId: coApplicants?.[nonApplicantIndex]?.directorId,
+									};
+									newAllDocumentTypes.push(newDoc);
+								});
+							}
+						}
+					);
+				} catch (error) {
+					console.error(
+						'error-failted to fetch coapplicant document list-',
+						error
+					);
+				}
+			}
+			// -- NON-APPLICANTS
+
+			// old flow
+			// const coApplicantDocTypeResHistory = {};
+			// await asyncForEach(Object.keys(coApplicants), async directorId => {
+			// 	const oldCoApplicantDocumentTypes = allDocumentTypes?.filter(
+			// 		docType => `${docType.directorId}` === `${directorId}`
+			// 	);
+			// 	if (oldCoApplicantDocumentTypes?.length > 0) {
+			// 		oldCoApplicantDocumentTypes.map(docType =>
+			// 			newAllDocumentTypes.push({ ...docType })
+			// 		);
+			// 	} else {
+			// 		const newCoApplicantDocumentTypes = await getCoApplicantDocumentTypes(
+			// 			{
+			// 				coApplicant: coApplicants[directorId],
+			// 				history: coApplicantDocTypeResHistory,
+			// 			}
+			// 		);
+			// 		newCoApplicantDocumentTypes.map(docType =>
+			// 			newAllDocumentTypes.push({ ...docType })
+			// 		);
+			// 	}
+			// });
 			// -- CO-APPLICANTS
 
 			if (isViewLoan) {
