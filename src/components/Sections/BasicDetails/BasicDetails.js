@@ -71,7 +71,9 @@ const BasicDetails = props => {
 		editLoanDirectors,
 		userDetails,
 		isGeoTaggingEnabled,
+		permission,
 	} = app;
+	const { isCountryIndia } = permission;
 	const {
 		isApplicant,
 		applicant,
@@ -814,10 +816,12 @@ const BasicDetails = props => {
 								{sub_section.name}
 							</UI_SECTIONS.SubSectionHeader>
 						) : null}
-						<Hint
-							hint='Please upload the document with KYC image in Portrait Mode'
-							hintIconName='Portrait Mode'
-						/>
+						{isCountryIndia && (
+							<Hint
+								hint='Please upload the document with KYC image in Portrait Mode'
+								hintIconName='Portrait Mode'
+							/>
+						)}
 						<UI_SECTIONS.FormWrapGrid>
 							{sub_section?.fields?.map((field, fieldIndex) => {
 								// disable fields based on config starts
