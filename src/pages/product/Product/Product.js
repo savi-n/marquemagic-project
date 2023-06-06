@@ -54,6 +54,7 @@ const Product = props => {
 		userDetails,
 		whiteLabelId,
 		isViewLoan,
+		isEditOrViewLoan,
 	} = app;
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
@@ -121,7 +122,7 @@ const Product = props => {
 					selectedProductRes?.product_details?.sections?.[0]?.id
 				)
 			);
-			if (selectedProductRes?.loan_request_type === 2) {
+			if (selectedProductRes?.loan_request_type === 2 && !isEditOrViewLoan) {
 				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
 			}
 			if (response?.data?.loan_request_type) {
