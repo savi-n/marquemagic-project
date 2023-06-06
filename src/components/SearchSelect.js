@@ -155,6 +155,8 @@ export default function SearchSelect(props) {
 	const [selectOptions, setSelectOptions] = useState(options);
 	const [focus, setFocus] = useState(false);
 	const compRef = useRef('');
+	// const disable3CharacterSearch = true;
+	const disable3CharacterSearch = !!field?.disable_3_character_search;
 
 	useClickOutside(compRef, () => {
 		if (optionShow) {
@@ -272,12 +274,19 @@ export default function SearchSelect(props) {
 		}
 	};
 
-	const filterdOptions = selectOptions.filter(({ name, value }) =>
-		searchKey.length >= 3
-			? name.toLowerCase().includes(searchKey.toLowerCase()) ||
-			  value.toLowerCase().includes(searchKey.toLowerCase())
-			: false
-	);
+	const filterdOptions = selectOptions.filter(({ name, value }) => {
+		if (disable3CharacterSearch) {
+			return (
+				name.toLowerCase().includes(searchKey.toLowerCase()) ||
+				value.toLowerCase().includes(searchKey.toLowerCase())
+			);
+		} else {
+			return searchKey.length >= 3
+				? name.toLowerCase().includes(searchKey.toLowerCase()) ||
+						value.toLowerCase().includes(searchKey.toLowerCase())
+				: false;
+		}
+	});
 
 	return (
 		<>
@@ -348,7 +357,9 @@ export default function SearchSelect(props) {
 						))}
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
-								{searchKey.length < 3
+								{disable3CharacterSearch
+									? 'Options Not Found.'
+									: searchKey.length < 3
 									? 'Please enter atleast 3 character'
 									: 'Options Not Found.'}
 								{/* {' '}
