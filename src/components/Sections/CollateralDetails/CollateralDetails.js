@@ -158,7 +158,7 @@ const CollateralDetails = () => {
 				<>
 					<Fragment>
 						<UI_SECTIONS.SubSectionHeader>
-							Help Us With Your Colalteral Details
+							Help Us With Your Collateral Details
 						</UI_SECTIONS.SubSectionHeader>
 						{/* combine local + db array */}
 						{sectionData.map((section, sectionIndex) => {

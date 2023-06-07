@@ -8,13 +8,13 @@ const Table = ({
 	hasSeperator,
 	buttonDisabled,
 	application,
-	// token,
+	token,
 }) => {
 	return (
 		<>
 			<UI.TableContainer>
 				<UI.TableHeader>
-					{headers.map(header => (
+					{headers?.map(header => (
 						<UI.TableCell key={header}>{header}</UI.TableCell>
 					))}
 				</UI.TableHeader>
@@ -26,6 +26,7 @@ const Table = ({
 						section={section}
 						application={application}
 						buttonDisabled={buttonDisabled}
+						token={token}
 					/>
 				))}
 			</UI.TableContainer>
@@ -33,6 +34,5 @@ const Table = ({
 		</>
 	);
 };
-
 
 export default Table;

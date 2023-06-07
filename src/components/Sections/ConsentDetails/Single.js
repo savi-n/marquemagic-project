@@ -28,6 +28,7 @@ const Single = ({
 		'Udyam Number': 'udyamNum',
 		'Crime Check': 'crimecheck',
 		// 'Itr Number': 'itr_num',
+		Name: 'name',
 	};
 	const sections = {
 		ROC: 'ROC',
@@ -35,13 +36,13 @@ const Single = ({
 		'CIBIL/Equifax': 'CIBIL',
 		EPFO: 'EPFO',
 		ESIC: 'ESIC',
-		'Aadhaar Consent': 'AADHAAR',
+		'Aadhaar Consent': 'aadhaar',
 		ITR: 'ITR',
 		// 'GST Verification': 'GST',
 		Udyam: 'udyam',
 		'C-KYC': 'CKYC',
 		'Bio-metric KYC': 'BKYC',
-		'Crime Check': 'CRIMECHECK',
+		'Crime Check': 'crime_check',
 	};
 	// const [loading, setLoading] = useState();
 	const { addToast } = useToasts();
@@ -56,13 +57,21 @@ const Single = ({
 		const payLoad = {
 			choice: sections[section],
 			director_id: appObj.id,
-			aadhaar: appObj.aadhaar,
+			aadhaarNo: appObj.aadhaar,
 			pan: appObj.pan,
-			crimeCheck: appObj.check,
+			crime_check: appObj.check,
 			gstin: appObj.gstin,
 			cin: appObj.cin,
 			udyamNum: appObj.udyamNum,
 		};
+		if (!appObj.udyamNum || appObj.udyamNum === '--') {
+			addToast({
+				message: 'Please enter udhyam number to verify it',
+				type: 'warning',
+			});
+			return;
+		}
+
 		try {
 			sections[section] === 'CRIMECHECK' && setDisabled(true);
 			// appObj.status = 'In Progress';
@@ -73,7 +82,7 @@ const Single = ({
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
 					application,
 				})}`,
-				sections[section] === 'ROC'
+				sections[section] === 'ROC' || sections[section] === 'aadhaar'
 					? {
 							headers: {
 								Authorization: `${token}`,
@@ -83,20 +92,28 @@ const Single = ({
 					: { params: payLoad }
 			);
 			// TODO: MODAL only for those which needs User inputs //ITR and AADHAAR
-			if (sections[section] === 'ITR' || sections[section] === 'GST') {
+			if (
+				sections[section] === 'ITR' ||
+				sections[section] === 'GST' ||
+				sections[section] === 'aadhaar'
+			) {
 				setHtmlContent(response.data);
 				setModalOpen(true);
 			} else {
 				if (response?.data?.status === 'Wrong Input') {
 					addToast({
-						message: 'Error fetching details, Please try after sometime!',
+						message:
+							response?.data?.message ||
+							'Error fetching details, Please try after sometime!',
 						type: 'error',
 					});
 					// appObj.status = 'Failed';
 					setStatus('Failed');
 				} else if (response?.data?.status === 'nok') {
 					addToast({
-						message: 'Something went wrong, Please try after sometime!',
+						message:
+							response?.data?.message ||
+							'Something went wrong, Please try after sometime!',
 						type: 'error',
 					});
 					// appObj.status = 'Invalid Data';

@@ -47,6 +47,7 @@ const PanUpload = props => {
 		isDisabled,
 		setCompanyRocData,
 		completedSections,
+		setdisableUdyamNumberInput,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const {
@@ -489,6 +490,10 @@ const PanUpload = props => {
 							'YYYY-MM-DD'
 						) || '',
 				});
+				setdisableUdyamNumberInput(true);
+			}
+			if (verifyUdyogRes?.data?.status === 'nok') {
+				setdisableUdyamNumberInput(false);
 			}
 			return verifyUdyogRes;
 		} catch (e) {
