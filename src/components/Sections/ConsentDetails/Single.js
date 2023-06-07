@@ -24,7 +24,7 @@ const Single = ({
 		'PAN Number': 'pan',
 		'Company Name': 'name',
 		// 'Business Name': 'name',
-		'GST Number': 'gstin',
+		'GST Number': 'gstn' || 'gstin',
 		'CIN Number': 'cin',
 		'Udyam Number': 'udyamNum',
 		'Crime Check': 'crime_check',
