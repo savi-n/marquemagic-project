@@ -151,7 +151,7 @@ const BusinessDetails = props => {
 					white_label_id: whiteLabelId,
 					source: API.APP_CLIENT,
 					name: formState?.values?.first_name,
-					mobileNo: formState?.values?.mobile_no,
+					mobileNo: formState?.values?.business_mobile_no,
 					addrr1: '',
 					addrr2: '',
 				};
