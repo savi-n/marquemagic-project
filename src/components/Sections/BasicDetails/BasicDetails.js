@@ -51,6 +51,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -509,7 +510,10 @@ const BasicDetails = props => {
 				contactno: sectionData?.director_details?.dcontact,
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber,
-				businesstype: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
+				businesstype:
+					sectionData?.director_details?.income_type === 0
+						? '0'
+						: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
 			};
 
 			// TEST MODE
@@ -640,6 +644,7 @@ const BasicDetails = props => {
 	// fetch section data ends
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		validateToken();
 
 		if (
@@ -656,7 +661,7 @@ const BasicDetails = props => {
 		if (
 			!!loanRefId &&
 			// !!selectedDirector &&
-			!!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
+			// !!selectedDirector?.sections?.includes(CONST.BASIC_DETAILS_SECTION_ID) &&
 			selectedDirectorId
 		)
 			fetchSectionDetails();

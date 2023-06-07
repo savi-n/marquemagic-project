@@ -23,11 +23,13 @@ const Single = ({
 		Status: 'status',
 		'PAN Number': 'pan',
 		'Company Name': 'name',
-		'GST Number': 'gstin',
+		// 'Business Name': 'name',
+		'GST Number': 'gstn' || 'gstin',
 		'CIN Number': 'cin',
 		'Udyam Number': 'udyamNum',
-		'Crime Check': 'crimecheck',
+		'Crime Check': 'crime_check',
 		// 'Itr Number': 'itr_num',
+		'Director ID': 'director_id',
 		Name: 'name',
 	};
 	const sections = {
@@ -42,27 +44,29 @@ const Single = ({
 		Udyam: 'udyam',
 		'C-KYC': 'CKYC',
 		'Bio-metric KYC': 'BKYC',
-		'Crime Check': 'crime_check',
+		'Crime Check Consent': 'crime_check',
 	};
-	// const [loading, setLoading] = useState();
+	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
 	const [htmlContent, setHtmlContent] = useState('');
 	const [isGstModalOpen, setModalOpen] = useState(false);
-	const [disabled, setDisabled] = useState(false);
 	const [status, setStatus] = useState(rowData?.status);
+	const [disabled, setDisabled] = useState(false);
 	// const dispatch = useDispatch();
 
 	const fetchHandle = async appObj => {
 		// console.log({ appObj });
 		const payLoad = {
 			choice: sections[section],
-			director_id: appObj.id,
-			aadhaarNo: appObj.aadhaar,
-			pan: appObj.pan,
-			crime_check: appObj.check,
-			gstin: appObj.gstin,
-			cin: appObj.cin,
-			udyamNum: appObj.udyamNum,
+			director_id: appObj?.id || appObj?.director_id,
+			aadhaarNo: appObj?.aadhaar,
+			pan: appObj?.pan,
+			crime_check: appObj?.check,
+			gstin: appObj?.gstn || appObj?.gstin,
+			cin: appObj?.cin,
+			udyamNum: appObj?.udyamNum,
+			// udyamNum:'UDYAM-MH-19-0002476',
+			is_applicant: appObj?.is_applicant,
 		};
 		if (!appObj.udyamNum || appObj.udyamNum === '--') {
 			addToast({
@@ -73,11 +77,11 @@ const Single = ({
 		}
 
 		try {
-			sections[section] === 'CRIMECHECK' && setDisabled(true);
-			// appObj.status = 'In Progress';
+			// sections[section] === 'crime_check' && setDisabled(true);
+			// appObj?.status = 'In Progress';
 			setStatus('In Progress');
 			setDisabled(true);
-			// setLoading(true);
+			setLoading(true);
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
 					application,
@@ -91,7 +95,7 @@ const Single = ({
 					  }
 					: { params: payLoad }
 			);
-			// TODO: MODAL only for those which needs User inputs //ITR and AADHAAR
+			// TODO: MODAL only for those which needs User inputs //ITR, GST and AADHAAR
 			if (
 				sections[section] === 'ITR' ||
 				sections[section] === 'GST' ||
@@ -118,15 +122,37 @@ const Single = ({
 					});
 					// appObj.status = 'Invalid Data';
 					setStatus('Invalid Data');
-
-					setDisabled(true);
-				} else {
-					// TODO: Here need to get status from API and update appObj.status
-					appObj.status =
-						response?.data?.status === 200 || response?.data?.status === 'ok'
-							? 'In Progress'
-							: response?.data?.status;
 				}
+			}
+			if (
+				sections[section] === 'crime_check' &&
+				response?.data?.status === 'ok'
+			) {
+				//console.log('section', section);
+				addToast({
+					message: response?.data?.message || 'Successfully updated',
+					type: 'success',
+				});
+				setStatus(appObj?.check);
+				setDisabled(true);
+			} else if (
+				response?.data?.status === 200 ||
+				response?.data?.status === 'ok'
+			) {
+				setStatus('In Progress');
+				setDisabled(true);
+			}
+			if (
+				response?.data?.status === 'Wrong Input' ||
+				response?.data?.status === 'nok'
+			) {
+				addToast({
+					message: 'Something went wrong, Please try after sometime!',
+					type: 'error',
+				});
+				// appObj?.status = 'Invalid Data';
+				setStatus('Failed');
+				setDisabled(false);
 			}
 		} catch (error) {
 			console.error('error-ConsentDetails-fetchModal-', {
@@ -140,10 +166,10 @@ const Single = ({
 				type: 'error',
 			});
 			setModalOpen(false);
-			// appObj.status = 'Failed';
+			// appObj?.status = 'Failed';
 			setStatus('Failed');
 		} finally {
-			// setLoading(false);
+			setLoading(false);
 		}
 	};
 
@@ -180,42 +206,49 @@ const Single = ({
 						src={imgClose}
 						alt='close'
 					/>
-					<div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+					<div
+						dangerouslySetInnerHTML={{ __html: htmlContent }}
+						style={{ padding: '1rem' }}
+					/>
 				</section>
 			</Modal>
 
 			<UI.TableRow>
 				{headers?.map(header => (
 					<UI.TableCell key={header}>
-						{header === 'Status' ? status : rowData[mapping[header]] || '--'}
+						{mapping[header] !== 'director_id' &&
+							(header === 'Status' ? status : rowData[mapping[header]] || '--')}
 					</UI.TableCell>
 				))}
 				<UI.TableCell>
-					{sections[section] !== 'CRIMECHECK' ? (
+					{sections[section] !== 'crime_check' ? (
 						<Button
 							name='Fetch'
 							onClick={() => fetchHandle(rowData)}
 							disabled={
-								buttonDisabled || disabled || rowData.status === 'Fetched'
+								buttonDisabled || disabled || rowData?.status === 'Fetched'
 							}
+							loading={loading}
 						/>
 					) : (
-						rowData.status === 'Not Fetched' && (
-							<UI.Buttons>
-								<Button
-									width='100px'
-									name='Yes'
-									onClick={() => fetchHandle({ ...rowData, check: true })}
-									disabled={buttonDisabled || disabled}
-								/>
-								<Button
-									width='80px'
-									name='No'
-									onClick={() => fetchHandle({ ...rowData, check: false })}
-									disabled={buttonDisabled || disabled}
-								/>
-							</UI.Buttons>
-						)
+						<UI.Buttons>
+							<Button
+								width='100px'
+								name='Yes'
+								onClick={() => fetchHandle({ ...rowData, check: 'Yes' })}
+								disabled={
+									buttonDisabled || disabled || rowData?.status === 'Yes'
+								}
+							/>
+							{/* <Button
+								width='80px'
+								name='No'
+								onClick={() => fetchHandle({ ...rowData, check: 'No' })}
+								disabled={
+									buttonDisabled || disabled || rowData?.status === 'Yes'
+								}
+							/> */}
+						</UI.Buttons>
 					)}
 				</UI.TableCell>
 			</UI.TableRow>

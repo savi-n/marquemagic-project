@@ -37,7 +37,12 @@ const DynamicForm = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection, selectedProduct } = app;
+	const {
+		isTestMode,
+		selectedSection,
+		selectedProduct,
+		isViewLoan: isViewLoanApp,
+	} = app;
 	const { businessName } = application;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
@@ -84,6 +89,11 @@ const DynamicForm = props => {
 	};
 
 	const prefilledValues = field => {
+		//TODO:  config field mis-matching, Temp Fixed for DOS-3949
+		if (editSectionId !== '' && field['name'] === 'loan_type') {
+			if (formState?.values['loan_type'] === '')
+				return prefillData?.loan_sub_type;
+		}
 		//OUTSTANDING AMOUNT CALC
 		if (field['name'] === 'outstanding_loan_amount') {
 			return (field['value'] =
@@ -91,8 +101,7 @@ const DynamicForm = props => {
 				+formState?.values?.['remaining_loan_tenure']);
 		}
 		try {
-			const isFormStateUpdated =
-				formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -209,7 +218,7 @@ const DynamicForm = props => {
 							: selectedDirectorOptions;
 					}
 
-					if (isViewLoan) {
+					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
 					// console.log('render-field-', {
@@ -238,7 +247,7 @@ const DynamicForm = props => {
 					);
 				})}
 			</UI_SECTIONS.FormWrapGrid>
-			{!isViewLoan && (
+			{!isViewLoan && !isViewLoanApp && (
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}

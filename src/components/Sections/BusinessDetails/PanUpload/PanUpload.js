@@ -431,6 +431,12 @@ const PanUpload = props => {
 				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
 				value: formattedCompanyData?.BusinessType || 0 || '',
 			});
+
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
+				value: formattedCompanyData?.Email || '',
+			});
+
 			const businessVintageValue =
 				moment(formattedCompanyData?.BusinessVintage).format('YYYY-MM-DD') ||
 				moment(panExtractionData?.DOB).format('YYYY-MM-DD') ||

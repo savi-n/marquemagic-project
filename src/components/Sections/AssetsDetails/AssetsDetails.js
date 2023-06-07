@@ -16,6 +16,7 @@ import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
 // import selectedSection from './sample.json';
 
 const AssetsDetails = props => {
@@ -105,6 +106,7 @@ const AssetsDetails = props => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -139,6 +141,10 @@ const AssetsDetails = props => {
 									const prefillData = section
 										? {
 												...section,
+												director_id:
+													section?.director_id === 0
+														? '0'
+														: `${section?.director_id}`,
 												...(section?.loan_json || {}),
 										  }
 										: {};
@@ -214,7 +220,9 @@ const AssetsDetails = props => {
 															toggleAccordian(sectionId);
 														}}
 														style={{
-															transform: 'rotate(90deg)',
+															transform: isAccordianOpen
+																? 'rotate(270deg)'
+																: 'rotate(90deg)',
 															...(isCreateFormOpen || isEditLoan
 																? {
 																		cursor: 'not-allowed',
@@ -290,7 +298,7 @@ const AssetsDetails = props => {
 							<Button
 								fill
 								name='Save and Proceed'
-								// isLoader={isCreateFormOpen || !!editSectionId}
+								// isLoader={!!editSectionId}
 								disabled={isCreateFormOpen || !!editSectionId}
 								onClick={onSaveAndProceed}
 							/>

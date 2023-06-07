@@ -6,6 +6,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { getApiErrorMessage } from 'utils/formatData';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper.js';
 import Button from 'components/Button';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui.js';
@@ -74,6 +75,7 @@ const ConsentDetails = props => {
 	};
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		fetchConsentDetails();
 		//eslint-disable-next-line
 	}, []);
@@ -109,17 +111,17 @@ const ConsentDetails = props => {
 				return (
 					<UI.TableWrapper key={`section-${sectionIndex}-${tables?.id}`}>
 						{/* {Will change it later to something dynamic} */}
-						{tables.fields[0].data.length >= 1 && (
+						{tables?.fields?.[0]?.data?.length >= 1 && (
 							<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
 						)}
-						{tables.fields.map((field, idx) => {
+						{tables?.fields?.map((field, idx) => {
 							return (
-								field.data.length >= 1 && (
+								field?.data?.length >= 1 && (
 									<Table
 										key={`table-${idx}`}
 										application={application}
-										headers={field.headers}
-										data={field.data}
+										headers={field?.headers || []}
+										data={field?.data || []}
 										loanId={loanId}
 										token={clientToken}
 										hasSeperator={idx < tables?.fields?.length - 1}
@@ -142,15 +144,15 @@ const ConsentDetails = props => {
 						onClick={onSaveAndProceed}
 					/>
 				)}
-				{isViewLoan && (
-					<>
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
 
 				{isViewLoan && (
 					<>
 						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
+					</>
+				)}
+				{isViewLoan && (
+					<>
+						<Button name='Next' onClick={naviagteToNextSection} fill />
 					</>
 				)}
 			</UI_SECTIONS.Footer>

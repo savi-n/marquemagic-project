@@ -24,8 +24,10 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	validateEmploymentDetails,
-	checkInitialDirectorsUpdated,
+	// checkInitialDirectorsUpdated,
+	validateDirectorForSme,
 } from 'utils/formatData';
+import { scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
 import Loading from 'components/Loading';
 
@@ -54,9 +56,9 @@ const EmploymentDetails = () => {
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
 	const editSectionId = sectionData?.income_data?.employment_id || '';
-	const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
-		? checkInitialDirectorsUpdated(directors)
-		: false;
+	// const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
+	// 	? checkInitialDirectorsUpdated(directors)
+	// 	: false;
 
 	// console.log({
 	// 	directors,
@@ -159,6 +161,27 @@ const EmploymentDetails = () => {
 		dispatch(setAddNewDirectorKey(key));
 	};
 
+	const onAddDirectorSme = async key => {
+		if (`${selectedDirectorId}` !== `${Object.keys(directors)?.[0]}`) {
+			const validateDirector = validateDirectorForSme(directors);
+			if (validateDirector?.allowProceed === false) {
+				addToast({
+					message: `Please fill all the details in ${validateDirector?.directorName ||
+						'the First Director'}`,
+					type: 'error',
+				});
+				return;
+			}
+		}
+
+		const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+
+		if (!isEmploymentDetailsSubmited) return;
+		dispatch(setSelectedDirectorId(''));
+		dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+		dispatch(setAddNewDirectorKey(key));
+	};
+
 	const onSaveAndProceed = async () => {
 		try {
 			if (!validateNavigation()) {
@@ -182,6 +205,29 @@ const EmploymentDetails = () => {
 			// 	dispatch(setSelectedSectionId(nextSectionId));
 			// 	return;
 			// }
+			dispatch(setSelectedSectionId(nextSectionId));
+		} catch (error) {
+			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
+		}
+	};
+
+	const onSaveAndProceedSme = async () => {
+		try {
+			if (`${selectedDirectorId}` !== `${Object.keys(directors)?.[0]}`) {
+				const validateDirector = validateDirectorForSme(directors);
+				if (validateDirector?.allowProceed === false) {
+					addToast({
+						message: `Please fill all the details in ${validateDirector?.directorName ||
+							'the First Director'}`,
+						type: 'error',
+					});
+					return;
+				}
+			}
+
+			const isEmploymentDetailsSubmited = await submitEmploymentDetails();
+			if (!isEmploymentDetailsSubmited) return;
+
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-EmploymentDetails-onSaveAndProceed-', error);
@@ -261,6 +307,7 @@ const EmploymentDetails = () => {
 	// fetch section data ends
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (
 			!!selectedDirector?.sections?.includes(
 				CONST.EMPLOYMENT_DETAILS_SECTION_ID
@@ -369,32 +416,44 @@ const EmploymentDetails = () => {
 						);
 					})}
 					<UI_SECTIONS.Footer>
-						{displayProceedCTA && !initialDirectorsUpdated && !isViewLoan && (
-							<Button
-								fill
-								name='Save and Proceed'
-								isLoader={loading}
-								disabled={loading}
-								onClick={handleSubmit(onSaveAndProceed)}
-							/>
-						)}
+						{displayProceedCTA &&
+							selectedProduct?.loan_request_type === 2 &&
+							!isViewLoan && (
+								<Button
+									fill
+									name='Save and Proceed'
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(onSaveAndProceed)}
+								/>
+							)}
 						{/* visibility of add co-applicant based on the config */}
-						{displayAddCoApplicantCTA && !initialDirectorsUpdated && (
+						{displayAddCoApplicantCTA &&
+							selectedProduct?.loan_request_type === 2 && (
+								<Button
+									fill
+									name='Add Co-Applicant'
+									isLoader={loading}
+									disabled={loading}
+									onClick={handleSubmit(() => {
+										// dispatch(setAddNewDirectorKey('Co-applicant'));
+										onAddDirector('Co-applicant');
+									})}
+								/>
+							)}
+						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
 							<Button
 								fill
-								name='Add Co-Applicant'
+								name={'Save and Proceed'}
 								isLoader={loading}
 								disabled={loading}
-								onClick={handleSubmit(() => {
-									// dispatch(setAddNewDirectorKey('Co-applicant'));
-									onAddDirector('Co-applicant');
-								})}
+								onClick={handleSubmit(onSaveAndProceedSme)}
 							/>
 						)}
-
-						{`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							`${Object.keys(directors)?.pop()}` !== `${selectedDirectorId}` &&
 							Object.keys(directors)?.length > 1 &&
-							initialDirectorsUpdated && (
+							!isViewLoan && (
 								<Button
 									fill
 									name={'Next'}
@@ -405,9 +464,22 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
-						{!isViewLoan &&
-							!initialDirectorsUpdated &&
-							selectedProduct?.isSelectedProductTypeBusiness &&
+
+						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
+							<Button
+								fill
+								name='Add Co-Applicant'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									onAddDirectorSme('Co-applicant');
+								})}
+							/>
+						)}
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							!isViewLoan &&
+							// !initialDirectorsUpdated &&
 							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
 								if (!field?.business_income_type_id?.includes(+businessType))
 									return null;
@@ -419,7 +491,7 @@ const EmploymentDetails = () => {
 										isLoader={loading}
 										disabled={loading}
 										onClick={handleSubmit(() => {
-											onAddDirector(field?.key);
+											onAddDirectorSme(field?.key);
 										})}
 									/>
 								);

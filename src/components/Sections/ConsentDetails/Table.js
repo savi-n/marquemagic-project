@@ -15,18 +15,20 @@ const Table = ({
 			<UI.TableContainer>
 				<UI.TableHeader>
 					{headers?.map(header => (
-						<UI.TableCell key={header}>{header}</UI.TableCell>
+						<UI.TableCell key={header}>
+							{header !== 'Director ID' && header}
+						</UI.TableCell>
 					))}
 				</UI.TableHeader>
-				{data.map((rowData, rowIndex) => (
+				{data?.map((rowData, rowIndex) => (
 					<Single
 						headers={headers}
 						rowData={rowData}
 						key={rowIndex}
 						section={section}
+						token={token}
 						application={application}
 						buttonDisabled={buttonDisabled}
-						token={token}
 					/>
 				))}
 			</UI.TableContainer>
@@ -34,5 +36,4 @@ const Table = ({
 		</>
 	);
 };
-
 export default Table;

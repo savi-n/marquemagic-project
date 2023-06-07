@@ -37,7 +37,9 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
+import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 
 const Product = props => {
 	const { product } = props;
@@ -52,6 +54,7 @@ const Product = props => {
 		userDetails,
 		whiteLabelId,
 		isViewLoan,
+		isEditOrViewLoan,
 	} = app;
 	const { response } = useFetch({
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
@@ -78,10 +81,12 @@ const Product = props => {
 		application_submitted: ApplicationSubmitted,
 		consent_details: ConsentDetails,
 		subsidiary_details: SubsidiaryDetails,
+		shareholder_details: ShareholderDetails,
 		poa_details: PowerOfAtterneyDetails,
 	};
 	let SelectedComponent =
 		SELECTED_SECTION_MAPPING?.[selectedSectionId] || BasicDetails;
+
 	useEffect(() => {
 		// console.log({ reqType: response?.data?.loan_request_type, response });
 		if (response) {
@@ -117,6 +122,9 @@ const Product = props => {
 					selectedProductRes?.product_details?.sections?.[0]?.id
 				)
 			);
+			if (selectedProductRes?.loan_request_type === 2 && !isEditOrViewLoan) {
+				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
+			}
 			if (response?.data?.loan_request_type) {
 				response.data.product_details.loan_request_type =
 					response?.data?.loan_request_type;

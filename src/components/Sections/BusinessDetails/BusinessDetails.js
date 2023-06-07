@@ -39,6 +39,7 @@ import {
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
+import { scrollToTopRootElement } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -135,6 +136,7 @@ const BusinessDetails = props => {
 		return payloadObj?.map(obj => ({
 			name: obj.Name,
 			'din/pan': obj.Din,
+			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
 		}));
 	};
 
@@ -152,7 +154,7 @@ const BusinessDetails = props => {
 					white_label_id: whiteLabelId,
 					source: API.APP_CLIENT,
 					name: formState?.values?.first_name,
-					mobileNo: formState?.values?.mobile_no,
+					mobileNo: formState?.values?.business_mobile_no,
 					addrr1: '',
 					addrr2: '',
 				};
@@ -235,6 +237,11 @@ const BusinessDetails = props => {
 						// selectedDirector,
 						application,
 						selectedLoanProductId,
+					});
+
+					companyRocData?.data?.director?.map(dir => {
+						dir.income_type = 'business'; // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
+						return null;
 					});
 					addDirectorsReqBody.data =
 						companyRocData?.data?.director ||
@@ -498,6 +505,7 @@ const BusinessDetails = props => {
 		}
 	};
 	useEffect(() => {
+		scrollToTopRootElement();
 		validateToken();
 		if (
 			!isEditLoan &&

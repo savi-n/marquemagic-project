@@ -5,24 +5,31 @@ import axios from 'axios';
 import Button from 'components/Button';
 import Loading from 'components/Loading';
 import NavigateCTA from 'components/Sections/NavigateCTA';
-import DynamicForm from './DynamicForm';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { formatGetSectionReqBody } from 'utils/formatData';
-import { API_END_POINT } from '_config/app.config';
 import { scrollToTopRootElement } from 'utils/helper';
+import * as UI_SECTIONS from 'components/Sections/ui';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
-import * as UI_SECTIONS from 'components/Sections/ui';
+import DynamicForm from './DynamicForm';
+import { API_END_POINT } from '_config/app.config';
 // import selectedSection from './sample.json';
 
-const PowerOfAtterneyDetails = props => {
+const ShareholderDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { selectedDirectorOptions } = useSelector(state => state.directors);
-	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
+	// const { selectedDirectorOptions } = useSelector(state => state.directors);
+	const {
+		isViewLoan,
+		selectedSectionId,
+		nextSectionId,
+		selectedSection,
+		// selectedProduct,
+	} = app;
+
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -41,11 +48,11 @@ const PowerOfAtterneyDetails = props => {
 		try {
 			setFetchingSectionData(true);
 			const fetchRes = await axios.get(
-				`${API_END_POINT}/poa_details?${formatGetSectionReqBody({
+				`${API_END_POINT}/shareholder_details?${formatGetSectionReqBody({
 					application,
 				})}`
 			);
-			// console.log('fetchRes-', fetchRes);
+			// console.log('fetchRes-', fetchRes?.data?.data);
 			if (fetchRes?.data?.data?.length > 0) {
 				setSectionData(fetchRes?.data?.data);
 				setEditSectionId('');
@@ -96,13 +103,6 @@ const PowerOfAtterneyDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('PowerOfAtterneyDetails-allstates-', {
-	// 	app,
-	// 	selectedSection,
-	// 	isCreateFormOpen,
-	// 	editSectionId,
-	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
@@ -110,6 +110,7 @@ const PowerOfAtterneyDetails = props => {
 			) : (
 				<>
 					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
+						if (!sub_section?.is_dynamic) return null;
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
@@ -122,7 +123,11 @@ const PowerOfAtterneyDetails = props => {
 									const sectionId = section?.id;
 									const isAccordianOpen = sectionId === openAccordianId;
 									const isEditLoan = editSectionId === sectionId;
-									const prefillData = section || {};
+									const prefillData = section
+										? {
+												...section,
+										  }
+										: {};
 									return (
 										<UI_SECTIONS.AccordianWrapper>
 											<UI_SECTIONS.AccordianHeader
@@ -131,22 +136,14 @@ const PowerOfAtterneyDetails = props => {
 												{isAccordianOpen ? null : (
 													<>
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Principal:</span>
-															<strong>
-																{
-																	selectedDirectorOptions?.filter(
-																		director =>
-																			`${director?.value}` ===
-																			`${prefillData?.principal}`
-																	)?.[0]?.name
-																}
-															</strong>
+															<span>Shareholder Name:</span>
+															<strong>{prefillData?.name}</strong>
 														</UI_SECTIONS.AccordianHeaderData>
-														<UI_SECTIONS.AccordianHeaderData />
 														<UI_SECTIONS.AccordianHeaderData>
-															<span>Relation:</span>
+															<span>Percentage:</span>
 															<strong>
-																{prefillData?.principal_relationship_with_poa}
+																{/* {prefillData?.loan_asset_type_id?.percentage} */}
+																{prefillData?.percentage}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
 													</>
@@ -154,7 +151,10 @@ const PowerOfAtterneyDetails = props => {
 												<UI_SECTIONS.AccordianHeaderData
 													style={
 														isAccordianOpen
-															? { marginLeft: 'auto', flex: 'none' }
+															? {
+																	marginLeft: 'auto',
+																	flex: 'none',
+															  }
 															: { flex: 'none' }
 													}
 												>
@@ -183,6 +183,8 @@ const PowerOfAtterneyDetails = props => {
 														src={expandIcon}
 														alt='toggle'
 														onClick={() => {
+															openAccordianId !== sectionId &&
+																onCancelCallback(openAccordianId);
 															if (isCreateFormOpen || isEditLoan) return;
 															toggleAccordian(sectionId);
 														}}
@@ -214,9 +216,6 @@ const PowerOfAtterneyDetails = props => {
 														isCreateFormOpen={isCreateFormOpen}
 													/>
 												)}
-												{/* {isResetFormComplete ? (
-											<DynamicForm fields={sub_section?.fields || []} />
-										) : null} */}
 											</UI_SECTIONS.AccordianBody>
 										</UI_SECTIONS.AccordianWrapper>
 									);
@@ -256,7 +255,7 @@ const PowerOfAtterneyDetails = props => {
 									src={plusRoundIcon}
 									onClick={openCreateForm}
 								/>
-								<span>Click to add additional Power of Attorney Details</span>
+								<span>Click to add additional shareholders</span>
 							</>
 						)}
 					</UI_SECTIONS.AddDynamicSectionWrapper>
@@ -279,4 +278,4 @@ const PowerOfAtterneyDetails = props => {
 	);
 };
 
-export default PowerOfAtterneyDetails;
+export default ShareholderDetails;

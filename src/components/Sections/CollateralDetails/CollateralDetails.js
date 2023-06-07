@@ -9,6 +9,7 @@ import { setSelectedSectionId } from 'store/appSlice';
 import { formatGetSectionReqBody, formatINR } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { scrollToTopRootElement } from 'utils/helper';
 import Loading from 'components/Loading';
 import DynamicForm from './DynamicForm';
 import editIcon from 'assets/icons/edit-icon.png';
@@ -96,6 +97,7 @@ const CollateralDetails = () => {
 	// console.log('employment-details-', { coApplicants, app });
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -109,7 +111,7 @@ const CollateralDetails = () => {
 	const newOptions = [
 		{
 			name: 'Add New',
-			value: '',
+			value: 'new',
 		},
 	];
 	//check if this collateral is in existion collateral
@@ -119,7 +121,8 @@ const CollateralDetails = () => {
 	sectionData &&
 		sectionData.map(section =>
 			exclude_ids.push(
-				section?.initial_collateral?.collateral_details?.select_collateral
+				(section?.modified_collateral || section?.initial_collateral)
+					?.collateral_details?.select_collateral
 			)
 		);
 
@@ -243,7 +246,9 @@ const CollateralDetails = () => {
 													toggleAccordian(sectionId);
 												}}
 												style={{
-													transform: 'rotate(90deg)',
+													transform: isAccordianOpen
+														? 'rotate(270deg)'
+														: 'rotate(90deg)',
 													...(isCreateFormOpen || isEditLoan
 														? {
 																cursor: 'not-allowed',
@@ -318,7 +323,13 @@ const CollateralDetails = () => {
 					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
-							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
+							<Button
+								fill
+								name='Save and Proceed'
+								// isLoader={!!editSectionId}
+								disabled={isCreateFormOpen || !!editSectionId}
+								onClick={onSaveAndProceed}
+							/>
 						)}
 
 						<NavigateCTA />

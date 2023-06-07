@@ -11,6 +11,7 @@ import { setCompletedApplicationSection } from 'store/applicationSlice';
 
 import { formatGetSectionReqBody } from 'utils/formatData';
 import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
 import editIcon from 'assets/icons/edit-icon.png';
 import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
@@ -88,6 +89,7 @@ const BankDetails = () => {
 	};
 
 	useLayoutEffect(() => {
+		scrollToTopRootElement();
 		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
@@ -252,7 +254,12 @@ const BankDetails = () => {
 					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
-							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
+							<Button
+								fill
+								name='Save and Proceed'
+								disabled={isCreateFormOpen || !!editSectionId}
+								onClick={onSaveAndProceed}
+							/>
 						)}
 
 						<NavigateCTA />

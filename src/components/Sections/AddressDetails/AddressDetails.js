@@ -40,7 +40,7 @@ import * as CONST from './const';
 import * as CONST_SECTIONS from 'components/Sections/const';
 // import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
-import { asyncForEach } from 'utils/helper';
+import { asyncForEach, scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
 
 const AddressDetails = props => {
@@ -107,7 +107,11 @@ const AddressDetails = props => {
 		businessAddressIdAid2: '',
 	});
 	const selectedIncomeType =
-		sectionData?.director_details?.income_type || selectedDirector?.income_type;
+		sectionData?.director_details?.income_type === 0
+			? '0'
+			: sectionData?.director_details?.income_type ||
+			  selectedDirector?.income_type ||
+			  '';
 	const [isAadhaarOtpModalOpen, setIsAadhaarOtpModalOpen] = useState(false);
 	const [
 		isSameAsAboveAddressChecked,
@@ -669,6 +673,7 @@ const AddressDetails = props => {
 	// fetch section data ends
 
 	useEffect(() => {
+		scrollToTopRootElement();
 		if (!!loanRefId && !!selectedDirectorId) fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);

@@ -39,7 +39,7 @@ const DynamicForm = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection } = app;
+	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
 	const {
 		register,
 		formState,
@@ -131,7 +131,7 @@ const DynamicForm = props => {
 		const filtered = assets?.filter(
 			item => `${item.id}` === formState?.values?.['select_collateral']
 		);
-		if (formState?.values?.['select_collateral']) {
+		if (isCreateFormOpen && formState?.values?.['select_collateral']) {
 			onChangeFormStateField({
 				name: 'existing_collateral',
 				value: !!filtered[0]?.id,
@@ -198,7 +198,7 @@ const DynamicForm = props => {
 				name: 'current_occupant',
 				value: filtered[0]?.current_occupant,
 			});
-		} else {
+		} else if (isCreateFormOpen) {
 			onChangeFormStateField({
 				name: 'existing_collateral',
 				value: null,
@@ -287,7 +287,7 @@ const DynamicForm = props => {
 								}
 								const customFieldProps = {};
 								const newField = _.cloneDeep(field);
-								if (isViewLoan) {
+								if (isViewLoan || isViewLoanApp) {
 									customFieldProps.disabled = true;
 								}
 								if (!isCreateFormOpen && field.name === 'select_collateral') {
@@ -322,7 +322,7 @@ const DynamicForm = props => {
 					</Fragment>
 				);
 			})}
-			{!isViewLoan && (
+			{!isViewLoan && !isViewLoanApp && (
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}

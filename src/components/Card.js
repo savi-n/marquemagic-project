@@ -213,7 +213,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						// if(!!product?.sub_products){setSubProductModalOpen(true);}
 						if (!add) {
 							try {
-								if (product?.sub_products) {
+								if (
+									product?.sub_products &&
+									product?.sub_products?.length > 0
+								) {
 									setSubProductModalOpen(true);
 								}
 								if (isGeoTaggingEnabled) {
@@ -261,9 +264,12 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						if (add) {
 							setAddedProduct(product);
 							setAddProduct(false);
-							if (!!product?.sub_products) {
-								setSubProductModalOpen(true);
-							}
+							// if (
+							// 	!!product?.sub_products &&
+							// 	product?.sub_products?.length > 0
+							// ) {
+							// 	setSubProductModalOpen(true);
+							// }
 							return;
 						}
 						e.preventDefault();
@@ -276,7 +282,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							redirectURL += `?token=${params.token}`;
 						}
 						// window.open(redirectURL, '_self');
-						if (!product?.sub_products || isSubProductModalOpen) {
+						if (
+							!product?.sub_products ||
+							product?.sub_products?.length === 0 ||
+							isSubProductModalOpen
+						) {
 							window.open(redirectURL, '_self');
 						}
 						return;
