@@ -323,7 +323,13 @@ const CollateralDetails = () => {
 					</UI_SECTIONS.AddDynamicSectionWrapper>
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
-							<Button fill name='Save and Proceed' onClick={onSaveAndProceed} />
+							<Button
+								fill
+								name='Save and Proceed'
+								// isLoader={!!editSectionId}
+								disabled={isCreateFormOpen || !!editSectionId}
+								onClick={onSaveAndProceed}
+							/>
 						)}
 
 						<NavigateCTA />
