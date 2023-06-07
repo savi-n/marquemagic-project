@@ -26,6 +26,7 @@ import Modal from 'components/Modal';
 import { reInitializeDirectorsSlice } from 'store/directorsSlice';
 // import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
+import ExistingCustomerModal from './ExistingCustomerModal';
 const Wrapper = styled.div`
 
   width: 25%;
@@ -84,6 +85,35 @@ const ImgSelectProduct = styled.img`
 	margin: 0 auto;
 `;
 
+const InputWrapper = styled.input`
+	text-align: left;
+	box-sizing: border-box;
+	padding: 20px;
+	margin-bottom: 25px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	//width: 500px;
+	//height: 91px;
+	width: 100%;
+	max-width: 800px;
+`;
+
+const SelectWrapper = styled.select`
+	text-align: left;
+	box-sizing: border-box;
+	padding: 20px;
+	margin-bottom: 25px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	//	width: 500px;
+	width: 100%;
+	max-width: 800px;
+`;
+
+const ResponsiveWrapper = styled.div`
+	width: 100%;
+`;
+
 // const ButtonBox = styled.div`
 //   /* background: ${({ theme }) => theme.themeColor1}; */
 //   text-align: center;
@@ -140,6 +170,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
+	const [isExistingCustomerModalOpen, setExistingCustomerModalOpen] = useState(
+		false
+	);
+
 	// const [SubProduct, setAddedSubProduct]= useState(false);
 	// const history = useHistory();
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
@@ -275,7 +309,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			<Modal
 				show={isSubProductModalOpen}
 				onClose={() => setSubProductModalOpen(false)}
-				width='80%'
+				width='50%'
+				height='70%'
 			>
 				<ImgClose
 					onClick={() => {
@@ -294,13 +329,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					Change Sub Product
 				</span>
 				<section className='flex flex-col gap-y-8'>
-					{/* <div style={{
-						display:'flex',
-						alignSelf:'center'
-					}}> */}
-
 					<DivAdd>
-						{/* {console.log(product?.sub_products)}; */}
 						{product &&
 							product?.sub_products &&
 							product?.sub_products.map((subProduct, idx) => {
@@ -319,6 +348,84 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					</DivAdd>
 				</section>
 			</Modal>
+			{/* TODO: siddhi to complete coustomer details modal */}
+			<Modal>
+				<ResponsiveWrapper>
+					<form
+						style={{
+							textAlign: 'center',
+							display: 'flex',
+							flexDirection: 'column',
+							maxWidth: '600px',
+							margin: '0 auto ',
+							padding: '30px',
+						}}
+					>
+						<span
+							style={{
+								font: '30px Arial, sans-serif',
+								display: 'flex',
+								justifyContent: 'left',
+								color: '#4E4E4E',
+								marginBottom: '30px',
+							}}
+						>
+							Customer Details
+						</span>
+						<SelectWrapper id='customer_type'>
+							<option value='' disabled selected>
+								Customer Type
+							</option>
+							<option value='option1'>Option 1</option>
+							<option value='option2'>Option 2</option>
+							<option value='option3'>Option 3</option>
+						</SelectWrapper>
+
+						<InputWrapper
+							type='text'
+							id='pan_no'
+							placeholder='PAN Number'
+							required
+						/>
+
+						<InputWrapper
+							type='number'
+							id='mobile_no'
+							placeholder='Mobile Number'
+							required
+						/>
+
+						<button
+							style={{
+								padding: '16px 64px',
+								backgroundColor: ' #2A2ADD',
+								color: '#fff',
+								border: 'none',
+								borderRadius: '35px',
+								cursor: 'pointer',
+								alignSelf: 'flex-end',
+								margin: '25px 0px',
+							}}
+							type='Proceed'
+							onClick={() => {
+								// setExistingCustomerModalOpen(true);
+								setSubProductModalOpen(false);
+							}}
+						>
+							Proceed
+						</button>
+					</form>
+				</ResponsiveWrapper>
+			</Modal>
+			{isExistingCustomerModalOpen && (
+				<ExistingCustomerModal
+					show={isExistingCustomerModalOpen}
+					onClose={() => {
+						setExistingCustomerModalOpen(false);
+					}}
+					width='80%'
+				/>
+			)}
 		</Wrapper>
 	);
 }

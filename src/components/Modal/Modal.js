@@ -30,6 +30,8 @@ const Modalbody = styled.div`
 	border-radius: 15px;
 	max-width: 50%;
 	min-width: ${({ width }) => width};
+	height: ${({ height }) => (height ? height : '100%')};
+
 	min-height: 50%;
 	max-height: 70%;
 	overflow: auto;
@@ -48,6 +50,7 @@ const Modal = props => {
 		backdrop = true,
 		children,
 		width,
+		height,
 		onClose = () => {
 			console.info('close');
 		},
@@ -61,6 +64,7 @@ const Modal = props => {
 				<Modalbody
 					style={customStyle ? customStyle : {}}
 					width={width}
+					height={height}
 					onClick={e => {
 						e.stopPropagation();
 					}}

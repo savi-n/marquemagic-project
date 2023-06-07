@@ -68,6 +68,14 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
+		if (!appObj.udyamNum || appObj.udyamNum === '--') {
+			addToast({
+				message: 'Please enter udhyam number to verify it',
+				type: 'warning',
+			});
+			return;
+		}
+
 		try {
 			// sections[section] === 'crime_check' && setDisabled(true);
 			// appObj?.status = 'In Progress';
@@ -93,10 +101,29 @@ const Single = ({
 				sections[section] === 'GST' ||
 				sections[section] === 'aadhaar'
 			) {
-				setHtmlContent(response?.data);
+				setHtmlContent(response.data);
 				setModalOpen(true);
+			} else {
+				if (response?.data?.status === 'Wrong Input') {
+					addToast({
+						message:
+							response?.data?.message ||
+							'Error fetching details, Please try after sometime!',
+						type: 'error',
+					});
+					// appObj.status = 'Failed';
+					setStatus('Failed');
+				} else if (response?.data?.status === 'nok') {
+					addToast({
+						message:
+							response?.data?.message ||
+							'Something went wrong, Please try after sometime!',
+						type: 'error',
+					});
+					// appObj.status = 'Invalid Data';
+					setStatus('Invalid Data');
+				}
 			}
-
 			if (
 				sections[section] === 'crime_check' &&
 				response?.data?.status === 'ok'
@@ -112,9 +139,9 @@ const Single = ({
 				response?.data?.status === 200 ||
 				response?.data?.status === 'ok'
 			) {
-					setStatus('In Progress');
-					setDisabled(true);
-				}
+				setStatus('In Progress');
+				setDisabled(true);
+			}
 			if (
 				response?.data?.status === 'Wrong Input' ||
 				response?.data?.status === 'nok'
@@ -190,9 +217,7 @@ const Single = ({
 				{headers?.map(header => (
 					<UI.TableCell key={header}>
 						{mapping[header] !== 'director_id' &&
-							(header === 'Status'
-								? status
-								: rowData[mapping[header]] || '--')}
+							(header === 'Status' ? status : rowData[mapping[header]] || '--')}
 					</UI.TableCell>
 				))}
 				<UI.TableCell>

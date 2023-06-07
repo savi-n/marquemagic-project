@@ -85,6 +85,9 @@ const BusinessDetails = props => {
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
+	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
+	const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState('');
+
 	const [loading, setLoading] = useState(false);
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
 	const [
@@ -424,6 +427,12 @@ const BusinessDetails = props => {
 				if (fetchRes?.data?.data?.business_details?.udyam_number) {
 					setUdyogAadhar(fetchRes?.data?.data?.business_details?.udyam_number);
 				}
+				// setUdyogAadhar('UDYAM-MH-19-0002476');
+				if (fetchRes?.data?.data?.business_details?.udyam_response) {
+					setUdyogAadharStatus(
+						fetchRes?.data?.data?.business_details?.udyam_response
+					);
+				}
 
 				if (
 					!!fetchRes?.data?.data?.company_master_data
@@ -670,6 +679,9 @@ const BusinessDetails = props => {
 															}
 															setCompanyRocData={setCompanyRocData}
 															completedSections={completedSections}
+															setdisableUdyamNumberInput={
+																setdisableUdyamNumberInput
+															}
 														/>
 
 														{panErrorMessage && (
@@ -739,11 +751,26 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										if (
 											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											!formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
-											!udyogAadhar
+											disableUdyamNumberInput
+											// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											//!udyogAadhar &&
+											//!udyogAadharStatus
 										) {
+											customFieldProps.disabled = disableUdyamNumberInput;
+											//console.log('udyamstatusnotnull');
+											setdisableUdyamNumberInput('');
 											return null;
 										}
+
+										if (
+											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
+											// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+											!udyogAadhar &&
+											!udyogAadharStatus
+										) {
+											customFieldProps.disabled = false;
+										} else customFieldProps.disabled = true;
+
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&
 											(isEditOrViewLoan ||
