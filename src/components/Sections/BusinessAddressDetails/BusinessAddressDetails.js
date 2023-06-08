@@ -182,10 +182,10 @@ const BusinessAddressDetails = props => {
 					resres: error?.response?.response,
 					resData: error?.response?.data,
 				});
-				addToast({
-					message: getApiErrorMessage(error),
-					type: 'error',
-				});
+				// addToast({
+				// 	message: getApiErrorMessage(error),
+				// 	type: 'error',
+				// });
 			} finally {
 				setLoading(false);
 			}
