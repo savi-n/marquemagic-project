@@ -37,7 +37,12 @@ const DynamicForm = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection, selectedProduct } = app;
+	const {
+		isTestMode,
+		selectedSection,
+		selectedProduct,
+		isViewLoan: isViewLoanApp,
+	} = app;
 	const { businessName } = application;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
@@ -213,7 +218,7 @@ const DynamicForm = props => {
 							: selectedDirectorOptions;
 					}
 
-					if (isViewLoan) {
+					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
 					// console.log('render-field-', {
@@ -242,7 +247,7 @@ const DynamicForm = props => {
 					);
 				})}
 			</UI_SECTIONS.FormWrapGrid>
-			{!isViewLoan && (
+			{!isViewLoan && !isViewLoanApp && (
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}

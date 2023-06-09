@@ -39,7 +39,7 @@ const DynamicForm = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection } = app;
+	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
 	const {
 		register,
 		formState,
@@ -287,7 +287,7 @@ const DynamicForm = props => {
 								}
 								const customFieldProps = {};
 								const newField = _.cloneDeep(field);
-								if (isViewLoan) {
+								if (isViewLoan || isViewLoanApp) {
 									customFieldProps.disabled = true;
 								}
 								if (!isCreateFormOpen && field.name === 'select_collateral') {
@@ -322,7 +322,7 @@ const DynamicForm = props => {
 					</Fragment>
 				);
 			})}
-			{!isViewLoan && (
+			{!isViewLoan && !isViewLoanApp && (
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}

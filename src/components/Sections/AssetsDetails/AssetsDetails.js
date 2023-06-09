@@ -298,8 +298,8 @@ const AssetsDetails = props => {
 							<Button
 								fill
 								name='Save and Proceed'
-								// isLoader={isCreateFormOpen || !!editSectionId}
-								// disabled={isCreateFormOpen || !!editSectionId}
+								// isLoader={!!editSectionId}
+								disabled={isCreateFormOpen || !!editSectionId}
 								onClick={onSaveAndProceed}
 							/>
 						)}
