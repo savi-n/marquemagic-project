@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
-import axios from 'axios';
+// import axios from 'axios';
 import Button from 'components/Button';
 import AuthenticationOTPInput from './AuthenticationOtpInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -18,7 +18,7 @@ import {
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
-import * as API from '_config/app.config';
+// import * as API from '_config/app.config';
 import { APPLICATION_SUBMITTED_SECTION_ID } from '../../const';
 
 const ModalHeader = styled.div`
@@ -172,10 +172,10 @@ const AuthenticationOTPModal = props => {
 				if (isDocumentUploadMandatory) {
 					applicationStageReqBody.is_mandatory_documents_uploaded = true;
 				}
-				await axios.post(
-					`${API.TO_APPLICATION_STAGE_URL}`,
-					applicationStageReqBody
-				);
+				// await axios.post(
+				// 	`${API.TO_APPLICATION_STAGE_URL}`,
+				// 	applicationStageReqBody
+				// );
 				if (editLoanData && editLoanData?.loan_ref_id) {
 					setTimeout(() => {
 						addToast({
