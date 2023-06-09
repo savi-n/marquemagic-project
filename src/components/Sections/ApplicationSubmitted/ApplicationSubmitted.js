@@ -1,7 +1,7 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import img1 from 'assets/images/v3.png';
@@ -67,12 +67,15 @@ const ApplicationSubmitted = props => {
 	const { selectedProduct } = app;
 	const { loanRefId, loanId } = application;
 	const [count] = useState(0);
+	const isUseEffectCalledOnce = useRef(false);
 	const d = data[count];
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
 
 	useEffect(() => {
 		scrollToTopRootElement();
+		if (isUseEffectCalledOnce.current) return;
+		isUseEffectCalledOnce.current = true;
 		const moveToApplicationStage = () => {
 			try {
 				const applicationStageReqBody = {

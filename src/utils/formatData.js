@@ -185,6 +185,9 @@ export const formatSectionReqBody = data => {
 		if (permission?.country) {
 			reqBody.country = permission?.country;
 		}
+		if (selectedProduct?.parent_id) {
+			reqBody.parent_product_id = selectedProduct?.parent_id;
+		}
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 		// console.log('formatSectionReqBody-', { data, selectedApplicant });
