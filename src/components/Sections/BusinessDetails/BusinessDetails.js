@@ -85,7 +85,10 @@ const BusinessDetails = props => {
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
+
+	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
+	// eslint-disable-next-line
 	const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState('');
 
 	const [loading, setLoading] = useState(false);
@@ -740,36 +743,37 @@ const BusinessDetails = props => {
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
 											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
-										)
+										) {
 											customFieldProps.disabled = true;
+										}
 
 										if (
 											isPanUploadMandatory &&
 											isPanNumberExist &&
 											field.name === CONST.PAN_NUMBER_FIELD_NAME
-										)
-											customFieldProps.disabled = true;
-										if (
-											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											disableUdyamNumberInput
-											// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
-											//!udyogAadhar &&
-											//!udyogAadharStatus
 										) {
-											customFieldProps.disabled = disableUdyamNumberInput;
-											//console.log('udyamstatusnotnull');
-											setdisableUdyamNumberInput('');
-											return null;
+											customFieldProps.disabled = true;
 										}
 
-										if (
-											field?.name === CONST.UDYAM_NUMBER_FIELD_NAME &&
-											// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
-											!udyogAadhar &&
-											!udyogAadharStatus
-										) {
-											customFieldProps.disabled = false;
-										} else customFieldProps.disabled = true;
+										// TODO: to be fix properly
+										// no use of set state inside return statement
+										// if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+										// 	if (
+										// 		disableUdyamNumberInput
+										// 		// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+										// 		//!udyogAadhar &&
+										// 		//!udyogAadharStatus
+										// 	) {
+										// 		customFieldProps.disabled = disableUdyamNumberInput;
+										// 		//console.log('udyamstatusnotnull');
+										// 		setdisableUdyamNumberInput('');
+										// 		return null;
+										// 	}
+
+										// 	if (!udyogAadhar && !udyogAadharStatus) {
+										// 		customFieldProps.disabled = false;
+										// 	} else customFieldProps.disabled = true;
+										// }
 
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&
