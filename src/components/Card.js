@@ -173,6 +173,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [isExistingCustomerModalOpen, setExistingCustomerModalOpen] = useState(
 		false
 	);
+	const [isCustomerDetailsModalOpen, setCustomerDetailsModalOpen] = useState(
+		true
+	);
 
 	// const [SubProduct, setAddedSubProduct]= useState(false);
 	// const history = useHistory();
@@ -349,7 +352,19 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				</section>
 			</Modal>
 			{/* TODO: siddhi to complete coustomer details modal */}
-			<Modal>
+			<Modal
+				show={isCustomerDetailsModalOpen}
+				onClose={() => setCustomerDetailsModalOpen(false)}
+				width='50%'
+				height='70%'
+			>
+				<ImgClose
+					onClick={() => {
+						setCustomerDetailsModalOpen(false);
+					}}
+					src={imgClose}
+					alt='close'
+				/>
 				<ResponsiveWrapper>
 					<form
 						style={{
@@ -394,26 +409,15 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							placeholder='Mobile Number'
 							required
 						/>
-
-						<button
-							style={{
-								padding: '16px 64px',
-								backgroundColor: ' #2A2ADD',
-								color: '#fff',
-								border: 'none',
-								borderRadius: '35px',
-								cursor: 'pointer',
-								alignSelf: 'flex-end',
-								margin: '25px 0px',
-							}}
-							type='Proceed'
+						<Button
+							name='Proceed'
 							onClick={() => {
-								// setExistingCustomerModalOpen(true);
-								setSubProductModalOpen(false);
+								setExistingCustomerModalOpen(true);
+								setCustomerDetailsModalOpen(false);
 							}}
-						>
-							Proceed
-						</button>
+							customStyle={{ alignSelf: 'flex-end' }}
+							fill
+						/>
 					</form>
 				</ResponsiveWrapper>
 			</Modal>
@@ -423,7 +427,6 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					onClose={() => {
 						setExistingCustomerModalOpen(false);
 					}}
-					width='80%'
 				/>
 			)}
 		</Wrapper>
