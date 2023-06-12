@@ -755,25 +755,13 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 
-										// TODO: to be fix properly
-										// no use of set state inside return statement
-										// if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
-										// 	if (
-										// 		disableUdyamNumberInput
-										// 		// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
-										// 		//!udyogAadhar &&
-										// 		//!udyogAadharStatus
-										// 	) {
-										// 		customFieldProps.disabled = disableUdyamNumberInput;
-										// 		//console.log('udyamstatusnotnull');
-										// 		setdisableUdyamNumberInput('');
-										// 		return null;
-										// 	}
-
-										// 	if (!udyogAadhar && !udyogAadharStatus) {
-										// 		customFieldProps.disabled = false;
-										// 	} else customFieldProps.disabled = true;
-										// }
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											if (
+												sectionData?.business_details?.udyam_number &&
+												sectionData?.business_details?.udyam_response
+											)
+												customFieldProps.disabled = true;
+										}
 
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&
