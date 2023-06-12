@@ -89,7 +89,7 @@ const BusinessDetails = props => {
 	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
 	// eslint-disable-next-line
-	const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState('');
+	const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState(false);
 
 	const [loading, setLoading] = useState(false);
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
@@ -757,8 +757,9 @@ const BusinessDetails = props => {
 
 										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
 											if (
-												sectionData?.business_details?.udyam_number &&
-												sectionData?.business_details?.udyam_response
+												(sectionData?.business_details?.udyam_number &&
+													sectionData?.business_details?.udyam_response) ||
+												disableUdyamNumberInput
 											)
 												customFieldProps.disabled = true;
 										}
