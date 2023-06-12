@@ -819,6 +819,10 @@ const BusinessDetails = props => {
 													formState.values.business_mobile_no;
 											}
 										}
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											if (sectionData?.business_details?.udyam_number && sectionData?.business_details?.udyam_response)
+												customFieldProps.disabled = true;
+										}
 
 										return (
 											<UI_SECTIONS.FieldWrapGrid
