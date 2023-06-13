@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import styled from 'styled-components';
 
-import Card from 'components/Card';
+import Card from 'components/ProductCard/Card';
 import useFetch from 'hooks/useFetch';
 import { AppContext } from 'reducer/appReducer';
 import {
