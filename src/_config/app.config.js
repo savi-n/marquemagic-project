@@ -6,6 +6,8 @@ const API_END_POINT = process.env.REACT_APP_API_URL;
 const ENDPOINT_BANK = process.env.REACT_APP_BANK_API;
 const OTP_API_END_POINT = process.env.REACT_APP_OTP_URL;
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN;
+const CUSTOMER_FETCH_API_END_POINT =
+	process.env.REACT_APP_CUSTOMER_FETCH_API_URL;
 
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
@@ -97,6 +99,8 @@ const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRef
 const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
 const GET_ALL_UPLOADED_DOCUMENTS_UIUX = `${API_END_POINT}/UploadedDocList_uiux`;
 const GET_ALL_UPLOADED_DOCUMENTS = `${API_END_POINT}/uploaded_doc_list`;
+
+const DDUPE_CHECK = `${CUSTOMER_FETCH_API_END_POINT}/ddupe_check`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -225,4 +229,6 @@ export {
 	GEO_LOCATION,
 	GET_ALL_UPLOADED_DOCUMENTS_UIUX,
 	GET_ALL_UPLOADED_DOCUMENTS,
+	CUSTOMER_FETCH_API_END_POINT,
+	DDUPE_CHECK,
 };

@@ -69,13 +69,13 @@ const ModalResentOtp = styled.div`
 	margin-top: 10px;
 `;
 
-const OtpMobileMessage = styled.p`
-	font-size: 22px;
-	text-align: center;
-	@media (max-width: 700px) {
-		font-size: 18px;
-	}
-`;
+// const OtpMobileMessage = styled.p`
+// 	font-size: 22px;
+// 	text-align: center;
+// 	@media (max-width: 700px) {
+// 		font-size: 18px;
+// 	}
+// `;
 
 const ImgStyle = styled.img`
 	width: 26px;
