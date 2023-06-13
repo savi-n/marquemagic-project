@@ -498,9 +498,7 @@ const PanUpload = props => {
 				});
 				setdisableUdyamNumberInput(true);
 			}
-			if (verifyUdyogRes?.data?.status === 'nok') {
-				setdisableUdyamNumberInput(false);
-			}
+
 			return verifyUdyogRes;
 		} catch (e) {
 			setLoading(false);

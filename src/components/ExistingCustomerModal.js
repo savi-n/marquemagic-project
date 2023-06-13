@@ -4,6 +4,7 @@
 import styled from 'styled-components';
 import Modal from 'components/Modal';
 import { useState } from 'react';
+import Button from './Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import CustomerVerificationOTPModal from 'pages/products/CustomerVerificationOTPModal/CustomerVerificationOTPModal.js';
 //src\pages\products\CustomerVerificationOTPModal\CustomerVerificationOTPModal.js
@@ -30,6 +31,27 @@ const CustomerWrapper = styled.div`
 	margin-left: 30px;
 	margin-right: 30px;
 `;
+const ModalHeader = styled.span`
+	font-weight: 600;
+	font-size: 30px;
+	line-height: 54px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	color: #4e4e4e;
+	//marginBottom: '30px',
+`;
+
+const ModalSubHeader = styled.span`
+	//font-weight: 600;
+	font-size: 15px;
+	//line-height: 54px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	color: #4e4e4e;
+	//margin-bottom: 30px;
+`;
 
 export default function ExistingCustomerModal({ show, onClose }) {
 	const [
@@ -55,46 +77,13 @@ export default function ExistingCustomerModal({ show, onClose }) {
 			<Modal show={show} onClose={onClose} width='80%'>
 				<ImgClose onClick={onClose} src={imgClose} alt='close' />
 				<Wrapper>
-					<span
-						style={{
-							fontWeight: '600',
-							fontSize: '30px',
-							lineHeight: '54px',
-							textAlign: 'center',
-							display: 'flex',
-							justifyContent: 'center',
-							color: '#4E4E4E',
-							//marginBottom: '30px',
-						}}
-					>
-						Dear Customer
-					</span>
-					<span
-						style={{
-							font: '15px Arial, sans-serif',
-							display: 'flex',
-							justifyContent: 'center',
-							textAlign: 'center',
-							color: '#4E4E4E',
-							//marginBottom: '30px',
-							//width: '60%',
-						}}
-					>
+					<ModalHeader>Dear Customer</ModalHeader>
+					<ModalSubHeader>
 						Looks like you already have existing relationship with us.
-					</span>
-					<span
-						style={{
-							font: '15px Arial, sans-serif',
-							display: 'flex',
-							justifyContent: 'center',
-							textAlign: 'center',
-							color: '#4E4E4E',
-							marginBottom: '30px',
-							//width: '60%',
-						}}
-					>
+					</ModalSubHeader>
+					<ModalSubHeader style={{ marginBottom: '30px' }}>
 						Please select a customer ID to proceed with the application.
-					</span>
+					</ModalSubHeader>
 
 					{customerList.map((item, Index) => (
 						<CustomerWrapper key={Index}>
@@ -136,26 +125,18 @@ export default function ExistingCustomerModal({ show, onClose }) {
 							</div>
 						</CustomerWrapper>
 					))}
-					<button
-						style={{
-							padding: '16px 64px',
-							backgroundColor: ' #2A2ADD',
-							color: '#fff',
-							border: 'none',
-							borderRadius: '35px',
-							cursor: 'pointer',
-							alignSelf: 'flex-end',
-							margin: '25px 0px',
-						}}
-						type='Proceed'
+					<Button
+						name='Proceed'
 						onClick={() => {
-							setCustomerVerificationOTPModal(true);
-
 							show = false;
+							setCustomerVerificationOTPModal(true);
 						}}
-					>
-						Proceed
-					</button>
+						customStyle={{
+							margin: '30px 40px 0 40px',
+							alignSelf: 'flex-end',
+						}}
+						fill
+					/>
 				</Wrapper>
 			</Modal>
 
@@ -164,8 +145,8 @@ export default function ExistingCustomerModal({ show, onClose }) {
 					isCustomerOtpModalOpen={isCustomerVerificationOTPModal}
 					onClose={() => {
 						setCustomerVerificationOTPModal(false);
+						show = false;
 					}}
-					width='80%'
 				/>
 			)}
 		</>

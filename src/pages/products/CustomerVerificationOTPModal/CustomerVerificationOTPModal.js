@@ -9,6 +9,7 @@ import Modal from 'components/Modal';
 import Button from 'components/Button';
 import CustomerVerificationOTPInput from './CustomerVerificationOTPInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
+
 import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	AADHAAR_VERIFY_OTP, /// need to change these apis as per this page
@@ -22,18 +23,18 @@ import { formatSectionReqBody } from 'utils/formatData';
 //import { initialFormState } from '../const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 
-const ModalHeader = styled.div`
-	position: relative;
-	padding: 20px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	align-items: center;
-	margin: auto;
-	background-color: #eeeef7;
-	font-weight: 600;
-	color: #525252;
-`;
+// const ModalHeader = styled.div`
+// 	position: relative;
+// 	padding: 20px;
+// 	display: flex;
+// 	flex-direction: column;
+// 	justify-content: space-between;
+// 	align-items: center;
+// 	margin: auto;
+// 	//background-color: #eeeef7;
+// 	font-weight: 600;
+// 	color: #525252;
+// `;
 
 const ModalBody = styled.div`
 	padding: 30px;
@@ -80,6 +81,28 @@ const ImgStyle = styled.img`
 	width: 26px;
 	display: inline-block;
 	margin-right: 10px;
+`;
+
+const ModalHeader = styled.span`
+	font-weight: 600;
+	font-size: 30px;
+	line-height: 54px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	color: #4e4e4e;
+	//marginBottom: '30px',
+`;
+
+const ModalSubHeader = styled.span`
+	//font-weight: 600;
+	font-size: 15px;
+	//line-height: 54px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	color: #4e4e4e;
+	//margin-bottom: 30px;
 `;
 // const generatedOTP = '123456'; //hardcoded
 
@@ -293,11 +316,19 @@ const CustomerVerificationOTPModal = props => {
 	return (
 		<Modal
 			show={isCustomerOtpModalOpen}
+			onClose={() => setIsCustomerOtpModalOpen(false)}
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
-			customStyle={{ padding: 0 }}
+			customStyle={{ padding: '20px' }}
 		>
+			{/* <ImgClose
+				onClick={() => {
+					setIsCustomerOtpModalOpen(false);
+				}}
+				src={imgClose}
+				alt='close'
+			/> */}
 			<ModalHeader>
 				Dear Customer
 				<img
@@ -313,11 +344,12 @@ const CustomerVerificationOTPModal = props => {
 					alt='close'
 				/>
 			</ModalHeader>
+
 			<ModalBody>
-				<OtpMobileMessage>
+				<ModalSubHeader>
 					An OTP has been {isResentOtp ? 'resent' : 'sent'} to your mobile
 					number, please verify it below
-				</OtpMobileMessage>
+				</ModalSubHeader>
 				<ModalWrapper>
 					<CustomerVerificationOTPInput
 						numInputs={6}
