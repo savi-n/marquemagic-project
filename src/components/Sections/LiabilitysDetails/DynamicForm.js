@@ -90,10 +90,8 @@ const DynamicForm = props => {
 
 	const prefilledValues = field => {
 		//TODO:  config field mis-matching, Temp Fixed for DOS-3949
-		if (editSectionId !== '' && field['name'] === 'loan_type') {
-			if (formState?.values['loan_type'] === '')
+		if (field['name'] === 'loan_type' && formState?.values['loan_type'] === '')
 				return prefillData?.loan_sub_type;
-		}
 		//OUTSTANDING AMOUNT CALC
 		if (field['name'] === 'outstanding_loan_amount') {
 			return (field['value'] =
