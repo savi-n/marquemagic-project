@@ -31,7 +31,7 @@ const CustomerDetailsFormModal = props => {
 				...(formState?.values || {}),
 			};
 
-			const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
+			await axios.post(DDUPE_CHECK, reqBody);
 
 			setCustomerListModalOpen(true);
 			setCustomerDetailsFormModalOpen(false);
