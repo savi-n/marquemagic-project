@@ -667,6 +667,10 @@ const PanUpload = props => {
 								onChange={e => {
 									// console.log({ e });
 									setConfirmPanNumber(e?.target?.value);
+									onChangeFormStateField({
+										name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+										value: e?.target?.value || confirmPanNumber,
+									})
 									// const newPanExtractionData = _.cloneDeep(
 									// 	panExtractionResTemp
 									// );
