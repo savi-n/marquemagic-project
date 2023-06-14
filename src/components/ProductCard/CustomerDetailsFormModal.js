@@ -13,11 +13,12 @@ import SAMPLE_JSON from './customerdetailsformsample.json';
 
 const CustomerDetailsFormModal = props => {
 	const {
-		isCustomerDetailsFormModalOpen,
-		setCustomerDetailsFormModalOpen,
-		setCustomerListModalOpen,
+		show,
+		onClose,
+		setIsCustomerListModalOpen,
 		product,
 		redirectToProductPage,
+		setCustomerList,
 	} = props;
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
@@ -31,10 +32,11 @@ const CustomerDetailsFormModal = props => {
 				...(formState?.values || {}),
 			};
 
-			await axios.post(DDUPE_CHECK, reqBody);
-
-			setCustomerListModalOpen(true);
-			setCustomerDetailsFormModalOpen(false);
+			const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
+			console.log('ddupeRes-', ddupeRes);
+			setCustomerList(ddupeRes?.data?.data || {});
+			setIsCustomerListModalOpen(true);
+			onClose();
 		} catch (e) {
 		} finally {
 			setFetchingCustomerDetails(false);
@@ -43,21 +45,15 @@ const CustomerDetailsFormModal = props => {
 
 	return (
 		<Modal
-			show={isCustomerDetailsFormModalOpen}
-			onClose={() => setCustomerDetailsFormModalOpen(false)}
+			show={show}
+			onClose={onClose}
 			width='50%'
 			height='70%'
 			customStyle={{
 				padding: '40px',
 			}}
 		>
-			<UI.ImgClose
-				onClick={() => {
-					setCustomerDetailsFormModalOpen(false);
-				}}
-				src={imgClose}
-				alt='close'
-			/>
+			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
 			<UI.ResponsiveWrapper>
 				{/* {product?.customer_details?.sub_sections?.map( */}
 				{SAMPLE_JSON?.sub_sections?.map((sub_section, sectionIndex) => {
@@ -102,9 +98,8 @@ const CustomerDetailsFormModal = props => {
 							disabled={fetchingCustomerDetails}
 							isLoader={fetchingCustomerDetails}
 							onClick={redirectToProductPage}
-						>
-							Skip
-						</Button>
+							name='Skip'
+						/>
 					)}
 					<Button
 						disabled={fetchingCustomerDetails}

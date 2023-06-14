@@ -19,8 +19,9 @@ import { reInitializeDirectorsSlice } from 'store/directorsSlice';
 import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import CustomerListModal from './CustomerListModal';
-import * as UI from './ui';
 import CustomerDetailsFormModal from './CustomerDetailsFormModal';
+import CustomerVerificationOTPModal from './CustomerVerificationOTPModal';
+import * as UI from './ui';
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
@@ -30,11 +31,17 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	const [
 		isCustomerDetailsFormModalOpen,
-		setCustomerDetailsFormModalOpen,
+		setIsCustomerDetailsFormModalOpen,
 	] = useState(false);
-	const [isCustomerListModalOpen, setCustomerListModalOpen] = useState(false);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState([]);
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
+	const [selectedCustomer, setSelectedCustomer] = useState(null);
+	const [
+		isCustomerVerificationOTPModal,
+		setIsCustomerVerificationOTPModal,
+	] = useState(false);
+	const [sendingOTP, setSendingOTP] = useState(false);
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -61,6 +68,30 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			window.open(redirectURL, '_self');
 		}
 		return;
+	};
+
+	const redirectToProductPageInEditMode = () => {
+		redirectToProductPage();
+	};
+
+	const onProceedSelectCustomer = async () => {
+		try {
+			setSendingOTP(true);
+			const reqBody = {
+				customer_id:
+					customerList?.filter(
+						c => c.customer_id === selectedCustomer?.customer_id
+					)?.[0]?.customer_id || '137453244',
+			};
+			const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
+			console.log('Card-sendOtpRes-', { sendOtpRes });
+			setIsCustomerListModalOpen(false);
+			setIsCustomerVerificationOTPModal(true);
+		} catch (e) {
+			console.error('error-onSelectCustomer-', e);
+		} finally {
+			setSendingOTP(false);
+		}
 	};
 
 	return (
@@ -153,7 +184,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 
 						// dduple-check // existing customer information fetch
 						if (!!product?.customer_details) {
-							setCustomerDetailsFormModalOpen(true);
+							setIsCustomerDetailsFormModalOpen(true);
 							return;
 						}
 						// --dduple-check
@@ -220,19 +251,45 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			</Modal>
 			{isCustomerDetailsFormModalOpen && (
 				<CustomerDetailsFormModal
-					isCustomerDetailsFormModalOpen={isCustomerDetailsFormModalOpen}
-					setCustomerDetailsFormModalOpen={setCustomerDetailsFormModalOpen}
-					setCustomerListModalOpen={setCustomerListModalOpen}
+					show={isCustomerDetailsFormModalOpen}
+					onClose={() => {
+						setIsCustomerDetailsFormModalOpen(false);
+					}}
 					redirectToProductPage={redirectToProductPage}
 					product={product}
 					setCustomerList={setCustomerList}
+					setIsCustomerListModalOpen={setIsCustomerListModalOpen}
 				/>
 			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
+					show={isCustomerListModalOpen}
+					onClose={() => {
+						// setIsCustomerDetailsFormModalOpen(false);
+						setIsCustomerListModalOpen(false);
+					}}
 					customerList={customerList}
-					isCustomerListModalOpen={isCustomerListModalOpen}
-					setCustomerListModalOpen={setCustomerListModalOpen}
+					selectedCustomer={selectedCustomer}
+					setSelectedCustomer={setSelectedCustomer}
+					onProceedSelectCustomer={onProceedSelectCustomer}
+					sendingOTP={sendingOTP}
+				/>
+			)}
+			{isCustomerVerificationOTPModal && (
+				<CustomerVerificationOTPModal
+					show={isCustomerVerificationOTPModal}
+					onClose={() => {
+						// setIsCustomerVerificationOTPModal(false);
+						// setIsCustomerListModalOpen(false);
+						setIsCustomerDetailsFormModalOpen(false);
+					}}
+					selectedCustomer={selectedCustomer}
+					resendOtp={onProceedSelectCustomer}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+					// aadhaarGenOtpResponse,
+					// prePopulateAddressDetailsFromVerifyOtpRes,
+					// formState,
+					// setVerifyOtpResponseTemp,
 				/>
 			)}
 		</UI.Wrapper>
