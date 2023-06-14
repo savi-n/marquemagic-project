@@ -292,6 +292,7 @@ const DynamicForm = props => {
 								}
 								if (!isCreateFormOpen && field.name === 'select_collateral') {
 									customFieldProps.disabled = true;
+									customFieldProps.value = '';
 								}
 								// console.log('render-field-', {
 								// 	field,
