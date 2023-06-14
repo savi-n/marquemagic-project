@@ -130,6 +130,27 @@ const DynamicForm = props => {
 		}
 	};
 
+	const checkAllInputs = () => {
+		for (const key in formState?.values) {
+			if (formState?.values[key] !== '') {
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	const handleButtonClick = () => {
+		if (checkAllInputs()) {
+			addToast({
+				message: 'Please enter at least one input',
+				type: 'error',
+			});
+		} else {
+			handleSubmit(onSaveOrUpdate());
+		}
+	};
+
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
@@ -230,7 +251,7 @@ const DynamicForm = props => {
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}
-						onClick={handleSubmit(onSaveOrUpdate)}
+						onClick={handleButtonClick}
 						disabled={isSubmitting}
 						isLoader={isSubmitting}
 						name={submitCTAName}
