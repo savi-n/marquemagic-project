@@ -32,13 +32,13 @@ export default function CustomerListModal(props) {
 					alt='close'
 				/>
 				<UI.CustomerListWrapper>
-					<UI.ModalHeader>Dear Customer</UI.ModalHeader>
-					<UI.ModalSubHeader>
+					<UI.CustomerListModalHeader>Dear Customer</UI.CustomerListModalHeader>
+					<UI.CustomerListModalSubHeader>
 						Looks like you already have existing relationship with us.
-					</UI.ModalSubHeader>
-					<UI.ModalSubHeader style={{ marginBottom: '30px' }}>
+					</UI.CustomerListModalSubHeader>
+					<UI.CustomerListModalSubHeader style={{ marginBottom: '30px' }}>
 						Please select a customer ID to proceed with the application.
-					</UI.ModalSubHeader>
+					</UI.CustomerListModalSubHeader>
 					{customerList.map((item, customerIndex) => (
 						<UI.CustomerListCard key={`data-${customerIndex}`}>
 							<UI.CustomerListCardItem>
