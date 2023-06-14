@@ -12,6 +12,7 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	isFieldValid,
+	checkAllInputsForm,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
@@ -130,18 +131,8 @@ const DynamicForm = props => {
 		}
 	};
 
-	const checkAllInputs = () => {
-		for (const key in formState?.values) {
-			if (formState?.values[key] !== '') {
-				return false;
-			}
-		}
-
-		return true;
-	};
-
 	const handleButtonClick = () => {
-		if (checkAllInputs()) {
+		if (checkAllInputsForm(formState?.values || {})) {
 			addToast({
 				message: 'Please enter at least one input',
 				type: 'error',

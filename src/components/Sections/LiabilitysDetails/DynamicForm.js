@@ -12,6 +12,7 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	isFieldValid,
+	checkAllInputsForm,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
@@ -91,7 +92,7 @@ const DynamicForm = props => {
 	const prefilledValues = field => {
 		//TODO:  config field mis-matching, Temp Fixed for DOS-3949
 		if (field['name'] === 'loan_type' && formState?.values['loan_type'] === '')
-				return prefillData?.loan_sub_type;
+			return prefillData?.loan_sub_type;
 		//OUTSTANDING AMOUNT CALC
 		if (field['name'] === 'outstanding_loan_amount') {
 			return (field['value'] =
@@ -119,6 +120,17 @@ const DynamicForm = props => {
 			return field?.value || '';
 		} catch (error) {
 			return {};
+		}
+	};
+
+	const handleButtonClick = () => {
+		if (checkAllInputsForm(formState?.values || {})) {
+			addToast({
+				message: 'Please enter at least one input',
+				type: 'error',
+			});
+		} else {
+			handleSubmit(onSaveOrUpdate());
 		}
 	};
 
@@ -249,7 +261,7 @@ const DynamicForm = props => {
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}
-						onClick={handleSubmit(onSaveOrUpdate)}
+						onClick={handleButtonClick}
 						disabled={isSubmitting}
 						isLoader={isSubmitting}
 						name={submitCTAName}
