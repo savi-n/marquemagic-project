@@ -12,6 +12,7 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	isFieldValid,
+	checkAllInputsForm,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
@@ -136,6 +137,17 @@ const DynamicForm = props => {
 		}
 	};
 
+	const handleButtonClick = () => {
+		if (checkAllInputsForm(formState?.values || {})) {
+			addToast({
+				message: 'Please enter at least one input',
+				type: 'error',
+			});
+		} else {
+			handleSubmit(onSaveOrUpdate());
+		}
+	};
+
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
@@ -244,7 +256,7 @@ const DynamicForm = props => {
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}
-						onClick={handleSubmit(onSaveOrUpdate)}
+						onClick={handleButtonClick}
 						disabled={isSubmitting}
 						isLoader={isSubmitting}
 						name={submitCTAName}

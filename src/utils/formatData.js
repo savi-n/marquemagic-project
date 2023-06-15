@@ -1072,3 +1072,13 @@ export const getSelectedDirectorIndex = data => {
 	// });
 	return currentIndex;
 };
+
+export const checkAllInputsForm = values => {
+	for (const key in values) {
+		if (values[key] !== '') {
+			return false;
+		}
+	}
+
+	return true;
+};
