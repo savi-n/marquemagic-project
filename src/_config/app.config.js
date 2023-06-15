@@ -101,6 +101,8 @@ const GET_ALL_UPLOADED_DOCUMENTS_UIUX = `${API_END_POINT}/UploadedDocList_uiux`;
 const GET_ALL_UPLOADED_DOCUMENTS = `${API_END_POINT}/uploaded_doc_list`;
 
 const DDUPE_CHECK = `${CUSTOMER_FETCH_API_END_POINT}/ddupe_check`;
+const DDUPE_SEND_OTP = `${CUSTOMER_FETCH_API_END_POINT}/verify_customer`;
+const DDUPE_VERIFY_OTP = `${CUSTOMER_FETCH_API_END_POINT}/get_customer_details`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -231,4 +233,6 @@ export {
 	GET_ALL_UPLOADED_DOCUMENTS,
 	CUSTOMER_FETCH_API_END_POINT,
 	DDUPE_CHECK,
+	DDUPE_SEND_OTP,
+	DDUPE_VERIFY_OTP,
 };

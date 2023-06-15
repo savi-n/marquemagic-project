@@ -3,38 +3,48 @@ This card is designed and defined here */
 import { useSelector, useDispatch } from 'react-redux';
 // import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
+import axios from 'axios';
 import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
 import { getGeoLocation } from 'utils/helper';
 import {
 	setGeoLocation,
 	reInitializeApplicationSlice,
 } from 'store/applicationSlice';
-import axios from 'axios';
 import * as API from '_config/app.config';
 import CardSubProduct from '../CardSubProduct';
 import { useState } from 'react';
 import { useToasts } from '../Toast/ToastProvider';
 import Modal from 'components/Modal';
 import { reInitializeDirectorsSlice } from 'store/directorsSlice';
+import { encryptReq } from 'utils/encrypt';
 import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import CustomerListModal from './CustomerListModal';
-import * as UI from './ui';
 import CustomerDetailsFormModal from './CustomerDetailsFormModal';
+import CustomerVerificationOTPModal from './CustomerVerificationOTPModal';
+import * as UI from './ui';
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { app } = useSelector(state => state);
-	const { isGeoTaggingEnabled, userToken } = app;
+	const { isGeoTaggingEnabled, userToken, userDetails } = app;
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	const [
 		isCustomerDetailsFormModalOpen,
-		setCustomerDetailsFormModalOpen,
+		setIsCustomerDetailsFormModalOpen,
 	] = useState(false);
-	const [isCustomerListModalOpen, setCustomerListModalOpen] = useState(false);
+	const [isCustomerListModalOpen, setIsCustomerListModalOpen] = useState(false);
 	const [customerList, setCustomerList] = useState([]);
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
+	const [selectedCustomer, setSelectedCustomer] = useState(null);
+	const [
+		isCustomerVerificationOTPModal,
+		setIsCustomerVerificationOTPModal,
+	] = useState(false);
+	const [sendingOTP, setSendingOTP] = useState(false);
+	const [sendOtpRes, setSendOtpRes] = useState(null);
+	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -44,7 +54,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// 	});
 	// };
 
-	console.log('Card-allstates-', { product });
+	// console.log('Card-allstates-', { product });
 
 	const redirectToProductPage = () => {
 		sessionStorage.clear();
@@ -61,6 +71,60 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			window.open(redirectURL, '_self');
 		}
 		return;
+	};
+
+	const redirectToProductPageInEditMode = loanData => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
+		sessionStorage.clear();
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			product?.id
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		// console.log('redirectToProductPageInEditMode-obj-', {
+		// 	editLoanRedirectObject,
+		// 	redirectURL,
+		// 	loanData,
+		// 	product,
+		// });
+		window.open(redirectURL, '_self');
+	};
+
+	// Send/Generate/Re-Send OTP
+	const onProceedSelectCustomer = async () => {
+		try {
+			setSendingOTP(true);
+			const reqBody = {
+				customer_id:
+					customerList?.filter(
+						c => c.customer_id === selectedCustomer?.customer_id
+					)?.[0]?.customer_id || '137453244',
+			};
+			const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
+			setSendOtpRes(sendOtpRes?.data?.data || {});
+			// console.log('Card-sendOtpRes-', { sendOtpRes });
+			setIsCustomerListModalOpen(false);
+			setIsCustomerVerificationOTPModal(true);
+			setSelectedCustomer(null);
+			addToast({
+				message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+				type: 'success',
+			});
+		} catch (e) {
+			console.error('error-onSelectCustomer-', e);
+		} finally {
+			setSendingOTP(false);
+		}
 	};
 
 	return (
@@ -153,7 +217,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 
 						// dduple-check // existing customer information fetch
 						if (!!product?.customer_details) {
-							setCustomerDetailsFormModalOpen(true);
+							setIsCustomerDetailsFormModalOpen(true);
 							return;
 						}
 						// --dduple-check
@@ -220,19 +284,46 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			</Modal>
 			{isCustomerDetailsFormModalOpen && (
 				<CustomerDetailsFormModal
-					isCustomerDetailsFormModalOpen={isCustomerDetailsFormModalOpen}
-					setCustomerDetailsFormModalOpen={setCustomerDetailsFormModalOpen}
-					setCustomerListModalOpen={setCustomerListModalOpen}
+					show={isCustomerDetailsFormModalOpen}
+					onClose={() => {
+						setIsCustomerDetailsFormModalOpen(false);
+					}}
 					redirectToProductPage={redirectToProductPage}
 					product={product}
 					setCustomerList={setCustomerList}
+					setIsCustomerListModalOpen={setIsCustomerListModalOpen}
+					setCustomerDetailsFormData={setCustomerDetailsFormData}
 				/>
 			)}
 			{isCustomerListModalOpen && (
 				<CustomerListModal
+					show={isCustomerListModalOpen}
+					onClose={() => {
+						setIsCustomerDetailsFormModalOpen(false);
+						setIsCustomerListModalOpen(false);
+						setSelectedCustomer(null);
+					}}
 					customerList={customerList}
-					isCustomerListModalOpen={isCustomerListModalOpen}
-					setCustomerListModalOpen={setCustomerListModalOpen}
+					selectedCustomer={selectedCustomer}
+					setSelectedCustomer={setSelectedCustomer}
+					onProceedSelectCustomer={onProceedSelectCustomer}
+					sendingOTP={sendingOTP}
+				/>
+			)}
+			{isCustomerVerificationOTPModal && (
+				<CustomerVerificationOTPModal
+					show={isCustomerVerificationOTPModal}
+					onClose={() => {
+						setIsCustomerVerificationOTPModal(false);
+						setIsCustomerListModalOpen(false);
+						setIsCustomerDetailsFormModalOpen(false);
+					}}
+					selectedCustomer={selectedCustomer}
+					resendOtp={onProceedSelectCustomer}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
+					customerDetailsFormData={customerDetailsFormData}
+					product={product}
+					sendOtpRes={sendOtpRes}
 				/>
 			)}
 		</UI.Wrapper>

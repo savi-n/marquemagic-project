@@ -115,7 +115,7 @@ export default function OtpInput({
 	},
 	isInputSecure = false,
 	numberOnly = false,
-	setInputAadhaarOTP,
+	setInputCustomerOTP,
 }) {
 	const [activeInput, setActiveInput] = useState(0);
 
@@ -134,8 +134,7 @@ export default function OtpInput({
 		setOtpArray(otpArr);
 		const otpString = otpArr.join('');
 		handleChange(otpString);
-		// sessionStorage.setItem('inputAadhaarOTP', otpString);
-		setInputAadhaarOTP(otpString);
+		setInputCustomerOTP(otpString);
 		if (value) focusNext(index);
 	};
 
