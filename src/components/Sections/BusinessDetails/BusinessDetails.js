@@ -89,7 +89,7 @@ const BusinessDetails = props => {
 	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
 	// eslint-disable-next-line
-	const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState(false);
+	// const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState('');
 
 	const [loading, setLoading] = useState(false);
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
@@ -682,9 +682,9 @@ const BusinessDetails = props => {
 															}
 															setCompanyRocData={setCompanyRocData}
 															completedSections={completedSections}
-															setdisableUdyamNumberInput={
-																setdisableUdyamNumberInput
-															}
+															// setdisableUdyamNumberInput={
+															// 	setdisableUdyamNumberInput
+															// }
 														/>
 
 														{panErrorMessage && (
@@ -755,12 +755,28 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 
+										// TODO: to be fix properly
+										// no use of set state inside return statement
+										// if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+										// 	if (
+										// 		disableUdyamNumberInput
+										// 		// !formState?.values?.[CONST.UDYAM_NUMBER_FIELD_NAME] &&
+										// 		//!udyogAadhar &&
+										// 		//!udyogAadharStatus
+										// 	) {
+										// 		customFieldProps.disabled = disableUdyamNumberInput;
+										// 		//console.log('udyamstatusnotnull');
+										// 		setdisableUdyamNumberInput('');
+										// 		return null;
+										// 	}
+
+										// 	if (!udyogAadhar && !udyogAadharStatus) {
+										// 		customFieldProps.disabled = false;
+										// 	} else customFieldProps.disabled = true;
+										// }
+
 										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
-											if (
-												(sectionData?.business_details?.udyam_number &&
-													sectionData?.business_details?.udyam_response) ||
-												disableUdyamNumberInput
-											)
+											if (sectionData?.business_details?.udyam_number && sectionData?.business_details?.udyam_response)
 												customFieldProps.disabled = true;
 										}
 
