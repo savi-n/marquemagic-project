@@ -16,7 +16,7 @@ export default function CustomerListModal(props) {
 		sendingOTP,
 	} = props;
 
-	console.log('CustomerListModal-allstates-', { props });
+	// console.log('CustomerListModal-allstates-', { props });
 
 	return (
 		<Modal

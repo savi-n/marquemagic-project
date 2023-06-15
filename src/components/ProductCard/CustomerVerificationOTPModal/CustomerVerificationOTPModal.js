@@ -13,6 +13,7 @@ import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { RESEND_OTP_TIMER, DDUPE_VERIFY_OTP } from '_config/app.config';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
+import * as UI from '../ui';
 
 // const ModalHeader = styled.div`
 // 	position: relative;
@@ -108,10 +109,12 @@ const CustomerVerificationOTPModal = props => {
 		resendOtp,
 		selectedCustomer,
 		redirectToProductPageInEditMode,
+		customerDetailsFormData,
+		product,
+		sendOtpRes,
 	} = props;
 
-	const { application, app } = useSelector(state => state);
-	const { loanProductId } = application;
+	const { app } = useSelector(state => state);
 	const { selectedProduct, whiteLabelId } = app;
 	const [inputCustomerOTP, setInputCustomerOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
@@ -131,24 +134,25 @@ const CustomerVerificationOTPModal = props => {
 			setErrorMsg('Please enter 6 digit OTP Number');
 			return;
 		}
-
 		try {
 			setVerifyingOtp(true);
+			setErrorMsg('');
 			const reqBody = {
 				customer_id: selectedCustomer?.customer_id || '137453244',
-				otp: '230612',
-				reference_id: 'NC1686309649249',
-				businesstype: 7, // individual salaried(7) & entity business(1)
-				// user_id: 12143,
-				loan_product_id: loanProductId,
+				// customer_id: '137453244', // TODO: to be removed after testing
+				otp: inputCustomerOTP || '230612',
+				reference_id:
+					sendOtpRes?.Validate_Customer_Resp?.ReferenceId || 'NC1686309649249', // TODO: tobe removed after testing
+				businesstype: customerDetailsFormData?.businesstype || 7, // TODO: tobe removed after testing
+				loan_product_id:
+					product?.product_id?.[`${customerDetailsFormData?.businesstype}`],
 				white_label_id: whiteLabelId,
 			};
 			const customerVerifyRes = await axios.post(DDUPE_VERIFY_OTP, reqBody);
-			console.log('customerotpres-', customerVerifyRes);
-			redirectToProductPageInEditMode();
-			setVerifyingOtp(false);
+			// console.log('customerotpres-', customerVerifyRes);
+			redirectToProductPageInEditMode(customerVerifyRes?.data || {});
 		} catch (error) {
-			console.error(error);
+			console.error({ error, res: error?.response });
 			if (
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
@@ -156,11 +160,12 @@ const CustomerVerificationOTPModal = props => {
 				error.response.data.message = 'Please enter a valid OTP.';
 			}
 			setErrorMsg(
-				error?.response?.data?.message ||
+				error?.response?.data?.Get_CustomerDetails_Resp?.ResponseReason ||
+					error?.response?.data?.message ||
 					error?.response?.data?.data?.msg ||
-					'Aadhaar cannot be validated due to technical failure. Please try again after sometime'
+					'Something went wrong, try after sometimes'
 			);
-
+		} finally {
 			setVerifyingOtp(false);
 		}
 	};
@@ -177,14 +182,16 @@ const CustomerVerificationOTPModal = props => {
 		return () => clearInterval(timer);
 	}, []);
 
-	useEffect(() => {
-		if (resendOtpTimer <= 0) return;
-	}, [resendOtpTimer]);
-
 	const handleModalClose = () => {
 		setInputCustomerOTP('');
 		onClose();
 	};
+
+	// console.log('customerverificationotpmodal-allstates-', {
+	// 	inputCustomerOTP,
+	// 	selectedProduct,
+	// 	product,
+	// });
 
 	return (
 		<Modal
@@ -195,28 +202,8 @@ const CustomerVerificationOTPModal = props => {
 			width='30%'
 			customStyle={{ padding: '20px' }}
 		>
-			{/* <ImgClose
-				onClick={() => {
-					setIsCustomerOtpModalOpen(false);
-				}}
-				src={imgClose}
-				alt='close'
-			/> */}
-			<ModalHeader>
-				Dear Customer
-				<img
-					src={imgClose}
-					style={{
-						cursor: 'pointer',
-						width: '25px',
-						position: 'absolute',
-						right: 0,
-						marginRight: '20px',
-					}}
-					onClick={handleModalClose}
-					alt='close'
-				/>
-			</ModalHeader>
+			<UI.ImgClose onClick={handleModalClose} src={imgClose} alt='close' />
+			<ModalHeader>Dear Customer</ModalHeader>
 
 			<ModalBody>
 				<ModalSubHeader>
@@ -238,7 +225,12 @@ const CustomerVerificationOTPModal = props => {
 						}`}
 						type='submit'
 						onClick={() => {
-							resendOtpTimer <= 0 && resendOtp();
+							if (resendOtpTimer <= 0) {
+								setResendOtpTimer(
+									sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+								);
+								resendOtp();
+							}
 						}}
 					>
 						{' '}
