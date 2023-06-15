@@ -148,8 +148,8 @@ export const CustomerListCard = styled.div`
 	background: #ffffff;
 	box-shadow: 10px 10px 30px 3px rgba(11, 92, 255, 0.15);
 	margin-bottom: 20px;
-	margin-left: 30px;
-	margin-right: 30px;
+	cursor: pointer;
+	background-color: ${({ isActive }) => (isActive ? '#eee' : 'white')};
 `;
 
 export const CustomerListCardItem = styled.div`
