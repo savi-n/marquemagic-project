@@ -47,7 +47,7 @@ const PanUpload = props => {
 		isDisabled,
 		setCompanyRocData,
 		completedSections,
-		setdisableUdyamNumberInput,
+		// setdisableUdyamNumberInput,
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const {
@@ -496,7 +496,7 @@ const PanUpload = props => {
 							'YYYY-MM-DD'
 						) || '',
 				});
-				setdisableUdyamNumberInput(true);
+				// setdisableUdyamNumberInput(true);
 			}
 
 			return verifyUdyogRes;
@@ -667,6 +667,10 @@ const PanUpload = props => {
 								onChange={e => {
 									// console.log({ e });
 									setConfirmPanNumber(e?.target?.value);
+									onChangeFormStateField({
+										name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+										value: e?.target?.value || confirmPanNumber,
+									})
 									// const newPanExtractionData = _.cloneDeep(
 									// 	panExtractionResTemp
 									// );
