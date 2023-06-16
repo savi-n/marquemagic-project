@@ -142,7 +142,7 @@ export const directorsSlice = createSlice({
 				const newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					label: `${BUSINESS_TYPES[state.smeType]}`,
+					label: `${BUSINESS_TYPES[state.smeType]|| director?.type_name}`,
 					fullName,
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
