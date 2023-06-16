@@ -138,18 +138,26 @@ export const directorsSlice = createSlice({
 				// }
 
 				// const newSections = updatedDirectors?.[+directorId]?.sections || [];
-				
+
 				const newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					label: `${BUSINESS_TYPES[state.smeType]|| director?.type_name}`,
+					label: `${
+						director?.type_name === DIRECTOR_TYPES.coApplicant
+							? director?.type_name
+							: BUSINESS_TYPES[state.smeType] || director?.type_name
+					}`,
 					fullName,
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
 					directorId,
 				};
 				directorOptions.push({
-					name: `${director.type_name}|${fullName}`,
+					name: `${
+						director?.type_name === DIRECTOR_TYPES.coApplicant
+							? director?.type_name
+							: BUSINESS_TYPES[state.smeType] || director?.type_name
+					}|${fullName}`,
 					value: directorId,
 				});
 				newDirectors[directorId] = newDirectorObject;

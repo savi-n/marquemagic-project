@@ -449,11 +449,14 @@ const BusinessDetails = props => {
 						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
 					);
 				if (!businessType)
-					dispatch(
+					{
+						dispatch(
 						setBusinessType(
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
 					);
+					dispatch(setSmeType(fetchRes?.data?.data?.business_details?.businesstype));
+				}
 				if (isEditOrViewLoan) {
 					dispatch(
 						getDirectors({
