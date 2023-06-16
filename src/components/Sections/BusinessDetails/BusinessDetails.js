@@ -21,6 +21,7 @@ import {
 import {
 	setNewCompletedDirectorSections,
 	getDirectors,
+	setSmeType,
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
@@ -217,7 +218,7 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.business_data?.businesstype;
 			const newBusinessMobile =
 				buissnessDetailsRes?.data?.data?.business_data?.contactno;
-			if (!!newBusinessType) dispatch(setBusinessType(newBusinessType));
+			if (!!newBusinessType) {dispatch(setBusinessType(newBusinessType));dispatch(setSmeType(newBusinessType));}
 			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 			const newBusinessName =
 				buissnessDetailsRes?.data?.data?.business_data?.businessname;
