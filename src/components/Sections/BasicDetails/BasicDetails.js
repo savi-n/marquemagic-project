@@ -20,7 +20,11 @@ import {
 	setLoginCreateUserRes,
 	setSelectedSectionId,
 } from 'store/appSlice';
-import { DIRECTOR_TYPES, setProfileGeoLocation } from 'store/directorsSlice';
+import {
+	DIRECTOR_TYPES,
+	setProfileGeoLocation,
+	setSelectedDirectorId,
+} from 'store/directorsSlice';
 import {
 	setLoanIds,
 	setGeoLocation,
@@ -378,6 +382,7 @@ const BasicDetails = props => {
 			setTimeout(() => {
 				// to update after directors are fetched
 				dispatch(setSelectedSectionId(nextSectionId));
+				dispatch(setSelectedDirectorId(newDirectorId));
 			}, 500);
 			if (isGeoTaggingEnabled) {
 				if (
