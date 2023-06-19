@@ -56,6 +56,7 @@ const AddressProofUpload = props => {
 		isEditLoan,
 		isViewLoan,
 		isEditOrViewLoan,
+		directorDetails,
 	} = props;
 
 	// console.log({
@@ -73,10 +74,11 @@ const AddressProofUpload = props => {
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { selectedProduct, clientToken, editLoanData, selectedSectionId } = app;
+	const { selectedProduct, clientToken, selectedSectionId } = app;
 	const { loanId, businessUserId } = application;
-	const directorDetails = editLoanData?.director_details;
+	// const directorDetail = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
 	const prevSelectedAddressProofId = useRef(null);
 	const refPopup = useRef(null);
@@ -832,7 +834,6 @@ const AddressProofUpload = props => {
 	) {
 		customFieldProps.disabled = true;
 	}
-
 	// console.log('addressproofupload-allstates', { props, aadhaarProofOTPField });
 
 	return (
@@ -981,14 +982,16 @@ const AddressProofUpload = props => {
 												}
 												isLoader={verifyingWithOtp}
 												disabled={
-													isSectionCompleted ||
+													// isSectionCompleted ||
+													directorDetails?.is_aadhaar_otp_verified ||
 													selectedVerifyOtp?.res?.status === 'ok' ||
 													!formState.values[aadhaarProofOTPField.name] ||
 													isViewLoan ||
 													verifyingWithOtp ||
-													(directorDetails?.filter(
-														director =>
-															director?.id === selectedDirector?.directorId
+													(Object.keys(directors).map(
+														directorId =>
+															`${directorId}` ===
+															`${selectedDirector?.directorId}`
 													).length > 0 &&
 														isEditLoan)
 												}
