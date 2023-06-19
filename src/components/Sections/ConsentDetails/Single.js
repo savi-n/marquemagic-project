@@ -68,7 +68,7 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
-		if (!appObj.udyamNum || appObj.udyamNum === '--') {
+		if (sections[section]==='udyam' && (!appObj?.udyamNum || appObj?.udyamNum === '--')) {
 			addToast({
 				message: 'Please enter udhyam number to verify it',
 				type: 'warning',

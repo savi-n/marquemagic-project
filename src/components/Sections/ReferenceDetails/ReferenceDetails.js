@@ -166,15 +166,20 @@ const ReferenceDetails = () => {
 
 	const fetchSectionDetails = async () => {
 		try {
-			setFetchingSectionData(true);
-			const fetchRes = await axios.get(
-				`${API_END_POINT}/LoanReferences/create?${formatGetSectionReqBody({
-					application,
-				})}`
-			);
-			// console.log('fetchRes-', fetchRes);
-			setSectionData(fetchRes?.data?.data?.loanData || []);
-		} catch (error) {
+					setFetchingSectionData(true);
+					const fetchRes = await axios.get(
+						`${API_END_POINT}/LoanReferences/create?${formatGetSectionReqBody(
+							{
+								application,
+							}
+						)}`
+					);
+					// console.log('fetchRes-', fetchRes);
+					// setSectionData(fetchRes?.data?.data?.loanData || []);
+					const resData = fetchRes?.data?.data?.loanData || [];
+					resData?.length > 0 &&
+						setSectionData(resData.slice(resData.length - 2));
+				} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData([]);
 		} finally {

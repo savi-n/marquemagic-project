@@ -21,6 +21,7 @@ import {
 import {
 	setNewCompletedDirectorSections,
 	getDirectors,
+	setSmeType,
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
@@ -89,7 +90,7 @@ const BusinessDetails = props => {
 	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
 	// eslint-disable-next-line
-	const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState('');
+	// const [disableUdyamNumberInput, setdisableUdyamNumberInput] = useState('');
 
 	const [loading, setLoading] = useState(false);
 	const [isGstModalOpen, setGstModalOpen] = useState(false);
@@ -217,7 +218,10 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.business_data?.businesstype;
 			const newBusinessMobile =
 				buissnessDetailsRes?.data?.data?.business_data?.contactno;
-			if (!!newBusinessType) dispatch(setBusinessType(newBusinessType));
+			if (!!newBusinessType) {
+				dispatch(setBusinessType(newBusinessType));
+				dispatch(setSmeType(newBusinessType));
+			}
 			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 			const newBusinessName =
 				buissnessDetailsRes?.data?.data?.business_data?.businessname;
@@ -445,11 +449,14 @@ const BusinessDetails = props => {
 						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
 					);
 				if (!businessType)
-					dispatch(
+					{
+						dispatch(
 						setBusinessType(
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
 					);
+					dispatch(setSmeType(fetchRes?.data?.data?.business_details?.businesstype));
+				}
 				if (isEditOrViewLoan) {
 					dispatch(
 						getDirectors({
@@ -682,9 +689,9 @@ const BusinessDetails = props => {
 															}
 															setCompanyRocData={setCompanyRocData}
 															completedSections={completedSections}
-															setdisableUdyamNumberInput={
-																setdisableUdyamNumberInput
-															}
+															// setdisableUdyamNumberInput={
+															// 	setdisableUdyamNumberInput
+															// }
 														/>
 
 														{panErrorMessage && (
@@ -774,6 +781,11 @@ const BusinessDetails = props => {
 										// 		customFieldProps.disabled = false;
 										// 	} else customFieldProps.disabled = true;
 										// }
+
+										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
+											if (sectionData?.business_details?.udyam_number && sectionData?.business_details?.udyam_response)
+												customFieldProps.disabled = true;
+										}
 
 										if (
 											field?.name === CONST.BUSINESS_TYPE_FIELD_NAME &&

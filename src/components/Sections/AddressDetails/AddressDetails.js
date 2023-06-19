@@ -977,6 +977,7 @@ const AddressDetails = props => {
 																isEditLoan={isEditLoan}
 																isViewLoan={isViewLoan}
 																isEditOrViewLoan={isEditOrViewLoan}
+																directorDetails={sectionData?.director_details}
 															/>
 														</UI_SECTIONS.FieldWrapGrid>
 													);

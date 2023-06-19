@@ -12,6 +12,7 @@ import {
 	getApiErrorMessage,
 	isDirectorApplicant,
 	isFieldValid,
+	checkAllInputsForm,
 } from 'utils/formatData';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
@@ -78,6 +79,17 @@ const DynamicForm = props => {
 			return field?.value || '';
 		} catch (error) {
 			return {};
+		}
+	};
+
+	const handleButtonClick = () => {
+		if (checkAllInputsForm(formState?.values || {})) {
+			addToast({
+				message: 'Please enter at least one input',
+				type: 'error',
+			});
+		} else {
+			handleSubmit(onSaveOrUpdate());
 		}
 	};
 
@@ -292,6 +304,7 @@ const DynamicForm = props => {
 								}
 								if (!isCreateFormOpen && field.name === 'select_collateral') {
 									customFieldProps.disabled = true;
+									customFieldProps.value = '';
 								}
 								// console.log('render-field-', {
 								// 	field,
@@ -326,7 +339,9 @@ const DynamicForm = props => {
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}
-						onClick={handleSubmit(onSaveOrUpdate)}
+						onClick={handleSubmit(() => {
+							handleButtonClick();
+						})}
 						disabled={isSubmitting}
 						isLoader={isSubmitting}
 						name={submitCTAName}
