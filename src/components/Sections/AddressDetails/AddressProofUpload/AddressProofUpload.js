@@ -53,7 +53,7 @@ const AddressProofUpload = props => {
 		onChangeFormStateField,
 		isSectionCompleted,
 		selectedVerifyOtp,
-		isEditLoan,
+		// isEditLoan,
 		isViewLoan,
 		isEditOrViewLoan,
 		directorDetails,
@@ -987,13 +987,13 @@ const AddressProofUpload = props => {
 													selectedVerifyOtp?.res?.status === 'ok' ||
 													!formState.values[aadhaarProofOTPField.name] ||
 													isViewLoan ||
-													verifyingWithOtp ||
-													(Object.keys(directors).map(
-														directorId =>
-															`${directorId}` ===
-															`${selectedDirector?.directorId}`
-													).length > 0 &&
-														isEditLoan)
+													verifyingWithOtp
+													// (directors?.filter(
+													// 	director =>
+													// 		`${director?.id}` ===
+													// 		`${selectedDirector?.directorId}`
+													// ).length > 0 &&
+													// 	isEditLoan)
 												}
 												type='button'
 												customStyle={{
