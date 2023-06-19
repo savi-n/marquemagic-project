@@ -256,7 +256,9 @@ const DynamicForm = props => {
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}
-						onClick={handleButtonClick}
+						onClick={handleSubmit(() => {
+							handleButtonClick();
+						})}
 						disabled={isSubmitting}
 						isLoader={isSubmitting}
 						name={submitCTAName}
