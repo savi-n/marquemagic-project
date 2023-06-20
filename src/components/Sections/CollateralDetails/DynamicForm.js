@@ -46,6 +46,7 @@ const DynamicForm = props => {
 		formState,
 		handleSubmit,
 		onChangeFormStateField,
+		resetForm,
 	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,6 +74,8 @@ const DynamicForm = props => {
 			let editViewLoanValue = '';
 
 			editViewLoanValue = prefilledEditOrViewLoanValues(field);
+
+			// console.log('prefillvalues-', editViewLoanValue);
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -142,138 +145,88 @@ const DynamicForm = props => {
 	useEffect(() => {
 		const filtered = assets?.filter(
 			item => `${item.id}` === formState?.values?.['select_collateral']
-		);
-		if (isCreateFormOpen && formState?.values?.['select_collateral']) {
-			onChangeFormStateField({
-				name: 'existing_collateral',
-				value: !!filtered[0]?.id,
-			});
+		)?.[0];
+		if (
+			isCreateFormOpen &&
+			formState?.values?.['select_collateral'] &&
+			filtered
+		) {
+			// onChangeFormStateField({
+			// 	name: 'existing_collateral',
+			// 	value: !!filtered?.id,
+			// });
 			onChangeFormStateField({
 				name: 'select_collateral',
-				value: `${filtered[0]?.id}`,
+				value: `${filtered?.id}`,
 			});
 
 			onChangeFormStateField({
 				name: 'id',
-				value: filtered[0]?.id,
+				value: filtered?.id,
 			});
 
 			onChangeFormStateField({
 				name: 'owner_name',
 				value:
-					filtered[0]?.director_id === 0
+					filtered?.director_id === 0
 						? businessName
-						: directors?.[filtered[0]?.director_id]?.fullName,
+						: directors?.[filtered?.director_id]?.fullName,
 			});
 
 			onChangeFormStateField({
 				name: 'loan_id',
-				value: filtered[0]?.loan_id,
+				value: filtered?.loan_id,
 			});
 
 			onChangeFormStateField({
 				name: 'loan_json',
-				value: filtered[0]?.value,
+				value: filtered?.value,
 			});
 
 			onChangeFormStateField({
 				name: 'city',
-				value: filtered[0]?.city,
+				value: filtered?.city,
 			});
 
 			onChangeFormStateField({
 				name: 'state',
-				value: filtered[0]?.state,
+				value: filtered?.state,
 			});
 			onChangeFormStateField({
 				name: 'pin_code',
-				value: filtered[0]?.pincode,
+				value: filtered?.pincode,
 			});
 			onChangeFormStateField({
 				name: 'address1',
-				value: filtered[0]?.address1,
+				value: filtered?.address1,
 			});
 			onChangeFormStateField({
 				name: 'address2',
-				value: filtered[0]?.address2,
+				value: filtered?.address2,
 			});
 
 			onChangeFormStateField({
 				name: 'address3',
-				value: filtered[0]?.name_landmark,
+				value: filtered?.name_landmark,
 			});
 			onChangeFormStateField({
 				name: 'owned_type',
-				value: filtered[0]?.owned_type,
+				value: filtered?.owned_type,
 			});
 			onChangeFormStateField({
 				name: 'current_occupant',
-				value: filtered[0]?.current_occupant,
+				value: filtered?.current_occupant,
 			});
 		} else if (isCreateFormOpen) {
-			onChangeFormStateField({
-				name: 'existing_collateral',
-				value: null,
-			});
-			onChangeFormStateField({
-				name: 'select_collateral',
-				value: '',
-			});
-
-			onChangeFormStateField({
-				name: 'id',
-				value: null,
-			});
-
-			onChangeFormStateField({
-				name: 'owner_name',
-				value: null,
-			});
-
-			onChangeFormStateField({
-				name: 'loan_id',
-				value: null,
-			});
-
-			onChangeFormStateField({
-				name: 'loan_json',
-				value: null,
-			});
-
-			onChangeFormStateField({
-				name: 'city',
-				value: '',
-			});
-
-			onChangeFormStateField({
-				name: 'state',
-				value: '',
-			});
-			onChangeFormStateField({
-				name: 'pin_code',
-				value: null,
-			});
-			onChangeFormStateField({
-				name: 'address1',
-				value: null,
-			});
-			onChangeFormStateField({
-				name: 'address2',
-				value: null,
-			});
-
-			onChangeFormStateField({
-				name: 'address3',
-				value: null,
-			});
-			onChangeFormStateField({
-				name: 'owned_type',
-				value: null,
-			});
-			onChangeFormStateField({
-				name: 'current_occupant',
-				value: null,
-			});
+			const oldExisting_collateralValue =
+				formState?.values?.['existing_collateral'];
+			resetForm();
+			if (oldExisting_collateralValue) {
+				onChangeFormStateField({
+					name: 'existing_collateral',
+					value: oldExisting_collateralValue,
+				});
+			}
 		}
 		// eslint-disable-next-line
 	}, [formState?.values?.['select_collateral']]);
@@ -312,6 +265,7 @@ const DynamicForm = props => {
 								// 	isViewLoan,
 								// 	newField,
 								// 	formState,
+								// 	prefillValue: prefilledValues(newField),
 								// });
 								return (
 									<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>

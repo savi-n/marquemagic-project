@@ -186,7 +186,7 @@ const AddressDetails = props => {
 					const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
 					setIsBiometricModalOpen(true);
 					setBiometricRes(redirectRes?.data || {});
-					console.log('redirectRes-', redirectRes);
+					// console.log('redirectRes-', redirectRes);
 				} catch (error) {
 					console.error('error-addressdetails-aadhaarurlredirect-', error);
 				} finally {
@@ -716,16 +716,16 @@ const AddressDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	console.log('AddressDetails-allstates-', {
-		app,
-		application,
-		selectedDirector,
-		isSameAsAboveAddressChecked,
-		formState,
-		selectedSection,
-		isCountryIndia,
-		selectedPermanentAadhaarField,
-	});
+	// console.log('AddressDetails-allstates-', {
+	// 	app,
+	// 	application,
+	// 	selectedDirector,
+	// 	isSameAsAboveAddressChecked,
+	// 	formState,
+	// 	selectedSection,
+	// 	isCountryIndia,
+	// 	selectedPermanentAadhaarField,
+	// });
 
 	if (!selectedDirectorId) return null;
 

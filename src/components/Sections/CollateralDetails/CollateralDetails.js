@@ -153,6 +153,8 @@ const CollateralDetails = () => {
 	});
 	//END TODO: COLLATERAL
 
+	console.log('CollateralDetails-allstates-', { selectedSection });
+
 	return (
 		<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
 			{fetchingSectionData ? (
@@ -189,6 +191,7 @@ const CollateralDetails = () => {
 								nature_of_ownership: addressData?.owned_type || '',
 								property_occupant: addressData?.current_occupant || '',
 							};
+							console.log('prefilldata-', prefillData);
 							return (
 								<UI_SECTIONS.AccordianWrapper key={`accordian-${sectionIndex}`}>
 									<UI_SECTIONS.AccordianHeader>
