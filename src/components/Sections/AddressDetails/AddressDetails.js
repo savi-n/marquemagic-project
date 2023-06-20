@@ -12,6 +12,7 @@ import AddressProofUpload from './AddressProofUpload';
 import Hint from 'components/Hint';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 import Loading from 'components/Loading';
+import BiometricModal from './BiometricModal';
 
 import { setSelectedSectionId } from 'store/appSlice';
 import useForm from 'hooks/useFormIndividual';
@@ -106,6 +107,9 @@ const AddressDetails = props => {
 		businessAddressIdAid1: '',
 		businessAddressIdAid2: '',
 	});
+	const [isBiometricModalOpen, setIsBiometricModalOpen] = useState(false);
+	const [biometricRes, setBiometricRes] = useState(null);
+
 	const selectedIncomeType =
 		sectionData?.director_details?.income_type === 0
 			? '0'
@@ -146,6 +150,10 @@ const AddressDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
+	const selectedVerifyWithOtpSubField = getSelectedSubField({
+		fields: selectedPermanentAadhaarField?.sub_fields || [],
+		isApplicant,
+	});
 
 	const onClickVerifyWithOtp = async () => {
 		try {
@@ -158,6 +166,36 @@ const AddressDetails = props => {
 					type: 'error',
 				});
 			}
+
+			// Check for federal bank url redirect flag
+			if (selectedVerifyWithOtpSubField?.redirect_url) {
+				try {
+					setVerifyingWithOtp(true);
+					// const reqBody = {};
+					// const sessionIdRes = await axios.post(
+					// 	`${API.CUSTOMER_FETCH_API_END_POINT}${
+					// 		selectedVerifyWithOtpSubField?.redirect_url
+					// 	}`
+					// );
+					// console.log('sessionIdRes-', sessionIdRes);
+					const reqBody = {
+						session_id: `eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaW5haHViIiwiaWF0IjoxNjg2ODI2NDE1LCJleHAiOjE2ODY4MjY3MTUsImF1ZCI6IjEifQ.c7FeC2PxBe-biDFvhkRaTP2Crc5QWQnT3v8Nfyhy24-Ku9JViYTsDWzMQQ5aENxO_3WXG3Pr8u60BGuiYkqonQ`,
+						redirectUrl: 'https://clix.loan2pal.com',
+						option: 'biometric',
+					};
+					const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
+					setIsBiometricModalOpen(true);
+					setBiometricRes(redirectRes?.data || {});
+					console.log('redirectRes-', redirectRes);
+				} catch (error) {
+					console.error('error-addressdetails-aadhaarurlredirect-', error);
+				} finally {
+					setVerifyingWithOtp(false);
+					return;
+				}
+			}
+			// -- Check for federal bank url redirect flag
+
 			setVerifyingWithOtp(true);
 			try {
 				const aadhaarOtpReqBody = {
@@ -678,15 +716,16 @@ const AddressDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('AddressDetails-allstates-', {
-	// 	app,
-	// 	application,
-	// 	selectedDirector,
-	// 	isSameAsAboveAddressChecked,
-	// 	formState,
-	// 	selectedSection,
-	// 	isCountryIndia,
-	// });
+	console.log('AddressDetails-allstates-', {
+		app,
+		application,
+		selectedDirector,
+		isSameAsAboveAddressChecked,
+		formState,
+		selectedSection,
+		isCountryIndia,
+		selectedPermanentAadhaarField,
+	});
 
 	if (!selectedDirectorId) return null;
 
@@ -706,6 +745,16 @@ const AddressDetails = props => {
 								prePopulateAddressDetailsFromVerifyOtpRes
 							}
 							setVerifyOtpResponseTemp={setVerifyOtpResponseTemp}
+						/>
+					)}
+					{isBiometricModalOpen && (
+						<BiometricModal
+							show={isBiometricModalOpen}
+							onClose={() => {
+								setIsBiometricModalOpen(false);
+								setBiometricRes(null);
+							}}
+							biometricRes={biometricRes}
 						/>
 					)}
 					{selectedSection?.sub_sections?.map(
