@@ -153,7 +153,7 @@ const CollateralDetails = () => {
 	});
 	//END TODO: COLLATERAL
 
-	console.log('CollateralDetails-allstates-', { selectedSection });
+	// console.log('CollateralDetails-allstates-', { selectedSection });
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ paddingTop: 50 }}>
