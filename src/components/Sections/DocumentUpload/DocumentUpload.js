@@ -264,10 +264,10 @@ const DocumentUpload = props => {
 									API.CO_APPLICANTS_DOCTYPES_FETCH
 								}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
 							);
-							console.log(
-								'🚀 ~ file: DocumentUpload.js:267 ~ initializeDocTypeList ~ coAppDocTypesRes:',
-								coAppDocTypesRes
-							);
+							// console.log(
+							// 	'🚀 ~ file: DocumentUpload.js:267 ~ initializeDocTypeList ~ coAppDocTypesRes:',
+							// 	coAppDocTypesRes
+							// );
 
 							const nonApplicantDocTypeMapping = {};
 							allCoApplicantUniqueIncomeTypeIds?.forEach(
@@ -1465,11 +1465,10 @@ const DocumentUpload = props => {
 					selectedDirectorDocumentTypes?.filter(
 						docType => docType.category === category
 					) || [];
-				console.log(
-					selectedDocumentTypes,
-					'..........>>>>>>>>>>>>',
-					selectedDirectorDocumentTypes
-				);
+				// console.log(
+				// 	selectedDocumentTypes,
+				// 	selectedDirectorDocumentTypes
+				// );
 				if (selectedDocumentTypes.length <= 0) return null;
 				const selectedDocuments = selectedDirectorDocuments?.filter(
 					doc => doc?.category === category
