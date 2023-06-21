@@ -54,9 +54,10 @@ export default function CustomerListModal(props) {
 						<UI.CustomerListCardItem>
 							Mobile: {customer?.mobile_flag}
 						</UI.CustomerListCardItem>
-						<UI.CustomerListCardItem>
+						{/* TODO: not available in ddupe api request to client/shubham for this data */}
+						{/* <UI.CustomerListCardItem>
 							Product: LAP (mapping pending)
-						</UI.CustomerListCardItem>
+						</UI.CustomerListCardItem> */}
 					</UI.CustomerListCard>
 				))}
 				<UI.CustomerDetailsFormModalFooter>

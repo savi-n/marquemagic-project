@@ -264,31 +264,61 @@ const DocumentUpload = props => {
 									API.CO_APPLICANTS_DOCTYPES_FETCH
 								}?income_type=${allCoApplicantUniqueIncomeTypeIds.join(',')}`
 							);
-							// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
-							coAppDocTypesRes?.data?.data?.forEach(
-								(nonApplicantDocs, nonApplicantIndex) => {
-									for (const key in nonApplicantDocs) {
-										nonApplicantDocs[key]?.forEach(docType => {
-											const category = getDocumentCategoryName(
-												docType?.doc_type
-											);
-											const newDoc = {
-												...docType,
-												doc_type_id: docType?.id,
-												type_name:
-													nonApplicantDirectorsArray?.[nonApplicantIndex]
-														?.type_name,
-												value: docType?.id,
-												category,
-												directorId:
-													nonApplicantDirectorsArray?.[nonApplicantIndex]
-														?.directorId,
-											};
-											newAllDocumentTypes.push(newDoc);
-										});
-									}
+							// console.log(
+							// 	'🚀 ~ file: DocumentUpload.js:267 ~ initializeDocTypeList ~ coAppDocTypesRes:',
+							// 	coAppDocTypesRes
+							// );
+
+							const nonApplicantDocTypeMapping = {};
+							allCoApplicantUniqueIncomeTypeIds?.forEach(
+								(incomeType, incomeTypeIndex) => {
+									nonApplicantDocTypeMapping[incomeType] =
+										coAppDocTypesRes?.data?.data?.[incomeTypeIndex] || [];
 								}
 							);
+							nonApplicantDirectorsArray?.forEach(director => {
+								const selectedIncomeTypeDocs =
+									nonApplicantDocTypeMapping[(director?.income_type)];
+								for (const key in selectedIncomeTypeDocs) {
+									selectedIncomeTypeDocs[key]?.forEach(docType => {
+										const category = getDocumentCategoryName(docType?.doc_type);
+										const newDoc = {
+											...docType,
+											doc_type_id: docType?.id,
+											type_name: director?.type_name,
+											value: docType?.id,
+											category,
+											directorId: director?.directorId,
+										};
+										newAllDocumentTypes.push(newDoc);
+									});
+								}
+							});
+							// console.log('coAppDocTypesRes-', { coAppDocTypesRes });
+							// coAppDocTypesRes?.data?.data?.forEach(
+							// 	(nonApplicantDocs, nonApplicantIndex) => {
+							// 		for (const key in nonApplicantDocs) {
+							// 			nonApplicantDocs[key]?.forEach(docType => {
+							// 				const category = getDocumentCategoryName(
+							// 					docType?.doc_type
+							// 				);
+							// 				const newDoc = {
+							// 					...docType,
+							// 					doc_type_id: docType?.id,
+							// 					type_name:
+							// 						nonApplicantDirectorsArray?.[nonApplicantIndex]
+							// 							?.type_name,
+							// 					value: docType?.id,
+							// 					category,
+							// 					directorId:
+							// 						nonApplicantDirectorsArray?.[nonApplicantIndex]
+							// 							?.directorId,
+							// 				};
+							// 				newAllDocumentTypes.push(newDoc);
+							// 			});
+							// 		}
+							// 	}
+							// );
 						} catch (error) {
 							console.error(
 								'error-failted to fetch coapplicant document list-',
@@ -1435,6 +1465,10 @@ const DocumentUpload = props => {
 					selectedDirectorDocumentTypes?.filter(
 						docType => docType.category === category
 					) || [];
+				// console.log(
+				// 	selectedDocumentTypes,
+				// 	selectedDirectorDocumentTypes
+				// );
 				if (selectedDocumentTypes.length <= 0) return null;
 				const selectedDocuments = selectedDirectorDocuments?.filter(
 					doc => doc?.category === category

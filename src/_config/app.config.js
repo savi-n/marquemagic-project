@@ -104,6 +104,9 @@ const DDUPE_CHECK = `${CUSTOMER_FETCH_API_END_POINT}/ddupe_check`;
 const DDUPE_SEND_OTP = `${CUSTOMER_FETCH_API_END_POINT}/verify_customer`;
 const DDUPE_VERIFY_OTP = `${CUSTOMER_FETCH_API_END_POINT}/get_customer_details`;
 
+const GENERATE_SESSION_ID_AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/generate_session_id`;
+const AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/kyc_biometric`;
+
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
 const CLIENT_EMAIL_ID = 'clix@nc.com';
@@ -235,4 +238,6 @@ export {
 	DDUPE_CHECK,
 	DDUPE_SEND_OTP,
 	DDUPE_VERIFY_OTP,
+	GENERATE_SESSION_ID_AADHAAR_REDIRECT,
+	AADHAAR_REDIRECT,
 };
