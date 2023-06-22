@@ -18,10 +18,12 @@ import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
 import { setSelectedSectionId } from 'store/appSlice';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
+//import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
 	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
+	getDocumentNameFromLoanDocuments,
 	parseJSON,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
@@ -59,6 +61,7 @@ const LoanDetails = () => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
+	//const [loadingFile, setLoadingFile] = useState(false);
 	const {
 		handleSubmit,
 		register,
@@ -69,14 +72,18 @@ const LoanDetails = () => {
 	const prevSelectedConnectorId = useRef(null);
 	const selectedConnectorId =
 		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
-	const selectedImdDocumentFile =
+	const selectedImdDocumentFile = //sectionData?.imd_details?.imd_document;
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-		)?.[0] ||
-		cacheDocuments?.filter(
-			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-		)?.[0] ||
-		null;
+		)?.[0] || sectionData?.imd_details?.imd_document
+			? {
+					...sectionData?.imd_details?.imd_document,
+					name: getDocumentNameFromLoanDocuments(
+						sectionData?.imd_details?.imd_document
+					),
+					document_id: sectionData?.imd_details?.doc_id,
+			  }
+			: null;
 	let editLoanUploadedFile = null;
 
 	const addCacheDocumentTemp = file => {
@@ -96,6 +103,10 @@ const LoanDetails = () => {
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
 		}
+		//setLoading(true);
+		if (sectionData?.imd_details?.imd_document?.uploaded_doc_name)
+			fetchSectionDetails();
+		//setLoading(false);
 	};
 
 	const getConnectors = async () => {
@@ -364,6 +375,7 @@ const LoanDetails = () => {
 	// 	formState,
 	// 	selectedSection,
 	// });
+	//console.log(sectionData?.imd_details?.imd_document?.uploaded_doc_name);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
@@ -429,10 +441,8 @@ const LoanDetails = () => {
 													key={`field-${fieldIndex}-${field.name}`}
 												>
 													<InputFieldSingleFileUpload
-														field={field}
-														uploadedFile={
-															selectedImdDocumentFile || editLoanUploadedFile
-														}
+														field={newField}
+														uploadedFile={selectedImdDocumentFile}
 														selectedDocTypeId={selectedDocTypeId}
 														clearErrorFormState={clearErrorFormState}
 														addCacheDocumentTemp={addCacheDocumentTemp}
