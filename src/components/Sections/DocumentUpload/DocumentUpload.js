@@ -1536,7 +1536,9 @@ const DocumentUpload = props => {
 									: sub_section?.name} */}
 								{sub_section?.name?.includes('Selfie')
 									? `${sub_section?.fields?.[0]?.label} ${
-											selectedDirector?.type_name
+											!!selectedDirector?.type_name
+												? selectedDirector?.type_name
+												: 'Entity'
 									  } ${getSelectedDirectorIndex({
 											directors,
 											selectedDirector,
