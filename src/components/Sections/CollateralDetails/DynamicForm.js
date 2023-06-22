@@ -217,7 +217,10 @@ const DynamicForm = props => {
 				name: 'current_occupant',
 				value: filtered?.current_occupant,
 			});
-		} else if (isCreateFormOpen) {
+		} else if (
+			isCreateFormOpen &&
+			formState?.values?.['select_collateral'] === 'new'
+		) {
 			const oldExisting_collateralValue =
 				formState?.values?.['existing_collateral'];
 			resetForm();
@@ -227,6 +230,10 @@ const DynamicForm = props => {
 					value: oldExisting_collateralValue,
 				});
 			}
+			onChangeFormStateField({
+				name: 'select_collateral',
+				value: 'new',
+			});
 		}
 		// eslint-disable-next-line
 	}, [formState?.values?.['select_collateral']]);

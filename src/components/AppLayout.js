@@ -85,7 +85,6 @@ const AppLayout = () => {
 	const {
 		actions: { setClientToken, setBankToken, setWhitelabelId, setLogo },
 	} = useContext(AppContext);
-
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
@@ -139,18 +138,20 @@ const AppLayout = () => {
 			// set the values for new flow
 			dispatch(setUserToken(decryptedToken?.token));
 
-			dispatch(
-				setLoanIds({
-					loanRefId: decryptedToken?.loan_ref_id,
-				})
-			);
+			if (decryptedToken?.loan_ref_id) {
+				dispatch(
+					setLoanIds({
+						loanRefId: decryptedToken?.loan_ref_id,
+					})
+				);
 
-			dispatch(
-				setEditOrViewLoan({
-					isEditLoan,
-					isViewLoan,
-				})
-			);
+				dispatch(
+					setEditOrViewLoan({
+						isEditLoan,
+						isViewLoan,
+					})
+				);
+			}
 			try {
 				if (params.cid || params.uid || decryptedToken?.userId) {
 					let UID = params?.cid || params?.uid || '';

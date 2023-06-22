@@ -44,7 +44,8 @@ import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
-	const { selectedDirectorId } = useSelector(state => state.directors);
+	const { directors } = useSelector(state => state);
+	const { selectedDirectorId } = directors;
 	const { app } = reduxState;
 	const {
 		selectedSectionId,
@@ -122,7 +123,11 @@ const Product = props => {
 					selectedProductRes?.product_details?.sections?.[0]?.id
 				)
 			);
-			if (selectedProductRes?.loan_request_type === 2 && !isEditOrViewLoan) {
+			if (
+				selectedProductRes?.loan_request_type === 2 &&
+				!isEditOrViewLoan &&
+				Object.keys(directors).length <= 0
+			) {
 				dispatch(setAddNewDirectorKey(DIRECTOR_TYPES.applicant));
 			}
 			if (response?.data?.loan_request_type) {
