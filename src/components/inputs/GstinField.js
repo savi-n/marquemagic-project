@@ -100,6 +100,7 @@ const FieldPostfixIcon = styled.span`
 	position: absolute;
 	height: 2rem;
 	width: 2rem;
+	margin: 5px;
 	background: #dce2f7;
 	border-radius: 50%;
 	right: 0;
@@ -108,9 +109,6 @@ const FieldPostfixIcon = styled.span`
 	color: black;
 	line-height: 50px;
 	/* margin: 3% 3% 3% 3%; */
-	margin-top: 2%;
-	margin-bottom: 1%;
-	margin-right: 3%;
 	z-index: 10;
 	text-align: center;
 	align-items: center;

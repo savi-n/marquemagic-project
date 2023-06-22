@@ -2,6 +2,7 @@
   This section also contains resend otp option */
 
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 // import { useDispatch } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
@@ -9,19 +10,10 @@ import Modal from 'components/Modal';
 import Button from 'components/Button';
 import CustomerVerificationOTPInput from './CustomerVerificationOTPInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
-
-import { useToasts } from 'components/Toast/ToastProvider';
-import {
-	AADHAAR_VERIFY_OTP, /// need to change these apis as per this page
-	AADHAAR_RESEND_OTP,
-	RESEND_OTP_TIMER,
-} from '_config/app.config';
-import useFetch from 'hooks/useFetch';
+import { RESEND_OTP_TIMER, DDUPE_VERIFY_OTP } from '_config/app.config';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
-import { formatSectionReqBody } from 'utils/formatData';
-//import { initialFormState } from '../const';
-import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
+import * as UI from '../ui';
 
 // const ModalHeader = styled.div`
 // 	position: relative;
@@ -112,23 +104,18 @@ const ModalSubHeader = styled.span`
 const CustomerVerificationOTPModal = props => {
 	// const dispatch = useDispatch();
 	const {
-		isCustomerOtpModalOpen,
-		setIsCustomerOtpModalOpen,
-		aadhaarGenOtpResponse,
-		prePopulateAddressDetailsFromVerifyOtpRes,
-		formState,
-		setVerifyOtpResponseTemp,
+		show,
+		onClose,
+		resendOtp,
+		selectedCustomer,
+		redirectToProductPageInEditMode,
+		customerDetailsFormData,
+		product,
+		sendOtpRes,
 	} = props;
 
-	const { application, app } = useSelector(state => state);
-	const { directors, selectedDirectorId } = useSelector(
-		state => state.directors
-	);
-	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const { loanProductId } = application;
-	const { selectedSection, clientToken, selectedProduct } = app;
-	const { addToast } = useToasts();
-	const { newRequest } = useFetch();
+	const { app } = useSelector(state => state);
+	const { selectedProduct, whiteLabelId } = app;
 	const [inputCustomerOTP, setInputCustomerOTP] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
 	const [resendOtpTimer, setResendOtpTimer] = useState(
@@ -137,9 +124,6 @@ const CustomerVerificationOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [isResentOtp, setIsResentOtp] = useState(false);
-	// const {
-	// 	state: { clientToken },
-	// } = useContext(AppContext);
 
 	const verifyOtp = async () => {
 		if (!inputCustomerOTP) {
@@ -150,89 +134,25 @@ const CustomerVerificationOTPModal = props => {
 			setErrorMsg('Please enter 6 digit OTP Number');
 			return;
 		}
-
-		const otpReqBody = formatSectionReqBody({
-			section: selectedSection,
-			//	values: initialFormState.values,
-			app,
-			application,
-			selectedDirector,
-		});
-
 		try {
 			setVerifyingOtp(true);
-			const customerVerifyReq = await newRequest(AADHAAR_VERIFY_OTP, {
-				method: 'POST',
-				data: {
-					...otpReqBody,
-					transactionId: aadhaarGenOtpResponse.data.transactionId,
-					otp: inputCustomerOTP,
-					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
-					fwdp: aadhaarGenOtpResponse.data.fwdp,
-					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-					product_id: loanProductId,
-				},
-				headers: {
-					Authorization: `${clientToken}`,
-				},
-			});
-			const aadhaarVerifyResponse = customerVerifyReq.data;
-			setVerifyOtpResponseTemp({
-				req: {
-					...otpReqBody,
-					transactionId: aadhaarGenOtpResponse.data.transactionId,
-					otp: inputCustomerOTP,
-					codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
-					fwdp: aadhaarGenOtpResponse.data.fwdp,
-					aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-					product_id: loanProductId,
-				},
-				res: aadhaarVerifyResponse,
-			});
-			// dispatch(
-			// 	setVerifyOtpResponse({
-			// 		req: {
-			// 			...otpReqBody,
-			// 			transactionId: aadhaarGenOtpResponse.data.transactionId,
-			// 			otp: inputCustomerOTP,
-			// 			codeVerifier: aadhaarGenOtpResponse.data.codeVerifier,
-			// 			fwdp: aadhaarGenOtpResponse.data.fwdp,
-			// 			aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-			// 			product_id: loanProductId,
-			// 		},
-			// 		res: aadhaarVerifyResponse,
-			// 	})
-			// );
-			if (
-				formState?.values?.[
-					CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
-				] ===
-				CONST_ADDRESS_DETAILS.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR
-			) {
-				prePopulateAddressDetailsFromVerifyOtpRes(aadhaarVerifyResponse);
-			}
-
-			if (aadhaarVerifyResponse.status === 'ok') {
-				setIsCustomerOtpModalOpen(false);
-				addToast({
-					message: 'Aadhaar Successfully Verified',
-					type: 'success',
-				});
-				sessionStorage.setItem(
-					'aadhaar_otp_res',
-					JSON.stringify(aadhaarVerifyResponse)
-				);
-			} else {
-				setIsCustomerOtpModalOpen(false);
-				addToast({
-					message:
-						' Aadhaar is not validated due to technical failure. Please try again after sometime',
-					type: 'error',
-				});
-			}
-			setVerifyingOtp(false);
+			setErrorMsg('');
+			const reqBody = {
+				customer_id: selectedCustomer?.customer_id || '137453244',
+				// customer_id: '137453244', // TODO: to be removed after testing
+				otp: inputCustomerOTP || '230612',
+				reference_id:
+					sendOtpRes?.Validate_Customer_Resp?.ReferenceId || 'NC1686309649249', // TODO: tobe removed after testing
+				businesstype: customerDetailsFormData?.businesstype || 7, // TODO: tobe removed after testing
+				loan_product_id:
+					product?.product_id?.[`${customerDetailsFormData?.businesstype}`],
+				white_label_id: whiteLabelId,
+			};
+			const customerVerifyRes = await axios.post(DDUPE_VERIFY_OTP, reqBody);
+			// console.log('customerotpres-', customerVerifyRes);
+			redirectToProductPageInEditMode(customerVerifyRes?.data || {});
 		} catch (error) {
-			console.error(error);
+			console.error({ error, res: error?.response });
 			if (
 				(error?.response?.data?.message || error?.response?.data?.data?.msg) ===
 				'Invalid OTP'
@@ -240,55 +160,13 @@ const CustomerVerificationOTPModal = props => {
 				error.response.data.message = 'Please enter a valid OTP.';
 			}
 			setErrorMsg(
-				error?.response?.data?.message ||
+				error?.response?.data?.Get_CustomerDetails_Resp?.ResponseReason ||
+					error?.response?.data?.message ||
 					error?.response?.data?.data?.msg ||
-					'Aadhaar cannot be validated due to technical failure. Please try again after sometime'
+					'Something went wrong, try after sometimes'
 			);
-
+		} finally {
 			setVerifyingOtp(false);
-		}
-	};
-
-	const resendOtp = async () => {
-		// console.log('resendOtp-', aadhaarGenOtpResponse);
-		if (
-			!aadhaarGenOtpResponse?.aadhaarNo ||
-			!aadhaarGenOtpResponse?.data?.transactionId ||
-			!aadhaarGenOtpResponse?.data?.fwdp
-		) {
-			return;
-		}
-		try {
-			setIsResentOtp(true);
-			setResendOtpTimer(
-				sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
-			);
-			const reqBody = {
-				aadhaarNo: aadhaarGenOtpResponse.aadhaarNo,
-				transactionId: aadhaarGenOtpResponse.data.transactionId,
-				fwdp: aadhaarGenOtpResponse.data.fwdp,
-				product_id: loanProductId,
-			};
-			// console.log('resendOtp-reqBody-', reqBody);
-			const customerResendOtpRes = await newRequest(AADHAAR_RESEND_OTP, {
-				method: 'POST',
-				data: reqBody,
-				headers: {
-					Authorization: `${clientToken}`,
-				},
-			});
-			if (customerResendOtpRes.data.status === 'ok') {
-				addToast({
-					message: 'OTP generated again',
-					type: 'success',
-				});
-			}
-		} catch (error) {
-			console.error(error);
-			setErrorMsg(
-				error?.response?.data?.message ||
-					' Aadhaar cannot be validated due to technical failure. Please try again after sometime'
-			);
 		}
 	};
 
@@ -304,46 +182,28 @@ const CustomerVerificationOTPModal = props => {
 		return () => clearInterval(timer);
 	}, []);
 
-	useEffect(() => {
-		if (resendOtpTimer <= 0) return;
-	}, [resendOtpTimer]);
-
 	const handleModalClose = () => {
 		setInputCustomerOTP('');
-		setIsCustomerOtpModalOpen(false);
+		onClose();
 	};
+
+	// console.log('customerverificationotpmodal-allstates-', {
+	// 	inputCustomerOTP,
+	// 	selectedProduct,
+	// 	product,
+	// });
 
 	return (
 		<Modal
-			show={isCustomerOtpModalOpen}
-			onClose={() => setIsCustomerOtpModalOpen(false)}
+			show={show}
+			onClose={onClose}
 			// un-comment this if you wants to allow modal to be closed when clicked outside
 			// onClose={handleModalClose}
 			width='30%'
 			customStyle={{ padding: '20px' }}
 		>
-			{/* <ImgClose
-				onClick={() => {
-					setIsCustomerOtpModalOpen(false);
-				}}
-				src={imgClose}
-				alt='close'
-			/> */}
-			<ModalHeader>
-				Dear Customer
-				<img
-					src={imgClose}
-					style={{
-						cursor: 'pointer',
-						width: '25px',
-						position: 'absolute',
-						right: 0,
-						marginRight: '20px',
-					}}
-					onClick={handleModalClose}
-					alt='close'
-				/>
-			</ModalHeader>
+			<UI.ImgClose onClick={handleModalClose} src={imgClose} alt='close' />
+			<ModalHeader>Dear Customer</ModalHeader>
 
 			<ModalBody>
 				<ModalSubHeader>
@@ -365,7 +225,12 @@ const CustomerVerificationOTPModal = props => {
 						}`}
 						type='submit'
 						onClick={() => {
-							resendOtpTimer <= 0 && resendOtp();
+							if (resendOtpTimer <= 0) {
+								setResendOtpTimer(
+									sessionStorage.getItem('otp_duration') || RESEND_OTP_TIMER
+								);
+								resendOtp();
+							}
 						}}
 					>
 						{' '}
