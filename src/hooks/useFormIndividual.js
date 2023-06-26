@@ -76,6 +76,10 @@ const VALIDATION_RULES = {
 		func: validatePattern(/^$|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
+	is_udyam: {
+		func: validatePattern(/^UDYAM-\d{2}-\d{2}-\d{7}$/),
+		message: 'Please Enter A Valid Udyam Number',
+	},
 	is_zero_not_allowed_for_first_digit: {
 		func: validatePattern(/^[1-9][0-9]*$/),
 		message: 'Number cannot start with 0',
