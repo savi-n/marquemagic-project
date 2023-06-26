@@ -788,10 +788,6 @@ const BusinessDetails = props => {
 											) {
 												customFieldProps.disabled = true;
 											}
-											customFieldProps.rules = {
-												...field.rules,
-												is_udyam: true,
-											};
 										}
 
 										if (
