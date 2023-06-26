@@ -958,11 +958,13 @@ const DocumentUpload = props => {
 	let applicationOTPAuthentication = false;
 	if (selectedProduct?.product_details?.otp_authentication) {
 		applicationOTPAuthentication = true;
-		if (
-			isEditLoan ||
-			(selectedProduct?.product_details
+		if (isEditLoan && !isDraftLoan) {
+			// skip otp in edit mode
+			applicationOTPAuthentication = false;
+		} else if (
+			selectedProduct?.product_details
 				?.if_aadhaar_verified_skip_otp_authentication &&
-				isAadhaarVerified)
+			isAadhaarVerified
 		) {
 			applicationOTPAuthentication = false;
 		}
@@ -1376,17 +1378,19 @@ const DocumentUpload = props => {
 		}
 	};
 
-	// console.log('DocumentUpload-allstates-', {
-	// 	app,
-	// 	selectedDirector,
-	// 	cacheDocuments,
-	// 	cacheDocumentsTemp,
-	// 	applicantDirectorId,
-	// 	allDocumentTypes,
-	// 	applicationOTPAuthentication,
-	// 	selectedProduct,
-	// 	isAadhaarVerified,
-	// });
+	console.log('DocumentUpload-allstates-', {
+		app,
+		selectedDirector,
+		cacheDocuments,
+		cacheDocumentsTemp,
+		applicantDirectorId,
+		allDocumentTypes,
+		applicationOTPAuthentication,
+		selectedProduct,
+		isAadhaarVerified,
+		isEditLoan,
+		isDraftLoan,
+	});
 
 	if (loading) {
 		return (
