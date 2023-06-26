@@ -36,6 +36,7 @@ import {
 	getApiErrorMessage,
 	getSelectedField,
 	getAllCompletedSections,
+	// isDirectorApplicant
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -115,9 +116,11 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+	// const isApplicant = isDirectorApplicant(selectedDirector);
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
+		// isApplicant
 	});
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,

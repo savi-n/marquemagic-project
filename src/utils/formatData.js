@@ -521,9 +521,12 @@ export const getAllCompletedSections = data => {
 		directorSectionIds,
 		selectedProduct,
 		selectedSectionId,
+		isApplicant
 	} = data;
 	let completedSections = [];
-	if (Array.isArray(application?.sections)) {
+	// console.log(isApplicant);
+	if (isApplicant && Array.isArray(application?.sections)) {
+		// console.log(application?.sections);
 		completedSections = [...completedSections, ...application?.sections];
 	}
 	if (Array.isArray(selectedDirector?.sections)) {

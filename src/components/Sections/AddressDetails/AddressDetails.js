@@ -130,6 +130,7 @@ const AddressDetails = props => {
 	const completedSections = getAllCompletedSections({
 		application,
 		selectedDirector,
+		isApplicant,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
@@ -717,7 +718,12 @@ const AddressDetails = props => {
 
 	useEffect(() => {
 		scrollToTopRootElement();
-		if (!!loanRefId && !!selectedDirectorId) fetchSectionDetails();
+		if (
+			!!loanRefId &&
+			!!selectedDirectorId &&
+			selectedDirector?.sections?.includes(selectedSectionId)
+		)
+			fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 
