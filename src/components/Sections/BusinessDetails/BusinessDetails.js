@@ -448,9 +448,8 @@ const BusinessDetails = props => {
 					setCompanyRocData(
 						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
 					);
-				if (!businessType)
-					{
-						dispatch(
+				if (!businessType) {
+					dispatch(
 						setBusinessType(
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
@@ -783,8 +782,16 @@ const BusinessDetails = props => {
 										// }
 
 										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
-											if (sectionData?.business_details?.udyam_number && sectionData?.business_details?.udyam_response)
+											if (
+												sectionData?.business_details?.udyam_number &&
+												sectionData?.business_details?.udyam_response
+											) {
 												customFieldProps.disabled = true;
+											}
+											customFieldProps.rules = {
+												...field.rules,
+												is_udyam: true,
+											};
 										}
 
 										if (
