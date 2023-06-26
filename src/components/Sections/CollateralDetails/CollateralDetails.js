@@ -127,8 +127,8 @@ const CollateralDetails = () => {
 		);
 
 	collats_from_asset &&
-		collats_from_asset.map(collats => {
-			return (
+		collats_from_asset.map(collats =>
+			isCreateFormOpen ? (
 				!exclude_ids.includes(`${collats.id}`) &&
 				newOptions.push({
 					value: `${collats.id}`,
@@ -138,8 +138,20 @@ const CollateralDetails = () => {
 							: directors?.[collats?.director_id]?.fullName
 					} - Survey # ${collats.survey_no}`,
 				})
-			);
-		});
+			)
+			:
+			(
+				// !exclude_ids.includes(`${collats.id}`) &&
+				newOptions.push({
+					value: `${collats.id}`,
+					name: `${
+						collats?.director_id === 0
+							? businessName
+							: directors?.[collats?.director_id]?.fullName
+					} - Survey # ${collats.survey_no}`,
+				})
+			)
+		);
 
 	const newSectons = _.cloneDeep(selectedSection);
 	newSectons?.sub_sections?.filter(section => {
@@ -265,8 +277,8 @@ const CollateralDetails = () => {
 									<UI_SECTIONS.AccordianBody isOpen={isAccordianOpen}>
 										{isAccordianOpen && !isCreateFormOpen && (
 											<DynamicForm
-												// subSections={newSectons?.sub_sections || []}
-												subSections={selectedSection?.sub_sections || []}
+												subSections={newSectons?.sub_sections || []}
+												// subSections={selectedSection?.sub_sections || []}
 												prefillData={prefillData}
 												onSaveOrUpdateSuccessCallback={
 													onSaveOrUpdateSuccessCallback
