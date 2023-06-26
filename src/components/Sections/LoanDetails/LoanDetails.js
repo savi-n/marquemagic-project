@@ -72,19 +72,45 @@ const LoanDetails = () => {
 	const prevSelectedConnectorId = useRef(null);
 	const selectedConnectorId =
 		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
-	const selectedImdDocumentFile = //sectionData?.imd_details?.imd_document;
+	// const selectedImdDocumentFile =
+	// 	{
+	// 		cacheDocumentsTemp?.filter(
+	// 		doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+	// 	)?.[0] ,
+	//   name: cacheDocumentsTemp?.filter(
+	// 	doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+	// )?.[0].name,
+	//   } || sectionData?.imd_details?.imd_document
+	// 		? {
+	// 				...sectionData?.imd_details?.imd_document,
+	// 				name: getDocumentNameFromLoanDocuments(
+	// 					sectionData?.imd_details?.imd_document
+	// 				),
+	// 				document_id: sectionData?.imd_details?.doc_id,
+	// 		  }
+	// 		: null;
+	let editLoanUploadedFile = null;
+
+	const ImdDocumentFileOnUpload =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-		)?.[0] || sectionData?.imd_details?.imd_document
-			? {
-					...sectionData?.imd_details?.imd_document,
-					name: getDocumentNameFromLoanDocuments(
-						sectionData?.imd_details?.imd_document
-					),
-					document_id: sectionData?.imd_details?.doc_id,
-			  }
-			: null;
-	let editLoanUploadedFile = null;
+		)?.[0] || {};
+
+	const selectedImdDocument = sectionData?.imd_details?.imd_document
+		? {
+				...sectionData?.imd_details?.imd_document,
+				name: getDocumentNameFromLoanDocuments(
+					sectionData?.imd_details?.imd_document
+				),
+				document_id: sectionData?.imd_details?.doc_id,
+		  }
+		: null;
+
+	const selectedImdDocumentFile = ImdDocumentFileOnUpload.name
+		? ImdDocumentFileOnUpload
+		: selectedImdDocument;
+
+	//console.log(selectedImdDocumentFile);
 
 	const addCacheDocumentTemp = file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
