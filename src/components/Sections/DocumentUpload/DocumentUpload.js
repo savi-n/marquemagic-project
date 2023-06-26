@@ -170,7 +170,7 @@ const DocumentUpload = props => {
 						// externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
 						try {
 							const evalData = await axios.get(
-								`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
+								`${API.FETCH_EVAL_DETAILS}?loanId=${loanId}`
 							);
 							const selectedEvalData = evalData?.data?.data?.filter(
 								d => `${d?.assign_userid}` === `${userDetails?.id}`
