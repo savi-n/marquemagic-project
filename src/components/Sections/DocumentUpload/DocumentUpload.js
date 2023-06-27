@@ -361,9 +361,11 @@ const DocumentUpload = props => {
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {
 							preFillKycFinOtherDocs = formatLoanDocuments({
-								docs: allDocumentsRes?.data?.documentList?.loan_document,
+								docs:
+									allDocumentsRes?.data?.documentList
+										?.loan_document,
 								docTypes: newAllDocumentTypes,
-								applicantDirectorId:applicantDirectorId
+								applicantDirectorId: applicantDirectorId,
 							});
 						}
 
