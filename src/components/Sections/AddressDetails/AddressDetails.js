@@ -130,6 +130,7 @@ const AddressDetails = props => {
 	const completedSections = getAllCompletedSections({
 		application,
 		selectedDirector,
+		isApplicant,
 	});
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const [aadharOtpResponse, setAadharOtpResponse] = useState({});
@@ -620,6 +621,9 @@ const AddressDetails = props => {
 				permanent_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
 				permanent_address_proof_id_voter:
 					sectionData?.director_details?.dvoterid,
+
+				permanent_address_type:
+					sectionData?.director_details?.permanent_address_type,
 				permanent_address1: sectionData?.director_details?.permanent_address1,
 				permanent_address2: sectionData?.director_details?.permanent_address2,
 				permanent_address3: sectionData?.director_details?.permanent_locality,
@@ -639,6 +643,8 @@ const AddressDetails = props => {
 					sectionData?.director_details?.dpassport,
 				present_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
 				present_address_proof_id_voter: sectionData?.director_details?.dvoterid,
+
+				present_address_type: sectionData?.director_details?.address_type,
 				present_address1: sectionData?.director_details?.address1,
 				present_address2: sectionData?.director_details?.address2,
 				present_address3: sectionData?.director_details?.locality,
@@ -712,7 +718,12 @@ const AddressDetails = props => {
 
 	useEffect(() => {
 		scrollToTopRootElement();
-		if (!!loanRefId && !!selectedDirectorId) fetchSectionDetails();
+		if (
+			!!loanRefId &&
+			!!selectedDirectorId &&
+			selectedDirector?.sections?.includes(selectedSectionId)
+		)
+			fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 

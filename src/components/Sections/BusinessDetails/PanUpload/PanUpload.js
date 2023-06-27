@@ -215,7 +215,7 @@ const PanUpload = props => {
 			setGstin(gstinData);
 			onChangeFormStateField({
 				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value: panExtractionData?.panNumber || confirmPanNumber,
+				value:confirmPanNumber || panExtractionData?.panNumber,
 			});
 
 			/* split the name into first and last name */
@@ -470,10 +470,10 @@ const PanUpload = props => {
 			// });
 			setLoading(true);
 			setUdyogAadhar(udyogAadharNumber);
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value: panExtractionData?.panNumber,
-			});
+			// onChangeFormStateField({
+			// 	name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+			// 	value: panExtractionData?.panNumber,
+			// });
 			const verifyUdyogRes = await axios.get(
 				`${API.ENDPOINT_BANK}/get/udyam?udyamRegNo=${udyogAadharNumber}`,
 				{
@@ -496,6 +496,7 @@ const PanUpload = props => {
 							'YYYY-MM-DD'
 						) || '',
 				});
+				// if(verifyUdyogRes?.data?.resCode ==="SUCCESS")
 				// setdisableUdyamNumberInput(true);
 			}
 
@@ -588,10 +589,10 @@ const PanUpload = props => {
 						src={imgClose}
 						alt='close'
 					/>
-					<UI.Title>Udyog Aadhar</UI.Title>
+					<UI.Title>Udyam Number</UI.Title>
 					<UI.Field>
 						<InputField
-							name='Udyog Aadhar'
+							name='Udyam Number'
 							value={udyogAadhar}
 							onChange={e => {
 								setUdyogAadhar(e.target.value);

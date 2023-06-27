@@ -36,6 +36,7 @@ import {
 	getApiErrorMessage,
 	getSelectedField,
 	getAllCompletedSections,
+	// isDirectorApplicant
 } from 'utils/formatData';
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
@@ -115,9 +116,11 @@ const BusinessDetails = props => {
 		clearErrorFormState,
 		setErrorFormStateField,
 	} = useForm();
+	// const isApplicant = isDirectorApplicant(selectedDirector);
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
+		// isApplicant
 	});
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
@@ -448,9 +451,8 @@ const BusinessDetails = props => {
 					setCompanyRocData(
 						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
 					);
-				if (!businessType)
-					{
-						dispatch(
+				if (!businessType) {
+					dispatch(
 						setBusinessType(
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
@@ -783,8 +785,12 @@ const BusinessDetails = props => {
 										// }
 
 										if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
-											if (sectionData?.business_details?.udyam_number && sectionData?.business_details?.udyam_response)
+											if (
+												sectionData?.business_details?.udyam_number &&
+												sectionData?.business_details?.udyam_response
+											) {
 												customFieldProps.disabled = true;
+											}
 										}
 
 										if (

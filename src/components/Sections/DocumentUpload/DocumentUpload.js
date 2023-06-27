@@ -98,12 +98,21 @@ const DocumentUpload = props => {
 		businessType,
 		businessMobile,
 	} = application;
+
 	const selectedDirectorDocumentTypes = allDocumentTypes?.filter(
 		docType => `${docType?.directorId}` === `${selectedDirectorId}`
 	);
+
+	// const newcacheDocuments=[...cacheDocuments].map(d=>(
+	// 	if(!!d?.directorId){
+
+	// 	}
+	// ))
+
 	const selectedDirectorDocuments = cacheDocuments.filter(
 		doc => `${doc?.directorId}` === `${selectedDirectorId}`
 	);
+
 	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
@@ -153,6 +162,9 @@ const DocumentUpload = props => {
 	const isUseEffectCalledOnce = useRef(false);
 
 	useEffect(() => {
+		// console.log(allDocumentTypes, 'Alldoctypes');
+		// console.log(cacheDocuments, ' cache docs');
+
 		scrollToTopRootElement();
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
@@ -170,7 +182,7 @@ const DocumentUpload = props => {
 						// externalUserSelectedDocTypeList = await initializeExternalUserDocCheckList();
 						try {
 							const evalData = await axios.get(
-								`${API.FETCH_EVAL_DETAILS}?loanId=${editLoanData?.id}`
+								`${API.FETCH_EVAL_DETAILS}?loanId=${loanId}`
 							);
 							const selectedEvalData = evalData?.data?.data?.filter(
 								d => `${d?.assign_userid}` === `${userDetails?.id}`
@@ -349,8 +361,11 @@ const DocumentUpload = props => {
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {
 							preFillKycFinOtherDocs = formatLoanDocuments({
-								docs: allDocumentsRes?.data?.documentList?.loan_document,
+								docs:
+									allDocumentsRes?.data?.documentList
+										?.loan_document,
 								docTypes: newAllDocumentTypes,
+								applicantDirectorId: applicantDirectorId,
 							});
 						}
 
@@ -770,7 +785,7 @@ const DocumentUpload = props => {
 		cacheDocuments?.map(d =>
 			uploadedDocumetnIds.push(`${d?.directorId}${d?.doc_type_id}`)
 		);
-
+		// console.log(cacheDocuments);
 		if (isDocumentUploadMandatory) {
 			allMandatoryDocumentIds.map(docId => {
 				if (!uploadedDocumetnIds.includes(docId)) {
@@ -958,11 +973,13 @@ const DocumentUpload = props => {
 	let applicationOTPAuthentication = false;
 	if (selectedProduct?.product_details?.otp_authentication) {
 		applicationOTPAuthentication = true;
-		if (
-			isEditLoan ||
-			(selectedProduct?.product_details
+		if (isEditLoan && !isDraftLoan) {
+			// skip otp in edit mode
+			applicationOTPAuthentication = false;
+		} else if (
+			selectedProduct?.product_details
 				?.if_aadhaar_verified_skip_otp_authentication &&
-				isAadhaarVerified)
+			isAadhaarVerified
 		) {
 			applicationOTPAuthentication = false;
 		}
@@ -1386,6 +1403,8 @@ const DocumentUpload = props => {
 	// 	applicationOTPAuthentication,
 	// 	selectedProduct,
 	// 	isAadhaarVerified,
+	// 	isEditLoan,
+	// 	isDraftLoan,
 	// });
 
 	if (loading) {
@@ -1536,7 +1555,9 @@ const DocumentUpload = props => {
 									: sub_section?.name} */}
 								{sub_section?.name?.includes('Selfie')
 									? `${sub_section?.fields?.[0]?.label} ${
-											selectedDirector?.type_name
+											!!selectedDirector?.type_name
+												? selectedDirector?.type_name
+												: 'Entity'
 									  } ${getSelectedDirectorIndex({
 											directors,
 											selectedDirector,
