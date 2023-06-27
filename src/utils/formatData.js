@@ -806,7 +806,7 @@ export const getCategoryKeyFromCategoryName = doc => {
 };
 
 export const formatLoanDocuments = data => {
-	const { docs, docTypes } = data;
+	const { docs, docTypes,applicantDirectorId } = data;
 	const newDocs = [];
 	docs?.map(doc => {
 		const selectedDocType =
@@ -828,7 +828,7 @@ export const formatLoanDocuments = data => {
 			doc_type_id: doc.doctype || doc.doc_type.id,
 			name: getDocumentNameFromLoanDocuments(doc),
 			category: getCategoryKeyFromCategoryName(doc),
-			directorId: `${doc?.directorId}`,
+			directorId: !!doc?.directorId?`${doc?.directorId}`:`${applicantDirectorId}`,
 		};
 		newDocs.push(newDoc);
 		return null;

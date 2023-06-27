@@ -98,12 +98,21 @@ const DocumentUpload = props => {
 		businessType,
 		businessMobile,
 	} = application;
+
 	const selectedDirectorDocumentTypes = allDocumentTypes?.filter(
 		docType => `${docType?.directorId}` === `${selectedDirectorId}`
 	);
+
+	// const newcacheDocuments=[...cacheDocuments].map(d=>(
+	// 	if(!!d?.directorId){
+
+	// 	}
+	// ))
+
 	const selectedDirectorDocuments = cacheDocuments.filter(
 		doc => `${doc?.directorId}` === `${selectedDirectorId}`
 	);
+
 	const [, setIsVerifyWithOtpDisabled] = useState(false);
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
@@ -153,6 +162,9 @@ const DocumentUpload = props => {
 	const isUseEffectCalledOnce = useRef(false);
 
 	useEffect(() => {
+		// console.log(allDocumentTypes, 'Alldoctypes');
+		// console.log(cacheDocuments, ' cache docs');
+
 		scrollToTopRootElement();
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
@@ -351,6 +363,7 @@ const DocumentUpload = props => {
 							preFillKycFinOtherDocs = formatLoanDocuments({
 								docs: allDocumentsRes?.data?.documentList?.loan_document,
 								docTypes: newAllDocumentTypes,
+								applicantDirectorId:applicantDirectorId
 							});
 						}
 
@@ -770,7 +783,7 @@ const DocumentUpload = props => {
 		cacheDocuments?.map(d =>
 			uploadedDocumetnIds.push(`${d?.directorId}${d?.doc_type_id}`)
 		);
-
+		// console.log(cacheDocuments);
 		if (isDocumentUploadMandatory) {
 			allMandatoryDocumentIds.map(docId => {
 				if (!uploadedDocumetnIds.includes(docId)) {
@@ -1378,19 +1391,19 @@ const DocumentUpload = props => {
 		}
 	};
 
-	console.log('DocumentUpload-allstates-', {
-		app,
-		selectedDirector,
-		cacheDocuments,
-		cacheDocumentsTemp,
-		applicantDirectorId,
-		allDocumentTypes,
-		applicationOTPAuthentication,
-		selectedProduct,
-		isAadhaarVerified,
-		isEditLoan,
-		isDraftLoan,
-	});
+	// console.log('DocumentUpload-allstates-', {
+	// 	app,
+	// 	selectedDirector,
+	// 	cacheDocuments,
+	// 	cacheDocumentsTemp,
+	// 	applicantDirectorId,
+	// 	allDocumentTypes,
+	// 	applicationOTPAuthentication,
+	// 	selectedProduct,
+	// 	isAadhaarVerified,
+	// 	isEditLoan,
+	// 	isDraftLoan,
+	// });
 
 	if (loading) {
 		return (
