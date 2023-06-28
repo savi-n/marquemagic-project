@@ -619,9 +619,6 @@ const PanUpload = props => {
 									onProceedUdyogAadhar(udyogAadhar);
 								} else {
 									setUdyamErrorMessage('Please Enter a Valid Udyam Number');
-									setTimeout(() => {
-										setUdyamErrorMessage('');
-									}, 4000);
 								}
 							}}
 							disabled={loading}
