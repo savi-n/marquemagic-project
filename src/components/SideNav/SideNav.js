@@ -19,7 +19,6 @@ import {
 	validateEmploymentDetails,
 	validateDirectorForSme,
 	validateAllDirectorSectionsCompleted,
-	isDirectorApplicant
 } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
 import {
@@ -34,7 +33,9 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const SideNav = props => {
-	const { app, application,applicantCoApplicants } = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
 	const {
 		directors,
 		selectedDirectorId,
@@ -43,7 +44,7 @@ const SideNav = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { addToast } = useToasts();
-	const isApplicant= applicantCoApplicants?.isApplicant;
+	const isApplicant = applicantCoApplicants?.isApplicant;
 	// console.log(isApplicant);
 
 	const {
