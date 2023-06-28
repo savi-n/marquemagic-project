@@ -147,6 +147,7 @@ const PINCODE_RESPONSE = 'pincode-response';
 
 const ORIGIN = 'nconboarding';
 const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
+const UDYAM_REGEX = /^UDYAM-\d{2}-\d{2}-\d{7}$/;
 
 export {
 	API_END_POINT,
@@ -240,4 +241,5 @@ export {
 	DDUPE_VERIFY_OTP,
 	GENERATE_SESSION_ID_AADHAAR_REDIRECT,
 	AADHAAR_REDIRECT,
+	UDYAM_REGEX,
 };
