@@ -33,7 +33,9 @@ import * as UI from './ui';
 import * as CONST from './const';
 
 const SideNav = props => {
-	const { app, application } = useSelector(state => state);
+	const { app, application, applicantCoApplicants } = useSelector(
+		state => state
+	);
 	const {
 		directors,
 		selectedDirectorId,
@@ -42,6 +44,8 @@ const SideNav = props => {
 	} = useSelector(state => state.directors);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { addToast } = useToasts();
+	const isApplicant = applicantCoApplicants?.isApplicant;
+	// console.log(isApplicant);
 
 	const {
 		selectedProduct,
@@ -51,6 +55,7 @@ const SideNav = props => {
 		isViewLoan,
 	} = app;
 	const { loanRefId } = application;
+	// const isApplicant = isDirectorApplicant(selectedDirector);
 	const dispatch = useDispatch();
 	const [hide, setShowHideSidebar] = useState(true);
 	const isApplicationSubmitted =
@@ -63,7 +68,10 @@ const SideNav = props => {
 		directorSectionIds,
 		selectedProduct,
 		selectedSectionId,
+		isApplicant,
 	});
+
+	// console.log(completedSections,"completedSections")
 
 	// console.log('SideNav-allStates-', {
 	// 	app,
@@ -111,6 +119,7 @@ const SideNav = props => {
 							const isActive = selectedSectionId === section.id;
 							const isCompleted = completedSections.includes(section.id);
 							const customStyle = { cursor: 'not-allowed', color: 'lightgrey' };
+							// console.log(isCompleted);
 							if (
 								!isApplicationSubmitted &&
 								(isCompleted || isActive) &&
