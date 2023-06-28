@@ -211,6 +211,8 @@ const PanUpload = props => {
 			// Pre population from pan
 			const gstinData = await gstinFetch(confirmPanNumber);
 			if (!gstinData) {
+				setUdyamErrorMessage('');
+				setUdyogAadhar('');
 				setIsUdyogModalOpen(true);
 			}
 			setGstin(gstinData);
@@ -617,6 +619,9 @@ const PanUpload = props => {
 									onProceedUdyogAadhar(udyogAadhar);
 								} else {
 									setUdyamErrorMessage('Please Enter a Valid Udyam Number');
+									setTimeout(() => {
+										setUdyamErrorMessage('');
+									}, 4000);
 								}
 							}}
 							disabled={loading}
