@@ -66,6 +66,7 @@ const PanUpload = props => {
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
 	const panExtractionData = uploadedFile?.panExtractionData || {};
+	const [udyamErrorMessage, setUdyamErrorMessage] = useState('');
 
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
@@ -210,12 +211,14 @@ const PanUpload = props => {
 			// Pre population from pan
 			const gstinData = await gstinFetch(confirmPanNumber);
 			if (!gstinData) {
+				setUdyamErrorMessage('');
+				setUdyogAadhar('');
 				setIsUdyogModalOpen(true);
 			}
 			setGstin(gstinData);
 			onChangeFormStateField({
 				name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-				value:confirmPanNumber || panExtractionData?.panNumber,
+				value: confirmPanNumber || panExtractionData?.panNumber,
 			});
 
 			/* split the name into first and last name */
@@ -599,17 +602,24 @@ const PanUpload = props => {
 							}}
 						/>
 					</UI.Field>
+					<UI_SECTIONS.ErrorMessage borderColorCode={panErrorColorCode}>
+						{udyamErrorMessage}
+					</UI_SECTIONS.ErrorMessage>
 					<UI.ButtonWrapper>
 						<Button
 							name='Proceed'
 							fill
 							isLoader={loading}
 							onClick={() => {
-								onChangeFormStateField({
-									name: 'udyam_number',
-									value: udyogAadhar,
-								});
-								onProceedUdyogAadhar(udyogAadhar);
+								if (udyogAadhar.trim().match(/^UDYAM-\d{2}-\d{2}-\d{7}$/)) {
+									onChangeFormStateField({
+										name: 'udyam_number',
+										value: udyogAadhar.trim(),
+									});
+									onProceedUdyogAadhar(udyogAadhar);
+								} else {
+									setUdyamErrorMessage('Please Enter a Valid Udyam Number');
+								}
 							}}
 							disabled={loading}
 							customStyle={{
@@ -671,7 +681,7 @@ const PanUpload = props => {
 									onChangeFormStateField({
 										name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
 										value: e?.target?.value || confirmPanNumber,
-									})
+									});
 									// const newPanExtractionData = _.cloneDeep(
 									// 	panExtractionResTemp
 									// );
