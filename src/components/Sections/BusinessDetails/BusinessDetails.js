@@ -120,7 +120,7 @@ const BusinessDetails = props => {
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
-		// isApplicant
+		selectedSectionId,
 	});
 	const selectedPanUploadField = getSelectedField({
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,

@@ -532,8 +532,7 @@ export const getAllCompletedSections = data => {
 	if (Array.isArray(selectedDirector?.sections)) {
 		completedSections = [...completedSections, ...selectedDirector?.sections];
 	}
-	// // 'Entity'
-
+	// 'Entity'
 	if (
 		selectedProduct?.isSelectedProductTypeBusiness &&
 		[
@@ -543,7 +542,12 @@ export const getAllCompletedSections = data => {
 	) {
 		completedSections = [...completedSections, ...(directorSectionIds || [])];
 	}
-
+	if (
+		selectedProduct.isSelectedProductTypeBusiness &&
+		selectedSectionId === CONST_SECTIONS.BUSINESS_DETAILS_SECTION_ID
+	) {
+		completedSections = [...completedSections, ...application?.sections];
+	}
 	// if (
 	// 	!addNewDirectorKey &&
 	// 	!selectedDirector?.directorId &&
