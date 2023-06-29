@@ -28,7 +28,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { app } = useSelector(state => state);
-	const { isGeoTaggingEnabled, userToken, userDetails } = app;
+	const { isGeoTaggingEnabled, userToken, userDetails, permission } = app;
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	const [
 		isCustomerDetailsFormModalOpen,
@@ -147,7 +147,13 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						background: 'rgb(42, 42, 221)',
 					}}
 					// customStyle={{ maxHeight: '40px', maxWidth: '130px' }}
-					name={add ? 'Add Loan' : 'Get Loan'}
+					name={
+						add
+							? 'Add Loan'
+							: permission?.solution_type === 'CaseDOS'
+							? 'Create Order'
+							: 'Get Loan'
+					}
 					onClick={async e => {
 						dispatch(reInitializeApplicationSlice());
 						dispatch(reInitializeDirectorsSlice());

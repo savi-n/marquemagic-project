@@ -124,6 +124,7 @@ const AddressProofUpload = props => {
 				reqBody.name = extractionData?.Name || extractionData?.name || '';
 			}
 			if (req_type === CONST_SECTIONS.EXTRACTION_KEY_PASSPORT) {
+				// TODO: passport file number needs to be pass insted of passport number for verification KYC API
 				// TODO: verify by testing passport extraction data
 				reqBody.number = extractionData?.passport_no || '';
 				reqBody.dob = extractionData?.dob || extractionData?.DOB || '';

@@ -137,7 +137,7 @@ const BasicDetails = props => {
 	const completedSections = getAllCompletedSections({
 		application,
 		selectedDirector,
-		isApplicant
+		isApplicant,
 	});
 	// console.log({ selectedDirector, selectedProduct, isEditOrViewLoan });
 	const selectedPanUploadField = getSelectedField({
