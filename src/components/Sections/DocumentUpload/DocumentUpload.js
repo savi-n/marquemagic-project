@@ -1,3 +1,7 @@
+// Important Note :
+// Evaluation Documents : Priority = 3
+// Lender Documents : Priority = 300
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
