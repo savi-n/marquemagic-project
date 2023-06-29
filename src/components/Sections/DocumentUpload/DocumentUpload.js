@@ -221,7 +221,7 @@ const DocumentUpload = props => {
 						API.CO_APPLICANTS_DOCTYPES_FETCH
 					}?income_type=${coApplicantIncomeTypeId}`
 				);
-				coAppDocTypesRes = coAppDocTypesRes?.data?.data || {};
+				coAppDocTypesRes = coAppDocTypesRes?.data?.data?.[0] || {};
 				history[coApplicantIncomeTypeId] = coAppDocTypesRes;
 			}
 			// console.log('coAppDocTypesRes-', { coAppDocTypesRes, history });
