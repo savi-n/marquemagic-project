@@ -543,7 +543,7 @@ export const getAllCompletedSections = data => {
 		completedSections = [...completedSections, ...(directorSectionIds || [])];
 	}
 	if (
-		selectedProduct.isSelectedProductTypeBusiness &&
+		selectedProduct?.isSelectedProductTypeBusiness &&
 		selectedSectionId === CONST_SECTIONS.BUSINESS_DETAILS_SECTION_ID
 	) {
 		completedSections = [...completedSections, ...application?.sections];
