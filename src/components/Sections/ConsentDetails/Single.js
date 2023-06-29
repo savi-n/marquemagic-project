@@ -54,6 +54,7 @@ const Single = ({
 	const [disabled, setDisabled] = useState(false);
 	// const dispatch = useDispatch();
 
+
 	const fetchHandle = async appObj => {
 		// console.log({ appObj });
 		const payLoad = {
@@ -82,7 +83,7 @@ const Single = ({
 		try {
 			// sections[section] === 'crime_check' && setDisabled(true);
 			// appObj?.status = 'In Progress';
-			let setDisabledButton = false;
+			let isDisabledButton = false;
 			setStatus('In Progress');
 			// setDisabled(true);
 			setLoading(true);
@@ -138,7 +139,7 @@ const Single = ({
 					type: 'success',
 				});
 				setStatus(appObj?.check);
-				setDisabledButton = true;
+				isDisabledButton = true;
 				// setDisabled(true);
 			} else if (
 				response?.data?.status === 200 ||
@@ -146,7 +147,7 @@ const Single = ({
 			) {
 				setStatus('In Progress');
 				// setDisabled(true);
-				setDisabledButton = true;
+				isDisabledButton = true;
 			} else if (response?.data?.status === 400) {
 				addToast({
 					message:
@@ -156,7 +157,7 @@ const Single = ({
 				});
 				setStatus('Failed');
 				// setDisabled(false);
-				setDisabledButton = false;
+				isDisabledButton = false;
 			}
 			// console.log(response?.data);
 			if (
@@ -172,9 +173,9 @@ const Single = ({
 				// appObj?.status = 'Invalid Data';
 				setStatus('Failed');
 				// setDisabled(false);
-				setDisabledButton = false;
+				isDisabledButton = false;
 			}
-			if (setDisabledButton) setDisabled(true);
+			if (isDisabledButton) setDisabled(true);
 		} catch (error) {
 			console.error('error-ConsentDetails-fetchModal-', {
 				error: error,
@@ -186,7 +187,7 @@ const Single = ({
 				message: 'Error fetching details, Please try after sometime!',
 				type: 'error',
 			});
-			// setModalOpen(false);
+
 			// appObj?.status = 'Failed';
 			setStatus('Failed');
 			// setDisabled(false);
@@ -199,9 +200,10 @@ const Single = ({
 		<>
 			<Modal
 				show={isGstModalOpen}
-				// onClose={() => {
-				// 	setModalOpen(false);
-				// }}
+				onClose={() => {
+					setModalOpen(false);
+					fetchHandle(rowData)
+				}}
 				maskClosable={false}
 				// Width='40%'
 				customStyle={{
@@ -214,7 +216,7 @@ const Single = ({
 			>
 				<section>
 					<UI.ImgClose
-						onClick={() => {
+						onClick={() => {fetchHandle({...rowData,check: 'Yes'});
 							setModalOpen(false);
 						}}
 						style={{
