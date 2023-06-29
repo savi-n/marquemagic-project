@@ -68,7 +68,10 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
-		if (sections[section]==='udyam' && (!appObj?.udyamNum || appObj?.udyamNum === '--')) {
+		if (
+			sections[section] === 'udyam' &&
+			(!appObj?.udyamNum || appObj?.udyamNum === '--')
+		) {
 			addToast({
 				message: 'Please enter udhyam number to verify it',
 				type: 'warning',
@@ -79,8 +82,9 @@ const Single = ({
 		try {
 			// sections[section] === 'crime_check' && setDisabled(true);
 			// appObj?.status = 'In Progress';
+			let setDisabledButton = false;
 			setStatus('In Progress');
-			setDisabled(true);
+			// setDisabled(true);
 			setLoading(true);
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
@@ -134,26 +138,43 @@ const Single = ({
 					type: 'success',
 				});
 				setStatus(appObj?.check);
-				setDisabled(true);
+				setDisabledButton = true;
+				// setDisabled(true);
 			} else if (
 				response?.data?.status === 200 ||
 				response?.data?.status === 'ok'
 			) {
 				setStatus('In Progress');
-				setDisabled(true);
+				// setDisabled(true);
+				setDisabledButton = true;
+			} else if (response?.data?.status === 400) {
+				addToast({
+					message:
+						response?.data?.message ||
+						'Something went wrong, Please try after sometime!',
+					type: 'error',
+				});
+				setStatus('Failed');
+				// setDisabled(false);
+				setDisabledButton = false;
 			}
+			console.log(response?.data);
 			if (
 				response?.data?.status === 'Wrong Input' ||
 				response?.data?.status === 'nok'
 			) {
 				addToast({
-					message: 'Something went wrong, Please try after sometime!',
+					message:
+						response?.data?.message ||
+						'Something went wrong, Please try after sometime!',
 					type: 'error',
 				});
 				// appObj?.status = 'Invalid Data';
 				setStatus('Failed');
-				setDisabled(false);
+				// setDisabled(false);
+				setDisabledButton = false;
 			}
+			if (setDisabledButton) setDisabled(true);
 		} catch (error) {
 			console.error('error-ConsentDetails-fetchModal-', {
 				error: error,
@@ -165,9 +186,10 @@ const Single = ({
 				message: 'Error fetching details, Please try after sometime!',
 				type: 'error',
 			});
-			setModalOpen(false);
+			// setModalOpen(false);
 			// appObj?.status = 'Failed';
 			setStatus('Failed');
+			// setDisabled(false);
 		} finally {
 			setLoading(false);
 		}
@@ -177,9 +199,9 @@ const Single = ({
 		<>
 			<Modal
 				show={isGstModalOpen}
-				onClose={() => {
-					setModalOpen(false);
-				}}
+				// onClose={() => {
+				// 	setModalOpen(false);
+				// }}
 				maskClosable={false}
 				// Width='40%'
 				customStyle={{

@@ -1,3 +1,7 @@
+// Important Note :
+// Evaluation Documents : Priority = 3
+// Lender Documents : Priority = 300
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
@@ -361,9 +365,7 @@ const DocumentUpload = props => {
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {
 							preFillKycFinOtherDocs = formatLoanDocuments({
-								docs:
-									allDocumentsRes?.data?.documentList
-										?.loan_document,
+								docs: allDocumentsRes?.data?.documentList?.loan_document,
 								docTypes: newAllDocumentTypes,
 								applicantDirectorId: applicantDirectorId,
 							});
