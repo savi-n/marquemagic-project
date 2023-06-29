@@ -26,6 +26,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BUSINESS_DETAILS from '../const';
 import * as API from '_config/app.config';
+import { UDYAM_REGEX } from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
 
@@ -611,7 +612,7 @@ const PanUpload = props => {
 							fill
 							isLoader={loading}
 							onClick={() => {
-								if (udyogAadhar.trim().match(/^UDYAM-\d{2}-\d{2}-\d{7}$/)) {
+								if (udyogAadhar.trim().match(UDYAM_REGEX)) {
 									onChangeFormStateField({
 										name: 'udyam_number',
 										value: udyogAadhar.trim(),
@@ -632,7 +633,7 @@ const PanUpload = props => {
 							fill
 							onClick={() => {
 								onChangeFormStateField({
-									name: 'udhyog_number',
+									name: 'udyam_number',
 									value: '',
 								});
 								setUdyogAadhar('');
