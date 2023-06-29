@@ -361,20 +361,31 @@ const DocumentUpload = props => {
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
 						) {
 							preFillKycFinOtherDocs = formatLoanDocuments({
-								docs:
-									allDocumentsRes?.data?.documentList
-										?.loan_document,
+								docs: allDocumentsRes?.data?.documentList?.loan_document,
 								docTypes: newAllDocumentTypes,
-								applicantDirectorId: applicantDirectorId,
+								applicantDirectorId:
+									applicantDirectorId || CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 							});
 						}
 
 						if (isViewLoan) {
+							// console.log(
+							// 	{
+							// 		lenderDoc:
+							// 			allDocumentsRes?.data?.documentList?.lender_document,
+							// 		type: typeof allDocumentsRes?.data?.documentList
+							// 			?.lender_document,
+							// 		res: allDocumentsRes?.data,
+							// 		applicantDirectorId,
+							// 	},
+							// );
 							allDocumentsRes?.data?.documentList?.lender_document?.map(
 								lenderDoc => {
-									const docListItem = lenderDoc?.doc_type;
-									const priority = docListItem?.priority;
-									const doctype = docListItem?.id;
+									const docListItem = lenderDoc?.doc_type || {};
+									const priority = docListItem?.priority || '300';
+									const doctype = docListItem?.id || '';
+									// console.log('2', { docListItem, priority, doctype });
+
 									const name =
 										lenderDoc?.uploaded_doc_name ||
 										lenderDoc?.original_doc_name ||
@@ -388,20 +399,27 @@ const DocumentUpload = props => {
 									} else {
 										displayEvalDoc = true;
 									}
+									// console.log({
+									// 	userDetails,
+									// 	displayEvalDoc,
+									// 	newAllDocumentTypes,
+									// });
 									if (displayEvalDoc) {
 										if (priority === '300') {
 											const doc_type_id = doctype;
 											const category = CONST_SECTIONS.DOC_CATEGORY_LENDER;
 											if (
 												newAllDocumentTypes?.filter(
-													d => d?.doc_type_id === doc_type_id
+													d => `${d?.doc_type_id}` === `${doc_type_id}`
 												)?.length <= 0
 											) {
 												newAllDocumentTypes.push({
 													...docListItem,
 													doc_type_id,
 													category,
-													directorId: applicantDirectorId,
+													directorId:
+														applicantDirectorId ||
+														CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 												});
 											}
 											preFillLenderDocs.push({
@@ -411,11 +429,14 @@ const DocumentUpload = props => {
 												category,
 												name,
 												document_key,
-												directorId: applicantDirectorId,
+												directorId:
+													applicantDirectorId ||
+													CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 												document_id: lenderDoc?.id,
 											});
 											return null;
 										}
+										// console.log({ preFillLenderDocs });
 										if (priority === '3') {
 											const doc_type_id = doctype;
 											const category = CONST_SECTIONS.DOC_CATEGORY_EVAL;
@@ -428,7 +449,9 @@ const DocumentUpload = props => {
 													...docListItem,
 													doc_type_id,
 													category,
-													directorId: applicantDirectorId,
+													directorId:
+														applicantDirectorId ||
+														CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 												});
 											}
 											// if it's other user and he has uploaded eval documents without document assignment he should be able to access these documents
@@ -450,7 +473,9 @@ const DocumentUpload = props => {
 												category,
 												name,
 												document_key,
-												directorId: applicantDirectorId,
+												directorId:
+													applicantDirectorId ||
+													CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 												document_id: lenderDoc?.id,
 											});
 											return null;
