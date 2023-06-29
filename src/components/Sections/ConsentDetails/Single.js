@@ -202,7 +202,7 @@ const Single = ({
 				show={isGstModalOpen}
 				onClose={() => {
 					setModalOpen(false);
-					fetchHandle(rowData)
+					// fetchHandle(rowData)
 				}}
 				maskClosable={false}
 				// Width='40%'
@@ -216,7 +216,7 @@ const Single = ({
 			>
 				<section>
 					<UI.ImgClose
-						onClick={() => {fetchHandle({...rowData,check: 'Yes'});
+						onClick={() => {
 							setModalOpen(false);
 						}}
 						style={{
