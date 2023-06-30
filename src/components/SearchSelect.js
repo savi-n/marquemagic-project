@@ -146,7 +146,7 @@ export default function SearchSelect(props) {
 		field,
 		defaultValue = '',
 		customLabel = '',
-		onIfscChange,
+		// onIfscChange,
 	} = props;
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
@@ -239,7 +239,7 @@ export default function SearchSelect(props) {
 		const { value } = event.target;
 		if (field.name.includes('ifsc')) {
 			if (value.length > 11) return;
-			onIfscChange(value);
+			// onIfscChange(value);
 		}
 		if (field.name.includes('ifsc')) {
 			// length of ifsc is always 11
@@ -358,10 +358,10 @@ export default function SearchSelect(props) {
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
-									? 'Options Not Found.'
+									? 'ISFC Not Available. Please check with the Support Team.'
 									: searchKey.length < 3
 									? 'Please enter atleast 3 character'
-									: 'Options Not Found.'}
+									: 'ISFC Not Available. Please check with the Support Team.'}
 								{/* {' '}
 								{field.name.includes('ifsc')
 									? 'Enter only 11 characters'
