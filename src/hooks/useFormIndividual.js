@@ -15,6 +15,8 @@ import DisabledTextFieldModal from 'components/inputs/GstinField';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
+import { UDYAM_REGEX } from '_config/app.config';
+
 export const ComboBoxContext = createContext();
 function required(value) {
 	return typeof value === 'string' ? !value?.trim() : !value;
@@ -77,7 +79,7 @@ const VALIDATION_RULES = {
 		message: 'Invalid Email Address',
 	},
 	is_udyam: {
-		func: validatePattern(/^UDYAM-\d{2}-\d{2}-\d{7}$/),
+		func: validatePattern(UDYAM_REGEX),
 		message: 'Please Enter A Valid Udyam Number',
 	},
 	is_zero_not_allowed_for_first_digit: {
