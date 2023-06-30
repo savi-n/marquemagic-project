@@ -146,7 +146,7 @@ export default function SearchSelect(props) {
 		field,
 		defaultValue = '',
 		customLabel = '',
-		onIfscChange,
+		// onIfscChange,
 	} = props;
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
@@ -239,7 +239,7 @@ export default function SearchSelect(props) {
 		const { value } = event.target;
 		if (field.name.includes('ifsc')) {
 			if (value.length > 11) return;
-			onIfscChange(value);
+			// onIfscChange(value);
 		}
 		if (field.name.includes('ifsc')) {
 			// length of ifsc is always 11
