@@ -95,11 +95,26 @@ const DynamicForm = props => {
 			handleSubmit(onSaveOrUpdate());
 		}
 	};
+	const validate = values => {
+		let allowProceed = true;
+		const { construction_area, total_area } = values;
 
+		if (construction_area && total_area && +construction_area > +total_area)
+			allowProceed = false;
+		return allowProceed;
+	};
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
+			if (!validate(formState.values)) {
+				addToast({
+					message: 'Construction Area should be lesser than Total Area.',
+					type: 'error',
+				});
+				return;
+			}
+
 			const reqBody = formatSectionReqBody({
 				section: selectedSection,
 				values: {
