@@ -107,7 +107,10 @@ const DynamicForm = props => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
-			if (!validate(formState.values)) {
+			if (
+				selectedSection.validate_construction_area === true &&
+				!validate(formState.values)
+			) {
 				addToast({
 					message: 'Construction Area should be lesser than Total Area.',
 					type: 'error',
