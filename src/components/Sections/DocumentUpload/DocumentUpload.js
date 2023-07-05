@@ -607,7 +607,7 @@ const DocumentUpload = props => {
 				try {
 					setSubmitting(true);
 					let section = selectedSection?.sub_sections?.filter(
-						section => section.id === 'on_site_selfie_with_applicant'
+						section => section?.id === CONST.SELFIE_UPLOAD_FIELD_WITH_NAME
 					)?.[0];
 					let selectedField = section?.fields?.filter(field => {
 						if (field?.hasOwnProperty('is_applicant')) {
@@ -1732,7 +1732,7 @@ const DocumentUpload = props => {
 						onChange={() => {
 							setDeclareCheck(!declareCheck);
 							selectedSection?.sub_sections?.filter(
-								section => section.id === 'on_site_selfie_with_applicant'
+								section => section.id === CONST.SELFIE_UPLOAD_FIELD_WITH_NAME
 							)?.[0] && setOnsiteVerificationMsg(true);
 						}}
 						bg='blue'
