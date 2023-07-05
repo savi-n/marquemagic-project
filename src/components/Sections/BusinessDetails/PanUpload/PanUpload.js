@@ -597,7 +597,7 @@ const PanUpload = props => {
 					<UI.Field>
 						<InputField
 							name='Udyam Number'
-							value={udyogAadhar}
+							value={udyogAadhar?.toUpperCase()}
 							onChange={e => {
 								setUdyogAadhar(e.target.value);
 							}}
@@ -612,10 +612,10 @@ const PanUpload = props => {
 							fill
 							isLoader={loading}
 							onClick={() => {
-								if (udyogAadhar.trim().match(UDYAM_REGEX)) {
+								if (udyogAadhar?.trim().match(UDYAM_REGEX)) {
 									onChangeFormStateField({
 										name: 'udyam_number',
-										value: udyogAadhar.trim(),
+										value: udyogAadhar?.trim(),
 									});
 									onProceedUdyogAadhar(udyogAadhar);
 								} else {

@@ -146,6 +146,7 @@ export default function SearchSelect(props) {
 		field,
 		defaultValue = '',
 		customLabel = '',
+		errorMessage,
 		// onIfscChange,
 	} = props;
 	const [optionShow, setOptionShow] = useState(false);
@@ -358,10 +359,14 @@ export default function SearchSelect(props) {
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
-									? 'ISFC Not Available. Please check with the Support Team.'
+									? errorMessage
+										? errorMessage
+										: 'Options Not Found.'
 									: searchKey.length < 3
 									? 'Please enter atleast 3 character'
-									: 'ISFC Not Available. Please check with the Support Team.'}
+									: errorMessage
+									? errorMessage
+									: 'Options Not Found.'}
 								{/* {' '}
 								{field.name.includes('ifsc')
 									? 'Enter only 11 characters'
