@@ -1731,7 +1731,9 @@ const DocumentUpload = props => {
 						disabled={isViewLoan}
 						onChange={() => {
 							setDeclareCheck(!declareCheck);
-							setOnsiteVerificationMsg(true);
+							selectedSection?.sub_sections?.filter(
+								section => section.id === 'on_site_selfie_with_applicant'
+							)?.[0] && setOnsiteVerificationMsg(true);
 						}}
 						bg='blue'
 					/>
