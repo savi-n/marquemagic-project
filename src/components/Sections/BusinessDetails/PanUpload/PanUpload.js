@@ -612,7 +612,7 @@ const PanUpload = props => {
 							fill
 							isLoader={loading}
 							onClick={() => {
-								if (udyogAadhar?.trim()?.match(UDYAM_REGEX)) {
+								if (udyogAadhar?.trim().match(UDYAM_REGEX)) {
 									onChangeFormStateField({
 										name: 'udyam_number',
 										value: udyogAadhar?.trim(),
