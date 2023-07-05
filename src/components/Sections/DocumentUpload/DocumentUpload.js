@@ -857,7 +857,10 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			if (isEditLoan && !isDraftLoan) {
+			if (
+				(isEditLoan && !isDraftLoan) ||
+				selectedProduct?.product_details?.otp_authentication === false
+			) {
 				onSkip();
 			}
 		} catch (error) {
