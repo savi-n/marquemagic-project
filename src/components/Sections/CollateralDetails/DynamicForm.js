@@ -108,7 +108,7 @@ const DynamicForm = props => {
 			// console.log('onProceed-Date-DynamicForm-', data);
 			setIsSubmitting(true);
 			if (
-				selectedSection.validate_construction_area === true &&
+				selectedSection?.validate_construction_area === true &&
 				!validate(formState.values)
 			) {
 				addToast({
