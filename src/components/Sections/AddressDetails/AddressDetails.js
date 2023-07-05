@@ -632,9 +632,12 @@ const AddressDetails = props => {
 				permanent_state: sectionData?.director_details?.permanent_state,
 				permanent_property_type:
 					sectionData?.director_details?.permanent_residential_type,
-				permanent_property_tenure: moment(
-					sectionData?.director_details?.permanent_residential_stability
-				).format('YYYY-MM'),
+				permanent_property_tenure: sectionData?.director_details
+					?.permanent_residential_stability
+					? moment(
+							sectionData?.director_details?.permanent_residential_stability
+					  ).format('YYYY-MM')
+					: '',
 
 				present_aadhaar: sectionData?.director_details?.daadhaar,
 				present_address_proof_id_others:
@@ -652,9 +655,12 @@ const AddressDetails = props => {
 				present_city: sectionData?.director_details?.city,
 				present_state: sectionData?.director_details?.state,
 				present_property_type: sectionData?.director_details?.residential_type,
-				present_property_tenure: moment(
-					sectionData?.director_details?.residential_stability
-				).format('YYYY-MM'),
+				present_property_tenure: sectionData?.director_details
+					?.residential_stability
+					? moment(sectionData?.director_details?.residential_stability).format(
+							'YYYY-MM'
+					  )
+					: '',
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
