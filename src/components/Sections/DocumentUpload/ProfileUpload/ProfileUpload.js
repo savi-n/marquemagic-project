@@ -53,13 +53,25 @@ const ProfileUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { editLoanData, whiteLabelId, isGeoTaggingEnabled,selectedProduct } = app;
-	const { loanId, loanRefId, businessUserId, businessId,businessType } = application;
+	const {
+		editLoanData,
+		whiteLabelId,
+		isGeoTaggingEnabled,
+		selectedProduct,
+	} = app;
+	const {
+		loanId,
+		loanRefId,
+		businessUserId,
+		businessId,
+		businessType,
+	} = application;
 	const [picAddress, setPicAddress] = useState({});
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
-	const isSelectedProductTypeBusiness=selectedProduct.isSelectedProductTypeBusiness;
+	const isSelectedProductTypeBusiness =
+		selectedProduct.isSelectedProductTypeBusiness;
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -178,18 +190,21 @@ const ProfileUpload = props => {
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
 					formData.append('user_id', businessUserId || null);
-					if(isSelectedProductTypeBusiness){
+					if (isSelectedProductTypeBusiness) {
 						formData.append('director_id', selectedDirector?.directorId || '0');
 						formData.append(
 							'doc_type_id',
-							field?.doc_type?.[businessType] ||null
+							field?.doc_type?.[businessType] || null
 						);
-					} else{
-					formData.append('director_id', selectedDirector?.directorId || null);
-					formData.append(
-						'doc_type_id',
-						field?.doc_type?.[selectedIncomeType] ||null
-					);
+					} else {
+						formData.append(
+							'director_id',
+							selectedDirector?.directorId || null
+						);
+						formData.append(
+							'doc_type_id',
+							field?.doc_type?.[selectedIncomeType] || null
+						);
 					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
