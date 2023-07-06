@@ -338,6 +338,7 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
+	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl'));
 
 	const getStatusCustomer = async () => {
 		try {
@@ -494,7 +495,12 @@ export default function Products() {
 	return (
 		<Wrapper>
 			{' '}
-			<Head>Choose a Loan Product</Head>
+			<Head>
+				Choose a
+				{wt_lbl?.solution_type === 'CaseDOS' && permission?.menu?.applyloan
+					? ' Report'
+					: ' Loan Product'}
+			</Head>
 			<ImgDotElementRight src={imgDotElement} alt='dot' />
 			<ImgDotElementLeft src={imgDotElement} alt='dot' />
 			<ProductsBox>
