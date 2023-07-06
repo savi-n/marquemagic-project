@@ -366,7 +366,6 @@ const EmploymentDetails = () => {
 			displayProceedCTA = false;
 		}
 	}
-	console.log({ displayProceedCTA });
 
 	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
 		displayAddCoApplicantCTA = false;
