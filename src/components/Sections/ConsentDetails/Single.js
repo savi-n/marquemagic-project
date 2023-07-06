@@ -15,6 +15,7 @@ const Single = ({
 	application,
 	token,
 	rowData,
+	fetchConsentDetails,
 }) => {
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
@@ -22,6 +23,7 @@ const Single = ({
 		'Applicant Name': 'name',
 		Status: 'status',
 		'PAN Number': 'pan',
+		Pan: 'pan',
 		'Company Name': 'name',
 		// 'Business Name': 'name',
 		'GST Number': 'gstn' || 'gstin',
@@ -42,8 +44,9 @@ const Single = ({
 		ITR: 'ITR',
 		// 'GST Verification': 'GST',
 		Udyam: 'udyam',
-		'C-KYC': 'CKYC',
+		'C-KYC': 'CKYC' || 'ckyc',
 		'Bio-metric KYC': 'BKYC',
+		'CRIME CHECK': 'crime_check',
 		'Crime Check Consent': 'crime_check',
 	};
 	const [loading, setLoading] = useState(false);
@@ -53,7 +56,6 @@ const Single = ({
 	const [status, setStatus] = useState(rowData?.status);
 	const [disabled, setDisabled] = useState(false);
 	// const dispatch = useDispatch();
-
 
 	const fetchHandle = async appObj => {
 		// console.log({ appObj });
@@ -202,6 +204,7 @@ const Single = ({
 				show={isGstModalOpen}
 				onClose={() => {
 					setModalOpen(false);
+					fetchConsentDetails();
 					// fetchHandle(rowData)
 				}}
 				maskClosable={false}
@@ -212,12 +215,17 @@ const Single = ({
 					minHeight: 'auto',
 					position: 'relative',
 					padding: '0',
+					// display: 'flex',
+					// alignItems: 'center',
+					// justifyContent: 'center',
+					// textAlign: 'center',
 				}}
 			>
 				<section>
 					<UI.ImgClose
 						onClick={() => {
 							setModalOpen(false);
+							fetchConsentDetails();
 						}}
 						style={{
 							color: 'black',
@@ -242,6 +250,12 @@ const Single = ({
 					<UI.TableCell key={header}>
 						{mapping[header] !== 'director_id' &&
 							(header === 'Status' ? status : rowData[mapping[header]] || '--')}
+						{header === 'Status' && rowData?.disclaimer && (
+							<UI.Disclaimer style={{ fontSize: '10px' }}>
+								<span style={{ color: 'red', fontSize: '15px' }}> &#33; </span>
+								{rowData?.disclaimer}
+							</UI.Disclaimer>
+						)}
 					</UI.TableCell>
 				))}
 				<UI.TableCell>
@@ -256,22 +270,22 @@ const Single = ({
 						/>
 					) : (
 						<UI.Buttons>
-							<Button
+							{/* <Button
 								width='100px'
 								name='Yes'
 								onClick={() => fetchHandle({ ...rowData, check: 'Yes' })}
 								disabled={
 									buttonDisabled || disabled || rowData?.status === 'Yes'
 								}
-							/>
-							{/* <Button
+							/> */}
+							<Button
 								width='80px'
 								name='No'
 								onClick={() => fetchHandle({ ...rowData, check: 'No' })}
 								disabled={
-									buttonDisabled || disabled || rowData?.status === 'Yes'
+									buttonDisabled || disabled || rowData?.status === 'No'
 								}
-							/> */}
+							/>
 						</UI.Buttons>
 					)}
 				</UI.TableCell>

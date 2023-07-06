@@ -26,7 +26,7 @@ export const TableMainHeader = styled.div`
 
 export const TableContainer = styled.div`
 	padding: 15px;
-	width: 80%;
+	width: 100%;
 	@media (max-width: 768px) {
 		width: 100%;
 		overflow: auto;
@@ -53,25 +53,28 @@ export const HR = styled.hr`
 `;
 export const TableCell = styled.li`
 	display: flex;
+	flex-direction: column;
 	padding: 5px 10px;
 	width: 25%;
-	align-self: center;
-	word-break: break-all;
+	align-self: flex-start;
+	/* word-break: break-all; */
+	overflow-wrap: break-word;
 
 	@media (max-width: 768px) {
 		word-wrap: break-word;
-		min-width: 40%;
-
-		&:nth-child(3) {
-			min-width: 30%;
-		}
+		min-width: 50%;
 
 		&:last-child {
 			min-width: fit-content;
 		}
 	}
 `;
+
 export const Buttons = styled.div`
 	display: flex;
 	gap: 1rem;
+`;
+
+export const Disclaimer = styled.div`
+	font-size: 10px;
 `;
