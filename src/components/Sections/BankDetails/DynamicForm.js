@@ -84,7 +84,7 @@ const DynamicForm = props => {
 				type: 'error',
 			});
 		} else {
-			handleSubmit(onSaveOrUpdate());
+			onSaveOrUpdate();
 		}
 	};
 
@@ -184,7 +184,7 @@ const DynamicForm = props => {
 				<>
 					<Button
 						customStyle={{ maxWidth: 150 }}
-						onClick={handleButtonClick}
+						onClick={handleSubmit(handleButtonClick)}
 						disabled={isSubmitting}
 						isLoader={isSubmitting}
 						name={submitCTAName}
