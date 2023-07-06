@@ -252,7 +252,11 @@ const Single = ({
 							(header === 'Status' ? status : rowData[mapping[header]] || '--')}
 						{header === 'Status' && rowData?.disclaimer && (
 							<UI.Disclaimer style={{ fontSize: '10px' }}>
-								<span style={{ color: 'red', fontSize: '15px' }}> &#33; </span>
+								<span style={{ fontWeight: 'bold', fontSize: '12px' }}>
+									<span style={{ color: 'red' }}>*</span>
+									Disclaimer:
+								</span>
+								<br />
 								{rowData?.disclaimer}
 							</UI.Disclaimer>
 						)}

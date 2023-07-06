@@ -76,5 +76,5 @@ export const Buttons = styled.div`
 `;
 
 export const Disclaimer = styled.div`
-	font-size: 10px;
+	font-size: 12px;
 `;
