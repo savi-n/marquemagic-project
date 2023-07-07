@@ -338,7 +338,7 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
-	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl'));
+	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
 
 	const getStatusCustomer = async () => {
 		try {
