@@ -50,7 +50,7 @@ const ProfileUpload = props => {
 		// selectectedProduct,
 		setImageLoading = () => {},
 	} = props;
-	const { app, application, directors } = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const {
@@ -175,7 +175,7 @@ const ProfileUpload = props => {
 					// console.log(isSelectedProductTypeBusiness);
 					// let director = isSelectedProductTypeBusiness?direc:selectedDirector
 					let director_id = selectedDirector?.directorId || null;
-					if ( !!isSelectedProductTypeBusiness) {
+					if (!!isSelectedProductTypeBusiness) {
 						director_id = '0';
 					}
 					const selectedIncomeType =
