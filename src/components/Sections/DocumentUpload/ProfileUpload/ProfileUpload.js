@@ -172,85 +172,194 @@ const ProfileUpload = props => {
 
 				// SELFIE DOC UPLOAD SECTION
 				if (section === 'documentUpload') {
-					console.log(isSelectedProductTypeBusiness);
-					// let director = isSelectedProductTypeBusiness?direc:selectedDirector
-					const selectedIncomeType =
-						selectedDirector?.income_type === 0
-							? '0'
-							: selectedDirector?.income_type || '';
-					formData.append('white_label_id', whiteLabelId);
-					if (
-						Object.keys(coordinates).length > 0 &&
-						field?.geo_tagging === true
-					) {
-						formData.append('lat', coordinates?.latitude || null);
-						formData.append('long', coordinates?.longitude || null);
-					}
-					formData.append('timestamp', coordinates?.timestamp || null);
-					formData.append('loan_ref_id', loanRefId || null);
-					formData.append('loan_id', loanId || null);
-					formData.append('user_id', businessUserId || null);
-					if (isSelectedProductTypeBusiness) {
-						formData.append('director_id', selectedDirector?.directorId || '0');
-						formData.append(
-							'doc_type_id',
-							field?.doc_type?.[businessType] || null
-						);
-					} else {
-						formData.append(
-							'director_id',
-							selectedDirector?.directorId || null
-						);
-						formData.append(
-							'doc_type_id',
-							field?.doc_type?.[selectedIncomeType] || null
-						);
-					}
-					formData.append('document', acceptedFiles[0]);
-					if (acceptedFiles.length > 0) {
-						const resp = await axios.post(
-							UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
-							formData
-						);
-						const newFile = {
-							id: resp?.data?.document_details_data?.doc_id,
-							document_id: resp?.data?.document_details_data?.doc_id,
-							fileId: resp?.data?.document_details_data?.doc_id,
-							doc_type_id: field?.doc_type?.[selectedIncomeType],
-							directorId: selectedDirector.directorId,
-							doc_name: resp?.data?.lender_document_data?.doc_name,
-							document_key: resp?.data?.lender_document_data?.doc_name,
-							loan_bank_mapping_id:
-								resp?.data?.lender_document_data?.loan_bank_mapping || 1,
-							field,
-							...coordinates,
-							preview:
-								field?.geo_tagging === true
-									? resp?.data?.presignedUrl
-									: resp?.data?.preview,
-							...resp?.data?.uploaded_data,
-						};
-						if (isGeoTaggingEnabled && coordinates) {
-							setPicAddress(newFile);
-							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-						}
-						// console.log('newfile-', { newFile });
-						dispatch(
-							addOrUpdateCacheDocument({
-								file: {
-									...newFile,
-								},
-							})
-						);
-						addCacheDocumentTemp(newFile);
-					} else {
-						addToast({
-							message:
-								'File format is not supported. Please upload jpg, jpeg or png',
-							type: 'error',
-						});
-					}
-				} else {
+																						// console.log(isSelectedProductTypeBusiness);
+																						// let director = isSelectedProductTypeBusiness?direc:selectedDirector
+																						const selectedIncomeType =
+																							selectedDirector?.income_type ===
+																							0
+																								? '0'
+																								: selectedDirector?.income_type ||
+																								  '';
+																						formData.append(
+																							'white_label_id',
+																							whiteLabelId
+																						);
+																						if (
+																							Object.keys(
+																								coordinates
+																							)
+																								.length >
+																								0 &&
+																							field?.geo_tagging ===
+																								true
+																						) {
+																							formData.append(
+																								'lat',
+																								coordinates?.latitude ||
+																									null
+																							);
+																							formData.append(
+																								'long',
+																								coordinates?.longitude ||
+																									null
+																							);
+																						}
+																						formData.append(
+																							'timestamp',
+																							coordinates?.timestamp ||
+																								null
+																						);
+																						formData.append(
+																							'loan_ref_id',
+																							loanRefId ||
+																								null
+																						);
+																						formData.append(
+																							'loan_id',
+																							loanId ||
+																								null
+																						);
+																						formData.append(
+																							'user_id',
+																							businessUserId ||
+																								null
+																						);
+																						if (
+																							isSelectedProductTypeBusiness
+																						) {
+																							formData.append(
+																								'director_id',
+																								selectedDirector?.directorId ||
+																									'0'
+																							);
+																							formData.append(
+																								'doc_type_id',
+																								field
+																									?.doc_type?.[
+																									businessType
+																								] ||
+																									null
+																							);
+																						} else {
+																							formData.append(
+																								'director_id',
+																								selectedDirector?.directorId ||
+																									null
+																							);
+																							formData.append(
+																								'doc_type_id',
+																								field
+																									?.doc_type?.[
+																									selectedIncomeType
+																								] ||
+																									null
+																							);
+																						}
+																						formData.append(
+																							'document',
+																							acceptedFiles[0]
+																						);
+																						if (
+																							acceptedFiles.length >
+																							0
+																						) {
+																							const resp = await axios.post(
+																								UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
+																								formData
+																							);
+																							const newFile = {
+																								id:
+																									resp
+																										?.data
+																										?.document_details_data
+																										?.doc_id,
+																								document_id:
+																									resp
+																										?.data
+																										?.document_details_data
+																										?.doc_id,
+																								fileId:
+																									resp
+																										?.data
+																										?.document_details_data
+																										?.doc_id,
+																								doc_type_id:
+																									field
+																										?.doc_type?.[
+																										selectedIncomeType
+																									],
+																								directorId:
+																									selectedDirector.directorId,
+																								doc_name:
+																									resp
+																										?.data
+																										?.lender_document_data
+																										?.doc_name,
+																								document_key:
+																									resp
+																										?.data
+																										?.lender_document_data
+																										?.doc_name,
+																								loan_bank_mapping_id:
+																									resp
+																										?.data
+																										?.lender_document_data
+																										?.loan_bank_mapping ||
+																									1,
+																								field,
+																								...coordinates,
+																								preview:
+																									field?.geo_tagging ===
+																									true
+																										? resp
+																												?.data
+																												?.presignedUrl
+																										: resp
+																												?.data
+																												?.preview,
+																								...resp
+																									?.data
+																									?.uploaded_data,
+																							};
+																							if (
+																								isGeoTaggingEnabled &&
+																								coordinates
+																							) {
+																								setPicAddress(
+																									newFile
+																								);
+																								dispatch(
+																									setDocumentSelfieGeoLocation(
+																										resp
+																											?.data
+																											?.uploaded_data
+																									)
+																								);
+																							}
+																							// console.log('newfile-', { newFile });
+																							dispatch(
+																								addOrUpdateCacheDocument(
+																									{
+																										file: {
+																											...newFile,
+																										},
+																									}
+																								)
+																							);
+																							addCacheDocumentTemp(
+																								newFile
+																							);
+																						} else {
+																							addToast(
+																								{
+																									message:
+																										'File format is not supported. Please upload jpg, jpeg or png',
+																									type:
+																										'error',
+																								}
+																							);
+																						}
+																					} else {
 					// Basic details Profile Pic Upload section
 					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
