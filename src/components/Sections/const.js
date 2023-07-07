@@ -5,6 +5,8 @@ import iconWarning from 'assets/icons/amber_warning_icon.png';
 export const APPLICANT = 'applicant';
 export const CO_APPLICANT = 'coapplicant';
 
+export const APPLICANT_TYPE_NAME = 'Applicant';
+
 export const CO_APPLICANT_TYPE_NAME = 'Co-applicant';
 
 export const EXTRACTION_KEY_PAN = 'pan';

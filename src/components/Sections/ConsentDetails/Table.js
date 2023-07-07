@@ -9,6 +9,7 @@ const Table = ({
 	buttonDisabled,
 	application,
 	token,
+	fetchConsentDetails,
 }) => {
 	return (
 		<>
@@ -17,11 +18,13 @@ const Table = ({
 					{headers?.map(header => (
 						<UI.TableCell key={header}>
 							{header !== 'Director ID' && header}
+							{/* {header} */}
 						</UI.TableCell>
 					))}
 				</UI.TableHeader>
 				{data?.map((rowData, rowIndex) => (
 					<Single
+						fetchConsentDetails={fetchConsentDetails}
 						headers={headers}
 						rowData={rowData}
 						key={rowIndex}
