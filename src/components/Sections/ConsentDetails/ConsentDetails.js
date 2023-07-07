@@ -95,7 +95,7 @@ const ConsentDetails = props => {
 				<Loading />
 			) : (
 				<>
-					{selectedSection?.sub_sections[0]?.name ? (
+					{selectedSection?.sub_sections?.[0]?.name ? (
 						<UI_SECTIONS.SubSectionHeader
 							style={{
 								margin: '60px 0 20px 0',
