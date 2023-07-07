@@ -251,13 +251,13 @@ const Single = ({
 						{mapping[header] !== 'director_id' &&
 							(header === 'Status' ? status : rowData[mapping[header]] || '--')}
 						{header === 'Status' && rowData?.disclaimer && (
-							<UI.Disclaimer style={{ fontSize: '10px' }}>
-								<span style={{ fontWeight: 'bold', fontSize: '12px' }}>
-									<span style={{ color: 'red' }}>*</span>
-									Disclaimer:
-								</span>
+							<UI.Disclaimer>
+								<span style={{ color: 'red' }}>*</span>
+								Disclaimer:
 								<br />
-								{rowData?.disclaimer}
+								<UI.DisclaimerContent>
+									{rowData?.disclaimer}
+								</UI.DisclaimerContent>
 							</UI.Disclaimer>
 						)}
 					</UI.TableCell>

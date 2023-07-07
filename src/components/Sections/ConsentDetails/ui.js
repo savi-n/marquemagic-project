@@ -77,4 +77,10 @@ export const Buttons = styled.div`
 
 export const Disclaimer = styled.div`
 	font-size: 12px;
+	font-weight: bold;
+`;
+
+export const DisclaimerContent = styled.div`
+	font-weight: normal;
+	font-size: 12px;
 `;
