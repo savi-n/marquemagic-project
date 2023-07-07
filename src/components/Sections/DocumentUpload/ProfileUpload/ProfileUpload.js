@@ -50,18 +50,28 @@ const ProfileUpload = props => {
 		// selectectedProduct,
 		setImageLoading = () => {},
 	} = props;
-	const { app, application,directors } = useSelector(state => state);
+	const { app, application, directors } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { editLoanData, whiteLabelId, isGeoTaggingEnabled,selectedProduct } = app;
-	const { loanId, loanRefId, businessUserId, businessId,businessType } = application;
-	const {isEntity}= directors;
+	const {
+		editLoanData,
+		whiteLabelId,
+		isGeoTaggingEnabled,
+		selectedProduct,
+	} = app;
+	const {
+		loanId,
+		loanRefId,
+		businessUserId,
+		businessId,
+		businessType,
+	} = application;
+	const { isEntity } = directors;
 	const [picAddress, setPicAddress] = useState({});
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
-	const isSelectedProductTypeBusiness =
-		!!selectedProduct?.isSelectedProductTypeBusiness;
+	const isSelectedProductTypeBusiness = !!selectedProduct?.isSelectedProductTypeBusiness;
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -164,9 +174,9 @@ const ProfileUpload = props => {
 				if (section === 'documentUpload') {
 					// console.log(isSelectedProductTypeBusiness);
 					// let director = isSelectedProductTypeBusiness?direc:selectedDirector
-					let director_id= selectedDirector?.directorId|| null
-					if(!!isEntity && !!isSelectedProductTypeBusiness){
-						director_id='0'
+					let director_id = selectedDirector?.directorId || null;
+					if (!!isEntity && !!isSelectedProductTypeBusiness) {
+						director_id = '0';
 					}
 					const selectedIncomeType =
 						selectedDirector?.income_type === 0
