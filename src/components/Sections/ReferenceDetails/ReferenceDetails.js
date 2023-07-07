@@ -30,7 +30,7 @@ const ReferenceDetails = () => {
 		selectedSection,
 		isTestMode,
 	} = app;
-	const { refId1, refId2 } = application;
+
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ const ReferenceDetails = () => {
 			setLoading(true);
 			const reference_details = [
 				{
-					id: refId1,
+					id: sectionData?.[0]?.id || '',
 					ref_name: formState?.values?.Name0 || '',
 					ref_email: formState?.values?.reference_email0 || '',
 					ref_contact: formState?.values?.contact_number0 || '',
@@ -56,7 +56,7 @@ const ReferenceDetails = () => {
 					ref_state: formState?.values?.state0 || '',
 				},
 				{
-					id: refId2,
+					id: sectionData?.[1]?.id || '',
 					ref_name: formState?.values?.Name1 || '',
 					ref_email: formState?.values?.reference_email1 || '',
 					ref_contact: formState?.values?.contact_number1 || '',
@@ -166,20 +166,17 @@ const ReferenceDetails = () => {
 
 	const fetchSectionDetails = async () => {
 		try {
-					setFetchingSectionData(true);
-					const fetchRes = await axios.get(
-						`${API_END_POINT}/LoanReferences/create?${formatGetSectionReqBody(
-							{
-								application,
-							}
-						)}`
-					);
-					// console.log('fetchRes-', fetchRes);
-					// setSectionData(fetchRes?.data?.data?.loanData || []);
-					const resData = fetchRes?.data?.data?.loanData || [];
-					resData?.length > 0 &&
-						setSectionData(resData.slice(resData.length - 2));
-				} catch (error) {
+			setFetchingSectionData(true);
+			const fetchRes = await axios.get(
+				`${API_END_POINT}/LoanReferences/create?${formatGetSectionReqBody({
+					application,
+				})}`
+			);
+			// console.log('fetchRes-', fetchRes);
+			// setSectionData(fetchRes?.data?.data?.loanData || []);
+			const resData = fetchRes?.data?.data?.loanData || [];
+			resData?.length > 0 && setSectionData(resData.slice(resData.length - 2));
+		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
 			setSectionData([]);
 		} finally {

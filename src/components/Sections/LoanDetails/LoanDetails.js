@@ -31,15 +31,15 @@ import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 // import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
-
+import * as CONST_SECTIONS from 'components/Sections/const';
 const LoanDetails = () => {
 	const { app, application } = useSelector(state => state);
 	const {
 		directors,
-		selectedDirectorId,
+		// selectedDirectorId,
 		selectedDirectorOptions,
 	} = useSelector(state => state.directors);
-	const selectedDirector = directors?.[selectedDirectorId] || {};
+	// const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
 		selectedSectionId,
@@ -49,11 +49,16 @@ const LoanDetails = () => {
 		isEditOrViewLoan,
 		selectedProduct,
 	} = app;
-	const { loanId, cacheDocuments } = application;
+	const { loanId, cacheDocuments, businessType } = application;
+
+	const applicant =
+		Object.values(directors)?.filter(
+			dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+		)?.[0] || {};
 	const selectedIncomeType =
-		selectedDirector?.income_type === 0
-			? '0'
-			: selectedDirector?.income_type || '';
+		`${selectedProduct?.loan_request_type}` === '1'
+			? businessType
+			: applicant?.income_type || '';
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -182,7 +187,7 @@ const LoanDetails = () => {
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
-					cacheDocumentsTemp.map(doc => {
+					cacheDocumentsTemp?.map(doc => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
 							loan_id: loanId,
