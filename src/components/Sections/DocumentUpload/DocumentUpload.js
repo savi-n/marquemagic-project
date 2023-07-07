@@ -857,6 +857,23 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
+			// api-3 -> only when no otp authentication required, call this api to move the case to application stage once all the documents are uploaded
+			if (
+				selectedProduct?.product_details?.otp_authentication === false &&
+				((isEditLoan && isDraftLoan) || (!isEditLoan && !isViewLoan))
+			) {
+				const applicationStageReqBody = {
+					loan_id: loanId,
+				};
+
+				if (isDocumentUploadMandatory) {
+					applicationStageReqBody.is_mandatory_documents_uploaded = true;
+				}
+				await axios.post(
+					`${API.TO_APPLICATION_STAGE_URL}`,
+					applicationStageReqBody
+				);
+			}
 			if (
 				(isEditLoan && !isDraftLoan) ||
 				selectedProduct?.product_details?.otp_authentication === false
