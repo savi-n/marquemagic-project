@@ -66,7 +66,7 @@ const ProfileUpload = props => {
 		businessId,
 		businessType,
 	} = application;
-	const { isEntity } = directors;
+	// const { isEntity } = directors;
 	const [picAddress, setPicAddress] = useState({});
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
@@ -175,7 +175,7 @@ const ProfileUpload = props => {
 					// console.log(isSelectedProductTypeBusiness);
 					// let director = isSelectedProductTypeBusiness?direc:selectedDirector
 					let director_id = selectedDirector?.directorId || null;
-					if (!!isEntity && !!isSelectedProductTypeBusiness) {
+					if ( !!isSelectedProductTypeBusiness) {
 						director_id = '0';
 					}
 					const selectedIncomeType =
