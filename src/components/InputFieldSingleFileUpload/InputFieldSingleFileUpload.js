@@ -27,10 +27,10 @@ const InputFieldSingleFileUpload = props => {
 		category,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId } = useSelector(
-		state => state.directors
-	);
-	const selectedDirector = directors?.[selectedDirectorId] || {};
+	// const { directors, selectedDirectorId } = useSelector(
+	// 	state => state.directors
+	// );
+	// const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { isViewLoan } = app;
 	const { loanId, businessUserId, businessId, userId } = application;
 	const [loading, setLoading] = useState(false);
@@ -116,7 +116,7 @@ const InputFieldSingleFileUpload = props => {
 				loan_id: loanId,
 				doc_type_id: selectedDocTypeId,
 				category,
-				directorId: selectedDirector?.directorId,
+				// directorId: selectedDirector?.directorId,
 			};
 		} catch (error) {
 			console.error('error-inputfieldsinglefileupload-', error);
