@@ -19,7 +19,7 @@ const Single = ({
 }) => {
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
-		'Aadhar Number': 'aadhaar',
+		'Aadhaar Number': 'aadhaar',
 		'Applicant Name': 'name',
 		Status: 'status',
 		'PAN Number': 'pan',
@@ -37,18 +37,16 @@ const Single = ({
 	const sections = {
 		ROC: 'ROC',
 		GSTR3B: 'GST',
-		'CIBIL/Equifax': 'CIBIL',
+		BUREAU: 'equifax',
 		EPFO: 'EPFO',
 		ESIC: 'ESIC',
-		'Aadhaar Consent': 'aadhaar',
+		AADHAAR: 'aadhaar',
 		ITR: 'ITR',
 		// 'GST Verification': 'GST',
-		Udyam: 'udyam',
-		cKYC: 'ckyc' || 'CKYC',
+		UDYAM: 'udyam',
 		'c-KYC': 'ckyc' || 'CKYC',
 		'Bio-metric KYC': 'BKYC',
 		'CRIME CHECK': 'crime_check',
-		'Crime Check Consent': 'crime_check',
 	};
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToasts();
@@ -107,7 +105,8 @@ const Single = ({
 			if (
 				sections[section] === 'ITR' ||
 				sections[section] === 'GST' ||
-				sections[section] === 'aadhaar'
+				sections[section] === 'aadhaar' ||
+				sections[section] === 'equifax'
 			) {
 				setHtmlContent(response.data);
 				setModalOpen(true);
