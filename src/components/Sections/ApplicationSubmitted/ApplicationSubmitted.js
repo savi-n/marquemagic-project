@@ -11,7 +11,7 @@ import { APPLICATION_SUBMITTED_SECTION_ID } from '../const';
 import { TO_APPLICATION_STAGE_URL } from '_config/app.config';
 import axios from 'axios';
 
-const wt_lbl = sessionStorage.getItem('wt_lbl') || {};
+const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
 const Wrapper = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -48,7 +48,11 @@ const CaptionImg = styled.div`
 
 const data = [
 	{
-		caption: `Your ${wt_lbl?.solution_type === 'CaseDOS' ? 'Order has been forwarded to OPS' : 'Application has been forwarded to the branch'} , decision shall be communicated within 2-3 working days.`,
+		caption: `Your ${
+			wt_lbl?.solution_type !== 'CaseDOS'
+				? 'Order has been forwarded to OPS'
+				: 'Application has been forwarded to the branch'
+		} , decision shall be communicated within 2-3 working days.`,
 		guarantor: true,
 		img: img1,
 	},
@@ -58,7 +62,9 @@ const data = [
 		img: img2,
 	},
 	{
-		caption: `Sorry! You are not eligible for the requested ${wt_lbl?.solution_type === 'CaseDOS' ? 'report' : 'loan'} as your Credit score is not satisfactory`,
+		caption: `Sorry! You are not eligible for the requested ${
+			wt_lbl?.solution_type === 'CaseDOS' ? 'report' : 'loan'
+		} as your Credit score is not satisfactory`,
 		guarantor: false,
 	},
 ];
@@ -99,8 +105,8 @@ const ApplicationSubmitted = props => {
 			<CaptionImg bg={d.img} />
 			<Caption>{d.caption}</Caption>
 			<section>
-			{wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'Application'}  Reference Number:{' '}
-				<span className='font-bold'> {loanRefId}</span>
+				{wt_lbl?.solution_type === 'CaseDOS' ? 'Order ' : 'Application '}
+				Reference Number: <span className='font-bold'> {loanRefId}</span>
 			</section>
 		</Wrapper>
 	);
