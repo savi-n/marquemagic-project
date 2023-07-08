@@ -5,6 +5,9 @@ export const EXTRACTION_KEY_VOTERID = 'voter';
 export const EXTRACTION_KEY_PASSPORT = 'passport';
 // export const EXTRACTION_KEY_OTHERS = 'others';
 
+export const PERMANENT_ADDRESS_PROOF_PASSPORT = 'permanent_passport';
+export const PRESENT_ADDRESS_PROOF_PASSPORT = 'present_passport';
+
 export const ADDRESS_PROOF_KEYS = [
 	EXTRACTION_KEY_AADHAAR,
 	EXTRACTION_KEY_DL,
