@@ -111,8 +111,8 @@ const AddressDetails = props => {
 	const [biometricRes, setBiometricRes] = useState(null);
 
 	const selectedIncomeType =
-		sectionData?.director_details?.income_type === 0
-			? '0'
+		`${sectionData?.director_details?.income_type}` === '0'
+			? 0
 			: sectionData?.director_details?.income_type ||
 			  selectedDirector?.income_type ||
 			  '';
@@ -151,10 +151,10 @@ const AddressDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
-	const selectedVerifyWithOtpSubField = getSelectedSubField({
-		fields: selectedPermanentAadhaarField?.sub_fields || [],
-		isApplicant,
-	});
+	// const selectedVerifyWithOtpSubField = getSelectedSubField({
+	// 	fields: selectedPermanentAadhaarField?.sub_fields || [],
+	// 	isApplicant,
+	// });
 
 	const onClickVerifyWithOtp = async () => {
 		try {
@@ -169,32 +169,32 @@ const AddressDetails = props => {
 			}
 
 			// Check for federal bank url redirect flag
-			if (selectedVerifyWithOtpSubField?.redirect_url) {
-				try {
-					setVerifyingWithOtp(true);
-					// const reqBody = {};
-					// const sessionIdRes = await axios.post(
-					// 	`${API.CUSTOMER_FETCH_API_END_POINT}${
-					// 		selectedVerifyWithOtpSubField?.redirect_url
-					// 	}`
-					// );
-					// console.log('sessionIdRes-', sessionIdRes);
-					const reqBody = {
-						session_id: `eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaW5haHViIiwiaWF0IjoxNjg2ODI2NDE1LCJleHAiOjE2ODY4MjY3MTUsImF1ZCI6IjEifQ.c7FeC2PxBe-biDFvhkRaTP2Crc5QWQnT3v8Nfyhy24-Ku9JViYTsDWzMQQ5aENxO_3WXG3Pr8u60BGuiYkqonQ`,
-						redirectUrl: 'https://clix.loan2pal.com',
-						option: 'biometric',
-					};
-					const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
-					setIsBiometricModalOpen(true);
-					setBiometricRes(redirectRes?.data || {});
-					// console.log('redirectRes-', redirectRes);
-				} catch (error) {
-					console.error('error-addressdetails-aadhaarurlredirect-', error);
-				} finally {
-					setVerifyingWithOtp(false);
-					return;
-				}
-			}
+			// if (selectedVerifyWithOtpSubField?.redirect_url) {
+			// 	try {
+			// 		setVerifyingWithOtp(true);
+			// 		// const reqBody = {};
+			// 		// const sessionIdRes = await axios.post(
+			// 		// 	`${API.CUSTOMER_FETCH_API_END_POINT}${
+			// 		// 		selectedVerifyWithOtpSubField?.redirect_url
+			// 		// 	}`
+			// 		// );
+			// 		// console.log('sessionIdRes-', sessionIdRes);
+			// 		const reqBody = {
+			// 			session_id: `eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaW5haHViIiwiaWF0IjoxNjg2ODI2NDE1LCJleHAiOjE2ODY4MjY3MTUsImF1ZCI6IjEifQ.c7FeC2PxBe-biDFvhkRaTP2Crc5QWQnT3v8Nfyhy24-Ku9JViYTsDWzMQQ5aENxO_3WXG3Pr8u60BGuiYkqonQ`,
+			// 			redirectUrl: 'https://clix.loan2pal.com',
+			// 			option: 'biometric',
+			// 		};
+			// 		const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
+			// 		setIsBiometricModalOpen(true);
+			// 		setBiometricRes(redirectRes?.data || {});
+			// 		// console.log('redirectRes-', redirectRes);
+			// 	} catch (error) {
+			// 		console.error('error-addressdetails-aadhaarurlredirect-', error);
+			// 	} finally {
+			// 		setVerifyingWithOtp(false);
+			// 		return;
+			// 	}
+			// }
 			// -- Check for federal bank url redirect flag
 
 			setVerifyingWithOtp(true);
@@ -632,9 +632,12 @@ const AddressDetails = props => {
 				permanent_state: sectionData?.director_details?.permanent_state,
 				permanent_property_type:
 					sectionData?.director_details?.permanent_residential_type,
-				permanent_property_tenure: moment(
-					sectionData?.director_details?.permanent_residential_stability
-				).format('YYYY-MM'),
+				permanent_property_tenure: sectionData?.director_details
+					?.permanent_residential_stability
+					? moment(
+							sectionData?.director_details?.permanent_residential_stability
+					  ).format('YYYY-MM')
+					: '',
 
 				present_aadhaar: sectionData?.director_details?.daadhaar,
 				present_address_proof_id_others:
@@ -652,9 +655,12 @@ const AddressDetails = props => {
 				present_city: sectionData?.director_details?.city,
 				present_state: sectionData?.director_details?.state,
 				present_property_type: sectionData?.director_details?.residential_type,
-				present_property_tenure: moment(
-					sectionData?.director_details?.residential_stability
-				).format('YYYY-MM'),
+				present_property_tenure: sectionData?.director_details
+					?.residential_stability
+					? moment(sectionData?.director_details?.residential_stability).format(
+							'YYYY-MM'
+					  )
+					: '',
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
@@ -720,8 +726,8 @@ const AddressDetails = props => {
 		scrollToTopRootElement();
 		if (
 			!!loanRefId &&
-			!!selectedDirectorId &&
-			selectedDirector?.sections?.includes(selectedSectionId)
+			!!selectedDirectorId
+			// selectedDirector?.sections?.includes(selectedSectionId)
 		)
 			fetchSectionDetails();
 		// eslint-disable-next-line
@@ -772,21 +778,24 @@ const AddressDetails = props => {
 						(sub_section, subSectionIndex) => {
 							let isInActiveAddressProofUpload = false;
 
-							const isPermanent = sub_section.aid === CONST.AID_PERMANENT;
+							const isPermanent = sub_section?.aid === CONST.AID_PERMANENT;
 							const selectedAddressProofFieldName = isPermanent
 								? CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 								: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME;
 							const selectedAddressProofId =
-								formState.values[selectedAddressProofFieldName];
+								formState?.values?.[selectedAddressProofFieldName];
 
-							const selectedAddressProofTypeOption = sub_section.fields
-								.filter(
-									field => field.name === selectedAddressProofFieldName
-								)?.[0]
-								?.options?.filter(o => o.value === selectedAddressProofId)?.[0];
+							const selectedAddressProofTypeOption = sub_section?.fields
+								?.filter(field => {
+									return field?.name === selectedAddressProofFieldName;
+								})?.[0]
+								?.options?.filter(
+									o => o?.value === selectedAddressProofId
+								)?.[0];
 
 							const selectedDocTypeId =
-								selectedAddressProofTypeOption?.doc_type?.[selectedIncomeType];
+								selectedAddressProofTypeOption?.doc_type?.[+selectedIncomeType];
+
 							const prefix = isPermanent
 								? CONST.PREFIX_PERMANENT
 								: CONST.PREFIX_PRESENT;

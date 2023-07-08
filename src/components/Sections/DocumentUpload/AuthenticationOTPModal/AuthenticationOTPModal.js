@@ -115,7 +115,7 @@ const AuthenticationOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [, setIsResentOtp] = useState(false);
-
+	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
 	const maskedContactNo = `XXXXX${setContactNo[setContactNo?.length - 5]}${
 		setContactNo[setContactNo?.length - 4]
 	}${setContactNo[setContactNo?.length - 3]}${
@@ -179,7 +179,9 @@ const AuthenticationOTPModal = props => {
 				if (editLoanData && editLoanData?.loan_ref_id) {
 					setTimeout(() => {
 						addToast({
-							message: 'Your application has been updated',
+							message: `Your ${
+								wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'Application'
+							} has been updated`,
 							type: 'success',
 						});
 					}, 1000);

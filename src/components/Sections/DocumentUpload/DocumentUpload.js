@@ -607,7 +607,7 @@ const DocumentUpload = props => {
 				try {
 					setSubmitting(true);
 					let section = selectedSection?.sub_sections?.filter(
-						section => section.id === 'on_site_selfie_with_applicant'
+						section => section?.id === CONST.SELFIE_UPLOAD_SECTION_ID
 					)?.[0];
 					let selectedField = section?.fields?.filter(field => {
 						if (field?.hasOwnProperty('is_applicant')) {
@@ -1015,7 +1015,7 @@ const DocumentUpload = props => {
 	}
 	// selectedProduct?.product_details?.otp_authentication &&
 	// (isDraftLoan || !isEditLoan)
-	if (applicationOTPAuthentication) {
+	if (applicationOTPAuthentication && !isAadhaarVerified) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
@@ -1731,7 +1731,9 @@ const DocumentUpload = props => {
 						disabled={isViewLoan}
 						onChange={() => {
 							setDeclareCheck(!declareCheck);
-							setOnsiteVerificationMsg(true);
+							selectedSection?.sub_sections?.filter(
+								section => section?.id === CONST.SELFIE_UPLOAD_SECTION_ID
+							)?.[0] && setOnsiteVerificationMsg(true);
 						}}
 						bg='blue'
 					/>

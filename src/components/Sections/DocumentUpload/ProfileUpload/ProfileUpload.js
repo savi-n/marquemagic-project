@@ -47,18 +47,31 @@ const ProfileUpload = props => {
 		geoLocationAddress = {},
 		section = 'basicDetails',
 		selectedDirector,
+		// selectectedProduct,
 		setImageLoading = () => {},
 	} = props;
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const { editLoanData, whiteLabelId, isGeoTaggingEnabled } = app;
-	const { loanId, loanRefId, businessUserId, businessId } = application;
+	const {
+		editLoanData,
+		whiteLabelId,
+		isGeoTaggingEnabled,
+		selectedProduct,
+	} = app;
+	const {
+		loanId,
+		loanRefId,
+		businessUserId,
+		businessId,
+		businessType,
+	} = application;
+	// const { isEntity } = directors;
 	const [picAddress, setPicAddress] = useState({});
 	const [loading, setLoading] = useState(false);
 	const [showImageInfo, setShowImageInfo] = useState(false);
 	const [selfiePreview, setSelfiePreview] = useState({});
-
+	const isSelectedProductTypeBusiness = !!selectedProduct?.isSelectedProductTypeBusiness;
 	const openDocument = async file => {
 		try {
 			setLoading(true);
@@ -159,6 +172,12 @@ const ProfileUpload = props => {
 
 				// SELFIE DOC UPLOAD SECTION
 				if (section === 'documentUpload') {
+					// console.log(isSelectedProductTypeBusiness);
+					// let director = isSelectedProductTypeBusiness?direc:selectedDirector
+					let director_id = selectedDirector?.directorId || null;
+					if (!!isSelectedProductTypeBusiness) {
+						director_id = '0';
+					}
 					const selectedIncomeType =
 						selectedDirector?.income_type === 0
 							? '0'
@@ -171,16 +190,22 @@ const ProfileUpload = props => {
 						formData.append('lat', coordinates?.latitude || null);
 						formData.append('long', coordinates?.longitude || null);
 					}
-
 					formData.append('timestamp', coordinates?.timestamp || null);
 					formData.append('loan_ref_id', loanRefId || null);
 					formData.append('loan_id', loanId || null);
-					formData.append('director_id', selectedDirector?.directorId || null);
 					formData.append('user_id', businessUserId || null);
-					formData.append(
-						'doc_type_id',
-						field?.doc_type?.[selectedIncomeType] || null
-					);
+					formData.append('director_id', director_id);
+					if (isSelectedProductTypeBusiness) {
+						formData.append(
+							'doc_type_id',
+							field?.doc_type?.[businessType] || null
+						);
+					} else {
+						formData.append(
+							'doc_type_id',
+							field?.doc_type?.[selectedIncomeType] || null
+						);
+					}
 					formData.append('document', acceptedFiles[0]);
 					if (acceptedFiles.length > 0) {
 						const resp = await axios.post(

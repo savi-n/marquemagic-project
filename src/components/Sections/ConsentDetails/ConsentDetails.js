@@ -34,12 +34,12 @@ const ConsentDetails = props => {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
-	const [consentDetails, setConsentDetails] = useState(null);
+	const [consentDetails, setConsentDetails] = useState([]);
 
-	const fetchConsentDetails = () => {
-		setLoading(true);
-		return axios
-			.post(
+	const fetchConsentDetails = async () => {
+		try {
+			setLoading(true);
+			const consentRes = await axios.post(
 				`${API.API_END_POINT}/api/consentDetails`,
 				{
 					business_id: businessId,
@@ -51,27 +51,23 @@ const ConsentDetails = props => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				}
-			)
-			.then(consentRes => {
-				setConsentDetails(consentRes?.data?.response);
-				// setConsentDetails(data);
-				setLoading(false);
-			})
-			.catch(error => {
-				console.error('error-ConsentDetails-getConsentDetails', {
-					error: error,
-					res: error?.response,
-					resres: error?.response?.response,
-					resData: error?.response?.data,
-				});
-				addToast({
-					message: getApiErrorMessage(error),
-					type: 'error',
-				});
-			})
-			.finally(() => {
-				setLoading(false);
+			);
+			setConsentDetails(consentRes?.data?.response);
+			setLoading(false);
+		} catch (error) {
+			console.error('error-ConsentDetails-getConsentDetails', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
 			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {
@@ -93,69 +89,78 @@ const ConsentDetails = props => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
 
-	return loading ? (
-		<Loading />
-	) : (
+	return (
 		<UI_SECTIONS.Wrapper>
-			{selectedSection?.sub_sections[0]?.name ? (
-				<UI_SECTIONS.SubSectionHeader
-					style={{
-						margin: '60px 0 20px 0',
-					}}
-				>
-					{selectedSection?.sub_sections?.[0]?.name}
-				</UI_SECTIONS.SubSectionHeader>
-			) : null}
+			{loading ? (
+				<Loading />
+			) : (
+				<>
+					{selectedSection?.sub_sections?.[0]?.name ? (
+						<UI_SECTIONS.SubSectionHeader
+							style={{
+								margin: '60px 0 20px 0',
+							}}
+						>
+							{selectedSection?.sub_sections?.[0]?.name}
+						</UI_SECTIONS.SubSectionHeader>
+					) : null}
 
-			{consentDetails?.map((tables, sectionIndex) => {
-				return (
-					<UI.TableWrapper key={`section-${sectionIndex}-${tables?.id}`}>
-						{/* {Will change it later to something dynamic} */}
-						{tables?.fields?.[0]?.data?.length >= 1 && (
-							<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
+					{consentDetails?.map((tables, sectionIndex) => {
+						return (
+							<UI.TableWrapper key={`section-${sectionIndex}-${tables?.id}`}>
+								{/* {Will change it later to something dynamic} */}
+								{tables?.fields?.[0]?.data?.length >= 1 && (
+									<UI.TableMainHeader>{tables?.name}</UI.TableMainHeader>
+								)}
+								{tables?.fields?.map((field, idx) => {
+									return (
+										field?.data?.length >= 1 && (
+											<Table
+												fetchConsentDetails={fetchConsentDetails}
+												key={`table-${idx}`}
+												application={application}
+												headers={field?.headers || []}
+												data={field?.data || []}
+												loanId={loanId}
+												token={clientToken}
+												hasSeperator={idx < tables?.fields?.length - 1}
+												section={tables?.name}
+												buttonDisabled={isViewLoan}
+											/>
+										)
+									);
+								})}
+							</UI.TableWrapper>
+						);
+					})}
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button
+								fill
+								name={'Save and Proceed'}
+								isLoader={loading}
+								disabled={loading}
+								onClick={onSaveAndProceed}
+							/>
 						)}
-						{tables?.fields?.map((field, idx) => {
-							return (
-								field?.data?.length >= 1 && (
-									<Table
-										key={`table-${idx}`}
-										application={application}
-										headers={field?.headers || []}
-										data={field?.data || []}
-										loanId={loanId}
-										token={clientToken}
-										hasSeperator={idx < tables?.fields?.length - 1}
-										section={tables?.name}
-										buttonDisabled={isViewLoan}
-									/>
-								)
-							);
-						})}
-					</UI.TableWrapper>
-				);
-			})}
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name={'Save and Proceed'}
-						isLoader={loading}
-						disabled={loading}
-						onClick={onSaveAndProceed}
-					/>
-				)}
 
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-					</>
-				)}
-				{isViewLoan && (
-					<>
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-			</UI_SECTIONS.Footer>
+						{isViewLoan && (
+							<>
+								<Button
+									name='Previous'
+									onClick={naviagteToPreviousSection}
+									fill
+								/>
+							</>
+						)}
+						{isViewLoan && (
+							<>
+								<Button name='Next' onClick={naviagteToNextSection} fill />
+							</>
+						)}
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };
