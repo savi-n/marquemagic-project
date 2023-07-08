@@ -37,7 +37,7 @@ const Single = ({
 	const sections = {
 		ROC: 'ROC',
 		GSTR3B: 'GST',
-		BUREAU: 'equifax',
+		BUREAU: 'bureau',
 		EPFO: 'EPFO',
 		ESIC: 'ESIC',
 		AADHAAR: 'aadhaar',
@@ -106,7 +106,7 @@ const Single = ({
 				sections[section] === 'ITR' ||
 				sections[section] === 'GST' ||
 				sections[section] === 'aadhaar' ||
-				sections[section] === 'equifax'
+				sections[section] === 'bureau'
 			) {
 				setHtmlContent(response.data);
 				setModalOpen(true);
