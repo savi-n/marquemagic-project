@@ -58,7 +58,6 @@ import { getFlowData } from 'utils/localStore';
 
 const DocumentUpload = props => {
 	const { productDetails, userType, id, onFlowChange, map, productId } = props;
-	const wt_lbl = sessionStorage.getItem('wt_lbl') || {};
 	//console.log('productDetails from document upload', props);
 	const aTag = (
 		<a
@@ -854,7 +853,7 @@ const DocumentUpload = props => {
 			if (editLoanData && editLoanData?.loan_ref_id) {
 				setTimeout(() => {
 					addToast({
-						message: `Your ${wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'Application'} has been updated`,
+						message: 'Your application has been updated',
 						type: 'success',
 					});
 				}, 1000);

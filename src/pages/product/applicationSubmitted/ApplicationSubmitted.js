@@ -11,7 +11,7 @@ import { func, object, oneOfType, string } from 'prop-types';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
 import { CaseContext } from 'reducer/caseReducer';
-const wt_lbl = sessionStorage.getItem('wt_lbl') || {};
+
 const Colom1 = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -52,7 +52,7 @@ const CaptionImg = styled.div`
 
 const data = [
 	{
-		caption: `Your ${wt_lbl?.solution_type === 'CaseDOS' ? 'Order has been forwarded to OPS' : 'Application has been forwarded to the branch'}, decision shall be communicated within 2-3 working days.`,
+		caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
 		guarantor: true,
 		img: img1,
 	},
@@ -117,7 +117,7 @@ export default function ApplicationSubmitted({
 				<CaptionImg bg={d.img} />
 				<Caption>{d.caption}</Caption>
 				<section>
-				{wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'Application'}  Reference Number:{' '}
+					Application Reference Number:{' '}
 					<span className='font-bold'> {loan_ref_id}</span>
 				</section>
 
