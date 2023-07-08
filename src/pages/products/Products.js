@@ -481,7 +481,7 @@ export default function Products() {
 		sessionStorage.removeItem('encryptWhiteLabel');
 		sessionStorage.removeItem('userToken');
 		sessionStorage.removeItem(HOSTNAME);
-		const wt_lbl = sessionStorage.getItem('wt_lbl');
+		const wt_lbl = sessionStorage.getItem('wt_lbl') || {};
 		const userDetails = sessionStorage.getItem('userDetails');
 		const permissionTemp = sessionStorage.getItem('permission');
 		sessionStorage.clear();
@@ -494,10 +494,9 @@ export default function Products() {
 
 	return (
 		<Wrapper>
-			{' '}
 			<Head>
 				Choose a
-				{wt_lbl?.solution_type === 'CaseDOS' && permission?.menu?.applyloan
+				{wt_lbl?.solution_type === 'CaseDOS'
 					? ' Report'
 					: ' Loan Product'}
 			</Head>
@@ -604,7 +603,7 @@ export default function Products() {
 			{permission?.color_theme_react?.check_application_status === true && (
 				<StatusBox>
 					<ProductName>
-						Here, you can check your application status by entering the Loan
+						Here, you can check your {wt_lbl?.solution_type==='CaseDOS'? 'Order':'application'} status by entering the {wt_lbl?.solution_type==='CaseDOS'? 'Case':'Loan'}
 						Reference ID, Phone No or PAN No
 					</ProductName>
 					<StatusInputBox>
@@ -614,7 +613,7 @@ export default function Products() {
 						>
 							<input
 								className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
-								placeholder='Enter Loan Reference ID, Phone No or PAN No'
+								placeholder={`Enter ${wt_lbl?.solution_type==='CaseDOS'? 'Case':'Loan'} Reference ID, Phone No or PAN No`}
 								onChange={e => setRefstatus(e.target.value)}
 							/>
 							{/* <FontAwesomeIcon
