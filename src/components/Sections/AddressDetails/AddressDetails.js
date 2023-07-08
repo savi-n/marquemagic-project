@@ -111,8 +111,8 @@ const AddressDetails = props => {
 	const [biometricRes, setBiometricRes] = useState(null);
 
 	const selectedIncomeType =
-		sectionData?.director_details?.income_type === 0
-			? '0'
+		`${sectionData?.director_details?.income_type}` === '0'
+			? 0
 			: sectionData?.director_details?.income_type ||
 			  selectedDirector?.income_type ||
 			  '';
@@ -778,21 +778,24 @@ const AddressDetails = props => {
 						(sub_section, subSectionIndex) => {
 							let isInActiveAddressProofUpload = false;
 
-							const isPermanent = sub_section.aid === CONST.AID_PERMANENT;
+							const isPermanent = sub_section?.aid === CONST.AID_PERMANENT;
 							const selectedAddressProofFieldName = isPermanent
 								? CONST.PERMANENT_ADDRESS_PROOF_TYPE_FIELD_NAME
 								: CONST.PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME;
 							const selectedAddressProofId =
-								formState.values[selectedAddressProofFieldName];
+								formState?.values?.[selectedAddressProofFieldName];
 
-							const selectedAddressProofTypeOption = sub_section.fields
-								.filter(
-									field => field.name === selectedAddressProofFieldName
-								)?.[0]
-								?.options?.filter(o => o.value === selectedAddressProofId)?.[0];
+							const selectedAddressProofTypeOption = sub_section?.fields
+								?.filter(field => {
+									return field?.name === selectedAddressProofFieldName;
+								})?.[0]
+								?.options?.filter(
+									o => o?.value === selectedAddressProofId
+								)?.[0];
 
 							const selectedDocTypeId =
-								selectedAddressProofTypeOption?.doc_type?.[selectedIncomeType];
+								selectedAddressProofTypeOption?.doc_type?.[+selectedIncomeType];
+
 							const prefix = isPermanent
 								? CONST.PREFIX_PERMANENT
 								: CONST.PREFIX_PRESENT;
