@@ -292,7 +292,10 @@ const AddressProofUpload = props => {
 					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
 				) {
-					frontFormData.append('passport_no', directorDetails.passport_no);
+					frontFormData.append(
+						'passport_no',
+						directorDetails?.passport_no || ''
+					);
 				}
 				frontFormData.append('business_id', application?.businessId);
 				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
@@ -352,7 +355,10 @@ const AddressProofUpload = props => {
 					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
 				) {
-					backFormData.append('passport_no', directorDetails.passport_no);
+					backFormData.append(
+						'passport_no',
+						directorDetails?.passport_no || ''
+					);
 				}
 				backFormData.append('business_id', application?.businessId);
 				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
@@ -446,7 +452,10 @@ const AddressProofUpload = props => {
 				selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 				selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
 			) {
-				frontOnlyFormData.append('passport_no', directorDetails.passport_no);
+				frontOnlyFormData.append(
+					'passport_no',
+					directorDetails?.passport_no || ''
+				);
 			}
 			frontOnlyFormData.append('business_id', application?.businessId);
 			const frontOnlyExtractionRes = await getKYCData(
