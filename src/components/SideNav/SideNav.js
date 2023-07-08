@@ -45,6 +45,7 @@ const SideNav = props => {
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { addToast } = useToasts();
 	const isApplicant = applicantCoApplicants?.isApplicant;
+	const wt_lbl = sessionStorage.getItem('wt_lbl') || {};
 	// console.log(isApplicant);
 
 	const {
@@ -111,7 +112,12 @@ const SideNav = props => {
 						)}
 						<UI.ProductName hide={hide}>
 							<span>{selectedProduct?.name}</span>
-							<UI.ApplicationNo>Application No: {loanRefId}</UI.ApplicationNo>
+							<UI.ApplicationNo>
+								{wt_lbl?.solution_type === 'CaseDOS'
+									? 'Order '
+									: 'Application '}
+								No: {loanRefId}
+							</UI.ApplicationNo>
 						</UI.ProductName>
 					</UI.HeadingBox>
 					{selectedProduct?.product_details?.sections?.map(
