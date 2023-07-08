@@ -49,7 +49,7 @@ const CaptionImg = styled.div`
 const data = [
 	{
 		caption: `Your ${
-			wt_lbl?.solution_type !== 'CaseDOS'
+			wt_lbl?.solution_type === 'CaseDOS'
 				? 'Order has been forwarded to OPS'
 				: 'Application has been forwarded to the branch'
 		} , decision shall be communicated within 2-3 working days.`,
