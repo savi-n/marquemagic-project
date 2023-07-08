@@ -113,7 +113,7 @@ const SideNav = props => {
 						<UI.ProductName hide={hide}>
 							<span>{selectedProduct?.name}</span>
 							<UI.ApplicationNo>
-								{wt_lbl?.solution_type !== 'CaseDOS'
+								{wt_lbl?.solution_type === 'CaseDOS'
 									? 'Order '
 									: 'Application '}
 								No: {loanRefId}
