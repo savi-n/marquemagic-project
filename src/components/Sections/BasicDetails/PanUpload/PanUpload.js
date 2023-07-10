@@ -514,7 +514,7 @@ const PanUpload = props => {
 									</div>
 								) : null}
 								{!uploadedFile?.document_id &&
-									!isEditOrViewLoan &&
+									// !isEditOrViewLoan &&
 									!selectedDirector?.sections?.includes(selectedSectionId) && (
 										<UI.IconDelete
 											src={iconDelete}
