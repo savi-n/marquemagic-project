@@ -104,9 +104,9 @@ export default function InputField(props) {
 				>
 					<Span>
 						{props.placeholder}{' '}
-						{props?.rules?.minValue && `min ${props?.rules?.minValue}`}
+						{props?.rules?.minValue && `(min : ${props?.rules?.minValue})`}
 						{props?.rules?.minValue && props?.rules?.maxValue ? ' - ' : ' '}
-						{props?.rules?.maxValue && `max ${props?.rules?.maxValue}`}
+						{props?.rules?.maxValue && `(max : ${props?.rules?.maxValue})`}
 					</Span>
 					{props.rules?.required && <Asteris>*</Asteris>}
 				</Label>
