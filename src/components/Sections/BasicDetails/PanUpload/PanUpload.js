@@ -41,7 +41,7 @@ const PanUpload = props => {
 		selectedSectionId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken, isEditOrViewLoan } = app;
+	const { selectedProduct, clientToken } = app;
 	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
@@ -514,7 +514,7 @@ const PanUpload = props => {
 									</div>
 								) : null}
 								{!uploadedFile?.document_id &&
-									!isEditOrViewLoan &&
+									// !isEditOrViewLoan &&
 									!selectedDirector?.sections?.includes(selectedSectionId) && (
 										<UI.IconDelete
 											src={iconDelete}
