@@ -132,7 +132,12 @@ const VALIDATION_RULES = {
 		},
 		message: 'Upload agreement is mandatory',
 	},
+	mobile_number: {
+		func: validatePattern(/^[6789]\d{9}$/),
+		message: 'Enter valid Phone Number',
+	},
 };
+
 function validate(rules, value) {
 	if (!rules || Object.keys(rules || {}).length === 0) return false;
 	// all rules will be applied only if required: true or value exists in the field
