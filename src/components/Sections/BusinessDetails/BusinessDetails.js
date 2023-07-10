@@ -194,10 +194,27 @@ const BusinessDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
+
 			buissnessDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId || borrowerUserId;
 
 			buissnessDetailsReqBody.data.business_details.loan_document = [];
+
+			// changes for gst selection starts
+			// TODO:Bikash - modify gst component such that it should have the all the gst's as value.
+			if (!completedSections?.includes(selectedSectionId)) {
+				const firstActiveGst = gstin?.data?.data?.filter(
+					gstObj => gstObj?.status !== 'Inactive'
+				)?.[0]?.gstin;
+
+				buissnessDetailsReqBody.data.business_details.gstin = firstActiveGst;
+			}
+
+			if (completedSections?.includes(selectedSectionId)) {
+				delete buissnessDetailsReqBody.data.business_details.gstin;
+			}
+			// changes for gst selection ends
+
 			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;

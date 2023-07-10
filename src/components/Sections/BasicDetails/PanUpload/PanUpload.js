@@ -41,7 +41,7 @@ const PanUpload = props => {
 		selectedSectionId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { selectedProduct, clientToken, isEditOrViewLoan } = app;
+	const { selectedProduct, clientToken } = app;
 	const { loanId, businessUserId } = application;
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
