@@ -97,7 +97,7 @@ const VALIDATION_RULES = {
 	},
 	age_limit: {
 		func: ageLimit,
-		message: 'The applicant should be of above the age limit',
+		message: 'The applicant should be above the age limit',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
