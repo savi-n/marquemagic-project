@@ -99,10 +99,7 @@ const ApplicationSubmitted = props => {
 				console.error(err.message);
 			}
 		};
-		if (
-			selectedProduct?.product_details?.otp_authentication === false ||
-			((isEditLoan && isDraftLoan) || (!isEditLoan && !isViewLoan))
-		)
+		if ((isEditLoan && isDraftLoan) || (!isEditLoan && !isViewLoan))
 			moveToApplicationStage();
 		// eslint-disable-next-line
 	}, []);
