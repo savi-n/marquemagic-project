@@ -1015,7 +1015,7 @@ const DocumentUpload = props => {
 	}
 	// selectedProduct?.product_details?.otp_authentication &&
 	// (isDraftLoan || !isEditLoan)
-	if (applicationOTPAuthentication && !isAadhaarVerified) {
+	if (applicationOTPAuthentication || !isAadhaarVerified) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
