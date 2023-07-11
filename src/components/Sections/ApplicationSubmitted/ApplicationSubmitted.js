@@ -79,6 +79,7 @@ const ApplicationSubmitted = props => {
 	const isDocumentUploadMandatory = !!selectedProduct?.product_details
 		?.document_mandatory;
 
+	const { isViewLoan, isEditLoan, isDraftLoan } = app;
 	useEffect(() => {
 		scrollToTopRootElement();
 		if (isUseEffectCalledOnce.current) return;
@@ -94,9 +95,15 @@ const ApplicationSubmitted = props => {
 					applicationStageReqBody.is_mandatory_documents_uploaded = true;
 				}
 				axios.post(`${TO_APPLICATION_STAGE_URL}`, applicationStageReqBody);
-			} catch (e) {}
+			} catch (err) {
+				console.error(err.message);
+			}
 		};
-		moveToApplicationStage();
+		if (
+			selectedProduct?.product_details?.otp_authentication === false ||
+			((isEditLoan && isDraftLoan) || (!isEditLoan && !isViewLoan))
+		)
+			moveToApplicationStage();
 		// eslint-disable-next-line
 	}, []);
 
