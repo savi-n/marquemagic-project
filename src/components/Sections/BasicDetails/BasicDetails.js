@@ -1183,7 +1183,7 @@ const BasicDetails = props => {
 									}
 									if (!isPanNumberExist) {
 										addToast({
-											message: 'Pan Upload is mandatory',
+											message: 'Pan Number is mandatory',
 											type: 'error',
 										});
 										return;
