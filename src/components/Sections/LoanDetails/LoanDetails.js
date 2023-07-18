@@ -26,7 +26,7 @@ import {
 	getDocumentNameFromLoanDocuments,
 	parseJSON,
 } from 'utils/formatData';
-import { scrollToTopRootElement } from 'utils/helper';
+// import { scrollToTopRootElement } from 'utils/helper';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 // import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
@@ -353,7 +353,7 @@ const LoanDetails = () => {
 	};
 
 	useEffect(() => {
-		scrollToTopRootElement();
+		// scrollToTopRootElement();
 		if (!selectedConnectorId) return;
 		// console.log('useEffect-', {
 		// 	prev: prevSelectedConnectorId?.current,
