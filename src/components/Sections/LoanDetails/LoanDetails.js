@@ -312,6 +312,10 @@ const LoanDetails = () => {
 	const prefilledValues = field => {
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (field?.name === 'loan_source') {
+				if (formState?.values?.[field.name] === 'nconboarding_Connector')
+					return 'Connector';
+			}
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -354,7 +358,7 @@ const LoanDetails = () => {
 
 	useEffect(() => {
 		// scrollToTopRootElement();
-		if (!selectedConnectorId) return;
+		// if (!selectedConnectorId) return;
 		// console.log('useEffect-', {
 		// 	prev: prevSelectedConnectorId?.current,
 		// 	current: selectedConnectorId,
