@@ -105,7 +105,8 @@ const DDUPE_SEND_OTP = `${CUSTOMER_FETCH_API_END_POINT}/verify_customer`;
 const DDUPE_VERIFY_OTP = `${CUSTOMER_FETCH_API_END_POINT}/get_customer_details`;
 
 const GENERATE_SESSION_ID_AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/generate_session_id`;
-const AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/kyc_biometric`;
+// const AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/kyc_biometric`;
+const AADHAAR_REDIRECT = `https://14.142.52.49:9447/FinakycClient/EkycBiometric`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
