@@ -733,6 +733,12 @@ const AddressDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
+	useEffect(() => {
+		if (isSameAsAboveAddressChecked && presentCacheDocumentsTemp?.length > 0) {
+			setPresentCacheDocumentsTemp([]);
+		}
+		// eslint-disable-next-line
+	}, [isSameAsAboveAddressChecked]);
 	// console.log('AddressDetails-allstates-', {
 	// 	app,
 	// 	application,
