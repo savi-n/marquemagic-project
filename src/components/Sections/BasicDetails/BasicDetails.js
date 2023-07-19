@@ -1181,7 +1181,7 @@ const BasicDetails = props => {
 										});
 										return;
 									}
-									if (!isPanNumberExist) {
+									if (!isPanNumberExist && isPanUploadMandatory) {
 										addToast({
 											message: 'Pan Number is mandatory',
 											type: 'error',
