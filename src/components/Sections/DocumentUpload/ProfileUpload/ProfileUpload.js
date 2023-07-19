@@ -216,8 +216,10 @@ const ProfileUpload = props => {
 							id: resp?.data?.document_details_data?.doc_id,
 							document_id: resp?.data?.document_details_data?.doc_id,
 							fileId: resp?.data?.document_details_data?.doc_id,
-							doc_type_id: field?.doc_type?.[selectedIncomeType],
-							directorId: !selectedDirector?.directorId  ? '0': selectedDirector?.directorId,
+							doc_type_id: field?.doc_type?.[selectedIncomeType]
+								? field?.doc_type?.[selectedIncomeType]
+								: field?.doc_type?.[businessType],
+							directorId: selectedDirector.directorId,
 							doc_name: resp?.data?.lender_document_data?.doc_name,
 							document_key: resp?.data?.lender_document_data?.doc_name,
 							loan_bank_mapping_id:
