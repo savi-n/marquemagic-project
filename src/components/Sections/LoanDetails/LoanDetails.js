@@ -312,6 +312,9 @@ const LoanDetails = () => {
 	const prefilledValues = field => {
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (field?.name === 'loan_source') {
+				return 'Connector';
+			}
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
