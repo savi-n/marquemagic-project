@@ -57,7 +57,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// console.log('Card-allstates-', { product });
 
 	const redirectToProductPage = () => {
-		sessionStorage.clear();
+		// sessionStorage.clear();
 		const params = queryString.parse(window.location.search);
 		let redirectURL = `/nconboarding/applyloan/product/${btoa(product.id)}`;
 		if (params?.token) {
@@ -81,7 +81,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			});
 			return;
 		}
-		sessionStorage.clear();
+		// sessionStorage.clear();
 		const editLoanRedirectObject = {
 			userId: userDetails?.id,
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
@@ -184,6 +184,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 											},
 										}
 									);
+									// console.log(geoLocationRes, 'GeoLocation CArd Product');
 									dispatch(setGeoLocation(geoLocationRes?.data?.data));
 								}
 							} catch (e) {
