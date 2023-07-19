@@ -933,7 +933,12 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			if (goToNextSection) {
+
+			if (
+				(goToNextSection ||
+					selectedProduct?.product_details?.otp_authentication === false) &&
+				(isEditLoan || (!isEditLoan && !isViewLoan))
+			) {
 				onSaveAndProceed();
 			}
 		} catch (error) {
@@ -999,23 +1004,38 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	let applicationOTPAuthentication = false;
-	if (selectedProduct?.product_details?.otp_authentication) {
-		applicationOTPAuthentication = true;
-		if (isEditLoan && !isDraftLoan) {
-			// skip otp in edit mode
-			applicationOTPAuthentication = false;
-		} else if (
+	let applicationOTPAuthentication = true;
+	// if (selectedProduct?.product_details?.otp_authentication ) {
+	// 	applicationOTPAuthentication = true;
+	// 	if (isEditLoan && !isDraftLoan) {
+	// 		// skip otp in edit mode
+	// 		applicationOTPAuthentication = false;
+	// 	} else if (
+	// 		selectedProduct?.product_details
+	// 			?.if_aadhaar_verified_skip_otp_authentication &&
+	// 		isAadhaarVerified
+	// 	) {
+	// 		applicationOTPAuthentication = false;
+	// 	}
+	// }
+
+	if (selectedProduct?.product_details?.otp_authentication !== false) {
+		if (
 			selectedProduct?.product_details
 				?.if_aadhaar_verified_skip_otp_authentication &&
 			isAadhaarVerified
 		) {
 			applicationOTPAuthentication = false;
 		}
+		if (isEditLoan && !isDraftLoan) {
+			applicationOTPAuthentication = false;
+		}
+	} else {
+		applicationOTPAuthentication = false;
 	}
 	// selectedProduct?.product_details?.otp_authentication &&
 	// (isDraftLoan || !isEditLoan)
-	if (applicationOTPAuthentication || !isAadhaarVerified) {
+	if (applicationOTPAuthentication) {
 		displayProceedButton = (
 			<Button
 				name='Submit'
