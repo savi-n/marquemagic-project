@@ -30,4 +30,5 @@ export const initialFormState = {
 	income_loan_repayment: 'Yes',
 };
 
-export const EMPLOYMENT_DETAILS_SECTION_ID="employment_details"
+export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
+export const ADDRESS_DETAILS_SUB_SECTION_ID = 'address_details';

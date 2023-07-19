@@ -383,11 +383,30 @@ const EmploymentDetails = () => {
 			) : (
 				<>
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						let displayAddressDetailsSubsection = true;
+						if (sub_section?.id === CONST.ADDRESS_DETAILS_SUB_SECTION_ID) {
+							const addressdetailsSubSection =
+								selectedSection?.sub_sections?.filter(
+									item => item?.id === CONST.ADDRESS_DETAILS_SUB_SECTION_ID
+								)?.[0] || [];
+							const formStateValues = Object.keys(formState?.values) || [];
+							addressdetailsSubSection?.fields?.map(item => {
+								if (formStateValues?.includes(item?.db_key)) {
+									displayAddressDetailsSubsection = false;
+								}
+								return null;
+							});
+						}
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
 									<UI_SECTIONS.SubSectionHeader>
-										{sub_section.name}
+										{sub_section?.id !== CONST.ADDRESS_DETAILS_SUB_SECTION_ID &&
+											sub_section?.name}
+
+										{sub_section?.id === CONST.ADDRESS_DETAILS_SUB_SECTION_ID &&
+											!displayAddressDetailsSubsection &&
+											sub_section?.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
 								<UI_SECTIONS.FormWrapGrid>
