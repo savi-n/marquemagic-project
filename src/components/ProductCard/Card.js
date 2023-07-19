@@ -38,6 +38,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [customerList, setCustomerList] = useState([]);
 	const [gettingGeoLocation, setGettingGeoLocation] = useState(false);
 	const [selectedCustomer, setSelectedCustomer] = useState(null);
+	const [customerId, setCustomerId] = useState('');
 	const [
 		isCustomerVerificationOTPModal,
 		setIsCustomerVerificationOTPModal,
@@ -104,13 +105,20 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const onProceedSelectCustomer = async () => {
 		try {
 			setSendingOTP(true);
-			const reqBody = {
-				customer_id:
-					customerList?.filter(
-						c => c.customer_id === selectedCustomer?.customer_id
-					)?.[0]?.customer_id || '137453244',
-			};
-			const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
+			// const reqBody = {
+			// 	customer_id:
+			// 		customerList?.filter(
+			// 			c => c.customer_id === selectedCustomer?.customer_id
+			// 		)?.[0]?.customer_id || '137453244',
+			// };
+			// const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
+			const customer_id =
+				customerList?.filter(
+					c => c.customer_id === selectedCustomer?.customer_id
+				)?.[0]?.customer_id || ''; // '137453244';
+			setCustomerId(customer_id);
+			const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, { customer_id });
+
 			setSendOtpRes(sendOtpRes?.data?.data || {});
 			// console.log('Card-sendOtpRes-', { sendOtpRes });
 			setIsCustomerListModalOpen(false);
@@ -319,6 +327,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			{isCustomerVerificationOTPModal && (
 				<CustomerVerificationOTPModal
 					show={isCustomerVerificationOTPModal}
+					customerId={customerId}
 					onClose={() => {
 						setIsCustomerVerificationOTPModal(false);
 						setIsCustomerListModalOpen(false);

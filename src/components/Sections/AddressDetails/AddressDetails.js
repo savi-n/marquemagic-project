@@ -111,8 +111,8 @@ const AddressDetails = props => {
 	const [biometricRes, setBiometricRes] = useState(null);
 
 	const selectedIncomeType =
-		`${sectionData?.director_details?.income_type}` === '0'
-			? 0
+		sectionData?.director_details?.income_type === 0
+			? '0'
 			: sectionData?.director_details?.income_type ||
 			  selectedDirector?.income_type ||
 			  '';
@@ -151,10 +151,10 @@ const AddressDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
-	// const selectedVerifyWithOtpSubField = getSelectedSubField({
-	// 	fields: selectedPermanentAadhaarField?.sub_fields || [],
-	// 	isApplicant,
-	// });
+	const selectedVerifyWithOtpSubField = getSelectedSubField({
+		fields: selectedPermanentAadhaarField?.sub_fields || [],
+		isApplicant,
+	});
 
 	const onClickVerifyWithOtp = async () => {
 		try {
@@ -169,32 +169,40 @@ const AddressDetails = props => {
 			}
 
 			// Check for federal bank url redirect flag
-			// if (selectedVerifyWithOtpSubField?.redirect_url) {
-			// 	try {
-			// 		setVerifyingWithOtp(true);
-			// 		// const reqBody = {};
-			// 		// const sessionIdRes = await axios.post(
-			// 		// 	`${API.CUSTOMER_FETCH_API_END_POINT}${
-			// 		// 		selectedVerifyWithOtpSubField?.redirect_url
-			// 		// 	}`
-			// 		// );
-			// 		// console.log('sessionIdRes-', sessionIdRes);
-			// 		const reqBody = {
-			// 			session_id: `eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJGaW5haHViIiwiaWF0IjoxNjg2ODI2NDE1LCJleHAiOjE2ODY4MjY3MTUsImF1ZCI6IjEifQ.c7FeC2PxBe-biDFvhkRaTP2Crc5QWQnT3v8Nfyhy24-Ku9JViYTsDWzMQQ5aENxO_3WXG3Pr8u60BGuiYkqonQ`,
-			// 			redirectUrl: 'https://clix.loan2pal.com',
-			// 			option: 'biometric',
-			// 		};
-			// 		const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
-			// 		setIsBiometricModalOpen(true);
-			// 		setBiometricRes(redirectRes?.data || {});
-			// 		// console.log('redirectRes-', redirectRes);
-			// 	} catch (error) {
-			// 		console.error('error-addressdetails-aadhaarurlredirect-', error);
-			// 	} finally {
-			// 		setVerifyingWithOtp(false);
-			// 		return;
-			// 	}
-			// }
+			if (selectedVerifyWithOtpSubField?.redirect_url) {
+				try {
+					setVerifyingWithOtp(true);
+					// const reqBody = {};
+					const sessionIdRes = await axios.post(
+						API.GENERATE_SESSION_ID_AADHAAR_REDIRECT
+					);
+					const sessionId = await sessionIdRes?.data?.data?.SessionId;
+					if (!sessionId || sessionIdRes.status === 'nok') {
+						addToast({
+							message: 'Error verifying aadhaar, Please try after some time.',
+							type: 'error',
+						});
+						console.error(
+							'error-generate session id-',
+							sessionIdRes.message || sessionIdRes.data.message
+						);
+					}
+					const reqBody = {
+						session_id: sessionId && sessionId,
+						redirectUrl: 'https://clix.loan2pal.com',
+						option: 'biometric',
+					};
+					const redirectRes = await axios.post(API.AADHAAR_REDIRECT, reqBody);
+					setIsBiometricModalOpen(true);
+					setBiometricRes(redirectRes?.data || {});
+					// console.log('redirectRes-', redirectRes);
+				} catch (error) {
+					console.error('error-addressdetails-aadhaarurlredirect-', error);
+				} finally {
+					setVerifyingWithOtp(false);
+					return;
+				}
+			}
 			// -- Check for federal bank url redirect flag
 
 			setVerifyingWithOtp(true);
