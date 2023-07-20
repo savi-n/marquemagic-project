@@ -651,7 +651,7 @@ const BusinessDetails = props => {
 													formState?.values?.[field?.for_type_name]
 												)
 											)
-												return false;
+												return null;
 										}
 										if (
 											field.type === 'file' &&
