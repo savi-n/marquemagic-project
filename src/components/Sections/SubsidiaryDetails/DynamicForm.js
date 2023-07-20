@@ -73,6 +73,7 @@ const DynamicForm = props => {
 		const preData = {
 			...prefillData,
 			subsidiary_name: `${prefillData?.business_name || ''}`,
+			relation_subsidiary: prefillData?.relation || '',
 		};
 		return preData?.[field?.name];
 	};
