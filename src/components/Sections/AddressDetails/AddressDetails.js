@@ -1025,6 +1025,7 @@ const AddressDetails = props => {
 																docTypeOptions={selectedDocumentTypes}
 																addressProofUploadSection={sub_section}
 																selectedDirector={selectedDirector}
+																isAadhaarVerified={!!sectionData?.director_details?.is_aadhaar_verified_with_otp}
 																addressProofError={
 																	isPermanent
 																		? permanentAddressProofError
@@ -1047,6 +1048,13 @@ const AddressDetails = props => {
 																		? setOtherPresentCacheDocTemp
 																		: setPresentCacheDocumentsTemp
 																}
+																setOtherCacheDocumentsTemp={isPermanent
+																	? selectedAddressProofId?.includes('others')
+																		? setPermanentCacheDocumentsTemp
+																		: setOtherPermanentCacheDocTemp
+																	: selectedAddressProofId?.includes('others')
+																	? setPresentCacheDocumentsTemp
+																	: setOtherPresentCacheDocTemp}
 																selectedDocTypeId={selectedDocTypeId}
 																selectedVerifyOtp={selectedVerifyOtp}
 																isEditLoan={isEditLoan}
@@ -1058,7 +1066,7 @@ const AddressDetails = props => {
 													);
 												}
 											}
-
+											//setOtherPresentCacheDocTemp
 											if (
 												!!selectedVerifyOtp?.res &&
 												sub_section?.id ===

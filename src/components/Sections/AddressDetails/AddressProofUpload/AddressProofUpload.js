@@ -50,7 +50,9 @@ const AddressProofUpload = props => {
 		verifyingWithOtp,
 		cacheDocumentsTemp,
 		setCacheDocumentsTemp,
+		setOtherCacheDocumentsTemp,
 		selectedDocTypeId,
+		isAadhaarVerified,
 		onChangeFormStateField,
 		isSectionCompleted,
 		selectedVerifyOtp,
@@ -763,6 +765,7 @@ const AddressProofUpload = props => {
 			})
 		);
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+			if (key === 'aadhar' && isAadhaarVerified) return null;
 			onChangeFormStateField({
 				name: `${prefix}${key}`,
 				value: '',
@@ -774,6 +777,7 @@ const AddressProofUpload = props => {
 		// 	newCacheDocumentTemp,
 		// });
 		setCacheDocumentsTemp(newCacheDocumentTemp);
+		setOtherCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	useEffect(() => {
