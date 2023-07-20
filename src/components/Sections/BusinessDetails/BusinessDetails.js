@@ -160,7 +160,8 @@ const BusinessDetails = props => {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
 					source: API.APP_CLIENT,
-					name: formState?.values?.first_name,
+					name:
+						formState?.values?.first_name || formState?.values?.business_name,
 					mobileNo: formState?.values?.business_mobile_no,
 					addrr1: '',
 					addrr2: '',
