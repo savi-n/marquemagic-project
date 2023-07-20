@@ -174,7 +174,9 @@ const ProfileUpload = props => {
 				if (section === 'documentUpload') {
 					// console.log(isSelectedProductTypeBusiness);
 					// let director = isSelectedProductTypeBusiness?direc:selectedDirector
-					let director_id = !selectedDirector?.directorId ? '0' : selectedDirector?.directorId;
+					let director_id = !selectedDirector?.directorId
+						? '0'
+						: selectedDirector?.directorId;
 					// if (!!isSelectedProductTypeBusiness) {
 					// 	director_id = '0';
 					// }
@@ -219,7 +221,9 @@ const ProfileUpload = props => {
 							doc_type_id: field?.doc_type?.[selectedIncomeType]
 								? field?.doc_type?.[selectedIncomeType]
 								: field?.doc_type?.[businessType],
-							directorId: selectedDirector.directorId,
+							directorId: !selectedDirector?.directorId
+								? '0'
+								: selectedDirector?.directorId,
 							doc_name: resp?.data?.lender_document_data?.doc_name,
 							document_key: resp?.data?.lender_document_data?.doc_name,
 							loan_bank_mapping_id:
