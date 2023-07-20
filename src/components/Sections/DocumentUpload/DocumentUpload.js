@@ -88,6 +88,7 @@ const DocumentUpload = props => {
 		selectedSection,
 		userToken,
 		isGeoTaggingEnabled,
+		permission,
 	} = app;
 
 	const {
@@ -123,7 +124,35 @@ const DocumentUpload = props => {
 	const isCommentRequired = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
+	// starts
+	const selfieWithApplicantField = selectedSection?.sub_sections
+		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+		?.fields?.filter(
+			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
+		)?.[0];
 
+	const selfieWithCoapplicantField = selectedSection?.sub_sections
+		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+		?.fields?.filter(
+			field =>
+				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
+		)?.[0];
+
+	const isSelfieWithApplicantOrEntityRequired = !!selectedSection?.sub_sections
+		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+		?.fields?.filter(
+			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
+		)?.[0]?.rules?.required;
+
+	const isSelfieWithCoApplicantRequired = !!selectedSection?.sub_sections
+		?.filter(
+			item => item?.id === CONST.SELFIE_UPLOAD_COAPPLICANT_SECTION_ID
+		)?.[0]
+		?.fields?.filter(
+			field =>
+				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
+		)?.[0]?.rules?.required;
+	// ends
 	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
@@ -849,6 +878,11 @@ const DocumentUpload = props => {
 
 	const onSubmitCompleteApplication = async (data = {}) => {
 		const { goToNextSection } = data;
+
+		if (!validateOnSiteSelfie()) {
+			setOnSiteVerificationModal(true);
+			return;
+		}
 		// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
 		// if (isEditLoan) {
 		// 	const check = validateGeoTaggedDocsForApplicantCoapplicant();
@@ -1071,6 +1105,60 @@ const DocumentUpload = props => {
 		);
 	}
 
+	const validateOnSiteSelfie = () => {
+		// console.log({
+		// 	cacheDocuments,
+		// 	isSelfieWithApplicantOrEntityRequired,
+		// 	isSelfieWithCoApplicantRequired,
+		// 	selectedSection,
+		// 	selectedDirector,
+		// 	selfieWithApplicantField,
+		// 	selfieWithCoapplicantField,
+		// 	selectedProduct,
+		// 	directors,
+		// });
+		let allowProceed = true;
+		if (
+			permission?.geo_tagging?.geo_tagging &&
+			selfieWithApplicantField?.geo_tagging &&
+			isSelfieWithApplicantOrEntityRequired
+		) {
+			const docTypeId =
+				selfieWithApplicantField?.doc_type?.[
+					selectedDirector?.income_type || businessType
+				];
+			// console.log({ applicantdid: docTypeId });
+			const filteredApplicantDoc = cacheDocuments?.filter(item => {
+				return `${item?.doc_type_id}` === `${docTypeId}`;
+			});
+			if (filteredApplicantDoc?.length === 0) allowProceed = false;
+		}
+
+		if (
+			permission?.geo_tagging?.geo_tagging &&
+			selfieWithApplicantField?.geo_tagging &&
+			isSelfieWithCoApplicantRequired
+		) {
+			const coApplicants = Object.values(directors)?.filter(
+				dir => dir?.type_name === 'Co-applicant'
+			);
+			if (coApplicants?.length > 0) {
+				coApplicants?.map(dir => {
+					const docTypeId =
+						selfieWithCoapplicantField?.doc_type?.[
+							dir?.income_type || businessType
+						];
+					const filteredDoc = cacheDocuments?.filter(doc => {
+						return `${doc?.doc_type_id}` === `${docTypeId}`;
+					});
+					if (filteredDoc === 0) allowProceed = false;
+					return null;
+				});
+			}
+		}
+		return allowProceed;
+	};
+
 	const mandatoryDocumentTypeIds = [];
 	allDocumentTypes.map(doc => {
 		const UNIQ_DOC_ID = `${doc?.directorId}${doc?.doc_type_id}`;
@@ -1136,7 +1224,7 @@ const DocumentUpload = props => {
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
-		// console.log(cacheDocuments);
+	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
 		setOnsiteVerificationMsg(false);
@@ -1495,7 +1583,7 @@ const DocumentUpload = props => {
 				/>
 			) : null} */}
 
-			{isGeoTaggingEnabled && onSiteVerificationModal ? (
+			{onSiteVerificationModal ? (
 				<MandatoryOnsiteVerificationErrModal
 					onYes={closeVerificationErrModal}
 					errorImage={errorImage}
