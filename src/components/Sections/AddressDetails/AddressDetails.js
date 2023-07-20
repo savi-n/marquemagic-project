@@ -1025,6 +1025,7 @@ const AddressDetails = props => {
 																docTypeOptions={selectedDocumentTypes}
 																addressProofUploadSection={sub_section}
 																selectedDirector={selectedDirector}
+																isAadhaarVerified={!!sectionData?.director_details?.is_aadhaar_verified_with_otp}
 																addressProofError={
 																	isPermanent
 																		? permanentAddressProofError
