@@ -50,6 +50,7 @@ const AddressProofUpload = props => {
 		verifyingWithOtp,
 		cacheDocumentsTemp,
 		setCacheDocumentsTemp,
+		setOtherCacheDocumentsTemp,
 		selectedDocTypeId,
 		onChangeFormStateField,
 		isSectionCompleted,
@@ -774,6 +775,7 @@ const AddressProofUpload = props => {
 		// 	newCacheDocumentTemp,
 		// });
 		setCacheDocumentsTemp(newCacheDocumentTemp);
+		setOtherCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	useEffect(() => {

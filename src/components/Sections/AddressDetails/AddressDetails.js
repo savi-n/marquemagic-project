@@ -1047,6 +1047,13 @@ const AddressDetails = props => {
 																		? setOtherPresentCacheDocTemp
 																		: setPresentCacheDocumentsTemp
 																}
+																setOtherCacheDocumentsTemp={isPermanent
+																	? selectedAddressProofId?.includes('others')
+																		? setPermanentCacheDocumentsTemp
+																		: setOtherPermanentCacheDocTemp
+																	: selectedAddressProofId?.includes('others')
+																	? setPresentCacheDocumentsTemp
+																	: setOtherPresentCacheDocTemp}
 																selectedDocTypeId={selectedDocTypeId}
 																selectedVerifyOtp={selectedVerifyOtp}
 																isEditLoan={isEditLoan}
@@ -1058,7 +1065,7 @@ const AddressDetails = props => {
 													);
 												}
 											}
-
+											//setOtherPresentCacheDocTemp
 											if (
 												!!selectedVerifyOtp?.res &&
 												sub_section?.id ===
