@@ -645,14 +645,6 @@ const BusinessDetails = props => {
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
 										// const field = _.cloneDeep(f);
-										if (field?.for_type_name) {
-											if (
-												!field?.for_type.includes(
-													formState?.values?.[field?.for_type_name]
-												)
-											)
-												return null;
-										}
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -854,7 +846,14 @@ const BusinessDetails = props => {
 													formState.values.business_mobile_no;
 											}
 										}
-
+										if (field?.for_type_name) {
+											if (
+												!field?.for_type?.includes(
+													formState?.values?.[field?.for_type_name]
+												)
+											)
+												return null;
+										}
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
