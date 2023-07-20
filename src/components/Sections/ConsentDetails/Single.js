@@ -54,6 +54,7 @@ const Single = ({
 	const [isGstModalOpen, setModalOpen] = useState(false);
 	const [status, setStatus] = useState(rowData?.status);
 	const [disabled, setDisabled] = useState(false);
+	const [crimeCheck, setCrimeCheck] = useState(rowData?.status !== 'Yes');
 	// const dispatch = useDispatch();
 
 	const fetchHandle = async appObj => {
@@ -274,21 +275,17 @@ const Single = ({
 						/>
 					) : (
 						<UI.Buttons>
-							{/* <Button
-								width='100px'
-								name='Yes'
-								onClick={() => fetchHandle({ ...rowData, check: 'Yes' })}
-								disabled={
-									buttonDisabled || disabled || rowData?.status === 'Yes'
-								}
-							/> */}
 							<Button
 								width='80px'
-								name='No'
-								onClick={() => fetchHandle({ ...rowData, check: 'No' })}
-								disabled={
-									buttonDisabled || disabled || rowData?.status === 'No'
-								}
+								name={crimeCheck ? 'Yes' : 'No'}
+								onClick={() => {
+									setCrimeCheck(!crimeCheck);
+									fetchHandle({
+										...rowData,
+										check: crimeCheck ? 'Yes' : 'No',
+									});
+								}}
+								loading={loading}
 							/>
 						</UI.Buttons>
 					)}
