@@ -1044,6 +1044,7 @@ const BasicDetails = props => {
 												is_zero_not_allowed_for_first_digit: true,
 											};
 										}
+
 										if (
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
@@ -1067,7 +1068,6 @@ const BasicDetails = props => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
-
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -1177,6 +1177,13 @@ const BasicDetails = props => {
 										// });
 										addToast({
 											message: 'Profile is mandatory',
+											type: 'error',
+										});
+										return;
+									}
+									if (!isPanNumberExist && isPanUploadMandatory) {
+										addToast({
+											message: 'Pan Number is mandatory',
 											type: 'error',
 										});
 										return;
