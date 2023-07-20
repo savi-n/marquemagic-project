@@ -34,6 +34,7 @@ const Header = props => {
 	const [backToDashboard, setBackToDashboard] = useState(false);
 	const [loanRefId, setLoanRefId] = useState('');
 	const dispatch = useDispatch();
+	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl'));
 
 	useEffect(() => {
 		const params = queryString.parse(window.location.search);
@@ -141,7 +142,11 @@ const Header = props => {
 				<UI.ButtonBackToDashboardWrapper>
 					<Button onClick={redirectDashboard} customStyle={{ width: 'auto' }}>
 						<span>
-							{loanRefId ? 'BACK TO LOAN LISTING' : 'BACK TO DASHBOARD'}
+							{loanRefId
+								? wt_lbl?.solution_type === 'CaseDOS'
+									? 'BACK TO CASE LISTING'
+									: 'BACK TO LOAN LISTING'
+								: 'BACK TO DASHBOARD'}
 						</span>
 					</Button>
 				</UI.ButtonBackToDashboardWrapper>

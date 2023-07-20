@@ -248,6 +248,11 @@ const PanUpload = props => {
 					value: DOB || '',
 				});
 			}
+
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+				value: 1 || '',
+			});
 			// if (!!companyRocData) {
 			// 	// console.log({ companyRocData });
 			// 	onChangeFormStateField({
