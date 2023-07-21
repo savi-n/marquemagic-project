@@ -30,6 +30,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
+import * as CONST from './const';
 
 const AddressProofUpload = props => {
 	const {
@@ -49,7 +50,9 @@ const AddressProofUpload = props => {
 		verifyingWithOtp,
 		cacheDocumentsTemp,
 		setCacheDocumentsTemp,
+		setOtherCacheDocumentsTemp,
 		selectedDocTypeId,
+		isAadhaarVerified,
 		onChangeFormStateField,
 		isSectionCompleted,
 		selectedVerifyOtp,
@@ -67,6 +70,8 @@ const AddressProofUpload = props => {
 	// 	cacheDocumentsTemp,
 	// 	setCacheDocumentsTemp,
 	// 	selectedDocTypeId,
+	// 	val: formState.values,
+	// 	directorDetails,
 	// });
 	let { addressProofError } = props;
 	const { app, application } = useSelector(state => state);
@@ -285,7 +290,16 @@ const AddressProofUpload = props => {
 				frontFormData.append('req_type', SELECTED_REQ_TYPE);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
-
+				if (
+					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
+				) {
+					frontFormData.append(
+						'passport_no',
+						directorDetails?.passport_no || ''
+					);
+				}
+				frontFormData.append('business_id', application?.businessId);
 				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
 				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
 				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
@@ -339,7 +353,16 @@ const AddressProofUpload = props => {
 				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
 				backFormData.append('process_type', 'extraction');
 				backFormData.append('document', selectedAddressProofFiles?.[1]?.file);
-
+				if (
+					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
+				) {
+					backFormData.append(
+						'passport_no',
+						directorDetails?.passport_no || ''
+					);
+				}
+				backFormData.append('business_id', application?.businessId);
 				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
 				const backExtractionStatus = backExtractionRes?.data?.status || '';
 				const backExtractionMsg = backExtractionRes?.data?.message || '';
@@ -427,7 +450,16 @@ const AddressProofUpload = props => {
 				'document',
 				selectedAddressProofFiles?.[0]?.file
 			);
-
+			if (
+				selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+				selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
+			) {
+				frontOnlyFormData.append(
+					'passport_no',
+					directorDetails?.passport_no || ''
+				);
+			}
+			frontOnlyFormData.append('business_id', application?.businessId);
 			const frontOnlyExtractionRes = await getKYCData(
 				frontOnlyFormData,
 				clientToken
@@ -733,6 +765,7 @@ const AddressProofUpload = props => {
 			})
 		);
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+			if (key === 'aadhar' && isAadhaarVerified) return null;
 			onChangeFormStateField({
 				name: `${prefix}${key}`,
 				value: '',
@@ -744,6 +777,7 @@ const AddressProofUpload = props => {
 		// 	newCacheDocumentTemp,
 		// });
 		setCacheDocumentsTemp(newCacheDocumentTemp);
+		setOtherCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	useEffect(() => {

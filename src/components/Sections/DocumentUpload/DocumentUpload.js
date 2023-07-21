@@ -88,6 +88,7 @@ const DocumentUpload = props => {
 		selectedSection,
 		userToken,
 		isGeoTaggingEnabled,
+		permission,
 	} = app;
 
 	const {
@@ -123,7 +124,35 @@ const DocumentUpload = props => {
 	const isCommentRequired = !!selectedSection?.sub_sections?.[0]?.fields?.filter(
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
+	// starts
+	const selfieWithApplicantField = selectedSection?.sub_sections
+		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+		?.fields?.filter(
+			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
+		)?.[0];
 
+	const selfieWithCoapplicantField = selectedSection?.sub_sections
+		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+		?.fields?.filter(
+			field =>
+				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
+		)?.[0];
+
+	const isSelfieWithApplicantOrEntityRequired = !!selectedSection?.sub_sections
+		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+		?.fields?.filter(
+			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
+		)?.[0]?.rules?.required;
+
+	const isSelfieWithCoApplicantRequired = !!selectedSection?.sub_sections
+		?.filter(
+			item => item?.id === CONST.SELFIE_UPLOAD_COAPPLICANT_SECTION_ID
+		)?.[0]
+		?.fields?.filter(
+			field =>
+				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
+		)?.[0]?.rules?.required;
+	// ends
 	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
@@ -607,7 +636,7 @@ const DocumentUpload = props => {
 				try {
 					setSubmitting(true);
 					let section = selectedSection?.sub_sections?.filter(
-						section => section.id === 'on_site_selfie_with_applicant'
+						section => section?.id === CONST.SELFIE_UPLOAD_SECTION_ID
 					)?.[0];
 					let selectedField = section?.fields?.filter(field => {
 						if (field?.hasOwnProperty('is_applicant')) {
@@ -849,6 +878,11 @@ const DocumentUpload = props => {
 
 	const onSubmitCompleteApplication = async (data = {}) => {
 		const { goToNextSection } = data;
+
+		if (!validateOnSiteSelfie()) {
+			setOnSiteVerificationModal(true);
+			return;
+		}
 		// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
 		// if (isEditLoan) {
 		// 	const check = validateGeoTaggedDocsForApplicantCoapplicant();
@@ -933,7 +967,12 @@ const DocumentUpload = props => {
 			// console.log('onSubmitCompleteApplication-documentUploadRes', {
 			// 	documentUploadRes,
 			// });
-			if (goToNextSection) {
+
+			if (
+				(goToNextSection ||
+					selectedProduct?.product_details?.otp_authentication === false) &&
+				(isEditLoan || (!isEditLoan && !isViewLoan))
+			) {
 				onSaveAndProceed();
 			}
 		} catch (error) {
@@ -999,19 +1038,34 @@ const DocumentUpload = props => {
 	};
 
 	let displayProceedButton = null;
-	let applicationOTPAuthentication = false;
-	if (selectedProduct?.product_details?.otp_authentication) {
-		applicationOTPAuthentication = true;
-		if (isEditLoan && !isDraftLoan) {
-			// skip otp in edit mode
-			applicationOTPAuthentication = false;
-		} else if (
+	let applicationOTPAuthentication = true;
+	// if (selectedProduct?.product_details?.otp_authentication ) {
+	// 	applicationOTPAuthentication = true;
+	// 	if (isEditLoan && !isDraftLoan) {
+	// 		// skip otp in edit mode
+	// 		applicationOTPAuthentication = false;
+	// 	} else if (
+	// 		selectedProduct?.product_details
+	// 			?.if_aadhaar_verified_skip_otp_authentication &&
+	// 		isAadhaarVerified
+	// 	) {
+	// 		applicationOTPAuthentication = false;
+	// 	}
+	// }
+
+	if (selectedProduct?.product_details?.otp_authentication !== false) {
+		if (
 			selectedProduct?.product_details
 				?.if_aadhaar_verified_skip_otp_authentication &&
 			isAadhaarVerified
 		) {
 			applicationOTPAuthentication = false;
 		}
+		if (isEditLoan && !isDraftLoan) {
+			applicationOTPAuthentication = false;
+		}
+	} else {
+		applicationOTPAuthentication = false;
 	}
 	// selectedProduct?.product_details?.otp_authentication &&
 	// (isDraftLoan || !isEditLoan)
@@ -1050,6 +1104,60 @@ const DocumentUpload = props => {
 			/>
 		);
 	}
+
+	const validateOnSiteSelfie = () => {
+		// console.log({
+		// 	cacheDocuments,
+		// 	isSelfieWithApplicantOrEntityRequired,
+		// 	isSelfieWithCoApplicantRequired,
+		// 	selectedSection,
+		// 	selectedDirector,
+		// 	selfieWithApplicantField,
+		// 	selfieWithCoapplicantField,
+		// 	selectedProduct,
+		// 	directors,
+		// });
+		let allowProceed = true;
+		if (
+			permission?.geo_tagging?.geo_tagging &&
+			selfieWithApplicantField?.geo_tagging &&
+			isSelfieWithApplicantOrEntityRequired
+		) {
+			const docTypeId =
+				selfieWithApplicantField?.doc_type?.[
+					selectedDirector?.income_type || businessType
+				];
+			// console.log({ applicantdid: docTypeId });
+			const filteredApplicantDoc = cacheDocuments?.filter(item => {
+				return `${item?.doc_type_id}` === `${docTypeId}`;
+			});
+			if (filteredApplicantDoc?.length === 0) allowProceed = false;
+		}
+
+		if (
+			permission?.geo_tagging?.geo_tagging &&
+			selfieWithApplicantField?.geo_tagging &&
+			isSelfieWithCoApplicantRequired
+		) {
+			const coApplicants = Object.values(directors)?.filter(
+				dir => dir?.type_name === 'Co-applicant'
+			);
+			if (coApplicants?.length > 0) {
+				coApplicants?.map(dir => {
+					const docTypeId =
+						selfieWithCoapplicantField?.doc_type?.[
+							dir?.income_type || businessType
+						];
+					const filteredDoc = cacheDocuments?.filter(doc => {
+						return `${doc?.doc_type_id}` === `${docTypeId}`;
+					});
+					if (filteredDoc === 0) allowProceed = false;
+					return null;
+				});
+			}
+		}
+		return allowProceed;
+	};
 
 	const mandatoryDocumentTypeIds = [];
 	allDocumentTypes.map(doc => {
@@ -1116,7 +1224,7 @@ const DocumentUpload = props => {
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
-
+	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
 		setOnsiteVerificationMsg(false);
@@ -1475,7 +1583,7 @@ const DocumentUpload = props => {
 				/>
 			) : null} */}
 
-			{isGeoTaggingEnabled && onSiteVerificationModal ? (
+			{onSiteVerificationModal ? (
 				<MandatoryOnsiteVerificationErrModal
 					onYes={closeVerificationErrModal}
 					errorImage={errorImage}
@@ -1731,7 +1839,9 @@ const DocumentUpload = props => {
 						disabled={isViewLoan}
 						onChange={() => {
 							setDeclareCheck(!declareCheck);
-							setOnsiteVerificationMsg(true);
+							selectedSection?.sub_sections?.filter(
+								section => section?.id === CONST.SELFIE_UPLOAD_SECTION_ID
+							)?.[0] && setOnsiteVerificationMsg(true);
 						}}
 						bg='blue'
 					/>

@@ -31,6 +31,11 @@ function pastDatesOnly(value) {
 	return !moment().isAfter(value);
 }
 
+function ageLimit(value, ageLimit) {
+	// console.log(moment().diff(value, 'years', true) > ageLimit)
+	return moment().diff(value, 'years', true) < ageLimit;
+}
+
 function validatePattern(pattern) {
 	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
@@ -90,6 +95,10 @@ const VALIDATION_RULES = {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
 	},
+	age_limit: {
+		func: ageLimit,
+		message: 'The applicant should be above the age limit',
+	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
 		message: 'Invalid IFSC (ex: SBIN0000304)',
@@ -132,7 +141,12 @@ const VALIDATION_RULES = {
 		},
 		message: 'Upload agreement is mandatory',
 	},
+	mobile_number: {
+		func: validatePattern(/^[6789]\d{9}$/),
+		message: 'Enter valid Phone Number',
+	},
 };
+
 function validate(rules, value) {
 	if (!rules || Object.keys(rules || {}).length === 0) return false;
 	// all rules will be applied only if required: true or value exists in the field

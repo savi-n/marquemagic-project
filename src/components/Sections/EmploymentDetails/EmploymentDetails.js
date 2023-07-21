@@ -213,6 +213,44 @@ const EmploymentDetails = () => {
 
 	const onSaveAndProceedSme = async () => {
 		try {
+			// if (selectedProduct?.product_details?.is_coapplicant_mandatory) {
+			// 	let allowProceed = true;
+			// 	const coApplicants = Object.values(directors)?.filter(dir => {
+			// 		return dir?.type_name === CONST_SECTIONS.CO_APPLICANT_TYPE_NAME;
+			// 	});
+
+			// 	if (
+			// 		selectedDirector?.type_name !==
+			// 			CONST_SECTIONS.CO_APPLICANT_TYPE_NAME &&
+			// 		coApplicants?.length === 0
+			// 	) {
+			// 		addToast({
+			// 			message: 'Please fill all the detials in atleast one Co-Applicant',
+			// 			type: 'error',
+			// 		});
+			// 		return;
+			// 	}
+
+			// 	coApplicants?.map(dir => {
+			// 		if (
+			// 			selectedDirector?.type_name !==
+			// 				CONST_SECTIONS.CO_APPLICANT_TYPE_NAME &&
+			// 			dir?.sections?.length < 3
+			// 		) {
+			// 			allowProceed = false;
+			// 		}
+			// 		return null;
+			// 	});
+
+			// 	if (allowProceed === false) {
+			// 		addToast({
+			// 			message: 'Please fill all the detials in atleast one Co-Applicant',
+			// 			type: 'error',
+			// 		});
+			// 		return;
+			// 	}
+			// }
+
 			if (`${selectedDirectorId}` !== `${Object.keys(directors)?.[0]}`) {
 				const validateDirector = validateDirectorForSme(directors);
 				if (validateDirector?.allowProceed === false) {
@@ -319,15 +357,15 @@ const EmploymentDetails = () => {
 
 	let displayProceedCTA = true;
 	let displayAddCoApplicantCTA = true;
+	if (selectedProduct?.product_details?.is_coapplicant_mandatory) {
+		const coApplicants = Object.values(directors)?.filter(dir => {
+			return dir?.type_name === CONST_SECTIONS.CO_APPLICANT_TYPE_NAME;
+		});
 
-	// TODO: varun validate CTA based on coapplicant count
-	// if (
-	// 	isViewLoan ||
-	// 	(selectedProduct?.product_details?.is_coapplicant_mandatory &&
-	// 		Object.keys(coApplicants || {})?.length <= 0)
-	// ) {
-	// 	displayProceedCTA = false;
-	// }
+		if (isViewLoan || coApplicants?.length <= 0) {
+			displayProceedCTA = false;
+		}
+	}
 
 	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
 		displayAddCoApplicantCTA = false;
@@ -345,11 +383,30 @@ const EmploymentDetails = () => {
 			) : (
 				<>
 					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						let displayAddressDetailsSubsection = true;
+						if (sub_section?.id === CONST.ADDRESS_DETAILS_SUB_SECTION_ID) {
+							const addressdetailsSubSection =
+								selectedSection?.sub_sections?.filter(
+									item => item?.id === CONST.ADDRESS_DETAILS_SUB_SECTION_ID
+								)?.[0] || [];
+							const formStateValues = Object.keys(formState?.values) || [];
+							addressdetailsSubSection?.fields?.map(item => {
+								if (formStateValues?.includes(item?.db_key)) {
+									displayAddressDetailsSubsection = false;
+								}
+								return null;
+							});
+						}
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (
 									<UI_SECTIONS.SubSectionHeader>
-										{sub_section.name}
+										{sub_section?.id !== CONST.ADDRESS_DETAILS_SUB_SECTION_ID &&
+											sub_section?.name}
+
+										{sub_section?.id === CONST.ADDRESS_DETAILS_SUB_SECTION_ID &&
+											!displayAddressDetailsSubsection &&
+											sub_section?.name}
 									</UI_SECTIONS.SubSectionHeader>
 								) : null}
 								<UI_SECTIONS.FormWrapGrid>

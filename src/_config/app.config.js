@@ -147,7 +147,8 @@ const PINCODE_RESPONSE = 'pincode-response';
 
 const ORIGIN = 'nconboarding';
 const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
-const UDYAM_REGEX = /^UDYAM-\d{2}-\d{2}-\d{7}$/;
+// Valid UDYAM number : UDYAM-2_letter_denoting_state_code-2_digits-7_digits
+const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
 
 export {
 	API_END_POINT,

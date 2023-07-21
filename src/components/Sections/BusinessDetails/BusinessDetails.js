@@ -160,7 +160,8 @@ const BusinessDetails = props => {
 					email: formState?.values?.email || '',
 					white_label_id: whiteLabelId,
 					source: API.APP_CLIENT,
-					name: formState?.values?.first_name,
+					name:
+						formState?.values?.first_name || formState?.values?.business_name,
 					mobileNo: formState?.values?.business_mobile_no,
 					addrr1: '',
 					addrr2: '',
@@ -194,10 +195,27 @@ const BusinessDetails = props => {
 				application,
 				selectedLoanProductId,
 			});
+
 			buissnessDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId || borrowerUserId;
 
 			buissnessDetailsReqBody.data.business_details.loan_document = [];
+
+			// changes for gst selection starts
+			// TODO:Bikash - modify gst component such that it should have the all the gst's as value.
+			if (!completedSections?.includes(selectedSectionId)) {
+				const firstActiveGst = gstin?.data?.data?.filter(
+					gstObj => gstObj?.status !== 'Inactive'
+				)?.[0]?.gstin;
+
+				buissnessDetailsReqBody.data.business_details.gstin = firstActiveGst;
+			}
+
+			if (completedSections?.includes(selectedSectionId)) {
+				delete buissnessDetailsReqBody.data.business_details.gstin;
+			}
+			// changes for gst selection ends
+
 			if (!!companyRocData && Object.values(companyRocData)?.length > 0)
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
@@ -628,14 +646,6 @@ const BusinessDetails = props => {
 								<UI_SECTIONS.FormWrapGrid>
 									{sub_section?.fields?.map((field, fieldIndex) => {
 										// const field = _.cloneDeep(f);
-										if (field?.for_type_name) {
-											if (
-												!field?.for_type.includes(
-													formState?.values?.[field?.for_type_name]
-												)
-											)
-												return false;
-										}
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -837,7 +847,14 @@ const BusinessDetails = props => {
 													formState.values.business_mobile_no;
 											}
 										}
-
+										if (field?.for_type_name) {
+											if (
+												!field?.for_type?.includes(
+													formState?.values?.[field?.for_type_name]
+												)
+											)
+												return null;
+										}
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}

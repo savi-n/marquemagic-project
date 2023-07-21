@@ -63,6 +63,7 @@ export default function IfscList(props) {
 			disabled={field?.disabled || isViewLoan}
 			// onIfscChange={onIfscChange}
 			rules={field.rules}
+			errorMessage={'IFSC Not Available. Please check with the Support Team.'}
 		/>
 	);
 }
