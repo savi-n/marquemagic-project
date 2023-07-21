@@ -438,7 +438,7 @@ const PanUpload = props => {
 			});
 			onChangeFormStateField({
 				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
-				value: `${formattedCompanyData?.BusinessType}` || 0 || '',
+				value: `${formattedCompanyData?.BusinessType}` || '0' || '',
 			});
 
 			onChangeFormStateField({
