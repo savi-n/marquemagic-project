@@ -174,7 +174,8 @@ const LiabilitysDetails = props => {
 															<strong>
 																{formatINR(
 																	prefillData?.liability_amount ||
-																		prefillData?.outstanding_balance
+																		prefillData?.outstanding_balance ||
+																		prefillData?.emi_amount
 																)}
 															</strong>
 														</UI_SECTIONS.AccordianHeaderData>
