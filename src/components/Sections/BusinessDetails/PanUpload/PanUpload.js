@@ -238,6 +238,13 @@ const PanUpload = props => {
 					value: first_name || '',
 				});
 			}
+			if(!panExtractionData?.isBusinessPan){
+				onChangeFormStateField({
+					name:CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+					value: 1,
+				}
+				)
+			}
 			if (panExtractionData?.DOB) {
 				let DOB = panExtractionData?.DOB;
 				DOB = DOB?.split('/')
@@ -249,10 +256,6 @@ const PanUpload = props => {
 				});
 			}
 
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
-				value: 1 || '',
-			});
 			// if (!!companyRocData) {
 			// 	// console.log({ companyRocData });
 			// 	onChangeFormStateField({

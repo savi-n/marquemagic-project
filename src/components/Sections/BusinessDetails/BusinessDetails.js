@@ -468,7 +468,7 @@ const BusinessDetails = props => {
 				)
 					setCompanyRocData(
 						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
-					);
+					)
 				if (!businessType) {
 					dispatch(
 						setBusinessType(
