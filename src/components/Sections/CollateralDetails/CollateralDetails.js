@@ -128,29 +128,25 @@ const CollateralDetails = () => {
 
 	collats_from_asset &&
 		collats_from_asset.map(collats =>
-			isCreateFormOpen ? (
-				!exclude_ids.includes(`${collats.id}`) &&
-				newOptions.push({
-					value: `${collats.id}`,
-					name: `${
-						collats?.director_id === 0
-							? businessName
-							: directors?.[collats?.director_id]?.fullName
-					} - Survey # ${collats.survey_no}`,
-				})
-			)
-			:
-			(
-				// !exclude_ids.includes(`${collats.id}`) &&
-				newOptions.push({
-					value: `${collats.id}`,
-					name: `${
-						collats?.director_id === 0
-							? businessName
-							: directors?.[collats?.director_id]?.fullName
-					} - Survey # ${collats.survey_no}`,
-				})
-			)
+			isCreateFormOpen
+				? !exclude_ids.includes(`${collats.id}`) &&
+				  newOptions.push({
+						value: `${collats.id}`,
+						name: `${
+							collats?.director_id === 0
+								? businessName
+								: directors?.[collats?.director_id]?.fullName
+						} - Survey # ${collats.survey_no}`,
+				  })
+				: // !exclude_ids.includes(`${collats.id}`) &&
+				  newOptions.push({
+						value: `${collats.id}`,
+						name: `${
+							collats?.director_id === 0
+								? businessName
+								: directors?.[collats?.director_id]?.fullName
+						} - Survey # ${collats.survey_no}`,
+				  })
 		);
 
 	const newSectons = _.cloneDeep(selectedSection);
@@ -203,7 +199,7 @@ const CollateralDetails = () => {
 								nature_of_ownership: addressData?.owned_type || '',
 								property_occupant: addressData?.current_occupant || '',
 							};
-							console.log('prefilldata-', prefillData);
+							// console.log('prefilldata-', prefillData);
 							return (
 								<UI_SECTIONS.AccordianWrapper key={`accordian-${sectionIndex}`}>
 									<UI_SECTIONS.AccordianHeader>
@@ -211,7 +207,7 @@ const CollateralDetails = () => {
 											<>
 												<UI_SECTIONS.AccordianHeaderData>
 													<span>Collateral Type:</span>
-													<strong>{prefillData?.nature_of_property}</strong>
+													<strong>{prefillData?.collateral_type}</strong>
 												</UI_SECTIONS.AccordianHeaderData>
 												<UI_SECTIONS.AccordianHeaderData>
 													{/* <span>Type of Assets:</span>
