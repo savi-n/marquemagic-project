@@ -241,7 +241,7 @@ const PanUpload = props => {
 			if(!panExtractionData?.isBusinessPan){
 				onChangeFormStateField({
 					name:CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
-					value: 1,
+					value: '1',
 				}
 				)
 			}
