@@ -17,6 +17,14 @@ const Single = ({
 	rowData,
 	fetchConsentDetails,
 }) => {
+
+	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
+	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field)
+	// console.log(mandatoryFieldObj);
+	const is_equifax_otp_required = mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
+	// const is_equifax_otp_required = true;
+
+
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
 		'Aadhaar Number': 'aadhaar',
@@ -71,6 +79,11 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
+
+		if(sections[section] === 'bureau' && !!is_equifax_otp_required){
+			payLoad.is_equifax_otp_required = is_equifax_otp_required;
+		}
+
 		if (
 			sections[section] === 'udyam' &&
 			(!appObj?.udyamNum || appObj?.udyamNum === '--')
