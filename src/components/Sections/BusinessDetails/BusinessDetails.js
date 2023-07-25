@@ -182,6 +182,8 @@ const BusinessDetails = props => {
 			} else {
 				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
 			}
+			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
+
 			const selectedLoanProductId =
 				selectedProduct?.product_id?.[selectedIncomeType] || '';
 
@@ -200,6 +202,7 @@ const BusinessDetails = props => {
 				newBorrowerUserId || businessUserId || borrowerUserId;
 
 			buissnessDetailsReqBody.data.business_details.loan_document = [];
+			buissnessDetailsReqBody.data.business_details.crime_check = crimeCheck;
 
 			// changes for gst selection starts
 			// TODO:Bikash - modify gst component such that it should have the all the gst's as value.
@@ -468,7 +471,7 @@ const BusinessDetails = props => {
 				)
 					setCompanyRocData(
 						JSON.parse(fetchRes?.data?.data?.company_master_data?.OUTPUT_JSON)
-					)
+					);
 				if (!businessType) {
 					dispatch(
 						setBusinessType(
