@@ -33,7 +33,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getDocumentCategoryName,
-	parseJSON,
+	// parseJSON,
 	getApiErrorMessage,
 	isDirectorApplicant,
 	formatLoanDocuments,
@@ -80,7 +80,7 @@ const DocumentUpload = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		isDraftLoan,
-		editLoanData,
+		// editLoanData,
 		userDetails,
 		isCorporate,
 		nextSectionId,
@@ -596,16 +596,48 @@ const DocumentUpload = props => {
 				}
 			};
 
-			const initializeCommentForOfficeUse = () => {
-				if (isEditOrViewLoan && editLoanData?.remarks) {
-					const allRemarks = parseJSON(editLoanData?.remarks);
-					const allCommentsForOfficeUse = [];
-					Object.keys(allRemarks)?.map(key => {
-						if (!!allRemarks?.[key]?.is_comment_for_office_use) {
-							allCommentsForOfficeUse.push(allRemarks[key]);
-						}
-						return null;
-					});
+			const initializeCommentForOfficeUse = async () => {
+				// if (isEditOrViewLoan && editLoanData?.remarks) {
+				// const allRemarks = parseJSON(editLoanData?.remarks);
+				// const allCommentsForOfficeUse = [];
+				// Object.keys(allRemarks)?.map(key => {
+				// 	if (!!allRemarks?.[key]?.is_comment_for_office_use) {
+				// 		allCommentsForOfficeUse.push(allRemarks[key]);
+				// 	}
+				// 	return null;
+				// });
+				// try {
+				// 	allCommentsForOfficeUse.sort(
+				// 		(a, b) => moment(b.datetime) - moment(a.datetime)
+				// 	);
+				// } catch (e) {}
+				// setCommentsFromEditLoanData(allCommentsForOfficeUse?.[0]?.comment);
+				// if (allCommentsForOfficeUse?.length > 0) {
+				// 	dispatch(
+				// 		setCommentsForOfficeUse(
+				// 			allCommentsForOfficeUse?.[0]?.comment || ''
+				// 		)
+				// 	);
+				// }
+				// console.log('allremarks-', {
+				// 	allRemarks,
+				// 	allCommentsForOfficeUse,
+				// 	newcomment: allCommentsForOfficeUse?.[0]?.comment || '',
+				// });
+				// }
+
+				// };
+				if (isEditOrViewLoan) {
+					const allCommentsRes = await axios.get(
+						`${API.GET_COMMENTS}?loanId=${loanId}`
+					);
+					const allCommentsForOfficeUse = allCommentsRes?.data?.data?.filter(
+						comment => comment?.is_comment_for_office_use
+					);
+					// console.log(
+					// 	'🚀 ~ file: DocumentUpload.js:632 ~ useEffect ~ allCommentsForOfficeUse:',
+					// 	allCommentsForOfficeUse
+					// );
 					try {
 						allCommentsForOfficeUse.sort(
 							(a, b) => moment(b.datetime) - moment(a.datetime)
@@ -619,11 +651,6 @@ const DocumentUpload = props => {
 							)
 						);
 					}
-					// console.log('allremarks-', {
-					// 	allRemarks,
-					// 	allCommentsForOfficeUse,
-					// 	newcomment: allCommentsForOfficeUse?.[0]?.comment || '',
-					// });
 				}
 			};
 			initializeDocTypeList();
