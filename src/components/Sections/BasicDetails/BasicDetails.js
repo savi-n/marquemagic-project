@@ -229,11 +229,10 @@ const BasicDetails = props => {
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
 				: profileUrl;
-			const isCrimeCheckPresent =
-				!!selectedProduct?.product_details?.crime_check === 'yes';
+			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
-				crime_check: isCrimeCheckPresent,
+				// crime_check: isCrimeCheckPresent,
 				values: {
 					...formState.values,
 					app_coordinates:
@@ -255,6 +254,9 @@ const BasicDetails = props => {
 			// always pass borrower user id from login api for create case / from edit loan data
 			basicDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId;
+			if (crimeCheck) {
+				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
+			}
 			if (addNewDirectorKey) {
 				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
 			} else if (selectedDirector) {
