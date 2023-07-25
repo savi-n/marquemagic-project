@@ -238,12 +238,11 @@ const PanUpload = props => {
 					value: first_name || '',
 				});
 			}
-			if(!panExtractionData?.isBusinessPan){
+			if (!panExtractionData?.isBusinessPan) {
 				onChangeFormStateField({
-					name:CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+					name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
 					value: '1',
-				}
-				)
+				});
 			}
 			if (panExtractionData?.DOB) {
 				let DOB = panExtractionData?.DOB;
@@ -256,6 +255,10 @@ const PanUpload = props => {
 				});
 			}
 
+			onChangeFormStateField({
+				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+				value: '1' || '',
+			});
 			// if (!!companyRocData) {
 			// 	// console.log({ companyRocData });
 			// 	onChangeFormStateField({
@@ -441,7 +444,7 @@ const PanUpload = props => {
 			});
 			onChangeFormStateField({
 				name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
-				value: formattedCompanyData?.BusinessType || '0' || '',
+				value: `${formattedCompanyData?.BusinessType}` || '0' || '',
 			});
 
 			onChangeFormStateField({
