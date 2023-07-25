@@ -33,7 +33,7 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import {
 	formatSectionReqBody,
 	getDocumentCategoryName,
-	parseJSON,
+	// parseJSON,
 	getApiErrorMessage,
 	isDirectorApplicant,
 	formatLoanDocuments,
@@ -80,7 +80,7 @@ const DocumentUpload = props => {
 		isEditLoan,
 		isEditOrViewLoan,
 		isDraftLoan,
-		editLoanData,
+		// editLoanData,
 		userDetails,
 		isCorporate,
 		nextSectionId,
