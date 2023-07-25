@@ -40,7 +40,12 @@ const DynamicForm = props => {
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
+	const {
+		isTestMode,
+		selectedSection,
+		isViewLoan: isViewLoanApp,
+		selectedProduct,
+	} = app;
 	const {
 		register,
 		formState,
@@ -133,9 +138,12 @@ const DynamicForm = props => {
 					property_address_details: reqBody.data.property_address_details,
 				},
 			];
+			reqBody.insert_loan_assets_data =
+				selectedProduct?.product_details?.insert_loan_assets_data;
 			if (editSectionId) {
 				reqBody.data[0].id = editSectionId;
 				reqBody.data[0].assets_additional_id = editSectionId;
+				// reqBody.data[0].loan_assets_id = editSectionId;
 			}
 			const submitRes = await axios.post(
 				`${API_END_POINT}/collateralData`,
