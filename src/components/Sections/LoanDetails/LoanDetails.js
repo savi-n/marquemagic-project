@@ -313,8 +313,22 @@ const LoanDetails = () => {
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (field?.name === 'loan_source') {
-				if (formState?.values?.[field.name] === 'nconboarding_Connector')
+				if (
+					formState?.values?.[field.name] === 'nconboarding_Connector' ||
+					formState?.values?.[field.name] === 'Connector'
+				)
 					return 'Connector';
+				else if (
+					formState?.values?.[field.name] === 'nconboarding_Branch' ||
+					formState?.values?.[field.name] === 'Branch'
+				)
+					return 'Branch';
+				// 	// return '';
+				else if (
+					formState?.values?.[field.name] === 'nconboarding' ||
+					formState?.values?.[field.name] === 'nconboarding_'
+				)
+					return null;
 			}
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
