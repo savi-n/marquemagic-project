@@ -106,6 +106,7 @@ export const formatSectionReqBody = data => {
 			selectedDirector,
 			application,
 			selectedLoanProductId,
+			crime_check,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection, permission } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
@@ -150,7 +151,6 @@ export const formatSectionReqBody = data => {
 					app_coordinates: values['app_coordinates'],
 				};
 			}
-
 			// console.log(values, selectedSection, sectionBody);
 			subSectionsData[sub_section.id] = sectionBody;
 			return null;
@@ -166,6 +166,9 @@ export const formatSectionReqBody = data => {
 		};
 
 		// STATIC DATA PRESENT IN ALL UPDATE REQBODY
+		if (crime_check) {
+			reqBody.crime_check = 'yes';
+		}
 		if (loanRefId) {
 			reqBody.loan_ref_id = loanRefId;
 		}

@@ -229,9 +229,11 @@ const BasicDetails = props => {
 							profileField?.is_delete_not_allowed === true ? true : false,
 				  }
 				: profileUrl;
-			// console.log(formState.values);
+			const isCrimeCheckPresent =
+				!!selectedProduct?.product_details?.crime_check === 'yes';
 			const basicDetailsReqBody = formatSectionReqBody({
 				section: selectedSection,
+				crime_check: isCrimeCheckPresent,
 				values: {
 					...formState.values,
 					app_coordinates:
