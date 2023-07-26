@@ -868,10 +868,10 @@ const AddressDetails = props => {
 									isInActiveAddressProofUpload = true;
 									// isProceedDisabledAddressProof = false;
 								}
-								if (presentAddressProofError) {
-									isInActiveAddressProofUpload = true;
-									// isProceedDisabledAddressProof = true;
-								}
+								// if (presentAddressProofError) {
+								// 	isInActiveAddressProofUpload = true;
+								// 	// isProceedDisabledAddressProof = true;
+								// }
 								if (
 									cacheDocumentsTemp?.filter(f => !f?.isTagged?.id).length > 0
 								) {
@@ -1025,7 +1025,10 @@ const AddressDetails = props => {
 																docTypeOptions={selectedDocumentTypes}
 																addressProofUploadSection={sub_section}
 																selectedDirector={selectedDirector}
-																isAadhaarVerified={!!sectionData?.director_details?.is_aadhaar_verified_with_otp}
+																isAadhaarVerified={
+																	!!sectionData?.director_details
+																		?.is_aadhaar_verified_with_otp
+																}
 																addressProofError={
 																	isPermanent
 																		? permanentAddressProofError
@@ -1048,13 +1051,15 @@ const AddressDetails = props => {
 																		? setOtherPresentCacheDocTemp
 																		: setPresentCacheDocumentsTemp
 																}
-																setOtherCacheDocumentsTemp={isPermanent
-																	? selectedAddressProofId?.includes('others')
-																		? setPermanentCacheDocumentsTemp
-																		: setOtherPermanentCacheDocTemp
-																	: selectedAddressProofId?.includes('others')
-																	? setPresentCacheDocumentsTemp
-																	: setOtherPresentCacheDocTemp}
+																setOtherCacheDocumentsTemp={
+																	isPermanent
+																		? selectedAddressProofId?.includes('others')
+																			? setPermanentCacheDocumentsTemp
+																			: setOtherPermanentCacheDocTemp
+																		: selectedAddressProofId?.includes('others')
+																		? setPresentCacheDocumentsTemp
+																		: setOtherPresentCacheDocTemp
+																}
 																selectedDocTypeId={selectedDocTypeId}
 																selectedVerifyOtp={selectedVerifyOtp}
 																isEditLoan={isEditLoan}
