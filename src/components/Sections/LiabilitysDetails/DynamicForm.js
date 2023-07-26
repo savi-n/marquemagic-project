@@ -19,7 +19,7 @@ import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
-	const bank_name = props.fields.filter(field => field.db_key === 'bank_name');
+	const bank_name = props.fields.filter(field => field?.db_key === 'bank_name');
 	const {
 		fields,
 		onSaveOrUpdateSuccessCallback = () => {},
