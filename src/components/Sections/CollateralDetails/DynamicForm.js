@@ -60,7 +60,7 @@ const DynamicForm = props => {
 		const preData = {
 			...prefillData,
 		};
-		return preData?.[field?.name];
+		return preData?.[field?.name] || preData?.[field?.db_key];
 	};
 
 	const prefilledValues = field => {
