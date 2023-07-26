@@ -14,3 +14,4 @@ export const initialFormState = {
 };
 
 export const FIELD_NAME_LIABILITIES_FOR = 'liabilities_for';
+export const FIELD_NAME_BANK_NAME = 'bank_name';
