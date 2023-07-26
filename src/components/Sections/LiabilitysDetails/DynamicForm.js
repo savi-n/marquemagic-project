@@ -19,7 +19,7 @@ import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
-	const bank_name = props.fields.filter(i => i.db_key === 'bank_name');
+	const bank_name = props.fields.filter(field => field.db_key === 'bank_name');
 	const {
 		fields,
 		onSaveOrUpdateSuccessCallback = () => {},
@@ -165,8 +165,7 @@ const DynamicForm = props => {
 				application,
 			});
 			reqBody.data.liability_details.bank_name =
-				bank_name &&
-				bank_name.length > 0 &&
+				bank_name?.length > 0 &&
 				reqBody?.data?.liability_details?.financial_institution?.name;
 			if (editSectionId) {
 				reqBody.data.liability_details.id = editSectionId;
