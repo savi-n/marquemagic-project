@@ -530,6 +530,11 @@ const LoanDetails = () => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
+
+										if(!(sectionData?.loan_details?.loan_status_id === 1 ) && newField?.name === CONST.IMD_COLLECTED_FIELD_NAME){
+											customFieldProps.disabled = true;
+										}
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${newField.name}`}
