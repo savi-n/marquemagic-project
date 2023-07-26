@@ -20,7 +20,7 @@ import { API_END_POINT } from '_config/app.config';
 
 const DynamicForm = props => {
 	const bank_name = props.fields.filter(
-		field => field?.db_key === CONST.FIELD_NAME_BANK_NAME
+		field => field?.db_key === CONST.BANK_NAME_DB_KEY
 	);
 	const {
 		fields,
