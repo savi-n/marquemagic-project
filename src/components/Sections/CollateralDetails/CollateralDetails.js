@@ -192,6 +192,7 @@ const CollateralDetails = () => {
 								...addressData,
 								property_amount: collateralData?.value || '',
 								collateral_type: collateralData?.loan_type || '',
+								collateral_sub_type: collateralData?.collateral_sub_type || '',
 								current_market_value: collateralData?.loan_json || '',
 								landmark: addressData?.name_landmark || '',
 								address3: addressData?.name_landmark || '',
