@@ -46,6 +46,7 @@ const initialDirectorsObject = {
 	isMandatorySectionsCompleted: false,
 	profileGeoLocation: {},
 	documentSelfieGeolocation: {},
+	onSiteSelfieGeoLocation: {},
 	geotaggingMandatory: [],
 };
 
@@ -314,6 +315,25 @@ export const directorsSlice = createSlice({
 			}
 		},
 
+		setOnSiteSelfieGeoLocation: (state, { payload }) => {
+			const { address, lat, long, timestamp } = payload;
+			let geoLocation = { address, lat, long, timestamp };
+			if (
+				state?.directors[state?.selectedDirectorId]?.onSiteSelfieGeoLocation
+			) {
+				state.directors[
+					state.selectedDirectorId
+				].onSiteSelfieGeoLocation = geoLocation;
+			}
+		},
+
+		removeOnSiteSelfieGeoLocation: (state, { payload }) => {
+			if (
+				state?.directors[state?.selectedDirectorId]?.onSiteSelfieGeoLocation
+			) {
+				state.directors[state.selectedDirectorId].onSiteSelfieGeoLocation = {};
+			}
+		},
 		// REMOVE GEOLOCATION DETAILS ON DELETE OF SELFIE DOC
 		removeDocumentSelfieGeoLocation: (state, { payload }) => {
 			if (
@@ -346,9 +366,10 @@ export const {
 	setDirector,
 	// setSmeType,
 	setSelectedDirectorId,
+	removeOnSiteSelfieGeoLocation,
 	setCompletedDirectorSection,
 	setNewCompletedDirectorSections,
-
+	setOnSiteSelfieGeoLocation,
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,

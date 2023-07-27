@@ -24,9 +24,11 @@ import {
 	addOrUpdateCacheDocumentsDocUploadPage,
 } from 'store/applicationSlice';
 import {
+	setOnSiteSelfieGeoLocation,
 	setGeotaggingMandatoryFields,
-	setDocumentSelfieGeoLocation,
+	// setDocumentSelfieGeoLocation,
 	DIRECTOR_TYPES,
+	removeOnSiteSelfieGeoLocation,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -191,7 +193,7 @@ const DocumentUpload = props => {
 	] = useState(false);
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [geoLocationData, setGeoLocationData] = useState({});
+	// const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
 
 	useEffect(() => {
@@ -655,9 +657,9 @@ const DocumentUpload = props => {
 			};
 			initializeDocTypeList();
 			initializeCommentForOfficeUse();
-			if (isGeoTaggingEnabled) {
-				setGeoLocationData(selectedDirector?.documentSelfieGeolocation || {});
-			}
+			// if (isGeoTaggingEnabled) {
+			// 	setGeoLocationData(selectedDirector?.onSiteSelfieGeoLocation || {});
+			// }
 			// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 			async function fetchSelfieData() {
 				try {
@@ -702,11 +704,8 @@ const DocumentUpload = props => {
 									!file?.loan_document_details?.[0]?.lat &&
 									!file?.loan_document_details?.[0]?.long
 								) {
-									setGeoLocationData({
-										err: 'Geo Location Not Captured',
-									});
 									dispatch(
-										setDocumentSelfieGeoLocation({
+										setOnSiteSelfieGeoLocation({
 											err: 'Geo Location Not Captured',
 										})
 									);
@@ -725,9 +724,8 @@ const DocumentUpload = props => {
 										},
 									}
 								);
-								setGeoLocationData(geoLocationRes?.data?.data || {});
 								dispatch(
-									setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
+									setOnSiteSelfieGeoLocation(geoLocationRes?.data?.data)
 								);
 							}
 						}
@@ -752,7 +750,7 @@ const DocumentUpload = props => {
 					sub_section?.fields?.map((field, fieldIndex) => {
 						if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
 							if (field?.db_key === 'on_site_selfie') {
-								let reduxStoreKey = 'documentSelfieGeolocation';
+								let reduxStoreKey = 'onSiteSelfieGeoLocation';
 								dispatch(
 									setGeotaggingMandatoryFields({
 										directorId: selectedDirectorId,
@@ -1222,8 +1220,7 @@ const DocumentUpload = props => {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
 				};
-				setGeoLocationData(geoLocationTag);
-				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 			} else {
 				const geoLocationTag = {
 					address: file?.address,
@@ -1231,8 +1228,7 @@ const DocumentUpload = props => {
 					long: file?.longitude,
 					timestamp: file?.timestamp,
 				};
-				setGeoLocationData(geoLocationTag);
-				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 			}
 		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
@@ -1268,8 +1264,8 @@ const DocumentUpload = props => {
 		selectedDirectorOptions.map(director => {
 			if (Number(applicantDirectorId) === Number(director.value)) {
 				if (
-					Object.keys(selectedDirector?.documentSelfieGeolocation || {})
-						.length <= 0
+					Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
+					0
 				) {
 					result = false;
 				}
@@ -1277,7 +1273,7 @@ const DocumentUpload = props => {
 				if (
 					Object.keys(
 						nonApplicantDirectorsObject?.[director.value]
-							?.documentSelfieGeolocation
+							?.onSiteSelfieGeoLocation
 					).length <= 0
 				) {
 					result = false;
@@ -1541,7 +1537,8 @@ const DocumentUpload = props => {
 	// };
 
 	const removeCacheDocumentTemp = fieldName => {
-		setGeoLocationData({});
+		// setGeoLocationData({});
+		dispatch(removeOnSiteSelfieGeoLocation());
 		const newCatchFiles = _.cloneDeep(cacheFile);
 		delete newCatchFiles[selectedDirectorId];
 		setCacheFile(newCatchFiles);
@@ -1753,7 +1750,10 @@ const DocumentUpload = props => {
 										<UI.VerificationSectionWrapper
 											key={`dataitem-${field?.id}${fieldIndex}`}
 										>
-											<UI.VerificationSection isLocation={!!geoLocationData}>
+											{/* {console.log(selectedDirector.onSiteSelfieGeoLocation)} */}
+											<UI.VerificationSection
+												isLocation={!!selectedDirector.onSiteSelfieGeoLocation}
+											>
 												<ProfileUpload
 													field={field}
 													isDisabled={isViewLoan}
@@ -1771,16 +1771,32 @@ const DocumentUpload = props => {
 												/>
 											</UI.VerificationSection>
 											{field?.geo_tagging === true
-												? Object.keys(geoLocationData || {}).length > 0 && (
+												? Object.keys(
+														selectedDirector.onSiteSelfieGeoLocation || {}
+												  ).length > 0 && (
 														<UI.VerificationSection
-															isLocation={!!geoLocationData}
+															isLocation={
+																!!selectedDirector.onSiteSelfieGeoLocation
+															}
 														>
 															<AddressDetailsCard
-																address={geoLocationData?.address}
-																latitude={geoLocationData?.lat}
-																longitude={geoLocationData?.long}
-																timestamp={geoLocationData?.timestamp}
-																err={geoLocationData?.err}
+																address={
+																	selectedDirector.onSiteSelfieGeoLocation
+																		?.address
+																}
+																latitude={
+																	selectedDirector.onSiteSelfieGeoLocation?.lat
+																}
+																longitude={
+																	selectedDirector.onSiteSelfieGeoLocation?.long
+																}
+																timestamp={
+																	selectedDirector.onSiteSelfieGeoLocation
+																		?.timestamp
+																}
+																err={
+																	selectedDirector.onSiteSelfieGeoLocation?.err
+																}
 																showCloseIcon={false}
 																customStyle={{
 																	width: 'fit-content',
