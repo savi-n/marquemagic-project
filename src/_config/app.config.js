@@ -6,6 +6,8 @@ const API_END_POINT = process.env.REACT_APP_API_URL;
 const ENDPOINT_BANK = process.env.REACT_APP_BANK_API;
 const OTP_API_END_POINT = process.env.REACT_APP_OTP_URL;
 const APP_DOMAIN = process.env.REACT_APP_DOMAIN;
+const CUSTOMER_FETCH_API_END_POINT =
+	process.env.REACT_APP_CUSTOMER_FETCH_API_URL;
 
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
@@ -41,9 +43,12 @@ const SEARCH_LOAN_ASSET = `${API_END_POINT}/searchByBrandname`;
 const UPDATE_LOAN_ASSETS = `${API_END_POINT}/insertLoanAssets/`;
 
 const SECRET = process.env.REACT_APP_SECRET || '';
-const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}`;
+const PINCODE_ADRRESS_FETCH = taggedTemplate`${API_END_POINT}/pincode?code=${'pinCode'}&country=${'Country'}`;
 
 const ROC_DATA_FETCH = `${ENDPOINT_BANK}/ROCData`;
+
+const PAN_TO_GST = `${API_END_POINT}/api/panToGst`;
+const ADD_MULTIPLE_DIRECTOR = `${API_END_POINT}/addMultipleDirector`;
 
 const BUSSINESS_LOAN_CASE_CREATION = `${API_END_POINT}/casecreation_uiux`;
 const BUSSINESS_LOAN_CASE_CREATION_EDIT = `${API_END_POINT}/loan/edit/`;
@@ -68,6 +73,9 @@ const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
 
+const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
+const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
+
 const DOCTYPES_FETCH = `${API_END_POINT}/loan/documentTypes/`;
 const CO_APPLICANTS_DOCTYPES_FETCH = `${API_END_POINT}/coApplicantDocList`;
 
@@ -89,6 +97,16 @@ const GEO_LOCATION = `${API_END_POINT}/geoLocation`;
 const UPLOAD_PROFILE_IMAGE = `${API_END_POINT}/profilePicUpload`;
 const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRefId`;
 const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
+const GET_ALL_UPLOADED_DOCUMENTS_UIUX = `${API_END_POINT}/UploadedDocList_uiux`;
+const GET_ALL_UPLOADED_DOCUMENTS = `${API_END_POINT}/uploaded_doc_list`;
+const GET_COMMENTS = `${API_END_POINT}/viewComments`
+
+const DDUPE_CHECK = `${CUSTOMER_FETCH_API_END_POINT}/ddupe_check`;
+const DDUPE_SEND_OTP = `${CUSTOMER_FETCH_API_END_POINT}/verify_customer`;
+const DDUPE_VERIFY_OTP = `${CUSTOMER_FETCH_API_END_POINT}/get_customer_details`;
+
+const GENERATE_SESSION_ID_AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/generate_session_id`;
+const AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/kyc_biometric`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -130,6 +148,8 @@ const PINCODE_RESPONSE = 'pincode-response';
 
 const ORIGIN = 'nconboarding';
 const TEST_DOMAINS = ['localhost', 'clix.loan2pal.com'];
+// Valid UDYAM number : UDYAM-2_letter_denoting_state_code-2_digits-7_digits
+const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
 
 export {
 	API_END_POINT,
@@ -159,6 +179,7 @@ export {
 	PINCODE_ADRRESS_FETCH,
 	APP_DOMAIN,
 	ROC_DATA_FETCH,
+	PAN_TO_GST,
 	BUSSINESS_LOAN_CASE_CREATION,
 	BUSSINESS_LOAN_CASE_CREATION_EDIT,
 	WHITELABEL_ENCRYPTION_API,
@@ -170,9 +191,12 @@ export {
 	ADD_REFENCE_DETAILS,
 	BANK_LIST_FETCH,
 	IFSC_LIST_FETCH,
+	BUSINESS_DETIALS,
+	BUSINESS_ADDRESS_DETAILS,
 	DOCTYPES_FETCH,
 	APP_CLIENT,
 	SECRET,
+	ADD_MULTIPLE_DIRECTOR,
 	DOCS_UPLOAD_URL_LOAN,
 	REDIRECT_CREATE,
 	CIN_UPDATE,
@@ -211,4 +235,14 @@ export {
 	VERIFY_TOKEN,
 	UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
 	GEO_LOCATION,
+	GET_ALL_UPLOADED_DOCUMENTS_UIUX,
+	GET_ALL_UPLOADED_DOCUMENTS,
+	CUSTOMER_FETCH_API_END_POINT,
+	DDUPE_CHECK,
+	DDUPE_SEND_OTP,
+	DDUPE_VERIFY_OTP,
+	GENERATE_SESSION_ID_AADHAAR_REDIRECT,
+	AADHAAR_REDIRECT,
+	UDYAM_REGEX,
+	GET_COMMENTS
 };

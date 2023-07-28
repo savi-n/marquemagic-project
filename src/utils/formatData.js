@@ -1,8 +1,10 @@
 /* This file contains util function to formatLoanData which is used in HomeLoanDetails component */
 import _ from 'lodash';
+import queryString from 'query-string';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import { ORIGIN } from '_config/app.config';
 import { isBusinessPan } from 'utils/helper';
+import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 
 export const businessTypeMaps = [
 	[['private', 'pvt'], 4],
@@ -82,26 +84,32 @@ export const getSelectedSubField = data => {
 	}
 };
 
+export const formatGetSectionReqBody = data => {
+	const { application, selectedDirector } = data;
+	const { loanRefId, businessId, loanId } = application;
+	const reqBody = {
+		business_id: businessId,
+		loan_ref_id: loanRefId,
+		loan_id: loanId,
+	};
+	if (selectedDirector?.directorId) {
+		reqBody.director_id = selectedDirector?.directorId;
+	}
+	return queryString.stringify(reqBody);
+};
+
 export const formatSectionReqBody = data => {
 	try {
 		const {
 			values,
 			app,
-			applicantCoApplicants,
+			selectedDirector,
 			application,
 			selectedLoanProductId,
+			crime_check,
 		} = data;
 		const { whiteLabelId, selectedProduct, selectedSection, permission } = app;
 		const { loanRefId, businessId, loanProductId, loanId } = application;
-		const {
-			selectedApplicantCoApplicantId,
-			applicant,
-			coApplicants,
-			isApplicant,
-		} = applicantCoApplicants;
-		const selectedApplicant = isApplicant
-			? applicant
-			: coApplicants[selectedApplicantCoApplicantId] || {};
 		const subSectionsData = {};
 		selectedSection?.sub_sections?.map(sub_section => {
 			let sectionBody = {};
@@ -112,8 +120,30 @@ export const formatSectionReqBody = data => {
 					typeof values[field.name] === 'string'
 						? values[field.name]?.trim()
 						: values[field.name];
+				if (field.db_key === 'locality' && !sectionBody[field.db_key]) {
+					sectionBody[field.db_key] = sessionStorage.getItem('locality') || '';
+				}
+				if (!!field.sub_fields) {
+					field.sub_fields?.map(sub_field => {
+						// console.log(sub_field.name, values[sub_field.name]);
+						// console.log(sub_field.db_key);
+						if (
+							!sub_field.db_key ||
+							!sub_field.name ||
+							values?.[sub_field.name] === undefined
+						)
+							return null;
+						sectionBody[sub_field.db_key] =
+							typeof values[sub_field.name] === 'string'
+								? values[sub_field.name]?.trim()
+								: values[sub_field.name];
+						return null;
+					});
+				}
+
 				return null;
 			});
+			// console.log(sectionBody);
 			// console.log(values, selectedSection, sectionBody);
 			if (selectedSection.id === 'basic_details') {
 				sectionBody = {
@@ -121,7 +151,6 @@ export const formatSectionReqBody = data => {
 					app_coordinates: values['app_coordinates'],
 				};
 			}
-
 			// console.log(values, selectedSection, sectionBody);
 			subSectionsData[sub_section.id] = sectionBody;
 			return null;
@@ -137,6 +166,9 @@ export const formatSectionReqBody = data => {
 		};
 
 		// STATIC DATA PRESENT IN ALL UPDATE REQBODY
+		if (crime_check) {
+			reqBody.crime_check = 'yes';
+		}
 		if (loanRefId) {
 			reqBody.loan_ref_id = loanRefId;
 		}
@@ -147,13 +179,18 @@ export const formatSectionReqBody = data => {
 			reqBody.business_id = businessId;
 		}
 
-		if (selectedApplicant?.directorId) {
-			reqBody.director_id = selectedApplicant?.directorId;
+		if (selectedDirector?.directorId) {
+			reqBody.director_id = selectedDirector?.directorId;
+		}
+		if (isDirectorApplicant(selectedDirector)) {
+			reqBody.is_applicant = true;
 		}
 		if (permission?.country) {
 			reqBody.country = permission?.country;
 		}
-		reqBody.is_applicant = isApplicant;
+		if (selectedProduct?.parent_id) {
+			reqBody.parent_product_id = selectedProduct?.parent_id;
+		}
 		// -- STATIC DATA PRESENT IN ALL UPDATE REQBODY
 
 		// console.log('formatSectionReqBody-', { data, selectedApplicant });
@@ -455,34 +492,20 @@ export const formatCompanyDataGST = (data, panNum, gstNum) => {
 	};
 };
 
-export const getApplicantCoApplicantSelectOptions = data => {
-	const { applicantCoApplicants } = data;
-	const { applicant, coApplicants } = applicantCoApplicants;
+export const getselectedDirectorOptions = data => {
+	const { directors } = data;
 	const options = [];
-
-	const applicantFirstName =
-		applicant?.basic_details?.first_name || applicant?.dfirstname || '';
-	const applicantLastName =
-		applicant?.basic_details?.last_name || applicant?.dlastname || '';
-	const applicantName = [applicantFirstName, applicantLastName].join(' ');
-
-	options.push({
-		name: applicantName,
-		value: applicant?.directorId,
-	});
-	Object.keys(coApplicants).map(directorId => {
-		const coApplicantFirstName =
-			coApplicants?.[directorId]?.basic_details?.first_name ||
-			coApplicants?.[directorId]?.dfirstname ||
+	Object.keys(directors).map(directorId => {
+		const firstName =
+			directors?.[directorId]?.basic_details?.first_name ||
+			directors?.[directorId]?.dfirstname ||
 			'';
-		const coApplicantLastName =
-			coApplicants?.[directorId]?.basic_details?.last_name ||
-			coApplicants?.[directorId]?.dlastname ||
+		const lastName =
+			directors?.[directorId]?.basic_details?.last_name ||
+			directors?.[directorId]?.dlastname ||
 			'';
 
-		const coApplicantName = [coApplicantFirstName, coApplicantLastName].join(
-			' '
-		);
+		const coApplicantName = [firstName, lastName].join(' ');
 
 		options.push({
 			name: coApplicantName,
@@ -491,6 +514,51 @@ export const getApplicantCoApplicantSelectOptions = data => {
 		return null;
 	});
 	return options;
+};
+
+export const getAllCompletedSections = data => {
+	const {
+		application,
+		selectedDirector,
+		// addNewDirectorKey,
+		directorSectionIds,
+		selectedProduct,
+		selectedSectionId,
+		isApplicant,
+	} = data;
+	let completedSections = [];
+	// console.log(isApplicant);
+	if (isApplicant && Array.isArray(application?.sections)) {
+		// console.log(application?.sections);
+		completedSections = [...completedSections, ...application?.sections];
+	}
+	if (Array.isArray(selectedDirector?.sections)) {
+		completedSections = [...completedSections, ...selectedDirector?.sections];
+	}
+	// 'Entity'
+	if (
+		selectedProduct?.isSelectedProductTypeBusiness &&
+		[
+			CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID,
+			CONST_SECTIONS.APPLICATION_SUBMITTED_SECTION_ID,
+		].includes(selectedSectionId)
+	) {
+		completedSections = [...completedSections, ...(directorSectionIds || [])];
+	}
+	if (
+		selectedProduct?.isSelectedProductTypeBusiness &&
+		selectedSectionId === CONST_SECTIONS.BUSINESS_DETAILS_SECTION_ID
+	) {
+		completedSections = [...completedSections, ...application?.sections];
+	}
+	// if (
+	// 	!addNewDirectorKey &&
+	// 	!selectedDirector?.directorId &&
+	// 	application?.sections?.includes(CONST_SECTIONS.BUSINESS_DETAILS_SECTION_ID)
+	// ) {
+	// 	completedSections = [...completedSections, ...(directorSectionIds || [])];
+	// }
+	return completedSections;
 };
 
 export const getCompletedSections = data => {
@@ -504,7 +572,7 @@ export const getCompletedSections = data => {
 		isEditOrViewLoan,
 		isEditLoan,
 		editLoanDirectors,
-		applicantCoApplicantSectionIds,
+		directorSectionIds,
 		selectedApplicant,
 		isDraftLoan,
 	} = data;
@@ -515,8 +583,8 @@ export const getCompletedSections = data => {
 			// editloan adding new coapplicant
 			if (
 				isEditLoan &&
-				!editLoanDirectors.includes(`${selectedApplicant?.directorId}`) && // new director
-				applicantCoApplicantSectionIds.includes(section?.id)
+				!editLoanDirectors?.includes(`${selectedApplicant?.directorId}`) && // new director
+				directorSectionIds?.includes(section?.id)
 			) {
 				if (
 					Object.keys(
@@ -614,7 +682,7 @@ export const getDocumentCategoryName = type => {
 	return category;
 };
 
-export const getEditLoanLoanDocuments = data => {
+export const getEditLoanDocuments = data => {
 	const { documents, directorId, docTypeId } = data;
 	return documents?.filter(doc => {
 		if (
@@ -677,10 +745,12 @@ export const formatUploadCacheDocumentReqBody = data => {
 	return reqBody;
 };
 
+// TODO: Varun SME Flow move this logic inside register
 export const isFieldValid = data => {
 	// should return only null
 	const { field, isApplicant, formState } = data;
-	if (!field.visibility || !field.name || !field.type) return false;
+	// if (!field?.visibility || !field?.name || !field?.type) return false;
+	if (field?.visibility === false || !field?.name || !field?.type) return false;
 	if (field?.hasOwnProperty('is_applicant')) {
 		if (field.is_applicant === false && isApplicant) {
 			return false;
@@ -732,10 +802,31 @@ export const getDocumentNameFromLoanDocuments = doc => {
 	);
 };
 
-export const formatLoanDocuments = docs => {
+export const getCategoryKeyFromCategoryName = doc => {
+	let selectedCategory = CONST_SECTIONS.DOC_CATEGORY_OTHER;
+	CONST_SECTIONS.ALL_DOC_CATEGORY.forEach(category => {
+		if ((doc?.doc_type || doc?.category)?.toLowerCase()?.includes(category)) {
+			selectedCategory = category;
+		}
+	});
+	return selectedCategory;
+};
+
+export const formatLoanDocuments = data => {
+	const { docs, docTypes, applicantDirectorId } = data;
 	const newDocs = [];
 	docs?.map(doc => {
+		const selectedDocType =
+			docTypes.filter(docType => {
+				if (
+					`${docType.doc_type_id}` === `${doc.doctype}` ||
+					`${docType.doc_type_id}` === `${doc.doc_type_id}`
+				)
+					return true;
+				return false;
+			})?.[0] || {};
 		const newDoc = {
+			...selectedDocType,
 			...(doc?.loan_document_details?.[0] || {}),
 			...(doc?.doc_type?.[0] || {}),
 			...doc,
@@ -743,6 +834,10 @@ export const formatLoanDocuments = docs => {
 			document_id: doc?.id,
 			doc_type_id: doc.doctype || doc.doc_type.id,
 			name: getDocumentNameFromLoanDocuments(doc),
+			category: getCategoryKeyFromCategoryName(doc),
+			directorId: !!doc?.directorId
+				? `${doc?.directorId}`
+				: `${applicantDirectorId}`,
 		};
 		newDocs.push(newDoc);
 		return null;
@@ -756,26 +851,103 @@ export const formatLenderDocs = docs => {
 	const newDocs = [];
 	return newDocs;
 };
+// Special scenario - To check the completed sections for all the directors : used only on click of any of the sections in the side nav
+export const validateAllDirectorSectionsCompleted = directors => {
+	const incompleteDirectors = [];
+	Object.values(directors)?.map(dir => {
+		if (dir?.sections?.length < 3) {
+			incompleteDirectors?.push(dir);
+		}
+		return null;
+	});
+	if (incompleteDirectors?.length > 0) {
+		return {
+			allowProceed: false,
+			directorName: `${incompleteDirectors?.[0]?.type_name} ${
+				incompleteDirectors?.[0]?.fullName
+			}`,
+		};
+	}
+	return { allowProceed: true };
+};
 
-// validating employment details section for onProceed or add-coapplicant
+// Validation for all the directors : This is the check before adding new director or moving to other sections from employment/basic/address details section
 export const validateEmploymentDetails = data => {
-	const { coApplicants, isApplicant } = data;
+	const { selectedDirector, directors } = data;
 	let allowProceed = false;
-	let filteredCoApplicant = [];
-	if (Object.keys(coApplicants)?.length > 0) {
-		filteredCoApplicant = Object.values(coApplicants)?.filter(coApplicant => {
-			return !coApplicant?.employmentId;
+	const lastDirector = Object.values(directors)?.pop();
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+
+	if (
+		Object.keys(directors)?.length === 1 &&
+		selectedDirector?.sections?.length >= 2
+	) {
+		return { allowProceed: true };
+	}
+	if (Object.keys(directors)?.length > 1) {
+		const notCompletedDirectors = [];
+
+		restOfTheDirectors?.map(dir => {
+			if (dir?.sections?.length < 3) {
+				// console.log(dir?.sections, 'sections-dir');
+				notCompletedDirectors.push(dir);
+			}
+
+			return null;
 		});
+
+		if (lastDirector?.sections?.length < 2)
+			notCompletedDirectors.push(lastDirector);
+
+		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director
+		if (
+			lastDirector?.sections?.length === 2 &&
+			+selectedDirector?.directorId !== +lastDirector?.directorId
+		)
+			notCompletedDirectors.push(lastDirector);
+
+		if (notCompletedDirectors?.length === 0) allowProceed = true;
+
+		return {
+			allowProceed,
+			// lastDirector,
+			// restOfTheDirectors,
+			// notCompletedDirectors,
+			// selectedDirector,
+			directorName:
+				notCompletedDirectors?.length > 0
+					? `${notCompletedDirectors?.[0]?.type_name} ${
+							notCompletedDirectors?.[0]?.fullName
+					  }`
+					: null,
+		};
 	}
-	if (filteredCoApplicant.length === 0) {
-		allowProceed = true;
-	} else {
-		allowProceed = false;
+};
+// Special case for SME Flow. Used only when clicked on any of the sections in the side nav.
+export const validateDirectorForSme = directors => {
+	if (
+		!directors?.[+Object.keys(directors)?.[0]]?.sections ||
+		directors?.[+Object.keys(directors)?.[0]]?.sections.length < 3
+	)
+		return { allowProceed: false };
+	return { allowProceed: true };
+};
+
+export const checkInitialDirectorsUpdated = directors => {
+	if (Object.keys(directors)?.length <= 1) return false;
+	const restOfTheDirectors = Object.values(directors)?.slice(0, -1);
+	const notCompletedDirectors = [];
+	if (Object.keys(directors)?.length > 1) {
+		restOfTheDirectors?.map(dir => {
+			if (!dir?.sections || dir?.sections?.length < 3) {
+				notCompletedDirectors.push(dir);
+			}
+			return null;
+		});
+		// console.log({ restOfTheDirectors, notCompletedDirectors });
 	}
-	if (isApplicant && Object.keys(coApplicants)?.length === 0) {
-		allowProceed = true;
-	}
-	return allowProceed;
+	if (notCompletedDirectors?.length > 0) return true;
+	return false;
 };
 
 export const getApplicantNavigationDetails = data => {
@@ -838,4 +1010,87 @@ export const getApplicantNavigationDetails = data => {
 	};
 	// console.log('getApplicantNavigationDetails-', { returnData });
 	return returnData;
+};
+
+export const formatINR = value => {
+	return new Intl.NumberFormat('en-IN', {
+		style: 'currency',
+		currency: 'INR',
+	}).format(value);
+};
+
+export const isDirectorApplicant = director => {
+	return director?.type_name === 'Applicant';
+	// item.type_name === 'Director' ||
+	// item.type_name === 'Partner' ||
+	// item.type_name === 'Member' ||
+	// item.type_name === 'Proprietor'
+};
+
+export const getDirectorFullName = director => {
+	const fullName = [];
+	if (director.dfirstname) fullName.push(director.dfirstname);
+	if (director.middle_name) fullName.push(director.middle_name);
+	if (director.dlastname) fullName.push(director.dlastname);
+	return fullName.join(' ');
+};
+
+export const getShortString = (str, max) => {
+	if (str.length > max) {
+		return str.slice(0, max) + '...';
+	}
+	return str;
+};
+
+export const formatAddressType = doc => {
+	const prefix =
+		`${doc?.document_details?.aid}` === '1'
+			? CONST_ADDRESS_DETAILS.PREFIX_PRESENT
+			: `${doc?.document_details?.aid}` === '2'
+			? CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
+			: null;
+
+	const valuesObj = {
+		aadhaar: `${prefix}aadhar`,
+		dl: `${prefix}DL`,
+		voter: `${prefix}voter`,
+		passport: `${prefix}passport`,
+		others: `${prefix}others`,
+	};
+	const value = valuesObj?.[doc?.document_details?.classification_type];
+	return `${value}`;
+};
+
+export const getSelectedDirectorIndex = data => {
+	const { directors, selectedDirector } = data;
+	let selectedDirectorIndex = 0;
+	let totalCount = 0;
+	Object.keys(directors || {})?.forEach(directorId => {
+		if (directors?.[directorId]?.type_name === selectedDirector?.type_name) {
+			totalCount++;
+			if (directorId === selectedDirector?.directorId) {
+				selectedDirectorIndex = totalCount;
+			}
+		}
+	});
+	const currentIndex =
+		totalCount > 1 && selectedDirectorIndex > 0 ? selectedDirectorIndex : '';
+	// console.log('getSelectedDirectorIndex-', {
+	// 	directors,
+	// 	selectedDirector,
+	// 	selectedDirectorIndex,
+	// 	totalCount,
+	// 	currentIndex,
+	// });
+	return currentIndex;
+};
+
+export const checkAllInputsForm = values => {
+	for (const key in values) {
+		if (values[key] !== '') {
+			return false;
+		}
+	}
+
+	return true;
 };

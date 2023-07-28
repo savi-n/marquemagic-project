@@ -11,6 +11,7 @@ import { func, object, oneOfType, string } from 'prop-types';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
 import { CaseContext } from 'reducer/caseReducer';
+const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
 
 const Colom1 = styled.div`
 	flex: 1;
@@ -52,7 +53,11 @@ const CaptionImg = styled.div`
 
 const data = [
 	{
-		caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
+		caption: `Your ${
+			wt_lbl?.solution_type === 'CaseDOS'
+				? 'Order has been forwarded to OPS'
+				: 'Application has been forwarded to the branch'
+		} has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
 		guarantor: true,
 		img: img1,
 	},

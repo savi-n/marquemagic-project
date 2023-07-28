@@ -1,0 +1,88 @@
+{
+	"name": "Subsidiary Details",
+	"id": "subsidiary_details",
+	"sub_sections": [
+		{
+			"id": "subsidiary_details",
+			"name": "Help us with Subsidiary Details",
+			"is_dynamic": true,
+			"min": 1,
+			"max": 5,
+			"fields": [
+				{
+					"name": "subsidiary_name",
+					"db_key": "subsidiary_name",
+					"placeholder": "Subsidiary Name",
+					"rules": {},
+					"type": "text",
+					"mask": {
+						"alpha_char_only": true
+					},
+					"visibility": true
+				},
+				{
+					"name": "bank_name",
+					"db_key": "bank_name",
+					"rules": {},
+					"placeholder": "Subsidiary Bank",
+					"type": "banklist",
+					"visibility": true
+				},
+				{
+					"name": "account_number",
+					"db_key": "account_number",
+					"placeholder": "Subsidiary Account Number",
+					"rules": {},
+					"mask": {
+						"number_only": true,
+						"character_limit": 17
+					},
+					"type": "number",
+					"visibility": true
+				},
+				{
+					"name": "relation_subsidiary",
+					"db_key": "relation_subsidiary",
+					"placeholder": "Relation",
+					"rules": {},
+					"options": [
+						{
+							"name": "Subsidiary Company",
+							"value": "Subsidiary Company"
+						},
+						{
+							"name": "Associated",
+							"value": "Associated"
+						},
+						{
+							"name": "Relative",
+							"value": "Relative"
+						},
+						{
+							"name": "Holding Company",
+							"value": "Holding Company"
+						},
+						{
+							"name": "Promoter/Proprietor",
+							"value": "Promoter/Proprietor"
+						},
+						{
+							"name": "Director/Partner",
+							"value": "Director/Partner"
+						},
+						{
+							"name": "Other Account",
+							"value": "Other Account"
+						},
+						{
+							"name": "Other Group Company",
+							"value": "Other Group Company"
+						}
+					],
+					"type": "select",
+					"visibility": true
+				}
+			]
+		}
+	]
+}

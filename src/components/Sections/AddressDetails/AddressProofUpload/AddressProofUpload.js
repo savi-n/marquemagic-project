@@ -1,15 +1,17 @@
 /* FIle upload details section. This section handles drag, drop
 of file, upload and deletion */
-
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Popover } from 'react-tiny-popover';
+import moment from 'moment';
+import _ from 'lodash';
+
 import CircularLoading from 'components/Loaders/Circular';
 import Button from 'components/Button';
 import Modal from 'components/Modal';
+import Hint from 'components/Hint';
 
 import generateUID from 'utils/uid';
 import { verifyKycDataUiUx } from 'utils/request';
@@ -17,17 +19,18 @@ import { useToasts } from 'components/Toast/ToastProvider';
 import { VIEW_DOCUMENT } from '_config/app.config';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
 import { getKYCData, getKYCDataId } from 'utils/request';
+import { isDirectorApplicant, isFieldValid } from 'utils/formatData';
 import uploadCircleIcon from 'assets/icons/upload_icon_blue.png';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import imgArrowDownCircle from 'assets/icons/drop_down_green-05.svg';
 import imgGreyCheck from 'assets/icons/grey_tick_icon.png';
 import imgGreenCheck from 'assets/icons/green_tick_icon.png';
+import GreenTick from 'assets/icons/green_tick_icon.png';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
-import Hint from 'components/Hint';
-import GreenTick from 'assets/icons/green_tick_icon.png';
+import * as CONST from './const';
 
 const AddressProofUpload = props => {
 	const {
@@ -39,7 +42,6 @@ const AddressProofUpload = props => {
 		selectedAddressProofFieldName = '',
 		selectedAddressProofId = '',
 		isInActive = false,
-		// prefilledDocs = [],
 		addressProofUploadSection,
 		register,
 		prefilledValues,
@@ -48,39 +50,40 @@ const AddressProofUpload = props => {
 		verifyingWithOtp,
 		cacheDocumentsTemp,
 		setCacheDocumentsTemp,
+		setOtherCacheDocumentsTemp,
 		selectedDocTypeId,
+		isAadhaarVerified,
 		onChangeFormStateField,
 		isSectionCompleted,
 		selectedVerifyOtp,
-		isEditLoan,
+		// isEditLoan,
 		isViewLoan,
 		isEditOrViewLoan,
+		directorDetails,
 	} = props;
 
-	// console.log(
+	// console.log({
+	// 	selectedAddressProofFieldName,
+	// 	selectedAddressProofId,
+	// 	addressProofUploadSection,
+	// 	prefilledValues,
 	// 	cacheDocumentsTemp,
-	// 	'< cachedocstemp -- 888 addressproofupload > prefilleddocs',
-	// 	prefilledDocs,
-	// 	'docTypeOptions',
-	// 	docTypeOptions
-	// );
+	// 	setCacheDocumentsTemp,
+	// 	selectedDocTypeId,
+	// 	val: formState.values,
+	// 	directorDetails,
+	// });
 	let { addressProofError } = props;
-	const { app, applicantCoApplicants, application } = useSelector(
-		state => state
+	const { app, application } = useSelector(state => state);
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
 	);
-	const { selectedProduct, clientToken, editLoanData } = app;
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+
+	const isApplicant = isDirectorApplicant(selectedDirector);
+	const { selectedProduct, clientToken, selectedSectionId } = app;
 	const { loanId, businessUserId } = application;
-	const {
-		selectedApplicantCoApplicantId,
-		applicant,
-		coApplicants,
-		isApplicant,
-	} = applicantCoApplicants;
-	// const selectedDirectorId = selectedApplicantCoApplicantId;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants[selectedApplicantCoApplicantId] || {};
-	const directorDetails = editLoanData?.director_details;
+	// const directorDetail = editLoanData?.director_details;
 	const ref = useRef(uuidv4());
 	const prevSelectedAddressProofId = useRef(null);
 	const refPopup = useRef(null);
@@ -126,6 +129,7 @@ const AddressProofUpload = props => {
 				reqBody.name = extractionData?.Name || extractionData?.name || '';
 			}
 			if (req_type === CONST_SECTIONS.EXTRACTION_KEY_PASSPORT) {
+				// TODO: passport file number needs to be pass insted of passport number for verification KYC API
 				// TODO: verify by testing passport extraction data
 				reqBody.number = extractionData?.passport_no || '';
 				reqBody.dob = extractionData?.dob || extractionData?.DOB || '';
@@ -198,11 +202,48 @@ const AddressProofUpload = props => {
 		// const dob = extractionData?.DOB || extractionData?.dob;
 
 		const fullAddress = extractionData?.address || extractionData?.Address;
-		onChangeFormStateField({
-			name: `${prefix}address1`,
-			value: fullAddress,
-		});
+		// console.log(fullAddress,"fullAddress");
+		const addressArray = fullAddress.split(/[;,]+/);
+		if (!!addressArray?.[0]) {
+			onChangeFormStateField({
+				name: `${prefix}address1`,
+				value: addressArray?.[0],
+			});
+		}
+		if (!!addressArray?.[0]) {
+			onChangeFormStateField({
+				name: `${prefix}address2`,
+				value: addressArray?.[1],
+			});
+		}
+		if (!!addressArray?.[0]) {
+			onChangeFormStateField({
+				name: `${prefix}address3`,
+				value: addressArray?.[2],
+			});
+		}
 		const pinCode = extractionData?.pincode;
+		if (!!pinCode) {
+			onChangeFormStateField({
+				name: `${prefix}pin_code`,
+				value: pinCode,
+			});
+		}
+		const extractedIssuedDate =
+			extractionData?.issue_date || extractionData?.issue_date;
+		if (!!extractedIssuedDate) {
+			onChangeFormStateField({
+				name: `${prefix}address_proof_issued_on`,
+				value: moment(extractedIssuedDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+			});
+		}
+		const extractedValidDate = extractionData?.validity;
+		if (!!extractedValidDate) {
+			onChangeFormStateField({
+				name: `${prefix}address_proof_valid_till`,
+				value: moment(extractedValidDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+			});
+		}
 		if (fullAddress) {
 			let locationArr = fullAddress && fullAddress?.split(' ');
 			// eslint-disable-next-line
@@ -245,11 +286,20 @@ const AddressProofUpload = props => {
 			if (selectedAddressProofFiles.length > 1) {
 				const frontFormData = new FormData();
 				frontFormData.append('product_id', selectedProduct.id);
-				frontFormData.append('director_id', selectedApplicant?.directorId);
+				frontFormData.append('director_id', selectedDirector?.directorId);
 				frontFormData.append('req_type', SELECTED_REQ_TYPE);
 				frontFormData.append('process_type', 'extraction');
 				frontFormData.append('document', selectedAddressProofFiles?.[0]?.file);
-
+				if (
+					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
+				) {
+					frontFormData.append(
+						'passport_no',
+						directorDetails?.passport_no || ''
+					);
+				}
+				frontFormData.append('business_id', application?.businessId);
 				const frontExtractionRes = await getKYCData(frontFormData, clientToken);
 				const frontExtractionStatus = frontExtractionRes?.data?.status || '';
 				const frontExtractionMsg = frontExtractionRes?.data?.message || '';
@@ -288,13 +338,13 @@ const AddressProofUpload = props => {
 					requestId: frontExtractionRes?.data?.request_id,
 					upload_doc_name: frontExtractionRes?.data?.s3?.filename,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 
 				const backFormData = new FormData();
 				backFormData.append('product_id', selectedProduct.id);
-				backFormData.append('director_id', selectedApplicant?.directorId);
+				backFormData.append('director_id', selectedDirector?.directorId);
 				backFormData.append('req_type', SELECTED_REQ_TYPE);
 				backFormData.append(
 					'ref_id',
@@ -303,7 +353,16 @@ const AddressProofUpload = props => {
 				backFormData.append('doc_ref_id', frontExtractionRes?.data?.doc_ref_id);
 				backFormData.append('process_type', 'extraction');
 				backFormData.append('document', selectedAddressProofFiles?.[1]?.file);
-
+				if (
+					selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+					selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
+				) {
+					backFormData.append(
+						'passport_no',
+						directorDetails?.passport_no || ''
+					);
+				}
+				backFormData.append('business_id', application?.businessId);
 				const backExtractionRes = await getKYCDataId(backFormData, clientToken);
 				const backExtractionStatus = backExtractionRes?.data?.status || '';
 				const backExtractionMsg = backExtractionRes?.data?.message || '';
@@ -348,7 +407,7 @@ const AddressProofUpload = props => {
 					requestId: backExtractionRes?.data.request_id,
 					upload_doc_name: backExtractionRes?.data.s3.filename,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 
@@ -384,14 +443,23 @@ const AddressProofUpload = props => {
 			// Front Only Extract
 			const frontOnlyFormData = new FormData();
 			frontOnlyFormData.append('product_id', selectedProduct.id);
-			frontOnlyFormData.append('director_id', selectedApplicant?.directorId);
+			frontOnlyFormData.append('director_id', selectedDirector?.directorId);
 			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
 			frontOnlyFormData.append('process_type', 'extraction');
 			frontOnlyFormData.append(
 				'document',
 				selectedAddressProofFiles?.[0]?.file
 			);
-
+			if (
+				selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+				selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
+			) {
+				frontOnlyFormData.append(
+					'passport_no',
+					directorDetails?.passport_no || ''
+				);
+			}
+			frontOnlyFormData.append('business_id', application?.businessId);
 			const frontOnlyExtractionRes = await getKYCData(
 				frontOnlyFormData,
 				clientToken
@@ -424,7 +492,6 @@ const AddressProofUpload = props => {
 				);
 				// CONTINUE EXECUTION
 			}
-
 			const frontOnlyFile = {
 				...selectedAddressProofFiles[0],
 				extractionRes: frontOnlyExtractionRes?.data || {},
@@ -438,7 +505,7 @@ const AddressProofUpload = props => {
 				upload_doc_name: frontOnlyExtractionRes?.data?.s3?.filename,
 				name: frontOnlyExtractionRes?.data?.s3?.filename,
 				category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-				directorId: selectedApplicant.directorId,
+				directorId: selectedDirector.directorId,
 				selectedDocTypeId,
 			};
 
@@ -460,7 +527,9 @@ const AddressProofUpload = props => {
 			// 	doc_ref_id: frontOnlyExtractionRes?.data?.doc_ref_id,
 			// 	requestId: frontOnlyExtractionRes?.data?.request_id,
 			// };
+
 			prepopulateAddressDetails(frontOnlyFile);
+			// console.log(frontOnlyFile);
 			await verifyKycAddressProof(frontOnlyFile);
 			// await verifyKycAddressProof(REQ_TYPE, newAddressProofExtractionData);
 		} catch (error) {
@@ -629,7 +698,7 @@ const AddressProofUpload = props => {
 					type: 'other',
 					upload_doc_name: f.name,
 					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedApplicant.directorId,
+					directorId: selectedDirector.directorId,
 					selectedDocTypeId,
 				};
 				newCacheDocumentTemp.push(file);
@@ -696,6 +765,7 @@ const AddressProofUpload = props => {
 			})
 		);
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+			if (key === 'aadhar' && isAadhaarVerified) return null;
 			onChangeFormStateField({
 				name: `${prefix}${key}`,
 				value: '',
@@ -707,6 +777,7 @@ const AddressProofUpload = props => {
 		// 	newCacheDocumentTemp,
 		// });
 		setCacheDocumentsTemp(newCacheDocumentTemp);
+		setOtherCacheDocumentsTemp(newCacheDocumentTemp);
 	};
 
 	useEffect(() => {
@@ -798,8 +869,7 @@ const AddressProofUpload = props => {
 	) {
 		customFieldProps.disabled = true;
 	}
-
-	// console.log('addressproofupload-', { props });
+	// console.log('addressproofupload-allstates', { props, aadhaarProofOTPField });
 
 	return (
 		<UI.Wrapper>
@@ -918,33 +988,76 @@ const AddressProofUpload = props => {
 								...customFieldProps,
 							})}
 							{(selectedVerifyOtp?.res?.status === 'ok' ||
-								selectedApplicant?.is_aadhaar_otp_verified === true) && (
+								selectedDirector?.is_aadhaar_otp_verified === true) && (
 								<UI.GreenTickImage src={GreenTick} alt='green tick' />
 							)}
 
-							<Button
-								name='Verify with OTP'
-								isLoader={verifyingWithOtp}
-								disabled={
-									isSectionCompleted ||
-									selectedVerifyOtp?.res?.status === 'ok' ||
-									!formState.values[aadhaarProofOTPField.name] ||
-									isViewLoan ||
-									verifyingWithOtp ||
-									(directorDetails?.filter(
-										director => director?.id === selectedApplicant?.directorId
-									).length > 0 &&
-										isEditLoan)
-								}
-								type='submit'
-								customStyle={{
-									whiteSpace: 'nowrap',
-									width: '150px',
-									minWidth: '150px',
-									height: '45px',
-								}}
-								onClick={onClickVerifyWithOtp}
-							/>
+							{aadhaarProofOTPField?.sub_fields
+								?.filter(f => !f?.is_prefix)
+								?.map(subField => {
+									if (
+										!isFieldValid({
+											field: subField,
+											isApplicant,
+											formState: {},
+										})
+									) {
+										return null;
+									}
+									if (subField?.type === 'button') {
+										return (
+											<Button
+												name={
+													<span>
+														{subField?.placeholder}
+														{!!subField?.rules?.required && (
+															<sup style={{ color: 'red' }}>&nbsp;*</sup>
+														)}
+													</span>
+												}
+												isLoader={verifyingWithOtp}
+												disabled={
+													// isSectionCompleted ||
+													directorDetails?.is_aadhaar_otp_verified ||
+													selectedVerifyOtp?.res?.status === 'ok' ||
+													!formState.values[aadhaarProofOTPField.name] ||
+													isViewLoan ||
+													verifyingWithOtp
+													// (directors?.filter(
+													// 	director =>
+													// 		`${director?.id}` ===
+													// 		`${selectedDirector?.directorId}`
+													// ).length > 0 &&
+													// 	isEditLoan)
+												}
+												type='button'
+												customStyle={{
+													whiteSpace: 'nowrap',
+													width: '150px',
+													minWidth: '150px',
+													height: '45px',
+												}}
+												onClick={onClickVerifyWithOtp}
+											/>
+										);
+									}
+									if (subField?.type === 'link') {
+										return (
+											<Button
+												name={subField?.placeholder}
+												type='button'
+												customStyle={{
+													whiteSpace: 'nowrap',
+													width: '150px',
+													minWidth: '150px',
+													height: '45px',
+												}}
+												onClick={() => window.open(subField?.link, '_blank')}
+											/>
+										);
+									}
+									return null;
+								})}
 							{(formState?.submit?.isSubmited ||
 								formState?.touched?.[aadhaarProofOTPField.name]) &&
 								formState?.error?.[aadhaarProofOTPField.name] && (
@@ -1224,7 +1337,10 @@ const AddressProofUpload = props => {
 													</div>
 												) : (
 													isDocRemoveAllowed &&
-													!isViewLoan && (
+													!isEditOrViewLoan &&
+													!selectedDirector?.sections?.includes(
+														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
+													) && (
 														<UI.ImgClose
 															style={{ height: '20px' }}
 															src={isViewMore ? imgArrowDownCircle : imgClose}
@@ -1250,7 +1366,8 @@ const AddressProofUpload = props => {
 					{!addressProofError &&
 						!selectedAddressProofId?.includes('others') &&
 						!!taggedDocumentCount &&
-						doNotHideFetchAddress && (
+						doNotHideFetchAddress &&
+						!selectedDirector?.sections?.includes(selectedSectionId) && (
 							<Button
 								fill
 								name='Fetch Address'

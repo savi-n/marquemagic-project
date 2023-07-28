@@ -11,8 +11,12 @@ import InputField from 'components/inputs/InputField';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
+import DisabledTextFieldModal from 'components/inputs/GstinField';
 import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
+import Button from 'components/Button';
 import moment from 'moment';
+import { UDYAM_REGEX } from '_config/app.config';
+
 export const ComboBoxContext = createContext();
 function required(value) {
 	return typeof value === 'string' ? !value?.trim() : !value;
@@ -25,6 +29,11 @@ function numberOnly(value) {
 function pastDatesOnly(value) {
 	// console.log(moment().format('YYYY/MM'), '222');
 	return !moment().isAfter(value);
+}
+
+function ageLimit(value, ageLimit) {
+	// console.log(moment().diff(value, 'years', true) > ageLimit)
+	return moment().diff(value, 'years', true) < ageLimit;
 }
 
 function validatePattern(pattern) {
@@ -74,6 +83,10 @@ const VALIDATION_RULES = {
 		func: validatePattern(/^$|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/),
 		message: 'Invalid Email Address',
 	},
+	is_udyam: {
+		func: validatePattern(UDYAM_REGEX),
+		message: 'Please Enter A Valid Udyam Number',
+	},
 	is_zero_not_allowed_for_first_digit: {
 		func: validatePattern(/^[1-9][0-9]*$/),
 		message: 'Number cannot start with 0',
@@ -81,6 +94,10 @@ const VALIDATION_RULES = {
 	past_dates: {
 		func: pastDatesOnly,
 		message: 'Enter only dates from the past.',
+	},
+	age_limit: {
+		func: ageLimit,
+		message: 'The applicant should be above the age limit',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
@@ -124,7 +141,12 @@ const VALIDATION_RULES = {
 		},
 		message: 'Upload agreement is mandatory',
 	},
+	mobile_number: {
+		func: validatePattern(/^[6789]\d{9}$/),
+		message: 'Enter valid Phone Number',
+	},
 };
+
 function validate(rules, value) {
 	if (!rules || Object.keys(rules || {}).length === 0) return false;
 	// all rules will be applied only if required: true or value exists in the field
@@ -192,18 +214,22 @@ export default function useForm() {
 		submitCount: 0,
 	});
 
+	const resetForm = () => {
+		fieldsRef.current = {};
+		valuesRef.current = {};
+		touchedRef.current = {};
+		errorsRef.current = {};
+		validRef.current = {};
+		submitRef.current = {
+			isSubmitting: false,
+			isSubmited: false,
+			submitCount: 0,
+		};
+	};
+
 	useEffect(() => {
 		return () => {
-			fieldsRef.current = {};
-			valuesRef.current = {};
-			touchedRef.current = {};
-			errorsRef.current = {};
-			validRef.current = {};
-			submitRef.current = {
-				isSubmitting: false,
-				isSubmited: false,
-				submitCount: 0,
-			};
+			resetForm();
 		};
 	}, []);
 
@@ -331,8 +357,10 @@ export default function useForm() {
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
-
-		if (newField?.name?.includes('bank_name')) {
+		if (
+			newField?.name?.includes('bank_name') ||
+			newField?.type?.includes('bank')
+		) {
 			// new changes by akash cloud stock nov-30
 			newField?.value &&
 				!valuesRef?.current?.[newField?.name] &&
@@ -341,7 +369,6 @@ export default function useForm() {
 			// old
 			setValue(newField?.name, newField?.value || '');
 		}
-
 		checkValidity(newField?.name);
 
 		return (
@@ -380,6 +407,9 @@ export default function useForm() {
 		valid = validDefault,
 		invalid = invalidDefault
 	) => async e => {
+		// console.log(valid);
+		// console.log(invalid);
+
 		const { submitCount } = submitRef.current;
 
 		submitRef.current = {
@@ -445,6 +475,7 @@ export default function useForm() {
 		clearErrorFormState: clearError,
 		onChangeFormStateField: onChange,
 		setErrorFormStateField: setError,
+		resetForm: resetForm,
 	};
 }
 
@@ -557,7 +588,14 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		}
 
 		case 'select': {
-			return <SelectField {...{ ...field, ...fieldProps }} />;
+			return (
+				<SelectField
+					{...{ ...field, ...fieldProps }}
+					style={{
+						minWidth: 100,
+					}}
+				/>
+			);
 		}
 		case 'address_proof_radio': {
 			return <AddressProofRadio {...{ ...field, ...fieldProps }} />;
@@ -634,12 +672,28 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
+		case 'disabledtextfieldmodal': {
+			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
+		}
+		//DisabledTextFieldModal
+		case 'button': {
+			return (
+				<Button
+					{...{ ...field, ...fieldProps }}
+
+					// style={{
+					// 	Width: '150px',
+					// }}
+				/>
+			);
+		}
 		default: {
 			return (
 				<>
 					<InputField
 						type={type}
 						{...{ ...field, ...fieldProps }}
+
 						// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 					/>
 					{/* {field?.inrupees && (

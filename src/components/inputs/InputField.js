@@ -111,7 +111,8 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function InputField(props) {
-	const isLargeTextLable = props.name.length > 15;
+	const isLargeTextLable = props?.name?.length > 15;
+	// console.log(props.onblur)
 	return (
 		<Div>
 			<Input
@@ -119,6 +120,7 @@ export default function InputField(props) {
 				type={props.type}
 				{...props}
 				onWheel={() => document.activeElement.blur()}
+				onBlur={e => (props.onblur ? props.onblur(e) : null)}
 			/>
 			<Label
 				isLargeTextLable={isLargeTextLable}
@@ -128,9 +130,9 @@ export default function InputField(props) {
 			>
 				<Span>
 					{props.placeholder}{' '}
-					{props?.rules?.minValue && `min ${props?.rules?.minValue}`}
+					{props?.rules?.minValue && `(min : ${props?.rules?.minValue})`}
 					{props?.rules?.minValue && props?.rules?.maxValue ? ' - ' : ' '}
-					{props?.rules?.maxValue && `max ${props?.rules?.maxValue}`}
+					{props?.rules?.maxValue && `(max : ${props?.rules?.maxValue})`}
 					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
 				</Span>
 				{/* {props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>} */}

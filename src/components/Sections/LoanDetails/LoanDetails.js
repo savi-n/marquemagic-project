@@ -1,65 +1,72 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, {
+	Fragment,
+	useState,
+	useEffect,
+	useRef,
+	useLayoutEffect,
+} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import _ from 'lodash';
 
 import Button from 'components/Button';
 import InputFieldSingleFileUpload from 'components/InputFieldSingleFileUpload';
+import Loading from 'components/Loading';
+import NavigateCTA from 'components/Sections/NavigateCTA';
 
 import useForm from 'hooks/useFormIndividual';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { setSelectedSectionId, toggleTestMode } from 'store/appSlice';
-import { updateApplicationSection } from 'store/applicationSlice';
+import { setSelectedSectionId } from 'store/appSlice';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
+//import { decryptViewDocumentUrl } from 'utils/encrypt';
 import {
+	formatGetSectionReqBody,
 	formatSectionReqBody,
 	getApiErrorMessage,
-	getApplicantCoApplicantSelectOptions,
+	getDocumentNameFromLoanDocuments,
+	parseJSON,
 } from 'utils/formatData';
-import { addCacheDocuments, removeCacheDocument } from 'store/applicationSlice';
+// import { scrollToTopRootElement } from 'utils/helper';
 import * as API from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
-import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
+// import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as CONST from './const';
-
+import * as CONST_SECTIONS from 'components/Sections/const';
 const LoanDetails = () => {
-	const { app, application, applicantCoApplicants } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
+	const {
+		directors,
+		// selectedDirectorId,
+		selectedDirectorOptions,
+	} = useSelector(state => state.directors);
+	// const selectedDirector = directors?.[selectedDirectorId] || {};
 	const {
 		isViewLoan,
 		selectedSectionId,
 		selectedSection,
 		nextSectionId,
-		prevSectionId,
 		isTestMode,
-		isLocalhost,
-		isEditLoan,
-		editLoanData,
 		isEditOrViewLoan,
+		selectedProduct,
 	} = app;
-	const { loanId, cacheDocuments } = application;
-	const {
-		isApplicant,
-		applicant,
-		coApplicants,
-		selectedApplicantCoApplicantId,
-	} = applicantCoApplicants;
-	const selectedApplicant = isApplicant
-		? applicant
-		: coApplicants?.[selectedApplicantCoApplicantId] || {};
+	const { loanId, cacheDocuments, businessType } = application;
+
+	const applicant =
+		Object.values(directors)?.filter(
+			dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+		)?.[0] || {};
 	const selectedIncomeType =
-		selectedApplicant?.basic_details?.[
-			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-		] || selectedApplicant?.income_type;
+		`${selectedProduct?.loan_request_type}` === '1'
+			? businessType
+			: applicant?.income_type || '';
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [
-		applicantAndCoapplicantOptions,
-		setApplicantAndCoapplicantOptions,
-	] = useState([]);
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [sectionData, setSectionData] = useState([]);
+	//const [loadingFile, setLoadingFile] = useState(false);
 	const {
 		handleSubmit,
 		register,
@@ -70,15 +77,45 @@ const LoanDetails = () => {
 	const prevSelectedConnectorId = useRef(null);
 	const selectedConnectorId =
 		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
-	const selectedImdDocumentFile =
+	// const selectedImdDocumentFile =
+	// 	{
+	// 		cacheDocumentsTemp?.filter(
+	// 		doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+	// 	)?.[0] ,
+	//   name: cacheDocumentsTemp?.filter(
+	// 	doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+	// )?.[0].name,
+	//   } || sectionData?.imd_details?.imd_document
+	// 		? {
+	// 				...sectionData?.imd_details?.imd_document,
+	// 				name: getDocumentNameFromLoanDocuments(
+	// 					sectionData?.imd_details?.imd_document
+	// 				),
+	// 				document_id: sectionData?.imd_details?.doc_id,
+	// 		  }
+	// 		: null;
+	let editLoanUploadedFile = null;
+
+	const ImdDocumentFileOnUpload =
 		cacheDocumentsTemp?.filter(
 			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-		)?.[0] ||
-		cacheDocuments?.filter(
-			doc => doc?.field?.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-		)?.[0] ||
-		null;
-	let editLoanUploadedFile = null;
+		)?.[0] || {};
+
+	const selectedImdDocument = sectionData?.imd_details?.imd_document
+		? {
+				...sectionData?.imd_details?.imd_document,
+				name: getDocumentNameFromLoanDocuments(
+					sectionData?.imd_details?.imd_document
+				),
+				document_id: sectionData?.imd_details?.doc_id,
+		  }
+		: null;
+
+	const selectedImdDocumentFile = ImdDocumentFileOnUpload.name
+		? ImdDocumentFileOnUpload
+		: selectedImdDocument;
+
+	//console.log(selectedImdDocumentFile);
 
 	const addCacheDocumentTemp = file => {
 		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
@@ -96,9 +133,11 @@ const LoanDetails = () => {
 			setCacheDocumentsTemp(
 				newCacheDocumentTemp.filter(doc => doc?.field?.name !== fieldName)
 			);
-		} else {
-			dispatch(removeCacheDocument({ fieldName }));
 		}
+		//setLoading(true);
+		if (sectionData?.imd_details?.imd_document?.uploaded_doc_name)
+			fetchSectionDetails();
+		//setLoading(false);
 	};
 
 	const getConnectors = async () => {
@@ -122,19 +161,11 @@ const LoanDetails = () => {
 		}
 	};
 
-	const naviagteToNextSection = () => {
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-	const naviagteToPreviousSection = () => {
-		dispatch(setSelectedSectionId(prevSectionId));
-	};
-
-	const onProceed = async () => {
+	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
 			const loanDetailsReqBody = formatSectionReqBody({
 				app,
-				applicantCoApplicants,
 				application,
 				values: formState.values,
 			});
@@ -156,7 +187,7 @@ const LoanDetails = () => {
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
-					cacheDocumentsTemp.map(doc => {
+					cacheDocumentsTemp?.map(doc => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
 							loan_id: loanId,
@@ -202,11 +233,6 @@ const LoanDetails = () => {
 						// console.log('updateDocumentIdToCacheDocuments-', {
 						// 	updateDocumentIdToCacheDocuments,
 						// });
-						dispatch(
-							addCacheDocuments({
-								files: updateDocumentIdToCacheDocuments,
-							})
-						);
 					}
 				} catch (error) {
 					console.error('error-', error);
@@ -224,11 +250,7 @@ const LoanDetails = () => {
 			// 	loanDetailsReqBody,
 			// 	loanDetailsRes,
 			// });
-			const newLoanDetails = {
-				sectionId: selectedSectionId,
-				sectionValues: formState.values,
-			};
-			dispatch(updateApplicationSection(newLoanDetails));
+			dispatch(setCompletedApplicationSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 		} catch (error) {
 			console.error('error-LoanDetails-onProceed-', {
@@ -246,44 +268,68 @@ const LoanDetails = () => {
 		}
 	};
 
-	const onSkip = () => {
-		const skipSectionData = {
-			sectionId: selectedSectionId,
-			sectionValues: {
-				...(application?.[selectedSectionId] || {}),
-				isSkip: true,
-			},
-		};
-		dispatch(updateApplicationSection(skipSectionData));
-		dispatch(setSelectedSectionId(nextSectionId));
-	};
-
 	const prefilledEditOrViewLoanValues = field => {
-		const imdDetails = editLoanData?.imd_details || {};
+		const imdDetails = sectionData?.imd_details || {};
+		const loanDetails = sectionData?.loan_details || {};
+		let estimatedFundRequirements = {};
+		let sourceFundRequirements = {};
+		if (sectionData?.loan_additional_data?.estimated_fund_requirements) {
+			estimatedFundRequirements = parseJSON(
+				sectionData?.loan_additional_data?.estimated_fund_requirements
+			);
+		}
+		if (sectionData?.loan_additional_data?.source_fund_requirements) {
+			sourceFundRequirements = parseJSON(
+				sectionData?.loan_additional_data?.source_fund_requirements
+			);
+		}
 		const preData = {
-			loan_amount: editLoanData?.loan_amount,
-			tenure: editLoanData?.applied_tenure,
-			loan_usage_type_id: editLoanData?.loan_usage_type?.id,
-			loan_source: editLoanData?.loan_origin,
-			connector_name: editLoanData?.connector_user_id,
-			connector_code: editLoanData?.connector_user_id,
+			...loanDetails,
+			loan_amount: loanDetails?.loan_amount,
+			tenure: loanDetails?.applied_tenure,
+			loan_usage_type_id: ['string', 'number'].includes(
+				typeof loanDetails?.loan_usage_type
+			)
+				? loanDetails?.loan_usage_type
+				: loanDetails?.loan_usage_type?.id,
+			scheme_category: loanDetails?.scheme_category_code,
+			credit_insurance: loanDetails?.credit_linked_insurance,
+			loan_source: loanDetails?.loan_origin,
+			connector_name: loanDetails?.connector_user_id,
+			connector_code: loanDetails?.connector_user_id,
 			...imdDetails,
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
-			branch_id: editLoanData?.branch_id,
-			loan_type: editLoanData?.loan_usage_type?.id,
+			branch_id: loanDetails?.branch_id,
+			loan_type: loanDetails?.loan_usage_type?.id,
+			...estimatedFundRequirements,
+			...sourceFundRequirements,
 		};
 		return preData?.[field?.name];
 	};
 
 	const prefilledValues = field => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
-
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
+			if (field?.name === 'loan_source') {
+				if (
+					formState?.values?.[field.name] === CONST.FIELD_NAME_NC_CONNECTOR ||
+					formState?.values?.[field.name] === CONST.FIELD_NAME_CONNECTOR
+				)
+					return 'Connector';
+				else if (
+					formState?.values?.[field.name] === CONST.FIELD_NAME_NC_BRANCH ||
+					formState?.values?.[field.name] === CONST.FIELD_NAME_BRANCH
+				)
+					return 'Branch';
+				// 	// return '';
+				else if (
+					formState?.values?.[field.name] === CONST.FIELD_NAME_NC ||
+					formState?.values?.[field.name] === CONST.FIELD_NAME_NC2
+				)
+					return null;
+			}
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -294,17 +340,9 @@ const LoanDetails = () => {
 			}
 			// -- TEST MODE
 
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-			) {
-				return application?.sections?.[selectedSectionId]?.[field?.name];
-			}
-
 			let editViewLoanValue = '';
 
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
+			editViewLoanValue = prefilledEditOrViewLoanValues(field);
 
 			if (editViewLoanValue) return editViewLoanValue;
 
@@ -314,8 +352,27 @@ const LoanDetails = () => {
 		}
 	};
 
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+			const fetchRes = await axios.get(
+				`${API.API_END_POINT}/updateLoanDetails?${formatGetSectionReqBody({
+					application,
+				})}`
+			);
+			// console.log('fetchRes-', fetchRes)
+			setSectionData(fetchRes?.data?.data || {});
+		} catch (error) {
+			console.error('error-fetchSectionDetails-', error);
+			setSectionData({});
+		} finally {
+			setFetchingSectionData(false);
+		}
+	};
+
 	useEffect(() => {
-		if (!selectedConnectorId) return;
+		// scrollToTopRootElement();
+		// if (!selectedConnectorId) return;
 		// console.log('useEffect-', {
 		// 	prev: prevSelectedConnectorId?.current,
 		// 	current: selectedConnectorId,
@@ -354,185 +411,179 @@ const LoanDetails = () => {
 	// 	// eslint-disable-next-line
 	// }, [formState.values, connectorOptions]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		getConnectors();
+		fetchSectionDetails();
+		// eslint-disable-next-line
 	}, []);
 
 	// console.log('loan-details-allstates-', {
 	// 	app,
 	// 	application,
-	// 	applicantCoApplicants,
+	// 	selectedDirector,
 	// 	formState,
+	// 	selectedSection,
 	// });
-
-	useEffect(() => {
-		const newApplicantAndCoapplicantOptions = getApplicantCoApplicantSelectOptions(
-			{
-				applicantCoApplicants,
-				isEditOrViewLoan,
-			}
-		);
-		// console.log(
-		// 	newApplicantAndCoapplicantOptions,
-		// 	'newApplicantAndCoapplicantOptions-loan-details'
-		// );
-		setApplicantAndCoapplicantOptions(newApplicantAndCoapplicantOptions);
-		// eslint-disable-next-line
-	}, [applicantCoApplicants]);
+	//console.log(sectionData?.imd_details?.imd_document?.uploaded_doc_name);
 
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
-			{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								{sub_section.name}
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.fields?.map((field, fieldIndex) => {
-								const newField = _.cloneDeep(field);
-								const customFieldProps = {};
-								if (!newField.visibility) return null;
-								if (newField?.for_type_name) {
-									if (
-										!newField?.for_type.includes(
-											formState?.values?.[newField?.for_type_name]
-										)
-									)
-										return null;
-								}
-								if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
-									// const newOptions = getApplicantCoApplicantSelectOptions({
-									// 	applicantCoApplicants,
-									// 	isEditOrViewLoan,
-									// });
-									newField.options = [
-										...applicantAndCoapplicantOptions,
-										...newField.options,
-									];
-								}
-								if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
-									newField.options = connectorOptions;
-								}
-								if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
-									customFieldProps.disabled = true;
-								}
-								if (
-									newField.type === 'file' &&
-									newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
-								) {
-									const selectedDocTypeId =
-										field?.doc_type?.[selectedIncomeType];
-									const errorMessage =
-										(formState?.submit?.isSubmited ||
-											formState?.touched?.[field.name]) &&
-										formState?.error?.[field.name];
-									if (isEditOrViewLoan) {
-										const imd_document_id = prefilledEditOrViewLoanValues(
-											field
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<>
+					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
+						return (
+							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+								{sub_section?.name ? (
+									<UI_SECTIONS.SubSectionHeader>
+										{sub_section.name}
+									</UI_SECTIONS.SubSectionHeader>
+								) : null}
+								<UI_SECTIONS.FormWrapGrid>
+									{sub_section?.fields?.map((field, fieldIndex) => {
+										const newField = _.cloneDeep(field);
+										const customFieldProps = {};
+										if (!newField.visibility) return null;
+										if (newField?.for_type_name) {
+											if (
+												!newField?.for_type.includes(
+													formState?.values?.[newField?.for_type_name]
+												)
+											)
+												return null;
+										}
+										if (newField.name === CONST.IMD_PAID_BY_FIELD_NAME) {
+											newField.options = [
+												...selectedDirectorOptions,
+												...newField.options,
+											];
+										}
+										if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
+											newField.options = connectorOptions;
+										}
+										if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
+											customFieldProps.disabled = true;
+										}
+										if (
+											newField.type === 'file' &&
+											newField.name === CONST.IMD_DOCUMENT_UPLOAD_FIELD_NAME
+										) {
+											const selectedDocTypeId =
+												field?.doc_type?.[selectedIncomeType];
+											const errorMessage =
+												(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+												formState?.error?.[field.name];
+											if (isEditOrViewLoan) {
+												const imd_document_id = prefilledEditOrViewLoanValues(
+													field
+												);
+												editLoanUploadedFile =
+													cacheDocuments?.filter(
+														doc =>
+															`${doc?.document_id}` === `${imd_document_id}`
+													)?.[0] || null;
+											}
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${fieldIndex}-${field.name}`}
+												>
+													<InputFieldSingleFileUpload
+														field={newField}
+														uploadedFile={selectedImdDocumentFile}
+														selectedDocTypeId={selectedDocTypeId}
+														clearErrorFormState={clearErrorFormState}
+														addCacheDocumentTemp={addCacheDocumentTemp}
+														removeCacheDocumentTemp={removeCacheDocumentTemp}
+														errorColorCode={errorMessage ? 'red' : ''}
+														isFormSubmited={!!formState?.submit?.isSubmited}
+														category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
+													/>
+													{errorMessage && (
+														<UI_SECTIONS.ErrorMessage>
+															{errorMessage}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+												</UI_SECTIONS.FieldWrapGrid>
+											);
+										}
+
+										let newPrefilledValue = prefilledValues(newField);
+
+										if (newField?.sum_of?.length > 0) {
+											// console.log('field-sum-of-', { newField });
+											let newPrefilledValueSum = 0;
+											newField?.sum_of?.forEach(field_name => {
+												newPrefilledValueSum += formState?.values?.[field_name]
+													? +formState?.values?.[field_name]
+													: 0;
+											});
+											// console.log('field-sum-', { newPrefilledValueSum });
+											newPrefilledValue = newPrefilledValueSum;
+										}
+
+										if (newField?.name === CONST.FIELD_NAME_TYPE_OF_LOAN) {
+											newPrefilledValue = selectedProduct?.name || '';
+										}
+
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${fieldIndex}-${newField.name}`}
+											>
+												{register({
+													...newField,
+													value: newPrefilledValue,
+													...customFieldProps,
+													visibility: 'visible',
+												})}
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[newField.name]) &&
+													formState?.error?.[newField.name] && (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[newField.name]}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+											</UI_SECTIONS.FieldWrapGrid>
 										);
-										editLoanUploadedFile =
-											cacheDocuments?.filter(
-												doc => `${doc?.document_id}` === `${imd_document_id}`
-											)?.[0] || null;
+									})}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button
+								fill
+								name='Save and Proceed'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									const isIMDDocumentExist =
+										selectedImdDocumentFile || editLoanUploadedFile;
+									if (
+										formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] ===
+											'Yes' &&
+										!isIMDDocumentExist
+									) {
+										addToast({
+											message: 'IMD document is mandatory',
+											type: 'error',
+										});
+										return;
 									}
-									return (
-										<UI_SECTIONS.FieldWrapGrid
-											key={`field-${fieldIndex}-${field.name}`}
-										>
-											<InputFieldSingleFileUpload
-												field={field}
-												uploadedFile={
-													selectedImdDocumentFile || editLoanUploadedFile
-												}
-												selectedDocTypeId={selectedDocTypeId}
-												clearErrorFormState={clearErrorFormState}
-												addCacheDocumentTemp={addCacheDocumentTemp}
-												removeCacheDocumentTemp={removeCacheDocumentTemp}
-												errorColorCode={errorMessage ? 'red' : ''}
-												isFormSubmited={!!formState?.submit?.isSubmited}
-												category='other' // TODO: varun discuss with madhuri how to configure this category from JSON
-											/>
-											{errorMessage && (
-												<UI_SECTIONS.ErrorMessage>
-													{errorMessage}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-										</UI_SECTIONS.FieldWrapGrid>
-									);
-								}
-								if (isViewLoan) {
-									customFieldProps.disabled = true;
-								}
-								return (
-									<UI_SECTIONS.FieldWrapGrid
-										key={`field-${fieldIndex}-${newField.name}`}
-									>
-										{register({
-											...newField,
-											value: prefilledValues(newField),
-											...customFieldProps,
-											visibility: 'visible',
-										})}
-										{(formState?.submit?.isSubmited ||
-											formState?.touched?.[newField.name]) &&
-											formState?.error?.[newField.name] && (
-												<UI_SECTIONS.ErrorMessage>
-													{formState?.error?.[newField.name]}
-												</UI_SECTIONS.ErrorMessage>
-											)}
-									</UI_SECTIONS.FieldWrapGrid>
-								);
-							})}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(() => {
-							const isIMDDocumentExist =
-								selectedImdDocumentFile || editLoanUploadedFile;
-							if (
-								formState?.values?.[CONST.IMD_COLLECTED_FIELD_NAME] === 'Yes' &&
-								!isIMDDocumentExist
-							) {
-								addToast({
-									message: 'IMD document is mandatory',
-									type: 'error',
-								});
-								return;
-							}
-							onProceed();
-						})}
-					/>
-				)}
+									onSaveAndProceed();
+								})}
+							/>
+						)}
 
-				{isViewLoan && (
-					<>
-						<Button name='Previous' onClick={naviagteToPreviousSection} fill />
-						<Button name='Next' onClick={naviagteToNextSection} fill />
-					</>
-				)}
-
-				{!isViewLoan && (!!selectedSection?.is_skip || !!isTestMode) ? (
-					<Button name='Skip' disabled={loading} onClick={onSkip} />
-				) : null}
-				{isLocalhost && !isViewLoan && !!isTestMode && (
-					<Button
-						fill={!!isTestMode}
-						name='Auto Fill'
-						onClick={() => dispatch(toggleTestMode())}
-					/>
-				)}
-			</UI_SECTIONS.Footer>
+						<NavigateCTA />
+					</UI_SECTIONS.Footer>
+				</>
+			)}
 		</UI_SECTIONS.Wrapper>
 	);
 };

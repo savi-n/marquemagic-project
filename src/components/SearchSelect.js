@@ -146,7 +146,8 @@ export default function SearchSelect(props) {
 		field,
 		defaultValue = '',
 		customLabel = '',
-		onIfscChange,
+		errorMessage,
+		// onIfscChange,
 	} = props;
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
@@ -155,6 +156,8 @@ export default function SearchSelect(props) {
 	const [selectOptions, setSelectOptions] = useState(options);
 	const [focus, setFocus] = useState(false);
 	const compRef = useRef('');
+	// const disable3CharacterSearch = true;
+	const disable3CharacterSearch = !!field?.disable_3_character_search;
 
 	useClickOutside(compRef, () => {
 		if (optionShow) {
@@ -237,7 +240,7 @@ export default function SearchSelect(props) {
 		const { value } = event.target;
 		if (field.name.includes('ifsc')) {
 			if (value.length > 11) return;
-			onIfscChange(value);
+			// onIfscChange(value);
 		}
 		if (field.name.includes('ifsc')) {
 			// length of ifsc is always 11
@@ -272,11 +275,19 @@ export default function SearchSelect(props) {
 		}
 	};
 
-	const filterdOptions = selectOptions.filter(
-		({ name, value }) =>
-			name.toLowerCase().includes(searchKey.toLowerCase()) ||
-			value.toLowerCase().includes(searchKey.toLowerCase())
-	);
+	const filterdOptions = selectOptions.filter(({ name, value }) => {
+		if (disable3CharacterSearch) {
+			return (
+				name.toLowerCase().includes(searchKey.toLowerCase()) ||
+				value.toLowerCase().includes(searchKey.toLowerCase())
+			);
+		} else {
+			return searchKey.length >= 3
+				? name.toLowerCase().includes(searchKey.toLowerCase()) ||
+						value.toLowerCase().includes(searchKey.toLowerCase())
+				: false;
+		}
+	});
 
 	return (
 		<>
@@ -347,7 +358,15 @@ export default function SearchSelect(props) {
 						))}
 						{!fetching && !filterdOptions.length && (
 							<Option onClick={e => e.preventDefault()} disabled>
-								Options Not Found.
+								{disable3CharacterSearch
+									? errorMessage
+										? errorMessage
+										: 'Options Not Found.'
+									: searchKey.length < 3
+									? 'Please enter atleast 3 character'
+									: errorMessage
+									? errorMessage
+									: 'Options Not Found.'}
 								{/* {' '}
 								{field.name.includes('ifsc')
 									? 'Enter only 11 characters'
