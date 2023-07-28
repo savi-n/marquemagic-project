@@ -22,6 +22,7 @@ import {
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
+	addSelfieCacheDocument,
 } from 'store/applicationSlice';
 import {
 	setOnSiteSelfieGeoLocation,
@@ -391,6 +392,24 @@ const DocumentUpload = props => {
 							allDocumentsRes?.data?.documentList?.is_aadhaar_verified_with_otp
 						) {
 							setIsAadhaarVerified(true);
+						}
+
+						if (
+							allDocumentsRes?.data?.documentList?.lender_document?.length > 0
+						) {
+							const lenderDocs =
+								allDocumentsRes?.data?.documentList?.lender_document;
+							const filteredSelfieDocs = lenderDocs.filter(
+								doc => `${doc?.doc_type?.id}` === '364'
+							);
+
+							console.log({ filteredSelfieDocs }, 'filteredSelfieDocs');
+
+							filteredSelfieDocs?.map(selfieDoc => {
+								console.log({ selfieDoc }, 'selfie doc');
+								dispatch(addSelfieCacheDocument(selfieDoc));
+								// dispatch(addCacheDocument(selfieDoc))
+							});
 						}
 						if (
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
@@ -844,6 +863,9 @@ const DocumentUpload = props => {
 			if (doc?.req_type) return null;
 			if (!doc?.doc_type_id) {
 				isDocTypeUnTagged = true;
+				if (doc?.doc_type?.id) {
+					isDocTypeUnTagged = false;
+				}
 				return false;
 			}
 			return null;
@@ -1247,6 +1269,17 @@ const DocumentUpload = props => {
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
+
+	console.log(cacheDocuments, 'cacheDocuments near profileUploadedFile');
+	const selfieImageUploadedFile =
+		cacheDocuments?.filter(
+			doc =>
+				`${doc?.directorId}` === `${selectedDirectorId}` &&
+				`${doc?.doc_type?.id}` === '364'
+		)?.[0] || null;
+
+	console.log(selfieImageUploadedFile, 'selfieImageLoadedFile');
+
 	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
@@ -1308,7 +1341,7 @@ const DocumentUpload = props => {
 
 	// 	if (
 	// 		onSiteSelfiefield?.fields?.length === 1 &&
-	// 		onSiteSelfiefield[0]?.geo_tagging === true
+
 	// 	) {
 	// 		mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
 	// 		mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
@@ -1760,6 +1793,7 @@ const DocumentUpload = props => {
 													onChangeFormStateField={onChangeFormStateField}
 													uploadedFile={
 														cacheFile?.[selectedDirectorId]?.file ||
+														selfieImageUploadedFile ||
 														profileUploadedFile ||
 														null
 													}
@@ -1788,7 +1822,8 @@ const DocumentUpload = props => {
 																	selectedDirector?.onSiteSelfieGeoLocation?.lat
 																}
 																longitude={
-																	selectedDirector?.onSiteSelfieGeoLocation?.long
+																	selectedDirector?.onSiteSelfieGeoLocation
+																		?.long
 																}
 																timestamp={
 																	selectedDirector?.onSiteSelfieGeoLocation

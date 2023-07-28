@@ -65,6 +65,23 @@ export const applicationSlice = createSlice({
 			const { file } = action.payload;
 			state.cacheDocuments.push(file);
 		},
+
+		addSelfieCacheDocument: (state, { payload }) => {
+			const selfieFile = payload;
+			console.log(selfieFile, 'selfieFile in slice...........');
+			// const allCacheFiles = _.cloneDeep(cacheDocuments);
+			// const isSelfieAlreadyExists = allCacheFiles.findIndex(
+			// 	selfieDoc =>
+			// 		selfieDoc?.directorId === selfieFile?.directorId &&
+			// 		selfieDoc?.doc_type.id === 364
+			// );
+			// if (isSelfieAlreadyExists >= 0) {
+			// 	return;
+			// } else {
+			state.cacheDocuments.push(selfieFile);
+			// }
+		},
+
 		addOrUpdateCacheDocument: (state, action) => {
 			// pass only single file object
 			const { file } = action.payload;
@@ -152,6 +169,10 @@ export const applicationSlice = createSlice({
 				return true;
 			});
 			state.cacheDocuments = newDocuments;
+		},
+
+		removeSelfieCacheDocument: (state, { payload }) => {
+			console.log(payload);
 		},
 
 		updateCacheDocumentTypeId: (state, action) => {
@@ -280,11 +301,13 @@ export const {
 	setNewCompletedSections,
 
 	addCacheDocument,
+	addSelfieCacheDocument,
 	addOrUpdateCacheDocument,
 	addOrUpdateCacheDocuments,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addCacheDocuments,
 	removeCacheDocument,
+	removeSelfieCacheDocument,
 	updateCacheDocumentTypeId,
 	updateCacheDocumentPassword,
 	updateCacheDocumentProgress,
