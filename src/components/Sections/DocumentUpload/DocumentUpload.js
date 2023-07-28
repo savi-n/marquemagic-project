@@ -75,6 +75,7 @@ const DocumentUpload = props => {
 		nonApplicantDirectorsArray.push(directors[directorId]);
 		return null;
 	});
+	const [entityGeolocation, setEntitiyGeoLocation] = useState(null);
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -739,6 +740,9 @@ const DocumentUpload = props => {
 										},
 									}
 								);
+								if (selectedDirectorId === '0') {
+									setEntitiyGeoLocation(geoLocationRes?.data?.data);
+								}
 								dispatch(
 									setOnSiteSelfieGeoLocation(geoLocationRes?.data?.data)
 								);
@@ -1236,6 +1240,9 @@ const DocumentUpload = props => {
 					err: 'Geo Location Not Captured',
 				};
 				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
+				if (selectedDirectorId === '0') {
+					setEntitiyGeoLocation(geoLocationTag);
+				}
 			} else {
 				const geoLocationTag = {
 					address: file?.address,
@@ -1244,6 +1251,9 @@ const DocumentUpload = props => {
 					timestamp: file?.timestamp,
 				};
 				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
+				if (selectedDirectorId === '0') {
+					setEntitiyGeoLocation(geoLocationTag);
+				}
 			}
 		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
@@ -1774,8 +1784,12 @@ const DocumentUpload = props => {
 											key={`dataitem-${field?.id}${fieldIndex}`}
 										>
 											{/* {console.log(selectedDirector.onSiteSelfieGeoLocation)} */}
+
 											<UI.VerificationSection
-												isLocation={!!selectedDirector?.onSiteSelfieGeoLocation}
+												isLocation={
+													!!selectedDirector?.onSiteSelfieGeoLocation ||
+													!!entityGeolocation
+												}
 											>
 												<ProfileUpload
 													field={field}
@@ -1796,31 +1810,36 @@ const DocumentUpload = props => {
 											</UI.VerificationSection>
 											{field?.geo_tagging === true
 												? Object.keys(
-														selectedDirector.onSiteSelfieGeoLocation || {}
+														selectedDirector.onSiteSelfieGeoLocation ||
+															entityGeolocation ||
+															{}
 												  ).length > 0 && (
 														<UI.VerificationSection
 															isLocation={
-																!!selectedDirector?.onSiteSelfieGeoLocation
+																!!selectedDirector?.onSiteSelfieGeoLocation ||
+																!!entityGeolocation
 															}
 														>
 															<AddressDetailsCard
 																address={
 																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.address
+																		?.address || entityGeolocation?.address
 																}
 																latitude={
-																	selectedDirector?.onSiteSelfieGeoLocation?.lat
+																	selectedDirector?.onSiteSelfieGeoLocation
+																		?.lat || entityGeolocation?.lat
 																}
 																longitude={
 																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.long
+																		?.long || entityGeolocation?.longitude
 																}
 																timestamp={
 																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.timestamp
+																		?.timestamp || entityGeolocation?.timestamp
 																}
 																err={
-																	selectedDirector?.onSiteSelfieGeoLocation?.err
+																	selectedDirector?.onSiteSelfieGeoLocation
+																		?.err || entityGeolocation?.err
 																}
 																showCloseIcon={false}
 																customStyle={{
