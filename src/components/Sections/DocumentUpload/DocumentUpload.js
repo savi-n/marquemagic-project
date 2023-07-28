@@ -1752,7 +1752,7 @@ const DocumentUpload = props => {
 										>
 											{/* {console.log(selectedDirector.onSiteSelfieGeoLocation)} */}
 											<UI.VerificationSection
-												isLocation={!!selectedDirector.onSiteSelfieGeoLocation}
+												isLocation={!!selectedDirector?.onSiteSelfieGeoLocation}
 											>
 												<ProfileUpload
 													field={field}
@@ -1776,26 +1776,26 @@ const DocumentUpload = props => {
 												  ).length > 0 && (
 														<UI.VerificationSection
 															isLocation={
-																!!selectedDirector.onSiteSelfieGeoLocation
+																!!selectedDirector?.onSiteSelfieGeoLocation
 															}
 														>
 															<AddressDetailsCard
 																address={
-																	selectedDirector.onSiteSelfieGeoLocation
+																	selectedDirector?.onSiteSelfieGeoLocation
 																		?.address
 																}
 																latitude={
-																	selectedDirector.onSiteSelfieGeoLocation?.lat
+																	selectedDirector?.onSiteSelfieGeoLocation?.lat
 																}
 																longitude={
-																	selectedDirector.onSiteSelfieGeoLocation?.long
+																	selectedDirector?.onSiteSelfieGeoLocation?.long
 																}
 																timestamp={
-																	selectedDirector.onSiteSelfieGeoLocation
+																	selectedDirector?.onSiteSelfieGeoLocation
 																		?.timestamp
 																}
 																err={
-																	selectedDirector.onSiteSelfieGeoLocation?.err
+																	selectedDirector?.onSiteSelfieGeoLocation?.err
 																}
 																showCloseIcon={false}
 																customStyle={{
