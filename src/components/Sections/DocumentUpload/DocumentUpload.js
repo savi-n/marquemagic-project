@@ -402,13 +402,10 @@ const DocumentUpload = props => {
 							const filteredSelfieDocs = lenderDocs.filter(
 								doc => `${doc?.doc_type?.id}` === '364'
 							);
-
-							console.log({ filteredSelfieDocs }, 'filteredSelfieDocs');
-
 							filteredSelfieDocs?.map(selfieDoc => {
-								console.log({ selfieDoc }, 'selfie doc');
 								dispatch(addSelfieCacheDocument(selfieDoc));
 								// dispatch(addCacheDocument(selfieDoc))
+								return null;
 							});
 						}
 						if (
@@ -421,7 +418,6 @@ const DocumentUpload = props => {
 									applicantDirectorId || CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 							});
 						}
-
 						if (isViewLoan) {
 							// console.log(
 							// 	{
@@ -861,11 +857,8 @@ const DocumentUpload = props => {
 		cacheDocuments?.map(doc => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (doc?.req_type) return null;
-			if (!doc?.doc_type_id) {
+			if (!(doc?.doc_type_id || doc?.doc_type?.id)) {
 				isDocTypeUnTagged = true;
-				if (doc?.doc_type?.id) {
-					isDocTypeUnTagged = false;
-				}
 				return false;
 			}
 			return null;
@@ -1270,15 +1263,12 @@ const DocumentUpload = props => {
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
 
-	console.log(cacheDocuments, 'cacheDocuments near profileUploadedFile');
 	const selfieImageUploadedFile =
 		cacheDocuments?.filter(
 			doc =>
 				`${doc?.directorId}` === `${selectedDirectorId}` &&
 				`${doc?.doc_type?.id}` === '364'
 		)?.[0] || null;
-
-	console.log(selfieImageUploadedFile, 'selfieImageLoadedFile');
 
 	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {

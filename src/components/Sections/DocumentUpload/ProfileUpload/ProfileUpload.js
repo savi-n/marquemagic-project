@@ -11,7 +11,6 @@ import { useToasts } from '../../../Toast/ToastProvider';
 import {
 	removeCacheDocument,
 	addOrUpdateCacheDocument,
-	removeSelfieCacheDocument,
 } from 'store/applicationSlice';
 import {
 	setProfileGeoLocation,
@@ -51,12 +50,6 @@ const ProfileUpload = props => {
 		// selectectedProduct,
 		setImageLoading = () => {},
 	} = props;
-
-	console.log(
-		uploadedFile,
-		isProfileMandatory,
-		'uploadedFile in profile upload comp'
-	);
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -105,45 +98,45 @@ const ProfileUpload = props => {
 		}
 	};
 
-	const deleteSelfieDocument = async file => {
-		console.log('clicked');
-		console.log(file, 'file inside deleteSelfie Function');
-		try {
-			let endPoint = API.DELETE_LENDER_DOCUMENT;
-			setLoading(true);
-			const reqBody = {
-				lender_doc_id: file?.id || '',
-				businessId: businessId,
-				loan_id: loanId,
-				user_id: businessUserId,
-				loan_bank_mapping_id:
-					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
-			};
-			await axios.post(endPoint, reqBody);
-			console.log('running till here.....');
-			removeCacheDocumentTemp(field?.name);
-			console.log('still running......');
-			dispatch(removeSelfieCacheDocument(file));
-		} catch (error) {
-			console.error('error-deleteDocument-', error);
-			addToast({
-				message:
-					error?.response?.data?.message ||
-					error.message ||
-					'Unable to delete file, try after sometime',
-				type: 'error',
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
+	// const deleteSelfieDocument = async file => {
+	// 	console.log('clicked');
+	// 	console.log(file, 'file inside deleteSelfie Function');
+	// 	try {
+	// 		let endPoint = API.DELETE_LENDER_DOCUMENT;
+	// 		setLoading(true);
+	// 		const reqBody = {
+	// 			lender_doc_id: file?.id || '',
+	// 			businessId: businessId,
+	// 			loan_id: loanId,
+	// 			user_id: businessUserId,
+	// 			loan_bank_mapping_id:
+	// 				file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
+	// 		};
+	// 		await axios.post(endPoint, reqBody);
+	// 		console.log('running till here.....');
+	// 		removeCacheDocumentTemp(field?.name);
+	// 		console.log('still running......');
+	// 		dispatch(removeSelfieCacheDocument(file));
+	// 	} catch (error) {
+	// 		console.error('error-deleteDocument-', error);
+	// 		addToast({
+	// 			message:
+	// 				error?.response?.data?.message ||
+	// 				error.message ||
+	// 				'Unable to delete file, try after sometime',
+	// 			type: 'error',
+	// 		});
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
 
 	// CALLED FOR SELFIE DOC UPLOAD
 	const deleteDocument = async file => {
 		try {
-			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
+			if (!(file?.document_id || file?.id))
+				return removeCacheDocumentTemp(field.name);
 			let endPoint = API.DELETE_DOCUMENT;
-			console.log(section);
 			if (section === 'documentUpload') {
 				endPoint = API.DELETE_LENDER_DOCUMENT;
 			}
@@ -154,7 +147,7 @@ const ProfileUpload = props => {
 				business_id: businessId,
 
 				//for doc upload
-				lender_doc_id: file?.document_id || '',
+				lender_doc_id: file?.document_id || file?.id || '',
 				loan_bank_mapping_id:
 					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
 				loan_id: loanId,
@@ -396,7 +389,7 @@ const ProfileUpload = props => {
 		return () =>
 			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
 		// eslint-disable-next-line
-	}, []);
+	}, [uploadedFile]);
 
 	// Disable click and keydown behavior on the <Dropzone>
 
@@ -464,8 +457,8 @@ const ProfileUpload = props => {
 											});
 											return;
 										}
-										// deleteDocument(uploadedFile);
-										deleteSelfieDocument(uploadedFile);
+										deleteDocument(uploadedFile);
+										// deleteSelfieDocument(uploadedFile);
 										// setProfileImageResTemp(null);
 									}}
 								/>

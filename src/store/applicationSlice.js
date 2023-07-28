@@ -171,9 +171,9 @@ export const applicationSlice = createSlice({
 			state.cacheDocuments = newDocuments;
 		},
 
-		removeSelfieCacheDocument: (state, { payload }) => {
-			console.log(payload);
-		},
+		// removeSelfieCacheDocument: (state, { payload }) => {
+		// 	console.log(payload);
+		// },
 
 		updateCacheDocumentTypeId: (state, action) => {
 			// console.log('updateSelectedDocumentTypeId-', { action });
@@ -307,7 +307,7 @@ export const {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addCacheDocuments,
 	removeCacheDocument,
-	removeSelfieCacheDocument,
+	// removeSelfieCacheDocument,
 	updateCacheDocumentTypeId,
 	updateCacheDocumentPassword,
 	updateCacheDocumentProgress,
