@@ -1263,13 +1263,22 @@ const DocumentUpload = props => {
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
 
+	// console.log(cacheDocuments, 'cacheDocs');
+
+	const selfieDocType = selfieWithApplicantField?.doc_type?.[
+		selectedDirector?.income_type
+	]
+		? selfieWithApplicantField?.doc_type?.[selectedDirector?.income_type]
+		: selfieWithApplicantField?.doc_type?.[businessType];
+
 	const selfieImageUploadedFile =
 		cacheDocuments?.filter(
 			doc =>
 				`${doc?.directorId}` === `${selectedDirectorId}` &&
-				`${doc?.doc_type?.id}` === '364'
+				`${doc?.doc_type?.id}` === `${selfieDocType}`
 		)?.[0] || null;
 
+	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
