@@ -556,57 +556,21 @@ const BasicDetails = props => {
 			});
 			if (fetchRes?.data?.status === 'ok') {
 				setSectionData(fetchRes?.data?.data);
-				// to fetch the geoLocation of the profile pic
-				const fetchedProfilePicData =
-					fetchRes?.data?.data?.director_details?.customer_picture;
-				if (
-					fetchedProfilePicData &&
-					Object.keys(fetchedProfilePicData)?.length > 0
-				) {
-					setFetchedProfilePic(fetchedProfilePicData);
-					if (!!fetchedProfilePicData?.lat) {
-						const reqBody = {
-							lat: fetchedProfilePicData?.lat,
-							long: fetchedProfilePicData?.long,
-							director_id: selectedDirectorId,
-						};
-						const profileGeoLocationRes = await axios.post(
-							API.GEO_LOCATION,
-							reqBody,
-							{
-								headers: {
-									Authorization: `Bearer ${userToken}`,
-								},
-							}
-						);
-						setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
-					}
-				}
 
-				// to fetch the geoLocation
-				const appCoordinates =
-					fetchRes?.data?.data?.director_details?.app_coordinates;
+				// step1 - P0 - setting values for edit loan
+				dispatch(
+					setLoanIds({
+						businessId: fetchRes?.data?.data?.business_data?.id,
+						loanId: fetchRes?.data?.data?.loan_request_Data?.id,
+						businessUserId: fetchRes?.data?.data?.business_data?.userid,
+						loanProductId:
+							fetchRes?.data?.data?.loan_request_Data?.loan_product_id,
+						createdByUserId:
+							fetchRes?.data?.data?.loan_request_Data?.createdUserId,
+					})
+				);
 
-				if (
-					// (!geoLocation || geoLocation?.err) &&
-					appCoordinates &&
-					Object.keys(appCoordinates)?.length > 0
-				) {
-					const reqBody = {
-						lat: appCoordinates?.lat,
-						long: appCoordinates?.long,
-						director_id: selectedDirectorId,
-					};
-					const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					});
-					dispatch(setGeoLocation(geoLocationRes?.data?.data));
-					setGeoLocationData(geoLocationRes?.data?.data);
-				}
-
-				// update completed sections
+				// step2 - P1 - update completed sections
 				if (
 					isEditOrViewLoan &&
 					`${selectedProduct?.loan_request_type}` === '2'
@@ -631,18 +595,69 @@ const BasicDetails = props => {
 					);
 				}
 
-				// setting values for edit loan
-				dispatch(
-					setLoanIds({
-						businessId: fetchRes?.data?.data?.business_data?.id,
-						loanId: fetchRes?.data?.data?.loan_request_Data?.id,
-						businessUserId: fetchRes?.data?.data?.business_data?.userid,
-						loanProductId:
-							fetchRes?.data?.data?.loan_request_Data?.loan_product_id,
-						createdByUserId:
-							fetchRes?.data?.data?.loan_request_Data?.createdUserId,
-					})
-				);
+				// to fetch the geoLocation of the profile pic
+				try {
+					const fetchedProfilePicData =
+						fetchRes?.data?.data?.director_details?.customer_picture;
+					if (
+						fetchedProfilePicData &&
+						Object.keys(fetchedProfilePicData)?.length > 0
+					) {
+						setFetchedProfilePic(fetchedProfilePicData);
+						if (!!fetchedProfilePicData?.lat) {
+							const reqBody = {
+								lat: fetchedProfilePicData?.lat,
+								long: fetchedProfilePicData?.long,
+								director_id: selectedDirectorId,
+							};
+							const profileGeoLocationRes = await axios.post(
+								API.GEO_LOCATION,
+								reqBody,
+								{
+									headers: {
+										Authorization: `Bearer ${userToken}`,
+									},
+								}
+							);
+							setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
+						}
+					}
+				} catch (err) {
+					console.error({
+						error: err.message,
+						location: 'geo-location-profile-pic-basic-details',
+					});
+				}
+
+				// to fetch the geoLocation
+				try {
+					const appCoordinates =
+						fetchRes?.data?.data?.director_details?.app_coordinates;
+
+					if (
+						// (!geoLocation || geoLocation?.err) &&
+						appCoordinates &&
+						Object.keys(appCoordinates)?.length > 0
+					) {
+						const reqBody = {
+							lat: appCoordinates?.lat,
+							long: appCoordinates?.long,
+							director_id: selectedDirectorId,
+						};
+						const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						});
+						dispatch(setGeoLocation(geoLocationRes?.data?.data));
+						setGeoLocationData(geoLocationRes?.data?.data);
+					}
+				} catch (err) {
+					console.error({
+						error: err.message,
+						location: 'geo-location-basic-details',
+					});
+				}
 			}
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
