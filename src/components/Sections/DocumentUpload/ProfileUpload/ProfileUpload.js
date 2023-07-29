@@ -16,6 +16,8 @@ import {
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
+	setOnSiteSelfieGeoLocation,
+	removeOnSiteSelfieGeoLocation,
 } from 'store/directorsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
@@ -159,6 +161,7 @@ const ProfileUpload = props => {
 			dispatch(removeCacheDocument(file));
 			if (isGeoTaggingEnabled) {
 				dispatch(removeDocumentSelfieGeoLocation());
+				dispatch(removeOnSiteSelfieGeoLocation());
 			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
@@ -190,6 +193,7 @@ const ProfileUpload = props => {
 						dispatch(
 							setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
 						);
+						dispatch(setOnSiteSelfieGeoLocation({err: 'Geo Location Not Captured'}))
 					} else {
 						dispatch(
 							setProfileGeoLocation({ err: 'Geo Location Not Captured' })
@@ -273,6 +277,8 @@ const ProfileUpload = props => {
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+							dispatch(setOnSiteSelfieGeoLocation({err: 'Geo Location Not Captured'}))
+
 						}
 						// console.log('newfile-', { newFile });
 						dispatch(
