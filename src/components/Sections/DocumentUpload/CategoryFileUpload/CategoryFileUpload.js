@@ -44,7 +44,7 @@ const CategoryFileUpload = props => {
 		directorId,
 	} = props;
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, isEditLoan, isLocalhost } = app;
+	const { isViewLoan, isLocalhost } = app;
 	const { businessId, businessUserId, loanId, userId } = application;
 	const ref = useRef(uuidv4());
 	const refPopup = useRef(null);
@@ -604,7 +604,7 @@ const CategoryFileUpload = props => {
 										isDocRemoveAllowed = doc?.isDocRemoveAllowed || false;
 										// isViewDocAllowed = false;
 									}
-									if (isEditLoan && doc?.is_delete_not_allowed === 'true') {
+									if (doc?.is_delete_not_allowed === 'true') {
 										isDocRemoveAllowed = false;
 									}
 									return (
