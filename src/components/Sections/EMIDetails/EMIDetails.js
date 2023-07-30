@@ -141,23 +141,19 @@ const EMIDetails = props => {
 	const prefilledValues = (field, index) => {
 		try {
 			// p1
-
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-			// console.log({ val: formState.values, isFormStateUpdated });
-			if (isFormStateUpdated && field?.name?.includes('bank_name')) {
-				return (
-					formState?.values?.[field?.name] ||
-					emiDetailsIndex?.[`bank_id_${index}`]
-				);
-			}
-			if (isFormStateUpdated && field?.name?.includes('emi_amount')) {
-				return (
-					formState?.values?.[field?.name] || emiDetailsIndex?.[field?.name]
-				);
+			if (isFormStateUpdated) {
+				return formState?.values?.[field?.name];
 			}
 			// TEST MODE p2
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
+			}
+			if (field?.name?.includes('emi_amount')) {
+				return emiDetailsIndex?.[field?.name];
+			}
+			if (field?.name?.includes('bank_name')) {
+				return emiDetailsIndex?.[`bank_id_${index}`];
 			}
 			// -- TEST MODE
 		} catch (error) {
@@ -259,7 +255,6 @@ const EMIDetails = props => {
 				setSectionData(emiData);
 				setCount(tempCount);
 				setEmiDetailsIndex(indexedValues);
-
 				setEmiDetailsFinId(records?.id || '');
 			}
 		} catch (err) {
