@@ -14,12 +14,14 @@ import {
 	createIndexKeyObjectFromArrayOfObject,
 	formatSectionReqBody,
 	parseJSON,
+	formatGetSectionReqBody,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import * as CONST from './const';
+import Loading from 'components/Loading';
 
 const EMIDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -33,18 +35,22 @@ const EMIDetails = props => {
 		nextSectionId,
 		selectedSection,
 		isTestMode,
-		editLoanData,
-		isEditLoan,
+		// editLoanData,
+		// isEditLoan,
 		isEditOrViewLoan,
 		bankList,
 	} = app;
-	const { emiDetailsFinId } = application;
+	const { businessId, loanRefId } = application;
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const selectedEmiDetailsSubSection = selectedSection?.sub_sections?.[0] || {};
 	const [count, setCount] = useState(selectedEmiDetailsSubSection?.min || 3);
 	const MAX_COUNT = selectedEmiDetailsSubSection?.max || 10;
 	const { handleSubmit, register, formState } = useForm();
+	const [sectionData, setSectionData] = useState([]);
+	const [emiDetailsFinId, setEmiDetailsFinId] = useState('');
+	const [emiDetailsIndex, setEmiDetailsIndex] = useState({});
+	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 
 	const onSaveAndProceed = async () => {
 		try {
@@ -86,15 +92,19 @@ const EMIDetails = props => {
 			});
 
 			emiDetailsReqBody.data.emi_details = newValues;
-			if (emiDetailsFinId) emiDetailsReqBody.data.fin_id = emiDetailsFinId;
+			if (emiDetailsFinId) emiDetailsReqBody.data.id = emiDetailsFinId;
 
 			// console.log('-emiDetailsRes-', {
 			// 	emiDetailsReqBody,
 			// });
 			// return;
-			if (emiDetailsReqBody.data.emi_details?.length > 0) {
+			if (emiDetailsReqBody?.data?.emi_details?.length > 0) {
+				// await axios.post(
+				// 	`${API_END_POINT}/addBankDetailsNew`,
+				// 	emiDetailsReqBody
+				// );
 				await axios.post(
-					`${API_END_POINT}/addBankDetailsNew`,
+					`${API_END_POINT}/liability_details`,
 					emiDetailsReqBody
 				);
 			}
@@ -110,67 +120,46 @@ const EMIDetails = props => {
 		}
 	};
 
-	const prefilledEditOrViewLoanValues = field => {
-		// console.log('emi details', editLoanData);
-		const emiDetails = parseJSON(
-			editLoanData?.bank_details?.filter(
-				bank => `${bank.id}` === `${emiDetailsFinId}`
-			)?.[0]?.emi_details || '{}'
-		);
-		const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
-			arrayOfObject: emiDetails,
-			isEmiDetails: true,
-			isEditOrViewLoan,
-		});
-		const preData = {
-			...emiDetailsIndex,
-		};
-		return preData?.[field?.name];
-	};
+	// const prefilledEditOrViewLoanValues = field => {
+	// 	// console.log('emi details', editLoanData);
+	// 	const emiDetails = parseJSON(
+	// 		editLoanData?.bank_details?.filter(
+	// 			bank => `${bank.id}` === `${emiDetailsFinId}`
+	// 		)?.[0]?.emi_details || '{}'
+	// 	);
+	// 	const emiDetailsIndex = createIndexKeyObjectFromArrayOfObject({
+	// 		arrayOfObject: emiDetails,
+	// 		isEmiDetails: true,
+	// 		isEditOrViewLoan,
+	// 	});
+	// 	const preData = {
+	// 		...emiDetailsIndex,
+	// 	};
+	// 	return preData?.[field?.name];
+	// };
 
-	const prefilledValues = field => {
+	const prefilledValues = (field, index) => {
 		try {
-			if (isViewLoan) {
-				return prefilledEditOrViewLoanValues(field) || '';
-			}
+			// p1
 
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-			if (isFormStateUpdated) {
-				return formState?.values?.[field.name];
+			// console.log({ val: formState.values, isFormStateUpdated });
+			if (isFormStateUpdated && field?.name?.includes('bank_name')) {
+				return (
+					formState?.values?.[field?.name] ||
+					emiDetailsIndex?.[`bank_id_${index}`]
+				);
 			}
-
-			// TEST MODE
+			if (isFormStateUpdated && field?.name?.includes('emi_amount')) {
+				return (
+					formState?.values?.[field?.name] || emiDetailsIndex?.[field?.name]
+				);
+			}
+			// TEST MODE p2
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
-			if (
-				Object.keys(application?.sections?.[selectedSectionId] || {}).length > 0
-			) {
-				// special scenario for bank name prefetch
-				if (application?.sections?.[selectedSectionId]?.[field?.name]?.value) {
-					return application?.sections?.[selectedSectionId]?.[field?.name]
-						?.value;
-				} else {
-					// if (
-					// 	!application?.sections?.[selectedSectionId]?.hasOwnProperty(
-					// 		'isSkip'
-					// 	)
-					// ) {
-					return application?.sections?.[selectedSectionId]?.[field?.name];
-					// }
-				}
-			}
-
-			let editViewLoanValue = '';
-
-			if (isEditLoan) {
-				editViewLoanValue = prefilledEditOrViewLoanValues(field);
-			}
-
-			if (editViewLoanValue) return editViewLoanValue;
-
-			return field?.value || '';
 		} catch (error) {
 			return {};
 		}
@@ -184,16 +173,25 @@ const EMIDetails = props => {
 
 	const createForm = subSection => {
 		let sections = [];
-		let filledCount =
-			Object.keys(application?.sections?.[selectedSectionId] || {}).length === 0
-				? 0
-				: Object.keys(application?.sections?.[selectedSectionId] || {}).length /
-				  2;
-		if (!isNaN(filledCount) && filledCount > count) setCount(filledCount);
-		else filledCount = count;
+		const filledCount =
+			Object.keys(sectionData)?.length > count
+				? Object.keys(sectionData)?.length
+				: count;
+		// old starts
+		// let filledCount =
+		// 	Object.keys(application?.sections?.[selectedSectionId] || {}).length === 0
+		// 		? 0
+		// 		: Object.keys(application?.sections?.[selectedSectionId] || {}).length /
+		// 		  2;
+		// console.log({ filledCount });
+		// if (!isNaN(filledCount) && filledCount > count) setCount(filledCount);
+		// else filledCount = count;
+		// old ends
+
 		for (let x = 0; x < filledCount; x++) {
-			sections.push(subSection);
+			sections?.push(subSection);
 		}
+		// console.log({ sections, appsec: application, filledCount, subSection });
 		return sections;
 	};
 
@@ -224,7 +222,7 @@ const EMIDetails = props => {
 				>
 					{register({
 						...newField,
-						value: prefilledValues(newField),
+						value: prefilledValues(newField, index),
 						...customFieldProps,
 						visibility: 'visible',
 					})}
@@ -239,18 +237,54 @@ const EMIDetails = props => {
 			);
 		});
 
-	useEffect(() => {
-		scrollToTopRootElement();
-		if (isEditOrViewLoan) {
-			const emiDetails = parseJSON(
-				editLoanData?.bank_details?.filter(
-					bank => `${bank?.id}` === `${emiDetailsFinId}`
-				)?.[0]?.emi_details || '{}'
+	const fetchSectionDetails = async () => {
+		try {
+			setFetchingSectionData(true);
+
+			const fetchRes = await axios.get(
+				`${API_END_POINT}/liability_details?${formatGetSectionReqBody({
+					application,
+				})}`
 			);
-			if (emiDetails.length > 3) {
-				setCount(emiDetails.length);
+			if (fetchRes?.data?.status === 'ok') {
+				const records = fetchRes?.data?.data?.loanfinancials_records?.[0] || {};
+				const emiData = parseJSON(records?.emi_details);
+				// console.log({ emiData });
+				const indexedValues = createIndexKeyObjectFromArrayOfObject({
+					arrayOfObject: emiData,
+					isEmiDetails: true,
+					isEditOrViewLoan,
+				});
+				const tempCount = emiData?.length > count ? emiData?.length : count;
+				setSectionData(emiData);
+				setCount(tempCount);
+				setEmiDetailsIndex(indexedValues);
+
+				setEmiDetailsFinId(records?.id || '');
 			}
+		} catch (err) {
+			console.error({
+				errorMessage: err.message,
+				location: 'get-method-emi-details',
+			});
+		} finally {
+			setFetchingSectionData(false);
 		}
+	};
+
+	useEffect(() => {
+		if (businessId && loanRefId) fetchSectionDetails();
+		scrollToTopRootElement();
+		// if (isEditOrViewLoan) {
+		// 	const emiDetails = parseJSON(
+		// 		editLoanData?.bank_details?.filter(
+		// 			bank => `${bank?.id}` === `${emiDetailsFinId}`
+		// 		)?.[0]?.emi_details || '{}'
+		// 	);
+		// 	if (emiDetails.length > 3) {
+		// 		setCount(emiDetails.length);
+		// 	}
+		// }
 		// eslint-disable-next-line
 	}, []);
 
@@ -261,50 +295,56 @@ const EMIDetails = props => {
 	// });
 
 	return (
-		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
-			{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
-				return (
-					<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
-						{sub_section?.name ? (
-							<UI_SECTIONS.SubSectionHeader>
-								{sub_section.name}
-							</UI_SECTIONS.SubSectionHeader>
-						) : null}
-						<UI_SECTIONS.FormWrapGrid>
-							{sub_section?.is_dynamic === true
-								? createForm(sub_section, count).map(
-										(sub_section_array, index) => {
-											return renderSubSection(sub_section_array, index);
-										}
-								  )
-								: renderSubSection(sub_section)}
-						</UI_SECTIONS.FormWrapGrid>
-					</Fragment>
-				);
-			})}
-			<UI.AddMoreWrapper>
-				<UI.RoundButton
-					onClick={onAdd}
-					disabled={isViewLoan || count >= MAX_COUNT}
-				>
-					+
-				</UI.RoundButton>{' '}
-				click to add additional deductions/repayment obligations
-			</UI.AddMoreWrapper>
-			<UI_SECTIONS.Footer>
-				{!isViewLoan && (
-					<Button
-						fill
-						name='Save and Proceed'
-						isLoader={loading}
-						disabled={loading}
-						onClick={handleSubmit(onSaveAndProceed)}
-					/>
-				)}
+		<>
+			{fetchingSectionData ? (
+				<Loading />
+			) : (
+				<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
+					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
+						return (
+							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
+								{sub_section?.name ? (
+									<UI_SECTIONS.SubSectionHeader>
+										{sub_section.name}
+									</UI_SECTIONS.SubSectionHeader>
+								) : null}
+								<UI_SECTIONS.FormWrapGrid>
+									{sub_section?.is_dynamic === true
+										? createForm(sub_section, count).map(
+												(sub_section_array, index) => {
+													return renderSubSection(sub_section_array, index);
+												}
+										  )
+										: renderSubSection(sub_section)}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
+					<UI.AddMoreWrapper>
+						<UI.RoundButton
+							onClick={onAdd}
+							disabled={isViewLoan || count >= MAX_COUNT}
+						>
+							+
+						</UI.RoundButton>{' '}
+						click to add additional deductions/repayment obligations
+					</UI.AddMoreWrapper>
+					<UI_SECTIONS.Footer>
+						{!isViewLoan && (
+							<Button
+								fill
+								name='Save and Proceed'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(onSaveAndProceed)}
+							/>
+						)}
 
-				<NavigateCTA />
-			</UI_SECTIONS.Footer>
-		</UI_SECTIONS.Wrapper>
+						<NavigateCTA />
+					</UI_SECTIONS.Footer>
+				</UI_SECTIONS.Wrapper>
+			)}
+		</>
 	);
 };
 
