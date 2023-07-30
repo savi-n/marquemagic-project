@@ -146,13 +146,13 @@ const EMIDetails = props => {
 			// console.log({ val: formState.values, isFormStateUpdated });
 			if (isFormStateUpdated && field?.name?.includes('bank_name')) {
 				return (
-					formState?.values?.[field.name] ||
+					formState?.values?.[field?.name] ||
 					emiDetailsIndex?.[`bank_id_${index}`]
 				);
 			}
 			if (isFormStateUpdated && field?.name?.includes('emi_amount')) {
 				return (
-					formState?.values?.[field.name] || emiDetailsIndex?.[field?.name]
+					formState?.values?.[field?.name] || emiDetailsIndex?.[field?.name]
 				);
 			}
 			// TEST MODE p2
