@@ -523,7 +523,7 @@ const LoanDetails = () => {
 											newPrefilledValue = newPrefilledValueSum;
 										}
 
-										if (newField?.name === CONST.FIELD_NAME_TYPE_OF_LOAN) {
+										if (newField?.name === CONST.FIELD_NAME_PURPOSE_OF_LOAN) {
 											newPrefilledValue = selectedProduct?.name || '';
 										}
 
