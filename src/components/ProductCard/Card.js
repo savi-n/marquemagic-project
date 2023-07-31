@@ -267,7 +267,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						justifyContent: 'center',
 					}}
 				>
-					Change Sub Product
+					Choose Sub Product
 				</span>
 				<section className='flex flex-col gap-y-8'>
 					<UI.DivAdd>
