@@ -29,6 +29,46 @@ const CollateralDetails = () => {
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
 	const [sectionData, setSectionData] = useState([]);
+	// const [sectionData, setuudata] = useState([
+	// 	{
+	// 		id: 17410,
+	// 		loan_id: 771274142,
+	// 		user_id: 128359,
+	// 		account_number: null,
+	// 		collateral_number: null,
+	// 		initial_collateral: {
+	// 			age: '2011-07',
+	// 			city: 'Erode',
+	// 			state: 'TAMIL NADU',
+	// 			value: '2400000',
+	// 			pincode: '638313',
+	// 			address1: 'Anthiyur main road,goundaputhur',
+	// 			address2: '',
+	// 			loan_json: '2400000',
+	// 			loan_type: 'Row Houses',
+	// 			owned_type: 'Purchased',
+	// 			owner_name: 'VELAYUTHAM',
+	// 			owner_type: 'Current/Future',
+	// 			total_area: '1310',
+	// 			name_landmark: '',
+	// 			percent_share: '100',
+	// 			property_type: 'Row Houses',
+	// 			ownership_from: '2011-04-01',
+	// 			current_occupant: 'Self-Occupied',
+	// 			ownership_status: 'Single',
+	// 			property_purpose: 'Self Occupied',
+	// 			construction_area: '750',
+	// 			nature_of_property: 'Residential',
+	// 			property_ownership: 'Free Hold',
+	// 			collateral_sub_type: 'Ready Property',
+	// 		},
+	// 		saved_collateral: null,
+	// 		modified_collateral: null,
+	// 		created_at: '2023-07-28T12:00:08.000Z',
+	// 		updated_at: '2023-07-28T12:00:08.000Z',
+	// 		status: 'active',
+	// 	},
+	// ]);
 	const [assets, setAssets] = useState([]);
 	// const { handleSubmit, register, formState } = useForm();
 	const MAX_ADD_COUNT = selectedSection?.max || 10;
@@ -171,10 +211,10 @@ const CollateralDetails = () => {
 				<>
 					<Fragment>
 						<UI_SECTIONS.SubSectionHeader>
-							Help Us With Your Collateral Details
+							{selectedSection?.name || 'Collateral Details'}
 						</UI_SECTIONS.SubSectionHeader>
 						{/* combine local + db array */}
-						{sectionData.map((section, sectionIndex) => {
+						{sectionData?.map((section, sectionIndex) => {
 							const sectionId = section?.id;
 							const isAccordianOpen = sectionId === openAccordianId;
 							const isEditLoan = editSectionId === sectionId;
@@ -186,19 +226,51 @@ const CollateralDetails = () => {
 								section?.modified_collateral?.property_address_details ||
 								section?.initial_collateral?.property_address_details ||
 								{};
+
+							const newCollateralData =
+								Object.keys(collateralData)?.length === 0
+									? section?.modified_collateral || section?.initial_collateral
+									: collateralData;
+
+							const newAddressData =
+								Object.keys(addressData)?.length === 0 ? {} : addressData;
+
 							const prefillData = {
 								...section,
-								...collateralData,
-								...addressData,
-								property_amount: collateralData?.value || '',
-								collateral_type: collateralData?.loan_type || '',
-								collateral_sub_type: collateralData?.collateral_sub_type || '',
-								current_market_value: collateralData?.loan_json || '',
-								landmark: addressData?.name_landmark || '',
-								address3: addressData?.name_landmark || '',
-								pin_code: addressData?.pincode || '',
-								nature_of_ownership: addressData?.owned_type || '',
-								property_occupant: addressData?.current_occupant || '',
+								...newAddressData,
+								...newCollateralData,
+								property_amount:
+									collateralData?.value || newCollateralData?.value || '',
+								collateral_type:
+									collateralData?.loan_type ||
+									newCollateralData?.loan_type ||
+									'',
+								collateral_sub_type:
+									collateralData?.collateral_sub_type ||
+									newCollateralData?.collateral_sub_type ||
+									'',
+								current_market_value:
+									collateralData?.loan_json ||
+									newCollateralData?.loan_json ||
+									'',
+								landmark:
+									addressData?.name_landmark ||
+									newCollateralData?.name_landmark ||
+									'',
+								address3:
+									addressData?.name_landmark ||
+									newCollateralData?.name_landmark ||
+									'',
+								pin_code:
+									addressData?.pincode || newCollateralData?.pincode || '',
+								nature_of_ownership:
+									addressData?.owned_type ||
+									newCollateralData?.owned_type ||
+									'',
+								property_occupant:
+									addressData?.current_occupant ||
+									newCollateralData?.current_occupant ||
+									'',
 							};
 							// console.log('prefilldata-', prefillData);
 							return (
