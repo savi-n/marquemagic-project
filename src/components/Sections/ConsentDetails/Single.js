@@ -291,6 +291,7 @@ const Single = ({
 							<Button
 								width='80px'
 								name={crimeCheck ? 'Yes' : 'No'}
+								disabled={buttonDisabled}
 								onClick={() => {
 									setCrimeCheck(!crimeCheck);
 									fetchHandle({
