@@ -17,12 +17,13 @@ const Single = ({
 	rowData,
 	fetchConsentDetails,
 }) => {
+
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
-	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field);
+	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field)
 	// console.log(mandatoryFieldObj);
-	const is_equifax_otp_required =
-		mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
+	const is_equifax_otp_required = mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
 	// const is_equifax_otp_required = true;
+
 
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
@@ -79,7 +80,7 @@ const Single = ({
 			is_applicant: appObj?.is_applicant,
 		};
 
-		if (sections[section] === 'bureau' && !!is_equifax_otp_required) {
+		if(sections[section] === 'bureau' && !!is_equifax_otp_required){
 			payLoad.is_equifax_otp_required = is_equifax_otp_required;
 		}
 
