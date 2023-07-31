@@ -239,15 +239,38 @@ const CollateralDetails = () => {
 								...section,
 								...newAddressData,
 								...newCollateralData,
-								property_amount: collateralData?.value || '',
-								collateral_type: collateralData?.loan_type || '',
-								collateral_sub_type: collateralData?.collateral_sub_type || '',
-								current_market_value: collateralData?.loan_json || '',
-								landmark: addressData?.name_landmark || '',
-								address3: addressData?.name_landmark || '',
-								pin_code: addressData?.pincode || '',
-								nature_of_ownership: addressData?.owned_type || '',
-								property_occupant: addressData?.current_occupant || '',
+								property_amount:
+									collateralData?.value || newCollateralData?.value || '',
+								collateral_type:
+									collateralData?.loan_type ||
+									newCollateralData?.loan_type ||
+									'',
+								collateral_sub_type:
+									collateralData?.collateral_sub_type ||
+									newCollateralData?.collateral_sub_type ||
+									'',
+								current_market_value:
+									collateralData?.loan_json ||
+									newCollateralData?.loan_json ||
+									'',
+								landmark:
+									addressData?.name_landmark ||
+									newCollateralData?.name_landmark ||
+									'',
+								address3:
+									addressData?.name_landmark ||
+									newCollateralData?.name_landmark ||
+									'',
+								pin_code:
+									addressData?.pincode || newCollateralData?.pincode || '',
+								nature_of_ownership:
+									addressData?.owned_type ||
+									newCollateralData?.owned_type ||
+									'',
+								property_occupant:
+									addressData?.current_occupant ||
+									newCollateralData?.current_occupant ||
+									'',
 							};
 							// console.log('prefilldata-', prefillData);
 							return (
