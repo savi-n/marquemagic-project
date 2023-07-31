@@ -1,7 +1,7 @@
 {
 	"editor.tabSize": 2, // tab size
 	"editor.defaultFormatter": "esbenp.prettier-vscode", // Use prettier as default formatter
-	"editor.formatOnSave": true, // format code when you hit save
+	"editor.formatOnSave": false, // format code when you hit save
 	"files.trimTrailingWhitespace": true, // remove trailing white spaces from all lines
 	"files.trimFinalNewlines": true,
 	"prettier.tabWidth": 2,
