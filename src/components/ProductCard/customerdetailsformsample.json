@@ -1,0 +1,145 @@
+{
+	"id": "customer_details",
+	"name": "Customer Details",
+	"is_skip": true,
+	"sub_sections": [
+		{
+			"id": "customer_details",
+			"name": "Customer Details",
+			"fields": [
+				{
+					"name": "customer_type",
+					"placeholder": "Customer Type",
+					"db_key": "customer_type",
+					"rules": {
+						"required": true
+					},
+					"type": "select",
+					"visibility": true,
+					"options": [
+						{
+							"value": "Individual",
+							"name": "Individual"
+						},
+						{
+							"value": "Entity",
+							"name": "Entity"
+						}
+					]
+				},
+				{
+					"name": "businesstype",
+					"is_co_applicant": false,
+					"placeholder": "Income Type",
+					"db_key": "businesstype",
+					"rules": {
+						"required": true
+					},
+					"type": "select",
+					"visibility": true,
+					"options": [
+						{
+							"value": "7",
+							"name": "Salaried"
+						},
+						{
+							"value": "1",
+							"name": "Business"
+						}
+					],
+					"for_type": ["Individual"],
+					"for_type_name": "customer_type"
+				},
+				{
+					"name": "businesstype",
+					"placeholder": "Business Type",
+					"db_key": "businesstype",
+					"rules": {
+						"required": true
+					},
+					"type": "select",
+					"visibility": true,
+					"options": [
+						{
+							"value": 4,
+							"name": "Private Limited"
+						},
+						{
+							"value": 5,
+							"name": "Public Limited"
+						},
+						{
+							"value": 3,
+							"name": "LLP"
+						},
+						{
+							"value": 9,
+							"name": "Trust"
+						},
+						{
+							"value": 10,
+							"name": "Society"
+						},
+						{
+							"value": 1,
+							"name": "Sole Proprietorship"
+						},
+						{
+							"value": 2,
+							"name": "Partnership"
+						},
+						{
+							"value": 11,
+							"name": "Associations"
+						},
+						{
+							"value": 6,
+							"name": "Others"
+						}
+					],
+					"for_type": ["Entity"],
+					"for_type_name": "customer_type"
+				},
+				{
+					"name": "pan_number",
+					"placeholder": "PAN Number",
+					"db_key": "businesspancardnumber",
+					"rules": {
+						"required": true,
+						"length": 10
+					},
+					"mask": {
+						"character_limit": 10,
+						"alpha_numeric_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "mobile_no",
+					"placeholder": "Mobile Number",
+					"db_key": "contact",
+					"rules": {
+						"required": true,
+						"length": 10
+					},
+					"is_masked": true,
+					"user_types_allowed": "['Legal','Technical','RCU']",
+					"mask": {
+						"mask_values": {
+							"mask_pattern": "*",
+							"characters_not_to_be_masked": {
+								"from_starting": 1,
+								"from_ending": 1
+							}
+						},
+						"number_only": true,
+						"character_limit": 10
+					},
+					"type": "text",
+					"visibility": true
+				}
+			]
+		}
+	]
+}

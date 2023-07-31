@@ -40,3 +40,12 @@ export const getGeoLocation = () => {
 		}
 	});
 };
+
+export const extractPincode = singleLineAddress => {
+	const pinRegex = /\b\d{6}\b/; // regex to match 6-digit pin code
+	return singleLineAddress?.match(pinRegex)?.reverse()[0] ?? '';
+};
+
+export const scrollToTopRootElement = () => {
+	document.getElementById('root').scrollTop = 0;
+};

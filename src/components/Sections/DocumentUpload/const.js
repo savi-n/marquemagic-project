@@ -22,3 +22,13 @@ export const COMMENT_FOR_OFFICE_USE_FIELD_NAME = 'comment_for_office_use';
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 export const PROFILE_UPLOAD_FIELD_NAME = 'profile_upload';
 export const SELFIE_UPLOAD_FIELD_NAME = 'on_site_selfie';
+export const SELFIE_UPLOAD_SECTION_ID = 'on_site_selfie_with_applicant';
+export const SELFIE_UPLOAD_COAPPLICANT_SECTION_ID =
+	'on_site_selfie_with_co_applicant';
+
+export const ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT =
+	'on_site_selfie_with_applicant';
+export const ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT =
+	'on_site_selfie_with_co_applicant';
+
+export const DEFAULT_DIRECTOR_ID_FOR_ENTITY = '0';

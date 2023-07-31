@@ -10,6 +10,7 @@
 		"Gruntfuggly.todo-tree",
 		"waderyan.gitblame",
 		"donjayamanne.githistory",
-		"simonsiefke.svg-preview"
+		"simonsiefke.svg-preview",
+		"eamodio.gitlens"
 	]
 }

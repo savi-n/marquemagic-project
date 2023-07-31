@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 import Modal from 'components/Modal';
-import axios from 'axios';
+// import axios from 'axios';
 import Button from 'components/Button';
 import AuthenticationOTPInput from './AuthenticationOtpInput';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
@@ -18,7 +18,8 @@ import {
 import useFetch from 'hooks/useFetch';
 import RedError from 'assets/icons/Red_error_icon.png';
 import { useSelector } from 'react-redux';
-import * as API from '_config/app.config';
+// import * as API from '_config/app.config';
+import { APPLICATION_SUBMITTED_SECTION_ID } from '../../const';
 
 const ModalHeader = styled.div`
 	position: relative;
@@ -114,7 +115,7 @@ const AuthenticationOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [, setIsResentOtp] = useState(false);
-
+	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
 	const maskedContactNo = `XXXXX${setContactNo[setContactNo?.length - 5]}${
 		setContactNo[setContactNo?.length - 4]
 	}${setContactNo[setContactNo?.length - 3]}${
@@ -165,19 +166,22 @@ const AuthenticationOTPModal = props => {
 				// --api 5 - application stage
 				const applicationStageReqBody = {
 					loan_id: loanId,
+					section_id: APPLICATION_SUBMITTED_SECTION_ID,
 				};
 
 				if (isDocumentUploadMandatory) {
 					applicationStageReqBody.is_mandatory_documents_uploaded = true;
 				}
-				await axios.post(
-					`${API.TO_APPLICATION_STAGE_URL}`,
-					applicationStageReqBody
-				);
+				// await axios.post(
+				// 	`${API.TO_APPLICATION_STAGE_URL}`,
+				// 	applicationStageReqBody
+				// );
 				if (editLoanData && editLoanData?.loan_ref_id) {
 					setTimeout(() => {
 						addToast({
-							message: 'Your application has been updated',
+							message: `Your ${
+								wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'Application'
+							} has been updated`,
 							type: 'success',
 						});
 					}, 1000);

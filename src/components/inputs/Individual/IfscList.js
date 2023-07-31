@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import SearchSelect from '../../SearchSelect';
-import _ from 'lodash';
+// import _ from 'lodash';
 
 export default function IfscList(props) {
 	const { field, onSelectOptionCallback, value } = props;
@@ -17,14 +17,14 @@ export default function IfscList(props) {
 
 	const [options, setOptions] = useState([]);
 
-	const onIfscChange = value => {
-		const newOptions = _.cloneDeep(options);
-		// 11 is the length for any ifsc code
-		if (value.length === 11) {
-			newOptions.unshift({ value, name: value });
-			setOptions(newOptions);
-		}
-	};
+	// const onIfscChange = value => {
+	// const newOptions = _.cloneDeep(options);
+	// 11 is the length for any ifsc code
+	// if (value.length === 11) {
+	// 	newOptions.unshift({ value, name: value });
+	// 	setOptions(newOptions);
+	// }
+	// };
 	// useEffect(() => {
 	// 	if (ifscList?.length > 0) {
 	// 		setOptions(
@@ -60,9 +60,10 @@ export default function IfscList(props) {
 			options={options}
 			onSelectOptionCallback={onIfscSelectCallback}
 			defaultValue={value}
-			disabled={isViewLoan}
-			onIfscChange={onIfscChange}
+			disabled={field?.disabled || isViewLoan}
+			// onIfscChange={onIfscChange}
 			rules={field.rules}
+			errorMessage={'IFSC Not Available. Please check with the Support Team.'}
 		/>
 	);
 }

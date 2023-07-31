@@ -1,27 +1,17 @@
 /* Once the application is submitted, user receives application ref Id on screen .
 This screen/page is defined here */
 
-import {
-	useState,
-	// useEffect
-} from 'react';
-import {
-	useSelector,
-	// useDispatch
-} from 'react-redux';
+import { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
-// import Button from 'components/Button';
-// import {
-// 	reInitializeAppSlice,
-// 	setUserDetails,
-// 	setWhiteLabelId,
-// } from 'store/appSlice';
-// import { reInitializeApplicantCoApplicantSlice } from 'store/applicantCoApplicantsSlice';
-// import { reInitializeApplicationSlice } from 'store/applicationSlice';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
+import { scrollToTopRootElement } from 'utils/helper';
+import { APPLICATION_SUBMITTED_SECTION_ID } from '../const';
+import { TO_APPLICATION_STAGE_URL } from '_config/app.config';
+import axios from 'axios';
 
+const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
 const Wrapper = styled.div`
 	flex: 1;
 	padding: 50px;
@@ -58,7 +48,11 @@ const CaptionImg = styled.div`
 
 const data = [
 	{
-		caption: `Your application has been forwarded to the branch, decision shall be communicated within 2-3 working days.`,
+		caption: `Your ${
+			wt_lbl?.solution_type === 'CaseDOS'
+				? 'Order has been forwarded to OPS'
+				: 'Application has been forwarded to the branch'
+		} , decision shall be communicated within 2-3 working days.`,
 		guarantor: true,
 		img: img1,
 	},
@@ -68,44 +62,55 @@ const data = [
 		img: img2,
 	},
 	{
-		caption: `Sorry! You are not eligible for the requested loan as your Credit score is not satisfactory`,
+		caption: `Sorry! You are not eligible for the requested ${
+			wt_lbl?.solution_type === 'CaseDOS' ? 'report' : 'loan'
+		} as your Credit score is not satisfactory`,
 		guarantor: false,
 	},
 ];
 
 const ApplicationSubmitted = props => {
-	const { application } = useSelector(state => state);
-	const { loanRefId } = application;
-	// const reduxStore = useSelector(state => state);
-	// const dispatch = useDispatch();
-	// const [loanRefId, setLoanRefId] = useState('');
+	const { app, application } = useSelector(state => state);
+	const { selectedProduct } = app;
+	const { loanRefId, loanId } = application;
 	const [count] = useState(0);
+	const isUseEffectCalledOnce = useRef(false);
 	const d = data[count];
+	const isDocumentUploadMandatory = !!selectedProduct?.product_details
+		?.document_mandatory;
 
-	// TODO: develop this feature
-	// useEffect(() => {
-	// 	if (reduxStore?.app?.userToken) {
-	// 		const { app, application } = reduxStore;
-	// 		const { whiteLabelId, userDetails } = app;
-	// 		const { loanRefId: newLoanRefId } = application;
-	// 		setLoanRefId(newLoanRefId);
-	// 		dispatch(reInitializeAppSlice());
-	// 		dispatch(reInitializeApplicantCoApplicantSlice());
-	// 		dispatch(reInitializeApplicationSlice());
-	// 		sessionStorage.clear();
-	// 		userDetails && dispatch(setUserDetails(userDetails));
-	// 		whiteLabelId && dispatch(setWhiteLabelId(whiteLabelId));
-	// 	}
-	// }, []);
+	const { isViewLoan, isEditLoan, isDraftLoan } = app;
+	useEffect(() => {
+		scrollToTopRootElement();
+		if (isUseEffectCalledOnce.current) return;
+		isUseEffectCalledOnce.current = true;
+		const moveToApplicationStage = () => {
+			try {
+				const applicationStageReqBody = {
+					loan_id: loanId,
+					section_id: APPLICATION_SUBMITTED_SECTION_ID,
+				};
+
+				if (isDocumentUploadMandatory) {
+					applicationStageReqBody.is_mandatory_documents_uploaded = true;
+				}
+				axios.post(`${TO_APPLICATION_STAGE_URL}`, applicationStageReqBody);
+			} catch (err) {
+				console.error(err.message);
+			}
+		};
+		if ((isEditLoan && isDraftLoan) || (!isEditLoan && !isViewLoan))
+			moveToApplicationStage();
+		// eslint-disable-next-line
+	}, []);
 
 	return (
 		<Wrapper>
-			{/* {!d.guarantor ? <GuageMeter /> : <CaptionImg bg={d.img} />} */}
 			<CaptionImg bg={d.img} />
 			<Caption>{d.caption}</Caption>
 			<section>
-				Application Reference Number:{' '}
-				<span className='font-bold'> {loanRefId}</span>
+				{wt_lbl?.solution_type === 'CaseDOS' ? 'Order ' : 'Application '}
+				Reference Number: <span className='font-bold'> {loanRefId}</span>
 			</section>
 		</Wrapper>
 	);

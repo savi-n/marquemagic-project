@@ -5,6 +5,10 @@ import iconWarning from 'assets/icons/amber_warning_icon.png';
 export const APPLICANT = 'applicant';
 export const CO_APPLICANT = 'coapplicant';
 
+export const APPLICANT_TYPE_NAME = 'Applicant';
+
+export const CO_APPLICANT_TYPE_NAME = 'Co-applicant';
+
 export const EXTRACTION_KEY_PAN = 'pan';
 export const EXTRACTION_KEY_DL = 'DL';
 export const EXTRACTION_KEY_AADHAAR = 'aadhar';
@@ -17,7 +21,40 @@ export const ADDRESS_DETAILS_SECTION_ID = 'loan_address_details';
 export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 
+export const ALL_SECTION_IDS = {
+	document_upload: 'document_upload',
+	consent_details: 'consent_details',
+	poa_details: 'poa_details',
+	reference_details: 'reference_details',
+	subsidiary_details: 'subsidiary_details',
+	bank_details: 'bank_details',
+	collateral_details: 'collateral_details',
+	assets_details: 'assets_details',
+	liability_details: 'liability_details',
+	loan_details: 'loan_details',
+	employment_details: 'employment_details',
+	loan_address_details: 'loan_address_details',
+	basic_details: 'basic_details',
+
+	business_details: 'business_details',
+	business_address_details: 'business_address_details',
+
+	application_submitted: 'application_submitted',
+};
+
+//for sme flow
+export const BUSINESS_DETAILS_SECTION_ID = 'business_details';
+export const BUSINESS_ADDRESS_SECTION_ID = 'business_address_details';
+
 export const INITIAL_SECTION_IDS = [
+	BASIC_DETAILS_SECTION_ID,
+	ADDRESS_DETAILS_SECTION_ID,
+	EMPLOYMENT_DETAILS_SECTION_ID,
+];
+
+export const INITIAL_SECTION_IDS_SME_FLOW = [
+	BUSINESS_DETAILS_SECTION_ID,
+	BUSINESS_ADDRESS_SECTION_ID,
 	BASIC_DETAILS_SECTION_ID,
 	ADDRESS_DETAILS_SECTION_ID,
 	EMPLOYMENT_DETAILS_SECTION_ID,

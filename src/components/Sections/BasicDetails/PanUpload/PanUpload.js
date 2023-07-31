@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-// import _ from 'lodash';
 import axios from 'axios';
 
 import LoadingIcon from 'components/Loading/LoadingIcon';
@@ -10,16 +9,10 @@ import Modal from 'components/Modal';
 import CompanySelectModal from 'components/CompanySelectModal';
 import InputField from 'components/inputs/InputField';
 import Button from 'components/Button';
-
-import { setCompanyRocData } from 'store/applicantCoApplicantsSlice';
 import { getKYCData } from 'utils/request';
 import { useToasts } from 'components/Toast/ToastProvider';
-// import { isBusinessPan } from 'utils/helper';
 import { decryptViewDocumentUrl } from 'utils/encrypt';
-import {
-	formatCompanyRocData,
-	formatPanExtractionData,
-} from 'utils/formatData';
+import { formatPanExtractionData } from 'utils/formatData';
 import { verifyKycDataUiUx } from 'utils/request';
 import { isInvalidPan } from 'utils/validation';
 import iconUploadBlue from 'assets/icons/upload_icon_blue.png';
@@ -34,38 +27,22 @@ import * as UI from './ui';
 const PanUpload = props => {
 	const {
 		field,
-		// value,
 		formState,
 		setErrorFormStateField,
 		panErrorColorCode,
 		panErrorMessage,
 		onChangeFormStateField,
 		clearErrorFormState,
-		// cacheDocumentsTemp,
 		uploadedFile,
 		addCacheDocumentTemp,
 		removeCacheDocumentTemp,
 		isDisabled,
+		selectedDirector,
+		selectedSectionId,
 	} = props;
-	const {
-		app,
-		application,
-		// applicantCoApplicants
-	} = useSelector(state => state);
+	const { app, application } = useSelector(state => state);
 	const { selectedProduct, clientToken } = app;
 	const { loanId, businessUserId } = application;
-	// const {
-	// 	isApplicant,
-	// 	applicant,
-	// 	coApplicants,
-	// 	selectedApplicantCoApplicantId,
-	// } = applicantCoApplicants;
-	// const selectedApplicant = isApplicant
-	//  ? applicant
-	// 	: coApplicants?.[selectedApplicantCoApplicantId] || {};
-	// const { cacheDocuments } = selectedApplicant;
-	// const [files, setFiles] = useState([]);
-	// const [panFile, setPanFile] = useState(null);
 	const [isPanConfirmModalOpen, setIsPanConfirmModalOpen] = useState(false);
 	const [isCompanyListModalOpen, setIsCompanyListModalOpen] = useState(false);
 	const [companyList, setCompanyList] = useState([]);
@@ -73,15 +50,7 @@ const PanUpload = props => {
 	const [loading, setLoading] = useState(false);
 	const [loadingFile, setLoadingFile] = useState(false);
 	const { addToast } = useToasts();
-	const dispatch = useDispatch();
-	// const panExtractionResTemp =
-	// 	cacheDocumentsTemp.filter(
-	// 		doc => doc.field.name === CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME
-	// 	)?.[0] || null;
-	// const panExtractionFile =
-	// 	cacheDocumentsTemp?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	cacheDocuments?.filter(doc => doc?.field?.name === field.name)?.[0] ||
-	// 	null;
+	// const dispatch = useDispatch();
 	const panExtractionData = uploadedFile?.panExtractionData;
 
 	const openDocument = async file => {
@@ -164,17 +133,9 @@ const PanUpload = props => {
 			const cinFetchReqBody = {
 				cin_number: cinNumber,
 			};
-			const cinNumberResponse = await axios.post(
-				API.ROC_DATA_FETCH,
-				cinFetchReqBody,
-				{ authorization: clientToken }
-			);
-			const companyData = cinNumberResponse?.data?.data;
-			const formattedCompanyData = formatCompanyRocData(
-				companyData,
-				confirmPanNumber
-			);
-			dispatch(setCompanyRocData(formattedCompanyData));
+			await axios.post(API.ROC_DATA_FETCH, cinFetchReqBody, {
+				authorization: clientToken,
+			});
 		} catch (error) {
 			setLoading(false);
 			addToast({
@@ -404,28 +365,11 @@ const PanUpload = props => {
 	};
 
 	const { getRootProps, getInputProps } = useDropzone({
-		accept: {
-			'*': [],
-		},
+		accept: '',
+
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
-				// TODO: extraction
-				// const formData = new FormData();
-				// formData.append('white_label_id', whiteLabelId);
-				// formData.append('document', acceptedFiles[0]);
-				// const profileRes = await axios.post(
-				// 	`${API_END_POINT}/profilePicUpload`,
-				// 	formData
-				// );
-				// dispatch(setProfileImageRes(profileRes?.data));
-				// setFiles(
-				// 	acceptedFiles.map(file =>
-				// 		Object.assign(file, {
-				// 			preview: URL.createObjectURL(file),
-				// 		})
-				// 	)
-				// );
 				await handleExtractionPan(acceptedFiles[0]);
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
@@ -554,7 +498,7 @@ const PanUpload = props => {
 								// window.open('https://www.google.com', '_blank');
 							}}
 						>
-							{uploadedFile?.name}
+							{uploadedFile?.name || uploadedFile?.uploaded_doc_name}
 						</UI.UploadedFileName>
 						{loading ? (
 							<UI.UploadIconWrapper>
@@ -569,26 +513,28 @@ const PanUpload = props => {
 										<CircularLoading />
 									</div>
 								) : null}
-								{!uploadedFile?.document_id && (
-									<UI.IconDelete
-										src={iconDelete}
-										alt='delete'
-										onClick={e => {
-											e.preventDefault();
-											e.stopPropagation();
-											removeCacheDocumentTemp(field.name);
-											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
-												value: '',
-											});
-											onChangeFormStateField({
-												name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
-												value: '',
-											});
-											clearErrorFormState();
-										}}
-									/>
-								)}
+								{!uploadedFile?.document_id &&
+									// !isEditOrViewLoan &&
+									!selectedDirector?.sections?.includes(selectedSectionId) && (
+										<UI.IconDelete
+											src={iconDelete}
+											alt='delete'
+											onClick={e => {
+												e.preventDefault();
+												e.stopPropagation();
+												removeCacheDocumentTemp(field.name);
+												onChangeFormStateField({
+													name: CONST_BASIC_DETAILS.PAN_NUMBER_FIELD_NAME,
+													value: '',
+												});
+												onChangeFormStateField({
+													name: CONST_BASIC_DETAILS.PAN_UPLOAD_FIELD_NAME,
+													value: '',
+												});
+												clearErrorFormState();
+											}}
+										/>
+									)}
 							</UI.UploadIconWrapper>
 						)}
 					</UI.ContainerPreview>
