@@ -166,7 +166,7 @@ const BasicDetails = props => {
 		selectedSection,
 		isApplicant,
 	});
-	console.log(selectedProfileField);
+	// console.log(selectedProfileField);
 
 	const isProfileMandatory = !!selectedProfileField?.rules?.required;
 	let prefilledProfileUploadValue = '';
@@ -668,7 +668,6 @@ const BasicDetails = props => {
 						)
 					);
 				}
-				console.log(selectedProfileField);
 				if (isGeoTaggingEnabled && selectedProfileField?.geo_tagging) {
 					// to fetch profile pic geo location
 					fetchProfilePicGeoLocationData(fetchRes);
@@ -680,7 +679,7 @@ const BasicDetails = props => {
 					Object.keys(geoLocationData)?.length <= 0 &&
 					!geoLocation?.address
 				) {
-					fetchGeoLocationData();
+					fetchGeoLocationData(fetchRes);
 				}
 
 				if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {

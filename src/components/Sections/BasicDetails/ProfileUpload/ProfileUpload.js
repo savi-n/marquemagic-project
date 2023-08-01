@@ -47,6 +47,7 @@ const ProfileUpload = props => {
 		// cacheDocumentsTemp,
 		setImageLoading = () => {},
 	} = props;
+	// console.log('🚀 ~ file: ProfileUpload.js:50 ~ uploadedFile:', uploadedFile);
 
 	const { app, application } = useSelector(state => state);
 	const dispatch = useDispatch();
@@ -135,13 +136,15 @@ const ProfileUpload = props => {
 	// deleting profile pic(basic details)
 	const deleteProfilePic = async file => {
 		// if the selfie is not saved and proceed, it's not tagged to any document_id, so to remove the profile image from cacheDocuments
-		if (!file?.document_id) return removeCacheDocumentTemp(field.name);
+		if (!file?.doc_id) return removeCacheDocumentTemp(field?.name);
 		try {
 			const endPoint = API.DELETE_DOCUMENT;
 			setLoading(true);
 			const reqBody = {
-				loan_doc_id: file?.document_id || '',
+				loan_doc_id: file?.document_id || file?.doc_id || '',
 				business_id: businessId,
+				loan_id: loanId,
+				userid: businessUserId,
 			};
 			await axios.post(endPoint, reqBody);
 			removeCacheDocumentTemp(field?.name);
@@ -437,6 +440,7 @@ const ProfileUpload = props => {
 												name: CONST_BASIC_DETAILS.PROFILE_UPLOAD_FIELD_NAME,
 												value: '',
 											});
+											deleteProfilePic(uploadedFile);
 											return;
 										}
 										// deleteDocument(uploadedFile)
