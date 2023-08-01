@@ -155,7 +155,7 @@ export const directorsSlice = createSlice({
 					directorId,
 					onSiteSelfieGeoLocation:
 						prevState?.directors[state.selectedDirectorId]
-							?.onSiteSelfieGeoLocation||{}
+							?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({
 					name: `${director.type_name}|${fullName}`,
@@ -247,6 +247,7 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectorsErrorMessage = payload;
 		},
 	},
+
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
 		// setSmeType: (state, { payload }) => {
@@ -325,13 +326,9 @@ export const directorsSlice = createSlice({
 		},
 
 		setOnSiteSelfieGeoLocation: (state, { payload }) => {
-			const { address, lat, long, timestamp } = payload;
-			let geoLocation = { address, lat, long, timestamp };
-			// console.log(geoLocation);
-			if (
-				state?.directors[state?.selectedDirectorId]?.onSiteSelfieGeoLocation
-			) {
-				state.directors[state.selectedDirectorId].onSiteSelfieGeoLocation = {
+			const { address, lat, long, timestamp, directorId } = payload;
+			if (!!state.directors[directorId]) {
+				state.directors[directorId].onSiteSelfieGeoLocation = {
 					address,
 					lat,
 					long,
