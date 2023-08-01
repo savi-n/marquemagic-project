@@ -35,3 +35,5 @@ export const FIELD_NAME_BRANCH = 'Branch';
 export const FIELD_NAME_NC_BRANCH = 'nconboarding_Branch';
 export const FIELD_NAME_NC = 'nconboarding';
 export const FIELD_NAME_NC2 = 'nconboarding_';
+export const FIELD_NAME_PURPOSE_OF_LOAN = 'purpose_of_loan';
+export const IS_IN_DRAFT_OR_APPLICATION_STAGE = 1;
