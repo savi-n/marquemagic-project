@@ -119,8 +119,7 @@ const Single = ({
 			if (
 				sections[section] === 'ITR' ||
 				sections[section] === 'GST' ||
-				sections[section] === 'aadhaar' ||
-				sections[section] === 'bureau'
+				sections[section] === 'aadhaar'
 			) {
 				setHtmlContent(response.data);
 				setModalOpen(true);
@@ -159,9 +158,14 @@ const Single = ({
 				// setDisabled(true);
 			} else if (
 				response?.data?.status === 200 ||
-				response?.data?.status === 'ok'
+				response?.data?.status === 'ok' ||
+				response?.data?.status === 'NC200'
 			) {
 				setStatus('In Progress');
+				addToast({
+					message: 'Fetching data initiated, status will be updated once data fetched.',
+					type: 'success',
+				});
 				// setDisabled(true);
 				isDisabledButton = true;
 			} else if (response?.data?.status === 400) {
@@ -281,7 +285,7 @@ const Single = ({
 						<Button
 							name='Fetch'
 							onClick={() => fetchHandle(rowData)}
-							disabled={
+							disabled={loading ||
 								buttonDisabled || disabled || rowData?.status === 'Fetched'
 							}
 							loading={loading}
@@ -291,7 +295,7 @@ const Single = ({
 							<Button
 								width='80px'
 								name={crimeCheck ? 'Yes' : 'No'}
-								disabled={buttonDisabled}
+								disabled={buttonDisabled || loading}
 								onClick={() => {
 									setCrimeCheck(!crimeCheck);
 									fetchHandle({
