@@ -191,9 +191,13 @@ const ProfileUpload = props => {
 				} catch (err) {
 					if (section === 'documentUpload') {
 						dispatch(
-							setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+							setDocumentSelfieGeoLocation({
+								err: 'Geo Location Not Captured',
+							})
 						);
-						dispatch(setOnSiteSelfieGeoLocation({err: 'Geo Location Not Captured'}))
+						dispatch(
+							setOnSiteSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+						);
 					} else {
 						dispatch(
 							setProfileGeoLocation({ err: 'Geo Location Not Captured' })
@@ -277,8 +281,7 @@ const ProfileUpload = props => {
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-							dispatch(setOnSiteSelfieGeoLocation({err: 'Geo Location Not Captured'}))
-
+							dispatch(setOnSiteSelfieGeoLocation(resp?.data?.uploaded_data));
 						}
 						// console.log('newfile-', { newFile });
 						dispatch(
@@ -349,7 +352,6 @@ const ProfileUpload = props => {
 			}
 		},
 	});
-
 	useEffect(() => {
 		(async () => {
 			try {
@@ -371,7 +373,6 @@ const ProfileUpload = props => {
 						loan_id: loanId,
 						userid: businessUserId,
 					};
-
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 					const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
 

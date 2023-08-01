@@ -197,7 +197,7 @@ const DocumentUpload = props => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	// const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
-
+	const isSecondUseEffectCalledOnce = useRef(false);
 	useEffect(() => {
 		// console.log(allDocumentTypes, 'Alldoctypes');
 		// console.log(cacheDocuments, ' cache docs');
@@ -205,7 +205,7 @@ const DocumentUpload = props => {
 		scrollToTopRootElement();
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
-
+			let filteredSelfieDocs;
 			const initializeDocTypeList = async () => {
 				try {
 					// console.log('initializeDocTypeList');
@@ -388,6 +388,9 @@ const DocumentUpload = props => {
 								// API.GET_ALL_UPLOADED_DOCUMENTS
 							}?loan_ref_id=${loanRefId}`
 						);
+						if (!allDocumentsRes) {
+							setLoading(true);
+						}
 						// console.log('allDocumentsRes-', allDocumentsRes);
 						if (
 							allDocumentsRes?.data?.documentList?.is_aadhaar_verified_with_otp
@@ -400,7 +403,7 @@ const DocumentUpload = props => {
 						) {
 							const lenderDocs =
 								allDocumentsRes?.data?.documentList?.lender_document;
-							const filteredSelfieDocs = lenderDocs.filter(
+							filteredSelfieDocs = lenderDocs.filter(
 								doc => `${doc?.doc_type?.id}` === '364'
 							);
 							filteredSelfieDocs?.map(selfieDoc => {
@@ -541,6 +544,7 @@ const DocumentUpload = props => {
 							// });
 						}
 					} catch (error) {}
+
 					dispatch(
 						addOrUpdateCacheDocumentsDocUploadPage({
 							files: [
@@ -701,16 +705,25 @@ const DocumentUpload = props => {
 						return null;
 					})?.[0];
 					if (selectedField) {
-						const file = cacheDocuments?.filter(doc => {
-							if (
-								`${doc?.directorId}` === `${selectedDirectorId}` &&
-								doc?.doc_type?.id ===
-									selectedField?.doc_type?.[selectedIncomeType]
-							) {
-								return doc;
-							}
-							return null;
-						})?.[0];
+						const selfieDocType = selfieWithApplicantField?.doc_type?.[
+							selectedDirector?.income_type
+						]
+							? selfieWithApplicantField?.doc_type?.[
+									selectedDirector?.income_type
+							  ]
+							: selfieWithApplicantField?.doc_type?.[businessType];
+						// console.log(filteredSelfieDocs,"filtered Selfie DOcs");
+						const file = cacheDocuments
+							? cacheDocuments?.filter(
+									doc =>
+										`${doc?.directorId}` === `${selectedDirectorId}` &&
+										`${doc?.doc_type?.id}` === `${selfieDocType}`
+							  )?.[0]
+							: filteredSelfieDocs?.filter(
+									doc =>
+										`${doc?.directorId}` === `${selectedDirectorId}` &&
+										`${doc?.doc_type?.id}` === `${selfieDocType}`
+							  )?.[0];
 						if (file && Object.keys(file).length > 0) {
 							const newCatchFiles = _.cloneDeep(cacheFile);
 							cacheFile.selectedDirectorId = { file };
@@ -740,8 +753,9 @@ const DocumentUpload = props => {
 										},
 									}
 								);
-								if (selectedDirectorId === '0') {
+								if (selectedDirectorId==='0') {
 									setEntitiyGeoLocation(geoLocationRes?.data?.data);
+									return;
 								}
 								dispatch(
 									setOnSiteSelfieGeoLocation(geoLocationRes?.data?.data)
@@ -1242,6 +1256,7 @@ const DocumentUpload = props => {
 				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 				if (selectedDirectorId === '0') {
 					setEntitiyGeoLocation(geoLocationTag);
+					return;
 				}
 			} else {
 				const geoLocationTag = {
@@ -1250,10 +1265,11 @@ const DocumentUpload = props => {
 					long: file?.longitude,
 					timestamp: file?.timestamp,
 				};
-				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 				if (selectedDirectorId === '0') {
 					setEntitiyGeoLocation(geoLocationTag);
+					return;
 				}
+				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 			}
 		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
@@ -1287,6 +1303,42 @@ const DocumentUpload = props => {
 				`${doc?.directorId}` === `${selectedDirectorId}` &&
 				`${doc?.doc_type?.id}` === `${selfieDocType}`
 		)?.[0] || null;
+	const selfieImageUploadFileArray = cacheDocuments?.filter(
+		doc =>
+			`${doc?.directorId}` === `${selectedDirectorId}` &&
+			`${doc?.doc_type?.id}` === `${selfieDocType}`
+	);
+	useEffect(() => {
+		selfieImageUploadFileArray.map(selfie => {
+			if (
+				!!isUseEffectCalledOnce.current &&
+				!selectedDirector?.onSiteSelfieGeoLocation
+			) {
+				async function geoTagging() {
+					if (isGeoTaggingEnabled) {
+						const reqBody = {
+							lat: selfie?.loan_document_details?.[0]?.lat,
+							long: selfie?.loan_document_details?.[0]?.long,
+						};
+						const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						});
+						if (selectedDirectorId==='0' && !entityGeolocation) {
+							setEntitiyGeoLocation(geoLocationRes?.data?.data);
+							return;
+						}
+						if (!!selectedDirector.onSiteSelfieGeoLocation) {
+							dispatch(setOnSiteSelfieGeoLocation(geoLocationRes?.data?.data));
+							isSecondUseEffectCalledOnce.current = true;
+						}
+					}
+				}
+				geoTagging();
+			}
+		});
+	}, [cacheDocuments]);
 
 	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
@@ -1315,7 +1367,7 @@ const DocumentUpload = props => {
 				if (
 					Object.keys(
 						nonApplicantDirectorsObject?.[director.value]
-							?.onSiteSelfieGeoLocation
+							?.onSiteSelfieGeoLocation || {}
 					).length <= 0
 				) {
 					result = false;
@@ -1782,7 +1834,6 @@ const DocumentUpload = props => {
 								if (!isFieldValid({ field, formState: {}, isApplicant })) {
 									return null;
 								}
-
 								if (
 									isGeoTaggingEnabled &&
 									field?.type === 'file' &&
@@ -1793,11 +1844,11 @@ const DocumentUpload = props => {
 											key={`dataitem-${field?.id}${fieldIndex}`}
 										>
 											{/* {console.log(selectedDirector.onSiteSelfieGeoLocation)} */}
-
 											<UI.VerificationSection
 												isLocation={
-													!!selectedDirector?.onSiteSelfieGeoLocation ||
-													!!entityGeolocation
+													// !!selectedDirector?.onSiteSelfieGeoLocation ||
+													// !!entityGeolocation
+													!!selectedDirector?!!selectedDirector?.onSiteSelfieGeoLocation : !!entityGeolocation
 												}
 											>
 												<ProfileUpload
@@ -1818,36 +1869,33 @@ const DocumentUpload = props => {
 												/>
 											</UI.VerificationSection>
 											{field?.geo_tagging === true
-												? Object.keys(
-														selectedDirector.onSiteSelfieGeoLocation ||
-															entityGeolocation ||
-															{}
-												  ).length > 0 && (
+												? (Object.keys(
+													selectedDirector?.onSiteSelfieGeoLocation||{}
+												  ).length > 0||(selectedDirectorId==='0' && Object.keys(entityGeolocation||{}).length>0)) && (
 														<UI.VerificationSection
 															isLocation={
-																!!selectedDirector?.onSiteSelfieGeoLocation ||
-																!!entityGeolocation
+																!!selectedDirector?!!selectedDirector?.onSiteSelfieGeoLocation : !!entityGeolocation
 															}
 														>
 															<AddressDetailsCard
 																address={
-																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.address || entityGeolocation?.address
+																	selectedDirectorId==='0'?	entityGeolocation?.address :selectedDirector?.onSiteSelfieGeoLocation
+																	?.address
 																}
 																latitude={
-																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.lat || entityGeolocation?.lat
+																	selectedDirectorId==='0'? entityGeolocation?.lat :selectedDirector?.onSiteSelfieGeoLocation
+																	?.lat
 																}
 																longitude={
-																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.long || entityGeolocation?.longitude
+																	selectedDirectorId==='0'?	entityGeolocation?.long :selectedDirector?.onSiteSelfieGeoLocation
+																	?.long
 																}
 																timestamp={
-																	selectedDirector?.onSiteSelfieGeoLocation
-																		?.timestamp || entityGeolocation?.timestamp
+																	selectedDirectorId==='0'? entityGeolocation?.timestamp :selectedDirector?.onSiteSelfieGeoLocation
+																	?.timestamp
 																}
 																err={
-																	selectedDirector?.onSiteSelfieGeoLocation
+																	selectedDirector.onSiteSelfieGeoLocation
 																		?.err || entityGeolocation?.err
 																}
 																showCloseIcon={false}
