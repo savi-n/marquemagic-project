@@ -131,6 +131,14 @@ const VALIDATION_RULES = {
 		func: minValue,
 		message: 'Minimum limit needed',
 	},
+	limitMaxValue: {
+		func: maxValue,
+		message: 'Value exceeds the limit',
+	},
+	limitMinValue: {
+		func: minValue,
+		message: 'Minimum limit needed',
+	},
 	valueMatchWith: {
 		func: valueMatchWith,
 		message: 'Mismatch',
