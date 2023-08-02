@@ -1322,7 +1322,7 @@ const DocumentUpload = props => {
 			setFetchedDirectors({ ...fetchedDirectors, [fileDirectoId]: true });
 			if (
 				(!!directors?.[fileDirectoId]?.onSiteSelfieGeoLocation ||
-					(Number(fileDirectoId) === 0 && !entityGeolocation)) &&
+					(`${fileDirectoId}` === `0` && !entityGeolocation)) &&
 				!fetchedDirectors?.[fileDirectoId] &&
 				(permission?.geo_tagging?.geo_tagging &&
 					selfieWithApplicantField?.geo_tagging)
