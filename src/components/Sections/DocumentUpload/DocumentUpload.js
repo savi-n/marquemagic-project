@@ -1315,6 +1315,7 @@ const DocumentUpload = props => {
 	const selfieImageUploadFileArray = cacheDocuments?.filter(
 		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
 	);
+
 	useEffect(() => {
 		selfieImageUploadFileArray.map(selfie => {
 			const fileDirectoId = selfie?.directorId;
@@ -1353,6 +1354,7 @@ const DocumentUpload = props => {
 			}
 			return null;
 		});
+		// eslint-disable-next-line
 	}, [cacheDocuments]);
 
 	// console.log(selfieImageUploadedFile, 'image');
