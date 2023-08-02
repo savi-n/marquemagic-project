@@ -76,7 +76,8 @@ const DocumentUpload = props => {
 		return null;
 	});
 	const [entityGeolocation, setEntitiyGeoLocation] = useState(null);
-	const [fetchedDirectors,setFetchDirectors]= useState({});
+
+	const [fetchedDirectors, setFetchedDirectors] = useState({});
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -198,7 +199,6 @@ const DocumentUpload = props => {
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	// const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
-	const isSecondUseEffectCalledOnce = useRef(false);
 	useEffect(() => {
 		// console.log(allDocumentTypes, 'Alldoctypes');
 		// console.log(cacheDocuments, ' cache docs');
@@ -1318,12 +1318,14 @@ const DocumentUpload = props => {
 	useEffect(() => {
 		selfieImageUploadFileArray.map(selfie => {
 			const fileDirectoId = selfie?.directorId;
-			setFetchDirectors({...fetchedDirectors,[fileDirectoId]:true})
+			setFetchedDirectors({ ...fetchedDirectors, [fileDirectoId]: true });
 			if (
-				(!!directors?.[fileDirectoId]?.onSiteSelfieGeoLocation||(Number(fileDirectoId)===0 && !entityGeolocation)) && !fetchedDirectors?.[fileDirectoId]
+				(!!directors?.[fileDirectoId]?.onSiteSelfieGeoLocation ||
+					(Number(fileDirectoId) === 0 && !entityGeolocation)) &&
+				!fetchedDirectors?.[fileDirectoId] &&
+				(permission?.geo_tagging?.geo_tagging &&
+					selfieWithApplicantField?.geo_tagging)
 			) {
-				console.log(fetchedDirectors,"ran");
-				console.log(directors?.[fileDirectoId], 'geolocation');
 				async function geoTagging() {
 					if (isGeoTaggingEnabled) {
 						const reqBody = {
@@ -1340,17 +1342,16 @@ const DocumentUpload = props => {
 							...geoLocationRes?.data?.data,
 							directorId: fileDirectoId,
 						};
-						if(fileDirectoId===0){
-						setEntitiyGeoLocation(geoLocationRes?.data?.data);
+						if (fileDirectoId === 0) {
+							setEntitiyGeoLocation(geoLocationRes?.data?.data);
 						}
 
 						dispatch(setOnSiteSelfieGeoLocation(reqObject));
-
-						isSecondUseEffectCalledOnce.current = true;
 					}
 				}
 				geoTagging();
 			}
+			return null;
 		});
 	}, [cacheDocuments]);
 
