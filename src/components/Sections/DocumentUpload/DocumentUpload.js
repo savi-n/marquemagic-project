@@ -405,7 +405,7 @@ const DocumentUpload = props => {
 							const lenderDocs =
 								allDocumentsRes?.data?.documentList?.lender_document;
 							filteredSelfieDocs = lenderDocs.filter(
-								doc => `${doc?.doc_type?.id}` === '364'
+								doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
 							);
 							filteredSelfieDocs?.map(selfieDoc => {
 								dispatch(addSelfieCacheDocument(selfieDoc));
