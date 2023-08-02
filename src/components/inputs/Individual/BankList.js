@@ -20,13 +20,15 @@ export default function BankList(props) {
 			// console.log('ifscDataRes-', { ifscDataRes });
 			if (ifscDataRes?.data?.status === 'ok') {
 				const newIfscList = [];
-				ifscDataRes?.data?.IFSC_list?.map(bank => {
-					newIfscList.push({
-						value: `${bank?.ifsc}`,
-						name: `${bank?.ifsc}`,
-					});
-					return null;
-				});
+				ifscDataRes?.data?.IFSC_list?.length === 0
+					? newIfscList.push({ value: '', name: '' })
+					: ifscDataRes?.data?.IFSC_list?.map(bank => {
+							newIfscList.push({
+								value: `${bank?.ifsc}`,
+								name: `${bank?.ifsc}`,
+							});
+							return null;
+					  });
 				dispatch(setIfscList(newIfscList));
 			}
 		} catch (err) {
