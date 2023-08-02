@@ -238,13 +238,13 @@ const BasicDetails = props => {
 				values: {
 					...formState.values,
 					app_coordinates:
-						selectedProfileField?.geo_tagging === true
-							? {
-									lat: geoLocationData?.lat,
-									long: geoLocationData?.long,
-									timestamp: geoLocationData?.timestamp,
-							  }
-							: {},
+						// selectedProfileField?.geo_tagging === true
+						{
+							lat: geoLocationData?.lat,
+							long: geoLocationData?.long,
+							timestamp: geoLocationData?.timestamp,
+						},
+					// : {},
 					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
 				},
 				app,
@@ -555,7 +555,6 @@ const BasicDetails = props => {
 				fetchedProfilePicData &&
 				Object.keys(fetchedProfilePicData)?.length > 0
 			) {
-				setFetchedProfilePic(fetchedProfilePicData);
 				if (!!fetchedProfilePicData?.lat) {
 					const reqBody = {
 						lat: fetchedProfilePicData?.lat,
@@ -667,6 +666,15 @@ const BasicDetails = props => {
 							tempCompletedSections?.director_details
 						)
 					);
+				}
+
+				const fetchedProfilePicData =
+					fetchRes?.data?.data?.director_details?.customer_picture;
+				if (
+					fetchedProfilePicData &&
+					Object.keys(fetchedProfilePicData)?.length > 0
+				) {
+					setFetchedProfilePic(fetchedProfilePicData);
 				}
 				if (isGeoTaggingEnabled && selectedProfileField?.geo_tagging) {
 					// to fetch profile pic geo location
