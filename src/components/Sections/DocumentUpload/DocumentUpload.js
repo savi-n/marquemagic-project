@@ -1650,6 +1650,9 @@ const DocumentUpload = props => {
 	const removeCacheDocumentTemp = fieldName => {
 		// setGeoLocationData({});
 		dispatch(removeOnSiteSelfieGeoLocation());
+		if(selectedDirectorId==='0'){
+			setEntitiyGeoLocation(null);
+		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
 		delete newCatchFiles[selectedDirectorId];
 		setCacheFile(newCatchFiles);
