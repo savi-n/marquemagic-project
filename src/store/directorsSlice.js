@@ -327,7 +327,7 @@ export const directorsSlice = createSlice({
 
 		setOnSiteSelfieGeoLocation: (state, { payload }) => {
 			const { address, lat, long, timestamp, directorId } = payload;
-			if (!!state.directors[directorId]) {
+			if (!!state?.directors?.[directorId]) {
 				state.directors[directorId].onSiteSelfieGeoLocation = {
 					address,
 					lat,
