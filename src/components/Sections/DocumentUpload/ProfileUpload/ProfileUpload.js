@@ -16,6 +16,8 @@ import {
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
+	setOnSiteSelfieGeoLocation,
+	removeOnSiteSelfieGeoLocation,
 } from 'store/directorsSlice';
 import iconCameraGrey from 'assets/icons/camera_grey.png';
 import iconDelete from 'assets/icons/delete_blue.png';
@@ -98,10 +100,44 @@ const ProfileUpload = props => {
 		}
 	};
 
+	// const deleteSelfieDocument = async file => {
+	// 	console.log('clicked');
+	// 	console.log(file, 'file inside deleteSelfie Function');
+	// 	try {
+	// 		let endPoint = API.DELETE_LENDER_DOCUMENT;
+	// 		setLoading(true);
+	// 		const reqBody = {
+	// 			lender_doc_id: file?.id || '',
+	// 			businessId: businessId,
+	// 			loan_id: loanId,
+	// 			user_id: businessUserId,
+	// 			loan_bank_mapping_id:
+	// 				file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
+	// 		};
+	// 		await axios.post(endPoint, reqBody);
+	// 		console.log('running till here.....');
+	// 		removeCacheDocumentTemp(field?.name);
+	// 		console.log('still running......');
+	// 		dispatch(removeSelfieCacheDocument(file));
+	// 	} catch (error) {
+	// 		console.error('error-deleteDocument-', error);
+	// 		addToast({
+	// 			message:
+	// 				error?.response?.data?.message ||
+	// 				error.message ||
+	// 				'Unable to delete file, try after sometime',
+	// 			type: 'error',
+	// 		});
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
 	// CALLED FOR SELFIE DOC UPLOAD
 	const deleteDocument = async file => {
 		try {
-			if (!file?.document_id) return removeCacheDocumentTemp(field.name);
+			if (!(file?.document_id || file?.id))
+				return removeCacheDocumentTemp(field.name);
 			let endPoint = API.DELETE_DOCUMENT;
 			if (section === 'documentUpload') {
 				endPoint = API.DELETE_LENDER_DOCUMENT;
@@ -113,7 +149,7 @@ const ProfileUpload = props => {
 				business_id: businessId,
 
 				//for doc upload
-				lender_doc_id: file?.document_id || '',
+				lender_doc_id: file?.document_id || file?.id || '',
 				loan_bank_mapping_id:
 					file?.loan_bank_mapping_id || editLoanData?.loan_bank_mapping_id || 1,
 				loan_id: loanId,
@@ -125,6 +161,7 @@ const ProfileUpload = props => {
 			dispatch(removeCacheDocument(file));
 			if (isGeoTaggingEnabled) {
 				dispatch(removeDocumentSelfieGeoLocation());
+				dispatch(removeOnSiteSelfieGeoLocation());
 			}
 		} catch (error) {
 			console.error('error-deleteDocument-', error);
@@ -154,7 +191,12 @@ const ProfileUpload = props => {
 				} catch (err) {
 					if (section === 'documentUpload') {
 						dispatch(
-							setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+							setDocumentSelfieGeoLocation({
+								err: 'Geo Location Not Captured',
+							})
+						);
+						dispatch(
+							setOnSiteSelfieGeoLocation({ err: 'Geo Location Not Captured' })
 						);
 					} else {
 						dispatch(
@@ -239,6 +281,7 @@ const ProfileUpload = props => {
 						if (isGeoTaggingEnabled && coordinates) {
 							setPicAddress(newFile);
 							dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+							dispatch(setOnSiteSelfieGeoLocation(resp?.data?.uploaded_data));
 						}
 						// console.log('newfile-', { newFile });
 						dispatch(
@@ -309,7 +352,6 @@ const ProfileUpload = props => {
 			}
 		},
 	});
-
 	useEffect(() => {
 		(async () => {
 			try {
@@ -331,7 +373,6 @@ const ProfileUpload = props => {
 						loan_id: loanId,
 						userid: businessUserId,
 					};
-
 					const docRes = await axios.post(API.VIEW_DOCUMENT, reqBody);
 					const previewFile = decryptViewDocumentUrl(docRes?.data?.signedurl);
 
@@ -355,7 +396,7 @@ const ProfileUpload = props => {
 		return () =>
 			uploadedFile?.preview && URL.revokeObjectURL(uploadedFile.preview);
 		// eslint-disable-next-line
-	}, []);
+	}, [uploadedFile]);
 
 	// Disable click and keydown behavior on the <Dropzone>
 
@@ -424,6 +465,7 @@ const ProfileUpload = props => {
 											return;
 										}
 										deleteDocument(uploadedFile);
+										// deleteSelfieDocument(uploadedFile);
 										// setProfileImageResTemp(null);
 									}}
 								/>
