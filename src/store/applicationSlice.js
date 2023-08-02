@@ -153,7 +153,7 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
-
+		
 		removeCacheDocument: (state, action) => {
 			const { doc_type_id, directorId, fileId } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
