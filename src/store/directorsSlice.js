@@ -154,7 +154,7 @@ export const directorsSlice = createSlice({
 					// sections: newSections,
 					directorId,
 					onSiteSelfieGeoLocation:
-						prevState?.directors[state.selectedDirectorId]
+						prevState?.directors?.[state.selectedDirectorId]
 							?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({

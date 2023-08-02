@@ -69,7 +69,7 @@ export const applicationSlice = createSlice({
 		addSelfieCacheDocument: (state, { payload }) => {
 			const selfieFile = payload;
 			const allCacheFiles = _.cloneDeep(state.cacheDocuments);
-			const isSelfieAlreadyExists = allCacheFiles.findIndex(
+			const isSelfieAlreadyExists = allCacheFiles?.findIndex(
 				selfieDoc =>
 					selfieDoc?.directorId === selfieFile?.directorId &&
 					selfieDoc?.doc_type.id === selfieFile?.doc_type?.id
