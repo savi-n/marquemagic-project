@@ -150,13 +150,12 @@ const BusinessDetails = props => {
 		}));
 	};
 
-	const onPanEnter = async enteredPan => {
+	const onPanEnter = async pan => {
 		try {
-			const pan = enteredPan || 'AACCO0644D';
 			const panErrorMessage = isInvalidPan(pan);
 			if (panErrorMessage) {
 				return addToast({
-					message: panErrorMessage,
+					message: 'Please enter valid PAN number',
 					type: 'error',
 				});
 			}
@@ -168,7 +167,6 @@ const BusinessDetails = props => {
 				{ headers: { Authorization: clientToken } }
 			);
 			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
-			console.log('🚀 Verify PAN RES:', panExtractionApiRes);
 
 			// IF PAN NAME
 			if (panExtractionMsg?.upstreamName) {
@@ -179,7 +177,7 @@ const BusinessDetails = props => {
 				});
 				onChangeFormStateField({
 					name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
-					value: enteredPan || pan || '',
+					value: pan || '',
 				});
 
 				try {
@@ -261,6 +259,10 @@ const BusinessDetails = props => {
 			}
 		} catch (err) {
 			console.error(err);
+			addToast({
+				message: 'Something went wrong, please try again with valid PAN number',
+				type: 'error',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -852,6 +854,7 @@ const BusinessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
+										const customFieldPropdSubFields = {};
 										if (
 											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -894,18 +897,26 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
-
 										// TODO: check for casedos
-										customFieldProps.disabled = false;
-
-										if (field?.name === 'pan_number')
-											if (field?.sub_fields?.[0]?.name === 'Fetch') {
-												customFieldProps.loading = loading;
-												customFieldProps.disabled =
-													loading || isViewLoan || isEditLoan;
-												customFieldProps.onClick = () =>
-													onPanEnter(formState.values?.['pan_number']);
-											}
+										if (!isPanUploadMandatory)
+											customFieldProps.disabled = false;
+										// if (field?.name === 'pan_number')
+										// 	if (field?.sub_fields?.[0]?.name === 'Fetch') {
+										// 		customFieldProps.loading = loading;
+										// 		customFieldProps.disabled =
+										// 			loading || isViewLoan || isEditLoan;
+										// 		customFieldProps.onClick = event => {
+										// 			onPanEnter(formState.values?.['pan_number']);
+										// 		};
+										// 	}
+										if (field?.name === 'pan_number') {
+											customFieldPropdSubFields.loading = loading;
+											customFieldProps.disabled =
+												loading || isViewLoan || isEditLoan;
+											customFieldPropdSubFields.onClick = event => {
+												onPanEnter(formState.values?.['pan_number']);
+											};
+										}
 										// TODO: to be fix properly
 										// no use of set state inside return statement
 										// if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
@@ -1009,6 +1020,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
+															...customFieldPropdSubFields,
 														})}
 													<div
 														style={{
@@ -1024,11 +1036,16 @@ const BusinessDetails = props => {
 													</div>
 													{field?.sub_fields &&
 														!field?.sub_fields[0].is_prefix &&
+														// if(sub_fields[0]?.name === 'Fetch') {
+														// 	sub_fields[0]?.customFieldProps.onClick={()=>onPanEnter(formState.values?.['pan_number'])}
+
+														// }
 														register({
 															...field.sub_fields[0],
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
+															...customFieldPropdSubFields,
 														})}
 
 													{/* {
