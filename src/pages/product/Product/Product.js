@@ -40,6 +40,7 @@ import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
 import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
+import data from './sampleData';
 
 const Product = props => {
 	const { product } = props;
@@ -57,10 +58,11 @@ const Product = props => {
 		isViewLoan,
 		isEditOrViewLoan,
 	} = app;
-	const { response } = useFetch({
-		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
-		options: { method: 'GET' },
-	});
+	// const { response } = useFetch({
+	// 	url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
+	// 	options: { method: 'GET' },
+	// });
+	const response = data;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
 
