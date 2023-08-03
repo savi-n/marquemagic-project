@@ -17,7 +17,7 @@ import {
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
-import selectedSection from './sample.json';
+// import selectedSection from './sample.json';
 
 const DynamicForm = props => {
 	const {
@@ -35,9 +35,10 @@ const DynamicForm = props => {
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
+
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-	const { isTestMode, isViewLoan: isViewLoanApp } = app;
+	const { isTestMode, isViewLoan: isViewLoanApp, selectedSection } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -178,6 +179,7 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
+					// console.log(customFieldProps)
 					// console.log('render-field-', {
 					// 	field,
 					// 	customFieldProps,
@@ -185,6 +187,7 @@ const DynamicForm = props => {
 					// 	newField,
 					// 	formState,
 					// });
+					// console.log(newField);
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({

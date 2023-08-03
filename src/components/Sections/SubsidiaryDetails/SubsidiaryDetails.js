@@ -17,11 +17,11 @@ import expandIcon from 'assets/icons/right_arrow_active.png';
 import plusRoundIcon from 'assets/icons/plus_icon_round.png';
 import DynamicForm from './DynamicForm';
 import { API_END_POINT } from '_config/app.config';
-import selectedSection from './sample.json';
+// import selectedSection from './sample.json';
 
 const SubsidiaryDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { isViewLoan, selectedSectionId, nextSectionId } = app;
+	const { isViewLoan, selectedSectionId, nextSectionId, selectedSection } = app;
 	const dispatch = useDispatch();
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
@@ -101,7 +101,6 @@ const SubsidiaryDetails = props => {
 	// 	isCreateFormOpen,
 	// 	editSectionId,
 	// });
-
 	return (
 		<UI_SECTIONS.Wrapper style={{ marginTop: 50 }}>
 			{fetchingSectionData ? (
