@@ -953,11 +953,6 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
-										// TODO: check if pan is not uploaded
-										// if (field?.name === CONST.BUSINESS_NAME_FIELD_NAME) {
-										// 	customFieldProps.value = businessName;
-										// }
-										//businessName
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -1036,10 +1031,6 @@ const BusinessDetails = props => {
 													</div>
 													{field?.sub_fields &&
 														!field?.sub_fields[0].is_prefix &&
-														// if(sub_fields[0]?.name === 'Fetch') {
-														// 	sub_fields[0]?.customFieldProps.onClick={()=>onPanEnter(formState.values?.['pan_number'])}
-
-														// }
 														register({
 															...field.sub_fields[0],
 															value: newValueSelectField,
@@ -1047,13 +1038,6 @@ const BusinessDetails = props => {
 															...customFieldProps,
 															...customFieldPropdSubFields,
 														})}
-
-													{/* {
-															field?.sub_fields &&
-															!field?.sub_fields[0].name==='Fetch' &&
-															customFieldProps.onClick={()=>onPanEnter(formState.values?.['pan_number'])}
-
-														} */}
 												</div>
 												{(formState?.submit?.isSubmited ||
 													formState?.touched?.[field?.name]) &&
