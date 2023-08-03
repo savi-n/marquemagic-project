@@ -85,6 +85,17 @@ const data = {
 									type: 'text',
 									disabled: true,
 									visibility: true,
+									sub_fields: [
+										{
+											name: 'Fetch',
+											db_key: 'fetch',
+											visibility: true,
+											placeholder: 'Fetch',
+											type: 'button',
+											rules: {},
+											isbuttonfilled: false,
+										},
+									],
 								},
 								{
 									name: 'business_name',
@@ -597,7 +608,7 @@ const data = {
 									min: 1,
 									max: 1,
 									rules: {
-										required: true,
+										required: false,
 										supported_formats: ['*'],
 									},
 									doc_type: {

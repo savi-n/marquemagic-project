@@ -36,7 +36,6 @@ import {
 	getApiErrorMessage,
 	getSelectedField,
 	getAllCompletedSections,
-	formatPanExtractionData,
 	formatCompanyRocData,
 	// isDirectorApplicant
 } from 'utils/formatData';
@@ -49,6 +48,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+import * as CONST_BUSINESS_DETAILS from './const';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
@@ -111,7 +111,6 @@ const BusinessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
-	const [businessName, setBusinessName] = useState('');
 	const {
 		handleSubmit,
 		register,
@@ -151,9 +150,9 @@ const BusinessDetails = props => {
 		}));
 	};
 
-	const onPanEnter = async pan => {
+	const onPanEnter = async enteredPan => {
 		try {
-			const pan = 'AACCO0644D';
+			const pan = enteredPan || 'AACCO0644D';
 			const panErrorMessage = isInvalidPan(pan);
 			if (panErrorMessage) {
 				return addToast({
@@ -174,17 +173,33 @@ const BusinessDetails = props => {
 			// IF PAN NAME
 			if (panExtractionMsg?.upstreamName) {
 				// 2.PAN to GST
-				const gstinResponse = await axios.post(
-					API.PAN_TO_GST,
-					{ pan: pan },
-					{
-						headers: {
-							authorization: clientToken,
-						},
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+					value: panExtractionMsg?.upstreamName || '',
+				});
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+					value: enteredPan || pan || '',
+				});
+
+				try {
+					const gstinResponse = await axios.post(
+						API.PAN_TO_GST,
+						{ pan: pan },
+						{
+							headers: {
+								authorization: clientToken,
+							},
+						}
+					);
+					if (gstinResponse) {
+						setGstin(gstinResponse);
 					}
-				);
-				if (gstinResponse) {
-					setGstin(gstinResponse);
+				} catch (err) {
+					addToast({
+						message: 'Error fetching GST data',
+						type: 'error',
+					});
 				}
 
 				// 3. COMPANY SEARCH
@@ -193,162 +208,20 @@ const BusinessDetails = props => {
 				});
 
 				const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
-
-				// setBusinessName(
-				// 	newCompanyList?.COMPANY_NAME || panExtractionMsg?.upstreamName
-				// );
-				// dispatch(
-				// 	setBusinessName(
-				// 		newCompanyList?.COMPANY_NAME || panExtractionMsg?.upstreamName
-				// 	)
-				// );
 				if (newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER) {
 					try {
 						console.log({ newCompanyList });
 						// 4.ROC
-						// const cinNumberResponse = await axios.post(
-						// 	API.ROC_DATA_FETCH,
-						// 	{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
-						// 	{
-						// 		headers: {
-						// 			Authorization: clientToken,
-						// 		},
-						// 	}
-						// );
-						const cinNumberResponse = {
-							status: 'ok',
-							statusCode: 200,
-							data: {
-								data: {
-									company_master_data: {
-										company_category: 'Company limited by Shares',
-										email_id: 'lucas.bianchi@namastecredit.com',
-										class_of_company: 'Private',
-										'number_of_members(applicable_in_case_of_company_without_share_capital)':
-											'0',
-										'address_other_than_r/o_where_all_or_any_books_of_account_and_papers_are_maintained':
-											'#5, Crimson Court, 1st Floor, Jeevan Bima Nagar Main Road, Bangalore KA 560075 IN',
-										date_of_last_agm: '12/09/2022',
-										registered_address:
-											'C 135, FIRST FLOOR KIRTI NAGAR NA NEW DELHI West Delhi DL 110015 IN',
-										active_compliance: 'ACTIVE compliant',
-										registration_number: '272619',
-										'paid_up_capital(rs)': '8820340',
-										whether_listed_or_not: 'Unlisted',
-										suspended_at_stock_exchange: '-',
-										company_subcategory: 'Non-govt company',
-										'authorised_capital(rs)': '8925000',
-										'company_status(for_efiling)': 'Active',
-										roc_code: 'RoC-Delhi',
-										date_of_balance_sheet: '31/03/2022',
-										date_of_incorporation: '22/10/2014',
-										'cin ': 'U74999DL2014PTC272619',
-										company_name: 'OPENDOORS FINTECH PRIVATE LIMITED',
-									},
-									charges: [
-										{
-											assets_under_charge: 'Pledge of Debt Mutual Fund',
-											date_of_creation: '20/05/2019',
-											date_of_modification: '-',
-											charge_amount: '38000000',
-											status: 'CLOSED',
-										},
-										{
-											assets_under_charge: '',
-											date_of_creation: '10/03/2023',
-											date_of_modification: '-',
-											charge_amount: '20000000',
-											status: 'Open',
-										},
-										{
-											assets_under_charge: '',
-											date_of_creation: '25/10/2022',
-											date_of_modification: '-',
-											charge_amount: '100000000',
-											status: 'Open',
-										},
-									],
-									'directors/signatory_details': [
-										{
-											end_date: '-',
-											surrendered_din: '',
-											'din/pan': '07057671',
-											begin_date: '31/12/2014',
-											name: 'GAURAV ANAND',
-											assosiate_company_details: {
-												llp_data: [],
-												company_data: [
-													{
-														end_date: '-',
-														active_compliance: '',
-														company_name: 'OPENDOORS FINTECH PRIVATE LIMITED',
-														begin_date: '31/01/2018',
-														'cin/fcrn': 'U74999DL2014PTC272619',
-													},
-												],
-												director_data: {
-													din: '07057671',
-													name: 'GAURAV ANAND',
-												},
-											},
-										},
-										{
-											end_date: '-',
-											surrendered_din: '',
-											'din/pan': '07078501',
-											begin_date: '05/02/2015',
-											name: 'LUCAS MIRKO BIANCHI',
-										},
-										{
-											end_date: '-',
-											surrendered_din: '',
-											'din/pan': '07973542',
-											begin_date: '22/03/2021',
-											name: 'AVISHEK ADDY',
-											assosiate_company_details: {
-												llp_data: [],
-												company_data: [
-													{
-														end_date: '-',
-														active_compliance: 'ACTIVE compliant',
-														company_name: 'BERAR FINANCE LIMITED',
-														begin_date: '27/09/2021',
-														'cin/fcrn': 'U65929MH1990PLC057829',
-													},
-													{
-														end_date: '-',
-														active_compliance: 'ACTIVE compliant',
-														company_name:
-															'D2C INSURANCE BROKING PRIVATE LIMITED',
-														begin_date: '20/09/2021',
-														'cin/fcrn': 'U66030DL2013PTC249265',
-													},
-													{
-														end_date: '-',
-														active_compliance: 'ACTIVE compliant',
-														company_name: 'OPENDOORS FINTECH PRIVATE LIMITED',
-														begin_date: '23/08/2021',
-														'cin/fcrn': 'U74999DL2014PTC272619',
-													},
-													{
-														end_date: '-',
-														active_compliance: 'ACTIVE compliant',
-														company_name:
-															'ALTUM CREDO HOME FINANCE PRIVATE LIMITED',
-														begin_date: '11/07/2022',
-														'cin/fcrn': 'U65999PN2016PTC166384',
-													},
-												],
-												director_data: {
-													din: '07973542',
-													name: 'AVISHEK ADDY',
-												},
-											},
-										},
-									],
+						const cinNumberResponse = await axios.post(
+							API.ROC_DATA_FETCH,
+							{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
+							{
+								headers: {
+									Authorization: clientToken,
 								},
-							},
-						};
+							}
+						);
+
 						const companyData = cinNumberResponse?.data?.data;
 						// companyData.gstin = gstinData;
 						const formattedCompanyData = formatCompanyRocData(companyData, pan);
@@ -357,13 +230,20 @@ const BusinessDetails = props => {
 							companyData,
 						});
 						cinNumberResponse && setCompanyRocData(formattedCompanyData);
-						// : addToast({
-						// 		message:
-						// 			'Unable to fetch the data from ROC. Please continue to fill the details.',
-						// 		// || error?.message ||
-						// 		// 'ROC search failed, try again',
-						// 		type: 'error',
-						//   });
+
+						onChangeFormStateField({
+							name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+							value: formattedCompanyData?.BusinessVintage || '',
+						});
+						onChangeFormStateField({
+							name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
+							value: formattedCompanyData?.Email || '',
+						});
+
+						onChangeFormStateField({
+							name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+							value: formattedCompanyData?.BusinessType || '1' || '',
+						});
 					} catch (err) {
 						addToast({
 							message:
@@ -372,6 +252,8 @@ const BusinessDetails = props => {
 							// 'ROC search failed, try again',
 							type: 'error',
 						});
+					} finally {
+						setLoading(false);
 					}
 				}
 
@@ -1016,6 +898,14 @@ const BusinessDetails = props => {
 										// TODO: check for casedos
 										customFieldProps.disabled = false;
 
+										if (field?.name === 'pan_number')
+											if (field?.sub_fields?.[0]?.name === 'Fetch') {
+												customFieldProps.loading = loading;
+												customFieldProps.disabled =
+													loading || isViewLoan || isEditLoan;
+												customFieldProps.onClick = () =>
+													onPanEnter(formState.values?.['pan_number']);
+											}
 										// TODO: to be fix properly
 										// no use of set state inside return statement
 										// if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
@@ -1140,6 +1030,13 @@ const BusinessDetails = props => {
 															visibility: 'visible',
 															...customFieldProps,
 														})}
+
+													{/* {
+															field?.sub_fields &&
+															!field?.sub_fields[0].name==='Fetch' &&
+															customFieldProps.onClick={()=>onPanEnter(formState.values?.['pan_number'])}
+
+														} */}
 												</div>
 												{(formState?.submit?.isSubmited ||
 													formState?.touched?.[field?.name]) &&
@@ -1186,17 +1083,17 @@ const BusinessDetails = props => {
 								isLoader={loading}
 								disabled={loading}
 								onClick={
-									() => onPanEnter(formState.values?.['pan_number'])
-									// 	handleSubmit(() => {
-									// 	if (
-									// 		isEditOrViewLoan ||
-									// 		completedSections?.includes(selectedSectionId)
-									// 	) {
-									// 		onSaveAndProceed();
-									// 		return;
-									// 	}
-									// 	setIsIncomeTypeConfirmModalOpen(true);
-									// })
+									// () => onPanEnter(formState.values?.['pan_number'])
+									handleSubmit(() => {
+										if (
+											isEditOrViewLoan ||
+											completedSections?.includes(selectedSectionId)
+										) {
+											onSaveAndProceed();
+											return;
+										}
+										setIsIncomeTypeConfirmModalOpen(true);
+									})
 								}
 							/>
 						)}
