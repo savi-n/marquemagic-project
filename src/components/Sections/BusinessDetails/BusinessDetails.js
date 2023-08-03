@@ -223,10 +223,6 @@ const BusinessDetails = props => {
 						const companyData = cinNumberResponse?.data?.data;
 						// companyData.gstin = gstinData;
 						const formattedCompanyData = formatCompanyRocData(companyData, pan);
-						console.log('🚀  ~ formattedCompanyData:', {
-							formattedCompanyData,
-							companyData,
-						});
 						cinNumberResponse && setCompanyRocData(formattedCompanyData);
 
 						onChangeFormStateField({

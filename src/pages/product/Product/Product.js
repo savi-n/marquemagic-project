@@ -61,7 +61,6 @@ const Product = props => {
 		url: `${PRODUCT_DETAILS_URL({ whiteLabelId, productId: atob(product) })}`,
 		options: { method: 'GET' },
 	});
-	// const response = data;
 	const [loading, setLoading] = useState(false);
 	const dispatch = useDispatch();
 
