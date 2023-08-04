@@ -516,8 +516,9 @@ const BusinessDetails = props => {
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 			};
+			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
 
-			return preData?.[field?.db_key];
+			return field?.value || '';
 		} catch (err) {
 			console.error('error-BusinessDetials', {
 				error: err,
@@ -992,6 +993,10 @@ const BusinessDetails = props => {
 												)
 											)
 												return null;
+										}
+
+										if (field?.disabled === true) {
+											customFieldProps.disabled = true;
 										}
 										return (
 											<UI_SECTIONS.FieldWrapGrid
