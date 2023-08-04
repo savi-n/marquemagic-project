@@ -36,6 +36,7 @@ import {
 	getApiErrorMessage,
 	getSelectedField,
 	getAllCompletedSections,
+	formatCompanyRocData,
 	// isDirectorApplicant
 } from 'utils/formatData';
 import Loading from 'components/Loading';
@@ -47,8 +48,10 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+import * as CONST_BUSINESS_DETAILS from './const';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
+import { isInvalidPan } from 'utils/validation';
 
 const BusinessDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -147,6 +150,119 @@ const BusinessDetails = props => {
 		}));
 	};
 
+	const onPanEnter = async pan => {
+		try {
+			const panErrorMessage = isInvalidPan(pan);
+			if (panErrorMessage) {
+				return addToast({
+					message: 'Please enter valid PAN number',
+					type: 'error',
+				});
+			}
+			setLoading(true);
+			// 1.VERIFY PAN
+			const panExtractionApiRes = await axios.post(
+				API.VERIFY_KYC,
+				{ req_type: 'pan', number: pan, name: 'XXX' },
+				{ headers: { Authorization: clientToken } }
+			);
+			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
+
+			// IF PAN NAME
+			if (panExtractionMsg?.upstreamName) {
+				// 2.PAN to GST
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.BUSINESS_NAME_FIELD_NAME,
+					value: panExtractionMsg?.upstreamName || '',
+				});
+				onChangeFormStateField({
+					name: CONST_BUSINESS_DETAILS.PAN_NUMBER_FIELD_NAME,
+					value: pan || '',
+				});
+
+				try {
+					const gstinResponse = await axios.post(
+						API.PAN_TO_GST,
+						{ pan: pan },
+						{
+							headers: {
+								authorization: clientToken,
+							},
+						}
+					);
+					if (gstinResponse) {
+						setGstin(gstinResponse);
+					}
+				} catch (err) {
+					addToast({
+						message: 'Error fetching GST data',
+						type: 'error',
+					});
+				}
+
+				// 3. COMPANY SEARCH
+				const companyNameSearchRes = await axios.post(API.SEARCH_COMPANY_NAME, {
+					search: panExtractionMsg?.upstreamName.trim(),
+				});
+
+				const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
+				if (newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER) {
+					try {
+						console.log({ newCompanyList });
+						// 4.ROC
+						const cinNumberResponse = await axios.post(
+							API.ROC_DATA_FETCH,
+							{ cin_number: newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER },
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+
+						const companyData = cinNumberResponse?.data?.data;
+						// companyData.gstin = gstinData;
+						const formattedCompanyData = formatCompanyRocData(companyData, pan);
+						cinNumberResponse && setCompanyRocData(formattedCompanyData);
+
+						onChangeFormStateField({
+							name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
+							value: formattedCompanyData?.BusinessVintage || '',
+						});
+						onChangeFormStateField({
+							name: CONST_BUSINESS_DETAILS.BUSINESS_EMAIL_FIELD,
+							value: formattedCompanyData?.Email || '',
+						});
+
+						onChangeFormStateField({
+							name: CONST_BUSINESS_DETAILS.BUSINESS_TYPE_FIELD_NAME,
+							value: formattedCompanyData?.BusinessType || '1' || '',
+						});
+					} catch (err) {
+						addToast({
+							message:
+								'Unable to fetch the data from ROC. Please continue to fill the details.',
+							// || error?.message ||
+							// 'ROC search failed, try again',
+							type: 'error',
+						});
+					} finally {
+						setLoading(false);
+					}
+				}
+
+				//END IF PAN NAME
+			}
+		} catch (err) {
+			console.error(err);
+			addToast({
+				message: 'Something went wrong, please try again with valid PAN number',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -734,6 +850,7 @@ const BusinessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
+										const customFieldPropdSubFields = {};
 										if (
 											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -776,7 +893,26 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
-
+										// TODO: check for casedos
+										if (!isPanUploadMandatory)
+											customFieldProps.disabled = false;
+										// if (field?.name === 'pan_number')
+										// 	if (field?.sub_fields?.[0]?.name === 'Fetch') {
+										// 		customFieldProps.loading = loading;
+										// 		customFieldProps.disabled =
+										// 			loading || isViewLoan || isEditLoan;
+										// 		customFieldProps.onClick = event => {
+										// 			onPanEnter(formState.values?.['pan_number']);
+										// 		};
+										// 	}
+										if (field?.name === 'pan_number') {
+											customFieldPropdSubFields.loading = loading;
+											customFieldProps.disabled =
+												loading || isViewLoan || isEditLoan;
+											customFieldPropdSubFields.onClick = event => {
+												onPanEnter(formState.values?.['pan_number']);
+											};
+										}
 										// TODO: to be fix properly
 										// no use of set state inside return statement
 										// if (field?.name === CONST.UDYAM_NUMBER_FIELD_NAME) {
@@ -813,7 +949,6 @@ const BusinessDetails = props => {
 										) {
 											customFieldProps.disabled = true;
 										}
-
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -876,6 +1011,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
+															...customFieldPropdSubFields,
 														})}
 													<div
 														style={{
@@ -896,6 +1032,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
+															...customFieldPropdSubFields,
 														})}
 												</div>
 												{(formState?.submit?.isSubmited ||
@@ -942,16 +1079,19 @@ const BusinessDetails = props => {
 								name={'Save and Proceed'}
 								isLoader={loading}
 								disabled={loading}
-								onClick={handleSubmit(() => {
-									if (
-										isEditOrViewLoan ||
-										completedSections?.includes(selectedSectionId)
-									) {
-										onSaveAndProceed();
-										return;
-									}
-									setIsIncomeTypeConfirmModalOpen(true);
-								})}
+								onClick={
+									// () => onPanEnter(formState.values?.['pan_number'])
+									handleSubmit(() => {
+										if (
+											isEditOrViewLoan ||
+											completedSections?.includes(selectedSectionId)
+										) {
+											onSaveAndProceed();
+											return;
+										}
+										setIsIncomeTypeConfirmModalOpen(true);
+									})
+								}
 							/>
 						)}
 						{isViewLoan && (
