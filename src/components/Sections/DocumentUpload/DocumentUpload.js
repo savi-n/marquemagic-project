@@ -1989,7 +1989,9 @@ const DocumentUpload = props => {
 				<UI.CheckboxWrapper>
 					<CheckBox
 						name={
-							isCorporate ? (
+							!selectedProduct?.product_details?.consent?.consent1 ? (
+								<span>{CONST.textForCheckbox.grantCibilAcces}</span>
+							) : isCorporate ? (
 								<span>
 									{/* {CONST.textForCheckbox.grantCibilAcces.replace(
 										'CIBIL',
@@ -2001,7 +2003,6 @@ const DocumentUpload = props => {
 									)}
 								</span>
 							) : (
-								// <span>{CONST.textForCheckbox.grantCibilAcces}</span>
 								<span>
 									{selectedProduct?.product_details?.consent?.consent1}
 								</span>
@@ -2017,7 +2018,13 @@ const DocumentUpload = props => {
 					/>
 					<CheckBox
 						name={
-							selectedProduct?.product_details?.terms_and_conditions_url ? (
+							!selectedProduct?.product_details?.consent?.consent2 ? (
+								<>
+									<span>{CONST.textForCheckbox.declaration}</span>
+									<span>{CONST.getATag(selectedProduct)}</span>
+									<span>{CONST.textForCheckbox.declaration2}</span>
+								</>
+							) : selectedProduct?.product_details?.terms_and_conditions_url ? (
 								<>{CONST.getTermsAndConditon(selectedProduct)}</>
 							) : (
 								<span>{CONST.textForCheckbox.defaultDeclaration}</span>
