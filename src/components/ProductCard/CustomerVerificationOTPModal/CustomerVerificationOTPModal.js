@@ -112,6 +112,7 @@ const CustomerVerificationOTPModal = props => {
 		customerDetailsFormData,
 		product,
 		sendOtpRes,
+		customerId,
 	} = props;
 
 	const { app } = useSelector(state => state);
@@ -138,7 +139,7 @@ const CustomerVerificationOTPModal = props => {
 			setVerifyingOtp(true);
 			setErrorMsg('');
 			const reqBody = {
-				customer_id: selectedCustomer?.customer_id || '',
+				customer_id: selectedCustomer?.customer_id || customerId || '',
 				// customer_id: '137453244', // TODO: to be removed after testing
 				otp: inputCustomerOTP || '',
 				reference_id: sendOtpRes?.Validate_Customer_Resp?.ReferenceId || '',

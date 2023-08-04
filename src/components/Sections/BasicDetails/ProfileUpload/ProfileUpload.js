@@ -328,11 +328,12 @@ const ProfileUpload = props => {
 					// section === 'documentUpload' &&
 					uploadedFile &&
 					!uploadedFile?.preview &&
+					uploadedFile?.filename &&
 					Object.keys(uploadedFile)?.length > 0
 				) {
 					const reqBody = {
 						filename:
-							uploadedFile.doc_name ||
+							uploadedFile?.doc_name ||
 							uploadedFile?.document_key ||
 							uploadedFile?.fd ||
 							uploadedFile?.filename ||
@@ -406,9 +407,15 @@ const ProfileUpload = props => {
 							window.open(value, '_blank');
 							return;
 						}
-						if (uploadedFile?.preview || selfiePreview?.preview) {
+						if (
+							uploadedFile?.preview ||
+							selfiePreview?.preview ||
+							uploadedFile?.presignedUrl
+						) {
 							window.open(
-								uploadedFile?.preview || selfiePreview?.preview,
+								uploadedFile?.preview ||
+									selfiePreview?.preview ||
+									uploadedFile?.presignedUrl,
 								'_blank'
 							);
 							return;
