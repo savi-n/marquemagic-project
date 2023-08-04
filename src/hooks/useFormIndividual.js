@@ -535,7 +535,10 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 	}, []);
 
 	useEffect(() => {
-		onChange({ name: field.name, value: value || '' });
+		// console.log({ field, value, name: field?.name });
+		if (field?.name !== CONST_LOAN_DETAILS.BRANCH_FIELD_NAME) {
+			onChange({ name: field.name, value: value || '' });
+		}
 		// eslint-disable-next-line
 	}, [value]);
 
@@ -579,7 +582,7 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					name={field.name}
 					placeholder={field.placeholder || ''}
 					onSelectOptionCallback={
-						field.name !== CONST_LOAN_DETAILS.CONNECTOR_NAME_FIELD_NAME &&
+						field?.name !== CONST_LOAN_DETAILS.CONNECTOR_NAME_FIELD_NAME &&
 						onChange
 					}
 					onBlurCallback={onChange}
