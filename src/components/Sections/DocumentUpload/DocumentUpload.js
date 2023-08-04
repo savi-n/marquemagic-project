@@ -22,11 +22,14 @@ import {
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
+	addSelfieCacheDocument,
 } from 'store/applicationSlice';
 import {
+	setOnSiteSelfieGeoLocation,
 	setGeotaggingMandatoryFields,
-	setDocumentSelfieGeoLocation,
+	// setDocumentSelfieGeoLocation,
 	DIRECTOR_TYPES,
+	removeOnSiteSelfieGeoLocation,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -72,6 +75,9 @@ const DocumentUpload = props => {
 		nonApplicantDirectorsArray.push(directors[directorId]);
 		return null;
 	});
+	const [entityGeolocation, setEntitiyGeoLocation] = useState(null);
+
+	const [fetchedDirectors, setFetchedDirectors] = useState({});
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -157,10 +163,10 @@ const DocumentUpload = props => {
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
-	const selectedIncomeType =
-		selectedDirector?.income_type === 0
-			? '0'
-			: selectedDirector?.income_type || '';
+	// const selectedIncomeType =
+	// 	selectedDirector?.income_type === 0
+	// 		? '0'
+	// 		: selectedDirector?.income_type || '';
 
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -191,9 +197,8 @@ const DocumentUpload = props => {
 	] = useState(false);
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [geoLocationData, setGeoLocationData] = useState({});
+	// const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
-
 	useEffect(() => {
 		// console.log(allDocumentTypes, 'Alldoctypes');
 		// console.log(cacheDocuments, ' cache docs');
@@ -201,7 +206,7 @@ const DocumentUpload = props => {
 		scrollToTopRootElement();
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
-
+			let filteredSelfieDocs;
 			const initializeDocTypeList = async () => {
 				try {
 					// console.log('initializeDocTypeList');
@@ -384,11 +389,29 @@ const DocumentUpload = props => {
 								// API.GET_ALL_UPLOADED_DOCUMENTS
 							}?loan_ref_id=${loanRefId}`
 						);
+						if (!allDocumentsRes) {
+							setLoading(true);
+						}
 						// console.log('allDocumentsRes-', allDocumentsRes);
 						if (
 							allDocumentsRes?.data?.documentList?.is_aadhaar_verified_with_otp
 						) {
 							setIsAadhaarVerified(true);
+						}
+
+						if (
+							allDocumentsRes?.data?.documentList?.lender_document?.length > 0
+						) {
+							const lenderDocs =
+								allDocumentsRes?.data?.documentList?.lender_document;
+							filteredSelfieDocs = lenderDocs.filter(
+								doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
+							);
+							filteredSelfieDocs?.map(selfieDoc => {
+								dispatch(addSelfieCacheDocument(selfieDoc));
+								// dispatch(addCacheDocument(selfieDoc))
+								return null;
+							});
 						}
 						if (
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
@@ -400,7 +423,6 @@ const DocumentUpload = props => {
 									applicantDirectorId || CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 							});
 						}
-
 						if (isViewLoan) {
 							// console.log(
 							// 	{
@@ -523,6 +545,7 @@ const DocumentUpload = props => {
 							// });
 						}
 					} catch (error) {}
+
 					dispatch(
 						addOrUpdateCacheDocumentsDocUploadPage({
 							files: [
@@ -655,9 +678,9 @@ const DocumentUpload = props => {
 			};
 			initializeDocTypeList();
 			initializeCommentForOfficeUse();
-			if (isGeoTaggingEnabled) {
-				setGeoLocationData(selectedDirector?.documentSelfieGeolocation || {});
-			}
+			// if (isGeoTaggingEnabled) {
+			// 	setGeoLocationData(selectedDirector?.onSiteSelfieGeoLocation || {});
+			// }
 			// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 			async function fetchSelfieData() {
 				try {
@@ -683,53 +706,65 @@ const DocumentUpload = props => {
 						return null;
 					})?.[0];
 					if (selectedField) {
-						const file = cacheDocuments?.filter(doc => {
-							if (
-								`${doc?.directorId}` === `${selectedDirectorId}` &&
-								doc?.doc_type?.id ===
-									selectedField?.doc_type?.[selectedIncomeType]
-							) {
-								return doc;
-							}
-							return null;
-						})?.[0];
+						const selfieDocType = selfieWithApplicantField?.doc_type?.[
+							selectedDirector?.income_type
+						]
+							? selfieWithApplicantField?.doc_type?.[
+									selectedDirector?.income_type
+							  ]
+							: selfieWithApplicantField?.doc_type?.[businessType];
+						// console.log(filteredSelfieDocs,"filtered Selfie DOcs");
+						const file = cacheDocuments
+							? cacheDocuments?.filter(
+									doc =>
+										`${doc?.directorId}` === `${selectedDirectorId}` &&
+										`${doc?.doc_type?.id}` === `${selfieDocType}`
+							  )?.[0]
+							: filteredSelfieDocs?.filter(
+									doc =>
+										`${doc?.directorId}` === `${selectedDirectorId}` &&
+										`${doc?.doc_type?.id}` === `${selfieDocType}`
+							  )?.[0];
 						if (file && Object.keys(file).length > 0) {
 							const newCatchFiles = _.cloneDeep(cacheFile);
 							cacheFile.selectedDirectorId = { file };
 							setCacheFile(newCatchFiles);
-							if (isGeoTaggingEnabled) {
-								if (
-									!file?.loan_document_details?.[0]?.lat &&
-									!file?.loan_document_details?.[0]?.long
-								) {
-									setGeoLocationData({
-										err: 'Geo Location Not Captured',
-									});
-									dispatch(
-										setDocumentSelfieGeoLocation({
-											err: 'Geo Location Not Captured',
-										})
-									);
-									return;
-								}
-								const reqBody = {
-									lat: file?.loan_document_details?.[0]?.lat,
-									long: file?.loan_document_details?.[0]?.long,
-								};
-								const geoLocationRes = await axios.post(
-									API.GEO_LOCATION,
-									reqBody,
-									{
-										headers: {
-											Authorization: `Bearer ${userToken}`,
-										},
-									}
-								);
-								setGeoLocationData(geoLocationRes?.data?.data || {});
-								dispatch(
-									setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
-								);
-							}
+							// if (isGeoTaggingEnabled) {
+							// 	if (
+							// 		!file?.loan_document_details?.[0]?.lat &&
+							// 		!file?.loan_document_details?.[0]?.long
+							// 	) {
+							// 		dispatch(
+							// 			setOnSiteSelfieGeoLocation({
+							// 				err: 'Geo Location Not Captured',
+							// 			})
+							// 		);
+							// 		return;
+							// 	}
+							// 	const reqBody = {
+							// 		lat: file?.loan_document_details?.[0]?.lat,
+							// 		long: file?.loan_document_details?.[0]?.long,
+							// 	};
+							// 	const geoLocationRes = await axios.post(
+							// 		API.GEO_LOCATION,
+							// 		reqBody,
+							// 		{
+							// 			headers: {
+							// 				Authorization: `Bearer ${userToken}`,
+							// 			},
+							// 		}
+							// 	);
+							// 	if (selectedDirectorId === '0') {
+							// 		setEntitiyGeoLocation(geoLocationRes?.data?.data);
+							// 		return;
+							// 	}
+							// 	const fileDirectoId = file.directorId;
+							// 	const reqObject = {
+							// 		...geoLocationRes?.data?.data,
+							// 		directorId: fileDirectoId,
+							// 	};
+							// 	dispatch(setOnSiteSelfieGeoLocation(reqObject));
+							// }
 						}
 					}
 				} catch (err) {
@@ -752,7 +787,7 @@ const DocumentUpload = props => {
 					sub_section?.fields?.map((field, fieldIndex) => {
 						if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
 							if (field?.db_key === 'on_site_selfie') {
-								let reduxStoreKey = 'documentSelfieGeolocation';
+								let reduxStoreKey = 'onSiteSelfieGeoLocation';
 								dispatch(
 									setGeotaggingMandatoryFields({
 										directorId: selectedDirectorId,
@@ -844,7 +879,7 @@ const DocumentUpload = props => {
 		cacheDocuments?.map(doc => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (doc?.req_type) return null;
-			if (!doc?.doc_type_id) {
+			if (!(doc?.doc_type_id || doc?.doc_type?.id)) {
 				isDocTypeUnTagged = true;
 				return false;
 			}
@@ -1222,17 +1257,28 @@ const DocumentUpload = props => {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
 				};
-				setGeoLocationData(geoLocationTag);
-				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+				const reqObject = {
+					...geoLocationTag,
+					directorId: selectedDirectorId,
+				};
+				dispatch(setOnSiteSelfieGeoLocation(reqObject));
+				if (selectedDirectorId === '0') {
+					setEntitiyGeoLocation(geoLocationTag);
+					return;
+				}
 			} else {
 				const geoLocationTag = {
 					address: file?.address,
 					lat: file?.latitude,
 					long: file?.longitude,
 					timestamp: file?.timestamp,
+					directorId: selectedDirectorId,
 				};
-				setGeoLocationData(geoLocationTag);
-				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+				if (selectedDirectorId === '0') {
+					setEntitiyGeoLocation(geoLocationTag);
+					return;
+				}
+				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 			}
 		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
@@ -1251,6 +1297,67 @@ const DocumentUpload = props => {
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
+
+	// console.log(cacheDocuments, 'cacheDocs');
+
+	const selfieDocType = selfieWithApplicantField?.doc_type?.[
+		selectedDirector?.income_type
+	]
+		? selfieWithApplicantField?.doc_type?.[selectedDirector?.income_type]
+		: selfieWithApplicantField?.doc_type?.[businessType];
+
+	const selfieImageUploadedFile =
+		cacheDocuments?.filter(
+			doc =>
+				`${doc?.directorId}` === `${selectedDirectorId}` &&
+				`${doc?.doc_type?.id}` === `${selfieDocType}`
+		)?.[0] || null;
+	const selfieImageUploadFileArray = cacheDocuments?.filter(
+		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
+	);
+
+	useEffect(() => {
+		selfieImageUploadFileArray?.map(selfie => {
+			const fileDirectoId = selfie?.directorId;
+			setFetchedDirectors({ ...fetchedDirectors, [fileDirectoId]: true });
+			if (
+				(!!directors?.[fileDirectoId]?.onSiteSelfieGeoLocation ||
+					(`${fileDirectoId}` === `0` && !entityGeolocation)) &&
+				!fetchedDirectors?.[fileDirectoId] &&
+				(permission?.geo_tagging?.geo_tagging &&
+					selfieWithApplicantField?.geo_tagging)
+			) {
+				async function geoTagging() {
+					if (isGeoTaggingEnabled) {
+						const reqBody = {
+							lat: selfie?.loan_document_details?.[0]?.lat,
+							long: selfie?.loan_document_details?.[0]?.long,
+						};
+						const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+							headers: {
+								Authorization: `Bearer ${userToken}`,
+							},
+						});
+
+						const reqObject = {
+							...geoLocationRes?.data?.data,
+							directorId: fileDirectoId,
+						};
+						if (fileDirectoId === 0) {
+							setEntitiyGeoLocation(geoLocationRes?.data?.data);
+						}
+
+						dispatch(setOnSiteSelfieGeoLocation(reqObject));
+					}
+				}
+				geoTagging();
+			}
+			return null;
+		});
+		// eslint-disable-next-line
+	}, [cacheDocuments]);
+
+	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
@@ -1268,8 +1375,8 @@ const DocumentUpload = props => {
 		selectedDirectorOptions.map(director => {
 			if (Number(applicantDirectorId) === Number(director.value)) {
 				if (
-					Object.keys(selectedDirector?.documentSelfieGeolocation || {})
-						.length <= 0
+					Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
+					0
 				) {
 					result = false;
 				}
@@ -1277,7 +1384,7 @@ const DocumentUpload = props => {
 				if (
 					Object.keys(
 						nonApplicantDirectorsObject?.[director.value]
-							?.documentSelfieGeolocation
+							?.onSiteSelfieGeoLocation || {}
 					).length <= 0
 				) {
 					result = false;
@@ -1312,7 +1419,7 @@ const DocumentUpload = props => {
 
 	// 	if (
 	// 		onSiteSelfiefield?.fields?.length === 1 &&
-	// 		onSiteSelfiefield[0]?.geo_tagging === true
+
 	// 	) {
 	// 		mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
 	// 		mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
@@ -1541,7 +1648,11 @@ const DocumentUpload = props => {
 	// };
 
 	const removeCacheDocumentTemp = fieldName => {
-		setGeoLocationData({});
+		// setGeoLocationData({});
+		dispatch(removeOnSiteSelfieGeoLocation());
+		if(selectedDirectorId==='0'){
+			setEntitiyGeoLocation(null);
+		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
 		delete newCatchFiles[selectedDirectorId];
 		setCacheFile(newCatchFiles);
@@ -1743,7 +1854,6 @@ const DocumentUpload = props => {
 								if (!isFieldValid({ field, formState: {}, isApplicant })) {
 									return null;
 								}
-
 								if (
 									isGeoTaggingEnabled &&
 									field?.type === 'file' &&
@@ -1753,13 +1863,23 @@ const DocumentUpload = props => {
 										<UI.VerificationSectionWrapper
 											key={`dataitem-${field?.id}${fieldIndex}`}
 										>
-											<UI.VerificationSection isLocation={!!geoLocationData}>
+											{/* {console.log(selectedDirector.onSiteSelfieGeoLocation)} */}
+											<UI.VerificationSection
+												isLocation={
+													// !!selectedDirector?.onSiteSelfieGeoLocation ||
+													// !!entityGeolocation
+													!!selectedDirector
+														? !!selectedDirector?.onSiteSelfieGeoLocation
+														: !!entityGeolocation
+												}
+											>
 												<ProfileUpload
 													field={field}
 													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
 													uploadedFile={
 														cacheFile?.[selectedDirectorId]?.file ||
+														selfieImageUploadedFile ||
 														profileUploadedFile ||
 														null
 													}
@@ -1771,16 +1891,48 @@ const DocumentUpload = props => {
 												/>
 											</UI.VerificationSection>
 											{field?.geo_tagging === true
-												? Object.keys(geoLocationData || {}).length > 0 && (
+												? (Object.keys(
+														selectedDirector?.onSiteSelfieGeoLocation || {}
+												  ).length > 0 ||
+														(selectedDirectorId === '0' &&
+															Object.keys(entityGeolocation || {}).length >
+																0)) && (
 														<UI.VerificationSection
-															isLocation={!!geoLocationData}
+															isLocation={
+																!!selectedDirector
+																	? !!selectedDirector?.onSiteSelfieGeoLocation
+																	: !!entityGeolocation
+															}
 														>
 															<AddressDetailsCard
-																address={geoLocationData?.address}
-																latitude={geoLocationData?.lat}
-																longitude={geoLocationData?.long}
-																timestamp={geoLocationData?.timestamp}
-																err={geoLocationData?.err}
+																address={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.address
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.address
+																}
+																latitude={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.lat
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.lat
+																}
+																longitude={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.long
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.long
+																}
+																timestamp={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.timestamp
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.timestamp
+																}
+																err={
+																	selectedDirector.onSiteSelfieGeoLocation
+																		?.err || entityGeolocation?.err
+																}
 																showCloseIcon={false}
 																customStyle={{
 																	width: 'fit-content',

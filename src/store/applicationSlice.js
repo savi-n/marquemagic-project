@@ -65,6 +65,22 @@ export const applicationSlice = createSlice({
 			const { file } = action.payload;
 			state.cacheDocuments.push(file);
 		},
+
+		addSelfieCacheDocument: (state, { payload }) => {
+			const selfieFile = payload;
+			const allCacheFiles = _.cloneDeep(state.cacheDocuments);
+			const isSelfieAlreadyExists = allCacheFiles?.findIndex(
+				selfieDoc =>
+					selfieDoc?.directorId === selfieFile?.directorId &&
+					selfieDoc?.doc_type.id === selfieFile?.doc_type?.id
+			);
+			if (isSelfieAlreadyExists >= 0) {
+				return;
+			} else {
+				state.cacheDocuments.push(selfieFile);
+			}
+		},
+
 		addOrUpdateCacheDocument: (state, action) => {
 			// pass only single file object
 			const { file } = action.payload;
@@ -137,7 +153,7 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
-
+		
 		removeCacheDocument: (state, action) => {
 			const { doc_type_id, directorId, fileId } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
@@ -153,6 +169,10 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
+
+		// removeSelfieCacheDocument: (state, { payload }) => {
+		// 	console.log(payload);
+		// },
 
 		updateCacheDocumentTypeId: (state, action) => {
 			// console.log('updateSelectedDocumentTypeId-', { action });
@@ -280,11 +300,13 @@ export const {
 	setNewCompletedSections,
 
 	addCacheDocument,
+	addSelfieCacheDocument,
 	addOrUpdateCacheDocument,
 	addOrUpdateCacheDocuments,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addCacheDocuments,
 	removeCacheDocument,
+	// removeSelfieCacheDocument,
 	updateCacheDocumentTypeId,
 	updateCacheDocumentPassword,
 	updateCacheDocumentProgress,
