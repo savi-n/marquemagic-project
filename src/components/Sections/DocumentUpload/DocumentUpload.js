@@ -808,9 +808,9 @@ const DocumentUpload = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	const buttonDisabledStatus = () => {
-		return !(cibilCheckbox && declareCheck);
-	};
+	// const buttonDisabledStatus = () => {
+	// 	return !(cibilCheckbox && declareCheck);
+	// };
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
@@ -825,7 +825,7 @@ const DocumentUpload = props => {
 			// 	return;
 			// }
 			// console.log('step-4');
-			if (buttonDisabledStatus()) return;
+			// if (buttonDisabledStatus()) return;
 			// console.log('step-5');
 			// change permission here
 			// if (
@@ -954,7 +954,7 @@ const DocumentUpload = props => {
 		// 	}
 		// }
 		// console.log('step-1');
-		if (buttonDisabledStatus()) return;
+		// if (buttonDisabledStatus()) return;
 		// console.log('step-2');
 
 		if (!isFormValid()) return;
@@ -1141,7 +1141,10 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submittingOtp || submitting}
-				disabled={submittingOtp || submitting || buttonDisabledStatus()}
+				disabled={
+					submittingOtp || submitting
+					// || buttonDisabledStatus()
+				}
 				onClick={() => {
 					if (submittingOtp && submitting) return;
 					onSubmitOtpAuthentication();
@@ -1158,7 +1161,10 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submitting}
-				disabled={submitting || buttonDisabledStatus()}
+				disabled={
+					submitting
+					// || buttonDisabledStatus()
+				}
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication({ goToNextSection: true });
@@ -1650,7 +1656,7 @@ const DocumentUpload = props => {
 	const removeCacheDocumentTemp = fieldName => {
 		// setGeoLocationData({});
 		dispatch(removeOnSiteSelfieGeoLocation());
-		if(selectedDirectorId==='0'){
+		if (selectedDirectorId === '0') {
 			setEntitiyGeoLocation(null);
 		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
@@ -1985,13 +1991,20 @@ const DocumentUpload = props => {
 						name={
 							isCorporate ? (
 								<span>
-									{CONST.textForCheckbox.grantCibilAcces.replace(
+									{/* {CONST.textForCheckbox.grantCibilAcces.replace(
+										'CIBIL',
+										'Bureau'
+									)} */}
+									{selectedProduct?.product_details?.consent?.consent1.replace(
 										'CIBIL',
 										'Bureau'
 									)}
 								</span>
 							) : (
-								<span>{CONST.textForCheckbox.grantCibilAcces}</span>
+								// <span>{CONST.textForCheckbox.grantCibilAcces}</span>
+								<span>
+									{selectedProduct?.product_details?.consent?.consent1}
+								</span>
 							)
 						}
 						checked={cibilCheckbox}
@@ -2005,11 +2018,7 @@ const DocumentUpload = props => {
 					<CheckBox
 						name={
 							selectedProduct?.product_details?.terms_and_conditions_url ? (
-								<>
-									<span>{CONST.textForCheckbox.declaration}</span>
-									<span>{CONST.getATag(selectedProduct)}</span>
-									<span>{CONST.textForCheckbox.declaration2}</span>
-								</>
+								<>{CONST.getTermsAndConditon(selectedProduct)}</>
 							) : (
 								<span>{CONST.textForCheckbox.defaultDeclaration}</span>
 							)
