@@ -42,6 +42,7 @@ import {
 	formatLoanDocuments,
 	isFieldValid,
 	getSelectedDirectorIndex,
+	// getSelectedField,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
@@ -1306,6 +1307,17 @@ const DocumentUpload = props => {
 
 	// console.log(cacheDocuments, 'cacheDocs');
 
+	// console.log({
+	// 	selectedDirector,
+	// 	selectedDirIncomeType: selectedDirector?.income_type,
+	// 	selfieWithApplicantField,
+	// 	selfieWithCoapplicantField,
+	// });
+
+	// // const selectedSelfieUploadField = getSelectedField({
+	// // 	fieldName: CONST.
+	// // })
+
 	const selfieDocType = selfieWithApplicantField?.doc_type?.[
 		selectedDirector?.income_type
 	]
@@ -1334,26 +1346,38 @@ const DocumentUpload = props => {
 					selfieWithApplicantField?.geo_tagging)
 			) {
 				async function geoTagging() {
-					if (isGeoTaggingEnabled) {
-						const reqBody = {
-							lat: selfie?.loan_document_details?.[0]?.lat,
-							long: selfie?.loan_document_details?.[0]?.long,
-						};
-						const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
-							headers: {
-								Authorization: `Bearer ${userToken}`,
-							},
-						});
+					try {
+						if (isGeoTaggingEnabled) {
+							const reqBody = {
+								lat: selfie?.loan_document_details?.[0]?.lat,
+								long: selfie?.loan_document_details?.[0]?.long,
+							};
+							const geoLocationRes = await axios.post(
+								API.GEO_LOCATION,
+								reqBody,
+								{
+									headers: {
+										Authorization: `Bearer ${userToken}`,
+									},
+								}
+							);
 
-						const reqObject = {
-							...geoLocationRes?.data?.data,
-							directorId: fileDirectoId,
-						};
-						if (fileDirectoId === 0) {
-							setEntitiyGeoLocation(geoLocationRes?.data?.data);
+							const reqObject = {
+								...geoLocationRes?.data?.data,
+								directorId: fileDirectoId,
+							};
+							if (fileDirectoId === 0) {
+								setEntitiyGeoLocation(geoLocationRes?.data?.data);
+							}
+							dispatch(setOnSiteSelfieGeoLocation(reqObject));
 						}
-
-						dispatch(setOnSiteSelfieGeoLocation(reqObject));
+					} catch (err) {
+						dispatch(
+							setOnSiteSelfieGeoLocation({
+								err: 'Geo Location Not Captured',
+								directorId: fileDirectoId,
+							})
+						);
 					}
 				}
 				geoTagging();
@@ -1936,7 +1960,7 @@ const DocumentUpload = props => {
 																				?.timestamp
 																}
 																err={
-																	selectedDirector.onSiteSelfieGeoLocation
+																	selectedDirector?.onSiteSelfieGeoLocation
 																		?.err || entityGeolocation?.err
 																}
 																showCloseIcon={false}
