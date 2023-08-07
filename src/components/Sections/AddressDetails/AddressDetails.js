@@ -155,6 +155,7 @@ const AddressDetails = props => {
 		fields: selectedPermanentAadhaarField?.sub_fields || [],
 		isApplicant,
 	});
+	const sectionRequired = selectedSection?.is_section_mandatory !== false;
 
 	const onClickVerifyWithOtp = async () => {
 		try {
@@ -269,10 +270,11 @@ const AddressDetails = props => {
 		try {
 			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
 			if (
-				!formState?.values?.present_city ||
-				!formState?.values?.present_state ||
-				!formState?.values?.permanent_city ||
-				!formState?.values?.permanent_state
+				sectionRequired &&
+				(!formState?.values?.present_city ||
+					!formState?.values?.present_state ||
+					!formState?.values?.permanent_city ||
+					!formState?.values?.permanent_state)
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
@@ -301,7 +303,7 @@ const AddressDetails = props => {
 				})?.rules?.required;
 
 				// Aadhaar number Validations only if verify with OTP was not mandatory
-				if (!isVerifyWithOtpRequired) {
+				if (!isVerifyWithOtpRequired && sectionRequired) {
 					const aadhaarErrorMessage = isInvalidAadhaar(
 						formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
 					);
@@ -1196,7 +1198,11 @@ const AddressDetails = props => {
 								name='Save and Proceed'
 								isLoader={loading}
 								disabled={loading}
-								onClick={handleSubmit(onSaveAndProceed)}
+								onClick={
+									sectionRequired
+										? handleSubmit(onSaveAndProceed)
+										: onSaveAndProceed
+								}
 							/>
 						)}
 						<NavigateCTA />
