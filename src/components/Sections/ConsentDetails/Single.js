@@ -17,13 +17,12 @@ const Single = ({
 	rowData,
 	fetchConsentDetails,
 }) => {
-
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
-	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field)
+	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field);
 	// console.log(mandatoryFieldObj);
-	const is_equifax_otp_required = mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
+	const is_equifax_otp_required =
+		mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
 	// const is_equifax_otp_required = true;
-
 
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
@@ -44,7 +43,7 @@ const Single = ({
 	};
 	const sections = {
 		ROC: 'ROC',
-		GSTR3B: 'GST',
+		GST: 'GST',
 		BUREAU: 'bureau',
 		EPFO: 'EPFO',
 		ESIC: 'ESIC',
@@ -79,8 +78,9 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
+		console.log({ payLoad, section, sections });
 
-		if(sections[section] === 'bureau' && !!is_equifax_otp_required){
+		if (sections[section] === 'bureau' && !!is_equifax_otp_required) {
 			payLoad.is_equifax_otp_required = is_equifax_otp_required;
 		}
 
@@ -163,7 +163,8 @@ const Single = ({
 			) {
 				setStatus('In Progress');
 				addToast({
-					message: 'Fetching data initiated, status will be updated once data fetched.',
+					message:
+						'Fetching data initiated, status will be updated once data fetched.',
 					type: 'success',
 				});
 				// setDisabled(true);
@@ -285,8 +286,11 @@ const Single = ({
 						<Button
 							name='Fetch'
 							onClick={() => fetchHandle(rowData)}
-							disabled={loading ||
-								buttonDisabled || disabled || rowData?.status === 'Fetched'
+							disabled={
+								loading ||
+								buttonDisabled ||
+								disabled ||
+								rowData?.status === 'Fetched'
 							}
 							loading={loading}
 						/>
