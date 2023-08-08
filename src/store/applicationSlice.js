@@ -21,6 +21,7 @@ const initialState = {
 	geoLocation: {},
 	prompted: false,
 	businessName: '',
+	// isSelfieImagePresent: false,
 };
 
 export const applicationSlice = createSlice({
@@ -153,7 +154,7 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newDocuments;
 		},
-		
+
 		removeCacheDocument: (state, action) => {
 			const { doc_type_id, directorId, fileId } = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
@@ -289,6 +290,12 @@ export const applicationSlice = createSlice({
 		setBusinessName: (state, { payload }) => {
 			state.businessName = payload;
 		},
+		resetCacheDocuments: state => {
+			state.cacheDocuments = [];
+		},
+		// setIsSelifeImagePresent: (state, { payload }) => {
+		// 	state.isSelfieImagePresent = payload;
+		// },
 	},
 });
 
@@ -306,6 +313,7 @@ export const {
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addCacheDocuments,
 	removeCacheDocument,
+	// setIsSelifeImagePresent,
 	// removeSelfieCacheDocument,
 	updateCacheDocumentTypeId,
 	updateCacheDocumentPassword,
@@ -322,6 +330,7 @@ export const {
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
+	resetCacheDocuments,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;
