@@ -145,23 +145,25 @@ const DocumentUpload = props => {
 				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
 		)?.[0];
 
-	const isSelfieWithApplicantOrEntityRequired = !!selectedSection?.sub_sections
-		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
-		?.fields?.filter(
-			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
-		)?.[0]?.rules?.required;
+	const isSelfieWithApplicantOrEntityRequired =
+		selfieWithApplicantField?.rules?.required;
 
-	const isSelfieWithCoApplicantRequired = !!selectedSection?.sub_sections
-		?.filter(
-			item => item?.id === CONST.SELFIE_UPLOAD_COAPPLICANT_SECTION_ID
-		)?.[0]
-		?.fields?.filter(
-			field =>
-				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
-		)?.[0]?.rules?.required;
+	const isSelfieWithCoApplicantRequired =
+		selfieWithCoapplicantField?.rules?.required;
+	// console.log({
+	// 	selfieWithApplicantField,
+	// 	isSelfieWithApplicantOrEntityRequired,
+	// });
 	// ends
 	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
+
+	// const selectedSelfieField = getSelectedField({
+	// 	fieldName: CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT,
+	// 	selectedSection,
+	// 	isApplicant,
+	// });
+
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
 	// const selectedIncomeType =
@@ -403,10 +405,19 @@ const DocumentUpload = props => {
 						if (
 							allDocumentsRes?.data?.documentList?.lender_document?.length > 0
 						) {
+							// console.log(Object.values(selfieWithApplicantField?.doc_type));
+							// console.log(Object.values(selfieWithCoapplicantField?.doc_type));
+
 							const lenderDocs =
 								allDocumentsRes?.data?.documentList?.lender_document;
 							filteredSelfieDocs = lenderDocs.filter(
-								doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
+								doc =>
+									Object.values(selfieWithApplicantField?.doc_type).includes(
+										doc?.doc_type?.id
+									) ||
+									Object.values(selfieWithCoapplicantField?.doc_type).includes(
+										doc?.doc_type?.id
+									)
 							);
 							filteredSelfieDocs?.map(selfieDoc => {
 								dispatch(addSelfieCacheDocument(selfieDoc));
@@ -1187,6 +1198,9 @@ const DocumentUpload = props => {
 		// 	directors,
 		// });
 		let allowProceed = true;
+
+		// For Applicant in Individual loan
+		// if (`${selectedProduct?.loan_request_type}` === '2') {
 		if (
 			permission?.geo_tagging?.geo_tagging &&
 			selfieWithApplicantField?.geo_tagging &&
@@ -1198,35 +1212,268 @@ const DocumentUpload = props => {
 				];
 			// console.log({ applicantdid: docTypeId });
 			const filteredApplicantDoc = cacheDocuments?.filter(item => {
-				return `${item?.doc_type_id}` === `${docTypeId}`;
+				const docTypeIdApplicant =
+					item?.doc_type_id || item?.doc_type?.id || '';
+				return `${docTypeIdApplicant}` === `${docTypeId}`;
 			});
-			if (filteredApplicantDoc?.length === 0) allowProceed = false;
+			const applicantLatitude =
+				filteredApplicantDoc?.[0]?.latitude ||
+				filteredApplicantDoc?.[0]?.loan_document_details?.[0]?.lat;
+			const applicantLongitude =
+				filteredApplicantDoc?.[0]?.longitude ||
+				filteredApplicantDoc?.[0]?.loan_document_details?.[0]?.long;
+
+			if (
+				(!applicantLatitude && !applicantLongitude) ||
+				filteredApplicantDoc?.length === 0
+			) {
+				// console.log('i fell here !');
+				allowProceed = false;
+			}
 		}
 
+		// For CoApplicants in Individual loan
 		if (
 			permission?.geo_tagging?.geo_tagging &&
-			selfieWithApplicantField?.geo_tagging &&
+			selfieWithCoapplicantField?.geo_tagging &&
 			isSelfieWithCoApplicantRequired
 		) {
+			let coApplicantOrDirectors = [];
 			const coApplicants = Object.values(directors)?.filter(
 				dir => dir?.type_name === 'Co-applicant'
 			);
-			if (coApplicants?.length > 0) {
-				coApplicants?.map(dir => {
+			const directorsAndCoapplicants = Object.values(directors)?.filter(
+				dir => dir?.type_name !== 'Applicant'
+			);
+			if (`${selectedProduct?.loan_request_type}` === '2') {
+				coApplicantOrDirectors = coApplicants;
+			}
+			if (`${selectedProduct?.loan_request_type}` === '1') {
+				coApplicantOrDirectors = directorsAndCoapplicants;
+			}
+			if (coApplicantOrDirectors?.length > 0) {
+				// console.log({ selfieWithCoapplicantField });
+				coApplicantOrDirectors?.map(dir => {
 					const docTypeId =
 						selfieWithCoapplicantField?.doc_type?.[
 							dir?.income_type || businessType
 						];
 					const filteredDoc = cacheDocuments?.filter(doc => {
-						return `${doc?.doc_type_id}` === `${docTypeId}`;
+						const docTypeIdCoapplicant = doc?.doc_type_id || doc?.doc_type?.id;
+						// console.log({ docTypeIdCoapplicant, docTypeId });
+						return `${docTypeIdCoapplicant}` === `${docTypeId}`;
 					});
-					if (filteredDoc === 0) allowProceed = false;
-					return null;
+					// tbd
+					// console.log({
+					// 	filteredDoc,
+					// 	coApplicantOrDirectors,
+					// 	cacheDocuments,
+
+					// 	docTypeId,
+					// });
+
+					if (filteredDoc?.length === 0) allowProceed = false;
+					if (filteredDoc?.length < coApplicantOrDirectors?.length)
+						allowProceed = false;
+					if (filteredDoc?.length > 0) {
+						for (const coAppSelfieItem of filteredDoc) {
+							const coAppLatitude =
+								coAppSelfieItem?.latitude ||
+								coAppSelfieItem?.loan_document_details?.[0].lat;
+							const coAppLongitude =
+								coAppSelfieItem?.longitude ||
+								coAppSelfieItem?.loan_document_details?.[0].long;
+							// console.log({ coAppLatitude, coAppLongitude });
+							if (!coAppLatitude && !coAppLongitude) {
+								// console.log('failing in coapp');
+								allowProceed = false;
+								break;
+							}
+						}
+					}
 				});
 			}
 		}
+		// }
+		// For Business loan
+		// if (`${selectedProduct?.loan_request_type}` === '1') {
+		// 	if (
+		// 		permission?.geo_tagging?.geo_tagging &&
+		// 		selfieWithApplicantField?.geo_tagging &&
+		// 		isSelfieWithApplicantOrEntityRequired
+		// 	) {
+		// 		const docTypeId =
+		// 			selfieWithApplicantField?.doc_type?.[
+		// 				selectedDirector?.income_type || businessType
+		// 			];
+		// 		// console.log({ applicantdid: docTypeId });
+		// 		const filteredApplicantDoc = cacheDocuments?.filter(item => {
+		// 			const docTypeIdApplicant =
+		// 				item?.doc_type_id || item?.doc_type?.id || '';
+		// 			return `${docTypeIdApplicant}` === `${docTypeId}`;
+		// 		});
+		// 		const applicantLatitude =
+		// 			filteredApplicantDoc?.[0]?.latitude ||
+		// 			filteredApplicantDoc?.[0]?.loan_document_details?.[0]?.lat;
+		// 		const applicantLongitude =
+		// 			filteredApplicantDoc?.[0]?.longitude ||
+		// 			filteredApplicantDoc?.[0]?.loan_document_details?.[0]?.long;
+
+		// 		if (
+		// 			(!applicantLatitude && !applicantLongitude) ||
+		// 			filteredApplicantDoc?.length === 0
+		// 		) {
+		// 			console.log('i fell here !');
+		// 			allowProceed = false;
+		// 		}
+		// 	}
+
+		// 	if (
+		// 		permission?.geo_tagging?.geo_tagging &&
+		// 		selfieWithCoapplicantField?.geo_tagging &&
+		// 		isSelfieWithCoApplicantRequired
+		// 	) {
+		// 		const directorsAndCoapplicants = Object.values(directors)?.filter(
+		// 			dir => dir?.type_name !== 'Applicant'
+		// 		);
+		// 		if (directorsAndCoapplicants?.length > 0) {
+		// 			directorsAndCoapplicants?.map(dir => {
+		// 				const docTypeId =
+		// 					selfieWithCoapplicantField?.doc_type?.[
+		// 						dir?.income_type || businessType
+		// 					];
+		// 				const filteredDoc = cacheDocuments?.filter(doc => {
+		// 					const docTypeIdCoapplicant =
+		// 						doc?.doc_type_id || doc?.doc_type?.id;
+		// 					console.log({ docTypeIdCoapplicant, docTypeId });
+		// 					return `${docTypeIdCoapplicant}` === `${docTypeId}`;
+		// 				});
+		// 				// tbd
+		// 				console.log({
+		// 					filteredDoc,
+		// 					directorsAndCoapplicants,
+		// 					cacheDocuments,
+
+		// 					docTypeId,
+		// 				});
+
+		// 				if (filteredDoc?.length === 0) allowProceed = false;
+		// 				if (filteredDoc?.length < directorsAndCoapplicants?.length)
+		// 					allowProceed = false;
+		// 				if (filteredDoc?.length > 0) {
+		// 					for (const coAppSelfieItem of filteredDoc) {
+		// 						const coAppLatitude =
+		// 							coAppSelfieItem?.latitude ||
+		// 							coAppSelfieItem?.loan_document_details?.[0].lat;
+		// 						const coAppLongitude =
+		// 							coAppSelfieItem?.longitude ||
+		// 							coAppSelfieItem?.loan_document_details?.[0].long;
+		// 						console.log({ coAppLatitude, coAppLongitude });
+		// 						if (!coAppLatitude && !coAppLongitude) {
+		// 							console.log('failing in coapp');
+		// 							allowProceed = false;
+		// 							break;
+		// 						}
+		// 					}
+		// 				}
+		// 			});
+		// 		}
+		// 	}
+		// }
+		// console.log({
+		// 	allowProceed,
+
+		// 	cacheDocuments,
+		// 	isSelfieWithCoApplicantRequired,
+		// 	isSelfieWithApplicantOrEntityRequired,
+		// });
+
 		return allowProceed;
 	};
+
+	// const validateOnSiteSelfie = () => {
+	// 	// console.log({
+	// 	// 	cacheDocuments,
+	// 	// 	isSelfieWithApplicantOrEntityRequired,
+	// 	// 	isSelfieWithCoApplicantRequired,
+	// 	// 	selectedSection,
+	// 	// 	selectedDirector,
+	// 	// 	selfieWithApplicantField,
+	// 	// 	selfieWithCoapplicantField,
+	// 	// 	selectedProduct,
+	// 	// 	directors,
+	// 	// });
+	// 	let allowProceed = true;
+	// 	console.log(isSelfieWithApplicantOrEntityRequired);
+	// 	if (
+	// 		permission?.geo_tagging?.geo_tagging &&
+	// 		selfieWithApplicantField?.geo_tagging &&
+	// 		isSelfieWithApplicantOrEntityRequired
+	// 	) {
+	// 		const docTypeId =
+	// 			selfieWithApplicantField?.doc_type?.[
+	// 				selectedDirector?.income_type || businessType
+	// 			];
+	// 		// console.log({ applicantdid: docTypeId });
+	// 		const filteredApplicantDoc = cacheDocuments?.filter(item => {
+	// 			return (
+	// 				`${item?.doc_type_id}` === `${docTypeId}` ||
+	// 				`${item?.doc_type?.id}` === `${docTypeId}`
+	// 			);
+	// 		});
+	// 		console.log(filteredApplicantDoc, 'filterered applicant doc');
+	// 		if (filteredApplicantDoc?.length === 0) allowProceed = false;
+	// 	}
+	// 	console.log(
+	// 		permission?.geo_tagging?.geo_tagging &&
+	// 			selfieWithCoapplicantField?.geo_tagging
+	// 		// isSelfieWithCoApplicantRequired
+	// 	);
+
+	// 	if (
+	// 		permission?.geo_tagging?.geo_tagging &&
+	// 		selfieWithCoapplicantField?.geo_tagging &&
+	// 		// isSelfieWithCoApplicantRequired
+	// 		true
+	// 	) {
+	// 		console.log(cacheDocuments, 'cacheDoc ');
+	// 		const coApplicants = Object.values(directors)?.filter(
+	// 			dir => dir?.type_name === 'Co-applicant'
+	// 		);
+	// 		if (coApplicants?.length > 0) {
+	// 			coApplicants?.map(dir => {
+	// 				const docTypeId =
+	// 					selfieWithCoapplicantField?.doc_type?.[
+	// 						dir?.income_type || businessType
+	// 					];
+	// 				console.log(docTypeId);
+	// 				const filteredDoc = cacheDocuments?.filter(doc => {
+	// 					return (
+	// 						`${doc?.doc_type_id}` === `${docTypeId}` ||
+	// 						`${doc?.doc_type.id}` === `${docTypeId}`
+	// 					);
+	// 				});
+	// 				console.log(filteredDoc, 'filterered doc');
+	// 				if (filteredDoc.length === 0) allowProceed = false;
+	// 				if (filteredDoc.length > 0) {
+	// 					for (const coAppSelfieItem of filteredDoc) {
+	// 						if (
+	// 							!coAppSelfieItem?.latitutde ||
+	// 							!coAppSelfieItem?.longitude ||
+	// 							!coAppSelfieItem?.loan_document_details?.[0].lat ||
+	// 							!coAppSelfieItem?.loan_document_details?.[0]?.long
+	// 						) {
+	// 							console.log('i fell here');
+	// 							allowProceed = false;
+	// 							break;
+	// 						}
+	// 					}
+	// 				}
+	// 			});
+	// 		}
+	// 	}
+	// 	return allowProceed;
+	// };
 
 	const mandatoryDocumentTypeIds = [];
 	allDocumentTypes.map(doc => {
@@ -1318,11 +1565,17 @@ const DocumentUpload = props => {
 	// // 	fieldName: CONST.
 	// // })
 
-	const selfieDocType = selfieWithApplicantField?.doc_type?.[
-		selectedDirector?.income_type
-	]
-		? selfieWithApplicantField?.doc_type?.[selectedDirector?.income_type]
-		: selfieWithApplicantField?.doc_type?.[businessType];
+	const selfieTrial = ['Co-applicant', 'Director']?.includes(
+		selectedDirector?.type_name
+	)
+		? selfieWithCoapplicantField
+		: selfieWithApplicantField;
+	// const selfieTrial = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
+	// console.log(cacheDocuments);
+
+	const selfieDocType = selfieTrial?.doc_type?.[selectedDirector?.income_type]
+		? selfieTrial?.doc_type?.[selectedDirector?.income_type]
+		: selfieTrial?.doc_type?.[businessType];
 
 	const selfieImageUploadedFile =
 		cacheDocuments?.filter(
@@ -1385,7 +1638,7 @@ const DocumentUpload = props => {
 			return null;
 		});
 		// eslint-disable-next-line
-	}, [cacheDocuments]);
+	}, [cacheDocuments, selectedDirector]);
 
 	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
