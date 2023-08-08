@@ -10,6 +10,19 @@ export const getATag = selectedProduct => {
 		</a>
 	);
 };
+
+export const getTermsAndConditon = selectedProduct => {
+	const TermsAndConditionsTextParts = selectedProduct?.product_details?.consent?.consent2.split(
+		'Terms and Conditions'
+	);
+	return (
+		<>
+			<span>{TermsAndConditionsTextParts?.[0]}</span>
+			<span>{getATag(selectedProduct)}</span>
+			<span>{TermsAndConditionsTextParts?.[1]}</span>
+		</>
+	);
+};
 export const textForCheckbox = {
 	grantCibilAcces: 'I here by give consent to pull my CIBIL records',
 	declaration: 'I have read the ',

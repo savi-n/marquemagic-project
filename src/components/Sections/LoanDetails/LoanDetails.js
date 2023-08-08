@@ -48,6 +48,7 @@ const LoanDetails = () => {
 		isTestMode,
 		isEditOrViewLoan,
 		selectedProduct,
+		permission,
 	} = app;
 	const { loanId, cacheDocuments, businessType } = application;
 
@@ -63,10 +64,19 @@ const LoanDetails = () => {
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
 	const [connectorOptions, setConnectorOptions] = useState([]);
+	const [branchOptions, setBranchOptions] = useState([]);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState([]);
 	//const [loadingFile, setLoadingFile] = useState(false);
+	const branchField =
+		selectedSection?.sub_sections
+			?.filter(item => {
+				return item.id === CONST.SOURCE_DETAILS_SUBSECTION_ID;
+			})?.[0]
+			?.fields?.filter(field => {
+				return field?.name === CONST.BRANCH_FIELD_NAME;
+			})?.[0] || {};
 	const {
 		handleSubmit,
 		register,
@@ -74,7 +84,9 @@ const LoanDetails = () => {
 		onChangeFormStateField,
 		clearErrorFormState,
 	} = useForm();
+
 	const prevSelectedConnectorId = useRef(null);
+
 	const selectedConnectorId =
 		formState?.values?.[CONST.CONNECTOR_NAME_FIELD_NAME] || '';
 	// const selectedImdDocumentFile =
@@ -139,7 +151,33 @@ const LoanDetails = () => {
 			fetchSectionDetails();
 		//setLoading(false);
 	};
+	const getBranchOptions = async () => {
+		try {
+			if (Object.keys(branchField)?.length > 0) {
+				setLoading(true);
+				const bankRefId = permission?.ref_bank_id || 0;
 
+				const branchRes = await axios.get(
+					`${API.API_END_POINT}/getBranchList?bankId=${bankRefId}`
+				);
+				// console.log('branchRes-', { branchRes });
+				const newBranchOptions = [];
+				branchRes?.data?.branchList?.map(branch => {
+					newBranchOptions?.push({
+						...branch,
+						value: `${branch?.id}`,
+						name: `${branch?.branch}`,
+					});
+					return null;
+				});
+				setBranchOptions(newBranchOptions);
+			}
+		} catch (error) {
+			console.error('error-getConnectors-', error);
+		} finally {
+			setLoading(false);
+		}
+	};
 	const getConnectors = async () => {
 		try {
 			setLoading(true);
@@ -301,7 +339,7 @@ const LoanDetails = () => {
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
-			branch_id: loanDetails?.branch_id,
+			branch: `${loanDetails?.branch_id?.id}`,
 			loan_type: loanDetails?.loan_usage_type?.id,
 			...estimatedFundRequirements,
 			...sourceFundRequirements,
@@ -412,6 +450,7 @@ const LoanDetails = () => {
 	// }, [formState.values, connectorOptions]);
 
 	useLayoutEffect(() => {
+		getBranchOptions();
 		getConnectors();
 		fetchSectionDetails();
 		// eslint-disable-next-line
@@ -461,6 +500,17 @@ const LoanDetails = () => {
 										}
 										if (newField.name === CONST.CONNECTOR_NAME_FIELD_NAME) {
 											newField.options = connectorOptions;
+										}
+
+										if (newField?.name === CONST.BRANCH_FIELD_NAME) {
+											newField.options = branchOptions;
+										}
+
+										if (
+											newField?.name === CONST.BRANCH_FIELD_NAME &&
+											formState?.values?.['loan_source'] === 'Branch'
+										) {
+											customFieldProps.disabled = true;
 										}
 										if (newField.name === CONST.CONNECTOR_CODE_FIELD_NAME) {
 											customFieldProps.disabled = true;

@@ -55,7 +55,7 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement } from 'utils/helper';
+import { scrollToTopRootElement, isNullFunction } from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -507,7 +507,7 @@ const BasicDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-
+			// console.log(sectionData);
 			// console.log({
 			// 	sectionData,
 			// });
@@ -522,6 +522,13 @@ const BasicDetails = props => {
 				contactno: sectionData?.director_details?.dcontact,
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber,
+				// martial_status:
+				marital_status: isNullFunction(
+					sectionData?.director_details?.marital_status
+				),
+				residence_status: isNullFunction(
+					sectionData?.director_details?.residence_status
+				),
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'
@@ -536,7 +543,9 @@ const BasicDetails = props => {
 
 			if (field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME) return;
 
-			return preData?.[field?.db_key];
+			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
+
+			return field?.value || '';
 		} catch (err) {
 			console.error('error-BusinessDetials', {
 				error: err,
@@ -628,7 +637,7 @@ const BasicDetails = props => {
 				},
 			});
 			if (fetchRes?.data?.status === 'ok') {
-				setSectionData(fetchRes?.data?.data);
+				setSectionData(isNullFunction(fetchRes?.data?.data));
 
 				// step1 - P0 - setting values for edit loan
 				dispatch(

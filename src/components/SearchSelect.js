@@ -275,20 +275,19 @@ export default function SearchSelect(props) {
 		}
 	};
 
-	const filterdOptions = selectOptions.filter(({ name, value }) => {
+	const filterdOptions = selectOptions?.filter(({ name, value }) => {
 		if (disable3CharacterSearch) {
 			return (
-				name.toLowerCase().includes(searchKey.toLowerCase()) ||
-				value.toLowerCase().includes(searchKey.toLowerCase())
+				name?.toLowerCase().includes(searchKey?.toLowerCase()) ||
+				value?.toLowerCase().includes(searchKey?.toLowerCase())
 			);
 		} else {
 			return searchKey.length >= 3
-				? name.toLowerCase().includes(searchKey.toLowerCase()) ||
-						value.toLowerCase().includes(searchKey.toLowerCase())
+				? name?.toLowerCase().includes(searchKey?.toLowerCase()) ||
+						value?.toLowerCase().includes(searchKey?.toLowerCase())
 				: false;
 		}
 	});
-
 	return (
 		<>
 			<Wrapper ref={compRef}>
