@@ -1566,17 +1566,19 @@ const DocumentUpload = props => {
 	// // 	fieldName: CONST.
 	// // })
 
-	const selfieTrial = ['Co-applicant', 'Director']?.includes(
+	const selfieDocNameForCoapps = ['Co-applicant', 'Director']?.includes(
 		selectedDirector?.type_name
 	)
 		? selfieWithCoapplicantField
 		: selfieWithApplicantField;
-	// const selfieTrial = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
+	// const selfieDocNameForCoapps = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
 	// console.log(cacheDocuments);
 
-	const selfieDocType = selfieTrial?.doc_type?.[selectedDirector?.income_type]
-		? selfieTrial?.doc_type?.[selectedDirector?.income_type]
-		: selfieTrial?.doc_type?.[businessType];
+	const selfieDocType = selfieDocNameForCoapps?.doc_type?.[
+		selectedDirector?.income_type
+	]
+		? selfieDocNameForCoapps?.doc_type?.[selectedDirector?.income_type]
+		: selfieDocNameForCoapps?.doc_type?.[businessType];
 
 	const selfieImageUploadedFile =
 		cacheDocuments?.filter(
