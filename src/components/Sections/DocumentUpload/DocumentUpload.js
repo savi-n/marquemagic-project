@@ -1291,6 +1291,7 @@ const DocumentUpload = props => {
 							}
 						}
 					}
+					return null;
 				});
 			}
 		}
