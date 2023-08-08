@@ -1306,18 +1306,12 @@ const DocumentUpload = props => {
 			if (coApplicantOrDirectors?.length > 0) {
 				// console.log({ selfieWithCoapplicantField });
 				coApplicantOrDirectors?.map(dir => {
-					let incomeType =
-						`${selectedProduct?.loan_request_type}` === '2' && dir?.income_type;
+					const actualDocType =
+						selfieWithCoapplicantField?.doc_type?.[dir?.income_type];
 
-					if (`${selectedProduct?.loan_request_type}` === '1') {
-						incomeType = businessType;
-					}
-					// const docTypeId =
-					// 	selfieWithCoapplicantField?.doc_type?.[
-					// 		dir?.income_type || businessType
-					// 	];
-
-					const docTypeId = selfieWithCoapplicantField?.doc_type?.[incomeType];
+					const docTypeId =
+						actualDocType ||
+						selfieWithCoapplicantField?.doc_type?.[businessType];
 
 					const filteredDoc = cacheDocuments?.filter(doc => {
 						const docTypeIdCoapplicant = doc?.doc_type_id || doc?.doc_type?.id;
