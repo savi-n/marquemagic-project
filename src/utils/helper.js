@@ -49,3 +49,11 @@ export const extractPincode = singleLineAddress => {
 export const scrollToTopRootElement = () => {
 	document.getElementById('root').scrollTop = 0;
 };
+
+export const isNullFunction = value => {
+	// console.log(value);
+	if (!value || value === 'NULL') {
+		return null;
+	}
+	return value;
+};
