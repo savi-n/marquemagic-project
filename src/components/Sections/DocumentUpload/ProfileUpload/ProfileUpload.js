@@ -11,6 +11,7 @@ import { useToasts } from '../../../Toast/ToastProvider';
 import {
 	removeCacheDocument,
 	addOrUpdateCacheDocument,
+	// setIsSelifeImagePresent,
 } from 'store/applicationSlice';
 import {
 	setProfileGeoLocation,
@@ -156,7 +157,7 @@ const ProfileUpload = props => {
 				user_id: businessUserId,
 			};
 			await axios.post(endPoint, reqBody);
-
+			// console.log({ file, field });
 			removeCacheDocumentTemp(field.name);
 			dispatch(removeCacheDocument(file));
 			if (isGeoTaggingEnabled) {
@@ -402,6 +403,23 @@ const ProfileUpload = props => {
 
 	// const isPreview = files.length > 0;
 	const isPreview = !!uploadedFile || !!value;
+
+	// if (
+	// 	uploadedFile?.preview ||
+	// 	uploadedFile?.presignedUrl ||
+	// 	selfiePreview?.preview ||
+	// 	selfiePreview?.presignedUrl
+	// ) {
+	// 	console.log(
+	// 		uploadedFile?.preview,
+	// 		uploadedFile?.presignedUrl,
+	// 		selfiePreview?.preview,
+	// 		selfiePreview?.presignedUrl
+	// 	);
+	// 	dispatch(setIsSelifeImagePresent(true));
+	// } else {
+	// 	dispatch(setIsSelifeImagePresent(false));
+	// }
 
 	// console.log('ProfileUpload-', {
 	// 	props,

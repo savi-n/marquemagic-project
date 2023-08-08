@@ -23,6 +23,7 @@ import {
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addSelfieCacheDocument,
+	resetCacheDocuments,
 } from 'store/applicationSlice';
 import {
 	setOnSiteSelfieGeoLocation,
@@ -54,6 +55,7 @@ import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDe
 import useForm from 'hooks/useFormIndividual';
 import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
 import MandatoryOnsiteVerificationErrModal from 'components/modals/MandatoryOnsiteVerificationErrModal';
+import { useLayoutEffect } from 'react';
 
 const DocumentUpload = props => {
 	const { app, application } = useSelector(state => state);
@@ -109,6 +111,7 @@ const DocumentUpload = props => {
 		prompted,
 		businessType,
 		businessMobile,
+		// isSelfieImagePresent,
 	} = application;
 
 	const selectedDirectorDocumentTypes = allDocumentTypes?.filter(
@@ -770,10 +773,10 @@ const DocumentUpload = props => {
 							// 		setEntitiyGeoLocation(geoLocationRes?.data?.data);
 							// 		return;
 							// 	}
-							// 	const fileDirectoId = file.directorId;
+							// 	const fileDirectorId = file.directorId;
 							// 	const reqObject = {
 							// 		...geoLocationRes?.data?.data,
-							// 		directorId: fileDirectoId,
+							// 		directorId: fileDirectorId,
 							// 	};
 							// 	dispatch(setOnSiteSelfieGeoLocation(reqObject));
 							// }
@@ -819,7 +822,9 @@ const DocumentUpload = props => {
 		}
 		// eslint-disable-next-line
 	}, []);
-
+	useLayoutEffect(() => {
+		dispatch(resetCacheDocuments());
+	}, []);
 	// const buttonDisabledStatus = () => {
 	// 	return !(cibilCheckbox && declareCheck);
 	// };
@@ -1592,12 +1597,12 @@ const DocumentUpload = props => {
 
 	useEffect(() => {
 		selfieImageUploadFileArray?.map(selfie => {
-			const fileDirectoId = selfie?.directorId;
-			setFetchedDirectors({ ...fetchedDirectors, [fileDirectoId]: true });
+			const fileDirectorId = selfie?.directorId;
+			setFetchedDirectors({ ...fetchedDirectors, [fileDirectorId]: true });
 			if (
-				(!!directors?.[fileDirectoId]?.onSiteSelfieGeoLocation ||
-					(`${fileDirectoId}` === `0` && !entityGeolocation)) &&
-				!fetchedDirectors?.[fileDirectoId] &&
+				(!!directors?.[fileDirectorId]?.onSiteSelfieGeoLocation ||
+					(`${fileDirectorId}` === `0` && !entityGeolocation)) &&
+				!fetchedDirectors?.[fileDirectorId] &&
 				(permission?.geo_tagging?.geo_tagging &&
 					selfieWithApplicantField?.geo_tagging)
 			) {
@@ -1620,9 +1625,9 @@ const DocumentUpload = props => {
 
 							const reqObject = {
 								...geoLocationRes?.data?.data,
-								directorId: fileDirectoId,
+								directorId: fileDirectorId,
 							};
-							if (fileDirectoId === 0) {
+							if (fileDirectorId === 0) {
 								setEntitiyGeoLocation(geoLocationRes?.data?.data);
 							}
 							dispatch(setOnSiteSelfieGeoLocation(reqObject));
@@ -1631,7 +1636,7 @@ const DocumentUpload = props => {
 						dispatch(
 							setOnSiteSelfieGeoLocation({
 								err: 'Geo Location Not Captured',
-								directorId: fileDirectoId,
+								directorId: fileDirectorId,
 							})
 						);
 					}
