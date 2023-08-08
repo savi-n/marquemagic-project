@@ -522,9 +522,13 @@ const BasicDetails = props => {
 				contactno: sectionData?.director_details?.dcontact,
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber,
-					// martial_status:
-					marital_status:isNullFunction(sectionData?.director_details?.marital_status),
-					residence_status: isNullFunction(sectionData?.director_details?.residence_status),
+				// martial_status:
+				marital_status: isNullFunction(
+					sectionData?.director_details?.marital_status
+				),
+				residence_status: isNullFunction(
+					sectionData?.director_details?.residence_status
+				),
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'

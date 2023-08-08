@@ -50,10 +50,10 @@ export const scrollToTopRootElement = () => {
 	document.getElementById('root').scrollTop = 0;
 };
 
-export const isNullFunction= value=>{
+export const isNullFunction = value => {
 	// console.log(value);
-	if(!value || value==="NULL"){
+	if (!value || value === 'NULL') {
 		return null;
 	}
 	return value;
-}
+};
