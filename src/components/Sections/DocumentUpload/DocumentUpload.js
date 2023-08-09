@@ -1651,10 +1651,8 @@ const DocumentUpload = props => {
 			if (
 				(!!directors?.[fileDirectorId]?.onSiteSelfieGeoLocation ||
 					(`${fileDirectorId}` === `0` && !entityGeolocation)) &&
-				!fetchedDirectors?.[fileDirectorId]
-				&&
-				(
-					selfieWithApplicantField?.geo_tagging)
+				!fetchedDirectors?.[fileDirectorId] &&
+				selfieWithApplicantField?.geo_tagging
 			) {
 				async function geoTagging() {
 					try {
