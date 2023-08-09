@@ -1,6 +1,7 @@
-// Important Note :
-// Evaluation Documents : Priority = 3
-// Lender Documents : Priority = 300
+/* eslint-disable react-hooks/rules-of-hooks */
+// Important Note:
+// Evaluation Documents - Priority = 3
+// Lender Documents - Priority = 300
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -22,11 +23,16 @@ import {
 	setCommentsForOfficeUse,
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
+	addSelfieCacheDocument,
+	resetOnsiteSelfiImages,
+	// resetCacheDocuments,
 } from 'store/applicationSlice';
 import {
+	setOnSiteSelfieGeoLocation,
 	setGeotaggingMandatoryFields,
-	setDocumentSelfieGeoLocation,
+	// setDocumentSelfieGeoLocation,
 	DIRECTOR_TYPES,
+	removeOnSiteSelfieGeoLocation,
 } from 'store/directorsSlice';
 import { setSelectedSectionId } from 'store/appSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
@@ -39,24 +45,27 @@ import {
 	formatLoanDocuments,
 	isFieldValid,
 	getSelectedDirectorIndex,
+	// getSelectedField,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
 import iconDownArray from 'assets/icons/down_arrow_grey_icon.png';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as UI from './ui';
 import * as CONST from './const';
+import * as CONST_BASIC_DETIALS from 'components/Sections/BasicDetails/const';
 import ProfileUpload from './ProfileUpload/ProfileUpload';
 import AddressDetailsCard from '../../../components/AddressDetailsCard/AddressDetailsCard';
 import useForm from 'hooks/useFormIndividual';
 import CompleteOnsiteVerificationModal from 'components/modals/CompleteOnsiteVerificationModal';
 import MandatoryOnsiteVerificationErrModal from 'components/modals/MandatoryOnsiteVerificationErrModal';
+import { useLayoutEffect } from 'react';
 
 const DocumentUpload = props => {
 	const { app, application } = useSelector(state => state);
 	const {
 		directors,
 		applicantDirectorId,
-		selectedDirectorOptions,
+		// selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	let { selectedDirectorId } = useSelector(state => state.directors);
 	if (!selectedDirectorId)
@@ -72,6 +81,9 @@ const DocumentUpload = props => {
 		nonApplicantDirectorsArray.push(directors[directorId]);
 		return null;
 	});
+	const [entityGeolocation, setEntitiyGeoLocation] = useState(null);
+
+	const [fetchedDirectors, setFetchedDirectors] = useState({});
 	const dispatch = useDispatch();
 	const { onChangeFormStateField } = useForm();
 	const {
@@ -102,6 +114,7 @@ const DocumentUpload = props => {
 		prompted,
 		businessType,
 		businessMobile,
+		// isSelfieImagePresent,
 	} = application;
 
 	const selectedDirectorDocumentTypes = allDocumentTypes?.filter(
@@ -138,29 +151,68 @@ const DocumentUpload = props => {
 				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
 		)?.[0];
 
-	const isSelfieWithApplicantOrEntityRequired = !!selectedSection?.sub_sections
-		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
-		?.fields?.filter(
-			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
-		)?.[0]?.rules?.required;
+	const profileUploadField =
+		selectedProduct?.product_details?.sections
+			?.filter(
+				section => section?.id === CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
+			)?.[0]
+			?.sub_sections?.filter(
+				subSection =>
+					subSection?.id === CONST_SECTIONS.BASIC_DETAILS_SUB_SECTION_ID
+			)?.[0]
+			?.fields?.filter(
+				field => field?.name === CONST_BASIC_DETIALS.PROFILE_UPLOAD_FIELD_NAME
+			) || [];
 
-	const isSelfieWithCoApplicantRequired = !!selectedSection?.sub_sections
-		?.filter(
-			item => item?.id === CONST.SELFIE_UPLOAD_COAPPLICANT_SECTION_ID
-		)?.[0]
-		?.fields?.filter(
-			field =>
-				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
-		)?.[0]?.rules?.required;
+	const profilePicApplicantField =
+		profileUploadField?.length > 1
+			? profileUploadField?.filter(item => item?.is_co_applicant === false)?.[0]
+			: profileUploadField?.[0] || {};
+
+	const profilePicCoapplicantField =
+		profileUploadField?.length > 1
+			? profileUploadField?.filter(item => item?.is_applicant === false)?.[0]
+			: profileUploadField?.[0] || {};
+
+	const isApplicantProfileMandatory =
+		profilePicApplicantField?.rules?.required || false;
+	const isCoApplicantProfileMandatory =
+		profilePicCoapplicantField?.rules?.required || false;
+
+	// console.log({
+	// 	profilePicApplicantField,
+	// 	profilePicCoapplicantField,
+	// 	profileUploadField,
+	// 	selectedSection,
+	// 	isApplicantProfileMandatory,
+	// 	isCoApplicantProfileMandatory,
+	// 	directors,
+	// });
+	const isSelfieWithApplicantOrEntityRequired =
+		selfieWithApplicantField?.rules?.required;
+
+	const isSelfieWithCoApplicantRequired =
+		selfieWithCoapplicantField?.rules?.required;
+	// console.log({
+	// 	selfieWithApplicantField,
+	// 	isSelfieWithApplicantOrEntityRequired,
+	// });
 	// ends
 	const [cacheFile, setCacheFile] = useState({});
 	const [onsiteVerificationMsg, setOnsiteVerificationMsg] = useState(false);
+
+	// const selectedSelfieField = getSelectedField({
+	// 	fieldName: CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT,
+	// 	selectedSection,
+	// 	isApplicant,
+	// });
+
 	// const [onsiteVerificationErr, setOnsiteVerificationErr] = useState(false);
 
-	const selectedIncomeType =
-		selectedDirector?.income_type === 0
-			? '0'
-			: selectedDirector?.income_type || '';
+	// const selectedIncomeType =
+	// 	selectedDirector?.income_type === 0
+	// 		? '0'
+	// 		: selectedDirector?.income_type || '';
 
 	const [openSection, setOpenSection] = useState([
 		CONST_SECTIONS.DOC_CATEGORY_KYC,
@@ -191,9 +243,8 @@ const DocumentUpload = props => {
 	] = useState(false);
 	const [generateOtpTimer, setGenerateOtpTimer] = useState(0);
 	const [cacheDocumentsTemp, setCacheDocumentsTemp] = useState([]);
-	const [geoLocationData, setGeoLocationData] = useState({});
+	// const [geoLocationData, setGeoLocationData] = useState({});
 	const isUseEffectCalledOnce = useRef(false);
-
 	useEffect(() => {
 		// console.log(allDocumentTypes, 'Alldoctypes');
 		// console.log(cacheDocuments, ' cache docs');
@@ -201,7 +252,7 @@ const DocumentUpload = props => {
 		scrollToTopRootElement();
 		if (!isUseEffectCalledOnce.current) {
 			isUseEffectCalledOnce.current = true;
-
+			let filteredSelfieDocs;
 			const initializeDocTypeList = async () => {
 				try {
 					// console.log('initializeDocTypeList');
@@ -384,11 +435,38 @@ const DocumentUpload = props => {
 								// API.GET_ALL_UPLOADED_DOCUMENTS
 							}?loan_ref_id=${loanRefId}`
 						);
+						if (!allDocumentsRes) {
+							setLoading(true);
+						}
 						// console.log('allDocumentsRes-', allDocumentsRes);
 						if (
 							allDocumentsRes?.data?.documentList?.is_aadhaar_verified_with_otp
 						) {
 							setIsAadhaarVerified(true);
+						}
+
+						if (
+							allDocumentsRes?.data?.documentList?.lender_document?.length > 0
+						) {
+							// console.log(Object.values(selfieWithApplicantField?.doc_type));
+							// console.log(Object.values(selfieWithCoapplicantField?.doc_type));
+
+							const lenderDocs =
+								allDocumentsRes?.data?.documentList?.lender_document;
+							filteredSelfieDocs = lenderDocs.filter(
+								doc =>
+									Object.values(selfieWithApplicantField?.doc_type).includes(
+										doc?.doc_type?.id
+									) ||
+									Object.values(selfieWithCoapplicantField?.doc_type).includes(
+										doc?.doc_type?.id
+									)
+							);
+							filteredSelfieDocs?.map(selfieDoc => {
+								dispatch(addSelfieCacheDocument(selfieDoc));
+								// dispatch(addCacheDocument(selfieDoc))
+								return null;
+							});
 						}
 						if (
 							allDocumentsRes?.data?.documentList?.loan_document?.length > 0
@@ -400,7 +478,6 @@ const DocumentUpload = props => {
 									applicantDirectorId || CONST.DEFAULT_DIRECTOR_ID_FOR_ENTITY,
 							});
 						}
-
 						if (isViewLoan) {
 							// console.log(
 							// 	{
@@ -523,6 +600,7 @@ const DocumentUpload = props => {
 							// });
 						}
 					} catch (error) {}
+
 					dispatch(
 						addOrUpdateCacheDocumentsDocUploadPage({
 							files: [
@@ -655,9 +733,9 @@ const DocumentUpload = props => {
 			};
 			initializeDocTypeList();
 			initializeCommentForOfficeUse();
-			if (isGeoTaggingEnabled) {
-				setGeoLocationData(selectedDirector?.documentSelfieGeolocation || {});
-			}
+			// if (isGeoTaggingEnabled) {
+			// 	setGeoLocationData(selectedDirector?.onSiteSelfieGeoLocation || {});
+			// }
 			// FUNCTION TO MAP SELFIE PICS FROM CACHE DOCUMENTS
 			async function fetchSelfieData() {
 				try {
@@ -683,53 +761,65 @@ const DocumentUpload = props => {
 						return null;
 					})?.[0];
 					if (selectedField) {
-						const file = cacheDocuments?.filter(doc => {
-							if (
-								`${doc?.directorId}` === `${selectedDirectorId}` &&
-								doc?.doc_type?.id ===
-									selectedField?.doc_type?.[selectedIncomeType]
-							) {
-								return doc;
-							}
-							return null;
-						})?.[0];
+						const selfieDocType = selfieWithApplicantField?.doc_type?.[
+							selectedDirector?.income_type
+						]
+							? selfieWithApplicantField?.doc_type?.[
+									selectedDirector?.income_type
+							  ]
+							: selfieWithApplicantField?.doc_type?.[businessType];
+						// console.log(filteredSelfieDocs,"filtered Selfie DOcs");
+						const file = cacheDocuments
+							? cacheDocuments?.filter(
+									doc =>
+										`${doc?.directorId}` === `${selectedDirectorId}` &&
+										`${doc?.doc_type?.id}` === `${selfieDocType}`
+							  )?.[0]
+							: filteredSelfieDocs?.filter(
+									doc =>
+										`${doc?.directorId}` === `${selectedDirectorId}` &&
+										`${doc?.doc_type?.id}` === `${selfieDocType}`
+							  )?.[0];
 						if (file && Object.keys(file).length > 0) {
 							const newCatchFiles = _.cloneDeep(cacheFile);
 							cacheFile.selectedDirectorId = { file };
 							setCacheFile(newCatchFiles);
-							if (isGeoTaggingEnabled) {
-								if (
-									!file?.loan_document_details?.[0]?.lat &&
-									!file?.loan_document_details?.[0]?.long
-								) {
-									setGeoLocationData({
-										err: 'Geo Location Not Captured',
-									});
-									dispatch(
-										setDocumentSelfieGeoLocation({
-											err: 'Geo Location Not Captured',
-										})
-									);
-									return;
-								}
-								const reqBody = {
-									lat: file?.loan_document_details?.[0]?.lat,
-									long: file?.loan_document_details?.[0]?.long,
-								};
-								const geoLocationRes = await axios.post(
-									API.GEO_LOCATION,
-									reqBody,
-									{
-										headers: {
-											Authorization: `Bearer ${userToken}`,
-										},
-									}
-								);
-								setGeoLocationData(geoLocationRes?.data?.data || {});
-								dispatch(
-									setDocumentSelfieGeoLocation(geoLocationRes?.data?.data)
-								);
-							}
+							// if (isGeoTaggingEnabled) {
+							// 	if (
+							// 		!file?.loan_document_details?.[0]?.lat &&
+							// 		!file?.loan_document_details?.[0]?.long
+							// 	) {
+							// 		dispatch(
+							// 			setOnSiteSelfieGeoLocation({
+							// 				err: 'Geo Location Not Captured',
+							// 			})
+							// 		);
+							// 		return;
+							// 	}
+							// 	const reqBody = {
+							// 		lat: file?.loan_document_details?.[0]?.lat,
+							// 		long: file?.loan_document_details?.[0]?.long,
+							// 	};
+							// 	const geoLocationRes = await axios.post(
+							// 		API.GEO_LOCATION,
+							// 		reqBody,
+							// 		{
+							// 			headers: {
+							// 				Authorization: `Bearer ${userToken}`,
+							// 			},
+							// 		}
+							// 	);
+							// 	if (selectedDirectorId === '0') {
+							// 		setEntitiyGeoLocation(geoLocationRes?.data?.data);
+							// 		return;
+							// 	}
+							// 	const fileDirectorId = file.directorId;
+							// 	const reqObject = {
+							// 		...geoLocationRes?.data?.data,
+							// 		directorId: fileDirectorId,
+							// 	};
+							// 	dispatch(setOnSiteSelfieGeoLocation(reqObject));
+							// }
 						}
 					}
 				} catch (err) {
@@ -752,7 +842,7 @@ const DocumentUpload = props => {
 					sub_section?.fields?.map((field, fieldIndex) => {
 						if (field.hasOwnProperty('geo_tagging') && field?.geo_tagging) {
 							if (field?.db_key === 'on_site_selfie') {
-								let reduxStoreKey = 'documentSelfieGeolocation';
+								let reduxStoreKey = 'onSiteSelfieGeoLocation';
 								dispatch(
 									setGeotaggingMandatoryFields({
 										directorId: selectedDirectorId,
@@ -772,9 +862,22 @@ const DocumentUpload = props => {
 		}
 		// eslint-disable-next-line
 	}, []);
+	useLayoutEffect(() => {
+		if (cacheDocuments?.length > 0) {
+			const allSelfieDocTypes = Object.values(
+				selfieWithApplicantField?.doc_type
+			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+
+			dispatch(resetOnsiteSelfiImages(allSelfieDocTypes));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const buttonDisabledStatus = () => {
-		return !(cibilCheckbox && declareCheck);
+		return (
+			CONST.IS_CONSENT_MANDATORY(selectedProduct) &&
+			!(cibilCheckbox && declareCheck)
+		);
 	};
 
 	const onSubmitOtpAuthentication = async () => {
@@ -844,7 +947,7 @@ const DocumentUpload = props => {
 		cacheDocuments?.map(doc => {
 			// removing strick check for pre uploaded document taging ex: pan/adhar/dl...
 			if (doc?.req_type) return null;
-			if (!doc?.doc_type_id) {
+			if (!(doc?.doc_type_id || doc?.doc_type?.id)) {
 				isDocTypeUnTagged = true;
 				return false;
 			}
@@ -910,6 +1013,7 @@ const DocumentUpload = props => {
 			setOnSiteVerificationModal(true);
 			return;
 		}
+		// return;
 		// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
 		// if (isEditLoan) {
 		// 	const check = validateGeoTaggedDocsForApplicantCoapplicant();
@@ -1145,46 +1249,291 @@ const DocumentUpload = props => {
 		// 	directors,
 		// });
 		let allowProceed = true;
+
+		// For Applicant in Individual loan and business loan
+		// if (`${selectedProduct?.loan_request_type}` === '2') {
 		if (
 			permission?.geo_tagging?.geo_tagging &&
 			selfieWithApplicantField?.geo_tagging &&
 			isSelfieWithApplicantOrEntityRequired
 		) {
+			const applicant = Object?.values?.(directors)?.filter(
+				dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+			)?.[0];
 			const docTypeId =
 				selfieWithApplicantField?.doc_type?.[
-					selectedDirector?.income_type || businessType
+					applicant?.income_type || businessType
 				];
 			// console.log({ applicantdid: docTypeId });
 			const filteredApplicantDoc = cacheDocuments?.filter(item => {
-				return `${item?.doc_type_id}` === `${docTypeId}`;
+				const docTypeIdApplicant =
+					item?.doc_type_id || item?.doc_type?.id || '';
+				return `${docTypeIdApplicant}` === `${docTypeId}`;
 			});
-			if (filteredApplicantDoc?.length === 0) allowProceed = false;
+			const applicantLatitude =
+				filteredApplicantDoc?.[0]?.latitude ||
+				filteredApplicantDoc?.[0]?.loan_document_details?.[0]?.lat;
+			const applicantLongitude =
+				filteredApplicantDoc?.[0]?.longitude ||
+				filteredApplicantDoc?.[0]?.loan_document_details?.[0]?.long;
+
+			if (
+				(!applicantLatitude && !applicantLongitude) ||
+				filteredApplicantDoc?.length === 0
+			) {
+				// console.log('applicant - failure for on site selfie', {
+				// 	filteredApplicantDoc,
+				// });
+
+				allowProceed = false;
+			}
 		}
 
+		// For CoApplicants in Individual loan and business loan
 		if (
 			permission?.geo_tagging?.geo_tagging &&
-			selfieWithApplicantField?.geo_tagging &&
+			selfieWithCoapplicantField?.geo_tagging &&
 			isSelfieWithCoApplicantRequired
 		) {
+			let coApplicantOrDirectors = [];
 			const coApplicants = Object.values(directors)?.filter(
 				dir => dir?.type_name === 'Co-applicant'
 			);
-			if (coApplicants?.length > 0) {
-				coApplicants?.map(dir => {
+			const directorsAndCoapplicants = Object.values(directors)?.filter(
+				dir => dir?.type_name !== 'Applicant'
+			);
+			if (`${selectedProduct?.loan_request_type}` === '2') {
+				coApplicantOrDirectors = coApplicants;
+			}
+			if (`${selectedProduct?.loan_request_type}` === '1') {
+				coApplicantOrDirectors = directorsAndCoapplicants;
+			}
+			if (coApplicantOrDirectors?.length > 0) {
+				// console.log({ selfieWithCoapplicantField });
+				coApplicantOrDirectors?.map(dir => {
+					const actualDocType =
+						selfieWithCoapplicantField?.doc_type?.[dir?.income_type];
+
 					const docTypeId =
-						selfieWithCoapplicantField?.doc_type?.[
-							dir?.income_type || businessType
-						];
+						actualDocType ||
+						selfieWithCoapplicantField?.doc_type?.[businessType];
+
 					const filteredDoc = cacheDocuments?.filter(doc => {
-						return `${doc?.doc_type_id}` === `${docTypeId}`;
+						const docTypeIdCoapplicant = doc?.doc_type_id || doc?.doc_type?.id;
+						// console.log({ docTypeIdCoapplicant, docTypeId });
+						return `${docTypeIdCoapplicant}` === `${docTypeId}`;
 					});
-					if (filteredDoc === 0) allowProceed = false;
+					// tbd
+					// console.log({
+					// 	filteredDoc,
+					// 	coApplicantOrDirectors,
+					// 	cacheDocuments,
+					// 	docTypeId,
+					// 	selfieWithCoapplicantField,
+					// });
+
+					if (filteredDoc?.length === 0) {
+						// console.log('coapplicant failure - Due to 0 docs - onsite selfie');
+						allowProceed = false;
+					}
+					if (filteredDoc?.length < coApplicantOrDirectors?.length) {
+						// console.log(
+						// 	'coapplicant failure - Due to less docs than coapps/directors - onsite selfie'
+						// );
+						allowProceed = false;
+					}
+					if (filteredDoc?.length > 0) {
+						for (const coAppSelfieItem of filteredDoc) {
+							const coAppLatitude =
+								coAppSelfieItem?.latitude ||
+								coAppSelfieItem?.loan_document_details?.[0].lat;
+							const coAppLongitude =
+								coAppSelfieItem?.longitude ||
+								coAppSelfieItem?.loan_document_details?.[0].long;
+							// console.log({ coAppLatitude, coAppLongitude });
+							if (!coAppLatitude && !coAppLongitude) {
+								// console.log(
+								// 	'coapplicant failure - Due to missing lat/long - onsite selfie'
+								// );
+								allowProceed = false;
+								break;
+							}
+						}
+					}
 					return null;
 				});
 			}
 		}
+		// Validation For profile pic starts - generic for individual and sme flow
+		// applicant
+		if (
+			permission?.geo_tagging?.geo_tagging &&
+			profilePicApplicantField?.geo_tagging &&
+			isApplicantProfileMandatory
+		) {
+			const applicant = Object?.values?.(directors)?.filter(
+				dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+			)?.[0];
+			const applicantDocTypeId =
+				profilePicApplicantField?.doc_type?.[applicant?.income_type];
+
+			const filteredApplicantProfilePicDoc = cacheDocuments?.filter(item => {
+				return (
+					`${applicantDocTypeId}` === `${item?.doctype}` &&
+					`${applicant?.directorId}` === `${item?.directorId}`
+				);
+			});
+
+			const applicantLatitude = filteredApplicantProfilePicDoc?.[0]?.lat;
+			const applicantLongitude = filteredApplicantProfilePicDoc?.[0]?.long;
+
+			if (
+				(!applicantLatitude && !applicantLongitude) ||
+				filteredApplicantProfilePicDoc?.length === 0
+			) {
+				// console.log(
+				// 	'if applicant is not captured with geo location for profile pic or 0 docs'
+				// );
+				allowProceed = false;
+			}
+
+			// console.log({
+			// 	cacheDocuments,
+			// 	applicantDocTypeId,
+			// 	filteredApplicantProfilePicDoc,
+			// 	applicant,
+			// });
+		}
+
+		// coapplicants and directors
+		if (
+			permission?.geo_tagging?.geo_tagging &&
+			profilePicCoapplicantField?.geo_tagging &&
+			isCoApplicantProfileMandatory
+		) {
+			const directorsAndCoapplicants = Object.values(directors)?.filter(
+				dir => dir?.type_name !== 'Applicant'
+			);
+
+			if (directorsAndCoapplicants?.length > 0) {
+				directorsAndCoapplicants?.map(dir => {
+					const docTypeId =
+						profilePicApplicantField?.doc_type?.[dir?.income_type];
+					const filteredProfilePic = cacheDocuments?.filter(doc => {
+						return (
+							`${docTypeId}` === `${doc?.doctype}` &&
+							`${dir?.directorId}` === `${doc?.directorId}`
+						);
+					});
+
+					if (filteredProfilePic?.length === 0) {
+						// console.log('coapplicants - 0 docs - profile pic');
+						allowProceed = false;
+					}
+
+					if (
+						filteredProfilePic?.length > 0 &&
+						!filteredProfilePic?.[0]?.lat &&
+						!filteredProfilePic?.[0]?.long
+					) {
+						// console.log(
+						// 	'if co-applicant or directors are not captured with the geolocation - profile pic'
+						// );
+						allowProceed = false;
+					}
+					return null;
+				});
+			}
+		}
+		// console.log({ allowProceed });
+		// Validation For profile pic ends
+
 		return allowProceed;
 	};
+
+	// const validateOnSiteSelfie = () => {
+	// 	// console.log({
+	// 	// 	cacheDocuments,
+	// 	// 	isSelfieWithApplicantOrEntityRequired,
+	// 	// 	isSelfieWithCoApplicantRequired,
+	// 	// 	selectedSection,
+	// 	// 	selectedDirector,
+	// 	// 	selfieWithApplicantField,
+	// 	// 	selfieWithCoapplicantField,
+	// 	// 	selectedProduct,
+	// 	// 	directors,
+	// 	// });
+	// 	let allowProceed = true;
+	// 	console.log(isSelfieWithApplicantOrEntityRequired);
+	// 	if (
+	// 		permission?.geo_tagging?.geo_tagging &&
+	// 		selfieWithApplicantField?.geo_tagging &&
+	// 		isSelfieWithApplicantOrEntityRequired
+	// 	) {
+	// 		const docTypeId =
+	// 			selfieWithApplicantField?.doc_type?.[
+	// 				selectedDirector?.income_type || businessType
+	// 			];
+	// 		// console.log({ applicantdid: docTypeId });
+	// 		const filteredApplicantDoc = cacheDocuments?.filter(item => {
+	// 			return (
+	// 				`${item?.doc_type_id}` === `${docTypeId}` ||
+	// 				`${item?.doc_type?.id}` === `${docTypeId}`
+	// 			);
+	// 		});
+	// 		console.log(filteredApplicantDoc, 'filterered applicant doc');
+	// 		if (filteredApplicantDoc?.length === 0) allowProceed = false;
+	// 	}
+	// 	console.log(
+	// 		permission?.geo_tagging?.geo_tagging &&
+	// 			selfieWithCoapplicantField?.geo_tagging
+	// 		// isSelfieWithCoApplicantRequired
+	// 	);
+
+	// 	if (
+	// 		permission?.geo_tagging?.geo_tagging &&
+	// 		selfieWithCoapplicantField?.geo_tagging &&
+	// 		// isSelfieWithCoApplicantRequired
+	// 		true
+	// 	) {
+	// 		console.log(cacheDocuments, 'cacheDoc ');
+	// 		const coApplicants = Object.values(directors)?.filter(
+	// 			dir => dir?.type_name === 'Co-applicant'
+	// 		);
+	// 		if (coApplicants?.length > 0) {
+	// 			coApplicants?.map(dir => {
+	// 				const docTypeId =
+	// 					selfieWithCoapplicantField?.doc_type?.[
+	// 						dir?.income_type || businessType
+	// 					];
+	// 				console.log(docTypeId);
+	// 				const filteredDoc = cacheDocuments?.filter(doc => {
+	// 					return (
+	// 						`${doc?.doc_type_id}` === `${docTypeId}` ||
+	// 						`${doc?.doc_type.id}` === `${docTypeId}`
+	// 					);
+	// 				});
+	// 				console.log(filteredDoc, 'filterered doc');
+	// 				if (filteredDoc.length === 0) allowProceed = false;
+	// 				if (filteredDoc.length > 0) {
+	// 					for (const coAppSelfieItem of filteredDoc) {
+	// 						if (
+	// 							!coAppSelfieItem?.latitutde ||
+	// 							!coAppSelfieItem?.longitude ||
+	// 							!coAppSelfieItem?.loan_document_details?.[0].lat ||
+	// 							!coAppSelfieItem?.loan_document_details?.[0]?.long
+	// 						) {
+	// 							console.log('i fell here');
+	// 							allowProceed = false;
+	// 							break;
+	// 						}
+	// 					}
+	// 				}
+	// 			});
+	// 		}
+	// 	}
+	// 	return allowProceed;
+	// };
 
 	const mandatoryDocumentTypeIds = [];
 	allDocumentTypes.map(doc => {
@@ -1222,17 +1571,28 @@ const DocumentUpload = props => {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
 				};
-				setGeoLocationData(geoLocationTag);
-				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+				const reqObject = {
+					...geoLocationTag,
+					directorId: selectedDirectorId,
+				};
+				dispatch(setOnSiteSelfieGeoLocation(reqObject));
+				if (selectedDirectorId === '0') {
+					setEntitiyGeoLocation(geoLocationTag);
+					return;
+				}
 			} else {
 				const geoLocationTag = {
 					address: file?.address,
 					lat: file?.latitude,
 					long: file?.longitude,
 					timestamp: file?.timestamp,
+					directorId: selectedDirectorId,
 				};
-				setGeoLocationData(geoLocationTag);
-				dispatch(setDocumentSelfieGeoLocation(geoLocationTag));
+				if (selectedDirectorId === '0') {
+					setEntitiyGeoLocation(geoLocationTag);
+					return;
+				}
+				dispatch(setOnSiteSelfieGeoLocation(geoLocationTag));
 			}
 		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
@@ -1251,6 +1611,96 @@ const DocumentUpload = props => {
 				doc?.field?.db_key === CONST.SELFIE_UPLOAD_FIELD_NAME &&
 				`${doc?.directorId}` === `${selectedDirectorId}`
 		)?.[0] || null;
+
+	// console.log(cacheDocuments, 'cacheDocs');
+
+	// console.log({
+	// 	selectedDirector,
+	// 	selectedDirIncomeType: selectedDirector?.income_type,
+	// 	selfieWithApplicantField,
+	// 	selfieWithCoapplicantField,
+	// });
+
+	// // const selectedSelfieUploadField = getSelectedField({
+	// // 	fieldName: CONST.
+	// // })
+
+	const selfieDocNameForCoapps = ['Co-applicant', 'Director']?.includes(
+		selectedDirector?.type_name
+	)
+		? selfieWithCoapplicantField
+		: selfieWithApplicantField;
+	// const selfieDocNameForCoapps = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
+	// console.log(cacheDocuments);
+
+	const selfieDocType = selfieDocNameForCoapps?.doc_type?.[
+		selectedDirector?.income_type
+	]
+		? selfieDocNameForCoapps?.doc_type?.[selectedDirector?.income_type]
+		: selfieDocNameForCoapps?.doc_type?.[businessType];
+
+	const selfieImageUploadedFile =
+		cacheDocuments?.filter(
+			doc =>
+				`${doc?.directorId}` === `${selectedDirectorId}` &&
+				`${doc?.doc_type?.id}` === `${selfieDocType}`
+		)?.[0] || null;
+	const selfieImageUploadFileArray = cacheDocuments?.filter(
+		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
+	);
+	useEffect(() => {
+		selfieImageUploadFileArray?.map(selfie => {
+			const fileDirectorId = selfie?.directorId;
+			setFetchedDirectors({ ...fetchedDirectors, [fileDirectorId]: true });
+			if (
+				(!!directors?.[fileDirectorId]?.onSiteSelfieGeoLocation ||
+					(`${fileDirectorId}` === `0` && !entityGeolocation)) &&
+				!fetchedDirectors?.[fileDirectorId] &&
+				selfieWithApplicantField?.geo_tagging
+			) {
+				async function geoTagging() {
+					try {
+						if (isGeoTaggingEnabled) {
+							const reqBody = {
+								lat: selfie?.loan_document_details?.[0]?.lat,
+								long: selfie?.loan_document_details?.[0]?.long,
+							};
+							const geoLocationRes = await axios.post(
+								API.GEO_LOCATION,
+								reqBody,
+								{
+									headers: {
+										Authorization: `Bearer ${userToken}`,
+									},
+								}
+							);
+
+							const reqObject = {
+								...geoLocationRes?.data?.data,
+								directorId: fileDirectorId,
+							};
+							if (fileDirectorId === 0) {
+								setEntitiyGeoLocation(geoLocationRes?.data?.data);
+							}
+							dispatch(setOnSiteSelfieGeoLocation(reqObject));
+						}
+					} catch (err) {
+						dispatch(
+							setOnSiteSelfieGeoLocation({
+								err: 'Geo Location Not Captured',
+								directorId: fileDirectorId,
+							})
+						);
+					}
+				}
+				geoTagging();
+			}
+			return null;
+		});
+		// eslint-disable-next-line
+	}, [cacheDocuments]);
+
+	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
 	const closeVerificationMsgModal = () => {
 		dispatch(setIsPrompted(true));
@@ -1265,26 +1715,42 @@ const DocumentUpload = props => {
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
 	const isAppCoAppVerificationComplete = () => {
 		let result = true;
-		selectedDirectorOptions.map(director => {
-			if (Number(applicantDirectorId) === Number(director.value)) {
-				if (
-					Object.keys(selectedDirector?.documentSelfieGeolocation || {})
-						.length <= 0
-				) {
-					result = false;
-				}
-			} else {
-				if (
-					Object.keys(
-						nonApplicantDirectorsObject?.[director.value]
-							?.documentSelfieGeolocation
-					).length <= 0
-				) {
-					result = false;
-				}
-			}
-			return null;
+		// selectedDirectorOptions.map(director => {
+		// 	if (Number(applicantDirectorId) === Number(director.value)) {
+		// 		if (
+		// 			Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
+		// 			0
+		// 		) {
+		// 			result = false;
+		// 		}
+		// 	} else {
+		// 		if (
+		// 			Object.keys(
+		// 				nonApplicantDirectorsObject?.[director.value]
+		// 					?.onSiteSelfieGeoLocation || {}
+		// 			).length <= 0
+		// 		) {
+		// 			result = false;
+		// 		}
+		// 	}
+		// 	return null;
+		// });
+		let allSelfieDocTypes = [];
+		const directorsAndCoapplicants = Object.values(directors)?.filter(
+			dir => dir?.type_name !== 'Applicant'
+		);
+		const totalSelfieImageArray = cacheDocuments?.filter(doc => {
+			allSelfieDocTypes = Object.values(
+				selfieWithApplicantField?.doc_type
+			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+
+			return allSelfieDocTypes.includes(doc?.doc_type_id || doc?.doc_type?.id);
 		});
+
+		// checking total selfie length with total applicants(applicant + coAPplicants)
+		if (totalSelfieImageArray.length < directorsAndCoapplicants.length + 1) {
+			result = false;
+		}
 		return result;
 	};
 
@@ -1312,7 +1778,7 @@ const DocumentUpload = props => {
 
 	// 	if (
 	// 		onSiteSelfiefield?.fields?.length === 1 &&
-	// 		onSiteSelfiefield[0]?.geo_tagging === true
+
 	// 	) {
 	// 		mandatoryFieldApplicant = onSiteSelfiefield?.[0]?.fields[0];
 	// 		mandatoryFieldCoApplicant = onSiteSelfiefield?.[0]?.fields[0];
@@ -1541,7 +2007,11 @@ const DocumentUpload = props => {
 	// };
 
 	const removeCacheDocumentTemp = fieldName => {
-		setGeoLocationData({});
+		// setGeoLocationData({});
+		dispatch(removeOnSiteSelfieGeoLocation());
+		if (selectedDirectorId === '0') {
+			setEntitiyGeoLocation(null);
+		}
 		const newCatchFiles = _.cloneDeep(cacheFile);
 		delete newCatchFiles[selectedDirectorId];
 		setCacheFile(newCatchFiles);
@@ -1743,7 +2213,6 @@ const DocumentUpload = props => {
 								if (!isFieldValid({ field, formState: {}, isApplicant })) {
 									return null;
 								}
-
 								if (
 									isGeoTaggingEnabled &&
 									field?.type === 'file' &&
@@ -1753,13 +2222,23 @@ const DocumentUpload = props => {
 										<UI.VerificationSectionWrapper
 											key={`dataitem-${field?.id}${fieldIndex}`}
 										>
-											<UI.VerificationSection isLocation={!!geoLocationData}>
+											{/* {console.log(selectedDirector.onSiteSelfieGeoLocation)} */}
+											<UI.VerificationSection
+												isLocation={
+													// !!selectedDirector?.onSiteSelfieGeoLocation ||
+													// !!entityGeolocation
+													!!selectedDirector
+														? !!selectedDirector?.onSiteSelfieGeoLocation
+														: !!entityGeolocation
+												}
+											>
 												<ProfileUpload
 													field={field}
 													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
 													uploadedFile={
 														cacheFile?.[selectedDirectorId]?.file ||
+														selfieImageUploadedFile ||
 														profileUploadedFile ||
 														null
 													}
@@ -1771,16 +2250,48 @@ const DocumentUpload = props => {
 												/>
 											</UI.VerificationSection>
 											{field?.geo_tagging === true
-												? Object.keys(geoLocationData || {}).length > 0 && (
+												? (Object.keys(
+														selectedDirector?.onSiteSelfieGeoLocation || {}
+												  ).length > 0 ||
+														(selectedDirectorId === '0' &&
+															Object.keys(entityGeolocation || {}).length >
+																0)) && (
 														<UI.VerificationSection
-															isLocation={!!geoLocationData}
+															isLocation={
+																!!selectedDirector
+																	? !!selectedDirector?.onSiteSelfieGeoLocation
+																	: !!entityGeolocation
+															}
 														>
 															<AddressDetailsCard
-																address={geoLocationData?.address}
-																latitude={geoLocationData?.lat}
-																longitude={geoLocationData?.long}
-																timestamp={geoLocationData?.timestamp}
-																err={geoLocationData?.err}
+																address={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.address
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.address
+																}
+																latitude={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.lat
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.lat
+																}
+																longitude={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.long
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.long
+																}
+																timestamp={
+																	selectedDirectorId === '0'
+																		? entityGeolocation?.timestamp
+																		: selectedDirector?.onSiteSelfieGeoLocation
+																				?.timestamp
+																}
+																err={
+																	selectedDirector?.onSiteSelfieGeoLocation
+																		?.err || entityGeolocation?.err
+																}
 																showCloseIcon={false}
 																customStyle={{
 																	width: 'fit-content',
@@ -1831,15 +2342,23 @@ const DocumentUpload = props => {
 				<UI.CheckboxWrapper>
 					<CheckBox
 						name={
-							isCorporate ? (
+							!selectedProduct?.product_details?.consent?.consent1 ? (
+								<span>{CONST.textForCheckbox.grantCibilAcces}</span>
+							) : isCorporate ? (
 								<span>
-									{CONST.textForCheckbox.grantCibilAcces.replace(
+									{/* {CONST.textForCheckbox.grantCibilAcces.replace(
+										'CIBIL',
+										'Bureau'
+									)} */}
+									{selectedProduct?.product_details?.consent?.consent1.replace(
 										'CIBIL',
 										'Bureau'
 									)}
 								</span>
 							) : (
-								<span>{CONST.textForCheckbox.grantCibilAcces}</span>
+								<span>
+									{selectedProduct?.product_details?.consent?.consent1}
+								</span>
 							)
 						}
 						checked={cibilCheckbox}
@@ -1852,12 +2371,14 @@ const DocumentUpload = props => {
 					/>
 					<CheckBox
 						name={
-							selectedProduct?.product_details?.terms_and_conditions_url ? (
+							!selectedProduct?.product_details?.consent?.consent2 ? (
 								<>
 									<span>{CONST.textForCheckbox.declaration}</span>
 									<span>{CONST.getATag(selectedProduct)}</span>
 									<span>{CONST.textForCheckbox.declaration2}</span>
 								</>
+							) : selectedProduct?.product_details?.terms_and_conditions_url ? (
+								<>{CONST.getTermsAndConditon(selectedProduct)}</>
 							) : (
 								<span>{CONST.textForCheckbox.defaultDeclaration}</span>
 							)
