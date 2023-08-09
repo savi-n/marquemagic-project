@@ -1643,16 +1643,17 @@ const DocumentUpload = props => {
 	const selfieImageUploadFileArray = cacheDocuments?.filter(
 		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
 	);
-
 	useEffect(() => {
 		selfieImageUploadFileArray?.map(selfie => {
+			console.log(selfie);
 			const fileDirectorId = selfie?.directorId;
 			setFetchedDirectors({ ...fetchedDirectors, [fileDirectorId]: true });
 			if (
 				(!!directors?.[fileDirectorId]?.onSiteSelfieGeoLocation ||
 					(`${fileDirectorId}` === `0` && !entityGeolocation)) &&
-				!fetchedDirectors?.[fileDirectorId] &&
-				(permission?.geo_tagging?.geo_tagging &&
+				!fetchedDirectors?.[fileDirectorId]
+				&&
+				(
 					selfieWithApplicantField?.geo_tagging)
 			) {
 				async function geoTagging() {
@@ -1695,7 +1696,7 @@ const DocumentUpload = props => {
 			return null;
 		});
 		// eslint-disable-next-line
-	}, [cacheDocuments, selectedDirector]);
+	}, [cacheDocuments]);
 
 	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
