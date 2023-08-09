@@ -1281,9 +1281,7 @@ const DocumentUpload = props => {
 				(!applicantLatitude && !applicantLongitude) ||
 				filteredApplicantDoc?.length === 0
 			) {
-				// console.log('applicant - failure for on site selfie', {
-				// 	filteredApplicantDoc,
-				// });
+				// console.log('applicant - failure for on site selfie');
 
 				allowProceed = false;
 			}
@@ -1388,8 +1386,9 @@ const DocumentUpload = props => {
 			const applicantLongitude = filteredApplicantProfilePicDoc?.[0]?.long;
 
 			if (
-				(!applicantLatitude && !applicantLongitude) ||
-				filteredApplicantProfilePicDoc?.length === 0
+				((!applicantLatitude && !applicantLongitude) ||
+					filteredApplicantProfilePicDoc?.length === 0) &&
+				`${selectedProduct?.loan_request_type}` === '2'
 			) {
 				// console.log(
 				// 	'if applicant is not captured with geo location for profile pic or 0 docs'
