@@ -29,6 +29,7 @@ const CollateralDetails = () => {
 	const [openAccordianId, setOpenAccordianId] = useState('');
 	const [editSectionId, setEditSectionId] = useState('');
 	const [sectionData, setSectionData] = useState([]);
+	const [loanAssetData, setLoanAssetData] = useState([]);
 	// const [sectionData, setuudata] = useState([
 	// 	{
 	// 		id: 17410,
@@ -100,6 +101,7 @@ const CollateralDetails = () => {
 			}
 			if (fetchRes?.data?.data?.assetsAdditionalRecord?.length > 0) {
 				setSectionData(fetchRes?.data?.data?.assetsAdditionalRecord);
+				setLoanAssetData(fetchRes?.data?.data?.loanAssetRecord);
 				setEditSectionId('');
 				setOpenAccordianId('');
 				setIsCreateFormOpen(false);
@@ -352,6 +354,7 @@ const CollateralDetails = () => {
 												onSaveOrUpdateSuccessCallback={
 													onSaveOrUpdateSuccessCallback
 												}
+												loan_assets_id={loanAssetData?.[sectionIndex]?.id}
 												// assets={assets}
 												onCancelCallback={onCancelCallback}
 												isEditLoan={isEditLoan}
