@@ -65,7 +65,7 @@ const DocumentUpload = props => {
 	const {
 		directors,
 		applicantDirectorId,
-		selectedDirectorOptions,
+		// selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	let { selectedDirectorId } = useSelector(state => state.directors);
 	if (!selectedDirectorId)
@@ -872,9 +872,13 @@ const DocumentUpload = props => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	// const buttonDisabledStatus = () => {
-	// 	return !(cibilCheckbox && declareCheck);
-	// };
+
+	const buttonDisabledStatus = () => {
+		return (
+			CONST.IS_CONSENT_MANDATORY(selectedProduct) &&
+			!(cibilCheckbox && declareCheck)
+		);
+	};
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
@@ -889,7 +893,7 @@ const DocumentUpload = props => {
 			// 	return;
 			// }
 			// console.log('step-4');
-			// if (buttonDisabledStatus()) return;
+			if (buttonDisabledStatus()) return;
 			// console.log('step-5');
 			// change permission here
 			// if (
@@ -1019,7 +1023,7 @@ const DocumentUpload = props => {
 		// 	}
 		// }
 		// console.log('step-1');
-		// if (buttonDisabledStatus()) return;
+		if (buttonDisabledStatus()) return;
 		// console.log('step-2');
 
 		if (!isFormValid()) return;
@@ -1206,10 +1210,7 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submittingOtp || submitting}
-				disabled={
-					submittingOtp || submitting
-					// || buttonDisabledStatus()
-				}
+				disabled={submittingOtp || submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submittingOtp && submitting) return;
 					onSubmitOtpAuthentication();
@@ -1226,10 +1227,7 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submitting}
-				disabled={
-					submitting
-					// || buttonDisabledStatus()
-				}
+				disabled={submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication({ goToNextSection: true });
