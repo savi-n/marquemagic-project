@@ -24,7 +24,8 @@ import {
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addSelfieCacheDocument,
-	resetCacheDocuments,
+	resetOnsiteSelfiImages,
+	// resetCacheDocuments,
 } from 'store/applicationSlice';
 import {
 	setOnSiteSelfieGeoLocation,
@@ -64,7 +65,7 @@ const DocumentUpload = props => {
 	const {
 		directors,
 		applicantDirectorId,
-		selectedDirectorOptions,
+		// selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	let { selectedDirectorId } = useSelector(state => state.directors);
 	if (!selectedDirectorId)
@@ -862,12 +863,22 @@ const DocumentUpload = props => {
 		// eslint-disable-next-line
 	}, []);
 	useLayoutEffect(() => {
-		dispatch(resetCacheDocuments());
-		// eslint-disable-next-line
+		if (cacheDocuments?.length > 0) {
+			const allSelfieDocTypes = Object.values(
+				selfieWithApplicantField?.doc_type
+			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+
+			dispatch(resetOnsiteSelfiImages(allSelfieDocTypes));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	// const buttonDisabledStatus = () => {
-	// 	return !(cibilCheckbox && declareCheck);
-	// };
+
+	const buttonDisabledStatus = () => {
+		return (
+			CONST.IS_CONSENT_MANDATORY(selectedProduct) &&
+			!(cibilCheckbox && declareCheck)
+		);
+	};
 
 	const onSubmitOtpAuthentication = async () => {
 		try {
@@ -882,7 +893,7 @@ const DocumentUpload = props => {
 			// 	return;
 			// }
 			// console.log('step-4');
-			// if (buttonDisabledStatus()) return;
+			if (buttonDisabledStatus()) return;
 			// console.log('step-5');
 			// change permission here
 			// if (
@@ -1012,7 +1023,7 @@ const DocumentUpload = props => {
 		// 	}
 		// }
 		// console.log('step-1');
-		// if (buttonDisabledStatus()) return;
+		if (buttonDisabledStatus()) return;
 		// console.log('step-2');
 
 		if (!isFormValid()) return;
@@ -1199,10 +1210,7 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submittingOtp || submitting}
-				disabled={
-					submittingOtp || submitting
-					// || buttonDisabledStatus()
-				}
+				disabled={submittingOtp || submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submittingOtp && submitting) return;
 					onSubmitOtpAuthentication();
@@ -1219,10 +1227,7 @@ const DocumentUpload = props => {
 					background: 'blue',
 				}}
 				isLoader={submitting}
-				disabled={
-					submitting
-					// || buttonDisabledStatus()
-				}
+				disabled={submitting || buttonDisabledStatus()}
 				onClick={() => {
 					if (submitting) return;
 					onSubmitCompleteApplication({ goToNextSection: true });
@@ -1710,26 +1715,42 @@ const DocumentUpload = props => {
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
 	const isAppCoAppVerificationComplete = () => {
 		let result = true;
-		selectedDirectorOptions.map(director => {
-			if (Number(applicantDirectorId) === Number(director.value)) {
-				if (
-					Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
-					0
-				) {
-					result = false;
-				}
-			} else {
-				if (
-					Object.keys(
-						nonApplicantDirectorsObject?.[director.value]
-							?.onSiteSelfieGeoLocation || {}
-					).length <= 0
-				) {
-					result = false;
-				}
-			}
-			return null;
+		// selectedDirectorOptions.map(director => {
+		// 	if (Number(applicantDirectorId) === Number(director.value)) {
+		// 		if (
+		// 			Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
+		// 			0
+		// 		) {
+		// 			result = false;
+		// 		}
+		// 	} else {
+		// 		if (
+		// 			Object.keys(
+		// 				nonApplicantDirectorsObject?.[director.value]
+		// 					?.onSiteSelfieGeoLocation || {}
+		// 			).length <= 0
+		// 		) {
+		// 			result = false;
+		// 		}
+		// 	}
+		// 	return null;
+		// });
+		let allSelfieDocTypes = [];
+		const directorsAndCoapplicants = Object.values(directors)?.filter(
+			dir => dir?.type_name !== 'Applicant'
+		);
+		const totalSelfieImageArray = cacheDocuments?.filter(doc => {
+			allSelfieDocTypes = Object.values(
+				selfieWithApplicantField?.doc_type
+			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+
+			return allSelfieDocTypes.includes(doc?.doc_type_id || doc?.doc_type?.id);
 		});
+
+		// checking total selfie length with total applicants(applicant + coAPplicants)
+		if (totalSelfieImageArray.length < directorsAndCoapplicants.length + 1) {
+			result = false;
+		}
 		return result;
 	};
 

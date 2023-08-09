@@ -23,6 +23,15 @@ export const getTermsAndConditon = selectedProduct => {
 		</>
 	);
 };
+
+export const IS_CONSENT_MANDATORY = selectedProduct => {
+	let is_consent_mandatory = true;
+	if (`${selectedProduct?.product_details?.is_consent_mandatory}` === 'false') {
+		is_consent_mandatory = false;
+	}
+	return is_consent_mandatory;
+};
+
 export const textForCheckbox = {
 	grantCibilAcces: 'I here by give consent to pull my CIBIL records',
 	declaration: 'I have read the ',
