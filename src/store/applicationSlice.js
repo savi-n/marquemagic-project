@@ -293,9 +293,15 @@ export const applicationSlice = createSlice({
 		resetCacheDocuments: state => {
 			state.cacheDocuments = [];
 		},
-		// setIsSelifeImagePresent: (state, { payload }) => {
-		// 	state.isSelfieImagePresent = payload;
-		// },
+		resetOnsiteSelfiImages: (state, { payload }) => {
+			const uniqueSelfieDocType = [...new Set(payload)];
+			const oldCacheDocs = _.cloneDeep(state.cacheDocuments);
+			const newFilteredCacheDocuments = oldCacheDocs?.filter(doc => {
+				const docTypeId = doc?.doc_type_id || doc?.doc_type?.id;
+				return !uniqueSelfieDocType?.includes(docTypeId);
+			});
+			state.cacheDocuments = newFilteredCacheDocuments;
+		},
 	},
 });
 
@@ -331,6 +337,7 @@ export const {
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
 	resetCacheDocuments,
+	resetOnsiteSelfiImages,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;
