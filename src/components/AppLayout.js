@@ -37,6 +37,7 @@ import {
 	//APP_DOMAIN,
 	APP_CLIENT,
 	API_END_POINT,
+	FEDERAL_TRANSACTION_KYC_API,
 	// WHITELABEL_ENCRYPTION_API,
 	// GE_LOAN_DETAILS_WITH_LOAN_REF_ID,
 } from '_config/app.config.js';
@@ -130,6 +131,10 @@ const AppLayout = () => {
 			}
 			// when user comes for create / editing this loan from ui-ux
 			const params = queryString.parse(window.location.search);
+			const transactionId = params.transaction_id;
+			if (transactionId) {
+				handleFederalBankRequest(transactionId);
+			}
 			let decryptedToken = {};
 			decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 			const isEditLoan = decryptedToken?.edit ? true : false;
@@ -203,6 +208,20 @@ const AppLayout = () => {
 		// eslint-disable-next-line
 	}, [response]);
 
+	const handleFederalBankRequest = async transactionId => {
+		try {
+			const resp = await newRequest(FEDERAL_TRANSACTION_KYC_API, {
+				method: 'POST',
+				data: {
+					transaction_id: transactionId,
+				},
+			});
+			console.log(resp.data, 'federal bank redirection kyc to backend resp');
+			return resp;
+		} catch (error) {
+			console.log(error);
+		}
+	};
 	// Test loader here
 	// return <Loading />;
 
