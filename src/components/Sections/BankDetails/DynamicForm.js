@@ -17,6 +17,7 @@ import {
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+import { useEffect } from 'react';
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
@@ -38,7 +39,7 @@ const DynamicForm = props => {
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
-	const { register, formState, handleSubmit } = useForm();
+	const { register, formState, handleSubmit, forceUpdate } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -91,6 +92,7 @@ const DynamicForm = props => {
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
+			forceUpdate();
 			setIsSubmitting(true);
 			const reqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -134,8 +136,13 @@ const DynamicForm = props => {
 			setIsSubmitting(false);
 		}
 	};
-
-	// console.log('DynamicForms-allstates-', {
+	useEffect(() => {
+		addToast({
+			message: 'Please enter new IFsc code',
+			type: 'error',
+		});
+		//eslint-disable-next-line
+	}, [formState?.values?.bank_name]);
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
