@@ -1712,26 +1712,41 @@ const DocumentUpload = props => {
 	// TO CHECK IF ONSITE VERIFICATION IS COMPLETE OR NOT..
 	const isAppCoAppVerificationComplete = () => {
 		let result = true;
-		selectedDirectorOptions.map(director => {
-			if (Number(applicantDirectorId) === Number(director.value)) {
-				if (
-					Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
-					0
-				) {
-					result = false;
-				}
-			} else {
-				if (
-					Object.keys(
-						nonApplicantDirectorsObject?.[director.value]
-							?.onSiteSelfieGeoLocation || {}
-					).length <= 0
-				) {
-					result = false;
-				}
-			}
-			return null;
+		// selectedDirectorOptions.map(director => {
+		// 	if (Number(applicantDirectorId) === Number(director.value)) {
+		// 		if (
+		// 			Object.keys(selectedDirector?.onSiteSelfieGeoLocation || {}).length <=
+		// 			0
+		// 		) {
+		// 			result = false;
+		// 		}
+		// 	} else {
+		// 		if (
+		// 			Object.keys(
+		// 				nonApplicantDirectorsObject?.[director.value]
+		// 					?.onSiteSelfieGeoLocation || {}
+		// 			).length <= 0
+		// 		) {
+		// 			result = false;
+		// 		}
+		// 	}
+		// 	return null;
+		// });
+		let allSelfieDocTypes = [];
+		const directorsAndCoapplicants = Object.values(directors)?.filter(
+			dir => dir?.type_name !== 'Applicant'
+		);
+		const totalSelfieImageArray = cacheDocuments?.filter(doc => {
+			allSelfieDocTypes = Object.values(
+				selfieWithApplicantField?.doc_type
+			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+
+			return allSelfieDocTypes.includes(doc?.doc_type_id || doc?.doc_type?.id);
 		});
+
+		if (totalSelfieImageArray.length < directorsAndCoapplicants.length + 1) {
+			result = false;
+		}
 		return result;
 	};
 
