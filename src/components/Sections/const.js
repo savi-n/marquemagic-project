@@ -21,6 +21,8 @@ export const ADDRESS_DETAILS_SECTION_ID = 'loan_address_details';
 export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
 export const DOCUMENT_UPLOAD_SECTION_ID = 'document_upload';
 
+export const BASIC_DETAILS_SUB_SECTION_ID = 'basic_details';
+
 export const ALL_SECTION_IDS = {
 	document_upload: 'document_upload',
 	consent_details: 'consent_details',
