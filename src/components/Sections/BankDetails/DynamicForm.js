@@ -143,7 +143,6 @@ const DynamicForm = props => {
 		});
 		//eslint-disable-next-line
 	}, [formState?.values?.bank_name]);
-	// console.log('DynamicForms-allstates-', {
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
