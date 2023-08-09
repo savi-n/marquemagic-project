@@ -1648,7 +1648,6 @@ const DocumentUpload = props => {
 	const selfieImageUploadFileArray = cacheDocuments?.filter(
 		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
 	);
-
 	useEffect(() => {
 		selfieImageUploadFileArray?.map(selfie => {
 			const fileDirectorId = selfie?.directorId;
@@ -1657,8 +1656,7 @@ const DocumentUpload = props => {
 				(!!directors?.[fileDirectorId]?.onSiteSelfieGeoLocation ||
 					(`${fileDirectorId}` === `0` && !entityGeolocation)) &&
 				!fetchedDirectors?.[fileDirectorId] &&
-				(permission?.geo_tagging?.geo_tagging &&
-					selfieWithApplicantField?.geo_tagging)
+				selfieWithApplicantField?.geo_tagging
 			) {
 				async function geoTagging() {
 					try {
@@ -1700,7 +1698,7 @@ const DocumentUpload = props => {
 			return null;
 		});
 		// eslint-disable-next-line
-	}, [cacheDocuments, selectedDirector]);
+	}, [cacheDocuments]);
 
 	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
