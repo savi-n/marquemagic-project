@@ -1744,6 +1744,7 @@ const DocumentUpload = props => {
 			return allSelfieDocTypes.includes(doc?.doc_type_id || doc?.doc_type?.id);
 		});
 
+		// checking total selfie length with total applicants(applicant + coAPplicants)
 		if (totalSelfieImageArray.length < directorsAndCoapplicants.length + 1) {
 			result = false;
 		}
