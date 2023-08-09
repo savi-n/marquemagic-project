@@ -1645,7 +1645,6 @@ const DocumentUpload = props => {
 	);
 	useEffect(() => {
 		selfieImageUploadFileArray?.map(selfie => {
-			console.log(selfie);
 			const fileDirectorId = selfie?.directorId;
 			setFetchedDirectors({ ...fetchedDirectors, [fileDirectorId]: true });
 			if (
