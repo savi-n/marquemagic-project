@@ -65,7 +65,7 @@ const DocumentUpload = props => {
 	const {
 		directors,
 		applicantDirectorId,
-		selectedDirectorOptions,
+		// selectedDirectorOptions,
 	} = useSelector(state => state.directors);
 	let { selectedDirectorId } = useSelector(state => state.directors);
 	if (!selectedDirectorId)
