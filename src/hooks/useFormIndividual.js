@@ -378,7 +378,6 @@ export default function useForm() {
 			setValue(newField?.name, newField?.value || '');
 		}
 		checkValidity(newField?.name);
-
 		return (
 			<InputFieldRender
 				field={newField}
@@ -408,6 +407,10 @@ export default function useForm() {
 			touchedRef.current = { ...touchedRef.current, [name]: true };
 		}
 
+		updateFormState(uuidv4());
+	};
+
+	const forceUpdate = () => {
 		updateFormState(uuidv4());
 	};
 
@@ -484,6 +487,7 @@ export default function useForm() {
 		onChangeFormStateField: onChange,
 		setErrorFormStateField: setError,
 		resetForm: resetForm,
+		forceUpdate,
 	};
 }
 
@@ -537,8 +541,12 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 	useEffect(() => {
 		// console.log({ field, value, name: field?.name });
 		if (field?.name !== CONST_LOAN_DETAILS.BRANCH_FIELD_NAME) {
-			onChange({ name: field.name, value: value || '' });
+			onChange({
+				name: field.name,
+				value: value || '',
+			});
 		}
+
 		// eslint-disable-next-line
 	}, [value]);
 
