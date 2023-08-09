@@ -24,7 +24,8 @@ import {
 	setIsPrompted,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addSelfieCacheDocument,
-	resetCacheDocuments,
+	resetOnsiteSelfiImages,
+	// resetCacheDocuments,
 } from 'store/applicationSlice';
 import {
 	setOnSiteSelfieGeoLocation,
@@ -862,8 +863,14 @@ const DocumentUpload = props => {
 		// eslint-disable-next-line
 	}, []);
 	useLayoutEffect(() => {
-		dispatch(resetCacheDocuments());
-		// eslint-disable-next-line
+		if (cacheDocuments?.length > 0) {
+			const allSelfieDocTypes = Object.values(
+				selfieWithApplicantField?.doc_type
+			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+
+			dispatch(resetOnsiteSelfiImages(allSelfieDocTypes));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	// const buttonDisabledStatus = () => {
 	// 	return !(cibilCheckbox && declareCheck);
