@@ -157,6 +157,7 @@ export const applicationSlice = createSlice({
 
 		removeCacheDocument: (state, action) => {
 			const { doc_type_id, directorId, fileId } = action.payload;
+			const file = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			const newDocuments = oldDocuments.filter(doc => {
 				if (fileId && doc?.id === fileId) return false;
@@ -168,7 +169,17 @@ export const applicationSlice = createSlice({
 				}
 				return true;
 			});
-			state.cacheDocuments = newDocuments;
+			const newDocumentsWithouProfilePic = newDocuments.filter(doc => {
+				if (
+					doc?.doctype === file.doctype &&
+					doc?.doc_name === file.filename &&
+					doc?.doc_id === file?.doc_id
+				) {
+					return false;
+				}
+				return true;
+			});
+			state.cacheDocuments = newDocumentsWithouProfilePic;
 		},
 
 		// removeSelfieCacheDocument: (state, { payload }) => {
