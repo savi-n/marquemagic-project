@@ -564,7 +564,7 @@ const BasicDetails = props => {
 				fetchedProfilePicData &&
 				Object.keys(fetchedProfilePicData)?.length > 0
 			) {
-				if (!!fetchedProfilePicData?.lat) {
+				if (!!fetchedProfilePicData?.lat && !!fetchedProfilePicData?.lat) {
 					const reqBody = {
 						lat: fetchedProfilePicData?.lat,
 						long: fetchedProfilePicData?.long,
@@ -585,6 +585,11 @@ const BasicDetails = props => {
 					}
 					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
 					dispatch(setProfileGeoLocation(profileGeoLocationRes?.data?.data));
+				} else {
+					setProfilePicGeolocation({
+						err: 'Geo Location Not Captured',
+					});
+					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
 				}
 			}
 		} catch (err) {

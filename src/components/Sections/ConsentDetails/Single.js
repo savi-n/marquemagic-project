@@ -78,7 +78,7 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
-		console.log({ payLoad, section, sections });
+		// console.log({ payLoad, section, sections });
 
 		if (sections[section] === 'bureau' && !!is_equifax_otp_required) {
 			payLoad.is_equifax_otp_required = is_equifax_otp_required;
