@@ -138,7 +138,7 @@ const DynamicForm = props => {
 	};
 	useEffect(() => {
 		addToast({
-			message: 'Please enter new IFsc code',
+			message: 'Please enter new IFSC code',
 			type: 'error',
 		});
 		//eslint-disable-next-line
