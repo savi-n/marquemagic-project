@@ -39,7 +39,7 @@ const DynamicForm = props => {
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
-	const { register, formState, handleSubmit, forceUpdate } = useForm();
+	const { register, formState, handleSubmit, forceUpdate,onChangeFormStateField } = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -137,6 +137,10 @@ const DynamicForm = props => {
 		}
 	};
 	useEffect(() => {
+		onChangeFormStateField({
+			name:'ifsc_code',
+			value:'',
+		})
 		if (!!formState?.values?.ifsc_code) {
 			addToast({
 				message: 'Please enter new IFSC code',
