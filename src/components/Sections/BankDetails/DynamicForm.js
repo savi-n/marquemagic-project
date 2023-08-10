@@ -137,10 +137,12 @@ const DynamicForm = props => {
 		}
 	};
 	useEffect(() => {
-		addToast({
-			message: 'Please enter new IFSC code',
-			type: 'error',
-		});
+		if (!!formState?.values?.ifsc_code) {
+			addToast({
+				message: 'Please enter new IFSC code',
+				type: 'error',
+			});
+		}
 		//eslint-disable-next-line
 	}, [formState?.values?.bank_name]);
 	// 	fields,
