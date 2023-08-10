@@ -579,6 +579,10 @@ const BasicDetails = props => {
 							},
 						}
 					);
+					if (profileGeoLocationRes.data.data.timestamp) {
+						profileGeoLocationRes.data.data.timestamp =
+							fetchedProfilePicData?.lat_long_timestamp;
+					}
 					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
 					dispatch(setProfileGeoLocation(profileGeoLocationRes?.data?.data));
 				}
@@ -613,6 +617,10 @@ const BasicDetails = props => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				});
+				if (geoLocationRes?.data?.data?.timestamp) {
+					geoLocationRes.data.data.timestamp =
+						appCoordinates?.lat_long_timestamp;
+				}
 				dispatch(setGeoLocation(geoLocationRes?.data?.data));
 				setGeoLocationData(geoLocationRes?.data?.data);
 			}
