@@ -564,7 +564,7 @@ const BasicDetails = props => {
 				fetchedProfilePicData &&
 				Object.keys(fetchedProfilePicData)?.length > 0
 			) {
-				if (!!fetchedProfilePicData?.lat && !!fetchedProfilePicData?.lat) {
+				if (!!fetchedProfilePicData?.lat && !!fetchedProfilePicData?.long) {
 					const reqBody = {
 						lat: fetchedProfilePicData?.lat,
 						long: fetchedProfilePicData?.long,
