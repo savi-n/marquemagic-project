@@ -1671,6 +1671,11 @@ const DocumentUpload = props => {
 								selfie?.loan_document_details?.[0]?.lat || selfie?.latitude;
 							const selfieLong =
 								selfie?.loan_document_details?.[0]?.long || selfie?.longitude;
+							const selfieTimeStamp =
+								selfie?.loan_document_details?.[0]?.lat_long_timestamp ||
+								selfie?.lat_long_timestamp ||
+								'';
+
 							const reqBody = {
 								lat: selfieLat,
 								long: selfieLong,
@@ -1684,9 +1689,15 @@ const DocumentUpload = props => {
 									},
 								}
 							);
-
+							// console.log({ geoLocationRes, selfieTimeStamp });
+							const cloneGeolocationRes = _.cloneDeep(geoLocationRes);
+							if (geoLocationRes?.data?.data?.timestamp) {
+								cloneGeolocationRes.data.data.timestamp =
+									selfieTimeStamp || geoLocationRes.data.data.timestamp;
+							}
 							const reqObject = {
-								...geoLocationRes?.data?.data,
+								// ...geoLocationRes?.data?.data
+								...cloneGeolocationRes?.data?.data,
 								directorId: fileDirectorId,
 							};
 							if (fileDirectorId === 0) {
