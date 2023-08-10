@@ -10,6 +10,7 @@ import { getGeoLocation } from 'utils/helper';
 import { useToasts } from '../../../Toast/ToastProvider';
 import {
 	removeCacheDocument,
+	removeProfilePicCacheDocument,
 	// addOrUpdateCacheDocument,
 } from 'store/applicationSlice';
 import { setProfileGeoLocation } from 'store/directorsSlice';
@@ -149,6 +150,7 @@ const ProfileUpload = props => {
 			await axios.post(endPoint, reqBody);
 			removeCacheDocumentTemp(field?.name);
 			dispatch(removeCacheDocument(file));
+			dispatch(removeProfilePicCacheDocument(file));
 			// if (isGeoTaggingEnabled && field?.geo_tagging) {
 			// 	geoLocationAddress = {};
 			// }

@@ -157,7 +157,6 @@ export const applicationSlice = createSlice({
 
 		removeCacheDocument: (state, action) => {
 			const { doc_type_id, directorId, fileId } = action.payload;
-			const file = action.payload;
 			const oldDocuments = _.cloneDeep(state.cacheDocuments);
 			const newDocuments = oldDocuments.filter(doc => {
 				if (fileId && doc?.id === fileId) return false;
@@ -169,10 +168,17 @@ export const applicationSlice = createSlice({
 				}
 				return true;
 			});
-			const newDocumentsWithouProfilePic = newDocuments.filter(doc => {
+			state.cacheDocuments = newDocuments;
+		},
+
+		removeProfilePicCacheDocument: (state, { payload }) => {
+			const file = payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+
+			const newDocumentsWithouProfilePic = oldDocuments?.filter(doc => {
 				if (
-					doc?.doctype === file.doctype &&
-					doc?.doc_name === file.filename &&
+					doc?.doctype === file?.doctype &&
+					doc?.doc_name === file?.filename &&
 					doc?.doc_id === file?.doc_id
 				) {
 					return false;
@@ -181,10 +187,6 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newDocumentsWithouProfilePic;
 		},
-
-		// removeSelfieCacheDocument: (state, { payload }) => {
-		// 	console.log(payload);
-		// },
 
 		updateCacheDocumentTypeId: (state, action) => {
 			// console.log('updateSelectedDocumentTypeId-', { action });
@@ -349,6 +351,7 @@ export const {
 	clearCacheDraftModeSectionsData,
 	resetCacheDocuments,
 	resetOnsiteSelfiImages,
+	removeProfilePicCacheDocument,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;
