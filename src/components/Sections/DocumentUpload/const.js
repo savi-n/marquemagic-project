@@ -25,10 +25,13 @@ export const getTermsAndConditon = selectedProduct => {
 };
 
 export const IS_CONSENT_MANDATORY = selectedProduct => {
-	let is_consent_mandatory = true;
-	if (`${selectedProduct?.product_details?.is_consent_mandatory}` === 'false') {
-		is_consent_mandatory = false;
-	}
+	const configConsent = selectedProduct?.product_details?.is_consent_mandatory;
+	// if is_consent_mandatory is present in product_details, then take the value which is there(either true or false) or else always set is_consent_mandatory to true, for checkbox and submittion
+	let is_consent_mandatory =
+		configConsent === true || configConsent === false ? configConsent : true;
+	// if (`${selectedProduct?.product_details?.is_consent_mandatory}` === 'false') {
+	// 	is_consent_mandatory = false;
+	// }
 	return is_consent_mandatory;
 };
 
