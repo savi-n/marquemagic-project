@@ -1241,11 +1241,8 @@ const BasicDetails = props => {
 										});
 										return;
 									}
-									if (
-										!isTestMode &&
-										panUploadedFile === null &&
-										isPanUploadMandatory
-									) {
+									const presentPanFile = tempPanUploadedFile || panUploadedFile;
+									if (!isTestMode && isPanUploadMandatory && !presentPanFile) {
 										addToast({
 											message: 'Pan upload is mandatory',
 											type: 'error',

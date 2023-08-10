@@ -138,18 +138,21 @@ const DocumentUpload = props => {
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
 	// starts
-	const selfieWithApplicantField = selectedSection?.sub_sections
-		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
-		?.fields?.filter(
-			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
-		)?.[0];
+	const selfieWithApplicantField =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field =>
+					field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
+			)?.[0] || {};
 
-	const selfieWithCoapplicantField = selectedSection?.sub_sections
-		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
-		?.fields?.filter(
-			field =>
-				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
-		)?.[0];
+	const selfieWithCoapplicantField =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field =>
+					field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
+			)?.[0] || {};
 
 	const profileUploadField =
 		selectedProduct?.product_details?.sections
