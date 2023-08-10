@@ -1624,29 +1624,33 @@ const DocumentUpload = props => {
 	// // 	fieldName: CONST.
 	// // })
 
-	const selfieDocNameForCoapps = ['Co-applicant', 'Director']?.includes(
-		selectedDirector?.type_name
-	)
+	const selfieFieldForSelectedAppOrCoapp = [
+		'Co-applicant',
+		'Director',
+	]?.includes(selectedDirector?.type_name)
 		? selfieWithCoapplicantField
 		: selfieWithApplicantField;
-	// const selfieDocNameForCoapps = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
+	// const selfieFieldForSelectedAppOrCoapp = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
 	// console.log(cacheDocuments);
 
-	const selfieDocType = selfieDocNameForCoapps?.doc_type?.[
+	const selfieDocType = selfieFieldForSelectedAppOrCoapp?.doc_type?.[
 		selectedDirector?.income_type
 	]
-		? selfieDocNameForCoapps?.doc_type?.[selectedDirector?.income_type]
-		: selfieDocNameForCoapps?.doc_type?.[businessType];
-
+		? selfieFieldForSelectedAppOrCoapp?.doc_type?.[
+				selectedDirector?.income_type
+		  ]
+		: selfieFieldForSelectedAppOrCoapp?.doc_type?.[businessType];
 	const selfieImageUploadedFile =
 		cacheDocuments?.filter(
 			doc =>
 				`${doc?.directorId}` === `${selectedDirectorId}` &&
 				`${doc?.doc_type?.id}` === `${selfieDocType}`
 		)?.[0] || null;
-	const selfieImageUploadFileArray = cacheDocuments?.filter(
-		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
-	);
+
+	const selfieImageUploadFileArray = cacheDocuments?.filter(doc => {
+		const docTypeId = doc?.doc_type?.id || doc?.doc_type_id;
+		return `${docTypeId}` === `${selfieDocType}`;
+	});
 	useEffect(() => {
 		selfieImageUploadFileArray?.map(selfie => {
 			const fileDirectorId = selfie?.directorId;
@@ -1660,9 +1664,13 @@ const DocumentUpload = props => {
 				async function geoTagging() {
 					try {
 						if (isGeoTaggingEnabled) {
+							const selfieLat =
+								selfie?.loan_document_details?.[0]?.lat || selfie?.latitude;
+							const selfieLong =
+								selfie?.loan_document_details?.[0]?.long || selfie?.longitude;
 							const reqBody = {
-								lat: selfie?.loan_document_details?.[0]?.lat,
-								long: selfie?.loan_document_details?.[0]?.long,
+								lat: selfieLat,
+								long: selfieLong,
 							};
 							const geoLocationRes = await axios.post(
 								API.GEO_LOCATION,
@@ -1697,7 +1705,7 @@ const DocumentUpload = props => {
 			return null;
 		});
 		// eslint-disable-next-line
-	}, [cacheDocuments]);
+	}, [cacheDocuments, selectedDirector?.id]);
 
 	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
@@ -2232,7 +2240,7 @@ const DocumentUpload = props => {
 												}
 											>
 												<ProfileUpload
-													field={field}
+													field={selfieFieldForSelectedAppOrCoapp}
 													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
 													uploadedFile={
