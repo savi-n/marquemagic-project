@@ -579,7 +579,7 @@ const BasicDetails = props => {
 							},
 						}
 					);
-					if (profileGeoLocationRes.data.data.timestamp) {
+					if (profileGeoLocationRes?.data?.data?.timestamp) {
 						profileGeoLocationRes.data.data.timestamp =
 							fetchedProfilePicData?.lat_long_timestamp;
 					}
