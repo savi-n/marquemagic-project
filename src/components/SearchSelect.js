@@ -173,7 +173,7 @@ export default function SearchSelect(props) {
 		if (
 			!!selectedOption &&
 			!!field?.name?.includes('ifsc') &&
-			!ifscList.includes(selectedOption)
+			!ifscList?.includes(selectedOption)
 		) {
 			setSelectedOption(null);
 		}
