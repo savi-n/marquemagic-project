@@ -36,10 +36,18 @@ const DynamicForm = props => {
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
+	const { ifscList } = useSelector(state => state.app);
+
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
-	const { register, formState, handleSubmit, forceUpdate } = useForm();
+	const {
+		register,
+		formState,
+		handleSubmit,
+		forceUpdate,
+		onChangeFormStateField,
+	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -137,14 +145,24 @@ const DynamicForm = props => {
 		}
 	};
 	useEffect(() => {
-		if (!!formState?.values?.ifsc_code) {
+		if (
+			!!formState?.values?.ifsc_code &&
+			`${
+				ifscList.filter(value => value.name === formState?.values?.ifsc_code)
+					.length
+			}` === '0'
+		) {
+			onChangeFormStateField({
+				name: 'ifsc_code',
+				value: '',
+			});
 			addToast({
 				message: 'Please enter new IFSC code',
 				type: 'error',
 			});
 		}
 		//eslint-disable-next-line
-	}, [formState?.values?.bank_name]);
+	}, [ifscList]);
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
