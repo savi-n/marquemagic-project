@@ -158,9 +158,8 @@ export default function SearchSelect(props) {
 	const [selectOptions, setSelectOptions] = useState(options);
 	const [focus, setFocus] = useState(false);
 	const compRef = useRef('');
-		const { app } = useSelector(state => state);
 
-		const { ifscList } = useSelector(state => state.app);
+	const { ifscList } = useSelector(state => state.app);
 
 	// const disable3CharacterSearch = true;
 	const disable3CharacterSearch = !!field?.disable_3_character_search;
@@ -170,12 +169,16 @@ export default function SearchSelect(props) {
 			setOptionShow(false);
 		}
 	});
-useEffect(()=>{
-	if (!!selectedOption && field.name.includes('ifsc') && !ifscList.includes(selectedOption)) {
-		setSelectedOption(null);
-	}
-// eslint-disable-next-line
-},[ifscList])
+	useEffect(() => {
+		if (
+			!!selectedOption &&
+			!!field?.name?.includes('ifsc') &&
+			!ifscList?.includes(selectedOption)
+		) {
+			setSelectedOption(null);
+		}
+		// eslint-disable-next-line
+	}, [ifscList]);
 
 	useEffect(() => {
 		if (field?.value?.length > 0) {
