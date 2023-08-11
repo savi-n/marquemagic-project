@@ -145,11 +145,17 @@ const DynamicForm = props => {
 		}
 	};
 	useEffect(() => {
-		onChangeFormStateField({
-			name: 'ifsc_code',
-			value: '',
-		});
-		if (!!formState?.values?.ifsc_code) {
+		if (
+			!!formState?.values?.ifsc_code &&
+			`${
+				ifscList.filter(value => value.name === formState?.values?.ifsc_code)
+					.length
+			}` === '0'
+		) {
+			onChangeFormStateField({
+				name: 'ifsc_code',
+				value: '',
+			});
 			addToast({
 				message: 'Please enter new IFSC code',
 				type: 'error',
