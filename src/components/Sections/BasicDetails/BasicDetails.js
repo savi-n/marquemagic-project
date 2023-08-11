@@ -449,6 +449,7 @@ const BasicDetails = props => {
 			if (file?.file?.lat === 'null' || !file?.file.hasOwnProperty('lat')) {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
+					hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
 				};
 				setProfilePicGeolocation(geoLocationTag);
 			} else {
@@ -588,8 +589,14 @@ const BasicDetails = props => {
 				} else {
 					setProfilePicGeolocation({
 						err: 'Geo Location Not Captured',
+						hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
 					});
-					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+					dispatch(
+						setProfileGeoLocation({
+							err: 'Geo Location Not Captured',
+							hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
+						})
+					);
 				}
 			}
 		} catch (err) {
@@ -713,8 +720,16 @@ const BasicDetails = props => {
 				}
 
 				if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
-					dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-					setGeoLocationData({ err: 'Geo Location Not Captured' });
+					dispatch(
+						setGeoLocation({
+							err: 'Geo Location Not Captured',
+							hint: CONST.APPLICATION_GEO_ERROR_HINT,
+						})
+					);
+					setGeoLocationData({
+						err: 'Geo Location Not Captured',
+						hint: CONST.APPLICATION_GEO_ERROR_HINT,
+					});
 				}
 			}
 		} catch (error) {
@@ -1209,6 +1224,7 @@ const BasicDetails = props => {
 							longitude={geoLocationData?.long || geoLocation?.long}
 							timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
 							err={geoLocationData?.err || geoLocation?.err}
+							hint={geoLocationData?.hint || geoLocation?.hint}
 							showCloseIcon={false}
 							customStyle={{
 								marginBottom: '30px',

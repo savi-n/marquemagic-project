@@ -12,3 +12,5 @@ export const address = {
 		timeStamp: 'timestamp',
 	},
 };
+
+export const ON_SITE_SELFIE_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting And Re-Upload The On-Site Selfie Image`;

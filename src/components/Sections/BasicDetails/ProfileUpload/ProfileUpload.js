@@ -26,6 +26,7 @@ import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
+import * as CONST from './const';
 
 const ProfileUpload = props => {
 	const {
@@ -182,12 +183,12 @@ const ProfileUpload = props => {
 					// coordinates.latitude = 27.71472634829246;
 					// coordinates.longitude = 85.28918392103155;
 				} catch (err) {
-					// if (section === 'documentUpload') {
-					// 	dispatch(
-					// 		setDocumentSelfieGeoLocation({ err: 'Geo Location Not Captured' })
-					// 	);
-					// } else {
-					dispatch(setProfileGeoLocation({ err: 'Geo Location Not Captured' }));
+					dispatch(
+						setProfileGeoLocation({
+							err: 'Geo Location Not Captured',
+							hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
+						})
+					);
 					// }
 				}
 			}
@@ -501,6 +502,11 @@ const ProfileUpload = props => {
 									picAddress?.err ||
 									uploadedFile?.err ||
 									geoLocationAddress?.err
+								}
+								hint={
+									picAddress?.hint ||
+									uploadedFile?.hint ||
+									geoLocationAddress?.hint
 								}
 							/>
 						)}

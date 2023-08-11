@@ -12,3 +12,5 @@ export const address = {
 		timeStamp: 'timestamp',
 	},
 };
+
+export const PROFILE_PIC_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting And Re-Upload The Profile Image`;
