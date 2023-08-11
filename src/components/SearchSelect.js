@@ -188,7 +188,7 @@ export default function SearchSelect(props) {
 
 	useEffect(() => {
 		if (options.length) setSelectOptions(options);
-		if(field.name.includes('ifsc')){
+		if (field.name.includes('ifsc')) {
 			setSelectedOption(null);
 		}
 		//eslint-disable-next-line
@@ -308,8 +308,6 @@ export default function SearchSelect(props) {
 						</Label>
 					)
 				)}
-					{console.log(searchKey,"search key")}
-					{console.log(selectedOption,"selected Option")}
 				{searchable ? (
 					<Div>
 						<Input
@@ -350,7 +348,6 @@ export default function SearchSelect(props) {
 								Please wait...
 							</Option>
 						)}
-												{console.log(filterdOptions)}
 						{filterdOptions.map(option => (
 							<Option
 								key={option.value}
