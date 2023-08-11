@@ -145,7 +145,13 @@ const DynamicForm = props => {
 		}
 	};
 	useEffect(() => {
-		if (!!formState?.values?.ifsc_code && `${ifscList.filter(value=>value.name===formState?.values?.ifsc_code).length}`==='0') {
+		if (
+			!!formState?.values?.ifsc_code &&
+			`${
+				ifscList.filter(value => value.name === formState?.values?.ifsc_code)
+					.length
+			}` === '0'
+		) {
 			onChangeFormStateField({
 				name: 'ifsc_code',
 				value: '',
