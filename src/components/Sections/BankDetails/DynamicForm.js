@@ -36,6 +36,8 @@ const DynamicForm = props => {
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
+	const { ifscList } = useSelector(state => state.app);
+
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
@@ -154,7 +156,7 @@ const DynamicForm = props => {
 			});
 		}
 		//eslint-disable-next-line
-	}, [formState?.values?.bank_name]);
+	}, [ifscList]);
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
