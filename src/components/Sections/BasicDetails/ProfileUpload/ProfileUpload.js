@@ -440,7 +440,7 @@ const ProfileUpload = props => {
 										e.preventDefault();
 										e.stopPropagation();
 										setShowImageInfo(false);
-										removeProfilePicCacheDocument(uploadedFile);
+										dispatch(removeProfilePicCacheDocument(uploadedFile));
 										// for profile pic upload in basic details section
 										if (value || fetchedValue) {
 											setFetchedValue('');
