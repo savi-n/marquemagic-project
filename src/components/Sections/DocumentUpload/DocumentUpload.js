@@ -1572,6 +1572,7 @@ const DocumentUpload = props => {
 			if (file?.latitude === 'null' || !file.hasOwnProperty('latitude')) {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
+					hint: `Please Allow Location Access From Browser's Setting And Re-Upload The On-site Selfie Image`,
 				};
 				const reqObject = {
 					...geoLocationTag,
@@ -1709,6 +1710,7 @@ const DocumentUpload = props => {
 						dispatch(
 							setOnSiteSelfieGeoLocation({
 								err: 'Geo Location Not Captured',
+								hint: `Please Allow Location Access From Browser's Setting And Re-Upload The On-Site Selfie Image`,
 								directorId: fileDirectorId,
 							})
 						);
@@ -2312,6 +2314,10 @@ const DocumentUpload = props => {
 																err={
 																	selectedDirector?.onSiteSelfieGeoLocation
 																		?.err || entityGeolocation?.err
+																}
+																hint={
+																	selectedDirector?.onSiteSelfieGeoLocation
+																		?.hint || entityGeolocation?.hint
 																}
 																showCloseIcon={false}
 																customStyle={{

@@ -32,6 +32,7 @@ import * as CONST_BASIC_DETAILS from 'components/Sections/BasicDetails/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
+import * as CONST from './const';
 
 const ProfileUpload = props => {
 	const {
@@ -194,14 +195,21 @@ const ProfileUpload = props => {
 						dispatch(
 							setDocumentSelfieGeoLocation({
 								err: 'Geo Location Not Captured',
+								hint: CONST.ON_SITE_SELFIE_GEO_ERROR_HINT,
 							})
 						);
 						dispatch(
-							setOnSiteSelfieGeoLocation({ err: 'Geo Location Not Captured' })
+							setOnSiteSelfieGeoLocation({
+								err: 'Geo Location Not Captured',
+								hint: CONST.ON_SITE_SELFIE_GEO_ERROR_HINT,
+							})
 						);
 					} else {
 						dispatch(
-							setProfileGeoLocation({ err: 'Geo Location Not Captured' })
+							setProfileGeoLocation({
+								err: 'Geo Location Not Captured',
+								hint: CONST.ON_SITE_SELFIE_GEO_ERROR_HINT,
+							})
 						);
 					}
 				}
