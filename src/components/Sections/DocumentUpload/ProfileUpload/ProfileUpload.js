@@ -240,6 +240,7 @@ const ProfileUpload = props => {
 					formData.append('loan_id', loanId || null);
 					formData.append('user_id', businessUserId || null);
 					formData.append('director_id', director_id);
+					formData.append('get_single_document', true);
 					if (isSelectedProductTypeBusiness) {
 						formData.append(
 							'doc_type_id',
