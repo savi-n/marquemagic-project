@@ -144,25 +144,21 @@ const DynamicForm = props => {
 			setIsSubmitting(false);
 		}
 	};
-	// useEffect(() => {
-	// 	if (
-	// 		!!formState?.values?.ifsc_code &&
-	// 		`${
-	// 			ifscList.filter(value => value.name === formState?.values?.ifsc_code)
-	// 				.length
-	// 		}` === '0'
-	// 	) {
-	// 		onChangeFormStateField({
-	// 			name: 'ifsc_code',
-	// 			value: '',
-	// 		});
-	// 		addToast({
-	// 			message: 'Please enter new IFSC code',
-	// 			type: 'error',
-	// 		});
-	// 	}
-	// 	//eslint-disable-next-line
-	// }, [ifscList]);
+	useEffect(() => {
+		if (
+			!!formState?.values?.ifsc_code &&
+			`${
+				ifscList.filter(value => value.name === formState?.values?.ifsc_code)
+					.length
+			}` === '0'
+		) {
+			onChangeFormStateField({
+				name: 'ifsc_code',
+				value: '',
+			});
+		}
+		//eslint-disable-next-line
+	}, [ifscList]);
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
@@ -181,13 +177,7 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
+
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({
