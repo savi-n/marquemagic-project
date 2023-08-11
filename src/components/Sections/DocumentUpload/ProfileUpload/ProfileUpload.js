@@ -240,6 +240,8 @@ const ProfileUpload = props => {
 					formData.append('loan_id', loanId || null);
 					formData.append('user_id', businessUserId || null);
 					formData.append('director_id', director_id);
+					// This is required for the upload_img api in order to inactive old images and provide only the new latest image
+					formData.append('get_single_document', true);
 					if (isSelectedProductTypeBusiness) {
 						formData.append(
 							'doc_type_id',
