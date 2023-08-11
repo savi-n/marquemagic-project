@@ -245,7 +245,6 @@ export default function useForm() {
 
 	const checkValidity = name => {
 		let error = false;
-
 		if (!fieldsRef.current[name]?.disabled) {
 			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		}
@@ -356,12 +355,12 @@ export default function useForm() {
 		// Masking ends
 
 		// condition to check whether the ifsc field should be validated or not
-		if (newField?.name?.includes('ifsc')) {
-			// newField.mask = { character_limit: 11 };
-			if (newField?.value?.length === 0) {
-				newField.rules = {};
-			}
-		}
+		// if (newField?.name?.includes('ifsc')) {
+		// 	// newField.mask = { character_limit: 11 };
+		// 	if (newField?.value?.length === 0) {
+		// 		newField.rules = {};
+		// 	}
+		// }
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;

@@ -177,15 +177,7 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-					// if(field.name.includes("account_holder_name")|| field.name.includes("ifsc")){
-					// 	customFieldProps.rules={
-					// 		"required": true
-					// 	}
-					// 	console.log('render-field-', {
-					// 		field,
-					// 		customFieldProps
-					// 	});
-					// }
+
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({
