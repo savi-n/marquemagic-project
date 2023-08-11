@@ -1284,7 +1284,7 @@ const DocumentUpload = props => {
 				(!applicantLatitude && !applicantLongitude) ||
 				filteredApplicantDoc?.length === 0
 			) {
-				console.log('applicant - failure for on site selfie');
+				// console.log('applicant - failure for on site selfie');
 
 				allowProceed = false;
 			}
@@ -1334,13 +1334,13 @@ const DocumentUpload = props => {
 					// });
 
 					if (filteredDoc?.length === 0) {
-						console.log('coapplicant failure - Due to 0 docs - onsite selfie');
 						allowProceed = false;
 					}
 					if (filteredDoc?.length < coApplicantOrDirectors?.length) {
-						console.log(
-							'coapplicant failure - Due to less docs than coapps/directors - onsite selfie'
-						);
+						console
+							.log
+							// 'coapplicant failure - Due to less docs than coapps/directors - onsite selfie'
+							();
 						allowProceed = false;
 					}
 					if (filteredDoc?.length > 0) {
@@ -1353,9 +1353,9 @@ const DocumentUpload = props => {
 								coAppSelfieItem?.loan_document_details?.[0].long;
 							// console.log({ coAppLatitude, coAppLongitude });
 							if (!coAppLatitude && !coAppLongitude) {
-								console.log(
-									'coapplicant failure - Due to missing lat/long - onsite selfie'
-								);
+								// console.log(
+								// 	'coapplicant failure - Due to missing lat/long - onsite selfie'
+								// );
 								allowProceed = false;
 								break;
 							}
@@ -1393,9 +1393,9 @@ const DocumentUpload = props => {
 					filteredApplicantProfilePicDoc?.length === 0) &&
 				`${selectedProduct?.loan_request_type}` === '2'
 			) {
-				console.log(
-					'if applicant is not captured with geo location for profile pic or 0 docs'
-				);
+				// console.log(
+				// 	'if applicant is not captured with geo location for profile pic or 0 docs'
+				// );
 				allowProceed = false;
 			}
 
@@ -1429,7 +1429,7 @@ const DocumentUpload = props => {
 					});
 
 					if (filteredProfilePic?.length === 0) {
-						console.log('coapplicants - 0 docs - profile pic');
+						// console.log('coapplicants - 0 docs - profile pic');
 						allowProceed = false;
 					}
 
@@ -1438,9 +1438,9 @@ const DocumentUpload = props => {
 						!filteredProfilePic?.[0]?.lat &&
 						!filteredProfilePic?.[0]?.long
 					) {
-						console.log(
-							'if co-applicant or directors are not captured with the geolocation - profile pic'
-						);
+						// console.log(
+						// 	'if co-applicant or directors are not captured with the geolocation - profile pic'
+						// );
 						allowProceed = false;
 					}
 					return null;
