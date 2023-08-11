@@ -36,6 +36,8 @@ const DynamicForm = props => {
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
+	const { ifscList } = useSelector(state => state.app);
+
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
@@ -143,18 +145,20 @@ const DynamicForm = props => {
 		}
 	};
 	useEffect(() => {
-		onChangeFormStateField({
-			name: 'ifsc_code',
-			value: '',
-		});
-		if (!!formState?.values?.ifsc_code) {
-			addToast({
-				message: 'Please enter new IFSC code',
-				type: 'error',
+		if (
+			!!formState?.values?.ifsc_code &&
+			`${
+				ifscList.filter(value => value.name === formState?.values?.ifsc_code)
+					.length
+			}` === '0'
+		) {
+			onChangeFormStateField({
+				name: 'ifsc_code',
+				value: '',
 			});
 		}
 		//eslint-disable-next-line
-	}, [formState?.values?.bank_name]);
+	}, [ifscList]);
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
@@ -173,13 +177,15 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
+					// if(field.name.includes("account_holder_name")|| field.name.includes("ifsc")){
+					// 	customFieldProps.rules={
+					// 		"required": true
+					// 	}
+					// 	console.log('render-field-', {
+					// 		field,
+					// 		customFieldProps
+					// 	});
+					// }
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({
