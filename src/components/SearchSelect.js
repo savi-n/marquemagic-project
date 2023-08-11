@@ -172,7 +172,7 @@ export default function SearchSelect(props) {
 	useEffect(() => {
 		if (
 			!!selectedOption &&
-			field.name.includes('ifsc') &&
+			field?.name.includes('ifsc') &&
 			!ifscList.includes(selectedOption)
 		) {
 			setSelectedOption(null);
