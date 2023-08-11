@@ -188,6 +188,10 @@ export default function SearchSelect(props) {
 
 	useEffect(() => {
 		if (options.length) setSelectOptions(options);
+		if (field.name.includes('ifsc')) {
+			setSelectedOption(null);
+		}
+		//eslint-disable-next-line
 	}, [options]);
 
 	useEffect(() => {
