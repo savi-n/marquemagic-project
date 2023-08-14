@@ -370,7 +370,7 @@ const {ifscList} = useSelector(state=>state.app);
 								{option.name}
 							</Option>
 						))}
-						{(!filterdOptions.length || !selectOptions.length||!searchKey) && (
+						{(!filterdOptions?.length || !selectOptions?.length||!searchKey) && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
 									? errorMessage
