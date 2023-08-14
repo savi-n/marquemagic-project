@@ -208,7 +208,7 @@ const BusinessDetails = props => {
 				const newCompanyList = companyNameSearchRes?.data?.data?.[0] || [];
 				if (newCompanyList?.CORPORATE_IDENTIFICATION_NUMBER) {
 					try {
-						console.log({ newCompanyList });
+						// console.log({ newCompanyList });
 						// 4.ROC
 						const cinNumberResponse = await axios.post(
 							API.ROC_DATA_FETCH,

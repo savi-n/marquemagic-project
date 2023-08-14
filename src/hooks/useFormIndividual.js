@@ -245,7 +245,6 @@ export default function useForm() {
 
 	const checkValidity = name => {
 		let error = false;
-
 		if (!fieldsRef.current[name]?.disabled) {
 			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		}
@@ -356,12 +355,12 @@ export default function useForm() {
 		// Masking ends
 
 		// condition to check whether the ifsc field should be validated or not
-		if (newField?.name?.includes('ifsc')) {
-			// newField.mask = { character_limit: 11 };
-			if (newField?.value?.length === 0) {
-				newField.rules = {};
-			}
-		}
+		// if (newField?.name?.includes('ifsc')) {
+		// 	// newField.mask = { character_limit: 11 };
+		// 	if (newField?.value?.length === 0) {
+		// 		newField.rules = {};
+		// 	}
+		// }
 		// newField.name = newField.name.replaceAll(" ", "");
 		newField.name = newField?.name?.split(' ')?.join('');
 		fieldsRef.current[(newField?.name)] = newField;
@@ -378,7 +377,6 @@ export default function useForm() {
 			setValue(newField?.name, newField?.value || '');
 		}
 		checkValidity(newField?.name);
-
 		return (
 			<InputFieldRender
 				field={newField}
@@ -408,6 +406,10 @@ export default function useForm() {
 			touchedRef.current = { ...touchedRef.current, [name]: true };
 		}
 
+		updateFormState(uuidv4());
+	};
+
+	const forceUpdate = () => {
 		updateFormState(uuidv4());
 	};
 
@@ -484,6 +486,7 @@ export default function useForm() {
 		onChangeFormStateField: onChange,
 		setErrorFormStateField: setError,
 		resetForm: resetForm,
+		forceUpdate,
 	};
 }
 
@@ -537,8 +540,12 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 	useEffect(() => {
 		// console.log({ field, value, name: field?.name });
 		if (field?.name !== CONST_LOAN_DETAILS.BRANCH_FIELD_NAME) {
-			onChange({ name: field.name, value: value || '' });
+			onChange({
+				name: field.name,
+				value: value || '',
+			});
 		}
+
 		// eslint-disable-next-line
 	}, [value]);
 

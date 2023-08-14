@@ -138,18 +138,21 @@ const DocumentUpload = props => {
 		field => field.name === CONST.COMMENT_FOR_OFFICE_USE_FIELD_NAME
 	)?.[0]?.rules?.required;
 	// starts
-	const selfieWithApplicantField = selectedSection?.sub_sections
-		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
-		?.fields?.filter(
-			field => field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
-		)?.[0];
+	const selfieWithApplicantField =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field =>
+					field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_APPLICANT
+			)?.[0] || {};
 
-	const selfieWithCoapplicantField = selectedSection?.sub_sections
-		?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
-		?.fields?.filter(
-			field =>
-				field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
-		)?.[0];
+	const selfieWithCoapplicantField =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.SELFIE_UPLOAD_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field =>
+					field?.name === CONST.ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT
+			)?.[0] || {};
 
 	const profileUploadField =
 		selectedProduct?.product_details?.sections
@@ -1281,9 +1284,7 @@ const DocumentUpload = props => {
 				(!applicantLatitude && !applicantLongitude) ||
 				filteredApplicantDoc?.length === 0
 			) {
-				// console.log('applicant - failure for on site selfie', {
-				// 	filteredApplicantDoc,
-				// });
+				// console.log('applicant - failure for on site selfie');
 
 				allowProceed = false;
 			}
@@ -1333,13 +1334,13 @@ const DocumentUpload = props => {
 					// });
 
 					if (filteredDoc?.length === 0) {
-						// console.log('coapplicant failure - Due to 0 docs - onsite selfie');
 						allowProceed = false;
 					}
 					if (filteredDoc?.length < coApplicantOrDirectors?.length) {
-						// console.log(
-						// 	'coapplicant failure - Due to less docs than coapps/directors - onsite selfie'
-						// );
+						console
+							.log
+							// 'coapplicant failure - Due to less docs than coapps/directors - onsite selfie'
+							();
 						allowProceed = false;
 					}
 					if (filteredDoc?.length > 0) {
@@ -1388,8 +1389,9 @@ const DocumentUpload = props => {
 			const applicantLongitude = filteredApplicantProfilePicDoc?.[0]?.long;
 
 			if (
-				(!applicantLatitude && !applicantLongitude) ||
-				filteredApplicantProfilePicDoc?.length === 0
+				((!applicantLatitude && !applicantLongitude) ||
+					filteredApplicantProfilePicDoc?.length === 0) &&
+				`${selectedProduct?.loan_request_type}` === '2'
 			) {
 				// console.log(
 				// 	'if applicant is not captured with geo location for profile pic or 0 docs'
@@ -1570,6 +1572,7 @@ const DocumentUpload = props => {
 			if (file?.latitude === 'null' || !file.hasOwnProperty('latitude')) {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
+					hint: `Please Allow Location Access From Browser's Setting And Re-Upload The On-site Selfie Image`,
 				};
 				const reqObject = {
 					...geoLocationTag,
@@ -1625,29 +1628,33 @@ const DocumentUpload = props => {
 	// // 	fieldName: CONST.
 	// // })
 
-	const selfieDocNameForCoapps = ['Co-applicant', 'Director']?.includes(
-		selectedDirector?.type_name
-	)
+	const selfieFieldForSelectedAppOrCoapp = [
+		'Co-applicant',
+		'Director',
+	]?.includes(selectedDirector?.type_name)
 		? selfieWithCoapplicantField
 		: selfieWithApplicantField;
-	// const selfieDocNameForCoapps = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
+	// const selfieFieldForSelectedAppOrCoapp = ['co-applicant', 'director']?.includes(selectedDirector?.type_name) ? selfieWithCoapplicantField : selfieWithApplicantField
 	// console.log(cacheDocuments);
 
-	const selfieDocType = selfieDocNameForCoapps?.doc_type?.[
+	const selfieDocType = selfieFieldForSelectedAppOrCoapp?.doc_type?.[
 		selectedDirector?.income_type
 	]
-		? selfieDocNameForCoapps?.doc_type?.[selectedDirector?.income_type]
-		: selfieDocNameForCoapps?.doc_type?.[businessType];
-
+		? selfieFieldForSelectedAppOrCoapp?.doc_type?.[
+				selectedDirector?.income_type
+		  ]
+		: selfieFieldForSelectedAppOrCoapp?.doc_type?.[businessType];
 	const selfieImageUploadedFile =
 		cacheDocuments?.filter(
 			doc =>
 				`${doc?.directorId}` === `${selectedDirectorId}` &&
 				`${doc?.doc_type?.id}` === `${selfieDocType}`
 		)?.[0] || null;
-	const selfieImageUploadFileArray = cacheDocuments?.filter(
-		doc => `${doc?.doc_type?.id}` === `${selfieDocType}`
-	);
+
+	const selfieImageUploadFileArray = cacheDocuments?.filter(doc => {
+		const docTypeId = doc?.doc_type?.id || doc?.doc_type_id;
+		return `${docTypeId}` === `${selfieDocType}`;
+	});
 	useEffect(() => {
 		selfieImageUploadFileArray?.map(selfie => {
 			const fileDirectorId = selfie?.directorId;
@@ -1661,9 +1668,18 @@ const DocumentUpload = props => {
 				async function geoTagging() {
 					try {
 						if (isGeoTaggingEnabled) {
+							const selfieLat =
+								selfie?.loan_document_details?.[0]?.lat || selfie?.latitude;
+							const selfieLong =
+								selfie?.loan_document_details?.[0]?.long || selfie?.longitude;
+							const selfieTimeStamp =
+								selfie?.loan_document_details?.[0]?.lat_long_timestamp ||
+								selfie?.lat_long_timestamp ||
+								'';
+
 							const reqBody = {
-								lat: selfie?.loan_document_details?.[0]?.lat,
-								long: selfie?.loan_document_details?.[0]?.long,
+								lat: selfieLat,
+								long: selfieLong,
 							};
 							const geoLocationRes = await axios.post(
 								API.GEO_LOCATION,
@@ -1674,9 +1690,15 @@ const DocumentUpload = props => {
 									},
 								}
 							);
-
+							// console.log({ geoLocationRes, selfieTimeStamp });
+							const cloneGeolocationRes = _.cloneDeep(geoLocationRes);
+							if (geoLocationRes?.data?.data?.timestamp) {
+								cloneGeolocationRes.data.data.timestamp =
+									selfieTimeStamp || geoLocationRes.data.data.timestamp;
+							}
 							const reqObject = {
-								...geoLocationRes?.data?.data,
+								// ...geoLocationRes?.data?.data
+								...cloneGeolocationRes?.data?.data,
 								directorId: fileDirectorId,
 							};
 							if (fileDirectorId === 0) {
@@ -1688,6 +1710,7 @@ const DocumentUpload = props => {
 						dispatch(
 							setOnSiteSelfieGeoLocation({
 								err: 'Geo Location Not Captured',
+								hint: `Please Allow Location Access From Browser's Setting And Re-Upload The On-Site Selfie Image`,
 								directorId: fileDirectorId,
 							})
 						);
@@ -1698,7 +1721,7 @@ const DocumentUpload = props => {
 			return null;
 		});
 		// eslint-disable-next-line
-	}, [cacheDocuments]);
+	}, [cacheDocuments, selectedDirector?.id]);
 
 	// console.log(selfieImageUploadedFile, 'image');
 	// console.log(cacheDocuments);
@@ -2233,7 +2256,7 @@ const DocumentUpload = props => {
 												}
 											>
 												<ProfileUpload
-													field={field}
+													field={selfieFieldForSelectedAppOrCoapp}
 													isDisabled={isViewLoan}
 													onChangeFormStateField={onChangeFormStateField}
 													uploadedFile={
@@ -2291,6 +2314,10 @@ const DocumentUpload = props => {
 																err={
 																	selectedDirector?.onSiteSelfieGeoLocation
 																		?.err || entityGeolocation?.err
+																}
+																hint={
+																	selectedDirector?.onSiteSelfieGeoLocation
+																		?.hint || entityGeolocation?.hint
 																}
 																showCloseIcon={false}
 																customStyle={{

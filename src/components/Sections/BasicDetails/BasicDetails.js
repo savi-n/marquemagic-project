@@ -449,6 +449,7 @@ const BasicDetails = props => {
 			if (file?.file?.lat === 'null' || !file?.file.hasOwnProperty('lat')) {
 				const geoLocationTag = {
 					err: 'Geo Location Not Captured',
+					hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
 				};
 				setProfilePicGeolocation(geoLocationTag);
 			} else {
@@ -564,7 +565,7 @@ const BasicDetails = props => {
 				fetchedProfilePicData &&
 				Object.keys(fetchedProfilePicData)?.length > 0
 			) {
-				if (!!fetchedProfilePicData?.lat) {
+				if (!!fetchedProfilePicData?.lat && !!fetchedProfilePicData?.long) {
 					const reqBody = {
 						lat: fetchedProfilePicData?.lat,
 						long: fetchedProfilePicData?.long,
@@ -579,8 +580,23 @@ const BasicDetails = props => {
 							},
 						}
 					);
+					if (profileGeoLocationRes?.data?.data?.timestamp) {
+						profileGeoLocationRes.data.data.timestamp =
+							fetchedProfilePicData?.lat_long_timestamp;
+					}
 					setProfilePicGeolocation(profileGeoLocationRes?.data?.data);
 					dispatch(setProfileGeoLocation(profileGeoLocationRes?.data?.data));
+				} else {
+					setProfilePicGeolocation({
+						err: 'Geo Location Not Captured',
+						hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
+					});
+					dispatch(
+						setProfileGeoLocation({
+							err: 'Geo Location Not Captured',
+							hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
+						})
+					);
 				}
 			}
 		} catch (err) {
@@ -613,6 +629,10 @@ const BasicDetails = props => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				});
+				if (geoLocationRes?.data?.data?.timestamp) {
+					geoLocationRes.data.data.timestamp =
+						appCoordinates?.lat_long_timestamp;
+				}
 				dispatch(setGeoLocation(geoLocationRes?.data?.data));
 				setGeoLocationData(geoLocationRes?.data?.data);
 			}
@@ -700,8 +720,16 @@ const BasicDetails = props => {
 				}
 
 				if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
-					dispatch(setGeoLocation({ err: 'Geo Location Not Captured' }));
-					setGeoLocationData({ err: 'Geo Location Not Captured' });
+					dispatch(
+						setGeoLocation({
+							err: 'Geo Location Not Captured',
+							hint: CONST.APPLICATION_GEO_ERROR_HINT,
+						})
+					);
+					setGeoLocationData({
+						err: 'Geo Location Not Captured',
+						hint: CONST.APPLICATION_GEO_ERROR_HINT,
+					});
 				}
 			}
 		} catch (error) {
@@ -1196,6 +1224,7 @@ const BasicDetails = props => {
 							longitude={geoLocationData?.long || geoLocation?.long}
 							timestamp={geoLocationData?.timestamp || geoLocation?.timestamp}
 							err={geoLocationData?.err || geoLocation?.err}
+							hint={geoLocationData?.hint || geoLocation?.hint}
 							showCloseIcon={false}
 							customStyle={{
 								marginBottom: '30px',
@@ -1241,11 +1270,8 @@ const BasicDetails = props => {
 										});
 										return;
 									}
-									if (
-										!isTestMode &&
-										panUploadedFile === null &&
-										isPanUploadMandatory
-									) {
+									const presentPanFile = tempPanUploadedFile || panUploadedFile;
+									if (!isTestMode && isPanUploadMandatory && !presentPanFile) {
 										addToast({
 											message: 'Pan upload is mandatory',
 											type: 'error',
