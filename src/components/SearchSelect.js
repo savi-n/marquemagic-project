@@ -169,18 +169,22 @@ export default function SearchSelect(props) {
 			setOptionShow(false);
 		}
 	});
+	console.log(field)
 	useEffect(() => {
 		if (
 			!!selectedOption &&
 			!!field?.name?.includes('ifsc') &&
 			!ifscList?.includes(selectedOption)
 		) {
-			setSelectedOption(null);
+			setSelectedOption(null)
 		}
 		// eslint-disable-next-line
 	}, [ifscList]);
 
 	useEffect(() => {
+		// if(`${field?.value}`==="undefined"){
+		// 	setSelectedOption(field?.value);
+		// }
 		if (field?.value?.length > 0) {
 			onOptionSelect(null, {
 				name: field.placeholder,
@@ -305,6 +309,7 @@ export default function SearchSelect(props) {
 				: false;
 		}
 	});
+	console.log(filterdOptions)
 	return (
 		<>
 			<Wrapper ref={compRef}>
@@ -372,7 +377,7 @@ export default function SearchSelect(props) {
 								{option.name}
 							</Option>
 						))}
-						{!fetching && !filterdOptions.length && (
+						{(!filterdOptions.length || !selectOptions.length||!!searchKey) && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
 									? errorMessage
