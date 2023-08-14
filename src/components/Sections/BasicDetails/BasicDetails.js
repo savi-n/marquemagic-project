@@ -699,6 +699,19 @@ const BasicDetails = props => {
 
 				const fetchedProfilePicData =
 					fetchRes?.data?.data?.director_details?.customer_picture;
+
+				// in case of profile uploaded with geo-location disabled mode, since no lat-long will be there, in response we will get customer_picture inside director_details without doc_id
+				// and since we need doc_id to call deleteDocument API to delete Profile Image, we can take that doc_id from loan_request_Data > loan_document > profileImage doc
+				const profileId = fetchRes?.data?.data?.loan_request_Data?.loan_document?.filter(
+					loanDoc =>
+						`${selectedDirectorId}` === `${loanDoc?.directorId}` &&
+						selectedProfileField?.doc_type[selectedDirector?.income_type] ===
+							loanDoc?.doctype
+				)?.[0]?.id;
+
+				fetchedProfilePicData.doc_id =
+					fetchedProfilePicData?.doc_id || profileId;
+
 				if (
 					fetchedProfilePicData &&
 					Object.keys(fetchedProfilePicData)?.length > 0
