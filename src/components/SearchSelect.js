@@ -7,6 +7,7 @@ import styled from 'styled-components';
 
 import useClickOutside from 'hooks/useOutsideClick';
 import debounceFunction from 'utils/debounce';
+import { useSelector } from 'react-redux';
 // import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
@@ -152,26 +153,26 @@ export default function SearchSelect(props) {
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
 	const [searchKey, setSearchKey] = useState('');
-	const [selectedOption, setSelectedOption] = useState(null);
+	const [selectedOption, setSelectedOption] = useState('');
 	const [selectOptions, setSelectOptions] = useState(options);
 	const [focus, setFocus] = useState(false);
 	const compRef = useRef('');
 	// const disable3CharacterSearch = true;
 	const disable3CharacterSearch = !!field?.disable_3_character_search;
 
+const {ifscList} = useSelector(state=>state.app);
 	useClickOutside(compRef, () => {
 		if (optionShow) {
 			setOptionShow(false);
 		}
 	});
-	console.log(field)
 	useEffect(() => {
 		if (
 			!!selectedOption &&
 			!!field?.name?.includes('ifsc') &&
 			!ifscList?.includes(selectedOption)
 		) {
-			setSelectedOption(null)
+			setSelectedOption('')
 		}
 		// eslint-disable-next-line
 	}, [ifscList]);
@@ -302,7 +303,6 @@ export default function SearchSelect(props) {
 				: false;
 		}
 	});
-	console.log(filterdOptions)
 	return (
 		<>
 			<Wrapper ref={compRef}>
@@ -370,7 +370,7 @@ export default function SearchSelect(props) {
 								{option.name}
 							</Option>
 						))}
-						{(!filterdOptions.length || !selectOptions.length||!!searchKey) && (
+						{(!filterdOptions.length || !selectOptions.length||!searchKey) && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
 									? errorMessage
