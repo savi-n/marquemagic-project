@@ -7,8 +7,6 @@ import styled from 'styled-components';
 
 import useClickOutside from 'hooks/useOutsideClick';
 import debounceFunction from 'utils/debounce';
-import { useSelector } from 'react-redux';
-
 // import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
@@ -158,9 +156,6 @@ export default function SearchSelect(props) {
 	const [selectOptions, setSelectOptions] = useState(options);
 	const [focus, setFocus] = useState(false);
 	const compRef = useRef('');
-
-	const { ifscList } = useSelector(state => state.app);
-
 	// const disable3CharacterSearch = true;
 	const disable3CharacterSearch = !!field?.disable_3_character_search;
 
@@ -207,8 +202,6 @@ export default function SearchSelect(props) {
 
 	useEffect(() => {
 		if (options.length) setSelectOptions(options);
-
-		//eslint-disable-next-line
 	}, [options]);
 
 	useEffect(() => {
