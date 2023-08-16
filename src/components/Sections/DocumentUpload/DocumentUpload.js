@@ -867,10 +867,26 @@ const DocumentUpload = props => {
 	}, []);
 	useLayoutEffect(() => {
 		if (cacheDocuments?.length > 0) {
-			const allSelfieDocTypes = Object.values(
-				selfieWithApplicantField?.doc_type
-			).concat(Object.values(selfieWithCoapplicantField?.doc_type));
+			const selfieDocTypes =
+				!!selfieWithApplicantField &&
+				!!selfieWithApplicantField?.doc_type &&
+				Object.values(selfieWithApplicantField?.doc_type);
 
+			const allSelfieDocTypes =
+				!!selfieWithCoapplicantField &&
+				!!selfieWithCoapplicantField?.doc_type
+					? selfieDocTypes.concat(
+							Object.values(selfieWithCoapplicantField?.doc_type)
+					  )
+					: selfieDocTypes;
+
+			// const allSelfieDocTypes =
+			// typeof selfieWithApplicantField?.doc_type === 'object' &&
+			// typeof selfieWithCoapplicantField?.doc_type === 'object'
+			// 	? Object.values(selfieWithApplicantField?.doc_type)?.concat(
+			// 			Object.values(selfieWithCoapplicantField?.doc_type)
+			// 	  )
+			// 	: null
 			dispatch(resetOnsiteSelfiImages(allSelfieDocTypes));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
