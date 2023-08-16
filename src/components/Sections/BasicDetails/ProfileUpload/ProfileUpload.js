@@ -168,154 +168,156 @@ const ProfileUpload = props => {
 			setLoading(false);
 		}
 	};
-
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
 			'image/png': ['.png'],
 			'image/jpeg': ['.jpeg'],
 			'image/jpg': ['.jpg'],
 		},
+
 		onDrop: async acceptedFiles => {
 			let coordinates = {};
-			if (isGeoTaggingEnabled && field?.geo_tagging) {
-				try {
-					coordinates = await getGeoLocation();
-					// coordinates.latitude = 27.71472634829246;
-					// coordinates.longitude = 85.28918392103155;
-				} catch (err) {
-					dispatch(
-						setProfileGeoLocation({
-							err: 'Geo Location Not Captured',
-							hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
-						})
-					);
-					// }
-				}
-			}
-			try {
-				const formData = new FormData();
-				// const newFile = {};
-				setLoading(true);
-
-				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
-
-				// SELFIE DOC UPLOAD SECTION
-				// if (section === 'documentUpload') {
-				// 	const selectedIncomeType =
-				// 		selectedApplicant?.basic_details?.[
-				// 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-				// 		] || selectedApplicant?.income_type;
-
-				// 	formData.append('white_label_id', whiteLabelId);
-				// 	if (
-				// 		Object.keys(coordinates)?.length > 0 &&
-				// 		field?.geo_tagging === true
-				// 	) {
-				// 		formData.append('lat', coordinates?.latitude || null);
-				// 		formData.append('long', coordinates?.longitude || null);
-				// 	}
-				// 	formData.append('timestamp', coordinates?.timestamp || null);
-				// 	formData.append('loan_ref_id', loanRefId || null);
-				// 	formData.append('loan_id', loanId || null);
-				// 	formData.append('director_id', selectedApplicant.directorId);
-				// 	formData.append('user_id', businessUserId || null);
-				// 	formData.append(
-				// 		'doc_type_id',
-				// 		field?.doc_type?.[selectedIncomeType] || null
-				// 	);
-				// 	formData.append('document', acceptedFiles[0]);
-				// 	if (acceptedFiles?.length > 0) {
-				// 		const resp = await axios.post(
-				// 			UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
-				// 			formData
-				// 		);
-				// 		const newFile = {
-				// 			id: resp?.data?.document_details_data?.doc_id,
-				// 			document_id: resp?.data?.document_details_data?.doc_id,
-				// 			fileId: resp?.data?.document_details_data?.doc_id,
-				// 			doc_type_id: field?.doc_type?.[selectedIncomeType],
-				// 			directorId: selectedApplicant.directorId,
-				// 			doc_name: resp?.data?.lender_document_data?.doc_name,
-				// 			document_key: resp?.data?.lender_document_data?.doc_name,
-				// 			loan_bank_mapping_id:
-				// 				resp?.data?.lender_document_data?.loan_bank_mapping || 1,
-				// 			field,
-				// 			...coordinates,
-				// 			preview:
-				// 				field?.geo_tagging === true
-				// 					? resp?.data?.presignedUrl
-				// 					: resp?.data?.preview,
-				// 			...resp?.data?.uploaded_data,
-				// 		};
-				// 		if (isGeoTaggingEnabled && coordinates) {
-				// 			setPicAddress(newFile);
-				// 			dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-				// 		}
-				// 		// console.log('newfile-', { newFile });
-				// 		dispatch(
-				// 			addOrUpdateCacheDocument({
-				// 				file: {
-				// 					...newFile,
-				// 				},
-				// 			})
-				// 		);
-				// 		addCacheDocumentTemp(newFile);
-				// 	} else {
-				// 		addToast({
-				// 			message:
-				// 				'File format is not supported. Please upload jpg, jpeg or png',
-				// 			type: 'error',
-				// 		});
-				// 	}
-				// } else {
-				// Basic details Profile Pic Upload section
-				setImageLoading(true);
-				formData.append('white_label_id', whiteLabelId);
-				if (
-					isGeoTaggingEnabled &&
-					field?.geo_tagging === true &&
-					Object.keys(coordinates)?.length > 0
-				) {
-					formData.append('lat', coordinates?.latitude || null);
-					formData.append('long', coordinates?.longitude || null);
-				}
-				formData.append('document', acceptedFiles[0]);
-
-				if (acceptedFiles?.length > 0) {
-					const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
-					const newFile = {
-						field,
-						...resp?.data,
-						type: 'profilePic',
-						preview:
-							field?.geo_tagging === true
-								? resp?.data?.presignedUrl
-								: resp?.data?.preview,
-					};
-					if (isGeoTaggingEnabled && field?.geo_tagging && coordinates) {
-						setPicAddress(resp?.data?.file);
+			if (!uploadedFile || !selfiePreview) {
+				if (isGeoTaggingEnabled && field?.geo_tagging) {
+					try {
+						coordinates = await getGeoLocation();
+						// coordinates.latitude = 27.71472634829246;
+						// coordinates.longitude = 85.28918392103155;
+					} catch (err) {
+						dispatch(
+							setProfileGeoLocation({
+								err: 'Geo Location Not Captured',
+								hint: CONST.PROFILE_PIC_GEO_ERROR_HINT,
+							})
+						);
+						// }
 					}
-					addCacheDocumentTemp(newFile);
-				} else {
+				}
+				try {
+					const formData = new FormData();
+					// const newFile = {};
+					setLoading(true);
+
+					// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
+
+					// SELFIE DOC UPLOAD SECTION
+					// if (section === 'documentUpload') {
+					// 	const selectedIncomeType =
+					// 		selectedApplicant?.basic_details?.[
+					// 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
+					// 		] || selectedApplicant?.income_type;
+
+					// 	formData.append('white_label_id', whiteLabelId);
+					// 	if (
+					// 		Object.keys(coordinates)?.length > 0 &&
+					// 		field?.geo_tagging === true
+					// 	) {
+					// 		formData.append('lat', coordinates?.latitude || null);
+					// 		formData.append('long', coordinates?.longitude || null);
+					// 	}
+					// 	formData.append('timestamp', coordinates?.timestamp || null);
+					// 	formData.append('loan_ref_id', loanRefId || null);
+					// 	formData.append('loan_id', loanId || null);
+					// 	formData.append('director_id', selectedApplicant.directorId);
+					// 	formData.append('user_id', businessUserId || null);
+					// 	formData.append(
+					// 		'doc_type_id',
+					// 		field?.doc_type?.[selectedIncomeType] || null
+					// 	);
+					// 	formData.append('document', acceptedFiles[0]);
+					// 	if (acceptedFiles?.length > 0) {
+					// 		const resp = await axios.post(
+					// 			UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
+					// 			formData
+					// 		);
+					// 		const newFile = {
+					// 			id: resp?.data?.document_details_data?.doc_id,
+					// 			document_id: resp?.data?.document_details_data?.doc_id,
+					// 			fileId: resp?.data?.document_details_data?.doc_id,
+					// 			doc_type_id: field?.doc_type?.[selectedIncomeType],
+					// 			directorId: selectedApplicant.directorId,
+					// 			doc_name: resp?.data?.lender_document_data?.doc_name,
+					// 			document_key: resp?.data?.lender_document_data?.doc_name,
+					// 			loan_bank_mapping_id:
+					// 				resp?.data?.lender_document_data?.loan_bank_mapping || 1,
+					// 			field,
+					// 			...coordinates,
+					// 			preview:
+					// 				field?.geo_tagging === true
+					// 					? resp?.data?.presignedUrl
+					// 					: resp?.data?.preview,
+					// 			...resp?.data?.uploaded_data,
+					// 		};
+					// 		if (isGeoTaggingEnabled && coordinates) {
+					// 			setPicAddress(newFile);
+					// 			dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
+					// 		}
+					// 		// console.log('newfile-', { newFile });
+					// 		dispatch(
+					// 			addOrUpdateCacheDocument({
+					// 				file: {
+					// 					...newFile,
+					// 				},
+					// 			})
+					// 		);
+					// 		addCacheDocumentTemp(newFile);
+					// 	} else {
+					// 		addToast({
+					// 			message:
+					// 				'File format is not supported. Please upload jpg, jpeg or png',
+					// 			type: 'error',
+					// 		});
+					// 	}
+					// } else {
+					// Basic details Profile Pic Upload section
+					setImageLoading(true);
+					formData.append('white_label_id', whiteLabelId);
+					if (
+						isGeoTaggingEnabled &&
+						field?.geo_tagging === true &&
+						Object.keys(coordinates)?.length > 0
+					) {
+						formData.append('lat', coordinates?.latitude || null);
+						formData.append('long', coordinates?.longitude || null);
+					}
+					formData.append('document', acceptedFiles[0]);
+
+					if (acceptedFiles?.length > 0) {
+						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
+						const newFile = {
+							field,
+							...resp?.data,
+							type: 'profilePic',
+							preview:
+								field?.geo_tagging === true
+									? resp?.data?.presignedUrl
+									: resp?.data?.preview,
+						};
+						if (isGeoTaggingEnabled && field?.geo_tagging && coordinates) {
+							setPicAddress(resp?.data?.file);
+						}
+						addCacheDocumentTemp(newFile);
+					} else {
+						addToast({
+							message:
+								'File format is not supported. Please upload jpg, jpeg or png',
+							type: 'error',
+						});
+					}
+				} catch (error) {
+					console.error('error-ProfileFileUpload-onDrop-', error);
 					addToast({
 						message:
-							'File format is not supported. Please upload jpg, jpeg or png',
+							error?.response?.data?.message ||
+							error?.message ||
+							'File format is not supported.',
 						type: 'error',
 					});
-				}
-			} catch (error) {
-				console.error('error-ProfileFileUpload-onDrop-', error);
-				addToast({
-					message:
-						error?.response?.data?.message ||
-						error?.message ||
-						'File format is not supported.',
-					type: 'error',
-				});
-			} finally {
-				setLoading(false);
-				if (setImageLoading) {
-					setImageLoading(false);
+				} finally {
+					setLoading(false);
+					if (setImageLoading) {
+						setImageLoading(false);
+					}
 				}
 			}
 		},
