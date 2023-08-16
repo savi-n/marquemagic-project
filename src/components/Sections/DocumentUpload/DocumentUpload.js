@@ -868,13 +868,11 @@ const DocumentUpload = props => {
 	useLayoutEffect(() => {
 		if (cacheDocuments?.length > 0) {
 			const selfieDocTypes =
-				!!selfieWithApplicantField &&
-				!!selfieWithApplicantField?.doc_type &&
-				Object.values(selfieWithApplicantField?.doc_type);
-
+				!!selfieWithApplicantField && !!selfieWithApplicantField?.doc_type
+					? Object.values(selfieWithApplicantField?.doc_type)
+					: [];
 			const allSelfieDocTypes =
-				!!selfieWithCoapplicantField &&
-				!!selfieWithCoapplicantField?.doc_type
+				!!selfieWithCoapplicantField && !!selfieWithCoapplicantField?.doc_type
 					? selfieDocTypes.concat(
 							Object.values(selfieWithCoapplicantField?.doc_type)
 					  )
