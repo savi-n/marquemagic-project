@@ -226,10 +226,13 @@ const LoanDetails = () => {
 				try {
 					const uploadCacheDocumentsTemp = [];
 					const applicant =
-						directors &&
-						Object.values(directors)?.filter(
-							dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
-						)?.[0];
+						(!!directors &&
+							Object.values(directors)?.filter(
+								dir =>
+									dir?.type_name ===
+									CONST_SECTIONS.APPLICANT_TYPE_NAME
+							)?.[0]) ||
+						{};
 					cacheDocumentsTemp?.map(doc => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
