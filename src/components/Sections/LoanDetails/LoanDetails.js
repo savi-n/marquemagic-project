@@ -225,6 +225,9 @@ const LoanDetails = () => {
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
+					const applicant = Object.values(directors)?.filter(
+						dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+					)?.[0];
 					cacheDocumentsTemp?.map(doc => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
@@ -232,6 +235,10 @@ const LoanDetails = () => {
 							preview: null,
 							is_delete_not_allowed:
 								doc?.field?.is_delete_not_allowed === true ? true : false,
+							director_id:
+								`${selectedProduct?.loan_request_type}` === '1'
+									? '0'
+									: applicant?.directorId || '',
 						});
 						return null;
 					});
