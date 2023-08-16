@@ -160,7 +160,7 @@ export default function SearchSelect(props) {
 	// const disable3CharacterSearch = true;
 	const disable3CharacterSearch = !!field?.disable_3_character_search;
 
-const {ifscList} = useSelector(state=>state.app);
+	const { ifscList } = useSelector(state => state.app);
 	useClickOutside(compRef, () => {
 		if (optionShow) {
 			setOptionShow(false);
@@ -172,7 +172,7 @@ const {ifscList} = useSelector(state=>state.app);
 			!!field?.name?.includes('ifsc') &&
 			!ifscList?.includes(selectedOption)
 		) {
-			setSelectedOption('')
+			setSelectedOption('');
 		}
 		// eslint-disable-next-line
 	}, [ifscList]);
@@ -309,7 +309,8 @@ const {ifscList} = useSelector(state=>state.app);
 				{customLabel ? (
 					<Label focus={true}>{customLabel}</Label>
 				) : (
-					selectedOption && (
+					selectedOption &&
+					(!!selectedOption?.value && (
 						<Label
 							focus={optionShow || focus}
 							htmlFor={name}
@@ -317,7 +318,7 @@ const {ifscList} = useSelector(state=>state.app);
 						>
 							{selectedOption.name}
 						</Label>
-					)
+					))
 				)}
 				{searchable ? (
 					<Div>
@@ -359,18 +360,26 @@ const {ifscList} = useSelector(state=>state.app);
 								Please wait...
 							</Option>
 						)}
-						{(!!filterdOptions?.length && !!selectOptions?.length) && filterdOptions.map(option => (
-							<Option
-								key={option.value}
-								name={name}
-								value={option.value}
-								onMouseDown={e => onOptionSelect(e, option)}
-								selected={option.value === selectedOption?.value}
-							>
-								{option.name}
-							</Option>
-						))}
-						{(!filterdOptions?.length || !selectOptions?.length||!searchKey) && (
+						{!!filterdOptions?.length &&
+							!!selectOptions?.length &&
+							filterdOptions.map(
+								option =>
+									!!option?.value &&
+									!!option?.name && (
+										<Option
+											key={option.value}
+											name={name}
+											value={option.value}
+											onMouseDown={e => onOptionSelect(e, option)}
+											selected={option.value === selectedOption?.value}
+										>
+											{option.name}
+										</Option>
+									)
+							)}
+						{(!filterdOptions?.length ||
+							!selectOptions?.length ||
+							!searchKey) && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
 									? errorMessage
