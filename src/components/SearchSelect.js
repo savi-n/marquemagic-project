@@ -359,7 +359,7 @@ const {ifscList} = useSelector(state=>state.app);
 								Please wait...
 							</Option>
 						)}
-						{filterdOptions.map(option => (
+						{(!!filterdOptions?.length && !!selectOptions?.length) && filterdOptions.map(option => (
 							<Option
 								key={option.value}
 								name={name}
