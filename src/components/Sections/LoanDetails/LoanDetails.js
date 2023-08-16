@@ -237,8 +237,8 @@ const LoanDetails = () => {
 								doc?.field?.is_delete_not_allowed === true ? true : false,
 							directorId:
 								`${selectedProduct?.loan_request_type}` === '1'
-									? '0'
-									: applicant?.directorId || '',
+									? 0
+									: +applicant?.directorId,
 						});
 						return null;
 					});
