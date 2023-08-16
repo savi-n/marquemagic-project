@@ -361,7 +361,6 @@ export default function SearchSelect(props) {
 							</Option>
 						)}
 						{!!filterdOptions?.length &&
-							!!selectOptions?.length &&
 							filterdOptions.map(
 								option =>
 									!!option?.value &&
@@ -378,8 +377,7 @@ export default function SearchSelect(props) {
 									)
 							)}
 						{(!filterdOptions?.length ||
-							!selectOptions?.length ||
-							!searchKey) && (
+							(filterdOptions?.length === 1 && !filterdOptions[0].value)) && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
 									? errorMessage
