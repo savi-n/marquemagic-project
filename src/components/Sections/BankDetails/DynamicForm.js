@@ -17,6 +17,7 @@ import {
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST from './const';
 import { API_END_POINT } from '_config/app.config';
+import { useEffect } from 'react';
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
@@ -35,10 +36,18 @@ const DynamicForm = props => {
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
+	const { ifscList } = useSelector(state => state.app);
+
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
-	const { register, formState, handleSubmit } = useForm();
+	const {
+		register,
+		formState,
+		handleSubmit,
+		forceUpdate,
+		onChangeFormStateField,
+	} = useForm();
 	const { addToast } = useToasts();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -91,6 +100,7 @@ const DynamicForm = props => {
 	const onSaveOrUpdate = async data => {
 		try {
 			// console.log('onProceed-Date-DynamicForm-', data);
+			forceUpdate();
 			setIsSubmitting(true);
 			const reqBody = formatSectionReqBody({
 				section: selectedSection,
@@ -134,8 +144,21 @@ const DynamicForm = props => {
 			setIsSubmitting(false);
 		}
 	};
-
-	// console.log('DynamicForms-allstates-', {
+	useEffect(() => {
+		if (
+			!!formState?.values?.ifsc_code &&
+			`${
+				ifscList.filter(value => value.name === formState?.values?.ifsc_code)
+					.length
+			}` === '0'
+		) {
+			onChangeFormStateField({
+				name: 'ifsc_code',
+				value: '',
+			});
+		}
+		//eslint-disable-next-line
+	}, [ifscList]);
 	// 	fields,
 	// 	app,
 	// 	selectedSection,
@@ -154,13 +177,7 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-					// console.log('render-field-', {
-					// 	field,
-					// 	customFieldProps,
-					// 	isViewLoan,
-					// 	newField,
-					// 	formState,
-					// });
+
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({

@@ -14,6 +14,7 @@ function AddressDetailsCard(props) {
 		embedInImageUpload = false,
 		customStyle,
 		err,
+		hint,
 	} = props;
 
 	const stringLength = window.screen.width < 768 ? 25 : 75;
@@ -28,7 +29,10 @@ function AddressDetailsCard(props) {
 			<UI.TextIcon src={locationPinIcon} />
 			<UI.ImageText>
 				{err ? (
-					<UI.TextErr>{err}</UI.TextErr>
+					<>
+						<UI.TextErr>{err}</UI.TextErr>
+						<UI.Hint>{hint}</UI.Hint>
+					</>
 				) : (
 					<>
 						{!address ? (

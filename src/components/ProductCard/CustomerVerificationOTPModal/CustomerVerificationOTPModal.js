@@ -112,6 +112,7 @@ const CustomerVerificationOTPModal = props => {
 		customerDetailsFormData,
 		product,
 		sendOtpRes,
+		customerId,
 	} = props;
 
 	const { app } = useSelector(state => state);
@@ -138,12 +139,11 @@ const CustomerVerificationOTPModal = props => {
 			setVerifyingOtp(true);
 			setErrorMsg('');
 			const reqBody = {
-				customer_id: selectedCustomer?.customer_id || '137453244',
+				customer_id: selectedCustomer?.customer_id || customerId || '',
 				// customer_id: '137453244', // TODO: to be removed after testing
-				otp: inputCustomerOTP || '230612',
-				reference_id:
-					sendOtpRes?.Validate_Customer_Resp?.ReferenceId || 'NC1686309649249', // TODO: tobe removed after testing
-				businesstype: customerDetailsFormData?.businesstype || 7, // TODO: tobe removed after testing
+				otp: inputCustomerOTP || '',
+				reference_id: sendOtpRes?.Validate_Customer_Resp?.ReferenceId || '',
+				businesstype: customerDetailsFormData?.businesstype || '',
 				loan_product_id:
 					product?.product_id?.[`${customerDetailsFormData?.businesstype}`],
 				white_label_id: whiteLabelId,

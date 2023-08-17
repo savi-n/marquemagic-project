@@ -17,13 +17,12 @@ const Single = ({
 	rowData,
 	fetchConsentDetails,
 }) => {
-
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
-	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field)
+	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field);
 	// console.log(mandatoryFieldObj);
-	const is_equifax_otp_required = mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
+	const is_equifax_otp_required =
+		mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
 	// const is_equifax_otp_required = true;
-
 
 	// Mapping headers title to corresponding table object keys
 	const mapping = {
@@ -44,7 +43,7 @@ const Single = ({
 	};
 	const sections = {
 		ROC: 'ROC',
-		GSTR3B: 'GST',
+		GST: 'GST',
 		BUREAU: 'bureau',
 		EPFO: 'EPFO',
 		ESIC: 'ESIC',
@@ -79,8 +78,9 @@ const Single = ({
 			// udyamNum:'UDYAM-MH-19-0002476',
 			is_applicant: appObj?.is_applicant,
 		};
+		// console.log({ payLoad, section, sections });
 
-		if(sections[section] === 'bureau' && !!is_equifax_otp_required){
+		if (sections[section] === 'bureau' && !!is_equifax_otp_required) {
 			payLoad.is_equifax_otp_required = is_equifax_otp_required;
 		}
 
@@ -119,8 +119,7 @@ const Single = ({
 			if (
 				sections[section] === 'ITR' ||
 				sections[section] === 'GST' ||
-				sections[section] === 'aadhaar' ||
-				sections[section] === 'bureau'
+				sections[section] === 'aadhaar'
 			) {
 				setHtmlContent(response.data);
 				setModalOpen(true);
@@ -159,9 +158,15 @@ const Single = ({
 				// setDisabled(true);
 			} else if (
 				response?.data?.status === 200 ||
-				response?.data?.status === 'ok'
+				response?.data?.status === 'ok' ||
+				response?.data?.status === 'NC200'
 			) {
 				setStatus('In Progress');
+				addToast({
+					message:
+						'Fetching data initiated, status will be updated once data fetched.',
+					type: 'success',
+				});
 				// setDisabled(true);
 				isDisabledButton = true;
 			} else if (response?.data?.status === 400) {
@@ -282,7 +287,10 @@ const Single = ({
 							name='Fetch'
 							onClick={() => fetchHandle(rowData)}
 							disabled={
-								buttonDisabled || disabled || rowData?.status === 'Fetched'
+								loading ||
+								buttonDisabled ||
+								disabled ||
+								rowData?.status === 'Fetched'
 							}
 							loading={loading}
 						/>
@@ -291,6 +299,7 @@ const Single = ({
 							<Button
 								width='80px'
 								name={crimeCheck ? 'Yes' : 'No'}
+								disabled={buttonDisabled || loading}
 								onClick={() => {
 									setCrimeCheck(!crimeCheck);
 									fetchHandle({

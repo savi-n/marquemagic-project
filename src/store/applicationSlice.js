@@ -21,6 +21,7 @@ const initialState = {
 	geoLocation: {},
 	prompted: false,
 	businessName: '',
+	// isSelfieImagePresent: false,
 };
 
 export const applicationSlice = createSlice({
@@ -65,6 +66,22 @@ export const applicationSlice = createSlice({
 			const { file } = action.payload;
 			state.cacheDocuments.push(file);
 		},
+
+		addSelfieCacheDocument: (state, { payload }) => {
+			const selfieFile = payload;
+			const allCacheFiles = _.cloneDeep(state.cacheDocuments);
+			const isSelfieAlreadyExists = allCacheFiles?.findIndex(
+				selfieDoc =>
+					selfieDoc?.directorId === selfieFile?.directorId &&
+					selfieDoc?.doc_type.id === selfieFile?.doc_type?.id
+			);
+			if (isSelfieAlreadyExists >= 0) {
+				return;
+			} else {
+				state.cacheDocuments.push(selfieFile);
+			}
+		},
+
 		addOrUpdateCacheDocument: (state, action) => {
 			// pass only single file object
 			const { file } = action.payload;
@@ -152,6 +169,23 @@ export const applicationSlice = createSlice({
 				return true;
 			});
 			state.cacheDocuments = newDocuments;
+		},
+
+		removeProfilePicCacheDocument: (state, { payload }) => {
+			const file = payload;
+			const oldDocuments = _.cloneDeep(state.cacheDocuments);
+
+			const newDocumentsWithouProfilePic = oldDocuments?.filter(doc => {
+				if (
+					doc?.doctype === file?.doctype &&
+					doc?.doc_name === file?.filename &&
+					doc?.doc_id === file?.doc_id
+				) {
+					return false;
+				}
+				return true;
+			});
+			state.cacheDocuments = newDocumentsWithouProfilePic;
 		},
 
 		updateCacheDocumentTypeId: (state, action) => {
@@ -269,6 +303,18 @@ export const applicationSlice = createSlice({
 		setBusinessName: (state, { payload }) => {
 			state.businessName = payload;
 		},
+		resetCacheDocuments: state => {
+			state.cacheDocuments = [];
+		},
+		resetOnsiteSelfiImages: (state, { payload }) => {
+			const uniqueSelfieDocType = [...new Set(payload)];
+			const oldCacheDocs = _.cloneDeep(state.cacheDocuments);
+			const newFilteredCacheDocuments = oldCacheDocs?.filter(doc => {
+				const docTypeId = doc?.doc_type_id || doc?.doc_type?.id;
+				return !uniqueSelfieDocType?.includes(docTypeId);
+			});
+			state.cacheDocuments = newFilteredCacheDocuments;
+		},
 	},
 });
 
@@ -280,11 +326,14 @@ export const {
 	setNewCompletedSections,
 
 	addCacheDocument,
+	addSelfieCacheDocument,
 	addOrUpdateCacheDocument,
 	addOrUpdateCacheDocuments,
 	addOrUpdateCacheDocumentsDocUploadPage,
 	addCacheDocuments,
 	removeCacheDocument,
+	// setIsSelifeImagePresent,
+	// removeSelfieCacheDocument,
 	updateCacheDocumentTypeId,
 	updateCacheDocumentPassword,
 	updateCacheDocumentProgress,
@@ -300,6 +349,9 @@ export const {
 	addCacheAPIReqRes,
 	setGeoLocation,
 	clearCacheDraftModeSectionsData,
+	resetCacheDocuments,
+	resetOnsiteSelfiImages,
+	removeProfilePicCacheDocument,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;
