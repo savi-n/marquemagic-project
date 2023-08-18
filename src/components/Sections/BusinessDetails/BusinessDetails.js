@@ -317,7 +317,7 @@ const BusinessDetails = props => {
 			buissnessDetailsReqBody.borrower_user_id =
 				newBorrowerUserId || businessUserId || borrowerUserId;
 
-			buissnessDetailsReqBody.data.business_details.loan_document = [];
+			delete buissnessDetailsReqBody.data.business_details.loan_document;
 			buissnessDetailsReqBody.data.business_details.crime_check = crimeCheck;
 
 			// changes for gst selection starts
