@@ -139,7 +139,6 @@ export const directorsSlice = createSlice({
 				// }
 
 				// const newSections = updatedDirectors?.[+directorId]?.sections || [];
-
 				let newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
@@ -154,8 +153,7 @@ export const directorsSlice = createSlice({
 					// sections: newSections,
 					directorId,
 					onSiteSelfieGeoLocation:
-						prevState?.directors?.[state.selectedDirectorId]
-							?.onSiteSelfieGeoLocation || {},
+						prevState?.directors?.[directorId]?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({
 					// name: `${director.type_name}|${fullName}`,
