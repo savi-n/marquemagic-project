@@ -24,17 +24,17 @@ export const DIRECTOR_TYPES = {
 	member: 'Member',
 	proprietor: 'Proprietor',
 };
-// const BUSINESS_TYPES = {
-// 	1: 'Proprietor',	// 1: Sole Proprietorship
-// 	2: 'Partner',		// 2: Partnership
-// 	3: 'Partner',		// 3: LLP
-// 	4: 'Director',		// 4: Private Limited
-// 	5: 'Director',		// 5: Public Limited
-// 	6: 'Member',		// 6: Others
-// 	9: 'Trustee',		// 9: Trust
-// 	10: 'Member',		// 10: Society
-// 	11: 'Member',		// 11: Associations
-// };
+const BUSINESS_TYPES = {
+	1: 'Proprietor', // 1: Sole Proprietorship
+	2: 'Partner', // 2: Partnership
+	3: 'Partner', // 3: LLP
+	4: 'Director', // 4: Private Limited
+	5: 'Director', // 5: Public Limited
+	6: 'Member', // 6: Others
+	9: 'Trustee', // 9: Trust
+	10: 'Member', // 10: Society
+	11: 'Member', // 11: Associations
+};
 
 const initialDirectorsObject = {
 	// if length of sections is 3 then it's validated
@@ -143,12 +143,12 @@ export const directorsSlice = createSlice({
 				let newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					label: `${director?.type_name}`,
-					// label: `${
-					// 	director?.type_name === DIRECTOR_TYPES.coApplicant
-					// 		? director?.type_name
-					// 		: BUSINESS_TYPES[state.smeType] || director?.type_name
-					// }`,
+					// label: `${director?.type_name}`,
+					label: `${
+						director?.type_name === DIRECTOR_TYPES.coApplicant
+							? director?.type_name
+							: BUSINESS_TYPES[state.smeType] || director?.type_name
+					}`,
 					fullName,
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
@@ -158,12 +158,12 @@ export const directorsSlice = createSlice({
 							?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({
-					name: `${director.type_name}|${fullName}`,
-					// name: `${
-					// 	director?.type_name === DIRECTOR_TYPES.coApplicant
-					// 		? director?.type_name
-					// 		: BUSINESS_TYPES[state.smeType] || director?.type_name
-					// }|${fullName}`,
+					// name: `${director.type_name}|${fullName}`,
+					name: `${
+						director?.type_name === DIRECTOR_TYPES.coApplicant
+							? director?.type_name
+							: BUSINESS_TYPES[state.smeType] || director?.type_name
+					}|${fullName}`,
 					value: directorId,
 				});
 				// console.log(prevState,"prev state");
@@ -250,9 +250,9 @@ export const directorsSlice = createSlice({
 
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
-		// setSmeType: (state, { payload }) => {
-		// 	state.smeType = payload;
-		// },
+		setSmeType: (state, { payload }) => {
+			state.smeType = payload;
+		},
 		setDirector: (state, { payload }) => {
 			if (state.directors[payload.id]) {
 				state.directors[payload.id] = payload;
@@ -376,7 +376,7 @@ export const {
 	reInitializeDirectorsSlice,
 	setAddNewDirectorKey,
 	setDirector,
-	// setSmeType,
+	setSmeType,
 	setSelectedDirectorId,
 	removeOnSiteSelfieGeoLocation,
 	setCompletedDirectorSection,
