@@ -21,7 +21,7 @@ import {
 import {
 	setNewCompletedDirectorSections,
 	getDirectors,
-	// setSmeType,
+	setSmeType,
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
@@ -360,7 +360,7 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) {
 				dispatch(setBusinessType(newBusinessType));
-				// dispatch(setSmeType(newBusinessType));
+				dispatch(setSmeType(newBusinessType));
 			}
 			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 			const newBusinessName =
@@ -595,7 +595,9 @@ const BusinessDetails = props => {
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
 					);
-					// dispatch(setSmeType(fetchRes?.data?.data?.business_details?.businesstype));
+					dispatch(
+						setSmeType(fetchRes?.data?.data?.business_details?.businesstype)
+					);
 				}
 				if (isEditOrViewLoan) {
 					dispatch(
