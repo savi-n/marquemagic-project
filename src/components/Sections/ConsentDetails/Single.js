@@ -164,6 +164,7 @@ const Single = ({
 				setStatus('In Progress');
 				addToast({
 					message:
+						response?.data?.message ||
 						'Fetching data initiated, status will be updated once data fetched.',
 					type: 'success',
 				});
