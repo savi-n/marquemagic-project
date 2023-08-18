@@ -86,3 +86,11 @@ export const TextErr = styled.p`
 		font-size: 10px;
 	}
 `;
+
+export const Hint = styled.p`
+	height: fit-content;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	color: black;
+	font-size: 10px;
+`;

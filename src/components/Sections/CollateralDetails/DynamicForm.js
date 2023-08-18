@@ -31,6 +31,7 @@ const DynamicForm = props => {
 		editSectionId = '',
 		isCreateFormOpen,
 		assets,
+		loan_assets_id,
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
@@ -143,7 +144,7 @@ const DynamicForm = props => {
 			if (editSectionId) {
 				reqBody.data[0].id = editSectionId;
 				reqBody.data[0].assets_additional_id = editSectionId;
-				// reqBody.data[0].loan_assets_id = editSectionId;
+				reqBody.data[0].loan_assets_id = loan_assets_id;
 			}
 			const submitRes = await axios.post(
 				`${API_END_POINT}/collateralData`,

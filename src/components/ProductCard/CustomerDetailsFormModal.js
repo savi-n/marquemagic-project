@@ -10,6 +10,7 @@ import { isFieldValid } from 'utils/formatData';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
+import { useToasts } from '../Toast/ToastProvider';
 // import SAMPLE_JSON from './customerdetailsformsample.json';
 
 const CustomerDetailsFormModal = props => {
@@ -24,19 +25,33 @@ const CustomerDetailsFormModal = props => {
 	} = props;
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
+	const { addToast } = useToasts();
 
 	const handleProceed = async () => {
 		try {
 			setFetchingCustomerDetails(true);
 
-			const reqBody = {
-				// custumer_id: 'Nc777',
-				...(formState?.values || {}),
-			};
+			const reqBody =
+				{
+					customer_type: formState?.values['customer_type'],
+					pan_number: formState?.values['pan_number'],
+					mobile_num: formState?.values['mobile_no'],
+					dob: formState?.values['ddob'],
+					businesstype: formState?.values['businesstype'],
+				} || {};
 			setCustomerDetailsFormData(formState?.values || {});
 			const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
 			// console.log('ddupeRes-', ddupeRes);
-			setCustomerList(ddupeRes?.data?.data || {});
+			if (ddupeRes?.data.message === 'No data found') {
+				addToast({
+					message:
+						'No Customer data found, please press SKIP and proceed to enter details.',
+					type: 'error',
+				});
+
+				return;
+			}
+			ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
 			setIsCustomerListModalOpen(true);
 			onClose();
 		} catch (e) {

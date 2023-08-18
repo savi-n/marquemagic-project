@@ -46,6 +46,7 @@ const initialDirectorsObject = {
 	isMandatorySectionsCompleted: false,
 	profileGeoLocation: {},
 	documentSelfieGeolocation: {},
+	onSiteSelfieGeoLocation: {},
 	geotaggingMandatory: [],
 };
 
@@ -139,7 +140,7 @@ export const directorsSlice = createSlice({
 
 				// const newSections = updatedDirectors?.[+directorId]?.sections || [];
 
-				const newDirectorObject = {
+				let newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
 					label: `${director?.type_name}`,
@@ -152,6 +153,9 @@ export const directorsSlice = createSlice({
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
 					directorId,
+					onSiteSelfieGeoLocation:
+						prevState?.directors?.[state.selectedDirectorId]
+							?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({
 					name: `${director.type_name}|${fullName}`,
@@ -162,7 +166,9 @@ export const directorsSlice = createSlice({
 					// }|${fullName}`,
 					value: directorId,
 				});
+				// console.log(prevState,"prev state");
 				newDirectors[directorId] = newDirectorObject;
+				// state[directorId].onSiteSelfieGeoLocation= prevState.directors[directorId]?.onSiteSelfieGeoLocation;
 				if (directorIndex === sortedDirectors?.length - 1) {
 					lastDirector = newDirectorObject;
 				}
@@ -193,6 +199,7 @@ export const directorsSlice = createSlice({
 				});
 			});
 			// console.log("PrevState",!prevState.selectedDirectorId);
+			// console.log(prevState);
 			if (prevState.selectedDirectorId) {
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
@@ -209,11 +216,14 @@ export const directorsSlice = createSlice({
 					state.selectedDirectorId = `${lastDirector.directorId || ''}`;
 				}
 			}
+
 			state.isEntity = newIsEntity;
+			// state.selectedDirectorId= prevState?.directors?.selectedDirectorId;
 			state.directors = newDirectors;
 			state.selectedDirectorOptions = newSelectedDirectorOptions;
 			state.applicantDirectorId =
 				`${applicantDirector?.directorId || ''}` || '';
+
 			if (newSelectedDirectorOptions.length === 0) {
 				if (isSelectedProductTypeBusiness) {
 					state.addNewDirectorKey = DIRECTOR_TYPES.director;
@@ -237,6 +247,7 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectorsErrorMessage = payload;
 		},
 	},
+
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
 		// setSmeType: (state, { payload }) => {
@@ -314,6 +325,27 @@ export const directorsSlice = createSlice({
 			}
 		},
 
+		setOnSiteSelfieGeoLocation: (state, { payload }) => {
+			const { address, lat, long, timestamp, directorId, err, hint } = payload;
+			if (!!state?.directors?.[directorId]) {
+				state.directors[directorId].onSiteSelfieGeoLocation = {
+					address,
+					lat,
+					long,
+					timestamp,
+					err,
+					hint,
+				};
+			}
+		},
+
+		removeOnSiteSelfieGeoLocation: (state, { payload }) => {
+			if (
+				state?.directors[state?.selectedDirectorId]?.onSiteSelfieGeoLocation
+			) {
+				state.directors[state.selectedDirectorId].onSiteSelfieGeoLocation = {};
+			}
+		},
 		// REMOVE GEOLOCATION DETAILS ON DELETE OF SELFIE DOC
 		removeDocumentSelfieGeoLocation: (state, { payload }) => {
 			if (
@@ -346,9 +378,10 @@ export const {
 	setDirector,
 	// setSmeType,
 	setSelectedDirectorId,
+	removeOnSiteSelfieGeoLocation,
 	setCompletedDirectorSection,
 	setNewCompletedDirectorSections,
-
+	setOnSiteSelfieGeoLocation,
 	setProfileGeoLocation,
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,

@@ -23,6 +23,7 @@ export const initialFormState = {
 	imd_collected: 'No',
 };
 
+export const BRANCH_FIELD_NAME = 'branch';
 export const CONNECTOR_NAME_FIELD_NAME = 'connector_name';
 export const CONNECTOR_CODE_FIELD_NAME = 'connector_code';
 export const IMD_PAID_BY_FIELD_NAME = 'imd_paid_by';
@@ -36,3 +37,5 @@ export const FIELD_NAME_NC_BRANCH = 'nconboarding_Branch';
 export const FIELD_NAME_NC = 'nconboarding';
 export const FIELD_NAME_NC2 = 'nconboarding_';
 export const FIELD_NAME_PURPOSE_OF_LOAN = 'purpose_of_loan';
+export const IS_IN_DRAFT_OR_APPLICATION_STAGE = 1;
+export const SOURCE_DETAILS_SUBSECTION_ID = 'source_details';

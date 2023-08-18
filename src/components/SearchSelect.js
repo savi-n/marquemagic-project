@@ -7,6 +7,7 @@ import styled from 'styled-components';
 
 import useClickOutside from 'hooks/useOutsideClick';
 import debounceFunction from 'utils/debounce';
+import { useSelector } from 'react-redux';
 // import { style } from 'dom-helpers';
 
 const Wrapper = styled.div`
@@ -152,20 +153,34 @@ export default function SearchSelect(props) {
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
 	const [searchKey, setSearchKey] = useState('');
-	const [selectedOption, setSelectedOption] = useState(null);
+	const [selectedOption, setSelectedOption] = useState('');
 	const [selectOptions, setSelectOptions] = useState(options);
 	const [focus, setFocus] = useState(false);
 	const compRef = useRef('');
 	// const disable3CharacterSearch = true;
 	const disable3CharacterSearch = !!field?.disable_3_character_search;
 
+	const { ifscList } = useSelector(state => state.app);
 	useClickOutside(compRef, () => {
 		if (optionShow) {
 			setOptionShow(false);
 		}
 	});
+	useEffect(() => {
+		if (
+			!!selectedOption &&
+			!!field?.name?.includes('ifsc') &&
+			!ifscList?.includes(selectedOption)
+		) {
+			setSelectedOption('');
+		}
+		// eslint-disable-next-line
+	}, [ifscList]);
 
 	useEffect(() => {
+		// if(`${field?.value}`==="undefined"){
+		// 	setSelectedOption(field?.value);
+		// }
 		if (field?.value?.length > 0) {
 			onOptionSelect(null, {
 				name: field.placeholder,
@@ -275,27 +290,27 @@ export default function SearchSelect(props) {
 		}
 	};
 
-	const filterdOptions = selectOptions.filter(({ name, value }) => {
+	const filterdOptions = selectOptions?.filter(({ name, value }) => {
 		if (disable3CharacterSearch) {
 			return (
-				name.toLowerCase().includes(searchKey.toLowerCase()) ||
-				value.toLowerCase().includes(searchKey.toLowerCase())
+				name?.toLowerCase().includes(searchKey?.toLowerCase()) ||
+				value?.toLowerCase().includes(searchKey?.toLowerCase())
 			);
 		} else {
 			return searchKey.length >= 3
-				? name.toLowerCase().includes(searchKey.toLowerCase()) ||
-						value.toLowerCase().includes(searchKey.toLowerCase())
+				? name?.toLowerCase().includes(searchKey?.toLowerCase()) ||
+						value?.toLowerCase().includes(searchKey?.toLowerCase())
 				: false;
 		}
 	});
-
 	return (
 		<>
 			<Wrapper ref={compRef}>
 				{customLabel ? (
 					<Label focus={true}>{customLabel}</Label>
 				) : (
-					selectedOption && (
+					selectedOption &&
+					(!!selectedOption?.value && (
 						<Label
 							focus={optionShow || focus}
 							htmlFor={name}
@@ -303,7 +318,7 @@ export default function SearchSelect(props) {
 						>
 							{selectedOption.name}
 						</Label>
-					)
+					))
 				)}
 				{searchable ? (
 					<Div>
@@ -345,18 +360,25 @@ export default function SearchSelect(props) {
 								Please wait...
 							</Option>
 						)}
-						{filterdOptions.map(option => (
-							<Option
-								key={option.value}
-								name={name}
-								value={option.value}
-								onMouseDown={e => onOptionSelect(e, option)}
-								selected={option.value === selectedOption?.value}
-							>
-								{option.name}
-							</Option>
-						))}
-						{!fetching && !filterdOptions.length && (
+						{!!filterdOptions?.length &&
+							filterdOptions.map(
+								option =>
+									!!option?.value &&
+									!!option?.name && (
+										<Option
+											key={option.value}
+											name={name}
+											value={option.value}
+											onMouseDown={e => onOptionSelect(e, option)}
+											selected={option.value === selectedOption?.value}
+										>
+											{option.name}
+										</Option>
+									)
+							)}
+						{(!filterdOptions?.length ||
+							(filterdOptions?.length === 1 &&
+								!filterdOptions?.[0]?.value)) && (
 							<Option onClick={e => e.preventDefault()} disabled>
 								{disable3CharacterSearch
 									? errorMessage

@@ -99,14 +99,15 @@ const GE_LOAN_DETAILS_WITH_LOAN_REF_ID = `${API_END_POINT}/getDetailsWithLoanRef
 const ADD_COMMENTS_FOR_OFFICE_USE = `${API_END_POINT}/addComments`;
 const GET_ALL_UPLOADED_DOCUMENTS_UIUX = `${API_END_POINT}/UploadedDocList_uiux`;
 const GET_ALL_UPLOADED_DOCUMENTS = `${API_END_POINT}/uploaded_doc_list`;
-const GET_COMMENTS = `${API_END_POINT}/viewComments`
+const GET_COMMENTS = `${API_END_POINT}/viewComments`;
 
 const DDUPE_CHECK = `${CUSTOMER_FETCH_API_END_POINT}/ddupe_check`;
 const DDUPE_SEND_OTP = `${CUSTOMER_FETCH_API_END_POINT}/verify_customer`;
 const DDUPE_VERIFY_OTP = `${CUSTOMER_FETCH_API_END_POINT}/get_customer_details`;
 
 const GENERATE_SESSION_ID_AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/generate_session_id`;
-const AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/kyc_biometric`;
+// const AADHAAR_REDIRECT = `${CUSTOMER_FETCH_API_END_POINT}/kyc_biometric`;
+const AADHAAR_REDIRECT = `https://14.142.52.49:9447/FinakycClient/EkycBiometric`;
 
 const HOSTNAME = window.location.hostname;
 const APP_CLIENT = HOSTNAME === 'localhost' ? 'clix.loan2pal.com' : HOSTNAME;
@@ -114,6 +115,7 @@ const CLIENT_EMAIL_ID = 'clix@nc.com';
 const REDIRECT_CREATE =
 	HOSTNAME === 'localhost' ? '/' : '/onboarding/applyloan';
 
+const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
 const NC_STATUS_CODE = {
 	OK: 'ok',
 	NC200: 'NC200',
@@ -244,5 +246,6 @@ export {
 	GENERATE_SESSION_ID_AADHAAR_REDIRECT,
 	AADHAAR_REDIRECT,
 	UDYAM_REGEX,
-	GET_COMMENTS
+	GET_COMMENTS,
+	VERIFY_KYC,
 };
