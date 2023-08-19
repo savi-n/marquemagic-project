@@ -900,6 +900,11 @@ const DocumentUpload = props => {
 	const onSubmitOtpAuthentication = async () => {
 		try {
 			setSubmittingOtp(true);
+
+			if (!validateOnSiteSelfie()) {
+				setOnSiteVerificationModal(true);
+				return;
+			}
 			// console.log('step-1');
 			// TODO: varun fix and enable GEO validation after Individual and SME flow is completed
 			// const check = validateGeoTaggedDocsForApplicantCoapplicant();
@@ -1026,7 +1031,10 @@ const DocumentUpload = props => {
 	const onSubmitCompleteApplication = async (data = {}) => {
 		const { goToNextSection } = data;
 
-		if (!validateOnSiteSelfie()) {
+		if (
+			selectedProduct?.otp_authentication !== true &&
+			!validateOnSiteSelfie()
+		) {
 			setOnSiteVerificationModal(true);
 			return;
 		}
