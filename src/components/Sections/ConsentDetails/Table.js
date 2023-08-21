@@ -10,6 +10,7 @@ const Table = ({
 	application,
 	token,
 	fetchConsentDetails,
+	selectedProduct
 }) => {
 	return (
 		<>
@@ -32,6 +33,7 @@ const Table = ({
 						token={token}
 						application={application}
 						buttonDisabled={buttonDisabled}
+						selectedProduct= {selectedProduct}
 					/>
 				))}
 			</UI.TableContainer>

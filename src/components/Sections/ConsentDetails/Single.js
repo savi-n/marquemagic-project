@@ -16,6 +16,7 @@ const Single = ({
 	token,
 	rowData,
 	fetchConsentDetails,
+	selectedProduct
 }) => {
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
 	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field);
@@ -105,6 +106,7 @@ const Single = ({
 			const response = await axios.get(
 				`${API.API_END_POINT}/api/getConsent?${formatGetSectionReqBody({
 					application,
+					selectedProduct
 				})}`,
 				sections[section] === 'ROC' || sections[section] === 'aadhaar'
 					? {
