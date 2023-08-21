@@ -32,7 +32,12 @@ const ApplicantCoApplicantHeader = props => {
 
 	const { selectedSectionId, selectedProduct, isLocalhost } = app;
 	// const [flag,setFlag]={};
-	const { cacheDocuments, allDocumentTypes, loanRefId } = application;
+	const {
+		cacheDocuments,
+		allDocumentTypes,
+		loanRefId,
+		businessName,
+	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [isDeleteDirectorModalOpen, setIsDeleteDirectorModalOpen] = useState(
@@ -185,7 +190,9 @@ const ApplicantCoApplicantHeader = props => {
 										onClick={() => onClickDirectorAvatar('')}
 									/>
 									<UI.AvatarName>Entity</UI.AvatarName>
-									<UI.HoverBadge>&nbsp;</UI.HoverBadge>
+									<UI.HoverBadge title={businessName}>
+										{businessName}
+									</UI.HoverBadge>
 								</UI.LI>
 							)}
 						{Object.keys(directors).map((directorId, directorIndex) => {
