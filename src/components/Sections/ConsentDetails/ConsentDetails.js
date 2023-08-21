@@ -27,7 +27,6 @@ const ConsentDetails = props => {
 		// isEditLoan,
 		// isEditOrViewLoan,
 		clientToken,
-		selectedProduct,
 	} = app;
 
 	const { businessId, loanId, loanRefId } = application;
@@ -127,7 +126,6 @@ const ConsentDetails = props => {
 												hasSeperator={idx < tables?.fields?.length - 1}
 												section={tables?.name}
 												buttonDisabled={isViewLoan}
-												selectedProduct= {selectedProduct}
 											/>
 										)
 									);

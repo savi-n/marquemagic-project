@@ -8,6 +8,7 @@ import * as API from '_config/app.config';
 import Modal from 'components/Modal';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { formatGetSectionReqBody } from 'utils/formatData.js';
+import { useSelector } from 'react-redux';
 const Single = ({
 	headers,
 	section,
@@ -16,10 +17,11 @@ const Single = ({
 	token,
 	rowData,
 	fetchConsentDetails,
-	selectedProduct
 }) => {
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
 	const mandatoryFieldsObj = JSON.parse(permission?.mandatory_field);
+	const {app} = useSelector(state=>state);
+	const {selectedProduct}= app
 	// console.log(mandatoryFieldObj);
 	const is_equifax_otp_required =
 		mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
