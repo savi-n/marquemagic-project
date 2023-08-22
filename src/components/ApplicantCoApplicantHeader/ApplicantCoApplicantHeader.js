@@ -285,7 +285,8 @@ const ApplicantCoApplicantHeader = props => {
 									)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
 								<UI.AvatarName>
-									{Object.keys(directors).length <= 0
+									{`${selectedProduct?.loan_request_type}` === '1' &&
+									Object.keys(directors)?.length <= 0
 										? CONST_SECTIONS.BUSINESS_TYPE_OPTIONS[businessType]
 										: addNewDirectorKey}
 								</UI.AvatarName>
