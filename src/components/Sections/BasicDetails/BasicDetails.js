@@ -934,6 +934,13 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
+	const incomeTypeField =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.BASIC_DETAILS_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field => field?.name === CONST.INCOME_TYPE_FIELD_NAME
+			)?.[0] || {};
+
 	// console.log('BasicDetails-allstates', {
 	// 	isPanNumberExist,
 	// 	selectedProfileField,
@@ -971,7 +978,12 @@ const BasicDetails = props => {
 			) : (
 				<>
 					<ConfirmModal
-						type='Income'
+						// type='Income'
+						type={
+							incomeTypeField?.placeholder
+								? incomeTypeField?.placeholder
+								: 'Income'
+						}
 						show={isIncomeTypeConfirmModalOpen}
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
@@ -1301,6 +1313,11 @@ const BasicDetails = props => {
 									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
 									// so avoid opening income type popup at below condition
 									if (isEditOrViewLoan || !!selectedDirector?.directorId) {
+										// if in edit loan, adding a coapplicant since the selected director will be empty, this popup will trigger
+										if (!selectedDirector?.directorId) {
+											setIsIncomeTypeConfirmModalOpen(true);
+											return;
+										}
 										onSaveAndProceed();
 										return;
 									}

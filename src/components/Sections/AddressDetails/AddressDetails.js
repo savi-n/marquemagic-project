@@ -43,6 +43,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach, scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
+import { encryptBase64 } from 'utils/encrypt';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -157,7 +158,11 @@ const AddressDetails = props => {
 	});
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
 
-	const onClickVerifyWithOtp = async () => {
+	const onClickVerifyWithOtp = async field => {
+		if (field?.redirect_url) {
+			handleBankRedirection(field.redirect_url);
+			return;
+		}
 		try {
 			const aadhaarErrorMessage = isInvalidAadhaar(
 				formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
@@ -263,6 +268,25 @@ const AddressDetails = props => {
 			console.error('error-onClickVerifyWithOtp-', error);
 		} finally {
 			setVerifyingWithOtp(false);
+		}
+	};
+
+	const handleBankRedirection = async url => {
+		try {
+			const resp = await axios.post(API.GENERATE_SESSION_ID_AADHAAR_REDIRECT);
+			const session_id = resp?.data?.data?.SessionId;
+			if (session_id) {
+				window.open(
+					`${url}?session_id=${session_id}&redirect_url=${encryptBase64(
+						window.location.href
+					)}&option=biometric`,
+					'_blank'
+				);
+			}
+		} catch (err) {
+			console.log('====================================');
+			console.log(err);
+			console.log('====================================');
 		}
 	};
 
@@ -618,6 +642,12 @@ const AddressDetails = props => {
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
+			const ekycArrayPermanentAddress=sectionData?.director_details?.ekyc_data?.filter(item => {
+				return `${item?.aid}` === '2';
+			});
+			const ekycArrayPresentAddress= sectionData?.director_details?.ekyc_data?.filter(item => {
+				return `${item?.aid}` === '1';
+			});
 			// -- TEST MODE
 			const preData = {
 				permanent_address_proof_address_type:
@@ -648,6 +678,23 @@ const AddressDetails = props => {
 							sectionData?.director_details?.permanent_residential_stability
 					  ).format('YYYY-MM')
 					: '',
+				permanent_address_proof_valid_till:
+				ekycArrayPermanentAddress?.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '2';
+								})?.[0]?.valid_till
+						  ).format('YYYY-MM-DD')
+						: '',
+
+				permanent_address_proof_issued_on:
+				ekycArrayPermanentAddress?.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '2';
+								})?.[0]?.issued_on
+						  ).format('YYYY-MM-DD')
+						: '',
 
 				present_aadhaar: sectionData?.director_details?.daadhaar,
 				present_address_proof_id_others:
@@ -671,6 +718,22 @@ const AddressDetails = props => {
 							'YYYY-MM'
 					  )
 					: '',
+				present_address_proof_issued_on:
+					ekycArrayPresentAddress?.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '1';
+								})?.[0]?.issued_on
+						  ).format('YYYY-MM-DD')
+						: '',
+				present_address_proof_valid_till:
+				ekycArrayPresentAddress?.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '1';
+								})?.[0]?.valid_till
+						  ).format('YYYY-MM-DD')
+						: '',
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {

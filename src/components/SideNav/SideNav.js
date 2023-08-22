@@ -168,7 +168,11 @@ const SideNav = props => {
 
 													let isValid = {};
 													let checkAllDirectorsCompleted;
-													if (!initialSections.includes(section?.id)) {
+													if (
+														!initialSections?.includes(section?.id) &&
+														selectedProduct?.product_details
+															?.validate_directors !== false
+													) {
 														if (
 															selectedProduct?.isSelectedProductTypeBusiness
 														) {
