@@ -131,7 +131,7 @@ const AppLayout = () => {
 			}
 			// when user comes for create / editing this loan from ui-ux
 			const params = queryString.parse(window.location.search);
-			const transactionId = params.transaction_id;
+			const transactionId = params?.transaction_id;
 			if (transactionId) {
 				handleFederalBankRequest(transactionId);
 			}
