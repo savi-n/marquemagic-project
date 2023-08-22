@@ -1337,7 +1337,7 @@ const AddressProofUpload = props => {
 													</div>
 												) : (
 													isDocRemoveAllowed &&
-													!isEditOrViewLoan &&
+													!isViewLoan &&
 													!selectedDirector?.sections?.includes(
 														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
 													) && (
