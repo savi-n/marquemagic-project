@@ -672,23 +672,23 @@ const AddressDetails = props => {
 							sectionData?.director_details?.permanent_residential_stability
 					  ).format('YYYY-MM')
 					: '',
-				permanent_address_proof_valid_till: sectionData?.director_details
-					?.ekyc_data.length>0
-					? moment(
-							sectionData?.director_details?.ekyc_data?.filter(item => {
-								return `${item?.aid}` === '2';
-							})?.[0]?.valid_till
-					  ).format('YYYY-MM-DD')
-					: '',
+				permanent_address_proof_valid_till:
+					sectionData?.director_details?.ekyc_data.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '2';
+								})?.[0]?.valid_till
+						  ).format('YYYY-MM-DD')
+						: '',
 
-				permanent_address_proof_issued_on: sectionData?.director_details
-					?.ekyc_data.length>0
-					? moment(
-							sectionData?.director_details?.ekyc_data?.filter(item => {
-								return `${item?.aid}` === '2';
-							})?.[0]?.issued_on
-					  ).format('YYYY-MM-DD')
-					: '',
+				permanent_address_proof_issued_on:
+					sectionData?.director_details?.ekyc_data.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '2';
+								})?.[0]?.issued_on
+						  ).format('YYYY-MM-DD')
+						: '',
 
 				present_aadhaar: sectionData?.director_details?.daadhaar,
 				present_address_proof_id_others:
@@ -712,22 +712,22 @@ const AddressDetails = props => {
 							'YYYY-MM'
 					  )
 					: '',
-				present_address_proof_issued_on: sectionData?.director_details
-					?.ekyc_data.length>0
-					? moment(
-							sectionData?.director_details?.ekyc_data?.filter(item => {
-								return `${item?.aid}` === '1';
-							})?.[0]?.issued_on
-					  ).format('YYYY-MM-DD')
-					: '',
-				present_address_proof_valid_till: sectionData?.director_details
-					?.ekyc_data.length>0
-					? moment(
-							sectionData?.director_details?.ekyc_data?.filter(item => {
-								return `${item?.aid}` === '1';
-							})?.[0]?.valid_till
-					  ).format('YYYY-MM-DD')
-					: '',
+				present_address_proof_issued_on:
+					sectionData?.director_details?.ekyc_data.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '1';
+								})?.[0]?.issued_on
+						  ).format('YYYY-MM-DD')
+						: '',
+				present_address_proof_valid_till:
+					sectionData?.director_details?.ekyc_data.length > 0
+						? moment(
+								sectionData?.director_details?.ekyc_data?.filter(item => {
+									return `${item?.aid}` === '1';
+								})?.[0]?.valid_till
+						  ).format('YYYY-MM-DD')
+						: '',
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {

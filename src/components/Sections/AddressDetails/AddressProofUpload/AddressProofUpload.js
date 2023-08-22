@@ -237,7 +237,8 @@ const AddressProofUpload = props => {
 				value: moment(extractedIssuedDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
 			});
 		}
-		const extractedValidDate = extractionData?.validity|| extractionData?.exp_date;
+		const extractedValidDate =
+			extractionData?.validity || extractionData?.exp_date;
 		if (!!extractedValidDate) {
 			onChangeFormStateField({
 				name: `${prefix}address_proof_valid_till`,
@@ -447,8 +448,7 @@ const AddressProofUpload = props => {
 			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
 			frontOnlyFormData.append('process_type', 'extraction');
 			if (
-				selectedAddressProofId ===
-					CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+				selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 				selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
 			) {
 				frontOnlyFormData.append(
