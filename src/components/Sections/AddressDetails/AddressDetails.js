@@ -673,7 +673,9 @@ const AddressDetails = props => {
 					  ).format('YYYY-MM')
 					: '',
 				permanent_address_proof_valid_till:
-					sectionData?.director_details?.ekyc_data.length > 0
+					sectionData?.director_details?.ekyc_data?.filter(item => {
+						return `${item?.aid}` === '2';
+					})?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '2';
@@ -682,7 +684,9 @@ const AddressDetails = props => {
 						: '',
 
 				permanent_address_proof_issued_on:
-					sectionData?.director_details?.ekyc_data.length > 0
+					sectionData?.director_details?.ekyc_data?.filter(item => {
+						return `${item?.aid}` === '2';
+					})?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '2';
@@ -713,7 +717,9 @@ const AddressDetails = props => {
 					  )
 					: '',
 				present_address_proof_issued_on:
-					sectionData?.director_details?.ekyc_data.length > 0
+					sectionData?.director_details?.ekyc_data?.filter(item => {
+						return `${item?.aid}` === '1';
+					})?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '1';
@@ -721,7 +727,9 @@ const AddressDetails = props => {
 						  ).format('YYYY-MM-DD')
 						: '',
 				present_address_proof_valid_till:
-					sectionData?.director_details?.ekyc_data.length > 0
+					sectionData?.director_details?.ekyc_data?.filter(item => {
+						return `${item?.aid}` === '1';
+					})?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '1';
