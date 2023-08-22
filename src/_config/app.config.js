@@ -12,6 +12,7 @@ const CUSTOMER_FETCH_API_END_POINT =
 const CLIENT_VERIFY_URL = `${ENDPOINT_BANK}/sails-exp/ClientVerify`;
 
 const BANK_TOKEN_API = `${ENDPOINT_BANK}/generateLink`;
+const FEDERAL_TRANSACTION_KYC_API = `${API_END_POINT}/federal-api/kyc_pull`;
 const CUB_ACCOUNT_MINI_STATEMENT = `${ENDPOINT_BANK}/cub/accountMiniStatement`;
 
 const UPLOAD_CUB_STATEMENT = `${ENDPOINT_BANK}/uploadToSailsExp`;
@@ -250,5 +251,6 @@ export {
 	UDYAM_REGEX,
 	GET_COMMENTS,
 	VERIFY_KYC,
+	FEDERAL_TRANSACTION_KYC_API,
 	SKIP_SECTION,
 };
