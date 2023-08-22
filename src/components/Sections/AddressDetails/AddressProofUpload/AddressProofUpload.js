@@ -1037,7 +1037,9 @@ const AddressProofUpload = props => {
 													minWidth: '150px',
 													height: '45px',
 												}}
-												onClick={onClickVerifyWithOtp}
+												onClick={() => {
+													onClickVerifyWithOtp(aadhaarProofOTPField);
+												}}
 											/>
 										);
 									}
@@ -1337,7 +1339,7 @@ const AddressProofUpload = props => {
 													</div>
 												) : (
 													isDocRemoveAllowed &&
-													!isEditOrViewLoan &&
+													!isViewLoan &&
 													!selectedDirector?.sections?.includes(
 														CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID
 													) && (

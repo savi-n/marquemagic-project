@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 // import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import styled from 'styled-components';
-import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
+// import imgSelectProduct from 'assets/images/bg/Landing_page_down-indication-element.png';
 import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { resetAllApplicationState } from 'utils/localStore';
 // import { FlowContext } from 'reducer/flowReducer';
@@ -13,7 +13,10 @@ import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
 import { getGeoLocation } from 'utils/helper';
-import { setGeoLocation,reInitializeApplicationSlice } from 'store/applicationSlice';
+import {
+	setGeoLocation,
+	reInitializeApplicationSlice,
+} from 'store/applicationSlice';
 import axios from 'axios';
 import * as API from '_config/app.config';
 // import Button from './Button';
@@ -23,8 +26,7 @@ import { reInitializeDirectorsSlice } from 'store/directorsSlice';
 
 const Wrapper = styled.div`
 
-  width: 25%;
-
+margin: 20px;
   border-radius: 10px;
   /* background: ${({ theme }) => theme.themeColor1}; */
   overflow: hidden;
@@ -32,31 +34,33 @@ const Wrapper = styled.div`
 	/* #0b5cff */
 	/* rgb(11, 92, 255) */
 	/* rgb(11, 92, 255, 0.15) */
-	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; */
+	box-shadow: rgb(11, 92, 255, 0.15) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
 	/* box-shadow: rgb(11, 92, 255, 0.15) 0px 48px 100px 0px; */
-	box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px;
+	/* box-shadow: rgba(11, 92, 255, 0.2) 0px 7px 29px 0px; */
   margin: 0 calc(12% / 6);
 	@media (max-width: 700px) {
 margin: 1rem 0;
-width: 100%;
+/* width: 100%; */
+padding: 50px;
 	}
 `;
 
 const ImgDiv = styled.div`
 	width: 100%;
-	height: 250px;
+	/* height: 250px; */
 `;
 
 const Img = styled.img`
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	width: 200px;
+	height: 150px;
+	object-fit: contain;
+	margin: 10px;
 `;
 
-const ImgSelectProduct = styled.img`
-	height: 35px;
-	margin: 0 auto;
-`;
+// const ImgSelectProduct = styled.img`
+// 	height: 35px;
+// 	margin: 0 auto;
+// `;
 
 // const ButtonBox = styled.div`
 //   /* background: ${({ theme }) => theme.themeColor1}; */
@@ -82,7 +86,7 @@ const Description = styled.div`
 
 const ProductName = styled.div`
 	text-align: center;
-	padding-top: 50px;
+	/* padding-top: 50px; */
 	color: #4e4e4e;
 	font-weight: bold;
 `;
@@ -139,7 +143,7 @@ export default function CardSubProduct({
 		<Wrapper>
 			<ImgDiv>
 				<Img src={product.url} alt={product.name} />
-				<ImgSelectProduct src={imgSelectProduct} alt='product' />
+				{/* <ImgSelectProduct src={imgSelectProduct} alt='product' /> */}
 			</ImgDiv>
 			<ProductName>{product.name}</ProductName>
 			{/* <ButtonBox> */}

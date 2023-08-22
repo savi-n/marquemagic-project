@@ -43,6 +43,7 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
 import { asyncForEach, scrollToTopRootElement } from 'utils/helper';
 import { API_END_POINT } from '_config/app.config';
+import { encryptBase64 } from 'utils/encrypt';
 
 const AddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -157,7 +158,11 @@ const AddressDetails = props => {
 	});
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
 
-	const onClickVerifyWithOtp = async () => {
+	const onClickVerifyWithOtp = async field => {
+		if (field?.redirect_url) {
+			handleBankRedirection(field.redirect_url);
+			return;
+		}
 		try {
 			const aadhaarErrorMessage = isInvalidAadhaar(
 				formState.values[CONST.AADHAAR_FIELD_NAME_FOR_OTP]
@@ -263,6 +268,25 @@ const AddressDetails = props => {
 			console.error('error-onClickVerifyWithOtp-', error);
 		} finally {
 			setVerifyingWithOtp(false);
+		}
+	};
+
+	const handleBankRedirection = async url => {
+		try {
+			const resp = await axios.post(API.GENERATE_SESSION_ID_AADHAAR_REDIRECT);
+			const session_id = resp?.data?.data?.SessionId;
+			if (session_id) {
+				window.open(
+					`${url}?session_id=${session_id}&redirect_url=${encryptBase64(
+						window.location.href
+					)}&option=biometric`,
+					'_blank'
+				);
+			}
+		} catch (err) {
+			console.log('====================================');
+			console.log(err);
+			console.log('====================================');
 		}
 	};
 
