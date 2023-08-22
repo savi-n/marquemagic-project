@@ -237,7 +237,7 @@ const AddressProofUpload = props => {
 				value: moment(extractedIssuedDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
 			});
 		}
-		const extractedValidDate = extractionData?.validity;
+		const extractedValidDate = extractionData?.validity|| extractionData?.exp_date;
 		if (!!extractedValidDate) {
 			onChangeFormStateField({
 				name: `${prefix}address_proof_valid_till`,
@@ -446,12 +446,9 @@ const AddressProofUpload = props => {
 			frontOnlyFormData.append('director_id', selectedDirector?.directorId);
 			frontOnlyFormData.append('req_type', SELECTED_REQ_TYPE);
 			frontOnlyFormData.append('process_type', 'extraction');
-			frontOnlyFormData.append(
-				'document',
-				selectedAddressProofFiles?.[0]?.file
-			);
 			if (
-				selectedAddressProofId === CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
+				selectedAddressProofId ===
+					CONST.PERMANENT_ADDRESS_PROOF_PASSPORT ||
 				selectedAddressProofId === CONST.PRESENT_ADDRESS_PROOF_PASSPORT
 			) {
 				frontOnlyFormData.append(
@@ -460,6 +457,11 @@ const AddressProofUpload = props => {
 				);
 			}
 			frontOnlyFormData.append('business_id', application?.businessId);
+			frontOnlyFormData.append(
+				'document',
+				selectedAddressProofFiles?.[0]?.file
+			);
+
 			const frontOnlyExtractionRes = await getKYCData(
 				frontOnlyFormData,
 				clientToken
