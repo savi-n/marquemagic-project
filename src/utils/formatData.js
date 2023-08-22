@@ -85,16 +85,29 @@ export const getSelectedSubField = data => {
 };
 
 export const formatGetSectionReqBody = data => {
-	const { application, selectedDirector,selectedProduct } = data;
+	const { application, selectedDirector, selectedProduct } = data;
 	const { loanRefId, businessId, loanId } = application;
-	const {isSelectedProductTypeBusiness,isSelectedProductTypeSalaried}= selectedProduct
-	const reqBody = {
-		business_id: businessId,
-		loan_ref_id: loanRefId,
-		loan_id: loanId,
-		isSelectedProductTypeBusiness:isSelectedProductTypeBusiness,
-		isSelectedProductTypeSalaried:isSelectedProductTypeSalaried
-	};
+
+	let reqBody = {};
+	if (selectedProduct) {
+		const {
+			isSelectedProductTypeBusiness,
+			isSelectedProductTypeSalaried,
+		} = selectedProduct;
+		reqBody = {
+			business_id: businessId,
+			loan_ref_id: loanRefId,
+			loan_id: loanId,
+			isSelectedProductTypeBusiness: isSelectedProductTypeBusiness,
+			isSelectedProductTypeSalaried: isSelectedProductTypeSalaried,
+		};
+	} else {
+		reqBody = {
+			business_id: businessId,
+			loan_ref_id: loanRefId,
+			loan_id: loanId,
+		};
+	}
 	if (selectedDirector?.directorId) {
 		reqBody.director_id = selectedDirector?.directorId;
 	}
