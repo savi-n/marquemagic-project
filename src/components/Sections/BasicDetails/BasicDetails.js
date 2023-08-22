@@ -934,6 +934,13 @@ const BasicDetails = props => {
 		// eslint-disable-next-line
 	}, []);
 
+	const incomeTypeField =
+		selectedSection?.sub_sections
+			?.filter(item => item?.id === CONST.BASIC_DETAILS_SECTION_ID)?.[0]
+			?.fields?.filter(
+				field => field?.name === CONST.INCOME_TYPE_FIELD_NAME
+			)?.[0] || {};
+
 	// console.log('BasicDetails-allstates', {
 	// 	isPanNumberExist,
 	// 	selectedProfileField,
@@ -971,7 +978,12 @@ const BasicDetails = props => {
 			) : (
 				<>
 					<ConfirmModal
-						type='Income'
+						// type='Income'
+						type={
+							incomeTypeField?.placeholder
+								? incomeTypeField?.placeholder
+								: 'Income'
+						}
 						show={isIncomeTypeConfirmModalOpen}
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
