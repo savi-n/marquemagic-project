@@ -1037,7 +1037,9 @@ const AddressProofUpload = props => {
 													minWidth: '150px',
 													height: '45px',
 												}}
-												onClick={onClickVerifyWithOtp}
+												onClick={() => {
+													onClickVerifyWithOtp(aadhaarProofOTPField);
+												}}
 											/>
 										);
 									}
