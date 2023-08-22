@@ -36,6 +36,7 @@ const ApplicantCoApplicantHeader = props => {
 		cacheDocuments,
 		allDocumentTypes,
 		loanRefId,
+		businessType,
 		businessName,
 	} = application;
 	const dispatch = useDispatch();
@@ -283,7 +284,11 @@ const ApplicantCoApplicantHeader = props => {
 										/>
 									)}
 								<UI.Avatar src={iconAvatarActive} alt='Avatar' />
-								<UI.AvatarName>{addNewDirectorKey}</UI.AvatarName>
+								<UI.AvatarName>
+									{Object.keys(directors).length <= 0
+										? CONST_SECTIONS.BUSINESS_TYPE_OPTIONS[businessType]
+										: addNewDirectorKey}
+								</UI.AvatarName>
 								<UI.HoverBadge>&nbsp;</UI.HoverBadge>
 							</UI.LI>
 						)}
