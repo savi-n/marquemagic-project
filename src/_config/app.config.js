@@ -116,6 +116,8 @@ const CLIENT_EMAIL_ID = 'clix@nc.com';
 const REDIRECT_CREATE =
 	HOSTNAME === 'localhost' ? '/' : '/onboarding/applyloan';
 
+const SKIP_SECTION = `${API_END_POINT}/skip_section`;
+
 const VERIFY_KYC = `${API_END_POINT}/api/verifyKycData`;
 const NC_STATUS_CODE = {
 	OK: 'ok',
@@ -250,4 +252,5 @@ export {
 	GET_COMMENTS,
 	VERIFY_KYC,
 	FEDERAL_TRANSACTION_KYC_API,
+	SKIP_SECTION,
 };
