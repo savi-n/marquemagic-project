@@ -25,7 +25,7 @@ import { useToasts } from './Toast/ToastProvider';
 import { reInitializeDirectorsSlice } from 'store/directorsSlice';
 
 const Wrapper = styled.div`
-
+max-width: 200px;
 margin: 20px;
   border-radius: 10px;
   /* background: ${({ theme }) => theme.themeColor1}; */
@@ -40,8 +40,9 @@ margin: 20px;
   margin: 0 calc(12% / 6);
 	@media (max-width: 700px) {
 margin: 1rem 0;
-/* width: 100%; */
+max-width: 100%;
 padding: 50px;
+
 	}
 `;
 
