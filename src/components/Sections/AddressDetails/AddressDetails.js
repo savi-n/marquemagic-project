@@ -486,7 +486,7 @@ const AddressDetails = props => {
 						classification_sub_type: doc?.isTagged?.classification_sub_type,
 						doc_ref_id:
 							formState?.values?.[`${doc?.prefix}address_proof_id_others`] ||
-							formState?.values?.[`${doc?.prefix}address_proof_id`] ||
+							formState?.values?.[`${doc?.prefix}address_proof_id_others`] ||
 							undefined,
 
 						aid: doc?.isTagged?.id?.includes(
@@ -663,6 +663,12 @@ const AddressDetails = props => {
 
 				permanent_aadhaar: sectionData?.director_details?.daadhaar,
 				permanent_address_proof_id_others:
+					ekycArrayPermanentAddress?.length > 0
+						? sectionData?.director_details?.ekyc_data?.filter(item => {
+								return `${item?.aid}` === '2';
+						  })?.[0]?.doc_ref_id
+						: '',
+				permanent_address_proof_id_document_name_others:
 					sectionData?.director_details?.permanent_ddocname,
 				permanent_address_proof_id_passport:
 					sectionData?.director_details?.dpassport,
@@ -706,12 +712,18 @@ const AddressDetails = props => {
 
 				present_aadhaar: sectionData?.director_details?.daadhaar,
 				present_address_proof_id_others:
-					sectionData?.director_details?.ddocname,
+					ekycArrayPresentAddress?.length > 0
+						? sectionData?.director_details?.ekyc_data?.filter(item => {
+								return `${item?.aid}` === '1';
+						  })?.[0]?.doc_ref_id
+						: '',
+
 				present_address_proof_id_passport:
 					sectionData?.director_details?.dpassport,
 				present_address_proof_id_dl: sectionData?.director_details?.ddlNumber,
 				present_address_proof_id_voter: sectionData?.director_details?.dvoterid,
-
+				present_address_proof_id_document_name_others:
+					sectionData?.director_details?.ddocname,
 				present_address_type: sectionData?.director_details?.address_type,
 				present_address1: sectionData?.director_details?.address1,
 				present_address2: sectionData?.director_details?.address2,
