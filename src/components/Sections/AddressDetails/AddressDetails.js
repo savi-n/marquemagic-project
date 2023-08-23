@@ -157,10 +157,6 @@ const AddressDetails = props => {
 		isApplicant,
 	});
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-	console.log(
-		formState?.values?.['permanent_address_proof_id'],
-		formState.values['present_address_proof_id_others']
-	);
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
 			handleBankRedirection(field.redirect_url);
@@ -489,8 +485,9 @@ const AddressDetails = props => {
 						classification_type: doc?.isTagged?.classification_type,
 						classification_sub_type: doc?.isTagged?.classification_sub_type,
 						doc_ref_id:
-							formState?.values?.[`${doc?.prefix}_address_proof_id}`] ||
-							formState.values[`${doc?.prefix}_address_proof_id_others`],
+							formState.values[`${doc?.prefix}address_proof_id_others`] ||
+							formState.values[`${doc?.prefix}address_proof_id`],
+
 						aid: doc?.isTagged?.id?.includes(
 							CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
 						)
