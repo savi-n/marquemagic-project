@@ -92,7 +92,9 @@ const BasicDetails = props => {
 		businessUserId,
 		geoLocation,
 		loanRefId,
+		businessType,
 	} = application;
+
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
@@ -170,7 +172,265 @@ const BasicDetails = props => {
 
 	const isProfileMandatory = !!selectedProfileField?.rules?.required;
 	let prefilledProfileUploadValue = '';
+	const onAddDirectorSme = async key => {
+		try {
+			setLoading(true);
+			const isTokenValid = await validateToken();
+			if (isTokenValid === false) return;
+			// call login api only once
+			// TODO: varun do not call this api when RM is creating loan
+			let newBorrowerUserId = '';
 
+			if (!isEditOrViewLoan && !borrowerUserId) {
+				const loginCreateUserReqBody = {
+					email: formState?.values?.email || '',
+					white_label_id: whiteLabelId,
+					source: API.APP_CLIENT,
+					name: formState?.values?.first_name,
+					mobileNo: formState?.values?.mobile_no,
+					addrr1: '',
+					addrr2: '',
+				};
+				if (!!userDetails?.id) {
+					loginCreateUserReqBody.user_id = userDetails?.id;
+				}
+				const newLoginCreateUserRes = await axios.post(
+					`${API.LOGIN_CREATEUSER}`,
+					loginCreateUserReqBody
+				);
+				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
+				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
+				// first priority is to set existing user token which is comming from ui-ux
+				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
+				axios.defaults.headers.Authorization = `Bearer ${userToken ||
+					newLoginCreateUserRes?.data?.token}`;
+			} else {
+				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+			}
+
+			// loan product is is only applicable for applicant
+			// it should not be overritten when coapplicant is income type is different then applicant
+			let selectedLoanProductId = '';
+			// if (isApplicant) {
+			selectedLoanProductId = selectedProduct?.product_id?.[selectedIncomeType];
+			// }
+
+			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			)?.[0];
+			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			let url = profileUploadedFile?.preview;
+			if (profileField?.geo_tagging === true) {
+				url = profileUploadedFile?.presignedUrl;
+			}
+			const profileUrl = url || selectedDirector?.customer_picture || '';
+			const profileFieldValue = isNewProfileUploaded
+				? {
+						...profileUploadedFile?.file,
+						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							profileField?.is_delete_not_allowed === true ? true : false,
+				  }
+				: profileUrl;
+			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
+			const basicDetailsReqBody = formatSectionReqBody({
+				section: selectedSection,
+				// crime_check: isCrimeCheckPresent,
+				values: {
+					...formState.values,
+					app_coordinates:
+						// selectedProfileField?.geo_tagging === true
+						{
+							lat: geoLocationData?.lat,
+							long: geoLocationData?.long,
+							timestamp: geoLocationData?.timestamp,
+						},
+					// : {},
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+				},
+				app,
+				selectedDirector,
+				application,
+				selectedLoanProductId,
+			});
+
+			// always pass borrower user id from login api for create case / from edit loan data
+			basicDetailsReqBody.borrower_user_id =
+				newBorrowerUserId || businessUserId;
+			if (crimeCheck) {
+				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
+			}
+			if (addNewDirectorKey) {
+				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
+			} else if (selectedDirector) {
+				basicDetailsReqBody.data.basic_details.type_name =
+					selectedDirector?.type_name;
+			}
+			const basicDetailsRes = await axios.post(
+				`${API.API_END_POINT}/basic_details`,
+				basicDetailsReqBody
+			);
+			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
+			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
+			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
+			const newBusinessUserId =
+				basicDetailsRes?.data?.data?.business_data?.userid;
+			const newCreatedByUserId =
+				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+
+			if (!newLoanRefId || !newLoanId || !newBusinessId) {
+				throw new Error('Unable to create loan, Try after sometime');
+			}
+
+			if (isNewProfileUploaded) {
+				const uploadedProfileRes =
+					basicDetailsRes?.data?.data?.loan_document_data || null;
+				const newProfileData = {
+					...(uploadedProfileRes || {}),
+					...profileUploadedFile,
+					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
+					directorId: newDirectorId,
+					preview: profileUrl,
+					file: null,
+					isDocRemoveAllowed: false,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				};
+				if (uploadedProfileRes?.id) {
+					newProfileData.document_id = uploadedProfileRes?.id;
+				}
+				newProfileData.name =
+					newProfileData?.filename ||
+					newProfileData?.uploaded_doc_name ||
+					newProfileData?.original_doc_name;
+			}
+			if (cacheDocumentsTemp?.length > 0) {
+				try {
+					const uploadCacheDocumentsTemp = [];
+					cacheDocumentsTemp?.map(doc => {
+						if (!doc?.requestId) return null;
+						uploadCacheDocumentsTemp.push({
+							...doc,
+							request_id: doc?.requestId,
+							classification_type:
+								doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME ? 'pan' : null,
+							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType],
+							is_delete_not_allowed: true,
+							director_id: newDirectorId,
+							directorId: newDirectorId,
+							preview: null,
+							document_id: doc?.requestId, // temp doc id as this doc is non deletable
+						});
+						return null;
+					});
+					if (uploadCacheDocumentsTemp.length) {
+						const uploadCacheDocumentsTempReqBody = {
+							loan_id: newLoanId,
+							request_ids_obj: uploadCacheDocumentsTemp,
+							user_id: newCreatedByUserId,
+						};
+
+						await axios.post(
+							API.UPLOAD_CACHE_DOCS,
+							uploadCacheDocumentsTempReqBody,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+					}
+				} catch (error) {
+					console.error('error-', error);
+				}
+			}
+			const newBasicDetails = {
+				sectionId: selectedSectionId,
+				sectionValues: {
+					...formState.values,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
+				},
+			};
+			newBasicDetails.directorId = newDirectorId;
+			// TODO: shreyas work with director object and pass cin
+			// newBasicDetails.cin = selectedDirector?.companyRocData?.CIN || '';
+			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
+				.length > 0 &&
+				profilePicGeolocation) || {
+				address:
+					selectedDirector?.address ||
+					selectedDirector?.profileGeoLocation?.address,
+				lat: selectedDirector?.lat,
+				long: selectedDirector?.long,
+				timestamp: selectedDirector?.timestamp,
+			};
+			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
+			dispatch(
+				setLoanIds({
+					loanRefId: newLoanRefId,
+					loanId: newLoanId,
+					businessId: newBusinessId,
+					businessUserId: newBusinessUserId,
+					loanProductId: selectedLoanProductId,
+					createdByUserId: newCreatedByUserId,
+					borrowerUserId: newBorrowerUserId,
+				})
+			);
+			// if (addNewDirectorKey) {
+			dispatch(
+				getDirectors({
+					loanRefId: newLoanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+				})
+			);
+			dispatch(setAddNewDirectorKey(''));
+			// }
+			setTimeout(() => {
+				// to update after directors are fetched
+				// dispatch(setSelectedSectionId(nextSectionId));
+				// dispatch(setSelectedDirectorId(newDirectorId));
+			}, 500);
+			if (isGeoTaggingEnabled) {
+				if (
+					mandatoryGeoTag.length > 0 &&
+					mandatoryGeoTag.includes('profileGeoLocation')
+				) {
+					// ITERATING OVER THE MANDATORY FIELDS AND
+					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
+					// BUT ALLOW USER TO MOVE TO NEXT SECTION
+					if (
+						!selectedDirector.profileGeoLocation?.address &&
+						!profilePicGeolocation?.address
+					) {
+						addToast({
+							message: 'Mandatory Profile GeoLocation not captured',
+							type: 'error',
+						});
+					}
+				}
+
+				// IF GEOTAGGING IS MANDATORY
+				if (!geoLocation?.address) {
+					addToast({
+						message: 'Mandatory GeoLocation not captured',
+						type: 'error',
+					});
+				}
+			}
+			dispatch(setSelectedDirectorId(''));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+			dispatch(setAddNewDirectorKey(key));
+		} catch (err) {
+			console.error(err?.message);
+		} finally {
+			setLoading(false);
+		}
+		// dispatch(setSelectedDirectorId(''));
+		// dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+		// dispatch(setAddNewDirectorKey(key));
+	};
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -608,6 +868,273 @@ const BasicDetails = props => {
 			setFetchingAddress(false);
 		}
 	};
+	// working one
+	const onAddDirector = async key => {
+		// console.log({ key });
+		try {
+			setLoading(true);
+			const isTokenValid = await validateToken();
+			if (isTokenValid === false) return;
+			// call login api only once
+			// TODO: varun do not call this api when RM is creating loan
+			let newBorrowerUserId = '';
+
+			if (!isEditOrViewLoan && !borrowerUserId) {
+				const loginCreateUserReqBody = {
+					email: formState?.values?.email || '',
+					white_label_id: whiteLabelId,
+					source: API.APP_CLIENT,
+					name: formState?.values?.first_name,
+					mobileNo: formState?.values?.mobile_no,
+					addrr1: '',
+					addrr2: '',
+				};
+				if (!!userDetails?.id) {
+					loginCreateUserReqBody.user_id = userDetails?.id;
+				}
+				const newLoginCreateUserRes = await axios.post(
+					`${API.LOGIN_CREATEUSER}`,
+					loginCreateUserReqBody
+				);
+				dispatch(setLoginCreateUserRes(newLoginCreateUserRes?.data));
+				newBorrowerUserId = newLoginCreateUserRes?.data?.userId;
+				// first priority is to set existing user token which is comming from ui-ux
+				// create user is for creating users bucket and generating borrower_user_id so that all the document can be stored inside users bucket
+				axios.defaults.headers.Authorization = `Bearer ${userToken ||
+					newLoginCreateUserRes?.data?.token}`;
+			} else {
+				axios.defaults.headers.Authorization = `Bearer ${userToken}`;
+			}
+
+			// loan product is is only applicable for applicant
+			// it should not be overritten when coapplicant is income type is different then applicant
+			let selectedLoanProductId = '';
+			// if (isApplicant) {
+			selectedLoanProductId = selectedProduct?.product_id?.[selectedIncomeType];
+			// }
+
+			const profileField = selectedSection?.sub_sections?.[0]?.fields?.filter(
+				field => field?.name === CONST.PROFILE_UPLOAD_FIELD_NAME
+			)?.[0];
+			const isNewProfileUploaded = !!profileUploadedFile?.file;
+			let url = profileUploadedFile?.preview;
+			if (profileField?.geo_tagging === true) {
+				url = profileUploadedFile?.presignedUrl;
+			}
+			const profileUrl = url || selectedDirector?.customer_picture || '';
+			const profileFieldValue = isNewProfileUploaded
+				? {
+						...profileUploadedFile?.file,
+						doc_type_id: profileField?.doc_type?.[selectedIncomeType],
+						is_delete_not_allowed:
+							profileField?.is_delete_not_allowed === true ? true : false,
+				  }
+				: profileUrl;
+			const crimeCheck = selectedProduct?.product_details?.crime_check || 'No';
+			const basicDetailsReqBody = formatSectionReqBody({
+				section: selectedSection,
+				// crime_check: isCrimeCheckPresent,
+				values: {
+					...formState.values,
+					app_coordinates:
+						// selectedProfileField?.geo_tagging === true
+						{
+							lat: geoLocationData?.lat,
+							long: geoLocationData?.long,
+							timestamp: geoLocationData?.timestamp,
+						},
+					// : {},
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileFieldValue,
+				},
+				app,
+				selectedDirector,
+				application,
+				selectedLoanProductId,
+			});
+
+			// always pass borrower user id from login api for create case / from edit loan data
+			basicDetailsReqBody.borrower_user_id =
+				newBorrowerUserId || businessUserId;
+			if (crimeCheck) {
+				basicDetailsReqBody.data.basic_details.crime_check = crimeCheck;
+			}
+			if (addNewDirectorKey) {
+				basicDetailsReqBody.data.basic_details.type_name = addNewDirectorKey;
+			} else if (selectedDirector) {
+				basicDetailsReqBody.data.basic_details.type_name =
+					selectedDirector?.type_name;
+			}
+			const basicDetailsRes = await axios.post(
+				`${API.API_END_POINT}/basic_details`,
+				basicDetailsReqBody
+			);
+			const newLoanRefId = basicDetailsRes?.data?.data?.loan_data?.loan_ref_id;
+			const newLoanId = basicDetailsRes?.data?.data?.loan_data?.id;
+			const newBusinessId = basicDetailsRes?.data?.data?.business_data?.id;
+			const newDirectorId = basicDetailsRes?.data?.data?.director_details?.id;
+			const newBusinessUserId =
+				basicDetailsRes?.data?.data?.business_data?.userid;
+			const newCreatedByUserId =
+				basicDetailsRes?.data?.data?.loan_data?.createdUserId;
+
+			if (!newLoanRefId || !newLoanId || !newBusinessId) {
+				throw new Error('Unable to create loan, Try after sometime');
+			}
+
+			if (isNewProfileUploaded) {
+				const uploadedProfileRes =
+					basicDetailsRes?.data?.data?.loan_document_data || null;
+				const newProfileData = {
+					...(uploadedProfileRes || {}),
+					...profileUploadedFile,
+					...(typeof profileFieldValue !== 'string' ? profileFieldValue : {}),
+					directorId: newDirectorId,
+					preview: profileUrl,
+					file: null,
+					isDocRemoveAllowed: false,
+					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+				};
+				if (uploadedProfileRes?.id) {
+					newProfileData.document_id = uploadedProfileRes?.id;
+				}
+				newProfileData.name =
+					newProfileData?.filename ||
+					newProfileData?.uploaded_doc_name ||
+					newProfileData?.original_doc_name;
+			}
+			if (cacheDocumentsTemp?.length > 0) {
+				try {
+					const uploadCacheDocumentsTemp = [];
+					cacheDocumentsTemp?.map(doc => {
+						if (!doc?.requestId) return null;
+						uploadCacheDocumentsTemp.push({
+							...doc,
+							request_id: doc?.requestId,
+							classification_type:
+								doc?.field?.name === CONST.PAN_UPLOAD_FIELD_NAME ? 'pan' : null,
+							doc_type_id: doc?.field?.doc_type?.[selectedIncomeType],
+							is_delete_not_allowed: true,
+							director_id: newDirectorId,
+							directorId: newDirectorId,
+							preview: null,
+							document_id: doc?.requestId, // temp doc id as this doc is non deletable
+						});
+						return null;
+					});
+					if (uploadCacheDocumentsTemp.length) {
+						const uploadCacheDocumentsTempReqBody = {
+							loan_id: newLoanId,
+							request_ids_obj: uploadCacheDocumentsTemp,
+							user_id: newCreatedByUserId,
+						};
+
+						await axios.post(
+							API.UPLOAD_CACHE_DOCS,
+							uploadCacheDocumentsTempReqBody,
+							{
+								headers: {
+									Authorization: clientToken,
+								},
+							}
+						);
+					}
+				} catch (error) {
+					console.error('error-', error);
+				}
+			}
+			const newBasicDetails = {
+				sectionId: selectedSectionId,
+				sectionValues: {
+					...formState.values,
+					[CONST.PROFILE_UPLOAD_FIELD_DB_KEY]: profileUrl,
+					[CONST.PROFILE_UPLOAD_FIELD_NAME]: profileUrl,
+				},
+			};
+			newBasicDetails.directorId = newDirectorId;
+			// TODO: shreyas work with director object and pass cin
+			// newBasicDetails.cin = selectedDirector?.companyRocData?.CIN || '';
+			newBasicDetails.profileGeoLocation = (Object.keys(profilePicGeolocation)
+				.length > 0 &&
+				profilePicGeolocation) || {
+				address:
+					selectedDirector?.address ||
+					selectedDirector?.profileGeoLocation?.address,
+				lat: selectedDirector?.lat,
+				long: selectedDirector?.long,
+				timestamp: selectedDirector?.timestamp,
+			};
+			newBasicDetails.geotaggingMandatory = mandatoryGeoTag;
+			dispatch(
+				setLoanIds({
+					loanRefId: newLoanRefId,
+					loanId: newLoanId,
+					businessId: newBusinessId,
+					businessUserId: newBusinessUserId,
+					loanProductId: selectedLoanProductId,
+					createdByUserId: newCreatedByUserId,
+					borrowerUserId: newBorrowerUserId,
+				})
+			);
+			// if (addNewDirectorKey) {
+			dispatch(
+				getDirectors({
+					loanRefId: newLoanRefId,
+					isSelectedProductTypeBusiness:
+						selectedProduct?.isSelectedProductTypeBusiness,
+				})
+			);
+			dispatch(setAddNewDirectorKey(''));
+			// }
+			setTimeout(() => {
+				// to update after directors are fetched
+				// dispatch(setSelectedSectionId(nextSectionId));
+				// dispatch(setSelectedDirectorId(newDirectorId));
+			}, 500);
+			if (isGeoTaggingEnabled) {
+				if (
+					mandatoryGeoTag.length > 0 &&
+					mandatoryGeoTag.includes('profileGeoLocation')
+				) {
+					// ITERATING OVER THE MANDATORY FIELDS AND
+					// IF IN REDUX STORE DATA DOESNT PERSIST THROW ERROR
+					// BUT ALLOW USER TO MOVE TO NEXT SECTION
+					if (
+						!selectedDirector.profileGeoLocation?.address &&
+						!profilePicGeolocation?.address
+					) {
+						addToast({
+							message: 'Mandatory Profile GeoLocation not captured',
+							type: 'error',
+						});
+					}
+				}
+
+				// IF GEOTAGGING IS MANDATORY
+				if (!geoLocation?.address) {
+					addToast({
+						message: 'Mandatory GeoLocation not captured',
+						type: 'error',
+					});
+				}
+			}
+			dispatch(setSelectedDirectorId(''));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
+			dispatch(setAddNewDirectorKey(key));
+		} catch (error) {
+			console.error('error-BasicDetails-onProceed-', {
+				error: error,
+				res: error?.response,
+				resres: error?.response?.response,
+				resData: error?.response?.data,
+			});
+			addToast({
+				message: getApiErrorMessage(error),
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const fetchGeoLocationData = async fetchRes => {
 		try {
@@ -933,6 +1460,14 @@ const BasicDetails = props => {
 		saveMandatoryGeoLocation();
 		// eslint-disable-next-line
 	}, []);
+
+	// trial starts
+	let displayAddCoApplicantCTA = false;
+	// console.log({ selectedSection });
+	if (selectedSection?.add_co_applicant_visibility === true) {
+		displayAddCoApplicantCTA = true;
+	}
+	// trial ends
 
 	const incomeTypeField =
 		selectedSection?.sub_sections
@@ -1326,6 +1861,159 @@ const BasicDetails = props => {
 							/>
 						)}
 						<NavigateCTA previous={false} />
+						{displayAddCoApplicantCTA && (
+							<Button
+								fill
+								name='Add Co-Applicant'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									let isProfileError = false;
+									if (isProfileMandatory && profileUploadedFile === null) {
+										isProfileError = true;
+									}
+									if (
+										isEditOrViewLoan &&
+										prefilledProfileUploadValue &&
+										typeof prefilledProfileUploadValue === 'string'
+									) {
+										isProfileError = false;
+									}
+									if (isProfileError) {
+										// console.log('profile-error-', {
+										// 	isProfileError,
+										// 	profileUploadedFile,
+										// 	isEditOrViewLoan,
+										// 	value:
+										// 		formState?.values?.[
+										// 			CONST.PAN_UPLOAD_FIELD_NAME
+										// 		],
+										// });
+										addToast({
+											message: 'Profile is mandatory',
+											type: 'error',
+										});
+										return;
+									}
+									const presentPanFile = tempPanUploadedFile || panUploadedFile;
+									if (!isTestMode && isPanUploadMandatory && !presentPanFile) {
+										addToast({
+											message: 'Pan upload is mandatory',
+											type: 'error',
+										});
+										return;
+									}
+									if (!isPanNumberExist && isPanUploadMandatory) {
+										addToast({
+											message: 'Pan Number is mandatory',
+											type: 'error',
+										});
+										return;
+									}
+									// director id will be present in case of aplicant / coapplicant if they move out of basic details page
+									// so avoid opening income type popup at below condition
+									// if (isEditOrViewLoan || !!selectedDirector?.directorId) {
+									// 	// if in edit loan, adding a coapplicant since the selected director will be empty, this popup will trigger
+									// 	if (!selectedDirector?.directorId) {
+									// 		setIsIncomeTypeConfirmModalOpen(true);
+									// 		return;
+									// 	}
+									// 	// onSaveAndProceed();
+									// 	onAddDirector('Co-applicant');
+
+									// 	return;
+									// }
+									onAddDirector('Co-applicant');
+
+									// setIsIncomeTypeConfirmModalOpen(true);
+								})}
+							/>
+						)}
+
+						{selectedProduct?.isSelectedProductTypeBusiness &&
+							!isViewLoan &&
+							// !initialDirectorsUpdated &&
+							selectedSection?.footer?.fields?.map((field, fieldIndex) => {
+								if (!field?.business_income_type_id?.includes(+businessType))
+									return null;
+								return (
+									<Button
+										key={`field${fieldIndex}`}
+										fill
+										name={field?.name}
+										isLoader={loading}
+										disabled={loading}
+										onClick={handleSubmit(() => {
+											let isProfileError = false;
+											if (isProfileMandatory && profileUploadedFile === null) {
+												isProfileError = true;
+											}
+											if (
+												isEditOrViewLoan &&
+												prefilledProfileUploadValue &&
+												typeof prefilledProfileUploadValue === 'string'
+											) {
+												isProfileError = false;
+											}
+											if (isProfileError) {
+												// console.log('profile-error-', {
+												// 	isProfileError,
+												// 	profileUploadedFile,
+												// 	isEditOrViewLoan,
+												// 	value:
+												// 		formState?.values?.[
+												// 			CONST.PAN_UPLOAD_FIELD_NAME
+												// 		],
+												// });
+												addToast({
+													message: 'Profile is mandatory',
+													type: 'error',
+												});
+												return;
+											}
+											const presentPanFile =
+												tempPanUploadedFile || panUploadedFile;
+											if (
+												!isTestMode &&
+												isPanUploadMandatory &&
+												!presentPanFile
+											) {
+												addToast({
+													message: 'Pan upload is mandatory',
+													type: 'error',
+												});
+												return;
+											}
+											if (!isPanNumberExist && isPanUploadMandatory) {
+												addToast({
+													message: 'Pan Number is mandatory',
+													type: 'error',
+												});
+												return;
+											}
+											// director id will be present in case of aplicant / coapplicant if they move out of basic details page
+											// so avoid opening income type popup at below condition
+											// if (isEditOrViewLoan || !!selectedDirector?.directorId) {
+											// 	// if in edit loan, adding a coapplicant since the selected director will be empty, this popup will trigger
+											// 	if (!selectedDirector?.directorId) {
+											// 		setIsIncomeTypeConfirmModalOpen(true);
+											// 		return;
+											// 	}
+											// 	// onSaveAndProceed();
+											// 	onAddDirectorSme(field?.key);
+
+											// 	return;
+											// }
+											onAddDirectorSme(field?.key);
+
+											// setIsIncomeTypeConfirmModalOpen(true);
+										})}
+									/>
+								);
+							})}
+						{/* New footer buttons for crisil flow ends
+						 */}
 					</UI_SECTIONS.Footer>
 				</>
 			)}
