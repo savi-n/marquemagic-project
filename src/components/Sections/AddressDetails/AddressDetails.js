@@ -486,7 +486,6 @@ const AddressDetails = props => {
 						classification_sub_type: doc?.isTagged?.classification_sub_type,
 						doc_ref_id:
 							formState?.values?.[`${doc?.prefix}address_proof_id_others`] ||
-							formState?.values?.[`${doc?.prefix}address_proof_id_others`] ||
 							undefined,
 
 						aid: doc?.isTagged?.id?.includes(
