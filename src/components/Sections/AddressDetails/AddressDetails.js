@@ -157,7 +157,6 @@ const AddressDetails = props => {
 		isApplicant,
 	});
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-
 	const onClickVerifyWithOtp = async field => {
 		if (field?.redirect_url) {
 			handleBankRedirection(field.redirect_url);
@@ -485,6 +484,11 @@ const AddressDetails = props => {
 						isDocRemoveAllowed: false,
 						classification_type: doc?.isTagged?.classification_type,
 						classification_sub_type: doc?.isTagged?.classification_sub_type,
+						doc_ref_id:
+							formState?.values?.[`${doc?.prefix}address_proof_id_others`] ||
+							formState?.values?.[`${doc?.prefix}address_proof_id`] ||
+							undefined,
+
 						aid: doc?.isTagged?.id?.includes(
 							CONST_ADDRESS_DETAILS.PREFIX_PERMANENT
 						)
@@ -642,12 +646,16 @@ const AddressDetails = props => {
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
-			const ekycArrayPermanentAddress=sectionData?.director_details?.ekyc_data?.filter(item => {
-				return `${item?.aid}` === '2';
-			});
-			const ekycArrayPresentAddress= sectionData?.director_details?.ekyc_data?.filter(item => {
-				return `${item?.aid}` === '1';
-			});
+			const ekycArrayPermanentAddress = sectionData?.director_details?.ekyc_data?.filter(
+				item => {
+					return `${item?.aid}` === '2';
+				}
+			);
+			const ekycArrayPresentAddress = sectionData?.director_details?.ekyc_data?.filter(
+				item => {
+					return `${item?.aid}` === '1';
+				}
+			);
 			// -- TEST MODE
 			const preData = {
 				permanent_address_proof_address_type:
@@ -679,7 +687,7 @@ const AddressDetails = props => {
 					  ).format('YYYY-MM')
 					: '',
 				permanent_address_proof_valid_till:
-				ekycArrayPermanentAddress?.length > 0
+					ekycArrayPermanentAddress?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '2';
@@ -688,7 +696,7 @@ const AddressDetails = props => {
 						: '',
 
 				permanent_address_proof_issued_on:
-				ekycArrayPermanentAddress?.length > 0
+					ekycArrayPermanentAddress?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '2';
@@ -727,7 +735,7 @@ const AddressDetails = props => {
 						  ).format('YYYY-MM-DD')
 						: '',
 				present_address_proof_valid_till:
-				ekycArrayPresentAddress?.length > 0
+					ekycArrayPresentAddress?.length > 0
 						? moment(
 								sectionData?.director_details?.ekyc_data?.filter(item => {
 									return `${item?.aid}` === '1';
