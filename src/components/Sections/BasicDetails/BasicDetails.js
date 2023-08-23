@@ -114,6 +114,7 @@ const BasicDetails = props => {
 		onChangeFormStateField,
 		clearErrorFormState,
 		setErrorFormStateField,
+		// resetForm,
 	} = useForm();
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
@@ -389,7 +390,7 @@ const BasicDetails = props => {
 			// }
 			setTimeout(() => {
 				// to update after directors are fetched
-				// dispatch(setSelectedSectionId(nextSectionId));
+				// dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 				// dispatch(setSelectedDirectorId(newDirectorId));
 			}, 500);
 			if (isGeoTaggingEnabled) {
@@ -420,8 +421,11 @@ const BasicDetails = props => {
 				}
 			}
 			dispatch(setSelectedDirectorId(''));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID));
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 			dispatch(setAddNewDirectorKey(key));
+			// resetForm();
+			// setCacheDocumentsTemp([]);
 		} catch (err) {
 			console.error(err?.message);
 		} finally {
@@ -1118,6 +1122,7 @@ const BasicDetails = props => {
 				}
 			}
 			dispatch(setSelectedDirectorId(''));
+			dispatch(setSelectedSectionId(CONST_SECTIONS.ADDRESS_DETAILS_SECTION_ID));
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 			dispatch(setAddNewDirectorKey(key));
 		} catch (error) {
@@ -1280,6 +1285,11 @@ const BasicDetails = props => {
 	};
 
 	// fetch section data ends
+	// useLayoutEffect(() => {
+	// 	setCacheDocumentsTemp([]);
+	// 	resetForm();
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
 
 	useEffect(() => {
 		scrollToTopRootElement();
