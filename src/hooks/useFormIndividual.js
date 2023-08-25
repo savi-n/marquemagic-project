@@ -245,10 +245,10 @@ export default function useForm() {
 
 	const checkValidity = name => {
 		let error = false;
-		if (!fieldsRef.current[name]?.disabled) {
-			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
-		}
-
+		// if (!fieldsRef.current[name]?.disabled) {
+		// 	error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
+		// }
+		error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		const { [name]: _, ...errorFields } = errorsRef.current;
 		errorsRef.current = { ...errorFields, ...(error ? { [name]: error } : {}) };
 
