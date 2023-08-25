@@ -244,11 +244,12 @@ export default function useForm() {
 	const [, updateFormState] = useState(uuidv4());
 
 	const checkValidity = name => {
+		const {selectedSectionId} = app;
 		let error = false;
-		// if (!fieldsRef.current[name]?.disabled) {
-		// 	error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
-		// }
-		error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
+		if (!fieldsRef.current[name]?.disabled || selectedSectionId==='business_details') {
+			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
+		}
+		// error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		const { [name]: _, ...errorFields } = errorsRef.current;
 		errorsRef.current = { ...errorFields, ...(error ? { [name]: error } : {}) };
 
