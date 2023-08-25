@@ -246,7 +246,7 @@ export default function useForm() {
 	const checkValidity = name => {
 		const {selectedSectionId} = app;
 		let error = false;
-		if (!fieldsRef.current[name]?.disabled || selectedSectionId==='business_details') {
+		if (!fieldsRef.current[name]?.disabled || (selectedSectionId && selectedSectionId==='business_details')) {
 			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		}
 		// error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
