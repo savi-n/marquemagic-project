@@ -248,6 +248,7 @@ const Single = ({
 				<section>
 					<UI.ImgClose
 						onClick={() => {
+							clearInterval(window.timer);
 							setModalOpen(false);
 							fetchConsentDetails();
 						}}
