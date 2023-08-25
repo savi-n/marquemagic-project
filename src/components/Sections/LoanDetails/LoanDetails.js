@@ -225,6 +225,12 @@ const LoanDetails = () => {
 			if (cacheDocumentsTemp.length > 0) {
 				try {
 					const uploadCacheDocumentsTemp = [];
+					const applicant =
+						(!!directors &&
+							Object.values(directors)?.filter(
+								dir => dir?.type_name === CONST_SECTIONS.APPLICANT_TYPE_NAME
+							)?.[0]) ||
+						{};
 					cacheDocumentsTemp?.map(doc => {
 						uploadCacheDocumentsTemp.push({
 							...doc,
@@ -232,6 +238,10 @@ const LoanDetails = () => {
 							preview: null,
 							is_delete_not_allowed:
 								doc?.field?.is_delete_not_allowed === true ? true : false,
+							directorId:
+								`${selectedProduct?.loan_request_type}` === '1'
+									? 0
+									: +applicant?.directorId,
 						});
 						return null;
 					});
@@ -279,7 +289,6 @@ const LoanDetails = () => {
 			if (imd_Details_doc_id) {
 				loanDetailsReqBody.data.imd_details.doc_id = imd_Details_doc_id;
 			}
-			// const loanDetailsRes =
 			await axios.post(
 				`${API.API_END_POINT}/updateLoanDetails`,
 				loanDetailsReqBody
@@ -325,6 +334,10 @@ const LoanDetails = () => {
 			...loanDetails,
 			loan_amount: loanDetails?.loan_amount,
 			tenure: loanDetails?.applied_tenure,
+			// this is specifically for housing loan , where the branch field is coming inside loan details sub section
+			branch_id: loanDetails?.branch_id?.id
+				? `${loanDetails?.branch_id?.id}`
+				: '',
 			loan_usage_type_id: ['string', 'number'].includes(
 				typeof loanDetails?.loan_usage_type
 			)
@@ -332,15 +345,19 @@ const LoanDetails = () => {
 				: loanDetails?.loan_usage_type?.id,
 			scheme_category: loanDetails?.scheme_category_code,
 			credit_insurance: loanDetails?.credit_linked_insurance,
-			loan_source: loanDetails?.loan_origin,
+			// savitha should take accountability if the response is changed later - bad practice
+			// this code will only take the option if it is available at last
+			loan_source: loanDetails?.loan_origin?.split('_')?.slice(-1)?.[0],
 			connector_name: loanDetails?.connector_user_id,
 			connector_code: loanDetails?.connector_user_id,
 			...imdDetails,
 			imd_document_proof: imdDetails?.doc_id, // TODO document mapping
 			mode_of_payment: imdDetails?.payment_mode,
 			imd_paid_by: imdDetails?.imd_paid_by,
-			branch: `${loanDetails?.branch_id?.id}`,
-			loan_type: loanDetails?.loan_usage_type?.id,
+			branch: loanDetails?.branch_id?.id ? `${loanDetails?.branch_id?.id}` : '',
+			loan_type: loanDetails?.loan_usage_type
+				? `${loanDetails?.loan_usage_type}`
+				: '',
 			...estimatedFundRequirements,
 			...sourceFundRequirements,
 		};
@@ -350,24 +367,24 @@ const LoanDetails = () => {
 	const prefilledValues = field => {
 		try {
 			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
-			if (field?.name === 'loan_source') {
-				if (
-					formState?.values?.[field.name] === CONST.FIELD_NAME_NC_CONNECTOR ||
-					formState?.values?.[field.name] === CONST.FIELD_NAME_CONNECTOR
-				)
-					return 'Connector';
-				else if (
-					formState?.values?.[field.name] === CONST.FIELD_NAME_NC_BRANCH ||
-					formState?.values?.[field.name] === CONST.FIELD_NAME_BRANCH
-				)
-					return 'Branch';
-				// 	// return '';
-				else if (
-					formState?.values?.[field.name] === CONST.FIELD_NAME_NC ||
-					formState?.values?.[field.name] === CONST.FIELD_NAME_NC2
-				)
-					return null;
-			}
+			// if (field?.name === 'loan_source') {
+			// 	if (
+			// 		formState?.values?.[field.name] === CONST.FIELD_NAME_NC_CONNECTOR ||
+			// 		formState?.values?.[field.name] === CONST.FIELD_NAME_CONNECTOR
+			// 	)
+			// 		return 'Connector';
+			// 	else if (
+			// 		formState?.values?.[field.name] === CONST.FIELD_NAME_NC_BRANCH ||
+			// 		formState?.values?.[field.name] === CONST.FIELD_NAME_BRANCH
+			// 	)
+			// 		return 'Branch';
+			// 	// 	// return '';
+			// 	else if (
+			// 		formState?.values?.[field.name] === CONST.FIELD_NAME_NC ||
+			// 		formState?.values?.[field.name] === CONST.FIELD_NAME_NC2
+			// 	)
+			// 		return null;
+			// }
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
