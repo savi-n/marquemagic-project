@@ -102,7 +102,7 @@ const BankDetails = () => {
 				<Loading />
 			) : (
 				<>
-					{selectedSection.sub_sections?.map((sub_section, sectionIndex) => {
+					{selectedSection?.sub_sections?.map((sub_section, sectionIndex) => {
 						return (
 							<Fragment key={`section-${sectionIndex}-${sub_section?.id}`}>
 								{sub_section?.name ? (

@@ -1870,7 +1870,7 @@ const BasicDetails = props => {
 								})}
 							/>
 						)}
-						<NavigateCTA previous={false} />
+						<NavigateCTA previous={false} directorSelected={selectedDirector} />
 						{displayAddCoApplicantCTA && (
 							<Button
 								fill
