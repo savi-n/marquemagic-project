@@ -128,7 +128,7 @@ export default function Pincode(props) {
 				for (const [k, v] of props.value_for_fields) {
 					const target = {
 						name: showCityState(props, k),
-						value: selectedPincodeRes?.[v]?.[0] || 'NA',
+						value: selectedPincodeRes?.[v]?.[0] || '',
 					};
 					props.onChange({ target });
 				}
@@ -138,7 +138,7 @@ export default function Pincode(props) {
 				for (const [k] of props.value_for_fields) {
 					const target = {
 						name: showCityState(props, k),
-						value: 'NA',
+						value: '',
 					};
 					props.onChange({ target });
 				}
