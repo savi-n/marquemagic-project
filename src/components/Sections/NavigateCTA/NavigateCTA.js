@@ -12,7 +12,12 @@ import { setCompletedApplicationSection } from 'store/applicationSlice';
 import { useState } from 'react';
 
 const NavigateCTA = props => {
-	const { previous = true, next = true, trackSkippedSection = true } = props;
+	const {
+		previous = true,
+		next = true,
+		trackSkippedSection = true,
+		directorSelected,
+	} = props;
 	const {
 		isViewLoan,
 		nextSectionId,
@@ -25,13 +30,12 @@ const NavigateCTA = props => {
 	const { application } = useSelector(state => state);
 	const dispatch = useDispatch();
 
-	const { loanId, businessId, directorId } = application;
+	const { loanId, businessId } = application;
 	const { directors, selectedDirectorId } = useSelector(
 		state => state.directors
 	);
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const isApplicant = isDirectorApplicant(selectedDirector);
-
 	const completedSections = getAllCompletedSections({
 		selectedProduct,
 		application,
@@ -48,13 +52,14 @@ const NavigateCTA = props => {
 			setLoading(true);
 			if (
 				!completedSections?.includes(selectedSectionId) &&
+				!application?.sections?.includes(selectedSectionId) &&
 				trackSkippedSection
 			) {
 				const reqBody = {
 					loan_id: loanId,
 					business_id: businessId,
 					section_id: selectedSectionId,
-					director_id: directorId,
+					director_id: directorSelected,
 				};
 
 				await axios.post(SKIP_SECTION, reqBody);

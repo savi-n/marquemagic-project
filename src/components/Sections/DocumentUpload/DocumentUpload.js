@@ -194,6 +194,13 @@ const DocumentUpload = props => {
 	const isSelfieWithApplicantOrEntityRequired =
 		selfieWithApplicantField?.rules?.required;
 
+	// usage of null coalescing operator
+	const isApplicantSelfieFieldVisible =
+		selfieWithApplicantField?.visibility ?? true;
+
+	const isCoAppSelfieFieldVisible =
+		selfieWithApplicantField?.visibility ?? true;
+
 	const isSelfieWithCoApplicantRequired =
 		selfieWithCoapplicantField?.rules?.required;
 	// console.log({
@@ -449,7 +456,11 @@ const DocumentUpload = props => {
 						}
 
 						if (
-							allDocumentsRes?.data?.documentList?.lender_document?.length > 0
+							allDocumentsRes?.data?.documentList?.lender_document?.length >
+								0 &&
+							(Object.keys(selfieWithApplicantField) > 0 ||
+								Object.keys(selfieWithCoapplicantField) > 0) &&
+							(isApplicantSelfieFieldVisible || isCoAppSelfieFieldVisible)
 						) {
 							// console.log(Object.values(selfieWithApplicantField?.doc_type));
 							// console.log(Object.values(selfieWithCoapplicantField?.doc_type));
@@ -458,16 +469,33 @@ const DocumentUpload = props => {
 								allDocumentsRes?.data?.documentList?.lender_document;
 							filteredSelfieDocs = lenderDocs.filter(
 								doc =>
-									Object.values(selfieWithApplicantField?.doc_type).includes(
-										doc?.doc_type?.id
-									) ||
-									Object.values(selfieWithCoapplicantField?.doc_type).includes(
-										doc?.doc_type?.id
-									)
+									(Object.keys(selfieWithApplicantField).includes('doc_type') &&
+										Object.values(selfieWithApplicantField?.doc_type).includes(
+											doc?.doc_type?.id
+										)) ||
+									(Object.keys(selfieWithCoapplicantField).includes(
+										'doc_type'
+									) &&
+										Object.values(
+											selfieWithCoapplicantField?.doc_type
+										).includes(doc?.doc_type?.id))
 							);
+
+							// optimised code for above snippets, need to test properly hence commented
+							// const isDocTypeInField = (doc, field) =>
+							// 	field &&
+							// 	field.doc_type?.id &&
+							// 	doc.doc_type?.id &&
+							// 	field.doc_type.id === doc.doc_type.id;
+
+							// filteredSelfieDocs = lenderDocs.filter(
+							// 	doc =>
+							// 		isDocTypeInField(doc, selfieWithApplicantField) ||
+							// 		isDocTypeInField(doc, selfieWithCoapplicantField)
+							// );
+
 							filteredSelfieDocs?.map(selfieDoc => {
 								dispatch(addSelfieCacheDocument(selfieDoc));
-								// dispatch(addCacheDocument(selfieDoc))
 								return null;
 							});
 						}
@@ -602,7 +630,9 @@ const DocumentUpload = props => {
 							// 	newAllDocumentTypes,
 							// });
 						}
-					} catch (error) {}
+					} catch (error) {
+						console.error('Error:', error);
+					}
 
 					dispatch(
 						addOrUpdateCacheDocumentsDocUploadPage({
@@ -1279,6 +1309,7 @@ const DocumentUpload = props => {
 		// if (`${selectedProduct?.loan_request_type}` === '2') {
 		if (
 			permission?.geo_tagging?.geo_tagging &&
+			isApplicantSelfieFieldVisible &&
 			selfieWithApplicantField?.geo_tagging &&
 			isSelfieWithApplicantOrEntityRequired
 		) {
@@ -1315,6 +1346,7 @@ const DocumentUpload = props => {
 		// For CoApplicants in Individual loan and business loan
 		if (
 			permission?.geo_tagging?.geo_tagging &&
+			isCoAppSelfieFieldVisible &&
 			selfieWithCoapplicantField?.geo_tagging &&
 			isSelfieWithCoApplicantRequired
 		) {
@@ -2378,16 +2410,17 @@ const DocumentUpload = props => {
 					);
 				})}
 
-				{!isViewLoan && (
-					<Button
-						name='Get Other Bank Statements'
-						onClick={() => setIsOtherBankStatementModal(true)}
-						customStyle={{
-							width: 'auto',
-							height: '45px',
-						}}
-					/>
-				)}
+				{!isViewLoan &&
+					selectedSection?.get_other_bank_statement_button !== false && (
+						<Button
+							name='Get Other Bank Statements'
+							onClick={() => setIsOtherBankStatementModal(true)}
+							customStyle={{
+								width: 'auto',
+								height: '45px',
+							}}
+						/>
+					)}
 				<UI.CheckboxWrapper>
 					<CheckBox
 						name={

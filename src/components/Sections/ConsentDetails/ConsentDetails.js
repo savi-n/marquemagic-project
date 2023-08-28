@@ -28,12 +28,15 @@ const ConsentDetails = props => {
 		// isEditOrViewLoan,
 		clientToken,
 	} = app;
+	const completedSections = application?.sections;
 
 	const { businessId, loanId, loanRefId } = application;
 
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const [loading, setLoading] = useState(false);
+	const [buttonLoading, setButtonLoading] = useState(false);
+
 	const [consentDetails, setConsentDetails] = useState([]);
 
 	const fetchConsentDetails = async () => {
@@ -53,7 +56,6 @@ const ConsentDetails = props => {
 				}
 			);
 			setConsentDetails(consentRes?.data?.response);
-			setLoading(false);
 		} catch (error) {
 			console.error('error-ConsentDetails-getConsentDetails', {
 				error: error,
@@ -84,9 +86,34 @@ const ConsentDetails = props => {
 		dispatch(setSelectedSectionId(prevSectionId));
 	};
 
-	const onSaveAndProceed = () => {
-		dispatch(setCompletedApplicationSection(selectedSectionId));
-		dispatch(setSelectedSectionId(nextSectionId));
+	const onSaveAndProceed = async () => {
+		try {
+			setButtonLoading(true);
+
+			if (!completedSections?.includes(selectedSectionId)) {
+				const reqBody = {
+					loan_id: loanId,
+					business_id: businessId,
+					section_id: selectedSectionId,
+				};
+				const skipRes = await axios.post(API.SKIP_SECTION, reqBody);
+				if (skipRes?.data?.status === 'ok') {
+					dispatch(setCompletedApplicationSection(selectedSectionId));
+					dispatch(setSelectedSectionId(nextSectionId));
+				}
+			} else {
+				dispatch(setCompletedApplicationSection(selectedSectionId));
+				dispatch(setSelectedSectionId(nextSectionId));
+			}
+		} catch (err) {
+			console.error(err.message);
+			addToast({
+				message:
+					err?.message || 'Something went wrong! Please try after sometime',
+			});
+		} finally {
+			setButtonLoading(false);
+		}
 	};
 
 	return (
@@ -138,8 +165,8 @@ const ConsentDetails = props => {
 							<Button
 								fill
 								name={'Save and Proceed'}
-								isLoader={loading}
-								disabled={loading}
+								loading={buttonLoading}
+								disabled={buttonLoading}
 								onClick={onSaveAndProceed}
 							/>
 						)}
