@@ -55,7 +55,11 @@ import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
 import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement, isNullFunction } from 'utils/helper';
+import {
+	scrollToTopRootElement,
+	isNullFunction,
+	getGeoLocation,
+} from 'utils/helper';
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -119,6 +123,8 @@ const BasicDetails = props => {
 
 	const [isTokenValid, setIsTokenValid] = useState(true);
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
+	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
+
 	const [sectionData, setSectionData] = useState({});
 	const passportData =
 		!!sectionData &&
@@ -1146,7 +1152,7 @@ const BasicDetails = props => {
 	const fetchGeoLocationData = async fetchRes => {
 		try {
 			const appCoordinates =
-				fetchRes?.data?.data?.director_details?.app_coordinates;
+				fetchRes?.data?.data?.director_details?.app_coordinates || {};
 
 			if (
 				// (!geoLocation || geoLocation?.err) &&
@@ -1265,7 +1271,12 @@ const BasicDetails = props => {
 				) {
 					fetchGeoLocationData(fetchRes);
 				}
-
+				const latLongTimestamp =
+					fetchRes?.data?.data?.director_details?.app_coordinates || {};
+				if (selectedProduct?.isSelectedProductTypeBusiness) {
+					// console.log('sme-edit-mode');
+					fetchGeoLocationForSme(latLongTimestamp);
+				}
 				if (!!geoLocationData && Object.keys(geoLocationData).length === 0) {
 					dispatch(
 						setGeoLocation({
@@ -1292,7 +1303,46 @@ const BasicDetails = props => {
 	// 	resetForm();
 	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	// }, []);
+	const fetchGeoLocationForSme = async appCoordinates => {
+		// Special case for SME FLow - Fetch geolocation if not saved - starts
+		try {
+			setFetchingGeoLocation(true);
+			if (
+				isGeoTaggingEnabled &&
+				typeof appCoordinates === 'object' &&
+				Object.values(appCoordinates)?.length === 0 &&
+				typeof geoLocation === 'object' &&
+				Object.values(geoLocation)?.length === 0
+			) {
+				// console.log('in', {
+				// 	isGeoTaggingEnabled,
+				// 	appCoordinates,
+				// 	isbusiness: selectedProduct?.isSelectedProductTypeBusiness,
+				// });
+				const coordinates = await getGeoLocation();
+				const reqBody = {
+					lat: coordinates?.latitude,
+					long: coordinates?.longitude,
+				};
 
+				const geoLocationRes = await axios.post(API.GEO_LOCATION, reqBody, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+				console.log({ geoLocationRes });
+				dispatch(setGeoLocation(geoLocationRes?.data?.data));
+			}
+		} catch (err) {
+			console.error({
+				error: err.message,
+				location: 'geo-location-fetch-failed-SME',
+			});
+		} finally {
+			setFetchingGeoLocation(false);
+		}
+		// Special case for SME FLow - Fetch geolocation if not saved - ends
+	};
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -1316,6 +1366,15 @@ const BasicDetails = props => {
 		)
 			fetchSectionDetails();
 		// new fetch section data ends
+
+		// sme flow - special case
+		if (
+			selectedProduct?.isSelectedProductTypeBusiness &&
+			!completedSections?.includes(selectedSectionId)
+		) {
+			// console.log('create-mode');
+			fetchGeoLocationForSme(geoLocation);
+		}
 
 		if (
 			isGeoTaggingEnabled &&
@@ -1520,7 +1579,7 @@ const BasicDetails = props => {
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
-			{fetchingSectionData ? (
+			{fetchingSectionData || fetchingGeoLocation ? (
 				<Loading />
 			) : (
 				<>
