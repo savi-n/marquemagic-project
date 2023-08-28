@@ -2410,16 +2410,17 @@ const DocumentUpload = props => {
 					);
 				})}
 
-				{!isViewLoan && (
-					<Button
-						name='Get Other Bank Statements'
-						onClick={() => setIsOtherBankStatementModal(true)}
-						customStyle={{
-							width: 'auto',
-							height: '45px',
-						}}
-					/>
-				)}
+				{!isViewLoan &&
+					selectedSection?.get_other_bank_statement_button !== false && (
+						<Button
+							name='Get Other Bank Statements'
+							onClick={() => setIsOtherBankStatementModal(true)}
+							customStyle={{
+								width: 'auto',
+								height: '45px',
+							}}
+						/>
+					)}
 				<UI.CheckboxWrapper>
 					<CheckBox
 						name={
