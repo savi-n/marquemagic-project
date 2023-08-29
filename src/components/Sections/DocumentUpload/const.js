@@ -57,3 +57,5 @@ export const ON_SITE_SELFIE_UPLOAD_FIELD_NAME_COAPPLICANT =
 	'on_site_selfie_with_co_applicant';
 
 export const DEFAULT_DIRECTOR_ID_FOR_ENTITY = '0';
+
+export const COMMENT_FOR_OFFICE_USE_SUB_SECTION_ID = 'comment_for_office_use';
