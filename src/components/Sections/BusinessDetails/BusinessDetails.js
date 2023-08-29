@@ -129,6 +129,11 @@ const BusinessDetails = props => {
 		fieldName: CONST.PAN_UPLOAD_FIELD_NAME,
 		selectedSection,
 	});
+
+	const businessTypeField = getSelectedField({
+		fieldName: CONST.BUSINESS_TYPE_FIELD_NAME,
+		selectedSection,
+	});
 	const selectedIncomeType =
 		formState?.values?.[CONST.BUSINESS_TYPE_FIELD_NAME] || {};
 	const isPanUploadMandatory = !!selectedPanUploadField?.rules?.required;
@@ -692,7 +697,11 @@ const BusinessDetails = props => {
 			) : (
 				<>
 					<ConfirmModal
-						type='Business'
+						type={
+							businessTypeField?.placeholder
+								? businessTypeField?.placeholder
+								: 'Business Type'
+						}
 						show={isIncomeTypeConfirmModalOpen}
 						onClose={setIsIncomeTypeConfirmModalOpen}
 						ButtonProceed={ButtonProceed}
