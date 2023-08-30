@@ -21,7 +21,7 @@ import {
 import {
 	setNewCompletedDirectorSections,
 	getDirectors,
-	setSmeType,
+	// setSmeType,
 } from 'store/directorsSlice';
 import {
 	setLoanIds,
@@ -368,11 +368,8 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) {
 				dispatch(setBusinessType(newBusinessType));
-				console.log(
-					directorSlice?.smeType,
-					'sme type before setting in business details'
-				);
-				dispatch(setSmeType(newBusinessType));
+				
+				// dispatch(setSmeType(newBusinessType));
 			}
 			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
 			const newBusinessName =
@@ -611,9 +608,9 @@ const BusinessDetails = props => {
 						directorSlice?.smeType,
 						'sme type before setting at line 612 in business details'
 					);
-					dispatch(
-						setSmeType(fetchRes?.data?.data?.business_details?.businesstype)
-					);
+					// dispatch(
+					// 	setSmeType(fetchRes?.data?.data?.business_details?.businesstype)
+					// );
 				}
 				if (isEditOrViewLoan) {
 					dispatch(
