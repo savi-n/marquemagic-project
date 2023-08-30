@@ -168,6 +168,7 @@ export default function CardSubProduct({
 						// setSubProduct(true)
 						if (!add) {
 							try {
+								console.log("rannnnned")
 								if (isGeoTaggingEnabled) {
 									setGettingGeoLocation(true);
 									const coordinates = await getGeoLocation();
@@ -207,6 +208,7 @@ export default function CardSubProduct({
 								return;
 							} finally {
 								setGettingGeoLocation(false);
+								setGeoLocation(null)
 							}
 						}
 						// if (product.loan_request_type === 2) {
