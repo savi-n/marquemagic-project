@@ -250,6 +250,7 @@ export const directorsSlice = createSlice({
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
 		setSmeType: (state, { payload }) => {
+			console.log('set sme called, but why?', { payload });
 			state.smeType = payload;
 		},
 		setDirector: (state, { payload }) => {
