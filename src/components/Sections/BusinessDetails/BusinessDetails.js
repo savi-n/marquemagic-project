@@ -54,11 +54,14 @@ import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusi
 import { isInvalidPan } from 'utils/validation';
 
 const BusinessDetails = props => {
-	const { app, application } = useSelector(state => state);
+	const { app, application, directors: directorSlice } = useSelector(
+		state => state
+	);
 	// const { directors, selectedDirectorId } = useSelector(
 	// 	state => state.directors
 	// );
 	// const selectedDirector = directors?.[selectedDirectorId] || {};
+	console.log({ directorSlice }, 'director slice in business details');
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -365,6 +368,10 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) {
 				dispatch(setBusinessType(newBusinessType));
+				console.log(
+					directorSlice?.smeType,
+					'sme type before setting in business details'
+				);
 				dispatch(setSmeType(newBusinessType));
 			}
 			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
@@ -599,6 +606,10 @@ const BusinessDetails = props => {
 						setBusinessType(
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
+					);
+					console.log(
+						directorSlice?.smeType,
+						'sme type before setting at line 612 in business details'
 					);
 					dispatch(
 						setSmeType(fetchRes?.data?.data?.business_details?.businesstype)

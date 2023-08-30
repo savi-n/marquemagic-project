@@ -2417,7 +2417,7 @@ const DocumentUpload = props => {
 				})}
 
 				{!isViewLoan &&
-					selectedSection?.get_other_bank_statement_button !== false && (
+					selectedSection?.get_other_bank_statement_button === true && (
 						<Button
 							name='Get Other Bank Statements'
 							onClick={() => setIsOtherBankStatementModal(true)}
