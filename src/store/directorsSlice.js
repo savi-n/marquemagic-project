@@ -61,6 +61,7 @@ const initialState = {
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
 	selectedDirectorOptions: [],
+	smeType: null,
 };
 
 export const getDirectors = createAsyncThunk(
