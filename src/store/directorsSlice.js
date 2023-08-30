@@ -143,12 +143,12 @@ export const directorsSlice = createSlice({
 				let newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					// label: `${director?.type_name}`,
-					label: `${
-						director?.type_name === DIRECTOR_TYPES.coApplicant
-							? director?.type_name
-							: BUSINESS_TYPES[state.smeType] || director?.type_name
-					}`,
+					label: `${director?.type_name}`,
+					// label: `${
+					// 	director?.type_name === DIRECTOR_TYPES.coApplicant
+					// 		? director?.type_name
+					// 		: BUSINESS_TYPES[state.smeType] || director?.type_name
+					// }`,
 					fullName,
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
@@ -157,12 +157,12 @@ export const directorsSlice = createSlice({
 						prevState?.directors?.[directorId]?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({
-					// name: `${director.type_name}|${fullName}`,
-					name: `${
-						director?.type_name === DIRECTOR_TYPES.coApplicant
-							? director?.type_name
-							: BUSINESS_TYPES[state.smeType] || director?.type_name
-					}|${fullName}`,
+					name: `${director.type_name}|${fullName}`,
+					// name: `${
+					// 	director?.type_name === DIRECTOR_TYPES.coApplicant
+					// 		? director?.type_name
+					// 		: BUSINESS_TYPES[state.smeType] || director?.type_name
+					// }|${fullName}`,
 					value: directorId,
 				});
 				// console.log(prevState,"prev state");
@@ -225,7 +225,9 @@ export const directorsSlice = createSlice({
 
 			if (newSelectedDirectorOptions.length === 0) {
 				if (isSelectedProductTypeBusiness) {
-					state.addNewDirectorKey = DIRECTOR_TYPES.director;
+					const selectedBusinessType = BUSINESS_TYPES[state.smeType];
+					state.addNewDirectorKey =
+						DIRECTOR_TYPES[selectedBusinessType] || 'Director';
 				} else {
 					state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 				}
