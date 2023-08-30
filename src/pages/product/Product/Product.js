@@ -135,6 +135,8 @@ const Product = props => {
 					response?.data?.loan_request_type;
 			}
 		}
+
+		return () => setSelectedSectionId(null);
 		// eslint-disable-next-line
 	}, [response]);
 	// for reseting formstate
