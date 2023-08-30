@@ -2250,6 +2250,12 @@ const DocumentUpload = props => {
 			<UI.Footer>
 				{/* TODO: comment for office use  */}
 				{selectedSection?.sub_sections?.map((sub_section, idx) => {
+					if (
+						userDetails?.is_other &&
+						sub_section?.id === CONST.COMMENT_FOR_OFFICE_USE_SUB_SECTION_ID
+					) {
+						return null;
+					}
 					return (
 						<UI.CommentsForOfficeUserWrapper key={`sub-${sub_section?.id}`}>
 							<UI.Divider />
@@ -2410,16 +2416,17 @@ const DocumentUpload = props => {
 					);
 				})}
 
-				{!isViewLoan && (
-					<Button
-						name='Get Other Bank Statements'
-						onClick={() => setIsOtherBankStatementModal(true)}
-						customStyle={{
-							width: 'auto',
-							height: '45px',
-						}}
-					/>
-				)}
+				{!isViewLoan &&
+					selectedSection?.get_other_bank_statement_button === true && (
+						<Button
+							name='Get Other Bank Statements'
+							onClick={() => setIsOtherBankStatementModal(true)}
+							customStyle={{
+								width: 'auto',
+								height: '45px',
+							}}
+						/>
+					)}
 				<UI.CheckboxWrapper>
 					<CheckBox
 						name={
