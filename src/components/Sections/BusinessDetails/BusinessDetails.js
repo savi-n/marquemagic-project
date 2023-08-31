@@ -54,9 +54,7 @@ import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusi
 import { isInvalidPan } from 'utils/validation';
 
 const BusinessDetails = props => {
-	const { app, application, directors: directorSlice } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	// const { directors, selectedDirectorId } = useSelector(
 	// 	state => state.directors
 	// );

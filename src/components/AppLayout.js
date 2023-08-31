@@ -16,8 +16,9 @@ import {
 	setClientToken as appSetClientToken,
 	setPermission,
 	setUserToken,
-	reInitializeAppSlice,
+	setSelectedSectionId,
 } from 'store/appSlice';
+import { setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	// setGeoLocation,
 	setLoanIds,
@@ -90,7 +91,8 @@ const AppLayout = () => {
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
 		console.log('app-slice');
-		dispatch(reInitializeAppSlice());
+		dispatch(setSelectedSectionId(''));
+		dispatch(setAddNewDirectorKey(''));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
