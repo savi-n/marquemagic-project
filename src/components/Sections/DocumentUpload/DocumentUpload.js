@@ -1391,10 +1391,9 @@ const DocumentUpload = props => {
 						allowProceed = false;
 					}
 					if (filteredDoc?.length < coApplicantOrDirectors?.length) {
-						console
-							.log
-							// 'coapplicant failure - Due to less docs than coapps/directors - onsite selfie'
-							();
+						// console.log(
+						// 	'coapplicant failure - Due to less docs than coapps/directors - onsite selfie',
+						// );
 						allowProceed = false;
 					}
 					if (filteredDoc?.length > 0) {
@@ -1685,6 +1684,11 @@ const DocumentUpload = props => {
 	const selfieFieldForSelectedAppOrCoapp = [
 		'Co-applicant',
 		'Director',
+		'Partner',
+		'Guarantor',
+		'Trustee',
+		'Member',
+		'Proprietor',
 	]?.includes(selectedDirector?.type_name)
 		? selfieWithCoapplicantField
 		: selfieWithApplicantField;

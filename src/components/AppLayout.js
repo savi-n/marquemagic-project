@@ -16,7 +16,9 @@ import {
 	setClientToken as appSetClientToken,
 	setPermission,
 	setUserToken,
+	setSelectedSectionId,
 } from 'store/appSlice';
+import { setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	// setGeoLocation,
 	setLoanIds,
@@ -87,7 +89,12 @@ const AppLayout = () => {
 		actions: { setClientToken, setBankToken, setWhitelabelId, setLogo },
 	} = useContext(AppContext);
 	const [loading, setLoading] = useState(true);
-
+	useEffect(() => {
+		console.log('app-slice');
+		dispatch(setSelectedSectionId(''));
+		dispatch(setAddNewDirectorKey(''));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	useEffect(() => {
 		async function fetchData() {
 			try {

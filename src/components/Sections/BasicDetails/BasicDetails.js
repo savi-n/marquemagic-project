@@ -62,9 +62,7 @@ import {
 } from 'utils/helper';
 
 const BasicDetails = props => {
-	const { app, application, directors: directorSlice } = useSelector(
-		state => state
-	);
+	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
 	);
