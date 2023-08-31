@@ -117,7 +117,7 @@ export const directorsSlice = createSlice({
 				selectedSectionId,
 			} = payload;
 			const prevState = current(state);
-			console.log(prevState);
+			// console.log(prevState);
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
@@ -198,8 +198,8 @@ export const directorsSlice = createSlice({
 					name: newName,
 				});
 			});
-			console.log('PrevState', !prevState);
-			console.log(prevState?.selectedDirectorId, 'Prestate directorID');
+			// console.log('PrevState', !prevState);
+			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;

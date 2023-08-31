@@ -216,10 +216,10 @@ const AppLayout = () => {
 					transaction_id: transactionId,
 				},
 			});
-			console.log(resp.data, 'federal bank redirection kyc to backend resp');
+			// console.log(resp.data, 'federal bank redirection kyc to backend resp');
 			return resp;
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 	// Test loader here
