@@ -68,10 +68,10 @@ const BasicDetails = props => {
 	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
 	);
-	console.log(
-		'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ directors:',
-		directorSlice
-	);
+	// console.log(
+	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ directors:',
+	// 	directorSlice
+	// );
 
 	// const { smeType } = directors;
 	// console.log({ smeType });
@@ -1339,7 +1339,7 @@ const BasicDetails = props => {
 						Authorization: `Bearer ${userToken}`,
 					},
 				});
-				console.log({ geoLocationRes });
+				// console.log({ geoLocationRes });
 				dispatch(setGeoLocation(geoLocationRes?.data?.data));
 			}
 		} catch (err) {

@@ -61,7 +61,6 @@ const BusinessDetails = props => {
 	// 	state => state.directors
 	// );
 	// const selectedDirector = directors?.[selectedDirectorId] || {};
-	console.log({ directorSlice }, 'director slice in business details');
 	const {
 		selectedProduct,
 		selectedSectionId,
@@ -368,7 +367,7 @@ const BusinessDetails = props => {
 				buissnessDetailsRes?.data?.data?.business_data?.contactno;
 			if (!!newBusinessType) {
 				dispatch(setBusinessType(newBusinessType));
-				
+
 				// dispatch(setSmeType(newBusinessType));
 			}
 			if (!!newBusinessMobile) dispatch(setBusinessMobile(newBusinessMobile));
@@ -603,10 +602,6 @@ const BusinessDetails = props => {
 						setBusinessType(
 							fetchRes?.data?.data?.business_details?.businesstype
 						)
-					);
-					console.log(
-						directorSlice?.smeType,
-						'sme type before setting at line 612 in business details'
 					);
 					// dispatch(
 					// 	setSmeType(fetchRes?.data?.data?.business_details?.businesstype)
