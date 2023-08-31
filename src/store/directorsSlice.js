@@ -10,7 +10,7 @@ import {
 import {
 	getDirectorFullName,
 	getShortString,
-	checkInitialDirectorsUpdated,
+	// checkInitialDirectorsUpdated,
 	getSelectedDirectorIndex,
 } from 'utils/formatData';
 
@@ -117,11 +117,12 @@ export const directorsSlice = createSlice({
 				selectedSectionId,
 			} = payload;
 			const prevState = current(state);
+			// console.log(prevState);
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
 			let applicantDirector = {};
-			let lastDirector = {};
+			// let lastDirector = {};
 			let firstDirector = {};
 			const directorOptions = [];
 			const newSelectedDirectorOptions = [];
@@ -168,9 +169,9 @@ export const directorsSlice = createSlice({
 				// console.log(prevState,"prev state");
 				newDirectors[directorId] = newDirectorObject;
 				// state[directorId].onSiteSelfieGeoLocation= prevState.directors[directorId]?.onSiteSelfieGeoLocation;
-				if (directorIndex === sortedDirectors?.length - 1) {
-					lastDirector = newDirectorObject;
-				}
+				// if (directorIndex === sortedDirectors?.length - 1) {
+				// 	lastDirector = newDirectorObject;
+				// }
 				if (directorIndex === 0) {
 					firstDirector = newDirectorObject;
 				}
@@ -197,8 +198,8 @@ export const directorsSlice = createSlice({
 					name: newName,
 				});
 			});
-			// console.log("PrevState",!prevState.selectedDirectorId);
-			// console.log(prevState);
+			// console.log('PrevState', !prevState);
+			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
@@ -206,14 +207,15 @@ export const directorsSlice = createSlice({
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
-				if (
-					isSelectedProductTypeBusiness &&
-					checkInitialDirectorsUpdated(newDirectors)
-				) {
-					state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
-				} else {
-					state.selectedDirectorId = `${lastDirector.directorId || ''}`;
-				}
+				state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
+				// if (
+				// 	isSelectedProductTypeBusiness &&
+				// 	checkInitialDirectorsUpdated(newDirectors)
+				// ) {
+				// 	state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
+				// } else {
+				// 	state.selectedDirectorId = `${lastDirector.directorId || ''}`;
+				// }
 			}
 
 			state.isEntity = newIsEntity;

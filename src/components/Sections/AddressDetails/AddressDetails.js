@@ -283,6 +283,7 @@ const AddressDetails = props => {
 				);
 			}
 		} catch (err) {
+			console.error(err);
 			// console.log('====================================');
 			console.error(err);
 			// console.log('====================================');
