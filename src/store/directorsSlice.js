@@ -10,7 +10,7 @@ import {
 import {
 	getDirectorFullName,
 	getShortString,
-	checkInitialDirectorsUpdated,
+	// checkInitialDirectorsUpdated,
 	getSelectedDirectorIndex,
 } from 'utils/formatData';
 
@@ -122,7 +122,7 @@ export const directorsSlice = createSlice({
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
 			let applicantDirector = {};
-			let lastDirector = {};
+			// let lastDirector = {};
 			let firstDirector = {};
 			const directorOptions = [];
 			const newSelectedDirectorOptions = [];
@@ -169,9 +169,9 @@ export const directorsSlice = createSlice({
 				// console.log(prevState,"prev state");
 				newDirectors[directorId] = newDirectorObject;
 				// state[directorId].onSiteSelfieGeoLocation= prevState.directors[directorId]?.onSiteSelfieGeoLocation;
-				if (directorIndex === sortedDirectors?.length - 1) {
-					lastDirector = newDirectorObject;
-				}
+				// if (directorIndex === sortedDirectors?.length - 1) {
+				// 	lastDirector = newDirectorObject;
+				// }
 				if (directorIndex === 0) {
 					firstDirector = newDirectorObject;
 				}
