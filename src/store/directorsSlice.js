@@ -24,17 +24,17 @@ export const DIRECTOR_TYPES = {
 	member: 'Member',
 	proprietor: 'Proprietor',
 };
-// const BUSINESS_TYPES = {
-// 	1: 'Proprietor', // 1: Sole Proprietorship
-// 	2: 'Partner', // 2: Partnership
-// 	3: 'Partner', // 3: LLP
-// 	4: 'Director', // 4: Private Limited
-// 	5: 'Director', // 5: Public Limited
-// 	6: 'Member', // 6: Others
-// 	9: 'Trustee', // 9: Trust
-// 	10: 'Member', // 10: Society
-// 	11: 'Member', // 11: Associations
-// };
+const BUSINESS_TYPES = {
+	1: 'proprietor', // 1: Sole Proprietorship
+	2: 'partner', // 2: Partnership
+	3: 'partner', // 3: LLP
+	4: 'director', // 4: Private Limited
+	5: 'director', // 5: Public Limited
+	6: 'member', // 6: Others
+	9: 'trustee', // 9: Trust
+	10: 'member', // 10: Society
+	11: 'member', // 11: Associations
+};
 
 const initialDirectorsObject = {
 	// if length of sections is 3 then it's validated
@@ -227,7 +227,13 @@ export const directorsSlice = createSlice({
 
 			if (newSelectedDirectorOptions.length === 0) {
 				if (isSelectedProductTypeBusiness) {
-					state.addNewDirectorKey= DIRECTOR_TYPES.director;
+					const selectedBusinessType = BUSINESS_TYPES[state.smeType];
+					// console.log({
+					// 	selectedBusinessType,
+					// 	dir: DIRECTOR_TYPES[selectedBusinessType],
+					// });
+					state.addNewDirectorKey =
+						DIRECTOR_TYPES[selectedBusinessType] || DIRECTOR_TYPES.director;
 				} else {
 					state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 				}
@@ -251,10 +257,9 @@ export const directorsSlice = createSlice({
 
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
-		// setSmeType: (state, { payload }) => {
-		// 	console.log('set sme called, but why?', { payload });
-		// 	state.smeType = payload;
-		// },
+		setSmeType: (state, { payload }) => {
+			state.smeType = payload;
+		},
 		setDirector: (state, { payload }) => {
 			if (state.directors[payload.id]) {
 				state.directors[payload.id] = payload;

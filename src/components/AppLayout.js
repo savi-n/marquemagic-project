@@ -16,6 +16,7 @@ import {
 	setClientToken as appSetClientToken,
 	setPermission,
 	setUserToken,
+	reInitializeAppSlice,
 } from 'store/appSlice';
 import {
 	// setGeoLocation,
@@ -87,7 +88,11 @@ const AppLayout = () => {
 		actions: { setClientToken, setBankToken, setWhitelabelId, setLogo },
 	} = useContext(AppContext);
 	const [loading, setLoading] = useState(true);
-
+	useEffect(() => {
+		console.log('app-slice');
+		dispatch(reInitializeAppSlice());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	useEffect(() => {
 		async function fetchData() {
 			try {
