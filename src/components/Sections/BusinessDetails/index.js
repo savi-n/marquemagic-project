@@ -1,2 +1,2 @@
-import BussinessDetails from './BusinessDetails';
-export default BussinessDetails;
+import BusinessDetails from './BusinessDetails';
+export default BusinessDetails;

@@ -10,7 +10,7 @@ import {
 import {
 	getDirectorFullName,
 	getShortString,
-	checkInitialDirectorsUpdated,
+	// checkInitialDirectorsUpdated,
 	getSelectedDirectorIndex,
 } from 'utils/formatData';
 
@@ -24,17 +24,17 @@ export const DIRECTOR_TYPES = {
 	member: 'Member',
 	proprietor: 'Proprietor',
 };
-const BUSINESS_TYPES = {
-	1: 'Proprietor', // 1: Sole Proprietorship
-	2: 'Partner', // 2: Partnership
-	3: 'Partner', // 3: LLP
-	4: 'Director', // 4: Private Limited
-	5: 'Director', // 5: Public Limited
-	6: 'Member', // 6: Others
-	9: 'Trustee', // 9: Trust
-	10: 'Member', // 10: Society
-	11: 'Member', // 11: Associations
-};
+// const BUSINESS_TYPES = {
+// 	1: 'Proprietor', // 1: Sole Proprietorship
+// 	2: 'Partner', // 2: Partnership
+// 	3: 'Partner', // 3: LLP
+// 	4: 'Director', // 4: Private Limited
+// 	5: 'Director', // 5: Public Limited
+// 	6: 'Member', // 6: Others
+// 	9: 'Trustee', // 9: Trust
+// 	10: 'Member', // 10: Society
+// 	11: 'Member', // 11: Associations
+// };
 
 const initialDirectorsObject = {
 	// if length of sections is 3 then it's validated
@@ -61,6 +61,7 @@ const initialState = {
 	selectedDirectorIsEntity: false,
 	addNewDirectorKey: '',
 	selectedDirectorOptions: [],
+	smeType: null,
 };
 
 export const getDirectors = createAsyncThunk(
@@ -116,11 +117,12 @@ export const directorsSlice = createSlice({
 				selectedSectionId,
 			} = payload;
 			const prevState = current(state);
+			// console.log(prevState);
 			state.fetchingDirectors = false;
 			state.fetchingDirectorsSuccess = true;
 			const newDirectors = {};
 			let applicantDirector = {};
-			let lastDirector = {};
+			// let lastDirector = {};
 			let firstDirector = {};
 			const directorOptions = [];
 			const newSelectedDirectorOptions = [];
@@ -142,12 +144,12 @@ export const directorsSlice = createSlice({
 				let newDirectorObject = {
 					..._.cloneDeep(initialDirectorsObject),
 					...director,
-					// label: `${director?.type_name}`,
-					label: `${
-						director?.type_name === DIRECTOR_TYPES.coApplicant
-							? director?.type_name
-							: BUSINESS_TYPES[state.smeType] || director?.type_name
-					}`,
+					label: `${director?.type_name}`,
+					// label: `${
+					// 	director?.type_name === DIRECTOR_TYPES.coApplicant
+					// 		? director?.type_name
+					// 		: BUSINESS_TYPES[state.smeType] || director?.type_name
+					// }`,
 					fullName,
 					shortName: getShortString(fullName, 10),
 					// sections: newSections,
@@ -156,20 +158,20 @@ export const directorsSlice = createSlice({
 						prevState?.directors?.[directorId]?.onSiteSelfieGeoLocation || {},
 				};
 				directorOptions.push({
-					// name: `${director.type_name}|${fullName}`,
-					name: `${
-						director?.type_name === DIRECTOR_TYPES.coApplicant
-							? director?.type_name
-							: BUSINESS_TYPES[state.smeType] || director?.type_name
-					}|${fullName}`,
+					name: `${director.type_name}|${fullName}`,
+					// name: `${
+					// 	director?.type_name === DIRECTOR_TYPES.coApplicant
+					// 		? director?.type_name
+					// 		: BUSINESS_TYPES[state.smeType] || director?.type_name
+					// }|${fullName}`,
 					value: directorId,
 				});
 				// console.log(prevState,"prev state");
 				newDirectors[directorId] = newDirectorObject;
 				// state[directorId].onSiteSelfieGeoLocation= prevState.directors[directorId]?.onSiteSelfieGeoLocation;
-				if (directorIndex === sortedDirectors?.length - 1) {
-					lastDirector = newDirectorObject;
-				}
+				// if (directorIndex === sortedDirectors?.length - 1) {
+				// 	lastDirector = newDirectorObject;
+				// }
 				if (directorIndex === 0) {
 					firstDirector = newDirectorObject;
 				}
@@ -196,8 +198,8 @@ export const directorsSlice = createSlice({
 					name: newName,
 				});
 			});
-			// console.log("PrevState",!prevState.selectedDirectorId);
-			// console.log(prevState);
+			// console.log('PrevState', !prevState);
+			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
@@ -205,14 +207,15 @@ export const directorsSlice = createSlice({
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
-				if (
-					isSelectedProductTypeBusiness &&
-					checkInitialDirectorsUpdated(newDirectors)
-				) {
-					state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
-				} else {
-					state.selectedDirectorId = `${lastDirector.directorId || ''}`;
-				}
+				state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
+				// if (
+				// 	isSelectedProductTypeBusiness &&
+				// 	checkInitialDirectorsUpdated(newDirectors)
+				// ) {
+				// 	state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
+				// } else {
+				// 	state.selectedDirectorId = `${lastDirector.directorId || ''}`;
+				// }
 			}
 
 			state.isEntity = newIsEntity;
@@ -224,7 +227,7 @@ export const directorsSlice = createSlice({
 
 			if (newSelectedDirectorOptions.length === 0) {
 				if (isSelectedProductTypeBusiness) {
-					state.addNewDirectorKey = DIRECTOR_TYPES.director;
+					state.addNewDirectorKey= DIRECTOR_TYPES.director;
 				} else {
 					state.addNewDirectorKey = DIRECTOR_TYPES.applicant;
 				}
@@ -248,9 +251,10 @@ export const directorsSlice = createSlice({
 
 	reducers: {
 		reInitializeDirectorsSlice: () => _.cloneDeep(initialState),
-		setSmeType: (state, { payload }) => {
-			state.smeType = payload;
-		},
+		// setSmeType: (state, { payload }) => {
+		// 	console.log('set sme called, but why?', { payload });
+		// 	state.smeType = payload;
+		// },
 		setDirector: (state, { payload }) => {
 			if (state.directors[payload.id]) {
 				state.directors[payload.id] = payload;

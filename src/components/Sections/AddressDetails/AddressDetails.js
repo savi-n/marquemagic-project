@@ -283,9 +283,10 @@ const AddressDetails = props => {
 				);
 			}
 		} catch (err) {
-			console.log('====================================');
-			console.log(err);
-			console.log('====================================');
+			console.error(err);
+			// console.log('====================================');
+			console.error(err);
+			// console.log('====================================');
 		}
 	};
 
