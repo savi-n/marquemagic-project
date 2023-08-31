@@ -458,8 +458,8 @@ const DocumentUpload = props => {
 						if (
 							allDocumentsRes?.data?.documentList?.lender_document?.length >
 								0 &&
-							(Object.keys(selfieWithApplicantField) > 0 ||
-								Object.keys(selfieWithCoapplicantField) > 0) &&
+							(Object.keys(selfieWithApplicantField)?.length > 0 ||
+								Object.keys(selfieWithCoapplicantField)?.length > 0) &&
 							(isApplicantSelfieFieldVisible || isCoAppSelfieFieldVisible)
 						) {
 							// console.log(Object.values(selfieWithApplicantField?.doc_type));
@@ -467,7 +467,7 @@ const DocumentUpload = props => {
 
 							const lenderDocs =
 								allDocumentsRes?.data?.documentList?.lender_document;
-							filteredSelfieDocs = lenderDocs.filter(
+							filteredSelfieDocs = lenderDocs?.filter(
 								doc =>
 									(Object.keys(selfieWithApplicantField).includes('doc_type') &&
 										Object.values(selfieWithApplicantField?.doc_type).includes(
