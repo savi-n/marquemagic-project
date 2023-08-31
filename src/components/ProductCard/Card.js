@@ -208,7 +208,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								addToast({
 									message:
 										e?.response?.data?.message ||
-										'Geo Location failed! Please enable your location and try again.',
+										'Geo Location failed! Please enable your location, Post enabeling, reopen the browser and try again.',
 									type: 'error',
 								});
 								return;
