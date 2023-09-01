@@ -4,7 +4,7 @@ export const initialFormState = {
 	loan_product_id: '222',
 	scheme_category: '1',
 	loan_usage_type_id: '2',
-	cusion_period: '333',
+	cusion_period: '33',
 	branchId: '179424',
 	pre_emi: 'No',
 	credit_insurance: 'No',

@@ -553,7 +553,7 @@ const EmploymentDetails = () => {
 									/>
 								);
 							})}
-						<NavigateCTA />
+						<NavigateCTA directorSelected={selectedDirector} />
 					</UI_SECTIONS.Footer>
 				</>
 			)}

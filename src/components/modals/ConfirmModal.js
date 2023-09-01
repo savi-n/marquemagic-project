@@ -32,8 +32,7 @@ const ConfirmModal = props => {
 			customStyle={{ minHeight: '200px' }}
 		>
 			<ModalBody>
-				Please check the {type} Type selected. {type} Type can't be changed
-				later
+				Please check the {type} selected. {type} can't be changed later
 			</ModalBody>
 			<ModalFooter>
 				<Button name='Close' onClick={() => onClose(false)} />

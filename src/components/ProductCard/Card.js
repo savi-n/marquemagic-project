@@ -208,7 +208,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								addToast({
 									message:
 										e?.response?.data?.message ||
-										'Geo Location failed! Please enable your location and try again.',
+										'Geo Location failed! Please enable your location, Post enabeling, reopen the browser and try again.',
 									type: 'error',
 								});
 								return;
@@ -258,8 +258,9 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			<Modal
 				show={isSubProductModalOpen}
 				onClose={() => setSubProductModalOpen(false)}
-				width='50%'
+				width='90%'
 				height='70%'
+				padding='50px'
 			>
 				<UI.ImgClose
 					onClick={() => {
@@ -273,6 +274,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						font: '30px Arial, sans-serif',
 						display: 'flex',
 						justifyContent: 'center',
+						marginBottom: '70px',
 					}}
 				>
 					Choose Sub Product

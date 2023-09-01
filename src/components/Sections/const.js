@@ -294,3 +294,15 @@ export const GET_CLASSIFICATION_KEYS_FROM_ADDRESS_PROOF_KEYS_MAPPING = {
 	[CLASSIFICATION_TYPE_PASSPORT]: EXTRACTION_KEY_PASSPORT,
 	[CLASSIFICATION_TYPE_OTHERS]: EXTRACTION_KEY_OTHERS,
 };
+
+// export const BUSINESS_TYPE_OPTIONS = {
+// 	1: 'Proprietor', // 1: Sole Proprietorship
+// 	2: 'Partner', // 2: Partnership
+// 	3: 'Partner', // 3: LLP
+// 	4: 'Director', // 4: Private Limited
+// 	5: 'Director', // 5: Public Limited
+// 	6: 'Member', // 6: Others
+// 	9: 'Trustee', // 9: Trust
+// 	10: 'Member', // 10: Society
+// 	11: 'Member', // 11: Associations
+// };

@@ -1,26 +1,80 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import { SKIP_SECTION } from '_config/app.config';
+import { getAllCompletedSections, isDirectorApplicant } from 'utils/formatData';
 
 import Button from 'components/Button';
 
 import { setSelectedSectionId } from 'store/appSlice';
 
+import { setCompletedApplicationSection } from 'store/applicationSlice';
+import { useState } from 'react';
+
 const NavigateCTA = props => {
-	const { previous = true, next = true } = props;
+	const {
+		previous = true,
+		next = true,
+		trackSkippedSection = true,
+		directorSelected,
+	} = props;
 	const {
 		isViewLoan,
 		nextSectionId,
 		prevSectionId,
 		selectedSection,
+		selectedSectionId,
+		selectedProduct,
 	} = useSelector(state => state.app);
+	const [loading, setLoading] = useState(false);
+	const { application } = useSelector(state => state);
 	const dispatch = useDispatch();
+
+	const { loanId, businessId } = application;
+	const { directors, selectedDirectorId } = useSelector(
+		state => state.directors
+	);
+	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const isApplicant = isDirectorApplicant(selectedDirector);
+	const completedSections = getAllCompletedSections({
+		selectedProduct,
+		application,
+		selectedSectionId,
+		selectedDirector: selectedDirector,
+		isApplicant,
+	});
+
 	const buttons = [];
-	const onSkip = () => {
+
+	const onSkip = async () => {
 		// TODO: varun add new directors.sections / applications.sections object here
-		dispatch(setSelectedSectionId(nextSectionId));
+		try {
+			setLoading(true);
+			if (
+				!completedSections?.includes(selectedSectionId) &&
+				!application?.sections?.includes(selectedSectionId) &&
+				trackSkippedSection
+			) {
+				const reqBody = {
+					loan_id: loanId,
+					business_id: businessId,
+					section_id: selectedSectionId,
+					director_id: directorSelected,
+				};
+
+				await axios.post(SKIP_SECTION, reqBody);
+			}
+
+			dispatch(setCompletedApplicationSection(selectedSectionId));
+			dispatch(setSelectedSectionId(nextSectionId));
+		} catch (err) {
+			console.error(err.message);
+		} finally {
+			setLoading(false);
+		}
 	};
 	if (!isViewLoan && !!selectedSection?.is_skip) {
-		buttons.push(<Button name='Skip' onClick={onSkip} />);
+		buttons.push(<Button name='Skip' loading={loading} onClick={onSkip} />);
 	}
 
 	if (isViewLoan && previous) {
