@@ -69,7 +69,7 @@ const BasicDetails = props => {
 		addNewDirectorKey,
 		fetchingDirectors,
 	} = useSelector(state => state.directors);
-	const [selectedDirector, setSelectedDirector] = useState(null);
+	const [selectedDirector, setSelectedDirector] = useState({});
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ directors:',
 	// 	directorSlice
@@ -82,7 +82,7 @@ const BasicDetails = props => {
 		if (directors && directors.length > 0 && !fetchingDirectors) {
 			setSelectedDirector(directors?.[selectedDirectorId] || {});
 		}
-	}, []);
+	}, [directors, fetchingDirectors]);
 
 	const isApplicant = addNewDirectorKey
 		? addNewDirectorKey === DIRECTOR_TYPES.applicant
