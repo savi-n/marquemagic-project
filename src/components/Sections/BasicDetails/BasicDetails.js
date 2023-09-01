@@ -63,9 +63,13 @@ import {
 
 const BasicDetails = props => {
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
-		state => state.directors
-	);
+	const {
+		directors,
+		selectedDirectorId,
+		addNewDirectorKey,
+		fetchingDirectors,
+	} = useSelector(state => state.directors);
+	const [selectedDirector, setSelectedDirector] = useState(null);
 	// console.log(
 	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ directors:',
 	// 	directorSlice
@@ -73,7 +77,12 @@ const BasicDetails = props => {
 
 	// const { smeType } = directors;
 	// console.log({ smeType });
-	const selectedDirector = directors?.[selectedDirectorId] || {};
+
+	useEffect(() => {
+		if (directors && directors.length > 0 && !fetchingDirectors) {
+			setSelectedDirector(directors?.[selectedDirectorId] || {});
+		}
+	}, []);
 
 	const isApplicant = addNewDirectorKey
 		? addNewDirectorKey === DIRECTOR_TYPES.applicant
