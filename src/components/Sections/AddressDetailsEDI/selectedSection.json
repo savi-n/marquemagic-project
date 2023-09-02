@@ -1,0 +1,339 @@
+{
+	"id": "loan_address_details",
+	"name": "Address Details",
+	"is_applicant": true,
+	"hide_section_usertype": ["Technical", "RCU", "Document"],
+	"sub_sections": [
+		{
+			"id": "permanent_address_details",
+			"name": "",
+			"aid": "2",
+			"prefix": "permanent_",
+			"fields": [
+				{
+					"name": "permanent_address_type",
+					"placeholder": "Address Type",
+					"db_key": "permanent_address_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Residential/Business",
+							"value": "Residential/Business"
+						},
+						{
+							"name": "Residential",
+							"value": "Residential"
+						},
+						{
+							"name": "Business",
+							"value": "Business"
+						},
+						{
+							"name": "Registered Office",
+							"value": "Registered Office"
+						},
+						{
+							"name": "Unspecified",
+							"value": "Unspecified"
+						}
+					],
+					"mask": {},
+					"visibility": true
+				},
+				{
+					"name": "permanent_address1",
+					"placeholder": "Address Line 1",
+					"db_key": "line1",
+					"rules": {
+						"required": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "permanent_address2",
+					"placeholder": "Address Line 2",
+					"db_key": "line2",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "permanent_address3",
+					"placeholder": "Landmark",
+					"db_key": "locality",
+					"rules": {
+						"required": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "permanent_pin_code",
+					"placeholder": "Pin Code",
+					"db_key": "pincode",
+					"rules": {
+						"required": false,
+						"length": 6
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 6
+					},
+					"make_api_call": 6,
+					"type": "pincode",
+					"value_for_fields": [["city", "district"], ["state", "state"]],
+					"visibility": true
+				},
+				{
+					"name": "permanent_city",
+					"placeholder": "City",
+					"db_key": "city",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "permanent_state",
+					"placeholder": "State",
+					"db_key": "state",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "permanent_property_type",
+					"placeholder": "Property Type",
+					"db_key": "residential_type",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "select",
+					"options": [
+						{
+							"name": "Owned",
+							"value": "Owned"
+						},
+						{
+							"name": "Family",
+							"value": "Family"
+						},
+						{
+							"name": "Renter",
+							"value": "Renter"
+						},
+						{
+							"name": "Employer",
+							"value": "Employer"
+						},
+						{
+							"name": "Others",
+							"value": "Others"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "permanent_property_tenure",
+					"placeholder": "Staying in the Current Address Since",
+					"db_key": "residential_stability",
+					"rules": {
+						"required": true,
+						"past_dates": true
+					},
+					"mask": {},
+					"type": "month",
+					"is_month_picker": true,
+					"visibility": true
+				},
+				{
+					"name": "preferred_mailing_address_registered_address_checkbox",
+					"placeholder":"preferred_mailing_address_registered_address",
+					"db_key":"preferred_address_permanent_checkbox",
+					"rules":{
+						"required":true
+					},
+					"mask":{},
+					"type":"checkbox",
+					"visibility": true
+				}
+			]
+		},
+		{
+			"id": "present_address_details",
+			"name": "",
+			"aid": "1",
+			"prefix": "present_",
+			"fields": [
+				{
+					"name": "present_address_type",
+					"placeholder": "Address Type",
+					"db_key": "address_type",
+					"type": "select",
+					"options": [
+						{
+							"name": "Residential/Business",
+							"value": "Residential/Business"
+						},
+						{
+							"name": "Residential",
+							"value": "Residential"
+						},
+						{
+							"name": "Business",
+							"value": "Business"
+						},
+						{
+							"name": "Registered Office",
+							"value": "Registered Office"
+						},
+						{
+							"name": "Unspecified",
+							"value": "Unspecified"
+						}
+					],
+					"mask": {},
+					"visibility": true
+				},
+				{
+					"name": "present_address1",
+					"placeholder": "Address Line 1",
+					"db_key": "line1",
+					"rules": {
+						"required": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "present_address2",
+					"placeholder": "Address Line 2",
+					"db_key": "line2",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "present_address3",
+					"placeholder": "Landmark",
+					"db_key": "locality",
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "present_pin_code",
+					"placeholder": "Pin Code",
+					"db_key": "pincode",
+					"rules": {
+						"required": false,
+						"length": 6
+					},
+					"mask": {
+						"number_only": true,
+						"character_limit": 6
+					},
+					"make_api_call": 6,
+					"type": "pincode",
+					"value_for_fields": [["city", "district"], ["state", "state"]],
+					"visibility": true
+				},
+				{
+					"name": "present_city",
+					"placeholder": "City",
+					"db_key": "city",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "present_state",
+					"placeholder": "State",
+					"db_key": "state",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "text",
+					"visibility": true
+				},
+				{
+					"name": "present_property_type",
+					"placeholder": "Property Type",
+					"db_key": "residential_type",
+					"rules": {
+						"required": true
+					},
+					"mask": {
+						"alpha_char_only": true
+					},
+					"type": "select",
+					"options": [
+						{
+							"name": "Owned",
+							"value": "Owned"
+						},
+						{
+							"name": "Family",
+							"value": "Family"
+						},
+						{
+							"name": "Renter",
+							"value": "Renter"
+						},
+						{
+							"name": "Employer",
+							"value": "Employer"
+						},
+						{
+							"name": "Others",
+							"value": "Others"
+						}
+					],
+					"visibility": true
+				},
+				{
+					"name": "present_property_tenure",
+					"placeholder": "Staying in the Current Address Since",
+					"db_key": "residential_stability",
+					"rules": {
+						"required": true,
+						"past_dates": true
+					},
+					"mask": {},
+					"type": "month",
+					"is_month_picker": true,
+					"visibility": true
+				},
+				{
+					"name": "preferred_mailing_address_operating_address_checkbox",
+					"placeholder":"preferred_mailing_address_operating_address",
+					"db_key":"preferred_address_present_checkbox",
+					"rules":{
+						"required":true
+					},
+					"mask":{},
+					"type":"checkbox",
+					"visibility": true
+				}
+			]
+		}
+	]
+}
