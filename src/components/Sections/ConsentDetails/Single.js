@@ -23,8 +23,8 @@ const Single = ({
 	const {app} = useSelector(state=>state);
 	const {selectedProduct}= app
 	// console.log(mandatoryFieldObj);
-	const is_equifax_otp_required =
-		mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
+	// const is_equifax_otp_required =
+	// 	mandatoryFieldsObj?.consent_verification?.is_equifax_otp_required;
 	// const is_equifax_otp_required = true;
 
 	// Mapping headers title to corresponding table object keys
@@ -83,9 +83,9 @@ const Single = ({
 		};
 		// console.log({ payLoad, section, sections });
 
-		if (sections[section] === 'bureau' && !!is_equifax_otp_required) {
-			payLoad.is_equifax_otp_required = is_equifax_otp_required;
-		}
+		// if (sections[section] === 'bureau' && !!is_equifax_otp_required) {
+		// 	payLoad.is_equifax_otp_required = is_equifax_otp_required;
+		// }
 
 		if (
 			sections[section] === 'udyam' &&
@@ -123,7 +123,8 @@ const Single = ({
 			if (
 				sections[section] === 'ITR' ||
 				sections[section] === 'GST' ||
-				sections[section] === 'aadhaar'
+				sections[section] === 'aadhaar'||
+				sections[section] === 'bureau'
 			) {
 				setHtmlContent(response.data);
 				setModalOpen(true);
