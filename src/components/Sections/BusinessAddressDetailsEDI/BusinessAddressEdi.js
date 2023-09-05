@@ -18,6 +18,7 @@ import {
 } from 'store/directorsSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
+import { setCompletedApplicationSection } from 'store/applicationSlice';
 
 import * as API from '_config/app.config';
 import * as UI from './ui';
@@ -29,6 +30,7 @@ import useForm from 'hooks/useFormIndividual';
 import { encryptBase64 } from 'utils/encrypt';
 import Button from 'components/Button';
 import NavigateCTA from 'components/Sections/NavigateCTA';
+import { address } from '../BasicDetails/ProfileUpload/const';
 // import selectedSection from 'components/Sections/AddressDetailsEDI/selectedSection.json';
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -42,16 +44,17 @@ const BusinessAddressDetails = props => {
 		: isDirectorApplicant(selectedDirector);
 
 	const {
-		selectedProduct,
 		selectedSectionId,
 		nextSectionId,
 		isTestMode,
 		isViewLoan,
 		selectedSection,
+		userToken
 	} = app;
 	const {
 		// cacheDocuments,
 		loanRefId,
+		businessId,
 	} = application;
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
@@ -83,6 +86,7 @@ const BusinessAddressDetails = props => {
 	const onSaveAndProceed = async () => {
 		try {
 			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
+
 			if (
 				sectionRequired &&
 				(!formState?.values?.registered_city ||
@@ -111,12 +115,11 @@ const BusinessAddressDetails = props => {
 					city: formState?.values?.operating_city || '',
 					state: formState?.values?.operating_state || '',
 					residential_type: formState?.values?.operating_residential_type || '',
-					preferred_mailing_address: preferredMAilingAddress || '',
+					preferred_mailing_address: preferredMAilingAddress==='operating_preferred_mailing_address_checkbox'?'Yes': 'No',
 				},
 				{
 					preferred_mailing_address:
-						formState?.values?.registered_preferred_mailing_address_checkbox ||
-						'',
+						preferredMAilingAddress==='registered_preferred_mailing_address_checkbox'?'Yes':'No',
 					business_address_id: businessAddressIdAid2,
 					aid: 2,
 					line1: formState?.values?.registered_address1 || '',
@@ -136,9 +139,9 @@ const BusinessAddressDetails = props => {
 				application,
 				values: formState.values,
 			});
-			addressDetailsReqBody.data.loan_address_details = newLoanAddressDetails;
+			addressDetailsReqBody.data.business_address_details = newLoanAddressDetails;
 			const addressDetailsRes = await axios.post(
-				`${API.API_END_POINT}/basic_details`,
+				`${API.API_END_POINT}/business_address_details`,
 				addressDetailsReqBody
 			);
 
@@ -153,7 +156,6 @@ const BusinessAddressDetails = props => {
 			//   doc => !!doc?.doc_ref_id
 			// )?.[0]?.doc_ref_id;
 			// -- KYC VERIFICATION RELATED CHANGES CR
-
 			setEditSectionIds({
 				businessAddressIdAid1: addressDetailsRes?.data?.data?.business_address_data?.filter(
 					address => address.aid === 1
@@ -162,7 +164,10 @@ const BusinessAddressDetails = props => {
 					address => address.aid === 2
 				)?.[0]?.id,
 			});
-			dispatch(setCompletedDirectorSection(selectedSectionId));
+			// console.log(selectedSectionId)
+			dispatch(setCompletedApplicationSection(selectedSectionId));
+
+			// dispatch(setCompletedDirectorSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
 			// dispatch(
 			// 	getDirectors({
@@ -205,36 +210,26 @@ const BusinessAddressDetails = props => {
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
-
 			// -- TEST MODE
 			const preData = {
-				registered_address1: sectionData?.registered_address1,
-				registered_address2: sectionData?.registered_address2,
-				registered_address3: sectionData?.registered_locality,
-				registered_pin_code: sectionData?.registered_pincode,
-				registered_city: sectionData?.registered_city,
-				registered_state: sectionData?.registered_state,
-				registered_property_type: sectionData?.registered_residential_type,
-				registered_property_tenure: sectionData?.registered_residential_stability
-					? moment(sectionData?.registered_residential_stability).format(
-							'YYYY-MM'
-					  )
-					: '',
+				registered_address1: sectionData?.address?.[0]?.line1,
+				registered_address2: sectionData?.address?.[0]?.line2,
+				registered_address3: sectionData?.address?.[0]?.locality,
+				registered_pin_code: sectionData?.address?.[0]?.pincode,
+				registered_city: sectionData?.address?.[0]?.city,
+				registered_state: sectionData?.address?.[0]?.state,
+				registered_property_type: sectionData?.address?.[0]?.residential_type,
+					registered_preferred_mailing_address_checkbox:sectionData?.address?.[0]?.preferredMAilingAddress==='Yes',
 
 				operating_address_type: sectionData?.address_type,
-				operating_address1: sectionData?.address1,
-				operating_address2: sectionData?.address2,
-				operating_address3: sectionData?.locality,
-				operating_pin_code: sectionData?.pincode,
-				operating_city: sectionData?.director_details?.city,
-				operating_state: sectionData?.director_details?.state,
-				operating_property_type: sectionData?.director_details?.residential_type,
-				operating_property_tenure: sectionData?.director_details
-					?.residential_stability
-					? moment(sectionData?.director_details?.residential_stability).format(
-							'YYYY-MM'
-					  )
-					: '',
+				operating_address1:  sectionData?.address?.[1]?.line1,
+				operating_address2:  sectionData?.address?.[1]?.line2,
+				operating_address3: sectionData?.address?.[1]?.locality,
+				operating_pin_code: sectionData?.address?.[1]?.pincode,
+				operating_city: sectionData?.address?.[1]?.city,
+				operating_state: sectionData?.address?.[1]?.state,
+				operating_property_type: sectionData?.address?.[1]?.residential_type,
+					operating_preferred_mailing_address_checkbox:sectionData?.address?.[0]?.preferred_mailing_address==='Yes'
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
@@ -246,12 +241,14 @@ const BusinessAddressDetails = props => {
 		try {
 			setFetchingSectionData(true);
 
-			const fetchRes = await axios.get(`${API_END_POINT}/basic_details`, {
-				params: {
-					loan_ref_id: loanRefId,
-					director_id: selectedDirectorId,
-				},
-			});
+			const fetchRes = await axios.get(
+				`${API.BUSINESS_ADDRESS_DETAILS}?business_id=${businessId}`,
+				{
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
+			);
 			if (fetchRes?.data?.status === 'ok') {
 				fetchRes?.data?.data?.loan_document_details?.map(doc => {
 					doc.name = doc?.uploaded_doc_name;
@@ -260,10 +257,10 @@ const BusinessAddressDetails = props => {
 				});
 				setSectionData(fetchRes?.data?.data);
 				setEditSectionIds({
-					businessAddressIdAid1: fetchRes?.data?.data?.business_address_data?.filter(
+					businessAddressIdAid1: fetchRes?.data?.data?.address?.filter(
 						address => address.aid === 1
 					)?.[0]?.id,
-					businessAddressIdAid2: fetchRes?.data?.data?.business_address_data?.filter(
+					businessAddressIdAid2: fetchRes?.data?.data?.address?.filter(
 						address => address.aid === 2
 					)?.[0]?.id,
 				});
@@ -290,21 +287,16 @@ const BusinessAddressDetails = props => {
 	};
 	useEffect(() => {
 		scrollToTopRootElement();
-		if (
-			!!loanRefId &&
-			!!selectedDirectorId
-			// selectedDirector?.sections?.includes(selectedSectionId)
-		)
-			fetchSectionDetails();
+				fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
-	useEffect(() => {
-		if (!isSameAsAboveAddressChecked) {
-		}
-		// console.log(selectedSection)
-		// eslint-disable-next-line
-	}, [isSameAsAboveAddressChecked]);
-	// if (!selectedDirectorId) return null;
+	// useEffect(() => {
+	// 	if (!isSameAsAboveAddressChecked) {
+	// 	}
+	// 	// console.log(selectedSection)
+	// 	// eslint-disable-next-line
+	// }, [isSameAsAboveAddressChecked]);
+	// // if (!selectedDirectorId) return null;
 
 	return (
 		<UI_SECTIONS.Wrapper>
