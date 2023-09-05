@@ -12,7 +12,12 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	IFSC_LIST_FETCH,
+	INDUSTRY_LIST_FETCH,
+	SUB_INDUSTRY_FETCH,
+} from '_config/app.config';
 import {
 	setIsDraftLoan,
 	setLoginCreateUserRes,
@@ -49,6 +54,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import * as CONST_BUSINESS_DETAILS from './const';
+import { fetchOptions } from 'utils/helperFunctions';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
@@ -90,7 +96,7 @@ const BusinessDetails = props => {
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
-
+	const [subComponentOptions, setSubComponentOptions] = useState([]);
 	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
 	// eslint-disable-next-line
@@ -111,6 +117,7 @@ const BusinessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
+	const [mainComponentOptions, setMainComponentOptions] = useState(null);
 	const {
 		handleSubmit,
 		register,
@@ -677,6 +684,23 @@ const BusinessDetails = props => {
 		if (loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
+
+	useEffect(() => {
+		const fetchMainCompOptions = async () => {
+			try {
+				const allIndustriesOption = await fetchOptions({
+					fetchOptionsURL: INDUSTRY_LIST_FETCH,
+					sectionId: selectedSectionId,
+				});
+
+				setMainComponentOptions(allIndustriesOption);
+			} catch (err) {
+				console.error(err, 'Industry-Fetch-Error');
+			}
+		};
+		fetchMainCompOptions();
+	}, [selectedSectionId]);
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -819,7 +843,9 @@ const BusinessDetails = props => {
 																panUploadedFile || tempPanUploadedFile
 															}
 															addCacheDocumentTemp={addCacheDocumentTemp}
-															removeCacheDocumentTemp={removeCacheDocumentTemp}
+															removeCacheDocumentTemp={
+																removeCacheDocumentTemp
+															}
 															isPanNumberExist={isPanNumberExist}
 															panErrorMessage={panErrorMessage}
 															panErrorColorCode={panErrorColorCode}
@@ -871,6 +897,23 @@ const BusinessDetails = props => {
 												is_zero_not_allowed_for_first_digit: true,
 											};
 										}
+
+										/* Starts : Here we will pass all the required props for the main and the sub-components */
+										if (field?.name === 'industry_type') {
+											customFieldProps.type = 'industryType';
+											customFieldProps.apiURL = INDUSTRY_LIST_FETCH;
+											customFieldProps.mainComponentOptions = mainComponentOptions;
+											customFieldProps.setSubComponentOptions = setSubComponentOptions;
+											customFieldProps.sectionId= selectedSectionId
+											customFieldProps.errMessage =
+												'Searched Option Not Found.';
+										}
+
+										if (field?.name === 'sub_industry_type') {
+											customFieldProps.type = 'subIndustryType';
+											customFieldProps.subComponentOptions = subComponentOptions;
+											// customFieldProps.errMessage = 'not found';
+										}
 										if (
 											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
 												field?.name ===
@@ -898,6 +941,12 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 
+
+
+										if (field?.name === 'ifsc_code') {
+											customFieldProps.subComponentOptions = subComponentOptions;
+											// customFieldProps.errMessage = 'not found';
+										}
 										if (
 											isPanUploadMandatory &&
 											isPanNumberExist &&
@@ -1059,8 +1108,12 @@ const BusinessDetails = props => {
 														</UI_SECTIONS.ErrorMessage>
 													)}
 												{(formState?.submit?.isSubmited ||
-													formState?.touched?.[field?.sub_fields?.[0]?.name]) &&
-													formState?.error?.[field?.sub_fields?.[0]?.name] && (
+													formState?.touched?.[
+														field?.sub_fields?.[0]?.name
+													]) &&
+													formState?.error?.[
+														field?.sub_fields?.[0]?.name
+													] && (
 														<UI_SECTIONS.ErrorMessage>
 															{formState?.error?.[field?.sub_fields[0]?.name]}
 														</UI_SECTIONS.ErrorMessage>
