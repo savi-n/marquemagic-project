@@ -16,7 +16,6 @@ import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
 import { UDYAM_REGEX } from '_config/app.config';
-import CheckBox from 'components/CheckBox';
 
 export const ComboBoxContext = createContext();
 function required(value) {

@@ -192,7 +192,7 @@ const BusinessAddressDetails = props => {
 			// custom prefill only for this section
 			if (isSameAsAboveAddressChecked) {
 				return formState?.values?.[
-					field?.name?.replace(CONST.PREFIX_PRESENT, CONST.PREFIX_PERMANENT)
+					field?.name?.replace(CONST.PREFIX_OPERATING, CONST.PREFIX_REGISTERED)
 				];
 			}
 
@@ -208,28 +208,28 @@ const BusinessAddressDetails = props => {
 
 			// -- TEST MODE
 			const preData = {
-				permanent_address1: sectionData?.permanent_address1,
-				permanent_address2: sectionData?.permanent_address2,
-				permanent_address3: sectionData?.permanent_locality,
-				permanent_pin_code: sectionData?.permanent_pincode,
-				permanent_city: sectionData?.permanent_city,
-				permanent_state: sectionData?.permanent_state,
-				permanent_property_type: sectionData?.permanent_residential_type,
-				permanent_property_tenure: sectionData?.permanent_residential_stability
-					? moment(sectionData?.permanent_residential_stability).format(
+				registered_address1: sectionData?.registered_address1,
+				registered_address2: sectionData?.registered_address2,
+				registered_address3: sectionData?.registered_locality,
+				registered_pin_code: sectionData?.registered_pincode,
+				registered_city: sectionData?.registered_city,
+				registered_state: sectionData?.registered_state,
+				registered_property_type: sectionData?.registered_residential_type,
+				registered_property_tenure: sectionData?.registered_residential_stability
+					? moment(sectionData?.registered_residential_stability).format(
 							'YYYY-MM'
 					  )
 					: '',
 
-				present_address_type: sectionData?.address_type,
-				present_address1: sectionData?.address1,
-				present_address2: sectionData?.address2,
-				present_address3: sectionData?.locality,
-				present_pin_code: sectionData?.pincode,
-				present_city: sectionData?.director_details?.city,
-				present_state: sectionData?.director_details?.state,
-				present_property_type: sectionData?.director_details?.residential_type,
-				present_property_tenure: sectionData?.director_details
+				operating_address_type: sectionData?.address_type,
+				operating_address1: sectionData?.address1,
+				operating_address2: sectionData?.address2,
+				operating_address3: sectionData?.locality,
+				operating_pin_code: sectionData?.pincode,
+				operating_city: sectionData?.director_details?.city,
+				operating_state: sectionData?.director_details?.state,
+				operating_property_type: sectionData?.director_details?.residential_type,
+				operating_property_tenure: sectionData?.director_details
 					?.residential_stability
 					? moment(sectionData?.director_details?.residential_stability).format(
 							'YYYY-MM'
@@ -268,12 +268,12 @@ const BusinessAddressDetails = props => {
 					)?.[0]?.id,
 				});
 
-				// if (permanentCacheDocumentsTempRes.length === 2)
-				//   setIsPermanentAddressIsPresentAddresssetIsPermanentAddressIsPresentAddress(
+				// if (registeredCacheDocumentsTempRes.length === 2)
+				//   setIsregisteredAddressIsoperatingAddresssetIsregisteredAddressIsoperatingAddress(
 				//     true
 				//   );
-				// setPermanentCacheDocumentsTemp(permanentCacheDocumentsTempRes);
-				// setPresentCacheDocumentsTemp(
+				// setregisteredCacheDocumentsTemp(registeredCacheDocumentsTempRes);
+				// setoperatingCacheDocumentsTemp(
 				//   fetchRes?.data?.data?.loan_document_details?.filter(
 				//     doc =>
 				//       `${doc?.document_details?.aid}` === '1' &&
@@ -313,11 +313,11 @@ const BusinessAddressDetails = props => {
 			) : (
 				<>
 					{selectedSection?.sub_sections?.map((subSection, subSectionIndex) => {
-						const isPermanent = subSection?.aid === CONST.AID_PERMANENT;
+						const isRegistered = subSection?.aid === CONST.AID_REGISTERED;
 
-						const prefix = isPermanent
-							? CONST.PREFIX_PERMANENT
-							: CONST.PREFIX_PRESENT;
+						const prefix = isRegistered
+							? CONST.PREFIX_REGISTERED
+							: CONST.PREFIX_OPERATING;
 
 						// remove after verifying above code
 
@@ -337,7 +337,7 @@ const BusinessAddressDetails = props => {
 										</UI_SECTIONS.SubSectionHeader>
 									</>
 								) : null}
-								{subSection?.prefix === CONST.PREFIX_PRESENT && (
+								{subSection?.prefix === CONST.PREFIX_OPERATING && (
 									<>
 										<UI.CheckboxSameAs
 											type='checkbox'
@@ -369,11 +369,11 @@ const BusinessAddressDetails = props => {
 										}
 
 										if (
-											subSection.aid === CONST.AID_PRESENT &&
+											subSection.aid === CONST.AID_OPERATING &&
 											isSameAsAboveAddressChecked
 										) {
 											if (
-												CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name)
+												CONST.HIDE_OPERATING_ADDRESS_FIELDS.includes(field.name)
 											)
 												return null;
 										}
@@ -391,7 +391,7 @@ const BusinessAddressDetails = props => {
 
 										if (
 											isSameAsAboveAddressChecked &&
-											field.name.includes(CONST.PREFIX_PRESENT)
+											field.name.includes(CONST.PREFIX_OPERATING)
 										) {
 											customFieldProps.disabled = true;
 										}
