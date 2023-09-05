@@ -1,7 +1,7 @@
 /* Input field for Input type */
 
-// import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import HoverPopover from '../Popover/HoverPopover';
 
 const Input = styled.input`
 	height: 50px;
@@ -25,9 +25,6 @@ const Input = styled.input`
 		}
 	}
 `;
-//  ${({ error }) =>
-// 		error ? `border: 1px solid red; outline-color: red;` : ``}
-// TODO: handler error
 
 const Div = styled.div`
 	position: relative;
@@ -91,7 +88,15 @@ const Label = styled.label`
 `;
 
 const Asteris = styled.span`
+  margin-top: 50%,
 	color: red;
+`;
+
+const IconWrapper = styled.div`
+	margin-top: 30%;
+	&:hover {
+		cursor: pointer;
+	}
 `;
 
 const Span = styled.span`
@@ -110,7 +115,10 @@ const FieldPostfixIcon = styled.span`
 	z-index: 10;
 `;
 
-export default function InputField(props) {
+export default function InputFieldWithInfo(props) {
+	const { infoIcon = false, infoMessage } = props;
+
+	console.log({ infoIcon, infoMessage });
 	const isLargeTextLable = props?.name?.length > 15;
 	// console.log(props.onblur)
 	return (
@@ -136,6 +144,11 @@ export default function InputField(props) {
 					{props.rules?.required ? <Asteris>*</Asteris> : <Asteris> </Asteris>}
 				</Span>
 			</Label>
+			<FieldPostfixIcon>
+				<IconWrapper>
+					<HoverPopover message={infoMessage} />
+				</IconWrapper>
+			</FieldPostfixIcon>
 			{props.inrupees && <FieldPostfixIcon>(In ₹)</FieldPostfixIcon>}
 		</Div>
 	);

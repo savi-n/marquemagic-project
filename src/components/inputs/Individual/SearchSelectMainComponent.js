@@ -62,6 +62,7 @@ export default function SearchSelectMainComponent(props) {
 					selectedOption,
 					value,
 				});
+				console.log({ subOptions });
 				setSubComponentOptions(subOptions);
 			}
 		} catch (error) {
