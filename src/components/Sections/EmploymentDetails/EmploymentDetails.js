@@ -28,8 +28,14 @@ import {
 	validateDirectorForSme,
 } from 'utils/formatData';
 import { scrollToTopRootElement } from 'utils/helper';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	INDUSTRY_LIST_FETCH,
+	SUB_INDUSTRY_FETCH,
+} from '_config/app.config';
 import Loading from 'components/Loading';
+
+import { fetchOptions } from 'utils/helperFunctions';
 
 const EmploymentDetails = () => {
 	const { app, application } = useSelector(state => state);
@@ -55,6 +61,9 @@ const EmploymentDetails = () => {
 	const { handleSubmit, register, formState } = useForm();
 	const [fetchingSectionData, setFetchingSectionData] = useState(false);
 	const [sectionData, setSectionData] = useState({});
+	const [mainComponentOptions, setMainComponentOptions] = useState([]);
+	const [subComponentOptions, setSubComponentOptions] = useState([]);
+
 	const editSectionId = sectionData?.income_data?.employment_id || '';
 	// const initialDirectorsUpdated = selectedProduct?.isSelectedProductTypeBusiness
 	// 	? checkInitialDirectorsUpdated(directors)
@@ -96,6 +105,23 @@ const EmploymentDetails = () => {
 		}
 		return true;
 	};
+
+	useEffect(() => {
+		const fetchMainCompOptions = async () => {
+			try {
+				const allIndustriesOption = await fetchOptions({
+					fetchOptionsURL: INDUSTRY_LIST_FETCH,
+					sectionId: selectedSectionId,
+				});
+
+				setMainComponentOptions(allIndustriesOption);
+			} catch (err) {
+				console.error(err, 'Industry-Fetch-Error');
+			}
+		};
+		fetchMainCompOptions();
+	}, [selectedSectionId]);
+	console.log(mainComponentOptions, 'main component options');
 
 	const submitEmploymentDetails = async () => {
 		try {
@@ -436,6 +462,23 @@ const EmploymentDetails = () => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
+
+										/* Starts : Here we will pass all the required props for the main and the sub-components */
+										if (field?.name === 'industry_type') {
+											customFieldProps.apiURL = SUB_INDUSTRY_FETCH;
+											customFieldProps.mainComponentOptions = mainComponentOptions;
+											customFieldProps.setSubComponentOptions = setSubComponentOptions;
+											customFieldProps.sectionId = selectedSectionId;
+											customFieldProps.errMessage =
+												'No Industry Name Matches Your Search.';
+										}
+
+										if (field?.name === 'sub_industry_type') {
+											customFieldProps.subComponentOptions = subComponentOptions;
+											customFieldProps.errMessage =
+												'No Sub-industry Name Matches Your Search';
+										}
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
