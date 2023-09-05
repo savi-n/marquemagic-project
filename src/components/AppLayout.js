@@ -90,7 +90,6 @@ const AppLayout = () => {
 	} = useContext(AppContext);
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
-		console.log('app-slice');
 		dispatch(setSelectedSectionId(''));
 		dispatch(setAddNewDirectorKey(''));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
