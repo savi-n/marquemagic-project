@@ -293,7 +293,6 @@ const BusinessAddressDetails = props => {
 			setFetchingSectionData(false);
 		}
 	};
-
 	useEffect(() => {
 		scrollToTopRootElement();
 		if (
@@ -361,6 +360,7 @@ const BusinessAddressDetails = props => {
 										</label>
 									</>
 								)}
+
 								<UI_SECTIONS.FormWrapGrid>
 									{subSection?.fields?.map((field, fieldIndex) => {
 										if (
@@ -412,11 +412,23 @@ const BusinessAddressDetails = props => {
 										//here
 										// console.log(subSection);
 										if (field.type.includes('checkbox')) {
-											console.log(field.name);
-											customFieldProps.checked =
-												preferredMAilingAddress === field.name;
-											customFieldProps.onChange = setPreferredMAilingAddress;
-											customFieldProps.label = field.placeholder;
+										return(
+
+											<>
+										<UI.CheckboxSameAs
+											type='checkbox'
+											checked={preferredMAilingAddress===field.name}
+											disabled={isSectionCompleted || isViewLoan}
+											onChange={() => {
+												preferredMAilingAddress===field.name? setPreferredMAilingAddress(null):setPreferredMAilingAddress(field.name)
+											}}
+										/>
+										<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+											{field.placeholder}
+										</label>
+									</>
+
+										)
 										}
 
 										//   return(

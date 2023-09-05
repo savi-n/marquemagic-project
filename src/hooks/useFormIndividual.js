@@ -695,15 +695,6 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		case 'disabledtextfieldmodal': {
 			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
 		}
-		case 'checkbox': {
-			return (
-				<CheckBox
-					{...{ ...field, ...fieldProps }}
-						// checked={fieldProps.checked}
-						// value={value}
-				/>
-			);
-		}
 		//DisabledTextFieldModal
 		case 'button': {
 			return (
