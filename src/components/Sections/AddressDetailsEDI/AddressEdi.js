@@ -115,7 +115,7 @@ const BusinessAddressDetails = props => {
 					state: formState?.values?.operating_state || '',
 					residential_type: formState?.values?.operating_residential_type || '',
 					preferred_mailing_address:
-						formState?.values?.operating_preferred_mailing_address_checkbox ||
+						preferredMAilingAddress ||
 						'',
 				},
 				{
@@ -414,19 +414,22 @@ const BusinessAddressDetails = props => {
 										if (field.type.includes('checkbox')) {
 										return(
 
-											<>
-										<UI.CheckboxSameAs
-											type='checkbox'
-											checked={preferredMAilingAddress===field.name}
-											disabled={isSectionCompleted || isViewLoan}
-											onChange={() => {
-												preferredMAilingAddress===field.name? setPreferredMAilingAddress(null):setPreferredMAilingAddress(field.name)
-											}}
-										/>
-										<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-											{field.placeholder}
-										</label>
-									</>
+											<UI_SECTIONS.FieldWrapGrid
+											key={`field-${prefix}-${fieldIndex}-${field.name}`}
+											style={customStyle}
+											>
+												<UI.CheckboxSameAs
+												type="checkbox"
+												id={CONST.CHECKBOX_SAME_AS_ID}
+												checked={field.name===preferredMAilingAddress}
+												onChange={()=>{
+												 field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
+												}}
+												/>
+												<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+										{field.placeholder}
+											</label>
+											</UI_SECTIONS.FieldWrapGrid>
 
 										)
 										}
