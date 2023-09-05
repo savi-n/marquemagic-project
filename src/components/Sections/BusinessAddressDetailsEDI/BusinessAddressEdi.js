@@ -4,7 +4,6 @@ import axios from 'axios';
 import _ from 'lodash';
 import moment from 'moment';
 import {
-
 	formatSectionReqBody,
 	getApiErrorMessage,
 	isFieldValid,
@@ -30,7 +29,6 @@ import useForm from 'hooks/useFormIndividual';
 import { encryptBase64 } from 'utils/encrypt';
 import Button from 'components/Button';
 import NavigateCTA from 'components/Sections/NavigateCTA';
-import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetailsEDI/const';
 // import selectedSection from 'components/Sections/AddressDetailsEDI/selectedSection.json';
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -113,9 +111,7 @@ const BusinessAddressDetails = props => {
 					city: formState?.values?.operating_city || '',
 					state: formState?.values?.operating_state || '',
 					residential_type: formState?.values?.operating_residential_type || '',
-					preferred_mailing_address:
-						preferredMAilingAddress ||
-						'',
+					preferred_mailing_address: preferredMAilingAddress || '',
 				},
 				{
 					preferred_mailing_address:
@@ -411,26 +407,26 @@ const BusinessAddressDetails = props => {
 										//here
 										// console.log(subSection);
 										if (field.type.includes('checkbox')) {
-										return(
-
-											<UI_SECTIONS.FieldWrapGrid
-											key={`field-${prefix}-${fieldIndex}-${field.name}`}
-											style={customStyle}
-											>
-												<UI.CheckboxSameAs
-												type="checkbox"
-												id={CONST.CHECKBOX_SAME_AS_ID}
-												checked={field.name===preferredMAilingAddress}
-												onChange={()=>{
-												 field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
-												}}
-												/>
-												<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-										{field.placeholder}
-											</label>
-											</UI_SECTIONS.FieldWrapGrid>
-
-										)
+											return (
+												<UI_SECTIONS.FieldWrapGrid
+													key={`field-${prefix}-${fieldIndex}-${field.name}`}
+													style={customStyle}
+												>
+													<UI.CheckboxSameAs
+														type='checkbox'
+														id={CONST.CHECKBOX_SAME_AS_ID}
+														checked={field.name === preferredMAilingAddress}
+														onChange={() => {
+															field.name !== preferredMAilingAddress
+																? setPreferredMAilingAddress(field.name)
+																: setPreferredMAilingAddress(null);
+														}}
+													/>
+													<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+														{field.placeholder}
+													</label>
+												</UI_SECTIONS.FieldWrapGrid>
+											);
 										}
 
 										//   return(

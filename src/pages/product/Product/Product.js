@@ -37,12 +37,12 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import ConsentDetails from 'components/Sections/ConsentDetails';
 // import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
-import AddressDetailsEDI from 'components/Sections/AddressDetailsEDI';
+// import AddressDetailsEDI from 'components/Sections/BusinessAddressDetailsEDI';
 
 import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
-import BusinessAddressDetails from 'components/Sections/AddressDetailsEDI';
+import BusinessAddressDetails from 'components/Sections/BusinessAddressDetailsEDI';
 
 const Product = props => {
 	const { product } = props;
