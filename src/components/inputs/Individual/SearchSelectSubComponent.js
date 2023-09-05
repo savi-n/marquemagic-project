@@ -5,6 +5,10 @@ import SearchSelect from '../../SearchSelect';
 export default function SearchSelectSubComponent(props) {
 	const { field, onSelectOptionCallback, value } = props;
 	const { errMessage, subComponentOptions } = field;
+	// console.log(
+	// 	'🚀 ~ file: SearchSelectSubComponent.js:8 ~ SearchSelectSubComponent ~ subComponentOptions:',
+	// 	subComponentOptions
+	// );
 
 	const [subOptions, setSubOptions] = useState(subComponentOptions);
 

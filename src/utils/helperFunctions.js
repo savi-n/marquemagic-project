@@ -7,6 +7,12 @@ const formatOptionsKeys = {
 		name: 'IndustryName',
 		queryKey: 'IndustryName',
 	},
+	// may need modifications
+	employment_details: {
+		id: 'id',
+		name: 'IndustryName',
+		queryKey: 'IndustryName',
+	},
 };
 
 export const fetchOptions = async data => {
@@ -42,7 +48,9 @@ export const fetchSubCompOptions = async data => {
 					: fetchRes?.data?.options?.map(subOption => {
 							newOptionsList.push({
 								value: `${subOption?.id}`,
-								name: `${subOption?.IndustryName || subOption.name}`,
+								name: `${subOption?.subindustry ||
+									subOption?.IndustryName ||
+									subOption.name}`,
 							});
 							return null;
 					  });

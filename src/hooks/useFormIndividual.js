@@ -252,10 +252,7 @@ export default function useForm() {
 			!fieldsRef.current[name]?.disabled ||
 			(selectedSectionId && selectedSectionId === 'business_details')
 		) {
-			error = validate(
-				fieldsRef.current[name]?.rules,
-				valuesRef.current[name]
-			);
+			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		}
 		// error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		const { [name]: _, ...errorFields } = errorsRef.current;
