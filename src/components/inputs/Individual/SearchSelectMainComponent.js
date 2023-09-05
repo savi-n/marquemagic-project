@@ -10,6 +10,7 @@ export default function SearchSelectMainComponent(props) {
 		mainComponentOptions,
 		setSubComponentOptions,
 		sectionId,
+		errMessage,
 	} = field;
 	const [selectedOption, setSelectedOption] = useState(value);
 
@@ -86,6 +87,7 @@ export default function SearchSelectMainComponent(props) {
 			defaultValue={value}
 			disabled={field.disabled}
 			rules={field.rules}
+			errorMessage={errMessage || 'No Options Found'}
 		/>
 	);
 }
