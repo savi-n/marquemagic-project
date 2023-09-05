@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import Button from 'components/Button';
@@ -11,6 +11,7 @@ import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import { useToasts } from '../Toast/ToastProvider';
+import { useSelector } from 'react-redux';
 // import SAMPLE_JSON from './customerdetailsformsample.json';
 
 const CustomerDetailsFormModal = props => {
@@ -22,17 +23,48 @@ const CustomerDetailsFormModal = props => {
 		redirectToProductPage,
 		setCustomerList,
 		setCustomerDetailsFormData,
+		setSelectedDedupeData,
 	} = props;
+	const { app } = useSelector(state => state);
+	const { permission, whiteLabelId } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	const { addToast } = useToasts();
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || {};
+	const selectedDedupeData =
+		dedupeApiData?.filter(item => {
+			return item?.product_id?.includes(product?.id);
+		})?.[0] || {};
+	// console.log(
+	// 	{ dedupeApiData, product, selectedDedupeData },
+	// 	'customerDetailsFormModal.js'
+	// );
 
+	useEffect(() => {
+		if (Object.keys(selectedDedupeData)?.length > 0)
+			setSelectedDedupeData(selectedDedupeData);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+	// api_details : {
+	// 	is_otp_required: false,
+	// 	search_api: 'http://20.204.69.253:3200/Ucic/search',
+	// 	dedupe_fetch: 'http://20.204.69.253:3200/Ucic/fetchData',
+	// 	get_customer_otp: '/get_customer_otp',
+	// 	verify_customer_otp: '/verify_customer',
+	// };
 	const handleProceed = async () => {
+		// step 1 - Api call for search api for dedupe
 		try {
 			setFetchingCustomerDetails(true);
-
+			// console.log({ val: formState?.values });
 			const reqBody =
 				{
+					...formState?.values,
+					loan_product_id:
+						product?.product_id?.[formState?.values?.['businesstype']] || '',
+					white_label_id: whiteLabelId,
+					id_no: formState?.values?.['pan_no'],
 					customer_type: formState?.values['customer_type'],
 					pan_number: formState?.values['pan_number'],
 					mobile_num: formState?.values['mobile_no'],
@@ -40,21 +72,28 @@ const CustomerDetailsFormModal = props => {
 					businesstype: formState?.values['businesstype'],
 				} || {};
 			setCustomerDetailsFormData(formState?.values || {});
-			const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
-			// console.log('ddupeRes-', ddupeRes);
-			if (ddupeRes?.data.message === 'No data found') {
-				addToast({
-					message:
-						'No Customer data found, please press SKIP and proceed to enter details.',
-					type: 'error',
-				});
+			// const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
+			const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
 
-				return;
+			if (apiUrl) {
+				const ddupeRes = await axios.post(apiUrl, reqBody);
+				// console.log('ddupeRes-', ddupeRes);
+				if (ddupeRes?.data.message === 'No data found') {
+					addToast({
+						message:
+							'No Customer data found, please press SKIP and proceed to enter details.',
+						type: 'error',
+					});
+
+					return;
+				}
+				ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+
+				setIsCustomerListModalOpen(true);
+				onClose();
 			}
-			ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
-			setIsCustomerListModalOpen(true);
-			onClose();
 		} catch (e) {
+			console.error(e.message);
 		} finally {
 			setFetchingCustomerDetails(false);
 		}

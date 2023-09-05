@@ -8,6 +8,7 @@ import IfscList from 'components/inputs/Individual/IfscList';
 import Pincode from 'components/inputs/Individual/PinCode';
 import DateField from 'components/inputs/DateField';
 import InputField from 'components/inputs/InputField';
+import InputFieldWithInfo from 'components/inputs/InputFieldWithInfo';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
@@ -726,6 +727,16 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					// style={{
 					// 	Width: '150px',
 					// }}
+				/>
+			);
+		}
+		case 'input_field_with_info': {
+			return (
+				<InputFieldWithInfo
+					type={type}
+					{...{ ...field, ...fieldProps }}
+
+					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 				/>
 			);
 		}
