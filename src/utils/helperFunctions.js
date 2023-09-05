@@ -41,7 +41,7 @@ export const fetchSubCompOptions = async data => {
 					? (newOptionsList = [{ value: '', name: '' }])
 					: fetchRes?.data?.options?.map(subOption => {
 							newOptionsList.push({
-								value: `${subOption?.id}`,
+								value: `${subOption?.IndustryName}`,
 								name: `${subOption?.IndustryName || subOption.name}`,
 							});
 							return null;
