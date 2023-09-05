@@ -16,6 +16,7 @@ import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
 import { UDYAM_REGEX } from '_config/app.config';
+import CheckBox from 'components/CheckBox';
 
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -693,6 +694,15 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		}
 		case 'disabledtextfieldmodal': {
 			return <DisabledTextFieldModal {...{ ...field, ...fieldProps }} />;
+		}
+		case 'checkbox': {
+			return (
+				<CheckBox
+					{...{ ...field, ...fieldProps }}
+						// checked={fieldProps.checked}
+						// value={value}
+				/>
+			);
 		}
 		//DisabledTextFieldModal
 		case 'button': {

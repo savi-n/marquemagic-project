@@ -30,8 +30,8 @@ export const resetAllFields = {
 	property_tenure: '',
 };
 
-export const PREFIX_PRESENT = 'present_';
-export const PREFIX_PERMANENT = 'permanent_';
+export const PREFIX_PERMANENT = 'registered_';
+export const PREFIX_PRESENT = 'operating_';
 export const AID_PRESENT = '1';
 export const AID_PERMANENT = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
@@ -55,7 +55,7 @@ export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 export const PRESENT_ID_PROOF_UPLOAD_FIELD_NAME = 'present_id_upload';
 export const PERMANENT_ADDRESS1_FIELD_NAME = 'permanent_address1';
 export const OTHERS_DOC_NAME_FIELD_NAME = 'address_proof_id_others';
-
+export const REGISTERED_FIELD_NAME='registered_address'
 export const HIDE_PRESENT_ADDRESS_FIELDS = [
 	PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
 	PRESENT_ID_PROOF_UPLOAD_FIELD_NAME,

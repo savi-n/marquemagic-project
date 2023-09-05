@@ -53,9 +53,9 @@ export const PERMANENT_ADDRESS_PROOF_TYPE_FIELD_VALUE_AADHAAR =
 export const PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME =
 	'present_address_proof_type';
 export const PRESENT_ID_PROOF_UPLOAD_FIELD_NAME = 'present_id_upload';
-export const PERMANENT_ADDRESS1_FIELD_NAME = 'permanent_address1';
+export const REGISTERED_FIELD_NAME = 'registered_address';
 export const OTHERS_DOC_NAME_FIELD_NAME = 'address_proof_id_others';
-
+export const PERMANENT_ADDRESS1_FIELD_NAME='permanent_address1'
 export const HIDE_PRESENT_ADDRESS_FIELDS = [
 	PRESENT_ADDRESS_PROOF_TYPE_FIELD_NAME,
 	PRESENT_ID_PROOF_UPLOAD_FIELD_NAME,

@@ -19,8 +19,7 @@ import {
 } from 'store/directorsSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
-import * as CONST_SECTIONS from 'components/Sections/const';
-import Hint from 'components/Hint';
+
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
@@ -31,9 +30,9 @@ import useForm from 'hooks/useFormIndividual';
 import { encryptBase64 } from 'utils/encrypt';
 import Button from 'components/Button';
 import NavigateCTA from 'components/Sections/NavigateCTA';
-import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetails/const';
-import selectedSection from 'components/Sections/AddressDetailsEDI/selectedSection.json';
-const AddressEdi = props => {
+import * as CONST_ADDRESS_DETAILS from 'components/Sections/AddressDetailsEDI/const';
+// import selectedSection from 'components/Sections/AddressDetailsEDI/selectedSection.json';
+const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
@@ -50,7 +49,7 @@ const AddressEdi = props => {
 		nextSectionId,
 		isTestMode,
 		isViewLoan,
-
+		selectedSection,
 	} = app;
 	const {
 		// cacheDocuments,
@@ -83,16 +82,16 @@ const AddressEdi = props => {
 	] = useState(false);
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-
+	console.log(formState.values, 'formstate');
 	const onSaveAndProceed = async () => {
 		try {
 			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
 			if (
 				sectionRequired &&
-				(!formState?.values?.present_city ||
-					!formState?.values?.present_state ||
-					!formState?.values?.permanent_city ||
-					!formState?.values?.permanent_state)
+				(!formState?.values?.registered_city ||
+					!formState?.values?.registered_state ||
+					!formState?.values?.operating_city ||
+					!formState?.values?.operating_state)
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
@@ -108,28 +107,31 @@ const AddressEdi = props => {
 				{
 					business_address_id: businessAddressIdAid1,
 					aid: 1,
-					line1: formState?.values?.present_address1 || '',
-					line2: formState?.values?.present_address2 || '',
-					locality: formState?.values?.present_address3 || '',
-					pincode: formState?.values?.present_pin_code || '',
-					city: formState?.values?.present_city || '',
-					state: formState?.values?.present_state || '',
-					residential_type: formState?.values?.present_property_type || '',
-					residential_stability:
-						formState?.values?.present_property_tenure || '',
+					line1: formState?.values?.operating_address1 || '',
+					line2: formState?.values?.operating_address2 || '',
+					locality: formState?.values?.address3 || '',
+					pincode: formState?.values?.operating_pin_code || '',
+					city: formState?.values?.operating_city || '',
+					state: formState?.values?.operating_state || '',
+					residential_type: formState?.values?.operating_residential_type || '',
+					preferred_mailing_address:
+						formState?.values?.operating_preferred_mailing_address_checkbox ||
+						'',
 				},
 				{
+					preferred_mailing_address:
+						formState?.values?.registered_preferred_mailing_address_checkbox ||
+						'',
 					business_address_id: businessAddressIdAid2,
 					aid: 2,
-					line1: formState?.values?.permanent_address1 || '',
-					line2: formState?.values?.permanent_address2 || '',
-					locality: formState?.values?.permanent_address3 || '',
-					pincode: formState?.values?.permanent_pin_code || '',
-					city: formState?.values?.permanent_city || '',
-					state: formState?.values?.permanent_state || '',
-					residential_type: formState?.values?.permanent_property_type || '',
-					residential_stability:
-						formState?.values?.permanent_property_tenure || '',
+					line1: formState?.values?.registered_address1 || '',
+					line2: formState?.values?.registered_address2 || '',
+					locality: formState?.values?.registered_address3 || '',
+					pincode: formState?.values?.registered_pin_code || '',
+					city: formState?.values?.registered_city || '',
+					state: formState?.values?.registered_state || '',
+					residential_type:
+						formState?.values?.registered_residential_type || '',
 				},
 			];
 
@@ -167,13 +169,13 @@ const AddressEdi = props => {
 			});
 			dispatch(setCompletedDirectorSection(selectedSectionId));
 			dispatch(setSelectedSectionId(nextSectionId));
-			dispatch(
-				getDirectors({
-					loanRefId: loanRefId,
-					isSelectedProductTypeBusiness:
-						selectedProduct?.isSelectedProductTypeBusiness,
-				})
-			);
+			// dispatch(
+			// 	getDirectors({
+			// 		loanRefId: loanRefId,
+			// 		isSelectedProductTypeBusiness:
+			// 			selectedProduct?.isSelectedProductTypeBusiness,
+			// 	})
+			// );
 		} catch (error) {
 			console.error('error-AddressDetails-onProceed-', {
 				error: error,
@@ -209,31 +211,26 @@ const AddressEdi = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 
-
 			// -- TEST MODE
 			const preData = {
-				permanent_address_type:
-					sectionData?.director_details?.permanent_address_type,
-				permanent_address1: sectionData?.director_details?.permanent_address1,
-				permanent_address2: sectionData?.director_details?.permanent_address2,
-				permanent_address3: sectionData?.director_details?.permanent_locality,
-				permanent_pin_code: sectionData?.director_details?.permanent_pincode,
-				permanent_city: sectionData?.director_details?.permanent_city,
-				permanent_state: sectionData?.director_details?.permanent_state,
-				permanent_property_type:
-					sectionData?.director_details?.permanent_residential_type,
-				permanent_property_tenure: sectionData?.director_details
-					?.permanent_residential_stability
-					? moment(
-							sectionData?.director_details?.permanent_residential_stability
-					  ).format('YYYY-MM')
+				permanent_address1: sectionData?.permanent_address1,
+				permanent_address2: sectionData?.permanent_address2,
+				permanent_address3: sectionData?.permanent_locality,
+				permanent_pin_code: sectionData?.permanent_pincode,
+				permanent_city: sectionData?.permanent_city,
+				permanent_state: sectionData?.permanent_state,
+				permanent_property_type: sectionData?.permanent_residential_type,
+				permanent_property_tenure: sectionData?.permanent_residential_stability
+					? moment(sectionData?.permanent_residential_stability).format(
+							'YYYY-MM'
+					  )
 					: '',
 
-				present_address_type: sectionData?.director_details?.address_type,
-				present_address1: sectionData?.director_details?.address1,
-				present_address2: sectionData?.director_details?.address2,
-				present_address3: sectionData?.director_details?.locality,
-				present_pin_code: sectionData?.director_details?.pincode,
+				present_address_type: sectionData?.address_type,
+				present_address1: sectionData?.address1,
+				present_address2: sectionData?.address2,
+				present_address3: sectionData?.locality,
+				present_pin_code: sectionData?.pincode,
 				present_city: sectionData?.director_details?.city,
 				present_state: sectionData?.director_details?.state,
 				present_property_type: sectionData?.director_details?.residential_type,
@@ -249,6 +246,7 @@ const AddressEdi = props => {
 			console.error('error-fetchSectionDetails-', error);
 		}
 	};
+
 	const fetchSectionDetails = async () => {
 		try {
 			setFetchingSectionData(true);
@@ -308,11 +306,11 @@ const AddressEdi = props => {
 	}, []);
 	useEffect(() => {
 		if (!isSameAsAboveAddressChecked) {
-
 		}
+		// console.log(selectedSection)
 		// eslint-disable-next-line
 	}, [isSameAsAboveAddressChecked]);
-	if (!selectedDirectorId) return null;
+	// if (!selectedDirectorId) return null;
 
 	return (
 		<UI_SECTIONS.Wrapper>
@@ -320,176 +318,151 @@ const AddressEdi = props => {
 				<Loading />
 			) : (
 				<>
-					{selectedSection?.sub_sections?.map(
-						(subSection, subSectionIndex) => {
-              console.log(subSection);
-							const isPermanent = subSection?.aid === CONST.AID_PERMANENT;
+					{selectedSection?.sub_sections?.map((subSection, subSectionIndex) => {
+						const isPermanent = subSection?.aid === CONST.AID_PERMANENT;
 
-							const prefix = isPermanent
-								? CONST.PREFIX_PERMANENT
-								: CONST.PREFIX_PRESENT;
+						const prefix = isPermanent
+							? CONST.PREFIX_PERMANENT
+							: CONST.PREFIX_PRESENT;
 
-							// remove after verifying above code
+						// remove after verifying above code
 
-							// if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
-							// 	isProceedDisabledAddressProof = false;
-							// }
-							// if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
-							// 	isProceedDisabledAddressProof = false;
-							// }
+						// if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
+						// 	isProceedDisabledAddressProof = false;
+						// }
+						// if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
+						// 	isProceedDisabledAddressProof = false;
+						// }
 
-							return (
-								<Fragment key={`section-${subSectionIndex}-${subSection?.id}`}>
-									{subSection?.name ? (
-										<>
-											<UI_SECTIONS.SubSectionHeader>
-												{subSection.name}
-											</UI_SECTIONS.SubSectionHeader>
-										</>
-									) : null}
-									{subSection?.name
-										? null
-										: prefix === CONST.PREFIX_PRESENT && (
-												<>
-													<UI.CheckboxSameAs
-														type='checkbox'
-														id={CONST.CHECKBOX_SAME_AS_ID}
-														checked={!!isSameAsAboveAddressChecked}
-														disabled={
-															isSectionCompleted ||
-															isViewLoan ||
-															!formState?.values?.[
-																CONST_ADDRESS_DETAILS
-																	.PERMANENT_ADDRESS1_FIELD_NAME
-															]
-														}
-														onChange={() => {
-															setIsSameAsAboveAddressChecked(
-																!isSameAsAboveAddressChecked
-															);
-														}}
-													/>
-													<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-														Same as Permanent Address
-													</label>
-												</>
-										  )}
-									<UI_SECTIONS.FormWrapGrid>
-										{subSection?.fields?.map((field, fieldIndex) => {
+						return (
+							<Fragment key={`section-${subSectionIndex}-${subSection?.id}`}>
+								{subSection?.name ? (
+									<>
+										<UI_SECTIONS.SubSectionHeader>
+											{subSection.name}
+										</UI_SECTIONS.SubSectionHeader>
+									</>
+								) : null}
+								{subSection?.prefix === CONST.PREFIX_PRESENT && (
+									<>
+										<UI.CheckboxSameAs
+											type='checkbox'
+											id={CONST.CHECKBOX_SAME_AS_ID}
+											checked={!!isSameAsAboveAddressChecked}
+											disabled={isSectionCompleted || isViewLoan}
+											onChange={() => {
+												setIsSameAsAboveAddressChecked(
+													!isSameAsAboveAddressChecked
+												);
+											}}
+										/>
+										<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+											Same as Registered Address
+										</label>
+									</>
+								)}
+								<UI_SECTIONS.FormWrapGrid>
+									{subSection?.fields?.map((field, fieldIndex) => {
+										if (
+											!isFieldValid({
+												field,
+												formState,
+												isApplicant,
+											})
+										) {
+											return null;
+										}
+
+										if (
+											subSection.aid === CONST.AID_PRESENT &&
+											isSameAsAboveAddressChecked
+										) {
 											if (
-												!isFieldValid({
-													field,
-													formState,
-													isApplicant,
-												})
-											) {
+												CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name)
+											)
 												return null;
-											}
+										}
+										const newValue = prefilledValues(field);
+										const customFieldProps = {};
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+										const customStyle = {};
+										//setOtherPresentCacheDocTemp
 
-											if (
-												subSection.aid === CONST.AID_PRESENT &&
-												isSameAsAboveAddressChecked
-											) {
-												if (
-													CONST.HIDE_PRESENT_ADDRESS_FIELDS.includes(field.name)
-												)
-													return null;
-											}
-											const newValue = prefilledValues(field);
-											const customFieldProps = {};
-											if (isViewLoan) {
-												customFieldProps.disabled = true;
-											}
-											const customStyle = {};
-											//setOtherPresentCacheDocTemp
+										if (isSectionCompleted) {
+											customFieldProps.disabled = true;
+										}
 
-											if (isSectionCompleted) {
-												customFieldProps.disabled = true;
-											}
+										if (
+											isSameAsAboveAddressChecked &&
+											field.name.includes(CONST.PREFIX_PRESENT)
+										) {
+											customFieldProps.disabled = true;
+										}
 
-											if (
-												isSameAsAboveAddressChecked &&
-												field.name.includes(CONST.PREFIX_PRESENT)
-											) {
-												customFieldProps.disabled = true;
-											}
+										// Untill permanent address1 is not filled disable present address proof
+										// in all the scenario this fields will be always disabled
+										if (
+											field.name.includes('city') ||
+											field.name.includes('state')
+										) {
+											customFieldProps.disabled = true;
+										}
+										//here
+										// console.log(subSection);
+										if (field.type.includes('checkbox')) {
+											console.log(field.name);
+											customFieldProps.checked =
+												preferredMAilingAddress === field.name;
+											customFieldProps.onChange = setPreferredMAilingAddress;
+											customFieldProps.label = field.placeholder;
+										}
 
-											// Untill permanent address1 is not filled disable present address proof
-											if (
-												!formState?.values?.[
-													CONST.PERMANENT_ADDRESS1_FIELD_NAME
-												]
-											) {
-												customFieldProps.disabled = true;
-											}
-
-											// EDIT / VIEW MODE Enable all address fields and disable all doc related fields
-											if (isSectionCompleted) {
-												if (subSection?.id?.includes('address_details')) {
-													customFieldProps.disabled = false;
-												}
-											}
-
-											// TO overwrite all above condition and disable everything
-											if (isViewLoan) {
-												customFieldProps.disabled = true;
-											}
-
-											// in all the scenario this fields will be always disabled
-											if (
-												field.name.includes('city') ||
-												field.name.includes('state')
-											) {
-												customFieldProps.disabled = true;
-											}
-											//here
-											// console.log(subSection);
-                      if(field.name.includes("checkbox")){
-                        return(
-                          <UI_SECTIONS.FieldWrapGrid
-                          key={`field-${prefix}-${fieldIndex}-${field.name}`}
-													style={customStyle}
-                          >
-                            <UI.CheckboxSameAs
-                            type="checkbox"
-                            id={CONST.CHECKBOX_SAME_AS_ID}
-                            checked={field.name===preferredMAilingAddress}
-                            onChange={()=>{
-                             field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
-                            }}
-                            />
-                            <label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-													Preffered mailing address
-													</label>
-                          </UI_SECTIONS.FieldWrapGrid>
-                        )
-                      }
-											return (
-												<UI_SECTIONS.FieldWrapGrid
-													key={`field-${prefix}-${fieldIndex}-${field.name}`}
-													style={customStyle}
-												>
-													{register({
-														...field,
-														value: newValue,
-														visibility: 'visible',
-														...customFieldProps,
-													})}
-													{(formState?.submit?.isSubmited ||
-														formState?.touched?.[field.name]) &&
-														formState?.error?.[field.name] && (
-															<UI_SECTIONS.ErrorMessage>
-																{formState?.error?.[field.name]}
-															</UI_SECTIONS.ErrorMessage>
-														)}
-												</UI_SECTIONS.FieldWrapGrid>
-											);
-										})}
-									</UI_SECTIONS.FormWrapGrid>
-								</Fragment>
-							);
-						}
-					)}
+										//   return(
+										//     <UI_SECTIONS.FieldWrapGrid
+										//     key={`field-${prefix}-${fieldIndex}-${field.name}`}
+										// 		style={customStyle}
+										//     >
+										//       <UI.CheckboxSameAs
+										//       type="checkbox"
+										//       id={CONST.CHECKBOX_SAME_AS_ID}
+										//       checked={field.name===preferredMAilingAddress}
+										// onChange={()=>{
+										//  field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
+										// }}
+										// />
+										//       <label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+										// 		Preffered mailing address
+										// 		</label>
+										//     </UI_SECTIONS.FieldWrapGrid>
+										//   )
+										// }
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${prefix}-${fieldIndex}-${field.name}`}
+												style={customStyle}
+											>
+												{register({
+													...field,
+													value: newValue,
+													visibility: 'visible',
+													...customFieldProps,
+												})}
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+													formState?.error?.[field.name] && (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[field.name]}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+											</UI_SECTIONS.FieldWrapGrid>
+										);
+									})}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
 							<Button
@@ -511,4 +484,4 @@ const AddressEdi = props => {
 		</UI_SECTIONS.Wrapper>
 	);
 };
-export default AddressEdi;
+export default BusinessAddressDetails;
