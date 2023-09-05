@@ -82,7 +82,6 @@ const BusinessAddressDetails = props => {
 	] = useState(false);
 	const isSectionCompleted = completedSections.includes(selectedSectionId);
 	const sectionRequired = selectedSection?.is_section_mandatory !== false;
-	console.log(formState.values, 'formstate');
 	const onSaveAndProceed = async () => {
 		try {
 			const { businessAddressIdAid1, businessAddressIdAid2 } = editSectionIds;
