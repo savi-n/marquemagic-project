@@ -16,6 +16,8 @@ import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
 import { UDYAM_REGEX } from '_config/app.config';
+import SearchSelectMainComponent from 'components/inputs/Individual/SearchSelectMainComponent';
+import SearchSelectSubComponent from 'components/inputs/Individual/SearchSelectSubComponent';
 
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -244,10 +246,16 @@ export default function useForm() {
 	const [, updateFormState] = useState(uuidv4());
 
 	const checkValidity = name => {
-		const {selectedSectionId} = app;
+		const { selectedSectionId } = app;
 		let error = false;
-		if (!fieldsRef.current[name]?.disabled || (selectedSectionId && selectedSectionId==='business_details')) {
-			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
+		if (
+			!fieldsRef.current[name]?.disabled ||
+			(selectedSectionId && selectedSectionId === 'business_details')
+		) {
+			error = validate(
+				fieldsRef.current[name]?.rules,
+				valuesRef.current[name]
+			);
 		}
 		// error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		const { [name]: _, ...errorFields } = errorsRef.current;
@@ -669,6 +677,24 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 		case 'ifsclist': {
 			return (
 				<IfscList
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
+		case 'industryType': {
+			return (
+				<SearchSelectMainComponent
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
+		case 'subIndustryType': {
+			return (
+				<SearchSelectSubComponent
 					field={{ ...field, ...fieldProps }}
 					onSelectOptionCallback={onChange}
 					value={value}
