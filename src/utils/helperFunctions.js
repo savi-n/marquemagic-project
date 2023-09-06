@@ -44,6 +44,7 @@ export const fetchSubCompOptions = async data => {
 				let newOptionsList = [];
 				// we should get all the options in an option array
 				fetchRes.data.options = fetchRes?.data?.data || fetchRes?.data?.message;
+				console.log({ res: fetchRes?.data?.options });
 				fetchRes?.data?.options?.length === 0
 					? (newOptionsList = [{ value: '', name: '' }])
 					: fetchRes?.data?.options?.map(subOption => {

@@ -9,7 +9,7 @@ export const initialFormState = {
 	contact: '9999999999',
 	corporateid: 'U74900KA2011PTC058169',
 	// customer_id: '2222222222',
-	existing_customer: 'No',
+	existing_customer: 'Yes',
 	pan_number: 'ABCDE2222F',
 	income_type: '2',
 	business_type: '4',
@@ -56,3 +56,4 @@ export const MOBILE_NUMBER_FIELD_NAME = 'mobile_no';
 export const GSTIN_FIELD_NAME = 'gstin';
 export const BUSINESS_EMAIL_FIELD = 'email';
 export const CONTACT_EMAIL_FIELD = 'contact_email';
+export const CUSTOMER_ID_FIELD_NAME = 'customer_id';

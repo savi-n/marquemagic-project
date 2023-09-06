@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import _ from 'lodash';
+// import _ from 'lodash';
 import moment from 'moment';
 import {
 	formatSectionReqBody,
@@ -12,10 +12,9 @@ import {
 } from 'utils/formatData';
 import { setSelectedSectionId } from 'store/appSlice';
 import { DIRECTOR_TYPES } from 'store/directorsSlice';
-import {
-	getDirectors,
-	setCompletedDirectorSection,
-} from 'store/directorsSlice';
+import // getDirectors,
+// setCompletedDirectorSection,
+'store/directorsSlice';
 import { useToasts } from 'components/Toast/ToastProvider';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import { setCompletedApplicationSection } from 'store/applicationSlice';
@@ -24,13 +23,13 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import Loading from 'components/Loading';
-import { API_END_POINT } from '_config/app.config';
-import { scrollToTopRootElement, isNullFunction } from 'utils/helper';
+// import { API_END_POINT } from '_config/app.config';
+import { scrollToTopRootElement } from 'utils/helper';
 import useForm from 'hooks/useFormIndividual';
-import { encryptBase64 } from 'utils/encrypt';
+// import { encryptBase64 } from 'utils/encrypt';
 import Button from 'components/Button';
 import NavigateCTA from 'components/Sections/NavigateCTA';
-import { address } from '../BasicDetails/ProfileUpload/const';
+// import { address } from '../BasicDetails/ProfileUpload/const';
 // import selectedSection from 'components/Sections/AddressDetailsEDI/selectedSection.json';
 const BusinessAddressDetails = props => {
 	const { app, application } = useSelector(state => state);
@@ -44,16 +43,17 @@ const BusinessAddressDetails = props => {
 		: isDirectorApplicant(selectedDirector);
 
 	const {
+		// selectedProduct,
 		selectedSectionId,
 		nextSectionId,
 		isTestMode,
 		isViewLoan,
 		selectedSection,
-		userToken
+		userToken,
 	} = app;
 	const {
 		// cacheDocuments,
-		loanRefId,
+		// loanRefId,
 		businessId,
 	} = application;
 	const dispatch = useDispatch();
@@ -63,7 +63,7 @@ const BusinessAddressDetails = props => {
 		handleSubmit,
 		register,
 		formState,
-		onChangeFormStateField,
+		// onChangeFormStateField,
 	} = useForm();
 	const [editSectionIds, setEditSectionIds] = useState({
 		businessAddressIdAid1: '',
@@ -115,11 +115,18 @@ const BusinessAddressDetails = props => {
 					city: formState?.values?.operating_city || '',
 					state: formState?.values?.operating_state || '',
 					residential_type: formState?.values?.operating_residential_type || '',
-					preferred_mailing_address: preferredMAilingAddress==='operating_preferred_mailing_address_checkbox'?'Yes': 'No',
+					preferred_mailing_address:
+						preferredMAilingAddress ===
+						'operating_preferred_mailing_address_checkbox'
+							? 'Yes'
+							: 'No',
 				},
 				{
 					preferred_mailing_address:
-						preferredMAilingAddress==='registered_preferred_mailing_address_checkbox'?'Yes':'No',
+						preferredMAilingAddress ===
+						'registered_preferred_mailing_address_checkbox'
+							? 'Yes'
+							: 'No',
 					business_address_id: businessAddressIdAid2,
 					aid: 2,
 					line1: formState?.values?.registered_address1 || '',
@@ -219,17 +226,24 @@ const BusinessAddressDetails = props => {
 				registered_city: sectionData?.address?.[0]?.city,
 				registered_state: sectionData?.address?.[0]?.state,
 				registered_property_type: sectionData?.address?.[0]?.residential_type,
-					registered_preferred_mailing_address_checkbox:sectionData?.address?.[0]?.preferredMAilingAddress==='Yes',
+				registered_preferred_mailing_address_checkbox:
+					sectionData?.address?.[0]?.preferredMAilingAddress === 'Yes',
 
 				operating_address_type: sectionData?.address_type,
-				operating_address1:  sectionData?.address?.[1]?.line1,
-				operating_address2:  sectionData?.address?.[1]?.line2,
-				operating_address3: sectionData?.address?.[1]?.locality,
-				operating_pin_code: sectionData?.address?.[1]?.pincode,
-				operating_city: sectionData?.address?.[1]?.city,
-				operating_state: sectionData?.address?.[1]?.state,
-				operating_property_type: sectionData?.address?.[1]?.residential_type,
-					operating_preferred_mailing_address_checkbox:sectionData?.address?.[0]?.preferred_mailing_address==='Yes'
+				operating_address1: sectionData?.address1,
+				operating_address2: sectionData?.address2,
+				operating_address3: sectionData?.locality,
+				operating_pin_code: sectionData?.pincode,
+				operating_city: sectionData?.director_details?.city,
+				operating_state: sectionData?.director_details?.state,
+				operating_property_type:
+					sectionData?.director_details?.residential_type,
+				operating_property_tenure: sectionData?.director_details
+					?.residential_stability
+					? moment(sectionData?.director_details?.residential_stability).format(
+							'YYYY-MM'
+					  )
+					: '',
 			};
 			if(sectionData?.address?.[0]?.preferred_mailing_address==='Yes') setPreferredMAilingAddress('operating_preferred_mailing_address_checkbox');
 			if(sectionData?.address?.[0]?.preferredMAilingAddress==='Yes') setPreferredMAilingAddress('registered_preferred_mailing_address_checkbox')
@@ -289,7 +303,7 @@ const BusinessAddressDetails = props => {
 	};
 	useEffect(() => {
 		scrollToTopRootElement();
-				fetchSectionDetails();
+		fetchSectionDetails();
 		// eslint-disable-next-line
 	}, []);
 	// useEffect(() => {
