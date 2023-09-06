@@ -918,7 +918,7 @@ const BasicDetails = props => {
 				return formState?.values?.[field?.name];
 			}
 			const dedupeData =
-				!completedSections.includes(selectedSectionId) &&
+				!completedSections?.includes(selectedSectionId) &&
 				!!dedupePrefilledValues
 					? dedupePrefilledValues
 					: null;
