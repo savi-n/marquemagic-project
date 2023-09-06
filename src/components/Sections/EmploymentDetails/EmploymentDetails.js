@@ -383,6 +383,7 @@ const EmploymentDetails = () => {
 
 	let displayProceedCTA = true;
 	let displayAddCoApplicantCTA = true;
+	let displayAddGuarantorCTA = true;
 	if (selectedProduct?.product_details?.is_coapplicant_mandatory) {
 		const coApplicants = Object.values(directors)?.filter(dir => {
 			return dir?.type_name === CONST_SECTIONS.CO_APPLICANT_TYPE_NAME;
@@ -393,10 +394,23 @@ const EmploymentDetails = () => {
 		}
 	}
 
+	if (selectedProduct?.product_details?.is_guarantor_mandatory) {
+		const guarantors = Object.values(directors)?.filter(dir => {
+			return dir?.type_name === CONST_SECTIONS.CO_APPLICANT_TYPE_NAME;
+		});
+
+		if (isViewLoan || guarantors?.length <= 0) {
+			displayProceedCTA = false;
+		}
+	}
+
 	if (selectedSection?.add_co_applicant_visibility === false || isViewLoan) {
 		displayAddCoApplicantCTA = false;
 	}
 
+	if (selectedSection?.add_guarantor_visibility === false || isViewLoan) {
+		displayAddGuarantorCTA = false;
+	}
 	// TODO: update draft validation logic
 	// if (isDraftLoan && !isLastApplicantIsSelected) {
 	// 	displayAddCoApplicantCTA = false;
@@ -541,6 +555,19 @@ const EmploymentDetails = () => {
 									})}
 								/>
 							)}
+						{/* displayAddGuarantorCTA */}
+						{displayAddGuarantorCTA && (
+							<Button
+								fill
+								name='Add Guarantor'
+								isLoader={loading}
+								disabled={loading}
+								onClick={handleSubmit(() => {
+									// dispatch(setAddNewDirectorKey('Co-applicant'));
+									onAddDirector('Guarantor');
+								})}
+							/>
+						)}
 						{selectedProduct?.isSelectedProductTypeBusiness && !isViewLoan && (
 							<Button
 								fill

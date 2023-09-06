@@ -8,6 +8,7 @@ export const CO_APPLICANT = 'coapplicant';
 export const APPLICANT_TYPE_NAME = 'Applicant';
 
 export const CO_APPLICANT_TYPE_NAME = 'Co-applicant';
+export const GUARANTOR_TYPE_NAME = 'Guarantor';
 
 export const EXTRACTION_KEY_PAN = 'pan';
 export const EXTRACTION_KEY_DL = 'DL';

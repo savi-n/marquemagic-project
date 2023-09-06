@@ -109,7 +109,7 @@ const BasicDetails = props => {
 		businessType,
 		loanId,
 		businessId,
-		dedupePrefilledValues
+		dedupePrefilledValues,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -917,7 +917,11 @@ const BasicDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-		const dedupeData=!completedSections.includes(selectedSectionId)&&!!dedupePrefilledValues?dedupePrefilledValues:null;
+			const dedupeData =
+				!completedSections.includes(selectedSectionId) &&
+				!!dedupePrefilledValues
+					? dedupePrefilledValues
+					: null;
 			// console.log(sectionData);
 			// console.log({
 			// 	sectionData,
@@ -932,9 +936,11 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
-				contactno: sectionData?.director_details?.dcontact||dedupeData?.mobile_no,
+				contactno:
+					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber||dedupeData?.pan_number,
+					sectionData?.business_data?.businesspancardnumber ||
+					dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -945,10 +951,12 @@ const BasicDetails = props => {
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'
-						: `${sectionData?.director_details?.income_type || ''}`||dedupeData?.businesstype===0?'0':`${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
-			// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
-
-					};
+						: `${sectionData?.director_details?.income_type || ''}` ||
+						  dedupeData?.businesstype === 0
+						? '0'
+						: `${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
+				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
+			};
 
 			// TEST MODE
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
@@ -1964,12 +1972,13 @@ const BasicDetails = props => {
 											customFieldProps.infoMessage =
 												'Select the income type to fetch the data from Customer ID.';
 										}
-										if(field?.name===CONST.DOB_FIELD_NAME){
-											customFieldPropsSubfields.value=getTotalYearsCompleted(
-												moment(formState?.values?.[CONST.DOB_FIELD_NAME]).format(
-													'YYYY-MM-DD'
-												)
-											)||'';
+										if (field?.name === CONST.DOB_FIELD_NAME) {
+											customFieldPropsSubfields.value =
+												getTotalYearsCompleted(
+													moment(
+														formState?.values?.[CONST.DOB_FIELD_NAME]
+													).format('YYYY-MM-DD')
+												) || '';
 										}
 
 										// console.log({
