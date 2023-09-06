@@ -199,10 +199,10 @@ export default function SearchSelect(props) {
 			defaultSelected && onOptionSelect(null, defaultSelected);
 		}
 		// eslint-disable-next-line
-	}, [defaultValue, options]);
+	}, [defaultValue, options?.length]);
 
 	useEffect(() => {
-		if (options.length) setSelectOptions(options);
+		if (options?.length) setSelectOptions(options);
 	}, [options]);
 
 	useEffect(() => {
@@ -231,7 +231,10 @@ export default function SearchSelect(props) {
 			onSelectOptionCallback &&
 			typeof onSelectOptionCallback === 'function'
 		) {
-			onSelectOptionCallback({ name, value: option });
+			onSelectOptionCallback({
+				name,
+				value: option,
+			});
 			// value: option.value
 		}
 		// setOptionShow(true);
@@ -240,7 +243,13 @@ export default function SearchSelect(props) {
 
 	const onBlurSearchBox = event => {
 		if (onBlurCallback && typeof onBlurCallback === 'function') {
-			onBlurCallback({ name, value: selectedOption?.value }, 'blur');
+			onBlurCallback(
+				{
+					name,
+					value: selectedOption?.value,
+				},
+				'blur'
+			);
 		}
 		setFocus(false);
 		setOptionShow(false);
@@ -265,7 +274,12 @@ export default function SearchSelect(props) {
 		}
 		setSearchKey(value.toUpperCase());
 		if (searchOptionCallback && typeof searchOptionCallback === 'function') {
-			let options = [{ name: value, value: value }];
+			let options = [
+				{
+					name: value,
+					value: value,
+				},
+			];
 			if (!value.trim()) {
 				options = [];
 			}
@@ -278,11 +292,21 @@ export default function SearchSelect(props) {
 					setFetching(false);
 					return;
 				}
-				let searchOptions = await searchOptionCallback({ name: value });
+				let searchOptions = await searchOptionCallback({
+					name: value,
+				});
 
-				searchOptions = searchOptions.map(opt => ({ name: opt, value: opt }));
+				searchOptions = searchOptions.map(opt => ({
+					name: opt,
+					value: opt,
+				}));
 				if (!searchOptions.length && value.trim()) {
-					searchOptions = [{ name: value, value: value }];
+					searchOptions = [
+						{
+							name: value,
+							value: value,
+						},
+					];
 				}
 				setSelectOptions(searchOptions);
 				setFetching(false);

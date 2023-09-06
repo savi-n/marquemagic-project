@@ -7,12 +7,18 @@ import PanUpload from './PanUpload';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
-
+import { encryptReq } from 'utils/encrypt';
+import moment from 'moment';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
-import { API_END_POINT } from '_config/app.config';
+import {
+	API_END_POINT,
+	// IFSC_LIST_FETCH,
+	INDUSTRY_LIST_FETCH,
+	SUB_INDUSTRY_FETCH,
+} from '_config/app.config';
 import {
 	setIsDraftLoan,
 	setLoginCreateUserRes,
@@ -42,13 +48,14 @@ import {
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { scrollToTopRootElement } from 'utils/helper';
+import { scrollToTopRootElement, getTotalYearsCompleted } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import * as CONST_BUSINESS_DETAILS from './const';
+import { fetchOptions } from 'utils/helperFunctions';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
@@ -74,12 +81,13 @@ const BusinessDetails = props => {
 		// editLoanDirectors,
 		userDetails,
 		isTestMode,
+		permission,
 	} = app;
 	const {
 		borrowerUserId,
 		businessUserId,
-		// businessId,
-		// loanId,
+		businessId,
+		loanId,
 		businessType,
 		loanRefId,
 	} = application;
@@ -90,7 +98,6 @@ const BusinessDetails = props => {
 	const [sectionData, setSectionData] = useState({});
 	const { addToast } = useToasts();
 	const [udyogAadhar, setUdyogAadhar] = useState('');
-
 	// eslint-disable-next-line
 	const [udyogAadharStatus, setUdyogAadharStatus] = useState('');
 	// eslint-disable-next-line
@@ -111,6 +118,16 @@ const BusinessDetails = props => {
 	const [companyRocData, setCompanyRocData] = useState({});
 	const [isPrefilEmail, setisPrefilEmail] = useState(true);
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
+	const [mainComponentOptions, setMainComponentOptions] = useState(null);
+	const [subComponentOptions, setSubComponentOptions] = useState([]);
+
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || {};
+	const selectedDedupeData =
+		dedupeApiData?.filter(item => {
+			return item?.product_id?.includes(selectedProduct?.id);
+		})?.[0] || {};
+
 	const {
 		handleSubmit,
 		register,
@@ -154,7 +171,69 @@ const BusinessDetails = props => {
 			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
 		}));
 	};
+	// console.log({ formState });
+	const onFetchFromCustomerId = async () => {
+		// console.log('on-fetch-customer-id');
+		try {
+			setLoading(true);
+			const reqBody = {
+				customer_id: formState?.values?.['customer_id'],
+				white_label_id: whiteLabelId,
+				businesstype: formState?.values?.['business_type'],
+				loan_product_id:
+					selectedProduct?.product_id?.[formState?.values?.['business_type	']],
+				loan_id: loanId,
+				busienss_id: businessId,
+			};
+			const fetchDataRes = await axios.post(
+				selectedDedupeData?.verify,
+				reqBody
+			);
 
+			if (fetchDataRes?.data?.status === 'ok') {
+				addToast({
+					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+					type: 'error',
+				});
+				redirectToProductPageInEditMode(fetchDataRes?.data);
+			}
+			// console.log({ fetchDataRes });
+		} catch (err) {
+			console.error(err.message);
+			addToast({
+				message: err.message || 'Something went wrong. Please try again later!',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+	const redirectToProductPageInEditMode = loanData => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
+		// sessionStorage.clear();
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			selectedProduct?.id
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		// console.log('redirectToProductPageInEditMode-obj-', {
+		// 	editLoanRedirectObject,
+		// 	redirectURL,
+		// 	loanData,
+		// 	product,
+		// });
+		window.open(redirectURL, '_self');
+	};
 	const onPanEnter = async pan => {
 		try {
 			const panErrorMessage = isInvalidPan(pan);
@@ -268,6 +347,7 @@ const BusinessDetails = props => {
 			setLoading(false);
 		}
 	};
+	// console.log({ borrowerUserId, isEditOrViewLoan });
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
@@ -677,6 +757,23 @@ const BusinessDetails = props => {
 		if (loanRefId) fetchSectionDetails();
 		//eslint-disable-next-line
 	}, []);
+
+	useEffect(() => {
+		const fetchMainCompOptions = async () => {
+			try {
+				const allIndustriesOption = await fetchOptions({
+					fetchOptionsURL: INDUSTRY_LIST_FETCH,
+					sectionId: selectedSectionId,
+				});
+
+				setMainComponentOptions(allIndustriesOption);
+			} catch (err) {
+				console.error(err, 'Industry-Fetch-Error');
+			}
+		};
+		fetchMainCompOptions();
+	}, [selectedSectionId]);
+
 	const ButtonProceed = (
 		<Button
 			fill
@@ -775,8 +872,8 @@ const BusinessDetails = props => {
 									/>
 								)}
 								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((field, fieldIndex) => {
-										// const field = _.cloneDeep(f);
+									{sub_section?.fields?.map((eachField, fieldIndex) => {
+										const field = _.cloneDeep(eachField);
 										if (
 											field.type === 'file' &&
 											field.name === CONST.PAN_UPLOAD_FIELD_NAME
@@ -862,7 +959,7 @@ const BusinessDetails = props => {
 											);
 										}
 										const customFieldProps = {};
-										const customFieldPropdSubFields = {};
+										const customFieldPropsSubFields = {};
 										if (
 											field?.name === CONST.BUSINESS_MOBILE_NUMBER_FIELD_NAME
 										) {
@@ -870,6 +967,23 @@ const BusinessDetails = props => {
 												...field.rules,
 												is_zero_not_allowed_for_first_digit: true,
 											};
+										}
+
+										/* Starts : Here we will pass all the required props for the main and the sub-components */
+										if (field?.name === 'industry_type') {
+											customFieldProps.type = 'industryType';
+											customFieldProps.apiURL = SUB_INDUSTRY_FETCH;
+											customFieldProps.mainComponentOptions = mainComponentOptions;
+											customFieldProps.setSubComponentOptions = setSubComponentOptions;
+											customFieldProps.sectionId = selectedSectionId;
+											customFieldProps.errMessage =
+												'Searched Option Not Found.';
+										}
+
+										if (field?.name === 'sub_industry_type') {
+											customFieldProps.type = 'subIndustryType';
+											customFieldProps.subComponentOptions = subComponentOptions;
+											// customFieldProps.errMessage = 'not found';
 										}
 										if (
 											(field?.name === CONST.BUSINESS_EMAIL_FIELD ||
@@ -898,6 +1012,10 @@ const BusinessDetails = props => {
 											customFieldProps.disabled = true;
 										}
 
+										if (field?.name === 'ifsc_code') {
+											customFieldProps.subComponentOptions = subComponentOptions;
+											// customFieldProps.errMessage = 'not found';
+										}
 										if (
 											isPanUploadMandatory &&
 											isPanNumberExist &&
@@ -917,13 +1035,59 @@ const BusinessDetails = props => {
 										// 			onPanEnter(formState.values?.['pan_number']);
 										// 		};
 										// 	}
-										if (field?.name === 'pan_number') {
-											customFieldPropdSubFields.loading = loading;
+										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
+											customFieldPropsSubFields.loading = loading;
 											customFieldProps.disabled =
-												loading || isViewLoan || isEditLoan;
-											customFieldPropdSubFields.onClick = event => {
+												loading ||
+												isViewLoan ||
+												isEditLoan ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+										}
+
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											customFieldPropsSubFields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubFields.loading = loading;
+											customFieldPropsSubFields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldProps.disabled = !!completedSections?.includes(
+												selectedSectionId
+											);
+										}
+
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											field.type = 'input_field_with_info';
+											customFieldProps.infoIcon = true;
+											customFieldProps.infoMessage =
+												'Select the Business Type to fetch the data from Customer ID.';
+										}
+										if (field.name === CONST.BUSINESS_START_DATE) {
+											customFieldPropsSubFields.value =
+												getTotalYearsCompleted(
+													moment(
+														formState?.values?.[CONST.BUSINESS_START_DATE]
+													).format('YYYY-MM-DD')
+												) || '';
+											customFieldPropsSubFields.disabled = true;
+										}
+										// console.log({
+										// 	formState,
+										// 	selectedProduct,
+										// 	selectedDedupeData,
+										// });
+										// To be verified once the config changes are done
+										if (
+											`${formState?.values?.['business_type']}`?.length === 0
+										) {
+											if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+												field.disabled = true;
+											}
 										}
 										// TODO: to be fix properly
 										// no use of set state inside return statement
@@ -1009,6 +1173,7 @@ const BusinessDetails = props => {
 										if (field?.disabled === true) {
 											customFieldProps.disabled = true;
 										}
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -1027,7 +1192,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
-															...customFieldPropdSubFields,
+															...customFieldPropsSubFields,
 														})}
 													<div
 														style={{
@@ -1048,7 +1213,7 @@ const BusinessDetails = props => {
 															value: newValueSelectField,
 															visibility: 'visible',
 															...customFieldProps,
-															...customFieldPropdSubFields,
+															...customFieldPropsSubFields,
 														})}
 												</div>
 												{(formState?.submit?.isSubmited ||

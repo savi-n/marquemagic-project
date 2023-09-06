@@ -46,5 +46,7 @@ export const INCOME_TYPE_FIELD_NAME = 'income_type';
 export const DOB_FIELD_NAME = 'dob';
 export const BASIC_DETAILS_SECTION_ID = 'basic_details';
 
+export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
+
 export const PROFILE_PIC_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting And Re-Upload The Profile Image`;
 export const APPLICATION_GEO_ERROR_HINT = `Please Allow Location Access From Browser's Setting`;

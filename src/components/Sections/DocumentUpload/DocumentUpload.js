@@ -1216,7 +1216,7 @@ const DocumentUpload = props => {
 			>
 				Document Submitted :
 				<UI.StyledButton width={'auto'} fillColor>
-					{uploaded>total? total: uploaded}
+					{uploaded>total?total:uploaded}
 					{total ? ` of ${total}` : ''}
 				</UI.StyledButton>
 			</div>
