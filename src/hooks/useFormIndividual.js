@@ -39,6 +39,11 @@ function ageLimit(value, ageLimit) {
 	return moment().diff(value, 'years', true) < ageLimit;
 }
 
+function maxAgeLimit(value, maxAgeLimit) {
+	// console.log(moment().diff(value, 'years', true) > ageLimit)
+	return moment().diff(value, 'years', true) > maxAgeLimit;
+}
+
 function validatePattern(pattern) {
 	return function(value, pat) {
 		pat = typeof pat === 'boolean' ? pattern : pat;
@@ -101,6 +106,10 @@ const VALIDATION_RULES = {
 	age_limit: {
 		func: ageLimit,
 		message: 'The applicant should be above the age limit',
+	},
+	max_age_limit: {
+		func: maxAgeLimit,
+		message: 'The applicant should be below the age limit',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),

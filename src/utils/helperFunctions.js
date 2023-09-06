@@ -17,14 +17,19 @@ const formatOptionsKeys = {
 
 export const fetchOptions = async data => {
 	const { fetchOptionsURL, sectionId } = data;
+	let formatedOptions;
+	try {
+		const resOptions = await axios.get(fetchOptionsURL);
 
-	const resOptions = await axios.get(fetchOptionsURL);
-	const formatedOptions = resOptions?.data?.data?.map(option => {
-		return {
-			name: option?.[formatOptionsKeys?.[sectionId]?.['name']],
-			value: `${option?.[formatOptionsKeys?.[sectionId]?.['name']]}`,
-		};
-	});
+		formatedOptions = resOptions?.data?.data?.map(option => {
+			return {
+				name: option?.[formatOptionsKeys?.[sectionId]?.['name']],
+				value: `${option?.[formatOptionsKeys?.[sectionId]?.['id']]}`,
+			};
+		});
+	} catch (error) {
+		console.error(error);
+	}
 	return formatedOptions;
 };
 
