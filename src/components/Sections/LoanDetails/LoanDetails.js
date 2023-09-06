@@ -220,6 +220,12 @@ const LoanDetails = () => {
 					validateLoanAmountRes?.data?.status === 'ok' &&
 					validateLoanAmountRes?.data?.approval_status === false
 				) {
+					addToast({
+						message:
+							validateLoanAmountRes?.data?.message ||
+							'Loan amount should match the Industry type selected.',
+						type: 'error',
+					});
 					return;
 				}
 				// console.log({ validateLoanAmountRes });
