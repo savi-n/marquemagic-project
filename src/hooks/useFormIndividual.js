@@ -8,6 +8,7 @@ import IfscList from 'components/inputs/Individual/IfscList';
 import Pincode from 'components/inputs/Individual/PinCode';
 import DateField from 'components/inputs/DateField';
 import InputField from 'components/inputs/InputField';
+import InputFieldWithInfo from 'components/inputs/InputFieldWithInfo';
 import SelectField from 'components/inputs/SelectField';
 import DisabledInput from 'components/inputs/DisabledInput';
 import AddressProofRadio from 'components/inputs/AddressProofRadio';
@@ -16,6 +17,8 @@ import * as CONST_LOAN_DETAILS from 'components/Sections/LoanDetails/const';
 import Button from 'components/Button';
 import moment from 'moment';
 import { UDYAM_REGEX } from '_config/app.config';
+import SearchSelectMainComponent from 'components/inputs/Individual/SearchSelectMainComponent';
+import SearchSelectSubComponent from 'components/inputs/Individual/SearchSelectSubComponent';
 
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -34,6 +37,11 @@ function pastDatesOnly(value) {
 function ageLimit(value, ageLimit) {
 	// console.log(moment().diff(value, 'years', true) > ageLimit)
 	return moment().diff(value, 'years', true) < ageLimit;
+}
+
+function maxAgeLimit(value, maxAgeLimit) {
+	// console.log(moment().diff(value, 'years', true) > ageLimit)
+	return moment().diff(value, 'years', true) > maxAgeLimit;
 }
 
 function validatePattern(pattern) {
@@ -98,6 +106,10 @@ const VALIDATION_RULES = {
 	age_limit: {
 		func: ageLimit,
 		message: 'The applicant should be above the age limit',
+	},
+	max_age_limit: {
+		func: maxAgeLimit,
+		message: 'The applicant should be below the age limit',
 	},
 	ifsc: {
 		func: validatePattern(/[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}$/),
@@ -244,9 +256,12 @@ export default function useForm() {
 	const [, updateFormState] = useState(uuidv4());
 
 	const checkValidity = name => {
-		const {selectedSectionId} = app;
+		const { selectedSectionId } = app;
 		let error = false;
-		if (!fieldsRef.current[name]?.disabled || (selectedSectionId && selectedSectionId==='business_details')) {
+		if (
+			!fieldsRef.current[name]?.disabled ||
+			(selectedSectionId && selectedSectionId === 'business_details')
+		) {
 			error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
 		}
 		// error = validate(fieldsRef.current[name]?.rules, valuesRef.current[name]);
@@ -675,6 +690,24 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
+		case 'industryType': {
+			return (
+				<SearchSelectMainComponent
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
+		case 'subIndustryType': {
+			return (
+				<SearchSelectSubComponent
+					field={{ ...field, ...fieldProps }}
+					onSelectOptionCallback={onChange}
+					value={value}
+				/>
+			);
+		}
 		case 'date': {
 			return (
 				<DateField
@@ -703,6 +736,16 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					// style={{
 					// 	Width: '150px',
 					// }}
+				/>
+			);
+		}
+		case 'input_field_with_info': {
+			return (
+				<InputFieldWithInfo
+					type={type}
+					{...{ ...field, ...fieldProps }}
+
+					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 				/>
 			);
 		}
