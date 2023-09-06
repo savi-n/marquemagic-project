@@ -30,7 +30,7 @@ import Button from 'components/Button';
 import NavigateCTA from 'components/Sections/NavigateCTA';
 // import { address } from '../BasicDetails/ProfileUpload/const';
 // import selectedSection from 'components/Sections/AddressDetailsEDI/selectedSection.json';
-const BusinessAddressDetails = props => {
+const BusinessAddressDetailsEdi = props => {
 	const { app, application } = useSelector(state => state);
 	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
@@ -520,4 +520,4 @@ const BusinessAddressDetails = props => {
 		</UI_SECTIONS.Wrapper>
 	);
 };
-export default BusinessAddressDetails;
+export default BusinessAddressDetailsEdi;

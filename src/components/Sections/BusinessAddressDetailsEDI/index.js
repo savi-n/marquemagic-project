@@ -1,2 +1,2 @@
-import BusinessAddressDetails from './BusinessAddressEdi';
-export default BusinessAddressDetails;
+import BusinessAddressDetailsEdi from './BusinessAddressEdi';
+export default BusinessAddressDetailsEdi;
