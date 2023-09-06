@@ -217,24 +217,25 @@ const BusinessAddressDetails = props => {
 				return CONST.initialFormState?.[field?.name];
 			}
 			// -- TEST MODE
+			// Baas!
 			const preData = {
-				registered_address1: sectionData?.address?.[0]?.line1,
-				registered_address2: sectionData?.address?.[0]?.line2,
-				registered_address3: sectionData?.address?.[0]?.locality,
-				registered_pin_code: sectionData?.address?.[0]?.pincode,
-				registered_city: sectionData?.address?.[0]?.city,
-				registered_state: sectionData?.address?.[0]?.state,
-				registered_property_type: sectionData?.address?.[0]?.residential_type,
+				registered_address1: sectionData?.address?.[1]?.line1,
+				registered_address2: sectionData?.address?.[1]?.line2,
+				registered_address3: sectionData?.address?.[1]?.locality,
+				registered_pin_code: sectionData?.address?.[1]?.pincode,
+				registered_city: sectionData?.address?.[1]?.city,
+				registered_state: sectionData?.address?.[1]?.state,
+				registered_property_type: sectionData?.address?.[1]?.residential_type,
 				registered_preferred_mailing_address_checkbox:
-					sectionData?.address?.[0]?.preferredMAilingAddress === 'Yes',
+					sectionData?.address?.[1]?.preferredMAilingAddress === 'Yes',
 
-				operating_address1: sectionData?.address?.[1]?.line1,
-				operating_address2: sectionData?.address?.[1]?.line2,
-				address3: sectionData?.address?.[1]?.locality,
-				operating_pin_code: sectionData?.address?.[1]?.pincode,
-				operating_city: sectionData?.address?.[1]?.city,
-				operating_state: sectionData?.address?.[1]?.state,
-				operating_property_type: sectionData?.address?.[1]?.residential_type,
+				operating_address1: sectionData?.address?.[0]?.line1,
+				operating_address2: sectionData?.address?.[0]?.line2,
+				address3: sectionData?.address?.[0]?.locality,
+				operating_pin_code: sectionData?.address?.[0]?.pincode,
+				operating_city: sectionData?.address?.[0]?.city,
+				operating_state: sectionData?.address?.[0]?.state,
+				operating_property_type: sectionData?.address?.[0]?.residential_type,
 			};
 
 			return preData?.[field?.name] || field?.value || '';
@@ -271,12 +272,17 @@ const BusinessAddressDetails = props => {
 					)?.[0]?.id,
 				});
 
-				if (fetchRes?.data?.data?.address?.[1]?.preferred_mailing_address === 'Yes'){
+				if (
+					fetchRes?.data?.data?.address?.[0]?.preferred_mailing_address ===
+					'Yes'
+				) {
 					setPreferredMAilingAddress(
 						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
-				}
-				else if (fetchRes?.data?.data?.address?.[0]?.preferredMAilingAddress === 'Yes'){
+				} else if (
+					fetchRes?.data?.data?.address?.[1]?.preferred_mailing_address ===
+					'Yes'
+				) {
 					setPreferredMAilingAddress(
 						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
@@ -307,7 +313,6 @@ const BusinessAddressDetails = props => {
 
 		// eslint-disable-next-line
 	}, []);
-
 
 	// useEffect(() => {
 	// 	if (!isSameAsAboveAddressChecked) {
