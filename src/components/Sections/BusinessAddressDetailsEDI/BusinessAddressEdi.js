@@ -231,6 +231,8 @@ const BusinessAddressDetails = props => {
 				operating_property_type: sectionData?.address?.[1]?.residential_type,
 					operating_preferred_mailing_address_checkbox:sectionData?.address?.[0]?.preferred_mailing_address==='Yes'
 			};
+			if(sectionData?.address?.[0]?.preferred_mailing_address==='Yes') setPreferredMAilingAddress('operating_preferred_mailing_address_checkbox');
+			if(sectionData?.address?.[0]?.preferredMAilingAddress==='Yes') setPreferredMAilingAddress('registered_preferred_mailing_address_checkbox')
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
