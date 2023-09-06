@@ -39,7 +39,7 @@ const DynamicForm = props => {
 	const { ifscList } = useSelector(state => state.app);
 
 	const selectedDirector = directors?.[selectedDirectorId] || {};
-	const applicantOptions = selectedDirectorOptions.map((item)=>{
+	const applicantOptions = selectedDirectorOptions?.map((item)=>{
 		return {
 			name: `${item.name}`,
 			value: item.name,
