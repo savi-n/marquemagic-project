@@ -36,11 +36,14 @@ export const PREFIX_OPERATING = 'operating_';
 export const AID_OPERATING = '1';
 export const AID_REGISTERED = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
+export const CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED='checkboxregistered'
+export const CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING='checkboxoperating';
 export const ADDRESSPROOF = 'addressproof';
 export const SUB_SECTION_ID_OPERATING_ADDRESS_PROOF_UPLOAD =
 	'operating_address_proof_upload';
 
-
+export const REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX='registered_preferred_mailing_address_checkbox'
+export const OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX='operating_preferred_mailing_address_checkbox'
 export const REGISTERED_ADDRESS_DETAILS_SECTION_ID = 'REGISTERED_address_details';
 export const ADDRESS_PROOF_UPLOAD_SECTION_ID = 'address_proof_upload';
 export const ID_PROOF_UPLOAD_FIELD_NAME = 'id_upload';

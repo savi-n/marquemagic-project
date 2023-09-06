@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 // import _ from 'lodash';
-import moment from 'moment';
 import {
 	formatSectionReqBody,
 	getApiErrorMessage,
@@ -117,14 +116,14 @@ const BusinessAddressDetails = props => {
 					residential_type: formState?.values?.operating_residential_type || '',
 					preferred_mailing_address:
 						preferredMAilingAddress ===
-						'operating_preferred_mailing_address_checkbox'
+						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
 				},
 				{
 					preferred_mailing_address:
 						preferredMAilingAddress ===
-						'registered_preferred_mailing_address_checkbox'
+						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
 					business_address_id: businessAddressIdAid2,
@@ -229,22 +228,15 @@ const BusinessAddressDetails = props => {
 				registered_preferred_mailing_address_checkbox:
 					sectionData?.address?.[0]?.preferredMAilingAddress === 'Yes',
 
-				operating_address_type: sectionData?.address_type,
-				operating_address1: sectionData?.address1,
-				operating_address2: sectionData?.address2,
-				operating_address3: sectionData?.locality,
-				operating_pin_code: sectionData?.pincode,
-				operating_city: sectionData?.director_details?.city,
-				operating_state: sectionData?.director_details?.state,
-				operating_property_type:
-					sectionData?.director_details?.residential_type,
-				operating_property_tenure: sectionData?.director_details
-					?.residential_stability
-					? moment(sectionData?.director_details?.residential_stability).format(
-							'YYYY-MM'
-					  )
-					: '',
+				operating_address1: sectionData?.address?.[1]?.line1,
+				operating_address2: sectionData?.address?.[1]?.line2,
+				address3: sectionData?.address?.[1]?.locality,
+				operating_pin_code: sectionData?.address?.[1]?.pincode,
+				operating_city: sectionData?.address?.[1]?.city,
+				operating_state: sectionData?.address?.[1]?.state,
+				operating_property_type: sectionData?.address?.[1]?.residential_type,
 			};
+
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);
@@ -279,6 +271,16 @@ const BusinessAddressDetails = props => {
 					)?.[0]?.id,
 				});
 
+				if (fetchRes?.data?.data?.address?.[1]?.preferred_mailing_address === 'Yes'){
+					setPreferredMAilingAddress(
+						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
+					);
+				}
+				else if (fetchRes?.data?.data?.address?.[0]?.preferredMAilingAddress === 'Yes'){
+					setPreferredMAilingAddress(
+						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
+					);
+				}
 				// if (registeredCacheDocumentsTempRes.length === 2)
 				//   setIsregisteredAddressIsoperatingAddresssetIsregisteredAddressIsoperatingAddress(
 				//     true
@@ -302,8 +304,11 @@ const BusinessAddressDetails = props => {
 	useEffect(() => {
 		scrollToTopRootElement();
 		fetchSectionDetails();
+
 		// eslint-disable-next-line
 	}, []);
+
+
 	// useEffect(() => {
 	// 	if (!isSameAsAboveAddressChecked) {
 	// 	}
@@ -420,7 +425,11 @@ const BusinessAddressDetails = props => {
 												>
 													<UI.CheckboxSameAs
 														type='checkbox'
-														id={CONST.CHECKBOX_SAME_AS_ID}
+														id={
+															isRegistered
+																? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
+																: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
+														}
 														checked={field.name === preferredMAilingAddress}
 														onChange={() => {
 															field.name !== preferredMAilingAddress
@@ -428,7 +437,13 @@ const BusinessAddressDetails = props => {
 																: setPreferredMAilingAddress(null);
 														}}
 													/>
-													<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+													<label
+														htmlFor={
+															isRegistered
+																? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
+																: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
+														}
+													>
 														{field.placeholder}
 													</label>
 												</UI_SECTIONS.FieldWrapGrid>

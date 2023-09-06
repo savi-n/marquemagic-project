@@ -48,12 +48,12 @@ const Label = styled.label`
 `;
 
 const showCityState = (props, k) => {
-	const Name=props?.name.split('_')[0]
+	const name=props?.name.split('_')[0]
 	if (
-		Name.includes('permanent') ||
-		Name.includes('present') ||
-		Name.includes('operating') ||
-		Name.includes('registered')
+		name.includes('permanent') ||
+		name.includes('present') ||
+		name.includes('operating') ||
+		name.includes('registered')
 	) {
 		return `${props.name.split('_')[0]}_${k}`;
 	} else {

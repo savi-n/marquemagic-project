@@ -8,7 +8,7 @@ import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import { encryptReq } from 'utils/encrypt';
-
+import moment from 'moment';
 import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import { decryptRes } from 'utils/encrypt';
@@ -48,7 +48,7 @@ import {
 import Loading from 'components/Loading';
 import SessionExpired from 'components/modals/SessionExpired';
 import { useToasts } from 'components/Toast/ToastProvider';
-import { scrollToTopRootElement } from 'utils/helper';
+import { scrollToTopRootElement,getTotalYearsCompleted } from 'utils/helper';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as API from '_config/app.config';
@@ -1038,7 +1038,8 @@ const BusinessDetails = props => {
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubFields.loading = loading;
 											customFieldProps.disabled =
-												loading || isViewLoan || isEditLoan;
+												loading || isViewLoan || isEditLoan||!!completedSections?.includes(selectedSectionId);
+												customFieldPropsSubFields.disabled = loading||!!completedSections?.includes(selectedSectionId);
 											customFieldPropsSubFields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
@@ -1047,7 +1048,8 @@ const BusinessDetails = props => {
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											customFieldPropsSubFields.onClick = onFetchFromCustomerId;
 											customFieldPropsSubFields.loading = loading;
-											customFieldPropsSubFields.disabled = loading;
+											customFieldPropsSubFields.disabled = loading||!!completedSections?.includes(selectedSectionId);
+											customFieldProps.disabled=!!completedSections?.includes(selectedSectionId)
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
@@ -1055,6 +1057,14 @@ const BusinessDetails = props => {
 											customFieldProps.infoIcon = true;
 											customFieldProps.infoMessage =
 												'Select the Business Type to fetch the data from Customer ID.';
+										}
+										if (field.name === CONST.BUSINESS_START_DATE) {
+											customFieldPropsSubFields.value = getTotalYearsCompleted(
+												moment(formState?.values?.[CONST.BUSINESS_START_DATE]).format(
+													'YYYY-MM-DD'
+												)
+											)||'';
+											customFieldPropsSubFields.disabled=true
 										}
 										// console.log({
 										// 	formState,
@@ -1153,6 +1163,7 @@ const BusinessDetails = props => {
 										if (field?.disabled === true) {
 											customFieldProps.disabled = true;
 										}
+
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}

@@ -88,7 +88,7 @@ const Label = styled.label`
 `;
 
 const Asteris = styled.span`
-  margin-top: 50%,
+  margin-top: 50%;
 	color: red;
 `;
 
@@ -116,25 +116,24 @@ const FieldPostfixIcon = styled.span`
 `;
 
 export default function InputFieldWithInfo(props) {
-	const { infoIcon = false, infoMessage } = props;
-
-	console.log({ infoIcon, infoMessage });
+	const {infoMessage } = props;
 	const isLargeTextLable = props?.name?.length > 15;
 	// console.log(props.onblur)
 	return (
 		<Div>
 			<Input
-				id={props.name}
-				type={props.type}
+				id={props?.name}
+				type={props?.type}
 				{...props}
 				onWheel={() => document.activeElement.blur()}
 				onBlur={e => (props.onblur ? props.onblur(e) : null)}
+				disabled={props?.disabled}
 			/>
 			<Label
 				isLargeTextLable={isLargeTextLable}
-				value={props.value}
-				htmlFor={props.name}
-				disabled={props.disabled}
+				value={props?.value}
+				htmlFor={props?.name}
+				disabled={props?.disabled}
 			>
 				<Span>
 					{props.placeholder}{' '}

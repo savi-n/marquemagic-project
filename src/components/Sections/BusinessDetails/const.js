@@ -57,3 +57,4 @@ export const GSTIN_FIELD_NAME = 'gstin';
 export const BUSINESS_EMAIL_FIELD = 'email';
 export const CONTACT_EMAIL_FIELD = 'contact_email';
 export const CUSTOMER_ID_FIELD_NAME = 'customer_id';
+export const BUSINESS_START_DATE='businessstartdate';

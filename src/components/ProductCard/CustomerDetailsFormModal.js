@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Button from 'components/Button';
 import Modal from 'components/Modal';
@@ -11,10 +12,10 @@ import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import { useToasts } from '../Toast/ToastProvider';
-import { useSelector } from 'react-redux';
 // import SAMPLE_JSON from './customerdetailsformsample.json';
-
+import {setDedupePrefilledValues} from 'store/applicationSlice'
 const CustomerDetailsFormModal = props => {
+	const dispatch = useDispatch();
 	const {
 		show,
 		onClose,
@@ -56,6 +57,7 @@ const CustomerDetailsFormModal = props => {
 	const handleProceed = async () => {
 		// step 1 - Api call for search api for dedupe
 		try {
+			dispatch(setDedupePrefilledValues(formState?.values))
 			setFetchingCustomerDetails(true);
 			// console.log({ val: formState?.values });
 			const reqBody =
@@ -71,6 +73,7 @@ const CustomerDetailsFormModal = props => {
 					dob: formState?.values['ddob'],
 					businesstype: formState?.values['businesstype'],
 				} || {};
+
 			setCustomerDetailsFormData(formState?.values || {});
 			// const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
 			const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
