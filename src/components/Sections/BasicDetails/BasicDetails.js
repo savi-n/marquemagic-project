@@ -31,6 +31,7 @@ import {
 	setLoanIds,
 	setGeoLocation,
 	setNewCompletedSections,
+	setDedupePrefilledValues,
 } from 'store/applicationSlice';
 import {
 	getDirectors,
@@ -458,9 +459,7 @@ const BasicDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-		// dispatch(setSelectedDirectorId(''));
-		// dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
-		// dispatch(setAddNewDirectorKey(key));
+
 	};
 	const onPanEnter = async pan => {
 		try {
@@ -516,6 +515,7 @@ const BasicDetails = props => {
 	};
 
 	const onSaveAndProceed = async () => {
+		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
@@ -936,6 +936,7 @@ const BasicDetails = props => {
 				businesspancardnumber:
 					sectionData?.business_data?.businesspancardnumber||dedupeData?.pan_number,
 				// martial_status:
+				customer_id:sectionData?.business_data?.customer_id||dedupeData?.customer_id,
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
 				),

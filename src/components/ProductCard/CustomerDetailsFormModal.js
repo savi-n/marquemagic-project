@@ -13,7 +13,7 @@ import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
 import { useToasts } from '../Toast/ToastProvider';
 // import SAMPLE_JSON from './customerdetailsformsample.json';
-import {setDedupePrefilledValues} from 'store/applicationSlice'
+import { setDedupePrefilledValues } from 'store/applicationSlice';
 const CustomerDetailsFormModal = props => {
 	const dispatch = useDispatch();
 	const {
@@ -57,7 +57,7 @@ const CustomerDetailsFormModal = props => {
 	const handleProceed = async () => {
 		// step 1 - Api call for search api for dedupe
 		try {
-			dispatch(setDedupePrefilledValues(formState?.values))
+			dispatch(setDedupePrefilledValues(formState?.values));
 			setFetchingCustomerDetails(true);
 			// console.log({ val: formState?.values });
 			const reqBody =
@@ -165,7 +165,10 @@ const CustomerDetailsFormModal = props => {
 						<Button
 							disabled={fetchingCustomerDetails}
 							isLoader={fetchingCustomerDetails}
-							onClick={redirectToProductPage}
+							onClick={() => {
+								redirectToProductPage();
+								dispatch(setDedupePrefilledValues(formState?.values));
+							}}
 							name='Skip'
 						/>
 					)}
