@@ -116,14 +116,14 @@ const BusinessAddressDetails = props => {
 					residential_type: formState?.values?.operating_residential_type || '',
 					preferred_mailing_address:
 						preferredMAilingAddress ===
-						'operating_preferred_mailing_address_checkbox'
+						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
 				},
 				{
 					preferred_mailing_address:
 						preferredMAilingAddress ===
-						'registered_preferred_mailing_address_checkbox'
+						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
 					business_address_id: businessAddressIdAid2,
@@ -273,12 +273,12 @@ const BusinessAddressDetails = props => {
 
 				if (fetchRes?.data?.data?.address?.[1]?.preferred_mailing_address === 'Yes'){
 					setPreferredMAilingAddress(
-						'operating_preferred_mailing_address_checkbox'
+						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
 				}
 				else if (fetchRes?.data?.data?.address?.[0]?.preferredMAilingAddress === 'Yes'){
 					setPreferredMAilingAddress(
-						'registered_preferred_mailing_address_checkbox'
+						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
 				}
 				// if (registeredCacheDocumentsTempRes.length === 2)
