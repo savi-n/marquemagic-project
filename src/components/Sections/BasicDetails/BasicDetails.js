@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
 import _ from 'lodash';
-
+import moment from 'moment';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import ProfileUpload from './ProfileUpload';
@@ -61,6 +61,7 @@ import {
 	scrollToTopRootElement,
 	isNullFunction,
 	getGeoLocation,
+	getTotalYearsCompleted,
 } from 'utils/helper';
 
 const BasicDetails = props => {
@@ -108,6 +109,7 @@ const BasicDetails = props => {
 		businessType,
 		loanId,
 		businessId,
+		dedupePrefilledValues
 	} = application;
 
 	const dispatch = useDispatch();
@@ -915,6 +917,7 @@ const BasicDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
+		const dedupeData=!completedSections.includes(selectedSectionId)&&!!dedupePrefilledValues?dedupePrefilledValues:null;
 			// console.log(sectionData);
 			// console.log({
 			// 	sectionData,
@@ -929,9 +932,9 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
-				contactno: sectionData?.director_details?.dcontact,
+				contactno: sectionData?.director_details?.dcontact||dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber,
+					sectionData?.business_data?.businesspancardnumber||dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -942,8 +945,10 @@ const BasicDetails = props => {
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'
-						: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
-			};
+						: `${sectionData?.director_details?.income_type || ''}`||dedupeData?.businesstype===0?'0':`${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
+			// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
+
+					};
 
 			// TEST MODE
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
@@ -1931,24 +1936,42 @@ const BasicDetails = props => {
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
 											customFieldPropsSubfields.loading = loading;
 											customFieldProps.disabled =
-												loading || isViewLoan || isEditLoan;
+												loading ||
+												isViewLoan ||
+												isEditLoan ||
+												!!completedSections?.includes(selectedSectionId);
 											customFieldPropsSubfields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
 										}
 
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
 											customFieldPropsSubfields.loading = loading;
-											customFieldPropsSubfields.disabled = loading;
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldProps.disabled = !!completedSections?.includes(
+												selectedSectionId
+											);
 										}
-
 										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
 											field.type = 'input_field_with_info';
 											customFieldProps.infoIcon = true;
 											customFieldProps.infoMessage =
 												'Select the income type to fetch the data from Customer ID.';
 										}
+										if(field?.name===CONST.DOB_FIELD_NAME){
+											customFieldPropsSubfields.value=getTotalYearsCompleted(
+												moment(formState?.values?.[CONST.DOB_FIELD_NAME]).format(
+													'YYYY-MM-DD'
+												)
+											)||'';
+										}
+
 										// console.log({
 										// 	formState,
 										// 	selectedProduct,

@@ -19,7 +19,7 @@ export const fetchOptions = async data => {
 	const { fetchOptionsURL, sectionId } = data;
 
 	const resOptions = await axios.get(fetchOptionsURL);
-	const formatedOptions = resOptions?.data?.message?.map(option => {
+	const formatedOptions = resOptions?.data?.data?.map(option => {
 		return {
 			name: option?.[formatOptionsKeys?.[sectionId]?.['name']],
 			value: `${option?.[formatOptionsKeys?.[sectionId]?.['name']]}`,
@@ -34,7 +34,6 @@ export const fetchSubCompOptions = async data => {
 		try {
 			const dynamicKeyName = formatOptionsKeys?.[sectionId]?.['queryKey'];
 			const selectedValue = selectedOption?.value || value;
-			console.log(selectedOption);
 			const fetchRes = await axios.get(reqURL, {
 				params: {
 					[dynamicKeyName]: selectedValue,

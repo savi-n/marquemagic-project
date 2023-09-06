@@ -36,6 +36,8 @@ export const PREFIX_OPERATING = 'operating_';
 export const AID_OPERATING = '1';
 export const AID_REGISTERED = '2';
 export const CHECKBOX_SAME_AS_ID = 'checkboxsameas';
+export const CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED='checkboxregistered'
+export const CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING='checkboxoperating';
 export const ADDRESSPROOF = 'addressproof';
 export const SUB_SECTION_ID_OPERATING_ADDRESS_PROOF_UPLOAD =
 	'operating_address_proof_upload';
