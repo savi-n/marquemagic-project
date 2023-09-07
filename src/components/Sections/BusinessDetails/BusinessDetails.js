@@ -614,7 +614,7 @@ const BusinessDetails = props => {
 				sub_industry_type:
 					sectionData?.business_details?.businessindustry?.id || '',
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber ||
+					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				contact:
 					sectionData?.business_details?.contactno || dedupeData?.mobile_no,

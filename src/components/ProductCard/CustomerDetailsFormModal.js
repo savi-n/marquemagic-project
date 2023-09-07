@@ -100,6 +100,10 @@ const CustomerDetailsFormModal = props => {
 			}
 		} catch (e) {
 			console.error(e.message);
+			addToast({
+				message: e.message,
+				type: 'error',
+			});
 		} finally {
 			setFetchingCustomerDetails(false);
 		}
