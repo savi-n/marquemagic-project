@@ -90,6 +90,7 @@ const BusinessDetails = props => {
 		loanId,
 		businessType,
 		loanRefId,
+		dedupePrefilledValues,
 	} = application;
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -592,7 +593,12 @@ const BusinessDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-
+			console.log(sectionData)
+			const dedupeData =
+				!completedSections?.includes(selectedSectionId) &&
+				!!dedupePrefilledValues
+					? dedupePrefilledValues
+					: null;
 			const preData = {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
@@ -600,7 +606,13 @@ const BusinessDetails = props => {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
-			};
+				businesspancardnumber:
+					sectionData?.business_data?.businesspancardnumber ||
+					dedupeData?.pan_number,
+				customer_id:
+					sectionData?.business_data?.customer_id || dedupeData?.customer_id,
+					contact:
+						sectionData?.business_details?.contactno || dedupeData?.mobile_no,			};
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
 
 			return field?.value || '';
