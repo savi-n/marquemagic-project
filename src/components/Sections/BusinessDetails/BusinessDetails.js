@@ -124,10 +124,11 @@ const BusinessDetails = props => {
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || {};
-	const selectedDedupeData =
-		dedupeApiData?.filter(item => {
-			return item?.product_id?.includes(selectedProduct?.id);
-		})?.[0] || {};
+	const selectedDedupeData = dedupeApiData
+		? dedupeApiData?.filter(item => {
+				return item?.product_id?.includes(selectedProduct?.id);
+		  })?.[0] || {}
+		: {};
 
 	const {
 		handleSubmit,
