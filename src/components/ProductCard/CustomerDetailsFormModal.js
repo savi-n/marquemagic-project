@@ -37,7 +37,7 @@ const CustomerDetailsFormModal = props => {
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(selectedProduct?.id);
+					return item?.product_id?.includes(product?.id);
 			  })?.[0] || {}
 			: {};
 	// console.log(
