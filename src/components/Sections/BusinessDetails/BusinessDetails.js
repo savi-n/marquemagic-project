@@ -123,12 +123,13 @@ const BusinessDetails = props => {
 	const [subComponentOptions, setSubComponentOptions] = useState([]);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
-	const dedupeApiData = documentMapping?.dedupe_api_details || {};
-	const selectedDedupeData = dedupeApiData
-		? dedupeApiData?.filter(item => {
-				return item?.product_id?.includes(selectedProduct?.id);
-		  })?.[0] || {}
-		: {};
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const selectedDedupeData =
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
 
 	const {
 		handleSubmit,
