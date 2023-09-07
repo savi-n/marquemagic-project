@@ -64,10 +64,5 @@ export const getTotalYearsCompleted = date => {
 	// It accepts and returns YYYY-MM-DD format only
 	const today = moment();
 	const yearsOld = today.diff(date, 'years');
-
-	if (!isNaN(+yearsOld) && +yearsOld < 0) {
-		return null;
-	}
-
 	return yearsOld;
 };
