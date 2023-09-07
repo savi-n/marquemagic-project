@@ -123,11 +123,13 @@ const BusinessDetails = props => {
 	const [subComponentOptions, setSubComponentOptions] = useState([]);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
-	const dedupeApiData = documentMapping?.dedupe_api_details || {};
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
-		dedupeApiData?.filter(item => {
-			return item?.product_id?.includes(selectedProduct?.id);
-		})?.[0] || {};
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
 
 	const {
 		handleSubmit,
@@ -184,6 +186,7 @@ const BusinessDetails = props => {
 					selectedProduct?.product_id?.[formState?.values?.['business_type	']],
 				loan_id: loanId,
 				busienss_id: businessId,
+				isApplicant: true, //implemented based on savitha's changes - bad practice
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -581,6 +584,7 @@ const BusinessDetails = props => {
 		}
 	};
 
+	console.log(formState.values, 'foram................');
 	const prefilledValues = field => {
 		try {
 			// TEST MODE
@@ -604,11 +608,18 @@ const BusinessDetails = props => {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
+				industry_type:
+					sectionData?.business_details?.businessindustry?.id || '',
+
+				sub_industry_type:
+					sectionData?.business_details?.businessindustry?.id || '',
 				businesspancardnumber:
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
-					contact:
-						sectionData?.business_details?.contactno || dedupeData?.mobile_no,			};
+				contact:
+					sectionData?.business_details?.contactno || dedupeData?.mobile_no,
+			};
+
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
 
 			return field?.value || '';
