@@ -820,7 +820,7 @@ const BasicDetails = props => {
 					selectedProduct?.product_id?.[formState?.values?.['income_type']],
 				loan_id: loanId,
 				busienss_id: businessId,
-				isApplicant, //implemented based on savitha's changes - bad practice
+				isApplicant,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,

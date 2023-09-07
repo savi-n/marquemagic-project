@@ -184,7 +184,7 @@ const BusinessDetails = props => {
 					selectedProduct?.product_id?.[formState?.values?.['business_type	']],
 				loan_id: loanId,
 				busienss_id: businessId,
-				isApplicant: true,
+				isApplicant: true, //implemented based on savitha's changes - bad practice
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
