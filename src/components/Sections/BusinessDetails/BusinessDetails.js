@@ -605,7 +605,7 @@ const BusinessDetails = props => {
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber ||
+					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
 					contact:
 						sectionData?.business_details?.contactno || dedupeData?.mobile_no,			};

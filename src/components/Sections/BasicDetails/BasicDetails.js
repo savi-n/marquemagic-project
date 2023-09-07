@@ -938,7 +938,7 @@ const BasicDetails = props => {
 				contactno:
 					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber ||
+					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
