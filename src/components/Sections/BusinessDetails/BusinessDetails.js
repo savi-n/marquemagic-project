@@ -184,6 +184,7 @@ const BusinessDetails = props => {
 					selectedProduct?.product_id?.[formState?.values?.['business_type	']],
 				loan_id: loanId,
 				busienss_id: businessId,
+				isApplicant: true,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -606,9 +607,7 @@ const BusinessDetails = props => {
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 				industry_type:
-					sectionData?.business_details?.businessindustry?.IndustryName ||
-					sectionData?.business_details?.businessindustry?.id ||
-					'',
+					sectionData?.business_details?.businessindustry?.id || '',
 
 				sub_industry_type:
 					sectionData?.business_details?.businessindustry?.id || '',

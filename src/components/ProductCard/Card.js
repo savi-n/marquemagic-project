@@ -170,6 +170,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						loan_product_id:
 							product?.product_id?.[customerDetailsFormData?.businesstype] ||
 							'',
+						isApplicant: true, //implemented based on savitha's changes - bad practice
 					};
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
