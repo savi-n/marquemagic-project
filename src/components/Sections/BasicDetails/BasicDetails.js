@@ -941,8 +941,6 @@ const BasicDetails = props => {
 					sectionData?.business_data?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				// martial_status:
-				customer_id:
-					sectionData?.business_data?.customer_id || dedupeData?.customer_id,
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
 				),
