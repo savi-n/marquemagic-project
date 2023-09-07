@@ -50,7 +50,7 @@ const LoanDetails = () => {
 		selectedProduct,
 		permission,
 	} = app;
-	const { loanId, cacheDocuments, businessType } = application;
+	const { loanId, cacheDocuments, businessType, businessId } = application;
 
 	const applicant =
 		Object.values(directors)?.filter(
@@ -202,6 +202,37 @@ const LoanDetails = () => {
 	const onSaveAndProceed = async () => {
 		try {
 			setLoading(true);
+			try {
+				const validateLoanAmountRes = await axios.get(
+					`${API.API_END_POINT}/loan_amount_validate`,
+					{
+						params: {
+							business_id: businessId,
+							loan_amount: formState?.values?.['loan_amount'],
+							isSelectedProductTypeSalaried:
+								selectedProduct?.isSelectedProductTypeSalaried,
+							isSelectedProductTypeBusiness:
+								selectedProduct?.isSelectedProductTypeBusiness,
+						},
+					}
+				);
+				if (
+					validateLoanAmountRes?.data?.status === 'ok' &&
+					validateLoanAmountRes?.data?.approval_status === false
+				) {
+					addToast({
+						message:
+							validateLoanAmountRes?.data?.message ||
+							'Loan amount should match the Industry type selected.',
+						type: 'error',
+					});
+					return;
+				}
+				// console.log({ validateLoanAmountRes });
+			} catch (err) {
+				console.error(err.message);
+			}
+
 			const loanDetailsReqBody = formatSectionReqBody({
 				app,
 				application,
