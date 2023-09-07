@@ -31,12 +31,15 @@ const CustomerDetailsFormModal = props => {
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	const { addToast } = useToasts();
+
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
-	const dedupeApiData = documentMapping?.dedupe_api_details || {};
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
-		dedupeApiData?.filter(item => {
-			return item?.product_id?.includes(product?.id);
-		})?.[0] || {};
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
 	// console.log(
 	// 	{ dedupeApiData, product, selectedDedupeData },
 	// 	'customerDetailsFormModal.js'
