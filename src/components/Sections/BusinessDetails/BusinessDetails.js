@@ -171,7 +171,7 @@ const BusinessDetails = props => {
 			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
 		}));
 	};
-	// console.log({ formState });
+	console.log({ formState }, 'business_details');
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
