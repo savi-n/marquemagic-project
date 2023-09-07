@@ -109,7 +109,10 @@ const BusinessAddressDetailsEdi = props => {
 					aid: 1,
 					line1: formState?.values?.operating_address1 || '',
 					line2: formState?.values?.operating_address2 || '',
-					locality: formState?.values?.address3 || '',
+					locality:
+						formState?.values?.address3 ||
+						formState?.values?.operating_city ||
+						'',
 					pincode: formState?.values?.operating_pin_code || '',
 					city: formState?.values?.operating_city || '',
 					state: formState?.values?.operating_state || '',
@@ -130,7 +133,10 @@ const BusinessAddressDetailsEdi = props => {
 					aid: 2,
 					line1: formState?.values?.registered_address1 || '',
 					line2: formState?.values?.registered_address2 || '',
-					locality: formState?.values?.registered_address3 || '',
+					locality:
+						formState?.values?.registered_address3 ||
+						formState?.values?.registered_city ||
+						'',
 					pincode: formState?.values?.registered_pin_code || '',
 					city: formState?.values?.registered_city || '',
 					state: formState?.values?.registered_state || '',
@@ -225,19 +231,18 @@ const BusinessAddressDetailsEdi = props => {
 				registered_pin_code: sectionData?.address?.[1]?.pincode,
 				registered_city: sectionData?.address?.[1]?.city,
 				registered_state: sectionData?.address?.[1]?.state,
-				registered_property_type: sectionData?.address?.[1]?.residential_type,
+				registered_residential_type: sectionData?.address?.[1]?.residential_type,
 				registered_preferred_mailing_address_checkbox:
 					sectionData?.address?.[1]?.preferredMAilingAddress === 'Yes',
 
 				operating_address1: sectionData?.address?.[0]?.line1,
 				operating_address2: sectionData?.address?.[0]?.line2,
-				address3: sectionData?.address?.[0]?.locality,
+				operating_address3: sectionData?.address?.[0]?.locality,
 				operating_pin_code: sectionData?.address?.[0]?.pincode,
 				operating_city: sectionData?.address?.[0]?.city,
 				operating_state: sectionData?.address?.[0]?.state,
-				operating_property_type: sectionData?.address?.[0]?.residential_type,
+				operating_residential_type: sectionData?.address?.[0]?.residential_type,
 			};
-
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
 			console.error('error-fetchSectionDetails-', error);

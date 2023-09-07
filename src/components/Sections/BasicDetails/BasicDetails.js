@@ -147,7 +147,7 @@ const BasicDetails = props => {
 		dedupeApiData?.filter(item => {
 			return item?.product_id?.includes(selectedProduct?.id);
 		})?.[0] || {};
-
+	console.log({ formState }, 'basic_details');
 	const passportData =
 		!!sectionData &&
 		Object.keys(sectionData)?.length > 0 &&
@@ -459,7 +459,6 @@ const BasicDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-
 	};
 	const onPanEnter = async pan => {
 		try {
@@ -942,20 +941,30 @@ const BasicDetails = props => {
 					sectionData?.business_data?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				// martial_status:
-				customer_id:sectionData?.business_data?.customer_id||dedupeData?.customer_id,
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
 				),
 				residence_status: isNullFunction(
 					sectionData?.director_details?.residence_status
 				),
+				// businesstype:
+				// 	sectionData?.director_details?.income_type === 0
+				// 		? '0'
+				// 		: `${sectionData?.director_details?.income_type || ''}` ||
+				// 		  dedupeData?.businesstype === 0
+				// 		? '0'
+				// 		: `${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'
-						: `${sectionData?.director_details?.income_type || ''}` ||
-						  dedupeData?.businesstype === 0
+						: sectionData?.director_details?.income_type
+						? `${sectionData?.director_details?.income_type}`
+						: dedupeData?.businesstype === 0
 						? '0'
-						: `${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
+						: dedupeData?.businesstype
+						? `${dedupeData?.businesstype}`
+						: '',
+
 				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
 

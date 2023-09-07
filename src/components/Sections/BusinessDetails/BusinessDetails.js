@@ -90,6 +90,7 @@ const BusinessDetails = props => {
 		loanId,
 		businessType,
 		loanRefId,
+		dedupePrefilledValues,
 	} = application;
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
@@ -171,7 +172,6 @@ const BusinessDetails = props => {
 			income_type: 'business', // default value to be set as Business for all the added directors in the SME Flow (based on the requirement)
 		}));
 	};
-	// console.log({ formState });
 	const onFetchFromCustomerId = async () => {
 		// console.log('on-fetch-customer-id');
 		try {
@@ -184,6 +184,7 @@ const BusinessDetails = props => {
 					selectedProduct?.product_id?.[formState?.values?.['business_type	']],
 				loan_id: loanId,
 				busienss_id: businessId,
+				isApplicant: true, //implemented based on savitha's changes - bad practice
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -581,6 +582,7 @@ const BusinessDetails = props => {
 		}
 	};
 
+	console.log(formState.values, 'foram................');
 	const prefilledValues = field => {
 		try {
 			// TEST MODE
@@ -592,7 +594,11 @@ const BusinessDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
-
+			const dedupeData =
+				!completedSections?.includes(selectedSectionId) &&
+				!!dedupePrefilledValues
+					? dedupePrefilledValues
+					: null;
 			const preData = {
 				...sectionData?.business_details,
 				...sectionData?.loan_data,
@@ -600,7 +606,18 @@ const BusinessDetails = props => {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
+				industry_type:
+					sectionData?.business_details?.businessindustry?.id || '',
+
+				sub_industry_type:
+					sectionData?.business_details?.businessindustry?.id || '',
+				businesspancardnumber:
+					sectionData?.business_data?.businesspancardnumber ||
+					dedupeData?.pan_number,
+				contact:
+					sectionData?.business_details?.contactno || dedupeData?.mobile_no,
 			};
+
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
 
 			return field?.value || '';
