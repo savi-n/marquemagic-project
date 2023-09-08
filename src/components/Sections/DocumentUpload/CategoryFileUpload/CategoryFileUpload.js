@@ -33,6 +33,8 @@ import * as CONST_SECTION from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+import { validateFileUpload } from 'utils/helperFunctions';
+import { useToasts } from 'components/Toast/ToastProvider';
 let refCounter = 0;
 
 const CategoryFileUpload = props => {
@@ -50,6 +52,7 @@ const CategoryFileUpload = props => {
 	const refPopup = useRef(null);
 	const { newRequest } = useFetch();
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 
 	const id = uuidv4();
 
@@ -262,17 +265,24 @@ const CategoryFileUpload = props => {
 		if (disabled) return false;
 		let files = [...event.dataTransfer.files];
 
+		const validatedResp = validateFileUpload(files);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
+
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+
 		// FUTURE
 		// if (accept) {
 		// 	files = files.filter(file => accept.includes(file.type.split('/')[1]));
 		// }
 
-		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
 			// console.log('before-handleUpload-', {
 			// 	files,
 			// });
 			// files =
-			await handleUpload(files);
+			await handleUpload(finalFilesToUpload);
 			// console.log('after-handleUpload-', {
 			// 	files,
 			// });
@@ -283,13 +293,36 @@ const CategoryFileUpload = props => {
 			event.dataTransfer.clearData();
 			refCounter = 0;
 		}
+		if (erroredFiles && erroredFiles.length > 0) {
+			// setErrorFormStateField(field.name, validatedResp[0].error);
+			addToast({
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
+				type: 'error',
+			});
+		}
 	};
 
 	const onChange = async event => {
 		let files = [...event.target.files];
 		// console.log('onChange-beforeupload-', files);
 		// files =
-		await handleUpload(files);
+		const validatedResp = validateFileUpload(files);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
+
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+			await handleUpload(finalFilesToUpload);
+		}
+		if (erroredFiles && erroredFiles.length > 0) {
+			// setErrorFormStateField(field.name, validatedResp[0].error);
+			addToast({
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
+				type: 'error',
+			});
+		}
 		// console.log('onChange-after-', files);
 	};
 

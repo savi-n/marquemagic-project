@@ -13,6 +13,7 @@ import iconUploadBlue from 'assets/icons/upload_icon_blue.png';
 import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import * as API from '_config/app.config';
 import * as UI from './ui';
+import { validateFileUpload } from 'utils/helperFunctions';
 
 const InputFieldSingleFileUpload = props => {
 	const {
@@ -81,52 +82,68 @@ const InputFieldSingleFileUpload = props => {
 	};
 
 	const handleFileUpload = async file => {
-		const previewFileData = {
-			field,
-			name: file.name,
-			preview: URL.createObjectURL(file),
-		};
-		let newFileData = {};
-		try {
-			setLoading(true);
-			// const source = axios.CancelToken.source();
-			const filesToUpload = {
-				id: selectedDocTypeId,
-				name: file.name,
-				file: file,
-				progress: 0,
-				status: 'progress',
-				// cancelToken: source,
+		const validatedResp = validateFileUpload(file);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
+
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+			const previewFileData = {
+				field,
+				name: finalFilesToUpload[0].name,
+				preview: URL.createObjectURL(finalFilesToUpload[0]),
 			};
-			const formData = new FormData();
-			formData.append('document', filesToUpload.file);
-			const fileUploadRes = await axios.post(
-				`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
-				formData
-			);
-			if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
-				return { ...file, status: 'error' };
+			let newFileData = {};
+			try {
+				setLoading(true);
+				// const source = axios.CancelToken.source();
+				const filesToUpload = {
+					id: selectedDocTypeId,
+					name: finalFilesToUpload[0].name,
+					file: finalFilesToUpload[0],
+					progress: 0,
+					status: 'progress',
+					// cancelToken: source,
+				};
+				const formData = new FormData();
+				formData.append('document', filesToUpload.file);
+				const fileUploadRes = await axios.post(
+					`${API.API_END_POINT}/loanDocumentUpload?userId=${businessUserId}`,
+					formData
+				);
+				if (fileUploadRes.data.status !== API.NC_STATUS_CODE.OK) {
+					return { ...finalFilesToUpload[0], status: 'error' };
+				}
+				const resFile = fileUploadRes.data.files[0];
+				newFileData = {
+					document_id: finalFilesToUpload[0].id,
+					upload_doc_name: resFile.filename,
+					document_key: resFile.fd,
+					size: resFile.size,
+					loan_id: loanId,
+					doc_type_id: selectedDocTypeId,
+					category,
+					// directorId: selectedDirector?.directorId,
+				};
+			} catch (error) {
+				console.error('error-inputfieldsinglefileupload-', error);
+				addToast({
+					message: error.message,
+					type: 'error',
+				});
+			} finally {
+				addCacheDocumentTemp({ ...previewFileData, ...newFileData });
+				setLoading(false);
 			}
-			const resFile = fileUploadRes.data.files[0];
-			newFileData = {
-				document_id: file.id,
-				upload_doc_name: resFile.filename,
-				document_key: resFile.fd,
-				size: resFile.size,
-				loan_id: loanId,
-				doc_type_id: selectedDocTypeId,
-				category,
-				// directorId: selectedDirector?.directorId,
-			};
-		} catch (error) {
-			console.error('error-inputfieldsinglefileupload-', error);
+		}
+		if (erroredFiles && erroredFiles.length > 0) {
+			// setErrorFormStateField(field.name, validatedResp[0].error);
 			addToast({
-				message: error.message,
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
 				type: 'error',
 			});
-		} finally {
-			addCacheDocumentTemp({ ...previewFileData, ...newFileData });
-			setLoading(false);
 		}
 	};
 
@@ -137,7 +154,7 @@ const InputFieldSingleFileUpload = props => {
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
-				await handleFileUpload(acceptedFiles[0]);
+				await handleFileUpload(acceptedFiles);
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 			} finally {
