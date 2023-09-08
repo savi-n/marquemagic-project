@@ -149,7 +149,6 @@ const BasicDetails = props => {
 					return item?.product_id?.includes(selectedProduct?.id);
 			  })?.[0] || {}
 			: {};
-	console.log({ formState }, 'basic_details');
 	const passportData =
 		!!sectionData &&
 		Object.keys(sectionData)?.length > 0 &&
@@ -479,7 +478,6 @@ const BasicDetails = props => {
 				{ headers: { Authorization: clientToken } }
 			);
 			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
-			console.log({ panExtractionMsg, panExtractionApiRes });
 			// IF PAN NAME
 			if (panExtractionMsg?.upstreamName) {
 				let name = panExtractionMsg?.upstreamName;
@@ -933,14 +931,14 @@ const BasicDetails = props => {
 				...passportData,
 				passport_expiry_date:
 					passportData?.valid_till || passportData?.passport_expiry_date || '',
-				title: sectionData?.business_data?.title,
+				title: sectionData?.director_details?.title|| sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
 				contactno:
 					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_details?.businesspancardnumber ||
+					sectionData?.business_data?.businesspancardnumber ||sectionData?.business_details?.businesspancardnumber||
 					dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
@@ -1505,6 +1503,7 @@ const BasicDetails = props => {
 		}
 		// Special case for SME FLow - Fetch geolocation if not saved - ends
 	};
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -1738,6 +1737,7 @@ const BasicDetails = props => {
 			})}
 		/>
 	);
+
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>

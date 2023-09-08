@@ -27,6 +27,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import * as CONST from './const';
+import { validateFileUpload } from 'utils/helperFunctions';
 
 const ProfileUpload = props => {
 	const {
@@ -198,77 +199,19 @@ const ProfileUpload = props => {
 					// const newFile = {};
 					setLoading(true);
 
-					// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
+					const validatedResp = validateFileUpload(acceptedFiles);
+					const finalFilesToUpload = validatedResp
+						?.filter(item => item.status !== 'fail')
+						.map(fileItem => fileItem.file);
 
-					// SELFIE DOC UPLOAD SECTION
-					// if (section === 'documentUpload') {
-					// 	const selectedIncomeType =
-					// 		selectedApplicant?.basic_details?.[
-					// 			CONST_BASIC_DETAILS.INCOME_TYPE_FIELD_NAME
-					// 		] || selectedApplicant?.income_type;
+					if (finalFilesToUpload && finalFilesToUpload.length === 0) {
+						addToast({
+							message: validatedResp[0].error,
+							type: 'error',
+						});
+						return;
+					}
 
-					// 	formData.append('white_label_id', whiteLabelId);
-					// 	if (
-					// 		Object.keys(coordinates)?.length > 0 &&
-					// 		field?.geo_tagging === true
-					// 	) {
-					// 		formData.append('lat', coordinates?.latitude || null);
-					// 		formData.append('long', coordinates?.longitude || null);
-					// 	}
-					// 	formData.append('timestamp', coordinates?.timestamp || null);
-					// 	formData.append('loan_ref_id', loanRefId || null);
-					// 	formData.append('loan_id', loanId || null);
-					// 	formData.append('director_id', selectedApplicant.directorId);
-					// 	formData.append('user_id', businessUserId || null);
-					// 	formData.append(
-					// 		'doc_type_id',
-					// 		field?.doc_type?.[selectedIncomeType] || null
-					// 	);
-					// 	formData.append('document', acceptedFiles[0]);
-					// 	if (acceptedFiles?.length > 0) {
-					// 		const resp = await axios.post(
-					// 			UPLOAD_SELFIE_APPLICANT_COAPPLICANT,
-					// 			formData
-					// 		);
-					// 		const newFile = {
-					// 			id: resp?.data?.document_details_data?.doc_id,
-					// 			document_id: resp?.data?.document_details_data?.doc_id,
-					// 			fileId: resp?.data?.document_details_data?.doc_id,
-					// 			doc_type_id: field?.doc_type?.[selectedIncomeType],
-					// 			directorId: selectedApplicant.directorId,
-					// 			doc_name: resp?.data?.lender_document_data?.doc_name,
-					// 			document_key: resp?.data?.lender_document_data?.doc_name,
-					// 			loan_bank_mapping_id:
-					// 				resp?.data?.lender_document_data?.loan_bank_mapping || 1,
-					// 			field,
-					// 			...coordinates,
-					// 			preview:
-					// 				field?.geo_tagging === true
-					// 					? resp?.data?.presignedUrl
-					// 					: resp?.data?.preview,
-					// 			...resp?.data?.uploaded_data,
-					// 		};
-					// 		if (isGeoTaggingEnabled && coordinates) {
-					// 			setPicAddress(newFile);
-					// 			dispatch(setDocumentSelfieGeoLocation(resp?.data?.uploaded_data));
-					// 		}
-					// 		// console.log('newfile-', { newFile });
-					// 		dispatch(
-					// 			addOrUpdateCacheDocument({
-					// 				file: {
-					// 					...newFile,
-					// 				},
-					// 			})
-					// 		);
-					// 		addCacheDocumentTemp(newFile);
-					// 	} else {
-					// 		addToast({
-					// 			message:
-					// 				'File format is not supported. Please upload jpg, jpeg or png',
-					// 			type: 'error',
-					// 		});
-					// 	}
-					// } else {
 					// Basic details Profile Pic Upload section
 					setImageLoading(true);
 					formData.append('white_label_id', whiteLabelId);
@@ -280,9 +223,9 @@ const ProfileUpload = props => {
 						formData.append('lat', coordinates?.latitude || null);
 						formData.append('long', coordinates?.longitude || null);
 					}
-					formData.append('document', acceptedFiles[0]);
+					formData.append('document', finalFilesToUpload[0]);
 
-					if (acceptedFiles?.length > 0) {
+					if (finalFilesToUpload?.length > 0) {
 						const resp = await axios.post(UPLOAD_PROFILE_IMAGE, formData);
 						const newFile = {
 							field,
