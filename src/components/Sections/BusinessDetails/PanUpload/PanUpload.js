@@ -624,7 +624,7 @@ const PanUpload = props => {
 					<UI.Field>
 						<InputField
 							name='Udyam Number'
-							value={udyogAadhar?.toUpperCase()}
+							value={udyogAadhar?.toUpperCase().trim()}
 							onChange={e => {
 								setUdyogAadhar(e.target.value);
 							}}
