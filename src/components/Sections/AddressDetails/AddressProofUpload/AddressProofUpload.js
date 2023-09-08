@@ -31,6 +31,7 @@ import * as UI from './ui';
 import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
 import * as CONST from './const';
+import { validateFileUpload } from 'utils/helperFunctions';
 
 const AddressProofUpload = props => {
 	const {
@@ -571,40 +572,57 @@ const AddressProofUpload = props => {
 	};
 
 	const handleUpload = async files => {
-		const filesToUpload = [];
-		for (let i = 0; i < files.length; i++) {
-			// const source = axios.CancelToken.source();
+		const validatedResp = validateFileUpload(files);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
 
-			const id = generateUID();
+		console.log(validatedResp, 'validate resp');
 
-			filesToUpload.push({
-				id,
-				name: files[i].name,
-				file: files[i],
-				progress: 100,
-				status: 'progress',
-				// cancelToken: source,
-				selectedAddressProofId,
-				prefix,
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+			const filesToUpload = [];
+			for (let i = 0; i < finalFilesToUpload.length; i++) {
+				// const source = axios.CancelToken.source();
+
+				const id = generateUID();
+
+				filesToUpload.push({
+					id,
+					name: finalFilesToUpload[i].name,
+					file: finalFilesToUpload[i],
+					progress: 100,
+					status: 'progress',
+					// cancelToken: source,
+					selectedAddressProofId,
+					prefix,
+				});
+			}
+			// const newUploadingFiles = _.cloneDeep(selectedFiles.current);
+			// const newUploadingFiles = [];
+			// filesToUpload.map(f => newUploadingFiles.push(f));
+			// uploadingProgressFiles.current = [
+			// 	..._.cloneDeep(uploadingFiles),
+			// 	..._.cloneDeep(uploadingProgressFiles.current),
+			// 	...filesToUpload,
+			// ];
+			// console.log('file-upload-before-promise-', newUploadingFiles);
+			// selectedFiles.current = newUploadingFiles;
+			// setUploadingFiles(newUploadingFiles);
+			// setDocs([...docs, filesToUpload[0]]);
+			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+			newCacheDocumentTemp.push(filesToUpload[0]);
+			setCacheDocumentsTemp(newCacheDocumentTemp);
+			setIsDocumentTaggingOpen(true);
+			return [filesToUpload[0]];
+		} else {
+			addToast({
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
+				type: 'error',
 			});
+			// return [];
 		}
-		// const newUploadingFiles = _.cloneDeep(selectedFiles.current);
-		// const newUploadingFiles = [];
-		// filesToUpload.map(f => newUploadingFiles.push(f));
-		// uploadingProgressFiles.current = [
-		// 	..._.cloneDeep(uploadingFiles),
-		// 	..._.cloneDeep(uploadingProgressFiles.current),
-		// 	...filesToUpload,
-		// ];
-		// console.log('file-upload-before-promise-', newUploadingFiles);
-		// selectedFiles.current = newUploadingFiles;
-		// setUploadingFiles(newUploadingFiles);
-		// setDocs([...docs, filesToUpload[0]]);
-		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-		newCacheDocumentTemp.push(filesToUpload[0]);
-		setCacheDocumentsTemp(newCacheDocumentTemp);
-		setIsDocumentTaggingOpen(true);
-		return [filesToUpload[0]];
 	};
 
 	const handleDrag = e => {
@@ -667,49 +685,67 @@ const AddressProofUpload = props => {
 			// console.log('after-handleUpload-', {
 			// 	files,
 			// });
-			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
-			files.map(f => newCacheDocumentTemp.push(f));
-			setCacheDocumentsTemp(newCacheDocumentTemp);
-			// console.log('before current-files-', {
-			// 	current: selectedFiles.current,
-			// 	files,
-			// });
-			// console.log('FileUpload-handleDrop-', {
-			// 	pan,
-			// 	disabled,
-			// 	upload,
-			// 	files,
-			// 	uploadingFiles,
-			// 	selectedFiles: selectedFiles.current,
-			// });
-			event.dataTransfer.clearData();
-			refCounter = 0;
+			if (files) {
+				const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+				files.map(f => newCacheDocumentTemp.push(f));
+				setCacheDocumentsTemp(newCacheDocumentTemp);
+				// console.log('before current-files-', {
+				// 	current: selectedFiles.current,
+				// 	files,
+				// });
+				// console.log('FileUpload-handleDrop-', {
+				// 	pan,
+				// 	disabled,
+				// 	upload,
+				// 	files,
+				// 	uploadingFiles,
+				// 	selectedFiles: selectedFiles.current,
+				// });
+				event.dataTransfer.clearData();
+				refCounter = 0;
+			}
 		}
 	};
 
 	const onChange = async event => {
 		let files = [...event.target.files];
-		files = await handleUpload(files);
-		const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+		const validatedResp = validateFileUpload(files);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
 
-		files.map(f => {
-			if (selectedAddressProofId?.includes('others')) {
-				let file = {
-					...f,
-					mainType: 'KYC',
-					type: 'other',
-					upload_doc_name: f.name,
-					category: CONST_SECTIONS.DOC_CATEGORY_KYC,
-					directorId: selectedDirector.directorId,
-					selectedDocTypeId,
-				};
-				newCacheDocumentTemp.push(file);
-			} else {
-				newCacheDocumentTemp.push(f);
-			}
-			return null;
-		});
-		setCacheDocumentsTemp(newCacheDocumentTemp);
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+			files = await handleUpload(finalFilesToUpload);
+			const newCacheDocumentTemp = _.cloneDeep(cacheDocumentsTemp);
+
+			files.map(f => {
+				if (selectedAddressProofId?.includes('others')) {
+					let file = {
+						...f,
+						mainType: 'KYC',
+						type: 'other',
+						upload_doc_name: f.name,
+						category: CONST_SECTIONS.DOC_CATEGORY_KYC,
+						directorId: selectedDirector.directorId,
+						selectedDocTypeId,
+					};
+					newCacheDocumentTemp.push(file);
+				} else {
+					newCacheDocumentTemp.push(f);
+				}
+				return null;
+			});
+			setCacheDocumentsTemp(newCacheDocumentTemp);
+		}
+		if (erroredFiles && erroredFiles.length > 0) {
+			// setErrorFormStateField(field.name, validatedResp[0].error);
+			addToast({
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
+				type: 'error',
+			});
+		}
 
 		// console.log('FileUpload-onChange-', {
 		// 	pan,
@@ -871,7 +907,7 @@ const AddressProofUpload = props => {
 	) {
 		customFieldProps.disabled = true;
 	}
-	// console.log('addressproofupload-allstates', { props, aadhaarProofOTPField });
+	console.log(cacheDocumentsTemp, 'cache doc temp');
 
 	return (
 		<UI.Wrapper>

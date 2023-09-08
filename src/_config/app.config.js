@@ -73,7 +73,8 @@ const ADD_REFENCE_DETAILS = `${API_END_POINT}/LoanReferences/create`;
 
 const BANK_LIST_FETCH = `${API_END_POINT}/BankMaster`;
 const IFSC_LIST_FETCH = `${API_END_POINT}/IFSC_list`;
-
+const INDUSTRY_LIST_FETCH = `${API_END_POINT}/industry_list`;
+const SUB_INDUSTRY_FETCH = `${API_END_POINT}/subindustry_list`;
 const BUSINESS_DETIALS = `${API_END_POINT}/business_details`;
 const BUSINESS_ADDRESS_DETAILS = `${API_END_POINT}/business_address_details`;
 
@@ -253,4 +254,6 @@ export {
 	VERIFY_KYC,
 	FEDERAL_TRANSACTION_KYC_API,
 	SKIP_SECTION,
+	INDUSTRY_LIST_FETCH,
+	SUB_INDUSTRY_FETCH,
 };
