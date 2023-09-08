@@ -584,7 +584,6 @@ const BusinessDetails = props => {
 		}
 	};
 
-	console.log(formState.values, 'foram................');
 	const prefilledValues = field => {
 		try {
 			// TEST MODE

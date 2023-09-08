@@ -149,7 +149,6 @@ const BasicDetails = props => {
 					return item?.product_id?.includes(selectedProduct?.id);
 			  })?.[0] || {}
 			: {};
-	console.log({ formState }, 'basic_details');
 	const passportData =
 		!!sectionData &&
 		Object.keys(sectionData)?.length > 0 &&
@@ -479,7 +478,6 @@ const BasicDetails = props => {
 				{ headers: { Authorization: clientToken } }
 			);
 			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
-			console.log({ panExtractionMsg, panExtractionApiRes });
 			// IF PAN NAME
 			if (panExtractionMsg?.upstreamName) {
 				let name = panExtractionMsg?.upstreamName;
@@ -1740,7 +1738,6 @@ const BasicDetails = props => {
 		/>
 	);
 
-	console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
