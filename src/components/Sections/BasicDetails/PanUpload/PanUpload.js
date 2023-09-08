@@ -24,6 +24,8 @@ import * as CONST_BASIC_DETAILS from '../const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import { validateFileUpload } from 'utils/helperFunctions';
+import TooltipImage from 'components/Global/Tooltip';
+import infoIcon from 'assets/icons/info-icon.png';
 
 const PanUpload = props => {
 	const {
@@ -53,6 +55,10 @@ const PanUpload = props => {
 	const { addToast } = useToasts();
 	// const dispatch = useDispatch();
 	const panExtractionData = uploadedFile?.panExtractionData;
+	const maxUploadSize =
+		JSON.parse(
+			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+		)?.document_file_limit[0]?.max_file_size || null;
 
 	const openDocument = async file => {
 		try {
@@ -562,10 +568,19 @@ const PanUpload = props => {
 							<LoadingIcon />
 						</UI.UploadIconWrapper>
 					) : (
-						<UI.UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
-							<input {...getInputProps()} />
-							<UI.IconUpload src={iconUploadBlue} alt='camera' />
-						</UI.UploadIconWrapper>
+						<>
+							<TooltipImage
+								src={infoIcon}
+								alt='Image Alt Text'
+								title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+							/>
+							<UI.UploadIconWrapper
+								{...getRootProps({ className: 'dropzone' })}
+							>
+								<input {...getInputProps()} />
+								<UI.IconUpload src={iconUploadBlue} alt='camera' />
+							</UI.UploadIconWrapper>
+						</>
 					)}
 				</UI.Container>
 			)}
