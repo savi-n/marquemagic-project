@@ -29,6 +29,9 @@ import * as API from '_config/app.config';
 import { UDYAM_REGEX } from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
+import { validateFileUpload } from 'utils/helperFunctions';
+import TooltipImage from 'components/Global/Tooltip';
+import infoIcon from 'assets/icons/info-icon.png';
 
 const PanUpload = props => {
 	const {
@@ -68,6 +71,10 @@ const PanUpload = props => {
 	const { addToast } = useToasts();
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 	const [udyamErrorMessage, setUdyamErrorMessage] = useState('');
+	const maxUploadSize =
+		JSON.parse(
+			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+		)?.document_file_limit[0]?.max_file_size || null;
 
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
@@ -75,7 +82,16 @@ const PanUpload = props => {
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
-				await handleExtractionPan(acceptedFiles[0]);
+				const validatedResp = validateFileUpload(acceptedFiles);
+				const finalFilesToUpload = validatedResp
+					?.filter(item => item.status !== 'fail')
+					.map(fileItem => fileItem.file);
+
+				if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+					await handleExtractionPan(acceptedFiles[0]);
+				} else {
+					setErrorFormStateField(field.name, validatedResp[0].error);
+				}
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 			} finally {
@@ -827,14 +843,21 @@ const PanUpload = props => {
 							<LoadingIcon />
 						</UI.UploadIconWrapper>
 					) : (
-						<UI.UploadIconWrapper
-							{...getRootProps({
-								className: 'dropzone',
-							})}
-						>
-							<input {...getInputProps()} />
-							<UI.IconUpload src={iconUploadBlue} alt='camera' />
-						</UI.UploadIconWrapper>
+						<>
+							<TooltipImage
+								src={infoIcon}
+								alt='Image Alt Text'
+								title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+							/>
+							<UI.UploadIconWrapper
+								{...getRootProps({
+									className: 'dropzone',
+								})}
+							>
+								<input {...getInputProps()} />
+								<UI.IconUpload src={iconUploadBlue} alt='camera' />
+							</UI.UploadIconWrapper>
+						</>
 					)}
 				</UI.Container>
 			)}
