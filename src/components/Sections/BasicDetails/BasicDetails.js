@@ -931,7 +931,7 @@ const BasicDetails = props => {
 				...passportData,
 				passport_expiry_date:
 					passportData?.valid_till || passportData?.passport_expiry_date || '',
-				title: sectionData?.business_data?.title,
+				title: sectionData?.director_details?.title|| sectionData?.business_data?.title,
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
