@@ -55,6 +55,10 @@ export default function CustomerListModal(props) {
 						<UI.CustomerListCardItem>
 							Customer ID: {customer?.customer_id}
 						</UI.CustomerListCardItem>
+						{/* product name in case it comes from reponse
+						<UI.CustomerListCardItem>
+							Mobile: {customer?.mobile_flag}
+						</UI.CustomerListCardItem> */}
 						<UI.CustomerListCardItem>
 							Mobile: {customer?.mobile_flag}
 						</UI.CustomerListCardItem>

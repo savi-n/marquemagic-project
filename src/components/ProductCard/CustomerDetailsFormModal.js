@@ -25,6 +25,7 @@ const CustomerDetailsFormModal = props => {
 		setCustomerList,
 		setCustomerDetailsFormData,
 		setSelectedDedupeData,
+		subProduct = {},
 	} = props;
 	const { app } = useSelector(state => state);
 	const { permission, whiteLabelId } = app;
@@ -32,12 +33,21 @@ const CustomerDetailsFormModal = props => {
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	const { addToast } = useToasts();
 
+	const productForModal =
+		Object.keys(subProduct).length > 0 ? subProduct : product;
+
+	console.log({
+		subProduct,
+		product,
+		productForModal,
+	});
+
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(product?.id);
+					return item?.product_id?.includes(productForModal?.id);
 			  })?.[0] || {}
 			: {};
 	// console.log(
@@ -67,7 +77,9 @@ const CustomerDetailsFormModal = props => {
 				{
 					...formState?.values,
 					loan_product_id:
-						product?.product_id?.[formState?.values?.['businesstype']] || '',
+						productForModal?.product_id?.[
+							formState?.values?.['businesstype']
+						] || '',
 					white_label_id: whiteLabelId,
 					id_no: formState?.values?.['pan_no'],
 					customer_type: formState?.values['customer_type'],
@@ -122,7 +134,7 @@ const CustomerDetailsFormModal = props => {
 			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
 			<UI.ResponsiveWrapper>
 				{/* {SAMPLE_JSON?.sub_sections?.map((sub_section, sectionIndex) => { */}
-				{product?.customer_details?.sub_sections?.map(
+				{productForModal?.customer_details?.sub_sections?.map(
 					(sub_section, sectionIndex) => {
 						return (
 							<React.Fragment
@@ -168,12 +180,12 @@ const CustomerDetailsFormModal = props => {
 				)}
 
 				<UI.CustomerDetailsFormModalFooter>
-					{product?.customer_details?.is_skip && (
+					{productForModal?.customer_details?.is_skip && (
 						<Button
 							disabled={fetchingCustomerDetails}
 							isLoader={fetchingCustomerDetails}
 							onClick={() => {
-								redirectToProductPage();
+								redirectToProductPage(productForModal);
 								dispatch(setDedupePrefilledValues(formState?.values));
 							}}
 							name='Skip'
