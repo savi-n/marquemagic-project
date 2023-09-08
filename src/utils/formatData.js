@@ -262,7 +262,7 @@ export const formatCompanyRocData = (data, panNum) => {
 		DirectorDetails: directors,
 		directorsForShow,
 		unformatedData: data,
-		DateOfIncorporation: data.company_master_data.date_of_incorporation,
+		DateOfIncorporation: data?.company_master_data?.date_of_incorporation,
 	};
 };
 
