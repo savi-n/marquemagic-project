@@ -938,7 +938,7 @@ const BasicDetails = props => {
 				contactno:
 					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_details?.businesspancardnumber ||
+					sectionData?.business_data?.businesspancardnumber ||
 					dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
@@ -1954,6 +1954,7 @@ const BasicDetails = props => {
 										}
 
 										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
+											console.log(customFieldProps)
 											customFieldPropsSubfields.loading = loading;
 											customFieldProps.disabled =
 												loading ||
