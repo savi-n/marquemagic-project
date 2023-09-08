@@ -29,6 +29,7 @@ import * as API from '_config/app.config';
 import { UDYAM_REGEX } from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
+import { validateFileUpload } from 'utils/helperFunctions';
 
 const PanUpload = props => {
 	const {
@@ -75,7 +76,16 @@ const PanUpload = props => {
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
-				await handleExtractionPan(acceptedFiles[0]);
+				const validatedResp = validateFileUpload(acceptedFiles);
+				const finalFilesToUpload = validatedResp
+					?.filter(item => item.status !== 'fail')
+					.map(fileItem => fileItem.file);
+
+				if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+					await handleExtractionPan(acceptedFiles[0]);
+				} else {
+					setErrorFormStateField(field.name, validatedResp[0].error);
+				}
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 			} finally {
