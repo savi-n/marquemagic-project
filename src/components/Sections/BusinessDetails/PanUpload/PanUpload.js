@@ -471,6 +471,10 @@ const PanUpload = props => {
 				name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
 				value: businessVintageValue,
 			});
+			onChangeFormStateField({
+				name:CONST_BUSINESS_DETAILS.BUSINESS_START_DATE,
+				value:moment(formattedCompanyData?.DateOfIncorporation).format('YYYY-MM-DD')||'',
+			})
 			// prepopulation ends
 		} catch (error) {
 			setLoading(false);
