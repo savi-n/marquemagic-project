@@ -37,9 +37,12 @@ import { sleep } from 'utils/helper';
 import { BANK_LIST_FETCH, TEST_DOMAINS } from '_config/app.config';
 import ConsentDetails from 'components/Sections/ConsentDetails';
 import BusinessAddressDetails from 'components/Sections/BusinessAddressDetails';
+// import AddressDetailsEDI from 'components/Sections/BusinessAddressDetailsEEDI';
+
 import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
+import BusinessAddressDetailsEdi from 'components/Sections/BusinessAddressDetailsEDI';
 
 const Product = props => {
 	const { product } = props;
@@ -68,6 +71,7 @@ const Product = props => {
 		//TODO Bikash & Akshat - change to the respective components
 		business_details: BusinessDetails, // change to the respective components
 		business_address_details: BusinessAddressDetails, // change to the respective components
+		business_address_details_edi: BusinessAddressDetailsEdi,
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,

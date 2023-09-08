@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 /* This file contains helper functions and the functions are used in file upload */
 export const sleep = ms => {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -56,4 +58,15 @@ export const isNullFunction = value => {
 		return null;
 	}
 	return value;
+};
+
+export const getTotalYearsCompleted = date => {
+	// It accepts and returns YYYY-MM-DD format only
+	const today = moment();
+	const yearsOld = today.diff(date, 'years');
+
+	if (!isNaN(+yearsOld) && +yearsOld < 0) {
+		return null;
+	}
+	return yearsOld;
 };

@@ -33,12 +33,18 @@ const DynamicForm = props => {
 	} = props;
 	const isViewLoan = !isEditLoan;
 	const { app, application } = useSelector(state => state);
-	const { directors, selectedDirectorId } = useSelector(
+	const { directors, selectedDirectorId,selectedDirectorOptions } = useSelector(
 		state => state.directors
 	);
 	const { ifscList } = useSelector(state => state.app);
 
 	const selectedDirector = directors?.[selectedDirectorId] || {};
+	const applicantOptions = selectedDirectorOptions?.map((item)=>{
+		return {
+			name: `${item.name}`,
+			value: item.name,
+		};
+	})
 	const isApplicant = isDirectorApplicant(selectedDirector);
 	const { isTestMode, selectedSection, isViewLoan: isViewLoanApp } = app;
 	const {
@@ -177,7 +183,9 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-
+					if(field.name==='applicant'){
+						customFieldProps.options=applicantOptions
+					}
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
 							{register({

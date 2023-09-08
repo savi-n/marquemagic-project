@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import queryString from 'query-string';
 import _ from 'lodash';
-
+import moment from 'moment';
 import useForm from 'hooks/useFormIndividual';
 import Button from 'components/Button';
 import ProfileUpload from './ProfileUpload';
@@ -12,6 +12,8 @@ import Hint from 'components/Hint';
 import ConfirmModal from 'components/modals/ConfirmModal';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import NavigateCTA from 'components/Sections/NavigateCTA';
+import { encryptReq } from 'utils/encrypt';
+import { isInvalidPan } from 'utils/validation';
 
 import { decryptRes } from 'utils/encrypt';
 import { verifyUiUxToken } from 'utils/request';
@@ -29,6 +31,7 @@ import {
 	setLoanIds,
 	setGeoLocation,
 	setNewCompletedSections,
+	setDedupePrefilledValues,
 } from 'store/applicationSlice';
 import {
 	getDirectors,
@@ -59,6 +62,7 @@ import {
 	scrollToTopRootElement,
 	isNullFunction,
 	getGeoLocation,
+	getTotalYearsCompleted,
 } from 'utils/helper';
 
 const BasicDetails = props => {
@@ -104,6 +108,9 @@ const BasicDetails = props => {
 		geoLocation,
 		loanRefId,
 		businessType,
+		loanId,
+		businessId,
+		dedupePrefilledValues,
 	} = application;
 
 	const dispatch = useDispatch();
@@ -133,6 +140,16 @@ const BasicDetails = props => {
 	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
 
 	const [sectionData, setSectionData] = useState({});
+
+	const documentMapping = JSON.parse(permission?.document_mapping) || [];
+	const dedupeApiData = documentMapping?.dedupe_api_details || [];
+	const selectedDedupeData =
+		dedupeApiData && Array.isArray(dedupeApiData)
+			? dedupeApiData?.filter(item => {
+					return item?.product_id?.includes(selectedProduct?.id);
+			  })?.[0] || {}
+			: {};
+	console.log({ formState }, 'basic_details');
 	const passportData =
 		!!sectionData &&
 		Object.keys(sectionData)?.length > 0 &&
@@ -444,11 +461,62 @@ const BasicDetails = props => {
 		} finally {
 			setLoading(false);
 		}
-		// dispatch(setSelectedDirectorId(''));
-		// dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
-		// dispatch(setAddNewDirectorKey(key));
 	};
+	const onPanEnter = async pan => {
+		try {
+			const panErrorMessage = isInvalidPan(pan);
+			if (panErrorMessage) {
+				return addToast({
+					message: 'Please enter valid PAN number',
+					type: 'error',
+				});
+			}
+			setLoading(true);
+			// 1.VERIFY PAN
+			const panExtractionApiRes = await axios.post(
+				API.VERIFY_KYC,
+				{ req_type: 'pan', number: pan, name: 'XXX' },
+				{ headers: { Authorization: clientToken } }
+			);
+			const panExtractionMsg = panExtractionApiRes?.data?.message || '';
+			console.log({ panExtractionMsg, panExtractionApiRes });
+			// IF PAN NAME
+			if (panExtractionMsg?.upstreamName) {
+				let name = panExtractionMsg?.upstreamName;
+				let firstName = '';
+				let lastName = '';
+				if (name) {
+					const nameSplit = name.split(' ');
+					if (nameSplit.length > 1) {
+						lastName = nameSplit[nameSplit.length - 1];
+						nameSplit.pop();
+					}
+					firstName = nameSplit.join(' ');
+				}
+
+				onChangeFormStateField({
+					name: CONST.FIRST_NAME_FIELD_NAME,
+					value: firstName || '',
+				});
+				onChangeFormStateField({
+					name: CONST.LAST_NAME_FIELD_NAME,
+					value: lastName || '',
+				});
+				// 	//END IF PAN NAME
+			}
+		} catch (err) {
+			console.error(err);
+			addToast({
+				message: 'Something went wrong, please try again with valid PAN number',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const onSaveAndProceed = async () => {
+		dispatch(setDedupePrefilledValues({}));
 		try {
 			setLoading(true);
 			const isTokenValid = await validateToken();
@@ -741,6 +809,71 @@ const BasicDetails = props => {
 		}
 		setCacheDocumentsTemp(newCacheDocumentTemp);
 	};
+	// console.log({ isApplicant });
+	const onFetchFromCustomerId = async () => {
+		// console.log('on-fetch-customer-id');
+		try {
+			setLoading(true);
+			const reqBody = {
+				customer_id: formState?.values?.['customer_id'],
+				white_label_id: whiteLabelId,
+				businesstype: formState?.values?.['income_type'],
+				loan_product_id:
+					selectedProduct?.product_id?.[formState?.values?.['income_type']],
+				loan_id: loanId,
+				busienss_id: businessId,
+				isApplicant,
+			};
+			const fetchDataRes = await axios.post(
+				selectedDedupeData?.verify,
+				reqBody
+			);
+
+			if (fetchDataRes?.data?.status === 'ok') {
+				addToast({
+					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+					type: 'error',
+				});
+				redirectToProductPageInEditMode(fetchDataRes?.data);
+			}
+			// console.log({ fetchDataRes });
+		} catch (err) {
+			console.error(err.message);
+			addToast({
+				message: err.message || 'Something went wrong. Please try again later!',
+				type: 'error',
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const redirectToProductPageInEditMode = loanData => {
+		if (!loanData?.data?.loan_data?.loan_ref_id) {
+			addToast({
+				message: 'Something went wrong, try after sometimes',
+				type: 'error',
+			});
+			return;
+		}
+		// sessionStorage.clear();
+		const editLoanRedirectObject = {
+			userId: userDetails?.id,
+			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
+			token: userToken,
+			edit: true,
+		};
+		const redirectURL = `/nconboarding/applyloan/product/${btoa(
+			selectedProduct?.id
+		)}?token=${encryptReq(editLoanRedirectObject)}`;
+		// console.log('redirectToProductPageInEditMode-obj-', {
+		// 	editLoanRedirectObject,
+		// 	redirectURL,
+		// 	loanData,
+		// 	product,
+		// });
+		window.open(redirectURL, '_self');
+	};
 
 	const removeCacheDocumentTemp = fieldName => {
 		// console.log('removeCacheDocumentTemp-', { fieldName, cacheDocumentsTemp });
@@ -785,6 +918,11 @@ const BasicDetails = props => {
 			if (isFormStateUpdated) {
 				return formState?.values?.[field?.name];
 			}
+			const dedupeData =
+				!completedSections?.includes(selectedSectionId) &&
+				!!dedupePrefilledValues
+					? dedupePrefilledValues
+					: null;
 			// console.log(sectionData);
 			// console.log({
 			// 	sectionData,
@@ -799,9 +937,11 @@ const BasicDetails = props => {
 				first_name: sectionData?.director_details?.dfirstname,
 				last_name: sectionData?.director_details?.dlastname,
 				business_email: sectionData?.director_details?.demail,
-				contactno: sectionData?.director_details?.dcontact,
+				contactno:
+					sectionData?.director_details?.dcontact || dedupeData?.mobile_no,
 				businesspancardnumber:
-					sectionData?.business_data?.businesspancardnumber,
+					sectionData?.business_details?.businesspancardnumber ||
+					dedupeData?.pan_number,
 				// martial_status:
 				marital_status: isNullFunction(
 					sectionData?.director_details?.marital_status
@@ -809,10 +949,25 @@ const BasicDetails = props => {
 				residence_status: isNullFunction(
 					sectionData?.director_details?.residence_status
 				),
+				// businesstype:
+				// 	sectionData?.director_details?.income_type === 0
+				// 		? '0'
+				// 		: `${sectionData?.director_details?.income_type || ''}` ||
+				// 		  dedupeData?.businesstype === 0
+				// 		? '0'
+				// 		: `${dedupeApiData?.businesstype}`, //to be removed if madhuri changes in the configuration
 				businesstype:
 					sectionData?.director_details?.income_type === 0
 						? '0'
-						: `${sectionData?.director_details?.income_type || ''}`, //to be removed if madhuri changes in the configuration
+						: sectionData?.director_details?.income_type
+						? `${sectionData?.director_details?.income_type}`
+						: dedupeData?.businesstype === 0
+						? '0'
+						: dedupeData?.businesstype
+						? `${dedupeData?.businesstype}`
+						: '',
+
+				// customer_id:sectionData?director_details?.customer_id||dedupeData?.customer_id,
 			};
 
 			// TEST MODE
@@ -1617,7 +1772,8 @@ const BasicDetails = props => {
 									/>
 								) : null}
 								<UI_SECTIONS.FormWrapGrid>
-									{sub_section?.fields?.map((field, fieldIndex) => {
+									{sub_section?.fields?.map((eachField, fieldIndex) => {
+										const field = _.cloneDeep(eachField);
 										if (
 											!isFieldValid({
 												field,
@@ -1763,6 +1919,8 @@ const BasicDetails = props => {
 										}
 
 										const customFieldProps = {};
+										const customFieldPropsSubfields = {};
+
 										// customFieldProps.onClick = basicDetailsFunc;
 										if (field?.name === CONST.MOBILE_NUMBER_FIELD_NAME) {
 											customFieldProps.rules = {
@@ -1794,6 +1952,58 @@ const BasicDetails = props => {
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
+
+										if (field?.name === CONST.PAN_NUMBER_FIELD_NAME) {
+											customFieldPropsSubfields.loading = loading;
+											customFieldProps.disabled =
+												loading ||
+												isViewLoan ||
+												isEditLoan ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldPropsSubfields.onClick = event => {
+												onPanEnter(formState.values?.['pan_number']);
+											};
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+										}
+
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											customFieldPropsSubfields.onClick = onFetchFromCustomerId;
+											customFieldPropsSubfields.loading = loading;
+											customFieldPropsSubfields.disabled =
+												loading ||
+												!!completedSections?.includes(selectedSectionId);
+											customFieldProps.disabled = !!completedSections?.includes(
+												selectedSectionId
+											);
+										}
+										if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+											field.type = 'input_field_with_info';
+											customFieldProps.infoIcon = true;
+											customFieldProps.infoMessage =
+												'Select the income type to fetch the data from Customer ID.';
+										}
+										if (field?.name === CONST.DOB_FIELD_NAME) {
+											customFieldPropsSubfields.value =
+												getTotalYearsCompleted(
+													moment(
+														formState?.values?.[CONST.DOB_FIELD_NAME]
+													).format('YYYY-MM-DD')
+												) || '';
+										}
+
+										// console.log({
+										// 	formState,
+										// 	selectedProduct,
+										// 	selectedDedupeData,
+										// });
+										// To be verified once the config changes are done
+										if (`${formState?.values?.['income_type']}`?.length === 0) {
+											if (field?.name === CONST.CUSTOMER_ID_FIELD_NAME) {
+												field.disabled = true;
+											}
+										}
 										return (
 											<UI_SECTIONS.FieldWrapGrid
 												key={`field-${fieldIndex}-${field.name}`}
@@ -1811,7 +2021,8 @@ const BasicDetails = props => {
 															...field.sub_fields[0],
 															value: newValueSelectField,
 															visibility: 'visible',
-															...customFieldProps,
+															// ...customFieldProps,
+															...customFieldPropsSubfields,
 														})}
 													<div
 														style={{
@@ -1831,7 +2042,8 @@ const BasicDetails = props => {
 															...field.sub_fields[0],
 															value: newValueSelectField,
 															visibility: 'visible',
-															...customFieldProps,
+															// ...customFieldProps,
+															...customFieldPropsSubfields,
 														})}
 												</div>
 												{(formState?.submit?.isSubmited ||
