@@ -1932,23 +1932,29 @@ const BasicDetails = props => {
 										if (
 											isPanUploadMandatory &&
 											!isPanNumberExist &&
-											field?.name !== CONST.EXISTING_CUSTOMER_FIELD_NAME
-										)
+											field?.name !==
+												CONST.EXISTING_CUSTOMER_FIELD_NAME
+										) {
 											customFieldProps.disabled = true;
+										}
 										if (
 											isPanUploadMandatory &&
 											isPanNumberExist &&
-											field.name === CONST.PAN_NUMBER_FIELD_NAME
-										)
+											field.name ===
+												CONST.PAN_NUMBER_FIELD_NAME
+										) {
 											customFieldProps.disabled = true;
+										}
 										if (
 											selectedDirector?.directorId &&
 											selectedDirector?.sections?.includes(
 												CONST_SECTIONS.BASIC_DETAILS_SECTION_ID
 											) &&
-											field.name === CONST.INCOME_TYPE_FIELD_NAME
-										)
+											field.name ===
+												CONST.INCOME_TYPE_FIELD_NAME
+										) {
 											customFieldProps.disabled = true;
+										}
 										if (isViewLoan) {
 											customFieldProps.disabled = true;
 										}
@@ -1957,9 +1963,9 @@ const BasicDetails = props => {
 											customFieldPropsSubfields.loading = loading;
 											customFieldProps.disabled =
 												loading ||
-												isViewLoan ||
-												isEditLoan ||
-												!!completedSections?.includes(selectedSectionId);
+												!!completedSections?.includes(
+													selectedSectionId
+												);
 											customFieldPropsSubfields.onClick = event => {
 												onPanEnter(formState.values?.['pan_number']);
 											};
