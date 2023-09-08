@@ -32,6 +32,8 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_ADDRESS_DETAILS from '../const';
 import * as CONST from './const';
 import { validateFileUpload } from 'utils/helperFunctions';
+import infoIcon from 'assets/icons/info-icon.png';
+import TooltipImage from 'components/Global/Tooltip';
 
 const AddressProofUpload = props => {
 	const {
@@ -102,6 +104,10 @@ const AddressProofUpload = props => {
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	let refCounter = 0;
 	const aadhaarProofOTPField = addressProofUploadSection?.fields?.[2] || {};
+	const maxUploadSize =
+		JSON.parse(
+			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+		)?.document_file_limit[0]?.max_file_size || null;
 
 	const verifyKycAddressProof = async data => {
 		try {
@@ -971,6 +977,11 @@ const AddressProofUpload = props => {
 					uploading={fetchingAddress}
 				>
 					<UI.Caption>Upload Address Proof</UI.Caption>
+					<TooltipImage
+						src={infoIcon}
+						alt='Image Alt Text'
+						title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+					/>
 					<UI.UploadButton
 						type='file'
 						id={id}
