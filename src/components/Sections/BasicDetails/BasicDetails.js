@@ -1505,6 +1505,7 @@ const BasicDetails = props => {
 		}
 		// Special case for SME FLow - Fetch geolocation if not saved - ends
 	};
+
 	useEffect(() => {
 		scrollToTopRootElement();
 		validateToken();
@@ -1738,6 +1739,8 @@ const BasicDetails = props => {
 			})}
 		/>
 	);
+
+	console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
