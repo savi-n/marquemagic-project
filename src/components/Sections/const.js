@@ -8,6 +8,7 @@ export const CO_APPLICANT = 'coapplicant';
 export const APPLICANT_TYPE_NAME = 'Applicant';
 
 export const CO_APPLICANT_TYPE_NAME = 'Co-applicant';
+export const GUARANTOR_TYPE_NAME = 'Guarantor';
 
 export const EXTRACTION_KEY_PAN = 'pan';
 export const EXTRACTION_KEY_DL = 'DL';
@@ -47,6 +48,7 @@ export const ALL_SECTION_IDS = {
 //for sme flow
 export const BUSINESS_DETAILS_SECTION_ID = 'business_details';
 export const BUSINESS_ADDRESS_SECTION_ID = 'business_address_details';
+export const BUSINESS_ADDRESS_EDI_SECTION_ID='business_address_details_edi'
 
 export const INITIAL_SECTION_IDS = [
 	BASIC_DETAILS_SECTION_ID,
@@ -57,6 +59,7 @@ export const INITIAL_SECTION_IDS = [
 export const INITIAL_SECTION_IDS_SME_FLOW = [
 	BUSINESS_DETAILS_SECTION_ID,
 	BUSINESS_ADDRESS_SECTION_ID,
+	BUSINESS_ADDRESS_EDI_SECTION_ID,
 	BASIC_DETAILS_SECTION_ID,
 	ADDRESS_DETAILS_SECTION_ID,
 	EMPLOYMENT_DETAILS_SECTION_ID,

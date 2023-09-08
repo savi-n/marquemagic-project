@@ -225,8 +225,8 @@ export const formatCompanyRocData = (data, panNum) => {
 			[`ddin_no${i}`]: dir['din/pan'],
 		};
 		directorsForShow.push({
-			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din,
+			Name: dir.assosiate_company_details?.director_data.name || dir?.name,
+			Din: dir.assosiate_company_details?.director_data.din || dir?.['din/pan'],
 		});
 	}
 

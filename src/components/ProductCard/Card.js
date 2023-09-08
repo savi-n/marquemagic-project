@@ -23,12 +23,20 @@ import CustomerListModal from './CustomerListModal';
 import CustomerDetailsFormModal from './CustomerDetailsFormModal';
 import CustomerVerificationOTPModal from './CustomerVerificationOTPModal';
 import * as UI from './ui';
+import { useEffect } from 'react';
+import { resetEditOrViewLoan } from 'store/appSlice';
 
 export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
 	const { app } = useSelector(state => state);
-	const { isGeoTaggingEnabled, userToken, userDetails, permission } = app;
+	const {
+		isGeoTaggingEnabled,
+		userToken,
+		userDetails,
+		permission,
+		whiteLabelId,
+	} = app;
 	const [isSubProductModalOpen, setSubProductModalOpen] = useState(false);
 	const [
 		isCustomerDetailsFormModalOpen,
@@ -46,6 +54,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [sendingOTP, setSendingOTP] = useState(false);
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
+	const [selectedDedupeData, setSelectedDedupeData] = useState({});
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -54,9 +63,16 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	// 		data: id,
 	// 	});
 	// };
-
+	// console.log(
+	// 	{ selectedDedupeData, product, customerDetailsFormData },
+	// 	'card.js'
+	// );
 	// console.log('Card-allstates-', { product });
-
+	useEffect(() => {
+		// console.log('card.js - useeffect-');
+		dispatch(resetEditOrViewLoan());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 	const redirectToProductPage = () => {
 		// sessionStorage.clear();
 		const params = queryString.parse(window.location.search);
@@ -112,22 +128,68 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			// 		)?.[0]?.customer_id || '137453244',
 			// };
 			// const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, reqBody);
-			const customer_id =
+
+			const customerId =
 				customerList?.filter(
 					c => c.customer_id === selectedCustomer?.customer_id
 				)?.[0]?.customer_id || ''; // '137453244';
-			setCustomerId(customer_id);
-			const sendOtpRes = await axios.post(API.DDUPE_SEND_OTP, { customer_id });
+			setCustomerId(customerId);
+			// console.log({ customerId, selectedDedupeData });
+			if (selectedDedupeData?.is_otp_required) {
+				try {
+					const sendOtpRes = await axios.post(
+						selectedDedupeData?.generate_otp,
+						{
+							customerId,
+						}
+					);
 
-			setSendOtpRes(sendOtpRes?.data?.data || {});
-			// console.log('Card-sendOtpRes-', { sendOtpRes });
-			setIsCustomerListModalOpen(false);
-			setIsCustomerVerificationOTPModal(true);
-			setSelectedCustomer(null);
-			addToast({
-				message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
-				type: 'success',
-			});
+					setSendOtpRes(sendOtpRes?.data?.data || {});
+					// console.log('Card-sendOtpRes-', { sendOtpRes });
+					setIsCustomerListModalOpen(false);
+					setIsCustomerVerificationOTPModal(true);
+					setSelectedCustomer(null);
+					addToast({
+						message: sendOtpRes?.data?.message || 'OTP Sent Successfully',
+						type: 'success',
+					});
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
+				}
+			} else {
+				// fetch api call for dedupe existing user
+				try {
+					const reqBody = {
+						customer_id: customerId,
+						white_label_id: whiteLabelId,
+						businesstype: customerDetailsFormData?.businesstype || '',
+						loan_product_id:
+							product?.product_id?.[customerDetailsFormData?.businesstype] ||
+							'',
+						isApplicant: true, //implemented based on savitha's changes - bad practice
+					};
+					const verifyData = await axios.post(
+						selectedDedupeData?.verify,
+						reqBody
+					);
+
+					// console.log({ verifyData });
+					if (verifyData?.data?.status === 'ok') {
+						redirectToProductPageInEditMode(verifyData?.data);
+					}
+				} catch (err) {
+					console.error(err.message);
+					addToast({
+						message: err.message || 'Otp generation failed!',
+						type: 'error',
+					});
+				}
+				// console.log('else-part-no-otp');
+			}
 		} catch (e) {
 			console.error('error-onSelectCustomer-', e);
 		} finally {
@@ -257,7 +319,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			</UI.ButtonWrapper>
 			<Modal
 				show={isSubProductModalOpen}
-				onClose={() => setSubProductModalOpen(false)}
+				onClose={() => {
+					setSubProductModalOpen(false);
+					// setCustomerDetailsFormData(null);
+					// setSelectedDedupeData({});
+				}}
 				width='90%'
 				height='70%'
 				padding='50px'
@@ -304,12 +370,16 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					show={isCustomerDetailsFormModalOpen}
 					onClose={() => {
 						setIsCustomerDetailsFormModalOpen(false);
+						// setCustomerDetailsFormData(null);
+						// setSelectedDedupeData({});
 					}}
 					redirectToProductPage={redirectToProductPage}
 					product={product}
 					setCustomerList={setCustomerList}
 					setIsCustomerListModalOpen={setIsCustomerListModalOpen}
 					setCustomerDetailsFormData={setCustomerDetailsFormData}
+					selectedDedupeData={selectedDedupeData}
+					setSelectedDedupeData={setSelectedDedupeData}
 				/>
 			)}
 			{isCustomerListModalOpen && (
@@ -319,6 +389,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						setIsCustomerDetailsFormModalOpen(false);
 						setIsCustomerListModalOpen(false);
 						setSelectedCustomer(null);
+						// setCustomerDetailsFormData(null);
+						// setSelectedDedupeData({});
 					}}
 					customerList={customerList}
 					selectedCustomer={selectedCustomer}
