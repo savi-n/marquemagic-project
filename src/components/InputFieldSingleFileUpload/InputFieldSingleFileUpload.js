@@ -258,7 +258,7 @@ const InputFieldSingleFileUpload = props => {
 								: field?.label
 							: `Upload${loading ? 'ing...' : null} File`}
 					</label>
-					{!loading && (
+					{!loading && maxUploadSize && (
 						<TooltipImage
 							src={infoIcon}
 							alt='Info'

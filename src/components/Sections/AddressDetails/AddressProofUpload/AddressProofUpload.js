@@ -984,11 +984,13 @@ const AddressProofUpload = props => {
 					uploading={fetchingAddress}
 				>
 					<UI.Caption>Upload Address Proof</UI.Caption>
-					<TooltipImage
-						src={infoIcon}
-						alt='Image Alt Text'
-						title={`Maximum upload size for every image is ${maxUploadSize}MB`}
-					/>
+					{maxUploadSize && (
+						<TooltipImage
+							src={infoIcon}
+							alt='Image Alt Text'
+							title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+						/>
+					)}
 					<UI.UploadButton
 						type='file'
 						id={id}
