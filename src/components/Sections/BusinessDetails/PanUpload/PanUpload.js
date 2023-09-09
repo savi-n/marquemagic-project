@@ -851,11 +851,13 @@ const PanUpload = props => {
 						</UI.UploadIconWrapper>
 					) : (
 						<>
-							<TooltipImage
-								src={infoIcon}
-								alt='Image Alt Text'
-								title={`Maximum upload size for every image is ${maxUploadSize}MB`}
-							/>
+							{maxUploadSize && (
+								<TooltipImage
+									src={infoIcon}
+									alt='Image Alt Text'
+									title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+								/>
+							)}
 							<UI.UploadIconWrapper
 								{...getRootProps({
 									className: 'dropzone',

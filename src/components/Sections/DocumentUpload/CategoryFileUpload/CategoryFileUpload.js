@@ -424,11 +424,13 @@ const CategoryFileUpload = props => {
 						{`Drag and drop or`}{' '}
 						{/* {accept && <UI.AcceptFilesTypes>{accept}</UI.AcceptFilesTypes>} */}
 					</UI.Caption>
-					<TooltipImage
-						src={infoIcon}
-						alt='Image Alt Text'
-						title={`Maximum upload size for every image is ${maxUploadSize}MB`}
-					/>
+					{maxUploadSize && (
+						<TooltipImage
+							src={infoIcon}
+							alt='Image Alt Text'
+							title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+						/>
+					)}
 					<UI.UploadButton
 						type='file'
 						id={id}
