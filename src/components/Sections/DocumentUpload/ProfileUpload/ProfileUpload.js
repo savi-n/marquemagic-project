@@ -33,6 +33,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import AddressDetailsCard from 'components/AddressDetailsCard/AddressDetailsCard';
 import * as CONST from './const';
+import { validateFileUpload } from 'utils/helperFunctions';
 
 const ProfileUpload = props => {
 	const {
@@ -215,9 +216,22 @@ const ProfileUpload = props => {
 				}
 			}
 			try {
+				const validatedResp = validateFileUpload(acceptedFiles);
+				const finalFilesToUpload = validatedResp
+					?.filter(item => item.status !== 'fail')
+					.map(fileItem => fileItem.file);
+
+				if (finalFilesToUpload && finalFilesToUpload.length === 0) {
+					addToast({
+						message: validatedResp[0].error,
+						type: 'error',
+					});
+					return;
+				}
+
 				const formData = new FormData();
-				// const newFile = {};
 				setLoading(true);
+				// const newFile = {};
 
 				// profilePicUpload and selfie upload API needs Lat and long, hence call geoLocation API from helper
 
