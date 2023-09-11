@@ -130,8 +130,7 @@ const BusinessAddressDetailsEdi = props => {
 					pincode: formState?.values?.operating_pin_code || '',
 					city: formState?.values?.operating_city || '',
 					state: formState?.values?.operating_state || '',
-					residential_type:
-						formState?.values?.operating_residential_type || '',
+					residential_type: formState?.values?.operating_residential_type || '',
 					preferred_mailing_address:
 						preferredMAilingAddress ===
 						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
@@ -224,15 +223,11 @@ const BusinessAddressDetailsEdi = props => {
 			// custom prefill only for this section
 			if (isSameAsAboveAddressChecked) {
 				return formState?.values?.[
-					field?.name?.replace(
-						CONST.PREFIX_OPERATING,
-						CONST.PREFIX_REGISTERED
-					)
+					field?.name?.replace(CONST.PREFIX_OPERATING, CONST.PREFIX_REGISTERED)
 				];
 			}
 
-			const isFormStateUpdated =
-				formState?.values?.[field.name] !== undefined;
+			const isFormStateUpdated = formState?.values?.[field.name] !== undefined;
 			if (isFormStateUpdated) {
 				return formState?.values?.[field.name];
 			}
@@ -261,8 +256,7 @@ const BusinessAddressDetailsEdi = props => {
 				operating_pin_code: sectionData?.address?.[0]?.pincode,
 				operating_city: sectionData?.address?.[0]?.city,
 				operating_state: sectionData?.address?.[0]?.state,
-				operating_residential_type:
-					sectionData?.address?.[0]?.residential_type,
+				operating_residential_type: sectionData?.address?.[0]?.residential_type,
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
@@ -353,193 +347,185 @@ const BusinessAddressDetailsEdi = props => {
 				<Loading />
 			) : (
 				<>
-					{selectedSection?.sub_sections?.map(
-						(subSection, subSectionIndex) => {
-							const isRegistered = subSection?.aid === CONST.AID_REGISTERED;
+					{selectedSection?.sub_sections?.map((subSection, subSectionIndex) => {
+						const isRegistered = subSection?.aid === CONST.AID_REGISTERED;
 
-							const prefix = isRegistered
-								? CONST.PREFIX_REGISTERED
-								: CONST.PREFIX_OPERATING;
+						const prefix = isRegistered
+							? CONST.PREFIX_REGISTERED
+							: CONST.PREFIX_OPERATING;
 
-							// remove after verifying above code
+						// remove after verifying above code
 
-							// if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
-							// 	isProceedDisabledAddressProof = false;
-							// }
-							// if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
-							// 	isProceedDisabledAddressProof = false;
-							// }
+						// if (isFrontTagged && !isBackTagged && !isFrontBackTagged) {
+						// 	isProceedDisabledAddressProof = false;
+						// }
+						// if (!isFrontTagged && isBackTagged && !isFrontBackTagged) {
+						// 	isProceedDisabledAddressProof = false;
+						// }
 
-							return (
-								<Fragment
-									key={`section-${subSectionIndex}-${subSection?.id}`}
-								>
-									{subSection?.name ? (
-										<>
-											<UI_SECTIONS.SubSectionHeader>
-												{subSection.name}
-											</UI_SECTIONS.SubSectionHeader>
-										</>
-									) : null}
-									{subSection?.prefix === CONST.PREFIX_OPERATING && (
-										<>
-											<UI.CheckboxSameAs
-												type='checkbox'
-												id={CONST.CHECKBOX_SAME_AS_ID}
-												checked={!!isSameAsAboveAddressChecked}
-												disabled={isSectionCompleted || isViewLoan}
-												onChange={() => {
-													setIsSameAsAboveAddressChecked(
-														!isSameAsAboveAddressChecked
-													);
-												}}
-											/>
-											<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-												Same as Registered Address
-											</label>
-										</>
-									)}
+						return (
+							<Fragment key={`section-${subSectionIndex}-${subSection?.id}`}>
+								{subSection?.name ? (
+									<>
+										<UI_SECTIONS.SubSectionHeader>
+											{subSection.name}
+										</UI_SECTIONS.SubSectionHeader>
+									</>
+								) : null}
+								{subSection?.prefix === CONST.PREFIX_OPERATING && (
+									<>
+										<UI.CheckboxSameAs
+											type='checkbox'
+											id={CONST.CHECKBOX_SAME_AS_ID}
+											checked={!!isSameAsAboveAddressChecked}
+											disabled={isSectionCompleted || isViewLoan}
+											onChange={() => {
+												setIsSameAsAboveAddressChecked(
+													!isSameAsAboveAddressChecked
+												);
+											}}
+										/>
+										<label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+											Same as Registered Address
+										</label>
+									</>
+								)}
 
-									<UI_SECTIONS.FormWrapGrid>
-										{subSection?.fields?.map((field, fieldIndex) => {
+								<UI_SECTIONS.FormWrapGrid>
+									{subSection?.fields?.map((field, fieldIndex) => {
+										if (
+											!isFieldValid({
+												field,
+												formState,
+												isApplicant,
+											})
+										) {
+											return null;
+										}
+
+										if (
+											subSection.aid === CONST.AID_OPERATING &&
+											isSameAsAboveAddressChecked
+										) {
 											if (
-												!isFieldValid({
-													field,
-													formState,
-													isApplicant,
-												})
-											) {
+												CONST.HIDE_OPERATING_ADDRESS_FIELDS.includes(field.name)
+											)
 												return null;
-											}
+										}
+										const newValue = prefilledValues(field);
+										const customFieldProps = {};
+										if (isViewLoan) {
+											customFieldProps.disabled = true;
+										}
+										const customStyle = {};
+										//setOtherPresentCacheDocTemp
 
+										if (isSectionCompleted) {
+											customFieldProps.disabled = true;
+										}
+
+										if (
+											isSameAsAboveAddressChecked &&
+											field.name.includes(CONST.PREFIX_OPERATING)
+										) {
+											customFieldProps.disabled = true;
+										}
+
+										// Untill permanent address1 is not filled disable present address proof
+										// in all the scenario this fields will be always disabled
+										if (
+											field.name.includes('city') ||
+											field.name.includes('state')
+										) {
+											customFieldProps.disabled = true;
+										}
+										//here
+										// console.log(subSection);
+										if (field.type.includes('checkbox')) {
 											if (
-												subSection.aid === CONST.AID_OPERATING &&
-												isSameAsAboveAddressChecked
+												field?.rules?.required !==
+												isPreferredMailingAddressMandatory
 											) {
-												if (
-													CONST.HIDE_OPERATING_ADDRESS_FIELDS.includes(
-														field.name
-													)
-												)
-													return null;
-											}
-											const newValue = prefilledValues(field);
-											const customFieldProps = {};
-											if (isViewLoan) {
-												customFieldProps.disabled = true;
-											}
-											const customStyle = {};
-											//setOtherPresentCacheDocTemp
-
-											if (isSectionCompleted) {
-												customFieldProps.disabled = true;
-											}
-
-											if (
-												isSameAsAboveAddressChecked &&
-												field.name.includes(CONST.PREFIX_OPERATING)
-											) {
-												customFieldProps.disabled = true;
-											}
-
-											// Untill permanent address1 is not filled disable present address proof
-											// in all the scenario this fields will be always disabled
-											if (
-												field.name.includes('city') ||
-												field.name.includes('state')
-											) {
-												customFieldProps.disabled = true;
-											}
-											//here
-											// console.log(subSection);
-											if (field.type.includes('checkbox')) {
-												if (
-													field?.rules?.required !==
-													isPreferredMailingAddressMandatory
-												) {
-													setPrefferedMailingAddressMandatory(
-														field?.rules?.required
-													);
-												}
-												return (
-													<UI_SECTIONS.FieldWrapGrid
-														key={`field-${prefix}-${fieldIndex}-${
-															field.name
-														}`}
-														style={customStyle}
-													>
-														<UI.CheckboxSameAs
-															type='checkbox'
-															id={
-																isRegistered
-																	? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
-																	: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
-															}
-															checked={field.name === preferredMAilingAddress}
-															onChange={() => {
-																field.name !== preferredMAilingAddress
-																	? setPreferredMAilingAddress(field.name)
-																	: setPreferredMAilingAddress(null);
-															}}
-														/>
-														<label
-															htmlFor={
-																isRegistered
-																	? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
-																	: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
-															}
-														>
-															{field.placeholder}
-														</label>
-													</UI_SECTIONS.FieldWrapGrid>
+												setPrefferedMailingAddressMandatory(
+													field?.rules?.required
 												);
 											}
-
-											//   return(
-											//     <UI_SECTIONS.FieldWrapGrid
-											//     key={`field-${prefix}-${fieldIndex}-${field.name}`}
-											// 		style={customStyle}
-											//     >
-											//       <UI.CheckboxSameAs
-											//       type="checkbox"
-											//       id={CONST.CHECKBOX_SAME_AS_ID}
-											//       checked={field.name===preferredMAilingAddress}
-											// onChange={()=>{
-											//  field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
-											// }}
-											// />
-											//       <label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
-											// 		Preffered mailing address
-											// 		</label>
-											//     </UI_SECTIONS.FieldWrapGrid>
-											//   )
-											// }
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${prefix}-${fieldIndex}-${field.name}`}
 													style={customStyle}
 												>
-													{register({
-														...field,
-														value: newValue,
-														visibility: 'visible',
-														...customFieldProps,
-													})}
-													{(formState?.submit?.isSubmited ||
-														formState?.touched?.[field.name]) &&
-														formState?.error?.[field.name] && (
-															<UI_SECTIONS.ErrorMessage>
-																{formState?.error?.[field.name]}
-															</UI_SECTIONS.ErrorMessage>
-														)}
+													<UI.CheckboxSameAs
+														type='checkbox'
+														id={
+															isRegistered
+																? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
+																: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
+														}
+														checked={field.name === preferredMAilingAddress}
+														onChange={() => {
+															field.name !== preferredMAilingAddress
+																? setPreferredMAilingAddress(field.name)
+																: setPreferredMAilingAddress(null);
+														}}
+													/>
+													<label
+														htmlFor={
+															isRegistered
+																? CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_REGISTERED
+																: CONST.CHECKBOX_PREFFERED_MAILING_ADDRESS_ID_OPERATING
+														}
+													>
+														{field.placeholder}
+													</label>
 												</UI_SECTIONS.FieldWrapGrid>
 											);
-										})}
-									</UI_SECTIONS.FormWrapGrid>
-								</Fragment>
-							);
-						}
-					)}
+										}
+
+										//   return(
+										//     <UI_SECTIONS.FieldWrapGrid
+										//     key={`field-${prefix}-${fieldIndex}-${field.name}`}
+										// 		style={customStyle}
+										//     >
+										//       <UI.CheckboxSameAs
+										//       type="checkbox"
+										//       id={CONST.CHECKBOX_SAME_AS_ID}
+										//       checked={field.name===preferredMAilingAddress}
+										// onChange={()=>{
+										//  field.name!==preferredMAilingAddress?setPreferredMAilingAddress(field.name):setPreferredMAilingAddress(null)
+										// }}
+										// />
+										//       <label htmlFor={CONST.CHECKBOX_SAME_AS_ID}>
+										// 		Preffered mailing address
+										// 		</label>
+										//     </UI_SECTIONS.FieldWrapGrid>
+										//   )
+										// }
+										return (
+											<UI_SECTIONS.FieldWrapGrid
+												key={`field-${prefix}-${fieldIndex}-${field.name}`}
+												style={customStyle}
+											>
+												{register({
+													...field,
+													value: newValue,
+													visibility: 'visible',
+													...customFieldProps,
+												})}
+												{(formState?.submit?.isSubmited ||
+													formState?.touched?.[field.name]) &&
+													formState?.error?.[field.name] && (
+														<UI_SECTIONS.ErrorMessage>
+															{formState?.error?.[field.name]}
+														</UI_SECTIONS.ErrorMessage>
+													)}
+											</UI_SECTIONS.FieldWrapGrid>
+										);
+									})}
+								</UI_SECTIONS.FormWrapGrid>
+							</Fragment>
+						);
+					})}
 					<UI_SECTIONS.Footer>
 						{!isViewLoan && (
 							<Button
