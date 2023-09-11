@@ -14,6 +14,8 @@ import iconDelete from 'assets/icons/close_icon_grey-06.svg';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import { validateFileUpload } from 'utils/helperFunctions';
+import TooltipImage from '../Global/Tooltip';
+import infoIcon from 'assets/icons/info-icon.png';
 
 const InputFieldSingleFileUpload = props => {
 	const {
@@ -38,6 +40,17 @@ const InputFieldSingleFileUpload = props => {
 	const { addToast } = useToasts();
 	const dispatch = useDispatch();
 	const isMandatory = !!field?.rules?.required;
+	const maxUploadSize =
+		JSON.parse(
+			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+		)?.document_file_limit &&
+		JSON.parse(
+			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+		)?.document_file_limit.length > 0
+			? JSON.parse(
+					JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+			  )?.document_file_limit[0]?.max_file_size
+			: null;
 
 	const openDocument = async file => {
 		try {
@@ -245,6 +258,13 @@ const InputFieldSingleFileUpload = props => {
 								: field?.label
 							: `Upload${loading ? 'ing...' : null} File`}
 					</label>
+					{!loading && maxUploadSize && (
+						<TooltipImage
+							src={infoIcon}
+							alt='Info'
+							title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+						/>
+					)}
 					{loading ? (
 						<UI.UploadIconWrapper>
 							<LoadingIcon />
@@ -252,6 +272,7 @@ const InputFieldSingleFileUpload = props => {
 					) : (
 						<UI.UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
 							<input {...getInputProps()} />
+
 							<UI.IconUpload src={iconUploadBlue} alt='camera' />
 						</UI.UploadIconWrapper>
 					)}

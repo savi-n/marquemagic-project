@@ -248,7 +248,6 @@ export const formatCompanyRocData = (data, panNum) => {
 		month,
 		year,
 	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
-
 	return {
 		BusinessName: data.company_master_data.company_name,
 		BusinessType: businesType,
@@ -263,6 +262,7 @@ export const formatCompanyRocData = (data, panNum) => {
 		DirectorDetails: directors,
 		directorsForShow,
 		unformatedData: data,
+		DateOfIncorporation: data?.company_master_data?.date_of_incorporation,
 	};
 };
 
