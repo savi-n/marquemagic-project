@@ -316,11 +316,10 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newFilteredCacheDocuments;
 		},
-		setDedupePrefilledValues: (state,{payload})=>{
-			console.log(payload)
-			state.dedupePrefilledValues=payload;
-
-		}
+		setDedupePrefilledValues: (state, { payload }) => {
+			// console.log(payload)
+			state.dedupePrefilledValues = payload;
+		},
 	},
 });
 export const {

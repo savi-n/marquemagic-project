@@ -149,6 +149,7 @@ export default function SearchSelect(props) {
 		customLabel = '',
 		errorMessage,
 		// onIfscChange,
+		subComponentOptions,
 	} = props;
 	const [optionShow, setOptionShow] = useState(false);
 	const [fetching, setFetching] = useState(false);
@@ -176,6 +177,18 @@ export default function SearchSelect(props) {
 		}
 		// eslint-disable-next-line
 	}, [ifscList]);
+
+	useEffect(() => {
+		if (
+			subComponentOptions &&
+			!!selectedOption &&
+			!!field?.name?.includes('sub_industry_type') &&
+			!subComponentOptions?.includes(selectedOption)
+		) {
+			setSelectedOption({});
+		}
+		// eslint-disable-next-line
+	}, [JSON.stringify(subComponentOptions)]);
 
 	useEffect(() => {
 		// if(`${field?.value}`==="undefined"){

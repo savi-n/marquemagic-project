@@ -55,7 +55,7 @@ import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
 import * as CONST_BUSINESS_DETAILS from './const';
-import { fetchOptions } from 'utils/helperFunctions';
+import { fetchOptions, clearDependentFields } from 'utils/helperFunctions';
 import Modal from 'components/Modal';
 import ROCBusinessDetailsModal from 'components/Sections/BusinessDetails/ROCBusinessDetailsModal/ROCBusinessDetailsModal';
 import { isInvalidPan } from 'utils/validation';
@@ -121,6 +121,8 @@ const BusinessDetails = props => {
 	const [isPrefilMobileNumber, setIsPrefilMobileNumber] = useState(true);
 	const [mainComponentOptions, setMainComponentOptions] = useState(null);
 	const [subComponentOptions, setSubComponentOptions] = useState([]);
+	const [allIndustriesOption, setAllIndustriesOption] = useState([]);
+	// const [selectedMainOptionId, setSelectedMainOptionId] = useState('');
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -350,6 +352,17 @@ const BusinessDetails = props => {
 			setLoading(false);
 		}
 	};
+
+	const selectedMainOptionId = allIndustriesOption?.filter(item => {
+		return (
+			item?.IndustryName === formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]
+		);
+	})?.[0]?.id;
+	// console.log(
+	// 	'🚀 ~ file: BusinessDetails.js:823 ~ currentId ~ currentId:',
+	// 	selectedMainOptionId
+	// );
+
 	// console.log({ borrowerUserId, isEditOrViewLoan });
 	const onSaveAndProceed = async () => {
 		try {
@@ -427,6 +440,7 @@ const BusinessDetails = props => {
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
 
+			buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
 			const buissnessDetailsRes = await axios.post(
 				API.BUSINESS_DETIALS,
 				buissnessDetailsReqBody
@@ -608,7 +622,7 @@ const BusinessDetails = props => {
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
 				industry_type:
-					sectionData?.business_details?.businessindustry?.id || '',
+					sectionData?.business_details?.businessindustry?.IndustryName || '',
 
 				sub_industry_type:
 					sectionData?.business_details?.businessindustry?.id || '',
@@ -782,6 +796,7 @@ const BusinessDetails = props => {
 				const allIndustriesOption = await fetchOptions({
 					fetchOptionsURL: INDUSTRY_LIST_FETCH,
 					sectionId: selectedSectionId,
+					setOriginalOptions: setAllIndustriesOption,
 				});
 
 				setMainComponentOptions(allIndustriesOption);
@@ -791,6 +806,39 @@ const BusinessDetails = props => {
 		};
 		fetchMainCompOptions();
 	}, [selectedSectionId]);
+
+	// useEffect(() => {
+	// 	console.log(
+	// 		allIndustriesOption,
+	// 		formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME],
+	// 		'all indus option'
+	// 	);
+	// 	const currentId = allIndustriesOption?.filter(item => {
+	// 		console.log(item);
+	// 		return (
+	// 			item?.IndustryName ===
+	// 			formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]
+	// 		);
+	// 	})?.[0]?.id;
+	// 	setSelectedMainOptionId(currentId);
+	// }, [formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
+	// console.log(
+	// 	'🚀 ~ file: BusinessDetails.js:359 ~ BusinessDetails ~ selectedMainOptionId:',
+	// 	selectedMainOptionId
+	// );
+
+	useEffect(
+		() => {
+			clearDependentFields({
+				formState,
+				field_name: CONST.SUB_INDUSTRY_TYPE_FIELD_NAME,
+				subComponentOptions,
+				onChangeFormStateField,
+			});
+		},
+		//eslint-disable-next-line
+		[JSON.stringify(subComponentOptions)]
+	);
 
 	const ButtonProceed = (
 		<Button
