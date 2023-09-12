@@ -473,16 +473,6 @@ const PanUpload = props => {
 				name: CONST_BUSINESS_DETAILS.BUSINESS_VINTAGE_FIELD_NAME,
 				value: businessVintageValue,
 			});
-<<<<<<< Updated upstream
-=======
-			onChangeFormStateField({
-				name: CONST_BUSINESS_DETAILS.BUSINESS_START_DATE,
-				value:
-					moment(formattedCompanyData?.DateOfIncorporation).format(
-						'YYYY-MM-DD'
-					) || '',
-			});
->>>>>>> Stashed changes
 			// prepopulation ends
 		} catch (error) {
 			setLoading(false);
