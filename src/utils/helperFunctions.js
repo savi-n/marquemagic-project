@@ -68,9 +68,16 @@ export const fetchSubCompOptions = async data => {
 	}
 };
 
-const maxUploadSize =
+export const maxUploadSize =
+	JSON.parse(sessionStorage.getItem('permission'))?.document_mapping &&
 	JSON.parse(JSON.parse(sessionStorage.getItem('permission'))?.document_mapping)
-		?.document_file_limit[0]?.max_file_size || null;
+		?.document_file_limit &&
+	JSON.parse(JSON.parse(sessionStorage.getItem('permission'))?.document_mapping)
+		?.document_file_limit.length > 0
+		? JSON.parse(
+				JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
+		  )?.document_file_limit[0]?.max_file_size
+		: null;
 
 export const validateFileUpload = files => {
 	const respFile = [];
