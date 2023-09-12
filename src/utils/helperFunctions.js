@@ -68,7 +68,8 @@ export const fetchSubCompOptions = async data => {
 	}
 };
 
-const maxUploadSize =
+export const maxUploadSize =
+	JSON.parse(sessionStorage.getItem('permission'))?.document_mapping &&
 	JSON.parse(JSON.parse(sessionStorage.getItem('permission'))?.document_mapping)
 		?.document_file_limit &&
 	JSON.parse(JSON.parse(sessionStorage.getItem('permission'))?.document_mapping)
