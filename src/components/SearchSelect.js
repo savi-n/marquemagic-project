@@ -199,7 +199,7 @@ export default function SearchSelect(props) {
 			defaultSelected && onOptionSelect(null, defaultSelected);
 		}
 		// eslint-disable-next-line
-	}, [defaultValue, options?.length]);
+	}, [defaultValue, options?.length,ifscList]);
 
 	useEffect(() => {
 		if (options?.length) setSelectOptions(options);
