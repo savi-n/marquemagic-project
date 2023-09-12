@@ -77,6 +77,10 @@ const BusinessAddressDetailsEdi = props => {
 	});
 	const [preferredMAilingAddress, setPreferredMAilingAddress] = useState(null);
 	const [
+		isPreferredMailingAddressMandatory,
+		setPrefferedMailingAddressMandatory,
+	] = useState(false);
+	const [
 		isSameAsAboveAddressChecked,
 		setIsSameAsAboveAddressChecked,
 	] = useState(false);
@@ -95,6 +99,16 @@ const BusinessAddressDetailsEdi = props => {
 			) {
 				return addToast({
 					message: 'Please enter valid pincode to get city and state',
+					type: 'error',
+				});
+			}
+			if (
+				sectionRequired &&
+				isPreferredMailingAddressMandatory &&
+				!preferredMAilingAddress
+			) {
+				return addToast({
+					message: 'Please select the preffered mailing address',
 					type: 'error',
 				});
 			}
@@ -231,7 +245,8 @@ const BusinessAddressDetailsEdi = props => {
 				registered_pin_code: sectionData?.address?.[1]?.pincode,
 				registered_city: sectionData?.address?.[1]?.city,
 				registered_state: sectionData?.address?.[1]?.state,
-				registered_residential_type: sectionData?.address?.[1]?.residential_type,
+				registered_residential_type:
+					sectionData?.address?.[1]?.residential_type,
 				registered_preferred_mailing_address_checkbox:
 					sectionData?.address?.[1]?.preferredMAilingAddress === 'Yes',
 
@@ -318,7 +333,6 @@ const BusinessAddressDetailsEdi = props => {
 
 		// eslint-disable-next-line
 	}, []);
-
 	// useEffect(() => {
 	// 	if (!isSameAsAboveAddressChecked) {
 	// 	}
@@ -428,6 +442,14 @@ const BusinessAddressDetailsEdi = props => {
 										//here
 										// console.log(subSection);
 										if (field.type.includes('checkbox')) {
+											if (
+												field?.rules?.required !==
+												isPreferredMailingAddressMandatory
+											) {
+												setPrefferedMailingAddressMandatory(
+													field?.rules?.required
+												);
+											}
 											return (
 												<UI_SECTIONS.FieldWrapGrid
 													key={`field-${prefix}-${fieldIndex}-${field.name}`}
