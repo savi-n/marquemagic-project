@@ -92,6 +92,10 @@ const BusinessDetails = props => {
 		loanRefId,
 		dedupePrefilledValues,
 	} = application;
+	// console.log(
+	// 	'🚀 ~ file: BusinessDetails.js:95 ~ BusinessDetails ~ dedupePrefilledValues:',
+	// 	dedupePrefilledValues
+	// );
 	const naviagteToNextSection = () => {
 		dispatch(setSelectedSectionId(nextSectionId));
 	};
@@ -183,7 +187,7 @@ const BusinessDetails = props => {
 				white_label_id: whiteLabelId,
 				businesstype: formState?.values?.['business_type'],
 				loan_product_id:
-					selectedProduct?.product_id?.[formState?.values?.['business_type	']],
+					selectedProduct?.product_id?.[formState?.values?.['business_type']],
 				loan_id: loanId,
 				busienss_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
@@ -192,25 +196,51 @@ const BusinessDetails = props => {
 				selectedDedupeData?.verify,
 				reqBody
 			);
-
 			if (fetchDataRes?.data?.status === 'ok') {
 				addToast({
 					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
-					type: 'error',
+					type: 'success',
 				});
 				redirectToProductPageInEditMode(fetchDataRes?.data);
 			}
+
+			if (fetchDataRes?.data?.status === 'nok') {
+				addToast({
+					message:
+						fetchDataRes?.data?.message ||
+						fetchDataRes?.data?.Message ||
+						`No Customer Data Found Against The Provide ID.Please Proceed As New Customer.`,
+					type: 'error',
+				});
+			}
+
 			// console.log({ fetchDataRes });
 		} catch (err) {
-			console.error(err.message);
-			addToast({
-				message: err.message || 'Something went wrong. Please try again later!',
-				type: 'error',
-			});
+			if (`${err?.response?.status}` === `400`) {
+				addToast({
+					message:
+						err.message || 'Bad Request, Request Failed With Status Code 400 ',
+					type: 'error',
+				});
+			} else if (`${err?.response?.status}` === `500`) {
+				addToast({
+					message:
+						err.message ||
+						'Gateway Timeout, Request Failed With Status Code 500 ',
+					type: 'error',
+				});
+			} else {
+				addToast({
+					message:
+						err.message || 'Something went wrong. Please try again later!',
+					type: 'error',
+				});
+			}
 		} finally {
 			setLoading(false);
 		}
 	};
+
 	const redirectToProductPageInEditMode = loanData => {
 		if (!loanData?.data?.loan_data?.loan_ref_id) {
 			addToast({
@@ -584,6 +614,7 @@ const BusinessDetails = props => {
 		}
 	};
 
+	// console.log(formState.values, 'form................');
 	const prefilledValues = field => {
 		try {
 			// TEST MODE
@@ -617,6 +648,10 @@ const BusinessDetails = props => {
 					dedupeData?.pan_number,
 				contact:
 					sectionData?.business_details?.contactno || dedupeData?.mobile_no,
+				businesstype:
+					sectionData?.business_details?.businesstype ||
+					dedupeData?.businesstype ||
+					'',
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
