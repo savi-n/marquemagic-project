@@ -55,6 +55,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [sendOtpRes, setSendOtpRes] = useState(null);
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 	const [selectedDedupeData, setSelectedDedupeData] = useState({});
+	const [subProduct, setSubProduct] = useState({});
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -73,16 +74,18 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		dispatch(resetEditOrViewLoan());
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-	const redirectToProductPage = () => {
+	const redirectToProductPage = (productForModal = product) => {
 		// sessionStorage.clear();
 		const params = queryString.parse(window.location.search);
-		let redirectURL = `/nconboarding/applyloan/product/${btoa(product.id)}`;
+		let redirectURL = `/nconboarding/applyloan/product/${btoa(
+			productForModal.id
+		)}`;
 		if (params?.token) {
 			redirectURL += `?token=${params.token}`;
 		}
 		if (
-			!product?.sub_products ||
-			product?.sub_products?.length === 0 ||
+			!productForModal?.sub_products ||
+			productForModal?.sub_products?.length === 0 ||
 			isSubProductModalOpen
 		) {
 			window.open(redirectURL, '_self');
@@ -359,6 +362,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 										product={subProduct}
 										key={`product__${subProduct.id}`}
 										setAddProduct={setAddedProduct}
+										setSubProduct={setSubProduct}
+										setIsCustomerDetailsFormModalOpen={
+											setIsCustomerDetailsFormModalOpen
+										}
 									/>
 								);
 							})}
@@ -380,6 +387,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					setCustomerDetailsFormData={setCustomerDetailsFormData}
 					selectedDedupeData={selectedDedupeData}
 					setSelectedDedupeData={setSelectedDedupeData}
+					subProduct={subProduct}
 				/>
 			)}
 			{isCustomerListModalOpen && (
@@ -414,6 +422,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					customerDetailsFormData={customerDetailsFormData}
 					product={product}
 					sendOtpRes={sendOtpRes}
+					subProduct={subProduct}
 				/>
 			)}
 		</UI.Wrapper>
