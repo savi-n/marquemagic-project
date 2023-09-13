@@ -829,13 +829,15 @@ const BasicDetails = props => {
 				reqBody
 			);
 
-			if (fetchDataRes?.data?.status === 'ok') {
+			if (fetchDataRes?.data?.status === 'nok') {
 				addToast({
-					message: fetchDataRes?.data?.message || 'Data fetched successfull!',
+					message:
+						fetchDataRes?.data?.message ||
+						'No Customer Data Found Against The Provided Customer ID',
 					type: 'error',
 				});
-				redirectToProductPageInEditMode(fetchDataRes?.data);
 			}
+			redirectToProductPageInEditMode(fetchDataRes?.data);
 			// console.log({ fetchDataRes });
 		} catch (err) {
 			console.error(err.message);
