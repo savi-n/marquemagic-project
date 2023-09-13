@@ -23,6 +23,9 @@ import * as CONST_SECTIONS from 'components/Sections/const';
 import * as CONST_BASIC_DETAILS from '../const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
+import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
+import TooltipImage from 'components/Global/Tooltip';
+import infoIcon from 'assets/icons/info-icon.png';
 
 const PanUpload = props => {
 	const {
@@ -270,6 +273,7 @@ const PanUpload = props => {
 		try {
 			// console.log('handleExtractionPan-', file);
 			setLoading(true);
+
 			const formData = new FormData();
 			formData.append('product_id', selectedProduct.id);
 			formData.append('req_type', CONST_SECTIONS.EXTRACTION_KEY_PAN);
@@ -370,7 +374,16 @@ const PanUpload = props => {
 		onDrop: async acceptedFiles => {
 			try {
 				setLoading(true);
-				await handleExtractionPan(acceptedFiles[0]);
+				const validatedResp = validateFileUpload(acceptedFiles);
+				const finalFilesToUpload = validatedResp
+					?.filter(item => item.status !== 'fail')
+					.map(fileItem => fileItem.file);
+
+				if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+					await handleExtractionPan(finalFilesToUpload[0]);
+				} else {
+					setErrorFormStateField(field.name, validatedResp[0].error);
+				}
 			} catch (error) {
 				console.error('error-ProfileFileUpload-onDrop-', error);
 			} finally {
@@ -551,10 +564,21 @@ const PanUpload = props => {
 							<LoadingIcon />
 						</UI.UploadIconWrapper>
 					) : (
-						<UI.UploadIconWrapper {...getRootProps({ className: 'dropzone' })}>
-							<input {...getInputProps()} />
-							<UI.IconUpload src={iconUploadBlue} alt='camera' />
-						</UI.UploadIconWrapper>
+						<>
+							{maxUploadSize && (
+								<TooltipImage
+									src={infoIcon}
+									alt='Image Alt Text'
+									title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+								/>
+							)}
+							<UI.UploadIconWrapper
+								{...getRootProps({ className: 'dropzone' })}
+							>
+								<input {...getInputProps()} />
+								<UI.IconUpload src={iconUploadBlue} alt='camera' />
+							</UI.UploadIconWrapper>
+						</>
 					)}
 				</UI.Container>
 			)}

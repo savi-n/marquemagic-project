@@ -33,6 +33,10 @@ import * as CONST_SECTION from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
+import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
+import { useToasts } from 'components/Toast/ToastProvider';
+import TooltipImage from 'components/Global/Tooltip';
+import infoIcon from 'assets/icons/info-icon.png';
 let refCounter = 0;
 
 const CategoryFileUpload = props => {
@@ -50,6 +54,7 @@ const CategoryFileUpload = props => {
 	const refPopup = useRef(null);
 	const { newRequest } = useFetch();
 	const dispatch = useDispatch();
+	const { addToast } = useToasts();
 
 	const id = uuidv4();
 
@@ -62,6 +67,7 @@ const CategoryFileUpload = props => {
 	const [passwordList, setPasswordList] = useState([]);
 	const [docTypeNameToolTip, setDocTypeNameToolTip] = useState(-1);
 	const [openingRemovingDocument, setOpeningRemovingDocument] = useState(false);
+	const [unUploadedFile, setUnUploadedFile] = useState([]);
 
 	const openDocument = async file => {
 		try {
@@ -259,20 +265,27 @@ const CategoryFileUpload = props => {
 		event.preventDefault();
 		event.stopPropagation();
 		setDragging(false);
+		setUnUploadedFile([]);
 		if (disabled) return false;
 		let files = [...event.dataTransfer.files];
+		const validatedResp = validateFileUpload(files);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
 
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+		setUnUploadedFile(erroredFiles);
 		// FUTURE
 		// if (accept) {
 		// 	files = files.filter(file => accept.includes(file.type.split('/')[1]));
 		// }
 
-		if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
 			// console.log('before-handleUpload-', {
 			// 	files,
 			// });
 			// files =
-			await handleUpload(files);
+			await handleUpload(finalFilesToUpload);
 			// console.log('after-handleUpload-', {
 			// 	files,
 			// });
@@ -283,13 +296,38 @@ const CategoryFileUpload = props => {
 			event.dataTransfer.clearData();
 			refCounter = 0;
 		}
+		if (erroredFiles && erroredFiles.length > 0) {
+			// setErrorFormStateField(field.name, validatedResp[0].error);
+			addToast({
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
+				type: 'error',
+			});
+		}
 	};
 
 	const onChange = async event => {
 		let files = [...event.target.files];
 		// console.log('onChange-beforeupload-', files);
 		// files =
-		await handleUpload(files);
+		setUnUploadedFile([]);
+		const validatedResp = validateFileUpload(files);
+		const finalFilesToUpload = validatedResp
+			?.filter(item => item.status !== 'fail')
+			.map(fileItem => fileItem.file);
+
+		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
+		setUnUploadedFile(erroredFiles);
+
+		if (finalFilesToUpload && finalFilesToUpload.length > 0) {
+			await handleUpload(finalFilesToUpload);
+		}
+		if (erroredFiles && erroredFiles.length > 0) {
+			// setErrorFormStateField(field.name, validatedResp[0].error);
+			addToast({
+				message: erroredFiles.length + ' ' + erroredFiles[0].error,
+				type: 'error',
+			});
+		}
 		// console.log('onChange-after-', files);
 	};
 
@@ -353,6 +391,8 @@ const CategoryFileUpload = props => {
 	});
 	displayTagMessage = documents?.length !== taggedDocumentCount;
 
+	console.log(unUploadedFile, 'unup');
+
 	// console.log(`FileUpload-${category}-allstates-`, {
 	// 	props,
 	// });
@@ -373,6 +413,13 @@ const CategoryFileUpload = props => {
 						{`Drag and drop or`}{' '}
 						{/* {accept && <UI.AcceptFilesTypes>{accept}</UI.AcceptFilesTypes>} */}
 					</UI.Caption>
+					{maxUploadSize && (
+						<TooltipImage
+							src={infoIcon}
+							alt='Image Alt Text'
+							title={`Maximum upload size for every image is ${maxUploadSize}MB`}
+						/>
+					)}
 					<UI.UploadButton
 						type='file'
 						id={id}
@@ -401,6 +448,24 @@ const CategoryFileUpload = props => {
 						/>
 					</UI.UploadCircle>
 				</UI.Dropzone>
+			)}
+
+			{unUploadedFile && unUploadedFile.length > 0 && (
+				<div className='mt-4'>
+					<p className='font-bold'>
+						{unUploadedFile.length} Files could not be uploaded.
+					</p>
+					<ol className='list-disc list-inside mt-2 space-y-2'>
+						{unUploadedFile.map(item => (
+							<li>
+								{item.file.name} -{' '}
+								<span className='text-red-400 '>
+									Size: {(item.file.size / 1024 / 1024).toFixed(2)}MB
+								</span>
+							</li>
+						))}
+					</ol>
+				</div>
 			)}
 			{displayTagMessage ? (
 				<UI.WarningMessage>
