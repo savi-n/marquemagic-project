@@ -119,7 +119,7 @@ const BusinessAddressDetailsEdi = props => {
 			//   ]?.includes(CONST_SECTIONS.EXTRACTION_KEY_AADHAAR);
 			const newLoanAddressDetails = [
 				{
-					business_address_id: businessAddressIdAid1,
+					id: businessAddressIdAid1,
 					aid: 1,
 					line1: formState?.values?.operating_address1 || '',
 					line2: formState?.values?.operating_address2 || '',
@@ -143,7 +143,7 @@ const BusinessAddressDetailsEdi = props => {
 						CONST.REGISTERED_ADDRESS_PREFFERED_MAILING_CHECKBOX
 							? 'Yes'
 							: 'No',
-					business_address_id: businessAddressIdAid2,
+					id: businessAddressIdAid2,
 					aid: 2,
 					line1: formState?.values?.registered_address1 || '',
 					line2: formState?.values?.registered_address2 || '',
@@ -236,27 +236,31 @@ const BusinessAddressDetailsEdi = props => {
 			if (isTestMode && CONST.initialFormState?.[field?.name]) {
 				return CONST.initialFormState?.[field?.name];
 			}
+			const registeredAddress=sectionData?.address?.filter((item)=>{
+				return item.aid===2
+			})
+			const prefferedAddress=sectionData?.address?.filter((item)=>{
+				return item.aid===1
+			})
 			// -- TEST MODE
 			// Baas!
 			const preData = {
-				registered_address1: sectionData?.address?.[1]?.line1,
-				registered_address2: sectionData?.address?.[1]?.line2,
-				registered_address3: sectionData?.address?.[1]?.locality,
-				registered_pin_code: sectionData?.address?.[1]?.pincode,
-				registered_city: sectionData?.address?.[1]?.city,
-				registered_state: sectionData?.address?.[1]?.state,
+				registered_address1: registeredAddress?.[0]?.line1,
+				registered_address2: registeredAddress?.[0]?.line2,
+				registered_address3: registeredAddress?.[0]?.locality,
+				registered_pin_code: registeredAddress?.[0]?.pincode,
+				registered_city: registeredAddress?.[0]?.city,
+				registered_state: registeredAddress?.[0]?.state,
 				registered_residential_type:
-					sectionData?.address?.[1]?.residential_type,
-				registered_preferred_mailing_address_checkbox:
-					sectionData?.address?.[1]?.preferredMAilingAddress === 'Yes',
+					registeredAddress?.[0]?.residential_type,
 
-				operating_address1: sectionData?.address?.[0]?.line1,
-				operating_address2: sectionData?.address?.[0]?.line2,
-				operating_address3: sectionData?.address?.[0]?.locality,
-				operating_pin_code: sectionData?.address?.[0]?.pincode,
-				operating_city: sectionData?.address?.[0]?.city,
-				operating_state: sectionData?.address?.[0]?.state,
-				operating_residential_type: sectionData?.address?.[0]?.residential_type,
+				operating_address1: prefferedAddress?.[0]?.line1,
+				operating_address2: prefferedAddress?.[0]?.line2,
+				operating_address3: prefferedAddress?.[0]?.locality,
+				operating_pin_code: prefferedAddress?.[0]?.pincode,
+				operating_city: prefferedAddress?.[0]?.city,
+				operating_state: prefferedAddress?.[0]?.state,
+				operating_residential_type: prefferedAddress?.[0]?.residential_type,
 			};
 			return preData?.[field?.name] || field?.value || '';
 		} catch (error) {
@@ -293,14 +297,18 @@ const BusinessAddressDetailsEdi = props => {
 				});
 
 				if (
-					fetchRes?.data?.data?.address?.[0]?.preferred_mailing_address ===
+				fetchRes?.data?.data?.address?.filter(
+						address => address.aid === 1
+					)?.[0]?.preferred_mailing_address ===
 					'Yes'
 				) {
 					setPreferredMAilingAddress(
 						CONST.OPERATING_ADDRESS_PREFFERED_MAILING_CHECKBOX
 					);
 				} else if (
-					fetchRes?.data?.data?.address?.[1]?.preferred_mailing_address ===
+					fetchRes?.data?.data?.address?.filter(
+						address => address.aid === 2
+					)?.[0]?.preferred_mailing_address ===
 					'Yes'
 				) {
 					setPreferredMAilingAddress(
