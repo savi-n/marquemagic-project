@@ -56,6 +56,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 	const [selectedDedupeData, setSelectedDedupeData] = useState({});
 	const [subProduct, setSubProduct] = useState({});
+	const [tempProduct, setTempProduct] = useState({});
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -75,6 +76,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const redirectToProductPage = (productForModal = product) => {
+		console.log(
+			'🚀 ~ file: Card.js:79 ~ redirectToProductPage ~ productForModal:',
+			productForModal
+		);
 		// sessionStorage.clear();
 		const params = queryString.parse(window.location.search);
 		let redirectURL = `/nconboarding/applyloan/product/${btoa(
@@ -109,7 +114,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			edit: true,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			product?.id
+			tempProduct?.id || product?.id
 		)}?token=${encryptReq(editLoanRedirectObject)}`;
 		// console.log('redirectToProductPageInEditMode-obj-', {
 		// 	editLoanRedirectObject,
@@ -165,12 +170,18 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				}
 			} else {
 				// fetch api call for dedupe existing user
+				{
+					console.log(tempProduct);
+				}
 				try {
 					const reqBody = {
 						customer_id: customerId,
 						white_label_id: whiteLabelId,
 						businesstype: customerDetailsFormData?.businesstype || '',
 						loan_product_id:
+							tempProduct?.product_id?.[
+								customerDetailsFormData?.businesstype
+							] ||
 							product?.product_id?.[customerDetailsFormData?.businesstype] ||
 							'',
 						isApplicant: true, //implemented based on savitha's changes - bad practice
@@ -178,6 +189,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					const verifyData = await axios.post(
 						selectedDedupeData?.verify,
 						reqBody
+					);
+					console.log(
+						'🚀 ~ file: Card.js:193 ~ onProceedSelectCustomer ~ verifyData:',
+						verifyData
 					);
 
 					// console.log({ verifyData });
@@ -203,10 +218,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	return (
 		<UI.Wrapper>
 			<UI.ImgDiv>
-				<UI.Img src={product.url} alt={product.name} />
+				<UI.Img src={product?.url} alt={product?.name} />
 				<UI.ImgSelectProduct src={imgSelectProduct} alt='product' />
 			</UI.ImgDiv>
-			<UI.ProductName>{product.name}</UI.ProductName>
+			<UI.ProductName>{product?.name}</UI.ProductName>
 			{/* <ButtonBox> */}
 			<UI.ButtonWrapper>
 				<Button
@@ -281,7 +296,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 								setGettingGeoLocation(false);
 							}
 						}
-						// if (product.loan_request_type === 2) {
+						// if (product?.loan_request_type === 2) {
 						if (add) {
 							setAddedProduct(product);
 							setAddProduct(false);
@@ -310,7 +325,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						// clearFormData();
 						// resetUserDetails();
 						// removeAllLoanDocuments();
-						// !add ? handleClick(e, product.id) : setAddedProduct(product);
+						// !add ? handleClick(e, product?.id) : setAddedProduct(product);
 						// setAddProduct && setAddProduct(false);
 					}}
 				>
@@ -318,7 +333,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				</Button>
 				{/* {add ? 'Add Loan' : 'Get Loan'} */}
 				{/* </Button> */}
-				<UI.Description>{product.description}</UI.Description>
+				<UI.Description>{product?.description}</UI.Description>
 			</UI.ButtonWrapper>
 			<Modal
 				show={isSubProductModalOpen}
@@ -388,6 +403,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					selectedDedupeData={selectedDedupeData}
 					setSelectedDedupeData={setSelectedDedupeData}
 					subProduct={subProduct}
+					setTempProduct={setTempProduct}
 				/>
 			)}
 			{isCustomerListModalOpen && (
@@ -397,6 +413,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						setIsCustomerDetailsFormModalOpen(false);
 						setIsCustomerListModalOpen(false);
 						setSelectedCustomer(null);
+						// setTempProduct({});
 						// setCustomerDetailsFormData(null);
 						// setSelectedDedupeData({});
 					}}
