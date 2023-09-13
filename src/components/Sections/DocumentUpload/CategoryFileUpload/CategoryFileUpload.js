@@ -33,7 +33,7 @@ import * as CONST_SECTION from 'components/Sections/const';
 import * as API from '_config/app.config';
 import * as UI from './ui';
 import * as CONST from './const';
-import { validateFileUpload } from 'utils/helperFunctions';
+import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import { useToasts } from 'components/Toast/ToastProvider';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
@@ -55,17 +55,6 @@ const CategoryFileUpload = props => {
 	const { newRequest } = useFetch();
 	const dispatch = useDispatch();
 	const { addToast } = useToasts();
-	const maxUploadSize =
-		JSON.parse(
-			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
-		)?.document_file_limit &&
-		JSON.parse(
-			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
-		)?.document_file_limit.length > 0
-			? JSON.parse(
-					JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
-			  )?.document_file_limit[0]?.max_file_size
-			: null;
 
 	const id = uuidv4();
 

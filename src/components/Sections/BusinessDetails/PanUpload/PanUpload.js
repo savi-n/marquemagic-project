@@ -29,7 +29,7 @@ import * as API from '_config/app.config';
 import { UDYAM_REGEX } from '_config/app.config';
 import * as UI from './ui';
 import moment from 'moment';
-import { validateFileUpload } from 'utils/helperFunctions';
+import { maxUploadSize, validateFileUpload } from 'utils/helperFunctions';
 import TooltipImage from 'components/Global/Tooltip';
 import infoIcon from 'assets/icons/info-icon.png';
 
@@ -71,17 +71,6 @@ const PanUpload = props => {
 	const { addToast } = useToasts();
 	const panExtractionData = uploadedFile?.panExtractionData || {};
 	const [udyamErrorMessage, setUdyamErrorMessage] = useState('');
-	const maxUploadSize =
-		JSON.parse(
-			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
-		)?.document_file_limit &&
-		JSON.parse(
-			JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
-		)?.document_file_limit.length > 0
-			? JSON.parse(
-					JSON.parse(sessionStorage.getItem('permission'))?.document_mapping
-			  )?.document_file_limit[0]?.max_file_size
-			: null;
 
 	// called for roc starts
 	const { getRootProps, getInputProps } = useDropzone({
