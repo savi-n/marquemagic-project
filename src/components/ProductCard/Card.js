@@ -56,7 +56,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 	const [customerDetailsFormData, setCustomerDetailsFormData] = useState(null);
 	const [selectedDedupeData, setSelectedDedupeData] = useState({});
 	const [subProduct, setSubProduct] = useState({});
-	const [tempProduct, setTempProduct] = useState({});
+	const [productModalData, setProductModalData] = useState({});
 
 	// const handleClick = (e, id) => {
 	// 	e.preventDefault();
@@ -114,7 +114,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 			edit: true,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
-			tempProduct?.id || product?.id
+			productModalData?.id || product?.id
 		)}?token=${encryptReq(editLoanRedirectObject)}`;
 		// console.log('redirectToProductPageInEditMode-obj-', {
 		// 	editLoanRedirectObject,
@@ -176,7 +176,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						white_label_id: whiteLabelId,
 						businesstype: customerDetailsFormData?.businesstype || '',
 						loan_product_id:
-							tempProduct?.product_id?.[
+							productModalData?.product_id?.[
 								customerDetailsFormData?.businesstype
 							] ||
 							product?.product_id?.[customerDetailsFormData?.businesstype] ||
@@ -400,7 +400,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					selectedDedupeData={selectedDedupeData}
 					setSelectedDedupeData={setSelectedDedupeData}
 					subProduct={subProduct}
-					setTempProduct={setTempProduct}
+					setProductModalData={setProductModalData}
 				/>
 			)}
 			{isCustomerListModalOpen && (

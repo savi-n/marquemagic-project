@@ -667,9 +667,6 @@ const BusinessDetails = props => {
 				// industry_type:
 				// sectionData?.business_details?.businessindustry?.IndustryName || '',
 				// 	sectionData?.business_details?.businessindustry || '',
-
-				sub_industry_type:
-					sectionData?.business_details?.businessindustry?.id || '',
 				businesspancardnumber:
 					sectionData?.business_details?.businesspancardnumber ||
 					dedupeData?.pan_number,
