@@ -121,7 +121,7 @@ const EmploymentDetails = () => {
 		};
 		fetchMainCompOptions();
 	}, [selectedSectionId]);
-	console.log(mainComponentOptions, 'main component options');
+	// console.log(mainComponentOptions, 'main component options');
 
 	const submitEmploymentDetails = async () => {
 		try {

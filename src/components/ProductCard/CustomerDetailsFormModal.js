@@ -25,19 +25,32 @@ const CustomerDetailsFormModal = props => {
 		setCustomerList,
 		setCustomerDetailsFormData,
 		setSelectedDedupeData,
+		subProduct = {},
+		setProductModalData,
 	} = props;
 	const { app } = useSelector(state => state);
 	const { permission, whiteLabelId } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
+	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
+
 	const { addToast } = useToasts();
+
+	const productForModal =
+		Object.keys(subProduct).length > 0 ? subProduct : product;
+
+	// console.log({
+	// 	subProduct,
+	// 	product,
+	// 	productForModal,
+	// });
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
 		dedupeApiData && Array.isArray(dedupeApiData)
 			? dedupeApiData?.filter(item => {
-					return item?.product_id?.includes(product?.id);
+					return item?.product_id?.includes(productForModal?.id);
 			  })?.[0] || {}
 			: {};
 	// console.log(
@@ -61,13 +74,22 @@ const CustomerDetailsFormModal = props => {
 		// step 1 - Api call for search api for dedupe
 		try {
 			dispatch(setDedupePrefilledValues(formState?.values));
+			// setProceedAsNewCustomer(false);
 			setFetchingCustomerDetails(true);
+
+			// console.log(
+			// 	'🚀 ~ file: CustomerDetailsFormModal.js:81 ~ handleProceed ~ productForModal:',
+			// 	productForModal
+			// );
+			setProductModalData(productForModal);
 			// console.log({ val: formState?.values });
 			const reqBody =
 				{
 					...formState?.values,
 					loan_product_id:
-						product?.product_id?.[formState?.values?.['businesstype']] || '',
+						productForModal?.product_id?.[
+							formState?.values?.['businesstype']
+						] || '',
 					white_label_id: whiteLabelId,
 					id_no: formState?.values?.['pan_no'],
 					customer_type: formState?.values['customer_type'],
@@ -84,13 +106,15 @@ const CustomerDetailsFormModal = props => {
 			if (apiUrl) {
 				const ddupeRes = await axios.post(apiUrl, reqBody);
 				// console.log('ddupeRes-', ddupeRes);
-				if (ddupeRes?.data.message === 'No data found') {
+				if (ddupeRes?.data.status === 'nok') {
 					addToast({
 						message:
+							ddupeRes?.data?.message ||
+							ddupeRes?.data?.Message ||
 							'No Customer data found, please press SKIP and proceed to enter details.',
 						type: 'error',
 					});
-
+					// setProceedAsNewCustomer(true);
 					return;
 				}
 				ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
@@ -122,7 +146,7 @@ const CustomerDetailsFormModal = props => {
 			<UI.ImgClose onClick={onClose} src={imgClose} alt='close' />
 			<UI.ResponsiveWrapper>
 				{/* {SAMPLE_JSON?.sub_sections?.map((sub_section, sectionIndex) => { */}
-				{product?.customer_details?.sub_sections?.map(
+				{productForModal?.customer_details?.sub_sections?.map(
 					(sub_section, sectionIndex) => {
 						return (
 							<React.Fragment
@@ -168,14 +192,15 @@ const CustomerDetailsFormModal = props => {
 				)}
 
 				<UI.CustomerDetailsFormModalFooter>
-					{product?.customer_details?.is_skip && (
+					{productForModal?.customer_details?.is_skip && (
 						<Button
 							disabled={fetchingCustomerDetails}
 							isLoader={fetchingCustomerDetails}
 							onClick={() => {
-								redirectToProductPage();
+								redirectToProductPage(productForModal);
 								dispatch(setDedupePrefilledValues(formState?.values));
 							}}
+							// name={proceedAsNewCustomer ? 'Proceed As New Customer' : 'Skip'}
 							name='Skip'
 						/>
 					)}
