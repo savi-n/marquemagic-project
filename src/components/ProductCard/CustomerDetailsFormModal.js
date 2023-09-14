@@ -11,6 +11,7 @@ import { isFieldValid } from 'utils/formatData';
 import imgClose from 'assets/icons/close_icon_grey-06.svg';
 import * as UI_SECTIONS from 'components/Sections/ui';
 import * as UI from './ui';
+import * as CONST from './const';
 import { useToasts } from '../Toast/ToastProvider';
 // import SAMPLE_JSON from './customerdetailsformsample.json';
 import { setDedupePrefilledValues } from 'store/applicationSlice';
@@ -27,6 +28,7 @@ const CustomerDetailsFormModal = props => {
 		setSelectedDedupeData,
 		subProduct = {},
 		setProductModalData,
+		redirectToProductPageInEditMode,
 	} = props;
 	const { app } = useSelector(state => state);
 	const { permission, whiteLabelId } = app;
@@ -83,6 +85,22 @@ const CustomerDetailsFormModal = props => {
 			// );
 			setProductModalData(productForModal);
 			// console.log({ val: formState?.values });
+			let apiUrl = '';
+
+			if (
+				formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
+				CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
+			) {
+				apiUrl = selectedDedupeData?.verify;
+			} else {
+				apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK;
+			}
+			// const apiUrl =
+			// 	formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
+			// 	CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.id_number
+			// 		? selectedDedupeData?.search_api
+			// 		: selectedDedupeData?.verify;
+
 			const reqBody =
 				{
 					...formState?.values,
@@ -97,30 +115,50 @@ const CustomerDetailsFormModal = props => {
 					mobile_num: formState?.values['mobile_no'],
 					dob: formState?.values['ddob'],
 					businesstype: formState?.values['businesstype'],
+					isApplicant: true, //implemented based on savitha's changes - bad practice
+					customer_id: formState?.values['customer_id'],
 				} || {};
 
 			setCustomerDetailsFormData(formState?.values || {});
 			// const ddupeRes = await axios.post(DDUPE_CHECK, reqBody);
-			const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
+			// const apiUrl = selectedDedupeData?.search_api || DDUPE_CHECK || '';
 
 			if (apiUrl) {
 				const ddupeRes = await axios.post(apiUrl, reqBody);
 				// console.log('ddupeRes-', ddupeRes);
-				if (ddupeRes?.data.status === 'nok') {
-					addToast({
-						message:
-							ddupeRes?.data?.message ||
-							ddupeRes?.data?.Message ||
-							'No Customer data found, please press SKIP and proceed to enter details.',
-						type: 'error',
-					});
-					// setProceedAsNewCustomer(true);
-					return;
-				}
-				ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
 
-				setIsCustomerListModalOpen(true);
-				onClose();
+				if (
+					formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
+					CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
+				) {
+					console.log({ ddupeRes }, ' fetch-called ---- if part');
+					if (ddupeRes?.data?.status === 'nok') {
+						addToast({
+							message:
+								ddupeRes?.data?.message ||
+								'No Customer Data Found Against The Provided Customer ID',
+							type: 'error',
+						});
+					}
+					redirectToProductPageInEditMode(ddupeRes?.data);
+				} else {
+					console.log({ ddupeRes }, 'search-called ---- else part');
+					if (ddupeRes?.data.status === 'nok') {
+						addToast({
+							message:
+								ddupeRes?.data?.message ||
+								ddupeRes?.data?.Message ||
+								'No Customer data found, please press SKIP and proceed to enter details.',
+							type: 'error',
+						});
+						// setProceedAsNewCustomer(true);
+						return;
+					}
+					ddupeRes && setCustomerList(ddupeRes?.data?.data || []);
+
+					setIsCustomerListModalOpen(true);
+					onClose();
+				}
 			}
 		} catch (e) {
 			console.error(e.message);
