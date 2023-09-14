@@ -131,7 +131,7 @@ const CustomerDetailsFormModal = props => {
 					formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
 					CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
 				) {
-					// console.log({ ddupeRes }, ' fetch-called ---- if part');
+					console.log({ ddupeRes }, ' fetch-called ---- if part');
 					if (ddupeRes?.data?.status === 'nok') {
 						addToast({
 							message:
@@ -142,7 +142,7 @@ const CustomerDetailsFormModal = props => {
 					}
 					redirectToProductPageInEditMode(ddupeRes?.data);
 				} else {
-					// console.log({ ddupeRes }, 'search-called ---- else part');
+					console.log({ ddupeRes }, 'search-called ---- else part');
 					if (ddupeRes?.data.status === 'nok') {
 						addToast({
 							message:
