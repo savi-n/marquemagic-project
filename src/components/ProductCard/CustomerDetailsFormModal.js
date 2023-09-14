@@ -139,6 +139,7 @@ const CustomerDetailsFormModal = props => {
 								'No Customer Data Found Against The Provided Customer ID',
 							type: 'error',
 						});
+						return;
 					}
 					redirectToProductPageInEditMode(ddupeRes?.data);
 				} else {
