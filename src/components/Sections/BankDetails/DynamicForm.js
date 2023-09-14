@@ -185,8 +185,8 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-					if (field.name === 'applicant') {
-						customFieldProps.options = applicantOptions;
+					if (field.name === CONST.APPLICANT_FEILD_NAME) {
+						customFieldProps.options = selectedDirectorOptions;
 					}
 					return (
 						<UI_SECTIONS.FieldWrapGrid key={`field-${fieldIndex}`}>
