@@ -384,11 +384,11 @@ const BusinessDetails = props => {
 		}
 	};
 
-	const selectedMainOptionId = allIndustriesOption?.filter(item => {
-		return (
-			item?.IndustryName === formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]
-		);
-	})?.[0]?.id;
+	// const selectedMainOptionId = allIndustriesOption?.filter(item => {
+	// 	return (
+	// 		item?.IndustryName === formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]
+	// 	);
+	// })?.[0]?.id;
 	// console.log(
 	// 	'🚀 ~ file: BusinessDetails.js:823 ~ currentId ~ currentId:',
 	// 	selectedMainOptionId
@@ -881,14 +881,14 @@ const BusinessDetails = props => {
 			sectionData?.business_details?.businessindustry.IndustryName;
 		// console.log(allIndustriesOption);
 		return allIndustriesOption.filter(
-			item => item.IndustryName === industryName
+			item => item?.IndustryName === industryName
 		)?.[0]?.id;
 	};
 
 	useEffect(() => {
 		const res = extractAndFormatSubOption();
 		setSubComponentOptions(res);
-		if (res?.length === 1 && res?.[0]?.value === '') {
+		if ((res?.length === 1 && res?.[0]?.value === '') || res.length === 0) {
 			setIsSubIndustryMandatory(false);
 		} else {
 			setIsSubIndustryMandatory(true);

@@ -32,3 +32,5 @@ export const initialFormState = {
 
 export const EMPLOYMENT_DETAILS_SECTION_ID = 'employment_details';
 export const ADDRESS_DETAILS_SUB_SECTION_ID = 'address_details';
+export const INDUSTRY_TYPE_FIELD_NAME = 'industry_type';
+export const SUB_INDUSTRY_TYPE_FIELD_NAME = 'sub_industry_type';
