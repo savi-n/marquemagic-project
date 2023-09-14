@@ -84,7 +84,7 @@ const CustomerDetailsFormModal = props => {
 			// 	productForModal
 			// );
 			setProductModalData(productForModal);
-			console.log({ val: formState?.values });
+			// console.log({ val: formState?.values });
 			let apiUrl = '';
 
 			if (
