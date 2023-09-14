@@ -26,6 +26,7 @@ const CustomerDetailsFormModal = props => {
 		setCustomerDetailsFormData,
 		setSelectedDedupeData,
 		subProduct = {},
+		setProductModalData,
 	} = props;
 	const { app } = useSelector(state => state);
 	const { permission, whiteLabelId } = app;
@@ -75,6 +76,12 @@ const CustomerDetailsFormModal = props => {
 			dispatch(setDedupePrefilledValues(formState?.values));
 			// setProceedAsNewCustomer(false);
 			setFetchingCustomerDetails(true);
+
+			// console.log(
+			// 	'🚀 ~ file: CustomerDetailsFormModal.js:81 ~ handleProceed ~ productForModal:',
+			// 	productForModal
+			// );
+			setProductModalData(productForModal);
 			// console.log({ val: formState?.values });
 			const reqBody =
 				{

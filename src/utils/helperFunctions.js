@@ -16,10 +16,11 @@ const formatOptionsKeys = {
 };
 
 export const fetchOptions = async data => {
-	const { fetchOptionsURL, sectionId } = data;
+	const { fetchOptionsURL, sectionId, setOriginalOptions = null } = data;
 	let formatedOptions;
 	try {
 		const resOptions = await axios.get(fetchOptionsURL);
+		setOriginalOptions && setOriginalOptions(resOptions?.data?.data);
 
 		formatedOptions = resOptions?.data?.data?.map(option => {
 			return {
@@ -33,40 +34,39 @@ export const fetchOptions = async data => {
 	return formatedOptions;
 };
 
-export const fetchSubCompOptions = async data => {
-	const { reqURL, sectionId, selectedOption, value } = data;
-	if (reqURL) {
-		try {
-			const dynamicKeyName = formatOptionsKeys?.[sectionId]?.['queryKey'];
-			const selectedValue = selectedOption?.value || value;
-			const fetchRes = await axios.get(reqURL, {
-				params: {
-					[dynamicKeyName]: selectedValue,
-				},
-			});
-			if (fetchRes?.data?.status === 'ok') {
-				let newOptionsList = [];
-				// we should get all the options in an option array
-				fetchRes.data.options = fetchRes?.data?.data || fetchRes?.data?.message;
-				console.log({ res: fetchRes?.data?.options });
-				fetchRes?.data?.options?.length === 0
-					? (newOptionsList = [{ value: '', name: '' }])
-					: fetchRes?.data?.options?.map(subOption => {
-							newOptionsList.push({
-								value: `${subOption?.id}`,
-								name: `${subOption?.subindustry ||
-									subOption?.IndustryName ||
-									subOption.name}`,
-							});
-							return null;
-					  });
-				return newOptionsList;
-			}
-		} catch (err) {
-			console.error(err);
-		}
-	}
-};
+// export const fetchSubCompOptions = async data => {
+// 	const { reqURL, sectionId, selectedOption, value } = data;
+// 	if (reqURL) {
+// 		try {
+// 			const dynamicKeyName = formatOptionsKeys?.[sectionId]?.['queryKey'];
+// 			const selectedValue = selectedOption?.value || value;
+// 			const fetchRes = await axios.get(reqURL, {
+// 				params: {
+// 					[dynamicKeyName]: selectedValue,
+// 				},
+// 			});
+// 			// if (fetchRes?.data?.status === 'ok') {
+// 			let newOptionsList = [];
+// 			// we should get all the options in an option array
+// 			fetchRes.data.options = fetchRes?.data?.data || fetchRes?.data?.message;
+// 			fetchRes?.data?.options?.length === 0 || fetchRes?.data?.status === 'nok'
+// 				? (newOptionsList = [{ value: '', name: '' }])
+// 				: fetchRes?.data?.options?.map(subOption => {
+// 						newOptionsList.push({
+// 							value: `${subOption?.id}`,
+// 							name: `${subOption?.subindustry ||
+// 								subOption?.IndustryName ||
+// 								subOption.name}`,
+// 						});
+// 						return null;
+// 				  });
+// 			return newOptionsList;
+// 			// }
+// 		} catch (err) {
+// 			console.error(err);
+// 		}
+// 	}
+// };
 
 export const maxUploadSize =
 	JSON.parse(sessionStorage.getItem('permission'))?.document_mapping &&
@@ -102,4 +102,23 @@ export const validateFileUpload = files => {
 		});
 	}
 	return respFile;
+};
+
+export const clearDependentFields = data => {
+	const {
+		formState,
+		field_name,
+		subComponentOptions,
+		onChangeFormStateField,
+	} = data;
+	const isPresentInSubOptions =
+		subComponentOptions?.filter(
+			option => option.value === `${formState.values[field_name]}`
+		).length > 0;
+
+	if (subComponentOptions?.length > 0 && !isPresentInSubOptions)
+		onChangeFormStateField({
+			name: field_name,
+			value: '',
+		});
 };
