@@ -185,7 +185,7 @@ const DynamicForm = props => {
 					if (isViewLoan || isViewLoanApp) {
 						customFieldProps.disabled = true;
 					}
-					if (field.name === CONST.APPLICANT_FEILD_NAME) {
+					if (field.name === CONST.APPLICANT_FIELD_NAME) {
 						customFieldProps.options = selectedDirectorOptions;
 					}
 					return (
