@@ -579,7 +579,7 @@ const AddressProofUpload = props => {
 			?.filter(item => item.status !== 'fail')
 			.map(fileItem => fileItem.file);
 
-		console.log(validatedResp, 'validate resp');
+		// console.log(validatedResp, 'validate resp');
 
 		const erroredFiles = validatedResp?.filter(item => item.status === 'fail');
 
@@ -909,7 +909,7 @@ const AddressProofUpload = props => {
 	) {
 		customFieldProps.disabled = true;
 	}
-	console.log(cacheDocumentsTemp, 'cache doc temp');
+	// console.log(cacheDocumentsTemp, 'cache doc temp');
 
 	return (
 		<UI.Wrapper>

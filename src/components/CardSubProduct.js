@@ -108,6 +108,8 @@ export default function CardSubProduct({
 	add,
 	setAddedProduct,
 	setAddProduct,
+	setSubProduct,
+	setIsCustomerDetailsFormModalOpen,
 }) {
 	// const {
 	// 	state: { basePageUrl },
@@ -165,7 +167,10 @@ export default function CardSubProduct({
 					onClick={async e => {
 						dispatch(reInitializeApplicationSlice());
 						dispatch(reInitializeDirectorsSlice());
-						// setSubProduct(true)
+						setSubProduct(product);
+						if (product?.customer_details) {
+							return setIsCustomerDetailsFormModalOpen(true);
+						}
 						if (!add) {
 							try {
 								if (isGeoTaggingEnabled) {
