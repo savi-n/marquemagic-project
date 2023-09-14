@@ -39,11 +39,11 @@ const CustomerDetailsFormModal = props => {
 	const productForModal =
 		Object.keys(subProduct).length > 0 ? subProduct : product;
 
-	console.log({
-		subProduct,
-		product,
-		productForModal,
-	});
+	// console.log({
+	// 	subProduct,
+	// 	product,
+	// 	productForModal,
+	// });
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -77,10 +77,10 @@ const CustomerDetailsFormModal = props => {
 			// setProceedAsNewCustomer(false);
 			setFetchingCustomerDetails(true);
 
-			console.log(
-				'🚀 ~ file: CustomerDetailsFormModal.js:81 ~ handleProceed ~ productForModal:',
-				productForModal
-			);
+			// console.log(
+			// 	'🚀 ~ file: CustomerDetailsFormModal.js:81 ~ handleProceed ~ productForModal:',
+			// 	productForModal
+			// );
 			setTempProduct(productForModal);
 			// console.log({ val: formState?.values });
 			const reqBody =
@@ -197,7 +197,6 @@ const CustomerDetailsFormModal = props => {
 							disabled={fetchingCustomerDetails}
 							isLoader={fetchingCustomerDetails}
 							onClick={() => {
-								console.log(productForModal, 'product for modal');
 								redirectToProductPage(productForModal);
 								dispatch(setDedupePrefilledValues(formState?.values));
 							}}

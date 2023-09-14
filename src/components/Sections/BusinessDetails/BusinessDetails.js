@@ -127,6 +127,7 @@ const BusinessDetails = props => {
 	const [subComponentOptions, setSubComponentOptions] = useState([]);
 	const [allIndustriesOption, setAllIndustriesOption] = useState([]);
 	// const [selectedMainOptionId, setSelectedMainOptionId] = useState('');
+	const [isSubIndustryMandatory, setIsSubIndustryMandatory] = useState(true);
 
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
@@ -401,6 +402,17 @@ const BusinessDetails = props => {
 			if (isTokenValid === false) return;
 			// call login craete user api only once while creating the loan
 			// TODO: varun do not call this api when RM is creating loan
+			if (
+				isSubIndustryMandatory &&
+				formState.values[CONST.SUB_INDUSTRY_TYPE_FIELD_NAME] === ''
+			) {
+				addToast({
+					message: 'Please Select Any Sub Industry Option And Proceed',
+					type: 'error',
+				});
+				return;
+			}
+
 			let newBorrowerUserId = '';
 			if (!isEditOrViewLoan && !borrowerUserId) {
 				const loginCreateUserReqBody = {
@@ -470,7 +482,7 @@ const BusinessDetails = props => {
 				buissnessDetailsReqBody.data.business_details.corporateid =
 					companyRocData?.CIN;
 
-			buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
+			// buissnessDetailsReqBody.data.business_details.industry_type = `${selectedMainOptionId}`;
 			const buissnessDetailsRes = await axios.post(
 				API.BUSINESS_DETIALS,
 				buissnessDetailsReqBody
@@ -652,8 +664,9 @@ const BusinessDetails = props => {
 				business_email: sectionData?.user_data?.email,
 				email: sectionData?.business_details?.business_email,
 				name: sectionData?.business_details?.first_name,
-				industry_type:
-					sectionData?.business_details?.businessindustry?.IndustryName || '',
+				// industry_type:
+				// sectionData?.business_details?.businessindustry?.IndustryName || '',
+				// 	sectionData?.business_details?.businessindustry || '',
 
 				sub_industry_type:
 					sectionData?.business_details?.businessindustry?.id || '',
@@ -666,6 +679,9 @@ const BusinessDetails = props => {
 					sectionData?.business_details?.businesstype ||
 					dedupeData?.businesstype ||
 					'',
+				sub_industry_type:
+					sectionData?.business_details?.businessindustry?.id || '',
+				industry_type: selectedIndustryFromGetResp() || '',
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
@@ -842,28 +858,49 @@ const BusinessDetails = props => {
 		fetchMainCompOptions();
 	}, [selectedSectionId]);
 
-	// useEffect(() => {
-	// 	console.log(
-	// 		allIndustriesOption,
-	// 		formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME],
-	// 		'all indus option'
-	// 	);
-	// 	const currentId = allIndustriesOption?.filter(item => {
-	// 		console.log(item);
-	// 		return (
-	// 			item?.IndustryName ===
-	// 			formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]
-	// 		);
-	// 	})?.[0]?.id;
-	// 	setSelectedMainOptionId(currentId);
-	// }, [formState?.values?.[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
-	// console.log(
-	// 	'🚀 ~ file: BusinessDetails.js:359 ~ BusinessDetails ~ selectedMainOptionId:',
-	// 	selectedMainOptionId
-	// );
+	const extractAndFormatSubOption = () => {
+		const extractedSubOptn = allIndustriesOption?.filter(industry => {
+			return (
+				`${industry.id}` ===
+				`${formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]}`
+			);
+		})?.[0]?.subindustry;
+
+		let newOptionsList = [];
+		extractedSubOptn?.length === 0
+			? (newOptionsList = [{ value: '', name: '' }])
+			: extractedSubOptn?.map(item => {
+					newOptionsList.push({
+						value: `${item.id}`,
+						name: `${item.subindustry}`,
+					});
+					return null;
+			  });
+		return newOptionsList;
+	};
+
+	const selectedIndustryFromGetResp = () => {
+		const industryName =
+			sectionData?.business_details?.businessindustry.IndustryName;
+		// console.log(allIndustriesOption);
+		return allIndustriesOption.filter(
+			item => item.IndustryName === industryName
+		)?.[0]?.id;
+	};
+
+	useEffect(() => {
+		const res = extractAndFormatSubOption();
+		setSubComponentOptions(res);
+		if (res?.length === 1 && res?.[0]?.value === '') {
+			setIsSubIndustryMandatory(false);
+		} else {
+			setIsSubIndustryMandatory(true);
+		}
+	}, [formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
 
 	useEffect(
 		() => {
+			// console.log(subComponentOptions);
 			clearDependentFields({
 				formState,
 				field_name: CONST.SUB_INDUSTRY_TYPE_FIELD_NAME,
@@ -874,6 +911,15 @@ const BusinessDetails = props => {
 		//eslint-disable-next-line
 		[JSON.stringify(subComponentOptions)]
 	);
+
+	// console.log({
+	// 	allIndustriesOption,
+	// 	mainComponentOptions,
+	// 	subComponentOptions,
+	// 	formValues: formState.values,
+	// 	isSubIndustryMandatory,
+	// 	random: selectedIndustryFromGetResp(),
+	// });
 
 	const ButtonProceed = (
 		<Button
@@ -1073,9 +1119,9 @@ const BusinessDetails = props => {
 										/* Starts : Here we will pass all the required props for the main and the sub-components */
 										if (field?.name === 'industry_type') {
 											customFieldProps.type = 'industryType';
-											customFieldProps.apiURL = SUB_INDUSTRY_FETCH;
+											// customFieldProps.apiURL = SUB_INDUSTRY_FETCH;
 											customFieldProps.mainComponentOptions = mainComponentOptions;
-											customFieldProps.setSubComponentOptions = setSubComponentOptions;
+											// customFieldProps.setSubComponentOptions = setSubComponentOptions;
 											customFieldProps.sectionId = selectedSectionId;
 											customFieldProps.errMessage =
 												'Searched Option Not Found.';

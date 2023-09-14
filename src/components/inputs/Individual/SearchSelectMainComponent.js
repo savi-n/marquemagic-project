@@ -1,15 +1,15 @@
 /* Populate search of bank with list of banks */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import SearchSelect from '../../SearchSelect';
 // import axios from 'axios';
-import { fetchSubCompOptions } from 'utils/helperFunctions';
+// import { fetchSubCompOptions } from 'utils/helperFunctions';
 export default function SearchSelectMainComponent(props) {
 	const { field, onSelectOptionCallback, value } = props;
 	const {
-		apiURL,
+		// apiURL,
 		mainComponentOptions,
-		setSubComponentOptions,
-		sectionId,
+		// setSubComponentOptions,
+		// sectionId,
 		errMessage,
 	} = field;
 	const [selectedOption, setSelectedOption] = useState(value);
@@ -52,28 +52,28 @@ export default function SearchSelectMainComponent(props) {
 	// useEffect(async () => {
 	// 	setOptions(mainComponentOptions);
 	// }, [mainComponentOptions.length]);
-	const fetchSubComponents = async () => {
-		try {
-			if (!value) return;
-			if (apiURL) {
-				const subOptions = await fetchSubCompOptions({
-					reqURL: apiURL,
-					sectionId: sectionId,
-					selectedOption,
-					value,
-				});
-				console.log({ subOptions });
-				setSubComponentOptions(subOptions);
-			}
-		} catch (error) {
-			console.error(error, 'Searchselect-sub-component-fetchSubCompoents');
-		}
-	};
-	/* Fetching the sub-component options starts */
-	useEffect(() => {
-		fetchSubComponents();
-		//eslint-disable-next-line
-	}, [selectedOption]);
+	// const fetchSubComponents = async () => {
+	// 	try {
+	// 		if (!value) return;
+	// 		if (apiURL) {
+	// 			const subOptions = await fetchSubCompOptions({
+	// 				reqURL: apiURL,
+	// 				sectionId: sectionId,
+	// 				selectedOption,
+	// 				value,
+	// 			});
+	// 			console.log({ subOptions });
+	// 			setSubComponentOptions(subOptions);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error(error, 'Searchselect-sub-component-fetchSubCompoents');
+	// 	}
+	// };
+	// /* Fetching the sub-component options starts */
+	// useEffect(() => {
+	// 	fetchSubComponents();
+	// 	//eslint-disable-next-line
+	// }, [selectedOption]);
 
 	return (
 		<SearchSelect

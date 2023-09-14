@@ -76,10 +76,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const redirectToProductPage = (productForModal = product) => {
-		console.log(
-			'🚀 ~ file: Card.js:79 ~ redirectToProductPage ~ productForModal:',
-			productForModal
-		);
+		// console.log(
+		// 	'🚀 ~ file: Card.js:79 ~ redirectToProductPage ~ productForModal:',
+		// 	productForModal
+		// );
 		// sessionStorage.clear();
 		const params = queryString.parse(window.location.search);
 		let redirectURL = `/nconboarding/applyloan/product/${btoa(
@@ -170,9 +170,6 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				}
 			} else {
 				// fetch api call for dedupe existing user
-				{
-					console.log(tempProduct);
-				}
 				try {
 					const reqBody = {
 						customer_id: customerId,
@@ -190,10 +187,10 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 						selectedDedupeData?.verify,
 						reqBody
 					);
-					console.log(
-						'🚀 ~ file: Card.js:193 ~ onProceedSelectCustomer ~ verifyData:',
-						verifyData
-					);
+					// console.log(
+					// 	'🚀 ~ file: Card.js:193 ~ onProceedSelectCustomer ~ verifyData:',
+					// 	verifyData
+					// );
 
 					// console.log({ verifyData });
 					if (verifyData?.data?.status === 'ok') {

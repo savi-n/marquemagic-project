@@ -25,7 +25,7 @@ export const fetchOptions = async data => {
 		formatedOptions = resOptions?.data?.data?.map(option => {
 			return {
 				name: option?.[formatOptionsKeys?.[sectionId]?.['name']],
-				value: `${option?.[formatOptionsKeys?.[sectionId]?.['name']]}`,
+				value: `${option?.[formatOptionsKeys?.[sectionId]?.['id']]}`,
 			};
 		});
 	} catch (error) {
@@ -34,39 +34,39 @@ export const fetchOptions = async data => {
 	return formatedOptions;
 };
 
-export const fetchSubCompOptions = async data => {
-	const { reqURL, sectionId, selectedOption, value } = data;
-	if (reqURL) {
-		try {
-			const dynamicKeyName = formatOptionsKeys?.[sectionId]?.['queryKey'];
-			const selectedValue = selectedOption?.value || value;
-			const fetchRes = await axios.get(reqURL, {
-				params: {
-					[dynamicKeyName]: selectedValue,
-				},
-			});
-			// if (fetchRes?.data?.status === 'ok') {
-			let newOptionsList = [];
-			// we should get all the options in an option array
-			fetchRes.data.options = fetchRes?.data?.data || fetchRes?.data?.message;
-			fetchRes?.data?.options?.length === 0 || fetchRes?.data?.status === 'nok'
-				? (newOptionsList = [{ value: '', name: '' }])
-				: fetchRes?.data?.options?.map(subOption => {
-						newOptionsList.push({
-							value: `${subOption?.id}`,
-							name: `${subOption?.subindustry ||
-								subOption?.IndustryName ||
-								subOption.name}`,
-						});
-						return null;
-				  });
-			return newOptionsList;
-			// }
-		} catch (err) {
-			console.error(err);
-		}
-	}
-};
+// export const fetchSubCompOptions = async data => {
+// 	const { reqURL, sectionId, selectedOption, value } = data;
+// 	if (reqURL) {
+// 		try {
+// 			const dynamicKeyName = formatOptionsKeys?.[sectionId]?.['queryKey'];
+// 			const selectedValue = selectedOption?.value || value;
+// 			const fetchRes = await axios.get(reqURL, {
+// 				params: {
+// 					[dynamicKeyName]: selectedValue,
+// 				},
+// 			});
+// 			// if (fetchRes?.data?.status === 'ok') {
+// 			let newOptionsList = [];
+// 			// we should get all the options in an option array
+// 			fetchRes.data.options = fetchRes?.data?.data || fetchRes?.data?.message;
+// 			fetchRes?.data?.options?.length === 0 || fetchRes?.data?.status === 'nok'
+// 				? (newOptionsList = [{ value: '', name: '' }])
+// 				: fetchRes?.data?.options?.map(subOption => {
+// 						newOptionsList.push({
+// 							value: `${subOption?.id}`,
+// 							name: `${subOption?.subindustry ||
+// 								subOption?.IndustryName ||
+// 								subOption.name}`,
+// 						});
+// 						return null;
+// 				  });
+// 			return newOptionsList;
+// 			// }
+// 		} catch (err) {
+// 			console.error(err);
+// 		}
+// 	}
+// };
 
 export const maxUploadSize =
 	JSON.parse(sessionStorage.getItem('permission'))?.document_mapping &&
