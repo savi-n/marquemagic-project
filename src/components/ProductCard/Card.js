@@ -148,7 +148,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					const sendOtpRes = await axios.post(
 						selectedDedupeData?.generate_otp,
 						{
-							customerId,
+							customer_id: customerId,
 						}
 					);
 
