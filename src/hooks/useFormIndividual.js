@@ -19,6 +19,7 @@ import moment from 'moment';
 import { UDYAM_REGEX } from '_config/app.config';
 import SearchSelectMainComponent from 'components/inputs/Individual/SearchSelectMainComponent';
 import SearchSelectSubComponent from 'components/inputs/Individual/SearchSelectSubComponent';
+import CheckBox from 'components/inputs/CheckBox';
 
 export const ComboBoxContext = createContext();
 function required(value) {
@@ -748,6 +749,13 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 					// value={patternSynthesize(fieldProps.value, field.pattern, field.name)}
 				/>
 			);
+		}
+		case 'checkbox':{
+			return(
+				<CheckBox
+				{...{...field,...fieldProps}}
+				/>
+			)
 		}
 		default: {
 			return (
