@@ -23,7 +23,7 @@ export const getFlowData = id => {
 		// console.log('formReducer-getFlowData-', { formReducer });
 		return formReducer?.user?.[id] || {};
 	} catch (error) {
-		console.error('error-localStorage-getFlowData-', {
+		console.error('error-sessionStorage-getFlowData-', {
 			error,
 		});
 		return {};

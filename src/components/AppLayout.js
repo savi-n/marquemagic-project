@@ -17,6 +17,7 @@ import {
 	setPermission,
 	setUserToken,
 	setSelectedSectionId,
+	resetEditOrViewLoan,
 } from 'store/appSlice';
 import { setAddNewDirectorKey } from 'store/directorsSlice';
 import {
@@ -94,53 +95,16 @@ const AppLayout = () => {
 		dispatch(setAddNewDirectorKey(''));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
 	useEffect(() => {
-		async function fetchData() {
-			try {
-				const res = await newRequest(CLIENT_VERIFY_URL, {
-					method: 'POST',
-					data: {
-						email: CLIENT_EMAIL_ID,
-						white_label_id: response.permission.id,
-					},
-				});
-
-				const clientId = res.data;
-				dispatch(appSetClientToken(clientId.token));
-				if (clientId?.statusCode === 200) {
-					const bankToken = await newRequest(
-						BANK_TOKEN_API,
-						{
-							method: 'POST',
-							data: {
-								type: 'BANK',
-								linkRequired: false,
-								isEncryption: false,
-							},
-						},
-						{
-							Authorization: clientId.token,
-						}
-					);
-
-					if (bankToken?.data?.statusCode === NC_STATUS_CODE.NC200) {
-						setClientToken(clientId.token);
-						setBankToken(
-							bankToken?.data.generated_key,
-							bankToken?.data.request_id
-						);
-					}
-				}
-			} catch (error) {
-				console.error('ERROR-CLIENT_VERIFY_URL-', error);
-				return;
-			}
+		const initalFunc = async () => {
 			// when user comes for create / editing this loan from ui-ux
 			const params = queryString.parse(window.location.search);
 			const transactionId = params?.transaction_id;
 			if (transactionId) {
 				handleFederalBankRequest(transactionId);
 			}
+			dispatch(resetEditOrViewLoan());
 			let decryptedToken = {};
 			decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 			const isEditLoan = decryptedToken?.edit ? true : false;
@@ -194,8 +158,10 @@ const AppLayout = () => {
 			} catch (error) {
 				console.error('error-userdetails-', error);
 			}
-			setLoading(false);
-		}
+		};
+		initalFunc();
+	}, []);
+	useEffect(() => {
 		if (response) {
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);
 			dispatch(appSetWhiteLabelId(response?.permission?.id));
@@ -213,6 +179,50 @@ const AppLayout = () => {
 		}
 		// eslint-disable-next-line
 	}, [response]);
+
+	async function fetchData() {
+		try {
+			const res = await newRequest(CLIENT_VERIFY_URL, {
+				method: 'POST',
+				data: {
+					email: CLIENT_EMAIL_ID,
+					white_label_id: response.permission.id,
+				},
+			});
+
+			const clientId = res.data;
+			dispatch(appSetClientToken(clientId.token));
+			if (clientId?.statusCode === 200) {
+				const bankToken = await newRequest(
+					BANK_TOKEN_API,
+					{
+						method: 'POST',
+						data: {
+							type: 'BANK',
+							linkRequired: false,
+							isEncryption: false,
+						},
+					},
+					{
+						Authorization: clientId.token,
+					}
+				);
+
+				if (bankToken?.data?.statusCode === NC_STATUS_CODE.NC200) {
+					setClientToken(clientId.token);
+					setBankToken(
+						bankToken?.data.generated_key,
+						bankToken?.data.request_id
+					);
+				}
+			}
+		} catch (error) {
+			console.error('ERROR-CLIENT_VERIFY_URL-', error);
+			return;
+		}
+
+		setLoading(false);
+	}
 
 	const handleFederalBankRequest = async transactionId => {
 		try {

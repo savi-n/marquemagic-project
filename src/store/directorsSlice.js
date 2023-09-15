@@ -207,7 +207,7 @@ export const directorsSlice = createSlice({
 					currentStateaddNewDirectorKey: state.addNewDirectorKey,
 					state,
 				});
-				const prevDirector = newDirectors[state.selectedDirectorId];
+				const prevDirector = newDirectors[prevState.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
 				console.log('else-if-directorid ????????????????????????????', {

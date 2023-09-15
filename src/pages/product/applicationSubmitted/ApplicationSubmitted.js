@@ -11,7 +11,7 @@ import { func, object, oneOfType, string } from 'prop-types';
 import img1 from 'assets/images/v3.png';
 import img2 from 'assets/images/v4.png';
 import { CaseContext } from 'reducer/caseReducer';
-const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
+const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 
 const Colom1 = styled.div`
 	flex: 1;
