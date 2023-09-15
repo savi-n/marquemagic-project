@@ -124,7 +124,7 @@ const BusinessAddressDetailsEdi = props => {
 					line1: formState?.values?.operating_address1 || '',
 					line2: formState?.values?.operating_address2 || '',
 					locality:
-						formState?.values?.address3 ||
+						formState?.values?.operating_address3 ||
 						formState?.values?.operating_city ||
 						'',
 					pincode: formState?.values?.operating_pin_code || '',
