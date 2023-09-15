@@ -19,7 +19,7 @@ import {
 	setSelectedSectionId,
 	resetEditOrViewLoan,
 } from 'store/appSlice';
-import { setAddNewDirectorKey } from 'store/directorsSlice';
+import { resetDirectors, setAddNewDirectorKey } from 'store/directorsSlice';
 import {
 	// setGeoLocation,
 	setLoanIds,
@@ -105,6 +105,7 @@ const AppLayout = () => {
 				handleFederalBankRequest(transactionId);
 			}
 			dispatch(resetEditOrViewLoan());
+			dispatch(resetDirectors());
 			let decryptedToken = {};
 			decryptedToken = decryptRes(params?.token?.replaceAll(' ', '+'));
 			const isEditLoan = decryptedToken?.edit ? true : false;
