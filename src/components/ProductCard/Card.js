@@ -401,6 +401,7 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					setSelectedDedupeData={setSelectedDedupeData}
 					subProduct={subProduct}
 					setProductModalData={setProductModalData}
+					redirectToProductPageInEditMode={redirectToProductPageInEditMode}
 				/>
 			)}
 			{isCustomerListModalOpen && (
