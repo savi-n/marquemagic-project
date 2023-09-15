@@ -201,12 +201,18 @@ export const directorsSlice = createSlice({
 			// console.log('PrevState', !prevState);
 			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
+				console.log('if-prev-directorid !!!!!!!!!!!!!!!!!!!!!!');
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
+				console.log('else-if-directorid ????????????????????????????');
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
+				console.log(
+					'else-if-directorid-!prevState.selectedDirectorId--------------------'
+				);
+
 				state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
 				// if (
 				// 	isSelectedProductTypeBusiness &&
