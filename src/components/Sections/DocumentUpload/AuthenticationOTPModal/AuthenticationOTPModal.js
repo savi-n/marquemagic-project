@@ -115,7 +115,7 @@ const AuthenticationOTPModal = props => {
 	);
 	const [verifyingOtp, setVerifyingOtp] = useState(false);
 	const [, setIsResentOtp] = useState(false);
-	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
+	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 	const maskedContactNo = `XXXXX${setContactNo[setContactNo?.length - 5]}${
 		setContactNo[setContactNo?.length - 4]
 	}${setContactNo[setContactNo?.length - 3]}${
