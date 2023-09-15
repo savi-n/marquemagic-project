@@ -45,7 +45,7 @@ const SideNav = props => {
 	const selectedDirector = directors?.[selectedDirectorId] || {};
 	const { addToast } = useToasts();
 	const isApplicant = applicantCoApplicants?.isApplicant;
-	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
+	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 	// console.log(isApplicant);
 
 	const {

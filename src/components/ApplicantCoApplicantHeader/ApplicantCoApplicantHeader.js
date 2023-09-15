@@ -84,72 +84,7 @@ const ApplicantCoApplicantHeader = props => {
 		// eslint-disable-next-line
 	}, []);
 
-	// console.log('ApplicantCoApplicantHeader-allstates-', {
-	// 	props,
-	// 	refListWrapper,
-	// });
-
 	const onClickDirectorAvatar = id => {
-		// if (selectedDirectorId === CONST_SECTIONS.CO_APPLICANT) {
-		// 	return setIsDeleteDirectorModalOpen(id);
-		// }
-
-		// if (selectedDirectorId === `${id}`) {
-		// 	return;
-		// }
-		// if (directors[selectedDirectorId]['sections'].length > 2) {
-		// 	return;
-		// }
-
-		// TODO: varun validation for navigation in draft mode
-		// if (isDraftLoan) {
-		// 	const {
-		// 		nextApplicantDirectorId,
-		// 		isEmploymentDetailsSubmited,
-		// 		lastIncompleteDirectorId,
-		// 		lastIncompleteDirectorIndex,
-		// 	} = getApplicantNavigationDetails({
-		// 		applicant: selectedDirector,
-		// 		coApplicants: directors,
-		// 		selectedApplicant: selectedDirector,
-		// 	});
-
-		// 	if (
-		// 		isEmploymentDetailsSubmited &&
-		// 		`${nextApplicantDirectorId}` === `${id}`
-		// 	) {
-		// 		// allowed to move
-		// 	} else {
-		// 		const tempSelectedApplicant =
-		// 			id === CONST_SECTIONS.APPLICANT ? applicant : coApplicants[id];
-		// 		if (
-		// 			!(
-		// 				Object.keys(
-		// 					tempSelectedApplicant?.[
-		// 						CONST_SECTIONS.EMPLOYMENT_DETAILS_SECTION_ID
-		// 					] || {}
-		// 				)?.length > 0
-		// 			)
-		// 		) {
-		// 			// if last director is applicant
-		// 			dispatch(setSelectedSectionId(firstSectionId));
-		// 			if (`${lastIncompleteDirectorId}` === `${applicant?.directorId}`) {
-		// 				dispatch(setSelectedDirector(applicant?.directorId));
-		// 			} else {
-		// 				dispatch(setSelectedDirector(lastIncompleteDirectorId));
-		// 			}
-		// 		}
-		// 	}
-		// 	return addToast({
-		// 		message: `Please fill all the details of ${
-		// 			lastIncompleteDirectorIndex === 0
-		// 				? 'applicant'
-		// 				: `co-applicant ${lastIncompleteDirectorIndex}`
-		// 		}`,
-		// 		type: 'error',
-		// 	});
-		// }
-
 		if (selectedSectionId !== CONST_SECTIONS.DOCUMENT_UPLOAD_SECTION_ID) {
 			dispatch(setSelectedSectionId(CONST_SECTIONS.BASIC_DETAILS_SECTION_ID));
 		}

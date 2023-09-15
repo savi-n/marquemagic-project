@@ -201,7 +201,7 @@ export const directorsSlice = createSlice({
 			// console.log('PrevState', !prevState);
 			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
-				const prevDirector = newDirectors[state.selectedDirectorId];
+				const prevDirector = newDirectors[prevState.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
 				state.selectedDirectorId = '';

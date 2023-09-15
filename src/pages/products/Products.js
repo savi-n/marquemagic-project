@@ -338,7 +338,7 @@ export default function Products() {
 	const [loadingOTP, setLoadingOTP] = useState(false);
 	const initialLoanProductCount = 3;
 	const permission = JSON.parse(sessionStorage.getItem('permission')) || {};
-	const wt_lbl = JSON.parse(localStorage.getItem('wt_lbl')) || {};
+	const wt_lbl = JSON.parse(sessionStorage.getItem('wt_lbl')) || {};
 
 	const getStatusCustomer = async () => {
 		try {
@@ -496,9 +496,7 @@ export default function Products() {
 		<Wrapper>
 			<Head>
 				Choose a
-				{wt_lbl?.solution_type === 'CaseDOS'
-					? ' Report'
-					: ' Loan Product'}
+				{wt_lbl?.solution_type === 'CaseDOS' ? ' Report' : ' Loan Product'}
 			</Head>
 			<ImgDotElementRight src={imgDotElement} alt='dot' />
 			<ImgDotElementLeft src={imgDotElement} alt='dot' />
@@ -603,7 +601,10 @@ export default function Products() {
 			{permission?.color_theme_react?.check_application_status === true && (
 				<StatusBox>
 					<ProductName>
-						Here, you can check your {wt_lbl?.solution_type==='CaseDOS'? 'Order':'application'} status by entering the {wt_lbl?.solution_type==='CaseDOS'? 'Case':'Loan'}
+						Here, you can check your{' '}
+						{wt_lbl?.solution_type === 'CaseDOS' ? 'Order' : 'application'}{' '}
+						status by entering the{' '}
+						{wt_lbl?.solution_type === 'CaseDOS' ? 'Case' : 'Loan'}
 						Reference ID, Phone No or PAN No
 					</ProductName>
 					<StatusInputBox>
@@ -613,7 +614,9 @@ export default function Products() {
 						>
 							<input
 								className='h-10 w-full bg-blue-100 px-4 py-6 focus:outline-none rounded-l-full my-2'
-								placeholder={`Enter ${wt_lbl?.solution_type==='CaseDOS'? 'Case':'Loan'} Reference ID, Phone No or PAN No`}
+								placeholder={`Enter ${
+									wt_lbl?.solution_type === 'CaseDOS' ? 'Case' : 'Loan'
+								} Reference ID, Phone No or PAN No`}
 								onChange={e => setRefstatus(e.target.value)}
 							/>
 							{/* <FontAwesomeIcon
