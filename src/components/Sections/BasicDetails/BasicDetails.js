@@ -1749,6 +1749,7 @@ const BasicDetails = props => {
 		/>
 	);
 
+	// console.log(formState.values, 'form state');
 	// const [isSelfieAlertModalOpen, setIsSelfieAlertModalOpen] = useState(false);
 	return (
 		<UI_SECTIONS.Wrapper>
