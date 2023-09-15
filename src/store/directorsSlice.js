@@ -386,6 +386,12 @@ export const directorsSlice = createSlice({
 			}
 		},
 
+		resetDirectors: state => {
+			state.directors = {};
+			state.selectedDirectorOptions = [];
+			state.selectedDirectorId = '';
+		},
+
 		// MAINTAINS ARRAY TO STORE REDUX-KEY-NAME OF FIELDS FOR WHICH GEOLOCATION IS MANDATORY
 		setGeotaggingMandatoryFields: (state, { payload }) => {
 			if (
@@ -415,6 +421,7 @@ export const {
 	setDocumentSelfieGeoLocation,
 	removeDocumentSelfieGeoLocation,
 	setGeotaggingMandatoryFields,
+	resetDirectors,
 } = directorsSlice.actions;
 
 export default directorsSlice.reducer;
