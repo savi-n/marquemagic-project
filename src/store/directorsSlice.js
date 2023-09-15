@@ -201,16 +201,32 @@ export const directorsSlice = createSlice({
 			// console.log('PrevState', !prevState);
 			// console.log(prevState?.selectedDirectorId, 'Prestate directorID');
 			if (prevState.selectedDirectorId) {
-				console.log('if-prev-directorid !!!!!!!!!!!!!!!!!!!!!!');
+				console.log('if-prev-directorid !!!!!!!!!!!!!!!!!!!!!!', {
+					prevStateaddNewDirectorKey: prevState.addNewDirectorKey,
+					prevState,
+					currentStateaddNewDirectorKey: state.addNewDirectorKey,
+					state,
+				});
 				const prevDirector = newDirectors[state.selectedDirectorId];
 				state.selectedDirectorId = `${prevDirector?.directorId || ''}`;
 			} else if (prevState.addNewDirectorKey) {
-				console.log('else-if-directorid ????????????????????????????');
+				console.log('else-if-directorid ????????????????????????????', {
+					prevStateaddNewDirectorKey: prevState.addNewDirectorKey,
+					prevState,
+					currentStateaddNewDirectorKey: state.addNewDirectorKey,
+					state,
+				});
 				state.selectedDirectorId = '';
 				// DON'T Update any state;
 			} else if (!prevState.selectedDirectorId) {
 				console.log(
-					'else-if-directorid-!prevState.selectedDirectorId--------------------'
+					'else-if-directorid-!prevState.selectedDirectorId--------------------',
+					{
+						prevStateaddNewDirectorKey: prevState.addNewDirectorKey,
+						prevState,
+						currentStateaddNewDirectorKey: state.addNewDirectorKey,
+						state,
+					}
 				);
 
 				state.selectedDirectorId = `${firstDirector?.directorId || ''}`;
