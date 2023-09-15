@@ -161,6 +161,7 @@ const AppLayout = () => {
 		};
 		initalFunc();
 	}, []);
+
 	useEffect(() => {
 		if (response) {
 			sessionStorage.setItem('wt_lbl', response?.permission?.id);

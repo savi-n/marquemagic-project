@@ -906,21 +906,21 @@ export const validateEmploymentDetails = data => {
 		restOfTheDirectors?.map(dir => {
 			if (dir?.sections?.length < 3) {
 				// console.log(dir?.sections, 'sections-dir');
-				notCompletedDirectors.push(dir);
+				notCompletedDirectors.push(dir || []);
 			}
 
 			return null;
 		});
 
 		if (lastDirector?.sections?.length < 2)
-			notCompletedDirectors.push(lastDirector);
+			notCompletedDirectors.push(lastDirector || []);
 
 		// special case when last director is submitted with basic and address sections.But the user tries to submit employment details from the first director
 		if (
 			lastDirector?.sections?.length === 2 &&
 			+selectedDirector?.directorId !== +lastDirector?.directorId
 		)
-			notCompletedDirectors.push(lastDirector);
+			notCompletedDirectors.push(lastDirector || []);
 
 		if (notCompletedDirectors?.length === 0) allowProceed = true;
 
