@@ -51,7 +51,6 @@ const Label = styled.label`
       top: 3%;
       left: 1%;
       height: 45px;
-      width: 90%;
       color: lightgray;
       padding: 0 10px;
   `}

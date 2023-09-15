@@ -225,8 +225,8 @@ export const formatCompanyRocData = (data, panNum) => {
 			[`ddin_no${i}`]: dir['din/pan'],
 		};
 		directorsForShow.push({
-			Name: dir.assosiate_company_details?.director_data.name,
-			Din: dir.assosiate_company_details?.director_data.din,
+			Name: dir.assosiate_company_details?.director_data.name || dir?.name,
+			Din: dir.assosiate_company_details?.director_data.din || dir?.['din/pan'],
 		});
 	}
 
@@ -248,7 +248,6 @@ export const formatCompanyRocData = (data, panNum) => {
 		month,
 		year,
 	] = data.company_master_data.date_of_incorporation.split(/\/|-/);
-
 	return {
 		BusinessName: data.company_master_data.company_name,
 		BusinessType: businesType,
@@ -263,6 +262,7 @@ export const formatCompanyRocData = (data, panNum) => {
 		DirectorDetails: directors,
 		directorsForShow,
 		unformatedData: data,
+		DateOfIncorporation: data?.company_master_data?.date_of_incorporation,
 	};
 };
 

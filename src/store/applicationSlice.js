@@ -21,6 +21,7 @@ const initialState = {
 	geoLocation: {},
 	prompted: false,
 	businessName: '',
+	dedupePrefilledValues: null,
 	// isSelfieImagePresent: false,
 };
 
@@ -315,9 +316,12 @@ export const applicationSlice = createSlice({
 			});
 			state.cacheDocuments = newFilteredCacheDocuments;
 		},
+		setDedupePrefilledValues: (state, { payload }) => {
+			// console.log(payload)
+			state.dedupePrefilledValues = payload;
+		},
 	},
 });
-
 export const {
 	reInitializeApplicationSlice,
 
@@ -348,6 +352,7 @@ export const {
 	setIsPrompted,
 	addCacheAPIReqRes,
 	setGeoLocation,
+	setDedupePrefilledValues,
 	clearCacheDraftModeSectionsData,
 	resetCacheDocuments,
 	resetOnsiteSelfiImages,

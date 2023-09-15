@@ -391,7 +391,7 @@ const CategoryFileUpload = props => {
 	});
 	displayTagMessage = documents?.length !== taggedDocumentCount;
 
-	console.log(unUploadedFile, 'unup');
+	// console.log(unUploadedFile, 'unup');
 
 	// console.log(`FileUpload-${category}-allstates-`, {
 	// 	props,
