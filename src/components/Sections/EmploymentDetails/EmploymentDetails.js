@@ -149,7 +149,14 @@ const EmploymentDetails = () => {
 					});
 					return null;
 			  });
-		return newOptionsList;
+		const sortedOptions =
+			(newOptionsList &&
+				newOptionsList.length > 0 &&
+				newOptionsList.sort((a, b) => {
+					return a.name.localeCompare(b.name);
+				})) ||
+			[];
+		return sortedOptions;
 	};
 
 	const selectedIndustryFromGetResp = () => {

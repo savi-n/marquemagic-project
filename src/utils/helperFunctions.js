@@ -112,9 +112,12 @@ export const clearDependentFields = data => {
 		onChangeFormStateField,
 	} = data;
 	const isPresentInSubOptions =
-		subComponentOptions?.filter(
-			option => option.value === `${formState.values[field_name]}`
-		).length > 0;
+		(subComponentOptions &&
+			subComponentOptions.length > 0 &&
+			subComponentOptions?.filter(
+				option => option.value === `${formState.values[field_name]}`
+			).length > 0) ||
+		false;
 
 	if (subComponentOptions?.length > 0 && !isPresentInSubOptions)
 		onChangeFormStateField({
