@@ -815,11 +815,11 @@ const AddressDetails = props => {
 	};
 	// fetch section data ends
 
-	const clearPresentAddressState = props => {
+	const clearPresentAddressState = () => {
 		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
 			if (!!isSameAsAboveAddressChecked) return null;
 			onChangeFormStateField({
-				name: `present_${key}`,
+				name: `${CONST_ADDRESS_DETAILS.PREFIX_PRESENT}${key}`,
 				value: '',
 			});
 			return null;
