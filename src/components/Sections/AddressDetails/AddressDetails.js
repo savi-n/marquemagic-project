@@ -815,17 +815,16 @@ const AddressDetails = props => {
 	};
 	// fetch section data ends
 
-const clearPresentAddressState=props=>{
-	Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
-		if (!!isSameAsAboveAddressChecked) return null;
-		onChangeFormStateField({
-			name: `present_${key}`,
-			value: '',
+	const clearPresentAddressState = props => {
+		Object.keys(CONST_ADDRESS_DETAILS.resetAllFields).map(key => {
+			if (!!isSameAsAboveAddressChecked) return null;
+			onChangeFormStateField({
+				name: `present_${key}`,
+				value: '',
+			});
+			return null;
 		});
-		return null;
-	});
-}
-
+	};
 
 	useEffect(() => {
 		scrollToTopRootElement();
@@ -839,10 +838,13 @@ const clearPresentAddressState=props=>{
 	}, []);
 
 	useEffect(() => {
-		if (!!isSameAsAboveAddressChecked && presentCacheDocumentsTemp?.length > 0) {
+		if (
+			!!isSameAsAboveAddressChecked &&
+			presentCacheDocumentsTemp?.length > 0
+		) {
 			setPresentCacheDocumentsTemp([]);
 		}
-		if(!isSameAsAboveAddressChecked && isSameAsAboveAddressChecked===false){
+		if (!isSameAsAboveAddressChecked && isSameAsAboveAddressChecked === false) {
 			clearPresentAddressState();
 		}
 		// eslint-disable-next-line
