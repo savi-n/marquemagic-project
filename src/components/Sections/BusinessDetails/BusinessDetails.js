@@ -679,6 +679,10 @@ const BusinessDetails = props => {
 				sub_industry_type:
 					sectionData?.business_details?.businessindustry?.id || '',
 				industry_type: selectedIndustryFromGetResp() || '',
+				businessstartdate:
+					companyRocData?.DateOfIncorporation ||
+					sectionData?.business_details?.businessstartdate ||
+					'',
 			};
 
 			if (preData?.[field?.db_key]) return preData?.[field?.db_key];
@@ -691,6 +695,7 @@ const BusinessDetails = props => {
 			});
 		}
 	};
+
 	const validateToken = async () => {
 		try {
 			const params = queryString.parse(window.location.search);

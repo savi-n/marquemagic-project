@@ -45,6 +45,8 @@ const ToastElement = styled.div`
 const ToastMessage = styled.span`
 	font-size: 12px;
 	font-weight: 500;
+	word-wrap: break-word;
+	overflow: wrap;
 `;
 const TypeStyle = styled.span`
 	width: 26px;
