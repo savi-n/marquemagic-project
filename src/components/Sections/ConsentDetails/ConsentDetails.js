@@ -110,6 +110,7 @@ const ConsentDetails = props => {
 			addToast({
 				message:
 					err?.message || 'Something went wrong! Please try after sometime',
+				type: 'error',
 			});
 		} finally {
 			setButtonLoading(false);

@@ -27,6 +27,7 @@ const Label = styled.label`
 	align-items: center;
 	background: white;
 	transition: 0.2s;
+	min-width: 30%;
 
 	${Input}:focus ~ & {
 		top: -10%;
