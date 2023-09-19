@@ -852,7 +852,15 @@ const BusinessDetails = props => {
 					setOriginalOptions: setAllIndustriesOption,
 				});
 
-				setMainComponentOptions(allIndustriesOption);
+				const sortedOptions =
+					(allIndustriesOption &&
+						allIndustriesOption.length > 0 &&
+						allIndustriesOption.sort((a, b) => {
+							return a.name.localeCompare(b.name);
+						})) ||
+					[];
+
+				setMainComponentOptions(sortedOptions);
 			} catch (err) {
 				console.error(err, 'Industry-Fetch-Error');
 			}
@@ -878,7 +886,16 @@ const BusinessDetails = props => {
 					});
 					return null;
 			  });
-		return newOptionsList;
+
+		const sortedOptions =
+			(newOptionsList &&
+				newOptionsList.length > 0 &&
+				newOptionsList.sort((a, b) => {
+					return a.name.localeCompare(b.name);
+				})) ||
+			[];
+
+		return sortedOptions;
 	};
 
 	const selectedIndustryFromGetResp = () => {
