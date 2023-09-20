@@ -181,7 +181,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							] ||
 							product?.product_id?.[customerDetailsFormData?.businesstype] ||
 							'',
-						loan_product_details_id: productModalData?.id || product?.id || '',
+						loan_product_details_id:
+							productModalData?.id || product?.id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 					};
 					const verifyData = await axios.post(
