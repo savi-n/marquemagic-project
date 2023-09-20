@@ -70,10 +70,6 @@ const BasicDetails = props => {
 	const { directors, selectedDirectorId, addNewDirectorKey } = useSelector(
 		state => state.directors
 	);
-	// console.log(
-	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ directors:',
-	// 	directorSlice
-	// );
 
 	// const { smeType } = directors;
 	// console.log({ smeType });
@@ -140,7 +136,10 @@ const BasicDetails = props => {
 	const [fetchingGeoLocation, setFetchingGeoLocation] = useState(false);
 
 	const [sectionData, setSectionData] = useState({});
-
+	// console.log(
+	// 	'🚀 ~ file: BasicDetails.js:67 ~ BasicDetails ~ selectedProduct:',
+	// 	selectedProduct
+	// );
 	const documentMapping = JSON.parse(permission?.document_mapping) || [];
 	const dedupeApiData = documentMapping?.dedupe_api_details || [];
 	const selectedDedupeData =
@@ -820,7 +819,7 @@ const BasicDetails = props => {
 					selectedProduct?.product_id?.[formState?.values?.['income_type']],
 				loan_product_details_id: selectedProduct?.id || undefined,
 				loan_id: loanId,
-				busienss_id: businessId,
+				business_id: businessId,
 				isApplicant,
 			};
 			const fetchDataRes = await axios.post(
