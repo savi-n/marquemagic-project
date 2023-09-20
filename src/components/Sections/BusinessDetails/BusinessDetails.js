@@ -191,6 +191,7 @@ const BusinessDetails = props => {
 				businesstype: formState?.values?.['business_type'],
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['business_type']],
+				loan_product_details_id: selectedProduct?.id || undefined,
 				loan_id: loanId,
 				busienss_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
