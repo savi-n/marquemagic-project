@@ -176,7 +176,11 @@ const CustomerDetailsFormModal = props => {
 		} catch (e) {
 			console.error(e.message);
 			addToast({
-				message: e.message,
+				message:
+					e?.response?.data?.message ||
+					e?.response?.data?.Message ||
+					e.message ||
+					'Error in fetching the customer details. Please verify the entered details.',
 				type: 'error',
 			});
 		} finally {

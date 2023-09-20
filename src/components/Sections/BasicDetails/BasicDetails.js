@@ -847,7 +847,11 @@ const BasicDetails = props => {
 		} catch (err) {
 			console.error(err.message);
 			addToast({
-				message: err.message || 'Something went wrong. Please try again later!',
+				message:
+					err?.response?.data?.message ||
+					err?.response?.data?.Message ||
+					err.message ||
+					'Something went wrong. Please try again later!',
 				type: 'error',
 			});
 		} finally {

@@ -201,7 +201,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				} catch (err) {
 					console.error(err.message);
 					addToast({
-						message: err.message || 'Otp generation failed!',
+						message:
+							err?.response?.data?.message ||
+							err?.response?.data?.Message ||
+							err.message ||
+							'Otp generation failed!',
 						type: 'error',
 					});
 				}
