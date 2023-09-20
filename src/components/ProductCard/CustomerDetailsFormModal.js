@@ -117,6 +117,7 @@ const CustomerDetailsFormModal = props => {
 					businesstype: formState?.values['businesstype'],
 					isApplicant: true, //implemented based on savitha's changes - bad practice
 					customer_id: formState?.values['customer_id'],
+					loan_product_details_id: productForModal?.id || undefined,
 				} || {};
 
 			setCustomerDetailsFormData(formState?.values || {});
