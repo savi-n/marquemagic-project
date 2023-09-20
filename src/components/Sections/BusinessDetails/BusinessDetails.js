@@ -17,7 +17,6 @@ import {
 	API_END_POINT,
 	// IFSC_LIST_FETCH,
 	INDUSTRY_LIST_FETCH,
-	SUB_INDUSTRY_FETCH,
 } from '_config/app.config';
 import {
 	setIsDraftLoan,
@@ -194,6 +193,7 @@ const BusinessDetails = props => {
 				loan_id: loanId,
 				busienss_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
+				loan_product_details_id: selectedProduct?.id,
 			};
 			const fetchDataRes = await axios.post(
 				selectedDedupeData?.verify,
@@ -258,6 +258,7 @@ const BusinessDetails = props => {
 			loan_ref_id: loanData?.data?.loan_data?.loan_ref_id,
 			token: userToken,
 			edit: true,
+			loan_product_details_id: selectedProduct?.id,
 		};
 		const redirectURL = `/nconboarding/applyloan/product/${btoa(
 			selectedProduct?.id
@@ -915,6 +916,7 @@ const BusinessDetails = props => {
 		} else {
 			setIsSubIndustryMandatory(true);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
 
 	useEffect(

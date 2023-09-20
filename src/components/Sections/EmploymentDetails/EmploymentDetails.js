@@ -184,6 +184,8 @@ const EmploymentDetails = () => {
 		} else {
 			setIsSubIndustryMandatory(true);
 		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [formState?.values[CONST.INDUSTRY_TYPE_FIELD_NAME]]);
 
 	useEffect(
