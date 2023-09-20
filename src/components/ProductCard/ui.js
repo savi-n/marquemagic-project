@@ -150,6 +150,10 @@ export const CustomerListCard = styled.div`
 	margin-bottom: 20px;
 	cursor: pointer;
 	background-color: ${({ isActive }) => (isActive ? '#eee' : 'white')};
+
+	@media (max-width: 768px) {
+		display: block;
+	}
 `;
 
 export const CustomerListCardItem = styled.div`

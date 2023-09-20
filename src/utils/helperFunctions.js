@@ -94,11 +94,13 @@ export const validateFileUpload = files => {
 				} else {
 					respFile.push({ status: 'pass', file: selectedFile });
 				}
+				return null;
 			});
 		}
 	} else {
 		files.map(selectedFile => {
 			respFile.push({ status: 'pass', file: selectedFile });
+			return null;
 		});
 	}
 	return respFile;

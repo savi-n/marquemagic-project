@@ -569,8 +569,6 @@ const LoanDetails = () => {
 												) {
 													newField.options = item.options;
 													return;
-												} else {
-													newField.options = newField.options;
 												}
 											});
 										}
