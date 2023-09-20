@@ -1424,8 +1424,9 @@ const BasicDetails = props => {
 							loanDoc?.doctype
 				)?.[0]?.id;
 
-				fetchedProfilePicData.doc_id =
-					fetchedProfilePicData?.doc_id || profileId;
+				if (fetchedProfilePicData)
+					fetchedProfilePicData.doc_id =
+						fetchedProfilePicData?.doc_id || profileId;
 
 				if (
 					fetchedProfilePicData &&
