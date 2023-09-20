@@ -1,5 +1,5 @@
 /* Populate search of bank with list of banks */
-import { useState } from 'react';
+// import { useState } from 'react';
 import SearchSelect from '../../SearchSelect';
 // import axios from 'axios';
 // import { fetchSubCompOptions } from 'utils/helperFunctions';
@@ -12,7 +12,7 @@ export default function SearchSelectMainComponent(props) {
 		// sectionId,
 		errMessage,
 	} = field;
-	const [selectedOption, setSelectedOption] = useState(value);
+	// const [selectedOption, setSelectedOption] = useState(value);
 
 	const onOptionSelectCallback = selectedOption => {
 		onSelectOptionCallback({
@@ -77,9 +77,9 @@ export default function SearchSelectMainComponent(props) {
 
 	return (
 		<SearchSelect
-			onBlurCallback={() => {
-				setSelectedOption(value);
-			}}
+			// onBlurCallback={() => {
+			// 	setSelectedOption(value);
+			// }}
 			field={field}
 			name={field.name}
 			placeholder={field.placeholder || ''}
