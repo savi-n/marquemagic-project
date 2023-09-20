@@ -817,6 +817,7 @@ const BasicDetails = props => {
 				businesstype: formState?.values?.['income_type'],
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['income_type']],
+				loan_product_details_id: selectedProduct?.id || undefined,
 				loan_id: loanId,
 				busienss_id: businessId,
 				isApplicant,
@@ -846,7 +847,11 @@ const BasicDetails = props => {
 		} catch (err) {
 			console.error(err.message);
 			addToast({
-				message: err.message || 'Something went wrong. Please try again later!',
+				message:
+					err?.response?.data?.message ||
+					err?.response?.data?.Message ||
+					err.message ||
+					'Something went wrong. Please try again later!',
 				type: 'error',
 			});
 		} finally {

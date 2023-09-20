@@ -181,7 +181,8 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 							] ||
 							product?.product_id?.[customerDetailsFormData?.businesstype] ||
 							'',
-						loan_product_details_id: productModalData?.id || product?.id || '',
+						loan_product_details_id:
+							productModalData?.id || product?.id || undefined,
 						isApplicant: true, //implemented based on savitha's changes - bad practice
 					};
 					const verifyData = await axios.post(
@@ -200,7 +201,11 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 				} catch (err) {
 					console.error(err.message);
 					addToast({
-						message: err.message || 'Otp generation failed!',
+						message:
+							err?.response?.data?.message ||
+							err?.response?.data?.Message ||
+							err.message ||
+							'Otp generation failed!',
 						type: 'error',
 					});
 				}

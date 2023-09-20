@@ -555,6 +555,27 @@ const LoanDetails = () => {
 										}
 
 										if (
+											newField?.name === CONST.TENURE &&
+											`${formState?.values?.[CONST.LOAN_AMOUNT]}`?.length > 0
+										) {
+											newField?.specific_options?.forEach(item => {
+												if (
+													Number(
+														formState?.values?.[newField?.specific_options_for]
+													) >= item.min &&
+													Number(
+														formState?.values?.[newField?.specific_options_for]
+													) <= item.max
+												) {
+													newField.options = item.options;
+													return;
+												} else {
+													newField.options = newField.options;
+												}
+											});
+										}
+
+										if (
 											newField?.name === CONST.BRANCH_FIELD_NAME &&
 											formState?.values?.['loan_source'] === 'Branch'
 										) {

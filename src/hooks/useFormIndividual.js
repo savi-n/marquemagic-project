@@ -631,6 +631,18 @@ function InputFieldRender({ field, onChange, value, unregister, error }) {
 				/>
 			);
 		}
+
+		case 'dropdown': {
+			return (
+				<SelectField
+					{...{ ...field, ...fieldProps }}
+					style={{
+						minWidth: 100,
+					}}
+				/>
+			);
+		}
+
 		case 'address_proof_radio': {
 			return <AddressProofRadio {...{ ...field, ...fieldProps }} />;
 		}
