@@ -191,6 +191,7 @@ const BusinessDetails = props => {
 				businesstype: formState?.values?.['business_type'],
 				loan_product_id:
 					selectedProduct?.product_id?.[formState?.values?.['business_type']],
+				loan_product_details_id: selectedProduct?.id || undefined,
 				loan_id: loanId,
 				busienss_id: businessId,
 				isApplicant: true, //implemented based on savitha's changes - bad practice
@@ -222,20 +223,28 @@ const BusinessDetails = props => {
 			if (`${err?.response?.status}` === `400`) {
 				addToast({
 					message:
-						err.message || 'Bad Request, Request Failed With Status Code 400 ',
+						err?.response?.data?.message ||
+						err?.response?.data?.Message ||
+						err?.message ||
+						'Bad Request, Request Failed With Status Code 400 ',
 					type: 'error',
 				});
 			} else if (`${err?.response?.status}` === `500`) {
 				addToast({
 					message:
-						err.message ||
+						err?.response?.data?.message ||
+						err?.response?.data?.Message ||
+						err?.message ||
 						'Gateway Timeout, Request Failed With Status Code 500 ',
 					type: 'error',
 				});
 			} else {
 				addToast({
 					message:
-						err.message || 'Something went wrong. Please try again later!',
+						err?.response?.data?.message ||
+						err?.response?.data?.Message ||
+						err?.message ||
+						'Something went wrong. Please try again later!',
 					type: 'error',
 				});
 			}

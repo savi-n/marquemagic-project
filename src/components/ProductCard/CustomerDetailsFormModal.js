@@ -14,7 +14,13 @@ import * as UI from './ui';
 import * as CONST from './const';
 import { useToasts } from '../Toast/ToastProvider';
 // import SAMPLE_JSON from './customerdetailsformsample.json';
-import { setDedupePrefilledValues } from 'store/applicationSlice';
+import {
+	setDedupePrefilledValues,
+	setGeoLocation,
+} from 'store/applicationSlice';
+import { fetchGeoLocation } from 'utils/helper';
+import * as API from '_config/app.config';
+
 const CustomerDetailsFormModal = props => {
 	const dispatch = useDispatch();
 	const {
@@ -31,7 +37,7 @@ const CustomerDetailsFormModal = props => {
 		redirectToProductPageInEditMode,
 	} = props;
 	const { app } = useSelector(state => state);
-	const { permission, whiteLabelId } = app;
+	const { permission, whiteLabelId, userToken } = app;
 	const { register, formState, handleSubmit } = useForm();
 	const [fetchingCustomerDetails, setFetchingCustomerDetails] = useState(false);
 	// const [proceedAsNewCustomer, setProceedAsNewCustomer] = useState(false);
@@ -76,6 +82,11 @@ const CustomerDetailsFormModal = props => {
 		// step 1 - Api call for search api for dedupe
 		try {
 			dispatch(setDedupePrefilledValues(formState?.values));
+			const geoRes = await fetchGeoLocation({
+				geoAPI: API.GEO_LOCATION,
+				userToken,
+			});
+			dispatch(setGeoLocation(geoRes));
 			// setProceedAsNewCustomer(false);
 			setFetchingCustomerDetails(true);
 
@@ -117,6 +128,7 @@ const CustomerDetailsFormModal = props => {
 					businesstype: formState?.values['businesstype'],
 					isApplicant: true, //implemented based on savitha's changes - bad practice
 					customer_id: formState?.values['customer_id'],
+					loan_product_details_id: productForModal?.id || undefined,
 				} || {};
 
 			setCustomerDetailsFormData(formState?.values || {});
@@ -164,7 +176,11 @@ const CustomerDetailsFormModal = props => {
 		} catch (e) {
 			console.error(e.message);
 			addToast({
-				message: e.message,
+				message:
+					e?.response?.data?.message ||
+					e?.response?.data?.Message ||
+					e.message ||
+					'Error in fetching the customer details. Please verify the entered details.',
 				type: 'error',
 			});
 		} finally {
@@ -235,7 +251,12 @@ const CustomerDetailsFormModal = props => {
 						<Button
 							disabled={fetchingCustomerDetails}
 							isLoader={fetchingCustomerDetails}
-							onClick={() => {
+							onClick={async () => {
+								const geoRes = await fetchGeoLocation({
+									geoAPI: API.GEO_LOCATION,
+									userToken,
+								});
+								dispatch(setGeoLocation(geoRes));
 								redirectToProductPage(productForModal);
 								dispatch(setDedupePrefilledValues(formState?.values));
 							}}
