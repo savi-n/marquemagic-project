@@ -39,3 +39,5 @@ export const FIELD_NAME_NC2 = 'nconboarding_';
 export const FIELD_NAME_PURPOSE_OF_LOAN = 'purpose_of_loan';
 export const IS_IN_DRAFT_OR_APPLICATION_STAGE = 1;
 export const SOURCE_DETAILS_SUBSECTION_ID = 'source_details';
+export const TENURE = 'tenure';
+export const LOAN_AMOUNT = 'loan_amount';
