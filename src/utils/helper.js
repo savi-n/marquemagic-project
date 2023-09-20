@@ -1,4 +1,6 @@
 import moment from 'moment';
+import axios from 'axios';
+import * as API from '_config/app.config';
 
 /* This file contains helper functions and the functions are used in file upload */
 export const sleep = ms => {
@@ -69,4 +71,21 @@ export const getTotalYearsCompleted = date => {
 		return null;
 	}
 	return yearsOld;
+};
+
+export const fetchGeoLocation = async data => {
+	const { geoAPI, userToken } = data;
+	const coordinates = await getGeoLocation();
+	const reqBody = {
+		lat: coordinates?.latitude,
+		long: coordinates?.longitude,
+	};
+	// console.log(userToken);
+
+	const geoLocationRes = await axios.post(geoAPI, reqBody, {
+		headers: {
+			Authorization: `Bearer ${userToken}`,
+		},
+	});
+	return geoLocationRes?.data?.data;
 };

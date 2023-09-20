@@ -12,7 +12,7 @@ import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { useContext } from 'react';
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
-import { getGeoLocation } from 'utils/helper';
+import { fetchGeoLocation, getGeoLocation } from 'utils/helper';
 import {
 	setGeoLocation,
 	reInitializeApplicationSlice,
@@ -175,23 +175,11 @@ export default function CardSubProduct({
 							try {
 								if (isGeoTaggingEnabled) {
 									setGettingGeoLocation(true);
-									const coordinates = await getGeoLocation();
-									const reqBody = {
-										lat: coordinates?.latitude,
-										long: coordinates?.longitude,
-									};
-									// console.log(userToken);
-
-									const geoLocationRes = await axios.post(
-										API.GEO_LOCATION,
-										reqBody,
-										{
-											headers: {
-												Authorization: `Bearer ${userToken}`,
-											},
-										}
-									);
-									dispatch(setGeoLocation(geoLocationRes?.data?.data));
+									const geoRes = await fetchGeoLocation({
+										geoAPI: API.GEO_LOCATION,
+										userToken,
+									});
+									dispatch(setGeoLocation(geoRes));
 								}
 							} catch (e) {
 								console.error(
