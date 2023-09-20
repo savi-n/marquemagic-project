@@ -198,6 +198,15 @@ export default function Card({ product, add, setAddedProduct, setAddProduct }) {
 					if (verifyData?.data?.status === 'ok') {
 						redirectToProductPageInEditMode(verifyData?.data);
 					}
+					if (verifyData?.data?.status === 'nok') {
+						addToast({
+							message:
+								verifyData?.data?.message ||
+								verifyData?.data?.Message ||
+								'Something Went Wrong, Please check the selected/entered details.',
+							type: 'error',
+						});
+					}
 				} catch (err) {
 					console.error(err.message);
 					addToast({
