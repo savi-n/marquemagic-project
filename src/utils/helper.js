@@ -1,6 +1,5 @@
 import moment from 'moment';
 import axios from 'axios';
-import * as API from '_config/app.config';
 
 /* This file contains helper functions and the functions are used in file upload */
 export const sleep = ms => {

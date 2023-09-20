@@ -12,12 +12,11 @@ import rightArrowImg from 'assets/icons/right_go_arrowblue.png';
 // import { useContext } from 'react';
 // import { UserContext } from 'reducer/userReducer';
 // import { LoanFormContext } from 'reducer/loanFormDataReducer';
-import { fetchGeoLocation, getGeoLocation } from 'utils/helper';
+import { fetchGeoLocation } from 'utils/helper';
 import {
 	setGeoLocation,
 	reInitializeApplicationSlice,
 } from 'store/applicationSlice';
-import axios from 'axios';
 import * as API from '_config/app.config';
 // import Button from './Button';
 import { useState } from 'react';
