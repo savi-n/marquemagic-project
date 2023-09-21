@@ -13,7 +13,6 @@ display: flex;
 gap: 10px;
 `
 export default function CheckBox(props) {
-	console.log(props);
 	const { onChange, round, disabled, bg, fg, placeholder, name } = props;
 	const id = uuidv4();
 
