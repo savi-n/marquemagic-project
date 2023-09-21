@@ -7,3 +7,4 @@ export const initialFormState = {
 };
 
 export const FIELD_NAME_ASSETS_FOR = 'assets_for';
+export const PRIORITY_SECTOR_LOAN_CHECKBOX='priority_sector_loan'

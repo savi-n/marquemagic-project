@@ -184,7 +184,7 @@ const DynamicForm = props => {
 					}
 					if (
 						formState?.values?.priority_sector_loan !== 'true' &&
-						newField.name !== 'priority_sector_loan'
+						newField.name !== CONST.PRIORITY_SECTOR_LOAN_CHECKBOX
 					) {
 						customFieldProps.disabled = true;
 					}
