@@ -129,7 +129,7 @@ const DynamicForm = props => {
 			// }
 			// reqBody.data.assets_details = [reqBody.data.assets_details];
 			const submitRes = await axios.post(
-				`${API_END_POINT}/assets_details`,
+				`${API_END_POINT}/priority_sector_details`,
 				reqBody
 			);
 			if (submitRes?.data?.status === 'ok') {
