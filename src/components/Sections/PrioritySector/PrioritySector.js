@@ -128,6 +128,7 @@ const PrioritySectorDetails = props => {
 						isDynamicFlow === sub_section?.is_dynamic &&
 							setDynamicFlow(sub_section?.is_dynamic);
 						if (!isDynamicFlow) {
+							console.log("running")
 							return (
 								<>
 									{sub_section?.name ? (
@@ -135,9 +136,9 @@ const PrioritySectorDetails = props => {
 											{sub_section.name}
 										</UI_SECTIONS.SubSectionHeader>
 									) : null}
-									<UI_SECTIONS.AccordianWrapper>
+									<UI_SECTIONS.AccordianWrapper isOpen={true}>
 										<UI_SECTIONS.AccordianBody isOpen={true}>
-											{!isCreateFormOpen && (
+											{isCreateFormOpen && (
 												<DynamicForm
 													fields={sub_section?.fields || []}
 													// prefillData={prefillData}
