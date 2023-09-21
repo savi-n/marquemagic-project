@@ -20,7 +20,6 @@ import { API_END_POINT } from '_config/app.config';
 // import selectedSection from './sample.json';
 
 const DynamicForm = props => {
-	debugger;
 	const {
 		fields,
 		onSaveOrUpdateSuccessCallback = () => {},
