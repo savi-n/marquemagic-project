@@ -54,16 +54,16 @@ const DynamicForm = props => {
 	const prefilledEditOrViewLoanValues = field => {
 		const preData = {
 			...prefillData,
-			priority_sector_loan:!!prefillData?.priority_sector_loan,
-			direct_agri:prefillData?.direct_agri,
-			land_acres:prefillData?.land_acres,
-			specify_acres:prefillData?.specify_acres,
-			location:prefillData?.location,
-			pincode:prefillData?.pincode,
-			indirect_agri:prefillData?.indirect_agri,
-			manufacturing_enterprises:prefillData?.manufacturing_enterprises,
-			value_investment:prefillData?.value_investment,
-			cc_limit:prefillData?.cc_limit
+			priority_sector_loan: !!prefillData?.priority_sector_loan,
+			direct_agri: prefillData?.direct_agri,
+			land_acres: prefillData?.land_acres,
+			specify_acres: prefillData?.specify_acres,
+			location: prefillData?.location,
+			pincode: prefillData?.pincode,
+			indirect_agri: prefillData?.indirect_agri,
+			manufacturing_enterprises: prefillData?.manufacturing_enterprises,
+			value_investment: prefillData?.value_investment,
+			cc_limit: prefillData?.cc_limit,
 		};
 		return preData?.[field?.name];
 	};
@@ -118,7 +118,7 @@ const DynamicForm = props => {
 				application,
 			});
 			if (editSectionId) {
-				reqBody.data.assets_details.id = editSectionId;
+				reqBody.data.priority_sector_details.id = editSectionId;
 			}
 			// if (
 			// 	typeof reqBody?.data?.assets_details?.financial_institution?.value ===
