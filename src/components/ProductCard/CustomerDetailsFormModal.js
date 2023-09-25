@@ -129,6 +129,12 @@ const CustomerDetailsFormModal = props => {
 					isApplicant: true, //implemented based on savitha's changes - bad practice
 					customer_id: formState?.values['customer_id'],
 					loan_product_details_id: productForModal?.id || undefined,
+					type_name:
+						`${productForModal?.loan_request_type ||
+							product?.loan_request_type}` === '2'
+							? 'Applicant'
+							: CONST.TYPE_NAME_MAPPING[(formState?.values['businesstype'])] ||
+							  '',
 				} || {};
 
 			setCustomerDetailsFormData(formState?.values || {});
@@ -140,10 +146,11 @@ const CustomerDetailsFormModal = props => {
 				// console.log('ddupeRes-', ddupeRes);
 
 				if (
-					formState?.values?.[CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY] ===
-					CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
+					formState?.values?.[
+						CONST.SEARCH_CUSTOMER_USING_FIELD_DB_KEY
+					] === CONST.SEARCH_CUSTOMER_USING_FIELD_VALUES.ucic_number
 				) {
-					console.log({ ddupeRes }, ' fetch-called ---- if part');
+					// console.log({ ddupeRes }, ' fetch-called ---- if part');
 					if (ddupeRes?.data?.status === 'nok') {
 						addToast({
 							message:
@@ -155,7 +162,7 @@ const CustomerDetailsFormModal = props => {
 					}
 					redirectToProductPageInEditMode(ddupeRes?.data);
 				} else {
-					console.log({ ddupeRes }, 'search-called ---- else part');
+					// console.log({ ddupeRes }, 'search-called ---- else part');
 					if (ddupeRes?.data.status === 'nok') {
 						addToast({
 							message:

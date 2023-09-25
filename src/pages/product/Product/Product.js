@@ -43,7 +43,7 @@ import ShareholderDetails from 'components/Sections/ShareholderDetails';
 import { DOCUMENT_UPLOAD_SECTION_ID } from 'components/Sections/const';
 import { DIRECTOR_TYPES, setAddNewDirectorKey } from 'store/directorsSlice';
 import BusinessAddressDetailsEdi from 'components/Sections/BusinessAddressDetailsEDI';
-
+import PrioritySectorDetails from 'components/Sections/PrioritySector';
 const Product = props => {
 	const { product } = props;
 	const reduxState = useSelector(state => state);
@@ -72,6 +72,7 @@ const Product = props => {
 		business_details: BusinessDetails, // change to the respective components
 		business_address_details: BusinessAddressDetails, // change to the respective components
 		business_address_details_edi: BusinessAddressDetailsEdi,
+		priority_sector_details: PrioritySectorDetails,
 		basic_details: BasicDetails,
 		loan_address_details: AddressDetails,
 		employment_details: EmploymentDetails,
